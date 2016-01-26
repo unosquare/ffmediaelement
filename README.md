@@ -11,7 +11,7 @@ FFME implements additional improvements over the standard MediaElement such as:
 - Media properties such as Position, NaturalDuration, SpeedRatio, and Volume (among others) are exposed as dependency properties
 - Additional and extended media events 
 
-*... all in a self-contained assebly (dll)*
+*... all in a self-contained assembly (dll)*
 
 ### Known Limitations
 *Your help is welcome!*
