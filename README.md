@@ -56,6 +56,7 @@ FFME implements additional improvements over the standard MediaElement such as:
 - <a href="https://github.com/Microsoft/FFmpegInterop">Microsoft FFmpeg Interop</a>
 - <a href="https://github.com/Sascha-L/WPF-MediaKit">WPF-MediaKit</a>
 - <a href="https://libvlcnet.codeplex.com/">LibVLC.NET</a>
+- <a href="http://playerframework.codeplex.com/">Microsoft Player Framework</a>
 
 ## License
 - The NAudio portion of this library <code>Unosquare.FFmpegMediaElement\NAudio</code> is distributed under Ms-PL. Please see <a href="https://github.com/unosquare/ffmedialement/blob/master/Unosquare.FFmpegMediaElement/NAudio/LICENSE.txt">LICENSE.txt</a>.
