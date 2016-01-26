@@ -1,7 +1,18 @@
 # FFME: *WPF MediaElement Alternative*
+[![Analytics](https://ga-beacon.appspot.com/UA-8535255-2/unosquare/ffmediaelement/)](https://github.com/igrigorik/ga-beacon)
 
-## Overview
-FFME is a close drop-in replacement for <a href="https://msdn.microsoft.com/en-us/library/system.windows.controls.mediaelement(v=vs.110).aspx">Microsoft's WPF MediaElement Control</a>. While the standard MediaElement uses DirectX (DirectShow) for media playback, FFME uses <a href="http://ffmpeg.org/">FFmpeg</a> to read and decode audio and video. This means that for those of you who want to support stuff like HLS playback, or just don't want to go through the hassle of installing codecs on client machines, using FFME *might* be the answer.
+## Features Overview
+FFME is a close drop-in replacement for <a href="https://msdn.microsoft.com/en-us/library/system.windows.controls.mediaelement(v=vs.110).aspx">Microsoft's WPF MediaElement Control</a>. While the standard MediaElement uses DirectX (DirectShow) for media playback, FFME uses <a href="http://ffmpeg.org/">FFmpeg</a> to read and decode audio and video. This means that for those of you who want to support stuff like HLS playback, or just don't want to go through the hassle of installing codecs on client machines, using FFME *might* be the answer. 
+
+FFME implements additional improvements over the standard MediaElement such as asynchronous frame scrubbing, media properties such as Position, NaturalDuration, SpeedRatio, and Volume (among others) are exposed as dependency properties, frame-by-frame seeking, and finally, FFME provides additional and extended media events -- all in a self-contained assebly (dll).
+
+### Known Limitations
+*Your help is welcome!*
+
+- SpeedRatio other than 1.0 should adjust audio pitch. Currently, if SpeedRatio is less than 1.0, there is no audio playback, and if SpeedRatio is greater than 1.0, samples just play faster. This situation can be greatly improved by manually manipulating the samples passed to NAudio.
+- (*To be confirmed*) Writing to the Position dependency property from another dependency property may make the source value lose synchronization with the target value.
+- (*Nice to have*) It would be nice to implement a method on the control that is able to extract a copy of the current video frame.
+- There currently is no support for opening capture devices such as webcams or TV cards. While this is not too hard to do, it is not (yet) implemented in this library.
 
 ## Compiling, Running and Testing
 *Please note that I am unable to distribute FFmpeg's binaries because I don't know if I am allowed to do so. Follow the instructions below to compile, run and test FFME*
