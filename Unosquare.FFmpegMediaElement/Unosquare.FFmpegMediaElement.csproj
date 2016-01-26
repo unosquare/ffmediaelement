@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F12AE8FB-09AD-475D-81C6-D5F2F9CF91E8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Unosquare.FFmpegMediaElement</RootNamespace>
+    <AssemblyName>Unosquare.FFmpegMediaElement</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <OutputPath>bin\x86\Release\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <OutputPath>bin\Release\</OutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Constants.cs" />
+    <Compile Include="FFmpeg.Autogen\Unresolved.cs" />
+    <Compile Include="FFmpegMedia.AudioBufferProvider.cs" />
+    <Compile Include="FFmpeg.Autogen\FFmpeg.avcodec.g.cs" />
+    <Compile Include="FFmpeg.Autogen\FFmpeg.avdevice.g.cs" />
+    <Compile Include="FFmpeg.Autogen\FFmpeg.avfilter.g.cs" />
+    <Compile Include="FFmpeg.Autogen\FFmpeg.avformat.g.cs" />
+    <Compile Include="FFmpeg.Autogen\FFmpeg.avutil.g.cs" />
+    <Compile Include="FFmpeg.Autogen\FFmpeg.postprocess.g.cs" />
+    <Compile Include="FFmpeg.Autogen\FFmpeg.swresample.g.cs" />
+    <Compile Include="FFmpeg.Autogen\FFmpeg.swscale.g.cs" />
+    <Compile Include="MediaElement.DependencyProperties.cs" />
+    <Compile Include="MediaElement.MediaProperties.cs" />
+    <Compile Include="MediaElement.RoutedEvents.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Helper.cs" />
+    <Compile Include="FFmpegMedia.Controls.cs" />
+    <Compile Include="FFmpegMedia.cs" />
+    <Compile Include="FFmpegMedia.Decoding.cs" />
+    <Compile Include="FFmpegMediaFrameCache.cs" />
+    <Compile Include="MediaElement.cs" />
+    <Compile Include="FFmpegMediaFrame.cs" />
+    <Compile Include="FFmpegMediaFrameFlags.cs" />
+    <Compile Include="FFmpegPictureType.cs" />
+    <Compile Include="MediaErrorRoutedEventArgs.cs" />
+    <Compile Include="MediaPlaybackException.cs" />
+    <Compile Include="MediaTimer.cs" />
+    <Compile Include="NAudio\AdpcmWaveFormat.cs" />
+    <Compile Include="NAudio\AudioMediaSubtypes.cs" />
+    <Compile Include="NAudio\DirectSoundOut.cs" />
+    <Compile Include="NAudio\Gsm610WaveFormat.cs" />
+    <Compile Include="NAudio\IWavePlayer.cs" />
+    <Compile Include="NAudio\IWaveProvider.cs" />
+    <Compile Include="NAudio\PlaybackState.cs" />
+    <Compile Include="NAudio\StoppedEventArgs.cs" />
+    <Compile Include="NAudio\VolumeWaveProvider16.cs" />
+    <Compile Include="NAudio\WaveFormat.cs" />
+    <Compile Include="NAudio\WaveFormatEncoding.cs" />
+    <Compile Include="NAudio\WaveFormatExtensible.cs" />
+    <Compile Include="NAudio\WaveFormatExtraData.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="AudioRenderer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ffmpeg32\avcodec-56.dll" />
+    <EmbeddedResource Include="ffmpeg32\avdevice-56.dll" />
+    <EmbeddedResource Include="ffmpeg32\avfilter-5.dll" />
+    <EmbeddedResource Include="ffmpeg32\avformat-56.dll" />
+    <EmbeddedResource Include="ffmpeg32\avutil-54.dll" />
+    <EmbeddedResource Include="ffmpeg32\postproc-53.dll" />
+    <EmbeddedResource Include="ffmpeg32\swresample-1.dll" />
+    <EmbeddedResource Include="ffmpeg32\swscale-3.dll" />
+    <Compile Include="MediaElement.Controls.cs" />
+    <None Include="Resources\ffme-preview.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ffmpeg32\ffmpeg.exe" />
+    <EmbeddedResource Include="ffmpeg32\ffplay.exe" />
+    <EmbeddedResource Include="ffmpeg32\ffprobe.exe" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ffmpeg32\_readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="NAudio\LICENSE.txt" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
