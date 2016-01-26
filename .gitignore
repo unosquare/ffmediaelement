@@ -234,3 +234,14 @@ _Pvt_Extensions
 
 # FAKE - F# Make
 .fake/
+/Unosquare.FFmpegMediaElement/ffmpeg32/swscale-3.dll
+/Unosquare.FFmpegMediaElement/ffmpeg32/swresample-1.dll
+/Unosquare.FFmpegMediaElement/ffmpeg32/postproc-53.dll
+/Unosquare.FFmpegMediaElement/ffmpeg32/ffprobe.exe
+/Unosquare.FFmpegMediaElement/ffmpeg32/ffplay.exe
+/Unosquare.FFmpegMediaElement/ffmpeg32/ffmpeg.exe
+/Unosquare.FFmpegMediaElement/ffmpeg32/avutil-54.dll
+/Unosquare.FFmpegMediaElement/ffmpeg32/avformat-56.dll
+/Unosquare.FFmpegMediaElement/ffmpeg32/avfilter-5.dll
+/Unosquare.FFmpegMediaElement/ffmpeg32/avdevice-56.dll
+/Unosquare.FFmpegMediaElement/ffmpeg32/avcodec-56.dll
