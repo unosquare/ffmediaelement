@@ -18,15 +18,16 @@ FFME is a close drop-in replacement for <a href="https://msdn.microsoft.com/en-u
 10. You can use the resulting compiled assembly in your project without further dependencies FFME is entirely self-contained. The locations of the compiled FFME assembly, depending on your build configuration are either <code>...\ffmedialement\Unosquare.FFmpegMediaElement\bin\Debug\Unosquare.FFmpegMediaElement.dll</code> or <code>...\ffmedialement\Unosquare.FFmpegMediaElement\bin\Release\Unosquare.FFmpegMediaElement.dll</code>
 
 ## Using FFME in your Project
+*The Unosquare.FFmpegMediaElement.Tests project shows most common usages*
+
 1. Create a new WPF application
 2. Add a reference to <code>Unosquare.FFmpegMediaElement.dll</code>
 3. In your <code>MainForm.xaml</code>, add the namespace: <code>xmlns:ffme="clr-namespace:Unosquare.FFmpegMediaElement;assembly=Unosquare.FFmpegMediaElement"</code>
 4. Finally, create an instance of the FFME control in your <code>MainForm.xaml</code> as follows: `<ffme:MediaElement x:Name="MediaEl" Background="Gray" LoadedBehavior="Play" UnloadedBehavior="Manual" />`
 
-*The Unosquare.FFmpegMediaElement.Tests project shows most common usages*
-
 ## Thanks
-*(In no particular order)*
+*In no particular order*
+
 - To the <a href="http://ffmpeg.org/">FFmpeg team</a> for making the Swiss Army Knife of media.
 - To Kyle Schwarz for creating and making <a href="http://ffmpeg.zeranoe.com/builds/">Zeranoe FFmpeg builds available to everyone</a>.
 - To the <a href="https://github.com/naudio/NAudio">NAudio</a> team for making the best audio library out there for .NET
