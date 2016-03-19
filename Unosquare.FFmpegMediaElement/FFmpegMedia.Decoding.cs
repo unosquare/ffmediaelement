@@ -187,7 +187,7 @@
             AudioBytesPerSample = ffmpeg.av_get_bytes_per_sample(AudioCodecContext->sample_fmt);
             AudioCodec = inputCodecContext.codec_id.ToString();
             AudioChannels = inputCodecContext.channels;
-            AudioBitrate = inputCodecContext.bit_rate;
+            AudioBitrate = (int)inputCodecContext.bit_rate;
             AudioOutputBitsPerSample = ffmpeg.av_get_bytes_per_sample(Constants.AudioOutputSampleFormat) * 8;
             AudioSampleRate = inputCodecContext.sample_rate;
             AudioOutputSampleRate = AudioSampleRate > 44100 ? 44100 : AudioSampleRate; // We set a max of 44.1 kHz to save CPU. Anything more is too much (for most people).
@@ -204,7 +204,7 @@
             ffmpeg.swr_init(AudioResampler);
 
             // All output frames will have the same length and will be held by the same structure; the Decoder frame holder.
-            DecodedWaveHolder = ffmpeg.avcodec_alloc_frame();
+            DecodedWaveHolder = ffmpeg.av_frame_alloc();
 
             // Ensure proper audio properties
             if (AudioOutputBitsPerSample <= 0 || AudioSampleRate <= 0)
@@ -220,7 +220,7 @@
 
             // Populate basic properties
             VideoCodec = inputCodecContext.codec_id.ToString(); // Utils.GetAnsiString(new IntPtr(inputCodecContext.codec_name));
-            VideoBitrate = inputCodecContext.bit_rate;
+            VideoBitrate = (int)inputCodecContext.bit_rate;
             VideoFrameWidth = inputCodecContext.width;
             VideoFrameHeight = inputCodecContext.height;
 
@@ -255,7 +255,7 @@
                 throw new Exception("Could not open codec");
 
             // All output frames will have the same length and will be held by the same structure; the Decoder frame holder.
-            DecodedPictureHolder = ffmpeg.avcodec_alloc_frame();
+            DecodedPictureHolder = ffmpeg.av_frame_alloc();
             OutputPictureBufferLength = ffmpeg.avpicture_get_size(Constants.VideoOutputPixelFormat, VideoFrameWidth, VideoFrameHeight);
         }
 
@@ -321,7 +321,7 @@
         {
             // Create the output picture. Once the DecodeFrameHolder has the frame in YUV, the SWS API is
             // then used to convert to BGR24 and display on the screen.
-            var outputPicture = (AVPicture*)ffmpeg.avcodec_alloc_frame();
+            var outputPicture = (AVPicture*)ffmpeg.av_frame_alloc();
             var outputPictureBuffer = (sbyte*)ffmpeg.av_malloc((uint)OutputPictureBufferLength);
             ffmpeg.avpicture_fill(outputPicture, outputPictureBuffer, Constants.VideoOutputPixelFormat, VideoFrameWidth, VideoFrameHeight);
 

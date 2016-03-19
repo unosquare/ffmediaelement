@@ -99,14 +99,6 @@
     <Compile Include="AudioRenderer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="ffmpeg32\avcodec-56.dll" />
-    <EmbeddedResource Include="ffmpeg32\avdevice-56.dll" />
-    <EmbeddedResource Include="ffmpeg32\avfilter-5.dll" />
-    <EmbeddedResource Include="ffmpeg32\avformat-56.dll" />
-    <EmbeddedResource Include="ffmpeg32\avutil-54.dll" />
-    <EmbeddedResource Include="ffmpeg32\postproc-53.dll" />
-    <EmbeddedResource Include="ffmpeg32\swresample-1.dll" />
-    <EmbeddedResource Include="ffmpeg32\swscale-3.dll" />
     <Compile Include="MediaElement.Controls.cs" />
     <None Include="Resources\ffme-preview.png" />
   </ItemGroup>
@@ -126,6 +118,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="NAudio\LICENSE.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ffmpeg32\avcodec-57.dll" />
+    <EmbeddedResource Include="ffmpeg32\avdevice-57.dll" />
+    <EmbeddedResource Include="ffmpeg32\avfilter-6.dll" />
+    <EmbeddedResource Include="ffmpeg32\avformat-57.dll" />
+    <EmbeddedResource Include="ffmpeg32\avutil-55.dll" />
+    <EmbeddedResource Include="ffmpeg32\postproc-54.dll" />
+    <EmbeddedResource Include="ffmpeg32\swresample-2.dll" />
+    <EmbeddedResource Include="ffmpeg32\swscale-4.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

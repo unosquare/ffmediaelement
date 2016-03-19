@@ -127,7 +127,7 @@
                     throw new InvalidOperationException("Wave device not started");
 
                 m_Device.Stop();
-                System.Diagnostics.Debug.WriteLine("STOP called on audio renderer.");
+                // System.Diagnostics.Debug.WriteLine("STOP called on audio renderer.");
             }
         }
 

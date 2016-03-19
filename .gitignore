@@ -245,3 +245,11 @@ _Pvt_Extensions
 /Unosquare.FFmpegMediaElement/ffmpeg32/avfilter-5.dll
 /Unosquare.FFmpegMediaElement/ffmpeg32/avdevice-56.dll
 /Unosquare.FFmpegMediaElement/ffmpeg32/avcodec-56.dll
+/Unosquare.FFmpegMediaElement/ffmpeg32/swscale-4.dll
+/Unosquare.FFmpegMediaElement/ffmpeg32/swresample-2.dll
+/Unosquare.FFmpegMediaElement/ffmpeg32/postproc-54.dll
+/Unosquare.FFmpegMediaElement/ffmpeg32/avutil-55.dll
+/Unosquare.FFmpegMediaElement/ffmpeg32/avformat-57.dll
+/Unosquare.FFmpegMediaElement/ffmpeg32/avfilter-6.dll
+/Unosquare.FFmpegMediaElement/ffmpeg32/avdevice-57.dll
+/Unosquare.FFmpegMediaElement/ffmpeg32/avcodec-57.dll

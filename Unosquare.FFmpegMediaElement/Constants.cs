@@ -50,7 +50,7 @@
 
         public const int AudioRendererBufferCount = 5;
         public const int AudioRendererBufferMilliseconds = 20;
-        public const AVPixelFormat VideoOutputPixelFormat = AVPixelFormat.PIX_FMT_BGR24;
+        public const AVPixelFormat VideoOutputPixelFormat = AVPixelFormat.AV_PIX_FMT_BGR24;
         public const AVSampleFormat AudioOutputSampleFormat = AVSampleFormat.AV_SAMPLE_FMT_S16;
         public const int AudioOutputChannelCount = 2;
 
