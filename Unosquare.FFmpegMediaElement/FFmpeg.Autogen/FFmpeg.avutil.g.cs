@@ -142,6 +142,7 @@ namespace FFmpeg.AutoGen
         public AVColorTransferCharacteristic @color_trc;
         public AVColorSpace @colorspace;
         public AVChromaLocation @chroma_location;
+        public AVBufferRef* hw_frames_ctw;
         public long @best_effort_timestamp;
         public long @pkt_pos;
         public long @pkt_duration;

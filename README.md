@@ -25,7 +25,7 @@ FFME implements additional improvements over the standard MediaElement such as:
 *Please note that I am unable to distribute FFmpeg's binaries because I don't know if I am allowed to do so. Follow the instructions below to compile, run and test FFME*
 
 1. Clone this repository.
-2. Before you open the solution, please make sure you download the FFmpeg win32-shared binaries from <a href="http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-2.8.2-win32-shared.7z">Zeranoe FFmpeg Builds</a>.
+2. Before you open the solution, please make sure you download the FFmpeg win32-shared binaries from <a href="http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.0.1-win32-shared.7z">Zeranoe FFmpeg Builds</a>.
 3. Extract the contents of the <code>7z</code> file you just downloaded and locate the <code>bin</code> folder.
 4. You should see 3 <code>exe</code> files and 8 <code>dll</code> files. Select and copy all of them.
 5. Now paste all 11 files from the prior step onto the following folder (inside the cloned repository): <code>{repositiories root}\ffmediaelement\Unosquare.FFmpegMediaElement\ffmpeg32</code>.
