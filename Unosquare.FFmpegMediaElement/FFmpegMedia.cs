@@ -39,8 +39,8 @@
         private readonly FFmpegMediaFrameCache VideoFramesCache = null;
         private readonly FFmpegMediaFrameCache AudioFramesCache = null;
 
-        private FFmpegMediaFrameCache LeadingFramesCache = null;
-        private FFmpegMediaFrameCache LaggingFramesCache = null;
+        private FFmpegMediaFrameCache PrimaryFramesCache = null;
+        private FFmpegMediaFrameCache SecondaryFramesCache = null;
 
         private decimal? FirstLeadingFrameTime = null;
         FFmpegMediaFrame LastRenderedVideoFrame = null;
@@ -98,8 +98,8 @@
             // Setup the Leading and Lagging frames cache
             if (HasVideo && (HasAudio == false || InputAudioStream->index > InputVideoStream->index))
             {
-                this.LeadingFramesCache = VideoFramesCache;
-                this.LaggingFramesCache = AudioFramesCache;
+                this.PrimaryFramesCache = VideoFramesCache;
+                this.SecondaryFramesCache = AudioFramesCache;
                 this.StartDts = InputVideoStream->start_time;
 
                 LeadingStreamType = MediaFrameType.Video;
@@ -107,8 +107,8 @@
             }
             else
             {
-                this.LeadingFramesCache = AudioFramesCache;
-                this.LaggingFramesCache = VideoFramesCache;
+                this.PrimaryFramesCache = AudioFramesCache;
+                this.SecondaryFramesCache = VideoFramesCache;
                 this.StartDts = InputAudioStream->start_time;
 
                 LeadingStreamType = MediaFrameType.Audio;
@@ -174,13 +174,13 @@
         private void InternalFillFramesCache(TimeSpan timeout)
         {
             var startTime = DateTime.UtcNow;
-            while (LeadingFramesCache.IsFull == false && IsAtEndOfStream == false)
+            while (PrimaryFramesCache.IsFull == false && IsAtEndOfStream == false)
             {
                 if (DateTime.UtcNow.Subtract(startTime).Ticks > timeout.Ticks)
                 {
                     ErrorOccurredCallback(this, new MediaPlaybackException(MediaPlaybackErrorSources.InternalFillFamesCache, MediaPlaybackErrorCode.FillFramesFailed,
                         string.Format("Fill Frames Cache = Failed to fill cache in {0}; Leading Frames: {1}; Lagging Frames: {2}",
-                            timeout, LeadingFramesCache.Count, LaggingFramesCache.Count)));
+                            timeout, PrimaryFramesCache.Count, SecondaryFramesCache.Count)));
 
                     return;
                 }
@@ -191,16 +191,16 @@
                     // reset the start time because we are in fact getting frames.
                     startTime = DateTime.UtcNow;
 
-                    if (frame.Type == LeadingFramesCache.Type)
+                    if (frame.Type == PrimaryFramesCache.Type)
                     {
-                        LeadingFramesCache.Add(frame);
+                        PrimaryFramesCache.Add(frame);
                     }
-                    else if (frame.Type == LaggingFramesCache.Type)
+                    else if (frame.Type == SecondaryFramesCache.Type)
                     {
-                        if (LaggingFramesCache.IsFull)
-                            LaggingFramesCache.RemoveFirst();
+                        if (SecondaryFramesCache.IsFull)
+                            SecondaryFramesCache.RemoveFirst();
 
-                        LaggingFramesCache.Add(frame);
+                        SecondaryFramesCache.Add(frame);
                     }
 
                 }
@@ -215,8 +215,8 @@
         {
             if (IsLiveStream)
             {
-                if (LeadingFramesCache.IsEmpty == false)
-                    RealtimeClock.Seek(LeadingFramesCache.FirstFrameTime);
+                if (PrimaryFramesCache.IsEmpty == false)
+                    RealtimeClock.Seek(PrimaryFramesCache.FirstFrameTime);
 
                 return;
             }
@@ -237,8 +237,8 @@
             var seekTime = renderTime - seekOffsetLength;
             var maxSeekStartTime = seekTime - allowedThreshold;
 
-            var bufferedLeadingFrames = new FFmpegMediaFrameCache(LeadingFramesCache);
-            var bufferedLaggingFrames = new FFmpegMediaFrameCache(LaggingFramesCache);
+            var bufferedLeadingFrames = new FFmpegMediaFrameCache(PrimaryFramesCache);
+            var bufferedLaggingFrames = new FFmpegMediaFrameCache(SecondaryFramesCache);
 
             var outerLoopCount = 0;
             var innerLoopCount = 0;
@@ -251,8 +251,8 @@
             var lastFailedTimestamp = long.MinValue;
             var seekToLastFrame = false;
 
-            var seekTimeBase = LeadingFramesCache.Type == MediaFrameType.Video ? InputVideoStream->time_base : InputAudioStream->time_base;
-            var seekStreamIndex = LeadingFramesCache.Type == MediaFrameType.Video ? InputVideoStream->index : InputAudioStream->index;
+            var seekTimeBase = PrimaryFramesCache.Type == MediaFrameType.Video ? InputVideoStream->time_base : InputAudioStream->time_base;
+            var seekStreamIndex = PrimaryFramesCache.Type == MediaFrameType.Video ? InputVideoStream->index : InputAudioStream->index;
             var leadingFrameIndex = -1;
 
             try
@@ -265,8 +265,8 @@
 
                     if (lastFailedTimestamp == StartDts)
                     {
-                        if (LeadingFramesCache.IsEmpty == false)
-                            RealtimeClock.Seek(LeadingFramesCache.FirstFrameTime);
+                        if (PrimaryFramesCache.IsEmpty == false)
+                            RealtimeClock.Seek(PrimaryFramesCache.FirstFrameTime);
 
                         ErrorOccurredCallback(this, new MediaPlaybackException(MediaPlaybackErrorSources.InternalSeekInput, MediaPlaybackErrorCode.SeekFailedCritical,
                             string.Format("Target Postion @ {0:0.000}s has already failed to seek. First DTS {1} also failed and will not retry.", seekTime, StartDts)));
@@ -290,8 +290,8 @@
                     //seekFrameResult = FFmpegInvoke.avformat_seek_file(InputFormatContext, streamIndex, long.MinValue, targetTimestamp, long.MaxValue, seekFlag);
                     if (seekFrameResult < Constants.SuccessCode)
                     {
-                        if (LeadingFramesCache.IsEmpty == false)
-                            RealtimeClock.Seek(LeadingFramesCache.FirstFrameTime);
+                        if (PrimaryFramesCache.IsEmpty == false)
+                            RealtimeClock.Seek(PrimaryFramesCache.FirstFrameTime);
 
                         var errorMessage = Helper.GetFFmpegErrorMessage(seekFrameResult);
                         ErrorOccurredCallback(this, new MediaPlaybackException(MediaPlaybackErrorSources.InternalSeekInput, MediaPlaybackErrorCode.SeekFailedFFmpeg,
@@ -381,11 +381,11 @@
 
                         if (doSeekByPullingFrames == false || IsAtEndOfStream)
                         {
-                            LeadingFramesCache.Replace(bufferedLeadingFrames);
-                            LaggingFramesCache.Replace(bufferedLaggingFrames);
+                            PrimaryFramesCache.Replace(bufferedLeadingFrames);
+                            SecondaryFramesCache.Replace(bufferedLaggingFrames);
 
-                            if (seekToLastFrame && LeadingFramesCache.Count > 0)
-                                RealtimeClock.Seek(LeadingFramesCache.LastFrameTime);
+                            if (seekToLastFrame && PrimaryFramesCache.Count > 0)
+                                RealtimeClock.Seek(PrimaryFramesCache.LastFrameTime);
 
                             return;
                         }
@@ -408,30 +408,30 @@
         private void InternalLoadFrames(decimal renderTime)
         {
             if (renderTime < StartTime) renderTime = StartTime;
-            if (IsAtEndOfStream && LeadingFramesCache.Count > 0 && renderTime >= LeadingFramesCache.EndTime)
-                renderTime = LeadingFramesCache.EndTime;
+            if (IsAtEndOfStream && PrimaryFramesCache.Count > 0 && renderTime >= PrimaryFramesCache.EndTime)
+                renderTime = PrimaryFramesCache.EndTime;
 
             // The very first thing we do is fill the buffer if it is empty
-            if (this.LeadingFramesCache.IsEmpty)
+            if (this.PrimaryFramesCache.IsEmpty)
             {
                 this.InternalFillFramesCache(Constants.FrameExtractorFillTimeout);
 
-                if (LeadingFramesCache.Count > 0)
+                if (PrimaryFramesCache.Count > 0)
                 {
                     if (FirstLeadingFrameTime == null)
-                        FirstLeadingFrameTime = LeadingFramesCache.FirstFrameTime;
+                        FirstLeadingFrameTime = PrimaryFramesCache.FirstFrameTime;
 
                     if (IsLiveStream)
                     {
-                        RealtimeClock.Seek(LeadingFramesCache.FirstFrameTime);
+                        RealtimeClock.Seek(PrimaryFramesCache.FirstFrameTime);
                         RealtimeClock.Play();
                         return;
                     }
                 }
             }
 
-            var renderFrame = LeadingFramesCache.GetFrame(renderTime, CheckFrameBounds);
-            var renderFrameIndex = LeadingFramesCache.IndexOf(renderFrame);
+            var renderFrame = PrimaryFramesCache.GetFrame(renderTime, CheckFrameBounds);
+            var renderFrameIndex = PrimaryFramesCache.IndexOf(renderFrame);
             var renderFrameFound = renderFrameIndex >= 0;
 
             // if we can't find the frame . . .
@@ -442,7 +442,7 @@
                 renderTime = RealtimeClock.PositionSeconds;
 
                 // try to find the frame now that we have stuff
-                var seekFrame = LeadingFramesCache.GetFrame(renderTime, CheckFrameBounds);
+                var seekFrame = PrimaryFramesCache.GetFrame(renderTime, CheckFrameBounds);
 
                 if (seekFrame != null)
                 {
@@ -454,11 +454,11 @@
                 {
                     // got some frames but not the ones we asked for
 
-                    if (this.LeadingFramesCache.Count > 0)
+                    if (this.PrimaryFramesCache.Count > 0)
                     {
                         if (IsAtEndOfStream)
                         {
-                            RealtimeClock.Seek(this.LeadingFramesCache.MiddleFrameTime);
+                            RealtimeClock.Seek(this.PrimaryFramesCache.MiddleFrameTime);
                         }
                         else
                         {
@@ -467,14 +467,14 @@
                                 RealtimeClock.Seek(renderTime);
                                 ErrorOccurredCallback(this, new MediaPlaybackException(MediaPlaybackErrorSources.InternalLoadFrames, MediaPlaybackErrorCode.LoadFramesFailedInFirstSegment,
                                     string.Format("Could not find frames at {0:0.000} (On first time segment). First Leading Frame occurs at {1:0.000}",
-                                        renderTime, LeadingFramesCache.FirstFrameTime)));
+                                        renderTime, PrimaryFramesCache.FirstFrameTime)));
                             }
                             else
                             {
-                                RealtimeClock.Seek(this.LeadingFramesCache.LastFrameTime);
+                                RealtimeClock.Seek(this.PrimaryFramesCache.LastFrameTime);
                                 ErrorOccurredCallback(this, new MediaPlaybackException(MediaPlaybackErrorSources.InternalLoadFrames, MediaPlaybackErrorCode.LoadFramesFailedForCurrentPosition,
                                     string.Format("Could not find frames at {0:0.000} (NOT on first segment). Last Leading Frame occurs at {1:0.000} - This should not have occurred.",
-                                        renderTime, LeadingFramesCache.LastFrameTime)));
+                                        renderTime, PrimaryFramesCache.LastFrameTime)));
                             }
 
                         }
@@ -496,21 +496,21 @@
                 var isInFirstTimeSegment = InternalGetIsInFirstTimeSegment(renderTime);
 
                 // frward lookup
-                if (renderFrameIndex > LeadingFramesCache.MiddleIndex)
+                if (renderFrameIndex > PrimaryFramesCache.MiddleIndex)
                 {
                     if (isInLastTimeSegment == false)
                     {
-                        if (LeadingFramesCache.IsFull)
+                        if (PrimaryFramesCache.IsFull)
                         {
                             var removalCount = 1;
 
                             if (SpeedRatio >= Constants.DefaultSpeedRatio)
                                 removalCount = (int)Math.Ceiling(SpeedRatio);
 
-                            removalCount = Math.Min(LeadingFramesCache.Count / 4, removalCount);
+                            removalCount = Math.Min(PrimaryFramesCache.Count / 4, removalCount);
 
                             for (var i = 1; i <= removalCount; i++)
-                                LeadingFramesCache.RemoveFirst();
+                                PrimaryFramesCache.RemoveFirst();
                         }
 
                         this.InternalFillFramesCache(Constants.FrameExtractorFillTimeout);
@@ -518,10 +518,10 @@
                     }
                     else
                     {
-                        if (renderFrameIndex >= LeadingFramesCache.Count - 1)
+                        if (renderFrameIndex >= PrimaryFramesCache.Count - 1)
                         {
                             // All input has been processed up to the last frame now.
-                            RealtimeClock.Seek(LeadingFramesCache.EndTime);
+                            RealtimeClock.Seek(PrimaryFramesCache.EndTime);
                             return;
                         }
                     }
@@ -530,12 +530,12 @@
                 // backward lookup
                 if (renderFrameIndex <= 1 && isInFirstTimeSegment == false && IsLiveStream == false)
                 {
-                    InternalSeekInput(LeadingFramesCache.StartTime);
-                    var frame = LeadingFramesCache.GetFrame(renderTime, CheckFrameBounds);
+                    InternalSeekInput(PrimaryFramesCache.StartTime);
+                    var frame = PrimaryFramesCache.GetFrame(renderTime, CheckFrameBounds);
                     if (frame != null)
                         RealtimeClock.Seek(renderTime);
                     else
-                        RealtimeClock.Seek(LeadingFramesCache.MiddleFrame != null ? LeadingFramesCache.MiddleFrame.StartTime : 0M);
+                        RealtimeClock.Seek(PrimaryFramesCache.MiddleFrame != null ? PrimaryFramesCache.MiddleFrame.StartTime : 0M);
 
                     return;
                 }

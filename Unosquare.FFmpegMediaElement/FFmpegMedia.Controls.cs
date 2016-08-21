@@ -24,14 +24,14 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool InternalGetHasMediaEnded()
         {
-            return IsAtEndOfStream && RealtimeClock.PositionSeconds > LeadingFramesCache.LastFrameTime;
+            return IsAtEndOfStream && RealtimeClock.PositionSeconds > PrimaryFramesCache.LastFrameTime;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool InternalGetIsInFirstTimeSegment(decimal renderTime)
         {
-            var isPositionInFisrtSegment = renderTime <= this.StartTime + this.LeadingFramesCache.Duration && FirstLeadingFrameTime.HasValue;
-            return isPositionInFisrtSegment && this.LeadingFramesCache.Count > 0 && this.LeadingFramesCache.FirstFrameTime == FirstLeadingFrameTime.Value;
+            var isPositionInFisrtSegment = renderTime <= this.StartTime + this.PrimaryFramesCache.Duration && FirstLeadingFrameTime.HasValue;
+            return isPositionInFisrtSegment && this.PrimaryFramesCache.Count > 0 && this.PrimaryFramesCache.FirstFrameTime == FirstLeadingFrameTime.Value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -109,11 +109,11 @@
                 // Wait for a decoding cycle.
                 MediaFramesExtractedDone.Wait(Constants.FrameExtractorWaitMs);
                 renderTime = RealtimeClock.PositionSeconds;
-                playbackFrame = LeadingFramesCache.GetFrame(renderTime, CheckFrameBounds);
+                playbackFrame = PrimaryFramesCache.GetFrame(renderTime, CheckFrameBounds);
 
-                if (IsLiveStream && LeadingFramesCache.Count > 0)
+                if (IsLiveStream && PrimaryFramesCache.Count > 0)
                 {
-                    playbackFrame = LeadingFramesCache.FirstFrame;
+                    playbackFrame = PrimaryFramesCache.FirstFrame;
                     break;
                 }
 
@@ -128,8 +128,8 @@
                 string.Format("WaitForPlaybackReadyState @ {0:0.000} = {1} cycles. Leading Frames: {2}, Frame Index: {3}, Frame Start: {4}",
                     renderTime,
                     cycleCount,
-                    LeadingFramesCache.Count,
-                    LeadingFramesCache.IndexOf(playbackFrame),
+                    PrimaryFramesCache.Count,
+                    PrimaryFramesCache.IndexOf(playbackFrame),
                     (playbackFrame != null ? 
                         playbackFrame.StartTime.ToString("0.000") : "NULL")));
 
@@ -221,7 +221,7 @@
         /// <returns></returns>
         public bool QueryIsFrameAvailable(decimal position)
         {
-            return this.LeadingFramesCache.GetFrame(position, true) != null;
+            return this.PrimaryFramesCache.GetFrame(position, true) != null;
         }
 
         /// <summary>

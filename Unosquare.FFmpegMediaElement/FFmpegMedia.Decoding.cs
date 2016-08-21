@@ -95,6 +95,9 @@
             }
 
             //InputFormatContext->iformat->flags = InputFormatContext->iformat->flags | FFmpegInvoke.AVFMT_SEEK_TO_PTS;
+            InputFormatContext->iformat->flags |= ffmpeg.AVFMT_FLAG_NOBUFFER;
+            InputFormatContext->iformat->flags |= ffmpeg.AVFMT_FLAG_NOFILLIN;
+
             ffmpeg.av_dict_free(&optionsDict);
 
             // Extract the stream info headers from the file
@@ -545,16 +548,16 @@
                 finally { }
             }
 
-            if (LeadingFramesCache != null)
+            if (PrimaryFramesCache != null)
             {
-                LeadingFramesCache.Clear();
-                LeadingFramesCache = null;
+                PrimaryFramesCache.Clear();
+                PrimaryFramesCache = null;
             }
 
-            if (LaggingFramesCache != null)
+            if (SecondaryFramesCache != null)
             {
-                LaggingFramesCache.Clear();
-                LaggingFramesCache = null;
+                SecondaryFramesCache.Clear();
+                SecondaryFramesCache = null;
             }
 
             if (VideoCodecContext != null)
