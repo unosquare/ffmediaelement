@@ -32,6 +32,23 @@
         // Our main character is the Media object.
         private FFmpegMedia Media = null;
 
+        /// <summary>
+        /// Gets or sets the horizontal alignment characteristics applied to this element when it is composed within a parent element, such as a panel or items control.
+        /// </summary>
+        public new HorizontalAlignment HorizontalAlignment
+        {
+            get
+            {
+                return base.HorizontalAlignment;
+            }
+            set
+            {
+                ViewBox.HorizontalAlignment = value;
+                base.HorizontalAlignment = value;
+            }
+        }
+
+
         #endregion
 
         #region FFmpeg Paths
