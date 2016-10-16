@@ -7,9 +7,6 @@
 
     partial class MediaElement
     {
-        #region Notification Property Backing
-        #endregion
-
         #region Notification Properties
 
         /// <summary> 

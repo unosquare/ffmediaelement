@@ -14,21 +14,21 @@
         /// </summary>
         private static class PropertyNames
         {
-            public const string Source = "Source";
-            public const string Stretch = "Stretch";
-            public const string StretchDirection = "StretchDirection";
-            public const string Volume = "Volume";
-            public const string Balance = "Balance";
-            public const string IsMuted = "IsMuted";
-            public const string ScrubbingEnabled = "ScrubbingEnabled";
-            public const string UnloadedBehavior = "UnloadedBehavior";
-            public const string LoadedBehavior = "LoadedBehavior";
-            public const string IsPlaying = "IsPlaying";
-            public const string HasMediaEnded = "HasMediaEnded";
-            public const string Position = "Position";
-            public const string SpeedRatio = "SpeedRatio";
-            public const string UserAgent = "UserAgent";
-            public const string Referer = "Referer";
+            public const string Source = nameof(MediaElement.Source);
+            public const string Stretch = nameof(MediaElement.Stretch);
+            public const string StretchDirection = nameof(MediaElement.StretchDirection);
+            public const string Volume = nameof(MediaElement.Volume);
+            public const string Balance = nameof(MediaElement.Balance);
+            public const string IsMuted = nameof(MediaElement.IsMuted);
+            public const string ScrubbingEnabled = nameof(MediaElement.ScrubbingEnabled);
+            public const string UnloadedBehavior = nameof(MediaElement.UnloadedBehavior);
+            public const string LoadedBehavior = nameof(MediaElement.LoadedBehavior);
+            public const string IsPlaying = nameof(MediaElement.IsPlaying);
+            public const string HasMediaEnded = nameof(MediaElement.HasMediaEnded);
+            public const string Position = nameof(MediaElement.Position);
+            public const string SpeedRatio = nameof(MediaElement.SpeedRatio);
+            public const string UserAgent = nameof(MediaElement.UserAgent);
+            public const string Referer = nameof(MediaElement.Referer);
         }
 
         #region Source
