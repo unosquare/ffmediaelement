@@ -169,31 +169,31 @@
         {
             if (e.PropertyName.Equals(PropertyNames.Volume))
             {
-                Application.Current.Dispatcher.BeginInvoke(new Action(() => { this.Volume = Media != null ? Convert.ToDouble(Media.Volume) : 1d; }));
+                Dispatcher.CurrentDispatcher.BeginInvoke(new Action(() => { this.Volume = Media != null ? Convert.ToDouble(Media.Volume) : 1d; }));
                 return;
             }
 
             if (e.PropertyName.Equals(PropertyNames.IsPlaying))
             {
-                Application.Current.Dispatcher.BeginInvoke(new Action(() => { this.IsPlaying = Media == null ? false : Media.IsPlaying; }));
+                Dispatcher.CurrentDispatcher.BeginInvoke(new Action(() => { this.IsPlaying = Media == null ? false : Media.IsPlaying; }));
                 return;
             }
 
             if (e.PropertyName.Equals(PropertyNames.HasMediaEnded))
             {
-                Application.Current.Dispatcher.BeginInvoke(new Action(() => { this.HasMediaEnded = Media == null ? false : Media.HasMediaEnded; }));
+                Dispatcher.CurrentDispatcher.BeginInvoke(new Action(() => { this.HasMediaEnded = Media == null ? false : Media.HasMediaEnded; }));
                 return;
             }
 
             if (e.PropertyName.Equals(PropertyNames.SpeedRatio))
             {
-                Application.Current.Dispatcher.BeginInvoke(new Action(() => { this.SpeedRatio = Media == null ? 1M : Media.SpeedRatio; }));
+                Dispatcher.CurrentDispatcher.BeginInvoke(new Action(() => { this.SpeedRatio = Media == null ? 1M : Media.SpeedRatio; }));
                 return;
             }
 
             if (e.PropertyName.Equals(PropertyNames.Position))
             {
-                Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                Dispatcher.CurrentDispatcher.BeginInvoke(new Action(() =>
                 {
                     lock (PositionSyncLock)
                     {
@@ -217,7 +217,7 @@
         /// <param name="ex">The ex.</param>
         private void OnMediaError(object sender, Exception ex)
         {
-            Application.Current.Dispatcher.BeginInvoke(new Action<Exception>((mediaEx) =>
+            Dispatcher.CurrentDispatcher.BeginInvoke(new Action<Exception>((mediaEx) =>
             {
                 RaiseEvent(new MediaErrorRoutedEventArgs(MediaErroredEvent, this, mediaEx));
             }), ex);
