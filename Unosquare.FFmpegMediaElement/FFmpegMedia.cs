@@ -60,13 +60,28 @@
         /// </summary>
         /// <param name="filePath">The file path.</param>
         /// <param name="errorCallback">The error callback.</param>
-        /// <exception cref="System.ArgumentException">
-        /// errorCallback cannot be null
-        /// or
-        /// filePath cannot be null or empty
-        /// </exception>
-        /// <exception cref="System.Exception"></exception>
         public FFmpegMedia(string filePath, MediaErrorOccurredCallback errorCallback)
+            : this(filePath, errorCallback, null, null)
+        {
+            // placeholder
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FFmpegMedia" /> class.
+        /// </summary>
+        /// <param name="filePath">The file path.</param>
+        /// <param name="errorCallback">The error callback.</param>
+        /// <param name="referer">The referer. Leave null or emtpy to skip setting it.</param>
+        /// <param name="userAgent">The user agent. Leave null or empty in order to skip setting a User Agent</param>
+        /// <exception cref="ArgumentException">errorCallback cannot be null
+        /// or
+        /// filePath cannot be null or empty</exception>
+        /// <exception cref="Exception"></exception>
+        /// <exception cref="System.ArgumentException">errorCallback cannot be null
+        /// or
+        /// filePath cannot be null or empty</exception>
+        /// <exception cref="System.Exception"></exception>
+        public FFmpegMedia(string filePath, MediaErrorOccurredCallback errorCallback, string referer, string userAgent)
         {
             // Argument validation
             if (errorCallback == null)
@@ -89,7 +104,7 @@
             this.AudioRenderer = new AudioRenderer();
 
             // load input, codec and output contexts
-            this.InitializeMedia(filePath);
+            this.InitializeMedia(filePath, referer, userAgent);
 
             // Setup the frames Cache
             this.VideoFramesCache = new FFmpegMediaFrameCache(this.VideoFrameRate, MediaFrameType.Video);

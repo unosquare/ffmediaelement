@@ -2,6 +2,7 @@
 {
     using FFmpeg.AutoGen;
     using System;
+    using System.IO;
     using System.Runtime.CompilerServices;
     using System.Windows.Media.Imaging;
 
@@ -63,8 +64,12 @@
         /// up the video and audio decoding stream.
         /// </summary>
         /// <param name="filePath">The file path.</param>
-        /// <exception cref="System.Exception">
-        /// Could not open file
+        /// <param name="referer">The referer. Leave null or empty to skip setting it</param>
+        /// <param name="userAgent">The user agent. Leave null or empty to skip setting it.</param>
+        /// <exception cref="Exception">Could not find stream info
+        /// or
+        /// Media must contain at least a video or and audio stream</exception>
+        /// <exception cref="System.Exception">Could not open file
         /// or
         /// Could not find stream info
         /// or
@@ -78,20 +83,26 @@
         /// or
         /// Could not create output codec context from input
         /// or
-        /// Could not open codec
-        /// </exception>
-        private void InitializeMedia(string filePath)
+        /// Could not open codec</exception>
+        private void InitializeMedia(string filePath, string referer, string userAgent)
         {
             // Create the input format context by opening the file
             InputFormatContext = ffmpeg.avformat_alloc_context();
 
             AVDictionary* optionsDict = null;
+
+            if (string.IsNullOrWhiteSpace(userAgent) == false)
+                ffmpeg.av_dict_set(&optionsDict, "user-agent", userAgent, 0);
+
+            if (string.IsNullOrWhiteSpace(referer) == false)
+                ffmpeg.av_dict_set(&optionsDict, "headers", $"Referer:{referer}", 0);
+
             ffmpeg.av_dict_set_int(&optionsDict, "usetoc", 1, 0);
 
             fixed (AVFormatContext** inputFormatContextRef = &InputFormatContext)
             {
                 if (ffmpeg.avformat_open_input(inputFormatContextRef, filePath, null, &optionsDict) != 0)
-                    throw new Exception(string.Format("Could not open file '{0}'", filePath));
+                    throw new FileFormatException(string.Format("Could not open stream or file '{0}'", filePath));
             }
 
             //InputFormatContext->iformat->flags = InputFormatContext->iformat->flags | FFmpegInvoke.AVFMT_SEEK_TO_PTS;
@@ -141,7 +152,7 @@
             else
             {
                 // General Properties here
-                
+
                 NaturalDuration = Convert.ToDecimal(Convert.ToDouble(InputFormatContext->duration) / Convert.ToDouble(ffmpeg.AV_TIME_BASE));
                 IsLiveStream = Helper.IsNoPtsValue(InputFormatContext->duration);
                 StartTime = Convert.ToDecimal(Convert.ToDouble(InputFormatContext->start_time) / Convert.ToDouble(ffmpeg.AV_TIME_BASE));

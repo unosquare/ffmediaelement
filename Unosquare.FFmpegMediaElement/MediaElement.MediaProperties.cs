@@ -227,7 +227,9 @@
         /// Opens the media.
         /// </summary>
         /// <param name="sourceUri">The source URI.</param>
-        private void OpenMedia(Uri sourceUri)
+        /// <param name="referer">The referer. Optional -- Leave null or empty if you do not wish to set it.</param>
+        /// <param name="userAgent">The user agent. Optional -- Leave null or empty if you do not wish to set it.</param>
+        private void OpenMedia(Uri sourceUri, string referer, string userAgent)
         {
 
             // TODO: Implement asynchronous loading of media with timeout
@@ -238,11 +240,11 @@
                     this.CloseMedia(false);
 
                 var inputPath = sourceUri.IsFile ? sourceUri.LocalPath : sourceUri.ToString();
-                this.Media = new FFmpegMedia(inputPath, OnMediaError);
+                this.Media = new FFmpegMedia(inputPath, OnMediaError, referer, userAgent);
                 this.Media.PropertyChanged += HandleMediaPropertyChanged;
                 this.TargetBitmap = this.Media.VideoRenderer;
                 this.ViewBox.Source = TargetBitmap;
-                this.ViewBox.Visibility = this.Media.HasVideo ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+                this.ViewBox.Visibility = this.Media.HasVideo ? System.Windows.Visibility.Visible : Visibility.Collapsed;
                 RaiseEvent(new RoutedEventArgs(MediaOpenedEvent, this));
                 PositionUpdatingFromMediaDone = false;
 

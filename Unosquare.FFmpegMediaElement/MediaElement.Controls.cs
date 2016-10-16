@@ -10,7 +10,7 @@
         public void Play()
         {
             if (this.Media == null && Source != null)
-                this.OpenMedia(Source);
+                this.OpenMedia(Source, Referer, UserAgent);
 
             if (this.Media == null)
                 return;
@@ -24,7 +24,7 @@
 		public void Pause()
         {
             if (this.Media == null && Source != null)
-                this.OpenMedia(Source);
+                this.OpenMedia(Source, Referer, UserAgent);
 
             if (this.Media == null)
                 return;
@@ -38,7 +38,7 @@
 		public void Stop()
         {
             if (this.Media == null && Source != null)
-                this.OpenMedia(Source);
+                this.OpenMedia(Source, Referer, UserAgent);
 
             if (this.Media == null)
                 return;

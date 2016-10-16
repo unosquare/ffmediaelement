@@ -27,6 +27,8 @@
             public const string HasMediaEnded = "HasMediaEnded";
             public const string Position = "Position";
             public const string SpeedRatio = "SpeedRatio";
+            public const string UserAgent = "UserAgent";
+            public const string Referer = "Referer";
         }
 
         #region Source
@@ -69,7 +71,7 @@
             if (uri != null)
             {
                 element.CloseMedia(true);
-                element.OpenMedia(uri);
+                element.OpenMedia(uri, element.Referer, element.UserAgent);
             }
             else
             {
@@ -600,5 +602,62 @@
 
         #endregion
 
+        #region UserAgent
+
+        /// <summary>
+        /// Dependency property for the user agent property
+        /// </summary>
+        public static readonly DependencyProperty UserAgentProperty = DependencyProperty.Register(
+            PropertyNames.UserAgent, typeof(string), typeof(MediaElement), new FrameworkPropertyMetadata(
+                null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
+
+        /// <summary>
+        /// Gets or sets the user agent. Property takes effect only upon loading
+        /// live streams such as m3u8 files.
+        /// </summary>
+        /// <value>
+        /// The user agent.
+        /// </value>
+        public string UserAgent
+        {
+            get { return GetValue(UserAgentProperty) as string; }
+            set
+            {
+                if (Media != null)
+                    throw new InvalidOperationException("The UserAgent property can only be set before loading a media stream.");
+                SetValue(UserAgentProperty, value);
+            }
+        }
+
+        #endregion
+
+        #region Referer
+
+        /// <summary>
+        /// Dependency property for the Referer property
+        /// </summary>
+        public static readonly DependencyProperty RefererProperty = DependencyProperty.Register(
+            PropertyNames.Referer, typeof(string), typeof(MediaElement), new FrameworkPropertyMetadata(
+                null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
+
+        /// <summary>
+        /// Gets or sets the referer. Property takes effect only upon loading
+        /// live streams such as m3u8 files.
+        /// </summary>
+        /// <value>
+        /// The user agent.
+        /// </value>
+        public string Referer
+        {
+            get { return GetValue(RefererProperty) as string; }
+            set
+            {
+                if (Media != null)
+                    throw new InvalidOperationException("The Referer property can only be set before loading a media stream.");
+                SetValue(RefererProperty, value);
+            }
+        }
+
+        #endregion
     }
 }
