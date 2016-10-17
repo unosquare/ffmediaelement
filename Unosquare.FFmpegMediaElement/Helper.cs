@@ -109,14 +109,14 @@
 
                 NativeMethods.SetDllDirectory(MediaElement.FFmpegPaths.BasePath);
 
-                ffmpeg.avcodec_register_all();
-
-                //FFmpegInvoke.avdevice_register_all();
-                //FFmpegInvoke.avfilter_register_all();
+                //ffmpeg.avdevice_register_all();
+                //ffmpeg.avfilter_register_all();
 
                 ffmpeg.av_register_all();
+                ffmpeg.avdevice_register_all();
+                ffmpeg.avcodec_register_all();
                 ffmpeg.avformat_network_init();
-
+                
                 HasRegistered = true;
             }
 

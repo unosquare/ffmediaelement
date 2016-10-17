@@ -104,7 +104,7 @@
             this.AudioRenderer = new AudioRenderer();
 
             // load input, codec and output contexts
-            this.InitializeMedia(filePath, referer, userAgent);
+            this.InitializeMedia(filePath, null, referer, userAgent);
 
             // Setup the frames Cache
             this.VideoFramesCache = new FFmpegMediaFrameCache(this.VideoFrameRate, MediaFrameType.Video);

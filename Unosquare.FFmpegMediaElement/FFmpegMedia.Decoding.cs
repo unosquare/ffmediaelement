@@ -64,8 +64,10 @@
         /// up the video and audio decoding stream.
         /// </summary>
         /// <param name="filePath">The file path.</param>
+        /// <param name="inputFormatName">Name of the input format. Leave null or empty to detect automatically</param>
         /// <param name="referer">The referer. Leave null or empty to skip setting it</param>
         /// <param name="userAgent">The user agent. Leave null or empty to skip setting it.</param>
+        /// <exception cref="FileFormatException"></exception>
         /// <exception cref="Exception">Could not find stream info
         /// or
         /// Media must contain at least a video or and audio stream</exception>
@@ -84,7 +86,7 @@
         /// Could not create output codec context from input
         /// or
         /// Could not open codec</exception>
-        private void InitializeMedia(string filePath, string referer, string userAgent)
+        private void InitializeMedia(string filePath, string inputFormatName, string referer, string userAgent)
         {
             // Create the input format context by opening the file
             InputFormatContext = ffmpeg.avformat_alloc_context();
@@ -99,18 +101,22 @@
 
             ffmpeg.av_dict_set_int(&optionsDict, "usetoc", 1, 0);
 
+            AVInputFormat* inputFormat = null;
+
+            if (string.IsNullOrWhiteSpace(inputFormatName) == false)
+            inputFormat = ffmpeg.av_find_input_format(inputFormatName);
+
             fixed (AVFormatContext** inputFormatContextRef = &InputFormatContext)
             {
-                if (ffmpeg.avformat_open_input(inputFormatContextRef, filePath, null, &optionsDict) != 0)
+                if (ffmpeg.avformat_open_input(inputFormatContextRef, filePath, inputFormat, &optionsDict) != 0)
                     throw new FileFormatException(string.Format("Could not open stream or file '{0}'", filePath));
             }
 
-            //InputFormatContext->iformat->flags = InputFormatContext->iformat->flags | FFmpegInvoke.AVFMT_SEEK_TO_PTS;
             InputFormatContext->iformat->flags |= ffmpeg.AVFMT_FLAG_NOBUFFER;
             InputFormatContext->iformat->flags |= ffmpeg.AVFMT_FLAG_NOFILLIN;
 
             ffmpeg.av_dict_free(&optionsDict);
-
+            
             // Extract the stream info headers from the file
             if (ffmpeg.avformat_find_stream_info(InputFormatContext, null) != 0)
                 throw new Exception("Could not find stream info");
