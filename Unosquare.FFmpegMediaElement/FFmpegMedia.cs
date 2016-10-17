@@ -36,6 +36,8 @@
 
         #region Control Variables
 
+        private readonly TimeSpan FramesCacheLength = TimeSpan.FromMilliseconds(1000);
+
         private readonly FFmpegMediaFrameCache VideoFramesCache = null;
         private readonly FFmpegMediaFrameCache AudioFramesCache = null;
 
@@ -107,8 +109,8 @@
             this.InitializeMedia(filePath, null, referer, userAgent);
 
             // Setup the frames Cache
-            this.VideoFramesCache = new FFmpegMediaFrameCache(this.VideoFrameRate, MediaFrameType.Video);
-            this.AudioFramesCache = new FFmpegMediaFrameCache(this.AudioSampleRate / 1000M, MediaFrameType.Audio);
+            this.VideoFramesCache = new FFmpegMediaFrameCache(this.VideoFrameRate * (int)FramesCacheLength.TotalSeconds, MediaFrameType.Video);
+            this.AudioFramesCache = new FFmpegMediaFrameCache(this.AudioSampleRate / (int)FramesCacheLength.TotalMilliseconds, MediaFrameType.Audio);
 
             // Setup the Leading and Lagging frames cache
             if (HasVideo && (HasAudio == false || InputAudioStream->index > InputVideoStream->index))
