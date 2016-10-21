@@ -101,6 +101,16 @@
 
             ffmpeg.av_dict_set_int(&optionsDict, "usetoc", 1, 0);
 
+            { // for m3u8 (HLS) streaming
+                // TODO: maybe detect here if it is streaming? I need to test if this negatively affects filesystem files or network files as opposed to RTSP streams and HLS streams
+                ffmpeg.av_dict_set_int(&optionsDict, "multiple_requests", 1, 0);
+                ffmpeg.av_dict_set_int(&optionsDict, "reconnect", 1, 0);
+                ffmpeg.av_dict_set_int(&optionsDict, "reconnect_at_eof", 1, 0);
+                ffmpeg.av_dict_set_int(&optionsDict, "reconnect_streamed", 1, 0);
+                ffmpeg.av_dict_set_int(&optionsDict, "reconnect_delay_max", (int)Constants.WaitForPlaybackReadyStateTimeout.TotalMilliseconds, 0);
+            }
+
+
             AVInputFormat* inputFormat = null;
 
             if (string.IsNullOrWhiteSpace(inputFormatName) == false)

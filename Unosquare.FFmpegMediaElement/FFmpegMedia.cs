@@ -185,7 +185,7 @@
             if (audioStarted == false)
                 throw new Exception("Could not start audio device with given parameters.");
             else
-                this.Volume = AudioRenderer.Volume;
+                Volume = AudioRenderer.Volume;
         }
 
         private void InternalFillFramesCache(TimeSpan timeout)
@@ -429,9 +429,9 @@
                 renderTime = PrimaryFramesCache.EndTime;
 
             // The very first thing we do is fill the buffer if it is empty
-            if (this.PrimaryFramesCache.IsEmpty)
+            if (PrimaryFramesCache.IsEmpty)
             {
-                this.InternalFillFramesCache(Constants.FrameExtractorFillTimeout);
+                InternalFillFramesCache(Constants.FrameExtractorFillTimeout);
 
                 if (PrimaryFramesCache.Count > 0)
                 {
@@ -577,7 +577,7 @@
                 // Extract state
                 renderTime = RealtimeClock.PositionSeconds;
 
-                // Load frames
+                // Load media frames
                 InternalLoadFrames(renderTime);
 
                 // Unlock

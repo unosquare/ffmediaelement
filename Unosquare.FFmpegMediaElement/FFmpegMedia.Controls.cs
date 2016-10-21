@@ -100,7 +100,7 @@
                 {
                     ErrorOccurredCallback(this, new MediaPlaybackException(MediaPlaybackErrorSources.WaitForPlaybackReadyState,
                         MediaPlaybackErrorCode.WaitForPlaybackTimedOut,
-                        string.Format("Waiting for playback ready state @ {0:0.000} rimed Out in {1} cycles", renderTime, cycleCount)));
+                        string.Format("Waiting for playback ready state @ {0:0.000} timed Out in {1} cycles", renderTime, cycleCount)));
                     return false;
                 }
 
@@ -209,7 +209,7 @@
 
                 // Pause the audio when the media Ends
                 if (originalState == false && this.HasMediaEnded && this.AudioRenderer != null && this.AudioRenderer.HasInitialized)
-                    this.AudioRenderer.Pause();
+                    AudioRenderer.Pause();
             }
         }
 
@@ -221,7 +221,7 @@
         /// <returns></returns>
         public bool QueryIsFrameAvailable(decimal position)
         {
-            return this.PrimaryFramesCache.GetFrame(position, true) != null;
+            return PrimaryFramesCache.GetFrame(position, true) != null;
         }
 
         /// <summary>
