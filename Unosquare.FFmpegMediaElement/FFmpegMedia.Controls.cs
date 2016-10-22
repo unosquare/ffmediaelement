@@ -89,6 +89,8 @@
         /// </summary>
         private bool WaitForPlaybackReadyState()
         {
+            RealtimeClock.Pause();
+
             var renderTime = RealtimeClock.PositionSeconds;
             var startTime = DateTime.UtcNow;
             var cycleCount = -1;
@@ -111,15 +113,14 @@
                 renderTime = RealtimeClock.PositionSeconds;
                 playbackFrame = PrimaryFramesCache.GetFrame(renderTime, CheckFrameBounds);
 
-                if (IsLiveStream && PrimaryFramesCache.Count > 0)
+                if (playbackFrame == null && PrimaryFramesCache.Count > 0)
                 {
                     playbackFrame = PrimaryFramesCache.FirstFrame;
-                    break;
+                    RealtimeClock.PositionSeconds = playbackFrame.StartTime;
                 }
 
                 if (playbackFrame != null)
                     break;
-
             }
 
             // Do some additional logging
@@ -130,7 +131,7 @@
                     cycleCount,
                     PrimaryFramesCache.Count,
                     PrimaryFramesCache.IndexOf(playbackFrame),
-                    (playbackFrame != null ? 
+                    (playbackFrame != null ?
                         playbackFrame.StartTime.ToString("0.000") : "NULL")));
 
             return true;
