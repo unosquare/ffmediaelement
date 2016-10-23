@@ -301,10 +301,10 @@
                     }
 
                     seekFlag = (seekTime < renderTime || seekTime <= StartTime ? (int)ffmpeg.AVSEEK_FLAG_BACKWARD : 0) | 0; // FFmpegInvoke.AVSEEK_FLAG_ANY;
-                    //seekFlag = FFmpegInvoke.AVSEEK_FLAG_BACKWARD; // | FFmpegInvoke.AVSEEK_FLAG_ANY;
-
+                    //seekFlag = ffmpeg.AVSEEK_FLAG_BACKWARD; // | ffmpeg.AVSEEK_FLAG_ANY;
+                    
                     seekFrameResult = ffmpeg.av_seek_frame(InputFormatContext, seekStreamIndex, targetTimestamp, seekFlag); // significantly faster than seek_file
-                    //seekFrameResult = FFmpegInvoke.avformat_seek_file(InputFormatContext, streamIndex, long.MinValue, targetTimestamp, long.MaxValue, seekFlag);
+                    //seekFrameResult = ffmpeg.avformat_seek_file(InputFormatContext, seekStreamIndex, targetTimestamp - 2, targetTimestamp, targetTimestamp + 2, seekFlag);
                     if (seekFrameResult < Constants.SuccessCode)
                     {
                         if (PrimaryFramesCache.IsEmpty == false)
