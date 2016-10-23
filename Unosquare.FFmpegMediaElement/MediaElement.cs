@@ -19,7 +19,7 @@
     [Localizability(LocalizationCategory.NeverLocalize)]
     public partial class MediaElement : UserControl, IDisposable, INotifyPropertyChanged, IUriContext
     {
-        // TODO: Implement network buffering events that the standard MediaElement provides.
+        // TODO: Implement network buffering events that the standard MediaElement provides. -- See issue #13
 
         #region Property Backing
 

@@ -51,8 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
-    <Compile Include="FFmpeg.Autogen\Unresolved.cs" />
-    <Compile Include="FFmpegMedia.AudioBufferProvider.cs" />
+    <Compile Include="FFmpeg.Autogen\ConstCharPtrMarshaler.cs" />
     <Compile Include="FFmpeg.Autogen\FFmpeg.avcodec.g.cs" />
     <Compile Include="FFmpeg.Autogen\FFmpeg.avdevice.g.cs" />
     <Compile Include="FFmpeg.Autogen\FFmpeg.avfilter.g.cs" />
@@ -61,6 +60,8 @@
     <Compile Include="FFmpeg.Autogen\FFmpeg.postprocess.g.cs" />
     <Compile Include="FFmpeg.Autogen\FFmpeg.swresample.g.cs" />
     <Compile Include="FFmpeg.Autogen\FFmpeg.swscale.g.cs" />
+    <Compile Include="FFmpeg.Autogen\Unresolved.cs" />
+    <Compile Include="FFmpegMedia.AudioBufferProvider.cs" />
     <Compile Include="MediaElement.DependencyProperties.cs" />
     <Compile Include="MediaElement.MediaProperties.cs" />
     <Compile Include="MediaElement.RoutedEvents.cs" />

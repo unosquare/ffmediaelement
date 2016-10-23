@@ -1,6 +1,6 @@
 ﻿FFmpeg binaries not dirstributed with source code.
 Please obtain the binaries from:
-https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.0-win32-shared.7z
+https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.1.4-win32-shared.zip
 
 This folder must contain the following files:
 ffmpeg.exe
