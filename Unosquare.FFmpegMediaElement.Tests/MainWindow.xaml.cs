@@ -88,6 +88,7 @@ namespace Unosquare.FFmpegMediaElement.Tests
         {
             try
             {
+                
                 MediaEl.Source = new Uri(SourceText.Text);
             }
             catch

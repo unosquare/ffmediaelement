@@ -984,7 +984,10 @@ namespace FFmpeg.AutoGen
         
         [DllImport(libavutil, EntryPoint = "av_fopen_utf8", CallingConvention = CallingConvention.Cdecl)]
         public static extern _iobuf* av_fopen_utf8([MarshalAs(UnmanagedType.LPStr)] string @path, [MarshalAs(UnmanagedType.LPStr)] string @mode);
-        
+
+        [DllImport(libavutil, EntryPoint = "av_gettime", CallingConvention = CallingConvention.Cdecl)]
+        public static extern long av_gettime();
+
         [DllImport(libavutil, EntryPoint = "av_get_time_base_q", CallingConvention = CallingConvention.Cdecl)]
         public static extern AVRational av_get_time_base_q();
         
