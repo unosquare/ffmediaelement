@@ -48,7 +48,14 @@
             }
         }
 
-
+        /// <summary>
+        /// Gets the current frame being displayed
+        /// </summary>
+        /// <returns>Clone of the current frame</returns>
+        public WriteableBitmap GetCurrentFrame()
+        {
+            return TargetBitmap.Clone();
+        }
         #endregion
 
         #region FFmpeg Paths

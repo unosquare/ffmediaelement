@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -97,5 +98,25 @@ namespace Unosquare.FFmpegMediaElement.Tests
             }
         }
 
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.SaveFileDialog saveDlg = new Microsoft.Win32.SaveFileDialog();
+            saveDlg.Filter = "Bitmap (*.bmp)|*.bmp";
+            saveDlg.DefaultExt = "bmp";
+            saveDlg.AddExtension = true;
+
+            Nullable<bool> result = saveDlg.ShowDialog();
+
+            if (result == true)
+            {
+                using (FileStream fileStream = new FileStream(saveDlg.FileName, FileMode.OpenOrCreate))
+                {
+                    PngBitmapEncoder encoder = new PngBitmapEncoder();
+                    WriteableBitmap wBMP = MediaEl.GetCurrentFrame();
+                    encoder.Frames.Add(BitmapFrame.Create(wBMP));
+                    encoder.Save(fileStream);
+                }
+            }
+        }
     }
 }
