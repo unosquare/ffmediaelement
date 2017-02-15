@@ -112,7 +112,6 @@
 
                 //ffmpeg.avdevice_register_all();
                 //ffmpeg.avfilter_register_all();
-var t = av_gettime();
                 ffmpeg.av_register_all();
                 ffmpeg.avdevice_register_all();
                 ffmpeg.avcodec_register_all();
@@ -127,11 +126,6 @@ var t = av_gettime();
         public static bool IsNoPtsValue(long timestamp)
         {
             return Convert.ToDouble(timestamp) == -Convert.ToDouble(0x8000000000000000L);
-        }
-
-        static long av_gettime()
-        {
-            return ffmpeg.av_gettime();
         }
 
         static uint[] GetSystemTimeAsFileTime()

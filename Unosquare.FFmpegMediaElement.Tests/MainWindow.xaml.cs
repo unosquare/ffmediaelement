@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -30,7 +31,8 @@ namespace Unosquare.FFmpegMediaElement.Tests
             this.MediaEl.MediaEnded += (s, e) => { System.Diagnostics.Debug.WriteLine("MediaEnded Event Fired"); };
             this.MediaEl.MediaOpened += (s, e) => { System.Diagnostics.Debug.WriteLine("MediaOpened Event Fired"); };
             this.MediaEl.MediaFailed += (s, e) => { System.Diagnostics.Debug.WriteLine("MediaFailed Event Fired {0}", ((MediaErrorRoutedEventArgs)e).ErrorException); };
-            this.MediaEl.MediaErrored += (s, e) => { 
+            this.MediaEl.MediaErrored += (s, e) =>
+            {
                 var error = (e as MediaErrorRoutedEventArgs);
                 var ex = error.ErrorException as MediaPlaybackException;
                 if (ex == null)
@@ -39,10 +41,10 @@ namespace Unosquare.FFmpegMediaElement.Tests
                 }
                 else
                 {
-                    System.Diagnostics.Debug.WriteLine("MediaErrored Event Fired {0} - {1}", ex.ErrorCode.ToString(), error.ErrorException); 
+                    System.Diagnostics.Debug.WriteLine("MediaErrored Event Fired {0} - {1}", ex.ErrorCode.ToString(), error.ErrorException);
                 }
             };
-                
+
             this.Closing += MainWindow_Closing;
         }
 
@@ -89,7 +91,7 @@ namespace Unosquare.FFmpegMediaElement.Tests
         {
             try
             {
-                
+
                 MediaEl.Source = new Uri(SourceText.Text);
             }
             catch
@@ -98,24 +100,30 @@ namespace Unosquare.FFmpegMediaElement.Tests
             }
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Handles the Click event of the SaveFrameButton control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
+        private void SaveFrameButton_Click(object sender, RoutedEventArgs e)
         {
-            Microsoft.Win32.SaveFileDialog saveDlg = new Microsoft.Win32.SaveFileDialog();
-            saveDlg.Filter = "Bitmap (*.bmp)|*.bmp";
-            saveDlg.DefaultExt = "bmp";
-            saveDlg.AddExtension = true;
+            var dialog = new SaveFileDialog();
+            dialog.Filter = "Portable Network Graphics (*.png)|*.png";
+            dialog.DefaultExt = "png";
+            dialog.AddExtension = true;
 
-            Nullable<bool> result = saveDlg.ShowDialog();
+            var result = dialog.ShowDialog();
+            if (result.HasValue == false || result.Value == false) return;
 
-            if (result == true)
+            if (File.Exists(dialog.FileName))
+                File.Delete(dialog.FileName);
+
+            using (var fileStream = File.OpenWrite(dialog.FileName))
             {
-                using (FileStream fileStream = new FileStream(saveDlg.FileName, FileMode.OpenOrCreate))
-                {
-                    PngBitmapEncoder encoder = new PngBitmapEncoder();
-                    WriteableBitmap wBMP = MediaEl.GetCurrentFrame();
-                    encoder.Frames.Add(BitmapFrame.Create(wBMP));
-                    encoder.Save(fileStream);
-                }
+                var encoder = new PngBitmapEncoder();
+                var bitmap = MediaEl.GetCurrentFrame();
+                encoder.Frames.Add(BitmapFrame.Create(bitmap));
+                encoder.Save(fileStream);
             }
         }
     }

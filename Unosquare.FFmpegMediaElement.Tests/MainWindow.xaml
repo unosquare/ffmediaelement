@@ -1,7 +1,7 @@
 ﻿<Window x:Class="Unosquare.FFmpegMediaElement.Tests.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="{Binding ElementName=MediaEl, Path=Source}" Height="484" Width="640" 
+        Title="{Binding ElementName=MediaEl, Path=Source}" Height="480" Width="640" 
         xmlns:ffme="clr-namespace:Unosquare.FFmpegMediaElement;assembly=Unosquare.FFmpegMediaElement">
     <Grid>
         <Grid.RowDefinitions>
@@ -43,7 +43,7 @@
             <DockPanel LastChildFill="True">
                 <Label>Synchronous Scrubbing Enabled:</Label>
                 <CheckBox IsChecked="{Binding ElementName=MediaEl, Path=ScrubbingEnabled}" VerticalAlignment="Center" />
-                <Button Width="70" Click="Button_Click_1">Save Frame</Button>
+                <Button Width="70" HorizontalAlignment="Right" Click="SaveFrameButton_Click">Save Frame</Button>
             </DockPanel>
         </StackPanel>
 
