@@ -28,7 +28,7 @@ before_build:
         
 - ps: Start-FileDownload 'http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.0.1-win32-shared.7z'
 - 7z e ffmpeg-3.0.1-win32-shared.7z
-- copy bin Unosquare.FFmpegMediaElement\ffmpeg32
+- xcopy bin Unosquare.FFmpegMediaElement\ffmpeg32
 after_build:
 - ps: |
         if(-Not $env:APPVEYOR_PULL_REQUEST_TITLE)
