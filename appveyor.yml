@@ -26,6 +26,10 @@ before_build:
             cinst docfx -y
         }
 - nuget restore Unosquare.FFmpegMediaElement.sln
+- ps: (New-Object Net.WebClient).DownloadFile('http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.0.1-win32-shared.7z', 'ffmpeg.7z')
+- 7z e ffmpeg.7z
+- cd ffmpeg-3.0.1-win32-shared
+- copy ffmpeg-3.0.1-win32-shared\bin\*.* Unosquare.FFmpegMediaElement\ffmpeg32
 after_build:
 - ps: |
         if(-Not $env:APPVEYOR_PULL_REQUEST_TITLE)
