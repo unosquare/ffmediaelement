@@ -1,0 +1,1176 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class WaveFormat
+   | WPF MediaElement replacement based on FFmpeg </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class WaveFormat
+   | WPF MediaElement replacement based on FFmpeg ">
+    <meta name="generator" content="docfx 2.12.1.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    <meta property="docfx:rel" content="../">
+  </head>
+  <body data-spy="scroll" data-target="#affix">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content">
+        
+        <div id="search-results">
+          <div class="search-list"></div>
+          <div class="sr-items"></div>
+          <ul id="pagination"></ul>
+        </div>
+      </div>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content">
+              
+              
+              <h1 id="NAudio_Wave_WaveFormat" data-uid="NAudio.Wave.WaveFormat">Class WaveFormat
+              </h1>
+              <div class="markdown level0 summary"><p>Represents a Wave file format</p>
+</div>
+              <div class="markdown level0 conceptual"></div>
+              <div class="inheritance">
+                <h5>Inheritance</h5>
+                  <div class="level0"><span class="xref">System.Object</span></div>
+                  <div class="level1"><span class="xref">WaveFormat</span></div>
+                  <div class="level2"><a class="xref" href="NAudio.Wave.AdpcmWaveFormat.html">AdpcmWaveFormat</a></div>
+                  <div class="level2"><a class="xref" href="NAudio.Wave.Gsm610WaveFormat.html">Gsm610WaveFormat</a></div>
+                  <div class="level2"><a class="xref" href="NAudio.Wave.WaveFormatExtensible.html">WaveFormatExtensible</a></div>
+                  <div class="level2"><a class="xref" href="NAudio.Wave.WaveFormatExtraData.html">WaveFormatExtraData</a></div>
+              </div>
+              <div class="inheritedMembers">
+                <h5>Inherited Members</h5>
+                <div>
+                  <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+                </div>
+                <div>
+                  <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+                </div>
+                <div>
+                  <span class="xref">System.Object.GetType()</span>
+                </div>
+                <div>
+                  <span class="xref">System.Object.MemberwiseClone()</span>
+                </div>
+              </div>
+              <h6><strong>Namespace</strong>:NAudio.Wave</h6>
+              <h6><strong>Assembly</strong>:cs.temp.dll.dll</h6>
+              <h5 id="NAudio_Wave_WaveFormat_syntax">Syntax</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public class WaveFormat</code></pre>
+              </div>
+              <h3 id="constructors">Constructors
+              </h3>
+              
+              
+              <a id="NAudio_Wave_WaveFormat__ctor_" data-uid="NAudio.Wave.WaveFormat.#ctor*"></a>
+              <h4 id="NAudio_Wave_WaveFormat__ctor" data-uid="NAudio.Wave.WaveFormat.#ctor">WaveFormat()</h4>
+              <div class="markdown level1 summary"><p>Creates a new PCM 44.1Khz stereo 16 bit format</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public WaveFormat()</code></pre>
+              </div>
+              
+              
+              <a id="NAudio_Wave_WaveFormat__ctor_" data-uid="NAudio.Wave.WaveFormat.#ctor*"></a>
+              <h4 id="NAudio_Wave_WaveFormat__ctor_BinaryReader_" data-uid="NAudio.Wave.WaveFormat.#ctor(BinaryReader)">WaveFormat(BinaryReader)</h4>
+              <div class="markdown level1 summary"><p>Reads a new WaveFormat object from a stream</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public WaveFormat(BinaryReader br)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">BinaryReader</span></td>
+                    <td><span class="parametername">br</span></td>
+                    <td><p>A binary reader that wraps the stream</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              
+              <a id="NAudio_Wave_WaveFormat__ctor_" data-uid="NAudio.Wave.WaveFormat.#ctor*"></a>
+              <h4 id="NAudio_Wave_WaveFormat__ctor_System_Int32_System_Int32_" data-uid="NAudio.Wave.WaveFormat.#ctor(System.Int32,System.Int32)">WaveFormat(Int32, Int32)</h4>
+              <div class="markdown level1 summary"><p>Creates a new 16 bit wave format with the specified sample
+rate and channel count</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public WaveFormat(int sampleRate, int channels)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><span class="parametername">sampleRate</span></td>
+                    <td><p>Sample Rate</p>
+</td>
+                  </tr>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><span class="parametername">channels</span></td>
+                    <td><p>Number of channels</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              
+              <a id="NAudio_Wave_WaveFormat__ctor_" data-uid="NAudio.Wave.WaveFormat.#ctor*"></a>
+              <h4 id="NAudio_Wave_WaveFormat__ctor_System_Int32_System_Int32_System_Int32_" data-uid="NAudio.Wave.WaveFormat.#ctor(System.Int32,System.Int32,System.Int32)">WaveFormat(Int32, Int32, Int32)</h4>
+              <div class="markdown level1 summary"><p>Creates a new PCM format with the specified sample rate, bit depth and channels</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public WaveFormat(int rate, int bits, int channels)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><span class="parametername">rate</span></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><span class="parametername">bits</span></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><span class="parametername">channels</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h3 id="fields">Fields
+              </h3>
+              
+              
+              <h4 id="NAudio_Wave_WaveFormat_averageBytesPerSecond" data-uid="NAudio.Wave.WaveFormat.averageBytesPerSecond">averageBytesPerSecond</h4>
+              <div class="markdown level1 summary"><p>for buffer estimation</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">protected int averageBytesPerSecond</code></pre>
+              </div>
+              <h5 class="fieldValue">Field Value</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              
+              <h4 id="NAudio_Wave_WaveFormat_bitsPerSample" data-uid="NAudio.Wave.WaveFormat.bitsPerSample">bitsPerSample</h4>
+              <div class="markdown level1 summary"><p>number of bits per sample of mono data</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">protected short bitsPerSample</code></pre>
+              </div>
+              <h5 class="fieldValue">Field Value</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int16</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              
+              <h4 id="NAudio_Wave_WaveFormat_blockAlign" data-uid="NAudio.Wave.WaveFormat.blockAlign">blockAlign</h4>
+              <div class="markdown level1 summary"><p>block size of data</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">protected short blockAlign</code></pre>
+              </div>
+              <h5 class="fieldValue">Field Value</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int16</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              
+              <h4 id="NAudio_Wave_WaveFormat_channels" data-uid="NAudio.Wave.WaveFormat.channels">channels</h4>
+              <div class="markdown level1 summary"><p>number of channels</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">protected short channels</code></pre>
+              </div>
+              <h5 class="fieldValue">Field Value</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int16</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              
+              <h4 id="NAudio_Wave_WaveFormat_extraSize" data-uid="NAudio.Wave.WaveFormat.extraSize">extraSize</h4>
+              <div class="markdown level1 summary"><p>number of following bytes</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">protected short extraSize</code></pre>
+              </div>
+              <h5 class="fieldValue">Field Value</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int16</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              
+              <h4 id="NAudio_Wave_WaveFormat_sampleRate" data-uid="NAudio.Wave.WaveFormat.sampleRate">sampleRate</h4>
+              <div class="markdown level1 summary"><p>sample rate</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">protected int sampleRate</code></pre>
+              </div>
+              <h5 class="fieldValue">Field Value</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              
+              <h4 id="NAudio_Wave_WaveFormat_waveFormatTag" data-uid="NAudio.Wave.WaveFormat.waveFormatTag">waveFormatTag</h4>
+              <div class="markdown level1 summary"><p>format type</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">protected WaveFormatEncoding waveFormatTag</code></pre>
+              </div>
+              <h5 class="fieldValue">Field Value</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><a class="xref" href="NAudio.Wave.WaveFormatEncoding.html">WaveFormatEncoding</a></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h3 id="properties">Properties
+              </h3>
+              
+              
+              <a id="NAudio_Wave_WaveFormat_AverageBytesPerSecond_" data-uid="NAudio.Wave.WaveFormat.AverageBytesPerSecond*"></a>
+              <h4 id="NAudio_Wave_WaveFormat_AverageBytesPerSecond" data-uid="NAudio.Wave.WaveFormat.AverageBytesPerSecond">AverageBytesPerSecond</h4>
+              <div class="markdown level1 summary"><p>Returns the average number of bytes used per second</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public int AverageBytesPerSecond { get; }</code></pre>
+              </div>
+              <h5 class="propertyValue">Property Value</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              
+              <a id="NAudio_Wave_WaveFormat_BitsPerSample_" data-uid="NAudio.Wave.WaveFormat.BitsPerSample*"></a>
+              <h4 id="NAudio_Wave_WaveFormat_BitsPerSample" data-uid="NAudio.Wave.WaveFormat.BitsPerSample">BitsPerSample</h4>
+              <div class="markdown level1 summary"><p>Returns the number of bits per sample (usually 16 or 32, sometimes 24 or 8)
+Can be 0 for some codecs</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public int BitsPerSample { get; }</code></pre>
+              </div>
+              <h5 class="propertyValue">Property Value</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              
+              <a id="NAudio_Wave_WaveFormat_BlockAlign_" data-uid="NAudio.Wave.WaveFormat.BlockAlign*"></a>
+              <h4 id="NAudio_Wave_WaveFormat_BlockAlign" data-uid="NAudio.Wave.WaveFormat.BlockAlign">BlockAlign</h4>
+              <div class="markdown level1 summary"><p>Returns the block alignment</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public virtual int BlockAlign { get; }</code></pre>
+              </div>
+              <h5 class="propertyValue">Property Value</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              
+              <a id="NAudio_Wave_WaveFormat_Channels_" data-uid="NAudio.Wave.WaveFormat.Channels*"></a>
+              <h4 id="NAudio_Wave_WaveFormat_Channels" data-uid="NAudio.Wave.WaveFormat.Channels">Channels</h4>
+              <div class="markdown level1 summary"><p>Returns the number of channels (1=mono,2=stereo etc)</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public int Channels { get; }</code></pre>
+              </div>
+              <h5 class="propertyValue">Property Value</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              
+              <a id="NAudio_Wave_WaveFormat_Encoding_" data-uid="NAudio.Wave.WaveFormat.Encoding*"></a>
+              <h4 id="NAudio_Wave_WaveFormat_Encoding" data-uid="NAudio.Wave.WaveFormat.Encoding">Encoding</h4>
+              <div class="markdown level1 summary"><p>Returns the encoding type used</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public WaveFormatEncoding Encoding { get; }</code></pre>
+              </div>
+              <h5 class="propertyValue">Property Value</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><a class="xref" href="NAudio.Wave.WaveFormatEncoding.html">WaveFormatEncoding</a></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              
+              <a id="NAudio_Wave_WaveFormat_ExtraSize_" data-uid="NAudio.Wave.WaveFormat.ExtraSize*"></a>
+              <h4 id="NAudio_Wave_WaveFormat_ExtraSize" data-uid="NAudio.Wave.WaveFormat.ExtraSize">ExtraSize</h4>
+              <div class="markdown level1 summary"><p>Returns the number of extra bytes used by this waveformat. Often 0,
+except for compressed formats which store extra data after the WAVEFORMATEX header</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public int ExtraSize { get; }</code></pre>
+              </div>
+              <h5 class="propertyValue">Property Value</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              
+              <a id="NAudio_Wave_WaveFormat_SampleRate_" data-uid="NAudio.Wave.WaveFormat.SampleRate*"></a>
+              <h4 id="NAudio_Wave_WaveFormat_SampleRate" data-uid="NAudio.Wave.WaveFormat.SampleRate">SampleRate</h4>
+              <div class="markdown level1 summary"><p>Returns the sample rate (samples per second)</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public int SampleRate { get; }</code></pre>
+              </div>
+              <h5 class="propertyValue">Property Value</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h3 id="methods">Methods
+              </h3>
+              
+              
+              <a id="NAudio_Wave_WaveFormat_ConvertLatencyToByteSize_" data-uid="NAudio.Wave.WaveFormat.ConvertLatencyToByteSize*"></a>
+              <h4 id="NAudio_Wave_WaveFormat_ConvertLatencyToByteSize_System_Int32_" data-uid="NAudio.Wave.WaveFormat.ConvertLatencyToByteSize(System.Int32)">ConvertLatencyToByteSize(Int32)</h4>
+              <div class="markdown level1 summary"><p>Gets the size of a wave buffer equivalent to the latency in milliseconds.</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public int ConvertLatencyToByteSize(int milliseconds)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><span class="parametername">milliseconds</span></td>
+                    <td><p>The milliseconds.</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              
+              <a id="NAudio_Wave_WaveFormat_CreateALawFormat_" data-uid="NAudio.Wave.WaveFormat.CreateALawFormat*"></a>
+              <h4 id="NAudio_Wave_WaveFormat_CreateALawFormat_System_Int32_System_Int32_" data-uid="NAudio.Wave.WaveFormat.CreateALawFormat(System.Int32,System.Int32)">CreateALawFormat(Int32, Int32)</h4>
+              <div class="markdown level1 summary"><p>Creates an A-law wave format</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public static WaveFormat CreateALawFormat(int sampleRate, int channels)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><span class="parametername">sampleRate</span></td>
+                    <td><p>Sample Rate</p>
+</td>
+                  </tr>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><span class="parametername">channels</span></td>
+                    <td><p>Number of Channels</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><a class="xref" href="NAudio.Wave.WaveFormat.html">WaveFormat</a></td>
+                    <td><p>Wave Format</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              
+              <a id="NAudio_Wave_WaveFormat_CreateCustomFormat_" data-uid="NAudio.Wave.WaveFormat.CreateCustomFormat*"></a>
+              <h4 id="NAudio_Wave_WaveFormat_CreateCustomFormat_NAudio_Wave_WaveFormatEncoding_System_Int32_System_Int32_System_Int32_System_Int32_System_Int32_" data-uid="NAudio.Wave.WaveFormat.CreateCustomFormat(NAudio.Wave.WaveFormatEncoding,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)">CreateCustomFormat(WaveFormatEncoding, Int32, Int32, Int32, Int32, Int32)</h4>
+              <div class="markdown level1 summary"><p>Creates a WaveFormat with custom members</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public static WaveFormat CreateCustomFormat(WaveFormatEncoding tag, int sampleRate, int channels, int averageBytesPerSecond, int blockAlign, int bitsPerSample)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><a class="xref" href="NAudio.Wave.WaveFormatEncoding.html">WaveFormatEncoding</a></td>
+                    <td><span class="parametername">tag</span></td>
+                    <td><p>The encoding</p>
+</td>
+                  </tr>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><span class="parametername">sampleRate</span></td>
+                    <td><p>Sample Rate</p>
+</td>
+                  </tr>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><span class="parametername">channels</span></td>
+                    <td><p>Number of channels</p>
+</td>
+                  </tr>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><span class="parametername">averageBytesPerSecond</span></td>
+                    <td><p>Average Bytes Per Second</p>
+</td>
+                  </tr>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><span class="parametername">blockAlign</span></td>
+                    <td><p>Block Align</p>
+</td>
+                  </tr>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><span class="parametername">bitsPerSample</span></td>
+                    <td><p>Bits Per Sample</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><a class="xref" href="NAudio.Wave.WaveFormat.html">WaveFormat</a></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              
+              <a id="NAudio_Wave_WaveFormat_CreateIeeeFloatWaveFormat_" data-uid="NAudio.Wave.WaveFormat.CreateIeeeFloatWaveFormat*"></a>
+              <h4 id="NAudio_Wave_WaveFormat_CreateIeeeFloatWaveFormat_System_Int32_System_Int32_" data-uid="NAudio.Wave.WaveFormat.CreateIeeeFloatWaveFormat(System.Int32,System.Int32)">CreateIeeeFloatWaveFormat(Int32, Int32)</h4>
+              <div class="markdown level1 summary"><p>Creates a new 32 bit IEEE floating point wave format</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public static WaveFormat CreateIeeeFloatWaveFormat(int sampleRate, int channels)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><span class="parametername">sampleRate</span></td>
+                    <td><p>sample rate</p>
+</td>
+                  </tr>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><span class="parametername">channels</span></td>
+                    <td><p>number of channels</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><a class="xref" href="NAudio.Wave.WaveFormat.html">WaveFormat</a></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              
+              <a id="NAudio_Wave_WaveFormat_CreateMuLawFormat_" data-uid="NAudio.Wave.WaveFormat.CreateMuLawFormat*"></a>
+              <h4 id="NAudio_Wave_WaveFormat_CreateMuLawFormat_System_Int32_System_Int32_" data-uid="NAudio.Wave.WaveFormat.CreateMuLawFormat(System.Int32,System.Int32)">CreateMuLawFormat(Int32, Int32)</h4>
+              <div class="markdown level1 summary"><p>Creates a Mu-law wave format</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public static WaveFormat CreateMuLawFormat(int sampleRate, int channels)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><span class="parametername">sampleRate</span></td>
+                    <td><p>Sample Rate</p>
+</td>
+                  </tr>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><span class="parametername">channels</span></td>
+                    <td><p>Number of Channels</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><a class="xref" href="NAudio.Wave.WaveFormat.html">WaveFormat</a></td>
+                    <td><p>Wave Format</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              
+              <a id="NAudio_Wave_WaveFormat_Equals_" data-uid="NAudio.Wave.WaveFormat.Equals*"></a>
+              <h4 id="NAudio_Wave_WaveFormat_Equals_System_Object_" data-uid="NAudio.Wave.WaveFormat.Equals(System.Object)">Equals(Object)</h4>
+              <div class="markdown level1 summary"><p>Compares with another WaveFormat object</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public override bool Equals(object obj)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Object</span></td>
+                    <td><span class="parametername">obj</span></td>
+                    <td><p>Object to compare to</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Boolean</span></td>
+                    <td><p>True if the objects are the same</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="overrides">Overrides</h5>
+              <div><span class="xref">System.Object.Equals(System.Object)</span></div>
+              
+              
+              <a id="NAudio_Wave_WaveFormat_FromFormatChunk_" data-uid="NAudio.Wave.WaveFormat.FromFormatChunk*"></a>
+              <h4 id="NAudio_Wave_WaveFormat_FromFormatChunk_BinaryReader_System_Int32_" data-uid="NAudio.Wave.WaveFormat.FromFormatChunk(BinaryReader,System.Int32)">FromFormatChunk(BinaryReader, Int32)</h4>
+              <div class="markdown level1 summary"><p>Reads in a WaveFormat (with extra data) from a fmt chunk (chunk identifier and
+length should already have been read)</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public static WaveFormat FromFormatChunk(BinaryReader br, int formatChunkLength)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">BinaryReader</span></td>
+                    <td><span class="parametername">br</span></td>
+                    <td><p>Binary reader</p>
+</td>
+                  </tr>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><span class="parametername">formatChunkLength</span></td>
+                    <td><p>Format chunk length</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><a class="xref" href="NAudio.Wave.WaveFormat.html">WaveFormat</a></td>
+                    <td><p>A WaveFormatExtraData</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              
+              <a id="NAudio_Wave_WaveFormat_GetHashCode_" data-uid="NAudio.Wave.WaveFormat.GetHashCode*"></a>
+              <h4 id="NAudio_Wave_WaveFormat_GetHashCode" data-uid="NAudio.Wave.WaveFormat.GetHashCode">GetHashCode()</h4>
+              <div class="markdown level1 summary"><p>Provides a Hashcode for this WaveFormat</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public override int GetHashCode()</code></pre>
+              </div>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.Int32</span></td>
+                    <td><p>A hashcode</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="overrides">Overrides</h5>
+              <div><span class="xref">System.Object.GetHashCode()</span></div>
+              
+              
+              <a id="NAudio_Wave_WaveFormat_MarshalFromPtr_" data-uid="NAudio.Wave.WaveFormat.MarshalFromPtr*"></a>
+              <h4 id="NAudio_Wave_WaveFormat_MarshalFromPtr_IntPtr_" data-uid="NAudio.Wave.WaveFormat.MarshalFromPtr(IntPtr)">MarshalFromPtr(IntPtr)</h4>
+              <div class="markdown level1 summary"><p>Helper function to retrieve a WaveFormat structure from a pointer</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public static WaveFormat MarshalFromPtr(IntPtr pointer)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">IntPtr</span></td>
+                    <td><span class="parametername">pointer</span></td>
+                    <td><p>WaveFormat structure</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><a class="xref" href="NAudio.Wave.WaveFormat.html">WaveFormat</a></td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              
+              <a id="NAudio_Wave_WaveFormat_MarshalToPtr_" data-uid="NAudio.Wave.WaveFormat.MarshalToPtr*"></a>
+              <h4 id="NAudio_Wave_WaveFormat_MarshalToPtr_NAudio_Wave_WaveFormat_" data-uid="NAudio.Wave.WaveFormat.MarshalToPtr(NAudio.Wave.WaveFormat)">MarshalToPtr(WaveFormat)</h4>
+              <div class="markdown level1 summary"><p>Helper function to marshal WaveFormat to an IntPtr</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public static IntPtr MarshalToPtr(WaveFormat format)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><a class="xref" href="NAudio.Wave.WaveFormat.html">WaveFormat</a></td>
+                    <td><span class="parametername">format</span></td>
+                    <td><p>WaveFormat</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">IntPtr</span></td>
+                    <td><p>IntPtr to WaveFormat structure (needs to be freed by callee)</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              
+              <a id="NAudio_Wave_WaveFormat_Serialize_" data-uid="NAudio.Wave.WaveFormat.Serialize*"></a>
+              <h4 id="NAudio_Wave_WaveFormat_Serialize_BinaryWriter_" data-uid="NAudio.Wave.WaveFormat.Serialize(BinaryWriter)">Serialize(BinaryWriter)</h4>
+              <div class="markdown level1 summary"><p>Writes this WaveFormat object to a stream</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public virtual void Serialize(BinaryWriter writer)</code></pre>
+              </div>
+              <h5 class="parameters">Parameters</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">BinaryWriter</span></td>
+                    <td><span class="parametername">writer</span></td>
+                    <td><p>the output stream</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              
+              <a id="NAudio_Wave_WaveFormat_ToString_" data-uid="NAudio.Wave.WaveFormat.ToString*"></a>
+              <h4 id="NAudio_Wave_WaveFormat_ToString" data-uid="NAudio.Wave.WaveFormat.ToString">ToString()</h4>
+              <div class="markdown level1 summary"><p>Reports this WaveFormat as a string</p>
+</div>
+              <div class="markdown level1 conceptual"></div>
+              <h5 class="decalaration">Declaration</h5>
+              <div class="codewrapper">
+                <pre><code class="lang-csharp hljs">public override string ToString()</code></pre>
+              </div>
+              <h5 class="returns">Returns</h5>
+              <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="xref">System.String</span></td>
+                    <td><p>String describing the wave format</p>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h5 class="overrides">Overrides</h5>
+              <div><span class="xref">System.Object.ToString()</span></div>
+                        </article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Copyright © 2015-2016 Microsoft<br>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

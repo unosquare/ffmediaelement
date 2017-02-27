@@ -1,0 +1,175 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>FFME: WPF MediaElement Alternative | WPF MediaElement replacement based on FFmpeg </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="FFME: WPF MediaElement Alternative | WPF MediaElement replacement based on FFmpeg ">
+    <meta name="generator" content="docfx 2.12.1.0">
+    
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="stylesheet" href="styles/docfx.vendor.css">
+    <link rel="stylesheet" href="styles/docfx.css">
+    <link rel="stylesheet" href="styles/main.css">
+    <meta property="docfx:navrel" content="toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    <meta property="docfx:rel" content="">
+  </head>
+  <body data-spy="scroll" data-target="#affix">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="index.html">
+                <img id="logo" class="svg" src="logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div class="container body-content">
+        
+        <div id="search-results">
+          <div class="search-list"></div>
+          <div class="sr-items"></div>
+          <ul id="pagination"></ul>
+        </div>
+      </div>
+      <div role="main" class="container body-content hide-when-search">
+        <div class="article row grid">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+              <h1 id="ffme-wpf-mediaelement-alternative">FFME: <em>WPF MediaElement Alternative</em></h1>
+              
+<p><a href="https://github.com/igrigorik/ga-beacon"><img src="https://ga-beacon.appspot.com/UA-8535255-2/unosquare/ffmediaelement/" alt="Analytics"></a></p>
+<p><em><span class="emoji" shortcode="star">⭐</span>Please star this project if you find it useful!</em></p>
+<h2 id="features-overview">Features Overview</h2>
+<p>FFME is a close drop-in replacement for <a href="https://msdn.microsoft.com/en-us/library/system.windows.controls.mediaelement(v=vs.110).aspx">Microsoft&#39;s WPF MediaElement Control</a>. While the standard MediaElement uses DirectX (DirectShow) for media playback, FFME uses <a href="http://ffmpeg.org/">FFmpeg</a> to read and decode audio and video. This means that for those of you who want to support stuff like HLS playback, or just don&#39;t want to go through the hassle of installing codecs on client machines, using FFME <em>might</em> be the answer. </p>
+<p>FFME implements additional improvements over the standard MediaElement such as:</p>
+<ul>
+<li>Asynchronous and synchronous frame scrubbing</li>
+<li>Fast media seeking</li>
+<li>Frame-by-frame seeking</li>
+<li>Media properties such as Position, NaturalDuration, SpeedRatio, and Volume (among others) are exposed as dependency properties</li>
+<li>Additional and extended media events </li>
+</ul>
+<p><em>... all in a self-contained assembly (dll)</em></p>
+<h3 id="known-limitations">Known Limitations</h3>
+<p><em>Your help is welcome!</em></p>
+<ul>
+<li>SpeedRatio other than 1.0 should adjust audio pitch. Currently, if SpeedRatio is less than 1.0, there is no audio playback, and if SpeedRatio is greater than 1.0, samples just play faster. This situation can be greatly improved by manually manipulating the samples passed to NAudio.</li>
+<li>(<em>To be confirmed</em>) Writing to the Position dependency property from another dependency property may make the source value lose synchronization with the target value.</li>
+<li>(<em>Nice to have</em>) It would be nice to implement a method on the control that is able to extract a copy of the current video frame.</li>
+<li>There currently is no support for opening capture devices such as webcams or TV cards. While this is not too hard to do, it is not (yet) implemented in this library.</li>
+</ul>
+<h2 id="compiling-running-and-testing">Compiling, Running and Testing</h2>
+<p><em>Please note that I am unable to distribute FFmpeg&#39;s binaries because I don&#39;t know if I am allowed to do so. Follow the instructions below to compile, run and test FFME</em></p>
+<ol>
+<li>Clone this repository.</li>
+<li>Before you open the solution, please make sure you download the FFmpeg win32-shared binaries from <a href="http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.0.1-win32-shared.7z">Zeranoe FFmpeg Builds</a>.</li>
+<li>Extract the contents of the <code>7z</code> file you just downloaded and locate the <code>bin</code> folder.</li>
+<li>You should see 3 <code>exe</code> files and 8 <code>dll</code> files. Select and copy all of them.</li>
+<li>Now paste all 11 files from the prior step onto the following folder (inside the cloned repository): <code>{repositiories root}\ffmediaelement\Unosquare.FFmpegMediaElement\ffmpeg32</code>.</li>
+<li>Open the solution and set the <code>Unosquare.FFmpegMediaElement.Tests</code> project as the startup project. You can do this by right clicking on the project and selecting <code>Set as startup project</code></li>
+<li>Click on <code>Start</code> to run the project.</li>
+<li>You should see a very simplistic media player. Enter a URL or a path to a file in the textbox at the top of the window and then click on <code>Open</code>.</li>
+<li>The file or URL should play immediately.</li>
+<li>You can use the resulting compiled assembly in your project without further dependencies FFME is entirely self-contained. The locations of the compiled FFME assembly, depending on your build configuration are either <code>...\ffmediaelement\Unosquare.FFmpegMediaElement\bin\Debug\Unosquare.FFmpegMediaElement.dll</code> or <code>...\ffmediaelement\Unosquare.FFmpegMediaElement\bin\Release\Unosquare.FFmpegMediaElement.dll</code></li>
+</ol>
+<h2 id="using-ffme-in-your-project">Using FFME in your Project</h2>
+<p><em>The Unosquare.FFmpegMediaElement.Tests project shows most common usages</em></p>
+<ol>
+<li>Create a new WPF application</li>
+<li>Add a reference to <code>Unosquare.FFmpegMediaElement.dll</code></li>
+<li>In your <code>MainForm.xaml</code>, add the namespace: <code>xmlns:ffme=&quot;clr-namespace:Unosquare.FFmpegMediaElement;assembly=Unosquare.FFmpegMediaElement&quot;</code></li>
+<li>Finally, create an instance of the FFME control in your <code>MainForm.xaml</code> as follows: <code>&lt;ffme:MediaElement x:Name=&quot;MediaEl&quot; Background=&quot;Gray&quot; LoadedBehavior=&quot;Play&quot; UnloadedBehavior=&quot;Manual&quot; /&gt;</code></li>
+</ol>
+<h2 id="thanks">Thanks</h2>
+<p><em>In no particular order</em></p>
+<ul>
+<li>To the <a href="http://ffmpeg.org/">FFmpeg team</a> for making the Swiss Army Knife of media.</li>
+<li>To Kyle Schwarz for creating and making <a href="http://ffmpeg.zeranoe.com/builds/">Zeranoe FFmpeg builds available to everyone</a>.</li>
+<li>To the <a href="https://github.com/naudio/NAudio">NAudio</a> team for making the best audio library out there for .NET</li>
+<li>To Ruslan Balanukhin for his FFmpeg interop bindings generator tool: <a href="https://github.com/Ruslan-B/FFmpeg.AutoGen">FFmpeg.AutoGen</a>.</li>
+<li>To Martin Bohme for his <a href="http://dranger.com/ffmpeg/">excellent tutorial</a> on creating a video player with FFmpeg.</li>
+</ul>
+<h2 id="similar-projects">Similar Projects</h2>
+<ul>
+<li><a href="https://github.com/Microsoft/FFmpegInterop">Microsoft FFmpeg Interop</a></li>
+<li><a href="https://github.com/Sascha-L/WPF-MediaKit">WPF-MediaKit</a></li>
+<li><a href="https://libvlcnet.codeplex.com/">LibVLC.NET</a></li>
+<li><a href="http://playerframework.codeplex.com/">Microsoft Player Framework</a></li>
+</ul>
+<h2 id="license">License</h2>
+<ul>
+<li>The NAudio portion of this library <code>Unosquare.FFmpegMediaElement\NAudio</code> is distributed under Ms-PL. Please see <a href="https://github.com/unosquare/ffmediaelement/blob/master/Unosquare.FFmpegMediaElement/NAudio/LICENSE.txt">LICENSE.txt</a>.</li>
+<li>Code generated by the FFmpeg.Autogen tool <code>Unosquare.FFmpegMediaElement\FFmpeg.Autogen</code> does not specify a license by the tool&#39;s author.</li>
+<li>The source code of the FFME project excluding the items above is distributed under the Ms-PL.</li>
+</ul>
+
+            </article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/unosquare/ffmediaelement/blob/master/README.md/#L1" class="contribution-link">Improve this Doc</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Copyright © 2015-2016 Microsoft<br>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="styles/docfx.js"></script>
+    <script type="text/javascript" src="styles/main.js"></script>
+  </body>
+</html>
