@@ -4,7 +4,7 @@
       "src": [
         {
           "files": [ "Unosquare.FFmpegMediaElement/**/*.cs" ],
-          "exclude": [ "**/bin/**", "**/obj/**" ]
+          "exclude": [ "**/bin/**", "**/obj/**", "**/NAudio/**", "**/FFmpeg.Autogen/**" ]
         }
       ],
       "dest": "obj/api"
