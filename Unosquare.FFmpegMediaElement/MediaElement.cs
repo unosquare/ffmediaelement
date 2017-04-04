@@ -172,6 +172,8 @@
                     this.Media.Dispose();
                     this.Media = null;
                 }
+
+                SeekPositionUpdateTimer.Stop();
             }
         }
 
