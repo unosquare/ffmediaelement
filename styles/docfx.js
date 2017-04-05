@@ -7,37 +7,67 @@ $(function () {
   var show = 'show';
   var hide = 'hide';
 
+  renderTables();
+  renderAlerts();
+  openLinks();
+  enableHighlight();
+  highlightLines();
+  adjustSearchBoxPosition();
+  supportFullTextSearch();
+  updateHref();
+  setupAffix();
+  showFooter();
+
+  window.refresh = function () {
+    renderTables();
+    renderAlerts();
+    enableHighlight();
+    highlightLines();
+    setupAffix();
+  }
+
   // Styling for tables in conceptual documents using Bootstrap.
   // See http://getbootstrap.com/css/#tables
-  (function () {
+  function renderTables() {
     $('table').addClass('table table-bordered table-striped table-condensed');
-  })();
+  }
 
   // Styling for alerts.
-  (function () {
+  function renderAlerts() {
     $('.NOTE, .TIP').addClass('alert alert-info');
     $('.WARNING').addClass('alert alert-warning');
     $('.IMPORTANT, .CAUTION').addClass('alert alert-danger');
-  })();  
+  }
 
+  // Anchorjs 3.2.2 fails when title content contains '<' and '>'.
+  // TODO: enable this when anchorjs fixes this issue
   // Enable anchors for headings.
-  (function () {
-    anchors.options = {
-      placement: 'left',
-      visible: 'touch'
-    };
-    anchors.add('article h2, article h3, article h4, article h5, article h6');
-  })();
+  // (function () {
+  //   anchors.options = {
+  //     placement: 'left',
+  //     visible: 'touch'
+  //   };
+  //   anchors.add('article h2, article h3, article h4, article h5, article h6');
+  // })();
+
+  // Open links to different host in a new window.
+  function openLinks() {
+    if ($("meta[property='docfx:newtab']").attr("content") === "true") {
+      $(document.links).filter(function () {
+        return this.hostname !== window.location.hostname;
+      }).attr('target', '_blank');
+    }
+  }
 
   // Enable highlight.js
-  (function () {
-    $('pre code').each(function(i, block) {
+  function enableHighlight() {
+    $('pre code').each(function (i, block) {
       hljs.highlightBlock(block);
     });
-  })();
+  }
 
   // Line highlight for code snippet
-  (function () {
+  function highlightLines() {
     $('pre code[highlight-lines]').each(function (i, block) {
       if (block.innerHTML === "") return;
       var lines = block.innerHTML.split('\n');
@@ -71,10 +101,10 @@ $(function () {
 
       block.innerHTML = lines.join('\n');
     });
-  })();
+  }
 
   //Adjust the position of search box in navbar
-  (function () {
+  function adjustSearchBoxPosition() {
     autoCollapse();
     $(window).on('resize', autoCollapse);
     $(document).on('click', '.navbar-collapse.in', function (e) {
@@ -93,10 +123,10 @@ $(function () {
         navbar.addClass(collapsed);
       }
     }
-  })();
+  }
 
   // Support full-text-search
-  (function () {
+  function supportFullTextSearch() {
     var query;
     var relHref = $("meta[property='docfx\\:rel']").attr("content");
 
@@ -172,7 +202,7 @@ $(function () {
           });
         });
       }
-    };
+    }
 
     // Highlight the searching keywords
     function highlightKeywords() {
@@ -282,10 +312,10 @@ $(function () {
         });
       }
     }
-  })();
+  };
 
   // Update href in navbar
-  (function () {
+  function updateHref() {
     var toc = $('#sidetoc');
     var breadcrumb = new Breadcrumb();
     loadNavbar();
@@ -510,15 +540,15 @@ $(function () {
         return href.substr(0, index);
       }
     }
-  })();
+  }
 
   //Setup Affix
-  (function () {
+  function setupAffix() {
     var hierarchy = getHierarchy();
     if (hierarchy.length > 0) {
       var html = '<h5 class="title">In This Article</h5>'
       html += formList(hierarchy, ['nav', 'bs-docs-sidenav']);
-      $("#affix").append(html);
+      $("#affix").empty().append(html);
       if ($('footer').is(':visible')) {
         $(".sideaffix").css("bottom", "70px");
       }
@@ -533,7 +563,7 @@ $(function () {
           });
           var container = $('#affix > ul');
           var height = container.height();
-          container.scrollTop(container.scrollTop() + top - height/2);
+          container.scrollTop(container.scrollTop() + top - height / 2);
         }
       })
     }
@@ -574,7 +604,7 @@ $(function () {
             items: []
           };
           if (nextLevelSelector) {
-            var selector = '#' + id + "~" + nextLevelSelector;
+            var selector = '#' + cssEscape(id) + "~" + nextLevelSelector;
             var currentSelector = selector;
             if (prevSelector) currentSelector += ":not(" + prevSelector + ")";
             $(header[j]).siblings(currentSelector).each(function (index, e) {
@@ -582,7 +612,6 @@ $(function () {
                 item.items.push({
                   name: htmlEncode($(e).text()), // innerText decodes text while innerHTML not
                   href: "#" + e.id
-
                 })
               }
             })
@@ -597,7 +626,8 @@ $(function () {
     }
 
     function htmlEncode(str) {
-      return String(str)
+      if (!str) return str;
+      return str
         .replace(/&/g, '&amp;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;')
@@ -606,14 +636,22 @@ $(function () {
     }
 
     function htmlDecode(value) {
-      return String(value)
+      if (!str) return str;
+      return value
         .replace(/&quot;/g, '"')
         .replace(/&#39;/g, "'")
         .replace(/&lt;/g, '<')
         .replace(/&gt;/g, '>')
         .replace(/&amp;/g, '&');
     }
-  })();
+
+    function cssEscape(str) {
+      // see: http://stackoverflow.com/questions/2786538/need-to-escape-a-special-character-in-a-jquery-selector-string#answer-2837646
+      if (!str) return str;
+      return str
+        .replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, "\\$&");
+    }
+  }
 
   function formList(item, classes) {
     var level = 1;
@@ -644,9 +682,9 @@ $(function () {
   }
 
   // Show footer
-  (function () {
+  function showFooter() {
     initFooter();
-    $(window).on("scroll", showFooter);
+    $(window).on("scroll", showFooterCore);
 
     function initFooter() {
       if (needFooter()) {
@@ -658,7 +696,7 @@ $(function () {
       }
     }
 
-    function showFooter() {
+    function showFooterCore() {
       if (needFooter()) {
         shiftUpBottomCss();
         $("footer").fadeIn();
@@ -683,7 +721,7 @@ $(function () {
       $(".sidetoc").addClass("shiftup");
       $(".sideaffix").addClass("shiftup");
     }
-  })();
+  }
 
   // For LOGO SVG
   // Replace SVG with inline SVG
