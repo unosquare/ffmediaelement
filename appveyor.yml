@@ -43,6 +43,7 @@ after_build:
 
             git clone https://github.com/unosquare/ffmediaelement.git -b gh-pages origin_site -q
             Copy-Item origin_site/.git _site -recurse
+            Copy-Item README.html index.html -force
             CD _site
             git add -A 2>&1
             git commit -m "Documentation update" -q
