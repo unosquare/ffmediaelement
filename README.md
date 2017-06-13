@@ -20,11 +20,12 @@ FFME provides multiple improvements over the standard MediaElement such as:
 - Ability to easily apply filtergraphs.
 - Ability to extract media metadata and tech specs of a media stream (title, album, bitrate, FPS, etc).
 
-*... all in a single MediAelement control*
+*... all in a single MediaElement control*
 
 ### Known Limitations
 *Your help is welcome!*
 
+- I still have a lot of TODOs in this new version -- but I am getting through them :)
 - SpeedRatio other than 1.0 could adjust audio pitch. Currently, if SpeedRatio is less than 1.0, there is no audio playback, and if SpeedRatio is greater than 1.0, samples just play faster. This situation can be greatly improved by manually manipulating the samples passed to the Audio Renderer.
 - (*Nice to have*) It would be nice to implement a method on the control that is able to extract a copy of the current video frame.
 - There currently is no support for opening capture devices such as webcams or TV cards. While this is not too hard to do, it is not (yet) implemented in this library.
