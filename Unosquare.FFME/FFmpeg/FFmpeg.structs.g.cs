@@ -1,5 +1,4 @@
-using System;
-using System.Runtime.InteropServices;
+#pragma warning disable 649
 
 namespace FFmpeg.AutoGen
 {
@@ -1861,3 +1860,5 @@ namespace FFmpeg.AutoGen
     }
     
 }
+
+#pragma warning restore 649
