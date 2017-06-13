@@ -3,9 +3,9 @@
 
 *:star:Please star this project if you find it useful!*
 
-- MediaElement Status: Still Work in progress (see the releases section for a code-complete implementation)
+- MediaElement Status: Still Work in progress (see the Releases section for a code-complete version)
 - Estimated Beta Release Date: 7/2/2017
-- MediaEleemnt Codename: Michelob (because it uses very little CPU and RAM!)
+- MediaElement Codename: Michelob (because it uses very little CPU and RAM!)
 - FFmpeg Version: <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.2.4-win32-shared.zip">3.2.4</a>
 
 ## Features Overview
@@ -14,10 +14,10 @@ FFME is a close (and I'd like to think better) drop-in replacement for <a href="
 FFME provides multiple improvements over the standard MediaElement such as:
 - Asynchronous and synchronous frame scrubbing
 - Fast media seeking and frame-by-frame seeking
-- Properties such as Position, NaturalDuration, SpeedRatio, and Volume Dependency Properties!
+- Properties such as Position, NaturalDuration, SpeedRatio, and Volume are all Dependency Properties!
 - Additional and extended media events.
-- The ability to easily apply filtergraphs.
-- Provides the ability to extract media metadata and tech specs of a media stream.
+- Ability to easily apply filtergraphs.
+- Ability to extract media metadata and tech specs of a media stream (title, album, bitrate, FPS, etc).
 
 *... all in a single MediAelement control*
 
