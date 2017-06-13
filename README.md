@@ -7,6 +7,7 @@
 - Estimated Beta Release Date: 7/2/2017
 - MediaElement Codename: Michelob (because it uses very little CPU and RAM!)
 - FFmpeg Version: <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.2.4-win32-shared.zip">3.2.4</a>
+- For a history of commits see the repo: https://github.com/unosquare/ffplaydotnet
 
 ## Features Overview
 FFME is a close (and I'd like to think better) drop-in replacement for <a href="https://msdn.microsoft.com/en-us/library/system.windows.controls.mediaelement(v=vs.110).aspx">Microsoft's WPF MediaElement Control</a>. While the standard MediaElement uses DirectX (DirectShow) for media playback, FFME uses <a href="http://ffmpeg.org/">FFmpeg</a> to read and decode audio and video. This means that for those of you who want to support stuff like HLS playback, or just don't want to go through the hassle of installing codecs on client machines, using FFME *might* be the answer. 
