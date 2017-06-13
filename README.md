@@ -1,5 +1,6 @@
 # FFME: *WPF MediaElement Alternative*
 [![Analytics](https://ga-beacon.appspot.com/UA-8535255-2/unosquare/ffmediaelement/)](https://github.com/igrigorik/ga-beacon)
+[![Build status](https://ci.appveyor.com/api/projects/status/ppqeayanucj1hadj?svg=true)](https://ci.appveyor.com/project/geoperez/ffmediaelement)
 
 *:star:Please star this project if you find it useful!*
 
