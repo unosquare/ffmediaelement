@@ -3,10 +3,13 @@
 
 *:star:Please star this project if you find it useful!*
 
-Version: <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.2.4-win32-shared.zip">FFmpeg 3.2.4</a>
+- MediaElement Status: Still Work in progress (see the releases section for a code-complete implementation)
+- Estimated Beta Release Date: 7/2/2017
+- MediaEleemnt Codename: Michelob (because it uses very little CPU and RAM!)
+- FFmpeg Version: <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.2.4-win32-shared.zip">3.2.4</a>
 
 ## Features Overview
-FFME is a close drop-in replacement for <a href="https://msdn.microsoft.com/en-us/library/system.windows.controls.mediaelement(v=vs.110).aspx">Microsoft's WPF MediaElement Control</a>. While the standard MediaElement uses DirectX (DirectShow) for media playback, FFME uses <a href="http://ffmpeg.org/">FFmpeg</a> to read and decode audio and video. This means that for those of you who want to support stuff like HLS playback, or just don't want to go through the hassle of installing codecs on client machines, using FFME *might* be the answer. 
+FFME is a close (and I'd like to think better) drop-in replacement for <a href="https://msdn.microsoft.com/en-us/library/system.windows.controls.mediaelement(v=vs.110).aspx">Microsoft's WPF MediaElement Control</a>. While the standard MediaElement uses DirectX (DirectShow) for media playback, FFME uses <a href="http://ffmpeg.org/">FFmpeg</a> to read and decode audio and video. This means that for those of you who want to support stuff like HLS playback, or just don't want to go through the hassle of installing codecs on client machines, using FFME *might* be the answer. 
 
 FFME provides multiple improvements over the standard MediaElement such as:
 - Asynchronous and synchronous frame scrubbing
