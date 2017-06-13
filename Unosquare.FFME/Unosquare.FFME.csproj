@@ -1,0 +1,156 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A6EB99A6-AAE2-4E6E-AB9E-93992CE5B84D}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Unosquare.FFME</RootNamespace>
+    <AssemblyName>Unosquare.FFME</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>
+    </ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Commands\CloseCommand.cs" />
+    <Compile Include="Commands\OpenCommand.cs" />
+    <Compile Include="Commands\PauseCommand.cs" />
+    <Compile Include="Commands\PlayCommand.cs" />
+    <Compile Include="Commands\MediaCommand.cs" />
+    <Compile Include="Commands\MediaCommandManager.cs" />
+    <Compile Include="Commands\MediaCommandType.cs" />
+    <Compile Include="Commands\SeekCommand.cs" />
+    <Compile Include="Commands\StopCommand.cs" />
+    <Compile Include="Core\MediaTypeDictionary.cs" />
+    <Compile Include="MediaElement.Workers.cs" />
+    <Compile Include="Rendering\Wave\IWaveProvider.cs" />
+    <Compile Include="Rendering\Wave\PlaybackState.cs" />
+    <Compile Include="Rendering\Wave\WaveFormat.cs" />
+    <Compile Include="Rendering\Wave\WaveHeader.cs" />
+    <Compile Include="Rendering\Wave\WaveHeaderFlags.cs" />
+    <Compile Include="Rendering\Wave\WaveInterop.cs" />
+    <Compile Include="Rendering\Wave\WaveOutBuffer.cs" />
+    <Compile Include="Rendering\Wave\WaveOutCapabilities.cs" />
+    <Compile Include="Core\CircularBuffer.cs" />
+    <Compile Include="Core\Clock.cs" />
+    <Compile Include="Core\Constants.cs" />
+    <Compile Include="Decoding\AudioBlock.cs" />
+    <Compile Include="Decoding\AudioFrame.cs" />
+    <Compile Include="Decoding\MediaBlockBuffer.cs" />
+    <Compile Include="Decoding\AudioComponent.cs" />
+    <Compile Include="Core\AudioParams.cs" />
+    <Compile Include="Core\CodecOption.cs" />
+    <Compile Include="Core\MediaType.cs" />
+    <Compile Include="MediaLogMessageType.cs" />
+    <Compile Include="MediaContainerException.cs" />
+    <Compile Include="Decoding\MediaFrame.cs" />
+    <Compile Include="Decoding\MediaFrameQueue.cs" />
+    <Compile Include="Decoding\MediaBlock.cs" />
+    <Compile Include="Decoding\MediaComponent.cs" />
+    <Compile Include="Decoding\MediaComponentSet.cs" />
+    <Compile Include="Decoding\SubtitleBlock.cs" />
+    <Compile Include="Decoding\SubtitleFrame.cs" />
+    <Compile Include="Decoding\VideoBlock.cs" />
+    <Compile Include="Decoding\VideoFrame.cs" />
+    <Compile Include="Decoding\MediaContainer.cs" />
+    <Compile Include="MediaOptions.cs" />
+    <Compile Include="Decoding\PacketQueue.cs" />
+    <Compile Include="MediaCodecOptions.cs" />
+    <Compile Include="FFmpeg\ConstCharPtrMarshaler.cs" />
+    <Compile Include="FFmpeg\FFmpeg.arrays.g.cs" />
+    <Compile Include="FFmpeg\FFmpeg.delegates.g.cs" />
+    <Compile Include="FFmpeg\FFmpeg.enums.g.cs" />
+    <Compile Include="FFmpeg\FFmpeg.functions.g.cs" />
+    <Compile Include="FFmpeg\FFmpeg.macros.g.cs" />
+    <Compile Include="FFmpeg\FFmpeg.structs.g.cs" />
+    <Compile Include="FFmpeg\FFmpeg.structs.incomplete.g.cs" />
+    <Compile Include="Core\FFDictionaryEntry.cs" />
+    <Compile Include="Core\FFDictionary.cs" />
+    <Compile Include="MediaElement.Controller.cs" />
+    <Compile Include="MediaElement.cs" />
+    <Compile Include="MediaElement.DependencyProperties.cs" />
+    <Compile Include="MediaElement.MediaProperties.cs" />
+    <Compile Include="MediaElement.RoutedEvents.cs" />
+    <Compile Include="MediaOpeningRoutedEventArgs.cs" />
+    <Compile Include="Rendering\Wave\WavePlayer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Core\StreamSpecifier.cs" />
+    <Compile Include="Decoding\SubtitleComponent.cs" />
+    <Compile Include="Core\Utils.cs" />
+    <Compile Include="Decoding\VideoComponent.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Rendering\AudioRenderer.cs" />
+    <Compile Include="Rendering\IRenderer.cs" />
+    <Compile Include="Rendering\SubtitleRenderer.cs" />
+    <Compile Include="Rendering\VideoRenderer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ffme-preview.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="MediaElement.png" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,142 @@
+This file includes the licenses of all code and resources I have used to create this library.
+
+=================================================================================================
+Unosquare FFME
+=================================================================================================
+Microsoft Public License (Ms-PL)
+
+This license governs use of the accompanying software. If you use the software, you
+accept this license. If you do not accept the license, do not use the software.
+
+1. Definitions
+The terms "reproduce," "reproduction," "derivative works," and "distribution" have the
+same meaning here as under U.S. copyright law.
+A "contribution" is the original software, or any additions or changes to the software.
+A "contributor" is any person that distributes its contribution under this license.
+"Licensed patents" are a contributor's patent claims that read directly on its contribution.
+
+2. Grant of Rights
+(A) Copyright Grant- Subject to the terms of this license, including the license conditions and 
+limitations in section 3, each contributor grants you a non-exclusive, worldwide, royalty-free 
+copyright license to reproduce its contribution, prepare derivative works of its contribution, 
+and distribute its contribution or any derivative works that you create.
+(B) Patent Grant- Subject to the terms of this license, including the license conditions and 
+limitations in section 3, each contributor grants you a non-exclusive, worldwide, royalty-free 
+license under its licensed patents to make, have made, use, sell, offer for sale, import, and/or 
+otherwise dispose of its contribution in the software or derivative works of the contribution 
+in the software.
+
+3. Conditions and Limitations
+(A) No Trademark License- This license does not grant you rights to use any contributors' name, 
+logo, or trademarks.
+(B) If you bring a patent claim against any contributor over patents that you claim are infringed 
+by the software, your patent license from such contributor to the software ends automatically.
+(C) If you distribute any portion of the software, you must retain all copyright, patent, trademark
+, and attribution notices that are present in the software.
+(D) If you distribute any portion of the software in source code form, you may do so only under
+this license by including a complete copy of this license with your distribution. If you distribute
+any portion of the software in compiled or object code form, you may only do so under a license 
+that complies with this license.
+(E) The software is licensed "as-is." You bear the risk of using it. The contributors give no 
+express warranties, guarantees or conditions. You may have additional consumer rights under your 
+local laws which this license cannot change. To the extent permitted under your local laws, the 
+contributors exclude the implied warranties of merchantability, fitness for a particular purpose 
+and non-infringement.
+
+=================================================================================================
+FFmpeg.Autogen
+=================================================================================================
+
+All FFmpeg bindings were generated using a tool called FFmpeg.Autogen
+The tool was obtained from https://github.com/Ruslan-B/FFmpeg.AutoGen
+While the tool itself is distributed under the LGPLv3, the output of the tool does not specify
+a license. I leave it up to someone else to figure it out. In any case, here is a copy of the
+license @RuslanB has posted on his GitHub repository:
+
+Copyright © Ruslan Balanukhin 2015 All rights reserved.
+
+Distributed under the GNU Lesser General Public License (LGPL) version 3.
+http://www.gnu.org/licenses/lgpl.html
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR 
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
+FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR 
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+=================================================================================================
+NAudio (Unosquare.FFME.Renderers.Wave)
+=================================================================================================
+Files under the Unosquare.FFME.Rendering.Wave namespace are derived from the NAudio Library
+Commit URL (May 13, 2017): 
+https://github.com/naudio/NAudio/commit/17c8ca2ff8c64ce1f5e6b00f74e54d7e9bccaa03
+
+Microsoft Public License (Ms-PL)
+
+This license governs use of the accompanying software. If you use the software, you
+accept this license. If you do not accept the license, do not use the software.
+
+1. Definitions
+The terms "reproduce," "reproduction," "derivative works," and "distribution" have the
+same meaning here as under U.S. copyright law.
+A "contribution" is the original software, or any additions or changes to the software.
+A "contributor" is any person that distributes its contribution under this license.
+"Licensed patents" are a contributor's patent claims that read directly on its contribution.
+
+2. Grant of Rights
+(A) Copyright Grant- Subject to the terms of this license, including the license conditions and 
+limitations in section 3, each contributor grants you a non-exclusive, worldwide, royalty-free 
+copyright license to reproduce its contribution, prepare derivative works of its contribution, 
+and distribute its contribution or any derivative works that you create.
+(B) Patent Grant- Subject to the terms of this license, including the license conditions and 
+limitations in section 3, each contributor grants you a non-exclusive, worldwide, royalty-free 
+license under its licensed patents to make, have made, use, sell, offer for sale, import, and/or 
+otherwise dispose of its contribution in the software or derivative works of the contribution 
+in the software.
+
+3. Conditions and Limitations
+(A) No Trademark License- This license does not grant you rights to use any contributors' name, 
+logo, or trademarks.
+(B) If you bring a patent claim against any contributor over patents that you claim are infringed 
+by the software, your patent license from such contributor to the software ends automatically.
+(C) If you distribute any portion of the software, you must retain all copyright, patent, trademark
+, and attribution notices that are present in the software.
+(D) If you distribute any portion of the software in source code form, you may do so only under
+this license by including a complete copy of this license with your distribution. If you distribute
+any portion of the software in compiled or object code form, you may only do so under a license 
+that complies with this license.
+(E) The software is licensed "as-is." You bear the risk of using it. The contributors give no 
+express warranties, guarantees or conditions. You may have additional consumer rights under your 
+local laws which this license cannot change. To the extent permitted under your local laws, the 
+contributors exclude the implied warranties of merchantability, fitness for a particular purpose 
+and non-infringement.
+
+=================================================================================================
+Logos, Icons, Images
+=================================================================================================
+
+The FFmpeg image/logo/icon was created by Barry Mieny and obtained from his DeviantArt site:
+http://barrymieny.deviantart.com/art/isabi3-for-Windows-105473015
+The only modifications added were some sropping, size optimization and a background grid for the
+control's preview.
+
+This work of art is distributed under the following license:
+Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY-NC-SA 3.0) which basically means that
+
+You are free to:
+Share — copy and redistribute the material in any medium or format
+Adapt — remix, transform, and build upon the material
+The licensor cannot revoke these freedoms as long as you follow the license terms.
+
+Under the following terms:
+Attribution — You must give appropriate credit, provide a link to the license, and indicate if 
+changes were made. You may do so in any reasonable manner, but not in any way that suggests the 
+licensor endorses you or your use.
+NonCommercial — You may not use the material for commercial purposes.
+ShareAlike — If you remix, transform, or build upon the material, you must distribute your 
+contributions under the same license as the original.
+
+Please see the full license here: https://creativecommons.org/licenses/by-nc-sa/3.0/legalcode
