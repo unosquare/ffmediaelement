@@ -88,17 +88,6 @@
         public TimeSpan Duration { get; }
 
         /// <summary>
-        /// Gets the number of frames that have been decoded by this component
-        /// </summary>
-        public ulong DecodedFrameCount { get; private set; }
-
-        /// <summary>
-        /// Gets the number of packets that have been received
-        /// by this media component.
-        /// </summary>
-        public ulong ReceivedPacketCount { get; private set; }
-
-        /// <summary>
         /// Gets the current length in bytes of the 
         /// packet buffer. Limit your Reads to something reasonable before
         /// this becomes too large.
@@ -122,7 +111,8 @@
         public string CodecName { get; }
 
         /// <summary>
-        /// Gets the bitrate of this component. Return 0 for unknown.
+        /// Gets the bitrate of this component as reported by the codec context. 
+        /// Returns 0 for unknown.
         /// </summary>
         public int Bitrate { get; }
 
@@ -286,7 +276,6 @@
         {
             if (packet == null) return;
             Packets.Push(packet);
-            ReceivedPacketCount += 1;
         }
 
         /// <summary>
@@ -297,7 +286,6 @@
         {
             if (PacketBufferCount <= 0) return new List<MediaFrame>(0);
             var decodedFrames = DecodeNextPacketInternal();
-            DecodedFrameCount += (ulong)decodedFrames.Count;
             return decodedFrames;
         }
 

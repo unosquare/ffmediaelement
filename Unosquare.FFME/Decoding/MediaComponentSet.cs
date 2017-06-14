@@ -114,28 +114,6 @@
         }
 
         /// <summary>
-        /// Gets the sum of decoded frame count of all media components.
-        /// </summary>
-        public ulong DecodedFrameCount
-        {
-            get
-            {
-                return (ulong)All.Sum(c => (double)c.DecodedFrameCount);
-            }
-        }
-
-        /// <summary>
-        /// Gets the sum of received packets of all media components.
-        /// </summary>
-        public ulong ReceivedPacketCount
-        {
-            get
-            {
-                return (ulong)All.Sum(c => (double)c.ReceivedPacketCount);
-            }
-        }
-
-        /// <summary>
         /// Gets the length in bytes of the packet buffer.
         /// These packets are the ones that have not been yet deecoded.
         /// </summary>

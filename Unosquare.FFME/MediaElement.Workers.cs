@@ -84,12 +84,12 @@
         /// Gets a value indicating whether more frames can be decoded from the packet queue.
         /// That is, if we have packets in the packet buffer or if we are not at the end of the stream.
         /// </summary>
-        private bool CanReadMoreFrames { get { return Container.Components.PacketBufferLength > 0 || CanReadMorePackets; } }
+        private bool CanReadMoreFrames { get { return CanReadMorePackets || Container.Components.PacketBufferLength > 0; } }
 
         /// <summary>
         /// Gets a value indicating whether more frames can be converted into blocks.
         /// </summary>
-        private bool CanReadMoreBlocks { get { return Frames.Any(f => f.Value.Count > 0) || CanReadMoreFrames || CanReadMorePackets; } }
+        private bool CanReadMoreBlocks { get { return CanReadMoreFrames || Frames.Any(f => f.Value.Count > 0); } }
 
         #endregion
 
@@ -98,7 +98,7 @@
         /// <summary>
         /// Gets a value indicating whether more frames can be converted into blocks of the given type.
         /// </summary>
-        private bool CanReadMoreBlocksOf(MediaType t) { return Frames[t].Count > 0 || CanReadMoreFrames || CanReadMorePackets; }
+        private bool CanReadMoreBlocksOf(MediaType t) { return CanReadMoreFrames || Frames[t].Count > 0; }
 
         /// <summary>
         /// Dequeues the next available frame and converts it into a block of the appropriate type,
@@ -270,26 +270,30 @@
         internal async void RunBlockRenderingWorker()
         {
 
-            #region Initialize Running State
+            #region 0. Initialize Running State
 
             // Holds the main media type
             var main = Container.Components.Main.MediaType;
             // Holds the auxiliary media types
-            var auxs = Container.Components.All.Where(c => c.MediaType != main).ToArray();
+            var auxs = Container.Components.MediaTypes.Where(t => t != main).ToArray();
+            // Holds all components
+            var all = Container.Components.MediaTypes.ToArray();
 
             // Create and reset all the tracking variables
             var hasRendered = new MediaTypeDictionary<bool>();
             var renderIndex = new MediaTypeDictionary<int>();
             var renderBlock = new MediaTypeDictionary<MediaBlock>();
 
-            foreach (var t in Container.Components.MediaTypes)
+            // reset all state variables for all components
+            foreach (var t in all)
             {
                 hasRendered[t] = false;
                 renderIndex[t] = -1;
                 renderBlock[t] = null;
+                LastRenderTime[t] = TimeSpan.MinValue;
             }
 
-            // Buffer some blocks
+            // Buffer some blocks and adjust the clock to the start position
             BufferBlocks(BufferCacheLength);
             Clock.Position = Blocks[main].RangeStartTime;
             var clockPosition = Clock.Position;
@@ -299,7 +303,7 @@
             while (true)
             {
 
-                #region Control and Capture
+                #region 1. Control and Capture
 
                 // Execute commands at the beginning of the cycle
                 await Commands.ProcessNext();
@@ -313,7 +317,7 @@
 
                 #endregion
 
-                #region Handle Main Component
+                #region 2. Handle Main Component
 
                 renderIndex[main] = Blocks[main].IndexOf(clockPosition);
 
@@ -328,76 +332,100 @@
 
                     clockPosition = Clock.Position;
                     renderIndex[main] = Blocks[main].IndexOf(clockPosition);
+                    LastRenderTime[main] = TimeSpan.MinValue;
+
+                    // a forced sync is basically a seek operation.
+                    foreach (var t in all) Renderers[t].Seek();
                 }
+
+                // capture the render block based on it index
+                renderBlock[main] = Blocks[main][renderIndex[main]];
+
+                // render the frame if we have not rendered it
+                if ((renderBlock[main].StartTime != LastRenderTime[main] || LastRenderTime[main] == TimeSpan.MinValue)
+                    && (IsPlaying == false || clockPosition.Ticks >= renderBlock[main].StartTime.Ticks))
+                {
+                    // Record the render time
+                    LastRenderTime[main] = renderBlock[main].StartTime;
+
+                    // Update the position;
+                    // instead of the continuous clock position, consider using the discrete block start time. (renderBlock[t].StartTime)
+                    UpdatePosition(clockPosition);
+
+                    RenderBlock(renderBlock[main], clockPosition, renderIndex[main]);
+                    hasRendered[main] = true;
+                }
+
 
                 #endregion
 
+                #region 3. Handle Auxiliary Components
+
                 // Render each of the Media Types if it is time to do so.
-                foreach (var t in Container.Components.MediaTypes)
+                foreach (var t in auxs)
                 {
-                    var blocks = Blocks[t];
-                    renderIndex[t] = blocks.IndexOf(clockPosition);
+                    // The auxiliary position is really what the render time of the main component is
+                    // as opposed to the clock. This ensured main and auxiliary components are in sync
+                    var auxiliaryPosition = LastRenderTime[main] == TimeSpan.MinValue ?
+                        clockPosition : LastRenderTime[main];
+
+                    renderIndex[t] = Blocks[t].IndexOf(auxiliaryPosition);
 
                     // If it's a secondary stream, try to catch up with the primary stream as quickly as possible
-                    while (t != main
-                        && blocks.RangeEndTime <= Blocks[main].RangeStartTime
-                        && renderIndex[t] >= blocks.Count - 1
+                    // by skipping the queued blocks and adding new ones as quickly as possible.
+                    while (Blocks[t].RangeEndTime <= Blocks[main].RangeStartTime
+                        && renderIndex[t] >= Blocks[t].Count - 1
                         && CanReadMoreBlocksOf(t))
                     {
-                        if (AddNextBlock(t) == null)
-                            break;
-
-                        renderIndex[t] = blocks.IndexOf(clockPosition);
+                        if (AddNextBlock(t) == null) break;
+                        renderIndex[t] = Blocks[t].IndexOf(auxiliaryPosition);
                         LastRenderTime[t] = TimeSpan.MinValue;
                     }
 
+                    // capture the latest renderindex
+                    renderIndex[t] = Blocks[t].IndexOf(auxiliaryPosition);
+
                     // Skip to next stream component if we have nothing left to do here :(
-                    if ((renderIndex[t] = blocks.IndexOf(clockPosition)) < 0)
-                        continue;
+                    if (renderIndex[t] < 0) continue;
 
                     // Retrieve the render block
-                    renderBlock[t] = blocks[renderIndex[t]];
+                    renderBlock[t] = Blocks[t][renderIndex[t]];
                     hasRendered[t] = false;
 
                     // render the frame if we have not rendered
                     if ((renderBlock[t].StartTime != LastRenderTime[t] || LastRenderTime[t] == TimeSpan.MinValue)
-                        && clockPosition.Ticks >= renderBlock[t].StartTime.Ticks)
+                        && (IsPlaying == false || auxiliaryPosition.Ticks >= renderBlock[t].StartTime.Ticks))
                     {
-                        // only render a secondary block if the primary block has been rendered first
-                        // otherwise, wait for the primary block to occur and skip rendering of secondary block.
-                        // TODO: still needs more logic for lip-sync quality sync :)
-                        var skewTime = TimeSpan.FromTicks(renderBlock[t].StartTime.Ticks - LastRenderTime[main].Ticks);
-                        if (t != main && IsPlaying && skewTime.TotalMilliseconds <= 0)
-                            continue;
-
-                        // Record the render time
                         LastRenderTime[t] = renderBlock[t].StartTime;
-
-                        // Update the position;
-                        // instead of the continuous clock position, consider using the discrete block start time. (renderBlock[t].StartTime)
-                        if (t == main)
-                            UpdatePosition(clockPosition);
-
-                        RenderBlock(renderBlock[t], clockPosition, renderIndex[t]);
+                        RenderBlock(renderBlock[t], auxiliaryPosition, renderIndex[t]);
                         hasRendered[t] = true;
                     }
+                }
+
+                #endregion
+
+                #region 4. Keep Blocks Buffered
+
+                foreach (var t in all)
+                {
+                    if (hasRendered[t] == false) continue;
 
                     // Add the next block if the conditions require us to do so:
                     // If rendered, then we need to discard the oldest and add the newest
                     // If the render index is greater than half, the capacity, add a new block
-                    if (hasRendered[t])
+                    while (Blocks[t].IsFull == false || renderIndex[t] + 1 > Blocks[t].Capacity / 2)
                     {
-                        while (Blocks[t].IsFull == false || renderIndex[t] + 1 > Blocks[t].Capacity / 2)
-                        {
-                            if (AddNextBlock(t) == null) break;
-                            renderIndex[t] = blocks.IndexOf(clockPosition);
-                        }
-
-                        hasRendered[t] = false;
+                        if (AddNextBlock(t) == null) break;
                         renderIndex[t] = Blocks[t].IndexOf(clockPosition);
                     }
 
+                    hasRendered[t] = false;
+                    renderIndex[t] = Blocks[t].IndexOf(clockPosition);
                 }
+
+                #endregion
+
+                #region 5. Detect End of Media
 
                 // Detect end of block rendering
                 if (CanReadMoreBlocksOf(main) == false && renderIndex[main] == Blocks[main].Count - 1)
@@ -419,11 +447,17 @@
                     HasMediaEnded = false;
                 }
 
+                #endregion
+
+                #region 6. Finalize the Rendering Cycle
+
                 BlockRenderingCycle.Set();
 
                 // Pause for a bit if we have no more commands to process.
                 if (Commands.PendingCount <= 0)
                     await Task.Delay(1);
+
+                #endregion
             }
 
             BlockRenderingCycle.Set();
