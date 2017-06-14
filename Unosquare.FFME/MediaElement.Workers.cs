@@ -183,20 +183,23 @@
 
                 // Read a bunch of packets at a time
                 packetsRead = 0;
-                while (CanReadMorePackets
+                while (Container.Components.PacketBufferLength < DownloadCacheLength
                     && packetsRead < PacketReadBatchCount
-                    && Container.Components.PacketBufferLength < DownloadCacheLength)
+                    && CanReadMorePackets)
                 {
                     Container.Read();
                     packetsRead++;
                 }
 
+                // Send an update about the download progress
                 DownloadProgress = Math.Min(1d, Math.Round(
                     (double)Container.Components.PacketBufferLength / DownloadCacheLength, 3));
 
+                // finish the reading cycle.
                 PacketReadingCycle.Set();
 
-                if (!CanReadMorePackets || Container.Components.PacketBufferLength >= DownloadCacheLength)
+                // Wait some if we have a full packet buffer or we are unable to read more packets.
+                if (Container.Components.PacketBufferLength >= DownloadCacheLength || CanReadMorePackets == false)
                     await Task.Delay(1);
 
             }
@@ -218,7 +221,7 @@
             while (IsTaskCancellationPending == false)
             {
                 // Wait for a seek operation to complete (if any)
-                // and initiate a decoding cycle.
+                // and initiate a frame decoding cycle.
                 SeekingDone.Wait();
                 FrameDecodingCycle.Reset();
 
