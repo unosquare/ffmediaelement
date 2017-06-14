@@ -5,6 +5,7 @@
     using System.Windows;
     using System.Windows.Media;
     using System.Windows.Media.Imaging;
+    using System.Windows.Threading;
 
     /// <summary>
     /// Provides Video Image Rendering via a WPF Writable Bitmap
@@ -100,7 +101,7 @@
         /// </summary>
         public void Close()
         {
-            MediaElement.InvokeOnUI(() =>
+            MediaElement.InvokeOnUI(DispatcherPriority.Render, () =>
             {
                 if (TargetBitmap == null) return;
                 TargetBitmap = null;
@@ -127,7 +128,7 @@
             var block = mediaBlock as VideoBlock;
             if (block == null) return;
 
-            MediaElement.InvokeOnUI(() =>
+            MediaElement.InvokeOnUI(DispatcherPriority.Render, () =>
             {
                 if (TargetBitmap == null) return;
 

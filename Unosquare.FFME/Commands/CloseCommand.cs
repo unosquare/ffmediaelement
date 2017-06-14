@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME.Commands
 {
     using System;
+    using System.Windows.Threading;
 
     /// <summary>
     /// Implements the logic to close a media stream.
@@ -75,7 +76,7 @@
             m.LastRenderTime.Clear();
 
             // Update notification properties
-            m.InvokeOnUI(() =>
+            m.InvokeOnUI(DispatcherPriority.DataBind, () =>
             {
                 m.NotifyPropertyChanges();
             });

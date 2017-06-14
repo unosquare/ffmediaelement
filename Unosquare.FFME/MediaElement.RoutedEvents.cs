@@ -28,9 +28,9 @@
         /// <summary>
         /// Asynchronously invokes the given instructions on the main application dispatcher.
         /// </summary>
+        /// <param name="priority">The priority. Set it to Normal by default.</param>
         /// <param name="action">The action.</param>
-        /// <returns></returns>
-        internal void InvokeOnUI(Action action)
+        internal void InvokeOnUI(DispatcherPriority priority, Action action)
         {
             if (Dispatcher == null || Dispatcher.CurrentDispatcher == Dispatcher)
             {
@@ -41,7 +41,7 @@
             try
             {
                 if (Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished) return;
-                Dispatcher.Invoke(action, DispatcherPriority.Normal); // Normal is 1 more than DataBind
+                Dispatcher.Invoke(action, priority); // Normal is 1 more than DataBind
             }
             catch (TaskCanceledException)
             {
@@ -59,7 +59,7 @@
         /// </summary>
         private void RaiseBufferingStartedEvent()
         {
-            InvokeOnUI(() => { RaiseEvent(new RoutedEventArgs(BufferingStartedEvent, this)); });
+            InvokeOnUI(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(BufferingStartedEvent, this)); });
         }
 
         /// <summary>
@@ -67,7 +67,7 @@
         /// </summary>
         private void RaiseBufferingEndedEvent()
         {
-            InvokeOnUI(() => { RaiseEvent(new RoutedEventArgs(BufferingEndedEvent, this)); });
+            InvokeOnUI(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(BufferingEndedEvent, this)); });
         }
 
         /// <summary>
@@ -77,7 +77,7 @@
         internal void RaiseMediaFailedEvent(Exception ex)
         {
             Container?.Log(MediaLogMessageType.Error, $"Media Failure - {ex?.GetType()}: {ex?.Message}");
-            InvokeOnUI(() => { RaiseEvent(CreateExceptionRoutedEventArgs(MediaFailedEvent, this, ex)); });
+            InvokeOnUI(DispatcherPriority.DataBind, () => { RaiseEvent(CreateExceptionRoutedEventArgs(MediaFailedEvent, this, ex)); });
         }
 
         /// <summary>
@@ -85,7 +85,7 @@
         /// </summary>
         internal void RaiseMediaOpenedEvent()
         {
-            InvokeOnUI(() => { RaiseEvent(new RoutedEventArgs(MediaOpenedEvent, this)); });
+            InvokeOnUI(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaOpenedEvent, this)); });
         }
 
         /// <summary>
@@ -93,7 +93,7 @@
         /// </summary>
         internal void RaiseMediaOpeningEvent()
         {
-            InvokeOnUI(() =>
+            InvokeOnUI(DispatcherPriority.DataBind, () =>
             {
                 RaiseEvent(new MediaOpeningRoutedEventArgs(MediaOpeningEvent, this, Container.MediaOptions));
             });
@@ -104,7 +104,7 @@
         /// </summary>
         private void RaiseMediaEndedEvent()
         {
-            InvokeOnUI(() => { RaiseEvent(new RoutedEventArgs(MediaEndedEvent, this)); });
+            InvokeOnUI(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaEndedEvent, this)); });
         }
 
         #endregion

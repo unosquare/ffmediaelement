@@ -6,6 +6,7 @@
     using System;
     using System.Threading;
     using System.Windows;
+    using System.Windows.Threading;
 
     /// <summary>
     /// Provides Audio Output capabilities by writing samples to the default audio output device.
@@ -57,7 +58,7 @@
                 Initialize();
 
             if (Application.Current != null)
-                MediaElement.InvokeOnUI(() =>
+                MediaElement.InvokeOnUI(DispatcherPriority.Normal, () =>
                 {
                     Application.Current.Exit += OnApplicationExit;
                 });
@@ -103,7 +104,7 @@
             {
                 // Remove the event handler
                 if (Application.Current != null)
-                    MediaElement.InvokeOnUI(() =>
+                    MediaElement.InvokeOnUI(DispatcherPriority.Normal, () =>
                     {
                         Application.Current.Exit -= OnApplicationExit;
                     });

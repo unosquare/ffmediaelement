@@ -7,6 +7,7 @@
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Media;
+    using System.Windows.Threading;
 
     partial class MediaElement
     {
@@ -474,7 +475,7 @@
         internal void UpdatePosition(TimeSpan currentPosition)
         {
             IsPositionUpdating = true;
-            InvokeOnUI(() =>
+            InvokeOnUI(DispatcherPriority.DataBind, () =>
             {
                 SetValue(PositionProperty, currentPosition);
             });

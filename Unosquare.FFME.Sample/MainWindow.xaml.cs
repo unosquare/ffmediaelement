@@ -109,7 +109,7 @@
         {
             
             // The yadif filter deinterlaces the video
-            e.Options.VideoFilter = "yadif";
+            //e.Options.VideoFilter = "yadif";
             
             //e.Options.IsAudioDisabled = true;
             e.Options.LogMessageCallback = new Action<MediaLogMessageType, string>((t, m) =>

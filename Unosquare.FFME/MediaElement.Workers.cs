@@ -131,16 +131,16 @@
 
             // Buffer some packets
             while (CanReadMorePackets && Container.Components.PacketBufferLength < packetBufferLength)
-                PacketReadingCycle.Wait(1);
+                PacketReadingCycle.Wait();
 
-            // Wait up to 1 second to decode frames. This happens much faster but 1s is plenty.
-            FrameDecodingCycle.Wait(1000);
+            // Wait for 1 frame decoding cycle
+            //FrameDecodingCycle.Wait();
 
             // Buffer some blocks
             while (CanReadMoreBlocks && Blocks[main].CapacityPercent <= 0.5d)
             {
-                PacketReadingCycle.Wait(1);
-                FrameDecodingCycle.Wait(1);
+                PacketReadingCycle.Wait();
+                FrameDecodingCycle.Wait();
                 BufferingProgress = Blocks[main].CapacityPercent / 0.5d;
                 foreach (var t in Container.Components.MediaTypes)
                     AddNextBlock(t);
@@ -166,7 +166,7 @@
 
         #endregion
 
-        #region Workers (Reading, Decoding, Rendering)
+        #region Packet Reading Worker
 
         /// <summary>
         /// Runs the read task which keeps a packet buffer as full as possible.
@@ -203,6 +203,10 @@
 
             PacketReadingCycle.Set();
         }
+
+        #endregion
+
+        #region Frame Decoding Worker
 
         /// <summary>
         /// Continually decodes the available packet buffer to have as
@@ -244,7 +248,7 @@
                 // Complete the frame decoding cycle
                 FrameDecodingCycle.Set();
 
-                // Give it a break if there wa snothing to decode.
+                // Give it a break if there was nothing to decode.
                 if (decodedFrames <= 0)
                     await Task.Delay(1);
 
@@ -254,16 +258,24 @@
 
         }
 
+        #endregion
+
+        #region Block Rendering Worker
+
         /// <summary>
         /// Continuously converts frmes and places them on the corresponding
         /// block buffer. This task is responsible for keeping track of the clock
         /// and calling the render methods appropriate for the current clock position.
         /// </summary>
-        /// <param name="control">The control.</param>
-        /// <returns></returns>
         internal async void RunBlockRenderingWorker()
         {
+
+            #region Initialize Running State
+
+            // Holds the main media type
             var main = Container.Components.Main.MediaType;
+            // Holds the auxiliary media types
+            var auxs = Container.Components.All.Where(c => c.MediaType != main).ToArray();
 
             // Create and reset all the tracking variables
             var hasRendered = new MediaTypeDictionary<bool>();
@@ -282,21 +294,32 @@
             Clock.Position = Blocks[main].RangeStartTime;
             var clockPosition = Clock.Position;
 
+            #endregion
+
             while (true)
             {
+
+                #region Control and Capture
+
+                // Execute commands at the beginning of the cycle
                 await Commands.ProcessNext();
 
-                if (IsTaskCancellationPending)
-                    break;
+                // Check if one of the commands has requested an exit
+                if (IsTaskCancellationPending) break;
 
                 // Capture current time and render index
                 BlockRenderingCycle.Reset();
                 clockPosition = Clock.Position;
+
+                #endregion
+
+                #region Handle Main Component
+
                 renderIndex[main] = Blocks[main].IndexOf(clockPosition);
 
                 // Check for out-of sync issues (i.e. after seeking), being cautious about EOF/media ended scenarios
                 // in which more blocks cannot be read. (The clock is on or beyond the Duration)
-                if (CanReadMoreBlocksOf(main) && (Blocks[main].IsInRange(clockPosition) == false || renderIndex[main] < 0))
+                if ((renderIndex[main] < 0 || Blocks[main].IsInRange(clockPosition) == false) && CanReadMoreBlocksOf(main))
                 {
                     BufferBlocks(BufferCacheLength);
                     Clock.Position = Blocks[main].RangeStartTime;
@@ -306,6 +329,8 @@
                     clockPosition = Clock.Position;
                     renderIndex[main] = Blocks[main].IndexOf(clockPosition);
                 }
+
+                #endregion
 
                 // Render each of the Media Types if it is time to do so.
                 foreach (var t in Container.Components.MediaTypes)
@@ -349,6 +374,7 @@
                         LastRenderTime[t] = renderBlock[t].StartTime;
 
                         // Update the position;
+                        // instead of the continuous clock position, consider using the discrete block start time. (renderBlock[t].StartTime)
                         if (t == main)
                             UpdatePosition(clockPosition);
 

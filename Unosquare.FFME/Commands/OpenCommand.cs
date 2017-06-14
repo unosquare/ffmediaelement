@@ -5,6 +5,7 @@
     using Core;
     using Decoding;
     using Rendering;
+    using System.Windows.Threading;
 
     /// <summary>
     /// Implements the logic to open a media stream.
@@ -97,7 +98,7 @@
             finally
             {
                 m.IsOpening = false;
-                m.InvokeOnUI(() => { m.NotifyPropertyChanges(); });
+                m.InvokeOnUI(DispatcherPriority.DataBind, () => { m.NotifyPropertyChanges(); });
                 m.Container?.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Completed");
             }
         }
