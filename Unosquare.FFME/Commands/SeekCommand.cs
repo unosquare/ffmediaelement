@@ -51,8 +51,8 @@
                     return;
                 }
 
-                m.PacketReadingCycle.Wait();
-                m.FrameDecodingCycle.Wait();
+                m.PacketReadingCycle.WaitOne();
+                m.FrameDecodingCycle.WaitOne();
 
                 // Clear Blocks and frames, reset the render times
                 foreach (var t in m.Container.Components.MediaTypes)

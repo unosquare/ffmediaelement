@@ -35,9 +35,9 @@
             m.IsTaskCancellationPending = true;
 
             // Wait for cycles to complete.
-            m.BlockRenderingCycle.Wait();
-            m.FrameDecodingCycle.Wait();
-            m.PacketReadingCycle.Wait();
+            m.BlockRenderingCycle.WaitOne();
+            m.FrameDecodingCycle.WaitOne();
+            m.PacketReadingCycle.WaitOne();
 
             // Wait for threads to finish
             m.BlockRenderingTask?.Join();
@@ -76,10 +76,7 @@
             m.LastRenderTime.Clear();
 
             // Update notification properties
-            m.InvokeOnUI(DispatcherPriority.DataBind, () =>
-            {
-                m.NotifyPropertyChanges();
-            });
+            m.InvokeOnUI(DispatcherPriority.DataBind, () => { m.NotifyPropertyChanges(); });
 
             m.MediaState = System.Windows.Controls.MediaState.Close;
         }

@@ -1,42 +1,46 @@
 {
-    "metadata": [
+  "metadata": [
+    {
+      "src": [
         {
-            "src": [
-                {
-                    "files": [
-                        "Unosquare.FFmpegMediaElement/**/*.cs"
-                    ],
-                    "exclude": [
-                        "**/bin/**",
-                        "**/obj/**",
-                        "**/NAudio/**",
-                        "**/FFmpeg.Autogen/**"
-                    ]
-                }
-            ],
-            "dest": "obj/api"
+          "files": [
+            "Unosquare.FFME/**/*.cs"
+          ],
+          "exclude": [
+            "**/bin/**",
+            "**/obj/**",
+            "**/Commands/**",
+            "**/Core/**",
+            "**/Decoding/**",
+            "**/FFmpeg/**",
+            "**/Rendering/**",
+            "**/Resources/**"
+          ]
         }
-    ],
-    "build": {
-        "content": [
-            {
-                "files": [
-                    "**/*.yml"
-                ],
-                "cwd": "obj/api",
-                "dest": "api"
-            },
-            {
-                "files": [
-                    "*.md",
-                    "toc.yml"
-                ]
-            }
-        ],
-        "globalMetadata": {
-            "_appTitle": "WPF MediaElement replacement based on FFmpeg",
-            "_enableSearch": true
-        },
-        "dest": "_site"
+      ],
+      "dest": "obj/api"
     }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [
+          "**/*.yml"
+        ],
+        "cwd": "obj/api",
+        "dest": "api"
+      },
+      {
+        "files": [
+          "*.md",
+          "toc.yml"
+        ]
+      }
+    ],
+    "globalMetadata": {
+      "_appTitle": "FFME: WPF MediaElement replacement based on FFmpeg",
+      "_enableSearch": true
+    },
+    "dest": "_site"
+  }
 }

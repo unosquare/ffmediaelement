@@ -2,7 +2,9 @@
 {
     using Core;
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.ComponentModel;
     using System.Windows;
     using System.Windows.Controls;
 
@@ -16,6 +18,8 @@
         private bool m_IsBuffering = false;
         private MediaState m_MediaState = MediaState.Close;
         private bool m_IsOpening = false;
+        private readonly ObservableCollection<KeyValuePair<string, string>> m_MetadataBase;
+        private readonly ICollectionView m_Metadata;
 
         #endregion
 
@@ -25,7 +29,7 @@
         /// Provides key-value pairs of the metadata contained in the media.
         /// Returns null when media has not been loaded.
         /// </summary>
-        public ReadOnlyDictionary<string, string> Metadata { get { return Container == null ? null : Container.Metadata; } }
+        public ICollectionView Metadata { get { return m_Metadata; } }
 
         /// <summary>
         /// Gets the media format. Returns null when media has not been loaded.
@@ -256,13 +260,27 @@
         #region Methods
 
         /// <summary>
+        /// Updates the metada property.
+        /// </summary>
+        internal void UpdateMetadaProperty()
+        {
+            m_MetadataBase.Clear();
+            if (Container != null)
+                foreach (var kvp in Container.Metadata)
+                    m_MetadataBase.Add(kvp);
+
+            OnPropertyChanged(nameof(Metadata));
+        }
+
+        /// <summary>
         /// Updates the media properties notifying that there are new values to be read from all of them.
         /// Call this method only when necessary because it creates a lot of events.
         /// </summary>
         internal void NotifyPropertyChanges()
         {
+            UpdateMetadaProperty();
+
             OnPropertyChanged(nameof(MediaFormat));
-            OnPropertyChanged(nameof(Metadata));
             OnPropertyChanged(nameof(HasAudio));
             OnPropertyChanged(nameof(HasVideo));
             OnPropertyChanged(nameof(VideoCodec));

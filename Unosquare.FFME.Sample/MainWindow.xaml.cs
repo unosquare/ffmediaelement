@@ -94,7 +94,7 @@
             //ConsoleManager.ShowConsole();
             InitializeComponent();
             UrlTextBox.Text = TestInputs.MatroskaLocalFile;
-
+            
             Media.MediaOpening += Media_MediaOpening;
             Media.MediaFailed += Media_MediaFailed;
         }

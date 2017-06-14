@@ -4,10 +4,12 @@
     using Core;
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
     using System.Windows;
     using System.Windows.Controls;
+    using System.Windows.Data;
     using System.Windows.Interop;
     using System.Windows.Markup;
     using System.Windows.Media.Imaging;
@@ -85,6 +87,9 @@
                 var targetBitmap = new WriteableBitmap(bitmapSource);
                 ViewBox.Source = targetBitmap;
             }
+
+            m_MetadataBase = new ObservableCollection<KeyValuePair<string, string>>();
+            m_Metadata = CollectionViewSource.GetDefaultView(m_MetadataBase) as ICollectionView;
         }
 
         #endregion

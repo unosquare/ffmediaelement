@@ -60,15 +60,15 @@
 
 
         internal Thread PacketReadingTask;
-        internal readonly ManualResetEventSlim PacketReadingCycle = new ManualResetEventSlim(true);
+        internal readonly ManualResetEvent PacketReadingCycle = new ManualResetEvent(true);
 
         internal Thread FrameDecodingTask;
-        internal readonly ManualResetEventSlim FrameDecodingCycle = new ManualResetEventSlim(true);
+        internal readonly ManualResetEvent FrameDecodingCycle = new ManualResetEvent(true);
 
         internal Thread BlockRenderingTask;
-        internal readonly ManualResetEventSlim BlockRenderingCycle = new ManualResetEventSlim(true);
+        internal readonly ManualResetEvent BlockRenderingCycle = new ManualResetEvent(true);
 
-        internal readonly ManualResetEventSlim SeekingDone = new ManualResetEventSlim(true);
+        internal readonly ManualResetEvent SeekingDone = new ManualResetEvent(true);
 
         #endregion
 
@@ -131,16 +131,13 @@
 
             // Buffer some packets
             while (CanReadMorePackets && Container.Components.PacketBufferLength < packetBufferLength)
-                PacketReadingCycle.Wait();
-
-            // Wait for 1 frame decoding cycle
-            //FrameDecodingCycle.Wait();
+                PacketReadingCycle.WaitOne();
 
             // Buffer some blocks
             while (CanReadMoreBlocks && Blocks[main].CapacityPercent <= 0.5d)
             {
-                PacketReadingCycle.Wait();
-                FrameDecodingCycle.Wait();
+                PacketReadingCycle.WaitOne();
+                FrameDecodingCycle.WaitOne();
                 BufferingProgress = Blocks[main].CapacityPercent / 0.5d;
                 foreach (var t in Container.Components.MediaTypes)
                     AddNextBlock(t);
@@ -178,9 +175,9 @@
             while (IsTaskCancellationPending == false)
             {
                 // Enter a read cycle
-                SeekingDone.Wait();
+                SeekingDone.WaitOne();
                 PacketReadingCycle.Reset();
-
+                //Container.Log(MediaLogMessageType.Debug, "RESET");
                 // Read a bunch of packets at a time
                 packetsRead = 0;
                 while (Container.Components.PacketBufferLength < DownloadCacheLength
@@ -197,7 +194,7 @@
 
                 // finish the reading cycle.
                 PacketReadingCycle.Set();
-
+                //Container.Log(MediaLogMessageType.Debug, "SET");
                 // Wait some if we have a full packet buffer or we are unable to read more packets.
                 if (Container.Components.PacketBufferLength >= DownloadCacheLength || CanReadMorePackets == false)
                     await Task.Delay(1);
@@ -222,7 +219,7 @@
             {
                 // Wait for a seek operation to complete (if any)
                 // and initiate a frame decoding cycle.
-                SeekingDone.Wait();
+                SeekingDone.WaitOne();
                 FrameDecodingCycle.Reset();
 
                 // Decode Frames if necessary
