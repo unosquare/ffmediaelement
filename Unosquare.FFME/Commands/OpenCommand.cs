@@ -75,6 +75,7 @@
                     m.Renderers[t] = CreateRenderer(t);
                 }
 
+                m.Clock.SpeedRatio = Constants.DefaultSpeedRatio;
                 m.IsTaskCancellationPending = false;
 
                 m.BlockRenderingCycle.Set();

@@ -265,7 +265,7 @@
         internal void UpdateMetadaProperty()
         {
             m_MetadataBase.Clear();
-            if (Container != null)
+            if (Container != null && Container.Metadata != null)
                 foreach (var kvp in Container.Metadata)
                     m_MetadataBase.Add(kvp);
 
@@ -306,6 +306,7 @@
             {
                 Volume = Constants.DefaultVolume;
                 Balance = Constants.DefaultBalance;
+                SpeedRatio = Constants.DefaultSpeedRatio;
                 IsMuted = false;
                 Position = TimeSpan.Zero;
             }

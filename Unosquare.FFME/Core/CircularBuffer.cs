@@ -120,12 +120,14 @@
         /// <param name="source">The source.</param>
         /// <param name="length">The length.</param>
         /// <param name="writeTag">The write tag.</param>
+        /// <param name="overwrite">if set to <c>true</c>, overwrites the data even if it has not been read.</param>
+        /// <exception cref="InvalidOperationException">Read</exception>
         /// <exception cref="System.InvalidOperationException">Read</exception>
-        public void Write(IntPtr source, int length, TimeSpan writeTag)
+        public void Write(IntPtr source, int length, TimeSpan writeTag, bool overwrite)
         {
             lock (SyncLock)
             {
-                if (ReadableCount + length > Length)
+                if (overwrite == false && length > WritableCount)
                     throw new InvalidOperationException(
                         $"Unable to write to circular buffer. Call the {nameof(Read)} method to make some additional room");
 

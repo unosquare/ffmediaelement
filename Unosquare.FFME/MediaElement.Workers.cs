@@ -361,14 +361,19 @@
 
                 #region 3. Handle Auxiliary Components
 
+                // The auxiliary position is really what the render time of the main component is
+                // as opposed to the clock. This ensures main and auxiliary components are in sync
+                var auxiliaryPosition = clockPosition;
+                if (LastRenderTime[main] != TimeSpan.MinValue)
+                {
+                    var audioSkew = main != MediaType.Audio ? 
+                        TimeSpan.Zero : (Renderers[main] as AudioRenderer).SkewDelay;
+                    auxiliaryPosition = LastRenderTime[main].Subtract(audioSkew);
+                }
+
                 // Render each of the Media Types if it is time to do so.
                 foreach (var t in auxs)
                 {
-                    // The auxiliary position is really what the render time of the main component is
-                    // as opposed to the clock. This ensured main and auxiliary components are in sync
-                    var auxiliaryPosition = LastRenderTime[main] == TimeSpan.MinValue ?
-                        clockPosition : LastRenderTime[main];
-
                     renderIndex[t] = Blocks[t].IndexOf(auxiliaryPosition);
 
                     // If it's a secondary stream, try to catch up with the primary stream as quickly as possible

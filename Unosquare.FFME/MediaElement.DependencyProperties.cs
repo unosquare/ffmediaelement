@@ -171,8 +171,12 @@
             if (element == null) return Constants.DefaultVolume;
             if (element.HasAudio == false) return Constants.DefaultVolume;
 
+            var targetValue = (double)value;
+            if (targetValue < Constants.MinVolume) targetValue = Constants.MinVolume;
+            if (targetValue > Constants.MaxVolume) targetValue = Constants.MaxVolume;
+
             var audioRenderer = element.Renderers[MediaType.Audio] as AudioRenderer;
-            return audioRenderer == null ? Constants.DefaultVolume : (double)value;
+            return audioRenderer == null ? Constants.DefaultVolume : targetValue;
         }
 
         private static void VolumePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -222,8 +226,12 @@
             if (element == null) return Constants.DefaultBalance;
             if (element.HasAudio == false) return Constants.DefaultBalance;
 
+            var targetValue = (double)value;
+            if (targetValue < Constants.MinBalance) targetValue = Constants.MinBalance;
+            if (targetValue > Constants.MaxBalance) targetValue = Constants.MaxBalance;
+
             var audioRenderer = element.Renderers[MediaType.Audio] as AudioRenderer;
-            return audioRenderer == null ? Constants.DefaultBalance : (double)value;
+            return audioRenderer == null ? Constants.DefaultBalance : targetValue;
         }
 
         private static void BalancePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -500,15 +508,6 @@
                               new PropertyChangedCallback(SpeedRatioPropertyChanged),
                               new CoerceValueCallback(CoerceSpeedRatioProperty)));
 
-        private static void SpeedRatioPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var element = d as MediaElement;
-            if (element == null) return;
-            if (element.Container == null) return;
-
-            var targetSpeedRatio = (double)e.NewValue;
-            //element.Media.SpeedRatio = targetSpeedRatio;
-        }
 
         public static object CoerceSpeedRatioProperty(DependencyObject d, object value)
         {
@@ -516,7 +515,22 @@
             if (element == null) return Constants.DefaultSpeedRatio;
             if (element.Container == null) return Constants.DefaultSpeedRatio;
             if (element.Container.IsStreamRealtime) return Constants.DefaultSpeedRatio;
-            return value;
+
+            var targetValue = (double)value;
+            if (targetValue < Constants.MinSpeedRatio) return Constants.MinSpeedRatio;
+            if (targetValue > Constants.MaxSpeedRatio) return Constants.MaxSpeedRatio;
+
+            return targetValue;
+        }
+
+        private static void SpeedRatioPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var element = d as MediaElement;
+            if (element == null) return;
+            if (element.Container == null) return;
+
+            var targetSpeedRatio = (double)e.NewValue;
+            element.Clock.SpeedRatio = targetSpeedRatio;
         }
 
         /// <summary>

@@ -229,13 +229,39 @@
             </DockPanel>
 
             <DockPanel LastChildFill="True" Grid.Row="1">
+                <DockPanel.Resources>
+                    <Style TargetType="Path">
+                        <Setter Property="Width" Value="10" />
+                        <Setter Property="Height" Value="10" />
+                        <Setter Property="Stroke" Value="#333" />
+                        <Setter Property="Stretch" Value="Uniform" />
+                    </Style>
+                </DockPanel.Resources>
+                <Path Data="{Binding Source={StaticResource MuteIcon}, Path=Data}"></Path>
                 <CheckBox IsChecked="{Binding ElementName=Media, Path=IsMuted}" VerticalAlignment="Center" />
+
+                <Path Data="{Binding Source={StaticResource UnmuteIcon}, Path=Data}">
+                    <Path.LayoutTransform>
+                        <ScaleTransform ScaleX="-1"></ScaleTransform>
+                    </Path.LayoutTransform>
+                </Path>
                 <Slider TickFrequency="0.1" TickPlacement="TopLeft" Width="250"
                         Minimum="-1.0" Maximum="1.0" Value="{Binding ElementName=Media, Path=Balance}"
                         SmallChange="0.1" LargeChange="0.1" />
+                <Path Data="{Binding Source={StaticResource UnmuteIcon}, Path=Data}"></Path>
+
+                <Path Data="{Binding Source={StaticResource NextIcon}, Path=Data}"></Path>
+                <Slider TickFrequency="0.1" TickPlacement="TopLeft" Width="250"
+                        Minimum="0.0" Maximum="8.0" Value="{Binding ElementName=Media, Path=SpeedRatio}"
+                        SmallChange="0.1" LargeChange="0.1" />
+
+                <Path Data="{Binding Source={StaticResource VolumeDownIcon}, Path=Data}"></Path>
+                <Path Data="{Binding Source={StaticResource VolumeUpIcon}, Path=Data}" DockPanel.Dock="Right"></Path>
                 <Slider TickFrequency="0.05" TickPlacement="TopLeft"
                         Minimum="0.0" Maximum="1.0" Value="{Binding ElementName=Media, Path=Volume}"
                         SmallChange="0.05" LargeChange="0.1" />
+                
+
             </DockPanel>
 
             <DockPanel LastChildFill="true" Grid.Row="2">

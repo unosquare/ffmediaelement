@@ -35,6 +35,9 @@
 
         private int BytesPerSample = 2;
 
+        private double SkewSeconds = 0;
+        private readonly object SkewLock = new object();
+
         #endregion
 
         #region Constructors
@@ -185,6 +188,26 @@
             set { m_IsMuted = value; }
         }
 
+        /// <summary>
+        /// Gets the delay between the logical render time and the actual sound output.
+        /// When the container writes samples to the audio buffer, it takes some time before
+        /// those samples are picked up by the sound card. This is the delay that is experienced.
+        /// </summary>
+        public TimeSpan SkewDelay
+        {
+            get
+            {
+                lock (SkewLock)
+                {
+                    if (SkewSeconds < 0.0d) return TimeSpan.Zero;
+                    var standardLatency = AudioDevice?.DesiredLatency / 1000d ?? 0d;
+                    var realtimeLatency = SkewSeconds / (AudioDevice?.NumberOfBuffers ?? 1d);
+                    return TimeSpan.FromSeconds(Math.Min(standardLatency, realtimeLatency));
+                }
+                
+            }
+        }
+
         #endregion
 
         #region Public API
@@ -210,7 +233,7 @@
                 var audioBlock = audioBlocks[currentIndex] as AudioBlock;
                 if (AudioBuffer.WriteTag < audioBlock.StartTime)
                 {
-                    AudioBuffer.Write(audioBlock.Buffer, audioBlock.BufferLength, audioBlock.StartTime);
+                    AudioBuffer.Write(audioBlock.Buffer, audioBlock.BufferLength, audioBlock.StartTime, true);
                     addedBlockCount++;
                     addedBytes += audioBlock.BufferLength;
                 }
@@ -221,6 +244,8 @@
                 if (AudioBuffer.CapacityPercent >= 0.8)
                     break;
             }
+
+            lock (SkewLock) SkewSeconds += (double)addedBytes / WaveFormat.AverageBytesPerSecond;
         }
 
         /// <summary>
@@ -246,6 +271,7 @@
         {
             //AudioDevice?.Stop();
             AudioBuffer.Clear();
+            lock (SkewLock) SkewSeconds = 0;
         }
 
         /// <summary>
@@ -262,6 +288,7 @@
         public void Seek()
         {
             AudioBuffer.Clear();
+            lock (SkewLock) SkewSeconds = 0;
         }
 
         #endregion
@@ -289,6 +316,7 @@
 
             requestedBytes = Math.Min(requestedBytes, AudioBuffer.ReadableCount);
             AudioBuffer.Read(requestedBytes, ReadBuffer, 0);
+            lock (SkewLock) SkewSeconds -= (double)requestedBytes / WaveFormat.AverageBytesPerSecond;
 
             // Samples are interleaved (left and right in 16-bit each)
             var isLeftSample = true;

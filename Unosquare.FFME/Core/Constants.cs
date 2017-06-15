@@ -43,8 +43,14 @@
         public const double DefaultBalance = 0.0d;
         public const double DefaultVolume = 1.0d;
 
-        public const decimal MaxVolume = 1.0M;
-        public const decimal MinVolume = 0.0M;
+        public const double MinSpeedRatio = 0.0d;
+        public const double MaxSpeedRatio = 8.0d;
+
+        public const double MinBalance = -1.0d;
+        public const double MaxBalance = 1.0d;
+
+        public const double MaxVolume = 1.0d;
+        public const double MinVolume = 0.0d;
 
         public static readonly ReadOnlyCollection<MediaType> MediaTypes 
             = new ReadOnlyCollection<MediaType>(Enum.GetValues(typeof(MediaType)).Cast<MediaType>().ToArray());
