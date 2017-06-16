@@ -94,23 +94,24 @@
             //ConsoleManager.ShowConsole();
             InitializeComponent();
             UrlTextBox.Text = TestInputs.MatroskaLocalFile;
-            
+
             Media.MediaOpening += Media_MediaOpening;
             Media.MediaFailed += Media_MediaFailed;
         }
 
         private void Media_MediaFailed(object sender, ExceptionRoutedEventArgs e)
         {
-            MessageBox.Show($"Media Failed: {e.ErrorException.GetType()}\r\n{e.ErrorException.Message}", 
+            MessageBox.Show($"Media Failed: {e.ErrorException.GetType()}\r\n{e.ErrorException.Message}",
                 "MediaElement Error", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
         }
 
         private void Media_MediaOpening(object sender, MediaOpeningRoutedEventArgs e)
         {
-            
+
             // The yadif filter deinterlaces the video
-            //e.Options.VideoFilter = "yadif";
-            
+            if (UrlTextBox.Text.StartsWith("udp://"))
+                e.Options.VideoFilter = "yadif";
+
             //e.Options.IsAudioDisabled = true;
             e.Options.LogMessageCallback = new Action<MediaLogMessageType, string>((t, m) =>
             {

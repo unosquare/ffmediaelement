@@ -200,9 +200,9 @@
             {
                 lock (SkewLock)
                 {
-                    if (SkewSeconds < 0.0d) return TimeSpan.Zero;
-                    var standardLatency = AudioDevice?.DesiredLatency / 1000d ?? 0d;
-                    var realtimeLatency = SkewSeconds / (AudioDevice?.NumberOfBuffers ?? 1d);
+                    // latencies are in ms
+                    var standardLatency = AudioDevice?.DesiredLatency ?? 200d;
+                    var realtimeLatency = SkewSeconds < 0d ? 0d : ((SkewSeconds * 1000d) + standardLatency) / 2d;
                     return TimeSpan.FromTicks((long)Math.Round(Math.Min(standardLatency, realtimeLatency) * TimeSpan.TicksPerMillisecond, 0));
                 }
                 
@@ -245,8 +245,6 @@
                 if (AudioBuffer.CapacityPercent >= 0.8)
                     break;
             }
-
-            lock (SkewLock) SkewSeconds += (double)addedBytes / WaveFormat.AverageBytesPerSecond;
         }
 
         /// <summary>
@@ -317,7 +315,7 @@
 
             requestedBytes = Math.Min(requestedBytes, AudioBuffer.ReadableCount);
             AudioBuffer.Read(requestedBytes, ReadBuffer, 0);
-            lock (SkewLock) SkewSeconds -= (double)requestedBytes / WaveFormat.AverageBytesPerSecond;
+            lock (SkewLock) SkewSeconds = (double)requestedBytes / WaveFormat.AverageBytesPerSecond;
 
             // Samples are interleaved (left and right in 16-bit each)
             var isLeftSample = true;
