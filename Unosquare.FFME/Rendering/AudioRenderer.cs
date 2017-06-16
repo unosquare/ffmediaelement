@@ -192,8 +192,9 @@
         /// Gets the delay between the logical render time and the actual sound output.
         /// When the container writes samples to the audio buffer, it takes some time before
         /// those samples are picked up by the sound card. This is the delay that is experienced.
+        /// This should be always around 130ms and can never be less than 0.
         /// </summary>
-        public TimeSpan SkewDelay
+        public TimeSpan Latency
         {
             get
             {
@@ -202,7 +203,7 @@
                     if (SkewSeconds < 0.0d) return TimeSpan.Zero;
                     var standardLatency = AudioDevice?.DesiredLatency / 1000d ?? 0d;
                     var realtimeLatency = SkewSeconds / (AudioDevice?.NumberOfBuffers ?? 1d);
-                    return TimeSpan.FromSeconds(Math.Min(standardLatency, realtimeLatency));
+                    return TimeSpan.FromTicks((long)Math.Round(Math.Min(standardLatency, realtimeLatency) * TimeSpan.TicksPerMillisecond, 0));
                 }
                 
             }
