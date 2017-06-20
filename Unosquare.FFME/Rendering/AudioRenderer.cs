@@ -187,16 +187,19 @@
 
 
         /// <summary>
-        /// Gets the realtime latemcy of the audio.
+        /// Gets the realtime latency of the audio relative to the internal wall clock.
         /// A negative value means audio is ahead of the wall clock.
         /// A positive value means audio is behind of the wall clock.
         /// </summary>
-        public TimeSpan GetLatency(TimeSpan clockPosition)
+        public TimeSpan Latency
         {
-            var currentLatency = TimeSpan.FromTicks(Math.Abs((long)Math.Round(TimeSpan.TicksPerMillisecond * 1000d * AudioBuffer.ReadableCount / WaveFormat.AverageBytesPerSecond, 2)));
-            if (AudioBuffer.WriteTag == TimeSpan.MinValue) return currentLatency;
-            var currentPosition = TimeSpan.FromTicks(AudioBuffer.WriteTag.Ticks - currentLatency.Ticks);
-            return TimeSpan.FromTicks(clockPosition.Ticks - currentPosition.Ticks);
+            get
+            {
+                var currentLatency = TimeSpan.FromTicks((long)Math.Round(TimeSpan.TicksPerMillisecond * 1000d * AudioBuffer.ReadableCount / WaveFormat.AverageBytesPerSecond, 0));
+                if (AudioBuffer.WriteTag == TimeSpan.MinValue) return currentLatency;
+                var currentPosition = TimeSpan.FromTicks(AudioBuffer.WriteTag.Ticks - currentLatency.Ticks);
+                return TimeSpan.FromTicks(MediaElement.Clock.Position.Ticks - currentPosition.Ticks);
+            }
         }
 
         /// <summary>
@@ -314,11 +317,11 @@
 
             if (MediaElement.HasVideo)
             {
-                var audioLatency = GetLatency(MediaElement.Clock.Position);
+                var audioLatency = Latency;
                 if (audioLatency.TotalMilliseconds > 0.80d * DesiredLatency.TotalMilliseconds)
                 {
                     // a positive audio latency means we are rendering audio behind (after) the clock (skip some samples)
-                    MediaElement.Container.Log(MediaLogMessageType.Debug, $"Read Sync (SKIP): {audioLatency.TotalMilliseconds:0.000}");
+                    MediaElement.Container.Log(MediaLogMessageType.Warning, $"Audio Sync (SKIP): {audioLatency.TotalMilliseconds,8:0.00}ms | Audio samples are behind of clock.");
 
                     var audioLatencyBytes = Math.Min(AudioBuffer.ReadableCount, WaveFormat.ConvertLatencyToByteSize((int)audioLatency.TotalMilliseconds));
                     requestedBytes = Math.Min(audioLatencyBytes, requestedBytes);
@@ -328,12 +331,11 @@
 
                     return requestedBytes;
                 }
-                else if (audioLatency.TotalMilliseconds < -0.20d * DesiredLatency.TotalMilliseconds)
+                else if (audioLatency < TimeSpan.Zero)
                 {
                     // a negative audio latency means we are rendering audio ahead (before) the clock
                     // and therefore we need to render some silence until the clock catches up
-
-                    MediaElement.Container.Log(MediaLogMessageType.Debug, $"Read Sync (WAIT): {audioLatency.TotalMilliseconds:0.000}");
+                    MediaElement.Container.Log(MediaLogMessageType.Warning, $"Audio Sync (WAIT): {audioLatency.TotalMilliseconds,8:0.00}ms | Audio samples are ahead of clock.");
 
                     for (var i = renderBufferOffset; i < renderBufferOffset + requestedBytes; i++)
                         renderBuffer[i] = 0;
