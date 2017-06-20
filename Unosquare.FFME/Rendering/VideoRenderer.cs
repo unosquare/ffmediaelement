@@ -130,9 +130,7 @@
 
             MediaElement.InvokeOnUI(DispatcherPriority.Render, () =>
             {
-                if (TargetBitmap == null) return;
-
-                if (TargetBitmap.PixelWidth != block.PixelWidth || TargetBitmap.PixelHeight != block.PixelHeight)
+                if (TargetBitmap == null || TargetBitmap.PixelWidth != block.PixelWidth || TargetBitmap.PixelHeight != block.PixelHeight)
                     InitializeTargetBitmap(block);
 
                 var updateRect = new Int32Rect(0, 0, block.PixelWidth, block.PixelHeight);

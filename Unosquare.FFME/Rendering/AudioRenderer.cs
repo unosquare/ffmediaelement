@@ -199,6 +199,15 @@
             return TimeSpan.FromTicks(clockPosition.Ticks - currentPosition.Ticks);
         }
 
+        /// <summary>
+        /// Gets the desired latency odf the audio device.
+        /// Value is always positive and typically 200ms. This means audio gets rendered up to this late behind the wall clock.
+        /// </summary>
+        public TimeSpan DesiredLatency
+        {
+            get { return TimeSpan.FromTicks((AudioDevice?.DesiredLatency ?? 1) * TimeSpan.TicksPerMillisecond * 1000); }
+        }
+
         #endregion
 
         #region Public API
@@ -304,7 +313,7 @@
             requestedBytes = Math.Min(requestedBytes, AudioBuffer.ReadableCount);
             AudioBuffer.Read(requestedBytes, ReadBuffer, 0);
 
-            // Samples are interleaved (left and right in 16-bit each)
+            // Samples are interleaved (left and right in 16-bit signed integers each)
             var isLeftSample = true;
             for (var baseIndex = 0; baseIndex < ReadBuffer.Length; baseIndex += BytesPerSample)
             {

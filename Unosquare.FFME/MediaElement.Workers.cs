@@ -326,6 +326,7 @@
 
                 #region 2. Handle Main Component
 
+                // Reset the hasRendered tracker
                 hasRendered[main] = false;
 
                 // Check for out-of sync issues (i.e. after seeking), being cautious about EOF/media ended scenarios
@@ -342,9 +343,8 @@
                     foreach (var t in all) Renderers[t].Seek();
                 }
 
-                // capture the render block based on it index
-                renderIndex[main] = Blocks[main].IndexOf(wallClock);
-                if (renderIndex[main] >= 0)
+                // capture the render block based on its index
+                if ((renderIndex[main] = Blocks[main].IndexOf(wallClock)) >= 0)
                 {
                     renderBlock[main] = Blocks[main][renderIndex[main]];
 
@@ -363,7 +363,6 @@
                         hasRendered[main] = true;
                     }
                 }
-
 
                 #endregion
 
@@ -457,15 +456,17 @@
                 #region 6. Finalize the Rendering Cycle
 
                 // Adjust the clock a little if the audio becomes out of sync
-                if (IsPlaying && main == MediaType.Audio)
+                if (IsPlaying && HasAudio)
                 {
-                    var audioLatency = (Renderers[MediaType.Audio] as AudioRenderer).GetLatency(wallClock);
+                    var audioRenderer = Renderers[MediaType.Audio] as AudioRenderer;
+                    var audioLatency = audioRenderer.GetLatency(wallClock);
 
-                    if (Math.Abs(audioLatency.TotalMilliseconds) >= 200d)
+                    if (Math.Abs(audioLatency.TotalMilliseconds) >= audioRenderer.DesiredLatency.TotalMilliseconds)
                     {
                         Container.Log(MediaLogMessageType.Debug, $"Audio Sync: {audioLatency.TotalMilliseconds:0.000}");
-                        Clock.Position = TimeSpan.FromTicks(wallClock.Ticks - audioLatency.Ticks);
+                        Clock.Position =  TimeSpan.FromTicks(wallClock.Ticks - audioLatency.Ticks);
                     }
+
                 }
 
                 BlockRenderingCycle.Set();
