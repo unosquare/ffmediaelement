@@ -82,6 +82,27 @@
         #region Methods
 
         /// <summary>
+        /// Skips the specified amount requested bytes to be read.
+        /// </summary>
+        /// <param name="requestedBytes">The requested bytes.</param>
+        /// <exception cref="System.InvalidOperationException"></exception>
+        public void Skip(int requestedBytes)
+        {
+            lock (SyncLock)
+            {
+                if (requestedBytes > ReadableCount)
+                    throw new InvalidOperationException(
+                        $"Unable to skip {requestedBytes} bytes. Only {ReadableCount} bytes are available for skipping");
+
+                ReadIndex += requestedBytes;
+                ReadableCount -= requestedBytes;
+
+                if (ReadIndex >= Length)
+                    ReadIndex = 0;
+            }
+        }
+
+        /// <summary>
         /// Reads the specified number of bytes into the target array.
         /// </summary>
         /// <param name="requestedBytes">The requested bytes.</param>

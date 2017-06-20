@@ -455,20 +455,6 @@
 
                 #region 6. Finalize the Rendering Cycle
 
-                // Adjust the clock a little if the audio becomes out of sync
-                if (IsPlaying && HasAudio)
-                {
-                    var audioRenderer = Renderers[MediaType.Audio] as AudioRenderer;
-                    var audioLatency = audioRenderer.GetLatency(wallClock);
-
-                    if (Math.Abs(audioLatency.TotalMilliseconds) >= audioRenderer.DesiredLatency.TotalMilliseconds)
-                    {
-                        Container.Log(MediaLogMessageType.Debug, $"Audio Sync: {audioLatency.TotalMilliseconds:0.000}");
-                        Clock.Position =  TimeSpan.FromTicks(wallClock.Ticks - audioLatency.Ticks);
-                    }
-
-                }
-
                 BlockRenderingCycle.Set();
 
                 // Pause for a bit if we have no more commands to process.

@@ -205,7 +205,7 @@
         /// </summary>
         public TimeSpan DesiredLatency
         {
-            get { return TimeSpan.FromTicks((AudioDevice?.DesiredLatency ?? 1) * TimeSpan.TicksPerMillisecond * 1000); }
+            get { return TimeSpan.FromTicks((AudioDevice?.DesiredLatency ?? 1) * TimeSpan.TicksPerMillisecond); }
         }
 
         #endregion
@@ -311,6 +311,37 @@
                 ReadBuffer = new byte[requestedBytes];
 
             requestedBytes = Math.Min(requestedBytes, AudioBuffer.ReadableCount);
+
+            if (MediaElement.HasVideo)
+            {
+                var audioLatency = GetLatency(MediaElement.Clock.Position);
+                if (audioLatency.TotalMilliseconds > 0.80d * DesiredLatency.TotalMilliseconds)
+                {
+                    // a positive audio latency means we are rendering audio behind (after) the clock (skip some samples)
+                    MediaElement.Container.Log(MediaLogMessageType.Debug, $"Read Sync (SKIP): {audioLatency.TotalMilliseconds:0.000}");
+
+                    var audioLatencyBytes = Math.Min(AudioBuffer.ReadableCount, WaveFormat.ConvertLatencyToByteSize((int)audioLatency.TotalMilliseconds));
+                    requestedBytes = Math.Min(audioLatencyBytes, requestedBytes);
+                    AudioBuffer.Skip(Math.Max(audioLatencyBytes, AudioBuffer.ReadableCount)); // we read from the buffer but we do not pass the data to the renderer.
+                    for (var i = renderBufferOffset; i < renderBufferOffset + requestedBytes; i++)
+                        renderBuffer[i] = 0;
+
+                    return requestedBytes;
+                }
+                else if (audioLatency.TotalMilliseconds < -0.20d * DesiredLatency.TotalMilliseconds)
+                {
+                    // a negative audio latency means we are rendering audio ahead (before) the clock
+                    // and therefore we need to render some silence until the clock catches up
+
+                    MediaElement.Container.Log(MediaLogMessageType.Debug, $"Read Sync (WAIT): {audioLatency.TotalMilliseconds:0.000}");
+
+                    for (var i = renderBufferOffset; i < renderBufferOffset + requestedBytes; i++)
+                        renderBuffer[i] = 0;
+
+                    return requestedBytes;
+                }
+            }
+
             AudioBuffer.Read(requestedBytes, ReadBuffer, 0);
 
             // Samples are interleaved (left and right in 16-bit signed integers each)
