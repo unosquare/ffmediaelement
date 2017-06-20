@@ -35,9 +35,6 @@
 
         private int BytesPerSample = 2;
 
-        private double SkewSeconds = 0;
-        private readonly object SkewLock = new object();
-
         #endregion
 
         #region Constructors
@@ -188,25 +185,18 @@
             set { m_IsMuted = value; }
         }
 
+
         /// <summary>
-        /// Gets the delay between the logical render time and the actual sound output.
-        /// When the container writes samples to the audio buffer, it takes some time before
-        /// those samples are picked up by the sound card. This is the delay that is experienced.
-        /// This should be always around 130ms and can never be less than 0.
+        /// Gets the realtime latemcy of the audio.
+        /// A negative value means audio is ahead of the wall clock.
+        /// A positive value means audio is behind of the wall clock.
         /// </summary>
-        public TimeSpan Latency
+        public TimeSpan GetLatency(TimeSpan clockPosition)
         {
-            get
-            {
-                lock (SkewLock)
-                {
-                    // latencies are in ms
-                    var standardLatency = AudioDevice?.DesiredLatency ?? 200d;
-                    var realtimeLatency = SkewSeconds < 0d ? 0d : ((SkewSeconds * 1000d) + standardLatency) / 2d;
-                    return TimeSpan.FromTicks((long)Math.Round(Math.Min(standardLatency, realtimeLatency) * TimeSpan.TicksPerMillisecond, 0));
-                }
-                
-            }
+            var currentLatency = TimeSpan.FromTicks(Math.Abs((long)Math.Round(TimeSpan.TicksPerMillisecond * 1000d * AudioBuffer.ReadableCount / WaveFormat.AverageBytesPerSecond, 2)));
+            if (AudioBuffer.WriteTag == TimeSpan.MinValue) return currentLatency;
+            var currentPosition = TimeSpan.FromTicks(AudioBuffer.WriteTag.Ticks - currentLatency.Ticks);
+            return TimeSpan.FromTicks(clockPosition.Ticks - currentPosition.Ticks);
         }
 
         #endregion
@@ -270,7 +260,6 @@
         {
             //AudioDevice?.Stop();
             AudioBuffer.Clear();
-            lock (SkewLock) SkewSeconds = 0;
         }
 
         /// <summary>
@@ -287,7 +276,6 @@
         public void Seek()
         {
             AudioBuffer.Clear();
-            lock (SkewLock) SkewSeconds = 0;
         }
 
         #endregion
@@ -315,7 +303,6 @@
 
             requestedBytes = Math.Min(requestedBytes, AudioBuffer.ReadableCount);
             AudioBuffer.Read(requestedBytes, ReadBuffer, 0);
-            lock (SkewLock) SkewSeconds = (double)requestedBytes / WaveFormat.AverageBytesPerSecond;
 
             // Samples are interleaved (left and right in 16-bit each)
             var isLeftSample = true;

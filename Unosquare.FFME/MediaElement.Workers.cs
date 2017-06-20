@@ -303,10 +303,7 @@
             // Buffer some blocks and adjust the clock to the start position
             BufferBlocks(BufferCacheLength);
             Clock.Position = Blocks[main].RangeStartTime;
-            var clockPosition = Clock.Position;
-            var mainPosition = clockPosition;
-            var auxPosition = clockPosition;
-            TimeSpan audioLatency = TimeSpan.Zero;
+            var wallClock = Clock.Position;
 
             #endregion
 
@@ -323,29 +320,22 @@
 
                 // Capture current clock position for the rest of this cycle
                 BlockRenderingCycle.Reset();
-                clockPosition = Clock.Position;
+                wallClock = Clock.Position;
 
                 #endregion
 
                 #region 2. Handle Main Component
 
-                audioLatency = (Renderers[MediaType.Audio] as AudioRenderer)?.Latency ?? TimeSpan.Zero;
-                //audioLatency = TimeSpan.FromTicks(100 * TimeSpan.TicksPerMillisecond);
-                mainPosition = (main == MediaType.Audio) ? clockPosition.Subtract(audioLatency) : clockPosition;
-
                 hasRendered[main] = false;
-                renderIndex[main] = Blocks[main].IndexOf(clockPosition);
 
                 // Check for out-of sync issues (i.e. after seeking), being cautious about EOF/media ended scenarios
                 // in which more blocks cannot be read. (The clock is on or beyond the Duration)
-                if ((renderIndex[main] < 0 || Blocks[main].IsInRange(clockPosition) == false) && CanReadMoreBlocksOf(main))
+                if ((Blocks[main].Count <= 0 || Blocks[main].IsInRange(wallClock) == false) && CanReadMoreBlocksOf(main))
                 {
                     BufferBlocks(BufferCacheLength);
-                    clockPosition = Blocks[main].IsInRange(clockPosition) ? clockPosition : Blocks[main].RangeStartTime;
-                    Container.Log(MediaLogMessageType.Warning, $"SYNC CLK: {Clock.Position.Debug()} | TGT: {clockPosition.Debug()}");
-                    Clock.Position = clockPosition;
-                    mainPosition = (main == MediaType.Audio) ? clockPosition.Subtract(audioLatency) : clockPosition;
-                    renderIndex[main] = Blocks[main].IndexOf(clockPosition);
+                    wallClock = Blocks[main].IsInRange(wallClock) ? wallClock : Blocks[main].RangeStartTime;
+                    Container.Log(MediaLogMessageType.Warning, $"SYNC CLK: {Clock.Position.Debug()} | TGT: {wallClock.Debug()}");
+                    Clock.Position = wallClock;
                     LastRenderTime[main] = TimeSpan.MinValue;
 
                     // a forced sync is basically a seek operation.
@@ -353,22 +343,27 @@
                 }
 
                 // capture the render block based on it index
-                renderBlock[main] = Blocks[main][renderIndex[main]];
-
-                // render the frame if we have not rendered it
-                if ((renderBlock[main].StartTime != LastRenderTime[main] || LastRenderTime[main] == TimeSpan.MinValue)
-                    && (IsPlaying == false || clockPosition.Ticks >= renderBlock[main].StartTime.Ticks))
+                renderIndex[main] = Blocks[main].IndexOf(wallClock);
+                if (renderIndex[main] >= 0)
                 {
-                    // Record the render time
-                    LastRenderTime[main] = renderBlock[main].StartTime;
+                    renderBlock[main] = Blocks[main][renderIndex[main]];
 
-                    // Update the position;
-                    // instead of the continuous clock position, consider using the discrete block start time. (renderBlock[t].StartTime)
-                    UpdatePosition(clockPosition);
+                    // render the frame if we have not rendered it
+                    if ((renderBlock[main].StartTime != LastRenderTime[main] || LastRenderTime[main] == TimeSpan.MinValue)
+                        && (IsPlaying == false || wallClock.Ticks >= renderBlock[main].StartTime.Ticks))
+                    {
+                        // Record the render time
+                        LastRenderTime[main] = renderBlock[main].StartTime;
 
-                    RenderBlock(renderBlock[main], clockPosition, renderIndex[main]);
-                    hasRendered[main] = true;
+                        // Update the position;
+                        // instead of the continuous clock position, consider using the discrete block start time. (renderBlock[t].StartTime)
+                        UpdatePosition(wallClock);
+
+                        RenderBlock(renderBlock[main], wallClock, renderIndex[main]);
+                        hasRendered[main] = true;
+                    }
                 }
+
 
                 #endregion
 
@@ -377,12 +372,10 @@
                 // Render each of the Media Types if it is time to do so.
                 foreach (var t in auxs)
                 {
-                    if (mainPosition < TimeSpan.Zero) mainPosition = clockPosition;
-                    auxPosition = t == MediaType.Audio ? clockPosition.Subtract(audioLatency) : mainPosition;
                     hasRendered[t] = false;
 
                     // Extract the render index
-                    renderIndex[t] = Blocks[t].IndexOf(auxPosition);
+                    renderIndex[t] = Blocks[t].IndexOf(wallClock);
 
                     // If it's a secondary stream, try to catch up with the primary stream as quickly as possible
                     // by skipping the queued blocks and adding new ones as quickly as possible.
@@ -391,12 +384,12 @@
                         && CanReadMoreBlocksOf(t))
                     {
                         if (AddNextBlock(t) == null) break;
-                        renderIndex[t] = Blocks[t].IndexOf(auxPosition);
+                        renderIndex[t] = Blocks[t].IndexOf(wallClock);
                         LastRenderTime[t] = TimeSpan.MinValue;
                     }
 
                     // capture the latest renderindex
-                    renderIndex[t] = Blocks[t].IndexOf(auxPosition);
+                    renderIndex[t] = Blocks[t].IndexOf(wallClock);
 
                     // Skip to next stream component if we have nothing left to do here :(
                     if (renderIndex[t] < 0) continue;
@@ -406,10 +399,10 @@
 
                     // render the frame if we have not rendered
                     if ((renderBlock[t].StartTime != LastRenderTime[t] || LastRenderTime[t] == TimeSpan.MinValue)
-                        && (IsPlaying == false || auxPosition.Ticks >= renderBlock[t].StartTime.Ticks))
+                        && (IsPlaying == false || wallClock.Ticks >= renderBlock[t].StartTime.Ticks))
                     {
                         LastRenderTime[t] = renderBlock[t].StartTime;
-                        RenderBlock(renderBlock[t], auxPosition, renderIndex[t]);
+                        RenderBlock(renderBlock[t], wallClock, renderIndex[t]);
                         hasRendered[t] = true;
                     }
                 }
@@ -428,11 +421,11 @@
                     while (Blocks[t].IsFull == false || renderIndex[t] + 1 > Blocks[t].Capacity / 2)
                     {
                         if (AddNextBlock(t) == null) break;
-                        renderIndex[t] = Blocks[t].IndexOf(clockPosition);
+                        renderIndex[t] = Blocks[t].IndexOf(wallClock);
                     }
 
                     hasRendered[t] = false;
-                    renderIndex[t] = Blocks[t].IndexOf(clockPosition);
+                    renderIndex[t] = Blocks[t].IndexOf(wallClock);
                 }
 
                 #endregion
@@ -462,6 +455,18 @@
                 #endregion
 
                 #region 6. Finalize the Rendering Cycle
+
+                // Adjust the clock a little if the audio becomes out of sync
+                if (IsPlaying && main == MediaType.Audio)
+                {
+                    var audioLatency = (Renderers[MediaType.Audio] as AudioRenderer).GetLatency(wallClock);
+
+                    if (Math.Abs(audioLatency.TotalMilliseconds) >= 200d)
+                    {
+                        Container.Log(MediaLogMessageType.Debug, $"Audio Sync: {audioLatency.TotalMilliseconds:0.000}");
+                        Clock.Position = TimeSpan.FromTicks(wallClock.Ticks - audioLatency.Ticks);
+                    }
+                }
 
                 BlockRenderingCycle.Set();
 
