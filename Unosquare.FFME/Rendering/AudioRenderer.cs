@@ -34,6 +34,7 @@
         private volatile bool m_IsMuted = false;
 
         private int BytesPerSample = 2;
+        private double SyncThesholdMilliseconds = 0d;
 
         #endregion
 
@@ -88,6 +89,7 @@
                 NumberOfBuffers = 2,
             };
 
+            SyncThesholdMilliseconds = 0.05 * DesiredLatency.TotalMilliseconds; // ~5% sync threshold for audio samples 
             var bufferLength = WaveFormat.ConvertLatencyToByteSize(AudioDevice.DesiredLatency) * MediaElement.Blocks[MediaType.Audio].Capacity / 2;
             AudioBuffer = new CircularBuffer(bufferLength);
             AudioDevice.Init(this);
@@ -195,9 +197,22 @@
         {
             get
             {
-                var currentLatency = TimeSpan.FromTicks((long)Math.Round(TimeSpan.TicksPerMillisecond * 1000d * AudioBuffer.ReadableCount / WaveFormat.AverageBytesPerSecond, 0));
-                if (AudioBuffer.WriteTag == TimeSpan.MinValue) return currentLatency;
-                var currentPosition = TimeSpan.FromTicks(AudioBuffer.WriteTag.Ticks - currentLatency.Ticks);
+                // the pending audio length is the amount of audio samples time that has not been yet read by the audio device.
+                var pendingAudioLength = TimeSpan.FromTicks(
+                    (long)Math.Round(TimeSpan.TicksPerMillisecond * 1000d * AudioBuffer.ReadableCount / WaveFormat.AverageBytesPerSecond, 0));
+
+                // If we don't have a valid write tag our best best is the readable pending audio
+                if (AudioBuffer.WriteTag == TimeSpan.MinValue)
+                    return pendingAudioLength;
+
+                // The write tage is the last PTS written to the audio buffer, therefore, the current position
+                // is just what has been written minus the what has not been read (whatever is pending)
+                // The above is not necessarily 100% true. As the samples that have already been picked up
+                // by the sound card might not have finished playing. But that is why we read this property only when
+                // the sound card wants the next batch of samples!
+                var currentPosition = TimeSpan.FromTicks(AudioBuffer.WriteTag.Ticks - pendingAudioLength.Ticks);
+
+                // Finally the delay is the clock position minus the current position
                 return TimeSpan.FromTicks(MediaElement.Clock.Position.Ticks - currentPosition.Ticks);
             }
         }
@@ -313,25 +328,21 @@
             if (ReadBuffer == null || ReadBuffer.Length != requestedBytes)
                 ReadBuffer = new byte[requestedBytes];
 
-            requestedBytes = Math.Min(requestedBytes, AudioBuffer.ReadableCount);
-
             if (MediaElement.HasVideo)
             {
                 var audioLatency = Latency;
-                if (audioLatency.TotalMilliseconds > 0.80d * DesiredLatency.TotalMilliseconds)
+                
+                if (audioLatency.TotalMilliseconds > SyncThesholdMilliseconds)
                 {
                     // a positive audio latency means we are rendering audio behind (after) the clock (skip some samples)
+                    // and therefore we need to advance the buffer before we read from it.
                     MediaElement.Container.Log(MediaLogMessageType.Warning, $"Audio Sync (SKIP): {audioLatency.TotalMilliseconds,8:0.00}ms | Audio samples are behind of clock.");
 
-                    var audioLatencyBytes = Math.Min(AudioBuffer.ReadableCount, WaveFormat.ConvertLatencyToByteSize((int)audioLatency.TotalMilliseconds));
-                    requestedBytes = Math.Min(audioLatencyBytes, requestedBytes);
-                    AudioBuffer.Skip(Math.Max(audioLatencyBytes, AudioBuffer.ReadableCount)); // we read from the buffer but we do not pass the data to the renderer.
-                    for (var i = renderBufferOffset; i < renderBufferOffset + requestedBytes; i++)
-                        renderBuffer[i] = 0;
-
-                    return requestedBytes;
+                    // skip some samples from the buffer.
+                    var audioLatencyBytes = WaveFormat.ConvertLatencyToByteSize((int)Math.Ceiling(audioLatency.TotalMilliseconds));
+                    AudioBuffer.Skip(Math.Min(audioLatencyBytes, AudioBuffer.ReadableCount));
                 }
-                else if (audioLatency < TimeSpan.Zero)
+                else if (audioLatency.TotalMilliseconds < -SyncThesholdMilliseconds)
                 {
                     // a negative audio latency means we are rendering audio ahead (before) the clock
                     // and therefore we need to render some silence until the clock catches up
@@ -344,11 +355,12 @@
                 }
             }
 
+            requestedBytes = Math.Min(requestedBytes, AudioBuffer.ReadableCount);
             AudioBuffer.Read(requestedBytes, ReadBuffer, 0);
 
             // Samples are interleaved (left and right in 16-bit signed integers each)
             var isLeftSample = true;
-            for (var baseIndex = 0; baseIndex < ReadBuffer.Length; baseIndex += BytesPerSample)
+            for (var baseIndex = 0; baseIndex < requestedBytes; baseIndex += BytesPerSample)
             {
                 // The sample has 2 bytes: at the base index is the LSB and at the baseIndex + 1 is the MSB
                 // this obviously only holds true for Little Endian architectures, and thus, the current code is not portable.
