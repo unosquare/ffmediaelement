@@ -365,7 +365,7 @@
                 // The sample has 2 bytes: at the base index is the LSB and at the baseIndex + 1 is the MSB
                 // this obviously only holds true for Little Endian architectures, and thus, the current code is not portable.
                 // This replaces BitConverter.ToInt16(ReadBuffer, baseIndex); which is obviously much slower.
-                var sample = (short)(ReadBuffer[baseIndex] + (short)(ReadBuffer[baseIndex + 1] << 8));
+                var sample = (short)(ReadBuffer[baseIndex] | (ReadBuffer[baseIndex + 1] << 8));
 
                 if (IsMuted)
                 {
