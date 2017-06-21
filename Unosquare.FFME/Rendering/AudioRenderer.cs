@@ -4,6 +4,7 @@
     using Decoding;
     using Rendering.Wave;
     using System;
+    using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Windows;
     using System.Windows.Threading;
@@ -310,62 +311,99 @@
         #region IWaveProvider Support
 
         /// <summary>
-        /// Called whenever the audio driver requests samples.
-        /// Do not call this method directly.
+        /// Synchronizes audio rendering to the wall clock.
+        /// Returns true if additional samples need to be read.
+        /// Returns false if silence has been written and no further reading is required.
         /// </summary>
-        /// <param name="renderBuffer">The render buffer.</param>
-        /// <param name="renderBufferOffset">The render buffer offset.</param>
+        /// <param name="targetBuffer">The target buffer.</param>
+        /// <param name="targetBufferOffset">The target buffer offset.</param>
         /// <param name="requestedBytes">The requested bytes.</param>
         /// <returns></returns>
-        public int Read(byte[] renderBuffer, int renderBufferOffset, int requestedBytes)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool Synchronize(byte[] targetBuffer, int targetBufferOffset, int requestedBytes)
         {
-            if (MediaElement.IsPlaying == false || MediaElement.HasAudio == false || AudioBuffer.ReadableCount <= 0)
+            var audioLatency = Latency;
+
+            if (audioLatency.TotalMilliseconds > SyncThesholdMilliseconds)
             {
-                Buffer.BlockCopy(SilenceBuffer, 0, renderBuffer, renderBufferOffset, Math.Min(SilenceBuffer.Length, renderBuffer.Length));
-                return SilenceBuffer.Length;
+                // a positive audio latency means we are rendering audio behind (after) the clock (skip some samples)
+                // and therefore we need to advance the buffer before we read from it.
+                MediaElement.Container.Log(MediaLogMessageType.Warning, $"Audio Sync (SKIP): {audioLatency.TotalMilliseconds,8:0.00}ms | Audio samples are behind of clock.");
+
+                // skip some samples from the buffer.
+                var audioLatencyBytes = WaveFormat.ConvertLatencyToByteSize((int)Math.Ceiling(audioLatency.TotalMilliseconds));
+                AudioBuffer.Skip(Math.Min(audioLatencyBytes, AudioBuffer.ReadableCount));
+            }
+            else if (audioLatency.TotalMilliseconds < -SyncThesholdMilliseconds)
+            {
+                // a negative audio latency means we are rendering audio ahead (before) the clock
+                // and therefore we need to render some silence until the clock catches up
+                MediaElement.Container.Log(MediaLogMessageType.Warning, $"Audio Sync (WAIT): {audioLatency.TotalMilliseconds,8:0.00}ms | Audio samples are ahead of clock.");
+
+                for (var i = targetBufferOffset; i < targetBufferOffset + requestedBytes; i++)
+                    targetBuffer[i] = 0;
+
+                return false;
             }
 
-            if (ReadBuffer == null || ReadBuffer.Length != requestedBytes)
-                ReadBuffer = new byte[requestedBytes];
+            return true;
+        }
 
-            if (MediaElement.HasVideo)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void Stretch(byte[] targetBuffer, int targetBufferOffset, int requestedBytes)
+        {
+            var blockSize = BytesPerSample * WaveFormat.Channels;
+            var bytesToRead = Math.Min(
+                AudioBuffer.ReadableCount,
+                (int)(requestedBytes * MediaElement.Clock.SpeedRatio).ToMultipleOf(blockSize));
+
+            var bytesToAdd = requestedBytes - bytesToRead;
+            var sourceOffset = requestedBytes;
+            AudioBuffer.Read(bytesToRead, ReadBuffer, sourceOffset);
+
+            var targetOffset = 0;
+            var stepSize = ((double)requestedBytes / bytesToAdd); // repeat block every x blocks
+            var stepAccum = 0d;
+            while (targetOffset < requestedBytes)
             {
-                var audioLatency = Latency;
-                
-                if (audioLatency.TotalMilliseconds > SyncThesholdMilliseconds)
+                if (stepAccum >= stepSize)
                 {
-                    // a positive audio latency means we are rendering audio behind (after) the clock (skip some samples)
-                    // and therefore we need to advance the buffer before we read from it.
-                    MediaElement.Container.Log(MediaLogMessageType.Warning, $"Audio Sync (SKIP): {audioLatency.TotalMilliseconds,8:0.00}ms | Audio samples are behind of clock.");
+                    targetOffset += blockSize;
+                    for (var t = 0; t < blockSize; t++)
+                        ReadBuffer[targetOffset + t] = ReadBuffer[sourceOffset + t];
 
-                    // skip some samples from the buffer.
-                    var audioLatencyBytes = WaveFormat.ConvertLatencyToByteSize((int)Math.Ceiling(audioLatency.TotalMilliseconds));
-                    AudioBuffer.Skip(Math.Min(audioLatencyBytes, AudioBuffer.ReadableCount));
+                    stepAccum = stepAccum - stepSize;
+                    stepAccum = stepAccum - (int)stepAccum;
                 }
-                else if (audioLatency.TotalMilliseconds < -SyncThesholdMilliseconds)
-                {
-                    // a negative audio latency means we are rendering audio ahead (before) the clock
-                    // and therefore we need to render some silence until the clock catches up
-                    MediaElement.Container.Log(MediaLogMessageType.Warning, $"Audio Sync (WAIT): {audioLatency.TotalMilliseconds,8:0.00}ms | Audio samples are ahead of clock.");
 
-                    for (var i = renderBufferOffset; i < renderBufferOffset + requestedBytes; i++)
-                        renderBuffer[i] = 0;
+                for (var t = 0; t < blockSize; t++)
+                    ReadBuffer[targetOffset + t] = ReadBuffer[sourceOffset + t];
 
-                    return requestedBytes;
-                }
+                sourceOffset += blockSize;
+                targetOffset += blockSize;
+                stepAccum += 1d;
             }
 
-            requestedBytes = Math.Min(requestedBytes, AudioBuffer.ReadableCount);
-            AudioBuffer.Read(requestedBytes, ReadBuffer, 0);
+        }
 
+        /// <summary>
+        /// Applies volume and balance to the audio samples and writes them
+        /// to the specified target buffer.
+        /// </summary>
+        /// <param name="targetBuffer">The target buffer.</param>
+        /// <param name="targetBufferOffset">The target buffer offset.</param>
+        /// <param name="requestedBytes">The requested bytes.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ApplyVolumeAndBalance(byte[] targetBuffer, int targetBufferOffset, int requestedBytes)
+        {
             // Samples are interleaved (left and right in 16-bit signed integers each)
             var isLeftSample = true;
-            for (var baseIndex = 0; baseIndex < requestedBytes; baseIndex += BytesPerSample)
+            for (var sourceBufferOffset = 0; sourceBufferOffset < requestedBytes; sourceBufferOffset += BytesPerSample)
             {
                 // The sample has 2 bytes: at the base index is the LSB and at the baseIndex + 1 is the MSB
                 // this obviously only holds true for Little Endian architectures, and thus, the current code is not portable.
                 // This replaces BitConverter.ToInt16(ReadBuffer, baseIndex); which is obviously much slower.
-                var sample = (short)(ReadBuffer[baseIndex] | (ReadBuffer[baseIndex + 1] << 8));
+                var sample = (short)(ReadBuffer[sourceBufferOffset] | (ReadBuffer[sourceBufferOffset + 1] << 8));
 
                 if (IsMuted)
                 {
@@ -379,10 +417,52 @@
                         sample = (short)(sample * RightVolume);
                 }
 
-                renderBuffer[baseIndex] = (byte)(sample & 0xff);
-                renderBuffer[baseIndex + 1] = (byte)(sample >> 8);
+                targetBuffer[targetBufferOffset + sourceBufferOffset] = (byte)(sample & 0xff);
+                targetBuffer[targetBufferOffset + sourceBufferOffset + 1] = (byte)(sample >> 8);
                 isLeftSample = !isLeftSample;
             }
+        }
+
+        /// <summary>
+        /// Called whenever the audio driver requests samples.
+        /// Do not call this method directly.
+        /// </summary>
+        /// <param name="targetBuffer">The render buffer.</param>
+        /// <param name="targetBufferOffset">The render buffer offset.</param>
+        /// <param name="requestedBytes">The requested bytes.</param>
+        /// <returns></returns>
+        public int Read(byte[] targetBuffer, int targetBufferOffset, int requestedBytes)
+        {
+            if (MediaElement.IsPlaying == false || MediaElement.HasAudio == false || AudioBuffer.ReadableCount <= 0)
+            {
+                Buffer.BlockCopy(SilenceBuffer, 0, targetBuffer, targetBufferOffset, Math.Min(SilenceBuffer.Length, targetBuffer.Length));
+                return SilenceBuffer.Length;
+            }
+
+            if (ReadBuffer == null || ReadBuffer.Length < (int)(requestedBytes * Constants.MaxSpeedRatio))
+                ReadBuffer = new byte[(int)(requestedBytes * Constants.MaxSpeedRatio)];
+
+            if (MediaElement.HasVideo && Synchronize(targetBuffer, targetBufferOffset, requestedBytes) == false)
+                return requestedBytes;
+
+
+            if (MediaElement.Clock.SpeedRatio < 1.0)
+            {
+                Stretch(targetBuffer, targetBufferOffset, requestedBytes);
+            }
+            else if (MediaElement.Clock.SpeedRatio > 1.0)
+            {
+                // TODO: replace with Shorten
+                requestedBytes = Math.Min(requestedBytes, AudioBuffer.ReadableCount);
+                AudioBuffer.Read(requestedBytes, ReadBuffer, 0);
+            }
+            else
+            {
+                requestedBytes = Math.Min(requestedBytes, AudioBuffer.ReadableCount);
+                AudioBuffer.Read(requestedBytes, ReadBuffer, 0);
+            }
+
+            ApplyVolumeAndBalance(targetBuffer, targetBufferOffset, requestedBytes);
 
             return requestedBytes;
         }
