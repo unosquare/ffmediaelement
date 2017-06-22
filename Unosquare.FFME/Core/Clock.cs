@@ -29,10 +29,6 @@
         {
             get
             {
-                // TODO: changing the speedratio creates abrupt, non-smppth changes in the continuous timeline.
-                // we need a new state variable the if complementary milliseconds != 0 then return the complementary millis and set them to 0
-                // so we delay the speed ratio 1 cycle.
-
                 lock (SyncLock)
                     return TimeSpan.FromTicks((long)Math.Round(
                         (OffsetMilliseconds + (Chrono.ElapsedMilliseconds * SpeedRatio)) * TimeSpan.TicksPerMillisecond, 0));
@@ -61,7 +57,18 @@
         public double SpeedRatio
         {
             get { lock (SyncLock) return m_SpeedRatio; }
-            set { lock (SyncLock) { if (value < 0d) value = 0d; m_SpeedRatio = value; } }
+            set
+            {
+                lock (SyncLock)
+                {
+                    if (value < 0d) value = 0d;
+                    // capture the initial position se we set it even after the speedratio has changed
+                    // this ensures a smooth position transition
+                    var initialPosition = Position;
+                    m_SpeedRatio = value;
+                    Position = initialPosition;
+                }
+            }
         }
 
         /// <summary>

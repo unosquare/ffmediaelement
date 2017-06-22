@@ -685,6 +685,7 @@
             // Allocate the packet to read
             var readPacket = ffmpeg.av_packet_alloc();
             // TODO: for network streams av_read_frame will sometimes block forever. We need a way to retry or timeout or exit.
+            // it seems that the interrupt callback is the way to go but other things are the priority at this point.
             var readResult = ffmpeg.av_read_frame(InputContext, readPacket);
             StreamLastReadTimeUtc = DateTime.UtcNow;
 
