@@ -25,15 +25,18 @@ namespace Unosquare.FFME.Commands
         /// <summary>
         /// Performs the actions that this command implements.
         /// </summary>
-        protected override void Execute()
+        internal override void Execute()
         {
             var m = Manager.MediaElement;
             foreach (var renderer in m.Renderers.Values)
                 renderer.Stop();
 
             m.Clock.Reset();
-            m.Commands.Seek(TimeSpan.Zero);
-            
+            var seek = new SeekCommand(this.Manager, TimeSpan.Zero);
+            seek.Execute();
+
+            m.MediaState = System.Windows.Controls.MediaState.Stop;
+
         }
     }
 }

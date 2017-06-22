@@ -20,6 +20,7 @@
         #region Private Members
 
         private readonly MediaElement MediaElement;
+        private readonly object SyncLock = new object();
         private WavePlayer AudioDevice;
         private CircularBuffer AudioBuffer;
         private bool IsDisposed = false;
@@ -270,6 +271,7 @@
         /// </summary>
         public void Play()
         {
+            lock (SyncLock)
             AudioDevice?.Play();
         }
 
@@ -278,7 +280,7 @@
         /// </summary>
         public void Pause()
         {
-            //AudioDevice?.Pause();
+            //nothing
         }
 
         /// <summary>
@@ -286,8 +288,12 @@
         /// </summary>
         public void Stop()
         {
-            //AudioDevice?.Stop();
-            AudioBuffer.Clear();
+            lock (SyncLock)
+            {
+                AudioBuffer.Clear();
+                Array.Clear(ReadBuffer, 0, ReadBuffer.Length);
+            }
+
         }
 
         /// <summary>
@@ -303,7 +309,12 @@
         /// </summary>
         public void Seek()
         {
-            AudioBuffer.Clear();
+            lock (SyncLock)
+            {
+                AudioBuffer.Clear();
+                Array.Clear(ReadBuffer, 0, ReadBuffer.Length);
+            }
+
         }
 
         #endregion
@@ -513,37 +524,43 @@
         /// <returns></returns>
         public int Read(byte[] targetBuffer, int targetBufferOffset, int requestedBytes)
         {
-            if (MediaElement.IsPlaying == false || MediaElement.HasAudio == false || AudioBuffer.ReadableCount <= 0)
+            lock (SyncLock)
             {
-                Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
+                // Render silence if we don't need to output anything
+                if (MediaElement.IsPlaying == false || MediaElement.HasAudio == false || AudioBuffer.ReadableCount <= 0)
+                {
+                    Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
+                    return requestedBytes;
+                }
+
+                // Ensure a preallocated ReadBuffer
+                if (ReadBuffer == null || ReadBuffer.Length < (int)(requestedBytes * Constants.MaxSpeedRatio))
+                    ReadBuffer = new byte[(int)(requestedBytes * Constants.MaxSpeedRatio)];
+
+                // Perform AV Synchronization if needed
+                if (MediaElement.HasVideo && Synchronize(targetBuffer, targetBufferOffset, requestedBytes) == false)
+                    return requestedBytes;
+
+                // Perform DSP
+                var speedRatio = MediaElement.Clock.SpeedRatio;
+                if (speedRatio < 1.0)
+                {
+                    ReadAndStretch(requestedBytes, speedRatio);
+                }
+                else if (speedRatio > 1.0)
+                {
+                    ReadAndShrink(requestedBytes, speedRatio);
+                }
+                else
+                {
+                    requestedBytes = Math.Min(requestedBytes, AudioBuffer.ReadableCount);
+                    AudioBuffer.Read(requestedBytes, ReadBuffer, 0);
+                }
+
+                ApplyVolumeAndBalance(targetBuffer, targetBufferOffset, requestedBytes);
+
                 return requestedBytes;
             }
-
-            if (ReadBuffer == null || ReadBuffer.Length < (int)(requestedBytes * Constants.MaxSpeedRatio))
-                ReadBuffer = new byte[(int)(requestedBytes * Constants.MaxSpeedRatio)];
-
-            if (MediaElement.HasVideo && Synchronize(targetBuffer, targetBufferOffset, requestedBytes) == false)
-                return requestedBytes;
-
-            var speedRatio = MediaElement.Clock.SpeedRatio;
-
-            if (speedRatio < 1.0)
-            {
-                ReadAndStretch(requestedBytes, speedRatio);
-            }
-            else if (speedRatio > 1.0)
-            {
-                ReadAndShrink(requestedBytes, speedRatio);
-            }
-            else
-            {
-                requestedBytes = Math.Min(requestedBytes, AudioBuffer.ReadableCount);
-                AudioBuffer.Read(requestedBytes, ReadBuffer, 0);
-            }
-
-            ApplyVolumeAndBalance(targetBuffer, targetBufferOffset, requestedBytes);
-
-            return requestedBytes;
         }
 
         #endregion

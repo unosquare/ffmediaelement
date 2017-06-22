@@ -22,7 +22,7 @@
         /// <summary>
         /// Executes this command.
         /// </summary>
-        protected override void Execute()
+        internal override void Execute()
         {
             var m = Manager.MediaElement;
 

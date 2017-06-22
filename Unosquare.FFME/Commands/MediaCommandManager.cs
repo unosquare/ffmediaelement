@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
 
     internal sealed class MediaCommandManager
@@ -64,98 +65,143 @@
         /// </summary>
         /// <param name="uri">The URI.</param>
         /// <returns></returns>
-        public Task Open(Uri uri)
+        public async Task Open(Uri uri)
         {
             lock (SyncLock)
             {
                 Commands.Clear();
-                var command = new OpenCommand(this, uri);
-                var task = command.ExecuteAsync();
-                return task;
             }
-        }
 
-        public Task Play()
-        {
-            lock (SyncLock)
-            {
-                var command = new PlayCommand(this);
-                Commands.Add(command);
-                return command.Promise;
-            }
-        }
-
-        public Task Pause()
-        {
-            lock (SyncLock)
-            {
-                var command = new PauseCommand(this);
-                Commands.Add(command);
-                return command.Promise;
-            }
-        }
-
-        public Task Stop()
-        {
-            lock (SyncLock)
-            {
-                Commands.Clear();
-                var command = new StopCommand(this);
-                Commands.Add(command);
-                return command.Promise;
-            }
-        }
-
-        public Task Seek(TimeSpan position)
-        {
-            lock (SyncLock)
-            {
-                // Remove prior queued, seek commands.
-                if (Commands.Count > 0)
-                {
-                    var existingSeeks = Commands.FindAll(c => c.CommandType == MediaCommandType.Seek);
-                    foreach (var seek in existingSeeks)
-                        Commands.Remove(seek);
-                }
-
-                var command = new SeekCommand(this, position);
-                Commands.Add(command);
-                return command.Promise;
-            }
-        }
-
-        public Task Close()
-        {
-            lock (SyncLock)
-            {
-                Commands.Clear();
-                var command = new CloseCommand(this);
-                var task = command.ExecuteAsync();
-                return task;
-            }
+            var command = new OpenCommand(this, uri);
+            await command.ExecuteAsync();
         }
 
         /// <summary>
-        /// Sets the speed ratio.
+        /// Starts playing the open media URI.
         /// </summary>
-        /// <param name="targetSpeedRatio">The target speed ratio.</param>
         /// <returns></returns>
-        public Task SetSpeedRatio(double targetSpeedRatio)
+        public async Task Play()
+        {
+            PlayCommand command = null;
+
+            lock (SyncLock)
+            {
+                command = Commands.FirstOrDefault(c => c.CommandType == MediaCommandType.Play) as PlayCommand;
+                if (command == null)
+                {
+                    command = new PlayCommand(this);
+                    Commands.Add(command);
+                }
+            }
+
+            await command.Promise;
+        }
+
+        /// <summary>
+        /// Pauses the media.
+        /// </summary>
+        /// <returns></returns>
+        public async Task Pause()
+        {
+            PauseCommand command = null;
+
+            lock (SyncLock)
+            {
+                command = Commands.FirstOrDefault(c => c.CommandType == MediaCommandType.Pause) as PauseCommand;
+                if (command == null)
+                {
+                    command = new PauseCommand(this);
+                    Commands.Add(command);
+                }
+            }
+
+            await command.Promise;
+        }
+
+        /// <summary>
+        /// Pauses and rewinds the media
+        /// </summary>
+        /// <returns></returns>
+        public async Task Stop()
+        {
+            StopCommand command = null;
+
+            lock (SyncLock)
+            {
+                command = Commands.FirstOrDefault(c => c.CommandType == MediaCommandType.Stop) as StopCommand;
+                if (command == null)
+                {
+                    command = new StopCommand(this);
+                    Commands.Add(command);
+                }
+            }
+
+            await command.Promise;
+        }
+
+        /// <summary>
+        /// Seeks to the specified position within the media.
+        /// </summary>
+        /// <param name="position">The position.</param>
+        /// <returns></returns>
+        public async Task Seek(TimeSpan position)
+        {
+            SeekCommand command = null;
+            lock (SyncLock)
+            {
+                command = Commands.FirstOrDefault(c => c.CommandType == MediaCommandType.Seek) as SeekCommand;
+                if (command == null)
+                {
+                    command = new SeekCommand(this, position);
+                    Commands.Add(command);
+                }
+                else
+                {
+                    command.TargetPosition = position;
+                }
+            }
+
+            await command.Promise;
+        }
+
+        /// <summary>
+        /// Closes the specified media.
+        /// </summary>
+        /// <returns></returns>
+        public async Task Close()
         {
             lock (SyncLock)
             {
-                // Remove prior queued commands of the same kind.
-                if (Commands.Count > 0)
-                {
-                    var existingCommand = Commands.FindAll(c => c.CommandType == MediaCommandType.SetSpeedRatio);
-                    foreach (var c in existingCommand)
-                        Commands.Remove(c);
-                }
-
-                var command = new SpeedRatioCommand(this, targetSpeedRatio);
-                Commands.Add(command);
-                return command.Promise;
+                Commands.Clear();
             }
+
+            var command = new CloseCommand(this);
+            await command.ExecuteAsync();
+        }
+
+        /// <summary>
+        /// Sets the playback speed ratio.
+        /// </summary>
+        /// <param name="targetSpeedRatio">The target speed ratio.</param>
+        /// <returns></returns>
+        public async Task SetSpeedRatio(double targetSpeedRatio)
+        {
+            SpeedRatioCommand command = null;
+            lock (SyncLock)
+            {
+                command = Commands.FirstOrDefault(c => c.CommandType == MediaCommandType.SetSpeedRatio) as SpeedRatioCommand;
+                if (command == null)
+                {
+                    command = new SpeedRatioCommand(this, targetSpeedRatio);
+                    Commands.Add(command);
+                }
+                else
+                {
+                    command.SpeedRatio = targetSpeedRatio;
+                }
+            }
+
+            await command.Promise;
         }
 
         /// <summary>

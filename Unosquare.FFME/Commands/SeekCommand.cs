@@ -26,9 +26,12 @@
         /// <summary>
         /// Performs the actions that this command implements.
         /// </summary>
-        protected override void Execute()
+        internal override void Execute()
         {
             var m = Manager.MediaElement;
+
+            var pause = new PauseCommand(Manager);
+            pause.Execute();
 
             m.SeekingDone.Reset();
             var startTime = DateTime.UtcNow;

@@ -276,6 +276,7 @@
                 </Button>
 
                 <Slider
+                    Name="PositionSlider"
                     TickFrequency="1"
                     TickPlacement="TopLeft"
                     Foreground="Black"
@@ -283,6 +284,7 @@
                     Minimum="0" 
                     Maximum="{Binding ElementName=Media, Path=NaturalDuration, Converter={StaticResource TimeSpanToSecondsConverter}}" 
                     Value="{Binding ElementName=Media, Path=Position, Converter={StaticResource TimeSpanToSecondsConverter}}"
+                    PreviewMouseDown="PositionSlider_MouseDown" PreviewMouseUp="PositionSlider_MouseUp"
                     SmallChange="0.05" LargeChange="0.050" Margin="0,4,0,3"></Slider>
             </DockPanel>
 

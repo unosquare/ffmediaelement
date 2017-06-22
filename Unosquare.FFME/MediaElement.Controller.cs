@@ -38,21 +38,33 @@
 
         #region Public API
 
+        /// <summary>
+        /// Begins or resumes playback of the currently loaded media.
+        /// </summary>
         public async void Play()
         {
             await Commands.Play();
         }
 
+        /// <summary>
+        /// Pauses playback of the currently loaded media.
+        /// </summary>
         public async void Pause()
         {
             await Commands.Pause();
         }
 
+        /// <summary>
+        /// Pauses and rewinds the currently loaded media.
+        /// </summary>
         public async void Stop()
         {
             await Commands.Stop();
         }
 
+        /// <summary>
+        /// Closes the currently loaded media.
+        /// </summary>
         public async void Close()
         {
             await Commands.Close();

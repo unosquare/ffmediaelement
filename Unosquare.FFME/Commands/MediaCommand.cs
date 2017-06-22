@@ -65,7 +65,7 @@
         /// <summary>
         /// Performs the actions that this command implements.
         /// </summary>
-        protected abstract void Execute();
+        internal abstract void Execute();
 
         #endregion
     }

@@ -447,7 +447,6 @@
 
             if (element.IsPositionUpdating || element.Container.IsStreamSeekable == false) return;
 
-            await element.Commands.Pause();
             await element.Commands.Seek((TimeSpan)e.NewValue);
         }
 
@@ -523,14 +522,14 @@
             return targetValue;
         }
 
-        private static void SpeedRatioPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static async void SpeedRatioPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var element = d as MediaElement;
             if (element == null) return;
             if (element.Container == null) return;
 
             var targetSpeedRatio = (double)e.NewValue;
-            element.Commands.SetSpeedRatio(targetSpeedRatio);
+            await element.Commands.SetSpeedRatio(targetSpeedRatio);
         }
 
         /// <summary>

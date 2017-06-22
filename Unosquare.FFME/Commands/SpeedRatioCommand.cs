@@ -22,7 +22,7 @@
         /// <summary>
         /// Performs the actions that this command implements.
         /// </summary>
-        protected override void Execute()
+        internal override void Execute()
         {
             if (Manager.MediaElement.Clock.SpeedRatio != SpeedRatio)
                 Manager.MediaElement.Clock.SpeedRatio = SpeedRatio;
@@ -36,6 +36,6 @@
         /// <summary>
         /// The target speed ratio
         /// </summary>
-        public double SpeedRatio { get; private set; }
+        public double SpeedRatio = 1.0d;
     }
 }

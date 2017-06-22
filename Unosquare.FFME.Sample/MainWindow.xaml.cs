@@ -121,5 +121,31 @@
                 //Terminal.Log(m, nameof(MediaElement), (LogMessageType)t);
             });
         }
+
+        #region Seek and Resume Behavior
+
+        private bool WasPlaying = false;
+
+        /// <summary>
+        /// Handles the MouseDown event of the PositionSlider control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="System.Windows.Input.MouseButtonEventArgs"/> instance containing the event data.</param>
+        private void PositionSlider_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            WasPlaying = Media.IsPlaying;
+        }
+
+        /// <summary>
+        /// Handles the MouseUp event of the PositionSlider control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="System.Windows.Input.MouseButtonEventArgs"/> instance containing the event data.</param>
+        private void PositionSlider_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (WasPlaying) Media.Play();
+        }
+
+        #endregion
     }
 }
