@@ -10,6 +10,7 @@
         Play,
         Pause,
         Stop,
-        Close
+        Close,
+        SetSpeedRatio
     }
 }

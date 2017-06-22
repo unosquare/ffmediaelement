@@ -265,7 +265,7 @@
             }
             catch (Exception e)
             {
-                Debug.WriteLine($"WRN: Audio Playback thread exiting. {e.Message}");
+                Debug.WriteLine($"WRN: Audio Playback thread exiting. {e.Message}. Stack Trace:\r\n{e.StackTrace}");
             }
             finally
             {

@@ -311,7 +311,8 @@
 
         #endregion
 
-        #region IWaveProvider Support
+        #region DSP
+
 
         /// <summary>
         /// Synchronizes audio rendering to the wall clock.
@@ -355,16 +356,17 @@
         /// <summary>
         /// Reads from the Audio Buffer and stretches the samples to the required requested bytes.
         /// This will make audio samples sound stretched (low pitch).
-        /// The result is put to the first requestedBytes of the ReadBuffer.
+        /// The result is put to the first requestedBytes count of the ReadBuffer.
         /// requested
         /// </summary>
         /// <param name="requestedBytes">The requested bytes.</param>
+        /// <param name="speedRatio">The speed ratio.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ReadAndStretch(int requestedBytes)
+        private void ReadAndStretch(int requestedBytes, double speedRatio)
         {
             var bytesToRead = Math.Min(
                 AudioBuffer.ReadableCount,
-                (int)(requestedBytes * MediaElement.Clock.SpeedRatio).ToMultipleOf(SampleBlockSize));
+                (int)(requestedBytes * speedRatio).ToMultipleOf(SampleBlockSize));
             var repeatFactor = (double)requestedBytes / bytesToRead;
 
             var sourceOffset = requestedBytes;
@@ -389,9 +391,70 @@
             }
         }
 
-        private void ReadAndShrink(int requestedBytes)
+        /// <summary>
+        /// Reads from the Audio Buffer and shrinks (averages) the samples to the required requested bytes.
+        /// This will make audio samples sound shrunken (high pitch).
+        /// The result is put to the first requestedBytes count of the ReadBuffer.
+        /// </summary>
+        /// <param name="requestedBytes">The requested bytes.</param>
+        /// <param name="speedRatio">The speed ratio.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ReadAndShrink(int requestedBytes, double speedRatio)
         {
+            var bytesToRead = Math.Min(
+                AudioBuffer.ReadableCount,
+                (int)(requestedBytes * speedRatio).ToMultipleOf(SampleBlockSize));
+            var groupSize = (double)bytesToRead / requestedBytes;
 
+            var sourceOffset = 0;
+            AudioBuffer.Read(bytesToRead, ReadBuffer, sourceOffset);
+
+            var targetOffset = 0;
+            var currentGroupSize = groupSize;
+            var leftSamples = 0d;
+            var rightSamples = 0d;
+            var isLeftSample = true;
+            short sample = 0;
+            var samplesToAverage = 0;
+
+            while (targetOffset < requestedBytes)
+            {
+                // Extract left and right samples
+                leftSamples = 0;
+                rightSamples = 0;
+                samplesToAverage = 0;
+                for (var i = sourceOffset; i < sourceOffset + ((int)currentGroupSize * SampleBlockSize); i += BytesPerSample)
+                {
+                    sample = (short)(ReadBuffer[i] | (ReadBuffer[i + 1] << 8));
+                    if (isLeftSample)
+                    {
+                        leftSamples += sample;
+                        samplesToAverage += 1;
+                    }
+                    else
+                    {
+                        rightSamples += sample;
+                    }
+
+                    isLeftSample = !isLeftSample;
+                }
+
+                // compute an average of the samples
+                leftSamples = Math.Round(leftSamples / samplesToAverage, 0);
+                rightSamples = Math.Round(rightSamples / samplesToAverage, 0);
+
+                // Write the samples
+                ReadBuffer[targetOffset + 0] = (byte)((short)leftSamples & 0xff);
+                ReadBuffer[targetOffset + 1] = (byte)((short)leftSamples >> 8);
+                ReadBuffer[targetOffset + 2] = (byte)((short)rightSamples & 0xff);
+                ReadBuffer[targetOffset + 3] = (byte)((short)rightSamples >> 8);
+
+                // advance the base source offset
+                currentGroupSize += samplesToAverage;
+                if (currentGroupSize > groupSize) currentGroupSize = groupSize + (currentGroupSize % groupSize);
+                sourceOffset += samplesToAverage * SampleBlockSize;
+                targetOffset += SampleBlockSize;
+            }
         }
 
         /// <summary>
@@ -406,12 +469,14 @@
         {
             // Samples are interleaved (left and right in 16-bit signed integers each)
             var isLeftSample = true;
+            short sample;
+
             for (var sourceBufferOffset = 0; sourceBufferOffset < requestedBytes; sourceBufferOffset += BytesPerSample)
             {
                 // The sample has 2 bytes: at the base index is the LSB and at the baseIndex + 1 is the MSB
                 // this obviously only holds true for Little Endian architectures, and thus, the current code is not portable.
                 // This replaces BitConverter.ToInt16(ReadBuffer, baseIndex); which is obviously much slower.
-                var sample = (short)(ReadBuffer[sourceBufferOffset] | (ReadBuffer[sourceBufferOffset + 1] << 8));
+                sample = (short)(ReadBuffer[sourceBufferOffset] | (ReadBuffer[sourceBufferOffset + 1] << 8));
 
                 if (IsMuted)
                 {
@@ -430,6 +495,11 @@
                 isLeftSample = !isLeftSample;
             }
         }
+
+
+        #endregion
+
+        #region IWaveProvider Support
 
         /// <summary>
         /// Called whenever the audio driver requests samples.
@@ -453,16 +523,15 @@
             if (MediaElement.HasVideo && Synchronize(targetBuffer, targetBufferOffset, requestedBytes) == false)
                 return requestedBytes;
 
+            var speedRatio = MediaElement.Clock.SpeedRatio;
 
-            if (MediaElement.Clock.SpeedRatio < 1.0)
+            if (speedRatio < 1.0)
             {
-                ReadAndStretch(requestedBytes);
+                ReadAndStretch(requestedBytes, speedRatio);
             }
-            else if (MediaElement.Clock.SpeedRatio > 1.0)
+            else if (speedRatio > 1.0)
             {
-                // TODO: replace with Shorten
-                requestedBytes = Math.Min(requestedBytes, AudioBuffer.ReadableCount);
-                AudioBuffer.Read(requestedBytes, ReadBuffer, 0);
+                ReadAndShrink(requestedBytes, speedRatio);
             }
             else
             {

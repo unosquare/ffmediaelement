@@ -136,6 +136,29 @@
         }
 
         /// <summary>
+        /// Sets the speed ratio.
+        /// </summary>
+        /// <param name="targetSpeedRatio">The target speed ratio.</param>
+        /// <returns></returns>
+        public Task SetSpeedRatio(double targetSpeedRatio)
+        {
+            lock (SyncLock)
+            {
+                // Remove prior queued commands of the same kind.
+                if (Commands.Count > 0)
+                {
+                    var existingCommand = Commands.FindAll(c => c.CommandType == MediaCommandType.SetSpeedRatio);
+                    foreach (var c in existingCommand)
+                        Commands.Remove(c);
+                }
+
+                var command = new SpeedRatioCommand(this, targetSpeedRatio);
+                Commands.Add(command);
+                return command.Promise;
+            }
+        }
+
+        /// <summary>
         /// Processes the next command in the command queue.
         /// This method is called in every block rendering cycle.
         /// </summary>

@@ -29,6 +29,10 @@
         {
             get
             {
+                // TODO: changing the speedratio creates abrupt, non-smppth changes in the continuous timeline.
+                // we need a new state variable the if complementary milliseconds != 0 then return the complementary millis and set them to 0
+                // so we delay the speed ratio 1 cycle.
+
                 lock (SyncLock)
                     return TimeSpan.FromTicks((long)Math.Round(
                         (OffsetMilliseconds + (Chrono.ElapsedMilliseconds * SpeedRatio)) * TimeSpan.TicksPerMillisecond, 0));

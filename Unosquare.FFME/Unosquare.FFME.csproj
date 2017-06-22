@@ -64,6 +64,7 @@
     <Compile Include="Commands\MediaCommandManager.cs" />
     <Compile Include="Commands\MediaCommandType.cs" />
     <Compile Include="Commands\SeekCommand.cs" />
+    <Compile Include="Commands\SpeedRatioCommand.cs" />
     <Compile Include="Commands\StopCommand.cs" />
     <Compile Include="Core\MediaTypeDictionary.cs" />
     <Compile Include="MediaElement.Workers.cs" />

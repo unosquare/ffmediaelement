@@ -530,7 +530,7 @@
             if (element.Container == null) return;
 
             var targetSpeedRatio = (double)e.NewValue;
-            element.Clock.SpeedRatio = targetSpeedRatio;
+            element.Commands.SetSpeedRatio(targetSpeedRatio);
         }
 
         /// <summary>
