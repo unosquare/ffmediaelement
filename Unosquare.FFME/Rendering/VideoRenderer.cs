@@ -129,12 +129,42 @@
             if (block == null) return;
 
             MediaElement.InvokeOnUI(DispatcherPriority.Render, () =>
-            {
+            {                
                 if (TargetBitmap == null || TargetBitmap.PixelWidth != block.PixelWidth || TargetBitmap.PixelHeight != block.PixelHeight)
                     InitializeTargetBitmap(block);
 
                 var updateRect = new Int32Rect(0, 0, block.PixelWidth, block.PixelHeight);
                 TargetBitmap.WritePixels(updateRect, block.Buffer, block.BufferLength, block.BufferStride);
+
+                var scaleTransform = MediaElement.ViewBox.LayoutTransform as ScaleTransform;
+
+                // Process Aspect Ratio according to block.
+                if (block.AspectWidth != block.AspectHeight)
+                {
+                    var scaleX = block.AspectWidth > block.AspectHeight ? (double)block.AspectWidth / block.AspectHeight : 1d;
+                    var scaleY = block.AspectHeight > block.AspectWidth ? (double)block.AspectHeight / block.AspectWidth : 1d;
+
+                    if (scaleTransform == null)
+                    {
+                        scaleTransform = new ScaleTransform(scaleX, scaleY);
+                        MediaElement.ViewBox.LayoutTransform = scaleTransform;
+                    }
+
+                    if (scaleTransform.ScaleX != scaleX || scaleTransform.ScaleY != scaleY)
+                    {
+                        scaleTransform.ScaleX = scaleX;
+                        scaleTransform.ScaleY = scaleY;
+                    }
+                }
+                else
+                {
+                    if (scaleTransform != null && (scaleTransform.ScaleX != 1d || scaleTransform.ScaleY != 1d))
+                    {
+                        scaleTransform.ScaleX = 1d;
+                        scaleTransform.ScaleY = 1d;
+                    }
+                }
+
             });
         }
 

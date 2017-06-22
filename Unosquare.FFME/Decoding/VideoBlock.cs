@@ -59,6 +59,16 @@
         /// </summary>
         public int PixelHeight { get; internal set; }
 
+        /// <summary>
+        /// Gets or sets the width of the aspect ratio.
+        /// </summary>
+        public int AspectWidth { get; internal set; }
+
+        /// <summary>
+        /// Gets or sets the height of the aspect ratio.
+        /// </summary>
+        public int AspectHeight { get; internal set; }
+
         #endregion
 
         #region IDisposable Support

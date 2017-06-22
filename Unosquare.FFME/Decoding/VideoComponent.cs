@@ -337,6 +337,18 @@
             target.PixelHeight = source.Pointer->height;
             target.PixelWidth = source.Pointer->width;
 
+            var aspectRatio = source.Pointer->sample_aspect_ratio;
+            if (aspectRatio.num == 0 || aspectRatio.den == 0)
+            {
+                target.AspectWidth = 1;
+                target.AspectHeight = 1;
+            }
+            else
+            {
+                target.AspectWidth = aspectRatio.num;
+                target.AspectHeight = aspectRatio.den;
+            }
+
             return target;
         }
 
