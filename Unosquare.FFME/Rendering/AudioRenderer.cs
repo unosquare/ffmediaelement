@@ -24,7 +24,6 @@
         private CircularBuffer AudioBuffer;
         private bool IsDisposed = false;
 
-        private byte[] SilenceBuffer = null;
         private byte[] ReadBuffer = null;
         private double LeftVolume = 1.0d;
         private double RightVolume = 1.0d;
@@ -53,8 +52,6 @@
             m_Format = new WaveFormat(AudioParams.Output.SampleRate, AudioParams.OutputBitsPerSample, AudioParams.Output.ChannelCount);
             if (WaveFormat.BitsPerSample != 16 || WaveFormat.Channels != 2)
                 throw new NotSupportedException("Wave Format has to be 16-bit and 2-channel.");
-
-            SilenceBuffer = new byte[m_Format.BitsPerSample / 8 * m_Format.Channels * 2];
 
             if (MediaElement.HasAudio)
                 Initialize();
@@ -313,7 +310,6 @@
 
         #region DSP
 
-
         /// <summary>
         /// Synchronizes audio rendering to the wall clock.
         /// Returns true if additional samples need to be read.
@@ -401,14 +397,20 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ReadAndShrink(int requestedBytes, double speedRatio)
         {
-            var bytesToRead = Math.Min(
-                AudioBuffer.ReadableCount,
-                (int)(requestedBytes * speedRatio).ToMultipleOf(SampleBlockSize));
-            var groupSize = (double)bytesToRead / requestedBytes;
-
+            var bytesToRead = (int)(requestedBytes * speedRatio).ToMultipleOf(SampleBlockSize);
             var sourceOffset = 0;
+
+            if (bytesToRead > AudioBuffer.ReadableCount)
+            {
+                AudioBuffer.Skip(AudioBuffer.ReadableCount);
+                Array.Clear(ReadBuffer, 0, requestedBytes);
+
+                return;
+            }
+
             AudioBuffer.Read(bytesToRead, ReadBuffer, sourceOffset);
 
+            var groupSize = (double)bytesToRead / requestedBytes;
             var targetOffset = 0;
             var currentGroupSize = groupSize;
             var leftSamples = 0d;
@@ -513,8 +515,8 @@
         {
             if (MediaElement.IsPlaying == false || MediaElement.HasAudio == false || AudioBuffer.ReadableCount <= 0)
             {
-                Buffer.BlockCopy(SilenceBuffer, 0, targetBuffer, targetBufferOffset, Math.Min(SilenceBuffer.Length, targetBuffer.Length));
-                return SilenceBuffer.Length;
+                Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
+                return requestedBytes;
             }
 
             if (ReadBuffer == null || ReadBuffer.Length < (int)(requestedBytes * Constants.MaxSpeedRatio))
