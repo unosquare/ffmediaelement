@@ -36,6 +36,7 @@
 
         private int BytesPerSample = 2;
         private double SyncThesholdMilliseconds = 0d;
+        private int SampleBlockSize = 0;
 
         #endregion
 
@@ -53,7 +54,6 @@
             if (WaveFormat.BitsPerSample != 16 || WaveFormat.Channels != 2)
                 throw new NotSupportedException("Wave Format has to be 16-bit and 2-channel.");
 
-            BytesPerSample = WaveFormat.BitsPerSample / 8;
             SilenceBuffer = new byte[m_Format.BitsPerSample / 8 * m_Format.Channels * 2];
 
             if (MediaElement.HasAudio)
@@ -91,6 +91,9 @@
             };
 
             SyncThesholdMilliseconds = 0.05 * DesiredLatency.TotalMilliseconds; // ~5% sync threshold for audio samples 
+            BytesPerSample = WaveFormat.BitsPerSample / 8;
+            SampleBlockSize = BytesPerSample * WaveFormat.Channels;
+
             var bufferLength = WaveFormat.ConvertLatencyToByteSize(AudioDevice.DesiredLatency) * MediaElement.Blocks[MediaType.Audio].Capacity / 2;
             AudioBuffer = new CircularBuffer(bufferLength);
             AudioDevice.Init(this);
@@ -349,45 +352,50 @@
             return true;
         }
 
+        /// <summary>
+        /// Reads from the Audio Buffer and stretches the samples to the required requested bytes.
+        /// This will make audio samples sound stretched (low pitch).
+        /// The result is put to the first requestedBytes of the ReadBuffer.
+        /// requested
+        /// </summary>
+        /// <param name="requestedBytes">The requested bytes.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Stretch(byte[] targetBuffer, int targetBufferOffset, int requestedBytes)
+        private void ReadAndStretch(int requestedBytes)
         {
-            var blockSize = BytesPerSample * WaveFormat.Channels;
             var bytesToRead = Math.Min(
                 AudioBuffer.ReadableCount,
-                (int)(requestedBytes * MediaElement.Clock.SpeedRatio).ToMultipleOf(blockSize));
+                (int)(requestedBytes * MediaElement.Clock.SpeedRatio).ToMultipleOf(SampleBlockSize));
+            var repeatFactor = (double)requestedBytes / bytesToRead;
 
-            var bytesToAdd = requestedBytes - bytesToRead;
             var sourceOffset = requestedBytes;
             AudioBuffer.Read(bytesToRead, ReadBuffer, sourceOffset);
 
             var targetOffset = 0;
-            var stepSize = ((double)requestedBytes / bytesToAdd); // repeat block every x blocks
-            var stepAccum = 0d;
+            var repeatAccum = 0d;
+
             while (targetOffset < requestedBytes)
             {
-                if (stepAccum >= stepSize)
+                // When we are done repeating, advance 1 block in the source position
+                if (repeatAccum >= repeatFactor)
                 {
-                    targetOffset += blockSize;
-                    for (var t = 0; t < blockSize; t++)
-                        ReadBuffer[targetOffset + t] = ReadBuffer[sourceOffset + t];
-
-                    stepAccum = stepAccum - stepSize;
-                    stepAccum = stepAccum - (int)stepAccum;
+                    repeatAccum = repeatAccum % repeatFactor;
+                    sourceOffset += SampleBlockSize;
                 }
 
-                for (var t = 0; t < blockSize; t++)
-                    ReadBuffer[targetOffset + t] = ReadBuffer[sourceOffset + t];
-
-                sourceOffset += blockSize;
-                targetOffset += blockSize;
-                stepAccum += 1d;
+                // Copy data from read data to the final 0-offset data of the same read buffer.
+                Buffer.BlockCopy(ReadBuffer, sourceOffset, ReadBuffer, targetOffset, SampleBlockSize);
+                targetOffset += SampleBlockSize;
+                repeatAccum += 1d;
             }
+        }
+
+        private void ReadAndShrink(int requestedBytes)
+        {
 
         }
 
         /// <summary>
-        /// Applies volume and balance to the audio samples and writes them
+        /// Applies volume and balance to the audio samples storead in RedBuffer and writes them
         /// to the specified target buffer.
         /// </summary>
         /// <param name="targetBuffer">The target buffer.</param>
@@ -448,7 +456,7 @@
 
             if (MediaElement.Clock.SpeedRatio < 1.0)
             {
-                Stretch(targetBuffer, targetBufferOffset, requestedBytes);
+                ReadAndStretch(requestedBytes);
             }
             else if (MediaElement.Clock.SpeedRatio > 1.0)
             {
