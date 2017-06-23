@@ -98,7 +98,7 @@
                 if (resumeClock)
                     m.Clock.Play();
 
-                m.Container.Log(MediaLogMessageType.Debug,
+                m.Container?.Log(MediaLogMessageType.Debug,
                     $"SEEK D: Elapsed: {startTime.DebugElapsedUtc()}");
 
                 m.SeekingDone.Set();
