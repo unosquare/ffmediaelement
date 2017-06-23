@@ -36,6 +36,8 @@
         // This is the image that will display the video from a Writeable Bitmap
         internal readonly Image ViewBox = new Image();
 
+        private Action<MediaLogMessageType, string> m_LogMessageCallback = null;
+
         /// <summary>
         /// Gets or sets the horizontal alignment characteristics applied to this element when it is composed within a parent element, such as a panel or items control.
         /// </summary>
@@ -90,6 +92,33 @@
 
             m_MetadataBase = new ObservableCollection<KeyValuePair<string, string>>();
             m_Metadata = CollectionViewSource.GetDefaultView(m_MetadataBase) as ICollectionView;
+        }
+
+        #endregion
+
+        #region Logging
+
+        /// <summary>
+        /// Gets or sets the log message callback.
+        /// All logging messages will be passed to this method if set.
+        /// </summary>
+        public Action<MediaLogMessageType, string> LogMessageCallback
+        {
+            get { return m_LogMessageCallback; }
+            set
+            {
+                m_LogMessageCallback = value;
+                try
+                {
+                    if (Container != null)
+                        Container.MediaOptions.LogMessageCallback = value;
+                }
+                catch
+                {
+                    // swallow
+                }
+
+            }
         }
 
         #endregion

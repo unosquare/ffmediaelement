@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME
 {
+    using Core;
     using System;
     using System.Linq;
     using System.Reflection;
@@ -76,7 +77,7 @@
         /// <param name="ex">The ex.</param>
         internal void RaiseMediaFailedEvent(Exception ex)
         {
-            Container?.Log(MediaLogMessageType.Error, $"Media Failure - {ex?.GetType()}: {ex?.Message}");
+            this.Log(MediaLogMessageType.Error, $"Media Failure - {ex?.GetType()}: {ex?.Message}");
             InvokeOnUI(DispatcherPriority.DataBind, () => { RaiseEvent(CreateExceptionRoutedEventArgs(MediaFailedEvent, this, ex)); });
         }
 
@@ -96,6 +97,7 @@
             InvokeOnUI(DispatcherPriority.DataBind, () =>
             {
                 RaiseEvent(new MediaOpeningRoutedEventArgs(MediaOpeningEvent, this, Container.MediaOptions));
+                Container.MediaOptions.LogMessageCallback = LogMessageCallback;
             });
         }
 

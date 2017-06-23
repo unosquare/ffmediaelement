@@ -97,6 +97,15 @@
 
             Media.MediaOpening += Media_MediaOpening;
             Media.MediaFailed += Media_MediaFailed;
+
+            //e.Options.IsAudioDisabled = true;
+            Media.LogMessageCallback = new Action<MediaLogMessageType, string>((t, m) =>
+            {
+                if (t == MediaLogMessageType.Trace) return;
+
+                Debug.WriteLine($"{t} - {m}");
+                //Terminal.Log(m, nameof(MediaElement), (LogMessageType)t);
+            });
         }
 
         private void Media_MediaFailed(object sender, ExceptionRoutedEventArgs e)
@@ -112,14 +121,6 @@
             if (UrlTextBox.Text.StartsWith("udp://"))
                 e.Options.VideoFilter = "yadif";
 
-            //e.Options.IsAudioDisabled = true;
-            e.Options.LogMessageCallback = new Action<MediaLogMessageType, string>((t, m) =>
-            {
-                if (t == MediaLogMessageType.Trace) return;
-
-                Debug.WriteLine($"{t} - {m}");
-                //Terminal.Log(m, nameof(MediaElement), (LogMessageType)t);
-            });
         }
 
         #region Seek and Resume Behavior

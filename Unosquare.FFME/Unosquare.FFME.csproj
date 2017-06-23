@@ -66,6 +66,7 @@
     <Compile Include="Commands\SeekCommand.cs" />
     <Compile Include="Commands\SpeedRatioCommand.cs" />
     <Compile Include="Commands\StopCommand.cs" />
+    <Compile Include="Core\LogManager.cs" />
     <Compile Include="Core\MediaTypeDictionary.cs" />
     <Compile Include="MediaElement.Workers.cs" />
     <Compile Include="Rendering\Wave\IWaveProvider.cs" />

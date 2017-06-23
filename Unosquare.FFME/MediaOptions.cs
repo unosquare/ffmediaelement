@@ -93,7 +93,7 @@
         /// <summary>
         /// Set this callback to handle log messages.
         /// </summary>
-        public Action<MediaLogMessageType, string> LogMessageCallback = null;
+        internal Action<MediaLogMessageType, string> LogMessageCallback = null;
     }
 
 }
