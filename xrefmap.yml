@@ -511,6 +511,18 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.LoadedBehaviorProperty
   fullName: Unosquare.FFME.MediaElement.LoadedBehaviorProperty
   nameWithType: MediaElement.LoadedBehaviorProperty
+- uid: Unosquare.FFME.MediaElement.LogMessageCallback
+  name: LogMessageCallback
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_LogMessageCallback
+  commentId: P:Unosquare.FFME.MediaElement.LogMessageCallback
+  fullName: Unosquare.FFME.MediaElement.LogMessageCallback
+  nameWithType: MediaElement.LogMessageCallback
+- uid: Unosquare.FFME.MediaElement.LogMessageCallback*
+  name: LogMessageCallback
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_LogMessageCallback_
+  commentId: Overload:Unosquare.FFME.MediaElement.LogMessageCallback
+  fullName: Unosquare.FFME.MediaElement.LogMessageCallback
+  nameWithType: MediaElement.LogMessageCallback
 - uid: Unosquare.FFME.MediaElement.MediaEnded
   name: MediaEnded
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaEnded
@@ -1063,12 +1075,6 @@ references:
   commentId: Overload:Unosquare.FFME.MediaOptions.IsVideoDisabled
   fullName: Unosquare.FFME.MediaOptions.IsVideoDisabled
   nameWithType: MediaOptions.IsVideoDisabled
-- uid: Unosquare.FFME.MediaOptions.LogMessageCallback
-  name: LogMessageCallback
-  href: api/Unosquare.FFME.MediaOptions.html#Unosquare_FFME_MediaOptions_LogMessageCallback
-  commentId: F:Unosquare.FFME.MediaOptions.LogMessageCallback
-  fullName: Unosquare.FFME.MediaOptions.LogMessageCallback
-  nameWithType: MediaOptions.LogMessageCallback
 - uid: Unosquare.FFME.MediaOptions.VideoFilter
   name: VideoFilter
   href: api/Unosquare.FFME.MediaOptions.html#Unosquare_FFME_MediaOptions_VideoFilter
