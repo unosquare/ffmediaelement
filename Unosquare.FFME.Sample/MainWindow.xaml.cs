@@ -106,6 +106,13 @@
                 Debug.WriteLine($"{t} - {m}");
                 //Terminal.Log(m, nameof(MediaElement), (LogMessageType)t);
             });
+
+            var args = Environment.GetCommandLineArgs();
+            if (args != null && args.Length > 1)
+            {
+                UrlTextBox.Text = args[1].Trim();
+                OpenCommand.Execute();
+            }
         }
 
         private void Media_MediaFailed(object sender, ExceptionRoutedEventArgs e)
