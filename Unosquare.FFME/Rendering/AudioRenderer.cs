@@ -19,7 +19,6 @@
     {
         #region Private Members
 
-        private readonly MediaElement MediaElement;
         private readonly object SyncLock = new object();
         private WavePlayer AudioDevice;
         private CircularBuffer AudioBuffer;
@@ -82,7 +81,7 @@
         {
             Destroy();
 
-            AudioDevice = new WavePlayer()
+            AudioDevice = new WavePlayer(this)
             {
                 DesiredLatency = 200,
                 NumberOfBuffers = 2,
@@ -141,6 +140,10 @@
             get { return m_Format; }
         }
 
+        /// <summary>
+        /// Gets the parent media element.
+        /// </summary>
+        public MediaElement MediaElement { get; private set; }
 
         /// <summary>
         /// Gets or sets the volume.

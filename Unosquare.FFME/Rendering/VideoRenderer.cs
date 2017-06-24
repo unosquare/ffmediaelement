@@ -20,11 +20,6 @@
         /// </summary>
         private WriteableBitmap TargetBitmap;
 
-        /// <summary>
-        /// The media element
-        /// </summary>
-        private MediaElement MediaElement;
-
         #endregion
 
         #region Constructors
@@ -70,6 +65,11 @@
         #endregion
 
         #region Public API
+
+        /// <summary>
+        /// Gets the parent media element.
+        /// </summary>
+        public MediaElement MediaElement { get; private set; }
 
         /// <summary>
         /// Executed when the Play method is called on the parent MediaElement

@@ -7,7 +7,7 @@ using System.Windows;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Unosquare FFME Reference Player")]
+[assembly: AssemblyTitle("Unosquare FFME Reference Media Player")]
 [assembly: AssemblyDescription("A reference implementation of a media player using the FFME")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Unosquare SA de CV")]

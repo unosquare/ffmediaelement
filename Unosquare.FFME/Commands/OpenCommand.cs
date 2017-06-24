@@ -82,9 +82,9 @@
                 m.FrameDecodingCycle.Set();
                 m.PacketReadingCycle.Set();
 
-                m.PacketReadingTask = new Thread(m.RunPacketReadingWorker) { IsBackground = true };
-                m.FrameDecodingTask = new Thread(m.RunFrameDecodingWorker) { IsBackground = true };
-                m.BlockRenderingTask = new Thread(m.RunBlockRenderingWorker) { IsBackground = true };
+                m.PacketReadingTask = new Thread(m.RunPacketReadingWorker) { IsBackground = true, Name = nameof(m.PacketReadingTask) };
+                m.FrameDecodingTask = new Thread(m.RunFrameDecodingWorker) { IsBackground = true, Name = nameof(m.FrameDecodingTask) };
+                m.BlockRenderingTask = new Thread(m.RunBlockRenderingWorker) { IsBackground = true, Name = nameof(m.BlockRenderingTask) };
 
                 m.PacketReadingTask.Start();
                 m.FrameDecodingTask.Start();

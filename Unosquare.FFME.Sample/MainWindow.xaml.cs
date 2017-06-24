@@ -119,7 +119,11 @@
 
             // The yadif filter deinterlaces the video
             if (UrlTextBox.Text.StartsWith("udp://"))
+            {
                 e.Options.VideoFilter = "yadif";
+                //e.Options.ProbeSize = 32;
+            }
+                
 
         }
 

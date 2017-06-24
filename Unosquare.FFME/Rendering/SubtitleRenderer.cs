@@ -16,7 +16,7 @@
         /// <param name="mediaElement">The media element.</param>
         public SubtitleRenderer(MediaElement mediaElement)
         {
-            //placeholder
+            MediaElement = mediaElement;
         }
 
         /// <summary>
@@ -70,6 +70,9 @@
             //placeholder
         }
 
-
+        /// <summary>
+        /// Gets the parent media element.
+        /// </summary>
+        public MediaElement MediaElement { get; private set; }
     }
 }

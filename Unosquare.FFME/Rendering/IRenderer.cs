@@ -41,5 +41,10 @@
         /// <param name="clockPosition">The clock position.</param>
         /// <param name="renderIndex">Index of the render.</param>
         void Render(MediaBlock mediaBlock, TimeSpan clockPosition, int renderIndex);
+
+        /// <summary>
+        /// Gets the parent media element.
+        /// </summary>
+        MediaElement MediaElement { get; }
     }
 }

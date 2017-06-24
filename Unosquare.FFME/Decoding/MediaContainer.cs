@@ -446,6 +446,14 @@
                     {
                         // Open the input file
                         var openResult = 0;
+
+                        if (MediaOptions.ProbeSize != default(int))
+                            InputContext->probesize = MediaOptions.ProbeSize <= 32 ? 32 : MediaOptions.ProbeSize;
+
+                        if (MediaOptions.MaxAnalyzeDuration != default(TimeSpan))
+                            InputContext->max_analyze_duration = MediaOptions.MaxAnalyzeDuration <= TimeSpan.Zero ? 0 : 
+                                (int)Math.Round(MediaOptions.MaxAnalyzeDuration.TotalMilliseconds * 1000d, 0);
+
                         fixed (AVDictionary** reference = &formatOptions.Pointer)
                             openResult = ffmpeg.avformat_open_input(inputContext, MediaUrl, inputFormat, reference);
 

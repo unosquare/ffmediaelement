@@ -4,7 +4,7 @@
     using System.Diagnostics;
     using System.Runtime.InteropServices;
     using System.Threading;
-    using System.Threading.Tasks;
+    using Core;
 
     /// <summary>
     /// A wave player that opens an audio device and continuously feeds it
@@ -16,10 +16,14 @@
 
         private readonly object WaveOutLock = new object();
         private readonly SynchronizationContext SyncContext;
+        private readonly AudioRenderer Renderer = null;
+
         private IntPtr DeviceHandle;
         private WaveOutBuffer[] Buffers;
         private IWaveProvider WaveStream;
         private AutoResetEvent CallbackEvent;
+        private Thread AudioPlaybackTask = null;
+        
 
         private volatile PlaybackState m_PlaybackState;
         private int m_DeviceNumber = -1;
@@ -31,7 +35,7 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="WavePlayer"/> class.
         /// </summary>
-        public WavePlayer()
+        public WavePlayer(AudioRenderer renderer)
         {
             SyncContext = SynchronizationContext.Current;
             if (SyncContext != null &&
@@ -42,6 +46,7 @@
             }
 
             // set default values up
+            Renderer = renderer;
             DeviceNumber = 0;
             DesiredLatency = 300;
             NumberOfBuffers = 2;
@@ -164,7 +169,8 @@
             {
                 m_PlaybackState = PlaybackState.Playing;
                 CallbackEvent.Set(); // give the thread a kick
-                ThreadPool.QueueUserWorkItem(state => StartPlaybackThread(), null);
+                AudioPlaybackTask = new Thread(StartPlaybackThread) { IsBackground = true, Name = nameof(AudioPlaybackTask) };
+                AudioPlaybackTask.Start();
             }
             else if (m_PlaybackState == PlaybackState.Paused)
             {
@@ -265,7 +271,7 @@
             }
             catch (Exception e)
             {
-                Debug.WriteLine($"WRN: Audio Playback thread exiting. {e.Message}. Stack Trace:\r\n{e.StackTrace}");
+                Renderer.MediaElement.Log(MediaLogMessageType.Error, $"{nameof(AudioPlaybackTask)} exiting. {e.Message}. Stack Trace:\r\n{e.StackTrace}");
             }
             finally
             {
@@ -282,7 +288,7 @@
             while (m_PlaybackState != PlaybackState.Stopped)
             {
                 if (!CallbackEvent.WaitOne(DesiredLatency) && m_PlaybackState == PlaybackState.Playing)
-                    Debug.WriteLine("WARNING: WaveOutEvent callback event timeout");
+                    Renderer.MediaElement.Log(MediaLogMessageType.Warning, $"{nameof(AudioPlaybackTask)}:{nameof(CallbackEvent)} timed out. Desired Latency: {DesiredLatency}ms");
 
                 if (m_PlaybackState != PlaybackState.Playing)
                     continue;
@@ -372,7 +378,8 @@
         ~WavePlayer()
         {
             Dispose(false);
-            Debug.Assert(false, "WaveOutEvent device was not closed");
+            Renderer.MediaElement.Log(MediaLogMessageType.Error, 
+                $"{nameof(WavePlayer)}.{nameof(Dispose)} was not called. Please ensure you dispose when finished using this object.");
         }
 
         #endregion

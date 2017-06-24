@@ -291,7 +291,7 @@
                     var paddingLength = keyStringLength - kvp.Key.Length;
                     if (paddingLength <= 0) paddingLength = 1;
                     var paddingString = new string('.', paddingLength);
-                    System.Diagnostics.Debug.WriteLine("{0}{1}{2}", kvp.Key, paddingString, kvp.Value);
+                    this.Log(MediaLogMessageType.Info, $"{kvp.Key}{paddingString}{kvp.Value}");
                 }
             }
 

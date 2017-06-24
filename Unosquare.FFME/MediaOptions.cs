@@ -65,6 +65,16 @@
         public bool GeneratePts { get; set; } = false;
 
         /// <summary>
+        /// Gets or sets the maximum duration of the analyze.
+        /// </summary>
+        public TimeSpan MaxAnalyzeDuration { get; set; }
+
+        /// <summary>
+        /// Gets or sets the size of the probe.
+        /// </summary>
+        public int ProbeSize { get; set; }
+
+        /// <summary>
         /// Prevent reading from audio stream components.
         /// Port of audio_disable
         /// </summary>
