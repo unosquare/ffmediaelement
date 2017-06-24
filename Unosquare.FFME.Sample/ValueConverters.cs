@@ -23,7 +23,7 @@ namespace Unosquare.FFME.Sample
         public object ConvertBack(object value, Type targetType,
             object parameter, CultureInfo culture)
         {
-            var result = TimeSpan.FromTicks((long)(TimeSpan.TicksPerSecond * (double)value));
+            var result = TimeSpan.FromTicks((long)Math.Round(TimeSpan.TicksPerSecond * (double)value, 0));
             // Do the conversion from visibility to bool
             if (targetType == typeof(TimeSpan)) return result;
             if (targetType == typeof(Duration)) return new Duration(result);

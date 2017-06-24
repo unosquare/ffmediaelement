@@ -121,7 +121,7 @@
         {
             get
             {
-                var startSeekTime = (long)(MediaStartTimeOffset.TotalSeconds * ffmpeg.AV_TIME_BASE);
+                var startSeekTime = (long)Math.Round(MediaStartTimeOffset.TotalSeconds * ffmpeg.AV_TIME_BASE, 0);
                 if (MediaSeeksByBytes) startSeekTime = 0;
                 return startSeekTime;
             }
@@ -875,7 +875,7 @@
             {
                 // Compute the seek target, mostly based on the relative Target Time
                 var seekTarget = MediaSeeksByBytes ?
-                    (long)(MediaBitrate * relativeTargetTime.TotalSeconds / 8d) :
+                    (long)Math.Round(MediaBitrate * relativeTargetTime.TotalSeconds / 8d, 0) :
                     (long)Math.Round((relativeTargetTime.TotalSeconds) * timeBase.den / timeBase.num, 0);
 
                 // Perform the seek. There is also avformat_seek_file which is the older version of av_seek_frame
