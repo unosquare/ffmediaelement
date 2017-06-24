@@ -1075,6 +1075,30 @@ references:
   commentId: Overload:Unosquare.FFME.MediaOptions.IsVideoDisabled
   fullName: Unosquare.FFME.MediaOptions.IsVideoDisabled
   nameWithType: MediaOptions.IsVideoDisabled
+- uid: Unosquare.FFME.MediaOptions.MaxAnalyzeDuration
+  name: MaxAnalyzeDuration
+  href: api/Unosquare.FFME.MediaOptions.html#Unosquare_FFME_MediaOptions_MaxAnalyzeDuration
+  commentId: P:Unosquare.FFME.MediaOptions.MaxAnalyzeDuration
+  fullName: Unosquare.FFME.MediaOptions.MaxAnalyzeDuration
+  nameWithType: MediaOptions.MaxAnalyzeDuration
+- uid: Unosquare.FFME.MediaOptions.MaxAnalyzeDuration*
+  name: MaxAnalyzeDuration
+  href: api/Unosquare.FFME.MediaOptions.html#Unosquare_FFME_MediaOptions_MaxAnalyzeDuration_
+  commentId: Overload:Unosquare.FFME.MediaOptions.MaxAnalyzeDuration
+  fullName: Unosquare.FFME.MediaOptions.MaxAnalyzeDuration
+  nameWithType: MediaOptions.MaxAnalyzeDuration
+- uid: Unosquare.FFME.MediaOptions.ProbeSize
+  name: ProbeSize
+  href: api/Unosquare.FFME.MediaOptions.html#Unosquare_FFME_MediaOptions_ProbeSize
+  commentId: P:Unosquare.FFME.MediaOptions.ProbeSize
+  fullName: Unosquare.FFME.MediaOptions.ProbeSize
+  nameWithType: MediaOptions.ProbeSize
+- uid: Unosquare.FFME.MediaOptions.ProbeSize*
+  name: ProbeSize
+  href: api/Unosquare.FFME.MediaOptions.html#Unosquare_FFME_MediaOptions_ProbeSize_
+  commentId: Overload:Unosquare.FFME.MediaOptions.ProbeSize
+  fullName: Unosquare.FFME.MediaOptions.ProbeSize
+  nameWithType: MediaOptions.ProbeSize
 - uid: Unosquare.FFME.MediaOptions.VideoFilter
   name: VideoFilter
   href: api/Unosquare.FFME.MediaOptions.html#Unosquare_FFME_MediaOptions_VideoFilter
