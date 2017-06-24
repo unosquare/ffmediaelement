@@ -124,7 +124,7 @@
         /// <returns></returns>
         public static TimeSpan ToTimeSpan(this double pts, AVRational timeBase)
         {
-            if (double.IsNaN(pts) || pts == Constants.AV_NOPTS)
+            if (double.IsNaN(pts) || pts == ffmpeg.AV_NOPTS)
                 return TimeSpan.MinValue;
 
             if (timeBase.den == 0)
@@ -152,7 +152,7 @@
         /// <returns></returns>
         public static TimeSpan ToTimeSpan(this double pts, double timeBase)
         {
-            if (double.IsNaN(pts) || pts == Constants.AV_NOPTS)
+            if (double.IsNaN(pts) || pts == ffmpeg.AV_NOPTS)
                 return TimeSpan.MinValue;
 
             return TimeSpan.FromTicks((long)(TimeSpan.TicksPerMillisecond * 1000 * pts / timeBase)); //pts / timeBase);
@@ -254,27 +254,31 @@
                 if (HasFFmpegRegistered)
                     return FFmpegRegisterPath;
 
-                var expectedFilenames = new[] { "avcodec-57.dll", "avdevice-57.dll", "avfilter-6.dll", "avformat-57.dll",
-                    "avutil-55.dll", "postproc-54.dll", "swresample-2.dll", "swscale-4.dll" };
+                // Define the minimum set of ffmpeg binaries.
+                var minimumFFmpegSet = new[] { Constants.DllAVCodec, Constants.DllAVFormat, Constants.DllAVUtil, Constants.DllSWResample };
 
                 var architecture = IntPtr.Size == 4 ? ProcessorArchitecture.X86 : ProcessorArchitecture.Amd64;
                 var ffmpegFolderName = architecture == ProcessorArchitecture.X86 ? "ffmpeg32" : "ffmpeg64";
-                var ffmpegPath = string.IsNullOrWhiteSpace(overridePath) == false ? 
+                var ffmpegPath = string.IsNullOrWhiteSpace(overridePath) == false ?
                     overridePath : Path.GetFullPath(Path.Combine(AssemblyLocation, ffmpegFolderName));
 
                 // Ensure all files exist
-                foreach (var fileName in expectedFilenames)
+                foreach (var fileName in minimumFFmpegSet)
                 {
                     if (File.Exists(Path.Combine(ffmpegPath, fileName)) == false)
-                        throw new FileNotFoundException($"Unable to load FFmpeg binaries from folder '{ffmpegPath}'. File '{fileName}' is missing");
+                        throw new FileNotFoundException($"Unable to load minimum set of FFmpeg binaries from folder '{ffmpegPath}'. File '{fileName}' is missing");
                 }
 
                 SetDllDirectory(ffmpegPath);
 
                 ffmpeg.av_log_set_flags(ffmpeg.AV_LOG_SKIP_REPEATED);
 
-                ffmpeg.avdevice_register_all();
-                ffmpeg.avfilter_register_all();
+                if (File.Exists(Path.Combine(ffmpegPath, Constants.DllAVDevice)))
+                    ffmpeg.avdevice_register_all();
+
+                if (File.Exists(Path.Combine(ffmpegPath, Constants.DllAVFilter)))
+                    ffmpeg.avfilter_register_all();
+
                 ffmpeg.av_register_all();
                 ffmpeg.avcodec_register_all();
                 ffmpeg.avformat_network_init();

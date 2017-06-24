@@ -31,7 +31,7 @@
             // for vide frames, we always get the best effort timestamp as dts and pts might
             // contain different times.
             frame->pts = ffmpeg.av_frame_get_best_effort_timestamp(frame);
-            StartTime = frame->pts == Constants.AV_NOPTS ?
+            StartTime = frame->pts == ffmpeg.AV_NOPTS ?
                 TimeSpan.FromTicks(component.Container.MediaStartTimeOffset.Ticks) :
                 TimeSpan.FromTicks(frame->pts.ToTimeSpan(StreamTimeBase).Ticks - component.Container.MediaStartTimeOffset.Ticks);
 

@@ -15,7 +15,6 @@
         #region State Variables
 
         private readonly object WaveOutLock = new object();
-        private readonly SynchronizationContext SyncContext;
         private readonly AudioRenderer Renderer = null;
 
         private IntPtr DeviceHandle;
@@ -23,7 +22,6 @@
         private IWaveProvider WaveStream;
         private AutoResetEvent CallbackEvent;
         private Thread AudioPlaybackTask = null;
-        
 
         private volatile PlaybackState m_PlaybackState;
         private int m_DeviceNumber = -1;
@@ -37,21 +35,12 @@
         /// </summary>
         public WavePlayer(AudioRenderer renderer)
         {
-            SyncContext = SynchronizationContext.Current;
-            if (SyncContext != null &&
-                ((SyncContext.GetType().Name == "LegacyAspNetSynchronizationContext") ||
-                (SyncContext.GetType().Name == "AspNetSynchronizationContext")))
-            {
-                SyncContext = null;
-            }
-
-            // set default values up
+            // Initialize the default values
             Renderer = renderer;
             DeviceNumber = 0;
             DesiredLatency = 300;
             NumberOfBuffers = 2;
         }
-
 
         #endregion
 

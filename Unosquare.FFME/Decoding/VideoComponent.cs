@@ -323,7 +323,7 @@
                 target.PictureBuffer = Marshal.AllocHGlobal(target.PictureBufferLength);
             }
 
-            var targetScan = new byte_ptrArray8();
+            var targetScan = new BytePointerArrayOf8();
             targetScan[0] = (byte*)target.PictureBuffer;
 
             // The scaling is done here

@@ -690,7 +690,7 @@
                 ffmpeg.av_packet_free(&readPacket);
 
                 // Detect an end of file situation (makes the readers enter draining mode)
-                if ((readResult == Constants.AVERROR_EOF || ffmpeg.avio_feof(InputContext->pb) != 0))
+                if ((readResult == ffmpeg.AVERROR_EOF || ffmpeg.avio_feof(InputContext->pb) != 0))
                 {
                     // Force the decoders to enter draining mode (with empry packets)
                     if (IsAtEndOfStream == false)

@@ -205,19 +205,19 @@
             MediaType = (MediaType)CodecContext->codec_type;
 
             // Compute the start time
-            if (Stream->start_time == Constants.AV_NOPTS)
+            if (Stream->start_time == ffmpeg.AV_NOPTS)
                 StartTimeOffset = Container.MediaStartTimeOffset;
             else
                 StartTimeOffset = Stream->start_time.ToTimeSpan(Stream->time_base);
 
             // compute the duration
-            if (Stream->duration == Constants.AV_NOPTS || Stream->duration == 0)
+            if (Stream->duration == ffmpeg.AV_NOPTS || Stream->duration == 0)
                 Duration = Container.InputContext->duration.ToTimeSpan();
             else
                 Duration = Stream->duration.ToTimeSpan(Stream->time_base);
 
             CodecId = Stream->codec->codec_id;
-            CodecName = ffmpeg.avcodec_get_name(CodecId);
+            CodecName = Utils.PtrToString(ffmpeg.avcodec_get_name(CodecId));
             Bitrate = (int)Stream->codec->bit_rate;
             Container.Log(MediaLogMessageType.Trace, $"{MediaType}: Start Offset: {StartTimeOffset.Debug()}; Duration: {Duration.Debug()}");
 

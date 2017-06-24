@@ -10,34 +10,9 @@
     /// </summary>
     internal static class Constants
     {
-        #region Ported Methods
 
-        private static int MKTAG(params byte[] buff)
-        {
-            //  ((a) | ((b) << 8) | ((c) << 16) | ((unsigned)(d) << 24))
-            if (BitConverter.IsLittleEndian == false)
-                buff = buff.Reverse().ToArray();
-
-            return BitConverter.ToInt32(buff, 0);
-        }
-
-        private static int MKTAG(byte a, char b, char c, char d)
-        {
-            return MKTAG(new byte[] { a, (byte)b, (byte)c, (byte)d });
-        }
-
-        private static int MKTAG(char a, char b, char c, char d)
-        {
-            return MKTAG(new byte[] { (byte)a, (byte)b, (byte)c, (byte)d });
-        }
-
-        #endregion
-
-        public const long AV_NOPTS = long.MinValue;
-        public static readonly AVRational AV_TIME_BASE_Q = new AVRational { num = 1, den = ffmpeg.AV_TIME_BASE };
-        public static readonly int AVERROR_EOF = -MKTAG('E', 'O', 'F', ' '); // http://www-numi.fnal.gov/offline_software/srt_public_context/WebDocs/Errors/unix_system_errors.html
-        public const int AVERROR_EAGAIN = -11; // http://www-numi.fnal.gov/offline_software/srt_public_context/WebDocs/Errors/unix_system_errors.html
-
+        public static readonly ReadOnlyCollection<MediaType> MediaTypes
+            = new ReadOnlyCollection<MediaType>(Enum.GetValues(typeof(MediaType)).Cast<MediaType>().ToArray());
 
         public const double DefaultSpeedRatio = 1.0d;
         public const double DefaultBalance = 0.0d;
@@ -52,7 +27,12 @@
         public const double MaxVolume = 1.0d;
         public const double MinVolume = 0.0d;
 
-        public static readonly ReadOnlyCollection<MediaType> MediaTypes 
-            = new ReadOnlyCollection<MediaType>(Enum.GetValues(typeof(MediaType)).Cast<MediaType>().ToArray());
+        public const string DllAVCodec = "avcodec-57.dll";
+        public const string DllAVFilter = "avfilter-6.dll";
+        public const string DllAVFormat = "avformat-57.dll";
+        public const string DllAVUtil = "avutil-55.dll";
+        public const string DllSWResample = "swresample-2.dll";
+        public const string DllSWScale = "swscale-4.dll";
+        public const string DllAVDevice = "avdevice-57.dll";
     }
 }

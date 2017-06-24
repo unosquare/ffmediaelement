@@ -2,11 +2,43 @@
 
 namespace FFmpeg.AutoGen
 {
-    internal unsafe struct _iobuf
-    {
-        public void* @_Placeholder;
-    }
-    
+
+    internal unsafe struct AVBuffer { }
+
+    internal unsafe struct AVDictionary { }
+
+    internal unsafe struct SwrContext { }
+
+    internal unsafe struct SwsContext { }
+
+    internal unsafe struct AVCodecDefault { }
+
+    internal unsafe struct AVCodecInternal { }
+
+    internal unsafe struct MpegEncContext { }
+
+    internal unsafe struct AVBSFInternal { }
+
+    internal unsafe struct AVStreamInternal { }
+
+    internal unsafe struct FFFrac { }
+
+    internal unsafe struct AVFormatInternal { }
+
+    internal unsafe struct AVCodecTag { }
+
+    internal unsafe struct AVFilterPad { }
+
+    internal unsafe struct AVFilterFormats { }
+
+    internal unsafe struct AVFilterChannelLayouts { }
+
+    internal unsafe struct AVFilterGraphInternal { }
+
+    internal unsafe struct AVFilterInternal { }
+
+    internal unsafe struct AVFilterCommand { }
+
     /// <summary>Rational number (pair of numerator and denominator).</summary>
     internal unsafe struct AVRational
     {
@@ -72,17 +104,7 @@ namespace FFmpeg.AutoGen
         /// <summary>Number of componentes.</summary>
         public int @nb_components;
     }
-    
-    internal unsafe struct AVFifoBuffer
-    {
-        public byte* @buffer;
-        public byte* @rptr;
-        public byte* @wptr;
-        public byte* @end;
-        public uint @rndx;
-        public uint @wndx;
-    }
-    
+
     /// <summary>A reference to a data buffer.</summary>
     internal unsafe struct AVBufferRef
     {
@@ -113,9 +135,9 @@ namespace FFmpeg.AutoGen
     internal unsafe struct AVFrame
     {
         /// <summary>pointer to the picture/channel planes. This might be different from the first allocated byte</summary>
-        public byte_ptrArray8 @data;
+        public BytePointerArrayOf8 @data;
         /// <summary>For video, size in bytes of each picture line. For audio, size in bytes of each plane.</summary>
-        public int_array8 @linesize;
+        public IntArrayOf8 @linesize;
         /// <summary>pointers to the data planes/channels.</summary>
         public byte** @extended_data;
         /// <summary>width and height of the video frame</summary>
@@ -146,7 +168,7 @@ namespace FFmpeg.AutoGen
         public int @quality;
         /// <summary>for some private data of the user</summary>
         public void* @opaque;
-        public ulong_array8 @error;
+        public UlongArrayOf8 @error;
         /// <summary>When decoding, this signals how much the picture must be delayed. extra_delay = repeat_pict / (2*fps)</summary>
         public int @repeat_pict;
         /// <summary>The content of the picture is interlaced.</summary>
@@ -162,7 +184,7 @@ namespace FFmpeg.AutoGen
         /// <summary>Channel layout of the audio data.</summary>
         public ulong @channel_layout;
         /// <summary>AVBuffer references backing the data for this frame. If all elements of this array are NULL, then this frame is not reference counted. This array must be filled contiguously -- if buf[i] is non-NULL then buf[j] must also be non-NULL for all j &lt; i.</summary>
-        public AVBufferRef_ptrArray8 @buf;
+        public AVBufferRefPointerArrayOf8 @buf;
         /// <summary>For planar audio which requires more than AV_NUM_DATA_POINTERS AVBufferRef pointers, this array will hold all the references which cannot fit into AVFrame.buf.</summary>
         public AVBufferRef** @extended_buf;
         /// <summary>Number of elements in extended_buf.</summary>
@@ -248,24 +270,6 @@ namespace FFmpeg.AutoGen
         public int @offset_plus1;
     }
     
-    /// <summary>Descriptor that unambiguously describes how the bits of a pixel are stored in the up to 4 data planes of an image. It also stores the subsampling factors and number of components.</summary>
-    internal unsafe struct AVPixFmtDescriptor
-    {
-        public byte* @name;
-        /// <summary>The number of components each pixel has, (1-4)</summary>
-        public byte @nb_components;
-        /// <summary>Amount to shift the luma width right to find the chroma width. For YV12 this is 1 for example. chroma_width = AV_CEIL_RSHIFT(luma_width, log2_chroma_w) The note above is needed to ensure rounding up. This value only refers to the chroma components.</summary>
-        public byte @log2_chroma_w;
-        /// <summary>Amount to shift the luma height right to find the chroma height. For YV12 this is 1 for example. chroma_height= AV_CEIL_RSHIFT(luma_height, log2_chroma_h) The note above is needed to ensure rounding up. This value only refers to the chroma components.</summary>
-        public byte @log2_chroma_h;
-        /// <summary>Combination of AV_PIX_FMT_FLAG_... flags.</summary>
-        public ulong @flags;
-        /// <summary>Parameters that describe how pixels are packed. If the format has 1 or 2 components, then luma is 0. If the format has 3 or 4 components: if the RGB flag is set then 0 is red, 1 is green and 2 is blue; otherwise 0 is luma, 1 is chroma-U and 2 is chroma-V.</summary>
-        public AVComponentDescriptor_array4 @comp;
-        /// <summary>Alternative comma-separated names.</summary>
-        public byte* @alias;
-    }
-    
     internal unsafe struct SwsVector
     {
         /// <summary>pointer to the list of coefficients</summary>
@@ -314,34 +318,7 @@ namespace FFmpeg.AutoGen
         public int @qscale;
         public float @quality_factor;
     }
-    
-    /// <summary>Pan Scan area. This specifies the area which should be displayed. Note there may be multiple such areas for one frame.</summary>
-    internal unsafe struct AVPanScan
-    {
-        /// <summary>id - encoding: Set by user. - decoding: Set by libavcodec.</summary>
-        public int @id;
-        /// <summary>width and height in 1/16 pel - encoding: Set by user. - decoding: Set by libavcodec.</summary>
-        public int @width;
-        public int @height;
-        /// <summary>position of the top left corner in 1/16 pel for up to 3 fields/frames - encoding: Set by user. - decoding: Set by libavcodec.</summary>
-        public short_arrayOfArray6 @position;
-    }
-    
-    /// <summary>This structure describes the bitrate properties of an encoded bitstream. It roughly corresponds to a subset the VBV parameters for MPEG-2 or HRD parameters for H.264/HEVC.</summary>
-    internal unsafe struct AVCPBProperties
-    {
-        /// <summary>Maximum bitrate of the stream, in bits per second. Zero if unknown or unspecified.</summary>
-        public int @max_bitrate;
-        /// <summary>Minimum bitrate of the stream, in bits per second. Zero if unknown or unspecified.</summary>
-        public int @min_bitrate;
-        /// <summary>Average bitrate of the stream, in bits per second. Zero if unknown or unspecified.</summary>
-        public int @avg_bitrate;
-        /// <summary>The size of the buffer to which the ratecontrol is applied, in bits. Zero if unknown or unspecified.</summary>
-        public int @buffer_size;
-        /// <summary>The delay between the time the packet this structure is associated with is received and the time when it should be decoded, in periods of a 27MHz clock.</summary>
-        public ulong @vbv_delay;
-    }
-    
+
     internal unsafe struct AVPacketSideData
     {
         public byte* @data;
@@ -381,7 +358,7 @@ namespace FFmpeg.AutoGen
         public int @log_level_offset;
         public AVMediaType @codec_type;
         public AVCodec* @codec;
-        public byte_array32 @codec_name;
+        public ByteArrayOf32 @codec_name;
         public AVCodecID @codec_id;
         /// <summary>fourcc (LSB first, so &quot;ABCD&quot; -&gt; (&apos;D&apos;&lt;&lt;24) + (&apos;C&apos;&lt;&lt;16) + (&apos;B&apos;&lt;&lt;8) + &apos;A&apos;). This is used to work around some encoder bugs. A demuxer should set this to what is stored in the field used to identify the codec. If there are multiple such fields in a container then the demuxer should choose the one which maximizes the information about the used codec. If the codec tag field in a container is larger than 32 bits then the demuxer should remap the longer ID to 32 bits with a table or other structure. Alternatively a new extra_codec_tag + size could be added but for this a clear advantage must be demonstrated first. - encoding: Set by user, if not then the default based on codec_id will be used. - decoding: Set by user, will be converted to uppercase by libavcodec during init.</summary>
         public uint @codec_tag;
@@ -644,7 +621,7 @@ namespace FFmpeg.AutoGen
         /// <summary>Hardware accelerator context. For some hardware accelerators, a global context needs to be provided by the user. In that case, this holds display-dependent data FFmpeg cannot instantiate itself. Please refer to the FFmpeg HW accelerator documentation to know how to fill this is. e.g. for VA API, this is a struct vaapi_context. - encoding: unused - decoding: Set by user</summary>
         public void* @hwaccel_context;
         /// <summary>error - encoding: Set by libavcodec if flags &amp; AV_CODEC_FLAG_PSNR. - decoding: unused</summary>
-        public ulong_array8 @error;
+        public UlongArrayOf8 @error;
         /// <summary>DCT algorithm, see FF_DCT_* below - encoding: Set by user. - decoding: unused</summary>
         public int @dct_algo;
         /// <summary>IDCT algorithm, see FF_IDCT_* below. - encoding: Set by user. - decoding: Set by user.</summary>
@@ -813,8 +790,8 @@ namespace FFmpeg.AutoGen
         public int @nb_colors;
         public AVPicture @pict;
         /// <summary>data+linesize for the bitmap of this subtitle. Can be set for text/ass as well once they are rendered.</summary>
-        public byte_ptrArray4 @data;
-        public int_array4 @linesize;
+        public BytePointerArrayOf4 @data;
+        public IntArrayOf4 @linesize;
         public AVSubtitleType @type;
         /// <summary>0 terminated plain UTF-8 text</summary>
         public byte* @text;
@@ -827,9 +804,9 @@ namespace FFmpeg.AutoGen
     internal unsafe struct AVPicture
     {
         /// <summary>pointers to the image data planes</summary>
-        public byte_ptrArray8 @data;
+        public BytePointerArrayOf8 @data;
         /// <summary>number of bytes per line</summary>
-        public int_array8 @linesize;
+        public IntArrayOf8 @linesize;
     }
     
     /// <summary>@{</summary>
@@ -940,13 +917,13 @@ namespace FFmpeg.AutoGen
         public long @last_dts;
         public int @fetch_timestamp;
         public int @cur_frame_start_index;
-        public long_array4 @cur_frame_offset;
-        public long_array4 @cur_frame_pts;
-        public long_array4 @cur_frame_dts;
+        public LongArrayOf4 @cur_frame_offset;
+        public LongArrayOf4 @cur_frame_pts;
+        public LongArrayOf4 @cur_frame_dts;
         public int @flags;
         /// <summary>byte offset from starting packet start</summary>
         public long @offset;
-        public long_array4 @cur_frame_end;
+        public LongArrayOf4 @cur_frame_end;
         /// <summary>Set by parser to 1 for key frames and 0 for non-key frames. It is initialized to -1, so if the parser doesn&apos;t set this flag, old-style fallback using AV_PICTURE_TYPE_I picture type as key frames will be used.</summary>
         public int @key_frame;
         public long @convergence_duration;
@@ -957,7 +934,7 @@ namespace FFmpeg.AutoGen
         /// <summary>Presentation delay of current frame in units of AVCodecContext.time_base.</summary>
         public int @pts_dts_delta;
         /// <summary>Position of the packet in file.</summary>
-        public long_array4 @cur_frame_pos;
+        public LongArrayOf4 @cur_frame_pos;
         /// <summary>Byte position of currently parsed frame in stream.</summary>
         public long @pos;
         /// <summary>Previous frame byte position.</summary>
@@ -981,7 +958,7 @@ namespace FFmpeg.AutoGen
     
     internal unsafe struct AVCodecParser
     {
-        public int_array5 @codec_ids;
+        public IntArrayOf5 @codec_ids;
         public int @priv_data_size;
         public AVCodecParser_parser_init_func @parser_init;
         public AVCodecParser_parser_parse_func @parser_parse;
@@ -1110,7 +1087,7 @@ namespace FFmpeg.AutoGen
         /// <summary>last packet in packet_buffer for this stream when muxing.</summary>
         public AVPacketList* @last_in_packet_buffer;
         public AVProbeData @probe_data;
-        public long_array17 @pts_buffer;
+        public LongArrayOf17 @pts_buffer;
         /// <summary>Only used if the format does not support seeking natively.</summary>
         public AVIndexEntry* @index_entries;
         public int @nb_index_entries;
@@ -1144,8 +1121,8 @@ namespace FFmpeg.AutoGen
         /// <summary>Internal data to prevent doing update_initial_durations() twice</summary>
         public int @update_initial_durations_done;
         /// <summary>Internal data to generate dts from pts</summary>
-        public long_array17 @pts_reorder_error;
-        public byte_array17 @pts_reorder_error_count;
+        public LongArrayOf17 @pts_reorder_error;
+        public ByteArrayOf17 @pts_reorder_error_count;
         /// <summary>Internal data to analyze DTS and detect faulty mpeg streams</summary>
         public long @last_dts_for_order_check;
         public byte @dts_ordered;
@@ -1176,7 +1153,7 @@ namespace FFmpeg.AutoGen
         public long @duration_gcd;
         public int @duration_count;
         public long @rfps_duration_sum;
-        public double_arrayOfArray798* @duration_error;
+        public DoubleArrayOfArrayOf798* @duration_error;
         public long @codec_info_duration;
         public long @codec_info_duration_fields;
         /// <summary>0 -&gt; decoder has not been searched for yet. &gt;0 -&gt; decoder found &lt;0 -&gt; decoder with codec_id == -found_decoder has not been found</summary>
@@ -1304,7 +1281,7 @@ namespace FFmpeg.AutoGen
         /// <summary>A list of all streams in the file. New streams are created with avformat_new_stream().</summary>
         public AVStream** @streams;
         /// <summary>input or output filename</summary>
-        public byte_array1024 @filename;
+        public ByteArrayOf1024 @filename;
         /// <summary>Position of the first frame of the component, in AV_TIME_BASE fractional seconds. NEVER set this value directly: It is deduced from the AVStream values.</summary>
         public long @start_time;
         /// <summary>Duration of the stream, in AV_TIME_BASE fractional seconds. Only set this value if you know none of the individual stream durations and also do not set any of them. This is deduced from the AVStream values if not set.</summary>
@@ -1572,36 +1549,6 @@ namespace FFmpeg.AutoGen
         public void* @opaque;
     }
     
-    /// <summary>Describes single entry of the directory.</summary>
-    internal unsafe struct AVIODirEntry
-    {
-        /// <summary>Filename</summary>
-        public byte* @name;
-        /// <summary>Type of the entry</summary>
-        public int @type;
-        /// <summary>Set to 1 when name is encoded with UTF-8, 0 otherwise. Name can be encoded with UTF-8 even though 0 is set.</summary>
-        public int @utf8;
-        /// <summary>File size in bytes, -1 if unknown.</summary>
-        public long @size;
-        /// <summary>Time of last modification in microseconds since unix epoch, -1 if unknown.</summary>
-        public long @modification_timestamp;
-        /// <summary>Time of last access in microseconds since unix epoch, -1 if unknown.</summary>
-        public long @access_timestamp;
-        /// <summary>Time of last status change in microseconds since unix epoch, -1 if unknown.</summary>
-        public long @status_change_timestamp;
-        /// <summary>User ID of owner, -1 if unknown.</summary>
-        public long @user_id;
-        /// <summary>Group ID of owner, -1 if unknown.</summary>
-        public long @group_id;
-        /// <summary>Unix file mode, -1 if unknown.</summary>
-        public long @filemode;
-    }
-    
-    internal unsafe struct AVIODirContext
-    {
-        public URLContext* @url_context;
-    }
-    
     /// <summary>An instance of a filter</summary>
     internal unsafe struct AVFilterContext
     {
@@ -1793,51 +1740,6 @@ namespace FFmpeg.AutoGen
         public AVFilterInOut* @next;
     }
     
-    /// <summary>This structure contains the parameters describing the frames that will be passed to this filter.</summary>
-    internal unsafe struct AVBufferSrcParameters
-    {
-        /// <summary>video: the pixel format, value corresponds to enum AVPixelFormat audio: the sample format, value corresponds to enum AVSampleFormat</summary>
-        public int @format;
-        /// <summary>The timebase to be used for the timestamps on the input frames.</summary>
-        public AVRational @time_base;
-        /// <summary>Video only, the display dimensions of the input frames.</summary>
-        public int @width;
-        /// <summary>Video only, the display dimensions of the input frames.</summary>
-        public int @height;
-        /// <summary>Video only, the sample (pixel) aspect ratio.</summary>
-        public AVRational @sample_aspect_ratio;
-        /// <summary>Video only, the frame rate of the input video. This field must only be set to a non-zero value if input stream has a known constant framerate and should be left at its initial value if the framerate is variable or unknown.</summary>
-        public AVRational @frame_rate;
-        /// <summary>Video with a hwaccel pixel format only. This should be a reference to an AVHWFramesContext instance describing the input frames.</summary>
-        public AVBufferRef* @hw_frames_ctx;
-        /// <summary>Audio only, the audio sampling rate in samples per secon.</summary>
-        public int @sample_rate;
-        /// <summary>Audio only, the audio channel layout</summary>
-        public ulong @channel_layout;
-    }
-    
-    /// <summary>Struct to use for initializing a buffersink context.</summary>
-    internal unsafe struct AVBufferSinkParams
-    {
-        /// <summary>list of allowed pixel formats, terminated by AV_PIX_FMT_NONE</summary>
-        public AVPixelFormat* @pixel_fmts;
-    }
-    
-    /// <summary>Struct to use for initializing an abuffersink context.</summary>
-    internal unsafe struct AVABufferSinkParams
-    {
-        /// <summary>list of allowed sample formats, terminated by AV_SAMPLE_FMT_NONE</summary>
-        public AVSampleFormat* @sample_fmts;
-        /// <summary>list of allowed channel layouts, terminated by -1</summary>
-        public long* @channel_layouts;
-        /// <summary>list of allowed channel counts, terminated by -1</summary>
-        public int* @channel_counts;
-        /// <summary>if not 0, accept any channel count or layout</summary>
-        public int @all_channel_counts;
-        /// <summary>list of allowed sample rates, terminated by -1</summary>
-        public int* @sample_rates;
-    }
-    
     /// <summary>Structure describes basic parameters of the device.</summary>
     internal unsafe struct AVDeviceInfo
     {
@@ -1845,18 +1747,6 @@ namespace FFmpeg.AutoGen
         public byte* @device_name;
         /// <summary>human friendly name</summary>
         public byte* @device_description;
-    }
-    
-    internal unsafe struct AVDeviceRect
-    {
-        /// <summary>x coordinate of top left corner</summary>
-        public int @x;
-        /// <summary>y coordinate of top left corner</summary>
-        public int @y;
-        /// <summary>width</summary>
-        public int @width;
-        /// <summary>height</summary>
-        public int @height;
     }
     
 }
