@@ -58,7 +58,6 @@
             m.Commands.ExecutingCommand = this;
             Promise.Start();
             await Promise;
-            m.Commands.HasSeeked = true;
             m.Commands.ExecutingCommand = null;
         }
 

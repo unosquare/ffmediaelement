@@ -336,7 +336,7 @@
                 {
                     BufferBlocks(BufferCacheLength);
                     wallClock = Blocks[main].IsInRange(wallClock) ? wallClock : Blocks[main].RangeStartTime;
-                    Container.Log(MediaLogMessageType.Warning, $"SYNC CLK: {Clock.Position.Debug()} | TGT: {wallClock.Debug()}");
+                    Container.Log(MediaLogMessageType.Warning, $"SYNC CLOCK: {Clock.Position.Debug()} | TGT: {wallClock.Debug()}");
                     Clock.Position = wallClock;
                     LastRenderTime[main] = TimeSpan.MinValue;
 

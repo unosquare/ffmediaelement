@@ -60,7 +60,9 @@
         /// </summary>
         private void RaiseBufferingStartedEvent()
         {
+            LogEventStart(BufferingStartedEvent);
             InvokeOnUI(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(BufferingStartedEvent, this)); });
+            LogEventDone(BufferingStartedEvent);
         }
 
         /// <summary>
@@ -68,7 +70,9 @@
         /// </summary>
         private void RaiseBufferingEndedEvent()
         {
+            LogEventStart(BufferingEndedEvent);
             InvokeOnUI(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(BufferingEndedEvent, this)); });
+            LogEventDone(BufferingEndedEvent);
         }
 
         /// <summary>
@@ -77,8 +81,10 @@
         /// <param name="ex">The ex.</param>
         internal void RaiseMediaFailedEvent(Exception ex)
         {
+            LogEventStart(MediaFailedEvent);
             this.Log(MediaLogMessageType.Error, $"Media Failure - {ex?.GetType()}: {ex?.Message}");
             InvokeOnUI(DispatcherPriority.DataBind, () => { RaiseEvent(CreateExceptionRoutedEventArgs(MediaFailedEvent, this, ex)); });
+            LogEventDone(MediaFailedEvent);
         }
 
         /// <summary>
@@ -86,7 +92,9 @@
         /// </summary>
         internal void RaiseMediaOpenedEvent()
         {
+            LogEventStart(MediaOpenedEvent);
             InvokeOnUI(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaOpenedEvent, this)); });
+            LogEventDone(MediaOpenedEvent);
         }
 
         /// <summary>
@@ -94,11 +102,13 @@
         /// </summary>
         internal void RaiseMediaOpeningEvent()
         {
+            LogEventStart(MediaOpeningEvent);
             InvokeOnUI(DispatcherPriority.DataBind, () =>
             {
                 RaiseEvent(new MediaOpeningRoutedEventArgs(MediaOpeningEvent, this, Container.MediaOptions));
                 Container.MediaOptions.LogMessageCallback = LogMessageCallback;
             });
+            LogEventDone(MediaOpeningEvent);
         }
 
         /// <summary>
@@ -106,7 +116,28 @@
         /// </summary>
         private void RaiseMediaEndedEvent()
         {
+            LogEventStart(MediaEndedEvent);
             InvokeOnUI(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaEndedEvent, this)); });
+            LogEventDone(MediaEndedEvent);
+        }
+
+        /// <summary>
+        /// Logs the start of an event
+        /// </summary>
+        /// <param name="e">The e.</param>
+        private void LogEventStart(RoutedEvent e)
+        {
+            if (Utils.IsInDebugMode)
+                this.Log(MediaLogMessageType.Debug, $"EVENT START: {e.Name}");
+        }
+
+        /// <summary>
+        /// Logs the end of an event.
+        /// </summary>
+        private void LogEventDone(RoutedEvent e)
+        {
+            if (Utils.IsInDebugMode)
+                this.Log(MediaLogMessageType.Debug, $"EVENT DONE : {e.Name}");
         }
 
         #endregion

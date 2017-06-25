@@ -16,7 +16,7 @@
 
             FormatOptions["user_agent"] = $"{typeof(MediaOptions).Namespace}/{typeof(MediaOptions).Assembly.GetName().Version}";
             FormatOptions["headers"] = $"Referer:https://www.unosquare.com";
-            FormatOptions["timeout"] = $"{30 * 1000000}"; // in nanoseconds
+            //FormatOptions["timeout"] = $"{30 * 1000000}"; // in nanoseconds
             FormatOptions["multiple_requests"] = "1";
             FormatOptions["reconnect"] = "1";
             FormatOptions["reconnect_at_eof"] = "1";

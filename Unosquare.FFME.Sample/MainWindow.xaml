@@ -285,7 +285,7 @@
                     Maximum="{Binding ElementName=Media, Path=NaturalDuration, Converter={StaticResource TimeSpanToSecondsConverter}}" 
                     Value="{Binding ElementName=Media, Path=Position, Converter={StaticResource TimeSpanToSecondsConverter}}"
                     PreviewMouseDown="PositionSlider_MouseDown" PreviewMouseUp="PositionSlider_MouseUp"
-                    SmallChange="0.05" LargeChange="0.050" Margin="0,4,0,3"></Slider>
+                    SmallChange="0.05" LargeChange="0.050" Margin="0,4,0,3" AutoToolTipPlacement="TopLeft" IsMoveToPointEnabled="True"></Slider>
             </DockPanel>
 
         </Grid>

@@ -134,13 +134,16 @@
         /// This is only valid after the MediaOpened event has fired.
         /// Note that this property is computed based on wether the stream is detected to be a live stream.
         /// </summary>
-        public bool CanPause { get { return Container != null ? Container.IsStreamRealtime == false : false; } }
+        public bool CanPause
+        {
+            get { return IsOpen ? Container.IsStreamRealtime == false || Container.IsStreamSeekable : false; }
+        }
 
         /// <summary>
         /// Returns whether the currently loaded media is live or realtime
         /// This is only valid after the MediaOpened event has fired.
         /// </summary>
-        public bool IsLiveStream { get { return Container != null ? Container.IsStreamRealtime : false; } }
+        public bool IsLiveStream { get { return IsOpen ? Container.IsStreamRealtime : false; } }
 
         /// <summary>
         /// Gets a value indicating whether the currently loaded media can be seeked.
@@ -239,7 +242,7 @@
         /// </summary>
         public bool IsOpen
         {
-            get { return Container?.IsInitialized ?? false; }
+            get { return (IsOpening == false) && (Container?.IsInitialized ?? false); }
         }
 
         /// <summary>

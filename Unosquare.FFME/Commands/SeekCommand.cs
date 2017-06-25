@@ -33,10 +33,9 @@
             var pause = new PauseCommand(Manager);
             pause.Execute();
 
+            var initialPosition = m.Clock.Position;
             m.SeekingDone.Reset();
             var startTime = DateTime.UtcNow;
-            var resumeClock = m.Clock.IsRunning;
-            m.Clock.Pause();
 
             try
             {
@@ -83,6 +82,13 @@
                     else
                         m.Clock.Position = TargetPosition;
                 }
+                else
+                {
+                    if (frames.Count == 0 && TargetPosition != TimeSpan.Zero)
+                    {
+                        m.Clock.Position = initialPosition;
+                    }
+                }
             }
             catch (Exception)
             {
@@ -94,11 +100,7 @@
                 foreach (var kvp in m.Renderers)
                     kvp.Value.Seek();
 
-                // Resume the clock if it was running before the seek operation
-                if (resumeClock)
-                    m.Clock.Play();
-
-                m.Container?.Log(MediaLogMessageType.Debug,
+                m.Log(MediaLogMessageType.Debug,
                     $"SEEK D: Elapsed: {startTime.DebugElapsedUtc()}");
 
                 m.SeekingDone.Set();

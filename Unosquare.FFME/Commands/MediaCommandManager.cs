@@ -47,11 +47,6 @@
         }
 
         /// <summary>
-        /// Gets a value indicating whether the last executed command was a seek command.
-        /// </summary>
-        public bool HasSeeked { get; internal set; }
-
-        /// <summary>
         /// Gets the parent media element.
         /// </summary>
         public MediaElement MediaElement { get { return m_MediaElement; } }

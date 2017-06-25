@@ -25,6 +25,7 @@
         static private bool? isInDesignTime;
         static private readonly object FFmpegRegisterLock = new object();
         static private string FFmpegRegisterPath = null;
+        static private bool? isInDebugMode;
 
         #endregion
 
@@ -305,7 +306,7 @@
         /// <param name="renderIndex">Index of the render.</param>
         internal static void LogRenderBlock(this MediaContainer container, MediaBlock block, TimeSpan clockPosition, int renderIndex)
         {
-            if (Debugger.IsAttached == false) return;
+            if (IsInDebugMode == false) return;
 
             try
             {
@@ -390,6 +391,20 @@
                           typeof(DependencyObject)).DefaultValue;
                 }
                 return isInDesignTime.Value;
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is in debug mode.
+        /// </summary>
+        public static bool IsInDebugMode
+        {
+            get
+            {
+                if (!isInDebugMode.HasValue)
+                    isInDebugMode = Debugger.IsAttached;
+
+                return isInDebugMode.Value;
             }
         }
 

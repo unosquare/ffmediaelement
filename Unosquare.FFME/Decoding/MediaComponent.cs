@@ -219,7 +219,7 @@
             CodecId = Stream->codec->codec_id;
             CodecName = Utils.PtrToString(ffmpeg.avcodec_get_name(CodecId));
             Bitrate = (int)Stream->codec->bit_rate;
-            Container.Log(MediaLogMessageType.Trace, $"{MediaType}: Start Offset: {StartTimeOffset.Debug()}; Duration: {Duration.Debug()}");
+            Container.Log(MediaLogMessageType.Debug, $"COMP {MediaType.ToString().ToUpperInvariant()}: Start Offset: {StartTimeOffset.Debug()}; Duration: {Duration.Debug()}");
 
         }
 

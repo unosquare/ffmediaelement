@@ -5,9 +5,7 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.Diagnostics;
     using System.Linq;
-    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -513,7 +511,8 @@
                 MediaStartTimeOffset = InputContext->start_time.ToTimeSpan();
                 if (MediaStartTimeOffset == TimeSpan.MinValue)
                 {
-                    this.Log(MediaLogMessageType.Warning, $"Unable to determine the media start time offset. Media start time offset will be set to zero.");
+                    this.Log(MediaLogMessageType.Warning, 
+                        $"Unable to determine the media start time offset. Media start time offset will be assumed to start at {TimeSpan.Zero}.");
                     MediaStartTimeOffset = TimeSpan.Zero;
                 }
 
@@ -561,7 +560,7 @@
         private void StreamCreateComponents()
         {
             // Display stream information in the console if we are debugging
-            if (Debugger.IsAttached)
+            if (Utils.IsInDebugMode)
                 ffmpeg.av_dump_format(InputContext, 0, MediaUrl, 0);
 
             // Initialize and clear all the stream indexes.
@@ -893,7 +892,7 @@
                 }
 
 
-                this.Log(MediaLogMessageType.Trace,
+                this.Log(MediaLogMessageType.Debug,
                     $"SEEK L: Elapsed: {startTime.DebugElapsedUtc()} | Target: {relativeTargetTime.Debug()} | Seek: {seekTarget.Debug()} | P0: {startPos.Debug(1024)} | P1: {StreamPosition.Debug(1024)} ");
 
                 // Flush the buffered packets and codec on every seek.
@@ -904,7 +903,7 @@
                 // Ensure we had a successful seek operation
                 if (seekResult < 0)
                 {
-                    this.Log(MediaLogMessageType.Trace, $"SEEK R: Elapsed: {startTime.DebugElapsedUtc()} | Seek operation failed. Error code {seekResult}, {Utils.FFErrorMessage(seekResult)}");
+                    this.Log(MediaLogMessageType.Error, $"SEEK R: Elapsed: {startTime.DebugElapsedUtc()} | Seek operation failed. Error code {seekResult}, {Utils.FFErrorMessage(seekResult)}");
                     break;
                 }
 
@@ -936,7 +935,7 @@
 
             }
 
-            this.Log(MediaLogMessageType.Trace,
+            this.Log(MediaLogMessageType.Debug,
                 $"SEEK R: Elapsed: {startTime.DebugElapsedUtc()} | Target: {relativeTargetTime.Debug()} | Seek: {default(long).Debug()} | P0: {startPos.Debug(1024)} | P1: {StreamPosition.Debug(1024)} ");
             return result;
 

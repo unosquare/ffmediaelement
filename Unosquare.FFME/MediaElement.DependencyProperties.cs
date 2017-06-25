@@ -456,7 +456,7 @@
             if (element == null) return TimeSpan.Zero;
             if (element.Container == null) return TimeSpan.Zero;
 
-            if (element.Container.IsStreamRealtime) return element.Clock.Position;
+            if (element.Container.IsStreamSeekable == false) return element.Clock.Position;
 
             return (TimeSpan)value;
         }
@@ -513,7 +513,7 @@
             var element = d as MediaElement;
             if (element == null) return Constants.DefaultSpeedRatio;
             if (element.Container == null) return Constants.DefaultSpeedRatio;
-            if (element.Container.IsStreamRealtime) return Constants.DefaultSpeedRatio;
+            if (element.Container.IsStreamSeekable == false) return Constants.DefaultSpeedRatio;
 
             var targetValue = (double)value;
             if (targetValue < Constants.MinSpeedRatio) return Constants.MinSpeedRatio;
