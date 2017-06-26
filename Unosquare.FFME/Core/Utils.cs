@@ -7,27 +7,78 @@
     using System.ComponentModel;
     using System.Diagnostics;
     using System.IO;
-    using System.Linq;
     using System.Reflection;
     using System.Runtime.InteropServices;
     using System.Text;
     using System.Windows;
 
     /// <summary>
-    /// Provides a set of utilities to perfrom conversion and other
-    /// handly calculations
+    /// Provides a set of utilities to perfrom logging, text formatting, 
+    /// conversion and other handy calculations.
     /// </summary>
     internal static class Utils
     {
         #region Private Declarations
 
+        static private bool? m_IsInDesignTime;
+        static private bool? m_IsInDebugMode;
+
         static private bool HasFFmpegRegistered = false;
-        static private bool? isInDesignTime;
-        static private readonly object FFmpegRegisterLock = new object();
         static private string FFmpegRegisterPath = null;
-        static private bool? isInDebugMode;
+        static private readonly object FFmpegRegisterLock = new object();
+
         static unsafe private readonly av_log_set_callback_callback FFmpegLogCallback = FFmpegLog;
         static private readonly object LogSyncLock = new object();
+        private static readonly List<string> FFmpegLogBuffer = new List<string>();
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Gets the assembly location.
+        /// </summary>
+        private static string AssemblyLocation
+        {
+            get
+            {
+                return Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
+            }
+        }
+
+        /// <summary>
+        /// Determines if we are currently in Design Time
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance is in design time; otherwise, <c>false</c>.
+        /// </value>
+        public static bool IsInDesignTime
+        {
+            get
+            {
+                if (!m_IsInDesignTime.HasValue)
+                {
+                    m_IsInDesignTime = (bool)DesignerProperties.IsInDesignModeProperty.GetMetadata(
+                          typeof(DependencyObject)).DefaultValue;
+                }
+                return m_IsInDesignTime.Value;
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is in debug mode.
+        /// </summary>
+        public static bool IsInDebugMode
+        {
+            get
+            {
+                if (!m_IsInDebugMode.HasValue)
+                    m_IsInDebugMode = Debugger.IsAttached;
+
+                return m_IsInDebugMode.Value;
+            }
+        }
+
         #endregion
 
         #region Interop
@@ -83,23 +134,6 @@
             }
 
             return Encoding.UTF8.GetString(byteBuffer.ToArray());
-        }
-
-        /// <summary>
-        /// Gets the FFmpeg error mesage based on the error code
-        /// </summary>
-        /// <param name="code">The code.</param>
-        /// <returns></returns>
-        public static unsafe string FFErrorMessage(int code)
-        {
-            var errorStrBytes = new byte[1024];
-            var errorStrPtr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(byte)) * errorStrBytes.Length);
-            ffmpeg.av_strerror(code, (byte*)errorStrPtr, (ulong)errorStrBytes.Length);
-            Marshal.Copy(errorStrPtr, errorStrBytes, 0, errorStrBytes.Length);
-            Marshal.FreeHGlobal(errorStrPtr);
-
-            var errorMessage = Encoding.GetEncoding(0).GetString(errorStrBytes).Split('\0').FirstOrDefault();
-            return errorMessage;
         }
 
         #endregion
@@ -225,21 +259,7 @@
 
         #endregion
 
-        #region Registration
-
-        /// <summary>
-        /// Gets the assembly location.
-        /// </summary>
-        /// <value>
-        /// The assembly location.
-        /// </value>
-        private static string AssemblyLocation
-        {
-            get
-            {
-                return Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
-            }
-        }
+        #region FFmpeg Registration
 
         /// <summary>
         /// Registers FFmpeg library and initializes its components.
@@ -296,42 +316,6 @@
 
         }
 
-        #endregion
-
-
-        #region Misc
-
-        /// <summary>
-        /// Logs the specified message.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="messageType">Type of the message.</param>
-        /// <param name="message">The message.</param>
-        /// <exception cref="System.ArgumentNullException">sender</exception>
-        internal static void Log(object sender, MediaLogMessageType messageType, string message)
-        {
-            lock (LogSyncLock)
-            {
-                if (sender == null) throw new ArgumentNullException(nameof(sender));
-
-                try
-                {
-                    var eventArgs = new MediaLogMessagEventArgs(messageType, message);
-                    if (sender != null && sender is MediaElement)
-                        (sender as MediaElement)?.RaiseMessageLogged(eventArgs);
-                    else
-                        MediaElement.RaiseFFmpegMessageLogged(eventArgs);
-
-                }
-                catch { }
-            }
-        }
-
-        /// <summary>
-        /// The FFmpeg log buffer
-        /// </summary>
-        private static readonly List<string> FFmpegLogBuffer = new List<string>();
-
         /// <summary>
         /// Log message callback fro ffmpeg library.
         /// </summary>
@@ -367,6 +351,36 @@
 
         }
 
+        #endregion
+
+        #region Logging
+
+        /// <summary>
+        /// Logs the specified message.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="messageType">Type of the message.</param>
+        /// <param name="message">The message.</param>
+        /// <exception cref="System.ArgumentNullException">sender</exception>
+        internal static void Log(object sender, MediaLogMessageType messageType, string message)
+        {
+            lock (LogSyncLock)
+            {
+                if (sender == null) throw new ArgumentNullException(nameof(sender));
+
+                try
+                {
+                    var eventArgs = new MediaLogMessagEventArgs(messageType, message);
+                    if (sender != null && sender is MediaElement)
+                        (sender as MediaElement)?.RaiseMessageLogged(eventArgs);
+                    else
+                        MediaElement.RaiseFFmpegMessageLogged(eventArgs);
+
+                }
+                catch { }
+            }
+        }
+
         /// <summary>
         /// Logs a block rendering operation as a Trace Message
         /// if the debugger is attached.
@@ -384,8 +398,8 @@
                 var drift = TimeSpan.FromTicks(clockPosition.Ticks - block.StartTime.Ticks);
                 element?.Logger.Log(MediaLogMessageType.Trace,
                 ($"{block.MediaType.ToString().Substring(0, 1)} "
-                    + $"BLK: {block.StartTime.Debug()} | "
-                    + $"CLK: {clockPosition.Debug()} | "
+                    + $"BLK: {block.StartTime.Format()} | "
+                    + $"CLK: {clockPosition.Format()} | "
                     + $"DFT: {drift.TotalMilliseconds,4:0} | "
                     + $"IX: {renderIndex,3} | "
                     + $"PQ: {element.Container?.Components[block.MediaType]?.PacketBufferLength / 1024d,7:0.0}k | "
@@ -397,12 +411,16 @@
             }
         }
 
+        #endregion
+
+        #region Output Formatting
+
         /// <summary>
         /// Returns a formatted timestamp string in Seconds
         /// </summary>
         /// <param name="ts">The ts.</param>
         /// <returns></returns>
-        internal static string Debug(this TimeSpan ts)
+        internal static string Format(this TimeSpan ts)
         {
             if (ts == TimeSpan.MinValue)
                 return $"{"N/A",10}";
@@ -411,22 +429,12 @@
         }
 
         /// <summary>
-        /// Returns a formatted string fro elapsed stopwatch milliseconds
-        /// </summary>
-        /// <param name="sw">The sw.</param>
-        /// <returns></returns>
-        internal static string Debug(this Stopwatch sw)
-        {
-            return $"{sw.ElapsedMilliseconds,5}";
-        }
-
-        /// <summary>
         /// Returns a formatted string with elapsed milliseconds between now and
         /// the specified date.
         /// </summary>
         /// <param name="dt">The dt.</param>
         /// <returns></returns>
-        internal static string DebugElapsedUtc(this DateTime dt)
+        internal static string FormatElapsed(this DateTime dt)
         {
             return $"{DateTime.UtcNow.Subtract(dt).TotalMilliseconds,6:0}";
         }
@@ -438,45 +446,12 @@
         /// <param name="ts">The ts.</param>
         /// <param name="divideBy">The divide by.</param>
         /// <returns></returns>
-        internal static string Debug(this long ts, double divideBy = 1)
+        internal static string Format(this long ts, double divideBy = 1)
         {
             if (divideBy == 1)
                 return $"{ts,10:#,##0}";
             else
                 return $"{(ts / divideBy),10:#,##0.000}";
-        }
-
-        /// <summary>
-        /// Determines if we are currently in Design Time
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if this instance is in design time; otherwise, <c>false</c>.
-        /// </value>
-        public static bool IsInDesignTime
-        {
-            get
-            {
-                if (!isInDesignTime.HasValue)
-                {
-                    isInDesignTime = (bool)DesignerProperties.IsInDesignModeProperty.GetMetadata(
-                          typeof(DependencyObject)).DefaultValue;
-                }
-                return isInDesignTime.Value;
-            }
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether this instance is in debug mode.
-        /// </summary>
-        public static bool IsInDebugMode
-        {
-            get
-            {
-                if (!isInDebugMode.HasValue)
-                    isInDebugMode = Debugger.IsAttached;
-
-                return isInDebugMode.Value;
-            }
         }
 
         #endregion

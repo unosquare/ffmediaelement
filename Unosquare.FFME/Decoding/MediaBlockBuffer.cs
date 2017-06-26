@@ -148,7 +148,7 @@
         internal string Debug()
         {
             lock (SyncRoot)
-                return $"{MediaType,-12} - CAP: {Capacity,10} | FRE: {PoolBlocks.Count,7} | USD: {PlaybackBlocks.Count,4} |  TM: {RangeStartTime.Debug(),8} to {RangeEndTime.Debug().Trim()}";
+                return $"{MediaType,-12} - CAP: {Capacity,10} | FRE: {PoolBlocks.Count,7} | USD: {PlaybackBlocks.Count,4} |  TM: {RangeStartTime.Format(),8} to {RangeEndTime.Format().Trim()}";
         }
 
         /// <summary>

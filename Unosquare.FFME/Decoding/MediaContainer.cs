@@ -463,7 +463,7 @@
                             openResult = ffmpeg.avformat_open_input(inputContext, $"{MediaUrl}", inputFormat, reference);
 
                         // Validate the open operation
-                        if (openResult < 0) throw new MediaContainerException($"Could not open '{MediaUrl}'. Error {openResult}: {Utils.FFErrorMessage(openResult)}");
+                        if (openResult < 0) throw new MediaContainerException($"Could not open '{MediaUrl}'. Error {openResult}: {ffmpeg.GetErrorMessage(openResult)}");
                     }
 
                     // Set some general properties
@@ -532,7 +532,7 @@
                 var minOffset = Components.All.Count > 0 ? Components.All.Min(c => c.StartTimeOffset) : MediaStartTimeOffset;
                 if (minOffset != MediaStartTimeOffset)
                 {
-                    Logger?.Log(MediaLogMessageType.Warning, $"Input Start: {MediaStartTimeOffset.Debug()} Comp. Start: {minOffset.Debug()}. Input start will be updated.");
+                    Logger?.Log(MediaLogMessageType.Warning, $"Input Start: {MediaStartTimeOffset.Format()} Comp. Start: {minOffset.Format()}. Input start will be updated.");
                     MediaStartTimeOffset = minOffset;
                 }
 
@@ -708,7 +708,7 @@
                 else
                 {
                     if (InputContext->pb != null && InputContext->pb->error != 0)
-                        throw new MediaContainerException($"Input has produced an error. Error Code {readResult}, {Utils.FFErrorMessage(readResult)}");
+                        throw new MediaContainerException($"Input has produced an error. Error Code {readResult}, {ffmpeg.GetErrorMessage(readResult)}");
                 }
             }
             else
@@ -900,7 +900,7 @@
 
 
                 Logger?.Log(MediaLogMessageType.Debug,
-                    $"SEEK L: Elapsed: {startTime.DebugElapsedUtc()} | Target: {relativeTargetTime.Debug()} | Seek: {seekTarget.Debug()} | P0: {startPos.Debug(1024)} | P1: {StreamPosition.Debug(1024)} ");
+                    $"SEEK L: Elapsed: {startTime.FormatElapsed()} | Target: {relativeTargetTime.Format()} | Seek: {seekTarget.Format()} | P0: {startPos.Format(1024)} | P1: {StreamPosition.Format(1024)} ");
 
                 // Flush the buffered packets and codec on every seek.
                 Components.ClearPacketQueues();
@@ -910,7 +910,7 @@
                 // Ensure we had a successful seek operation
                 if (seekResult < 0)
                 {
-                    Logger?.Log(MediaLogMessageType.Error, $"SEEK R: Elapsed: {startTime.DebugElapsedUtc()} | Seek operation failed. Error code {seekResult}, {Utils.FFErrorMessage(seekResult)}");
+                    Logger?.Log(MediaLogMessageType.Error, $"SEEK R: Elapsed: {startTime.FormatElapsed()} | Seek operation failed. Error code {seekResult}, {ffmpeg.GetErrorMessage(seekResult)}");
                     break;
                 }
 
@@ -943,7 +943,7 @@
             }
 
             Logger?.Log(MediaLogMessageType.Debug,
-                $"SEEK R: Elapsed: {startTime.DebugElapsedUtc()} | Target: {relativeTargetTime.Debug()} | Seek: {default(long).Debug()} | P0: {startPos.Debug(1024)} | P1: {StreamPosition.Debug(1024)} ");
+                $"SEEK R: Elapsed: {startTime.FormatElapsed()} | Target: {relativeTargetTime.Format()} | Seek: {default(long).Format()} | P0: {startPos.Format(1024)} | P1: {StreamPosition.Format(1024)} ");
             return result;
 
             #endregion

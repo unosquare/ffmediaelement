@@ -101,7 +101,7 @@
                     kvp.Value.Seek();
 
                 m.Logger.Log(MediaLogMessageType.Debug,
-                    $"SEEK D: Elapsed: {startTime.DebugElapsedUtc()}");
+                    $"SEEK D: Elapsed: {startTime.FormatElapsed()}");
 
                 m.SeekingDone.Set();
             }

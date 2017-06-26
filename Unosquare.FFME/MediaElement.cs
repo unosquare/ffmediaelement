@@ -38,24 +38,15 @@
         /// </summary>
         internal readonly GenericMediaLogger<MediaElement> Logger;
 
-        // This is the image that will display the video from a Writeable Bitmap
+        /// <summary>
+        /// This is the image that will display the video from a Writeable Bitmap
+        /// </summary>
         internal readonly Image ViewBox = new Image();
 
         /// <summary>
-        /// Gets or sets the horizontal alignment characteristics applied to this element when it is composed within a parent element, such as a panel or items control.
+        /// IUriContext BaseUri backing
         /// </summary>
-        public new HorizontalAlignment HorizontalAlignment
-        {
-            get
-            {
-                return base.HorizontalAlignment;
-            }
-            set
-            {
-                ViewBox.HorizontalAlignment = value;
-                base.HorizontalAlignment = value;
-            }
-        }
+        private Uri m_BaseUri = null;
 
         #endregion
 
@@ -78,10 +69,10 @@
         public MediaElement()
             : base()
         {
-            Logger = new GenericMediaLogger<MediaElement>(this);
             Content = ViewBox;
             Stretch = ViewBox.Stretch;
             StretchDirection = ViewBox.StretchDirection;
+            Logger = new GenericMediaLogger<MediaElement>(this);
             Commands = new MediaCommandManager(this);
 
             if (Utils.IsInDesignTime)
@@ -100,7 +91,39 @@
 
         #endregion
 
-        #region FFmpeg Registration
+        #region Properties
+
+        /// <summary>
+        /// Gets or sets the horizontal alignment characteristics applied to this element when it is 
+        /// composed within a parent element, such as a panel or items control.
+        /// </summary>
+        public new HorizontalAlignment HorizontalAlignment
+        {
+            get
+            {
+                return base.HorizontalAlignment;
+            }
+            set
+            {
+                ViewBox.HorizontalAlignment = value;
+                base.HorizontalAlignment = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the base URI of the current application context.
+        /// </summary>
+        Uri IUriContext.BaseUri
+        {
+            get
+            {
+                return m_BaseUri;
+            }
+            set
+            {
+                m_BaseUri = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the FFmpeg path from which to load the FFmpeg binaries.
@@ -121,32 +144,36 @@
 
         #endregion
 
-        #region IDisposable Implementation
+        #region Logging Events
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// Occurs when a logging message from the FFmpeg library has been received.
+        /// This is shared across all instances of Media Elements
         /// </summary>
-        public void Dispose()
+        public static event EventHandler<MediaLogMessagEventArgs> FFmpegMessageLogged;
+
+        /// <summary>
+        /// Raises the FFmpegMessageLogged event
+        /// </summary>
+        /// <param name="eventArgs">The <see cref="MediaLogMessagEventArgs"/> instance containing the event data.</param>
+        internal static void RaiseFFmpegMessageLogged(MediaLogMessagEventArgs eventArgs)
         {
-            Dispose(true);
+            FFmpegMessageLogged?.Invoke(typeof(MediaElement), eventArgs);
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
+        /// Occurs when a logging message has been logged.
+        /// This does not include FFmpeg messages.
         /// </summary>
-        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool alsoManaged)
-        {
-            if (alsoManaged)
-            {
-                // free managed resources
-                if (Container != null)
-                {
-                    Container.Dispose();
-                    Container = null;
-                }
+        public event EventHandler<MediaLogMessagEventArgs> MessageLogged;
 
-            }
+        /// <summary>
+        /// Raises the MessageLogged event
+        /// </summary>
+        /// <param name="args">The <see cref="MediaLogMessagEventArgs" /> instance containing the event data.</param>
+        internal void RaiseMessageLogged(MediaLogMessagEventArgs args)
+        {
+            MessageLogged?.Invoke(this, args);
         }
 
         #endregion
@@ -197,59 +224,32 @@
 
         #endregion
 
-        #region IUriContext Implementation
-
-        // IUriContext BaseUri backing
-        private Uri m_BaseUri = null;
+        #region IDisposable Implementation
 
         /// <summary>
-        /// Gets or sets the base URI of the current application context.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        Uri IUriContext.BaseUri
+        public void Dispose()
         {
-            get
-            {
-                return m_BaseUri;
-            }
-            set
-            {
-                m_BaseUri = value;
-            }
-        }
-
-        #endregion
-
-        #region Logging
-
-
-        /// <summary>
-        /// Occurs when a logging message from the FFmpeg library has been received.
-        /// This is shared across all instances of Media Elements
-        /// </summary>
-        public static event EventHandler<MediaLogMessagEventArgs> FFmpegMessageLogged;
-
-        /// <summary>
-        /// Raises the FFmpegMessageLogged event
-        /// </summary>
-        /// <param name="eventArgs">The <see cref="MediaLogMessagEventArgs"/> instance containing the event data.</param>
-        internal static void RaiseFFmpegMessageLogged(MediaLogMessagEventArgs eventArgs)
-        {
-            FFmpegMessageLogged?.Invoke(typeof(MediaElement), eventArgs);
+            Dispose(true);
         }
 
         /// <summary>
-        /// Occurs when a logging message has been logged.
-        /// This does not include FFmpeg messages.
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        public event EventHandler<MediaLogMessagEventArgs> MessageLogged;
-
-        /// <summary>
-        /// Raises the MessageLogged event
-        /// </summary>
-        /// <param name="args">The <see cref="MediaLogMessagEventArgs" /> instance containing the event data.</param>
-        internal void RaiseMessageLogged(MediaLogMessagEventArgs args)
+        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        private void Dispose(bool alsoManaged)
         {
-            MessageLogged?.Invoke(this, args);
+            if (alsoManaged)
+            {
+                // free managed resources
+                if (Container != null)
+                {
+                    Container.Dispose();
+                    Container = null;
+                }
+
+            }
         }
 
         #endregion

@@ -2,9 +2,29 @@
 {
     using System;
     using System.Linq;
+    using System.Runtime.InteropServices;
+    using System.Text;
 
     partial class ffmpeg
     {
+
+        /// <summary>
+        /// Gets the FFmpeg error mesage based on the error code
+        /// </summary>
+        /// <param name="code">The code.</param>
+        /// <returns></returns>
+        public static unsafe string GetErrorMessage(int code)
+        {
+            var errorStrBytes = new byte[1024];
+            var errorStrPtr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(byte)) * errorStrBytes.Length);
+            ffmpeg.av_strerror(code, (byte*)errorStrPtr, (ulong)errorStrBytes.Length);
+            Marshal.Copy(errorStrPtr, errorStrBytes, 0, errorStrBytes.Length);
+            Marshal.FreeHGlobal(errorStrPtr);
+
+            var errorMessage = Encoding.GetEncoding(0).GetString(errorStrBytes).Split('\0').FirstOrDefault();
+            return errorMessage;
+        }
+
         #region Ported Macros
 
         private static int MKTAG(params byte[] buff)
