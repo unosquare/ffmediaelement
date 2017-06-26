@@ -10,6 +10,7 @@
     using System.Reflection;
     using System.Runtime.InteropServices;
     using System.Text;
+    using System.Threading;
     using System.Windows;
 
     /// <summary>
@@ -30,6 +31,9 @@
         static unsafe private readonly av_log_set_callback_callback FFmpegLogCallback = FFmpegLog;
         static private readonly object LogSyncLock = new object();
         private static readonly List<string> FFmpegLogBuffer = new List<string>();
+
+        static unsafe private readonly av_lockmgr_register_cb FFmpegLockManagerCallback = FFmpegManageLocking;
+        private static readonly ManualResetEvent FFmpegOpDone = new ManualResetEvent(true);
 
         #endregion
 
@@ -308,11 +312,53 @@
                 ffmpeg.av_log_set_level(IsInDebugMode ? ffmpeg.AV_LOG_VERBOSE : ffmpeg.AV_LOG_WARNING);
                 ffmpeg.av_log_set_callback(FFmpegLogCallback);
 
-                HasFFmpegRegistered = true;
+                // because Zeranoe FFmpeg Builds don't have --enable-pthreads,
+                // https://ffmpeg.zeranoe.com/builds/readme/win64/static/ffmpeg-20170620-ae6f6d4-win64-static-readme.txt
+                // and because by default FFmpeg is not thread-safe,
+                // https://stackoverflow.com/questions/13888915/thread-safety-of-libav-ffmpeg
+                // we need to register a lock manager with av_lockmgr_register
+                // Just like in https://raw.githubusercontent.com/FFmpeg/FFmpeg/release/3.2/ffplay.c
+                ffmpeg.av_lockmgr_register(FFmpegLockManagerCallback);
 
+                HasFFmpegRegistered = true;
                 FFmpegRegisterPath = ffmpegPath;
                 return FFmpegRegisterPath;
             }
+
+        }
+
+        /// <summary>
+        /// Manages FFmpeg Multithreaded locking
+        /// </summary>
+        /// <param name="mutex">The mutex.</param>
+        /// <param name="op">The op.</param>
+        /// <returns></returns>
+        private static unsafe int FFmpegManageLocking(void** mutex, AVLockOp op)
+        {
+            switch (op)
+            {
+                case AVLockOp.AV_LOCK_CREATE:
+                    {
+                        return 0;
+                    }
+                case AVLockOp.AV_LOCK_OBTAIN:
+                    {
+                        FFmpegOpDone.WaitOne();
+                        FFmpegOpDone.Reset();
+                        return 0;
+                    }
+                case AVLockOp.AV_LOCK_RELEASE:
+                    {
+                        FFmpegOpDone.Set();
+                        return 0;
+                    }
+                case AVLockOp.AV_LOCK_DESTROY:
+                    {
+                        return 0;
+                    }
+            }
+
+            return 1;
 
         }
 

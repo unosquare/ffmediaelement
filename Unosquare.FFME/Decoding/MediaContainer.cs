@@ -1051,7 +1051,6 @@
                         ffmpeg.avformat_close_input(inputContext);
 
                     ffmpeg.avformat_free_context(InputContext);
-
                     InputContext = null;
                 }
             }
