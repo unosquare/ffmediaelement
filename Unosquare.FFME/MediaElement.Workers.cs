@@ -166,7 +166,7 @@
         private void RenderBlock(MediaBlock block, TimeSpan clockPosition, int renderIndex)
         {
             Renderers[block.MediaType].Render(block, clockPosition, renderIndex);
-            Container.LogRenderBlock(block, clockPosition, renderIndex);
+            this.LogRenderBlock(block, clockPosition, renderIndex);
         }
 
         #endregion
@@ -336,7 +336,7 @@
                 {
                     BufferBlocks(BufferCacheLength);
                     wallClock = Blocks[main].IsInRange(wallClock) ? wallClock : Blocks[main].RangeStartTime;
-                    Container.Log(MediaLogMessageType.Warning, $"SYNC CLOCK: {Clock.Position.Debug()} | TGT: {wallClock.Debug()}");
+                    Container.Logger?.Log(MediaLogMessageType.Warning, $"SYNC CLOCK: {Clock.Position.Debug()} | TGT: {wallClock.Debug()}");
                     Clock.Position = wallClock;
                     LastRenderTime[main] = TimeSpan.MinValue;
 

@@ -1,8 +1,8 @@
 ﻿namespace Unosquare.FFME.Commands
 {
+    using Core;
     using System;
     using System.Linq;
-    using Unosquare.FFME.Core;
 
     /// <summary>
     /// Implements the logic to seek on the media stream
@@ -100,7 +100,7 @@
                 foreach (var kvp in m.Renderers)
                     kvp.Value.Seek();
 
-                m.Log(MediaLogMessageType.Debug,
+                m.Logger.Log(MediaLogMessageType.Debug,
                     $"SEEK D: Elapsed: {startTime.DebugElapsedUtc()}");
 
                 m.SeekingDone.Set();

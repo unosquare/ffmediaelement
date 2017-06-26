@@ -1,10 +1,8 @@
 ﻿namespace Unosquare.FFME.Rendering.Wave
 {
     using System;
-    using System.Diagnostics;
     using System.Runtime.InteropServices;
     using System.Threading;
-    using Core;
 
     /// <summary>
     /// A wave player that opens an audio device and continuously feeds it
@@ -72,8 +70,7 @@
                 m_DeviceNumber = value;
                 lock (WaveOutLock)
                 {
-                    WaveOutCapabilities caps;
-                    WaveInterop.waveOutGetDevCaps((IntPtr)m_DeviceNumber, out caps, Marshal.SizeOf(typeof(WaveOutCapabilities)));
+                    WaveInterop.waveOutGetDevCaps((IntPtr)m_DeviceNumber, out WaveOutCapabilities caps, Marshal.SizeOf(typeof(WaveOutCapabilities)));
                     Capabilities = caps;
                 }
             }
@@ -234,8 +231,11 @@
         {
             lock (WaveOutLock)
             {
-                var mmTime = new MmTime();
-                mmTime.wType = MmTime.TIME_BYTES;
+                var mmTime = new MmTime()
+                {
+                    wType = MmTime.TIME_BYTES
+                };
+
                 MmException.Try(WaveInterop.waveOutGetPosition(DeviceHandle, out mmTime, Marshal.SizeOf(mmTime)), nameof(WaveInterop.waveOutGetPosition));
 
                 if (mmTime.wType != MmTime.TIME_BYTES)
@@ -260,7 +260,7 @@
             }
             catch (Exception e)
             {
-                Renderer.MediaElement.Log(MediaLogMessageType.Error, $"{nameof(AudioPlaybackTask)} exiting. {e.Message}. Stack Trace:\r\n{e.StackTrace}");
+                Renderer.MediaElement.Logger.Log(MediaLogMessageType.Error, $"{nameof(AudioPlaybackTask)} exiting. {e.Message}. Stack Trace:\r\n{e.StackTrace}");
             }
             finally
             {
@@ -277,7 +277,7 @@
             while (m_PlaybackState != PlaybackState.Stopped)
             {
                 if (!CallbackEvent.WaitOne(DesiredLatency) && m_PlaybackState == PlaybackState.Playing)
-                    Renderer.MediaElement.Log(MediaLogMessageType.Warning, $"{nameof(AudioPlaybackTask)}:{nameof(CallbackEvent)} timed out. Desired Latency: {DesiredLatency}ms");
+                    Renderer.MediaElement.Logger.Log(MediaLogMessageType.Warning, $"{nameof(AudioPlaybackTask)}:{nameof(CallbackEvent)} timed out. Desired Latency: {DesiredLatency}ms");
 
                 if (m_PlaybackState != PlaybackState.Playing)
                     continue;
@@ -367,7 +367,7 @@
         ~WavePlayer()
         {
             Dispose(false);
-            Renderer.MediaElement.Log(MediaLogMessageType.Error, 
+            Renderer.MediaElement.Logger.Log(MediaLogMessageType.Error, 
                 $"{nameof(WavePlayer)}.{nameof(Dispose)} was not called. Please ensure you dispose when finished using this object.");
         }
 

@@ -1,10 +1,11 @@
 ﻿namespace Unosquare.FFME.Commands
 {
-    using System;
-    using System.Threading;
     using Core;
     using Decoding;
+    using FFmpeg.AutoGen;
     using Rendering;
+    using System;
+    using System.Threading;
     using System.Windows.Threading;
 
     /// <summary>
@@ -56,15 +57,19 @@
             {
                 // Register FFmpeg if not already done
                 if (MediaElement.IsFFmpegLoaded == false)
+                {
                     MediaElement.FFmpegDirectory = Utils.RegisterFFmpeg(MediaElement.FFmpegDirectory);
+                    m.Logger.Log(MediaLogMessageType.Info, $"INIT FFMPEG: {ffmpeg.av_version_info()}");
+                }
+                    
 
                 MediaElement.IsFFmpegLoaded = true;
                 m.IsOpening = true;
 
                 var mediaUrl = Source.IsFile ? Source.LocalPath : Source.ToString();
-                m.Container = new MediaContainer(mediaUrl);
+                m.Container = new MediaContainer(mediaUrl, m.Logger);
                 m.RaiseMediaOpeningEvent();
-                m.Container.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Entered");
+                m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Entered");
                 m.Container.Initialize();
 
                 foreach (var t in m.Container.Components.MediaTypes)
@@ -100,7 +105,7 @@
             {
                 m.IsOpening = false;
                 m.InvokeOnUI(DispatcherPriority.DataBind, () => { m.NotifyPropertyChanges(); });
-                m.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Completed");
+                m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Completed");
             }
         }
     }

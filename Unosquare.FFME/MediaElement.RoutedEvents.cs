@@ -82,7 +82,7 @@
         internal void RaiseMediaFailedEvent(Exception ex)
         {
             LogEventStart(MediaFailedEvent);
-            this.Log(MediaLogMessageType.Error, $"Media Failure - {ex?.GetType()}: {ex?.Message}");
+            Logger.Log(MediaLogMessageType.Error, $"Media Failure - {ex?.GetType()}: {ex?.Message}");
             InvokeOnUI(DispatcherPriority.DataBind, () => { RaiseEvent(CreateExceptionRoutedEventArgs(MediaFailedEvent, this, ex)); });
             LogEventDone(MediaFailedEvent);
         }
@@ -106,8 +106,8 @@
             InvokeOnUI(DispatcherPriority.DataBind, () =>
             {
                 RaiseEvent(new MediaOpeningRoutedEventArgs(MediaOpeningEvent, this, Container.MediaOptions));
-                Container.MediaOptions.LogMessageCallback = LogMessageCallback;
             });
+
             LogEventDone(MediaOpeningEvent);
         }
 
@@ -128,7 +128,7 @@
         private void LogEventStart(RoutedEvent e)
         {
             if (Utils.IsInDebugMode)
-                this.Log(MediaLogMessageType.Debug, $"EVENT START: {e.Name}");
+                Logger.Log(MediaLogMessageType.Debug, $"EVENT START: {e.Name}");
         }
 
         /// <summary>
@@ -137,7 +137,7 @@
         private void LogEventDone(RoutedEvent e)
         {
             if (Utils.IsInDebugMode)
-                this.Log(MediaLogMessageType.Debug, $"EVENT DONE : {e.Name}");
+                Logger.Log(MediaLogMessageType.Debug, $"EVENT DONE : {e.Name}");
         }
 
         #endregion

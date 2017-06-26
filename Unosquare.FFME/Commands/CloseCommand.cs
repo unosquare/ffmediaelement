@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME.Commands
 {
-    using Core;
     using System;
     using System.Windows.Threading;
 
@@ -29,7 +28,7 @@
 
             if (m.IsOpen == false || m.IsOpening) return;
 
-            m.Log(MediaLogMessageType.Debug, $"{nameof(CloseCommand)}: Entered");
+            m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(CloseCommand)}: Entered");
             m.Clock.Pause();
             m.UpdatePosition(TimeSpan.Zero);
 
@@ -79,7 +78,7 @@
             m.InvokeOnUI(DispatcherPriority.DataBind, () => { m.NotifyPropertyChanges(); });
 
             m.MediaState = System.Windows.Controls.MediaState.Close;
-            m.Log(MediaLogMessageType.Debug, $"{nameof(CloseCommand)}: Completed");
+            m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(CloseCommand)}: Completed");
         }
     }
 }

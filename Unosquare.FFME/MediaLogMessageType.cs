@@ -5,29 +5,35 @@
     /// </summary>
     public enum MediaLogMessageType
     {
-        //
-        // Summary:
-        //     The none message type
+        /// <summary>
+        /// The none messge type
+        /// </summary>
         None = 0,
-        //
-        // Summary:
-        //     The information message type
+
+        /// <summary>
+        /// The information messge type
+        /// </summary>
         Info = 1,
-        //
-        // Summary:
-        //     The debug message type
+
+        /// <summary>
+        /// The debug messge type
+        /// </summary>
         Debug = 2,
-        //
-        // Summary:
-        //     The trace message type
+
+        /// <summary>
+        /// The trace messge type
+        /// </summary>
         Trace = 4,
-        //
-        // Summary:
-        //     The error message type
+
+        /// <summary>
+        /// The error messge type
+        /// </summary>
         Error = 8,
-        //
-        // Summary:
-        //     The warning message type
-        Warning = 16
+
+        /// <summary>
+        /// The warning messge type
+        /// </summary>
+        Warning = 16,
+
     }
 }

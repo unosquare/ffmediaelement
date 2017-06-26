@@ -185,8 +185,7 @@
             if (element == null) return;
             if (element.HasAudio == false) return;
 
-            var audioRenderer = element.Renderers[MediaType.Audio] as AudioRenderer;
-            if (audioRenderer != null)
+            if (element.Renderers[MediaType.Audio] is AudioRenderer audioRenderer)
                 audioRenderer.Volume = (double)e.NewValue;
         }
 
@@ -240,8 +239,7 @@
             if (element == null) return;
             if (element.HasAudio == false) return;
 
-            var audioRenderer = element.Renderers[MediaType.Audio] as AudioRenderer;
-            if (audioRenderer != null)
+            if (element.Renderers[MediaType.Audio] is AudioRenderer audioRenderer)
                 audioRenderer.Balance = (double)e.NewValue;
         }
 
@@ -293,8 +291,7 @@
             if (element == null) return;
             if (element.HasAudio == false) return;
 
-            var audioRenderer = element.Renderers[MediaType.Audio] as AudioRenderer;
-            if (audioRenderer != null)
+            if (element.Renderers[MediaType.Audio] is AudioRenderer audioRenderer)
                 audioRenderer.IsMuted = (bool)e.NewValue;
         }
 

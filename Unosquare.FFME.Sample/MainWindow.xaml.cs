@@ -98,14 +98,8 @@
             Media.MediaOpening += Media_MediaOpening;
             Media.MediaFailed += Media_MediaFailed;
 
-            //e.Options.IsAudioDisabled = true;
-            Media.LogMessageCallback = new Action<MediaLogMessageType, string>((t, m) =>
-            {
-                if (t == MediaLogMessageType.Trace) return;
-
-                Debug.WriteLine($"{t} - {m}");
-                //Terminal.Log(m, nameof(MediaElement), (LogMessageType)t);
-            });
+            Unosquare.FFME.MediaElement.FFmpegMessageLogged += MediaElement_FFmpegMessageLogged;
+            
 
             var args = Environment.GetCommandLineArgs();
             if (args != null && args.Length > 1)
@@ -113,6 +107,12 @@
                 UrlTextBox.Text = args[1].Trim();
                 OpenCommand.Execute();
             }
+        }
+
+        private void MediaElement_FFmpegMessageLogged(object sender, MediaLogMessagEventArgs e)
+        {
+            if (e.MessageType == MediaLogMessageType.Trace) return;
+            Debug.WriteLine($"{e.MessageType,10} - {e.Message}");
         }
 
         private void Media_MediaFailed(object sender, ExceptionRoutedEventArgs e)

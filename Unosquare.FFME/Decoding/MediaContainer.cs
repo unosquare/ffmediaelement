@@ -34,6 +34,11 @@
         #region Private Fields
 
         /// <summary>
+        /// The logger
+        /// </summary>
+        internal readonly IMediaLogger Logger;
+
+        /// <summary>
         /// To detect redundat Dispose calls
         /// </summary>
         private bool IsDisposed = false;
@@ -229,11 +234,12 @@
         #region Constructor
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MediaContainer"/> class.
+        /// Initializes a new instance of the <see cref="MediaContainer" /> class.
         /// </summary>
         /// <param name="mediaUrl">The media URL.</param>
+        /// <param name="mediaElement">The parent media element.</param>
         /// <exception cref="System.ArgumentNullException">mediaUrl</exception>
-        public MediaContainer(string mediaUrl)
+        public MediaContainer(string mediaUrl, IMediaLogger logger)
         {
             // Argument Validation
             if (string.IsNullOrWhiteSpace(mediaUrl))
@@ -243,6 +249,7 @@
             Utils.RegisterFFmpeg(null);
 
             // Create the options object
+            Logger = logger;
             MediaUrl = mediaUrl;
         }
 
@@ -425,7 +432,7 @@
             if (string.IsNullOrWhiteSpace(MediaOptions.ForcedInputFormat) == false)
             {
                 inputFormat = ffmpeg.av_find_input_format(MediaOptions.ForcedInputFormat);
-                this.Log(MediaLogMessageType.Warning, $"Format '{MediaOptions.ForcedInputFormat}' not found. Will use automatic format detection.");
+                Logger?.Log(MediaLogMessageType.Warning, $"Format '{MediaOptions.ForcedInputFormat}' not found. Will use automatic format detection.");
             }
 
             try
@@ -453,7 +460,7 @@
                                 (int)Math.Round(MediaOptions.MaxAnalyzeDuration.TotalMilliseconds * 1000d, 0);
 
                         fixed (AVDictionary** reference = &formatOptions.Pointer)
-                            openResult = ffmpeg.avformat_open_input(inputContext, MediaUrl, inputFormat, reference);
+                            openResult = ffmpeg.avformat_open_input(inputContext, $"{MediaUrl}", inputFormat, reference);
 
                         // Validate the open operation
                         if (openResult < 0) throw new MediaContainerException($"Could not open '{MediaUrl}'. Error {openResult}: {Utils.FFErrorMessage(openResult)}");
@@ -468,7 +475,7 @@
                     var currentEntry = formatOptions.First();
                     while (currentEntry != null && currentEntry?.Key != null)
                     {
-                        this.Log(MediaLogMessageType.Warning, $"Invalid format option: '{currentEntry.Key}'");
+                        Logger?.Log(MediaLogMessageType.Warning, $"Invalid format option: '{currentEntry.Key}'");
                         currentEntry = formatOptions.Next(currentEntry);
                     }
 
@@ -480,7 +487,7 @@
 
                 // This is useful for file formats with no headers such as MPEG. This function also computes the real framerate in case of MPEG-2 repeat frame mode.
                 if (ffmpeg.avformat_find_stream_info(InputContext, null) < 0)
-                    this.Log(MediaLogMessageType.Warning, $"{MediaUrl}: could read stream info.");
+                    Logger?.Log(MediaLogMessageType.Warning, $"{MediaUrl}: could read stream info.");
 
                 // HACK: From ffplay.c: maybe should not use avio_feof() to test for the end
                 if (InputContext->pb != null) InputContext->pb->eof_reached = 0;
@@ -511,7 +518,7 @@
                 MediaStartTimeOffset = InputContext->start_time.ToTimeSpan();
                 if (MediaStartTimeOffset == TimeSpan.MinValue)
                 {
-                    this.Log(MediaLogMessageType.Warning, 
+                    Logger?.Log(MediaLogMessageType.Warning, 
                         $"Unable to determine the media start time offset. Media start time offset will be assumed to start at {TimeSpan.Zero}.");
                     MediaStartTimeOffset = TimeSpan.Zero;
                 }
@@ -525,7 +532,7 @@
                 var minOffset = Components.All.Count > 0 ? Components.All.Min(c => c.StartTimeOffset) : MediaStartTimeOffset;
                 if (minOffset != MediaStartTimeOffset)
                 {
-                    this.Log(MediaLogMessageType.Warning, $"Input Start: {MediaStartTimeOffset.Debug()} Comp. Start: {minOffset.Debug()}. Input start will be updated.");
+                    Logger?.Log(MediaLogMessageType.Warning, $"Input Start: {MediaStartTimeOffset.Debug()} Comp. Start: {minOffset.Debug()}. Input start will be updated.");
                     MediaStartTimeOffset = minOffset;
                 }
 
@@ -544,7 +551,7 @@
             }
             catch (Exception ex)
             {
-                this.Log(MediaLogMessageType.Error,
+                Logger?.Log(MediaLogMessageType.Error,
                     $"Fatal error initializing {nameof(MediaContainer)} instance. {ex.Message}");
                 Dispose(true);
                 throw;
@@ -621,13 +628,13 @@
                                 continue;
                         }
 
-                        this.Log(MediaLogMessageType.Debug, $"{t}: Selected Stream Index = {Components[t].StreamIndex}");
+                        Logger?.Log(MediaLogMessageType.Debug, $"{t}: Selected Stream Index = {Components[t].StreamIndex}");
                     }
 
                 }
                 catch (Exception ex)
                 {
-                    this.Log(MediaLogMessageType.Error, $"Unable to initialize {t.ToString()} component. {ex.Message}");
+                    Logger?.Log(MediaLogMessageType.Error, $"Unable to initialize {t.ToString()} component. {ex.Message}");
                 }
             }
 
@@ -822,7 +829,7 @@
             // Cancel the seek operation if the stream does not support it.
             if (IsStreamSeekable == false)
             {
-                this.Log(MediaLogMessageType.Warning, $"Unable to seek. Underlying stream does not support seeking.");
+                Logger?.Log(MediaLogMessageType.Warning, $"Unable to seek. Underlying stream does not support seeking.");
                 return result;
             }
 
@@ -892,7 +899,7 @@
                 }
 
 
-                this.Log(MediaLogMessageType.Debug,
+                Logger?.Log(MediaLogMessageType.Debug,
                     $"SEEK L: Elapsed: {startTime.DebugElapsedUtc()} | Target: {relativeTargetTime.Debug()} | Seek: {seekTarget.Debug()} | P0: {startPos.Debug(1024)} | P1: {StreamPosition.Debug(1024)} ");
 
                 // Flush the buffered packets and codec on every seek.
@@ -903,7 +910,7 @@
                 // Ensure we had a successful seek operation
                 if (seekResult < 0)
                 {
-                    this.Log(MediaLogMessageType.Error, $"SEEK R: Elapsed: {startTime.DebugElapsedUtc()} | Seek operation failed. Error code {seekResult}, {Utils.FFErrorMessage(seekResult)}");
+                    Logger?.Log(MediaLogMessageType.Error, $"SEEK R: Elapsed: {startTime.DebugElapsedUtc()} | Seek operation failed. Error code {seekResult}, {Utils.FFErrorMessage(seekResult)}");
                     break;
                 }
 
@@ -935,7 +942,7 @@
 
             }
 
-            this.Log(MediaLogMessageType.Debug,
+            Logger?.Log(MediaLogMessageType.Debug,
                 $"SEEK R: Elapsed: {startTime.DebugElapsedUtc()} | Target: {relativeTargetTime.Debug()} | Seek: {default(long).Debug()} | P0: {startPos.Debug(1024)} | P1: {StreamPosition.Debug(1024)} ");
             return result;
 

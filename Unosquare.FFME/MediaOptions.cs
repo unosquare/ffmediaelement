@@ -100,10 +100,6 @@
         /// </summary>
         public string VideoFilter { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Set this callback to handle log messages.
-        /// </summary>
-        internal Action<MediaLogMessageType, string> LogMessageCallback = null;
     }
 
 }

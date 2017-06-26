@@ -34,7 +34,7 @@
         /// <summary>
         /// Gets the media format. Returns null when media has not been loaded.
         /// </summary>
-        public string MediaFormat { get { return Container == null ? null : Container.MediaFormatName; } }
+        public string MediaFormat { get { return Container?.MediaFormatName; } }
 
         /// <summary> 
         /// Returns whether the given media has audio. 

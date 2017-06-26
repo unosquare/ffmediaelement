@@ -1,9 +1,9 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
+    using Core;
     using FFmpeg.AutoGen;
     using System;
     using System.Runtime.InteropServices;
-    using Unosquare.FFME.Core;
 
     /// <summary>
     /// Performs video picture decoding, scaling and extraction logic.
@@ -202,7 +202,7 @@
             }
             catch (Exception ex)
             {
-                Container.Log(MediaLogMessageType.Error, $"Video filter graph could not be built: {VideoFilterString}.\r\n{ex.Message}");
+                Container.Logger?.Log(MediaLogMessageType.Error, $"Video filter graph could not be built: {VideoFilterString}.\r\n{ex.Message}");
                 DestroyFiltergraph();
             }
         }
@@ -323,7 +323,7 @@
                 target.PictureBuffer = Marshal.AllocHGlobal(target.PictureBufferLength);
             }
 
-            var targetScan = new BytePointerArrayOf8();
+            var targetScan = new byte_ptrArray8();
             targetScan[0] = (byte*)target.PictureBuffer;
 
             // The scaling is done here

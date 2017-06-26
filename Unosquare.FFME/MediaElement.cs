@@ -33,10 +33,13 @@
 
         #region Property Backing
 
+        /// <summary>
+        /// The logger
+        /// </summary>
+        internal readonly GenericMediaLogger<MediaElement> Logger;
+
         // This is the image that will display the video from a Writeable Bitmap
         internal readonly Image ViewBox = new Image();
-
-        private Action<MediaLogMessageType, string> m_LogMessageCallback = null;
 
         /// <summary>
         /// Gets or sets the horizontal alignment characteristics applied to this element when it is composed within a parent element, such as a panel or items control.
@@ -75,6 +78,7 @@
         public MediaElement()
             : base()
         {
+            Logger = new GenericMediaLogger<MediaElement>(this);
             Content = ViewBox;
             Stretch = ViewBox.Stretch;
             StretchDirection = ViewBox.StretchDirection;
@@ -92,33 +96,6 @@
 
             m_MetadataBase = new ObservableCollection<KeyValuePair<string, string>>();
             m_Metadata = CollectionViewSource.GetDefaultView(m_MetadataBase) as ICollectionView;
-        }
-
-        #endregion
-
-        #region Logging
-
-        /// <summary>
-        /// Gets or sets the log message callback.
-        /// All logging messages will be passed to this method if set.
-        /// </summary>
-        public Action<MediaLogMessageType, string> LogMessageCallback
-        {
-            get { return m_LogMessageCallback; }
-            set
-            {
-                m_LogMessageCallback = value;
-                try
-                {
-                    if (Container != null)
-                        Container.MediaOptions.LogMessageCallback = value;
-                }
-                catch
-                {
-                    // swallow
-                }
-
-            }
         }
 
         #endregion
@@ -242,63 +219,40 @@
 
         #endregion
 
-        #region Debugging
+        #region Logging
+
 
         /// <summary>
-        /// Dumps the state into a string dictionary.
-        /// Optionally, it prints the output to the debugging console
+        /// Occurs when a logging message from the FFmpeg library has been received.
+        /// This is shared across all instances of Media Elements
         /// </summary>
-        public Dictionary<string, string> DumpState(bool printToDebuggingConsole)
+        public static event EventHandler<MediaLogMessagEventArgs> FFmpegMessageLogged;
+
+        /// <summary>
+        /// Raises the FFmpegMessageLogged event
+        /// </summary>
+        /// <param name="eventArgs">The <see cref="MediaLogMessagEventArgs"/> instance containing the event data.</param>
+        internal static void RaiseFFmpegMessageLogged(MediaLogMessagEventArgs eventArgs)
         {
-            //Pause();
+            FFmpegMessageLogged?.Invoke(typeof(MediaElement), eventArgs);
+        }
 
-            var dict = new Dictionary<string, string>();
+        /// <summary>
+        /// Occurs when a logging message has been logged.
+        /// This does not include FFmpeg messages.
+        /// </summary>
+        public event EventHandler<MediaLogMessagEventArgs> MessageLogged;
 
-            dict["MediaElement/NotificationProperties/HasAudio"] = string.Format("{0}", HasAudio);
-            dict["MediaElement/NotificationProperties/HasVideo"] = string.Format("{0}", HasVideo);
-            dict["MediaElement/NotificationProperties/VideoCodec"] = string.Format("{0}", VideoCodec);
-            dict["MediaElement/NotificationProperties/VideoBitrate"] = string.Format("{0}", VideoBitrate);
-            dict["MediaElement/NotificationProperties/NaturalVideoWidth"] = string.Format("{0}", NaturalVideoWidth);
-            dict["MediaElement/NotificationProperties/NaturalVideoHeight"] = string.Format("{0}", NaturalVideoHeight);
-            dict["MediaElement/NotificationProperties/VideoFrameRate"] = string.Format("{0}", VideoFrameRate);
-            dict["MediaElement/NotificationProperties/VideoFrameLength"] = string.Format("{0}", VideoFrameLength);
-            dict["MediaElement/NotificationProperties/AudioCodec"] = string.Format("{0}", AudioCodec);
-            dict["MediaElement/NotificationProperties/AudioBitrate"] = string.Format("{0}", AudioBitrate);
-            dict["MediaElement/NotificationProperties/AudioChannels"] = string.Format("{0}", AudioChannels);
-            dict["MediaElement/NotificationProperties/AudioSampleRate"] = string.Format("{0}", AudioSampleRate);
-            dict["MediaElement/NotificationProperties/AudioBitsPerSample"] = string.Format("{0}", AudioBitsPerSample);
-            dict["MediaElement/NotificationProperties/NaturalDuration"] = string.Format("{0}", NaturalDuration);
-            dict["MediaElement/NotificationProperties/IsPlaying"] = string.Format("{0}", IsPlaying);
-            dict["MediaElement/NotificationProperties/HasMediaEnded"] = string.Format("{0}", HasMediaEnded);
-
-            dict["MediaElement/DependencyProperties/Source"] = string.Format("{0}", Source); // TODO: minor work required (prevent concurrent opening/closing)
-            dict["MediaElement/DependencyProperties/Stretch"] = string.Format("{0}", Stretch);
-            dict["MediaElement/DependencyProperties/StretchDirection"] = string.Format("{0}", StretchDirection);
-            dict["MediaElement/DependencyProperties/Volume"] = string.Format("{0}", Volume);
-            dict["MediaElement/DependencyProperties/Balance"] = string.Format("{0}", Balance);
-            dict["MediaElement/DependencyProperties/ScrubbingEnabled"] = string.Format("{0}", ScrubbingEnabled); // TODO: not yet implemented
-            dict["MediaElement/DependencyProperties/UnloadedBehavior"] = string.Format("{0}", UnloadedBehavior); // TODO: not yet implemented
-            dict["MediaElement/DependencyProperties/LoadedBehavior"] = string.Format("{0}", LoadedBehavior);
-            dict["MediaElement/DependencyProperties/IsMuted"] = string.Format("{0}", IsMuted);
-            dict["MediaElement/DependencyProperties/Position"] = string.Format("{0}", Position); // TODO: needs work with seeking
-            dict["MediaElement/DependencyProperties/SpeedRatio"] = string.Format("{0}", SpeedRatio); //TODO: needs implementation
-
-            const int keyStringLength = 80;
-            if (printToDebuggingConsole)
-            {
-                foreach (var kvp in dict)
-                {
-                    var paddingLength = keyStringLength - kvp.Key.Length;
-                    if (paddingLength <= 0) paddingLength = 1;
-                    var paddingString = new string('.', paddingLength);
-                    this.Log(MediaLogMessageType.Info, $"{kvp.Key}{paddingString}{kvp.Value}");
-                }
-            }
-
-            return dict;
-
+        /// <summary>
+        /// Raises the MessageLogged event
+        /// </summary>
+        /// <param name="args">The <see cref="MediaLogMessagEventArgs" /> instance containing the event data.</param>
+        internal void RaiseMessageLogged(MediaLogMessagEventArgs args)
+        {
+            MessageLogged?.Invoke(this, args);
         }
 
         #endregion
+
     }
 }

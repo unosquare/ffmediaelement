@@ -26,7 +26,8 @@
         static private readonly object FFmpegRegisterLock = new object();
         static private string FFmpegRegisterPath = null;
         static private bool? isInDebugMode;
-
+        static unsafe private readonly av_log_set_callback_callback FFmpegLogCallback = FFmpegLog;
+        static private readonly object LogSyncLock = new object();
         #endregion
 
         #region Interop
@@ -248,7 +249,7 @@
         /// <param name="overridePath">The override path.</param>
         /// <returns>Returns the path that FFmpeg was registered from.</returns>
         /// <exception cref="System.IO.FileNotFoundException"></exception>
-        public static string RegisterFFmpeg(string overridePath)
+        public static unsafe string RegisterFFmpeg(string overridePath)
         {
             lock (FFmpegRegisterLock)
             {
@@ -272,7 +273,6 @@
 
                 SetDllDirectory(ffmpegPath);
 
-                ffmpeg.av_log_set_flags(ffmpeg.AV_LOG_SKIP_REPEATED);
 
                 if (File.Exists(Path.Combine(ffmpegPath, Constants.DllAVDevice)))
                     ffmpeg.avdevice_register_all();
@@ -284,6 +284,10 @@
                 ffmpeg.avcodec_register_all();
                 ffmpeg.avformat_network_init();
 
+                ffmpeg.av_log_set_flags(ffmpeg.AV_LOG_SKIP_REPEATED);
+                ffmpeg.av_log_set_level(IsInDebugMode ? ffmpeg.AV_LOG_VERBOSE : ffmpeg.AV_LOG_WARNING);
+                ffmpeg.av_log_set_callback(FFmpegLogCallback);
+
                 HasFFmpegRegistered = true;
 
                 FFmpegRegisterPath = ffmpegPath;
@@ -294,31 +298,98 @@
 
         #endregion
 
+
         #region Misc
+
+        /// <summary>
+        /// Logs the specified message.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="messageType">Type of the message.</param>
+        /// <param name="message">The message.</param>
+        /// <exception cref="System.ArgumentNullException">sender</exception>
+        internal static void Log(object sender, MediaLogMessageType messageType, string message)
+        {
+            lock (LogSyncLock)
+            {
+                if (sender == null) throw new ArgumentNullException(nameof(sender));
+
+                try
+                {
+                    var eventArgs = new MediaLogMessagEventArgs(messageType, message);
+                    if (sender != null && sender is MediaElement)
+                        (sender as MediaElement)?.RaiseMessageLogged(eventArgs);
+                    else
+                        MediaElement.RaiseFFmpegMessageLogged(eventArgs);
+
+                }
+                catch { }
+            }
+        }
+
+        /// <summary>
+        /// The FFmpeg log buffer
+        /// </summary>
+        private static readonly List<string> FFmpegLogBuffer = new List<string>();
+
+        /// <summary>
+        /// Log message callback fro ffmpeg library.
+        /// </summary>
+        /// <param name="p0">The p0.</param>
+        /// <param name="level">The level.</param>
+        /// <param name="format">The format.</param>
+        /// <param name="vl">The vl.</param>
+        private static unsafe void FFmpegLog(void* p0, int level, string format, byte* vl)
+        {
+            const int lineSize = 1024;
+
+            lock (LogSyncLock)
+            {
+                if (level > ffmpeg.av_log_get_level()) return;
+                var lineBuffer = stackalloc byte[lineSize];
+                var printPrefix = 1;
+                ffmpeg.av_log_format_line(p0, level, format, vl, lineBuffer, lineSize, &printPrefix);
+                var line = Utils.PtrToString(lineBuffer);
+                FFmpegLogBuffer.Add(line);
+
+                var messageType = MediaLogMessageType.Debug;
+                if (Constants.FFmpegLogLevels.ContainsKey(level))
+                    messageType = Constants.FFmpegLogLevels[level];
+
+                if (line.EndsWith("\n"))
+                {
+                    line = string.Join("", FFmpegLogBuffer);
+                    line = line.TrimEnd();
+                    FFmpegLogBuffer.Clear();
+                    Utils.Log(typeof(MediaElement), messageType, line);
+                }
+            }
+
+        }
 
         /// <summary>
         /// Logs a block rendering operation as a Trace Message
         /// if the debugger is attached.
         /// </summary>
-        /// <param name="container">The container.</param>
+        /// <param name="element">The media element.</param>
         /// <param name="block">The block.</param>
         /// <param name="clockPosition">The clock position.</param>
         /// <param name="renderIndex">Index of the render.</param>
-        internal static void LogRenderBlock(this MediaContainer container, MediaBlock block, TimeSpan clockPosition, int renderIndex)
+        internal static void LogRenderBlock(this MediaElement element, MediaBlock block, TimeSpan clockPosition, int renderIndex)
         {
             if (IsInDebugMode == false) return;
 
             try
             {
                 var drift = TimeSpan.FromTicks(clockPosition.Ticks - block.StartTime.Ticks);
-                container?.Log(MediaLogMessageType.Trace,
+                element?.Logger.Log(MediaLogMessageType.Trace,
                 ($"{block.MediaType.ToString().Substring(0, 1)} "
                     + $"BLK: {block.StartTime.Debug()} | "
                     + $"CLK: {clockPosition.Debug()} | "
                     + $"DFT: {drift.TotalMilliseconds,4:0} | "
                     + $"IX: {renderIndex,3} | "
-                    + $"PQ: {container?.Components[block.MediaType]?.PacketBufferLength / 1024d,7:0.0}k | "
-                    + $"TQ: {container?.Components.PacketBufferLength / 1024d,7:0.0}k"));
+                    + $"PQ: {element.Container?.Components[block.MediaType]?.PacketBufferLength / 1024d,7:0.0}k | "
+                    + $"TQ: {element.Container?.Components.PacketBufferLength / 1024d,7:0.0}k"));
             }
             catch
             {
