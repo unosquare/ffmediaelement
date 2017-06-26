@@ -97,7 +97,7 @@
 
             Media.MediaOpening += Media_MediaOpening;
             Media.MediaFailed += Media_MediaFailed;
-
+            Media.MessageLogged += Media_MessageLogged;
             Unosquare.FFME.MediaElement.FFmpegMessageLogged += MediaElement_FFmpegMessageLogged;
             
 
@@ -109,9 +109,14 @@
             }
         }
 
-        private void MediaElement_FFmpegMessageLogged(object sender, MediaLogMessagEventArgs e)
+        private void Media_MessageLogged(object sender, MediaLogMessagEventArgs e)
         {
             if (e.MessageType == MediaLogMessageType.Trace) return;
+            Debug.WriteLine($"{e.MessageType,10} - {e.Message}");
+        }
+
+        private void MediaElement_FFmpegMessageLogged(object sender, MediaLogMessagEventArgs e)
+        {
             Debug.WriteLine($"{e.MessageType,10} - {e.Message}");
         }
 
