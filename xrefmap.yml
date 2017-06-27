@@ -913,12 +913,12 @@ references:
   commentId: T:Unosquare.FFME.MediaLogMessagEventArgs
   fullName: Unosquare.FFME.MediaLogMessagEventArgs
   nameWithType: MediaLogMessagEventArgs
-- uid: Unosquare.FFME.MediaLogMessagEventArgs.#ctor(Unosquare.FFME.MediaLogMessageType,System.String)
-  name: MediaLogMessagEventArgs(MediaLogMessageType, String)
-  href: api/Unosquare.FFME.MediaLogMessagEventArgs.html#Unosquare_FFME_MediaLogMessagEventArgs__ctor_Unosquare_FFME_MediaLogMessageType_System_String_
-  commentId: M:Unosquare.FFME.MediaLogMessagEventArgs.#ctor(Unosquare.FFME.MediaLogMessageType,System.String)
-  fullName: Unosquare.FFME.MediaLogMessagEventArgs.MediaLogMessagEventArgs(Unosquare.FFME.MediaLogMessageType, System.String)
-  nameWithType: MediaLogMessagEventArgs.MediaLogMessagEventArgs(MediaLogMessageType, String)
+- uid: Unosquare.FFME.MediaLogMessagEventArgs.#ctor(Unosquare.FFME.MediaElement,Unosquare.FFME.MediaLogMessageType,System.String)
+  name: MediaLogMessagEventArgs(MediaElement, MediaLogMessageType, String)
+  href: api/Unosquare.FFME.MediaLogMessagEventArgs.html#Unosquare_FFME_MediaLogMessagEventArgs__ctor_Unosquare_FFME_MediaElement_Unosquare_FFME_MediaLogMessageType_System_String_
+  commentId: M:Unosquare.FFME.MediaLogMessagEventArgs.#ctor(Unosquare.FFME.MediaElement,Unosquare.FFME.MediaLogMessageType,System.String)
+  fullName: Unosquare.FFME.MediaLogMessagEventArgs.MediaLogMessagEventArgs(Unosquare.FFME.MediaElement, Unosquare.FFME.MediaLogMessageType, System.String)
+  nameWithType: MediaLogMessagEventArgs.MediaLogMessagEventArgs(MediaElement, MediaLogMessageType, String)
 - uid: Unosquare.FFME.MediaLogMessagEventArgs.#ctor*
   name: MediaLogMessagEventArgs
   href: api/Unosquare.FFME.MediaLogMessagEventArgs.html#Unosquare_FFME_MediaLogMessagEventArgs__ctor_
@@ -949,18 +949,30 @@ references:
   commentId: Overload:Unosquare.FFME.MediaLogMessagEventArgs.MessageType
   fullName: Unosquare.FFME.MediaLogMessagEventArgs.MessageType
   nameWithType: MediaLogMessagEventArgs.MessageType
-- uid: Unosquare.FFME.MediaLogMessagEventArgs.TimeStamp
-  name: TimeStamp
-  href: api/Unosquare.FFME.MediaLogMessagEventArgs.html#Unosquare_FFME_MediaLogMessagEventArgs_TimeStamp
-  commentId: P:Unosquare.FFME.MediaLogMessagEventArgs.TimeStamp
-  fullName: Unosquare.FFME.MediaLogMessagEventArgs.TimeStamp
-  nameWithType: MediaLogMessagEventArgs.TimeStamp
-- uid: Unosquare.FFME.MediaLogMessagEventArgs.TimeStamp*
-  name: TimeStamp
-  href: api/Unosquare.FFME.MediaLogMessagEventArgs.html#Unosquare_FFME_MediaLogMessagEventArgs_TimeStamp_
-  commentId: Overload:Unosquare.FFME.MediaLogMessagEventArgs.TimeStamp
-  fullName: Unosquare.FFME.MediaLogMessagEventArgs.TimeStamp
-  nameWithType: MediaLogMessagEventArgs.TimeStamp
+- uid: Unosquare.FFME.MediaLogMessagEventArgs.Source
+  name: Source
+  href: api/Unosquare.FFME.MediaLogMessagEventArgs.html#Unosquare_FFME_MediaLogMessagEventArgs_Source
+  commentId: P:Unosquare.FFME.MediaLogMessagEventArgs.Source
+  fullName: Unosquare.FFME.MediaLogMessagEventArgs.Source
+  nameWithType: MediaLogMessagEventArgs.Source
+- uid: Unosquare.FFME.MediaLogMessagEventArgs.Source*
+  name: Source
+  href: api/Unosquare.FFME.MediaLogMessagEventArgs.html#Unosquare_FFME_MediaLogMessagEventArgs_Source_
+  commentId: Overload:Unosquare.FFME.MediaLogMessagEventArgs.Source
+  fullName: Unosquare.FFME.MediaLogMessagEventArgs.Source
+  nameWithType: MediaLogMessagEventArgs.Source
+- uid: Unosquare.FFME.MediaLogMessagEventArgs.TimestampUtc
+  name: TimestampUtc
+  href: api/Unosquare.FFME.MediaLogMessagEventArgs.html#Unosquare_FFME_MediaLogMessagEventArgs_TimestampUtc
+  commentId: P:Unosquare.FFME.MediaLogMessagEventArgs.TimestampUtc
+  fullName: Unosquare.FFME.MediaLogMessagEventArgs.TimestampUtc
+  nameWithType: MediaLogMessagEventArgs.TimestampUtc
+- uid: Unosquare.FFME.MediaLogMessagEventArgs.TimestampUtc*
+  name: TimestampUtc
+  href: api/Unosquare.FFME.MediaLogMessagEventArgs.html#Unosquare_FFME_MediaLogMessagEventArgs_TimestampUtc_
+  commentId: Overload:Unosquare.FFME.MediaLogMessagEventArgs.TimestampUtc
+  fullName: Unosquare.FFME.MediaLogMessagEventArgs.TimestampUtc
+  nameWithType: MediaLogMessagEventArgs.TimestampUtc
 - uid: Unosquare.FFME.MediaOpeningRoutedEventArgs
   name: MediaOpeningRoutedEventArgs
   href: api/Unosquare.FFME.MediaOpeningRoutedEventArgs.html

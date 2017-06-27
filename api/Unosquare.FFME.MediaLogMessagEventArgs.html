@@ -127,13 +127,13 @@
   
   
   <a id="Unosquare_FFME_MediaLogMessagEventArgs__ctor_" data-uid="Unosquare.FFME.MediaLogMessagEventArgs.#ctor*"></a>
-  <h4 id="Unosquare_FFME_MediaLogMessagEventArgs__ctor_Unosquare_FFME_MediaLogMessageType_System_String_" data-uid="Unosquare.FFME.MediaLogMessagEventArgs.#ctor(Unosquare.FFME.MediaLogMessageType,System.String)">MediaLogMessagEventArgs(MediaLogMessageType, String)</h4>
+  <h4 id="Unosquare_FFME_MediaLogMessagEventArgs__ctor_Unosquare_FFME_MediaElement_Unosquare_FFME_MediaLogMessageType_System_String_" data-uid="Unosquare.FFME.MediaLogMessagEventArgs.#ctor(Unosquare.FFME.MediaElement,Unosquare.FFME.MediaLogMessageType,System.String)">MediaLogMessagEventArgs(MediaElement, MediaLogMessageType, String)</h4>
   <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="Unosquare.FFME.MediaLogMessagEventArgs.html">MediaLogMessagEventArgs</a> class.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MediaLogMessagEventArgs(MediaLogMessageType messageType, string message)</code></pre>
+    <pre><code class="lang-csharp hljs">public MediaLogMessagEventArgs(MediaElement mediaElement, MediaLogMessageType messageType, string message)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -145,6 +145,12 @@
       </tr>
     </thead>
     <tbody>
+      <tr>
+        <td><a class="xref" href="Unosquare.FFME.MediaElement.html">MediaElement</a></td>
+        <td><span class="parametername">mediaElement</span></td>
+        <td><p>The media element.</p>
+</td>
+      </tr>
       <tr>
         <td><a class="xref" href="Unosquare.FFME.MediaLogMessageType.html">MediaLogMessageType</a></td>
         <td><span class="parametername">messageType</span></td>
@@ -215,14 +221,15 @@
   </table>
   
   
-  <a id="Unosquare_FFME_MediaLogMessagEventArgs_TimeStamp_" data-uid="Unosquare.FFME.MediaLogMessagEventArgs.TimeStamp*"></a>
-  <h4 id="Unosquare_FFME_MediaLogMessagEventArgs_TimeStamp" data-uid="Unosquare.FFME.MediaLogMessagEventArgs.TimeStamp">TimeStamp</h4>
-  <div class="markdown level1 summary"><p>Gets the timestamp.</p>
+  <a id="Unosquare_FFME_MediaLogMessagEventArgs_Source_" data-uid="Unosquare.FFME.MediaLogMessagEventArgs.Source*"></a>
+  <h4 id="Unosquare_FFME_MediaLogMessagEventArgs_Source" data-uid="Unosquare.FFME.MediaLogMessagEventArgs.Source">Source</h4>
+  <div class="markdown level1 summary"><p>Gets the intance of the MediaElement that generated this message.
+When null, it means FFmpeg generated this message.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public TimeSpan TimeStamp { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public MediaElement Source { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -234,7 +241,33 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.TimeSpan</span></td>
+        <td><a class="xref" href="Unosquare.FFME.MediaElement.html">MediaElement</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaLogMessagEventArgs_TimestampUtc_" data-uid="Unosquare.FFME.MediaLogMessagEventArgs.TimestampUtc*"></a>
+  <h4 id="Unosquare_FFME_MediaLogMessagEventArgs_TimestampUtc" data-uid="Unosquare.FFME.MediaLogMessagEventArgs.TimestampUtc">TimestampUtc</h4>
+  <div class="markdown level1 summary"><p>Gets the timestamp.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public DateTime TimestampUtc { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.DateTime</span></td>
         <td></td>
       </tr>
     </tbody>
