@@ -33,7 +33,7 @@
         private static readonly List<string> FFmpegLogBuffer = new List<string>();
 
         static unsafe private readonly av_lockmgr_register_cb FFmpegLockManagerCallback = FFmpegManageLocking;
-        private static readonly ManualResetEvent FFmpegOpDone = new ManualResetEvent(true);
+        private static readonly Dictionary<IntPtr, ManualResetEvent> FFmpegOpDone = new Dictionary<IntPtr, ManualResetEvent>();
 
         #endregion
 
@@ -339,21 +339,32 @@
             {
                 case AVLockOp.AV_LOCK_CREATE:
                     {
+                        var m = new ManualResetEvent(true);
+                        var mutexPointer = m.SafeWaitHandle.DangerousGetHandle();
+                        *mutex = (void*)mutexPointer;
+                        FFmpegOpDone[mutexPointer] = m;
                         return 0;
                     }
                 case AVLockOp.AV_LOCK_OBTAIN:
                     {
-                        FFmpegOpDone.WaitOne();
-                        FFmpegOpDone.Reset();
+                        var mutexPointer = new IntPtr(*mutex);
+                        FFmpegOpDone[mutexPointer].WaitOne();
+                        FFmpegOpDone[mutexPointer].Reset();
                         return 0;
                     }
                 case AVLockOp.AV_LOCK_RELEASE:
                     {
-                        FFmpegOpDone.Set();
+                        var mutexPointer = new IntPtr(*mutex);
+                        FFmpegOpDone[mutexPointer].Set();
                         return 0;
                     }
                 case AVLockOp.AV_LOCK_DESTROY:
                     {
+                        var mutexPointer = new IntPtr(*mutex);
+                        var m = FFmpegOpDone[mutexPointer];
+                        FFmpegOpDone.Remove(mutexPointer);
+                        m.Set();
+                        m.Dispose();
                         return 0;
                     }
             }
