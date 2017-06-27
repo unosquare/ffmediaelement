@@ -111,7 +111,7 @@
 
         private void Media_MessageLogged(object sender, MediaLogMessagEventArgs e)
         {
-            if (e.MessageType == MediaLogMessageType.Trace) return;
+            //if (e.MessageType == MediaLogMessageType.Trace) return;
             Debug.WriteLine($"{e.MessageType,10} - {e.Message}");
         }
 

@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Rendering
 {
+    using Core;
     using Decoding;
     using System;
     using System.Windows;
@@ -19,6 +20,8 @@
         /// The target bitmap
         /// </summary>
         private WriteableBitmap TargetBitmap;
+
+        private volatile bool IsRenderingInProgress = false;
 
         #endregion
 
@@ -101,7 +104,7 @@
         /// </summary>
         public void Close()
         {
-            MediaElement.InvokeOnUI(DispatcherPriority.Render, () =>
+            Utils.UIInvoke(DispatcherPriority.Render, () =>
             {
                 if (TargetBitmap == null) return;
                 TargetBitmap = null;
@@ -119,6 +122,7 @@
 
         /// <summary>
         /// Renders the specified media block.
+        /// This needs to return immediately so the calling thread is not disturbed.
         /// </summary>
         /// <param name="mediaBlock">The media block.</param>
         /// <param name="clockPosition">The clock position.</param>
@@ -127,45 +131,58 @@
         {
             var block = mediaBlock as VideoBlock;
             if (block == null) return;
+            if (IsRenderingInProgress) return;
 
-            MediaElement.InvokeOnUI(DispatcherPriority.Render, () =>
-            {                
-                if (TargetBitmap == null || TargetBitmap.PixelWidth != block.PixelWidth || TargetBitmap.PixelHeight != block.PixelHeight)
-                    InitializeTargetBitmap(block);
+            IsRenderingInProgress = true;
 
-                var updateRect = new Int32Rect(0, 0, block.PixelWidth, block.PixelHeight);
-                TargetBitmap.WritePixels(updateRect, block.Buffer, block.BufferLength, block.BufferStride);
-
-                var scaleTransform = MediaElement.ViewBox.LayoutTransform as ScaleTransform;
-
-                // Process Aspect Ratio according to block.
-                if (block.AspectWidth != block.AspectHeight)
+            Utils.UIEnqueueInvoke(DispatcherPriority.Render, new Action<VideoBlock, TimeSpan, int>((b, cP, rI) =>
+            {
+                try
                 {
-                    var scaleX = block.AspectWidth > block.AspectHeight ? (double)block.AspectWidth / block.AspectHeight : 1d;
-                    var scaleY = block.AspectHeight > block.AspectWidth ? (double)block.AspectHeight / block.AspectWidth : 1d;
+                    if (TargetBitmap == null || TargetBitmap.PixelWidth != b.PixelWidth || TargetBitmap.PixelHeight != b.PixelHeight)
+                        InitializeTargetBitmap(b);
 
-                    if (scaleTransform == null)
+                    var updateRect = new Int32Rect(0, 0, b.PixelWidth, b.PixelHeight);
+                    TargetBitmap.WritePixels(updateRect, b.Buffer, b.BufferLength, b.BufferStride);
+
+                    var scaleTransform = MediaElement.ViewBox.LayoutTransform as ScaleTransform;
+
+                    // Process Aspect Ratio according to block.
+                    if (b.AspectWidth != b.AspectHeight)
                     {
-                        scaleTransform = new ScaleTransform(scaleX, scaleY);
-                        MediaElement.ViewBox.LayoutTransform = scaleTransform;
+                        var scaleX = b.AspectWidth > b.AspectHeight ? (double)b.AspectWidth / b.AspectHeight : 1d;
+                        var scaleY = b.AspectHeight > b.AspectWidth ? (double)b.AspectHeight / b.AspectWidth : 1d;
+
+                        if (scaleTransform == null)
+                        {
+                            scaleTransform = new ScaleTransform(scaleX, scaleY);
+                            MediaElement.ViewBox.LayoutTransform = scaleTransform;
+                        }
+
+                        if (scaleTransform.ScaleX != scaleX || scaleTransform.ScaleY != scaleY)
+                        {
+                            scaleTransform.ScaleX = scaleX;
+                            scaleTransform.ScaleY = scaleY;
+                        }
                     }
-
-                    if (scaleTransform.ScaleX != scaleX || scaleTransform.ScaleY != scaleY)
+                    else
                     {
-                        scaleTransform.ScaleX = scaleX;
-                        scaleTransform.ScaleY = scaleY;
+                        if (scaleTransform != null && (scaleTransform.ScaleX != 1d || scaleTransform.ScaleY != 1d))
+                        {
+                            scaleTransform.ScaleX = 1d;
+                            scaleTransform.ScaleY = 1d;
+                        }
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    if (scaleTransform != null && (scaleTransform.ScaleX != 1d || scaleTransform.ScaleY != 1d))
-                    {
-                        scaleTransform.ScaleX = 1d;
-                        scaleTransform.ScaleY = 1d;
-                    }
+                    Utils.Log(MediaElement, MediaLogMessageType.Error, $"{nameof(VideoRenderer)} {ex.GetType()}: {ex.Message}. Stack Trace:\r\n{ex.StackTrace}");
                 }
-
-            });
+                finally
+                {
+                    IsRenderingInProgress = false;
+                }
+            }), block, clockPosition, renderIndex);
         }
 
         #endregion

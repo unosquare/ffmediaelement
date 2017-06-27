@@ -104,7 +104,7 @@
             finally
             {
                 m.IsOpening = false;
-                m.InvokeOnUI(DispatcherPriority.DataBind, () => { m.NotifyPropertyChanges(); });
+                Utils.UIInvoke(DispatcherPriority.DataBind, () => { m.NotifyPropertyChanges(); });
                 m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Completed");
             }
         }

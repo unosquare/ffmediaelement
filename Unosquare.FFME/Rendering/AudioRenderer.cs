@@ -57,7 +57,7 @@
                 Initialize();
 
             if (Application.Current != null)
-                MediaElement.InvokeOnUI(DispatcherPriority.Normal, () =>
+                Utils.UIInvoke(DispatcherPriority.Normal, () =>
                 {
                     Application.Current.Exit += OnApplicationExit;
                 });
@@ -107,7 +107,7 @@
             {
                 // Remove the event handler
                 if (Application.Current != null)
-                    MediaElement.InvokeOnUI(DispatcherPriority.Normal, () =>
+                    Utils.UIInvoke(DispatcherPriority.Normal, () =>
                     {
                         Application.Current.Exit -= OnApplicationExit;
                     });
@@ -569,7 +569,12 @@
                 }
                 else
                 {
-                    requestedBytes = Math.Min(requestedBytes, AudioBuffer.ReadableCount);
+                    if (requestedBytes > AudioBuffer.ReadableCount)
+                    {
+                        Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
+                        return requestedBytes;
+                    }
+
                     AudioBuffer.Read(requestedBytes, ReadBuffer, 0);
                 }
 

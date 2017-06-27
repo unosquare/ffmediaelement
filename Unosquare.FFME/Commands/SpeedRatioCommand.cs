@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Commands
 {
+    using Core;
     using System.Windows.Threading;
 
     /// <summary>
@@ -27,7 +28,7 @@
             if (Manager.MediaElement.Clock.SpeedRatio != SpeedRatio)
                 Manager.MediaElement.Clock.SpeedRatio = SpeedRatio;
 
-            Manager.MediaElement.InvokeOnUI(DispatcherPriority.DataBind, () => {
+            Utils.UIInvoke(DispatcherPriority.DataBind, () => {
                 Manager.MediaElement.SpeedRatio = SpeedRatio;
             });
             

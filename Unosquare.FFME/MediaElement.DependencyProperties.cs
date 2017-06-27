@@ -478,12 +478,15 @@
         /// <param name="currentPosition">The current position.</param>
         internal void UpdatePosition(TimeSpan currentPosition)
         {
+            if (IsPositionUpdating) return;
+
             IsPositionUpdating = true;
-            InvokeOnUI(DispatcherPriority.DataBind, () =>
-            {
-                SetValue(PositionProperty, currentPosition);
-            });
-            IsPositionUpdating = false;
+            Utils.UIEnqueueInvoke(DispatcherPriority.DataBind,
+                new Action<TimeSpan>((cP) =>
+                {
+                    SetValue(PositionProperty, cP);
+                    IsPositionUpdating = false;
+                }), currentPosition);
         }
 
         #endregion

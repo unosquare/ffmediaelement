@@ -27,41 +27,12 @@
         }
 
         /// <summary>
-        /// Asynchronously invokes the given instructions on the main application dispatcher.
-        /// </summary>
-        /// <param name="priority">The priority. Set it to Normal by default.</param>
-        /// <param name="action">The action.</param>
-        internal void InvokeOnUI(DispatcherPriority priority, Action action)
-        {
-            if (Dispatcher == null || Dispatcher.CurrentDispatcher == Dispatcher)
-            {
-                action();
-                return;
-            }
-
-            try
-            {
-                if (Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished) return;
-                Dispatcher.Invoke(action, priority); // Normal is 1 more than DataBind
-            }
-            catch (TaskCanceledException)
-            {
-                // swallow
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-
-        }
-
-        /// <summary>
         /// Raises the buffering started event.
         /// </summary>
         private void RaiseBufferingStartedEvent()
         {
             LogEventStart(BufferingStartedEvent);
-            InvokeOnUI(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(BufferingStartedEvent, this)); });
+            Utils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(BufferingStartedEvent, this)); });
             LogEventDone(BufferingStartedEvent);
         }
 
@@ -71,7 +42,7 @@
         private void RaiseBufferingEndedEvent()
         {
             LogEventStart(BufferingEndedEvent);
-            InvokeOnUI(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(BufferingEndedEvent, this)); });
+            Utils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(BufferingEndedEvent, this)); });
             LogEventDone(BufferingEndedEvent);
         }
 
@@ -83,7 +54,7 @@
         {
             LogEventStart(MediaFailedEvent);
             Logger.Log(MediaLogMessageType.Error, $"Media Failure - {ex?.GetType()}: {ex?.Message}");
-            InvokeOnUI(DispatcherPriority.DataBind, () => { RaiseEvent(CreateExceptionRoutedEventArgs(MediaFailedEvent, this, ex)); });
+            Utils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(CreateExceptionRoutedEventArgs(MediaFailedEvent, this, ex)); });
             LogEventDone(MediaFailedEvent);
         }
 
@@ -93,7 +64,7 @@
         internal void RaiseMediaOpenedEvent()
         {
             LogEventStart(MediaOpenedEvent);
-            InvokeOnUI(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaOpenedEvent, this)); });
+            Utils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaOpenedEvent, this)); });
             LogEventDone(MediaOpenedEvent);
         }
 
@@ -103,7 +74,7 @@
         internal void RaiseMediaOpeningEvent()
         {
             LogEventStart(MediaOpeningEvent);
-            InvokeOnUI(DispatcherPriority.DataBind, () =>
+            Utils.UIInvoke(DispatcherPriority.DataBind, () =>
             {
                 RaiseEvent(new MediaOpeningRoutedEventArgs(MediaOpeningEvent, this, Container.MediaOptions));
             });
@@ -117,7 +88,7 @@
         private void RaiseMediaEndedEvent()
         {
             LogEventStart(MediaEndedEvent);
-            InvokeOnUI(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaEndedEvent, this)); });
+            Utils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaEndedEvent, this)); });
             LogEventDone(MediaEndedEvent);
         }
 

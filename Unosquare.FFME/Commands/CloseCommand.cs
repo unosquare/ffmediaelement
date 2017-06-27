@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Commands
 {
+    using Core;
     using System;
     using System.Windows.Threading;
 
@@ -75,7 +76,7 @@
             m.LastRenderTime.Clear();
 
             // Update notification properties
-            m.InvokeOnUI(DispatcherPriority.DataBind, () => { m.NotifyPropertyChanges(); });
+            Utils.UIInvoke(DispatcherPriority.DataBind, () => { m.NotifyPropertyChanges(); });
 
             m.MediaState = System.Windows.Controls.MediaState.Close;
             m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(CloseCommand)}: Completed");

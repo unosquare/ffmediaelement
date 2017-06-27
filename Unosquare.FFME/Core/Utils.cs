@@ -3,6 +3,7 @@
     using Decoding;
     using FFmpeg.AutoGen;
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Diagnostics;
@@ -11,7 +12,9 @@
     using System.Runtime.InteropServices;
     using System.Text;
     using System.Threading;
+    using System.Threading.Tasks;
     using System.Windows;
+    using System.Windows.Threading;
 
     /// <summary>
     /// Provides a set of utilities to perfrom logging, text formatting, 
@@ -29,11 +32,32 @@
         static private readonly object FFmpegRegisterLock = new object();
 
         static unsafe private readonly av_log_set_callback_callback FFmpegLogCallback = FFmpegLog;
+        static private readonly DispatcherTimer LogOutputter = null;
         static private readonly object LogSyncLock = new object();
         private static readonly List<string> FFmpegLogBuffer = new List<string>();
+        private static readonly ConcurrentQueue<MediaLogMessagEventArgs> LogQueue = new ConcurrentQueue<MediaLogMessagEventArgs>();
 
         static unsafe private readonly av_lockmgr_register_cb FFmpegLockManagerCallback = FFmpegManageLocking;
         private static readonly Dictionary<IntPtr, ManualResetEvent> FFmpegOpDone = new Dictionary<IntPtr, ManualResetEvent>();
+
+        #endregion
+
+        #region Initialization
+
+        /// <summary>
+        /// Initializes the <see cref="Utils"/> class.
+        /// </summary>
+        static Utils()
+        {
+            LogOutputter = new DispatcherTimer(DispatcherPriority.Background)
+            {
+                Interval = TimeSpan.FromMilliseconds(50),
+                IsEnabled = true,
+            };
+
+            LogOutputter.Tick += LogOutputter_Tick;
+            LogOutputter.Start();
+        }
 
         #endregion
 
@@ -81,6 +105,14 @@
 
                 return m_IsInDebugMode.Value;
             }
+        }
+
+        /// <summary>
+        /// Gets the UI dispatcher.
+        /// </summary>
+        public static Dispatcher UIDispatcher
+        {
+            get { return Application.Current?.Dispatcher; }
         }
 
         #endregion
@@ -410,7 +442,87 @@
 
         #endregion
 
+        #region Dispatching
+
+        /// <summary>
+        /// Invokes the specified delegate on the specified dispatcher.
+        /// </summary>
+        /// <param name="dispatcher">The dispatcher.</param>
+        /// <param name="priority">The priority.</param>
+        /// <param name="action">The action.</param>
+        /// <param name="args">The arguments.</param>
+        /// <returns></returns>
+        public static async Task InvokeAsync(this Dispatcher dispatcher, DispatcherPriority priority, Delegate action, params object[] args)
+        {
+            // exit if we don't have a valid dispatcher
+            if (dispatcher == null || dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished) return;
+
+            // synchronously invoke if we are on the same context
+            if (Dispatcher.CurrentDispatcher == dispatcher)
+            {
+                action.DynamicInvoke(args);
+                return;
+            }
+
+            // Execute asynchronously
+            try
+            {
+                await dispatcher.InvokeAsync(() => { action.DynamicInvoke(args); }, priority);
+            }
+            catch (TaskCanceledException)
+            {
+                // swallow
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// Synchronously invokes the given instructions on the main application dispatcher.
+        /// </summary>
+        /// <param name="priority">The priority. Set it to Normal by default.</param>
+        /// <param name="action">The action.</param>
+        public static void UIInvoke(DispatcherPriority priority, Action action)
+        {
+            UIDispatcher.InvokeAsync(priority, action, null).GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// Enqueues the given instructions with the given arguments on the main application dispatcher.
+        /// This is a way to execute fire-and-fortget style commands
+        /// </summary>
+        /// <param name="priority">The priority.</param>
+        /// <param name="action">The action.</param>
+        /// <param name="args">The arguments.</param>
+        public static void UIEnqueueInvoke(DispatcherPriority priority, Delegate action, params object[] args)
+        {
+            var task = UIDispatcher.InvokeAsync(priority, action, args);
+        }
+
+        #endregion
+
         #region Logging
+
+        /// <summary>
+        /// Handles the Tick event of the LogOutputter timer.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private static void LogOutputter_Tick(object sender, EventArgs e)
+        {
+            MediaLogMessagEventArgs eventArgs = null;
+
+            while (LogQueue.TryDequeue(out eventArgs))
+            {
+                if (eventArgs.Source != null)
+                    eventArgs.Source.RaiseMessageLogged(eventArgs);
+                else
+                    MediaElement.RaiseFFmpegMessageLogged(eventArgs);
+            }
+
+        }
 
         /// <summary>
         /// Logs the specified message.
@@ -421,21 +533,9 @@
         /// <exception cref="System.ArgumentNullException">sender</exception>
         internal static void Log(object sender, MediaLogMessageType messageType, string message)
         {
-            lock (LogSyncLock)
-            {
-                if (sender == null) throw new ArgumentNullException(nameof(sender));
-
-                try
-                {
-                    var eventArgs = new MediaLogMessagEventArgs(messageType, message);
-                    if (sender != null && sender is MediaElement)
-                        (sender as MediaElement)?.RaiseMessageLogged(eventArgs);
-                    else
-                        MediaElement.RaiseFFmpegMessageLogged(eventArgs);
-
-                }
-                catch { }
-            }
+            if (sender == null) throw new ArgumentNullException(nameof(sender));
+            var eventArgs = new MediaLogMessagEventArgs(sender as MediaElement, messageType, message);
+            LogQueue.Enqueue(eventArgs);
         }
 
         /// <summary>

@@ -155,7 +155,7 @@
         /// <summary>
         /// Raises the FFmpegMessageLogged event
         /// </summary>
-        /// <param name="eventArgs">The <see cref="MediaLogMessagEventArgs"/> instance containing the event data.</param>
+        /// <param name="eventArgs">The <see cref="MediaLogMessagEventArgs" /> instance containing the event data.</param>
         internal static void RaiseFFmpegMessageLogged(MediaLogMessagEventArgs eventArgs)
         {
             FFmpegMessageLogged?.Invoke(typeof(MediaElement), eventArgs);
@@ -170,10 +170,10 @@
         /// <summary>
         /// Raises the MessageLogged event
         /// </summary>
-        /// <param name="args">The <see cref="MediaLogMessagEventArgs" /> instance containing the event data.</param>
-        internal void RaiseMessageLogged(MediaLogMessagEventArgs args)
+        /// <param name="eventArgs">The <see cref="MediaLogMessagEventArgs" /> instance containing the event data.</param>
+        internal void RaiseMessageLogged(MediaLogMessagEventArgs eventArgs)
         {
-            MessageLogged?.Invoke(this, args);
+            MessageLogged?.Invoke(this, eventArgs);
         }
 
         #endregion
@@ -216,7 +216,7 @@
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             if (PropertyChanged == null) return;
-            InvokeOnUI(DispatcherPriority.DataBind, () =>
+            Utils.UIInvoke(DispatcherPriority.DataBind, () =>
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             });
