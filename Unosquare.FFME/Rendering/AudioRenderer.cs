@@ -431,7 +431,6 @@
             {
                 AudioBuffer.Skip(AudioBuffer.ReadableCount);
                 Array.Clear(ReadBuffer, 0, requestedBytes);
-
                 return;
             }
 
