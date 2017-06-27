@@ -331,18 +331,6 @@ references:
   commentId: Overload:Unosquare.FFME.MediaElement.DownloadProgress
   fullName: Unosquare.FFME.MediaElement.DownloadProgress
   nameWithType: MediaElement.DownloadProgress
-- uid: Unosquare.FFME.MediaElement.DumpState(System.Boolean)
-  name: DumpState(Boolean)
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_DumpState_System_Boolean_
-  commentId: M:Unosquare.FFME.MediaElement.DumpState(System.Boolean)
-  fullName: Unosquare.FFME.MediaElement.DumpState(System.Boolean)
-  nameWithType: MediaElement.DumpState(Boolean)
-- uid: Unosquare.FFME.MediaElement.DumpState*
-  name: DumpState
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_DumpState_
-  commentId: Overload:Unosquare.FFME.MediaElement.DumpState
-  fullName: Unosquare.FFME.MediaElement.DumpState
-  nameWithType: MediaElement.DumpState
 - uid: Unosquare.FFME.MediaElement.FFmpegDirectory
   name: FFmpegDirectory
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_FFmpegDirectory
@@ -355,6 +343,12 @@ references:
   commentId: Overload:Unosquare.FFME.MediaElement.FFmpegDirectory
   fullName: Unosquare.FFME.MediaElement.FFmpegDirectory
   nameWithType: MediaElement.FFmpegDirectory
+- uid: Unosquare.FFME.MediaElement.FFmpegMessageLogged
+  name: FFmpegMessageLogged
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_FFmpegMessageLogged
+  commentId: E:Unosquare.FFME.MediaElement.FFmpegMessageLogged
+  fullName: Unosquare.FFME.MediaElement.FFmpegMessageLogged
+  nameWithType: MediaElement.FFmpegMessageLogged
 - uid: Unosquare.FFME.MediaElement.HasAudio
   name: HasAudio
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_HasAudio
@@ -511,18 +505,6 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.LoadedBehaviorProperty
   fullName: Unosquare.FFME.MediaElement.LoadedBehaviorProperty
   nameWithType: MediaElement.LoadedBehaviorProperty
-- uid: Unosquare.FFME.MediaElement.LogMessageCallback
-  name: LogMessageCallback
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_LogMessageCallback
-  commentId: P:Unosquare.FFME.MediaElement.LogMessageCallback
-  fullName: Unosquare.FFME.MediaElement.LogMessageCallback
-  nameWithType: MediaElement.LogMessageCallback
-- uid: Unosquare.FFME.MediaElement.LogMessageCallback*
-  name: LogMessageCallback
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_LogMessageCallback_
-  commentId: Overload:Unosquare.FFME.MediaElement.LogMessageCallback
-  fullName: Unosquare.FFME.MediaElement.LogMessageCallback
-  nameWithType: MediaElement.LogMessageCallback
 - uid: Unosquare.FFME.MediaElement.MediaEnded
   name: MediaEnded
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaEnded
@@ -595,6 +577,12 @@ references:
   commentId: Overload:Unosquare.FFME.MediaElement.MediaState
   fullName: Unosquare.FFME.MediaElement.MediaState
   nameWithType: MediaElement.MediaState
+- uid: Unosquare.FFME.MediaElement.MessageLogged
+  name: MessageLogged
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MessageLogged
+  commentId: E:Unosquare.FFME.MediaElement.MessageLogged
+  fullName: Unosquare.FFME.MediaElement.MessageLogged
+  nameWithType: MediaElement.MessageLogged
 - uid: Unosquare.FFME.MediaElement.Metadata
   name: Metadata
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Metadata
@@ -919,6 +907,60 @@ references:
   commentId: F:Unosquare.FFME.MediaLogMessageType.Warning
   fullName: Unosquare.FFME.MediaLogMessageType.Warning
   nameWithType: MediaLogMessageType.Warning
+- uid: Unosquare.FFME.MediaLogMessagEventArgs
+  name: MediaLogMessagEventArgs
+  href: api/Unosquare.FFME.MediaLogMessagEventArgs.html
+  commentId: T:Unosquare.FFME.MediaLogMessagEventArgs
+  fullName: Unosquare.FFME.MediaLogMessagEventArgs
+  nameWithType: MediaLogMessagEventArgs
+- uid: Unosquare.FFME.MediaLogMessagEventArgs.#ctor(Unosquare.FFME.MediaLogMessageType,System.String)
+  name: MediaLogMessagEventArgs(MediaLogMessageType, String)
+  href: api/Unosquare.FFME.MediaLogMessagEventArgs.html#Unosquare_FFME_MediaLogMessagEventArgs__ctor_Unosquare_FFME_MediaLogMessageType_System_String_
+  commentId: M:Unosquare.FFME.MediaLogMessagEventArgs.#ctor(Unosquare.FFME.MediaLogMessageType,System.String)
+  fullName: Unosquare.FFME.MediaLogMessagEventArgs.MediaLogMessagEventArgs(Unosquare.FFME.MediaLogMessageType, System.String)
+  nameWithType: MediaLogMessagEventArgs.MediaLogMessagEventArgs(MediaLogMessageType, String)
+- uid: Unosquare.FFME.MediaLogMessagEventArgs.#ctor*
+  name: MediaLogMessagEventArgs
+  href: api/Unosquare.FFME.MediaLogMessagEventArgs.html#Unosquare_FFME_MediaLogMessagEventArgs__ctor_
+  commentId: Overload:Unosquare.FFME.MediaLogMessagEventArgs.#ctor
+  fullName: Unosquare.FFME.MediaLogMessagEventArgs.MediaLogMessagEventArgs
+  nameWithType: MediaLogMessagEventArgs.MediaLogMessagEventArgs
+- uid: Unosquare.FFME.MediaLogMessagEventArgs.Message
+  name: Message
+  href: api/Unosquare.FFME.MediaLogMessagEventArgs.html#Unosquare_FFME_MediaLogMessagEventArgs_Message
+  commentId: P:Unosquare.FFME.MediaLogMessagEventArgs.Message
+  fullName: Unosquare.FFME.MediaLogMessagEventArgs.Message
+  nameWithType: MediaLogMessagEventArgs.Message
+- uid: Unosquare.FFME.MediaLogMessagEventArgs.Message*
+  name: Message
+  href: api/Unosquare.FFME.MediaLogMessagEventArgs.html#Unosquare_FFME_MediaLogMessagEventArgs_Message_
+  commentId: Overload:Unosquare.FFME.MediaLogMessagEventArgs.Message
+  fullName: Unosquare.FFME.MediaLogMessagEventArgs.Message
+  nameWithType: MediaLogMessagEventArgs.Message
+- uid: Unosquare.FFME.MediaLogMessagEventArgs.MessageType
+  name: MessageType
+  href: api/Unosquare.FFME.MediaLogMessagEventArgs.html#Unosquare_FFME_MediaLogMessagEventArgs_MessageType
+  commentId: P:Unosquare.FFME.MediaLogMessagEventArgs.MessageType
+  fullName: Unosquare.FFME.MediaLogMessagEventArgs.MessageType
+  nameWithType: MediaLogMessagEventArgs.MessageType
+- uid: Unosquare.FFME.MediaLogMessagEventArgs.MessageType*
+  name: MessageType
+  href: api/Unosquare.FFME.MediaLogMessagEventArgs.html#Unosquare_FFME_MediaLogMessagEventArgs_MessageType_
+  commentId: Overload:Unosquare.FFME.MediaLogMessagEventArgs.MessageType
+  fullName: Unosquare.FFME.MediaLogMessagEventArgs.MessageType
+  nameWithType: MediaLogMessagEventArgs.MessageType
+- uid: Unosquare.FFME.MediaLogMessagEventArgs.TimeStamp
+  name: TimeStamp
+  href: api/Unosquare.FFME.MediaLogMessagEventArgs.html#Unosquare_FFME_MediaLogMessagEventArgs_TimeStamp
+  commentId: P:Unosquare.FFME.MediaLogMessagEventArgs.TimeStamp
+  fullName: Unosquare.FFME.MediaLogMessagEventArgs.TimeStamp
+  nameWithType: MediaLogMessagEventArgs.TimeStamp
+- uid: Unosquare.FFME.MediaLogMessagEventArgs.TimeStamp*
+  name: TimeStamp
+  href: api/Unosquare.FFME.MediaLogMessagEventArgs.html#Unosquare_FFME_MediaLogMessagEventArgs_TimeStamp_
+  commentId: Overload:Unosquare.FFME.MediaLogMessagEventArgs.TimeStamp
+  fullName: Unosquare.FFME.MediaLogMessagEventArgs.TimeStamp
+  nameWithType: MediaLogMessagEventArgs.TimeStamp
 - uid: Unosquare.FFME.MediaOpeningRoutedEventArgs
   name: MediaOpeningRoutedEventArgs
   href: api/Unosquare.FFME.MediaOpeningRoutedEventArgs.html

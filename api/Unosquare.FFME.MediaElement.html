@@ -949,7 +949,8 @@ MediaOpened event has fired.</p>
   
   <a id="Unosquare_FFME_MediaElement_HorizontalAlignment_" data-uid="Unosquare.FFME.MediaElement.HorizontalAlignment*"></a>
   <h4 id="Unosquare_FFME_MediaElement_HorizontalAlignment" data-uid="Unosquare.FFME.MediaElement.HorizontalAlignment">HorizontalAlignment</h4>
-  <div class="markdown level1 summary"><p>Gets or sets the horizontal alignment characteristics applied to this element when it is composed within a parent element, such as a panel or items control.</p>
+  <div class="markdown level1 summary"><p>Gets or sets the horizontal alignment characteristics applied to this element when it is 
+composed within a parent element, such as a panel or items control.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -1182,33 +1183,6 @@ also set, then the loaded behavior takes control.</p>
     <tbody>
       <tr>
         <td><span class="xref">MediaState</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
-  <a id="Unosquare_FFME_MediaElement_LogMessageCallback_" data-uid="Unosquare.FFME.MediaElement.LogMessageCallback*"></a>
-  <h4 id="Unosquare_FFME_MediaElement_LogMessageCallback" data-uid="Unosquare.FFME.MediaElement.LogMessageCallback">LogMessageCallback</h4>
-  <div class="markdown level1 summary"><p>Gets or sets the log message callback.
-All logging messages will be passed to this method if set.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Action&lt;MediaLogMessageType, string&gt; LogMessageCallback { get; set; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.Action</span>&lt;<a class="xref" href="Unosquare.FFME.MediaLogMessageType.html">MediaLogMessageType</a>, <span class="xref">System.String</span>&gt;</td>
         <td></td>
       </tr>
     </tbody>
@@ -1962,50 +1936,6 @@ Note: Valid values are from 0 to 1</p>
       <div><span class="xref">System.IDisposable.Dispose()</span></div>
   
   
-  <a id="Unosquare_FFME_MediaElement_DumpState_" data-uid="Unosquare.FFME.MediaElement.DumpState*"></a>
-  <h4 id="Unosquare_FFME_MediaElement_DumpState_System_Boolean_" data-uid="Unosquare.FFME.MediaElement.DumpState(System.Boolean)">DumpState(Boolean)</h4>
-  <div class="markdown level1 summary"><p>Dumps the state into a string dictionary.
-Optionally, it prints the output to the debugging console</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Dictionary&lt;string, string&gt; DumpState(bool printToDebuggingConsole)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.Boolean</span></td>
-        <td><span class="parametername">printToDebuggingConsole</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <h5 class="returns">Returns</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.Collections.Generic.Dictionary</span>&lt;<span class="xref">System.String</span>, <span class="xref">System.String</span>&gt;</td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
   <a id="Unosquare_FFME_MediaElement_Pause_" data-uid="Unosquare.FFME.MediaElement.Pause*"></a>
   <h4 id="Unosquare_FFME_MediaElement_Pause" data-uid="Unosquare.FFME.MediaElement.Pause">Pause()</h4>
   <div class="markdown level1 summary"><p>Pauses playback of the currently loaded media.</p>
@@ -2085,6 +2015,32 @@ Optionally, it prints the output to the debugging console</p>
     <tbody>
       <tr>
         <td><span class="xref">RoutedEventHandler</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_FFmpegMessageLogged" data-uid="Unosquare.FFME.MediaElement.FFmpegMessageLogged">FFmpegMessageLogged</h4>
+  <div class="markdown level1 summary"><p>Occurs when a logging message from the FFmpeg library has been received.
+This is shared across all instances of Media Elements</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static event EventHandler&lt;MediaLogMessagEventArgs&gt; FFmpegMessageLogged</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.EventHandler</span>&lt;<a class="xref" href="Unosquare.FFME.MediaLogMessagEventArgs.html">MediaLogMessagEventArgs</a>&gt;</td>
         <td></td>
       </tr>
     </tbody>
@@ -2186,6 +2142,32 @@ Use this method to modify the input options.</p>
     <tbody>
       <tr>
         <td><span class="xref">System.EventHandler</span>&lt;<a class="xref" href="Unosquare.FFME.MediaOpeningRoutedEventArgs.html">MediaOpeningRoutedEventArgs</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_MessageLogged" data-uid="Unosquare.FFME.MediaElement.MessageLogged">MessageLogged</h4>
+  <div class="markdown level1 summary"><p>Occurs when a logging message has been logged.
+This does not include FFmpeg messages.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event EventHandler&lt;MediaLogMessagEventArgs&gt; MessageLogged</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.EventHandler</span>&lt;<a class="xref" href="Unosquare.FFME.MediaLogMessagEventArgs.html">MediaLogMessagEventArgs</a>&gt;</td>
         <td></td>
       </tr>
     </tbody>
