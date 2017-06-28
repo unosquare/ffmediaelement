@@ -303,11 +303,7 @@
         /// </summary>
         public void Stop()
         {
-            lock (SyncLock)
-            {
-                AudioBuffer.Clear();
-                Array.Clear(ReadBuffer, 0, ReadBuffer.Length);
-            }
+            Seek();
         }
 
         /// <summary>
@@ -325,7 +321,7 @@
         {
             lock (SyncLock)
             {
-                AudioBuffer.Clear();
+                AudioBuffer?.Clear();
                 Array.Clear(ReadBuffer, 0, ReadBuffer.Length);
             }
 
@@ -429,8 +425,7 @@
 
             if (bytesToRead > AudioBuffer.ReadableCount)
             {
-                AudioBuffer.Skip(AudioBuffer.ReadableCount);
-                Array.Clear(ReadBuffer, 0, requestedBytes);
+                Seek();
                 return;
             }
 
@@ -541,8 +536,10 @@
         {
             lock (SyncLock)
             {
+                var speedRatio = MediaElement.Clock.SpeedRatio;
+
                 // Render silence if we don't need to output anything
-                if (MediaElement.IsPlaying == false || MediaElement.HasAudio == false || AudioBuffer.ReadableCount <= 0)
+                if (MediaElement.IsPlaying == false || speedRatio <= 0d || MediaElement.HasAudio == false || AudioBuffer.ReadableCount <= 0)
                 {
                     Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
                     return requestedBytes;
@@ -557,7 +554,6 @@
                     return requestedBytes;
 
                 // Perform DSP
-                var speedRatio = MediaElement.Clock.SpeedRatio;
                 if (speedRatio < 1.0)
                 {
                     ReadAndStretch(requestedBytes, speedRatio);
