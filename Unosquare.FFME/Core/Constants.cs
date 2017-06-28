@@ -15,6 +15,8 @@
         public static readonly ReadOnlyCollection<MediaType> MediaTypes
             = new ReadOnlyCollection<MediaType>(Enum.GetValues(typeof(MediaType)).Cast<MediaType>().ToArray());
 
+        public const int PacketReadBatchCount = 32;
+
         public const double DefaultSpeedRatio = 1.0d;
         public const double DefaultBalance = 0.0d;
         public const double DefaultVolume = 1.0d;

@@ -419,6 +419,13 @@
         #region Position
 
         /// <summary>
+        /// When position is being set from within this control, this field will
+        /// be set to true. This is useful to detect if the user is setting the position
+        /// or if the Position property is being driven from within
+        /// </summary>
+        internal volatile bool IsPositionUpdating = false;
+
+        /// <summary>
         ///     The DependencyProperty for the MediaElement.Position property. 
         /// </summary>
         public static readonly DependencyProperty PositionProperty

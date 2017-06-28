@@ -7,6 +7,7 @@
     using System.ComponentModel;
     using System.Windows;
     using System.Windows.Controls;
+    using System.Windows.Threading;
 
     partial class MediaElement
     {
@@ -20,6 +21,8 @@
         private bool m_IsOpening = false;
         private readonly ObservableCollection<KeyValuePair<string, string>> m_MetadataBase;
         private readonly ICollectionView m_Metadata;
+
+        private volatile bool IsDownloadProgressUpdating = false;
 
         #endregion
 
@@ -261,6 +264,25 @@
         #endregion
 
         #region Methods
+
+        /// <summary>
+        /// Enqueues an update tho the download progress on the UI thread asynchronously.
+        /// This call is non-blocking and returns as quickly as possible.
+        /// New updates are ignored if there is already an update in progress.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        internal void UpdateDownloadProgress(double value)
+        {
+            if (IsDownloadProgressUpdating) return;
+
+            IsDownloadProgressUpdating = true;
+            Utils.UIEnqueueInvoke(DispatcherPriority.DataBind,
+                new Action<double>((v) =>
+                {
+                    DownloadProgress = v;
+                    IsDownloadProgressUpdating = false;
+                }), value);
+        }
 
         /// <summary>
         /// Updates the metada property.

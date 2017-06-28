@@ -9,6 +9,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using System.Windows.Controls;
+    using System.Windows.Threading;
 
     partial class MediaElement
     {
@@ -20,9 +21,6 @@
         /// </summary>
 
         #region Constants
-
-
-        private const int PacketReadBatchCount = 10; // Read 10 packets at a time
 
         internal static readonly Dictionary<MediaType, int> MaxBlocks
             = new Dictionary<MediaType, int>()
@@ -175,11 +173,13 @@
 
         /// <summary>
         /// Runs the read task which keeps a packet buffer as full as possible.
+        /// It reports on DownloadProgress by enqueueing an update to the property
+        /// in order to avoid any kind of disruption to this thread caused by the UI thread.
         /// </summary>
         internal async void RunPacketReadingWorker()
         {
             var packetsRead = 0;
-
+            
             while (IsTaskCancellationPending == false)
             {
                 // Enter a read cycle
@@ -189,7 +189,7 @@
                 // Read a bunch of packets at a time
                 packetsRead = 0;
                 while (Container.Components.PacketBufferLength < DownloadCacheLength
-                    && packetsRead < PacketReadBatchCount
+                    && packetsRead < Constants.PacketReadBatchCount
                     && CanReadMorePackets)
                 {
                     Container.Read();
@@ -197,16 +197,16 @@
                 }
 
                 // Send an update about the download progress
-                DownloadProgress = Math.Min(1d, Math.Round(
-                    (double)Container.Components.PacketBufferLength / DownloadCacheLength, 3));
+                UpdateDownloadProgress(Math.Min(1d, 
+                    Math.Round((double)Container.Components.PacketBufferLength / DownloadCacheLength, 3)));
 
                 // finish the reading cycle.
                 PacketReadingCycle.Set();
+
                 //Container.Log(MediaLogMessageType.Debug, "SET");
                 // Wait some if we have a full packet buffer or we are unable to read more packets.
                 if (Container.Components.PacketBufferLength >= DownloadCacheLength || CanReadMorePackets == false)
                     await Task.Delay(1);
-
             }
 
             PacketReadingCycle.Set();
@@ -223,6 +223,8 @@
         /// </summary>
         internal async void RunFrameDecodingWorker()
         {
+            var decodedFrames = 0;
+
             while (IsTaskCancellationPending == false)
             {
                 // Wait for a seek operation to complete (if any)
@@ -231,7 +233,7 @@
                 FrameDecodingCycle.Reset();
 
                 // Decode Frames if necessary
-                var decodedFrames = 0;
+                decodedFrames = 0;
 
                 // Decode frames for each of the components
                 foreach (var component in Container.Components.All)
