@@ -16,7 +16,6 @@
 
             FormatOptions["user_agent"] = $"{typeof(MediaOptions).Namespace}/{typeof(MediaOptions).Assembly.GetName().Version}";
             FormatOptions["headers"] = $"Referer:https://www.unosquare.com";
-            //FormatOptions["timeout"] = $"{30 * 1000000}"; // in nanoseconds
             FormatOptions["multiple_requests"] = "1";
             FormatOptions["reconnect"] = "1";
             FormatOptions["reconnect_at_eof"] = "1";
@@ -73,6 +72,11 @@
         /// Gets or sets the size of the probe.
         /// </summary>
         public int ProbeSize { get; set; }
+
+        /// <summary>
+        /// Gets or sets the amount of time to wait for a an open or read operation to complete.
+        /// </summary>
+        public TimeSpan ReadTimeout { get; set; } = TimeSpan.FromSeconds(30);
 
         /// <summary>
         /// Prevent reading from audio stream components.

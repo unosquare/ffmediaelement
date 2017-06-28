@@ -6,6 +6,7 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -66,6 +67,9 @@
         private readonly object DecodeSyncRoot = new object();
 
         private readonly object ConvertSyncRoot = new object();
+
+        private AVIOInterruptCB_callback StreamReadInterruptCallback;
+        private long StreamReadInterruptStartTime = default(long);
 
         #endregion
 
@@ -445,6 +449,8 @@
 
                     // Allocate the input context and save it
                     InputContext = ffmpeg.avformat_alloc_context();
+                    StreamReadInterruptCallback = StreamReadInterrupt;
+                    InputContext->interrupt_callback.callback = StreamReadInterruptCallback;
 
                     // Try to open the input
                     fixed (AVFormatContext** inputContext = &InputContext)
@@ -456,9 +462,10 @@
                             InputContext->probesize = MediaOptions.ProbeSize <= 32 ? 32 : MediaOptions.ProbeSize;
 
                         if (MediaOptions.MaxAnalyzeDuration != default(TimeSpan))
-                            InputContext->max_analyze_duration = MediaOptions.MaxAnalyzeDuration <= TimeSpan.Zero ? 0 : 
+                            InputContext->max_analyze_duration = MediaOptions.MaxAnalyzeDuration <= TimeSpan.Zero ? 0 :
                                 (int)Math.Round(MediaOptions.MaxAnalyzeDuration.TotalMilliseconds * 1000d, 0);
 
+                        Thread.VolatileWrite(ref StreamReadInterruptStartTime, DateTime.UtcNow.Ticks);
                         fixed (AVDictionary** reference = &formatOptions.Pointer)
                             openResult = ffmpeg.avformat_open_input(inputContext, $"{MediaUrl}", inputFormat, reference);
 
@@ -518,7 +525,7 @@
                 MediaStartTimeOffset = InputContext->start_time.ToTimeSpan();
                 if (MediaStartTimeOffset == TimeSpan.MinValue)
                 {
-                    Logger?.Log(MediaLogMessageType.Warning, 
+                    Logger?.Log(MediaLogMessageType.Warning,
                         $"Unable to determine the media start time offset. Media start time offset will be assumed to start at {TimeSpan.Zero}.");
                     MediaStartTimeOffset = TimeSpan.Zero;
                 }
@@ -645,6 +652,26 @@
         }
 
         /// <summary>
+        /// The interrupt callback to handle stream reading timeouts
+        /// </summary>
+        /// <param name="p0">The p0.</param>
+        /// <returns></returns>
+        private unsafe int StreamReadInterrupt(void* p0)
+        {
+            var nowTicks = DateTime.UtcNow.Ticks;
+            var startTicks = Thread.VolatileRead(ref StreamReadInterruptStartTime);
+            var timeDifference = TimeSpan.FromTicks(nowTicks - startTicks);
+
+            if (MediaOptions.ReadTimeout.Ticks >= 0 && timeDifference.Ticks > MediaOptions.ReadTimeout.Ticks)
+            {
+                Utils.Log(Logger, MediaLogMessageType.Error, $"{nameof(StreamReadInterrupt)} timed out with  {timeDifference.Format()}");
+                return 1;
+            }
+
+            return 0;
+        }
+
+        /// <summary>
         /// Reads the next packet in the underlying stream and enqueues in the corresponding media component
         /// </summary>
         /// <returns></returns>
@@ -685,8 +712,7 @@
 
             // Allocate the packet to read
             var readPacket = ffmpeg.av_packet_alloc();
-            // TODO: for network streams av_read_frame will sometimes block forever. We need a way to retry or timeout or exit.
-            // it seems that the interrupt callback is the way to go but other things are the priority at this point.
+            Thread.VolatileWrite(ref StreamReadInterruptStartTime, DateTime.UtcNow.Ticks);
             var readResult = ffmpeg.av_read_frame(InputContext, readPacket);
             StreamLastReadTimeUtc = DateTime.UtcNow;
 
