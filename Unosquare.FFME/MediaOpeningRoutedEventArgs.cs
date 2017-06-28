@@ -9,7 +9,7 @@
     public class MediaOpeningRoutedEventArgs : RoutedEventArgs
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="MediaOpeningRoutedEventArgs"/> class.
+        /// Initializes a new instance of the <see cref="MediaOpeningRoutedEventArgs" /> class.
         /// </summary>
         /// <param name="routedEvent">The routed event.</param>
         /// <param name="source">The source.</param>

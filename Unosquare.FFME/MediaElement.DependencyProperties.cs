@@ -13,11 +13,10 @@
     {
         #region Source
 
+
         /// <summary>
         /// DependencyProperty for FFmpegMediaElement Source property. 
         /// </summary>
-        /// <seealso cref="MediaElement.Source"> 
-        /// This property is cached (_source). 
         public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
             nameof(Source), typeof(Uri), typeof(MediaElement), new FrameworkPropertyMetadata(
                 null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender,
