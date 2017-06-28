@@ -94,7 +94,7 @@
                 // The UI Property update timer is responsible for timely updates to properties outside of the worker threads
                 UIPropertyUpdateTimer = new DispatcherTimer(DispatcherPriority.DataBind)
                 {
-                    Interval = Constants.PositionUpdateInterval,
+                    Interval = Constants.UIPropertyUpdateInterval,
                     IsEnabled = true
                 };
 

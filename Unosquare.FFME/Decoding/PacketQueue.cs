@@ -92,6 +92,9 @@
         /// <param name="packet">The packet.</param>
         public void Push(AVPacket* packet)
         {
+            // avoid puching null packets
+            if (packet == null) return;
+
             lock (SyncRoot)
             {
                 PacketPointers.Add((IntPtr)packet);

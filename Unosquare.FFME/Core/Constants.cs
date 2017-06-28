@@ -17,7 +17,7 @@
 
         public const int PacketReadBatchCount = 32;
 
-        public static TimeSpan PositionUpdateInterval = TimeSpan.FromMilliseconds(50); 
+        public static TimeSpan UIPropertyUpdateInterval = TimeSpan.FromMilliseconds(50); 
 
         public const double DefaultSpeedRatio = 1.0d;
         public const double DefaultBalance = 0.0d;

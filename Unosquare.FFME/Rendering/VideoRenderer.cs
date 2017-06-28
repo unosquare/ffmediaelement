@@ -43,7 +43,7 @@
         /// <param name="block">The block.</param>
         private void InitializeTargetBitmap(VideoBlock block)
         {
-            Application.Current.Dispatcher.Invoke(() =>
+            Utils.UIInvoke(DispatcherPriority.Normal, () =>
             {
                 var visual = PresentationSource.FromVisual(MediaElement);
 
