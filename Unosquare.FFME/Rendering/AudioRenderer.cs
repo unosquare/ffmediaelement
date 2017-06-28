@@ -243,6 +243,11 @@
             get { return TimeSpan.FromTicks((AudioDevice?.DesiredLatency ?? 1) * TimeSpan.TicksPerMillisecond); }
         }
 
+        /// <summary>
+        /// Gets the speed ratio.
+        /// </summary>
+        public double SpeedRatio { get; private set; }
+
         #endregion
 
         #region Public API
@@ -255,6 +260,8 @@
         /// <param name="renderIndex">Index of the render.</param>
         public void Render(MediaBlock mediaBlock, TimeSpan clockPosition, int renderIndex)
         {
+            SpeedRatio = MediaElement?.Clock?.SpeedRatio ?? 0d;
+
             if (AudioBuffer == null) return;
             var block = mediaBlock as AudioBlock;
             if (block == null) return;
@@ -379,13 +386,12 @@
         /// requested
         /// </summary>
         /// <param name="requestedBytes">The requested bytes.</param>
-        /// <param name="speedRatio">The speed ratio.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ReadAndStretch(int requestedBytes, double speedRatio)
+        private void ReadAndStretch(int requestedBytes)
         {
             var bytesToRead = Math.Min(
                 AudioBuffer.ReadableCount,
-                (int)(requestedBytes * speedRatio).ToMultipleOf(SampleBlockSize));
+                (int)(requestedBytes * SpeedRatio).ToMultipleOf(SampleBlockSize));
             var repeatFactor = (double)requestedBytes / bytesToRead;
 
             var sourceOffset = requestedBytes;
@@ -416,11 +422,10 @@
         /// The result is put to the first requestedBytes count of the ReadBuffer.
         /// </summary>
         /// <param name="requestedBytes">The requested bytes.</param>
-        /// <param name="speedRatio">The speed ratio.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ReadAndShrink(int requestedBytes, double speedRatio)
+        private void ReadAndShrink(int requestedBytes)
         {
-            var bytesToRead = (int)(requestedBytes * speedRatio).ToMultipleOf(SampleBlockSize);
+            var bytesToRead = (int)(requestedBytes * SpeedRatio).ToMultipleOf(SampleBlockSize);
             var sourceOffset = 0;
 
             if (bytesToRead > AudioBuffer.ReadableCount)
@@ -536,10 +541,9 @@
         {
             lock (SyncLock)
             {
-                var speedRatio = MediaElement.Clock.SpeedRatio;
 
                 // Render silence if we don't need to output anything
-                if (MediaElement.IsPlaying == false || speedRatio <= 0d || MediaElement.HasAudio == false || AudioBuffer.ReadableCount <= 0)
+                if (MediaElement.IsPlaying == false || SpeedRatio <= 0d || MediaElement.HasAudio == false || AudioBuffer.ReadableCount <= 0)
                 {
                     Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
                     return requestedBytes;
@@ -554,13 +558,13 @@
                     return requestedBytes;
 
                 // Perform DSP
-                if (speedRatio < 1.0)
+                if (SpeedRatio < 1.0)
                 {
-                    ReadAndStretch(requestedBytes, speedRatio);
+                    ReadAndStretch(requestedBytes);
                 }
-                else if (speedRatio > 1.0)
+                else if (SpeedRatio > 1.0)
                 {
-                    ReadAndShrink(requestedBytes, speedRatio);
+                    ReadAndShrink(requestedBytes);
                 }
                 else
                 {

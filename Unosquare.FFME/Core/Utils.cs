@@ -512,9 +512,7 @@
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private static void LogOutputter_Tick(object sender, EventArgs e)
         {
-            MediaLogMessagEventArgs eventArgs = null;
-
-            while (LogQueue.TryDequeue(out eventArgs))
+            while (LogQueue.TryDequeue(out MediaLogMessagEventArgs eventArgs))
             {
                 if (eventArgs.Source != null)
                     eventArgs.Source.RaiseMessageLogged(eventArgs);
