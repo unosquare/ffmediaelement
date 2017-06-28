@@ -482,18 +482,16 @@
         /// written value to the Position Porperty and value set by this control's
         /// internal clock.
         /// </summary>
-        /// <param name="currentPosition">The current position.</param>
-        internal void UpdatePosition(TimeSpan currentPosition)
+        /// <param name="value">The current position.</param>
+        internal void UpdatePosition(TimeSpan value)
         {
             if (IsPositionUpdating) return;
 
             IsPositionUpdating = true;
-            Utils.UIEnqueueInvoke(DispatcherPriority.DataBind,
-                new Action<TimeSpan>((cP) =>
-                {
-                    SetValue(PositionProperty, cP);
-                    IsPositionUpdating = false;
-                }), currentPosition);
+            Utils.UIInvoke(DispatcherPriority.DataBind, () => {
+                SetValue(PositionProperty, value);
+                IsPositionUpdating = false;
+            });
         }
 
         #endregion

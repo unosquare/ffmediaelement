@@ -22,8 +22,6 @@
         private readonly ObservableCollection<KeyValuePair<string, string>> m_MetadataBase;
         private readonly ICollectionView m_Metadata;
 
-        private volatile bool IsDownloadProgressUpdating = false;
-
         #endregion
 
         #region Notification Properties
@@ -264,25 +262,6 @@
         #endregion
 
         #region Methods
-
-        /// <summary>
-        /// Enqueues an update tho the download progress on the UI thread asynchronously.
-        /// This call is non-blocking and returns as quickly as possible.
-        /// New updates are ignored if there is already an update in progress.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        internal void UpdateDownloadProgress(double value)
-        {
-            if (IsDownloadProgressUpdating) return;
-
-            IsDownloadProgressUpdating = true;
-            Utils.UIEnqueueInvoke(DispatcherPriority.DataBind,
-                new Action<double>((v) =>
-                {
-                    DownloadProgress = v;
-                    IsDownloadProgressUpdating = false;
-                }), value);
-        }
 
         /// <summary>
         /// Updates the metada property.

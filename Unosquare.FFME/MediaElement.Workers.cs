@@ -196,10 +196,6 @@
                     packetsRead++;
                 }
 
-                // Send an update about the download progress
-                UpdateDownloadProgress(Math.Min(1d, 
-                    Math.Round((double)Container.Components.PacketBufferLength / DownloadCacheLength, 3)));
-
                 // finish the reading cycle.
                 PacketReadingCycle.Set();
 
@@ -311,7 +307,6 @@
 
             while (true)
             {
-
                 #region 1. Control and Capture
 
                 // Execute commands at the beginning of the cycle
@@ -358,10 +353,7 @@
                         // Record the render time
                         LastRenderTime[main] = renderBlock[main].StartTime;
 
-                        // Update the position;
-                        // instead of the continuous clock position, consider using the discrete block start time. (renderBlock[t].StartTime)
-                        UpdatePosition(wallClock);
-
+                        // Send the block to the renderer
                         RenderBlock(renderBlock[main], wallClock, renderIndex[main]);
                         hasRendered[main] = true;
                     }

@@ -48,6 +48,11 @@
         /// </summary>
         private Uri m_BaseUri = null;
 
+        /// <summary>
+        /// The position update timer
+        /// </summary>
+        private DispatcherTimer UIPropertyUpdateTimer = null;
+
         #endregion
 
         #region Constructors
@@ -64,7 +69,7 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MediaElement"/> class.
+        /// Initializes a new instance of the <see cref="MediaElement" /> class.
         /// </summary>
         public MediaElement()
             : base()
@@ -83,6 +88,28 @@
                     Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
                 var targetBitmap = new WriteableBitmap(bitmapSource);
                 ViewBox.Source = targetBitmap;
+            }
+            else
+            {
+                // The UI Property update timer is responsible for timely updates to properties outside of the worker threads
+                UIPropertyUpdateTimer = new DispatcherTimer(DispatcherPriority.DataBind)
+                {
+                    Interval = Constants.PositionUpdateInterval,
+                    IsEnabled = true
+                };
+
+                // The tick callback performs the updates
+                UIPropertyUpdateTimer.Tick += (s, e) =>
+                {
+                    UpdatePosition(IsOpen ? Clock?.Position ?? TimeSpan.Zero : TimeSpan.Zero);
+
+                    var downloadProgress = Math.Min(1d, Math.Round((Container?.Components.PacketBufferLength ?? 0d) / DownloadCacheLength, 3));
+                    if (double.IsNaN(downloadProgress)) downloadProgress = 0;
+                    DownloadProgress = downloadProgress;
+                };
+
+                // Go ahead and fire up the continuous updates
+                UIPropertyUpdateTimer.Start();
             }
 
             m_MetadataBase = new ObservableCollection<KeyValuePair<string, string>>();
@@ -247,6 +274,13 @@
                 {
                     Container.Dispose();
                     Container = null;
+                }
+
+                if (UIPropertyUpdateTimer != null)
+                {
+                    UIPropertyUpdateTimer.Stop();
+                    UIPropertyUpdateTimer.IsEnabled = false;
+                    UIPropertyUpdateTimer = null;
                 }
 
             }
