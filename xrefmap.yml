@@ -1153,6 +1153,18 @@ references:
   commentId: Overload:Unosquare.FFME.MediaOptions.ProbeSize
   fullName: Unosquare.FFME.MediaOptions.ProbeSize
   nameWithType: MediaOptions.ProbeSize
+- uid: Unosquare.FFME.MediaOptions.ReadTimeout
+  name: ReadTimeout
+  href: api/Unosquare.FFME.MediaOptions.html#Unosquare_FFME_MediaOptions_ReadTimeout
+  commentId: P:Unosquare.FFME.MediaOptions.ReadTimeout
+  fullName: Unosquare.FFME.MediaOptions.ReadTimeout
+  nameWithType: MediaOptions.ReadTimeout
+- uid: Unosquare.FFME.MediaOptions.ReadTimeout*
+  name: ReadTimeout
+  href: api/Unosquare.FFME.MediaOptions.html#Unosquare_FFME_MediaOptions_ReadTimeout_
+  commentId: Overload:Unosquare.FFME.MediaOptions.ReadTimeout
+  fullName: Unosquare.FFME.MediaOptions.ReadTimeout
+  nameWithType: MediaOptions.ReadTimeout
 - uid: Unosquare.FFME.MediaOptions.VideoFilter
   name: VideoFilter
   href: api/Unosquare.FFME.MediaOptions.html#Unosquare_FFME_MediaOptions_VideoFilter
