@@ -451,6 +451,7 @@
                     InputContext = ffmpeg.avformat_alloc_context();
                     StreamReadInterruptCallback = StreamReadInterrupt;
                     InputContext->interrupt_callback.callback = StreamReadInterruptCallback;
+                    InputContext->interrupt_callback.opaque = InputContext;
 
                     // Try to open the input
                     fixed (AVFormatContext** inputContext = &InputContext)
@@ -654,9 +655,9 @@
         /// <summary>
         /// The interrupt callback to handle stream reading timeouts
         /// </summary>
-        /// <param name="p0">The p0.</param>
+        /// <param name="opaque">A pointer to the format input context</param>
         /// <returns></returns>
-        private unsafe int StreamReadInterrupt(void* p0)
+        private unsafe int StreamReadInterrupt(void* opaque)
         {
             var nowTicks = DateTime.UtcNow.Ticks;
             var startTicks = Thread.VolatileRead(ref StreamReadInterruptStartTime);
