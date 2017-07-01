@@ -348,11 +348,11 @@
         /// <param name="requestedBytes">The requested bytes.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool Synchronize(byte[] targetBuffer, int targetBufferOffset, int requestedBytes)
+        private bool Synchronize(byte[] targetBuffer, int targetBufferOffset, ref int requestedBytes)
         {
             var audioLatency = Latency;
 
-            if (audioLatency.TotalMilliseconds > 0d)
+            if (audioLatency.TotalMilliseconds > SyncThesholdMilliseconds / 2d)
             {
                 // a positive audio latency means we are rendering audio behind (after) the clock (skip some samples)
                 // and therefore we need to advance the buffer before we read from it.
@@ -363,14 +363,18 @@
                 var audioLatencyBytes = WaveFormat.ConvertLatencyToByteSize((int)Math.Ceiling(audioLatency.TotalMilliseconds + SyncThesholdMilliseconds));
                 AudioBuffer.Skip(Math.Min(audioLatencyBytes, AudioBuffer.ReadableCount));
             }
-            else if (audioLatency.TotalMilliseconds < -2 * SyncThesholdMilliseconds)
+            else if (audioLatency.TotalMilliseconds < -2d * SyncThesholdMilliseconds)
             {
                 // a negative audio latency means we are rendering audio ahead (before) the clock
                 // and therefore we need to render some silence until the clock catches up
                 MediaElement.Container?.Logger?.Log(MediaLogMessageType.Warning,
                     $"SYNC AUDIO: LATENCY: {audioLatency.Format()} | WAIT (samples being rendered too early)");
 
-                // render silence and return
+                // Compute the number of bytes to wait for
+                requestedBytes = Math.Min(requestedBytes,
+                    Math.Abs(WaveFormat.ConvertLatencyToByteSize((int)Math.Ceiling(audioLatency.TotalMilliseconds))));
+
+                // render silence for the wait time and return
                 Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
 
                 return false;
@@ -554,7 +558,7 @@
                     ReadBuffer = new byte[(int)(requestedBytes * Constants.MaxSpeedRatio)];
 
                 // Perform AV Synchronization if needed
-                if (MediaElement.HasVideo && Synchronize(targetBuffer, targetBufferOffset, requestedBytes) == false)
+                if (MediaElement.HasVideo && Synchronize(targetBuffer, targetBufferOffset, ref requestedBytes) == false)
                     return requestedBytes;
 
                 // Perform DSP
