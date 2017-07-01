@@ -155,7 +155,12 @@
             {
                 m_PlaybackState = PlaybackState.Playing;
                 CallbackEvent.Set(); // give the thread a kick
-                AudioPlaybackTask = new Thread(StartPlaybackThread) { IsBackground = true, Name = nameof(AudioPlaybackTask) };
+                AudioPlaybackTask = new Thread(StartPlaybackThread)
+                {
+                    IsBackground = true,
+                    Name = nameof(AudioPlaybackTask),
+                    Priority = ThreadPriority.AboveNormal
+                };
                 AudioPlaybackTask.Start();
             }
             else if (m_PlaybackState == PlaybackState.Paused)
@@ -367,7 +372,7 @@
         ~WavePlayer()
         {
             Dispose(false);
-            Renderer.MediaElement.Logger.Log(MediaLogMessageType.Error, 
+            Renderer.MediaElement.Logger.Log(MediaLogMessageType.Error,
                 $"{nameof(WavePlayer)}.{nameof(Dispose)} was not called. Please ensure you dispose when finished using this object.");
         }
 
