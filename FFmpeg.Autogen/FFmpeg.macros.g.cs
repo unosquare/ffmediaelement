@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace FFmpeg.AutoGen
 {
-    internal unsafe static partial class ffmpeg
+    public unsafe static partial class ffmpeg
     {
         // public static  attribute_deprecated = __declspec(deprecated);
         // public static  av_always_inline = __forceinline;

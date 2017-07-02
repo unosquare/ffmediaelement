@@ -43,7 +43,7 @@ namespace Unosquare.FFME.Rendering.Wave
             header.userData = (IntPtr)hThis;
             lock (waveOutLock)
             {
-                MmException.Try(WaveInterop.waveOutPrepareHeader(hWaveOut, header, Marshal.SizeOf(header)), "waveOutPrepareHeader");
+                MmException.Try(WaveInterop.NativeMethods.waveOutPrepareHeader(hWaveOut, header, Marshal.SizeOf(header)), "waveOutPrepareHeader");
             }
         }
 
@@ -87,7 +87,7 @@ namespace Unosquare.FFME.Rendering.Wave
             {
                 lock (waveOutLock)
                 {
-                    WaveInterop.waveOutUnprepareHeader(hWaveOut, header, Marshal.SizeOf(header));
+                    WaveInterop.NativeMethods.waveOutUnprepareHeader(hWaveOut, header, Marshal.SizeOf(header));
                 }
                 hWaveOut = IntPtr.Zero;
             }
@@ -137,11 +137,11 @@ namespace Unosquare.FFME.Rendering.Wave
 
             lock (waveOutLock)
             {
-                result = WaveInterop.waveOutWrite(hWaveOut, header, Marshal.SizeOf(header));
+                result = WaveInterop.NativeMethods.waveOutWrite(hWaveOut, header, Marshal.SizeOf(header));
             }
             if (result != MmResult.NoError)
             {
-                throw new MmException(result, nameof(WaveInterop.waveOutWrite));
+                throw new MmException(result, nameof(WaveInterop.NativeMethods.waveOutWrite));
             }
 
             GC.KeepAlive(this);

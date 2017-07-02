@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Unosquare.FFME.Sample"
-        xmlns:ffme="clr-namespace:Unosquare.FFME;assembly=Unosquare.FFME"
+        xmlns:ffme="clr-namespace:Unosquare.FFME;assembly=ffme"
         mc:Ignorable="d"
         Title="Unosquare FFME Reference Player" Height="840" MinHeight="840" MinWidth="1200" Width="1200">
     <Window.Resources>

@@ -67,22 +67,33 @@
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        void Dispose(bool alsoManaged)
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        void Dispose(bool disposing)
         {
-            if (IsDisposed) return;
-
-            if (alsoManaged)
+            if (!IsDisposed)
             {
+                if (disposing)
+                {
+                    // no code for managed dispose
+                }
+
                 if (AudioBuffer != IntPtr.Zero)
                 {
                     Marshal.FreeHGlobal(AudioBuffer);
                     AudioBuffer = IntPtr.Zero;
+                    AudioBufferLength = 0;
                 }
 
+                IsDisposed = true;
             }
+        }
 
-            IsDisposed = true;
+        /// <summary>
+        /// Finalizes an instance of the <see cref="CircularBuffer"/> class.
+        /// </summary>
+        ~AudioBlock()
+        {
+            Dispose(false);
         }
 
         /// <summary>
@@ -91,9 +102,11 @@
         public override void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         #endregion
+
 
     }
 }

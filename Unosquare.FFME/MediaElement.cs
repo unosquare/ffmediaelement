@@ -270,6 +270,9 @@
             if (alsoManaged)
             {
                 // free managed resources
+
+                Commands.Close().GetAwaiter().GetResult();
+
                 if (Container != null)
                 {
                     Container.Dispose();
@@ -283,6 +286,11 @@
                     UIPropertyUpdateTimer = null;
                 }
 
+                PacketReadingCycle.Dispose();
+                FrameDecodingCycle.Dispose();
+                BlockRenderingCycle.Dispose();
+
+                SeekingDone.Dispose();
             }
         }
 

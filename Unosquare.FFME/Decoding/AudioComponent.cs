@@ -154,11 +154,11 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected override void Dispose(bool alsoManaged)
         {
-            base.Dispose(alsoManaged);
-
             if (Scaler != null)
                 fixed (SwrContext** scaler = &Scaler)
                     ffmpeg.swr_free(scaler);
+
+            base.Dispose(alsoManaged);
         }
 
         #endregion

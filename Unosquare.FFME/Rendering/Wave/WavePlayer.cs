@@ -8,7 +8,7 @@
     /// A wave player that opens an audio device and continuously feeds it
     /// with audio samples using a wave provider.
     /// </summary>
-    internal class WavePlayer
+    internal class WavePlayer : IDisposable
     {
         #region State Variables
 
@@ -35,7 +35,7 @@
         {
             // Initialize the default values
             Renderer = renderer;
-            DeviceNumber = 0;
+            DeviceNumber = -1;
             DesiredLatency = 300;
             NumberOfBuffers = 2;
         }
@@ -70,7 +70,7 @@
                 m_DeviceNumber = value;
                 lock (WaveOutLock)
                 {
-                    WaveInterop.waveOutGetDevCaps((IntPtr)m_DeviceNumber, out WaveOutCapabilities caps, Marshal.SizeOf(typeof(WaveOutCapabilities)));
+                    WaveInterop.NativeMethods.waveOutGetDevCaps((IntPtr)m_DeviceNumber, out WaveOutCapabilities caps, Marshal.SizeOf(typeof(WaveOutCapabilities)));
                     Capabilities = caps;
                 }
             }
@@ -128,11 +128,11 @@
             MmResult result;
             lock (WaveOutLock)
             {
-                result = WaveInterop.waveOutOpenWindow(out DeviceHandle, (IntPtr)DeviceNumber, WaveStream.WaveFormat,
+                result = WaveInterop.NativeMethods.waveOutOpenWindow(out DeviceHandle, DeviceNumber, WaveStream.WaveFormat,
                     CallbackEvent.SafeWaitHandle.DangerousGetHandle(), IntPtr.Zero, WaveInterop.WaveInOutOpenFlags.CallbackEvent);
             }
 
-            MmException.Try(result, nameof(WaveInterop.waveOutOpen));
+            MmException.Try(result, nameof(WaveInterop.NativeMethods.waveOutOpen));
 
             Buffers = new WaveOutBuffer[NumberOfBuffers];
             m_PlaybackState = PlaybackState.Stopped;
@@ -180,10 +180,10 @@
             MmResult result;
             m_PlaybackState = PlaybackState.Paused; // set this here to avoid a deadlock problem with some drivers
             lock (WaveOutLock)
-                result = WaveInterop.waveOutPause(DeviceHandle);
+                result = WaveInterop.NativeMethods.waveOutPause(DeviceHandle);
 
             if (result != MmResult.NoError)
-                throw new MmException(result, nameof(WaveInterop.waveOutPause));
+                throw new MmException(result, nameof(WaveInterop.NativeMethods.waveOutPause));
         }
 
         /// <summary>
@@ -195,10 +195,10 @@
 
             MmResult result;
             lock (WaveOutLock)
-                result = WaveInterop.waveOutRestart(DeviceHandle);
+                result = WaveInterop.NativeMethods.waveOutRestart(DeviceHandle);
 
             if (result != MmResult.NoError)
-                throw new MmException(result, nameof(WaveInterop.waveOutRestart));
+                throw new MmException(result, nameof(WaveInterop.NativeMethods.waveOutRestart));
 
             m_PlaybackState = PlaybackState.Playing;
 
@@ -217,10 +217,10 @@
             m_PlaybackState = PlaybackState.Stopped; // set this here to avoid a problem with some drivers whereby 
             MmResult result;
             lock (WaveOutLock)
-                result = WaveInterop.waveOutReset(DeviceHandle);
+                result = WaveInterop.NativeMethods.waveOutReset(DeviceHandle);
 
             if (result != MmResult.NoError)
-                throw new MmException(result, nameof(WaveInterop.waveOutReset));
+                throw new MmException(result, nameof(WaveInterop.NativeMethods.waveOutReset));
 
             CallbackEvent.Set(); // give the thread a kick, make sure we exit
 
@@ -241,10 +241,10 @@
                     wType = MmTime.TIME_BYTES
                 };
 
-                MmException.Try(WaveInterop.waveOutGetPosition(DeviceHandle, out mmTime, Marshal.SizeOf(mmTime)), nameof(WaveInterop.waveOutGetPosition));
+                MmException.Try(WaveInterop.NativeMethods.waveOutGetPosition(DeviceHandle, out mmTime, Marshal.SizeOf(mmTime)), nameof(WaveInterop.NativeMethods.waveOutGetPosition));
 
                 if (mmTime.wType != MmTime.TIME_BYTES)
-                    throw new Exception(string.Format($"{nameof(WaveInterop.waveOutGetPosition)}: wType -> Expected {0}, Received {1}", MmTime.TIME_BYTES, mmTime.wType));
+                    throw new Exception(string.Format($"{nameof(WaveInterop.NativeMethods.waveOutGetPosition)}: wType -> Expected {0}, Received {1}", MmTime.TIME_BYTES, mmTime.wType));
 
                 return mmTime.cb;
             }
@@ -345,7 +345,7 @@
             {
                 if (DeviceHandle != IntPtr.Zero)
                 {
-                    WaveInterop.waveOutClose(DeviceHandle);
+                    WaveInterop.NativeMethods.waveOutClose(DeviceHandle);
                     DeviceHandle = IntPtr.Zero;
                 }
             }

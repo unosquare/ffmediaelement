@@ -7,7 +7,7 @@
     /// <summary>
     /// A pre-allocated, scaled video block. The buffer is in BGR, 24-bit format
     /// </summary>
-    internal sealed class VideoBlock : MediaBlock
+    internal sealed class VideoBlock : MediaBlock, IDisposable
     {
         #region Private Members
 
@@ -76,21 +76,33 @@
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        void Dispose(bool alsoManaged)
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        void Dispose(bool disposing)
         {
-            if (IsDisposed) return;
-            if (alsoManaged)
+            if (!IsDisposed)
             {
+                if (disposing)
+                {
+                    // no code for managed dispose
+                }
+
                 if (PictureBuffer != IntPtr.Zero)
                 {
                     Marshal.FreeHGlobal(PictureBuffer);
                     PictureBuffer = IntPtr.Zero;
+                    PictureBufferLength = 0;
                 }
 
+                IsDisposed = true;
             }
+        }
 
-            IsDisposed = true;
+        /// <summary>
+        /// Finalizes an instance of the <see cref="CircularBuffer"/> class.
+        /// </summary>
+        ~VideoBlock()
+        {
+            Dispose(false);
         }
 
         /// <summary>
@@ -99,6 +111,7 @@
         public override void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         #endregion

@@ -35,6 +35,11 @@
         #region Private Fields
 
         /// <summary>
+        /// Holds the set of components.
+        /// </summary>
+        private readonly MediaComponentSet m_Components = new MediaComponentSet();
+
+        /// <summary>
         /// The logger
         /// </summary>
         internal readonly IMediaLogger Logger;
@@ -174,7 +179,7 @@
         /// <summary>
         /// Provides direct access to the individual Media components of the input stream.
         /// </summary>
-        public MediaComponentSet Components { get; } = new MediaComponentSet();
+        public MediaComponentSet Components { get { return m_Components; } }
 
         #endregion
 
@@ -471,7 +476,7 @@
                             openResult = ffmpeg.avformat_open_input(inputContext, $"{MediaUrl}", inputFormat, reference);
 
                         // Validate the open operation
-                        if (openResult < 0) throw new MediaContainerException($"Could not open '{MediaUrl}'. Error {openResult}: {ffmpeg.GetErrorMessage(openResult)}");
+                        if (openResult < 0) throw new MediaContainerException($"Could not open '{MediaUrl}'. Error {openResult}: {Utils.FFmpeg.GetErrorMessage(openResult)}");
                     }
 
                     // Set some general properties
@@ -723,7 +728,7 @@
                 ffmpeg.av_packet_free(&readPacket);
 
                 // Detect an end of file situation (makes the readers enter draining mode)
-                if ((readResult == ffmpeg.AVERROR_EOF || ffmpeg.avio_feof(InputContext->pb) != 0))
+                if ((readResult == Utils.FFmpeg.AVERROR_EOF || ffmpeg.avio_feof(InputContext->pb) != 0))
                 {
                     // Force the decoders to enter draining mode (with empry packets)
                     if (IsAtEndOfStream == false)
@@ -735,7 +740,7 @@
                 else
                 {
                     if (InputContext->pb != null && InputContext->pb->error != 0)
-                        throw new MediaContainerException($"Input has produced an error. Error Code {readResult}, {ffmpeg.GetErrorMessage(readResult)}");
+                        throw new MediaContainerException($"Input has produced an error. Error Code {readResult}, {Utils.FFmpeg.GetErrorMessage(readResult)}");
                 }
             }
             else
@@ -937,7 +942,7 @@
                 // Ensure we had a successful seek operation
                 if (seekResult < 0)
                 {
-                    Logger?.Log(MediaLogMessageType.Error, $"SEEK R: Elapsed: {startTime.FormatElapsed()} | Seek operation failed. Error code {seekResult}, {ffmpeg.GetErrorMessage(seekResult)}");
+                    Logger?.Log(MediaLogMessageType.Error, $"SEEK R: Elapsed: {startTime.FormatElapsed()} | Seek operation failed. Error code {seekResult}, {Utils.FFmpeg.GetErrorMessage(seekResult)}");
                     break;
                 }
 
@@ -1069,8 +1074,6 @@
 
             if (alsoManaged)
             {
-                Components.Dispose();
-
                 if (InputContext != null)
                 {
                     StreamReadSuspend();
@@ -1080,6 +1083,9 @@
                     ffmpeg.avformat_free_context(InputContext);
                     InputContext = null;
                 }
+
+                if (m_Components != null)
+                    m_Components.Dispose();
             }
 
             IsDisposed = true;

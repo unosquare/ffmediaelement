@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace FFmpeg.AutoGen
 {
-    internal enum AVActiveFormatDescription : int
+    public enum AVActiveFormatDescription : int
     {
         @AV_AFD_SAME = 8,
         @AV_AFD_4_3 = 9,
@@ -15,7 +15,7 @@ namespace FFmpeg.AutoGen
     }
     
     /// <summary>Message types used by avdevice_app_to_dev_control_message().</summary>
-    internal enum AVAppToDevMessageType : int
+    public enum AVAppToDevMessageType : int
     {
         /// <summary>Dummy message.</summary>
         @AV_APP_TO_DEV_NONE = 1313820229,
@@ -43,7 +43,7 @@ namespace FFmpeg.AutoGen
         @AV_APP_TO_DEV_GET_MUTE = 1196250452,
     }
     
-    internal enum AVAudioServiceType : int
+    public enum AVAudioServiceType : int
     {
         @AV_AUDIO_SERVICE_TYPE_MAIN = 0,
         @AV_AUDIO_SERVICE_TYPE_EFFECTS = 1,
@@ -59,7 +59,7 @@ namespace FFmpeg.AutoGen
     }
     
     /// <summary>Location of chroma samples.</summary>
-    internal enum AVChromaLocation : int
+    public enum AVChromaLocation : int
     {
         @AVCHROMA_LOC_UNSPECIFIED = 0,
         /// <summary>MPEG-2/4 4:2:0, H.264 default for 4:2:0</summary>
@@ -75,7 +75,7 @@ namespace FFmpeg.AutoGen
         @AVCHROMA_LOC_NB = 7,
     }
     
-    internal enum AVClassCategory : int
+    public enum AVClassCategory : int
     {
         @AV_CLASS_CATEGORY_NA = 0,
         @AV_CLASS_CATEGORY_INPUT = 1,
@@ -99,7 +99,7 @@ namespace FFmpeg.AutoGen
     }
     
     /// <summary>Identify the syntax and semantics of the bitstream. The principle is roughly: Two decoders with the same ID can decode the same streams. Two encoders with the same ID can encode compatible streams. There may be slight deviations from the principle due to implementation details.</summary>
-    internal enum AVCodecID : int
+    public enum AVCodecID : int
     {
         @AV_CODEC_ID_NONE = 0,
         @AV_CODEC_ID_MPEG1VIDEO = 1,
@@ -540,7 +540,7 @@ namespace FFmpeg.AutoGen
     }
     
     /// <summary>Chromaticity coordinates of the source primaries.</summary>
-    internal enum AVColorPrimaries : int
+    public enum AVColorPrimaries : int
     {
         @AVCOL_PRI_RESERVED0 = 0,
         /// <summary>also ITU-R BT1361 / IEC 61966-2-4 / SMPTE RP177 Annex B</summary>
@@ -570,7 +570,7 @@ namespace FFmpeg.AutoGen
     }
     
     /// <summary>MPEG vs JPEG YUV range.</summary>
-    internal enum AVColorRange : int
+    public enum AVColorRange : int
     {
         @AVCOL_RANGE_UNSPECIFIED = 0,
         /// <summary>the normal 219*2^(n-8) &quot;MPEG&quot; YUV ranges</summary>
@@ -582,7 +582,7 @@ namespace FFmpeg.AutoGen
     }
     
     /// <summary>YUV colorspace type.</summary>
-    internal enum AVColorSpace : int
+    public enum AVColorSpace : int
     {
         /// <summary>order of coefficients is actually GBR, also IEC 61966-2-1 (sRGB)</summary>
         @AVCOL_SPC_RGB = 0,
@@ -611,7 +611,7 @@ namespace FFmpeg.AutoGen
     }
     
     /// <summary>Color Transfer Characteristic.</summary>
-    internal enum AVColorTransferCharacteristic : int
+    public enum AVColorTransferCharacteristic : int
     {
         @AVCOL_TRC_RESERVED0 = 0,
         /// <summary>also ITU-R BT1361</summary>
@@ -652,7 +652,7 @@ namespace FFmpeg.AutoGen
     }
     
     /// <summary>Message types used by avdevice_dev_to_app_control_message().</summary>
-    internal enum AVDevToAppMessageType : int
+    public enum AVDevToAppMessageType : int
     {
         /// <summary>Dummy message.</summary>
         @AV_DEV_TO_APP_NONE = 1313820229,
@@ -678,7 +678,7 @@ namespace FFmpeg.AutoGen
         @AV_DEV_TO_APP_VOLUME_LEVEL_CHANGED = 1129729868,
     }
     
-    internal enum AVDiscard : int
+    public enum AVDiscard : int
     {
         /// <summary>discard nothing</summary>
         @AVDISCARD_NONE = -16,
@@ -697,7 +697,7 @@ namespace FFmpeg.AutoGen
     }
     
     /// <summary>The duration of a video can be estimated through various ways, and this enum can be used to know how the duration was estimated.</summary>
-    internal enum AVDurationEstimationMethod : int
+    public enum AVDurationEstimationMethod : int
     {
         /// <summary>Duration accurately estimated from PTSes</summary>
         @AVFMT_DURATION_FROM_PTS = 0,
@@ -707,7 +707,7 @@ namespace FFmpeg.AutoGen
         @AVFMT_DURATION_FROM_BITRATE = 2,
     }
     
-    internal enum AVFieldOrder : int
+    public enum AVFieldOrder : int
     {
         @AV_FIELD_UNKNOWN = 0,
         @AV_FIELD_PROGRESSIVE = 1,
@@ -718,7 +718,7 @@ namespace FFmpeg.AutoGen
     }
     
     /// <summary>stage of the initialization of the link properties (dimensions, etc)</summary>
-    internal enum AVFilterLink_init_state : int
+    public enum AVFilterLink_init_state : int
     {
         /// <summary>not started</summary>
         @AVLINK_UNINIT = 0,
@@ -729,7 +729,7 @@ namespace FFmpeg.AutoGen
     }
     
     /// <summary>@{ AVFrame is an abstraction for reference-counted raw multimedia data.</summary>
-    internal enum AVFrameSideDataType : int
+    public enum AVFrameSideDataType : int
     {
         /// <summary>The data is the AVPanScan struct defined in libavcodec.</summary>
         @AV_FRAME_DATA_PANSCAN = 0,
@@ -760,7 +760,7 @@ namespace FFmpeg.AutoGen
     }
     
     /// <summary>Different data types that can be returned via the AVIO write_data_type callback.</summary>
-    internal enum AVIODataMarkerType : int
+    public enum AVIODataMarkerType : int
     {
         /// <summary>Header data; this needs to be present for the stream to be decodeable.</summary>
         @AVIO_DATA_MARKER_HEADER = 0,
@@ -775,7 +775,7 @@ namespace FFmpeg.AutoGen
     }
     
     /// <summary>Directory entry types.</summary>
-    internal enum AVIODirEntryType : int
+    public enum AVIODirEntryType : int
     {
         @AVIO_ENTRY_UNKNOWN = 0,
         @AVIO_ENTRY_BLOCK_DEVICE = 1,
@@ -791,7 +791,7 @@ namespace FFmpeg.AutoGen
     }
     
     /// <summary>Lock operation used by lockmgr</summary>
-    internal enum AVLockOp : int
+    public enum AVLockOp : int
     {
         /// <summary>Create a mutex</summary>
         @AV_LOCK_CREATE = 0,
@@ -803,7 +803,7 @@ namespace FFmpeg.AutoGen
         @AV_LOCK_DESTROY = 3,
     }
     
-    internal enum AVMatrixEncoding : int
+    public enum AVMatrixEncoding : int
     {
         @AV_MATRIX_ENCODING_NONE = 0,
         @AV_MATRIX_ENCODING_DOLBY = 1,
@@ -816,7 +816,7 @@ namespace FFmpeg.AutoGen
     }
     
     /// <summary>Media Type</summary>
-    internal enum AVMediaType : int
+    public enum AVMediaType : int
     {
         /// <summary>Usually treated as AVMEDIA_TYPE_DATA</summary>
         @AVMEDIA_TYPE_UNKNOWN = -1,
@@ -831,7 +831,7 @@ namespace FFmpeg.AutoGen
     }
     
     /// <summary>@{ AVOptions provide a generic system to declare options on arbitrary structs (&quot;objects&quot;). An option can have a help text, a type and a range of possible values. Options may then be enumerated, read and written to.</summary>
-    internal enum AVOptionType : int
+    public enum AVOptionType : int
     {
         @AV_OPT_TYPE_FLAGS = 0,
         @AV_OPT_TYPE_INT = 1,
@@ -857,7 +857,7 @@ namespace FFmpeg.AutoGen
     }
     
     /// <summary>Types and functions for working with AVPacket. @{</summary>
-    internal enum AVPacketSideDataType : int
+    public enum AVPacketSideDataType : int
     {
         @AV_PKT_DATA_PALETTE = 0,
         /// <summary>The AV_PKT_DATA_NEW_EXTRADATA is used to notify the codec or the format that the extradata buffer was changed and the receiving side should act upon it appropriately. The new extradata is embedded in the side data buffer and should be immediately used for processing the current frame or packet.</summary>
@@ -903,7 +903,7 @@ namespace FFmpeg.AutoGen
     }
     
     /// <summary>@{</summary>
-    internal enum AVPictureStructure : int
+    public enum AVPictureStructure : int
     {
         @AV_PICTURE_STRUCTURE_UNKNOWN = 0,
         @AV_PICTURE_STRUCTURE_TOP_FIELD = 1,
@@ -912,7 +912,7 @@ namespace FFmpeg.AutoGen
     }
     
     /// <summary>@} @}</summary>
-    internal enum AVPictureType : int
+    public enum AVPictureType : int
     {
         /// <summary>Undefined</summary>
         @AV_PICTURE_TYPE_NONE = 0,
@@ -933,7 +933,7 @@ namespace FFmpeg.AutoGen
     }
     
     /// <summary>Pixel format.</summary>
-    internal enum AVPixelFormat : int
+    public enum AVPixelFormat : int
     {
         @AV_PIX_FMT_NONE = -1,
         /// <summary>planar YUV 4:2:0, 12bpp, (1 Cr &amp; Cb sample per 2x2 Y samples)</summary>
@@ -1302,7 +1302,7 @@ namespace FFmpeg.AutoGen
     }
     
     /// <summary>Rounding methods.</summary>
-    internal enum AVRounding : int
+    public enum AVRounding : int
     {
         /// <summary>Round toward zero.</summary>
         @AV_ROUND_ZERO = 0,
@@ -1319,7 +1319,7 @@ namespace FFmpeg.AutoGen
     }
     
     /// <summary>Audio sample formats</summary>
-    internal enum AVSampleFormat : int
+    public enum AVSampleFormat : int
     {
         @AV_SAMPLE_FMT_NONE = -1,
         /// <summary>unsigned 8 bits</summary>
@@ -1350,7 +1350,7 @@ namespace FFmpeg.AutoGen
         @AV_SAMPLE_FMT_NB = 12,
     }
     
-    internal enum AVSideDataParamChangeFlags : int
+    public enum AVSideDataParamChangeFlags : int
     {
         @AV_SIDE_DATA_PARAM_CHANGE_CHANNEL_COUNT = 1,
         @AV_SIDE_DATA_PARAM_CHANGE_CHANNEL_LAYOUT = 2,
@@ -1359,7 +1359,7 @@ namespace FFmpeg.AutoGen
     }
     
     /// <summary>@}</summary>
-    internal enum AVStreamParseType : int
+    public enum AVStreamParseType : int
     {
         @AVSTREAM_PARSE_NONE = 0,
         /// <summary>full parsing and repack</summary>
@@ -1374,7 +1374,7 @@ namespace FFmpeg.AutoGen
         @AVSTREAM_PARSE_FULL_RAW = 1463898624,
     }
     
-    internal enum AVSubtitleType : int
+    public enum AVSubtitleType : int
     {
         @SUBTITLE_NONE = 0,
         /// <summary>A bitmap, pict will be set</summary>
@@ -1385,7 +1385,7 @@ namespace FFmpeg.AutoGen
         @SUBTITLE_ASS = 3,
     }
     
-    internal enum AVTimebaseSource : int
+    public enum AVTimebaseSource : int
     {
         @AVFMT_TBCF_AUTO = -1,
         @AVFMT_TBCF_DECODER = 0,
@@ -1393,7 +1393,7 @@ namespace FFmpeg.AutoGen
         @AVFMT_TBCF_R_FRAMERATE = 2,
     }
     
-    internal enum Motion_Est_ID : int
+    public enum Motion_Est_ID : int
     {
         /// <summary>no search, that is use 0,0 vector whenever one is needed</summary>
         @ME_ZERO = 1,
@@ -1415,7 +1415,7 @@ namespace FFmpeg.AutoGen
     }
     
     /// <summary>Dithering algorithms</summary>
-    internal enum SwrDitherType : int
+    public enum SwrDitherType : int
     {
         @SWR_DITHER_NONE = 0,
         @SWR_DITHER_RECTANGULAR = 1,
@@ -1435,7 +1435,7 @@ namespace FFmpeg.AutoGen
     }
     
     /// <summary>Resampling Engines</summary>
-    internal enum SwrEngine : int
+    public enum SwrEngine : int
     {
         /// <summary>SW Resampler</summary>
         @SWR_ENGINE_SWR = 0,
@@ -1446,7 +1446,7 @@ namespace FFmpeg.AutoGen
     }
     
     /// <summary>Resampling Filter Types</summary>
-    internal enum SwrFilterType : int
+    public enum SwrFilterType : int
     {
         /// <summary>Cubic</summary>
         @SWR_FILTER_TYPE_CUBIC = 0,

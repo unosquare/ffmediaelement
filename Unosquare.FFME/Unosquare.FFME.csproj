@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Unosquare.FFME</RootNamespace>
-    <AssemblyName>Unosquare.FFME</AssemblyName>
+    <AssemblyName>ffme</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -70,16 +70,7 @@
     <Compile Include="Core\GenericMediaLogger.cs" />
     <Compile Include="Core\IMediaLogger.cs" />
     <Compile Include="Core\MediaTypeDictionary.cs" />
-    <Compile Include="FFmpeg\AutoGen.Additions.cs" />
-    <Compile Include="FFmpeg\ConstCharPtrMarshaler.cs" />
-    <Compile Include="FFmpeg\FFmpeg.arrays.g.cs" />
-    <Compile Include="FFmpeg\FFmpeg.delegates.g.cs" />
-    <Compile Include="FFmpeg\FFmpeg.enums.g.cs" />
-    <Compile Include="FFmpeg\FFmpeg.functions.g.cs" />
-    <Compile Include="FFmpeg\FFmpeg.macros.g.cs" />
-    <Compile Include="FFmpeg\FFmpeg.structs.g.cs" />
-    <Compile Include="FFmpeg\FFmpeg.structs.incomplete.g.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Core\NativeMethods.cs" />
     <Compile Include="MediaLogMessagEventArgs.cs" />
     <Compile Include="MediaElement.Workers.cs" />
     <Compile Include="Rendering\Wave\IWaveProvider.cs" />
@@ -151,7 +142,12 @@
   <ItemGroup>
     <EmbeddedResource Include="MediaElement.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\FFmpeg.Autogen\FFmpeg.Autogen.csproj">
+      <Project>{f2ed59d8-4c8f-44a0-8532-21a5448e44dd}</Project>
+      <Name>FFmpeg.Autogen</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

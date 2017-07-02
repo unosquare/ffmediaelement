@@ -6,6 +6,7 @@
     /// A Media Container Exception
     /// </summary>
     /// <seealso cref="System.Exception" />
+    [Serializable]
     public class MediaContainerException : Exception
     {
         /// <summary>

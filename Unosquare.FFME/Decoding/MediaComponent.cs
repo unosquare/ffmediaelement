@@ -148,7 +148,7 @@
             if (codec == null)
             {
                 var errorMessage = $"Fatal error. Unable to find suitable decoder for {Stream->codec->codec_id.ToString()}";
-                Dispose();
+                CloseComponent();
                 throw new MediaContainerException(errorMessage);
             }
 
@@ -187,7 +187,7 @@
 
             if (codecOpenResult < 0)
             {
-                Dispose();
+                CloseComponent();
                 throw new MediaContainerException($"Unable to open codec. Error code {codecOpenResult}");
             }
 
@@ -200,13 +200,13 @@
             MediaType = (MediaType)CodecContext->codec_type;
 
             // Compute the start time
-            if (Stream->start_time == ffmpeg.AV_NOPTS)
+            if (Stream->start_time == Utils.FFmpeg.AV_NOPTS)
                 StartTimeOffset = Container.MediaStartTimeOffset;
             else
                 StartTimeOffset = Stream->start_time.ToTimeSpan(Stream->time_base);
 
             // compute the duration
-            if (Stream->duration == ffmpeg.AV_NOPTS || Stream->duration == 0)
+            if (Stream->duration == Utils.FFmpeg.AV_NOPTS || Stream->duration == 0)
                 Duration = Container.InputContext->duration.ToTimeSpan();
             else
                 Duration = Stream->duration.ToTimeSpan(Stream->time_base);
@@ -461,30 +461,48 @@
         #region IDisposable Support
 
         /// <summary>
+        /// Releases the existing codec context and clears and disposes the packet queues.
+        /// </summary>
+        protected void CloseComponent()
+        {
+            if (CodecContext != null)
+            {
+                fixed (AVCodecContext** codecContext = &CodecContext)
+                    ffmpeg.avcodec_free_context(codecContext);
+
+                // free all the pending and sent packets
+                ClearPacketQueues();
+                Packets.Dispose();
+                SentPackets.Dispose();
+            }
+
+            CodecContext = null;
+        }
+
+        /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool alsoManaged)
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        protected virtual void Dispose(bool disposing)
         {
             if (!IsDisposed)
             {
-                if (alsoManaged)
+                if (disposing)
                 {
-                    if (CodecContext != null)
-                    {
-                        fixed (AVCodecContext** codecContext = &CodecContext)
-                            ffmpeg.avcodec_free_context(codecContext);
-
-                        // free all the pending and sent packets
-                        ClearPacketQueues();
-
-                    }
-
-                    CodecContext = null;
+                    // no code for managed dispose
                 }
 
+                CloseComponent();
                 IsDisposed = true;
             }
+        }
+
+        /// <summary>
+        /// Finalizes an instance of the <see cref="CircularBuffer"/> class.
+        /// </summary>
+        ~MediaComponent()
+        {
+            Dispose(false);
         }
 
         /// <summary>
@@ -493,6 +511,7 @@
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         #endregion

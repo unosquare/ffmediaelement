@@ -12,7 +12,12 @@
     internal sealed class CircularBuffer : IDisposable
     {
 
-        #region Private Statae Variables
+        #region Private State Variables
+
+        /// <summary>
+        /// To detect redundant calls
+        /// </summary>
+        private bool IsDisposed = false; // To detect redundant calls
 
         /// <summary>
         /// The unbmanaged buffer
@@ -158,7 +163,7 @@
                     var copyLength = Math.Min(Length - WriteIndex, length - writeCount);
                     var sourcePtr = source + writeCount;
                     var targetPtr = Buffer + WriteIndex;
-                    Utils.CopyMemory(targetPtr, sourcePtr, (uint)copyLength);
+                    NativeMethods.CopyMemory(targetPtr, sourcePtr, (uint)copyLength);
 
                     writeCount += copyLength;
                     WriteIndex += copyLength;
@@ -186,19 +191,50 @@
             }
         }
 
+        #endregion
+
+        #region IDisposable Support
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        void Dispose(bool disposing)
+        {
+            if (!IsDisposed)
+            {
+                if (disposing)
+                {
+                    Clear();
+                }
+
+                Marshal.FreeHGlobal(Buffer);
+                Buffer = IntPtr.Zero;
+                Length = 0;
+
+                IsDisposed = true;
+            }
+        }
+
+        /// <summary>
+        /// Finalizes an instance of the <see cref="CircularBuffer"/> class.
+        /// </summary>
+        ~CircularBuffer()
+        {
+            Dispose(false);
+        }
+
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            if (Buffer != IntPtr.Zero)
-            {
-                Marshal.FreeHGlobal(Buffer);
-                Buffer = IntPtr.Zero;
-                Length = 0;
-            }
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         #endregion
+
+
     }
 }
