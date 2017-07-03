@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
+    using Core;
     using FFmpeg.AutoGen;
     using System;
     using System.Collections.Generic;
@@ -133,6 +134,9 @@
                 while (PacketPointers.Count > 0)
                 {
                     var packet = Dequeue();
+#if REFCOUNTER
+                    ReferenceCounter.Subtract(packet);
+#endif
                     ffmpeg.av_packet_free(&packet);
                 }
 

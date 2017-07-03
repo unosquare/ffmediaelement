@@ -183,10 +183,7 @@
 
                 // Get a block reference from the pool and convert it!
                 var targetBlock = PoolBlocks.Dequeue();
-                {
-                    var target = targetBlock as MediaBlock;
-                    container.Convert(source, ref target, true);
-                }
+                container.Convert(source, ref targetBlock, true);
 
                 // Add the converted block to the playback list and sort it.
                 PlaybackBlocks.Add(targetBlock);
@@ -296,7 +293,7 @@
                     var block = PoolBlocks.Dequeue();
                     block.Dispose();
                 }
-                
+
                 for (var i = PlaybackBlocks.Count - 1; i >= 0; i--)
                 {
                     var block = PlaybackBlocks[i];

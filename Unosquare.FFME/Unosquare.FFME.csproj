@@ -67,6 +67,7 @@
     <Compile Include="Commands\SeekCommand.cs" />
     <Compile Include="Commands\SpeedRatioCommand.cs" />
     <Compile Include="Commands\StopCommand.cs" />
+    <Compile Include="Core\ReferenceCounter.cs" />
     <Compile Include="Core\GenericMediaLogger.cs" />
     <Compile Include="Core\IMediaLogger.cs" />
     <Compile Include="Core\MediaTypeDictionary.cs" />

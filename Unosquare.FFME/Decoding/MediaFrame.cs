@@ -15,7 +15,6 @@
         #region Private Members
 
         protected void* InternalPointer;
-        private bool IsDisposed = false;
 
         #endregion
 
@@ -75,11 +74,6 @@
         #region Methods
 
         /// <summary>
-        /// Releases internal frame 
-        /// </summary>
-        protected abstract void Release();
-
-        /// <summary>
         /// Compares the current instance with another object of the same type and returns an integer that indicates whether the current instance precedes, follows, or occurs in the same position in the sort order as the other object.
         /// </summary>
         /// <param name="other">An object to compare with this instance.</param>
@@ -96,31 +90,12 @@
         #region IDisposable Support
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool alsoManaged)
-        {
-            if (IsDisposed) return;
-
-            if (alsoManaged)
-            {
-                Release();
-                IsStale = true;
-            }
-
-            IsDisposed = true;
-        }
-
-        /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public abstract void Dispose();
 
         #endregion
+
 
     }
 

@@ -255,8 +255,9 @@
         internal void SendEmptyPacket()
         {
             var emptyPacket = ffmpeg.av_packet_alloc();
-            emptyPacket->data = null;
-            emptyPacket->size = 0;
+#if REFCOUNTER
+            ReferenceCounter.Add(emptyPacket, $"MediaComponent.{nameof(SendEmptyPacket)}.{MediaType}");
+#endif
             SendPacket(emptyPacket);
         }
 
@@ -299,7 +300,12 @@
             if (PacketBufferCount <= 0) return result;
 
             // Setup some initial state variables
-            var packet = Packets.Peek();
+            var packet = Packets.Dequeue();
+
+            // The packets are alwasy sent. We dequeue them and keep a reference to them
+            // in the SentPackets queue
+            SentPackets.Push(packet);
+
             var receiveFrameResult = 0;
 
             if (MediaType == MediaType.Audio || MediaType == MediaType.Video)
@@ -311,30 +317,42 @@
                 // Let's check and see if we can get 1 or more frames from the packet we just sent to the decoder.
                 // Audio packets will typically contain 1 or more audioframes
                 // Video packets might require several packets to decode 1 frame
+                MediaFrame managedFrame = null;
                 while (receiveFrameResult == 0)
                 {
                     // Allocate a frame in unmanaged memory and 
                     // Try to receive the decompressed frame data
                     var outputFrame = ffmpeg.av_frame_alloc();
+#if REFCOUNTER
+                    ReferenceCounter.Add(outputFrame, $"MediaComponent.323.{MediaType}");
+#endif
                     receiveFrameResult = ffmpeg.avcodec_receive_frame(CodecContext, outputFrame);
 
                     try
                     {
-                        // Process the output frame if we were successful on a different thread if possible
-                        // That is, using a new task
+                        managedFrame = null;
                         if (receiveFrameResult == 0)
                         {
                             // Send the frame to processing
-                            var managedFrame = CreateFrameSource(outputFrame);
+                            managedFrame = CreateFrameSource(outputFrame);
                             if (managedFrame != null)
                                 result.Add(managedFrame);
-                            else
-                                ffmpeg.av_frame_free(&outputFrame);
+                        }
+
+                        if (managedFrame == null)
+                        {
+#if REFCOUNTER
+                            ReferenceCounter.Subtract(outputFrame);
+#endif
+                            ffmpeg.av_frame_free(&outputFrame);
                         }
                     }
                     catch
                     {
                         // Release the frame as the decoded data could not be processed
+#if REFCOUNTER
+                        ReferenceCounter.Subtract(outputFrame);
+#endif
                         ffmpeg.av_frame_free(&outputFrame);
                         throw;
                     }
@@ -383,11 +401,10 @@
                     while (gotFrame != 0 && receiveFrameResult > 0)
                     {
                         outputFrame = new AVSubtitle();
-
                         var emptyPacket = ffmpeg.av_packet_alloc();
-                        emptyPacket->data = null;
-                        emptyPacket->size = 0;
-
+#if REFCOUNTER
+                        ReferenceCounter.Add(emptyPacket, "MediaComponent.399");
+#endif
                         // Receive the frames in a loop
                         try
                         {
@@ -411,18 +428,17 @@
                         finally
                         {
                             // free the empty packet
+#if REFCOUNTER
+                            ReferenceCounter.Subtract(emptyPacket);
+#endif
                             ffmpeg.av_packet_free(&emptyPacket);
                         }
                     }
                 }
             }
 
-            // The packets are alwasy sent. We dequeue them and keep a reference to them
-            // in the SentPackets queue
-            SentPackets.Push(Packets.Dequeue());
-
             // Release the sent packets if 1 or more frames were received in the packet
-            if (result.Count >= 1)
+            if (result.Count >= 1 || (Container.IsAtEndOfStream && IsEmptyPacket(packet) && PacketBufferCount == 0))
             {
                 // We clear the sent packet queue (releasing packet from unmanaged memory also)
                 // because we got at least 1 frame from the packet.

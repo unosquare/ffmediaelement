@@ -8,11 +8,12 @@
     /// Represents a wrapper from an unmanaged FFmpeg audio frame
     /// </summary>
     /// <seealso cref="Unosquare.FFME.Core.MediaFrame" />
-    internal unsafe sealed class AudioFrame : MediaFrame
+    internal unsafe sealed class AudioFrame : MediaFrame, IDisposable
     {
         #region Private Members
 
         private AVFrame* m_Pointer = null;
+        private bool IsDisposed = false;
 
         #endregion
 
@@ -59,19 +60,46 @@
 
         #endregion
 
-        #region Methods
+        #region IDisposable Support
 
         /// <summary>
-        /// Releases internal frame
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        protected override void Release()
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        private void Dispose(bool disposing)
         {
-            if (m_Pointer == null) return;
-            fixed (AVFrame** pointer = &m_Pointer)
-                ffmpeg.av_frame_free(pointer);
+            if (!IsDisposed)
+            {
+                if (m_Pointer != null)
+                    fixed (AVFrame** pointer = &m_Pointer)
+                    {
+#if REFCOUNTER
+                        ReferenceCounter.Subtract(*pointer);
+#endif
+                        ffmpeg.av_frame_free(pointer);
+                    }
 
-            m_Pointer = null;
-            InternalPointer = null;
+                m_Pointer = null;
+                InternalPointer = null;
+                IsDisposed = true;
+            }
+        }
+
+        /// <summary>
+        /// Finalizes an instance of the <see cref="AudioFrame"/> class.
+        /// </summary>
+        ~AudioFrame()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        public override void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         #endregion

@@ -255,6 +255,9 @@
                 {
                     // If we don't have a valid output frame simply release it and 
                     // return the original input frame
+#if REFCOUNTER
+                    ReferenceCounter.Subtract(outputFrame);
+#endif
                     ffmpeg.av_frame_free(&outputFrame);
                     outputFrame = frame;
                 }
@@ -262,6 +265,9 @@
                 {
                     // the output frame is the new valid frame (output frame).
                     // threfore, we need to release the original
+#if REFCOUNTER
+                    ReferenceCounter.Subtract(frame);
+#endif
                     ffmpeg.av_frame_free(&frame);
                 }
 
@@ -274,7 +280,7 @@
             // Check if the output frame is valid
             if (outputFrame->width <= 0 || outputFrame->height <= 0)
                 return null;
-            
+
             var frameHolder = new VideoFrame(outputFrame, this);
             CurrentFrameRate = ffmpeg.av_guess_frame_rate(Container.InputContext, Stream, outputFrame).ToDouble();
             return frameHolder;

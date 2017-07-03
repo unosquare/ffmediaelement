@@ -107,7 +107,8 @@
         private MediaBlock AddNextBlock(MediaType t)
         {
             var frame = Frames[t].Dequeue();
-            if (frame == null) return null;
+            if (frame == null)
+                return null;
 
             var addedBlock = Blocks[t].Add(frame, Container);
             return addedBlock;

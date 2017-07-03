@@ -706,6 +706,9 @@
             if (RequiresPictureAttachments)
             {
                 var attachedPacket = ffmpeg.av_packet_alloc();
+#if REFCOUNTER
+                ReferenceCounter.Add(attachedPacket, "MediaComponent.709");
+#endif
                 var copyPacketResult = ffmpeg.av_copy_packet(attachedPacket, &Components.Video.Stream->attached_pic);
                 if (copyPacketResult >= 0 && attachedPacket != null)
                 {
@@ -718,6 +721,9 @@
 
             // Allocate the packet to read
             var readPacket = ffmpeg.av_packet_alloc();
+#if REFCOUNTER
+            ReferenceCounter.Add(readPacket, "MediaContainer.723");
+#endif
             Thread.VolatileWrite(ref StreamReadInterruptStartTime, DateTime.UtcNow.Ticks);
             var readResult = ffmpeg.av_read_frame(InputContext, readPacket);
             StreamLastReadTimeUtc = DateTime.UtcNow;
@@ -725,6 +731,9 @@
             if (readResult < 0)
             {
                 // Handle failed packet reads. We don't need the allocated packet anymore
+#if REFCOUNTER
+                ReferenceCounter.Subtract(readPacket);
+#endif
                 ffmpeg.av_packet_free(&readPacket);
 
                 // Detect an end of file situation (makes the readers enter draining mode)
@@ -755,7 +764,13 @@
 
                 // Discard the packet -- it was not accepted by any component
                 if (componentType == MediaType.None)
+                {
+#if REFCOUNTER
+                    ReferenceCounter.Subtract(readPacket);
+#endif
                     ffmpeg.av_packet_free(&readPacket);
+                }
+
 
                 return componentType;
             }

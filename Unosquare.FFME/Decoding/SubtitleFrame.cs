@@ -15,6 +15,7 @@
         #region Private Members
 
         private AVSubtitle* m_Pointer = null;
+        private bool IsDisposed = false;
 
         #endregion
 
@@ -46,7 +47,11 @@
 
             // Immediately release the frame as the struct was created in managed memory
             // Accessing it later will eventually caused a memory access error.
-            Release();
+            if (m_Pointer != null)
+                ffmpeg.avsubtitle_free(m_Pointer);
+
+            m_Pointer = null;
+            InternalPointer = null;
         }
 
         #endregion
@@ -70,17 +75,40 @@
 
         #endregion
 
-        #region Methods
+
+        #region IDisposable Support
 
         /// <summary>
-        /// Releases internal frame
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        protected override void Release()
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        private void Dispose(bool disposing)
         {
-            if (m_Pointer == null) return;
-            ffmpeg.avsubtitle_free(m_Pointer);
-            m_Pointer = null;
-            InternalPointer = null;
+            if (!IsDisposed)
+            {
+                if (m_Pointer != null)
+                    ffmpeg.avsubtitle_free(m_Pointer);
+                m_Pointer = null;
+                InternalPointer = null;
+                IsDisposed = true;
+            }
+        }
+
+        /// <summary>
+        /// Finalizes an instance of the <see cref="SubtitleFrame"/> class.
+        /// </summary>
+        ~SubtitleFrame()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        public override void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         #endregion
