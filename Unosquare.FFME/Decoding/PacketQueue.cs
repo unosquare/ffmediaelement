@@ -134,9 +134,7 @@
                 while (PacketPointers.Count > 0)
                 {
                     var packet = Dequeue();
-#if REFCOUNTER
-                    ReferenceCounter.Subtract(packet);
-#endif
+                    RC.Current.Remove(packet);
                     ffmpeg.av_packet_free(&packet);
                 }
 

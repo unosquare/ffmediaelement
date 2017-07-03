@@ -131,6 +131,7 @@
         {
             Container = container ?? throw new ArgumentNullException(nameof(container));
             CodecContext = ffmpeg.avcodec_alloc_context3(null);
+            RC.Current.Add(CodecContext, $"134: {nameof(MediaComponent)}[{MediaType}].ctor()");
             StreamIndex = streamIndex;
             Stream = container.InputContext->streams[StreamIndex];
 
@@ -255,9 +256,7 @@
         internal void SendEmptyPacket()
         {
             var emptyPacket = ffmpeg.av_packet_alloc();
-#if REFCOUNTER
-            ReferenceCounter.Add(emptyPacket, $"MediaComponent.{nameof(SendEmptyPacket)}.{MediaType}");
-#endif
+            RC.Current.Add(emptyPacket, $"259: {nameof(MediaComponent)}[{MediaType}].{nameof(SendEmptyPacket)}()");
             SendPacket(emptyPacket);
         }
 
@@ -323,9 +322,7 @@
                     // Allocate a frame in unmanaged memory and 
                     // Try to receive the decompressed frame data
                     var outputFrame = ffmpeg.av_frame_alloc();
-#if REFCOUNTER
-                    ReferenceCounter.Add(outputFrame, $"MediaComponent.323.{MediaType}");
-#endif
+                    RC.Current.Add(outputFrame, $"327: {nameof(MediaComponent)}[{MediaType}].{nameof(DecodeNextPacketInternal)}()");
                     receiveFrameResult = ffmpeg.avcodec_receive_frame(CodecContext, outputFrame);
 
                     try
@@ -341,18 +338,14 @@
 
                         if (managedFrame == null)
                         {
-#if REFCOUNTER
-                            ReferenceCounter.Subtract(outputFrame);
-#endif
+                            RC.Current.Remove(outputFrame);
                             ffmpeg.av_frame_free(&outputFrame);
                         }
                     }
                     catch
                     {
                         // Release the frame as the decoded data could not be processed
-#if REFCOUNTER
-                        ReferenceCounter.Subtract(outputFrame);
-#endif
+                        RC.Current.Remove(outputFrame);
                         ffmpeg.av_frame_free(&outputFrame);
                         throw;
                     }
@@ -402,9 +395,7 @@
                     {
                         outputFrame = new AVSubtitle();
                         var emptyPacket = ffmpeg.av_packet_alloc();
-#if REFCOUNTER
-                        ReferenceCounter.Add(emptyPacket, "MediaComponent.399");
-#endif
+                        RC.Current.Add(emptyPacket, $"406: {nameof(MediaComponent)}[{MediaType}].{nameof(DecodeNextPacketInternal)}()");
                         // Receive the frames in a loop
                         try
                         {
@@ -428,9 +419,7 @@
                         finally
                         {
                             // free the empty packet
-#if REFCOUNTER
-                            ReferenceCounter.Subtract(emptyPacket);
-#endif
+                            RC.Current.Remove(emptyPacket);
                             ffmpeg.av_packet_free(&emptyPacket);
                         }
                     }
@@ -483,6 +472,7 @@
         {
             if (CodecContext != null)
             {
+                RC.Current.Remove(CodecContext);
                 fixed (AVCodecContext** codecContext = &CodecContext)
                     ffmpeg.avcodec_free_context(codecContext);
 

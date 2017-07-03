@@ -706,9 +706,7 @@
             if (RequiresPictureAttachments)
             {
                 var attachedPacket = ffmpeg.av_packet_alloc();
-#if REFCOUNTER
-                ReferenceCounter.Add(attachedPacket, "MediaComponent.709");
-#endif
+                RC.Current.Add(attachedPacket, $"710: {nameof(MediaComponent)}.{nameof(StreamRead)}()");
                 var copyPacketResult = ffmpeg.av_copy_packet(attachedPacket, &Components.Video.Stream->attached_pic);
                 if (copyPacketResult >= 0 && attachedPacket != null)
                 {
@@ -721,9 +719,7 @@
 
             // Allocate the packet to read
             var readPacket = ffmpeg.av_packet_alloc();
-#if REFCOUNTER
-            ReferenceCounter.Add(readPacket, "MediaContainer.723");
-#endif
+            RC.Current.Add(readPacket, $"725: {nameof(MediaComponent)}.{nameof(StreamRead)}()");
             Thread.VolatileWrite(ref StreamReadInterruptStartTime, DateTime.UtcNow.Ticks);
             var readResult = ffmpeg.av_read_frame(InputContext, readPacket);
             StreamLastReadTimeUtc = DateTime.UtcNow;
@@ -731,9 +727,7 @@
             if (readResult < 0)
             {
                 // Handle failed packet reads. We don't need the allocated packet anymore
-#if REFCOUNTER
-                ReferenceCounter.Subtract(readPacket);
-#endif
+                RC.Current.Remove(readPacket);
                 ffmpeg.av_packet_free(&readPacket);
 
                 // Detect an end of file situation (makes the readers enter draining mode)
@@ -765,9 +759,7 @@
                 // Discard the packet -- it was not accepted by any component
                 if (componentType == MediaType.None)
                 {
-#if REFCOUNTER
-                    ReferenceCounter.Subtract(readPacket);
-#endif
+                    RC.Current.Remove(readPacket);
                     ffmpeg.av_packet_free(&readPacket);
                 }
 
@@ -1089,21 +1081,26 @@
 
             if (alsoManaged)
             {
-                if (InputContext != null)
-                {
-                    StreamReadSuspend();
-                    fixed (AVFormatContext** inputContext = &InputContext)
-                        ffmpeg.avformat_close_input(inputContext);
-
-                    ffmpeg.avformat_free_context(InputContext);
-                    InputContext = null;
-                }
-
                 if (m_Components != null)
-                    m_Components.Dispose();
+                    m_Components.Dispose();                
+            }
+
+            if (InputContext != null)
+            {
+                StreamReadSuspend();
+                fixed (AVFormatContext** inputContext = &InputContext)
+                    ffmpeg.avformat_close_input(inputContext);
+
+                ffmpeg.avformat_free_context(InputContext);
+                InputContext = null;
             }
 
             IsDisposed = true;
+        }
+
+        ~MediaContainer()
+        {
+            Dispose(false);
         }
 
         /// <summary>
@@ -1112,6 +1109,7 @@
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         #endregion

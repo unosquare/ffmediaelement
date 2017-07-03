@@ -59,8 +59,8 @@
                         block?.PixelHeight ?? MediaElement.NaturalVideoHeight,
                         dpiX, dpiY, PixelFormats.Bgr24, null);
                 else
-                    TargetBitmap = null; // new WriteableBitmap(1, 1, dpiX, dpiY, PixelFormats.Bgr24, null);
-
+                    TargetBitmap = null;
+                
                 MediaElement.ViewBox.Source = TargetBitmap;
             });
         }

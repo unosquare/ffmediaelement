@@ -73,9 +73,7 @@
                 if (m_Pointer != null)
                     fixed (AVFrame** pointer = &m_Pointer)
                     {
-#if REFCOUNTER
-                        ReferenceCounter.Subtract(*pointer);
-#endif
+                        RC.Current.Remove(*pointer);
                         ffmpeg.av_frame_free(pointer);
                     }
 

@@ -151,6 +151,8 @@
         private void PositionSlider_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             WasPlaying = Media.IsPlaying;
+            Media.Pause();
+            
         }
 
         /// <summary>

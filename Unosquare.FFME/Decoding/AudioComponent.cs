@@ -106,6 +106,7 @@
                 Scaler = ffmpeg.swr_alloc_set_opts(Scaler, targetSpec.ChannelLayout, targetSpec.Format, targetSpec.SampleRate,
                     sourceSpec.ChannelLayout, sourceSpec.Format, sourceSpec.SampleRate, 0, null);
 
+                RC.Current.Add(Scaler, $"109: {nameof(AudioComponent)}.{nameof(MaterializeFrame)}()");
                 ffmpeg.swr_init(Scaler);
                 LastSourceSpec = sourceSpec;
             }
@@ -154,6 +155,7 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected override void Dispose(bool alsoManaged)
         {
+            RC.Current.Remove(Scaler);
             if (Scaler != null)
                 fixed (SwrContext** scaler = &Scaler)
                     ffmpeg.swr_free(scaler);

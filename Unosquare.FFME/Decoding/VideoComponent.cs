@@ -140,6 +140,7 @@
                 return;
 
             FilterGraph = ffmpeg.avfilter_graph_alloc();
+            RC.Current.Add(FilterGraph, $"144: {nameof(VideoComponent)}.{nameof(InitializeFilterGraph)}()");
             CurrentInputArguments = frameArguments;
 
             try
@@ -255,9 +256,7 @@
                 {
                     // If we don't have a valid output frame simply release it and 
                     // return the original input frame
-#if REFCOUNTER
-                    ReferenceCounter.Subtract(outputFrame);
-#endif
+                    RC.Current.Remove(outputFrame);
                     ffmpeg.av_frame_free(&outputFrame);
                     outputFrame = frame;
                 }
@@ -265,9 +264,7 @@
                 {
                     // the output frame is the new valid frame (output frame).
                     // threfore, we need to release the original
-#if REFCOUNTER
-                    ReferenceCounter.Subtract(frame);
-#endif
+                    RC.Current.Remove(frame);
                     ffmpeg.av_frame_free(&frame);
                 }
 
@@ -311,6 +308,7 @@
                     source.Pointer->width, source.Pointer->height, GetPixelFormat(source.Pointer),
                     source.Pointer->width, source.Pointer->height,
                     OutputPixelFormat, ScalerFlags, null, null, null);
+            RC.Current.Add(Scaler, $"311: {nameof(VideoComponent)}.{nameof(MaterializeFrame)}()");
 
             // Perform scaling and save the data to our unmanaged buffer pointer
             var targetBufferStride = ffmpeg.av_image_get_linesize(OutputPixelFormat, source.Pointer->width, 0);
@@ -370,6 +368,7 @@
         {
             if (FilterGraph != null)
             {
+                RC.Current.Remove(FilterGraph);
                 fixed (AVFilterGraph** filterGraph = &FilterGraph)
                     ffmpeg.avfilter_graph_free(filterGraph);
 
@@ -388,6 +387,7 @@
         {
             if (Scaler != null)
             {
+                RC.Current.Remove(Scaler);
                 ffmpeg.sws_freeContext(Scaler);
                 Scaler = null;
             }
