@@ -27,7 +27,8 @@
                     {
                         Media.Source = new Uri(UrlTextBox.Text);
                         window.Title = Media.Source.ToString();
-                    }, null);
+                        OpenMediaPopup.IsOpen = false;
+                    }, (o) => { return !Media.IsOpening; });
 
                 return m_OpenCommand;
             }
