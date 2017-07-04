@@ -5,6 +5,14 @@
     <SolidColorBrush x:Key="CustomSliderBackgroundBrush" Color="#55ffffff" />
     <SolidColorBrush x:Key="CustomSliderHighlightBrush" Color="#FFEFEFEF"/>
 
+    <LinearGradientBrush x:Key="ShadedBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
+        <GradientStopCollection>
+            <GradientStop Offset="0" Color="#00000000" />
+            <GradientStop Offset="0.2" Color="#00000000" />
+            <GradientStop Offset="0.3" Color="#00000000" />
+        </GradientStopCollection>
+    </LinearGradientBrush>
+
     <!-- Postion Slider Control -->
     <ControlTemplate x:Key="PositionSliderThumbTemplate" TargetType="{x:Type Thumb}">
         <Grid HorizontalAlignment="Center" UseLayoutRounding="True" VerticalAlignment="Center">
@@ -64,8 +72,6 @@
         <Setter Property="SelectionEnd" Value="{Binding Path=Value, RelativeSource={RelativeSource Self}}" />
         <Setter Property="Template" Value="{StaticResource PositionSliderTemplate}"/>
     </Style>
-
-
 
     <!-- Custom Slider Control -->
     <ControlTemplate x:Key="CustomSliderThumbTemplate" TargetType="{x:Type Thumb}">
@@ -141,6 +147,35 @@
         <Setter Property="Background" Value="{StaticResource CustomSliderBackgroundBrush}" />
     </Style>
 
+    <Style x:Key="ModernToggleButtonStyle" TargetType="ToggleButton">
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#22FFFFFF" />
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#44FFFFFF" />
+            </Trigger>
+            <Trigger Property="IsChecked" Value="True">
+                <Setter Property="Background" Value="#44FFFFFF" />
+            </Trigger>
+        </Style.Triggers>
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Width" Value="45"/>
+        <Setter Property="Height" Value="45"/>
+        <Setter Property="Padding" Value="12"/>
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{StaticResource CustomSliderHighlightBrush}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ToggleButton}">
+                    <Border Background="{TemplateBinding Background}" BorderThickness="0" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter x:Name="contentPresenter" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
     <Style x:Key="ModernButtonStyle" TargetType="{x:Type Button}">
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
@@ -160,11 +195,36 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Button}">
                     <Border Background="{TemplateBinding Background}" BorderThickness="0" Padding="{TemplateBinding Padding}">
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <ContentPresenter x:Name="contentPresenter" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <Style x:Key="ControlsGridStyle" TargetType="{x:Type Grid}">
+        <Setter Property="VerticalAlignment" Value="Bottom" />
+        <Setter Property="Height" Value="300" />
+        <Setter Property="Background" Value="{DynamicResource ShadedBackgroundBrush}" />
+
+        <Style.Triggers>
+            <EventTrigger RoutedEvent="UIElement.MouseEnter">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <ColorAnimation Duration="0:0:0.300" To="#66000000" Storyboard.TargetProperty="(Grid.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)"  />
+                        <ColorAnimation Duration="0:0:0.300" To="#99000000" Storyboard.TargetProperty="(Grid.Background).(GradientBrush.GradientStops)[2].(GradientStop.Color)"  />
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+            <EventTrigger RoutedEvent="UIElement.MouseLeave">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <ColorAnimation Duration="0:0:0.300" To="#00000000" Storyboard.TargetProperty="(Grid.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)"  />
+                        <ColorAnimation Duration="0:0:0.300" To="#00000000" Storyboard.TargetProperty="(Grid.Background).(GradientBrush.GradientStops)[2].(GradientStop.Color)"  />
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Style.Triggers>
     </Style>
 
 </ResourceDictionary>

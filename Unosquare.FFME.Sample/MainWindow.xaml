@@ -28,54 +28,23 @@
 
         <ffme:MediaElement Name="Media" Background="Black" Grid.Row="0" Grid.Column="0"></ffme:MediaElement>
 
-        <Border Height="300" VerticalAlignment="Bottom" Opacity="1">
-            <Border.Style>
-                <Style TargetType="Border">
-                    <Style.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="Green"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </Border.Style>
-            <Border.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                    <GradientStopCollection>
-                        <GradientStop Offset="0" Color="#00000000" />
-                        <GradientStop Offset="0.2" Color="#66000000" />
-                        <GradientStop Offset="0.3" Color="#99000000" />
-                    </GradientStopCollection>
-                </LinearGradientBrush>
-            </Border.Background>
-        </Border>
-
-
-        <Grid Name="Controls" VerticalAlignment="Bottom" Height="200">
-            <Grid.Resources>
-                <Style TargetType="Path">
-                    <Setter Property="Fill" Value="Black" />
-                    <Setter Property="Stretch" Value="Uniform" />
-                </Style>
-                <Style TargetType="Button">
-                    <Setter Property="Width" Value="28"/>
-                </Style>
-            </Grid.Resources>
+        <Grid Name="Controls" Style="{DynamicResource ControlsGridStyle}">
             <Grid.RowDefinitions>
-                <RowDefinition></RowDefinition>
-                <RowDefinition></RowDefinition>
-                <RowDefinition></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="30"></RowDefinition>
+                <RowDefinition Height="40"></RowDefinition>
+                <RowDefinition Height="70"></RowDefinition>
             </Grid.RowDefinitions>
 
-            <Slider Name="PositionSlider"
+            <Slider Name="PositionSlider" Grid.Row="1"
                     Margin="20,0"
-                    Grid.Row="0"
                     Style="{DynamicResource PositionSliderStyle}"
                     IsEnabled="{Binding ElementName=Media, Path=IsOpen}"
                     Maximum="{Binding ElementName=Media, Path=NaturalDuration, Converter={StaticResource TimeSpanToSecondsConverter}}" 
                     Value="{Binding ElementName=Media, Path=Position, Converter={StaticResource TimeSpanToSecondsConverter}}"
                     PreviewMouseDown="PositionSlider_MouseDown" PreviewMouseUp="PositionSlider_MouseUp" />
 
-            <DockPanel Name="ProgrssPanel" Grid.Row="1" LastChildFill="True">
+            <DockPanel Name="ProgressPanel" Grid.Row="2" LastChildFill="True" Margin="30,0,22,0">
                 <TextBlock DockPanel.Dock="Left" Foreground="{StaticResource CustomSliderHighlightBrush}" Text="{Binding ElementName=Media, Path=Position}" Margin="10,6,0,0" />
                 <TextBlock DockPanel.Dock="Right" Foreground="{StaticResource CustomSliderHighlightBrush}" Text="{Binding ElementName=Media, Path=Position}" Margin="0,6,10,0" />
                 <Grid Width="500">
@@ -91,66 +60,112 @@
                     <ProgressBar Grid.Row="0" Grid.Column="1" Value="{Binding ElementName=Media,Path=DownloadProgress}" Style="{DynamicResource NetworkProgressBarStyle}"></ProgressBar>
                     <TextBlock Grid.Row="1" Grid.Column="0" TextAlignment="Center" Foreground="{StaticResource CustomSliderHighlightBrush}" Text="Buffering Progress:" />
                     <TextBlock Grid.Row="1" Grid.Column="1" TextAlignment="Center" Foreground="{StaticResource CustomSliderHighlightBrush}" Text="Download Progress:" />
-
                 </Grid>
             </DockPanel>
 
-            <DockPanel LastChildFill="True" Grid.Row="1" Visibility="Hidden">
-                <DockPanel.Resources>
-                    <Style TargetType="Path">
-                        <Setter Property="Width" Value="10" />
-                        <Setter Property="Height" Value="10" />
-                        <Setter Property="Stroke" Value="#333" />
-                        <Setter Property="Stretch" Value="Uniform" />
-                    </Style>
-                </DockPanel.Resources>
-                <Path Data="{Binding Source={StaticResource MuteIcon}, Path=Data}"></Path>
-                <CheckBox IsChecked="{Binding ElementName=Media, Path=IsMuted}" VerticalAlignment="Center" />
+            <Grid Name="ControlsPanel" Grid.Row="3" Margin="40,0,32,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+                <DockPanel Name="LeftControls" HorizontalAlignment="Left" Grid.Column="0">
+                    <ToggleButton Name="SoundMenuButton" Style="{DynamicResource ModernToggleButtonStyle}">
+                        <Path Stretch="Uniform" Data="{Binding Source={StaticResource VolumeUpIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}}}" />
+                    </ToggleButton>
+                    <Popup IsOpen="{Binding IsChecked, ElementName=SoundMenuButton, Mode=TwoWay}" StaysOpen="False" 
+                           PopupAnimation="Fade" AllowsTransparency="True" Placement="Top" PlacementTarget="{Binding ElementName=SoundMenuButton}"
+                           VerticalOffset="2" HorizontalOffset="-39">
+                        <Popup.Resources>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{StaticResource CustomSliderHighlightBrush}" />
+                                <Setter Property="VerticalAlignment" Value="Center" />
+                                <Setter Property="TextAlignment" Value="Center" />
+                            </Style>
+                        </Popup.Resources>
+                        <Border Background="#FF1F1F1F" BorderBrush="#FF767676" BorderThickness="1">
+                            <Grid Width="300" Height="100">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="60" />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="60" />
+                                </Grid.ColumnDefinitions>
+                                
+                                <!--Volume Slider -->
+                                <TextBlock Grid.Row="0" Grid.Column="0">Volume</TextBlock>
+                                <Slider Grid.Row="0" Grid.Column="1" Style="{DynamicResource CustomSliderStyle}" Minimum="0.0" Maximum="1.0" Value="{Binding ElementName=Media, Path=Volume}" />
+                                <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding ElementName=Media, Path=Volume, Mode=OneWay}" />
 
-                <Path Data="{Binding Source={StaticResource UnmuteIcon}, Path=Data}">
-                    <Path.LayoutTransform>
-                        <ScaleTransform ScaleX="-1"></ScaleTransform>
-                    </Path.LayoutTransform>
-                </Path>
-                <Slider TickFrequency="0.1" TickPlacement="TopLeft" Width="250"
-                        Minimum="-1.0" Maximum="1.0" Value="{Binding ElementName=Media, Path=Balance}"
-                        SmallChange="0.1" LargeChange="0.1" />
-                <Path Data="{Binding Source={StaticResource UnmuteIcon}, Path=Data}"></Path>
+                                <!--Balance Slider -->
+                                <TextBlock Grid.Row="1" Grid.Column="0">Balance</TextBlock>
+                                <Slider Grid.Row="1" Grid.Column="1" Style="{DynamicResource CustomSliderStyle}" Minimum="-1.0" Maximum="1.0" Value="{Binding ElementName=Media, Path=Balance}" />
+                                <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding ElementName=Media, Path=Balance, Mode=OneWay}" />
+                                
+                                <!-- Speed Ration Slider -->
+                                <TextBlock Grid.Row="2" Grid.Column="0">Speed</TextBlock>
+                                <Slider Grid.Row="2" Grid.Column="1" Style="{DynamicResource CustomSliderStyle}" Minimum="0.0" Maximum="8.0" Value="{Binding ElementName=Media, Path=SpeedRatio}" />
+                                <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding ElementName=Media, Path=SpeedRatio, Mode=OneWay}" />
 
-                <Path Data="{Binding Source={StaticResource NextIcon}, Path=Data}"></Path>
-                <Slider TickFrequency="0.1" TickPlacement="TopLeft" Width="250"
-                        Minimum="0.0" Maximum="8.0" Value="{Binding ElementName=Media, Path=SpeedRatio}"
-                        SmallChange="0.1" LargeChange="0.1" />
-
-                <Path Data="{Binding Source={StaticResource VolumeDownIcon}, Path=Data}"></Path>
-                <Path Data="{Binding Source={StaticResource VolumeUpIcon}, Path=Data}" DockPanel.Dock="Right"></Path>
-                <Slider Style="{DynamicResource CustomSliderStyle}"
-                        Minimum="0.0" Maximum="1.0" Value="{Binding ElementName=Media, Path=Volume}" />
-
-
-            </DockPanel>
-
-            <DockPanel LastChildFill="true" Grid.Row="2">
-                <Button Style="{DynamicResource ModernButtonStyle}" Command="{Binding ElementName=window, Path=PlayCommand}">
-                    <Path Data="{Binding Source={StaticResource PlayIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
-                </Button>
-                <Button Style="{DynamicResource ModernButtonStyle}" Command="{Binding ElementName=window, Path=PauseCommand}">
-                    <Path Data="{Binding Source={StaticResource PauseIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
-                </Button>
-                <Button Style="{DynamicResource ModernButtonStyle}" Command="{Binding ElementName=window, Path=StopCommand}">
-                    <Path Data="{Binding Source={StaticResource StopIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
-                </Button>
-                <DockPanel Grid.Row="0" LastChildFill="True">
-                    <Button DockPanel.Dock="Right" Command="{Binding ElementName=window, Path=CloseCommand}">
-                        <Path Data="{Binding Source={StaticResource CloseIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"/>
-                    </Button>
-                    <Button DockPanel.Dock="Right" Command="{Binding ElementName=window, Path=OpenCommand}">
-                        <Path Data="{Binding Source={StaticResource OpenIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"/>
-                    </Button>
-                    <Label>URL:</Label>
-                    <TextBox Name="UrlTextBox" Padding="6,3,0,0" VerticalContentAlignment="Top" Foreground="#FF666666" FontWeight="Bold" FontSize="14">This is some sample text</TextBox>
+                            </Grid>
+                        </Border>
+                    </Popup>
+                    <ToggleButton Name="MuteUnmuteButton" Style="{DynamicResource ModernToggleButtonStyle}" IsChecked="{Binding ElementName=Media, Path=IsMuted, Mode=TwoWay}">
+                        <Path Stretch="Uniform" Data="{Binding Source={StaticResource UnmuteIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}}}" />
+                    </ToggleButton>
                 </DockPanel>
-            </DockPanel>
+
+                <DockPanel Name="RightControls" HorizontalAlignment="Right" Grid.Column="2">
+                    <ToggleButton Name="OpenMenuButton" Style="{DynamicResource ModernToggleButtonStyle}">
+                        <Path Stretch="Uniform" Data="{Binding Source={StaticResource OpenIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}}}" />
+                    </ToggleButton>
+                    <Popup IsOpen="{Binding IsChecked, ElementName=OpenMenuButton, Mode=TwoWay}" StaysOpen="False" 
+                           PopupAnimation="Fade" AllowsTransparency="True" Placement="Top" PlacementTarget="{Binding ElementName=OpenMenuButton}"
+                           VerticalOffset="2" HorizontalOffset="-382">
+                        <Popup.Resources>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{StaticResource CustomSliderHighlightBrush}" />
+                                <Setter Property="VerticalAlignment" Value="Center" />
+                                <Setter Property="TextAlignment" Value="Left" />
+                            </Style>
+                        </Popup.Resources>
+                        <Border Background="#FF1F1F1F" BorderBrush="#FF767676" BorderThickness="1">
+                            <Grid Width="500">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" Text="Open File Path or URL" Padding="10" />
+                                <TextBox Grid.Row="1" BorderThickness="1" Name="UrlTextBox" Margin="10" FontSize="18"></TextBox>
+                                <Button HorizontalAlignment="Right" Margin="0,0,10,10" Grid.Row="2" Style="{DynamicResource ModernButtonStyle}" Command="{Binding ElementName=window, Path=OpenCommand}">
+                                    <Path Stretch="Uniform" Data="{Binding Source={StaticResource OpenIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </Popup>
+                    <Button Style="{DynamicResource ModernButtonStyle}" Command="{Binding ElementName=window, Path=CloseCommand}">
+                        <Path Stretch="Uniform" Data="{Binding Source={StaticResource CloseIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
+                    </Button>
+                </DockPanel>
+
+                <DockPanel Name="CenterControls" HorizontalAlignment="Center" Grid.Column="1">
+                    <Button Style="{DynamicResource ModernButtonStyle}" Command="{Binding ElementName=window, Path=PlayCommand}">
+                        <Path Stretch="Uniform" Data="{Binding Source={StaticResource PlayIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
+                    </Button>
+                    <Button Style="{DynamicResource ModernButtonStyle}" Command="{Binding ElementName=window, Path=PauseCommand}">
+                        <Path Stretch="Uniform" Data="{Binding Source={StaticResource PauseIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
+                    </Button>
+                    <Button Style="{DynamicResource ModernButtonStyle}" Command="{Binding ElementName=window, Path=StopCommand}">
+                        <Path Stretch="Uniform" Data="{Binding Source={StaticResource StopIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
+                    </Button>
+                </DockPanel>
+
+            </Grid>
 
         </Grid>
 
