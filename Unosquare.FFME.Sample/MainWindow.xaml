@@ -6,210 +6,51 @@
         xmlns:local="clr-namespace:Unosquare.FFME.Sample"
         xmlns:ffme="clr-namespace:Unosquare.FFME;assembly=ffme"
         mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
         Title="Unosquare FFME Reference Player" Height="840" MinHeight="840" MinWidth="1200" Width="1200">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary>
                     <local:TimeSpanToSecondsConverter x:Key="TimeSpanToSecondsConverter" />
-                    <Path x:Key="OpenIcon" Data="M22.785004,8.4599915L13.740021,17.51001 9.2100067,12.980011 6.2000122,16 13.740021,23.545013 25.804993,11.480011z M16,0C24.834991,0 32,7.1700134 32,16 32,24.834991 24.834991,32 16,32 7.1699982,32 0,24.834991 0,16 0,7.1700134 7.1699982,0 16,0z" />
-                    <Path x:Key="CloseIcon" Data="M20.200012,8.4000015L16,12.599998 11.800049,8.5 8.4000244,11.900002 12.600037,16.099998 8.4000244,20.300003 11.800049,23.699997 16,19.5 20.200012,23.699997 23.600037,20.300003 19.400024,16 23.600037,11.800003z M16,0C24.800049,0 32,7.1999969 32,16 32,24.800003 24.800049,32 16,32 7.2000122,32 0,24.800003 0,16 0,7.1999969 7.2000122,0 16,0z" />
-                    <Path x:Key="PlayIcon" Data="M0,0L15.825011,8.0009766 31.650999,15.997986 15.825011,23.998993 0,32 0,15.997986z" />
-                    <Path x:Key="StopIcon" Data="M0,0L29.198001,0 29.198001,32 0,32z" />
-                    <Path x:Key="PauseIcon" Data="M18.51899,0L29.981999,0 29.981999,32 18.51899,32z M0,0L11.464992,0 11.464992,32 0,32z" />
-                    <Path x:Key="NextIcon" Data="M0,0.7440033L18.551971,16.002998 0,31.255997z M18.551971,0L25.368,0 25.368,32 18.551971,32 18.551971,16.002998z" />
-                    <Path x:Key="BackIcon" Data="M25.370002,0.7440033L25.370002,31.259995 6.8229996,16.003006z M0,0L6.8229996,0 6.8229996,16.003006 6.8229996,32 0,32z" />
-                    <Path x:Key="VolumeUpIcon" Data="M23.700012,6.000006L27.5,6.000006 27.5,10.50001 32,10.50001 32,14.300002 27.5,14.300002 27.5,18.800006 23.700012,18.800006 23.700012,14.300002 19.200012,14.300002 19.200012,10.50001 23.700012,10.50001z M15.700012,0L15.700012,24.599999 7.8000488,17.300004 0,17.300004 0,7.9000323 7.9000244,7.9000323z" />
-                    <Path x:Key="VolumeDownIcon" Data="M19.200012,10.399974L32,10.399974 32,14.300002 19.200012,14.300002z M15.700012,0L15.700012,24.599999 7.8000488,17.300004 0,17.300004 0,7.8999713 7.9000244,7.8999713z" />
-                    <Path x:Key="MuteIcon" Data="M22.800049,6.5999756L26,9.7999878 29.200012,6.5999756 32,9.4000244 28.800049,12.599976 32,15.799988 29.200012,18.599976 26,15.299988 22.800049,18.5 20,15.700012 23.200012,12.5 20,9.2999878z M16,0L16,25 8,17.5 0,17.5 0,8 8,8z" />
-                    <Path x:Key="UnmuteIcon" Data="M22.800049,6.5999756L26,9.7999878 29.200012,6.5999756 32,9.4000244 28.800049,12.599976 32,15.799988 29.200012,18.599976 26,15.299988 22.800049,18.5 20,15.700012 23.200012,12.5 20,9.2999878z M16,0L16,25 8,17.5 0,17.5 0,8 8,8z" />
                 </ResourceDictionary>
-                <ResourceDictionary Source="PositionSliderDictionary.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="Icons.xaml" />
+                <ResourceDictionary Source="Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
-    <Grid Name="MainLayoutGrid" HorizontalAlignment="Stretch">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="120"></RowDefinition>
-        </Grid.RowDefinitions>
 
-        <Grid Name="Player">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition></ColumnDefinition>
-                <ColumnDefinition Width="240"></ColumnDefinition>
-            </Grid.ColumnDefinitions>
-            <ffme:MediaElement Name="Media" Background="Black" Grid.Row="0" Grid.Column="0"></ffme:MediaElement>
-            <StackPanel Name="Properties" Grid.Column="1" Grid.Row="0" VerticalAlignment="Top" Orientation="Vertical">
+    <Grid Name="Player">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition Width="240"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
 
-                <StackPanel.Resources>
-                    <Style TargetType="Label" x:Key="Key">
-                        <Setter Property="DockPanel.Dock" Value="Left" />
-                        <Setter Property="HorizontalAlignment" Value="Left" />
-                        <Setter Property="FontWeight" Value="Bold" />
-                        <Setter Property="TextBlock.FontSize" Value="10"></Setter>
-                        <Setter Property="BorderBrush" Value="LightGray" />
-                        <Setter Property="BorderThickness" Value="10,0,1,1" />
-                        <Setter Property="Width" Value="120" />
-                    </Style>
-                    <Style TargetType="Label" x:Key="Value">
-                        <Setter Property="DockPanel.Dock" Value="Right" />
-                        <Setter Property="HorizontalAlignment" Value="Stretch" />
-                        <Setter Property="FontWeight" Value="Normal" />
-                        <Setter Property="TextBlock.FontSize" Value="10"></Setter>
-                        <Setter Property="BorderBrush" Value="LightGray" />
-                        <Setter Property="BorderThickness" Value="0,0,1,1" />
-                    </Style>
+        <ffme:MediaElement Name="Media" Background="Black" Grid.Row="0" Grid.Column="0"></ffme:MediaElement>
 
-                    <Style TargetType="DockPanel">
-                        <Setter Property="LastChildFill" Value="True" />
-                    </Style>
-                </StackPanel.Resources>
+        <Border Height="300" VerticalAlignment="Bottom" Opacity="1">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="Green"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStopCollection>
+                        <GradientStop Offset="0" Color="#00000000" />
+                        <GradientStop Offset="0.2" Color="#66000000" />
+                        <GradientStop Offset="0.3" Color="#99000000" />
+                    </GradientStopCollection>
+                </LinearGradientBrush>
+            </Border.Background>
+        </Border>
 
-                <DockPanel Background="LightBlue">
-                    <Label Style="{StaticResource Key}">Media Format</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=MediaFormat}" />
-                </DockPanel>
 
-                <DockPanel>
-                    <Label Style="{StaticResource Key}">Duration</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=NaturalDuration}" />
-                </DockPanel>
-
-                <DockPanel>
-                    <Label Style="{StaticResource Key}">Is Open</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsOpen}" />
-                </DockPanel>
-
-                <DockPanel>
-                    <Label Style="{StaticResource Key}">Is Opening</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsOpening}" />
-                </DockPanel>
-
-                <DockPanel>
-                    <Label Style="{StaticResource Key}">Is Live Stream</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsLiveStream}" />
-                </DockPanel>
-
-                <DockPanel>
-                    <Label Style="{StaticResource Key}">Can Pause</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=CanPause}" />
-                </DockPanel>
-
-                <DockPanel>
-                    <Label Style="{StaticResource Key}">Is Seekable</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsSeekable}" />
-                </DockPanel>
-
-                <DockPanel>
-                    <Label Style="{StaticResource Key}">Position</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=Position}" />
-                </DockPanel>
-
-                <DockPanel>
-                    <Label Style="{StaticResource Key}">State</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=MediaState}" />
-                </DockPanel>
-
-                <DockPanel>
-                    <Label Style="{StaticResource Key}">Is Playing</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsPlaying}" />
-                </DockPanel>
-
-                <DockPanel>
-                    <Label Style="{StaticResource Key}">Has Ended</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=HasMediaEnded}" />
-                </DockPanel>
-
-                <DockPanel>
-                    <Label Style="{StaticResource Key}">Is Buffering</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsBuffering}" />
-                </DockPanel>
-
-                <DockPanel>
-                    <Label Style="{StaticResource Key}">Buffering Progress</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=BufferingProgress}" />
-                </DockPanel>
-
-                <DockPanel>
-                    <Label Style="{StaticResource Key}">Max Buffer</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=BufferCacheLength}" />
-                </DockPanel>
-
-                <DockPanel>
-                    <Label Style="{StaticResource Key}">Download Progress</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=DownloadProgress}" />
-                </DockPanel>
-
-                <DockPanel>
-                    <Label Style="{StaticResource Key}">Max Download</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=DownloadCacheLength}" />
-                </DockPanel>
-
-                <DockPanel Background="LightBlue">
-                    <Label Style="{StaticResource Key}">Has Video</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=HasVideo}" />
-                </DockPanel>
-
-                <DockPanel>
-                    <Label Style="{StaticResource Key}">Video Codec</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=VideoCodec}" />
-                </DockPanel>
-
-                <DockPanel>
-                    <Label Style="{StaticResource Key}">Video Bitrate</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=VideoBitrate}" />
-                </DockPanel>
-
-                <DockPanel>
-                    <Label Style="{StaticResource Key}">Video Width</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=NaturalVideoWidth}" />
-                </DockPanel>
-
-                <DockPanel>
-                    <Label Style="{StaticResource Key}">Video Height</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=NaturalVideoHeight}" />
-                </DockPanel>
-
-                <DockPanel>
-                    <Label Style="{StaticResource Key}">Video FPS</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=VideoFrameRate}" />
-                </DockPanel>
-
-                <DockPanel Background="LightBlue">
-                    <Label Style="{StaticResource Key}">Has Audio</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=HasAudio}" />
-                </DockPanel>
-
-                <DockPanel>
-                    <Label Style="{StaticResource Key}">Audio Codec</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=AudioCodec}" />
-                </DockPanel>
-
-                <DockPanel>
-                    <Label Style="{StaticResource Key}">Audio Bitrate</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=AudioBitrate}" />
-                </DockPanel>
-
-                <DockPanel>
-                    <Label Style="{StaticResource Key}">Audio Channels</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=AudioChannels}" />
-                </DockPanel>
-
-                <DockPanel>
-                    <Label Style="{StaticResource Key}">Audio Sampling</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=AudioSampleRate}" />
-                </DockPanel>
-
-                <DockPanel>
-                    <Label Style="{StaticResource Key}">Audio Bits/Sample</Label>
-                    <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=AudioBitsPerSample}" />
-                </DockPanel>
-
-            </StackPanel>
-        </Grid>
-
-        <Grid Name="Controls" Grid.Row="1">
+        <Grid Name="Controls" VerticalAlignment="Bottom" Height="200">
             <Grid.Resources>
                 <Style TargetType="Path">
                     <Setter Property="Fill" Value="Black" />
@@ -220,22 +61,41 @@
                 </Style>
             </Grid.Resources>
             <Grid.RowDefinitions>
-                <RowDefinition Height="28"></RowDefinition>
+                <RowDefinition></RowDefinition>
                 <RowDefinition></RowDefinition>
                 <RowDefinition></RowDefinition>
             </Grid.RowDefinitions>
-            <DockPanel Grid.Row="0" LastChildFill="True">
-                <Button DockPanel.Dock="Right" Command="{Binding ElementName=window, Mode=OneWay, Path=CloseCommand}">
-                    <Path Data="{Binding Source={StaticResource CloseIcon}, Path=Data}"/>
-                </Button>
-                <Button DockPanel.Dock="Right" Command="{Binding ElementName=window, Mode=OneWay, Path=OpenCommand}">
-                    <Path Data="{Binding Source={StaticResource OpenIcon}, Path=Data}"/>
-                </Button>
-                <Label>URL:</Label>
-                <TextBox Name="UrlTextBox" Padding="6,3,0,0" VerticalContentAlignment="Top" Foreground="#FF666666" FontWeight="Bold" FontSize="14">This is some sample text</TextBox>
+
+            <Slider Name="PositionSlider"
+                    Margin="20,0"
+                    Grid.Row="0"
+                    Style="{DynamicResource PositionSliderStyle}"
+                    IsEnabled="{Binding ElementName=Media, Path=IsOpen}"
+                    Maximum="{Binding ElementName=Media, Path=NaturalDuration, Converter={StaticResource TimeSpanToSecondsConverter}}" 
+                    Value="{Binding ElementName=Media, Path=Position, Converter={StaticResource TimeSpanToSecondsConverter}}"
+                    PreviewMouseDown="PositionSlider_MouseDown" PreviewMouseUp="PositionSlider_MouseUp" />
+
+            <DockPanel Name="ProgrssPanel" Grid.Row="1" LastChildFill="True">
+                <TextBlock DockPanel.Dock="Left" Foreground="{StaticResource CustomSliderHighlightBrush}" Text="{Binding ElementName=Media, Path=Position}" Margin="10,6,0,0" />
+                <TextBlock DockPanel.Dock="Right" Foreground="{StaticResource CustomSliderHighlightBrush}" Text="{Binding ElementName=Media, Path=Position}" Margin="0,6,10,0" />
+                <Grid Width="500">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <ProgressBar Grid.Row="0" Grid.Column="0" Value="{Binding ElementName=Media,Path=BufferingProgress}" Style="{DynamicResource NetworkProgressBarStyle}"></ProgressBar>
+                    <ProgressBar Grid.Row="0" Grid.Column="1" Value="{Binding ElementName=Media,Path=DownloadProgress}" Style="{DynamicResource NetworkProgressBarStyle}"></ProgressBar>
+                    <TextBlock Grid.Row="1" Grid.Column="0" TextAlignment="Center" Foreground="{StaticResource CustomSliderHighlightBrush}" Text="Buffering Progress:" />
+                    <TextBlock Grid.Row="1" Grid.Column="1" TextAlignment="Center" Foreground="{StaticResource CustomSliderHighlightBrush}" Text="Download Progress:" />
+
+                </Grid>
             </DockPanel>
 
-            <DockPanel LastChildFill="True" Grid.Row="1">
+            <DockPanel LastChildFill="True" Grid.Row="1" Visibility="Hidden">
                 <DockPanel.Resources>
                     <Style TargetType="Path">
                         <Setter Property="Width" Value="10" />
@@ -264,41 +124,203 @@
 
                 <Path Data="{Binding Source={StaticResource VolumeDownIcon}, Path=Data}"></Path>
                 <Path Data="{Binding Source={StaticResource VolumeUpIcon}, Path=Data}" DockPanel.Dock="Right"></Path>
-                <Slider TickFrequency="0.05" TickPlacement="TopLeft"
-                        Minimum="0.0" Maximum="1.0" Value="{Binding ElementName=Media, Path=Volume}"
-                        SmallChange="0.05" LargeChange="0.1" />
+                <Slider Style="{DynamicResource CustomSliderStyle}"
+                        Minimum="0.0" Maximum="1.0" Value="{Binding ElementName=Media, Path=Volume}" />
 
 
             </DockPanel>
 
             <DockPanel LastChildFill="true" Grid.Row="2">
-                <Button Command="{Binding ElementName=window, Mode=OneWay, Path=PlayCommand}">
-                    <Path Data="{Binding Source={StaticResource PlayIcon}, Path=Data}"/>
+                <Button Style="{DynamicResource ModernButtonStyle}" Command="{Binding ElementName=window, Path=PlayCommand}">
+                    <Path Data="{Binding Source={StaticResource PlayIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
                 </Button>
-                <Button Command="{Binding ElementName=window, Mode=OneWay, Path=PauseCommand}">
-                    <Path Data="{Binding Source={StaticResource PauseIcon}, Path=Data}"/>
+                <Button Style="{DynamicResource ModernButtonStyle}" Command="{Binding ElementName=window, Path=PauseCommand}">
+                    <Path Data="{Binding Source={StaticResource PauseIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
                 </Button>
-                <Button Command="{Binding ElementName=window, Mode=OneWay, Path=StopCommand}">
-                    <Path Data="{Binding Source={StaticResource StopIcon}, Path=Data}"/>
+                <Button Style="{DynamicResource ModernButtonStyle}" Command="{Binding ElementName=window, Path=StopCommand}">
+                    <Path Data="{Binding Source={StaticResource StopIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
                 </Button>
-
-                <Slider
-                    IsEnabled="{Binding ElementName=Media, Path=IsOpen}"
-                    Name="PositionSlider"
-                    TickFrequency="1"
-                    TickPlacement="None"
-                    Foreground="Black"
-                    VerticalAlignment="Center"
-                    Minimum="0" 
-                    Maximum="{Binding ElementName=Media, Path=NaturalDuration, Converter={StaticResource TimeSpanToSecondsConverter}}" 
-                    Value="{Binding ElementName=Media, Path=Position, Converter={StaticResource TimeSpanToSecondsConverter}}"
-                    PreviewMouseDown="PositionSlider_MouseDown" PreviewMouseUp="PositionSlider_MouseUp"
-                    SmallChange="0.05" LargeChange="0.050" Margin="0,4,0,3" AutoToolTipPlacement="None" IsMoveToPointEnabled="True" 
-                    Style="{DynamicResource PositionSliderStyle}"></Slider>
+                <DockPanel Grid.Row="0" LastChildFill="True">
+                    <Button DockPanel.Dock="Right" Command="{Binding ElementName=window, Path=CloseCommand}">
+                        <Path Data="{Binding Source={StaticResource CloseIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"/>
+                    </Button>
+                    <Button DockPanel.Dock="Right" Command="{Binding ElementName=window, Path=OpenCommand}">
+                        <Path Data="{Binding Source={StaticResource OpenIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"/>
+                    </Button>
+                    <Label>URL:</Label>
+                    <TextBox Name="UrlTextBox" Padding="6,3,0,0" VerticalContentAlignment="Top" Foreground="#FF666666" FontWeight="Bold" FontSize="14">This is some sample text</TextBox>
+                </DockPanel>
             </DockPanel>
 
         </Grid>
 
+        <StackPanel Name="Properties" Grid.Column="1" Grid.Row="0" VerticalAlignment="Top" Orientation="Vertical">
 
+            <StackPanel.Resources>
+                <Style TargetType="Label" x:Key="Key">
+                    <Setter Property="DockPanel.Dock" Value="Left" />
+                    <Setter Property="HorizontalAlignment" Value="Left" />
+                    <Setter Property="FontWeight" Value="Bold" />
+                    <Setter Property="TextBlock.FontSize" Value="10"></Setter>
+                    <Setter Property="BorderBrush" Value="LightGray" />
+                    <Setter Property="BorderThickness" Value="10,0,1,1" />
+                    <Setter Property="Width" Value="120" />
+                </Style>
+                <Style TargetType="Label" x:Key="Value">
+                    <Setter Property="DockPanel.Dock" Value="Right" />
+                    <Setter Property="HorizontalAlignment" Value="Stretch" />
+                    <Setter Property="FontWeight" Value="Normal" />
+                    <Setter Property="TextBlock.FontSize" Value="10"></Setter>
+                    <Setter Property="BorderBrush" Value="LightGray" />
+                    <Setter Property="BorderThickness" Value="0,0,1,1" />
+                </Style>
+
+                <Style TargetType="DockPanel">
+                    <Setter Property="LastChildFill" Value="True" />
+                </Style>
+            </StackPanel.Resources>
+
+            <DockPanel Background="LightBlue">
+                <Label Style="{StaticResource Key}">Media Format</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=MediaFormat}" />
+            </DockPanel>
+
+            <DockPanel>
+                <Label Style="{StaticResource Key}">Duration</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=NaturalDuration}" />
+            </DockPanel>
+
+            <DockPanel>
+                <Label Style="{StaticResource Key}">Is Open</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsOpen}" />
+            </DockPanel>
+
+            <DockPanel>
+                <Label Style="{StaticResource Key}">Is Opening</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsOpening}" />
+            </DockPanel>
+
+            <DockPanel>
+                <Label Style="{StaticResource Key}">Is Live Stream</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsLiveStream}" />
+            </DockPanel>
+
+            <DockPanel>
+                <Label Style="{StaticResource Key}">Can Pause</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=CanPause}" />
+            </DockPanel>
+
+            <DockPanel>
+                <Label Style="{StaticResource Key}">Is Seekable</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsSeekable}" />
+            </DockPanel>
+
+            <DockPanel>
+                <Label Style="{StaticResource Key}">Position</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=Position}" />
+            </DockPanel>
+
+            <DockPanel>
+                <Label Style="{StaticResource Key}">State</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=MediaState}" />
+            </DockPanel>
+
+            <DockPanel>
+                <Label Style="{StaticResource Key}">Is Playing</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsPlaying}" />
+            </DockPanel>
+
+            <DockPanel>
+                <Label Style="{StaticResource Key}">Has Ended</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=HasMediaEnded}" />
+            </DockPanel>
+
+            <DockPanel>
+                <Label Style="{StaticResource Key}">Is Buffering</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsBuffering}" />
+            </DockPanel>
+
+            <DockPanel>
+                <Label Style="{StaticResource Key}">Buffering Progress</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=BufferingProgress}" />
+            </DockPanel>
+
+            <DockPanel>
+                <Label Style="{StaticResource Key}">Max Buffer</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=BufferCacheLength}" />
+            </DockPanel>
+
+            <DockPanel>
+                <Label Style="{StaticResource Key}">Download Progress</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=DownloadProgress}" />
+            </DockPanel>
+
+            <DockPanel>
+                <Label Style="{StaticResource Key}">Max Download</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=DownloadCacheLength}" />
+            </DockPanel>
+
+            <DockPanel Background="LightBlue">
+                <Label Style="{StaticResource Key}">Has Video</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=HasVideo}" />
+            </DockPanel>
+
+            <DockPanel>
+                <Label Style="{StaticResource Key}">Video Codec</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=VideoCodec}" />
+            </DockPanel>
+
+            <DockPanel>
+                <Label Style="{StaticResource Key}">Video Bitrate</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=VideoBitrate}" />
+            </DockPanel>
+
+            <DockPanel>
+                <Label Style="{StaticResource Key}">Video Width</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=NaturalVideoWidth}" />
+            </DockPanel>
+
+            <DockPanel>
+                <Label Style="{StaticResource Key}">Video Height</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=NaturalVideoHeight}" />
+            </DockPanel>
+
+            <DockPanel>
+                <Label Style="{StaticResource Key}">Video FPS</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=VideoFrameRate}" />
+            </DockPanel>
+
+            <DockPanel Background="LightBlue">
+                <Label Style="{StaticResource Key}">Has Audio</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=HasAudio}" />
+            </DockPanel>
+
+            <DockPanel>
+                <Label Style="{StaticResource Key}">Audio Codec</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=AudioCodec}" />
+            </DockPanel>
+
+            <DockPanel>
+                <Label Style="{StaticResource Key}">Audio Bitrate</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=AudioBitrate}" />
+            </DockPanel>
+
+            <DockPanel>
+                <Label Style="{StaticResource Key}">Audio Channels</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=AudioChannels}" />
+            </DockPanel>
+
+            <DockPanel>
+                <Label Style="{StaticResource Key}">Audio Sampling</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=AudioSampleRate}" />
+            </DockPanel>
+
+            <DockPanel>
+                <Label Style="{StaticResource Key}">Audio Bits/Sample</Label>
+                <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=AudioBitsPerSample}" />
+            </DockPanel>
+
+        </StackPanel>
     </Grid>
+
 </Window>
