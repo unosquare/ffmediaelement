@@ -23,7 +23,6 @@
     <Grid Name="Player">
         <Grid.ColumnDefinitions>
             <ColumnDefinition></ColumnDefinition>
-            <ColumnDefinition Width="240"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
         <ffme:MediaElement Name="Media" Background="Black" Grid.Row="0" Grid.Column="0"></ffme:MediaElement>
@@ -95,7 +94,7 @@
                                     <ColumnDefinition />
                                     <ColumnDefinition Width="60" />
                                 </Grid.ColumnDefinitions>
-                                
+
                                 <!--Volume Slider -->
                                 <TextBlock Grid.Row="0" Grid.Column="0">Volume</TextBlock>
                                 <Slider Grid.Row="0" Grid.Column="1" Style="{DynamicResource CustomSliderStyle}" Minimum="0.0" Maximum="1.0" Value="{Binding ElementName=Media, Path=Volume}" />
@@ -105,7 +104,7 @@
                                 <TextBlock Grid.Row="1" Grid.Column="0">Balance</TextBlock>
                                 <Slider Grid.Row="1" Grid.Column="1" Style="{DynamicResource CustomSliderStyle}" Minimum="-1.0" Maximum="1.0" Value="{Binding ElementName=Media, Path=Balance}" />
                                 <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding ElementName=Media, Path=Balance, Mode=OneWay}" />
-                                
+
                                 <!-- Speed Ration Slider -->
                                 <TextBlock Grid.Row="2" Grid.Column="0">Speed</TextBlock>
                                 <Slider Grid.Row="2" Grid.Column="1" Style="{DynamicResource CustomSliderStyle}" Minimum="0.0" Maximum="8.0" Value="{Binding ElementName=Media, Path=SpeedRatio}" />
@@ -166,11 +165,10 @@
                 </DockPanel>
 
             </Grid>
-
         </Grid>
 
-        <StackPanel Name="Properties" Grid.Column="1" Grid.Row="0" VerticalAlignment="Top" Orientation="Vertical">
-
+        <StackPanel Name="Properties" VerticalAlignment="Top" HorizontalAlignment="Right" Orientation="Vertical" 
+                    Background="#CC222222" Width="240">
             <StackPanel.Resources>
                 <Style TargetType="Label" x:Key="Key">
                     <Setter Property="DockPanel.Dock" Value="Left" />
@@ -180,6 +178,7 @@
                     <Setter Property="BorderBrush" Value="LightGray" />
                     <Setter Property="BorderThickness" Value="10,0,1,1" />
                     <Setter Property="Width" Value="120" />
+                    <Setter Property="Foreground" Value="White" />
                 </Style>
                 <Style TargetType="Label" x:Key="Value">
                     <Setter Property="DockPanel.Dock" Value="Right" />
@@ -188,6 +187,7 @@
                     <Setter Property="TextBlock.FontSize" Value="10"></Setter>
                     <Setter Property="BorderBrush" Value="LightGray" />
                     <Setter Property="BorderThickness" Value="0,0,1,1" />
+                    <Setter Property="Foreground" Value="White" />
                 </Style>
 
                 <Style TargetType="DockPanel">
@@ -336,6 +336,7 @@
             </DockPanel>
 
         </StackPanel>
+
     </Grid>
 
 </Window>
