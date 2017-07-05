@@ -4,12 +4,58 @@
     using System.Diagnostics;
     using System.Windows;
     using System.Windows.Controls;
+    using System.Windows.Media;
+    using System.Windows.Threading;
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
+
+        #region State Variables
+
+        private readonly WindowStatus PreviousWindowStatus = new WindowStatus();
+        private DateTime LastMouseMove;
+        private Point LastMousePosition;
+
+        #endregion
+
+        #region Window Status
+
+        private class WindowStatus
+        {
+            public WindowState WindowState { get; set; }
+            public double Top { get; set; }
+            public double Left { get; set; }
+            public WindowStyle WindowStyle { get; set; }
+            public bool Topmost { get; set; }
+            public ResizeMode ResizeMode { get; set; }
+
+            public void Capture(Window w)
+            {
+                WindowState = w.WindowState;
+                Top = w.Top;
+                Left = w.Left;
+                WindowStyle = w.WindowStyle;
+                Topmost = w.Topmost;
+                ResizeMode = w.ResizeMode;
+            }
+
+            public void Apply(Window w)
+            {
+                w.WindowState = WindowState;
+                w.Top = Top;
+                w.Left = Left;
+                w.WindowStyle = WindowStyle;
+                w.Topmost = Topmost;
+                w.ResizeMode = ResizeMode;
+            }
+
+        }
+
+        #endregion
+
         #region Commands
 
         private DelegateCommand m_OpenCommand = null;
@@ -17,6 +63,7 @@
         private DelegateCommand m_PlayCommand = null;
         private DelegateCommand m_StopCommand = null;
         private DelegateCommand m_CloseCommand = null;
+        private DelegateCommand m_ToggleFullscreenCommand = null;
 
         public DelegateCommand OpenCommand
         {
@@ -85,6 +132,34 @@
             }
         }
 
+        public DelegateCommand ToggleFullscreenCommand
+        {
+            get
+            {
+                if (m_ToggleFullscreenCommand == null)
+                    m_ToggleFullscreenCommand = new DelegateCommand((o) =>
+                    {
+
+                        // If we are already in fullscreen, go back to normal
+                        if (window.WindowStyle == WindowStyle.None)
+                        {
+                            PreviousWindowStatus.Apply(this);
+                        }
+                        else
+                        {
+                            PreviousWindowStatus.Capture(this);
+                            WindowStyle = WindowStyle.None;
+                            ResizeMode = ResizeMode.NoResize;
+                            Topmost = true;
+                            WindowState = WindowState.Normal;
+                            WindowState = WindowState.Maximized;
+                        }
+                    }, null);
+
+                return m_ToggleFullscreenCommand;
+            }
+        }
+
         #endregion
 
         public MainWindow()
@@ -94,13 +169,22 @@
             Unosquare.FFME.MediaElement.FFmpegDirectory = @"C:\ffmpeg";
             //ConsoleManager.ShowConsole();
             InitializeComponent();
-            UrlTextBox.Text = TestInputs.MatroskaLocalFile;
+            InitializeMediaEvents();
+            InitializeMouseEvents();
 
-            Media.MediaOpening += Media_MediaOpening;
-            Media.MediaFailed += Media_MediaFailed;
-            Media.MessageLogged += Media_MessageLogged;
-            Unosquare.FFME.MediaElement.FFmpegMessageLogged += MediaElement_FFmpegMessageLogged;
-            
+            Loaded += (s, e) =>
+            {
+                var presenter = VisualTreeHelper.GetParent(Content as UIElement) as ContentPresenter;
+                presenter.MinWidth = 1280;
+                presenter.MinHeight = 720;
+
+                SizeToContent = SizeToContent.WidthAndHeight;
+                MinWidth = ActualWidth;
+                MinHeight = ActualHeight;
+                SizeToContent = SizeToContent.Manual;
+            };
+
+            UrlTextBox.Text = TestInputs.MatroskaLocalFile;
 
             var args = Environment.GetCommandLineArgs();
             if (args != null && args.Length > 1)
@@ -108,6 +192,41 @@
                 UrlTextBox.Text = args[1].Trim();
                 OpenCommand.Execute();
             }
+        }
+
+        private void InitializeMediaEvents()
+        {
+            Media.MediaOpening += Media_MediaOpening;
+            Media.MediaFailed += Media_MediaFailed;
+            Media.MessageLogged += Media_MessageLogged;
+            Unosquare.FFME.MediaElement.FFmpegMessageLogged += MediaElement_FFmpegMessageLogged;
+        }
+
+        private void InitializeMouseEvents()
+        {
+            LastMouseMove = DateTime.UtcNow;
+            MouseMove += (s, e) =>
+            {
+                var currentPosition = e.GetPosition(window);
+                if (currentPosition.X != LastMousePosition.X || currentPosition.Y != LastMousePosition.Y)
+                    LastMouseMove = DateTime.UtcNow;
+
+                LastMousePosition = currentPosition;
+            };
+
+            var mouseMoveTimer = new DispatcherTimer(DispatcherPriority.Background);
+            mouseMoveTimer.Interval = TimeSpan.FromMilliseconds(150);
+            mouseMoveTimer.Tick += (s, e) =>
+            {
+                var elapsedSinceMouseMove = DateTime.UtcNow.Subtract(LastMouseMove);
+                if (elapsedSinceMouseMove.TotalMilliseconds >= 5000 && Media.IsPlaying)
+                    Controls.Visibility = Visibility.Hidden;
+                else
+                    Controls.Visibility = Visibility.Visible;
+            };
+
+            mouseMoveTimer.IsEnabled = true;
+            mouseMoveTimer.Start();
         }
 
         private void Media_MessageLogged(object sender, MediaLogMessagEventArgs e)
@@ -136,7 +255,7 @@
                 e.Options.VideoFilter = "yadif";
                 //e.Options.ProbeSize = 32;
             }
-                
+
 
         }
 
@@ -153,7 +272,7 @@
         {
             WasPlaying = Media.IsPlaying;
             Media.Pause();
-            
+
         }
 
         /// <summary>
@@ -167,5 +286,16 @@
         }
 
         #endregion
+
+        private void DebugWindowThumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        {
+            DebugWindowPopup.HorizontalOffset += e.HorizontalChange;
+            DebugWindowPopup.VerticalOffset += e.VerticalChange;
+        }
+
+        private void DebugWindowPopup_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            DebugWindowThumb.RaiseEvent(e);
+        }
     }
 }

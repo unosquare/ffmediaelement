@@ -64,7 +64,6 @@
         <Setter Property="MaxHeight" Value="20" />
         <Setter Property="Height" Value="20" />
         <Setter Property="Minimum" Value="0" />
-
         <Setter Property="AutoToolTipPlacement" Value="None" />
         <Setter Property="IsMoveToPointEnabled" Value="True" />
         <Setter Property="VerticalAlignment" Value="Center" />
@@ -129,7 +128,10 @@
         <Setter Property="MaxHeight" Value="26" />
         <Setter Property="Height" Value="26" />
         <Setter Property="Minimum" Value="0" />
-
+        <Setter Property="IsSnapToTickEnabled" Value="True" />
+        <Setter Property="SmallChange" Value="0.01" />
+        <Setter Property="LargeChange" Value="0.01" />
+        <Setter Property="TickFrequency" Value="0.01" />
         <Setter Property="AutoToolTipPlacement" Value="None" />
         <Setter Property="IsMoveToPointEnabled" Value="True" />
         <Setter Property="VerticalAlignment" Value="Center" />
@@ -211,16 +213,16 @@
             <EventTrigger RoutedEvent="UIElement.MouseEnter">
                 <BeginStoryboard>
                     <Storyboard>
-                        <ColorAnimation Duration="0:0:0.300" To="#66000000" Storyboard.TargetProperty="(Grid.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)"  />
-                        <ColorAnimation Duration="0:0:0.300" To="#99000000" Storyboard.TargetProperty="(Grid.Background).(GradientBrush.GradientStops)[2].(GradientStop.Color)"  />
+                        <ColorAnimation Duration="0:0:0.200" To="#99000000" Storyboard.TargetProperty="(Grid.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)"  />
+                        <ColorAnimation Duration="0:0:0.200" To="#DD000000" Storyboard.TargetProperty="(Grid.Background).(GradientBrush.GradientStops)[2].(GradientStop.Color)"  />
                     </Storyboard>
                 </BeginStoryboard>
             </EventTrigger>
             <EventTrigger RoutedEvent="UIElement.MouseLeave">
                 <BeginStoryboard>
                     <Storyboard>
-                        <ColorAnimation Duration="0:0:0.300" To="#00000000" Storyboard.TargetProperty="(Grid.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)"  />
-                        <ColorAnimation Duration="0:0:0.300" To="#00000000" Storyboard.TargetProperty="(Grid.Background).(GradientBrush.GradientStops)[2].(GradientStop.Color)"  />
+                        <ColorAnimation Duration="0:0:0.200" To="#00000000" Storyboard.TargetProperty="(Grid.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)"  />
+                        <ColorAnimation Duration="0:0:0.200" To="#00000000" Storyboard.TargetProperty="(Grid.Background).(GradientBrush.GradientStops)[2].(GradientStop.Color)"  />
                     </Storyboard>
                 </BeginStoryboard>
             </EventTrigger>
