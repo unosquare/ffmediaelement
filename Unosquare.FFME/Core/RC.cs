@@ -34,9 +34,9 @@
         /// </summary>
         public class ReferenceEntry
         {
-            public UnmanagedType Type;
-            public string Location;
-            public IntPtr Instance;
+            public UnmanagedType Type = default(UnmanagedType);
+            public string Location = null;
+            public IntPtr Instance = IntPtr.Zero;
         }
 
         /// <summary>

@@ -214,8 +214,10 @@
                 LastMousePosition = currentPosition;
             };
 
-            var mouseMoveTimer = new DispatcherTimer(DispatcherPriority.Background);
-            mouseMoveTimer.Interval = TimeSpan.FromMilliseconds(150);
+            var mouseMoveTimer = new DispatcherTimer(DispatcherPriority.Background)
+            {
+                Interval = TimeSpan.FromMilliseconds(150)
+            };
             mouseMoveTimer.Tick += (s, e) =>
             {
                 var elapsedSinceMouseMove = DateTime.UtcNow.Subtract(LastMouseMove);
