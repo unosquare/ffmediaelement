@@ -4,6 +4,8 @@
 
 *:star:Please star this project if you find it useful!*
 
+![ffmeplay](https://github.com/unosquare/ffmediaelement/raw/master/ffmeplay.png)
+
 - MediaElement Status: Still Work in progress (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a> section for a code-complete version)
 - Estimated Beta Release Date: 7/2/2017
 - MediaElement Codename: Michelob (because it uses very little CPU and RAM!)
