@@ -51,14 +51,14 @@
                     PreviewMouseDown="PositionSlider_MouseDown" PreviewMouseUp="PositionSlider_MouseUp" />
 
             <DockPanel Name="ProgressPanel" Grid.Row="2" LastChildFill="True" Margin="20,0">
-                <TextBlock Visibility="{Binding ElementName=window, Path=IsMediaOpenVisibility}" VerticalAlignment="Center" DockPanel.Dock="Left" Foreground="{StaticResource CustomSliderHighlightBrush}" Text="{Binding ElementName=Media, Path=Position, Converter={StaticResource TimeSpanFormatter}, Mode=OneWay}" />
-                <TextBlock Visibility="{Binding ElementName=window, Path=IsMediaOpenVisibility}" VerticalAlignment="Center" DockPanel.Dock="Right" Foreground="{StaticResource CustomSliderHighlightBrush}" Text="{Binding ElementName=Media, Path=Position, Converter={StaticResource TimeSpanFormatter}, ConverterParameter=1, Mode=OneWay}" />
+                <TextBlock Width="100" Visibility="{Binding ElementName=window, Path=IsMediaOpenVisibility}" VerticalAlignment="Center" DockPanel.Dock="Left" Foreground="{StaticResource CustomSliderHighlightBrush}" Text="{Binding ElementName=Media, Path=Position, Converter={StaticResource TimeSpanFormatter}, Mode=OneWay}" />
+                <TextBlock Width="100" Visibility="{Binding ElementName=window, Path=IsMediaOpenVisibility}" VerticalAlignment="Center" DockPanel.Dock="Right" Foreground="{StaticResource CustomSliderHighlightBrush}" Text="{Binding ElementName=Media, Path=Position, Converter={StaticResource TimeSpanFormatter}, ConverterParameter=1, Mode=OneWay}" />
                 <Grid Width="500">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="50" />
+                        <ColumnDefinition Width="100" />
                         <ColumnDefinition />
                         <ColumnDefinition />
-                        <ColumnDefinition Width="50" />
+                        <ColumnDefinition Width="100" />
                     </Grid.ColumnDefinitions>
 
                     <TextBlock Visibility="{Binding ElementName=window, Path=BufferingProgressVisibility}" Grid.Column="0" VerticalAlignment="Center" TextAlignment="Center" Foreground="{StaticResource CustomSliderHighlightBrush}" Text="{Binding ElementName=Media,Path=BufferingProgress, Converter={StaticResource PercentageFormatter}}" ToolTip="Buffering Progress" />

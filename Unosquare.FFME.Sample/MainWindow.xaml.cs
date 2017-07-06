@@ -449,9 +449,10 @@
                 return;
             }
 
-            if (e.PropertyName.Equals(nameof(Media.DownloadProgress)))
+            if (e.PropertyName.Equals(nameof(Media.DownloadProgress)) || e.PropertyName.Equals(nameof(Media.HasMediaEnded)))
             {
-                DownloadProgressVisibility = Media.IsOpen && (Media.DownloadProgress < 0.95 || Media.IsLiveStream) ? Visibility.Visible : Visibility.Hidden;
+                DownloadProgressVisibility = Media.IsOpen && Media.HasMediaEnded == false 
+                    && (Media.DownloadProgress < 0.95 || Media.IsLiveStream) ? Visibility.Visible : Visibility.Hidden;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DownloadProgressVisibility)));
                 return;
             }
@@ -576,7 +577,8 @@
             BufferingProgressVisibility = Media.IsBuffering ? Visibility.Visible : Visibility.Hidden;
             OpenButtonVisibility = Media.IsOpening == false ? Visibility.Visible : Visibility.Hidden;
             IsSpeedRatioEnabled = Media.IsOpen && Media.IsSeekable;
-            DownloadProgressVisibility = Media.IsOpen && (Media.DownloadProgress < 0.95 || Media.IsLiveStream) ? Visibility.Visible : Visibility.Hidden;
+            DownloadProgressVisibility = Media.IsOpen && Media.HasMediaEnded == false
+                && (Media.DownloadProgress < 0.95 || Media.IsLiveStream) ? Visibility.Visible : Visibility.Hidden;
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsMediaOpenVisibility)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AudioControlVisibility)));
