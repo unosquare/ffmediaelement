@@ -119,17 +119,18 @@
         /// converted into blocks.
         /// </summary>
         /// <param name="packetBufferLength">Length of the packet buffer.</param>
-        private void BufferBlocks(int packetBufferLength)
+        /// <param name="clearExisting">if set to <c>true</c> clears the existing frames and blocks.</param>
+        private void BufferBlocks(int packetBufferLength, bool clearExisting)
         {
             var main = Container.Components.Main.MediaType;
 
             // Clear Blocks and frames, reset the render times
-            foreach (var t in Container.Components.MediaTypes)
-            {
-                Frames[t].Clear();
-                Blocks[t].Clear();
-                LastRenderTime[t] = TimeSpan.MinValue;
-            }
+            if (clearExisting)
+                foreach (var t in Container.Components.MediaTypes)
+                {
+                    Blocks[t].Clear();
+                    LastRenderTime[t] = TimeSpan.MinValue;
+                }
 
             // Raise the buffering started event.
             IsBuffering = true;
@@ -180,7 +181,7 @@
         internal async void RunPacketReadingWorker()
         {
             var packetsRead = 0;
-            
+
             while (IsTaskCancellationPending == false)
             {
                 // Enter a read cycle
@@ -300,7 +301,7 @@
             }
 
             // Buffer some blocks and adjust the clock to the start position
-            BufferBlocks(BufferCacheLength);
+            BufferBlocks(BufferCacheLength, false);
             Clock.Position = Blocks[main].RangeStartTime;
             var wallClock = Clock.Position;
 
@@ -332,7 +333,7 @@
                 // in which more blocks cannot be read. (The clock is on or beyond the Duration)
                 if ((Blocks[main].Count <= 0 || Blocks[main].IsInRange(wallClock) == false) && CanReadMoreBlocksOf(main))
                 {
-                    BufferBlocks(BufferCacheLength);
+                    BufferBlocks(BufferCacheLength, true);
                     wallClock = Blocks[main].IsInRange(wallClock) ? wallClock : Blocks[main].RangeStartTime;
                     Container.Logger?.Log(MediaLogMessageType.Warning, $"SYNC CLOCK: {Clock.Position.Format()} | TGT: {wallClock.Format()}");
                     Clock.Position = wallClock;

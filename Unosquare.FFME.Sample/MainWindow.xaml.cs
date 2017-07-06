@@ -5,6 +5,7 @@
     using System.Diagnostics;
     using System.Windows;
     using System.Windows.Controls;
+    using System.Windows.Input;
     using System.Windows.Media;
     using System.Windows.Media.Animation;
     using System.Windows.Threading;
@@ -299,20 +300,101 @@
         /// </summary>
         private void InitializeMouseEvents()
         {
-            LastMouseMoveTime = DateTime.UtcNow;
-            MouseMove += MainWindow_MouseMove;
-            MouseLeave += MainWindow_MouseLeave;
-            Media.MouseDoubleClick += Media_MouseDoubleClick;
-            //Media.PreviewMouseDown += Media_MouseDown;
-            
-            var mouseMoveTimer = new DispatcherTimer(DispatcherPriority.Background)
+
+            #region Toggle Fullscreen with Double Click
+
+            Media.PreviewMouseDoubleClick += (s, e) =>
             {
-                Interval = TimeSpan.FromMilliseconds(150)
+                if (s != Media) return;
+                e.Handled = true;
+                ToggleFullscreenCommand.Execute();
             };
+
+            #endregion
+
+            #region Exit fullscreen with Escape key
+
+            PreviewKeyDown += (s, e) =>
+            {
+                if (e.Key == Key.Escape && WindowStyle == WindowStyle.None)
+                {
+                    e.Handled = true;
+                    ToggleFullscreenCommand.Execute();
+                }
+            };
+
+            #endregion
+
+            #region Handle Zooming with Mouse Wheel
+
+            PreviewMouseWheel += (s, e) =>
+            {
+                var transform = Media.RenderTransform as ScaleTransform;
+                if (transform == null)
+                {
+                    transform = new ScaleTransform(1, 1);
+                    Media.RenderTransformOrigin = new Point(0.5, 0.5);
+                    Media.RenderTransform = transform;
+                }
+
+                var delta = e.Delta / (Math.Pow(e.Delta, 2d) / 8d);
+
+                transform.ScaleX += delta;
+                transform.ScaleY += delta;
+
+                if (transform.ScaleX < 0.1d || transform.ScaleY < 0.1)
+                {
+                    transform.ScaleX = 0.1d;
+                    transform.ScaleY = 0.1d;
+                }
+                else if (transform.ScaleX > 5d || transform.ScaleY > 5)
+                {
+                    transform.ScaleX = 5;
+                    transform.ScaleY = 5;
+                }
+
+            };
+
+            #endregion
+
+            #region Handle Play Pause with Mouse Clicks
+
+            //Media.PreviewMouseDown += (s, e) =>
+            //{
+            //    if (s != Media) return;
+            //    if (Media.IsOpen == false || Media.CanPause == false) return;
+
+            //    if (Media.IsPlaying)
+            //        PauseCommand.Execute();
+            //    else
+            //        PlayCommand.Execute();
+            //};
+
+            #endregion
+
+            #region Mouse Move Handling (Hide and Show Controls)
+
+            LastMouseMoveTime = DateTime.UtcNow;
+
+            MouseMove += (s, e) =>
+            {
+                var currentPosition = e.GetPosition(window);
+                if (currentPosition.X != LastMousePosition.X || currentPosition.Y != LastMousePosition.Y)
+                    LastMouseMoveTime = DateTime.UtcNow;
+
+                LastMousePosition = currentPosition;
+            };
+
+            MouseLeave += (s, e) =>
+            {
+                LastMouseMoveTime = DateTime.UtcNow.Subtract(TimeSpan.FromSeconds(10));
+            };
+
+            var mouseMoveTimer = new DispatcherTimer(DispatcherPriority.Background) { Interval = TimeSpan.FromMilliseconds(150), IsEnabled = true };
             mouseMoveTimer.Tick += (s, e) =>
             {
                 var elapsedSinceMouseMove = DateTime.UtcNow.Subtract(LastMouseMoveTime);
-                if (elapsedSinceMouseMove.TotalMilliseconds >= 3000 && Media.IsPlaying && Controls.IsMouseOver == false)
+                if (elapsedSinceMouseMove.TotalMilliseconds >= 3000 && Media.IsOpen && Controls.IsMouseOver == false)
                 {
                     if (Controls.Opacity != 0d)
                     {
@@ -334,9 +416,10 @@
                 }
 
             };
-
-            mouseMoveTimer.IsEnabled = true;
             mouseMoveTimer.Start();
+
+            #endregion
+
         }
 
         /// <summary>
@@ -385,58 +468,6 @@
         }
 
         /// <summary>
-        /// Handles the MouseLeave event of the MainWindow control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="System.Windows.Input.MouseEventArgs"/> instance containing the event data.</param>
-        private void MainWindow_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            LastMouseMoveTime = DateTime.UtcNow.Subtract(TimeSpan.FromSeconds(10));
-        }
-
-        /// <summary>
-        /// Handles the MouseMove event of the MainWindow control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="System.Windows.Input.MouseEventArgs"/> instance containing the event data.</param>
-        private void MainWindow_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            var currentPosition = e.GetPosition(window);
-            if (currentPosition.X != LastMousePosition.X || currentPosition.Y != LastMousePosition.Y)
-                LastMouseMoveTime = DateTime.UtcNow;
-
-            LastMousePosition = currentPosition;
-        }
-
-        /// <summary>
-        /// Handles the MouseDoubleClick event of the Media control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="System.Windows.Input.MouseButtonEventArgs"/> instance containing the event data.</param>
-        private void Media_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            if (sender != Media) return;
-            ToggleFullscreenCommand.Execute();
-        }
-
-        /// <summary>
-        /// Handles the MouseDown event of the Media control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="System.Windows.Input.MouseButtonEventArgs"/> instance containing the event data.</param>
-        private void Media_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            if (sender != Media) return;
-            if (Media.IsOpen == false || Media.CanPause == false) return;
-
-            if (Media.IsPlaying)
-                PauseCommand.Execute();
-            else
-                PlayCommand.Execute();
-
-        }
-
-        /// <summary>
         /// Handles the PropertyChanged event of the Media control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
@@ -451,7 +482,7 @@
 
             if (e.PropertyName.Equals(nameof(Media.DownloadProgress)) || e.PropertyName.Equals(nameof(Media.HasMediaEnded)))
             {
-                DownloadProgressVisibility = Media.IsOpen && Media.HasMediaEnded == false 
+                DownloadProgressVisibility = Media.IsOpen && Media.HasMediaEnded == false
                     && (Media.DownloadProgress < 0.95 || Media.IsLiveStream) ? Visibility.Visible : Visibility.Hidden;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DownloadProgressVisibility)));
                 return;
@@ -523,7 +554,6 @@
         {
             WasPlaying = Media.IsPlaying;
             Media.Pause();
-
         }
 
         /// <summary>
