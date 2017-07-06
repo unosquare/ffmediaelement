@@ -162,7 +162,7 @@
         public bool HasMediaEnded
         {
             get { return m_HasMediaEnded; }
-            private set { SetProperty(ref m_HasMediaEnded, value); }
+            internal set { SetProperty(ref m_HasMediaEnded, value); }
         }
 
         /// <summary>

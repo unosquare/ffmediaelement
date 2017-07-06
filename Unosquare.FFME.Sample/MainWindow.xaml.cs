@@ -394,7 +394,8 @@
             mouseMoveTimer.Tick += (s, e) =>
             {
                 var elapsedSinceMouseMove = DateTime.UtcNow.Subtract(LastMouseMoveTime);
-                if (elapsedSinceMouseMove.TotalMilliseconds >= 3000 && Media.IsOpen && Controls.IsMouseOver == false)
+                if (elapsedSinceMouseMove.TotalMilliseconds >= 3000 && Media.IsOpen && Controls.IsMouseOver == false
+                    && OpenMediaPopup.IsOpen == false && DebugWindowPopup.IsOpen == false && SoundMenuPopup.IsOpen == false)
                 {
                     if (Controls.Opacity != 0d)
                     {
@@ -442,6 +443,15 @@
                 UrlTextBox.SelectAll();
                 UrlTextBox.Focus();
             };
+
+            UrlTextBox.KeyDown += (s, e) =>
+            {
+                if (e.Key == Key.Enter)
+                {
+                    OpenCommand.Execute();
+                    e.Handled = true;
+                }
+            };
         }
 
         #endregion
@@ -474,13 +484,16 @@
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
         private void Media_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName.Equals(nameof(Media.IsOpen)) || e.PropertyName.Equals(nameof(Media.MediaState)))
+            if (e.PropertyName.Equals(nameof(Media.IsOpen))
+                || e.PropertyName.Equals(nameof(Media.IsOpening))
+                || e.PropertyName.Equals(nameof(Media.MediaState)))
             {
                 UpdateUIElements();
                 return;
             }
 
-            if (e.PropertyName.Equals(nameof(Media.DownloadProgress)) || e.PropertyName.Equals(nameof(Media.HasMediaEnded)))
+            if (e.PropertyName.Equals(nameof(Media.DownloadProgress))
+                || e.PropertyName.Equals(nameof(Media.HasMediaEnded)))
             {
                 DownloadProgressVisibility = Media.IsOpen && Media.HasMediaEnded == false
                     && (Media.DownloadProgress < 0.95 || Media.IsLiveStream) ? Visibility.Visible : Visibility.Hidden;
@@ -600,7 +613,7 @@
             AudioControlVisibility = Media.HasAudio ? Visibility.Visible : Visibility.Hidden;
             IsAudioControlEnabled = Media.HasAudio;
             PauseButtonVisibility = Media.CanPause && Media.IsPlaying ? Visibility.Visible : Visibility.Collapsed;
-            PlayButtonVisibility = Media.IsOpen && Media.IsPlaying == false ? Visibility.Visible : Visibility.Collapsed;
+            PlayButtonVisibility = Media.IsOpen && Media.IsPlaying == false && Media.HasMediaEnded == false ? Visibility.Visible : Visibility.Collapsed;
             StopButtonVisibility = Media.IsOpen && Media.IsSeekable && Media.MediaState != MediaState.Stop ? Visibility.Visible : Visibility.Hidden;
             CloseButtonVisibility = Media.IsOpen ? Visibility.Visible : Visibility.Hidden;
             SeekBarVisibility = Media.IsSeekable ? Visibility.Visible : Visibility.Hidden;

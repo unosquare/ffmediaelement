@@ -437,9 +437,10 @@
                         Clock.Pause();
                         Clock.Position = NaturalDuration.HasTimeSpan ?
                             NaturalDuration.TimeSpan : Blocks[main].RangeEndTime;
+
+                        HasMediaEnded = true;
                         MediaState = MediaState.Pause;
                         UpdatePosition(Clock.Position);
-                        HasMediaEnded = true;
                         RaiseMediaEndedEvent();
                     }
                 }

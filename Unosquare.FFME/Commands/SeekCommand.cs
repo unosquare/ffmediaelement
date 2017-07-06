@@ -66,6 +66,7 @@
 
                 // Populate frame queues with after-seek operation
                 var frames = m.Container.Seek(TargetPosition);
+                m.HasMediaEnded = false;
 
                 foreach (var frame in frames)
                     m.Frames[frame.MediaType].Push(frame);

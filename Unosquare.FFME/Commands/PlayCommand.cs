@@ -22,6 +22,8 @@
         {
             var m = Manager.MediaElement;
             if (m.IsOpen == false) return;
+            if (m.HasMediaEnded || (m.NaturalDuration.HasTimeSpan && m.Clock.Position >= m.NaturalDuration.TimeSpan))
+                return;
 
             foreach (var renderer in m.Renderers.Values)
                 renderer.Play();
