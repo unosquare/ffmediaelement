@@ -78,8 +78,8 @@
     </ApplicationDefinition>
     <Compile Include="DelegateCommand.cs" />
     <Compile Include="ConsoleManager.cs" />
-    <Compile Include="TestInputs.cs" />
     <Compile Include="ValueConverters.cs" />
+    <Compile Include="WindowStatus.cs" />
     <Page Include="Icons.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

@@ -2,7 +2,6 @@
 {
     using Core;
     using Decoding;
-    using System;
     using Unosquare.FFME.Commands;
 
     partial class MediaElement

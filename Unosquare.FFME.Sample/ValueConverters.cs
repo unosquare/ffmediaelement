@@ -1,16 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Data;
-
-namespace Unosquare.FFME.Sample
+﻿namespace Unosquare.FFME.Sample
 {
+    using System;
+    using System.Globalization;
+    using System.Windows;
+    using System.Windows.Data;
+
+    /// <summary>
+    /// Converts between TimeSpans and double-precision Seconds time measures
+    /// </summary>
+    /// <seealso cref="System.Windows.Data.IValueConverter" />
     public class TimeSpanToSecondsConverter : IValueConverter
     {
+        /// <summary>
+        /// Converts a value.
+        /// </summary>
+        /// <param name="value">The value produced by the binding source.</param>
+        /// <param name="targetType">The type of the binding target property.</param>
+        /// <param name="parameter">The converter parameter to use.</param>
+        /// <param name="culture">The culture to use in the converter.</param>
+        /// <returns>
+        /// A converted value. If the method returns null, the valid null value is used.
+        /// </returns>
         public object Convert(object value, Type targetType,
             object parameter, CultureInfo culture)
         {
@@ -20,6 +30,16 @@ namespace Unosquare.FFME.Sample
             return 0d;
         }
 
+        /// <summary>
+        /// Converts a value.
+        /// </summary>
+        /// <param name="value">The value that is produced by the binding target.</param>
+        /// <param name="targetType">The type to convert to.</param>
+        /// <param name="parameter">The converter parameter to use.</param>
+        /// <param name="culture">The culture to use in the converter.</param>
+        /// <returns>
+        /// A converted value. If the method returns null, the valid null value is used.
+        /// </returns>
         public object ConvertBack(object value, Type targetType,
             object parameter, CultureInfo culture)
         {
@@ -31,26 +51,28 @@ namespace Unosquare.FFME.Sample
             return Activator.CreateInstance(targetType);
         }
     }
-    public class InverseBoolConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            bool booleanValue = (bool)value;
-            return !booleanValue;
-        }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            bool booleanValue = (bool)value;
-            return !booleanValue;
-        }
-    }
-        public class TimeSpanFormatter : IValueConverter
+    /// <summary>
+    /// Formsts timespan time measures as string with 3-decimal milliseconds
+    /// </summary>
+    /// <seealso cref="System.Windows.Data.IValueConverter" />
+    public class TimeSpanFormatter : IValueConverter
     {
+        /// <summary>
+        /// Converts the specified position.
+        /// </summary>
+        /// <param name="position">The position.</param>
+        /// <param name="targetType">Type of the target.</param>
+        /// <param name="duration">The duration.</param>
+        /// <param name="culture">The culture.</param>
+        /// <returns></returns>
         public object Convert(object position, Type targetType, object duration, CultureInfo culture)
         {
             if (duration != null)
-                duration = (App.Current.MainWindow as MainWindow)?.Media?.NaturalDuration;
+            {
+                duration =  (App.Current.MainWindow as MainWindow)?.Media?.NaturalDuration;
+                if (duration == null) duration = TimeSpan.Zero;
+            }
 
             var p = TimeSpan.Zero;
             var d = TimeSpan.Zero;
@@ -65,17 +87,40 @@ namespace Unosquare.FFME.Sample
 
                 if (d == TimeSpan.Zero) return string.Empty;
                 p = TimeSpan.FromTicks(d.Ticks - p.Ticks);
-                
+
             }
 
             return $"{(int)(p.TotalHours):00}:{p.Minutes:00}:{p.Seconds:00}.{p.Milliseconds:000}";
         }
 
+        /// <summary>
+        /// Converts a value.
+        /// </summary>
+        /// <param name="value">The value that is produced by the binding target.</param>
+        /// <param name="targetType">The type to convert to.</param>
+        /// <param name="parameter">The converter parameter to use.</param>
+        /// <param name="culture">The culture to use in the converter.</param>
+        /// <returns>
+        /// A converted value. If the method returns null, the valid null value is used.
+        /// </returns>
+        /// <exception cref="NotImplementedException"></exception>
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) { throw new NotImplementedException(); }
     }
 
+    /// <summary>
+    /// Formats a fractional value as a percentage string.
+    /// </summary>
+    /// <seealso cref="System.Windows.Data.IValueConverter" />
     public class PercentageFormatter : IValueConverter
     {
+        /// <summary>
+        /// Converts the specified value.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <param name="targetType">Type of the target.</param>
+        /// <param name="format">The format.</param>
+        /// <param name="culture">The culture.</param>
+        /// <returns></returns>
         public object Convert(object value, Type targetType, object format, CultureInfo culture)
         {
             var percentage = 0d;
@@ -90,6 +135,14 @@ namespace Unosquare.FFME.Sample
                 return $"{((percentage > 0d) ? "R " : "L ")} {Math.Abs(percentage),3:0}%";
         }
 
+        /// <summary>
+        /// Converts the back.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <param name="targetType">Type of the target.</param>
+        /// <param name="parameter">The parameter.</param>
+        /// <param name="culture">The culture.</param>
+        /// <returns></returns>
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) { throw new NotImplementedException(); }
     }
 }

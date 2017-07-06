@@ -76,11 +76,10 @@
 
             // Clear the render times
             m.LastRenderTime.Clear();
+            m.MediaState = System.Windows.Controls.MediaState.Close;
 
             // Update notification properties
             Utils.UIInvoke(DispatcherPriority.DataBind, () => { m.NotifyPropertyChanges(); });
-
-            m.MediaState = System.Windows.Controls.MediaState.Close;
 #if DEBUG
             if (RC.Current.InstancesByLocation.Count > 0)
             {

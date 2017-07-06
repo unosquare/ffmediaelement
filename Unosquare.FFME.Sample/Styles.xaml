@@ -7,9 +7,11 @@
 
     <LinearGradientBrush x:Key="ShadedBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
         <GradientStopCollection>
-            <GradientStop Offset="0" Color="#00000000" />
-            <GradientStop Offset="0.2" Color="#00000000" />
-            <GradientStop Offset="0.3" Color="#00000000" />
+            <GradientStop Offset="0.0" Color="#00000000" />
+            <GradientStop Offset="0.1" Color="#44000000" />
+            <GradientStop Offset="0.2" Color="#66000000" />
+            <GradientStop Offset="0.4" Color="#D6000000" />
+            <GradientStop Offset="0.4" Color="#D6000000" />
         </GradientStopCollection>
     </LinearGradientBrush>
 
@@ -17,7 +19,7 @@
     <ControlTemplate x:Key="PositionSliderThumbTemplate" TargetType="{x:Type Thumb}">
         <Grid HorizontalAlignment="Center" UseLayoutRounding="True" VerticalAlignment="Center">
             <Path x:Name="grip" Data="M 0,0 A 180,180 180 1 1 1,1 Z" Fill="Transparent" Stretch="Fill"
-                  Stroke="{StaticResource CustomSliderForegroundBrush}" StrokeThickness="2" UseLayoutRounding="True" VerticalAlignment="Center"
+                  Stroke="{StaticResource CustomSliderForegroundBrush}" StrokeThickness="2.5" UseLayoutRounding="True" VerticalAlignment="Center"
                   Margin="-1,-1" />
         </Grid>
         <ControlTemplate.Triggers>
@@ -206,27 +208,8 @@
 
     <Style x:Key="ControlsGridStyle" TargetType="{x:Type Grid}">
         <Setter Property="VerticalAlignment" Value="Bottom" />
-        <Setter Property="Height" Value="300" />
+        <Setter Property="Height" Value="250" />
         <Setter Property="Background" Value="{DynamicResource ShadedBackgroundBrush}" />
-
-        <Style.Triggers>
-            <EventTrigger RoutedEvent="UIElement.MouseEnter">
-                <BeginStoryboard>
-                    <Storyboard>
-                        <ColorAnimation Duration="0:0:0.200" To="#99000000" Storyboard.TargetProperty="(Grid.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)"  />
-                        <ColorAnimation Duration="0:0:0.200" To="#DD000000" Storyboard.TargetProperty="(Grid.Background).(GradientBrush.GradientStops)[2].(GradientStop.Color)"  />
-                    </Storyboard>
-                </BeginStoryboard>
-            </EventTrigger>
-            <EventTrigger RoutedEvent="UIElement.MouseLeave">
-                <BeginStoryboard>
-                    <Storyboard>
-                        <ColorAnimation Duration="0:0:0.200" To="#00000000" Storyboard.TargetProperty="(Grid.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)"  />
-                        <ColorAnimation Duration="0:0:0.200" To="#00000000" Storyboard.TargetProperty="(Grid.Background).(GradientBrush.GradientStops)[2].(GradientStop.Color)"  />
-                    </Storyboard>
-                </BeginStoryboard>
-            </EventTrigger>
-        </Style.Triggers>
     </Style>
 
 </ResourceDictionary>

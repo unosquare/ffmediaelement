@@ -284,6 +284,7 @@
         {
             UpdateMetadaProperty();
 
+            OnPropertyChanged(nameof(IsOpen));
             OnPropertyChanged(nameof(MediaFormat));
             OnPropertyChanged(nameof(HasAudio));
             OnPropertyChanged(nameof(HasVideo));
@@ -299,33 +300,22 @@
             OnPropertyChanged(nameof(AudioSampleRate));
             OnPropertyChanged(nameof(AudioBitsPerSample));
             OnPropertyChanged(nameof(NaturalDuration));
-            OnPropertyChanged(nameof(IsOpen));
             OnPropertyChanged(nameof(CanPause));
             OnPropertyChanged(nameof(IsLiveStream));
             OnPropertyChanged(nameof(IsSeekable));
             OnPropertyChanged(nameof(BufferCacheLength));
             OnPropertyChanged(nameof(DownloadCacheLength));
 
-            if (Container == null)
-            {
-                Volume = Constants.DefaultVolume;
-                Balance = Constants.DefaultBalance;
-                SpeedRatio = Constants.DefaultSpeedRatio;
-                IsMuted = false;
-                Position = TimeSpan.Zero;
-            }
-            else
-            {
-                //Volume = System.Convert.ToDouble(Media.Volume);
-                //Position = Media.Position;
-            }
-
+            Volume = Constants.DefaultVolume;
+            Balance = Constants.DefaultBalance;
+            SpeedRatio = Constants.DefaultSpeedRatio;
+            IsMuted = false;
             DownloadProgress = 0;
             BufferingProgress = 0;
             IsBuffering = false;
             IsMuted = false;
             HasMediaEnded = false;
-            SpeedRatio = Constants.DefaultSpeedRatio;
+            UpdatePosition(TimeSpan.Zero);
         }
 
         #endregion
