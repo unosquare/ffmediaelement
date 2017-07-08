@@ -121,6 +121,14 @@
         public bool IsInitialized { get { return InputContext != null; } }
 
         /// <summary>
+        /// Gets a value indicating whether this instance is open.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is open; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsOpen { get { return IsInitialized && Components.All.Count > 0; } }
+
+        /// <summary>
         /// Gets the media start time by which all component streams are offset. 
         /// Typically 0 but it could be something other than 0.
         /// </summary>
@@ -260,6 +268,8 @@
             // Create the options object
             Logger = logger;
             MediaUrl = mediaUrl;
+
+            StreamInitialize();
         }
 
         #endregion
@@ -267,14 +277,14 @@
         #region Public API
 
         /// <summary>
-        /// Initializes the input context in order to start reading from the Media URL.
+        /// Opens the individual stram components on the existing input context in order to start reading packets.
         /// Any Media Options must be set before this method is called.
         /// </summary>
-        public void Initialize()
+        public void Open()
         {
             lock (ReadSyncRoot)
             {
-                StreamInitialize();
+                StreamOpen();
             }
         }
 
@@ -428,6 +438,8 @@
 
         /// <summary>
         /// Initializes the input context to start read operations.
+        /// This does NOT create the stream components and therefore, there needs to be a call
+        /// to the Open method.
         /// </summary>
         /// <exception cref="System.InvalidOperationException">The input context has already been initialized.</exception>
         /// <exception cref="MediaContainerException"></exception>
@@ -537,30 +549,6 @@
                 }
 
                 MediaDuration = InputContext->duration.ToTimeSpan();
-
-                // Open the best suitable streams. Throw if no audio and/or video streams are found
-                StreamCreateComponents();
-
-                // Verify the stream input start offset. This is the zero measure for all sub-streams.
-                var minOffset = Components.All.Count > 0 ? Components.All.Min(c => c.StartTimeOffset) : MediaStartTimeOffset;
-                if (minOffset != MediaStartTimeOffset)
-                {
-                    Logger?.Log(MediaLogMessageType.Warning, $"Input Start: {MediaStartTimeOffset.Format()} Comp. Start: {minOffset.Format()}. Input start will be updated.");
-                    MediaStartTimeOffset = minOffset;
-                }
-
-                // For network streams, figure out if reads can be paused and then start them.
-                CanReadSuspend = ffmpeg.av_read_pause(InputContext) == 0;
-                ffmpeg.av_read_play(InputContext);
-                IsReadSuspended = false;
-
-                // Initially and depending on the video component, rquire picture attachments.
-                // Picture attachments are only required after the first read or after a seek.
-                RequiresPictureAttachments = true;
-
-                // Seek to the begining of the file
-                StreamSeekToStart();
-
             }
             catch (Exception ex)
             {
@@ -569,6 +557,38 @@
                 Dispose(true);
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Opens the individual stream components to start reading packets.
+        /// </summary>
+        private void StreamOpen()
+        {
+            // Check no double calls to this method.
+            if (IsOpen) throw new InvalidOperationException("The stream components are already open.");
+
+            // Open the best suitable streams. Throw if no audio and/or video streams are found
+            StreamCreateComponents();
+
+            // Verify the stream input start offset. This is the zero measure for all sub-streams.
+            var minOffset = Components.All.Count > 0 ? Components.All.Min(c => c.StartTimeOffset) : MediaStartTimeOffset;
+            if (minOffset != MediaStartTimeOffset)
+            {
+                Logger?.Log(MediaLogMessageType.Warning, $"Input Start: {MediaStartTimeOffset.Format()} Comp. Start: {minOffset.Format()}. Input start will be updated.");
+                MediaStartTimeOffset = minOffset;
+            }
+
+            // For network streams, figure out if reads can be paused and then start them.
+            CanReadSuspend = ffmpeg.av_read_pause(InputContext) == 0;
+            ffmpeg.av_read_play(InputContext);
+            IsReadSuspended = false;
+
+            // Initially and depending on the video component, rquire picture attachments.
+            // Picture attachments are only required after the first read or after a seek.
+            RequiresPictureAttachments = true;
+
+            // Seek to the begining of the file
+            StreamSeekToStart();
         }
 
         /// <summary>
@@ -686,8 +706,8 @@
         private MediaType StreamRead()
         {
             // Check the context has been initialized
-            if (IsInitialized == false)
-                throw new InvalidOperationException($"Please call the {nameof(Initialize)} method before attempting this operation.");
+            if (IsOpen == false)
+                throw new InvalidOperationException($"Please call the {nameof(Open)} method before attempting this operation.");
 
             // Ensure read is not suspended
             StreamReadResume();

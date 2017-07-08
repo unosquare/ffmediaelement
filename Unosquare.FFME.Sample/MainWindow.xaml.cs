@@ -337,10 +337,10 @@
                     Media.RenderTransform = transform;
                 }
 
-                var delta = e.Delta / (Math.Pow(e.Delta, 2d) / 8d);
+                var delta = SnapToMultiple(e.Delta / 2000d, 0.05d);
 
-                transform.ScaleX += delta;
-                transform.ScaleY += delta;
+                transform.ScaleX = Math.Round(transform.ScaleX + delta, 2);
+                transform.ScaleY = Math.Round(transform.ScaleY + delta, 2);
 
                 if (transform.ScaleX < 0.1d || transform.ScaleY < 0.1)
                 {
@@ -603,6 +603,18 @@
         #endregion
 
         #region Helper Methods
+
+        /// <summary>
+        /// Snaps to the given multiple multiple.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <param name="multiple">The multiple.</param>
+        /// <returns></returns>
+        public static double SnapToMultiple(double value, double multiple)
+        {
+            var factor = (int)(value / multiple);
+            return factor * multiple;
+        }
 
         /// <summary>
         /// Updates the UI elements and notifies the UI of all the property changes.

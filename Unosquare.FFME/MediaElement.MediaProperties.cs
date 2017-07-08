@@ -243,7 +243,7 @@
         /// </summary>
         public bool IsOpen
         {
-            get { return (IsOpening == false) && (Container?.IsInitialized ?? false); }
+            get { return (IsOpening == false) && (Container?.IsOpen ?? false); }
         }
 
         /// <summary>

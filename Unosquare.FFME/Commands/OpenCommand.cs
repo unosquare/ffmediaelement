@@ -70,7 +70,7 @@
                 m.Container = new MediaContainer(mediaUrl, m.Logger);
                 m.RaiseMediaOpeningEvent();
                 m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Entered");
-                m.Container.Initialize();
+                m.Container.Open();
 
                 foreach (var t in m.Container.Components.MediaTypes)
                 {
