@@ -83,10 +83,9 @@
         <ControlTemplate.Triggers>
             <Trigger Property="IsDragging" Value="true">
                 <Setter Property="Fill" TargetName="grip" Value="{StaticResource CustomSliderHighlightBrush}"/>
-
             </Trigger>
             <Trigger Property="IsEnabled" Value="false">
-                <Setter Property="Visibility" TargetName="grip" Value="Hidden" />
+                <Setter Property="Fill" TargetName="grip" Value="{StaticResource CustomSliderBackgroundBrush}"/>
             </Trigger>
             <Trigger Property="IsKeyboardFocused" Value="true">
                 <Setter Property="Fill" TargetName="grip" Value="{StaticResource CustomSliderForegroundBrush}"/>
@@ -137,7 +136,7 @@
         <Setter Property="AutoToolTipPlacement" Value="None" />
         <Setter Property="IsMoveToPointEnabled" Value="True" />
         <Setter Property="VerticalAlignment" Value="Center" />
-        <Setter Property="SelectionStart" Value="0" />
+        <Setter Property="SelectionStart" Value="{Binding Path=Minimum, RelativeSource={RelativeSource Self}}" />
         <Setter Property="SelectionEnd" Value="{Binding Path=Value, RelativeSource={RelativeSource Self}}" />
         <Setter Property="Template" Value="{StaticResource CustomSliderTemplate}"/>
     </Style>
