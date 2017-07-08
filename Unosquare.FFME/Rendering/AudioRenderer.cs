@@ -329,7 +329,10 @@
             lock (SyncLock)
             {
                 AudioBuffer?.Clear();
-                Array.Clear(ReadBuffer, 0, ReadBuffer.Length);
+                if (ReadBuffer != null)
+                {
+                    Array.Clear(ReadBuffer, 0, ReadBuffer.Length);
+                }
             }
 
         }
