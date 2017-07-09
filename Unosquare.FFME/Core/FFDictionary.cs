@@ -80,6 +80,26 @@
         #region Methods
 
         /// <summary>
+        /// Converts the AVDictionary to a regular dictionary.
+        /// </summary>
+        /// <param name="dictionary">The dictionary to convert from.</param>
+        /// <returns></returns>
+        static public Dictionary<string, string> ToDictionary(AVDictionary* dictionary)
+        {
+
+            var result = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+
+            var metadataEntry = ffmpeg.av_dict_get(dictionary, "", null, ffmpeg.AV_DICT_IGNORE_SUFFIX);
+            while (metadataEntry != null)
+            {
+                result[Utils.PtrToString(metadataEntry->key)] = Utils.PtrToString(metadataEntry->value);
+                metadataEntry = ffmpeg.av_dict_get(dictionary, "", metadataEntry, ffmpeg.AV_DICT_IGNORE_SUFFIX);
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Fills this dictionary with a set of options
         /// </summary>
         /// <param name="other"></param>
@@ -102,7 +122,7 @@
         /// <summary>
         /// Gets the next entry based on the provided prior entry.
         /// </summary>
-        /// <param name="prior">The prior.</param>
+        /// <param name="prior">The prior entry.</param>
         /// <returns></returns>
         public FFDictionaryEntry Next(FFDictionaryEntry prior)
         {

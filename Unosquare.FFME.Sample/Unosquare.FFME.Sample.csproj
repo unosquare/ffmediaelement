@@ -144,6 +144,10 @@
     <Resource Include="ffmpeg.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FFmpeg.Autogen\FFmpeg.Autogen.csproj">
+      <Project>{f2ed59d8-4c8f-44a0-8532-21a5448e44dd}</Project>
+      <Name>FFmpeg.Autogen</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Unosquare.FFME\Unosquare.FFME.csproj">
       <Project>{a6eb99a6-aae2-4e6e-ab9e-93992ce5b84d}</Project>
       <Name>Unosquare.FFME</Name>

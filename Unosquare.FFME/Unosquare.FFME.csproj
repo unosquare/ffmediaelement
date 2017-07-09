@@ -72,6 +72,7 @@
     <Compile Include="Core\IMediaLogger.cs" />
     <Compile Include="Core\MediaTypeDictionary.cs" />
     <Compile Include="Core\NativeMethods.cs" />
+    <Compile Include="MediaInfo.cs" />
     <Compile Include="MediaLogMessagEventArgs.cs" />
     <Compile Include="MediaElement.Workers.cs" />
     <Compile Include="Rendering\Wave\IWaveProvider.cs" />

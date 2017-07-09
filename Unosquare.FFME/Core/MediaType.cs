@@ -1,4 +1,6 @@
-﻿namespace Unosquare.FFME.Core
+﻿using FFmpeg.AutoGen;
+
+namespace Unosquare.FFME.Core
 {
     /// <summary>
     /// Enumerates the different Media Types
@@ -8,21 +10,21 @@
         /// <summary>
         /// Represents an unexisting media type (-1)
         /// </summary>
-        None = -1,
+        None = AVMediaType.AVMEDIA_TYPE_UNKNOWN,
 
         /// <summary>
         /// The video media type (0)
         /// </summary>
-        Video = 0,
+        Video = AVMediaType.AVMEDIA_TYPE_VIDEO,
         
         /// <summary>
         /// The audio media type (1)
         /// </summary>
-        Audio = 1,
+        Audio = AVMediaType.AVMEDIA_TYPE_AUDIO,
         
         /// <summary>
         /// The subtitle media type (3)
         /// </summary>
-        Subtitle = 3,
+        Subtitle = AVMediaType.AVMEDIA_TYPE_SUBTITLE,
     }
 }

@@ -47,7 +47,7 @@
         /// A dictionary of Format options.
         /// Supported format options are specified in https://www.ffmpeg.org/ffmpeg-formats.html#Format-Options
         /// </summary>
-        public Dictionary<string, string> FormatOptions { get; } = new Dictionary<string, string>();
+        public Dictionary<string, string> FormatOptions { get; } = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
         /// <summary>
         /// Gets the codec options.
@@ -103,6 +103,24 @@
         /// Please see: https://ffmpeg.org/ffmpeg-filters.html#Video-Filters
         /// </summary>
         public string VideoFilter { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Initially contains the best suitable video stream.
+        /// Can be changed to a different stream reference.
+        /// </summary>
+        public StreamInfo VideoStream { get; set; } = null;
+
+        /// <summary>
+        /// Initially contains the best suitable audio stream.
+        /// Can be changed to a different stream reference.
+        /// </summary>
+        public StreamInfo AudioStream { get; set; } = null;
+
+        /// <summary>
+        /// Initially contains the best suitable subititle stream.
+        /// Can be changed to a different stream reference.
+        /// </summary>
+        public StreamInfo SubtitleStream { get; set; } = null;
 
     }
 

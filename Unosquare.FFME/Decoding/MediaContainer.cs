@@ -94,6 +94,11 @@
         public MediaOptions MediaOptions { get; } = new MediaOptions();
 
         /// <summary>
+        /// Provides stream, chapter and program info held by this container.
+        /// </summary>
+        public MediaInfo MediaInfo { get; private set; }
+
+        /// <summary>
         /// Gets the name of the media format.
         /// </summary>
         public string MediaFormatName { get; private set; }
@@ -518,18 +523,7 @@
                 if (InputContext->pb != null) InputContext->pb->eof_reached = 0;
 
                 // Setup initial state variables
-                {
-                    var metadataDictionary = new Dictionary<string, string>();
-
-                    var metadataEntry = ffmpeg.av_dict_get(InputContext->metadata, "", null, ffmpeg.AV_DICT_IGNORE_SUFFIX);
-                    while (metadataEntry != null)
-                    {
-                        metadataDictionary[Utils.PtrToString(metadataEntry->key)] = Utils.PtrToString(metadataEntry->value);
-                        metadataEntry = ffmpeg.av_dict_get(InputContext->metadata, "", metadataEntry, ffmpeg.AV_DICT_IGNORE_SUFFIX);
-                    }
-
-                    Metadata = new ReadOnlyDictionary<string, string>(metadataDictionary);
-                }
+                Metadata = new ReadOnlyDictionary<string, string>(FFDictionary.ToDictionary(InputContext->metadata));
 
                 IsStreamRealtime = new[] { "rtp", "rtsp", "sdp" }.Any(s => MediaFormatName.Equals(s)) ||
                     (InputContext->pb != null && new[] { "rtp:", "udp:" }.Any(s => MediaUrl.StartsWith(s)));
@@ -549,6 +543,16 @@
                 }
 
                 MediaDuration = InputContext->duration.ToTimeSpan();
+                MediaInfo = new MediaInfo(this);
+                foreach (var s in MediaInfo.BestStreams)
+                {
+                    if (s.Key == AVMediaType.AVMEDIA_TYPE_VIDEO)
+                        MediaOptions.VideoStream = s.Value;
+                    else if (s.Key == AVMediaType.AVMEDIA_TYPE_AUDIO)
+                        MediaOptions.AudioStream = s.Value;
+                    else if (s.Key == AVMediaType.AVMEDIA_TYPE_SUBTITLE)
+                        MediaOptions.SubtitleStream = s.Value;
+                }
             }
             catch (Exception ex)
             {
@@ -599,77 +603,45 @@
         /// <exception cref="Unosquare.FFME.MediaContainerException"></exception>
         private void StreamCreateComponents()
         {
-            // Display stream information in the console if we are debugging
-            if (Utils.IsInDebugMode)
-                ffmpeg.av_dump_format(InputContext, 0, MediaUrl, 0);
 
-            // Initialize and clear all the stream indexes.
-            var streamIndexes = new int[(int)AVMediaType.AVMEDIA_TYPE_NB];
-            for (var i = 0; i < (int)AVMediaType.AVMEDIA_TYPE_NB; i++)
-                streamIndexes[i] = -1;
-
-            { // Find best streams for each component
-
-                // if we passed null instead of the requestedCodec pointer, then
-                // find_best_stream would not validate whether a valid decoder is registed.
-                AVCodec* requestedCodec = null;
-
-                if (MediaOptions.IsVideoDisabled == false)
-                    streamIndexes[(int)AVMediaType.AVMEDIA_TYPE_VIDEO] =
-                        ffmpeg.av_find_best_stream(InputContext, AVMediaType.AVMEDIA_TYPE_VIDEO,
-                                            streamIndexes[(int)AVMediaType.AVMEDIA_TYPE_VIDEO], -1,
-                                            &requestedCodec, 0);
-
-                if (MediaOptions.IsAudioDisabled == false)
-                    streamIndexes[(int)AVMediaType.AVMEDIA_TYPE_AUDIO] =
-                    ffmpeg.av_find_best_stream(InputContext, AVMediaType.AVMEDIA_TYPE_AUDIO,
-                                        streamIndexes[(int)AVMediaType.AVMEDIA_TYPE_AUDIO],
-                                        streamIndexes[(int)AVMediaType.AVMEDIA_TYPE_VIDEO],
-                                        &requestedCodec, 0);
-
-                if (MediaOptions.IsSubtitleDisabled == false)
-                    streamIndexes[(int)AVMediaType.AVMEDIA_TYPE_SUBTITLE] =
-                    ffmpeg.av_find_best_stream(InputContext, AVMediaType.AVMEDIA_TYPE_SUBTITLE,
-                                        streamIndexes[(int)AVMediaType.AVMEDIA_TYPE_SUBTITLE],
-                                        (streamIndexes[(int)AVMediaType.AVMEDIA_TYPE_AUDIO] >= 0 ?
-                                         streamIndexes[(int)AVMediaType.AVMEDIA_TYPE_AUDIO] :
-                                         streamIndexes[(int)AVMediaType.AVMEDIA_TYPE_VIDEO]),
-                                        &requestedCodec, 0);
-            }
-
-
-            foreach (var t in Constants.MediaTypes)
+            // Create the audio component
+            try
             {
-                if (t < 0) continue;
-
-                try
-                {
-                    if (streamIndexes[(int)t] >= 0)
-                    {
-                        switch (t)
-                        {
-                            case MediaType.Video:
-                                Components[t] = new VideoComponent(this, streamIndexes[(int)t]);
-                                break;
-                            case MediaType.Audio:
-                                Components[t] = new AudioComponent(this, streamIndexes[(int)t]);
-                                break;
-                            case MediaType.Subtitle:
-                                Components[t] = new SubtitleComponent(this, streamIndexes[(int)t]);
-                                break;
-                            default:
-                                continue;
-                        }
-
-                        Logger?.Log(MediaLogMessageType.Debug, $"{t}: Selected Stream Index = {Components[t].StreamIndex}");
-                    }
-
-                }
-                catch (Exception ex)
-                {
-                    Logger?.Log(MediaLogMessageType.Error, $"Unable to initialize {t.ToString()} component. {ex.Message}");
-                }
+                if (MediaOptions.AudioStream != null
+                    && MediaOptions.AudioStream.CodecType == AVMediaType.AVMEDIA_TYPE_AUDIO
+                    && MediaOptions.IsAudioDisabled == false)
+                    Components[MediaType.Audio] = new AudioComponent(this, MediaOptions.AudioStream.StreamIndex);
             }
+            catch (Exception ex)
+            {
+                Logger?.Log(MediaLogMessageType.Error, $"Unable to initialize {MediaType.Audio} component. {ex.Message}");
+            }
+
+            // Create the video component
+            try
+            {
+                if (MediaOptions.VideoStream != null
+                    && MediaOptions.VideoStream.CodecType == AVMediaType.AVMEDIA_TYPE_VIDEO
+                    && MediaOptions.IsVideoDisabled == false)
+                    Components[MediaType.Video] = new VideoComponent(this, MediaOptions.VideoStream.StreamIndex);
+            }
+            catch (Exception ex)
+            {
+                Logger?.Log(MediaLogMessageType.Error, $"Unable to initialize {MediaType.Video} component. {ex.Message}");
+            }
+
+            // Create the subtitle component
+            try
+            {
+                if (MediaOptions.SubtitleStream != null
+                    && MediaOptions.SubtitleStream.CodecType == AVMediaType.AVMEDIA_TYPE_SUBTITLE
+                    && MediaOptions.IsSubtitleDisabled == false)
+                    Components[MediaType.Subtitle] = new SubtitleComponent(this, MediaOptions.SubtitleStream.StreamIndex);
+            }
+            catch (Exception ex)
+            {
+                Logger?.Log(MediaLogMessageType.Error, $"Unable to initialize {MediaType.Subtitle} component. {ex.Message}");
+            }            
 
             // Verify we have at least 1 valid stream component to work with.
             if (Components.HasVideo == false && Components.HasAudio == false)
@@ -1102,7 +1074,7 @@
             if (alsoManaged)
             {
                 if (m_Components != null)
-                    m_Components.Dispose();                
+                    m_Components.Dispose();
             }
 
             if (InputContext != null)
