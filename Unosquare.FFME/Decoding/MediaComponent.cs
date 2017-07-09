@@ -355,14 +355,14 @@
             {
                 // Fors subtitles we use the old API (new API send_packet/receive_frame) is not yet available
                 var gotFrame = 0;
-                var outputFrame = new AVSubtitle(); // We create the struct in managed memory as there is no API to create a subtitle.
-                receiveFrameResult = ffmpeg.avcodec_decode_subtitle2(CodecContext, &outputFrame, &gotFrame, packet);
+                var outputFrame = SubtitleFrame.AllocateSubtitle();
+                receiveFrameResult = ffmpeg.avcodec_decode_subtitle2(CodecContext, outputFrame, &gotFrame, packet);
 
                 // Check if there is an error decoding the packet.
                 // If there is, remove the packet clear the sent packets
                 if (receiveFrameResult < 0)
                 {
-                    ffmpeg.avsubtitle_free(&outputFrame);
+                    SubtitleFrame.DeallocateSubtitle(outputFrame);
                     SentPackets.Clear();
                     Container.Logger?.Log(MediaLogMessageType.Error, $"{MediaType}: Error decoding. Error Code: {receiveFrameResult}");
                 }
@@ -375,7 +375,7 @@
                         try
                         {
                             // Send the frame to processing
-                            var managedFrame = CreateFrameSource(&outputFrame);
+                            var managedFrame = CreateFrameSource(outputFrame);
                             if (managedFrame == null)
                                 throw new MediaContainerException($"{MediaType} Component does not implement {nameof(CreateFrameSource)}");
                             result.Add(managedFrame);
@@ -383,7 +383,7 @@
                         catch
                         {
                             // Once processed, we don't need it anymore. Release it.
-                            ffmpeg.avsubtitle_free(&outputFrame);
+                            SubtitleFrame.DeallocateSubtitle(outputFrame);
                             throw;
                         }
 
@@ -393,17 +393,17 @@
                     // by passing an empty packet (data = null, size = 0)
                     while (gotFrame != 0 && receiveFrameResult > 0)
                     {
-                        outputFrame = new AVSubtitle();
+                        outputFrame = SubtitleFrame.AllocateSubtitle();
                         var emptyPacket = ffmpeg.av_packet_alloc();
                         RC.Current.Add(emptyPacket, $"406: {nameof(MediaComponent)}[{MediaType}].{nameof(DecodeNextPacketInternal)}()");
                         // Receive the frames in a loop
                         try
                         {
-                            receiveFrameResult = ffmpeg.avcodec_decode_subtitle2(CodecContext, &outputFrame, &gotFrame, emptyPacket);
+                            receiveFrameResult = ffmpeg.avcodec_decode_subtitle2(CodecContext, outputFrame, &gotFrame, emptyPacket);
                             if (gotFrame != 0 && receiveFrameResult > 0)
                             {
                                 // Send the subtitle to processing
-                                var managedFrame = CreateFrameSource(&outputFrame);
+                                var managedFrame = CreateFrameSource(outputFrame);
                                 if (managedFrame == null)
                                     throw new MediaContainerException($"{MediaType} Component does not implement {nameof(CreateFrameSource)}");
                                 result.Add(managedFrame);
@@ -413,7 +413,7 @@
                         catch
                         {
                             // once the subtitle is processed. Release it from memory
-                            ffmpeg.avsubtitle_free(&outputFrame);
+                            SubtitleFrame.DeallocateSubtitle(outputFrame);
                             throw;
                         }
                         finally

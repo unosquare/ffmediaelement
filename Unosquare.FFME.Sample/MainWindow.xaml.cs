@@ -560,12 +560,12 @@
                 var commentaryStream = audioStreams.FirstOrDefault(s => s.StreamIndex != e.Options.AudioStream.StreamIndex);
                 e.Options.AudioStream = commentaryStream;
             }
-            
+
 
             // The yadif filter deinterlaces the video; we check the field order if we need
             // to deinterlace the video automatically
-            if (e.Options.VideoStream != null 
-                && e.Options.VideoStream.FieldOrder != AVFieldOrder.AV_FIELD_PROGRESSIVE 
+            if (e.Options.VideoStream != null
+                && e.Options.VideoStream.FieldOrder != AVFieldOrder.AV_FIELD_PROGRESSIVE
                 && e.Options.VideoStream.FieldOrder != AVFieldOrder.AV_FIELD_UNKNOWN)
             {
                 e.Options.VideoFilter = "yadif";

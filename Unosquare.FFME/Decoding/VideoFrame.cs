@@ -3,6 +3,7 @@
     using Core;
     using FFmpeg.AutoGen;
     using System;
+    using System.Runtime.InteropServices;
 
     /// <summary>
     /// Represents a wrapper for an unmanaged ffmpeg video frame.
@@ -41,6 +42,17 @@
 
             Duration = repeatFactor.ToTimeSpan(new AVRational { num = timeBase.den, den = timeBase.num });
             EndTime = TimeSpan.FromTicks(StartTime.Ticks + Duration.Ticks);
+
+            // TODO: Implement closed captions data parsing.
+
+            //for (var i = 0; i < frame->nb_side_data; i++)
+            //{
+            //    var sideData = frame->side_data[i];
+            //    if (sideData->type != AVFrameSideDataType.AV_FRAME_DATA_A53_CC) continue;
+
+            //    var closedCaptions = new byte[sideData->size];
+            //    Marshal.Copy(new IntPtr(sideData->data), closedCaptions, 0, closedCaptions.Length);
+            //}
         }
 
         #endregion

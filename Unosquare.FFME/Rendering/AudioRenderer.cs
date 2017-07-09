@@ -329,10 +329,9 @@
             lock (SyncLock)
             {
                 AudioBuffer?.Clear();
+
                 if (ReadBuffer != null)
-                {
                     Array.Clear(ReadBuffer, 0, ReadBuffer.Length);
-                }
             }
 
         }
@@ -359,7 +358,7 @@
             {
                 // a positive audio latency means we are rendering audio behind (after) the clock (skip some samples)
                 // and therefore we need to advance the buffer before we read from it.
-                MediaElement.Container?.Logger?.Log(MediaLogMessageType.Warning, 
+                MediaElement.Container?.Logger?.Log(MediaLogMessageType.Warning,
                     $"SYNC AUDIO: LATENCY: {audioLatency.Format()} | SKIP (samples being rendered too late)");
 
                 // skip some samples from the buffer.

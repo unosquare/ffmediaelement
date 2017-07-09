@@ -67,7 +67,7 @@
         /// When the unmanaged frame is released (freed from unmanaged memory)
         /// this property will return true.
         /// </summary>
-        public bool IsStale { get; private set; }
+        public bool IsStale { get { return InternalPointer == null; } }
 
         #endregion
 

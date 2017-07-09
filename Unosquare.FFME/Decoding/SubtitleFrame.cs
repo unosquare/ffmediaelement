@@ -4,6 +4,7 @@
     using FFmpeg.AutoGen;
     using System;
     using System.Collections.Generic;
+    using System.Runtime.InteropServices;
 
     /// <summary>
     /// Represents a wrapper for an unmanaged Subtitle frame.
@@ -29,6 +30,7 @@
         internal SubtitleFrame(AVSubtitle* frame, MediaComponent component)
             : base(frame, component)
         {
+
             m_Pointer = (AVSubtitle*)InternalPointer;
 
             // Extract timing information (pts for Subtitles is always in AV_TIME_BASE units)
@@ -38,20 +40,22 @@
             Duration = TimeSpan.FromTicks(EndTime.Ticks - StartTime.Ticks);
 
             // Extract text strings
+            // TODO: implement ASS Parsing
             for (var i = 0; i < frame->num_rects; i++)
             {
                 var rect = frame->rects[i];
-                if (rect->text != null)
-                    Text.Add(Utils.PtrToStringUTF8(rect->text));
+
+                if (rect->type == AVSubtitleType.SUBTITLE_TEXT)
+                {
+                    if (rect->text != null)
+                        Text.Add(Utils.PtrToStringUTF8(rect->text));
+                }
+                else if (rect->type == AVSubtitleType.SUBTITLE_ASS)
+                {
+                    if (rect->ass != null)
+                        Text.Add(Utils.PtrToStringUTF8(rect->ass));
+                }
             }
-
-            // Immediately release the frame as the struct was created in managed memory
-            // Accessing it later will eventually caused a memory access error.
-            if (m_Pointer != null)
-                ffmpeg.avsubtitle_free(m_Pointer);
-
-            m_Pointer = null;
-            InternalPointer = null;
         }
 
         #endregion
@@ -87,7 +91,10 @@
             if (!IsDisposed)
             {
                 if (m_Pointer != null)
-                    ffmpeg.avsubtitle_free(m_Pointer);
+                {
+                    DeallocateSubtitle(m_Pointer);
+                }
+
                 m_Pointer = null;
                 InternalPointer = null;
                 IsDisposed = true;
@@ -109,6 +116,30 @@
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        #endregion
+
+        #region Static Method
+
+        /// <summary>
+        /// Allocates an AVSubtitle struct in unmanaged memory,
+        /// </summary>
+        /// <returns></returns>
+        static internal AVSubtitle* AllocateSubtitle()
+        {
+            return (AVSubtitle*)ffmpeg.av_malloc((ulong)Marshal.SizeOf(typeof(AVSubtitle)));
+        }
+
+        /// <summary>
+        /// Deallocates the subtitle struct used to create in managed memory.
+        /// </summary>
+        /// <param name="frame">The frame.</param>
+        static internal void DeallocateSubtitle(AVSubtitle* frame)
+        {
+            if (frame == null) return;
+            ffmpeg.avsubtitle_free(frame);
+            ffmpeg.av_free(frame);
         }
 
         #endregion
