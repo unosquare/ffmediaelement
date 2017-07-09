@@ -1,0 +1,970 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class StreamInfo
+   | FFME: WPF MediaElement replacement based on FFmpeg </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class StreamInfo
+   | FFME: WPF MediaElement replacement based on FFmpeg ">
+    <meta name="generator" content="docfx 2.19.2.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    <meta property="docfx:rel" content="../">
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div class="container body-content">
+        
+        <div id="search-results">
+          <div class="search-list"></div>
+          <div class="sr-items"></div>
+          <ul id="pagination"></ul>
+        </div>
+      </div>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Unosquare.FFME.StreamInfo">
+  
+  
+  <h1 id="Unosquare_FFME_StreamInfo" data-uid="Unosquare.FFME.StreamInfo" class="text-break">Class StreamInfo
+  </h1>
+  <div class="markdown level0 summary"><p>Represents media stream information</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">StreamInfo</span></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Unosquare.FFME.html">Unosquare.FFME</a></h6>
+  <h6><strong>Assembly</strong>: cs.temp.dll.dll</h6>
+  <h5 id="Unosquare_FFME_StreamInfo_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class StreamInfo</code></pre>
+  </div>
+  <h3 id="properties">Properties
+  </h3>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_BitRate_" data-uid="Unosquare.FFME.StreamInfo.BitRate*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_BitRate" data-uid="Unosquare.FFME.StreamInfo.BitRate">BitRate</h4>
+  <div class="markdown level1 summary"><p>Gets the reported bit rate. 9 for unavalable.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public long BitRate { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int64</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_Codec_" data-uid="Unosquare.FFME.StreamInfo.Codec*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_Codec" data-uid="Unosquare.FFME.StreamInfo.Codec">Codec</h4>
+  <div class="markdown level1 summary"><p>Gets the codec identifier.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public AVCodecID Codec { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">AVCodecID</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_CodecName_" data-uid="Unosquare.FFME.StreamInfo.CodecName*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_CodecName" data-uid="Unosquare.FFME.StreamInfo.CodecName">CodecName</h4>
+  <div class="markdown level1 summary"><p>Gets the name of the codec.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string CodecName { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_CodecProfile_" data-uid="Unosquare.FFME.StreamInfo.CodecProfile*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_CodecProfile" data-uid="Unosquare.FFME.StreamInfo.CodecProfile">CodecProfile</h4>
+  <div class="markdown level1 summary"><p>Gets the codec profile. Only valid for H.264 or 
+video codecs that use profiles. Otherwise empty.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string CodecProfile { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_CodecTag_" data-uid="Unosquare.FFME.StreamInfo.CodecTag*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_CodecTag" data-uid="Unosquare.FFME.StreamInfo.CodecTag">CodecTag</h4>
+  <div class="markdown level1 summary"><p>Gets the codec tag. Not very useful except for fixing bugs with
+some demuxer scenarios.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public uint CodecTag { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.UInt32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_CodecType_" data-uid="Unosquare.FFME.StreamInfo.CodecType*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_CodecType" data-uid="Unosquare.FFME.StreamInfo.CodecType">CodecType</h4>
+  <div class="markdown level1 summary"><p>Gets the type of the codec.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public AVMediaType CodecType { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">AVMediaType</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_CodecTypeName_" data-uid="Unosquare.FFME.StreamInfo.CodecTypeName*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_CodecTypeName" data-uid="Unosquare.FFME.StreamInfo.CodecTypeName">CodecTypeName</h4>
+  <div class="markdown level1 summary"><p>Gets the name of the codec type. Audio, Video, Subtitle, Data, etc.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string CodecTypeName { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_ColorRange_" data-uid="Unosquare.FFME.StreamInfo.ColorRange*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_ColorRange" data-uid="Unosquare.FFME.StreamInfo.ColorRange">ColorRange</h4>
+  <div class="markdown level1 summary"><p>Gets the video color range.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public AVColorRange ColorRange { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">AVColorRange</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_DisplayAspectRatio_" data-uid="Unosquare.FFME.StreamInfo.DisplayAspectRatio*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_DisplayAspectRatio" data-uid="Unosquare.FFME.StreamInfo.DisplayAspectRatio">DisplayAspectRatio</h4>
+  <div class="markdown level1 summary"><p>Gets the display aspect ratio.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public AVRational DisplayAspectRatio { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">AVRational</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_Disposition_" data-uid="Unosquare.FFME.StreamInfo.Disposition*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_Disposition" data-uid="Unosquare.FFME.StreamInfo.Disposition">Disposition</h4>
+  <div class="markdown level1 summary"><p>Gets the disposition flags.
+Please see ffmpeg.AV_DISPOSITION_* fields.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int Disposition { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_FieldOrder_" data-uid="Unosquare.FFME.StreamInfo.FieldOrder*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_FieldOrder" data-uid="Unosquare.FFME.StreamInfo.FieldOrder">FieldOrder</h4>
+  <div class="markdown level1 summary"><p>Gets the field order. This is useful to determine
+if the video needs deinterlacing</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public AVFieldOrder FieldOrder { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">AVFieldOrder</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_FPS_" data-uid="Unosquare.FFME.StreamInfo.FPS*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_FPS" data-uid="Unosquare.FFME.StreamInfo.FPS">FPS</h4>
+  <div class="markdown level1 summary"><p>Gets the average FPS reported by the stream.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public double FPS { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Double</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_HasClosedCaptions_" data-uid="Unosquare.FFME.StreamInfo.HasClosedCaptions*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_HasClosedCaptions" data-uid="Unosquare.FFME.StreamInfo.HasClosedCaptions">HasClosedCaptions</h4>
+  <div class="markdown level1 summary"><p>Gets a value indicating whether this stream has closed captions.
+Typically this is set for video streams.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool HasClosedCaptions { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_InfoFrameCount_" data-uid="Unosquare.FFME.StreamInfo.InfoFrameCount*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_InfoFrameCount" data-uid="Unosquare.FFME.StreamInfo.InfoFrameCount">InfoFrameCount</h4>
+  <div class="markdown level1 summary"><p>Gets the number of frames that were read to obtain the stream&apos;s information.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int InfoFrameCount { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_IsLossless_" data-uid="Unosquare.FFME.StreamInfo.IsLossless*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_IsLossless" data-uid="Unosquare.FFME.StreamInfo.IsLossless">IsLossless</h4>
+  <div class="markdown level1 summary"><p>Gets a value indicating whether this stream contains lossless compressed data.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsLossless { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_Language_" data-uid="Unosquare.FFME.StreamInfo.Language*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_Language" data-uid="Unosquare.FFME.StreamInfo.Language">Language</h4>
+  <div class="markdown level1 summary"><p>Gets the language string from the stream&apos;s metadata.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string Language { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_MaxBitRate_" data-uid="Unosquare.FFME.StreamInfo.MaxBitRate*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_MaxBitRate" data-uid="Unosquare.FFME.StreamInfo.MaxBitRate">MaxBitRate</h4>
+  <div class="markdown level1 summary"><p>Gets the maximum bit rate for variable bitrate streams. 0 if unavailable.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public long MaxBitRate { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int64</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_Metadata_" data-uid="Unosquare.FFME.StreamInfo.Metadata*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_Metadata" data-uid="Unosquare.FFME.StreamInfo.Metadata">Metadata</h4>
+  <div class="markdown level1 summary"><p>Gets the stream&apos;s metadata.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ReadOnlyDictionary&lt;string, string&gt; Metadata { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.ObjectModel.ReadOnlyDictionary</span>&lt;<span class="xref">System.String</span>, <span class="xref">System.String</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_PixelFormat_" data-uid="Unosquare.FFME.StreamInfo.PixelFormat*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_PixelFormat" data-uid="Unosquare.FFME.StreamInfo.PixelFormat">PixelFormat</h4>
+  <div class="markdown level1 summary"><p>Gets the pixel format. Only valid for Vide streams.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public AVPixelFormat PixelFormat { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">AVPixelFormat</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_PixelHeight_" data-uid="Unosquare.FFME.StreamInfo.PixelHeight*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_PixelHeight" data-uid="Unosquare.FFME.StreamInfo.PixelHeight">PixelHeight</h4>
+  <div class="markdown level1 summary"><p>Gets the height of the video frames.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int PixelHeight { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_PixelWidth_" data-uid="Unosquare.FFME.StreamInfo.PixelWidth*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_PixelWidth" data-uid="Unosquare.FFME.StreamInfo.PixelWidth">PixelWidth</h4>
+  <div class="markdown level1 summary"><p>Gets the width of the video frames. </p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int PixelWidth { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_ReferenceFrameCount_" data-uid="Unosquare.FFME.StreamInfo.ReferenceFrameCount*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_ReferenceFrameCount" data-uid="Unosquare.FFME.StreamInfo.ReferenceFrameCount">ReferenceFrameCount</h4>
+  <div class="markdown level1 summary"><p>Gets the number of reference frames.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int ReferenceFrameCount { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_SampleAspectRatio_" data-uid="Unosquare.FFME.StreamInfo.SampleAspectRatio*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_SampleAspectRatio" data-uid="Unosquare.FFME.StreamInfo.SampleAspectRatio">SampleAspectRatio</h4>
+  <div class="markdown level1 summary"><p>Gets the sample aspect ratio.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public AVRational SampleAspectRatio { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">AVRational</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_SampleFormat_" data-uid="Unosquare.FFME.StreamInfo.SampleFormat*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_SampleFormat" data-uid="Unosquare.FFME.StreamInfo.SampleFormat">SampleFormat</h4>
+  <div class="markdown level1 summary"><p>Gets the audio sample format.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public AVSampleFormat SampleFormat { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">AVSampleFormat</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_SampleRate_" data-uid="Unosquare.FFME.StreamInfo.SampleRate*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_SampleRate" data-uid="Unosquare.FFME.StreamInfo.SampleRate">SampleRate</h4>
+  <div class="markdown level1 summary"><p>Gets the audio sample rate.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int SampleRate { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_StreamId_" data-uid="Unosquare.FFME.StreamInfo.StreamId*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_StreamId" data-uid="Unosquare.FFME.StreamInfo.StreamId">StreamId</h4>
+  <div class="markdown level1 summary"><p>Gets the stream identifier. This is different from the stream index.
+Typically this value is not very useful.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int StreamId { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_StreamIndex_" data-uid="Unosquare.FFME.StreamInfo.StreamIndex*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_StreamIndex" data-uid="Unosquare.FFME.StreamInfo.StreamIndex">StreamIndex</h4>
+  <div class="markdown level1 summary"><p>Gets the index of the stream.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int StreamIndex { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_TBC_" data-uid="Unosquare.FFME.StreamInfo.TBC*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_TBC" data-uid="Unosquare.FFME.StreamInfo.TBC">TBC</h4>
+  <div class="markdown level1 summary"><p>Gets the fundamental unit of time in 1/seconds used to represent timestamps in the stream ,accoring to the codec</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public double TBC { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Double</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_TBN_" data-uid="Unosquare.FFME.StreamInfo.TBN*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_TBN" data-uid="Unosquare.FFME.StreamInfo.TBN">TBN</h4>
+  <div class="markdown level1 summary"><p>Gets the fundamental unit of time in 1/seconds used to represent timestamps in the stream, according to the stream data</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public double TBN { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Double</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_TBR_" data-uid="Unosquare.FFME.StreamInfo.TBR*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_TBR" data-uid="Unosquare.FFME.StreamInfo.TBR">TBR</h4>
+  <div class="markdown level1 summary"><p>Gets the real (base) framerate of the stream</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public double TBR { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Double</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_StreamInfo_TimeBase_" data-uid="Unosquare.FFME.StreamInfo.TimeBase*"></a>
+  <h4 id="Unosquare_FFME_StreamInfo_TimeBase" data-uid="Unosquare.FFME.StreamInfo.TimeBase">TimeBase</h4>
+  <div class="markdown level1 summary"><p>Gets the stream time base unit in seconds.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public AVRational TimeBase { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">AVRational</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Copyright © 2015-2017 Microsoft<br>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>
