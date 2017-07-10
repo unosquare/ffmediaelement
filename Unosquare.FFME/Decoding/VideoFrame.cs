@@ -3,6 +3,7 @@
     using Core;
     using FFmpeg.AutoGen;
     using System;
+    using System.Collections.Generic;
     using System.Runtime.InteropServices;
 
     /// <summary>
@@ -45,14 +46,40 @@
 
             // TODO: Implement closed captions data parsing.
 
-            //for (var i = 0; i < frame->nb_side_data; i++)
-            //{
-            //    var sideData = frame->side_data[i];
-            //    if (sideData->type != AVFrameSideDataType.AV_FRAME_DATA_A53_CC) continue;
+            for (var i = 0; i < frame->nb_side_data; i++)
+            {
+                var sideData = frame->side_data[i];
+                if (sideData->type != AVFrameSideDataType.AV_FRAME_DATA_A53_CC) continue;
 
-            //    var closedCaptions = new byte[sideData->size];
-            //    Marshal.Copy(new IntPtr(sideData->data), closedCaptions, 0, closedCaptions.Length);
-            //}
+                // parse struct https://en.wikipedia.org/wiki/CEA-708
+                // cc_data_pkt
+                for (var p = 0; p < sideData->size; p += 3)
+                {
+
+                    // check first 5 bits are 1
+                    if ((sideData->data[p] & 0xF8) != 0xF8) break;
+
+                    // if we don't have a valid packet, discard it and move on to the next one
+                    if ((sideData->data[p] & 0x04) == 0) continue;
+
+                    // if we don't have a standard packet type (NTSC_CC_FIELD_1 = 0, NTSC_CC_FIELD_2 = 1)
+                    // then just break because we can't parse other packet types (i.e. Packet type 3)
+                    var ccField = (sideData->data[p] & 0x03);
+                    if (ccField != 0 && ccField != 1) break;
+
+                    // Ignore null padding packets (it is 128 and not 9 because the first bit of each byte is the parity 1 bit)
+                    if (sideData->data[p + 1] == 128 || sideData->data[p + 2] == 128) continue;
+
+                    // Create the EIA-608 Caption Command
+                    var captionCommand = new Eia608Data(ccField, sideData->data[p + 1], sideData->data[p + 2]);
+
+                    // at this point, the following 2 bytes are the CC data!
+                    ClosedCaptions.Add(captionCommand);
+                }
+            }
+
+            foreach (var cc in ClosedCaptions)
+                component.Container.Logger.Log(MediaLogMessageType.Info, $"CC: {cc}");
         }
 
         #endregion
@@ -68,6 +95,11 @@
         /// Gets the pointer to the unmanaged frame.
         /// </summary>
         internal AVFrame* Pointer { get { return m_Pointer; } }
+
+        /// <summary>
+        /// Gets the closed caption data collected from the frame in CEA-708 format.
+        /// </summary>
+        public List<Eia608Data> ClosedCaptions { get; } = new List<Eia608Data>();
 
         #endregion
 
