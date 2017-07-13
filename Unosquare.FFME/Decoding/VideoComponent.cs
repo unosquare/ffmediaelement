@@ -25,6 +25,7 @@
         private AVRational BaseFrameRateQ;
         private string CurrentInputArguments = null;
         private string VideoFilterString = null;
+
         #endregion
 
         #region Constants
