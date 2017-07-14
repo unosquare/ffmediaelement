@@ -116,6 +116,11 @@
         /// </summary>
         public int Bitrate { get; }
 
+        /// <summary>
+        /// Gets the stream information.
+        /// </summary>
+        public StreamInfo StreamInfo { get; }
+
         #endregion
 
         #region Constructor
@@ -134,6 +139,7 @@
             RC.Current.Add(CodecContext, $"134: {nameof(MediaComponent)}[{MediaType}].ctor()");
             StreamIndex = streamIndex;
             Stream = container.InputContext->streams[StreamIndex];
+            StreamInfo = container.MediaInfo.Streams[StreamIndex];
 
             // Set codec options
             var setCodecParamsResult = ffmpeg.avcodec_parameters_to_context(CodecContext, Stream->codecpar);

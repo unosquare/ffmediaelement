@@ -56,11 +56,35 @@
             target.EndTime = source.EndTime;
             target.StartTime = source.StartTime;
             target.Duration = source.Duration;
+
+            target.OriginalText.Clear();
+            if (source.Text.Count > 0)
+                target.OriginalText.AddRange(source.Text);
+            target.OriginalTextType = source.TextType;
+
             target.Text.Clear();
-            target.Text.AddRange(source.Text);
+            foreach (var text in source.Text)
+            {
+                if (string.IsNullOrWhiteSpace(text))
+                    continue;
+
+                if (source.TextType == AVSubtitleType.SUBTITLE_ASS)
+                {
+                    var strippedText = text.StripAssFormat();
+                    if (string.IsNullOrWhiteSpace(strippedText) == false)
+                        target.Text.Add(strippedText);
+                }
+                else
+                {
+                    var strippedText = text.StripSrtFormat();
+                    if (string.IsNullOrWhiteSpace(strippedText) == false)
+                        target.Text.Add(strippedText);
+                }
+            }
 
             return target;
         }
+
     }
 
 }

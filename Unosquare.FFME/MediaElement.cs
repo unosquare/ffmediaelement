@@ -74,7 +74,11 @@
         public MediaElement()
             : base()
         {
-            Content = ViewBox;
+            ContentGrid = new Grid { Name = nameof(ContentGrid) };
+            Content = ContentGrid;
+            ContentGrid.HorizontalAlignment = HorizontalAlignment.Stretch;
+            ContentGrid.VerticalAlignment = VerticalAlignment.Stretch;
+            ContentGrid.Children.Add(ViewBox);
             Stretch = ViewBox.Stretch;
             StretchDirection = ViewBox.StretchDirection;
             Logger = new GenericMediaLogger<MediaElement>(this);
@@ -119,6 +123,11 @@
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// Gets the grid control holding the rest of the controls.
+        /// </summary>
+        internal Grid ContentGrid { get; }
 
         /// <summary>
         /// Gets or sets the horizontal alignment characteristics applied to this element when it is 

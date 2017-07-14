@@ -593,6 +593,81 @@
                 return $"{(ts / divideBy),10:#,##0.000}";
         }
 
+        /// <summary>
+        /// Strips the SRT format and returns plain text.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <returns></returns>
+        internal static string StripSrtFormat(this string input)
+        {
+            var output = new StringBuilder(input.Length);
+            var isInTag = false;
+            var currentChar = default(char);
+
+            for (var i = 0; i < input.Length; i++)
+            {
+                currentChar = input[i];
+                if (currentChar == '<' && isInTag == false)
+                {
+                    isInTag = true;
+                    continue;
+                }
+
+                if (currentChar == '>' && isInTag == true)
+                {
+                    isInTag = false;
+                    continue;
+                }
+
+                output.Append(currentChar);
+            }
+
+            return output.ToString();
+        }
+
+        /// <summary>
+        /// Strips a line of text from the ASS format.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <returns></returns>
+        internal static string StripAssFormat(this string input)
+        {
+            const string DialoguePrefix = "dialogue:";
+
+            if (input.Substring(0, DialoguePrefix.Length).ToLowerInvariant().Equals(DialoguePrefix) == false)
+                return string.Empty;
+
+            var inputParts = input.Split(new char[] { ',' }, 10);
+            if (inputParts.Length != 10)
+                return string.Empty;
+
+
+            input = inputParts[inputParts.Length - 1].Replace("\\n", " ").Replace("\\N", "\r\n");
+            var builder = new StringBuilder(input.Length);
+            var isInStyle = false;
+            char currentChar = default(char);
+
+            for (var i = 0; i < input.Length; i++)
+            {
+                currentChar = input[i];
+                if (currentChar == '{' && isInStyle == false)
+                {
+                    isInStyle = true;
+                    continue;
+                }
+
+                if (currentChar == '}' && isInStyle == true)
+                {
+                    isInStyle = false;
+                    continue;
+                }
+
+                builder.Append(currentChar);
+            }
+
+            return builder.ToString().Trim();
+        }
+
         #endregion
 
         /// <summary>

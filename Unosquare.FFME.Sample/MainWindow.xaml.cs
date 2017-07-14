@@ -554,6 +554,11 @@
             // An example of switching to a different stream
             if (e.Info.InputUrl.EndsWith("matroska.mkv"))
             {
+                var subtitleStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_SUBTITLE).Select(kvp => kvp.Value);
+                var englishSubtitleStream = subtitleStreams.FirstOrDefault(s => s.Language.StartsWith("en"));
+                if (englishSubtitleStream != null)
+                    e.Options.SubtitleStream = englishSubtitleStream;
+
                 var audioStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_AUDIO)
                     .Select(kvp => kvp.Value).ToArray();
 

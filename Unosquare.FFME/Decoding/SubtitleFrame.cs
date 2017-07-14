@@ -40,20 +40,34 @@
             Duration = TimeSpan.FromTicks(EndTime.Ticks - StartTime.Ticks);
 
             // Extract text strings
-            // TODO: implement ASS Parsing
+            TextType = AVSubtitleType.SUBTITLE_NONE;
+
             for (var i = 0; i < frame->num_rects; i++)
             {
                 var rect = frame->rects[i];
 
+
                 if (rect->type == AVSubtitleType.SUBTITLE_TEXT)
                 {
                     if (rect->text != null)
+                    {
                         Text.Add(Utils.PtrToStringUTF8(rect->text));
+                        TextType = AVSubtitleType.SUBTITLE_TEXT;
+                        break;
+                    }
                 }
                 else if (rect->type == AVSubtitleType.SUBTITLE_ASS)
                 {
                     if (rect->ass != null)
+                    {
                         Text.Add(Utils.PtrToStringUTF8(rect->ass));
+                        TextType = AVSubtitleType.SUBTITLE_ASS;
+                        break;
+                    }
+                }
+                else
+                {
+                    TextType = rect->type;
                 }
             }
         }
@@ -76,6 +90,14 @@
         /// Gets lines of text that the subtitle frame contains.
         /// </summary>
         public List<string> Text { get; } = new List<string>(16);
+
+        /// <summary>
+        /// Gets the type of the text.
+        /// </summary>
+        /// <value>
+        /// The type of the text.
+        /// </value>
+        public AVSubtitleType TextType { get; } = AVSubtitleType.SUBTITLE_NONE;
 
         #endregion
 
