@@ -11,6 +11,7 @@
     using System.Windows.Media;
     using System.Windows.Media.Animation;
     using System.Windows.Threading;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -19,6 +20,9 @@
     {
 
         #region State Variables, Property Backing and Events
+
+        private readonly Dictionary<string, Action> PropertyUpdaters;
+        private readonly Dictionary<string, string[]> PropertyTriggers;
 
         /// <summary>
         /// Occurs when a property changes its value.
@@ -55,7 +59,6 @@
                     m_OpenCommand = new DelegateCommand((a) =>
                     {
                         Media.Source = new Uri(UrlTextBox.Text);
-                        UpdateWindowTitle(Media.Source.ToString());
                         OpenMediaPopup.IsOpen = false;
                     }, null);
 
@@ -170,6 +173,14 @@
         #region UI Notification Properties
 
         /// <summary>
+        /// Gets or sets the window title.
+        /// </summary>
+        /// <value>
+        /// The window title.
+        /// </value>
+        public string WindowTitle { get; set; } = string.Empty;
+
+        /// <summary>
         /// Gets or sets the is media open visibility.
         /// </summary>
         /// <value>
@@ -274,6 +285,34 @@
         /// </summary>
         public MainWindow()
         {
+
+            PropertyUpdaters = new Dictionary<string, Action>
+            {
+                { nameof(IsMediaOpenVisibility), () => { IsMediaOpenVisibility = Media.IsOpen ? Visibility.Visible : Visibility.Hidden; } },
+                { nameof(AudioControlVisibility), () => { AudioControlVisibility = Media.HasAudio ? Visibility.Visible : Visibility.Hidden; } },
+                { nameof(IsAudioControlEnabled), () => { IsAudioControlEnabled = Media.HasAudio; } },
+                { nameof(PauseButtonVisibility), () => { PauseButtonVisibility = Media.CanPause && Media.IsPlaying ? Visibility.Visible : Visibility.Collapsed; } },
+                { nameof(PlayButtonVisibility), () => { PlayButtonVisibility = Media.IsOpen && Media.IsPlaying == false && Media.HasMediaEnded == false ? Visibility.Visible : Visibility.Collapsed; } },
+                { nameof(StopButtonVisibility), () => { StopButtonVisibility = Media.IsOpen && Media.IsSeekable && Media.MediaState != MediaState.Stop ? Visibility.Visible : Visibility.Hidden; } },
+                { nameof(CloseButtonVisibility), () => { CloseButtonVisibility = Media.IsOpen ? Visibility.Visible : Visibility.Hidden; } },
+                { nameof(SeekBarVisibility), () => { SeekBarVisibility = Media.IsSeekable ? Visibility.Visible : Visibility.Hidden; } },
+                { nameof(BufferingProgressVisibility), () => { BufferingProgressVisibility = Media.IsBuffering ? Visibility.Visible : Visibility.Hidden; } },
+                { nameof(DownloadProgressVisibility), () => { DownloadProgressVisibility = Media.IsOpen && Media.HasMediaEnded == false  && (Media.DownloadProgress < 0.95 || Media.IsLiveStream) ? Visibility.Visible : Visibility.Hidden; } },
+                { nameof(OpenButtonVisibility), () => { OpenButtonVisibility = Media.IsOpening == false ? Visibility.Visible : Visibility.Hidden; } },
+                { nameof(IsSpeedRatioEnabled), () => { IsSpeedRatioEnabled = Media.IsOpen && Media.IsSeekable; } },
+                { nameof(WindowTitle), () => { UpdateWindowTitle(); } }
+            };
+
+            PropertyTriggers = new Dictionary<string, string[]>
+            {
+                { nameof(Media.IsOpen), PropertyUpdaters.Keys.ToArray() },
+                { nameof(Media.IsOpening), PropertyUpdaters.Keys.ToArray() },
+                { nameof(Media.MediaState), PropertyUpdaters.Keys.ToArray() },
+                { nameof(Media.HasMediaEnded), PropertyUpdaters.Keys.ToArray() },
+                { nameof(Media.DownloadProgress), new[] { nameof(DownloadProgressVisibility) } },
+                { nameof(Media.IsBuffering), new[] { nameof(BufferingProgressVisibility) } },
+            };
+
             // Change the default location of the ffmpeg binaries
             // You can get the binaries here: http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.2.4-win32-shared.zip
             Unosquare.FFME.MediaElement.FFmpegDirectory = @"C:\ffmpeg";
@@ -283,7 +322,7 @@
             InitializeMouseEvents();
             InitializeMainWindow();
 
-            UpdateWindowTitle("(No media loaded)");
+            UpdateWindowTitle();
 
         }
 
@@ -465,12 +504,36 @@
         /// <summary>
         /// Updates the window title.
         /// </summary>
-        /// <param name="text">The text.</param>
-        private void UpdateWindowTitle(string text)
+        private void UpdateWindowTitle()
         {
             // TODO: call this on UpdateUI
             var v = typeof(MainWindow).Assembly.GetName().Version;
-            window.Title = $"{text} - Unosquare FFME Play v{v.Major}.{v.Minor}.{v.Build}.{v.Revision}";
+            var title = Media.Source?.ToString() ?? "(No media loaded)";
+            var state = Media?.MediaState.ToString();
+
+            if (Media.IsOpen)
+            {
+                var metadata = (Media.Metadata.SourceCollection as IEnumerable<KeyValuePair<string, string>>);
+                if (metadata != null)
+                {
+                    foreach (var kvp in metadata)
+                        if (kvp.Key.ToLowerInvariant().Equals("title"))
+                        {
+                            title = kvp.Value;
+                            break;
+                        }
+                }
+            }
+            else if (Media.IsOpening)
+            {
+                state = "Opening . . .";
+            }
+            else
+            {
+                state = "Ready";
+            }
+
+            window.Title = $"{title} - {state} - Unosquare FFME Play v{v.Major}.{v.Minor}.{v.Build}.{v.Revision}";
         }
 
         /// <summary>
@@ -488,7 +551,13 @@
             MinWidth = ActualWidth;
             MinHeight = ActualHeight;
             SizeToContent = SizeToContent.Manual;
-            UpdateUIElements();
+
+            foreach (var kvp in PropertyUpdaters)
+            {
+                kvp.Value.Invoke();
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(kvp.Key));
+            }
+
             Loaded -= MainWindow_Loaded;
         }
 
@@ -499,29 +568,14 @@
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
         private void Media_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName.Equals(nameof(Media.IsOpen))
-                || e.PropertyName.Equals(nameof(Media.IsOpening))
-                || e.PropertyName.Equals(nameof(Media.MediaState))
-                || e.PropertyName.Equals(nameof(Media.HasMediaEnded)))
+            if (PropertyTriggers.ContainsKey(e.PropertyName) == false) return;
+            foreach (var propertyName in PropertyTriggers[e.PropertyName])
             {
-                UpdateUIElements();
-                return;
-            }
+                if (PropertyUpdaters.ContainsKey(propertyName) == false)
+                    continue;
 
-            if (e.PropertyName.Equals(nameof(Media.DownloadProgress))
-                || e.PropertyName.Equals(nameof(Media.HasMediaEnded)))
-            {
-                DownloadProgressVisibility = Media.IsOpen && Media.HasMediaEnded == false
-                    && (Media.DownloadProgress < 0.95 || Media.IsLiveStream) ? Visibility.Visible : Visibility.Hidden;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DownloadProgressVisibility)));
-                return;
-            }
-
-            if (e.PropertyName.Equals(nameof(Media.IsBuffering)))
-            {
-                BufferingProgressVisibility = Media.IsBuffering ? Visibility.Visible : Visibility.Hidden;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BufferingProgressVisibility)));
-                return;
+                PropertyUpdaters[propertyName]?.Invoke();
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
         }
 
@@ -648,39 +702,6 @@
         {
             var factor = (int)(value / multiple);
             return factor * multiple;
-        }
-
-        /// <summary>
-        /// Updates the UI elements and notifies the UI of all the property changes.
-        /// </summary>
-        private void UpdateUIElements()
-        {
-            IsMediaOpenVisibility = Media.IsOpen ? Visibility.Visible : Visibility.Hidden;
-            AudioControlVisibility = Media.HasAudio ? Visibility.Visible : Visibility.Hidden;
-            IsAudioControlEnabled = Media.HasAudio;
-            PauseButtonVisibility = Media.CanPause && Media.IsPlaying ? Visibility.Visible : Visibility.Collapsed;
-            PlayButtonVisibility = Media.IsOpen && Media.IsPlaying == false && Media.HasMediaEnded == false ? Visibility.Visible : Visibility.Collapsed;
-            StopButtonVisibility = Media.IsOpen && Media.IsSeekable && Media.MediaState != MediaState.Stop ? Visibility.Visible : Visibility.Hidden;
-            CloseButtonVisibility = Media.IsOpen ? Visibility.Visible : Visibility.Hidden;
-            SeekBarVisibility = Media.IsSeekable ? Visibility.Visible : Visibility.Hidden;
-            BufferingProgressVisibility = Media.IsBuffering ? Visibility.Visible : Visibility.Hidden;
-            OpenButtonVisibility = Media.IsOpening == false ? Visibility.Visible : Visibility.Hidden;
-            IsSpeedRatioEnabled = Media.IsOpen && Media.IsSeekable;
-            DownloadProgressVisibility = Media.IsOpen && Media.HasMediaEnded == false
-                && (Media.DownloadProgress < 0.95 || Media.IsLiveStream) ? Visibility.Visible : Visibility.Hidden;
-
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsMediaOpenVisibility)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AudioControlVisibility)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsAudioControlEnabled)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PauseButtonVisibility)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PlayButtonVisibility)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(StopButtonVisibility)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CloseButtonVisibility)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SeekBarVisibility)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BufferingProgressVisibility)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DownloadProgressVisibility)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OpenButtonVisibility)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSpeedRatioEnabled)));
         }
 
         #endregion

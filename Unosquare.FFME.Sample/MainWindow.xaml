@@ -7,7 +7,7 @@
         xmlns:ffme="clr-namespace:Unosquare.FFME;assembly=ffme"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen" MinHeight="720" Height="0" MinWidth="1280" Width="0"
-        Title="Unosquare FFME Reference Player" Background="Black">
+        Title="{Binding ElementName=window, Path=WindowTitle}" Background="Black">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
