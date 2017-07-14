@@ -55,7 +55,7 @@
                     m_OpenCommand = new DelegateCommand((a) =>
                     {
                         Media.Source = new Uri(UrlTextBox.Text);
-                        window.Title = Media.Source.ToString();
+                        UpdateWindowTitle(Media.Source.ToString());
                         OpenMediaPopup.IsOpen = false;
                     }, null);
 
@@ -283,6 +283,8 @@
             InitializeMouseEvents();
             InitializeMainWindow();
 
+            UpdateWindowTitle("(No media loaded)");
+
         }
 
         /// <summary>
@@ -459,6 +461,17 @@
         #endregion
 
         #region Event Handlers
+
+        /// <summary>
+        /// Updates the window title.
+        /// </summary>
+        /// <param name="text">The text.</param>
+        private void UpdateWindowTitle(string text)
+        {
+            // TODO: call this on UpdateUI
+            var v = typeof(MainWindow).Assembly.GetName().Version;
+            window.Title = $"{text} - Unosquare FFME Play v{v.Major}.{v.Minor}.{v.Build}.{v.Revision}";
+        }
 
         /// <summary>
         /// Handles the Loaded event of the MainWindow control.
