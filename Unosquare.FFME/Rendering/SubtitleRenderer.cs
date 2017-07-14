@@ -14,6 +14,15 @@
     {
 
         /// <summary>
+        /// The synchronize lock
+        /// </summary>
+        private readonly object SyncLock = new object();
+
+        private TimeSpan? StartTime = new TimeSpan?();
+        private TimeSpan? EndTime = new TimeSpan?();
+        private string CurrentText = string.Empty;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="SubtitleRenderer"/> class.
         /// </summary>
         /// <param name="mediaElement">The media element.</param>
@@ -129,6 +138,24 @@
         }
 
         /// <summary>
+        /// Sets the text to be rendered on the text blocks.
+        /// </summary>
+        /// <param name="text">The text.</param>
+        private void SetText(string text)
+        {
+            Utils.UIEnqueueInvoke(System.Windows.Threading.DispatcherPriority.DataBind, new Action<string>((s) =>
+            {
+                lock (SyncLock)
+                {
+                    CurrentText = text;
+                    var textBlocks = GetTextBlocks();
+                    foreach (var tb in textBlocks)
+                        tb.Text = s;
+                }
+            }), text);
+        }
+
+        /// <summary>
         /// Renders the specified media block.
         /// </summary>
         /// <param name="mediaBlock">The media block.</param>
@@ -139,14 +166,35 @@
             var subtitleBlock = mediaBlock as SubtitleBlock;
             if (subtitleBlock == null) return;
 
+            StartTime = subtitleBlock.StartTime;
+            EndTime = subtitleBlock.EndTime;
+
             var textToRender = string.Join("\r\n", subtitleBlock.Text);
 
-            Utils.UIEnqueueInvoke(System.Windows.Threading.DispatcherPriority.DataBind, new Action<string>((s) =>
-            {
-                foreach (var tb in GetTextBlocks())
-                    tb.Text = s;
+            SetText(textToRender);
+        }
 
-            }), textToRender);
+        /// <summary>
+        /// Called when a media block must stop being rendered.
+        /// This needs to return immediately so the calling thread is not disturbed.
+        /// </summary>
+        /// <param name="clockPosition">The clock position.</param>
+        public void Update(TimeSpan clockPosition)
+        {
+            if (string.IsNullOrWhiteSpace(CurrentText))
+                return;
+
+            if (StartTime.HasValue == false || EndTime.HasValue == false)
+            {
+                SetText(string.Empty);
+                return;
+            }
+
+            if (clockPosition > EndTime.Value || clockPosition < StartTime.Value)
+            {
+                SetText(string.Empty);
+                return;
+            }
 
         }
 

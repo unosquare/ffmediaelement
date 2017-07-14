@@ -33,14 +33,21 @@
         /// </summary>
         void Seek();
 
-
         /// <summary>
-        /// Renders the specified media block.
+        /// Called when a media block is due rendering.
+        /// This needs to return immediately so the calling thread is not disturbed.
         /// </summary>
         /// <param name="mediaBlock">The media block.</param>
         /// <param name="clockPosition">The clock position.</param>
         /// <param name="renderIndex">Index of the render.</param>
         void Render(MediaBlock mediaBlock, TimeSpan clockPosition, int renderIndex);
+
+        /// <summary>
+        /// Called on every block rendering clock cycle just in case some update operation needs to be performed.
+        /// This needs to return immediately so the calling thread is not disturbed.
+        /// </summary>
+        /// <param name="clockPosition">The clock position.</param>
+        void Update(TimeSpan clockPosition);
 
         /// <summary>
         /// Gets the parent media element.

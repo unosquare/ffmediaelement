@@ -340,7 +340,7 @@
                     LastRenderTime[main] = TimeSpan.MinValue;
 
                     // a forced sync is basically a seek operation.
-                    foreach (var t in all) Renderers[t].Seek();
+                    foreach (var t in all) Renderers[t]?.Seek();
                 }
 
                 // capture the render block based on its index
@@ -437,6 +437,7 @@
                         Clock.Pause();
                         Clock.Position = NaturalDuration.HasTimeSpan ?
                             NaturalDuration.TimeSpan : Blocks[main].RangeEndTime;
+                        wallClock = Clock.Position;
 
                         HasMediaEnded = true;
                         MediaState = MediaState.Pause;
@@ -452,6 +453,9 @@
                 #endregion
 
                 #region 6. Finalize the Rendering Cycle
+
+                // Calll the update method
+                foreach (var t in all) Renderers[t]?.Update(wallClock);
 
                 BlockRenderingCycle.Set();
 

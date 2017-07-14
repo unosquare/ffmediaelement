@@ -488,7 +488,8 @@
         {
             if (e.PropertyName.Equals(nameof(Media.IsOpen))
                 || e.PropertyName.Equals(nameof(Media.IsOpening))
-                || e.PropertyName.Equals(nameof(Media.MediaState)))
+                || e.PropertyName.Equals(nameof(Media.MediaState))
+                || e.PropertyName.Equals(nameof(Media.HasMediaEnded)))
             {
                 UpdateUIElements();
                 return;
@@ -552,7 +553,7 @@
         {
 
             // An example of switching to a different stream
-            if (e.Info.InputUrl.EndsWith("matroska.mkv"))
+            if (e.Info.InputUrl.EndsWith("matroska.mkv2"))
             {
                 var subtitleStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_SUBTITLE).Select(kvp => kvp.Value);
                 var englishSubtitleStream = subtitleStreams.FirstOrDefault(s => s.Language.StartsWith("en"));

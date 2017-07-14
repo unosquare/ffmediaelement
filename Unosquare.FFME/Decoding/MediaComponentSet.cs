@@ -25,13 +25,17 @@
         /// <summary>
         /// The internal Components
         /// </summary>
-        private readonly Dictionary<MediaType, MediaComponent> Items = new Dictionary<MediaType, MediaComponent>();
-
+        private readonly MediaTypeDictionary<MediaComponent> Items = new MediaTypeDictionary<MediaComponent>();
 
         /// <summary>
         /// Provides a cached array to the components backing the All property.
         /// </summary>
         private ReadOnlyCollection<MediaComponent> CachedComponents = null;
+
+        /// <summary>
+        /// The synchronize lock
+        /// </summary>
+        private readonly object SyncLock = new object();
 
         #endregion
 
@@ -54,7 +58,7 @@
         /// </summary>
         public MediaType[] MediaTypes
         {
-            get { return Items.Keys.ToArray(); }
+            get { lock (SyncLock) return Items.Keys.ToArray(); }
         }
 
         /// <summary>
@@ -64,10 +68,14 @@
         {
             get
             {
-                if (CachedComponents == null || CachedComponents.Count != Items.Count)
-                    CachedComponents = new ReadOnlyCollection<MediaComponent>(Items.Values.ToArray());
+                lock (SyncLock)
+                {
+                    if (CachedComponents == null || CachedComponents.Count != Items.Count)
+                        CachedComponents = new ReadOnlyCollection<MediaComponent>(Items.Values.ToArray());
 
-                return CachedComponents;
+                    return CachedComponents;
+                }
+
             }
         }
 
@@ -83,10 +91,7 @@
         /// </summary>
         public VideoComponent Video
         {
-            get
-            {
-                return Items.ContainsKey(MediaType.Video) ? Items[MediaType.Video] as VideoComponent : null;
-            }
+            get { lock (SyncLock) return Items[MediaType.Video] as VideoComponent; }
         }
 
         /// <summary>
@@ -95,10 +100,7 @@
         /// </summary>
         public AudioComponent Audio
         {
-            get
-            {
-                return Items.ContainsKey(MediaType.Audio) ? Items[MediaType.Audio] as AudioComponent : null;
-            }
+            get { lock (SyncLock) return Items[MediaType.Audio] as AudioComponent; }
         }
 
         /// <summary>
@@ -107,10 +109,7 @@
         /// </summary>
         public SubtitleComponent Subtitles
         {
-            get
-            {
-                return Items.ContainsKey(MediaType.Subtitle) ? Items[MediaType.Subtitle] as SubtitleComponent : null;
-            }
+            get { lock (SyncLock) return Items[MediaType.Subtitle] as SubtitleComponent; }
         }
 
         /// <summary>
@@ -119,10 +118,7 @@
         /// </summary>
         public int PacketBufferLength
         {
-            get
-            {
-                return All.Sum(c => c.PacketBufferLength);
-            }
+            get { lock (SyncLock) return All.Sum(c => c.PacketBufferLength); }
         }
 
         /// <summary>
@@ -131,26 +127,23 @@
         /// </summary>
         public int PacketBufferCount
         {
-            get
-            {
-                return All.Sum(c => c.PacketBufferCount);
-            }
+            get { lock (SyncLock) return All.Sum(c => c.PacketBufferCount); }
         }
 
         /// <summary>
         /// Gets a value indicating whether this instance has a video component.
         /// </summary>
-        public bool HasVideo { get { return Video != null; } }
+        public bool HasVideo { get { lock (SyncLock) return Items.ContainsKey(MediaType.Video); } }
 
         /// <summary>
         /// Gets a value indicating whether this instance has an audio component.
         /// </summary>
-        public bool HasAudio { get { return Audio != null; } }
+        public bool HasAudio { get { lock (SyncLock) return Items.ContainsKey(MediaType.Audio); } }
 
         /// <summary>
         /// Gets a value indicating whether this instance has a subtitles component.
         /// </summary>
-        public bool HasSubtitles { get { return Subtitles != null; } }
+        public bool HasSubtitles { get { lock (SyncLock) return Items.ContainsKey(MediaType.Subtitle); } }
 
         /// <summary>
         /// Gets or sets the <see cref="MediaComponent"/> with the specified media type.
@@ -165,14 +158,18 @@
         {
             get
             {
-                return Items.ContainsKey(mediaType) ? Items[mediaType] : null;
+                lock (SyncLock) return Items.ContainsKey(mediaType) ? Items[mediaType] : null;
             }
             set
             {
-                if (Items.ContainsKey(mediaType))
-                    throw new ArgumentException($"A component for '{mediaType}' is already registered.");
-                Items[mediaType] = value ?? throw new ArgumentNullException($"{nameof(MediaComponent)} {nameof(value)} must not be null.");
-                Main = HasAudio ? Audio as MediaComponent : Video as MediaComponent;
+                lock (SyncLock)
+                {
+                    if (Items.ContainsKey(mediaType))
+                        throw new ArgumentException($"A component for '{mediaType}' is already registered.");
+                    Items[mediaType] = value ?? throw new ArgumentNullException($"{nameof(MediaComponent)} {nameof(value)} must not be null.");
+                    Main = HasAudio ? Audio as MediaComponent : Video as MediaComponent;
+                }
+
             }
         }
 
@@ -183,17 +180,19 @@
         /// <param name="mediaType">Type of the media.</param>
         public void Remove(MediaType mediaType)
         {
-
-            if (Items.ContainsKey(mediaType) == false) return;
-
-            try
+            lock (SyncLock)
             {
-                var component = Items[mediaType];
-                Items.Remove(mediaType);
-                component.Dispose();
+                if (Items.ContainsKey(mediaType) == false) return;
+
+                try
+                {
+                    var component = Items[mediaType];
+                    Items.Remove(mediaType);
+                    component.Dispose();
+                }
+                catch
+                { }
             }
-            catch
-            { }
         }
 
         #endregion
@@ -209,19 +208,23 @@
         /// <returns></returns>
         internal unsafe MediaType SendPacket(AVPacket* packet)
         {
-            if (packet == null)
-                return MediaType.None;
-
-            foreach (var component in All)
+            lock (SyncLock)
             {
-                if (component.StreamIndex == packet->stream_index)
+                if (packet == null)
+                    return MediaType.None;
+
+                foreach (var component in All)
                 {
-                    component.SendPacket(packet);
-                    return component.MediaType;
+                    if (component.StreamIndex == packet->stream_index)
+                    {
+                        component.SendPacket(packet);
+                        return component.MediaType;
+                    }
                 }
+
+                return MediaType.None;
             }
 
-            return MediaType.None;
         }
 
         /// <summary>
@@ -231,8 +234,9 @@
         /// </summary>
         internal void SendEmptyPackets()
         {
-            foreach (var component in All)
-                component.SendEmptyPacket();
+            lock (SyncLock)
+                foreach (var component in All)
+                    component.SendEmptyPacket();
         }
 
         /// <summary>
@@ -243,8 +247,9 @@
         /// </summary>
         internal void ClearPacketQueues()
         {
-            foreach (var component in All)
-                component.ClearPacketQueues();
+            lock (SyncLock)
+                foreach (var component in All)
+                    component.ClearPacketQueues();
         }
 
         #endregion

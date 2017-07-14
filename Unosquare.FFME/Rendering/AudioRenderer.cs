@@ -289,6 +289,13 @@
         }
 
         /// <summary>
+        /// Called on every block rendering clock cycle just in case some update operation needs to be performed.
+        /// This needs to return immediately so the calling thread is not disturbed.
+        /// </summary>
+        /// <param name="clockPosition">The clock position.</param>
+        public void Update(TimeSpan clockPosition) { }
+
+        /// <summary>
         /// Executed when the Play method is called on the parent MediaElement
         /// </summary>
         public void Play()
