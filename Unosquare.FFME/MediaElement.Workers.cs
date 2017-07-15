@@ -22,20 +22,20 @@
 
         #region Constants
 
-        internal static readonly Dictionary<MediaType, int> MaxBlocks
-            = new Dictionary<MediaType, int>()
+        // TODO: Make this dynamic
+        internal static readonly Dictionary<MediaType, int> MaxBlocks = new Dictionary<MediaType, int>
         {
             { MediaType.Video, 12 },
-            { MediaType.Audio, 24 },
-            { MediaType.Subtitle, 48 }
+            { MediaType.Audio, 64 },
+            { MediaType.Subtitle, 64 }
         };
 
-        private static readonly Dictionary<MediaType, int> MaxFrames
-            = new Dictionary<MediaType, int>()
+        // TODO: Make this dynamic
+        private static readonly Dictionary<MediaType, int> MaxFrames = new Dictionary<MediaType, int>
         {
             { MediaType.Video, 24 },
-            { MediaType.Audio, 48 },
-            { MediaType.Subtitle, 48 }
+            { MediaType.Audio, 64 },
+            { MediaType.Subtitle, 64 }
         };
 
         #endregion

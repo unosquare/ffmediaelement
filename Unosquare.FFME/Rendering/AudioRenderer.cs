@@ -550,43 +550,51 @@
         {
             lock (SyncLock)
             {
-
-                // Render silence if we don't need to output anything
-                if (MediaElement.IsPlaying == false || SpeedRatio <= 0d || MediaElement.HasAudio == false || AudioBuffer.ReadableCount <= 0)
+                try
                 {
-                    Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
-                    return requestedBytes;
-                }
-
-                // Ensure a preallocated ReadBuffer
-                if (ReadBuffer == null || ReadBuffer.Length < (int)(requestedBytes * Constants.MaxSpeedRatio))
-                    ReadBuffer = new byte[(int)(requestedBytes * Constants.MaxSpeedRatio)];
-
-                // Perform AV Synchronization if needed
-                if (MediaElement.HasVideo && Synchronize(targetBuffer, targetBufferOffset, requestedBytes) == false)
-                    return requestedBytes;
-
-                // Perform DSP
-                if (SpeedRatio < 1.0)
-                {
-                    ReadAndStretch(requestedBytes);
-                }
-                else if (SpeedRatio > 1.0)
-                {
-                    ReadAndShrink(requestedBytes);
-                }
-                else
-                {
-                    if (requestedBytes > AudioBuffer.ReadableCount)
+                    // Render silence if we don't need to output anything
+                    if (MediaElement.IsPlaying == false || SpeedRatio <= 0d || MediaElement.HasAudio == false || AudioBuffer.ReadableCount <= 0)
                     {
                         Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
                         return requestedBytes;
                     }
 
-                    AudioBuffer.Read(requestedBytes, ReadBuffer, 0);
-                }
+                    // Ensure a preallocated ReadBuffer
+                    if (ReadBuffer == null || ReadBuffer.Length < (int)(requestedBytes * Constants.MaxSpeedRatio))
+                        ReadBuffer = new byte[(int)(requestedBytes * Constants.MaxSpeedRatio)];
 
-                ApplyVolumeAndBalance(targetBuffer, targetBufferOffset, requestedBytes);
+                    // Perform AV Synchronization if needed
+                    if (MediaElement.HasVideo && Synchronize(targetBuffer, targetBufferOffset, requestedBytes) == false)
+                        return requestedBytes;
+
+                    // Perform DSP
+                    if (SpeedRatio < 1.0)
+                    {
+                        ReadAndStretch(requestedBytes);
+                    }
+                    else if (SpeedRatio > 1.0)
+                    {
+                        ReadAndShrink(requestedBytes);
+                    }
+                    else
+                    {
+                        if (requestedBytes > AudioBuffer.ReadableCount)
+                        {
+                            Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
+                            return requestedBytes;
+                        }
+
+                        AudioBuffer.Read(requestedBytes, ReadBuffer, 0);
+                    }
+
+                    ApplyVolumeAndBalance(targetBuffer, targetBufferOffset, requestedBytes);
+
+                }
+                catch (Exception ex)
+                {
+                    MediaElement.Logger.Log(MediaLogMessageType.Error, $"{ex.GetType()} in {nameof(AudioRenderer)}.{nameof(Read)}: {ex.Message}. Stack Trace:\r\n{ex.StackTrace}");
+                    Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
+                }
 
                 return requestedBytes;
             }

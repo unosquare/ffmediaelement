@@ -36,7 +36,7 @@
         /// </summary>
         public void Close()
         {
-            //placeholder
+            SetText(string.Empty);
         }
 
         /// <summary>
@@ -60,7 +60,7 @@
         /// </summary>
         public void Stop()
         {
-            //placeholder
+            SetText(string.Empty);
         }
 
         /// <summary>

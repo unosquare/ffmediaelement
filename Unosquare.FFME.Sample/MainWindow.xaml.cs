@@ -12,6 +12,7 @@
     using System.Windows.Media.Animation;
     using System.Windows.Threading;
     using System.Collections.Generic;
+    using Config;
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -23,6 +24,8 @@
 
         private readonly Dictionary<string, Action> PropertyUpdaters;
         private readonly Dictionary<string, string[]> PropertyTriggers;
+
+        private ConfigRoot Config;
 
         /// <summary>
         /// Occurs when a property changes its value.
@@ -313,9 +316,12 @@
                 { nameof(Media.IsBuffering), new[] { nameof(BufferingProgressVisibility) } },
             };
 
+            Config = ConfigRoot.Load();
+
             // Change the default location of the ffmpeg binaries
             // You can get the binaries here: http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.2.4-win32-shared.zip
-            Unosquare.FFME.MediaElement.FFmpegDirectory = @"C:\ffmpeg";
+            Unosquare.FFME.MediaElement.FFmpegDirectory = Config.FFmpegPath;
+
             //ConsoleManager.ShowConsole();
             InitializeComponent();
             InitializeMediaEvents();
@@ -323,7 +329,6 @@
             InitializeMainWindow();
 
             UpdateWindowTitle();
-
         }
 
         /// <summary>
@@ -331,6 +336,7 @@
         /// </summary>
         private void InitializeMediaEvents()
         {
+            Media.MediaOpened += Media_MediaOpened;
             Media.MediaOpening += Media_MediaOpening;
             Media.MediaFailed += Media_MediaFailed;
             Media.MessageLogged += Media_MessageLogged;
@@ -472,7 +478,7 @@
         private void InitializeMainWindow()
         {
             Loaded += MainWindow_Loaded;
-            UrlTextBox.Text = @"http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8";
+            UrlTextBox.Text = Config.HistoryEntries.Count > 0 ? Config.HistoryEntries.Last() : string.Empty;
 
             var args = Environment.GetCommandLineArgs();
             if (args != null && args.Length > 1)
@@ -483,7 +489,7 @@
 
             OpenMediaPopup.Opened += (s, e) =>
             {
-                UrlTextBox.SelectAll();
+                UrlTextBox.ItemsSource = Config.HistoryEntries;
                 UrlTextBox.Focus();
             };
 
@@ -502,7 +508,7 @@
         #region Event Handlers
 
         /// <summary>
-        /// Updates the window title.
+        /// Updates the window title according to the current state.
         /// </summary>
         private void UpdateWindowTitle()
         {
@@ -530,6 +536,7 @@
             }
             else
             {
+                title = "(No media loaded)";
                 state = "Ready";
             }
 
@@ -609,6 +616,25 @@
         {
             MessageBox.Show($"Media Failed: {e.ErrorException.GetType()}\r\n{e.ErrorException.Message}",
                 "MediaElement Error", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+        }
+
+        /// <summary>
+        /// Handles the MediaOpened event of the Media control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
+        private void Media_MediaOpened(object sender, RoutedEventArgs e)
+        {
+            var source = Media.Source.ToString();
+
+            if (Config.HistoryEntries.Contains(source))
+            {
+                var oldIndex = Config.HistoryEntries.IndexOf(source);
+                Config.HistoryEntries.RemoveAt(oldIndex);
+            }
+
+            Config.HistoryEntries.Add(Media.Source.ToString());
+            Config.Save();
         }
 
         /// <summary>

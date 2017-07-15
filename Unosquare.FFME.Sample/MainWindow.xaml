@@ -161,7 +161,7 @@
                                     <RowDefinition />
                                 </Grid.RowDefinitions>
                                 <TextBlock Grid.Row="0" Text="Open File Path or URL" Padding="10,10,0,0" VerticalAlignment="Bottom" />
-                                <TextBox Grid.Row="1" BorderThickness="0" Name="UrlTextBox" Margin="10" Padding="4" FontSize="15"></TextBox>
+                                <ComboBox Grid.Row="1" BorderThickness="0" Name="UrlTextBox" Margin="10" Padding="4" FontSize="15" IsEditable="True" StaysOpenOnEdit="True" />
                                 <Button HorizontalAlignment="Right" Margin="0,0,10,10" Grid.Row="2" Style="{DynamicResource ModernButtonStyle}" Command="{Binding ElementName=window, Path=OpenCommand}">
                                     <Path Stretch="Uniform" Data="{Binding Source={StaticResource OpenIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
                                 </Button>
