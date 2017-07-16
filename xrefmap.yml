@@ -1621,6 +1621,18 @@ references:
   commentId: Overload:Unosquare.FFME.StreamInfo.Disposition
   fullName: Unosquare.FFME.StreamInfo.Disposition
   nameWithType: StreamInfo.Disposition
+- uid: Unosquare.FFME.StreamInfo.Duration
+  name: Duration
+  href: api/Unosquare.FFME.StreamInfo.html#Unosquare_FFME_StreamInfo_Duration
+  commentId: P:Unosquare.FFME.StreamInfo.Duration
+  fullName: Unosquare.FFME.StreamInfo.Duration
+  nameWithType: StreamInfo.Duration
+- uid: Unosquare.FFME.StreamInfo.Duration*
+  name: Duration
+  href: api/Unosquare.FFME.StreamInfo.html#Unosquare_FFME_StreamInfo_Duration_
+  commentId: Overload:Unosquare.FFME.StreamInfo.Duration
+  fullName: Unosquare.FFME.StreamInfo.Duration
+  nameWithType: StreamInfo.Duration
 - uid: Unosquare.FFME.StreamInfo.FieldOrder
   name: FieldOrder
   href: api/Unosquare.FFME.StreamInfo.html#Unosquare_FFME_StreamInfo_FieldOrder
@@ -1801,6 +1813,18 @@ references:
   commentId: Overload:Unosquare.FFME.StreamInfo.SampleRate
   fullName: Unosquare.FFME.StreamInfo.SampleRate
   nameWithType: StreamInfo.SampleRate
+- uid: Unosquare.FFME.StreamInfo.StartTime
+  name: StartTime
+  href: api/Unosquare.FFME.StreamInfo.html#Unosquare_FFME_StreamInfo_StartTime
+  commentId: P:Unosquare.FFME.StreamInfo.StartTime
+  fullName: Unosquare.FFME.StreamInfo.StartTime
+  nameWithType: StreamInfo.StartTime
+- uid: Unosquare.FFME.StreamInfo.StartTime*
+  name: StartTime
+  href: api/Unosquare.FFME.StreamInfo.html#Unosquare_FFME_StreamInfo_StartTime_
+  commentId: Overload:Unosquare.FFME.StreamInfo.StartTime
+  fullName: Unosquare.FFME.StreamInfo.StartTime
+  nameWithType: StreamInfo.StartTime
 - uid: Unosquare.FFME.StreamInfo.StreamId
   name: StreamId
   href: api/Unosquare.FFME.StreamInfo.html#Unosquare_FFME_StreamInfo_StreamId
