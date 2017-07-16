@@ -30,8 +30,8 @@
             Format = Utils.PtrToString(ic->iformat->name);
             Metadata = container.Metadata;
             Duration = ic->duration != Utils.FFmpeg.AV_NOPTS ?
-                new Duration(ic->duration.ToTimeSpan()) :
-                new Duration();
+                ic->duration.ToTimeSpan() :
+                TimeSpan.MinValue;
             StartTime = ic->start_time != Utils.FFmpeg.AV_NOPTS ?
                 ic->start_time.ToTimeSpan() :
                 new TimeSpan?();
@@ -275,7 +275,7 @@
         /// Gets the duration of the input as reported by the container format.
         /// Individual stream components may have different values
         /// </summary>
-        public Duration Duration { get; private set; }
+        public TimeSpan Duration { get; private set; }
 
         /// <summary>
         /// Gets the start timestamp of the input as reported by the container format.

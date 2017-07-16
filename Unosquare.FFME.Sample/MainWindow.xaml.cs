@@ -1,7 +1,10 @@
 ﻿namespace Unosquare.FFME.Sample
 {
+    using Config;
     using FFmpeg.AutoGen;
     using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Linq;
@@ -11,10 +14,6 @@
     using System.Windows.Media;
     using System.Windows.Media.Animation;
     using System.Windows.Threading;
-    using System.Collections.Generic;
-    using Config;
-    using System.Windows.Data;
-    using System.Collections.ObjectModel;
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml

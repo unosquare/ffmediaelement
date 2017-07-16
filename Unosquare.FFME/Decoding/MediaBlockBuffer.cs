@@ -104,6 +104,23 @@
         }
 
         /// <summary>
+        /// Gets the <see cref="MediaBlock"/> at the specified timestamp.
+        /// </summary>
+        public MediaBlock this[TimeSpan at]
+        {
+            get
+            {
+                lock (SyncRoot)
+                {
+                    var index = IndexOf(at);
+                    if (index >= 0) { return PlaybackBlocks[index]; }
+
+                    return null;
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets the number of available playback blocks.
         /// </summary>
         public int Count { get { lock (SyncRoot) return PlaybackBlocks.Count; } }

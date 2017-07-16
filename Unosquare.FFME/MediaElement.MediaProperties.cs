@@ -37,6 +37,26 @@
         /// </summary>
         public string MediaFormat { get { return Container?.MediaFormatName; } }
 
+        /// <summary>
+        /// Gets the duration of a single frame step.
+        /// If there is a video component with a framerate, this propery returns the length of a frame.
+        /// If there is no video component it simply returns a tenth of a second.
+        public TimeSpan FrameStepDuration
+        {
+            get
+            {
+                if (IsOpen == false) { return TimeSpan.Zero; }
+
+                if (HasVideo)
+                {
+                    if (VideoFrameLength > 0)
+                        return TimeSpan.FromTicks((long)Math.Round(TimeSpan.TicksPerMillisecond * VideoFrameLength * 1000d, 0));
+                }
+
+                return TimeSpan.FromSeconds(0.1d);
+            }
+        }
+
         /// <summary> 
         /// Returns whether the given media has audio. 
         /// Only valid after the MediaOpened event has fired.
@@ -305,6 +325,7 @@
             OnPropertyChanged(nameof(IsSeekable));
             OnPropertyChanged(nameof(BufferCacheLength));
             OnPropertyChanged(nameof(DownloadCacheLength));
+            OnPropertyChanged(nameof(FrameStepDuration));
 
             Volume = Constants.DefaultVolume;
             Balance = Constants.DefaultBalance;

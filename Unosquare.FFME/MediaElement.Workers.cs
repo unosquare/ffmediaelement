@@ -455,7 +455,8 @@
                 #region 6. Finalize the Rendering Cycle
 
                 // Calll the update method
-                foreach (var t in all) Renderers[t]?.Update(wallClock);
+                foreach (var t in all)
+                    Renderers[t]?.Update(wallClock);
 
                 BlockRenderingCycle.Set();
 

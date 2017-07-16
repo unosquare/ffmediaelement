@@ -21,17 +21,6 @@
     /// <seealso cref="System.IDisposable" />
     internal unsafe sealed class MediaContainer : IDisposable
     {
-
-        #region Constants
-
-        private static class EntryName
-        {
-            public const string ScanAllPMTs = "scan_all_pmts";
-            public const string Title = "title";
-        }
-
-        #endregion
-
         #region Private Fields
 
         /// <summary>
@@ -67,13 +56,31 @@
         /// </summary>
         private bool m_RequiresPictureAttachments = true;
 
+        /// <summary>
+        /// The read synchronize root
+        /// </summary>
         private readonly object ReadSyncRoot = new object();
 
+        /// <summary>
+        /// The decode synchronize root
+        /// </summary>
         private readonly object DecodeSyncRoot = new object();
 
+        /// <summary>
+        /// The convert synchronize root
+        /// </summary>
         private readonly object ConvertSyncRoot = new object();
 
+        /// <summary>
+        /// The stream read interrupt callback.
+        /// Used to detect read rimeouts.
+        /// </summary>
         private AVIOInterruptCB_callback StreamReadInterruptCallback;
+
+        /// <summary>
+        /// The stream read interrupt start time.
+        /// When a read operation is started, this is set to the ticks of UTC now.
+        /// </summary>
         private long StreamReadInterruptStartTime = default(long);
 
         #endregion
@@ -106,14 +113,7 @@
         /// <summary>
         /// Gets the media bitrate (bits per second). Returns 0 if not available.
         /// </summary>
-        public long MediaBitrate
-        {
-            get
-            {
-                if (InputContext == null) return 0;
-                return InputContext->bit_rate;
-            }
-        }
+        public long MediaBitrate { get { return MediaInfo?.BitRate ?? 0; } }
 
         /// <summary>
         /// Holds the metadata of the media file when the stream is initialized.
@@ -128,9 +128,6 @@
         /// <summary>
         /// Gets a value indicating whether this instance is open.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if this instance is open; otherwise, <c>false</c>.
-        /// </value>
         public bool IsOpen { get { return IsInitialized && Components.All.Count > 0; } }
 
         /// <summary>
@@ -157,7 +154,7 @@
         /// If this information is not available (i.e. realtime media) it will
         /// be set to TimeSpan.MinValue
         /// </summary>
-        public TimeSpan MediaDuration { get; private set; }
+        public TimeSpan MediaDuration { get { return MediaInfo?.Duration ?? TimeSpan.MinValue; } }
 
         /// <summary>
         /// Will be set to true whenever an End Of File situation is reached.
@@ -378,39 +375,34 @@
         {
             lock (ConvertSyncRoot)
             {
-                if (IsDisposed || InputContext == null) throw new InvalidOperationException("No input context initialized");
+                if (IsDisposed || InputContext == null)
+                    throw new InvalidOperationException("No input context initialized");
 
                 // Check the input parameters
                 if (input == null)
                     throw new ArgumentNullException($"{nameof(input)} cannot be null.");
+
+                if (input.IsStale) throw new ArgumentException(
+                    $"The {nameof(input)} {nameof(MediaFrame)} ({input.MediaType}) has already been released (it's stale).");
 
                 try
                 {
                     switch (input.MediaType)
                     {
                         case MediaType.Video:
-                            if (input.IsStale) throw new ArgumentException(
-                                $"The {nameof(input)} {nameof(MediaFrame)} has already been released (it's stale).");
-
                             if (Components.HasVideo) Components.Video.MaterializeFrame(input, ref output);
                             return output;
 
                         case MediaType.Audio:
-                            if (input.IsStale) throw new ArgumentException(
-                                $"The {nameof(input)} {nameof(MediaFrame)} has already been released (it's stale).");
-
                             if (Components.HasAudio) Components.Audio.MaterializeFrame(input, ref output);
                             return output;
 
                         case MediaType.Subtitle:
-                            // We don't need to heck if subtitles are stale because they are immediately released
-                            // upon decoding. This is because there is no unmanaged allocator for AVSubtitle.
-
                             if (Components.HasSubtitles) Components.Subtitles.MaterializeFrame(input, ref output);
                             return output;
 
                         default:
-                            throw new MediaContainerException($"Unable to materialize {nameof(MediaType)} {(int)input.MediaType}");
+                            throw new MediaContainerException($"Unable to materialize frame of {nameof(MediaType)} {input.MediaType}");
                     }
                 }
                 finally
@@ -431,7 +423,9 @@
             {
                 lock (DecodeSyncRoot)
                 {
-                    if (IsDisposed || InputContext == null) throw new InvalidOperationException("No input context initialized");
+                    if (IsDisposed || InputContext == null)
+                        throw new InvalidOperationException("No input context initialized");
+
                     Dispose();
                 }
             }
@@ -450,6 +444,8 @@
         /// <exception cref="MediaContainerException"></exception>
         private void StreamInitialize()
         {
+            const string ScanAllPmts = "scan_all_pmts";
+
             if (IsInitialized)
                 throw new InvalidOperationException("The input context has already been initialized.");
 
@@ -466,8 +462,8 @@
                 // Create the input format context, and open the input based on the provided format options.
                 using (var formatOptions = new FFDictionary(MediaOptions.FormatOptions))
                 {
-                    if (formatOptions.HasKey(EntryName.ScanAllPMTs) == false)
-                        formatOptions.Set(EntryName.ScanAllPMTs, "1", true);
+                    if (formatOptions.HasKey(ScanAllPmts) == false)
+                        formatOptions.Set(ScanAllPmts, "1", true);
 
                     // Allocate the input context and save it
                     InputContext = ffmpeg.avformat_alloc_context();
@@ -493,14 +489,15 @@
                             openResult = ffmpeg.avformat_open_input(inputContext, $"{MediaUrl}", inputFormat, reference);
 
                         // Validate the open operation
-                        if (openResult < 0) throw new MediaContainerException($"Could not open '{MediaUrl}'. Error {openResult}: {Utils.FFmpeg.GetErrorMessage(openResult)}");
+                        if (openResult < 0)
+                            throw new MediaContainerException($"Could not open '{MediaUrl}'. Error {openResult}: {Utils.FFmpeg.GetErrorMessage(openResult)}");
                     }
 
                     // Set some general properties
                     MediaFormatName = Utils.PtrToString(InputContext->iformat->name);
 
                     // If there are any optins left in the dictionary, it means they did not get used (invalid options).
-                    formatOptions.Remove(EntryName.ScanAllPMTs);
+                    formatOptions.Remove(ScanAllPmts);
 
                     var currentEntry = formatOptions.First();
                     while (currentEntry != null && currentEntry?.Key != null)
@@ -512,10 +509,11 @@
                 }
 
                 // Inject Codec Parameters
-                if (MediaOptions.GeneratePts) InputContext->flags |= ffmpeg.AVFMT_FLAG_GENPTS;
+                if (MediaOptions.GeneratePts) { InputContext->flags |= ffmpeg.AVFMT_FLAG_GENPTS; }
                 ffmpeg.av_format_inject_global_side_data(InputContext);
 
-                // This is useful for file formats with no headers such as MPEG. This function also computes the real framerate in case of MPEG-2 repeat frame mode.
+                // This is useful for file formats with no headers such as MPEG. This function also computes 
+                // the real framerate in case of MPEG-2 repeat frame mode.
                 if (ffmpeg.avformat_find_stream_info(InputContext, null) < 0)
                     Logger?.Log(MediaLogMessageType.Warning, $"{MediaUrl}: could read stream info.");
 
@@ -542,7 +540,6 @@
                     MediaStartTimeOffset = TimeSpan.Zero;
                 }
 
-                MediaDuration = InputContext->duration.ToTimeSpan();
                 MediaInfo = new MediaInfo(this);
                 foreach (var s in MediaInfo.BestStreams)
                 {
@@ -641,7 +638,7 @@
             catch (Exception ex)
             {
                 Logger?.Log(MediaLogMessageType.Error, $"Unable to initialize {MediaType.Subtitle} component. {ex.Message}");
-            }            
+            }
 
             // Verify we have at least 1 valid stream component to work with.
             if (Components.HasVideo == false && Components.HasAudio == false)
@@ -656,6 +653,9 @@
         /// <returns></returns>
         private unsafe int StreamReadInterrupt(void* opaque)
         {
+            const int ErrorResult = 1;
+            const int OkResult = 0;
+
             var nowTicks = DateTime.UtcNow.Ticks;
             var startTicks = Thread.VolatileRead(ref StreamReadInterruptStartTime);
             var timeDifference = TimeSpan.FromTicks(nowTicks - startTicks);
@@ -663,10 +663,10 @@
             if (MediaOptions.ReadTimeout.Ticks >= 0 && timeDifference.Ticks > MediaOptions.ReadTimeout.Ticks)
             {
                 Utils.Log(Logger, MediaLogMessageType.Error, $"{nameof(StreamReadInterrupt)} timed out with  {timeDifference.Format()}");
-                return 1;
+                return ErrorResult;
             }
 
-            return 0;
+            return OkResult;
         }
 
         /// <summary>
@@ -754,7 +754,6 @@
                     RC.Current.Remove(readPacket);
                     ffmpeg.av_packet_free(&readPacket);
                 }
-
 
                 return componentType;
             }

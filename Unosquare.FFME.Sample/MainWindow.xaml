@@ -46,6 +46,8 @@
                     Visibility="{Binding ElementName=window, Path=SeekBarVisibility}"
                     Style="{DynamicResource PositionSliderStyle}"
                     IsEnabled="{Binding ElementName=Media, Path=IsOpen}"
+                    SmallChange="{Binding ElementName=Media, Path=FrameStepDuration, Converter={StaticResource TimeSpanToSecondsConverter}}"
+                    LargeChange="{Binding ElementName=Media, Path=FrameStepDuration, Converter={StaticResource TimeSpanToSecondsConverter}}"
                     Maximum="{Binding ElementName=Media, Path=NaturalDuration, Converter={StaticResource TimeSpanToSecondsConverter}}" 
                     Value="{Binding ElementName=Media, Path=Position, Converter={StaticResource TimeSpanToSecondsConverter}}"
                     PreviewMouseDown="PositionSlider_MouseDown" PreviewMouseUp="PositionSlider_MouseUp" />

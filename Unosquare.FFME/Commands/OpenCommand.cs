@@ -65,12 +65,15 @@
 
                 MediaElement.IsFFmpegLoaded = true;
                 m.IsOpening = true;
+                m.MediaState = System.Windows.Controls.MediaState.Manual;
 
                 var mediaUrl = Source.IsFile ? Source.LocalPath : Source.ToString();
                 m.Container = new MediaContainer(mediaUrl, m.Logger);
                 m.RaiseMediaOpeningEvent();
                 m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Entered");
                 m.Container.Open();
+
+                m.MediaState = System.Windows.Controls.MediaState.Stop;
 
                 foreach (var t in m.Container.Components.MediaTypes)
                 {
@@ -99,6 +102,7 @@
             }
             catch (Exception ex)
             {
+                m.MediaState = System.Windows.Controls.MediaState.Close;
                 m.RaiseMediaFailedEvent(ex);
             }
             finally
