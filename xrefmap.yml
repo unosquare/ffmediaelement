@@ -415,6 +415,18 @@ references:
   commentId: E:Unosquare.FFME.MediaElement.FFmpegMessageLogged
   fullName: Unosquare.FFME.MediaElement.FFmpegMessageLogged
   nameWithType: MediaElement.FFmpegMessageLogged
+- uid: Unosquare.FFME.MediaElement.FrameStepDuration
+  name: FrameStepDuration
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_FrameStepDuration
+  commentId: P:Unosquare.FFME.MediaElement.FrameStepDuration
+  fullName: Unosquare.FFME.MediaElement.FrameStepDuration
+  nameWithType: MediaElement.FrameStepDuration
+- uid: Unosquare.FFME.MediaElement.FrameStepDuration*
+  name: FrameStepDuration
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_FrameStepDuration_
+  commentId: Overload:Unosquare.FFME.MediaElement.FrameStepDuration
+  fullName: Unosquare.FFME.MediaElement.FrameStepDuration
+  nameWithType: MediaElement.FrameStepDuration
 - uid: Unosquare.FFME.MediaElement.HasAudio
   name: HasAudio
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_HasAudio
