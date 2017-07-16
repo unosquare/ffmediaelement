@@ -13,6 +13,8 @@
     using System.Windows.Threading;
     using System.Collections.Generic;
     using Config;
+    using System.Windows.Data;
+    using System.Collections.ObjectModel;
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -24,8 +26,8 @@
 
         private readonly Dictionary<string, Action> PropertyUpdaters;
         private readonly Dictionary<string, string[]> PropertyTriggers;
-
         private ConfigRoot Config;
+        private readonly ObservableCollection<string> HistoryItems = new ObservableCollection<string>();
 
         /// <summary>
         /// Occurs when a property changes its value.
@@ -317,6 +319,7 @@
             };
 
             Config = ConfigRoot.Load();
+            RefreshHistoryItems();
 
             // Change the default location of the ffmpeg binaries
             // You can get the binaries here: http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.2.4-win32-shared.zip
@@ -478,7 +481,7 @@
         private void InitializeMainWindow()
         {
             Loaded += MainWindow_Loaded;
-            UrlTextBox.Text = Config.HistoryEntries.Count > 0 ? Config.HistoryEntries.Last() : string.Empty;
+            UrlTextBox.Text = HistoryItems.Count > 0 ? HistoryItems.First() : string.Empty;
 
             var args = Environment.GetCommandLineArgs();
             if (args != null && args.Length > 1)
@@ -489,7 +492,12 @@
 
             OpenMediaPopup.Opened += (s, e) =>
             {
-                UrlTextBox.ItemsSource = Config.HistoryEntries;
+                if (UrlTextBox.ItemsSource == null)
+                    UrlTextBox.ItemsSource = HistoryItems;
+
+                if (HistoryItems.Count > 0)
+                    UrlTextBox.Text = HistoryItems.First();
+
                 UrlTextBox.Focus();
             };
 
@@ -635,6 +643,8 @@
 
             Config.HistoryEntries.Add(Media.Source.ToString());
             Config.Save();
+            RefreshHistoryItems();
+
         }
 
         /// <summary>
@@ -728,6 +738,16 @@
         {
             var factor = (int)(value / multiple);
             return factor * multiple;
+        }
+
+        /// <summary>
+        /// Refreshes the history items.
+        /// </summary>
+        private void RefreshHistoryItems()
+        {
+            HistoryItems.Clear();
+            for (var entryIndex = Config.HistoryEntries.Count - 1; entryIndex >= 0; entryIndex--)
+                HistoryItems.Add(Config.HistoryEntries[entryIndex]);
         }
 
         #endregion
