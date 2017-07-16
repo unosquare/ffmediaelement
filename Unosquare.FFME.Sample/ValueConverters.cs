@@ -70,7 +70,8 @@
         {
             if (duration != null)
             {
-                duration =  (App.Current.MainWindow as MainWindow)?.Media?.NaturalDuration;
+                var media = (duration as MediaElement);
+                duration = media?.NaturalDuration;
                 if (duration == null) duration = TimeSpan.Zero;
             }
 
