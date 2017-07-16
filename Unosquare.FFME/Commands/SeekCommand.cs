@@ -40,13 +40,9 @@
             try
             {
                 var main = m.Container.Components.Main.MediaType;
-                var blocks = m.Blocks[main];
-                var isInRange = blocks.IsInRange(TargetPosition);
-                var renderIndex = blocks.IndexOf(TargetPosition);
-
 
                 // 1. Check if we already have the block. If we do, simply set the clock position to the target position
-                // we don't need anything 
+                // we don't need anything else.
                 if (m.Blocks[main].IsInRange(TargetPosition))
                 {
                     m.Clock.Position = TargetPosition;
@@ -55,6 +51,15 @@
 
                 m.PacketReadingCycle.WaitOne();
                 m.FrameDecodingCycle.WaitOne();
+
+                // Capture seek target adjustment
+                var adjustedSeekTarget = TargetPosition;
+                if (main == MediaType.Video && m.Blocks[main].IsMonotonic)
+                {
+                    var targetSkewTicks = (long)Math.Round(
+                        m.Blocks[main][0].Duration.Ticks * (m.Blocks[main].Capacity / 2d), 2);
+                    adjustedSeekTarget = TimeSpan.FromTicks(adjustedSeekTarget.Ticks - targetSkewTicks);
+                }
 
                 // Clear Blocks and frames, reset the render times
                 foreach (var t in m.Container.Components.MediaTypes)
@@ -65,7 +70,7 @@
                 }
 
                 // Populate frame queues with after-seek operation
-                var frames = m.Container.Seek(TargetPosition);
+                var frames = m.Container.Seek(adjustedSeekTarget);
                 m.HasMediaEnded = false;
 
                 foreach (var frame in frames)
@@ -76,9 +81,9 @@
                     var minStartTime = frames.Min(f => f.StartTime.Ticks);
                     var maxStartTime = frames.Max(f => f.StartTime.Ticks);
 
-                    if (TargetPosition.Ticks < minStartTime)
+                    if (adjustedSeekTarget.Ticks < minStartTime)
                         m.Clock.Position = TimeSpan.FromTicks(minStartTime);
-                    else if (TargetPosition.Ticks > maxStartTime)
+                    else if (adjustedSeekTarget.Ticks > maxStartTime)
                         m.Clock.Position = TimeSpan.FromTicks(maxStartTime);
                     else
                         m.Clock.Position = TargetPosition;
@@ -91,9 +96,11 @@
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // swallow
+                // Log the exception
+                m.Logger.Log(MediaLogMessageType.Error,
+                    $"SEEK E: {ex.GetType()} - {ex.Message}. Stack Trace:\r\n{ex.StackTrace}");
             }
             finally
             {

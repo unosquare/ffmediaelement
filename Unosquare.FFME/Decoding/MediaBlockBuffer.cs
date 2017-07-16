@@ -96,6 +96,41 @@
         }
 
         /// <summary>
+        /// Gets the average duration of the currently available playback blocks.
+        /// </summary>
+        public TimeSpan AverageBlockDuration
+        {
+            get
+            {
+                lock (SyncRoot)
+                {
+                    if (PlaybackBlocks.Count <= 0) return TimeSpan.Zero;
+                    return TimeSpan.FromTicks((long)PlaybackBlocks.Average(b => Convert.ToDouble(b.Duration.Ticks)));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether all the durations of the blocks are equal
+        /// </summary>
+        public bool IsMonotonic
+        {
+            get
+            {
+                lock (SyncRoot)
+                {
+                    if (PlaybackBlocks.Count > 1)
+                    {
+                        var firstBlockDuration = PlaybackBlocks[0].Duration;
+                        return PlaybackBlocks.All(b => b.Duration == firstBlockDuration);
+                    }
+
+                    return false;
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets the <see cref="MediaBlock"/> at the specified index.
         /// </summary>
         public MediaBlock this[int index]
