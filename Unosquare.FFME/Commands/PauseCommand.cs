@@ -32,13 +32,14 @@
             foreach (var renderer in m.Renderers.Values)
                 renderer.Pause();
 
-            // Set the clock to a discrete position if possible
+            // Set the clock to a discrete video position if possible
             if (m.Blocks.ContainsKey(MediaType.Video) && m.Blocks[MediaType.Video].IsInRange(m.Clock.Position))
             {
                 var block = m.Blocks[MediaType.Video][m.Clock.Position];
-                if (block != null && block.Duration.Ticks > 0)
+                if (block != null && block.Duration.Ticks > 0 && m.VideoFrameRate != 0d)
                 {
-                    m.Clock.Position = TimeSpan.FromTicks(block.StartTime.Ticks + block.Duration.Ticks / 2);
+                    m.Clock.Position = TimeSpan.FromTicks((long)Math.Round(
+                        block.StartTime.Ticks + block.Duration.Ticks / 2d, 0));
                 }
             }
 

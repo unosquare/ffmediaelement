@@ -305,6 +305,8 @@
             Clock.Position = Blocks[main].RangeStartTime;
             var wallClock = Clock.Position;
 
+            var clockDirection = ClockDirection.Forward;
+
             #endregion
 
             while (true)
@@ -320,6 +322,14 @@
 
                 // Capture current clock position for the rest of this cycle
                 BlockRenderingCycle.Reset();
+
+                // Detect the clock's direction
+                if (HasMediaEnded == false && Clock.IsRunning == false
+                    && clockDirection != ClockDirection.Backward && Clock.Position.Ticks < wallClock.Ticks)
+                    clockDirection = ClockDirection.Backward;
+                else
+                    clockDirection = ClockDirection.Forward;
+
                 wallClock = Clock.Position;
 
                 #endregion

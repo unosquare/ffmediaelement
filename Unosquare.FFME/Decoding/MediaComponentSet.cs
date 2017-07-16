@@ -167,6 +167,14 @@
                     if (Items.ContainsKey(mediaType))
                         throw new ArgumentException($"A component for '{mediaType}' is already registered.");
                     Items[mediaType] = value ?? throw new ArgumentNullException($"{nameof(MediaComponent)} {nameof(value)} must not be null.");
+
+                    if (HasVideo && HasAudio && 
+                        (Video.StreamInfo.Disposition & ffmpeg.AV_DISPOSITION_ATTACHED_PIC) != ffmpeg.AV_DISPOSITION_ATTACHED_PIC)
+                    {
+                        Main = Video;
+                        return;
+                    }
+
                     Main = HasAudio ? Audio as MediaComponent : Video as MediaComponent;
                 }
 

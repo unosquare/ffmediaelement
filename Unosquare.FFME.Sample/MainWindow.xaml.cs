@@ -378,32 +378,18 @@
 
             #region Handle Zooming with Mouse Wheel
 
-            PreviewMouseWheel += (s, e) =>
+            MouseWheel += (s, e) =>
             {
-                var transform = Media.RenderTransform as ScaleTransform;
-                if (transform == null)
-                {
-                    transform = new ScaleTransform(1, 1);
-                    Media.RenderTransformOrigin = new Point(0.5, 0.5);
-                    Media.RenderTransform = transform;
-                }
+                if (Media.IsOpen == false || Media.IsOpening)
+                    return;
 
                 var delta = SnapToMultiple(e.Delta / 2000d, 0.05d);
+                MediaZoom = Math.Round(MediaZoom + delta, 2);
+            };
 
-                transform.ScaleX = Math.Round(transform.ScaleX + delta, 2);
-                transform.ScaleY = Math.Round(transform.ScaleY + delta, 2);
-
-                if (transform.ScaleX < 0.1d || transform.ScaleY < 0.1)
-                {
-                    transform.ScaleX = 0.1d;
-                    transform.ScaleY = 0.1d;
-                }
-                else if (transform.ScaleX > 5d || transform.ScaleY > 5)
-                {
-                    transform.ScaleX = 5;
-                    transform.ScaleY = 5;
-                }
-
+            UrlTextBox.PreviewMouseWheel += (s, e) =>
+            {
+                e.Handled = true;
             };
 
             #endregion
@@ -632,6 +618,7 @@
         /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
         private void Media_MediaOpened(object sender, RoutedEventArgs e)
         {
+            MediaZoom = 1d;
             var source = Media.Source.ToString();
 
             if (Config.HistoryEntries.Contains(source))
@@ -725,7 +712,45 @@
 
         #endregion
 
-        #region Helper Methods
+        #region Helper Methods and PRoperties
+
+        /// <summary>
+        /// Gets or sets the media zoom.
+        /// </summary>
+        private double MediaZoom
+        {
+            get
+            {
+                var transform = Media.RenderTransform as ScaleTransform;
+                if (transform == null) return 1d;
+                return transform.ScaleX;
+            }
+            set
+            {
+                var transform = Media.RenderTransform as ScaleTransform;
+                if (transform == null)
+                {
+                    transform = new ScaleTransform(1, 1);
+                    Media.RenderTransformOrigin = new Point(0.5, 0.5);
+                    Media.RenderTransform = transform;
+                }
+
+                transform.ScaleX = value;
+                transform.ScaleY = value;
+
+                if (transform.ScaleX < 0.1d || transform.ScaleY < 0.1)
+                {
+                    transform.ScaleX = 0.1d;
+                    transform.ScaleY = 0.1d;
+                }
+                else if (transform.ScaleX > 5d || transform.ScaleY > 5)
+                {
+                    transform.ScaleX = 5;
+                    transform.ScaleY = 5;
+                }
+            }
+        }
+
 
         /// <summary>
         /// Snaps to the given multiple multiple.

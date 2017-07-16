@@ -83,7 +83,7 @@
                         avObject->codecpar->height * avObject->sample_aspect_ratio.den,
                         1024 * 1024);
                 }
-
+                
                 var stream = new StreamInfo
                 {
                     StreamId = avObject->id,
@@ -114,6 +114,8 @@
                     DisplayAspectRatio = dar,
                     SampleAspectRatio = sar,
                     Disposition = avObject->disposition,
+                    StartTime = avObject->start_time.ToTimeSpan(),
+                    Duration = avObject->duration.ToTimeSpan(),
                     FPS = avObject->avg_frame_rate.ToDouble(),
                     TBR = avObject->r_frame_rate.ToDouble(),
                     TBN = 1d / avObject->time_base.ToDouble(),
@@ -467,6 +469,16 @@
         /// Please see ffmpeg.AV_DISPOSITION_* fields.
         /// </summary>
         public int Disposition { get; internal set; }
+
+        /// <summary>
+        /// Gets the start time.
+        /// </summary>
+        public TimeSpan StartTime { get; internal set; }
+
+        /// <summary>
+        /// Gets the duration.
+        /// </summary>
+        public TimeSpan Duration { get; internal set; }
 
         /// <summary>
         /// Gets the stream's metadata.
