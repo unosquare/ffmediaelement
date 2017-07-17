@@ -173,7 +173,7 @@
             {
                 if (IsFFmpegLoaded == false)
                     m_FFmpegDirectory = value;
-                else
+                else if (m_FFmpegDirectory.Equals(value) == false)
                     throw new InvalidOperationException($"Unable to set a new FFmpeg registration path: {value}. FFmpeg binaries have already been registered.");
             }
         }
