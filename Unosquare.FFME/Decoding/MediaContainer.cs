@@ -345,7 +345,7 @@
             {
                 var result = new List<MediaFrame>(64);
                 foreach (var component in Components.All)
-                    result.AddRange(component.DecodeNextPacket());
+                    result.AddRange(component.ReceiveFrames());
 
                 result.Sort();
                 return result;
@@ -1028,7 +1028,7 @@
                     continue;
 
                 // Decode and add the frames to the corresponding output
-                outputFrames[mediaType].AddRange(Components[mediaType].DecodeNextPacket());
+                outputFrames[mediaType].AddRange(Components[mediaType].ReceiveFrames());
 
                 // keept the frames list short
                 foreach (var componentFrames in outputFrames.Values)

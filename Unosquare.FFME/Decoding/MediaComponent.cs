@@ -297,9 +297,9 @@
 
         /// <summary>
         /// Decodes the next packet in the packet queue in this media component.
-        /// Returns the decoded frames
+        /// Returns the decoded frames.
         /// </summary>
-        internal List<MediaFrame> DecodeNextPacket()
+        internal List<MediaFrame> ReceiveFrames()
         {
             if (PacketBufferCount <= 0) return new List<MediaFrame>(0);
             var decodedFrames = DecodeNextPacketInternal();

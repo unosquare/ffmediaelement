@@ -196,9 +196,9 @@
 
                 // Read a bunch of packets at a time
                 packetsRead = 0;
-                while (Container.Components.PacketBufferLength < DownloadCacheLength
+                while (CanReadMorePackets
                     && packetsRead < Constants.PacketReadBatchCount
-                    && CanReadMorePackets)
+                    && Container.Components.PacketBufferLength < DownloadCacheLength)
                 {
                     Container.Read();
                     packetsRead++;
@@ -241,16 +241,16 @@
                 // Decode frames for each of the components
                 foreach (var component in Container.Components.All)
                 {
-                    // Check if we can accept more frames
-                    if (Frames[component.MediaType].Count >= MaxFrames[component.MediaType])
-                        continue;
-
                     // Don't do anything if we don't have packets to decode
                     if (component.PacketBufferCount <= 0)
                         continue;
 
+                    // Check if we can accept more frames
+                    if (Frames[component.MediaType].Count >= MaxFrames[component.MediaType])
+                        continue;
+
                     // Push the decoded frames
-                    var frames = component.DecodeNextPacket();
+                    var frames = component.ReceiveFrames();
                     foreach (var frame in frames)
                     {
                         Frames[frame.MediaType].Push(frame);
@@ -395,7 +395,7 @@
                     while (Blocks[t].RangeEndTime <= Blocks[main].RangeStartTime
                         && renderIndex[t] >= Blocks[t].Count - 1
                         && CanReadMoreBlocksOf(t))
-                    {
+                    {                       
                         if (AddNextBlock(t) == null) { break; }
                         renderIndex[t] = Blocks[t].IndexOf(wallClock);
                         LastRenderTime[t] = TimeSpan.MinValue;
