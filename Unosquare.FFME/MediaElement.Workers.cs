@@ -318,9 +318,8 @@
             {
                 #region 1. Control and Capture
 
-                // Execute commands at the beginning of the cycle
-                while (Commands.PendingCount > 0)
-                    await Commands.ProcessNext();
+                // Execute the following command at the beginning of the cycle
+                await Commands.ProcessNext();
 
                 // Check if one of the commands has requested an exit
                 if (IsTaskCancellationPending) break;
