@@ -56,6 +56,11 @@
         /// </summary>
         private readonly PacketQueue SentPackets = new PacketQueue();
 
+        /// <summary>
+        /// The m total bytes read
+        /// </summary>
+        private ulong m_TotalBytesRead = 0;
+
         #endregion
 
         #region Properties
@@ -99,6 +104,15 @@
         /// Decode packets until this number becomes 0.
         /// </summary>
         public int PacketBufferCount { get { return Packets.Count; } }
+
+        /// <summary>
+        /// Gets the total amount of bytes read by this component.
+        /// </summary>
+        public ulong TotalBytesRead
+        {
+            get { return m_TotalBytesRead; }
+            private set { m_TotalBytesRead = value; }
+        }
 
         /// <summary>
         /// Gets the ID of the codec for this component.
@@ -277,6 +291,8 @@
         {
             if (packet == null) return;
             Packets.Push(packet);
+            if (packet->size > 0)
+                TotalBytesRead += (ulong)packet->size;
         }
 
         /// <summary>

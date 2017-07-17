@@ -61,8 +61,8 @@
                     MediaElement.FFmpegDirectory = Utils.RegisterFFmpeg(MediaElement.FFmpegDirectory);
                     m.Logger.Log(MediaLogMessageType.Info, $"INIT FFMPEG: {ffmpeg.av_version_info()}");
                 }
-                    
 
+                Utils.UIInvoke(DispatcherPriority.DataBind, () => { m.ResetDependencyProperies(); });
                 MediaElement.IsFFmpegLoaded = true;
                 m.IsOpening = true;
                 m.MediaState = System.Windows.Controls.MediaState.Manual;

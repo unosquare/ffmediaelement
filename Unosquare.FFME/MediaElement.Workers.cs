@@ -122,6 +122,9 @@
         /// <param name="clearExisting">if set to <c>true</c> clears the existing frames and blocks.</param>
         private void BufferBlocks(int packetBufferLength, bool clearExisting)
         {
+            var resumeClock = Clock.IsRunning;
+            Clock.Pause();
+
             var main = Container.Components.Main.MediaType;
 
             // Clear Blocks and frames, reset the render times
@@ -152,9 +155,12 @@
             }
 
             // Raise the buffering started event.
+            if (resumeClock) { Clock.Play(); }
+
             BufferingProgress = 1;
             IsBuffering = false;
             RaiseBufferingEndedEvent();
+
         }
 
         /// <summary>
@@ -345,7 +351,10 @@
                 {
                     BufferBlocks(BufferCacheLength, true);
                     wallClock = Blocks[main].IsInRange(wallClock) ? wallClock : Blocks[main].RangeStartTime;
-                    Container.Logger?.Log(MediaLogMessageType.Warning, $"SYNC CLOCK: {Clock.Position.Format()} | TGT: {wallClock.Format()}");
+
+                    if (clockDirection != ClockDirection.Backward)
+                        Container.Logger?.Log(MediaLogMessageType.Warning, $"SYNC CLOCK: {Clock.Position.Format()} | TGT: {wallClock.Format()}");
+
                     Clock.Position = wallClock;
                     LastRenderTime[main] = TimeSpan.MinValue;
 
@@ -389,7 +398,7 @@
                         && renderIndex[t] >= Blocks[t].Count - 1
                         && CanReadMoreBlocksOf(t))
                     {
-                        if (AddNextBlock(t) == null) break;
+                        if (AddNextBlock(t) == null) { break; }
                         renderIndex[t] = Blocks[t].IndexOf(wallClock);
                         LastRenderTime[t] = TimeSpan.MinValue;
                     }
@@ -424,10 +433,13 @@
                     // Add the next block if the conditions require us to do so:
                     // If rendered, then we need to discard the oldest and add the newest
                     // If the render index is greater than half, the capacity, add a new block
-                    while (Blocks[t].IsFull == false || renderIndex[t] + 1 > Blocks[t].Capacity / 2)
+                    if (clockDirection == ClockDirection.Forward)
                     {
-                        if (AddNextBlock(t) == null) break;
-                        renderIndex[t] = Blocks[t].IndexOf(wallClock);
+                        while (Blocks[t].IsFull == false || renderIndex[t] + 1d >= Blocks[t].Capacity * 0.75d)
+                        {
+                            if (AddNextBlock(t) == null) break;
+                            renderIndex[t] = Blocks[t].IndexOf(wallClock);
+                        }
                     }
 
                     hasRendered[t] = false;

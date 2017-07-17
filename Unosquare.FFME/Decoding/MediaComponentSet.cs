@@ -113,7 +113,7 @@
         }
 
         /// <summary>
-        /// Gets the length in bytes of the packet buffer.
+        /// Gets the current length in bytes of the packet buffer.
         /// These packets are the ones that have not been yet deecoded.
         /// </summary>
         public int PacketBufferLength
@@ -128,6 +128,24 @@
         public int PacketBufferCount
         {
             get { lock (SyncLock) return All.Sum(c => c.PacketBufferCount); }
+        }
+
+        /// <summary>
+        /// Gets the total bytes read by all components.
+        /// </summary>
+        public ulong TotalBytesRead
+        {
+            get
+            {
+                lock (SyncLock)
+                {
+                    ulong result = 0;
+                    foreach (var c in All)
+                        result = unchecked(result + c.TotalBytesRead);
+
+                    return result;
+                }
+            }
         }
 
         /// <summary>
@@ -168,7 +186,7 @@
                         throw new ArgumentException($"A component for '{mediaType}' is already registered.");
                     Items[mediaType] = value ?? throw new ArgumentNullException($"{nameof(MediaComponent)} {nameof(value)} must not be null.");
 
-                    if (HasVideo && HasAudio && 
+                    if (HasVideo && HasAudio &&
                         (Video.StreamInfo.Disposition & ffmpeg.AV_DISPOSITION_ATTACHED_PIC) != ffmpeg.AV_DISPOSITION_ATTACHED_PIC)
                     {
                         Main = Video;

@@ -79,7 +79,7 @@
             m.MediaState = System.Windows.Controls.MediaState.Close;
 
             // Update notification properties
-            Utils.UIInvoke(DispatcherPriority.DataBind, () => { m.NotifyPropertyChanges(); });
+            Utils.UIInvoke(DispatcherPriority.DataBind, () => { m.NotifyPropertyChanges(); m.ResetDependencyProperies(); });
 #if DEBUG
             if (RC.Current.InstancesByLocation.Count > 0)
             {

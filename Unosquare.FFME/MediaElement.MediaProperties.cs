@@ -327,6 +327,14 @@
             OnPropertyChanged(nameof(DownloadCacheLength));
             OnPropertyChanged(nameof(FrameStepDuration));
 
+
+        }
+
+        /// <summary>
+        /// Resets the dependency properies.
+        /// </summary>
+        internal void ResetDependencyProperies()
+        {
             Volume = Constants.DefaultVolume;
             Balance = Constants.DefaultBalance;
             SpeedRatio = Constants.DefaultSpeedRatio;
