@@ -193,7 +193,7 @@
                 // Enter a read cycle
                 SeekingDone.WaitOne();
                 PacketReadingCycle.Reset();
-                //Container.Log(MediaLogMessageType.Debug, "RESET");
+
                 // Read a bunch of packets at a time
                 packetsRead = 0;
                 while (Container.Components.PacketBufferLength < DownloadCacheLength
@@ -207,7 +207,6 @@
                 // finish the reading cycle.
                 PacketReadingCycle.Set();
 
-                //Container.Log(MediaLogMessageType.Debug, "SET");
                 // Wait some if we have a full packet buffer or we are unable to read more packets.
                 if (Container.Components.PacketBufferLength >= DownloadCacheLength || CanReadMorePackets == false)
                     await Task.Delay(1);

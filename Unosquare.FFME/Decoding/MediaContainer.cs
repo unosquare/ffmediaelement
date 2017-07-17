@@ -946,7 +946,9 @@
 
                 // Read and decode frames for all components and check if the decoded frames
                 // are on or right before the target time.
-                StreamSeekDecode(result, targetTime);
+                StreamSeekDecode(result, targetTime, 
+                    Components.Main.MediaType == MediaType.Audio ? SeekRequirement.MainComponentOnly : SeekRequirement.AudioAndVideo);
+
                 var firstAudioFrame = result.FirstOrDefault(f => f.MediaType == MediaType.Audio && f.StartTime <= targetTime);
                 var firstVideoFrame = result.FirstOrDefault(f => f.MediaType == MediaType.Video && f.StartTime <= targetTime);
 
@@ -985,8 +987,9 @@
         /// </summary>
         /// <param name="result">The list of frames that is currently being processed. Frames will be added here.</param>
         /// <param name="targetTime">The target time in absolute 0-based time.</param>
+        /// <param name="requirement">The requirement.</param>
         /// <returns></returns>
-        private int StreamSeekDecode(List<MediaFrame> result, TimeSpan targetTime)
+        private int StreamSeekDecode(List<MediaFrame> result, TimeSpan targetTime, SeekRequirement requirement)
         {
             var readSeekCycles = 0;
 
@@ -995,8 +998,25 @@
             foreach (var mediaType in Components.MediaTypes)
                 outputFrames[mediaType] = new List<MediaFrame>();
 
+            // Create a component requirement
+            var requiredComponents = new List<MediaType>(8);
+            if (requirement == SeekRequirement.AllComponents)
+            {
+                requiredComponents.AddRange(Components.MediaTypes.ToArray());
+            }                
+            else if (requirement == SeekRequirement.AudioAndVideo)
+            {
+                if (Components.HasVideo) requiredComponents.Add(MediaType.Video);
+                if (Components.HasAudio) requiredComponents.Add(MediaType.Audio);
+            }
+            else
+            {
+                requiredComponents.Add(Components.Main.MediaType);
+            }
+
             // Start reading and decoding util we reach the target
-            while (IsAtEndOfStream == false)
+            var isDoneSeeking = false;
+            while (IsAtEndOfStream == false && isDoneSeeking == false)
             {
                 readSeekCycles++;
 
@@ -1010,38 +1030,17 @@
                 // Decode and add the frames to the corresponding output
                 outputFrames[mediaType].AddRange(Components[mediaType].DecodeNextPacket());
 
-                // check if we are done with seeking
-                // all streams must have at least 1 frame on or after thae target time
-                var isDoneSeeking = true;
-                foreach (var kvp in outputFrames)
+                // keept the frames list short
+                foreach (var componentFrames in outputFrames.Values)
                 {
-                    var componentFrames = kvp.Value;
-
-                    // Ignore seek target requirement if we did not get 
-                    // frames from a non-primary component
-                    if (Components.All.Count > 1
-                        && Components.Main.MediaType != kvp.Key
-                        && componentFrames.Count == 0)
-                        continue;
-
                     // cleanup frames if the output becomes too big
                     if (componentFrames.Count >= 24)
                         DropSeekFrames(componentFrames, targetTime);
-
-                    // check if we have a valid range
-                    var hasTargetRange = componentFrames.Count > 0
-                        && componentFrames.Max(f => f.StartTime) >= targetTime;
-
-                    // Set done seeking = false because range is non-matching
-                    if (hasTargetRange == false)
-                    {
-                        isDoneSeeking = false;
-                        break;
-                    }
                 }
 
-                if (isDoneSeeking)
-                    break;
+                // Based on the required components check the target time ranges
+                isDoneSeeking = outputFrames.Where(t => requiredComponents.Contains(t.Key)).Select(t => t.Value)
+                    .All(frames => frames.Count > 0 && frames.Max(f => f.StartTime) >= targetTime);
             }
 
             // Perform one final cleanup and aggregate the frames into a single,
