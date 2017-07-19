@@ -477,6 +477,7 @@
                         // Open the input file
                         var openResult = 0;
 
+                        InputContext->probesize = 512 * 1024;
                         if (MediaOptions.ProbeSize != default(int))
                             InputContext->probesize = MediaOptions.ProbeSize <= 32 ? 32 : MediaOptions.ProbeSize;
 
