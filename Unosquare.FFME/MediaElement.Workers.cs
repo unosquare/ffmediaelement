@@ -26,16 +26,16 @@
         internal static readonly Dictionary<MediaType, int> MaxBlocks = new Dictionary<MediaType, int>
         {
             { MediaType.Video, 12 },
-            { MediaType.Audio, 64 },
-            { MediaType.Subtitle, 64 }
+            { MediaType.Audio, 128 },
+            { MediaType.Subtitle, 128 }
         };
 
         // TODO: Make this dynamic
         private static readonly Dictionary<MediaType, int> MaxFrames = new Dictionary<MediaType, int>
         {
             { MediaType.Video, 24 },
-            { MediaType.Audio, 64 },
-            { MediaType.Subtitle, 64 }
+            { MediaType.Audio, 256 },
+            { MediaType.Subtitle, 256 }
         };
 
         #endregion
