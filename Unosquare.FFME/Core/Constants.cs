@@ -15,7 +15,10 @@
         public static readonly ReadOnlyCollection<MediaType> MediaTypes
             = new ReadOnlyCollection<MediaType>(Enum.GetValues(typeof(MediaType)).Cast<MediaType>().ToArray());
 
-        public static TimeSpan UIPropertyUpdateInterval = TimeSpan.FromMilliseconds(50); 
+        public static readonly string[] LiveStreamUrlPrefixes = new[] { "rtp:", "udp:" };
+        public static readonly string[] LiveStreamFormatNames = new[] { "rtp", "rtsp", "sdp" };
+
+        public static TimeSpan UIPropertyUpdateInterval = TimeSpan.FromMilliseconds(50);
 
         public const double DefaultSpeedRatio = 1.0d;
         public const double DefaultBalance = 0.0d;

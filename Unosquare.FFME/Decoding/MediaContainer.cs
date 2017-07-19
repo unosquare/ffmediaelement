@@ -467,6 +467,8 @@
 
                     // Allocate the input context and save it
                     InputContext = ffmpeg.avformat_alloc_context();
+
+                    // Setup an interrup callback to detect read timeouts
                     StreamReadInterruptCallback = StreamReadInterrupt;
                     InputContext->interrupt_callback.callback = StreamReadInterruptCallback;
                     InputContext->interrupt_callback.opaque = InputContext;
@@ -477,21 +479,28 @@
                         // Open the input file
                         var openResult = 0;
 
-                        InputContext->probesize = 512 * 1024;
+                        // Set the probe size to something more reasonable so live streams start faster
+                        if (Constants.LiveStreamUrlPrefixes.Any(s => MediaUrl.StartsWith(s)))
+                            InputContext->probesize = 512 * 1024;
+
+                        // Handle overriding of probe sizes
                         if (MediaOptions.ProbeSize != default(int))
                             InputContext->probesize = MediaOptions.ProbeSize <= 32 ? 32 : MediaOptions.ProbeSize;
 
+                        // Handle analyze duration overrides
                         if (MediaOptions.MaxAnalyzeDuration != default(TimeSpan))
                             InputContext->max_analyze_duration = MediaOptions.MaxAnalyzeDuration <= TimeSpan.Zero ? 0 :
-                                (int)Math.Round(MediaOptions.MaxAnalyzeDuration.TotalMilliseconds * 1000d, 0);
+                                (int)Math.Round(MediaOptions.MaxAnalyzeDuration.TotalSeconds * ffmpeg.AV_TIME_BASE, 0);
 
+                        // We set the start of the read operation time so tiomeouts can be detected
                         Thread.VolatileWrite(ref StreamReadInterruptStartTime, DateTime.UtcNow.Ticks);
                         fixed (AVDictionary** reference = &formatOptions.Pointer)
                             openResult = ffmpeg.avformat_open_input(inputContext, $"{MediaUrl}", inputFormat, reference);
 
                         // Validate the open operation
                         if (openResult < 0)
-                            throw new MediaContainerException($"Could not open '{MediaUrl}'. Error {openResult}: {Utils.FFmpeg.GetErrorMessage(openResult)}");
+                            throw new MediaContainerException($"Could not open '{MediaUrl}'. " 
+                                + $"Error {openResult}: {Utils.FFmpeg.GetErrorMessage(openResult)}");
                     }
 
                     // Set some general properties
@@ -500,6 +509,7 @@
                     // If there are any optins left in the dictionary, it means they did not get used (invalid options).
                     formatOptions.Remove(ScanAllPmts);
 
+                    // Output the invalid options as warnings
                     var currentEntry = formatOptions.First();
                     while (currentEntry != null && currentEntry?.Key != null)
                     {
@@ -510,6 +520,7 @@
                 }
 
                 // Inject Codec Parameters
+                InputContext->flags |= ffmpeg.AVFMT_FLAG_GENPTS;
                 if (MediaOptions.GeneratePts) { InputContext->flags |= ffmpeg.AVFMT_FLAG_GENPTS; }
                 ffmpeg.av_format_inject_global_side_data(InputContext);
 
@@ -524,10 +535,13 @@
                 // Setup initial state variables
                 Metadata = new ReadOnlyDictionary<string, string>(FFDictionary.ToDictionary(InputContext->metadata));
 
-                IsStreamRealtime = new[] { "rtp", "rtsp", "sdp" }.Any(s => MediaFormatName.Equals(s)) ||
-                    (InputContext->pb != null && new[] { "rtp:", "udp:" }.Any(s => MediaUrl.StartsWith(s)));
+                IsStreamRealtime = Constants.LiveStreamFormatNames.Any(s => MediaFormatName.Equals(s)) ||
+                    (InputContext->pb != null && Constants.LiveStreamUrlPrefixes.Any(s => MediaUrl.StartsWith(s)));
 
+                // Unsure how this works. Ported from ffplay 
                 RequiresReadDelay = MediaFormatName.Equals("rstp") || MediaUrl.StartsWith("mmsh:");
+
+                // Determine the seek mode of the input format
                 var inputAllowsDiscontinuities = (InputContext->iformat->flags & ffmpeg.AVFMT_TS_DISCONT) != 0;
                 MediaSeeksByBytes = inputAllowsDiscontinuities && (MediaFormatName.Equals("ogg") == false);
                 MediaSeeksByBytes = MediaSeeksByBytes && MediaBitrate > 0;
@@ -536,11 +550,15 @@
                 MediaStartTimeOffset = InputContext->start_time.ToTimeSpan();
                 if (MediaStartTimeOffset == TimeSpan.MinValue)
                 {
-                    Logger?.Log(MediaLogMessageType.Warning,
-                        $"Unable to determine the media start time offset. Media start time offset will be assumed to start at {TimeSpan.Zero}.");
                     MediaStartTimeOffset = TimeSpan.Zero;
+                    Logger?.Log(MediaLogMessageType.Warning,
+                        $"Unable to determine the media start time offset. " + 
+                        $"Media start time offset will be assumed to start at {TimeSpan.Zero}.");
                 }
 
+
+                // Extract detailed media information and set the default streams to the
+                // best available ones.
                 MediaInfo = new MediaInfo(this);
                 foreach (var s in MediaInfo.BestStreams)
                 {
@@ -948,7 +966,7 @@
 
                 // Read and decode frames for all components and check if the decoded frames
                 // are on or right before the target time.
-                StreamSeekDecode(result, targetTime, 
+                StreamSeekDecode(result, targetTime,
                     Components.Main.MediaType == MediaType.Audio ? SeekRequirement.MainComponentOnly : SeekRequirement.AudioAndVideo);
 
                 var firstAudioFrame = result.FirstOrDefault(f => f.MediaType == MediaType.Audio && f.StartTime <= targetTime);
@@ -1005,7 +1023,7 @@
             if (requirement == SeekRequirement.AllComponents)
             {
                 requiredComponents.AddRange(Components.MediaTypes.ToArray());
-            }                
+            }
             else if (requirement == SeekRequirement.AudioAndVideo)
             {
                 if (Components.HasVideo) requiredComponents.Add(MediaType.Video);

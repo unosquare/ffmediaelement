@@ -139,10 +139,12 @@
 
         /// <summary>
         /// Sets the text to be rendered on the text blocks.
+        /// Returns immediately because it enqueues the action on the UI thread.
         /// </summary>
         /// <param name="text">The text.</param>
         private void SetText(string text)
         {
+            // We fire-and-forget the update of the text
             Utils.UIEnqueueInvoke(System.Windows.Threading.DispatcherPriority.DataBind, new Action<string>((s) =>
             {
                 lock (SyncLock)
@@ -169,8 +171,12 @@
             StartTime = subtitleBlock.StartTime;
             EndTime = subtitleBlock.EndTime;
 
-            var textToRender = string.Join("\r\n", subtitleBlock.Text);
+            // Check if the text is within time range. If not, simply clear the text.
+            var textToRender = (clockPosition > EndTime || clockPosition < StartTime) ?
+                string.Empty : 
+                string.Join("\r\n", subtitleBlock.Text);
 
+            // Call the set text on the UI thread.
             SetText(textToRender);
         }
 
@@ -181,15 +187,20 @@
         /// <param name="clockPosition">The clock position.</param>
         public void Update(TimeSpan clockPosition)
         {
+
+            // If we have already cleared the text we don't need to clear it again
             if (string.IsNullOrWhiteSpace(CurrentText))
                 return;
 
+            // Check if we have received a start and end time value.
+            // if we have not, just clear the text
             if (StartTime.HasValue == false || EndTime.HasValue == false)
             {
                 SetText(string.Empty);
                 return;
             }
 
+            // Check if the subtitle needs to be cleared based on the start and end times range
             if (clockPosition > EndTime.Value || clockPosition < StartTime.Value)
             {
                 SetText(string.Empty);
