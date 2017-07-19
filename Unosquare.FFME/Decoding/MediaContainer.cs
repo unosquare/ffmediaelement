@@ -311,11 +311,11 @@
         /// <summary>
         /// Reads the next available packet, sending the packet to the corresponding
         /// internal media component. It also sets IsAtEndOfStream property.
-        /// Returns true if the packet was accepted by any of the media components.
-        /// Returns false if the packet was not accepted by any of the media components
+        /// Returns the media type if the packet was accepted by any of the media components.
+        /// Returns None if the packet was not accepted by any of the media components
         /// or if reading failed (i.e. End of stream already or read error).
-        /// Packets are queued internally. To dequeue them you can call the DocodeNext
-        /// method until the packet buffer count becomes 0.
+        /// Packets are queued internally. To dequeue them you need to call the receive frames
+        /// method of each component until the packet buffer count becomes 0.
         /// </summary>
         /// <exception cref="MediaContainerException"></exception>
         public MediaType Read()
@@ -670,7 +670,8 @@
         }
 
         /// <summary>
-        /// Reads the next packet in the underlying stream and enqueues in the corresponding media component
+        /// Reads the next packet in the underlying stream and enqueues in the corresponding media component.
+        /// Returns None of no packet was read.
         /// </summary>
         /// <returns></returns>
         /// <exception cref="System.InvalidOperationException">Initialize</exception>

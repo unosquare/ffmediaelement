@@ -15,8 +15,6 @@
         public static readonly ReadOnlyCollection<MediaType> MediaTypes
             = new ReadOnlyCollection<MediaType>(Enum.GetValues(typeof(MediaType)).Cast<MediaType>().ToArray());
 
-        public const int PacketReadBatchCount = 8;
-
         public static TimeSpan UIPropertyUpdateInterval = TimeSpan.FromMilliseconds(50); 
 
         public const double DefaultSpeedRatio = 1.0d;

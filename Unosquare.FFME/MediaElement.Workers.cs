@@ -186,32 +186,70 @@
         /// </summary>
         internal async void RunPacketReadingWorker()
         {
-            var packetsRead = 0;
+            // Holds the packet count for each read cycle
+            var packetsRead = new MediaTypeDictionary<int>();
 
+            // State variables for media types
+            var t = MediaType.None;
+            var main = Container.Components.Main.MediaType;
+            var auxs = Container.Components.MediaTypes.Where(c => c != main && (c == MediaType.Audio || c == MediaType.Video)).ToArray();
+            var all = auxs.Union(new[] { main }).ToArray();
+
+            // State variables for bytes read (give-up condition)
+            var startBytesRead = 0UL;
+            var currentBytesRead = 0UL;
+
+            // Worker logic begins here
             while (IsTaskCancellationPending == false)
             {
                 // Enter a read cycle
                 SeekingDone.WaitOne();
                 PacketReadingCycle.Reset();
 
-                // Read a bunch of packets at a time
-                packetsRead = 0;
-                while (CanReadMorePackets
-                    && packetsRead < Constants.PacketReadBatchCount
-                    && Container.Components.PacketBufferLength < DownloadCacheLength)
+                if (CanReadMorePackets && Container.Components.PacketBufferLength < DownloadCacheLength)
                 {
-                    Container.Read();
-                    packetsRead++;
+                    // Initialize Packets read to 0 for each component and state variables
+                    foreach (var k in Container.Components.MediaTypes)
+                        packetsRead[k] = 0;
+
+                    startBytesRead = Container.Components.TotalBytesRead;
+                    currentBytesRead = 0UL;
+
+                    // Start to perform the read loop
+                    while (CanReadMorePackets)
+                    {
+                        // Perform a packet read. t will hold the packet type.
+                        t = Container.Read();
+
+                        // Discard packets that we don't need (i.e. MediaType == None)
+                        if (Container.Components.MediaTypes.Contains(t) == false)
+                            continue;
+
+                        // Update the packet count for the components
+                        packetsRead[t] += 1;
+
+                        // Ensure we have read at least some packets from main and auxiliary streams.
+                        if (packetsRead.Where(k => all.Contains(k.Key)).All(c => c.Value > 0))
+                            break;
+
+                        // The give-up condition is that in spite of efforts to read at least one of each,
+                        // we could not find the required packet types.
+                        currentBytesRead = Container.Components.TotalBytesRead - startBytesRead;
+                        if (currentBytesRead > (ulong)DownloadCacheLength)
+                            break;
+                    }
                 }
 
                 // finish the reading cycle.
                 PacketReadingCycle.Set();
 
                 // Wait some if we have a full packet buffer or we are unable to read more packets.
-                if (Container.Components.PacketBufferLength >= DownloadCacheLength || CanReadMorePackets == false)
+                if (IsTaskCancellationPending == false
+                    && (Container.Components.PacketBufferLength >= DownloadCacheLength || CanReadMorePackets == false))
                     await Task.Delay(1);
             }
 
+            // Always exit notifying the reading cycle is done.
             PacketReadingCycle.Set();
         }
 
@@ -395,7 +433,7 @@
                     while (Blocks[t].RangeEndTime <= Blocks[main].RangeStartTime
                         && renderIndex[t] >= Blocks[t].Count - 1
                         && CanReadMoreBlocksOf(t))
-                    {                       
+                    {
                         if (AddNextBlock(t) == null) { break; }
                         renderIndex[t] = Blocks[t].IndexOf(wallClock);
                         LastRenderTime[t] = TimeSpan.MinValue;
