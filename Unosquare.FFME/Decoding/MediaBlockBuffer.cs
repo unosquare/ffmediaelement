@@ -204,6 +204,26 @@
         }
 
         /// <summary>
+        /// Retrieves the block following the provided current block
+        /// </summary>
+        /// <param name="current">The current block.</param>
+        /// <returns></returns>
+        public MediaBlock Next(MediaBlock current)
+        {
+            lock (SyncRoot)
+            {
+                var currentIndex = PlaybackBlocks.IndexOf(current);
+                if (currentIndex < 0) return null;
+
+                if (currentIndex + 1 < PlaybackBlocks.Count)
+                    return PlaybackBlocks[currentIndex + 1];
+
+                return null;
+            }
+
+        }
+
+        /// <summary>
         /// Adds a block to the playback blocks by converting the given frame.
         /// If there are no more blocks in the pool, the oldest block is returned to the pool
         /// and reused for the new block. The source frame is automatically disposed.

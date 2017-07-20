@@ -78,7 +78,6 @@
                 foreach (var t in m.Container.Components.MediaTypes)
                 {
                     m.Blocks[t] = new MediaBlockBuffer(MediaElement.MaxBlocks[t], t);
-                    m.Frames[t] = new MediaFrameQueue();
                     m.LastRenderTime[t] = TimeSpan.MinValue;
                     m.Renderers[t] = CreateRenderer(t);
                 }
@@ -86,6 +85,7 @@
                 m.Clock.SpeedRatio = Constants.DefaultSpeedRatio;
                 m.IsTaskCancellationPending = false;
 
+                m.CurrentBlockLocker.ReleaseLock();
                 m.BlockRenderingCycle.Set();
                 m.FrameDecodingCycle.Set();
                 m.PacketReadingCycle.Set();

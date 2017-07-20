@@ -70,10 +70,6 @@
             foreach (var kvp in m.Blocks) kvp.Value.Dispose();
             m.Blocks.Clear();
 
-            // Dispose the Frames for all components
-            foreach (var kvp in m.Frames) kvp.Value.Dispose();
-            m.Frames.Clear();
-
             // Clear the render times
             m.LastRenderTime.Clear();
             m.MediaState = System.Windows.Controls.MediaState.Close;

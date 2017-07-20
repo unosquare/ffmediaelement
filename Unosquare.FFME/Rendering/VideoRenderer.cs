@@ -126,8 +126,7 @@
         /// </summary>
         /// <param name="mediaBlock">The media block.</param>
         /// <param name="clockPosition">The clock position.</param>
-        /// <param name="renderIndex">Index of the render.</param>
-        public void Render(MediaBlock mediaBlock, TimeSpan clockPosition, int renderIndex)
+        public void Render(MediaBlock mediaBlock, TimeSpan clockPosition)
         {
             var block = mediaBlock as VideoBlock;
             if (block == null) return;
@@ -135,7 +134,7 @@
 
             IsRenderingInProgress = true;
 
-            Utils.UIEnqueueInvoke(DispatcherPriority.Render, new Action<VideoBlock, TimeSpan, int>((b, cP, rI) =>
+            Utils.UIEnqueueInvoke(DispatcherPriority.Render, new Action<VideoBlock, TimeSpan>((b, cP) =>
             {
                 try
                 {
@@ -182,7 +181,7 @@
                 {
                     IsRenderingInProgress = false;
                 }
-            }), block, clockPosition, renderIndex);
+            }), block, clockPosition);
         }
 
         /// <summary>

@@ -64,7 +64,6 @@
                 // Clear Blocks and frames, reset the render times
                 foreach (var t in m.Container.Components.MediaTypes)
                 {
-                    m.Frames[t].Clear();
                     m.Blocks[t].Clear();
                     m.LastRenderTime[t] = TimeSpan.MinValue;
                 }
@@ -73,13 +72,16 @@
                 var frames = m.Container.Seek(adjustedSeekTarget);
                 m.HasMediaEnded = false;
 
-                foreach (var frame in frames)
-                    m.Frames[frame.MediaType].Push(frame);
+                foreach (var kvp in m.Blocks)
+                    kvp.Value.Clear();
 
-                if (frames.Count > 0)
+                foreach (var frame in frames)
+                    m.Blocks[frame.MediaType]?.Add(frame,  m.Container);
+
+                if (m.Blocks[main].Count > 0)
                 {
-                    var minStartTime = frames.Min(f => f.StartTime.Ticks);
-                    var maxStartTime = frames.Max(f => f.StartTime.Ticks);
+                    var minStartTime = m.Blocks[main].RangeStartTime.Ticks;
+                    var maxStartTime = m.Blocks[main].RangeEndTime.Ticks;
 
                     if (adjustedSeekTarget.Ticks < minStartTime)
                         m.Clock.Position = TimeSpan.FromTicks(minStartTime);
@@ -90,10 +92,8 @@
                 }
                 else
                 {
-                    if (frames.Count == 0 && TargetPosition != TimeSpan.Zero)
-                    {
+                    if (m.Blocks[main].Count == 0 && TargetPosition != TimeSpan.Zero)
                         m.Clock.Position = initialPosition;
-                    }
                 }
             }
             catch (Exception ex)

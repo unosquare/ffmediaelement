@@ -300,10 +300,10 @@
                     UIPropertyUpdateTimer = null;
                 }
 
+                CurrentBlockLocker.ReleaseLock();
                 PacketReadingCycle.Dispose();
                 FrameDecodingCycle.Dispose();
                 BlockRenderingCycle.Dispose();
-
                 SeekingDone.Dispose();
             }
         }
