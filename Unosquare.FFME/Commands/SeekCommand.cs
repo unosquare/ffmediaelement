@@ -40,6 +40,7 @@
             try
             {
                 var main = m.Container.Components.Main.MediaType;
+                var t = MediaType.None;
 
                 // 1. Check if we already have the block. If we do, simply set the clock position to the target position
                 // we don't need anything else.
@@ -62,24 +63,44 @@
                 }
 
                 // Clear Blocks and frames, reset the render times
-                foreach (var t in m.Container.Components.MediaTypes)
+                foreach (var mt in m.Container.Components.MediaTypes)
                 {
-                    m.Blocks[t].Clear();
-                    m.LastRenderTime[t] = TimeSpan.MinValue;
+                    m.Blocks[mt].Clear();
+                    m.LastRenderTime[mt] = TimeSpan.MinValue;
                 }
 
                 // Populate frame queues with after-seek operation
                 var frames = m.Container.Seek(adjustedSeekTarget);
                 m.HasMediaEnded = false;
 
+                // Clear all the blocks. We don't need them
                 foreach (var kvp in m.Blocks)
                     kvp.Value.Clear();
 
-                // TODO: we need to read more frames until we reach TargetPosition
-                // because adjusted seek target 
+                // Create the blocks from the obtained seek frames
                 foreach (var frame in frames)
                     m.Blocks[frame.MediaType]?.Add(frame,  m.Container);
 
+                // Now read blocks until we have reached at least the Target Position
+                while (m.Container.IsAtEndOfStream == false 
+                    && m.Blocks[main].IsFull == false 
+                    && m.Blocks[main].IsInRange(TargetPosition) == false)
+                {
+                    // move on if we have plenty
+                    if (m.Blocks[t].IsFull) continue;
+
+                    // Read the next packet
+                    t = m.Container.Read();
+
+                    // Decode and add the frames to the corresponding output
+                    frames.Clear();
+                    frames.AddRange(m.Container.Components[t].ReceiveFrames());
+
+                    foreach (var frame in frames)
+                        m.Blocks[t]?.Add(frame, m.Container);
+                }
+
+                // Handle out-of sync scenarios
                 if (m.Blocks[main].IsInRange(TargetPosition) == false)
                 {
                     var minStartTime = m.Blocks[main].RangeStartTime.Ticks;
