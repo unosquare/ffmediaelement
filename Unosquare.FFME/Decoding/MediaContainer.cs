@@ -944,7 +944,6 @@
                     isAtStartOfStream = false;
                 }
 
-
                 Logger?.Log(MediaLogMessageType.Debug,
                     $"SEEK L: Elapsed: {startTime.FormatElapsed()} | Target: {relativeTargetTime.Format()} | Seek: {seekTarget.Format()} | P0: {startPos.Format(1024)} | P1: {StreamPosition.Format(1024)} ");
 
@@ -999,7 +998,7 @@
         }
 
         /// <summary>
-        /// Reads and decodes packets untill all media components have frames on or after the start time.
+        /// Reads and decodes packets untill the required media components have frames on or right before the target time.
         /// </summary>
         /// <param name="result">The list of frames that is currently being processed. Frames will be added here.</param>
         /// <param name="targetTime">The target time in absolute 0-based time.</param>

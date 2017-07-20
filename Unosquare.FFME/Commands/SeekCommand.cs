@@ -75,15 +75,15 @@
                 foreach (var kvp in m.Blocks)
                     kvp.Value.Clear();
 
+                // TODO: we need to read more frames until we reach TargetPosition
+                // because adjusted seek target 
                 foreach (var frame in frames)
                     m.Blocks[frame.MediaType]?.Add(frame,  m.Container);
 
-                var mainFrames = frames.Where(f => f.MediaType == m.Container.Components.Main.MediaType).ToArray();
-
-                if (mainFrames.Length > 0)
+                if (m.Blocks[main].IsInRange(TargetPosition) == false)
                 {
-                    var minStartTime = mainFrames.Min(f => f.StartTime.Ticks);
-                    var maxStartTime = mainFrames.Max(f => f.StartTime.Ticks);
+                    var minStartTime = m.Blocks[main].RangeStartTime.Ticks;
+                    var maxStartTime = m.Blocks[main].RangeEndTime.Ticks;
 
                     if (adjustedSeekTarget.Ticks < minStartTime)
                         m.Clock.Position = TimeSpan.FromTicks(minStartTime);
@@ -94,7 +94,8 @@
                 }
                 else
                 {
-                    if (mainFrames.Length == 0 && TargetPosition != TimeSpan.Zero)
+                    // TODO: handle this case correctly. The way this is handled currently sucks.
+                    if (m.Blocks[main].Count == 0 && TargetPosition != TimeSpan.Zero)
                     {
                         m.Clock.Position = initialPosition;
                     }

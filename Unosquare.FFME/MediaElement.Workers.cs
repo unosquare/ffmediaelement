@@ -25,7 +25,7 @@
         // TODO: Make this dynamic
         internal static readonly Dictionary<MediaType, int> MaxBlocks = new Dictionary<MediaType, int>
         {
-            { MediaType.Video, 12 },
+            { MediaType.Video, 16 },
             { MediaType.Audio, 128 },
             { MediaType.Subtitle, 128 }
         };
@@ -361,8 +361,6 @@
                 #endregion
 
                 #region 3. Auxiliary Component Decoding
-
-                // TODO: I need to perfect this part of the code. This is not ready yet.
 
                 foreach (var t in auxs)
                 {
