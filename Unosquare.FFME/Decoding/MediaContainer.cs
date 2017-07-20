@@ -479,10 +479,6 @@
                         // Open the input file
                         var openResult = 0;
 
-                        // Set the probe size to something more reasonable so live streams start faster
-                        if (Constants.LiveStreamUrlPrefixes.Any(s => MediaUrl.StartsWith(s)))
-                            InputContext->probesize = 512 * 1024;
-
                         // Handle overriding of probe sizes
                         if (MediaOptions.ProbeSize != default(int))
                             InputContext->probesize = MediaOptions.ProbeSize <= 32 ? 32 : MediaOptions.ProbeSize;

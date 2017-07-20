@@ -78,10 +78,12 @@
                 foreach (var frame in frames)
                     m.Blocks[frame.MediaType]?.Add(frame,  m.Container);
 
-                if (m.Blocks[main].Count > 0)
+                var mainFrames = frames.Where(f => f.MediaType == m.Container.Components.Main.MediaType).ToArray();
+
+                if (mainFrames.Length > 0)
                 {
-                    var minStartTime = m.Blocks[main].RangeStartTime.Ticks;
-                    var maxStartTime = m.Blocks[main].RangeEndTime.Ticks;
+                    var minStartTime = mainFrames.Min(f => f.StartTime.Ticks);
+                    var maxStartTime = mainFrames.Max(f => f.StartTime.Ticks);
 
                     if (adjustedSeekTarget.Ticks < minStartTime)
                         m.Clock.Position = TimeSpan.FromTicks(minStartTime);
@@ -92,9 +94,12 @@
                 }
                 else
                 {
-                    if (m.Blocks[main].Count == 0 && TargetPosition != TimeSpan.Zero)
+                    if (mainFrames.Length == 0 && TargetPosition != TimeSpan.Zero)
+                    {
                         m.Clock.Position = initialPosition;
+                    }
                 }
+
             }
             catch (Exception ex)
             {

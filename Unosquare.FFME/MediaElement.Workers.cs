@@ -25,7 +25,7 @@
         // TODO: Make this dynamic
         internal static readonly Dictionary<MediaType, int> MaxBlocks = new Dictionary<MediaType, int>
         {
-            { MediaType.Video, 24 },
+            { MediaType.Video, 12 },
             { MediaType.Audio, 128 },
             { MediaType.Subtitle, 128 }
         };
@@ -96,6 +96,10 @@
         /// <param name="clearExisting">if set to <c>true</c> clears the existing frames and blocks.</param>
         private void BufferBlocks(int packetBufferLength, bool clearExisting)
         {
+
+            // TODO: Check the real need of this method. something tells me 
+            // I can remove it altogether and simplify the bufferin process.
+
             var resumeClock = Clock.IsRunning;
             Clock.Pause();
 
@@ -273,8 +277,13 @@
 
             while (IsTaskCancellationPending == false)
             {
-
                 #region 1. Setup the Decoding Cycle
+
+                // Execute the following command at the beginning of the cycle
+                await Commands.ProcessNext();
+
+                // Check if one of the commands has requested an exit
+                if (IsTaskCancellationPending) break;
 
                 // Wait for a seek operation to complete (if any)
                 // and initiate a frame decoding cycle.
@@ -300,21 +309,38 @@
 
                     if (isInRange == false)
                     {
+                        if (blocks.Count > 0)
+                            Logger.Log(MediaLogMessageType.Debug, $"SYNC CLOCK: {main} ({blocks.RangeStartTime.Format()} to {blocks.RangeEndTime.Format()}) does not contain {wallClock.Format()}");
+
                         // Clear the media blocks if we are outside of the required range
                         // we don't need them and we now need as many playback blocks as we can have available
-                        blocks.Clear();
+                        if (blocks.IsFull) { blocks.Clear(); }
 
                         // Read some frames
                         while (comp.PacketBufferCount > 0 && blocks.CapacityPercent < 0.5d)
+                        {
                             decodedFrameCount = AddBlocks(main);
+                            isInRange = blocks.IsInRange(wallClock);
+                            if (isInRange == false)
+                                PacketReadingCycle.WaitOne();
+                        }
+
+                        Logger.Log(MediaLogMessageType.Debug, $"SYNC CLOCK: {main}: {blocks.Debug()}");
 
                         // Unfortunately we will need to adjust the clock after creating the frames.
-                        // to ensure tha mian component is within the clock range
-                        wallClock = wallClock <= blocks.RangeStartTime ?
-                            blocks.RangeStartTime : blocks.RangeEndTime;
+                        // to ensure tha mian component is within the clock range if the decoded
+                        // frames are not with range
+                        if (isInRange == false)
+                        {
+                            wallClock = wallClock <= blocks.RangeStartTime ?
+                                blocks.RangeStartTime : blocks.RangeEndTime;
 
-                        // Update the clock to what the main component range mandates
-                        Clock.Position = wallClock;
+                            Logger.Log(MediaLogMessageType.Debug, $"SYNC CLOCK: {Clock.Position.Format()} set to {wallClock}");
+
+                            // Update the clock to what the main component range mandates
+                            Clock.Position = wallClock;
+                        }
+
                     }
                     else
                     {
@@ -343,13 +369,20 @@
                     comp = Container.Components[t];
                     blocks = Blocks[t];
 
+                    // Continue if there is nothing to synchronize to
+                    if (Blocks[main].Count <= 0)
+                        continue;
+
+                    // wait for main component to get there
                     if (blocks.RangeStartTime > Blocks[main].RangeEndTime)
                         continue;
 
-                    isInRange = blocks.IsInRange(wallClock);
+                    // catch up with main component
+                    while (comp.PacketBufferCount > 0 && blocks.RangeEndTime <= Blocks[main].RangeStartTime)
+                        decodedFrameCount = AddBlocks(t);
 
-                    // Drop the blocks if we don't need them
-                    //if (isInRange == false) { blocks.Clear(); }
+                    rangePercent = blocks.GetRangePercent(wallClock);
+                    isInRange = blocks.IsInRange(wallClock);
 
                     while (comp.PacketBufferCount > 0 &&
                         ((isInRange && rangePercent > 0.75d && blocks.IsFull) || blocks.IsFull == false))
@@ -358,9 +391,6 @@
                         rangePercent = blocks.GetRangePercent(wallClock);
                         isInRange = blocks.IsInRange(wallClock);
                     }
-
-                    //Logger.Log(MediaLogMessageType.Debug, blocks.Debug());
-
                 }
 
                 #endregion
@@ -398,7 +428,7 @@
 
                 CurrentBlockLocker.AcquireWriterLock(Timeout.Infinite);
                 foreach (var t in all)
-                    CurrentBlock[t] = Blocks[t][wallClock];
+                    CurrentBlock[t] = Blocks[t][wallClock]; // Blocks[t].IsInRange(wallClock) ? Blocks[t][wallClock] : null;
 
                 CurrentBlockLocker.ReleaseWriterLock();
 
@@ -454,16 +484,12 @@
             Clock.Position = Blocks[main].RangeStartTime;
             var wallClock = Clock.Position;
 
-            var clockDirection = ClockDirection.Forward;
-
             #endregion
 
-            while (true)
+            while (IsTaskCancellationPending == false)
             {
                 #region 1. Control and Capture
 
-                // Execute the following command at the beginning of the cycle
-                await Commands.ProcessNext();
 
                 // Check if one of the commands has requested an exit
                 if (IsTaskCancellationPending) break;
@@ -471,13 +497,7 @@
                 // Capture current clock position for the rest of this cycle
                 BlockRenderingCycle.Reset();
 
-                // Detect the clock's direction
-                if (HasMediaEnded == false && Clock.IsRunning == false
-                    && clockDirection != ClockDirection.Backward && Clock.Position.Ticks < wallClock.Ticks)
-                    clockDirection = ClockDirection.Backward;
-                else
-                    clockDirection = ClockDirection.Forward;
-
+                // capture the wall clock for this cycle
                 wallClock = Clock.Position;
 
                 #endregion
@@ -485,7 +505,6 @@
                 #region 2. Handle Block Rendering
 
                 // Render each of the Media Types if it is time to do so.
-
                 CurrentBlockLocker.AcquireReaderLock(Timeout.Infinite);
 
                 foreach (var t in all)

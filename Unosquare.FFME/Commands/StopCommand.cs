@@ -28,12 +28,12 @@ namespace Unosquare.FFME.Commands
         internal override void Execute()
         {
             var m = Manager.MediaElement;
-            foreach (var renderer in m.Renderers.Values)
-                renderer.Stop();
-
             m.Clock.Reset();
             var seek = new SeekCommand(this.Manager, TimeSpan.Zero);
             seek.Execute();
+
+            foreach (var renderer in m.Renderers.Values)
+                renderer.Stop();
 
             m.MediaState = System.Windows.Controls.MediaState.Stop;
 
