@@ -86,11 +86,15 @@
                     && m.Blocks[main].IsFull == false 
                     && m.Blocks[main].IsInRange(TargetPosition) == false)
                 {
-                    // move on if we have plenty
-                    if (m.Blocks[t].IsFull) continue;
-
                     // Read the next packet
                     t = m.Container.Read();
+
+                    // Ignore if we don't have an acceptable packet
+                    if (m.Blocks.ContainsKey(t) == false)
+                        continue;
+
+                    // move on if we have plenty
+                    if (m.Blocks[t].IsFull) continue;
 
                     // Decode and add the frames to the corresponding output
                     frames.Clear();

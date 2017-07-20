@@ -503,6 +503,9 @@
                 #region 2. Handle Block Rendering
 
                 // Render each of the Media Types if it is time to do so.
+                // TODO: Waiting for the frame docoding cycle has a frame-rending sync effect
+                // that makes seeking seem slightly slower. More experimentation needed
+                FrameDecodingCycle.WaitOne();
                 CurrentBlockLocker.AcquireReaderLock(Timeout.Infinite);
 
                 foreach (var t in all)
