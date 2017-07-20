@@ -194,6 +194,20 @@
         }
 
         /// <summary>
+        /// Gets the percentage of the range for the given time position.
+        /// </summary>
+        /// <param name="position">The position.</param>
+        /// <returns></returns>
+        public double GetRangePercent(TimeSpan position)
+        {
+            lock (SyncRoot)
+            {
+                return RangeDuration.Ticks != 0 ? 
+                    ((double)position.Ticks - RangeStartTime.Ticks) / RangeDuration.Ticks : 0d;
+            }
+        }
+
+        /// <summary>
         /// Returns a formatted string with information about this buffer
         /// </summary>
         /// <returns></returns>
