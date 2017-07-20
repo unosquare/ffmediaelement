@@ -257,34 +257,30 @@
         /// </summary>
         /// <param name="mediaBlock">The media block.</param>
         /// <param name="clockPosition">The clock position.</param>
-        /// <param name="renderIndex">Index of the render.</param>
-        public void Render(MediaBlock mediaBlock, TimeSpan clockPosition, int renderIndex)
+        public void Render(MediaBlock mediaBlock, TimeSpan clockPosition)
         {
+            // Update the speedratio
             SpeedRatio = MediaElement?.Clock?.SpeedRatio ?? 0d;
 
             if (AudioBuffer == null) return;
+
             var block = mediaBlock as AudioBlock;
             if (block == null) return;
 
-            var currentIndex = renderIndex;
             var audioBlocks = MediaElement.Blocks[MediaType.Audio];
-            var addedBlockCount = 0;
-            var addedBytes = 0;
-            while (currentIndex >= 0 && currentIndex < audioBlocks.Count)
-            {
-                var audioBlock = audioBlocks[currentIndex] as AudioBlock;
-                if (AudioBuffer.WriteTag < audioBlock.StartTime)
-                {
-                    AudioBuffer.Write(audioBlock.Buffer, audioBlock.BufferLength, audioBlock.StartTime, true);
-                    addedBlockCount++;
-                    addedBytes += audioBlock.BufferLength;
-                }
+            var audioBlock = mediaBlock as AudioBlock;
 
-                currentIndex++;
+            while (audioBlock != null)
+            {
+                if (AudioBuffer.WriteTag < audioBlock.StartTime)
+                    AudioBuffer.Write(audioBlock.Buffer, audioBlock.BufferLength, audioBlock.StartTime, true);
 
                 // Stop adding if we have too much in there.
                 if (AudioBuffer.CapacityPercent >= 0.8)
                     break;
+
+                // Retrieve the following block
+                audioBlock = audioBlocks.Next(audioBlock) as AudioBlock;
             }
         }
 

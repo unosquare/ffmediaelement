@@ -194,6 +194,20 @@
         }
 
         /// <summary>
+        /// Gets the percentage of the range for the given time position.
+        /// </summary>
+        /// <param name="position">The position.</param>
+        /// <returns></returns>
+        public double GetRangePercent(TimeSpan position)
+        {
+            lock (SyncRoot)
+            {
+                return RangeDuration.Ticks != 0 ? 
+                    ((double)position.Ticks - RangeStartTime.Ticks) / RangeDuration.Ticks : 0d;
+            }
+        }
+
+        /// <summary>
         /// Returns a formatted string with information about this buffer
         /// </summary>
         /// <returns></returns>
@@ -201,6 +215,26 @@
         {
             lock (SyncRoot)
                 return $"{MediaType,-12} - CAP: {Capacity,10} | FRE: {PoolBlocks.Count,7} | USD: {PlaybackBlocks.Count,4} |  TM: {RangeStartTime.Format(),8} to {RangeEndTime.Format().Trim()}";
+        }
+
+        /// <summary>
+        /// Retrieves the block following the provided current block
+        /// </summary>
+        /// <param name="current">The current block.</param>
+        /// <returns></returns>
+        public MediaBlock Next(MediaBlock current)
+        {
+            lock (SyncRoot)
+            {
+                var currentIndex = PlaybackBlocks.IndexOf(current);
+                if (currentIndex < 0) return null;
+
+                if (currentIndex + 1 < PlaybackBlocks.Count)
+                    return PlaybackBlocks[currentIndex + 1];
+
+                return null;
+            }
+
         }
 
         /// <summary>

@@ -454,6 +454,7 @@
                 }
 
             };
+
             mouseMoveTimer.Start();
 
             #endregion

@@ -39,8 +39,7 @@
         /// </summary>
         /// <param name="mediaBlock">The media block.</param>
         /// <param name="clockPosition">The clock position.</param>
-        /// <param name="renderIndex">Index of the render.</param>
-        void Render(MediaBlock mediaBlock, TimeSpan clockPosition, int renderIndex);
+        void Render(MediaBlock mediaBlock, TimeSpan clockPosition);
 
         /// <summary>
         /// Called on every block rendering clock cycle just in case some update operation needs to be performed.

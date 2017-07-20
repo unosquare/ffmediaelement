@@ -3,6 +3,7 @@
     using Core;
     using System;
     using System.Linq;
+    using System.Threading;
 
     /// <summary>
     /// Implements the logic to seek on the media stream
@@ -40,6 +41,7 @@
             try
             {
                 var main = m.Container.Components.Main.MediaType;
+                var t = MediaType.None;
 
                 // 1. Check if we already have the block. If we do, simply set the clock position to the target position
                 // we don't need anything else.
@@ -49,6 +51,9 @@
                     return;
                 }
 
+                // wait for the current reading and decoding cycles
+                // to finish. We don't want to interfere with reading in progress
+                // or decoding in progress
                 m.PacketReadingCycle.WaitOne();
                 m.FrameDecodingCycle.WaitOne();
 
@@ -62,24 +67,57 @@
                 }
 
                 // Clear Blocks and frames, reset the render times
-                foreach (var t in m.Container.Components.MediaTypes)
+
+                m.CurrentBlockLocker.AcquireWriterLock(Timeout.Infinite);
+                foreach (var mt in m.Container.Components.MediaTypes)
                 {
-                    m.Frames[t].Clear();
-                    m.Blocks[t].Clear();
-                    m.LastRenderTime[t] = TimeSpan.MinValue;
+                    m.Blocks[mt].Clear();
+                    m.LastRenderTime[mt] = TimeSpan.MinValue;
+                    m.CurrentBlock[mt] = null;
                 }
+
+                m.CurrentBlockLocker.ReleaseWriterLock();
 
                 // Populate frame queues with after-seek operation
                 var frames = m.Container.Seek(adjustedSeekTarget);
                 m.HasMediaEnded = false;
 
-                foreach (var frame in frames)
-                    m.Frames[frame.MediaType].Push(frame);
+                // Clear all the blocks. We don't need them
+                foreach (var kvp in m.Blocks)
+                    kvp.Value.Clear();
 
-                if (frames.Count > 0)
+                // Create the blocks from the obtained seek frames
+                foreach (var frame in frames)
+                    m.Blocks[frame.MediaType]?.Add(frame,  m.Container);
+
+                // Now read blocks until we have reached at least the Target Position
+                while (m.Container.IsAtEndOfStream == false 
+                    && m.Blocks[main].IsFull == false 
+                    && m.Blocks[main].IsInRange(TargetPosition) == false)
                 {
-                    var minStartTime = frames.Min(f => f.StartTime.Ticks);
-                    var maxStartTime = frames.Max(f => f.StartTime.Ticks);
+                    // Read the next packet
+                    t = m.Container.Read();
+
+                    // Ignore if we don't have an acceptable packet
+                    if (m.Blocks.ContainsKey(t) == false)
+                        continue;
+
+                    // move on if we have plenty
+                    if (m.Blocks[t].IsFull) continue;
+
+                    // Decode and add the frames to the corresponding output
+                    frames.Clear();
+                    frames.AddRange(m.Container.Components[t].ReceiveFrames());
+
+                    foreach (var frame in frames)
+                        m.Blocks[t].Add(frame, m.Container);
+                }
+
+                // Handle out-of sync scenarios
+                if (m.Blocks[main].IsInRange(TargetPosition) == false)
+                {
+                    var minStartTime = m.Blocks[main].RangeStartTime.Ticks;
+                    var maxStartTime = m.Blocks[main].RangeEndTime.Ticks;
 
                     if (adjustedSeekTarget.Ticks < minStartTime)
                         m.Clock.Position = TimeSpan.FromTicks(minStartTime);
@@ -90,11 +128,13 @@
                 }
                 else
                 {
-                    if (frames.Count == 0 && TargetPosition != TimeSpan.Zero)
+                    // TODO: handle this case correctly. The way this is handled currently sucks.
+                    if (m.Blocks[main].Count == 0 && TargetPosition != TimeSpan.Zero)
                     {
                         m.Clock.Position = initialPosition;
                     }
                 }
+
             }
             catch (Exception ex)
             {
@@ -109,7 +149,7 @@
                     kvp.Value.Seek();
 
                 m.Logger.Log(MediaLogMessageType.Debug,
-                    $"SEEK D: Elapsed: {startTime.FormatElapsed()}");
+                    $"SEEK D: Elapsed: {startTime.FormatElapsed()} | Target: {TargetPosition.Format()}");
 
                 m.SeekingDone.Set();
             }

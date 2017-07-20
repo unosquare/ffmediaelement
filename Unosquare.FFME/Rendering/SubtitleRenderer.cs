@@ -162,8 +162,7 @@
         /// </summary>
         /// <param name="mediaBlock">The media block.</param>
         /// <param name="clockPosition">The clock position.</param>
-        /// <param name="renderIndex">Index of the render.</param>
-        public void Render(MediaBlock mediaBlock, TimeSpan clockPosition, int renderIndex)
+        public void Render(MediaBlock mediaBlock, TimeSpan clockPosition)
         {
             var subtitleBlock = mediaBlock as SubtitleBlock;
             if (subtitleBlock == null) return;
