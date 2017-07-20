@@ -314,20 +314,21 @@
 
                         // Clear the media blocks if we are outside of the required range
                         // we don't need them and we now need as many playback blocks as we can have available
-                        if (blocks.IsFull) { blocks.Clear(); }
+                        if (blocks.IsFull)
+                            blocks.Clear();
 
-                        // Read some frames
-                        while (comp.PacketBufferCount > 0 && blocks.CapacityPercent < 0.5d)
+                        // Read some framesand try to get a valid range
+                        while (comp.PacketBufferCount > 0 && blocks.IsFull == false)
                         {
                             decodedFrameCount = AddBlocks(main);
                             isInRange = blocks.IsInRange(wallClock);
-                            if (isInRange == false)
+                            if (isInRange)
+                                break;
+                            else
                                 PacketReadingCycle.WaitOne();
                         }
 
-                        Logger.Log(MediaLogMessageType.Debug, $"SYNC CLOCK: {main}: {blocks.Debug()}");
-
-                        // Unfortunately we will need to adjust the clock after creating the frames.
+                        // Unfortunately at this point we will need to adjust the clock after creating the frames.
                         // to ensure tha mian component is within the clock range if the decoded
                         // frames are not with range
                         if (isInRange == false)
@@ -335,7 +336,7 @@
                             wallClock = wallClock <= blocks.RangeStartTime ?
                                 blocks.RangeStartTime : blocks.RangeEndTime;
 
-                            Logger.Log(MediaLogMessageType.Debug, $"SYNC CLOCK: {Clock.Position.Format()} set to {wallClock}");
+                            Logger.Log(MediaLogMessageType.Debug, $"SYNC CLOCK: {Clock.Position.Format()} set to {wallClock.Format()}");
 
                             // Update the clock to what the main component range mandates
                             Clock.Position = wallClock;
@@ -437,9 +438,11 @@
                 // Complete the frame decoding cycle
                 FrameDecodingCycle.Set();
 
+                UpdatePosition(wallClock);
+
                 // Give it a break if there was nothing to decode.
                 // We probably need to wait for some more input
-                if (decodedFrameCount <= 0)
+                if (decodedFrameCount <= 0 && Commands.PendingCount <= 0)
                     await Task.Delay(1);
 
                 #endregion
@@ -481,6 +484,7 @@
 
             Clock.Position = Blocks[main].RangeStartTime;
             var wallClock = Clock.Position;
+            UpdatePosition(wallClock);
 
             #endregion
 
@@ -488,7 +492,7 @@
             {
                 #region 1. Control and Capture
 
-
+                
                 // Check if one of the commands has requested an exit
                 if (IsTaskCancellationPending) break;
 

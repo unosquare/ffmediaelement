@@ -105,8 +105,6 @@
                 // The tick callback performs the updates
                 UIPropertyUpdateTimer.Tick += (s, e) =>
                 {
-                    UpdatePosition(IsOpen ? Clock?.Position ?? TimeSpan.Zero : TimeSpan.Zero);
-
                     var downloadProgress = Math.Min(1d, Math.Round((Container?.Components.PacketBufferLength ?? 0d) / DownloadCacheLength, 3));
                     if (double.IsNaN(downloadProgress)) downloadProgress = 0;
                     DownloadProgress = downloadProgress;

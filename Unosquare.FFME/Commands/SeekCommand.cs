@@ -3,6 +3,7 @@
     using Core;
     using System;
     using System.Linq;
+    using System.Threading;
 
     /// <summary>
     /// Implements the logic to seek on the media stream
@@ -50,6 +51,9 @@
                     return;
                 }
 
+                // wait for the current reading and decoding cycles
+                // to finish. We don't want to interfere with reading in progress
+                // or decoding in progress
                 m.PacketReadingCycle.WaitOne();
                 m.FrameDecodingCycle.WaitOne();
 
@@ -63,11 +67,16 @@
                 }
 
                 // Clear Blocks and frames, reset the render times
+
+                m.CurrentBlockLocker.AcquireWriterLock(Timeout.Infinite);
                 foreach (var mt in m.Container.Components.MediaTypes)
                 {
                     m.Blocks[mt].Clear();
                     m.LastRenderTime[mt] = TimeSpan.MinValue;
+                    m.CurrentBlock[mt] = null;
                 }
+
+                m.CurrentBlockLocker.ReleaseWriterLock();
 
                 // Populate frame queues with after-seek operation
                 var frames = m.Container.Seek(adjustedSeekTarget);
@@ -101,7 +110,7 @@
                     frames.AddRange(m.Container.Components[t].ReceiveFrames());
 
                     foreach (var frame in frames)
-                        m.Blocks[t]?.Add(frame, m.Container);
+                        m.Blocks[t].Add(frame, m.Container);
                 }
 
                 // Handle out-of sync scenarios
@@ -140,7 +149,7 @@
                     kvp.Value.Seek();
 
                 m.Logger.Log(MediaLogMessageType.Debug,
-                    $"SEEK D: Elapsed: {startTime.FormatElapsed()}");
+                    $"SEEK D: Elapsed: {startTime.FormatElapsed()} | Target: {TargetPosition.Format()}");
 
                 m.SeekingDone.Set();
             }
