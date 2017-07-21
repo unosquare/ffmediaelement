@@ -108,7 +108,7 @@
                     if (HasDecoderSeeked == false)
                         UpdatePosition(IsOpen ? Clock?.Position ?? TimeSpan.Zero : TimeSpan.Zero);
 
-                    if (HasMediaEnded == false && (IsOpening || IsOpen))
+                    if (HasMediaEnded == false && CanReadMorePackets && (IsOpening || IsOpen))
                     {
                         var bufferedLength = Container?.Components?.PacketBufferLength ?? 0d;
                         BufferingProgress = Math.Min(1d, bufferedLength / BufferCacheLength);

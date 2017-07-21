@@ -281,7 +281,7 @@
             var queued = 0;
             while (m_PlaybackState != PlaybackState.Stopped)
             {
-                if (!CallbackEvent.WaitOne(DesiredLatency) && m_PlaybackState == PlaybackState.Playing)
+                if (!(CallbackEvent?.WaitOne(DesiredLatency) ?? false) && m_PlaybackState == PlaybackState.Playing)
                     Renderer.MediaElement.Logger.Log(MediaLogMessageType.Warning, $"{nameof(AudioPlaybackTask)}:{nameof(CallbackEvent)} timed out. Desired Latency: {DesiredLatency}ms");
 
                 if (m_PlaybackState != PlaybackState.Playing)

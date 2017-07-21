@@ -65,7 +65,7 @@
         /// Gets a value indicating whether more packets can be read from the stream.
         /// This does not check if the packet queue is full.
         /// </summary>
-        private bool CanReadMorePackets { get { return Container.IsAtEndOfStream == false; } }
+        private bool CanReadMorePackets { get { return (Container?.IsAtEndOfStream ?? true) == false; } }
 
         /// <summary>
         /// Gets a value indicating whether more frames can be decoded from the packet queue.
@@ -452,6 +452,8 @@
             // Holds a snapshot of the current block to render
             var currentBlock = new MediaTypeDictionary<MediaBlock>();
 
+            var renderedBlockCount = 0;
+
             // reset render times for all components
             foreach (var t in all)
                 LastRenderTime[t] = TimeSpan.MinValue;
@@ -467,6 +469,8 @@
 
             while (IsTaskCancellationPending == false)
             {
+                renderedBlockCount = 0;
+
                 #region 1. Control and Capture
 
                 // Check if one of the commands has requested an exit
@@ -499,6 +503,7 @@
                     {
                         LastRenderTime[t] = currentBlock[t].StartTime;
                         SendBlockToRenderer(currentBlock[t], wallClock);
+                        renderedBlockCount += 1;
                     }
                 }
 
@@ -506,14 +511,16 @@
 
                 #region 6. Finalize the Rendering Cycle
 
-                // Calll the update method
+                BlockRenderingCycle.Set();
+
+                // Call the update method
                 foreach (var t in all)
                     Renderers[t]?.Update(wallClock);
 
-                BlockRenderingCycle.Set();
+                if (IsTaskCancellationPending) break;
 
-                // Pause for a bit if we have no more commands to process.
-                if (Commands.PendingCount <= 0 && IsTaskCancellationPending == false)
+                // Spin the thread for a bit if we have no more stuff to process
+                if (renderedBlockCount <= 0 && Commands.PendingCount <= 0 && HasDecoderSeeked == false)
                     await Task.Delay(1);
 
                 #endregion

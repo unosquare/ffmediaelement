@@ -116,6 +116,7 @@
 
             if (AudioDevice != null)
             {
+                AudioDevice.Pause();
                 AudioDevice.Stop();
                 AudioDevice.Dispose();
                 AudioDevice = null;
@@ -321,7 +322,12 @@
         /// </summary>
         public void Close()
         {
-            Destroy();
+            // Yes, seek and destroy... coincidentally.
+            lock (SyncLock)
+            {
+                Seek();
+                Destroy();
+            }
         }
 
         /// <summary>
