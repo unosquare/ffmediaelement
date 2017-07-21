@@ -370,15 +370,26 @@
             }
             else if (audioLatency.TotalMilliseconds < -2d * SyncThesholdMilliseconds)
             {
-                // a negative audio latency means we are rendering audio ahead (before) the clock
-                // and therefore we need to render some silence until the clock catches up
-                MediaElement.Container?.Logger?.Log(MediaLogMessageType.Warning,
-                    $"SYNC AUDIO: LATENCY: {audioLatency.Format()} | WAIT (samples being rendered too early)");
+                // Compute the latency in bytes
+                var audioLatencyBytes = WaveFormat.ConvertLatencyToByteSize((int)Math.Ceiling(Math.Abs(audioLatency.TotalMilliseconds)));
 
-                // render silence for the wait time and return
-                Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
+                if (audioLatencyBytes > requestedBytes && audioLatencyBytes < AudioBuffer.ReadIndex)
+                {
+                    // This means we have the audio pointer a little too ahead of time and we need to
+                    // rewind it the requested amount of bytes.
+                    AudioBuffer.Rewind(Math.Min(audioLatencyBytes, AudioBuffer.ReadIndex));
+                }
+                else
+                {
+                    // a negative audio latency means we are rendering audio ahead (before) the clock
+                    // and therefore we need to render some silence until the clock catches up
+                    MediaElement.Container?.Logger?.Log(MediaLogMessageType.Warning,
+                        $"SYNC AUDIO: LATENCY: {audioLatency.Format()} | WAIT (samples being rendered too early)");
 
-                return false;
+                    // render silence for the wait time and return
+                    Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
+                    return false;
+                }
             }
 
             return true;

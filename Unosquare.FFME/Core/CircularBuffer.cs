@@ -108,6 +108,28 @@
         }
 
         /// <summary>
+        /// Rewinds the read position by specified requested amount of bytes.
+        /// </summary>
+        /// <param name="requestedBytes">The requested bytes.</param>
+        /// <exception cref="InvalidOperationException"></exception>
+        public void Rewind(int requestedBytes)
+        {
+            lock (SyncLock)
+            {
+                if (requestedBytes > ReadIndex)
+                    throw new InvalidOperationException(
+                        $"Unable to rewind {requestedBytes} bytes. Only {ReadIndex} bytes are available for rewinding");
+
+                ReadIndex -= requestedBytes;
+                ReadableCount += requestedBytes;
+
+                if (ReadIndex < 0)
+                    ReadIndex = 0;
+            }
+        }
+
+
+        /// <summary>
         /// Reads the specified number of bytes into the target array.
         /// </summary>
         /// <param name="requestedBytes">The requested bytes.</param>
