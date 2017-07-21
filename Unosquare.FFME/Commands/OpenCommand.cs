@@ -85,7 +85,6 @@
                 m.Clock.SpeedRatio = Constants.DefaultSpeedRatio;
                 m.IsTaskCancellationPending = false;
 
-                m.CurrentBlockLocker.ReleaseLock();
                 m.BlockRenderingCycle.Set();
                 m.FrameDecodingCycle.Set();
                 m.PacketReadingCycle.Set();

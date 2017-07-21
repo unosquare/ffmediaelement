@@ -67,16 +67,15 @@
                 }
 
                 // Clear Blocks and frames, reset the render times
-
-                m.CurrentBlockLocker.AcquireWriterLock(Timeout.Infinite);
                 foreach (var mt in m.Container.Components.MediaTypes)
                 {
                     m.Blocks[mt].Clear();
                     m.LastRenderTime[mt] = TimeSpan.MinValue;
-                    m.CurrentBlock[mt] = null;
                 }
 
-                m.CurrentBlockLocker.ReleaseWriterLock();
+                // Signal to wait one more frame dcoding cycle before 
+                // sending blocks to the renderer.
+                m.HasDecoderSeeked = true;
 
                 // Populate frame queues with after-seek operation
                 var frames = m.Container.Seek(adjustedSeekTarget);

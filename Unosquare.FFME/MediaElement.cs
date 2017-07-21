@@ -96,7 +96,7 @@
             else
             {
                 // The UI Property update timer is responsible for timely updates to properties outside of the worker threads
-                UIPropertyUpdateTimer = new DispatcherTimer(DispatcherPriority.DataBind)
+                UIPropertyUpdateTimer = new DispatcherTimer(DispatcherPriority.Background)
                 {
                     Interval = Constants.UIPropertyUpdateInterval,
                     IsEnabled = true
@@ -105,6 +105,9 @@
                 // The tick callback performs the updates
                 UIPropertyUpdateTimer.Tick += (s, e) =>
                 {
+                    if (HasDecoderSeeked == false)
+                        UpdatePosition(IsOpen ? Clock?.Position ?? TimeSpan.Zero : TimeSpan.Zero);
+
                     var downloadProgress = Math.Min(1d, Math.Round((Container?.Components.PacketBufferLength ?? 0d) / DownloadCacheLength, 3));
                     if (double.IsNaN(downloadProgress)) downloadProgress = 0;
                     DownloadProgress = downloadProgress;
@@ -169,7 +172,7 @@
             get { return m_FFmpegDirectory; }
             set
             {
-                
+
                 if (IsFFmpegLoaded == false)
                 {
                     m_FFmpegDirectory = value;
@@ -298,7 +301,6 @@
                     UIPropertyUpdateTimer = null;
                 }
 
-                CurrentBlockLocker.ReleaseLock();
                 PacketReadingCycle.Dispose();
                 FrameDecodingCycle.Dispose();
                 BlockRenderingCycle.Dispose();

@@ -43,12 +43,8 @@
         internal readonly MediaTypeDictionary<TimeSpan> LastRenderTime
             = new MediaTypeDictionary<TimeSpan>();
 
-        internal readonly MediaTypeDictionary<MediaBlock> CurrentBlock
-            = new MediaTypeDictionary<MediaBlock>();
-
         internal volatile bool IsTaskCancellationPending = false;
-
-        internal readonly ReaderWriterLock CurrentBlockLocker = new ReaderWriterLock();
+        internal volatile bool HasDecoderSeeked = false;
 
         internal Thread PacketReadingTask;
         internal readonly ManualResetEvent PacketReadingCycle = new ManualResetEvent(true);
@@ -409,7 +405,6 @@
 
                         HasMediaEnded = true;
                         MediaState = MediaState.Pause;
-                        UpdatePosition(Clock.Position);
                         RaiseMediaEndedEvent();
                     }
                 }
@@ -420,35 +415,22 @@
 
                 #endregion
 
-                #region 5. Update the Renderer Blocks
-
-                // The rendering worker will pickup the CurrentBlock references
-                // and will send it to the corresponding renderer.
-
-                CurrentBlockLocker.AcquireWriterLock(Timeout.Infinite);
-                foreach (var t in all)
-                    CurrentBlock[t] = Blocks[t][wallClock]; // Blocks[t].IsInRange(wallClock) ? Blocks[t][wallClock] : null;
-
-                CurrentBlockLocker.ReleaseWriterLock();
-
-                #endregion
-
                 #region 6. Finish the Cycle
 
                 // Complete the frame decoding cycle
                 FrameDecodingCycle.Set();
 
-                UpdatePosition(wallClock);
+                // After a seek operation, always reset the has seeked flag.
+                HasDecoderSeeked = false;
 
                 // Give it a break if there was nothing to decode.
                 // We probably need to wait for some more input
-                if (decodedFrameCount <= 0 && Commands.PendingCount <= 0)
+                if (decodedFrameCount <= 0 && Commands.PendingCount <= 0 && IsTaskCancellationPending == false)
                     await Task.Delay(1);
 
                 #endregion
             }
 
-            CurrentBlockLocker.ReleaseLock();
             FrameDecodingCycle.Set();
 
         }
@@ -472,6 +454,8 @@
             var auxs = Container.Components.MediaTypes.Where(t => t != main).ToArray();
             // Holds all components
             var all = Container.Components.MediaTypes.ToArray();
+            // Holds a snapshot of the current block to render
+            var currentBlock = new MediaTypeDictionary<MediaBlock>();
 
             // reset render times for all components
             foreach (var t in all)
@@ -484,7 +468,6 @@
 
             Clock.Position = Blocks[main].RangeStartTime;
             var wallClock = Clock.Position;
-            UpdatePosition(wallClock);
 
             #endregion
 
@@ -492,7 +475,7 @@
             {
                 #region 1. Control and Capture
 
-                
+
                 // Check if one of the commands has requested an exit
                 if (IsTaskCancellationPending) break;
 
@@ -506,27 +489,24 @@
 
                 #region 2. Handle Block Rendering
 
-                // Render each of the Media Types if it is time to do so.
-                // TODO: Waiting for the frame docoding cycle has a frame-rending sync effect
-                // that makes seeking seem slightly slower. More experimentation needed
-                FrameDecodingCycle.WaitOne();
-                CurrentBlockLocker.AcquireReaderLock(Timeout.Infinite);
+                // Capture the blocks to render
+                foreach (var t in all)
+                    currentBlock[t] = HasDecoderSeeked == false ? Blocks[t][wallClock] : null;
 
+                // Render each of the Media Types if it is time to do so.
                 foreach (var t in all)
                 {
-                    if (CurrentBlock[t] == null)
+                    if (currentBlock[t] == null)
                         continue;
 
                     // render the frame if we have not rendered
-                    if ((CurrentBlock[t].StartTime != LastRenderTime[t] || LastRenderTime[t] == TimeSpan.MinValue)
-                        && (IsPlaying == false || wallClock.Ticks >= CurrentBlock[t].StartTime.Ticks))
+                    if ((currentBlock[t].StartTime != LastRenderTime[t] || LastRenderTime[t] == TimeSpan.MinValue)
+                        && (IsPlaying == false || wallClock.Ticks >= currentBlock[t].StartTime.Ticks))
                     {
-                        LastRenderTime[t] = CurrentBlock[t].StartTime;
-                        SendBlockToRenderer(CurrentBlock[t], wallClock);
+                        LastRenderTime[t] = currentBlock[t].StartTime;
+                        SendBlockToRenderer(currentBlock[t], wallClock);
                     }
                 }
-
-                CurrentBlockLocker.ReleaseReaderLock();
 
                 #endregion
 
@@ -539,7 +519,7 @@
                 BlockRenderingCycle.Set();
 
                 // Pause for a bit if we have no more commands to process.
-                if (Commands.PendingCount <= 0)
+                if (Commands.PendingCount <= 0 && IsTaskCancellationPending == false)
                     await Task.Delay(1);
 
                 #endregion

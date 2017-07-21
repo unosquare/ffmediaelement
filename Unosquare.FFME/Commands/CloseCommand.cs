@@ -32,7 +32,6 @@
 
             m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(CloseCommand)}: Entered");
             m.Clock.Pause();
-            m.UpdatePosition(TimeSpan.Zero);
 
             m.IsTaskCancellationPending = true;
 

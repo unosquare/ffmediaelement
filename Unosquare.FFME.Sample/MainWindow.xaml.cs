@@ -506,7 +506,6 @@
         /// </summary>
         private void UpdateWindowTitle()
         {
-            // TODO: call this on UpdateUI
             var v = typeof(MainWindow).Assembly.GetName().Version;
             var title = Media.Source?.ToString() ?? "(No media loaded)";
             var state = Media?.MediaState.ToString();
