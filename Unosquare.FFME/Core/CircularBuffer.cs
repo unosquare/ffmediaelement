@@ -58,6 +58,22 @@
         public int ReadIndex { get; private set; }
 
         /// <summary>
+        /// Gets the maximum rewindable amount of bytes.
+        /// </summary>
+        public int RewindableCount
+        {
+            get {
+                lock (SyncLock)
+                {
+                    if (WriteIndex < ReadIndex)
+                        return (ReadIndex - WriteIndex);
+
+                    return ReadIndex;
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets the current, 0-based write index.
         /// </summary>
         public int WriteIndex { get; private set; }
@@ -116,9 +132,9 @@
         {
             lock (SyncLock)
             {
-                if (requestedBytes > ReadIndex)
+                if (requestedBytes > RewindableCount)
                     throw new InvalidOperationException(
-                        $"Unable to rewind {requestedBytes} bytes. Only {ReadIndex} bytes are available for rewinding");
+                        $"Unable to rewind {requestedBytes} bytes. Only {RewindableCount} bytes are available for rewinding");
 
                 ReadIndex -= requestedBytes;
                 ReadableCount += requestedBytes;

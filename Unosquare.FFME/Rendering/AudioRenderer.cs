@@ -373,11 +373,11 @@
                 // Compute the latency in bytes
                 var audioLatencyBytes = WaveFormat.ConvertLatencyToByteSize((int)Math.Ceiling(Math.Abs(audioLatency.TotalMilliseconds)));
 
-                if (audioLatencyBytes > requestedBytes && audioLatencyBytes < AudioBuffer.ReadIndex)
+                if (audioLatencyBytes > requestedBytes && audioLatencyBytes < AudioBuffer.RewindableCount)
                 {
                     // This means we have the audio pointer a little too ahead of time and we need to
                     // rewind it the requested amount of bytes.
-                    AudioBuffer.Rewind(Math.Min(audioLatencyBytes, AudioBuffer.ReadIndex));
+                    AudioBuffer.Rewind(Math.Min(audioLatencyBytes, AudioBuffer.RewindableCount));
                 }
                 else
                 {
