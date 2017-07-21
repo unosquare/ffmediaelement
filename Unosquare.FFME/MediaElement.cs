@@ -108,6 +108,26 @@
                     if (HasDecoderSeeked == false)
                         UpdatePosition(IsOpen ? Clock?.Position ?? TimeSpan.Zero : TimeSpan.Zero);
 
+                    if (IsOpening || IsOpen)
+                    {
+                        var bufferedLength = Container?.Components?.PacketBufferLength ?? 0d;
+                        BufferingProgress = Math.Min(1d, bufferedLength / BufferCacheLength);
+                        var oldIsBugffering = IsBuffering;
+                        var newIsBuffering = bufferedLength < BufferCacheLength;
+
+                        if (oldIsBugffering == false && newIsBuffering == true)
+                            RaiseBufferingStartedEvent();
+                        else if (oldIsBugffering == true && newIsBuffering == false)
+                            RaiseBufferingEndedEvent();
+
+                        IsBuffering = HasMediaEnded == false && newIsBuffering;
+                    }
+                    else
+                    {
+                        BufferingProgress = 0;
+                        IsBuffering = false;
+                    }
+
                     var downloadProgress = Math.Min(1d, Math.Round((Container?.Components.PacketBufferLength ?? 0d) / DownloadCacheLength, 3));
                     if (double.IsNaN(downloadProgress)) downloadProgress = 0;
                     DownloadProgress = downloadProgress;

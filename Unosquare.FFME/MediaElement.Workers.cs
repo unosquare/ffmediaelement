@@ -25,7 +25,7 @@
         // TODO: Make this dynamic
         internal static readonly Dictionary<MediaType, int> MaxBlocks = new Dictionary<MediaType, int>
         {
-            { MediaType.Video, 16 },
+            { MediaType.Video, 4 },
             { MediaType.Audio, 128 },
             { MediaType.Subtitle, 128 }
         };
@@ -82,54 +82,6 @@
         /// Gets a value indicating whether more frames can be converted into blocks of the given type.
         /// </summary>
         private bool CanReadMoreFramesOf(MediaType t) { return CanReadMorePackets || Container.Components[t].PacketBufferLength > 0; }
-
-
-        /// <summary>
-        /// Buffers some packets which in turn get decoded into frames and then
-        /// converted into blocks.
-        /// </summary>
-        /// <param name="packetBufferLength">Length of the packet buffer.</param>
-        /// <param name="clearExisting">if set to <c>true</c> clears the existing frames and blocks.</param>
-        private void BufferBlocks(int packetBufferLength, bool clearExisting)
-        {
-
-            // TODO: Check the real need of this method. something tells me 
-            // I can remove it altogether and simplify the bufferin process.
-
-            var resumeClock = Clock.IsRunning;
-            Clock.Pause();
-
-            var main = Container.Components.Main.MediaType;
-
-            // Clear Blocks and frames, reset the render times
-            if (clearExisting)
-                foreach (var t in Container.Components.MediaTypes)
-                {
-                    Blocks[t].Clear();
-                    LastRenderTime[t] = TimeSpan.MinValue;
-                }
-
-            // Raise the buffering started event.
-            IsBuffering = true;
-            BufferingProgress = 0;
-            RaiseBufferingStartedEvent();
-
-            // Buffer some blocks
-            while (CanReadMoreFramesOf(main) && Blocks[main].CapacityPercent <= 0.9d)
-            {
-                PacketReadingCycle.WaitOne();
-                FrameDecodingCycle.WaitOne();
-                BufferingProgress = Blocks[main].CapacityPercent / 0.9d;
-            }
-
-            // Raise the buffering started event.
-            if (resumeClock) { Clock.Play(); }
-
-            BufferingProgress = 1;
-            IsBuffering = false;
-            RaiseBufferingEndedEvent();
-
-        }
 
         /// <summary>
         /// Sends the given block to its corresponding media renderer.
@@ -268,6 +220,9 @@
             // Holds all components
             var all = Container.Components.MediaTypes.ToArray();
 
+            var isBuffering = false;
+            var resumeClock = false;
+
             MediaComponent comp = null;
             MediaBlockBuffer blocks = null;
 
@@ -294,6 +249,7 @@
 
                 #region 2. Main Component Decoding
 
+                // Capture component and blocks for easier readability
                 comp = Container.Components[main];
                 blocks = Blocks[main];
 
@@ -305,39 +261,49 @@
 
                     if (isInRange == false)
                     {
-                        if (blocks.Count > 0)
-                            Logger.Log(MediaLogMessageType.Debug, $"SYNC CLOCK: {main} ({blocks.RangeStartTime.Format()} to {blocks.RangeEndTime.Format()}) does not contain {wallClock.Format()}");
+                        // detect an initial buffering scenario
+                        if (blocks.Count <= 0)
+                        {
+                            // We set the seeked flag so the frame rendering worker 
+                            // does not render the blocks quite yet.
+                            HasDecoderSeeked = true;
+                            isBuffering = true;
+                            resumeClock = Clock.IsRunning;
+                            Clock.Pause();
+                            Logger.Log(MediaLogMessageType.Debug, $"SYNC BUFFER: Buffering Started.");
+                        }
 
                         // Clear the media blocks if we are outside of the required range
                         // we don't need them and we now need as many playback blocks as we can have available
                         if (blocks.IsFull)
                             blocks.Clear();
 
-                        // Read some framesand try to get a valid range
+                        // Read some frames and try to get a valid range
                         while (comp.PacketBufferCount > 0 && blocks.IsFull == false)
                         {
                             decodedFrameCount = AddBlocks(main);
                             isInRange = blocks.IsInRange(wallClock);
                             if (isInRange)
                                 break;
-                            else
+
+                            if (CanReadMorePackets && isInRange == false)
                                 PacketReadingCycle.WaitOne();
                         }
 
                         // Unfortunately at this point we will need to adjust the clock after creating the frames.
                         // to ensure tha mian component is within the clock range if the decoded
-                        // frames are not with range
+                        // frames are not with range. This is normal while buffering though.
                         if (isInRange == false)
                         {
                             wallClock = wallClock <= blocks.RangeStartTime ?
                                 blocks.RangeStartTime : blocks.RangeEndTime;
 
-                            Logger.Log(MediaLogMessageType.Debug, $"SYNC CLOCK: {Clock.Position.Format()} set to {wallClock.Format()}");
+                            if (isBuffering == false)
+                                Logger.Log(MediaLogMessageType.Warning, $"SYNC CLOCK: {Clock.Position.Format()} set to {wallClock.Format()}");
 
                             // Update the clock to what the main component range mandates
                             Clock.Position = wallClock;
                         }
-
                     }
                     else
                     {
@@ -361,30 +327,49 @@
 
                 foreach (var t in auxs)
                 {
+                    // Capture the current block buffer and component
+                    // for easier readability
                     comp = Container.Components[t];
                     blocks = Blocks[t];
 
-                    // Continue if there is nothing to synchronize to
-                    if (Blocks[main].Count <= 0)
+                    // wait for component to get there if we only have furutre blocks
+                    // in auxiliary component.
+                    if (blocks.RangeStartTime > wallClock)
                         continue;
 
-                    // wait for main component to get there
-                    if (blocks.RangeStartTime > Blocks[main].RangeEndTime)
-                        continue;
+                    // Wait for packets if we are buffering or we don't have enough packets
+                    if (CanReadMorePackets && (isBuffering || comp.PacketBufferCount <= 0))
+                        PacketReadingCycle.WaitOne();
 
-                    // catch up with main component
-                    while (comp.PacketBufferCount > 0 && blocks.RangeEndTime <= Blocks[main].RangeStartTime)
+                    // catch up with the wall clock
+                    while (comp.PacketBufferCount > 0 && blocks.RangeEndTime <= wallClock)
+                    {
                         decodedFrameCount = AddBlocks(t);
+                        // don't care if we are buffering
+                        // always try to catch up by reading more packets.
+                        if (CanReadMorePackets)
+                            PacketReadingCycle.WaitOne();
+                    }
 
                     rangePercent = blocks.GetRangePercent(wallClock);
                     isInRange = blocks.IsInRange(wallClock);
 
+                    // Wait for packets if we are buffering
+                    if (CanReadMorePackets && isBuffering)
+                        PacketReadingCycle.WaitOne();
+
                     while (comp.PacketBufferCount > 0 &&
-                        ((isInRange && rangePercent > 0.75d && blocks.IsFull) || blocks.IsFull == false))
+                        (
+                            (blocks.IsFull == true && isInRange && rangePercent > 0.75d && rangePercent < 1d) ||
+                            (blocks.IsFull == false)
+                        ))
                     {
                         decodedFrameCount = AddBlocks(t);
                         rangePercent = blocks.GetRangePercent(wallClock);
                         isInRange = blocks.IsInRange(wallClock);
+
+                        if (CanReadMorePackets && isBuffering)
+                            PacketReadingCycle.WaitOne();
                     }
                 }
 
@@ -393,7 +378,9 @@
                 #region 4. Detect End of Media
 
                 // Detect end of block rendering
-                if (CanReadMoreFramesOf(main) == false && Blocks[main].IndexOf(wallClock) == Blocks[main].Count - 1)
+                if (isBuffering == false
+                    && CanReadMoreFramesOf(main) == false
+                    && Blocks[main].IndexOf(wallClock) == Blocks[main].Count - 1)
                 {
                     if (HasMediaEnded == false)
                     {
@@ -416,6 +403,14 @@
                 #endregion
 
                 #region 6. Finish the Cycle
+
+                // complete buffering notifications
+                if (isBuffering)
+                {
+                    isBuffering = false;
+                    if (resumeClock) Clock.Play();
+                    Logger.Log(MediaLogMessageType.Debug, $"SYNC BUFFER: Buffering Finished. Clock set to {wallClock.Format()}");
+                }
 
                 // Complete the frame decoding cycle
                 FrameDecodingCycle.Set();
@@ -461,10 +456,8 @@
             foreach (var t in all)
                 LastRenderTime[t] = TimeSpan.MinValue;
 
+            PacketReadingCycle.WaitOne();
             FrameDecodingCycle.WaitOne();
-
-            // Buffer some blocks and adjust the clock to the start position
-            BufferBlocks(BufferCacheLength, false);
 
             Clock.Position = Blocks[main].RangeStartTime;
             var wallClock = Clock.Position;
