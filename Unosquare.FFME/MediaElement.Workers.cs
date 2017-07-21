@@ -25,9 +25,9 @@
         // TODO: Make this dynamic
         internal static readonly Dictionary<MediaType, int> MaxBlocks = new Dictionary<MediaType, int>
         {
-            { MediaType.Video, 4 },
-            { MediaType.Audio, 128 },
-            { MediaType.Subtitle, 128 }
+            { MediaType.Video, 12 },
+            { MediaType.Audio, 120 },
+            { MediaType.Subtitle, 120 }
         };
 
         #endregion
@@ -286,7 +286,7 @@
                             if (isInRange)
                                 break;
 
-                            if (CanReadMorePackets && isInRange == false)
+                            if (CanReadMorePackets && comp.PacketBufferCount <= 0 && isInRange == false)
                                 PacketReadingCycle.WaitOne();
                         }
 
@@ -347,7 +347,7 @@
                         decodedFrameCount = AddBlocks(t);
                         // don't care if we are buffering
                         // always try to catch up by reading more packets.
-                        if (CanReadMorePackets)
+                        if (comp.PacketBufferCount <= 0 && CanReadMorePackets)
                             PacketReadingCycle.WaitOne();
                     }
 
@@ -461,13 +461,13 @@
 
             Clock.Position = Blocks[main].RangeStartTime;
             var wallClock = Clock.Position;
+            var invalidateBlocks = false;
 
             #endregion
 
             while (IsTaskCancellationPending == false)
             {
                 #region 1. Control and Capture
-
 
                 // Check if one of the commands has requested an exit
                 if (IsTaskCancellationPending) break;
@@ -483,8 +483,9 @@
                 #region 2. Handle Block Rendering
 
                 // Capture the blocks to render
+                invalidateBlocks = HasDecoderSeeked;
                 foreach (var t in all)
-                    currentBlock[t] = HasDecoderSeeked == false ? Blocks[t][wallClock] : null;
+                    currentBlock[t] = invalidateBlocks ? null : Blocks[t][wallClock];
 
                 // Render each of the Media Types if it is time to do so.
                 foreach (var t in all)
