@@ -275,8 +275,12 @@
 
             while (audioBlock != null)
             {
+                // Write the block if we have to, avoiding repeated blocks.
                 if (AudioBuffer.WriteTag < audioBlock.StartTime)
+                {
+                    MediaElement.RaiseRenderingAudioEvent(audioBlock.Buffer, audioBlock.BufferLength, audioBlock.StartTime);
                     AudioBuffer.Write(audioBlock.Buffer, audioBlock.BufferLength, audioBlock.StartTime, true);
+                }
 
                 // Stop adding if we have too much in there.
                 if (AudioBuffer.CapacityPercent >= 0.8)

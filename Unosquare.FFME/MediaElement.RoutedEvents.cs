@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Reflection;
     using System.Windows;
+    using System.Windows.Media.Imaging;
     using System.Windows.Threading;
 
     partial class MediaElement
@@ -23,6 +24,25 @@
         {
             var constructor = (typeof(ExceptionRoutedEventArgs) as TypeInfo).DeclaredConstructors.First();
             return constructor.Invoke(new object[] { routedEvent, sender, errorException }) as ExceptionRoutedEventArgs;
+        }
+
+        /// <summary>
+        /// Logs the start of an event
+        /// </summary>
+        /// <param name="e">The e.</param>
+        private void LogEventStart(RoutedEvent e)
+        {
+            if (Utils.IsInDebugMode)
+                Logger.Log(MediaLogMessageType.Trace, $"EVENT START: {e.Name}");
+        }
+
+        /// <summary>
+        /// Logs the end of an event.
+        /// </summary>
+        private void LogEventDone(RoutedEvent e)
+        {
+            if (Utils.IsInDebugMode)
+                Logger.Log(MediaLogMessageType.Trace, $"EVENT DONE : {e.Name}");
         }
 
         /// <summary>
@@ -110,25 +130,6 @@
             LogEventStart(MediaEndedEvent);
             Utils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaEndedEvent, this)); });
             LogEventDone(MediaEndedEvent);
-        }
-
-        /// <summary>
-        /// Logs the start of an event
-        /// </summary>
-        /// <param name="e">The e.</param>
-        private void LogEventStart(RoutedEvent e)
-        {
-            if (Utils.IsInDebugMode)
-                Logger.Log(MediaLogMessageType.Trace, $"EVENT START: {e.Name}");
-        }
-
-        /// <summary>
-        /// Logs the end of an event.
-        /// </summary>
-        private void LogEventDone(RoutedEvent e)
-        {
-            if (Utils.IsInDebugMode)
-                Logger.Log(MediaLogMessageType.Trace, $"EVENT DONE : {e.Name}");
         }
 
         #endregion

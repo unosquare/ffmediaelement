@@ -81,9 +81,12 @@
     <Compile Include="Decoding\ClosedCaptions\ClosedCaptionCollection.cs" />
     <Compile Include="Decoding\ClosedCaptions\ClosedCaptionPacket.cs" />
     <Compile Include="Decoding\SeekRequirement.cs" />
+    <Compile Include="MediaElement.Events.cs" />
     <Compile Include="MediaInfo.cs" />
     <Compile Include="MediaLogMessagEventArgs.cs" />
     <Compile Include="MediaElement.Workers.cs" />
+    <Compile Include="RenderingSubtitlesEventArgs.cs" />
+    <Compile Include="RenderingAudioEventArgs.cs" />
     <Compile Include="Rendering\Wave\IWaveProvider.cs" />
     <Compile Include="Rendering\Wave\PlaybackState.cs" />
     <Compile Include="Rendering\Wave\WaveFormat.cs" />
@@ -140,6 +143,7 @@
     <Compile Include="Rendering\IRenderer.cs" />
     <Compile Include="Rendering\SubtitleRenderer.cs" />
     <Compile Include="Rendering\VideoRenderer.cs" />
+    <Compile Include="RenderingVideoEventArgs.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

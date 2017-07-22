@@ -344,6 +344,39 @@
             Media.MessageLogged += Media_MessageLogged;
             Media.PropertyChanged += Media_PropertyChanged;
             Unosquare.FFME.MediaElement.FFmpegMessageLogged += MediaElement_FFmpegMessageLogged;
+
+            return; // comment this line to enable watermarking example.
+#pragma warning disable CS0162 // Unreachable code detected
+
+            Media.RenderingVideo += (s, e) =>
+            {
+                e.Bitmap.Lock();
+                using (var bmp = new System.Drawing.Bitmap(
+                    e.Bitmap.PixelWidth, e.Bitmap.PixelHeight, e.Bitmap.BackBufferStride,
+                    System.Drawing.Imaging.PixelFormat.Format24bppRgb, e.Bitmap.BackBuffer))
+                {
+                    using (var g = System.Drawing.Graphics.FromImage(bmp))
+                    {
+                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Bilinear;
+                        g.DrawString($"{e.Position.TotalSeconds:0.000}", new System.Drawing.Font("Arial", 24, System.Drawing.FontStyle.Bold),
+                            System.Drawing.Brushes.YellowGreen, new System.Drawing.PointF(40, 40));
+                    }
+                }
+                e.Bitmap.AddDirtyRect(new Int32Rect(0, 0, e.Bitmap.PixelWidth, e.Bitmap.PixelHeight));
+                e.Bitmap.Unlock();
+
+            };
+
+            // a simple example of prefixing subtitles
+            Media.RenderingSubtitles += (s, e) =>
+            {
+                if (e.Text != null && e.Text.Count > 0)
+                {
+                    e.Text[0] = $"SUB: {e.Text[0]}";
+                }
+            };
+
+#pragma warning restore CS0162 // Unreachable code detected
         }
 
         /// <summary>
