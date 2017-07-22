@@ -118,6 +118,9 @@
                     var minStartTime = m.Blocks[main].RangeStartTime.Ticks;
                     var maxStartTime = m.Blocks[main].RangeEndTime.Ticks;
 
+                    m.Logger.Log(MediaLogMessageType.Warning, 
+                        $"SEEK TP: Target Pos {TargetPosition.Format()} not between {m.Blocks[main].RangeStartTime.TotalSeconds:0.000} and {m.Blocks[main].RangeEndTime.TotalSeconds:0.000}");
+
                     if (adjustedSeekTarget.Ticks < minStartTime)
                         m.Clock.Position = TimeSpan.FromTicks(minStartTime);
                     else if (adjustedSeekTarget.Ticks > maxStartTime)
@@ -132,6 +135,10 @@
                     {
                         m.Clock.Position = initialPosition;
                     }
+                    else
+                    {
+                        m.Clock.Position = TargetPosition;
+                    }
                 }
 
             }
@@ -143,8 +150,8 @@
             }
             finally
             {
-                if (DateTime.UtcNow.Subtract(startTime).TotalMilliseconds > 5)
-                    m.Logger.Log(MediaLogMessageType.Trace,
+                if (m.HasDecoderSeeked)
+                    m.Logger.Log(MediaLogMessageType.Debug,
                         $"SEEK D: Elapsed: {startTime.FormatElapsed()} | Target: {TargetPosition.Format()}");
 
                 m.SeekingDone.Set();

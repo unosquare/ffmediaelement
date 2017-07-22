@@ -30,6 +30,9 @@
             { MediaType.Subtitle, 120 }
         };
 
+        private Dictionary<ManualResetEvent, int> WorkerDelayTimeouts = null;
+        private readonly object WorkerDelayLock = new object();
+
         #endregion
 
         #region State Variables
@@ -91,6 +94,49 @@
         {
             Renderers[block.MediaType].Render(block, clockPosition);
             this.LogRenderBlock(block, clockPosition, Blocks[block.MediaType].IndexOf(clockPosition));
+        }
+
+        /// <summary>
+        /// Sets the clock to a discrete video position if possible
+        /// </summary>
+        internal void SnapVideoPosition(TimeSpan position)
+        {
+            if (Container == null) return;
+
+            // Set the clock to a discrete video position if possible
+            if (Container.Components.Main.MediaType == MediaType.Video
+                && Blocks[MediaType.Video].IsInRange(position))
+            {
+                var block = Blocks[MediaType.Video][position];
+                if (block != null && block.Duration.Ticks > 0 && VideoFrameRate != 0d)
+                    Clock.Position = block.MidTime;
+            }
+        }
+
+        /// <summary>
+        /// Controls worker sleeping mechanisms.
+        /// </summary>
+        private async Task DelayAsync(ManualResetEvent cycle)
+        {
+            const int AwaitThreshold = 17;
+
+            lock (WorkerDelayLock)
+            {
+                if (WorkerDelayTimeouts == null)
+                {
+                    WorkerDelayTimeouts = new Dictionary<ManualResetEvent, int>
+                    {
+                        { PacketReadingCycle, AwaitThreshold + 1 },
+                        { FrameDecodingCycle, AwaitThreshold + 1 },
+                        { BlockRenderingCycle, AwaitThreshold + 1 },
+                    };
+                }
+            }
+
+            if (WorkerDelayTimeouts[cycle] < AwaitThreshold)
+                Thread.Sleep(WorkerDelayTimeouts[cycle]);
+            else
+                await Task.Delay(1);
         }
 
         /// <summary>
@@ -190,7 +236,7 @@
 
                 // Wait some if we have a full packet buffer or we are unable to read more packets (i.e. EOF).
                 if (Container.Components.PacketBufferLength >= DownloadCacheLength || CanReadMorePackets == false)
-                    await Task.Delay(1);
+                    await DelayAsync(PacketReadingCycle);
             }
 
             // Always exit notifying the reading cycle is done.
@@ -245,6 +291,7 @@
                 hasPendingSeeks = Commands.PendingCountOf(MediaCommandType.Seek) > 0;
                 if (IsSeeking == true && hasPendingSeeks == false)
                 {
+                    SnapVideoPosition(Clock.Position);
                     IsSeeking = false;
 
                     // Call the seek method on all renderers
@@ -447,7 +494,7 @@
                 // Give it a break if there was nothing to decode.
                 // We probably need to wait for some more input
                 if (decodedFrameCount <= 0 && Commands.PendingCount <= 0)
-                    await Task.Delay(1);
+                    await DelayAsync(FrameDecodingCycle);
 
                 #endregion
             }
@@ -552,7 +599,7 @@
 
                 // Spin the thread for a bit if we have no more stuff to process
                 if (renderedBlockCount <= 0 && Commands.PendingCount <= 0)
-                    await Task.Delay(1);
+                    await DelayAsync(BlockRenderingCycle);
 
                 #endregion
             }

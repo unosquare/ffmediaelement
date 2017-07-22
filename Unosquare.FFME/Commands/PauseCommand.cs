@@ -32,14 +32,7 @@
             foreach (var renderer in m.Renderers.Values)
                 renderer.Pause();
 
-            // Set the clock to a discrete video position if possible
-            if (m.Container.Components.Main.MediaType == MediaType.Video 
-                && m.Blocks[MediaType.Video].IsInRange(m.Clock.Position))
-            {
-                var block = m.Blocks[MediaType.Video][m.Clock.Position];
-                if (block != null && block.Duration.Ticks > 0 && m.VideoFrameRate != 0d)
-                    m.Clock.Position = block.MidTime;
-            }
+            m.SnapVideoPosition(m.Clock.Position);
 
             if (m.MediaState != System.Windows.Controls.MediaState.Stop)
                 m.MediaState = System.Windows.Controls.MediaState.Pause;
