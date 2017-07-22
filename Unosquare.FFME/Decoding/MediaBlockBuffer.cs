@@ -338,7 +338,9 @@
                 if (PlaybackBlocks[highIndex].StartTime <= renderTime) return highIndex;
 
                 // First guess, very low cost, very fast
-                if (midIndex < highIndex && renderTime >= PlaybackBlocks[midIndex].StartTime && renderTime < PlaybackBlocks[midIndex + 1].StartTime)
+                if (midIndex < highIndex 
+                    && renderTime >= PlaybackBlocks[midIndex].StartTime 
+                    && renderTime < PlaybackBlocks[midIndex + 1].StartTime)
                     return midIndex;
 
                 // binary search

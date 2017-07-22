@@ -51,6 +51,10 @@
                     return;
                 }
 
+                // Signal to wait one more frame dcoding cycle before 
+                // sending blocks to the renderer.
+                m.HasDecoderSeeked = true;
+
                 // wait for the current reading and decoding cycles
                 // to finish. We don't want to interfere with reading in progress
                 // or decoding in progress
@@ -73,10 +77,6 @@
                     m.LastRenderTime[mt] = TimeSpan.MinValue;
                 }
 
-                // Signal to wait one more frame dcoding cycle before 
-                // sending blocks to the renderer.
-                m.HasDecoderSeeked = true;
-
                 // Populate frame queues with after-seek operation
                 var frames = m.Container.Seek(adjustedSeekTarget);
                 m.HasMediaEnded = false;
@@ -87,11 +87,11 @@
 
                 // Create the blocks from the obtained seek frames
                 foreach (var frame in frames)
-                    m.Blocks[frame.MediaType]?.Add(frame,  m.Container);
+                    m.Blocks[frame.MediaType]?.Add(frame, m.Container);
 
                 // Now read blocks until we have reached at least the Target Position
-                while (m.Container.IsAtEndOfStream == false 
-                    && m.Blocks[main].IsFull == false 
+                while (m.Container.IsAtEndOfStream == false
+                    && m.Blocks[main].IsFull == false
                     && m.Blocks[main].IsInRange(TargetPosition) == false)
                 {
                     // Read the next packet
@@ -118,6 +118,9 @@
                     var minStartTime = m.Blocks[main].RangeStartTime.Ticks;
                     var maxStartTime = m.Blocks[main].RangeEndTime.Ticks;
 
+                    m.Logger.Log(MediaLogMessageType.Warning, 
+                        $"SEEK TP: Target Pos {TargetPosition.Format()} not between {m.Blocks[main].RangeStartTime.TotalSeconds:0.000} and {m.Blocks[main].RangeEndTime.TotalSeconds:0.000}");
+
                     if (adjustedSeekTarget.Ticks < minStartTime)
                         m.Clock.Position = TimeSpan.FromTicks(minStartTime);
                     else if (adjustedSeekTarget.Ticks > maxStartTime)
@@ -132,6 +135,10 @@
                     {
                         m.Clock.Position = initialPosition;
                     }
+                    else
+                    {
+                        m.Clock.Position = TargetPosition;
+                    }
                 }
 
             }
@@ -143,8 +150,9 @@
             }
             finally
             {
-                m.Logger.Log(MediaLogMessageType.Debug,
-                    $"SEEK D: Elapsed: {startTime.FormatElapsed()} | Target: {TargetPosition.Format()}");
+                if (m.HasDecoderSeeked)
+                    m.Logger.Log(MediaLogMessageType.Debug,
+                        $"SEEK D: Elapsed: {startTime.FormatElapsed()} | Target: {TargetPosition.Format()}");
 
                 m.SeekingDone.Set();
             }

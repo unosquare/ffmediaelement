@@ -167,11 +167,13 @@
             var subtitleBlock = mediaBlock as SubtitleBlock;
             if (subtitleBlock == null) return;
 
+            // Save the start and end times. We will need
+            // them in order to make the subtitles disappear
             StartTime = subtitleBlock.StartTime;
             EndTime = subtitleBlock.EndTime;
 
             // Check if the text is within time range. If not, simply clear the text.
-            var textToRender = (clockPosition > EndTime || clockPosition < StartTime) ?
+            var textToRender = subtitleBlock.Contains(clockPosition) == false ?
                 string.Empty : 
                 string.Join("\r\n", subtitleBlock.Text);
 

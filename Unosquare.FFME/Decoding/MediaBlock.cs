@@ -33,6 +33,34 @@
         public TimeSpan EndTime { get; internal set; }
 
         /// <summary>
+        /// Gets the middle timestamp between the start and end time.
+        /// Returns Zero if the duration is Zero or negative.
+        /// </summary>
+        public TimeSpan MidTime
+        {
+            get
+            {
+                if (Duration.Ticks <= 0) return TimeSpan.Zero;
+                return TimeSpan.FromTicks((long)Math.Round(
+                        StartTime.Ticks + (Duration.Ticks / 2d), 0));
+            }
+        }
+
+        /// <summary>
+        /// Determines whether this media block holds the specified position.
+        /// Returns false if it does not have a valid duration.
+        /// </summary>
+        /// <param name="position">The position.</param>
+        public bool Contains(TimeSpan position)
+        {
+            if (Duration <= TimeSpan.Zero)
+                return false;
+
+            return position.Ticks >= StartTime.Ticks
+                && position.Ticks <= EndTime.Ticks;
+        }
+
+        /// <summary>
         /// Compares the current instance with another object of the same type and returns an integer that indicates whether the current instance precedes, follows, or occurs in the same position in the sort order as the other object.
         /// </summary>
         /// <param name="other">An object to compare with this instance.</param>

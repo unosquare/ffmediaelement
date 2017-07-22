@@ -944,7 +944,7 @@
                     isAtStartOfStream = false;
                 }
 
-                Logger?.Log(MediaLogMessageType.Debug,
+                Logger?.Log(MediaLogMessageType.Trace,
                     $"SEEK L: Elapsed: {startTime.FormatElapsed()} | Target: {relativeTargetTime.Format()} | Seek: {seekTarget.Format()} | P0: {startPos.Format(1024)} | P1: {StreamPosition.Format(1024)} ");
 
                 // Flush the buffered packets and codec on every seek.
@@ -989,7 +989,7 @@
 
             }
 
-            Logger?.Log(MediaLogMessageType.Debug,
+            Logger?.Log(MediaLogMessageType.Trace,
                 $"SEEK R: Elapsed: {startTime.FormatElapsed()} | Target: {relativeTargetTime.Format()} | Seek: {default(long).Format()} | P0: {startPos.Format(1024)} | P1: {StreamPosition.Format(1024)} ");
             return result;
 
