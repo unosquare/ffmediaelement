@@ -143,10 +143,6 @@
             }
             finally
             {
-                // Call the seek method on all renderers
-                foreach (var kvp in m.Renderers)
-                    kvp.Value.Seek();
-
                 m.Logger.Log(MediaLogMessageType.Debug,
                     $"SEEK D: Elapsed: {startTime.FormatElapsed()} | Target: {TargetPosition.Format()}");
 

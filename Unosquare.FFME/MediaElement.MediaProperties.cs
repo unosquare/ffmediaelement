@@ -21,6 +21,7 @@
         private bool m_IsOpening = false;
         private readonly ObservableCollection<KeyValuePair<string, string>> m_MetadataBase;
         private readonly ICollectionView m_Metadata;
+        private volatile bool m_IsSeeking = false;
 
         #endregion
 
@@ -192,6 +193,20 @@
         {
             get { return m_IsBuffering; }
             private set { SetProperty(ref m_IsBuffering, value); }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the media seeking is in progress.
+        /// </summary>
+        public bool IsSeeking
+        {
+            get { return m_IsSeeking; }
+            internal set
+            {
+                if (m_IsSeeking == value) return;
+                m_IsSeeking = value;
+                OnPropertyChanged();
+            }
         }
 
         /// <summary>

@@ -217,6 +217,17 @@
             await command.ExecuteAsync();
         }
 
+        /// <summary>
+        /// Gets the pending count of the given command type.
+        /// </summary>
+        public int PendingCountOf(MediaCommandType t)
+        {
+            lock (SyncLock)
+            {
+                return Commands.Count(c => c.CommandType == t);
+            }
+        }
+
         #endregion
 
     }

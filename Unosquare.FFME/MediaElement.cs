@@ -105,8 +105,7 @@
                 // The tick callback performs the updates
                 UIPropertyUpdateTimer.Tick += (s, e) =>
                 {
-                    if (HasDecoderSeeked == false)
-                        UpdatePosition(IsOpen ? Clock?.Position ?? TimeSpan.Zero : TimeSpan.Zero);
+                    UpdatePosition(IsOpen ? Clock?.Position ?? TimeSpan.Zero : TimeSpan.Zero);
 
                     if (HasMediaEnded == false && CanReadMorePackets && (IsOpening || IsOpen))
                     {

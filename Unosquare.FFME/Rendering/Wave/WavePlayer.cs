@@ -148,9 +148,8 @@
         public void Play()
         {
             if (Buffers == null || WaveStream == null)
-            {
                 throw new InvalidOperationException($"Must call {nameof(Init)} first");
-            }
+
             if (m_PlaybackState == PlaybackState.Stopped)
             {
                 m_PlaybackState = PlaybackState.Playing;
@@ -163,6 +162,7 @@
                 };
                 AudioPlaybackTask.Start();
             }
+
             else if (m_PlaybackState == PlaybackState.Paused)
             {
                 Resume();

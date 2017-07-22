@@ -484,9 +484,9 @@
         /// <param name="value">The current position.</param>
         internal void UpdatePosition(TimeSpan value)
         {
-            if (IsPositionUpdating) return;
-            // TODO: The below is assumming EnableFrameScrubbing = true
-            if (SeekingDone.WaitOne(0) == false) return;
+            if (IsPositionUpdating || IsSeeking)
+                return;
+
             IsPositionUpdating = true;
             Utils.UIInvoke(DispatcherPriority.DataBind, () => {
                 SetValue(PositionProperty, value);

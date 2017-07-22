@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME
 {
+    using Commands;
     using Core;
     using Decoding;
     using Rendering;
@@ -9,20 +10,19 @@
     using System.Threading;
     using System.Threading.Tasks;
     using System.Windows.Controls;
-    using System.Windows.Threading;
 
     partial class MediaElement
     {
         /// <summary>
         /// This partial class implements: 
         /// 1. Packet reading from the Container
-        /// 2. Frame Decoding from packet buffer
-        /// 3. Block Rendering from frame queue
+        /// 2. Frame Decoding from packet buffer and Block buffering
+        /// 3. Block Rendering from block buffer
         /// </summary>
 
         #region Constants
 
-        // TODO: Make this dynamic
+        // TODO: Make this configurable
         internal static readonly Dictionary<MediaType, int> MaxBlocks = new Dictionary<MediaType, int>
         {
             { MediaType.Video, 12 },
@@ -73,7 +73,6 @@
         /// </summary>
         private bool CanReadMoreFrames { get { return CanReadMorePackets || Container.Components.PacketBufferLength > 0; } }
 
-
         #endregion
 
         #region Methods
@@ -92,6 +91,30 @@
         {
             Renderers[block.MediaType].Render(block, clockPosition);
             this.LogRenderBlock(block, clockPosition, Blocks[block.MediaType].IndexOf(clockPosition));
+        }
+
+        /// <summary>
+        /// Adds the blocks of the given media type.
+        /// </summary>
+        /// <param name="t">The t.</param>
+        /// <returns></returns>
+        private int AddBlocks(MediaType t)
+        {
+            var decodedFrameCount = 0;
+
+            // Decode the frames
+            var frames = Container.Components[t].ReceiveFrames();
+
+            // exit the loop if there was nothing more to decode
+            foreach (var frame in frames)
+            {
+                // Add each decoded frame as a playback block
+                if (frame == null) continue;
+                Blocks[t].Add(frame, Container);
+                decodedFrameCount += 1;
+            }
+
+            return decodedFrameCount;
         }
 
         #endregion
@@ -162,9 +185,11 @@
                 // finish the reading cycle.
                 PacketReadingCycle.Set();
 
-                // Wait some if we have a full packet buffer or we are unable to read more packets.
-                if (IsTaskCancellationPending == false
-                    && (Container.Components.PacketBufferLength >= DownloadCacheLength || CanReadMorePackets == false))
+                // Simply exit the thread when cancellation has been requested
+                if (IsTaskCancellationPending) break;
+
+                // Wait some if we have a full packet buffer or we are unable to read more packets (i.e. EOF).
+                if (Container.Components.PacketBufferLength >= DownloadCacheLength || CanReadMorePackets == false)
                     await Task.Delay(1);
             }
 
@@ -175,30 +200,6 @@
         #endregion
 
         #region Frame Decoding Worker
-
-        /// <summary>
-        /// Adds the blocks of the given media type.
-        /// </summary>
-        /// <param name="t">The t.</param>
-        /// <returns></returns>
-        private int AddBlocks(MediaType t)
-        {
-            var decodedFrameCount = 0;
-
-            // Decode the frames
-            var frames = Container.Components[t].ReceiveFrames();
-
-            // exit the loop if there was nothing more to decode
-            foreach (var frame in frames)
-            {
-                // Add each decoded frame as a playback block
-                if (frame == null) continue;
-                Blocks[t].Add(frame, Container);
-                decodedFrameCount += 1;
-            }
-
-            return decodedFrameCount;
-        }
 
         /// <summary>
         /// Continually decodes the available packet buffer to have as
@@ -222,6 +223,7 @@
 
             var isBuffering = false;
             var resumeClock = false;
+            var hasPendingSeeks = false;
 
             MediaComponent comp = null;
             MediaBlockBuffer blocks = null;
@@ -231,6 +233,23 @@
                 #region 1. Setup the Decoding Cycle
 
                 // Execute the following command at the beginning of the cycle
+                hasPendingSeeks = Commands.PendingCountOf(MediaCommandType.Seek) > 0;
+                if (IsSeeking == false && hasPendingSeeks)
+                {
+                    IsSeeking = true;
+                    RaiseSeekingStartedEvent();
+                }
+                else if (IsSeeking == true && hasPendingSeeks == false)
+                {
+                    IsSeeking = false;
+                    
+                    // Call the seek method on all renderers
+                    foreach (var kvp in Renderers)
+                        kvp.Value.Seek();
+
+                    RaiseSeekingEndedEvent();
+                }
+
                 await Commands.ProcessNext();
 
                 // Check if one of the commands has requested an exit
@@ -261,11 +280,9 @@
 
                     if (isInRange == false)
                     {
-                        // detect an initial buffering scenario
+                        // detect a buffering scenario
                         if (blocks.Count <= 0)
                         {
-                            // We set the seeked flag so the frame rendering worker 
-                            // does not render the blocks quite yet.
                             HasDecoderSeeked = true;
                             isBuffering = true;
                             resumeClock = Clock.IsRunning;
@@ -327,6 +344,8 @@
 
                 foreach (var t in auxs)
                 {
+                    if (IsSeeking) continue;
+
                     // Capture the current block buffer and component
                     // for easier readability
                     comp = Container.Components[t];
@@ -379,6 +398,7 @@
 
                 // Detect end of block rendering
                 if (isBuffering == false
+                    && IsSeeking == false
                     && CanReadMoreFramesOf(main) == false
                     && Blocks[main].IndexOf(wallClock) == Blocks[main].Count - 1)
                 {
@@ -418,9 +438,12 @@
                 // After a seek operation, always reset the has seeked flag.
                 HasDecoderSeeked = false;
 
+                // Simply exit the thread when cancellation has been requested
+                if (IsTaskCancellationPending) break;
+
                 // Give it a break if there was nothing to decode.
                 // We probably need to wait for some more input
-                if (decodedFrameCount <= 0 && Commands.PendingCount <= 0 && IsTaskCancellationPending == false)
+                if (decodedFrameCount <= 0 && Commands.PendingCount <= 0)
                     await Task.Delay(1);
 
                 #endregion
@@ -463,7 +486,6 @@
 
             Clock.Position = Blocks[main].RangeStartTime;
             var wallClock = Clock.Position;
-            var invalidateBlocks = false;
 
             #endregion
 
@@ -487,9 +509,8 @@
                 #region 2. Handle Block Rendering
 
                 // Capture the blocks to render
-                invalidateBlocks = HasDecoderSeeked;
                 foreach (var t in all)
-                    currentBlock[t] = invalidateBlocks ? null : Blocks[t][wallClock];
+                    currentBlock[t] = HasDecoderSeeked ? null : Blocks[t][wallClock];
 
                 // Render each of the Media Types if it is time to do so.
                 foreach (var t in all)
@@ -511,16 +532,20 @@
 
                 #region 6. Finalize the Rendering Cycle
 
+                // Signal the rendering cycle was set.
                 BlockRenderingCycle.Set();
 
                 // Call the update method
                 foreach (var t in all)
                     Renderers[t]?.Update(wallClock);
 
+                // Simply exit the thread when cancellation has been requested
                 if (IsTaskCancellationPending) break;
 
+                if (IsSeeking) continue;
+
                 // Spin the thread for a bit if we have no more stuff to process
-                if (renderedBlockCount <= 0 && Commands.PendingCount <= 0 && HasDecoderSeeked == false)
+                if (renderedBlockCount <= 0 && Commands.PendingCount <= 0)
                     await Task.Delay(1);
 
                 #endregion

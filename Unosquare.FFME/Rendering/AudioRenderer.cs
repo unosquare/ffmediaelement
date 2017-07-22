@@ -116,7 +116,6 @@
 
             if (AudioDevice != null)
             {
-                AudioDevice.Pause();
                 AudioDevice.Stop();
                 AudioDevice.Dispose();
                 AudioDevice = null;
@@ -260,6 +259,9 @@
         /// <param name="clockPosition">The clock position.</param>
         public void Render(MediaBlock mediaBlock, TimeSpan clockPosition)
         {
+            // We don't need to render anything while we are seeking. Simply drop the blocks.
+            if (MediaElement.IsSeeking) return;
+
             // Update the speedratio
             SpeedRatio = MediaElement?.Clock?.SpeedRatio ?? 0d;
 
@@ -378,7 +380,7 @@
             {
                 // Compute the latency in bytes
                 var audioLatencyBytes = WaveFormat.ConvertLatencyToByteSize((int)Math.Ceiling(Math.Abs(audioLatency.TotalMilliseconds)));
-
+                audioLatencyBytes = requestedBytes; // TODO: Comment this line to enable rewinding.
                 if (audioLatencyBytes > requestedBytes && audioLatencyBytes < AudioBuffer.RewindableCount)
                 {
                     // This means we have the audio pointer a little too ahead of time and we need to

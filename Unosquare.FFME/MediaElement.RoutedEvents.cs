@@ -47,6 +47,27 @@
         }
 
         /// <summary>
+        /// Raises the Seeking started event.
+        /// </summary>
+        private void RaiseSeekingStartedEvent()
+        {
+            LogEventStart(SeekingStartedEvent);
+            Utils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(SeekingStartedEvent, this)); });
+            LogEventDone(SeekingStartedEvent);
+        }
+
+        /// <summary>
+        /// Raises the Seeking ended event.
+        /// </summary>
+        private void RaiseSeekingEndedEvent()
+        {
+            LogEventStart(SeekingEndedEvent);
+            Utils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(SeekingEndedEvent, this)); });
+            LogEventDone(SeekingEndedEvent);
+        }
+
+
+        /// <summary>
         /// Raises the media failed event.
         /// </summary>
         /// <param name="ex">The ex.</param>
@@ -155,6 +176,52 @@
         {
             add { AddHandler(BufferingEndedEvent, value); }
             remove { RemoveHandler(BufferingEndedEvent, value); }
+        }
+
+        #endregion
+
+        #region SeekingStarted
+
+        /// <summary>
+        /// SeekingStarted is a routed event
+        /// </summary>
+        public static readonly RoutedEvent SeekingStartedEvent =
+            EventManager.RegisterRoutedEvent(
+                    nameof(SeekingStarted),
+                    RoutingStrategy.Bubble,
+                    typeof(RoutedEventHandler),
+                    typeof(MediaElement));
+
+        /// <summary>
+        /// Occurs when Seeking of packets was started
+        /// </summary>
+        public event RoutedEventHandler SeekingStarted
+        {
+            add { AddHandler(SeekingStartedEvent, value); }
+            remove { RemoveHandler(SeekingStartedEvent, value); }
+        }
+
+        #endregion
+
+        #region SeekingEnded
+
+        /// <summary>
+        /// SeekingEnded is a routed event
+        /// </summary>
+        public static readonly RoutedEvent SeekingEndedEvent =
+            EventManager.RegisterRoutedEvent(
+                    nameof(SeekingEnded),
+                    RoutingStrategy.Bubble,
+                    typeof(RoutedEventHandler),
+                    typeof(MediaElement));
+
+        /// <summary>
+        /// Occurs when Seeking of packets was Ended
+        /// </summary>
+        public event RoutedEventHandler SeekingEnded
+        {
+            add { AddHandler(SeekingEndedEvent, value); }
+            remove { RemoveHandler(SeekingEndedEvent, value); }
         }
 
         #endregion
