@@ -29,35 +29,41 @@
         public event EventHandler<RenderingSubtitlesEventArgs> RenderingSubtitles;
 
         /// <summary>
-        /// Raises the video rendering event.
+        /// Raises the rendering video event.
         /// </summary>
         /// <param name="bitmap">The bitmap.</param>
-        /// <param name="clock">The clock.</param>
-        internal void RaiseRenderingVideoEvent(WriteableBitmap bitmap, TimeSpan clock)
+        /// <param name="position">The position.</param>
+        /// <param name="duration">The duration.</param>
+        internal void RaiseRenderingVideoEvent(WriteableBitmap bitmap, TimeSpan position, TimeSpan duration)
         {
-            RenderingVideo?.Invoke(this, new RenderingVideoEventArgs(bitmap, clock));
+            RenderingVideo?.Invoke(this, new RenderingVideoEventArgs(bitmap, position, duration));
         }
+
 
         /// <summary>
         /// Raises the rendering audio event.
         /// </summary>
         /// <param name="buffer">The buffer.</param>
         /// <param name="length">The length.</param>
-        /// <param name="clock">The clock.</param>
-        internal void RaiseRenderingAudioEvent(IntPtr buffer, int length, TimeSpan clock)
+        /// <param name="position">The position.</param>
+        /// <param name="duration">The duration.</param>
+        internal void RaiseRenderingAudioEvent(IntPtr buffer, int length, TimeSpan position, TimeSpan duration)
         {
-            RenderingAudio?.Invoke(this, new RenderingAudioEventArgs(buffer, length, clock));
+            RenderingAudio?.Invoke(this, new RenderingAudioEventArgs(buffer, length, position, duration));
         }
+
 
         /// <summary>
         /// Raises the rendering subtitles event.
         /// </summary>
         /// <param name="text">The text.</param>
+        /// <param name="originalText">The original text.</param>
         /// <param name="format">The format.</param>
-        /// <param name="clock">The clock.</param>
-        internal void RaiseRenderingSubtitlesEvent(List<string> text, List<string> originalText, AVSubtitleType format, TimeSpan clock)
+        /// <param name="position">The position.</param>
+        /// <param name="duration">The duration.</param>
+        internal void RaiseRenderingSubtitlesEvent(List<string> text, List<string> originalText, AVSubtitleType format, TimeSpan position, TimeSpan duration)
         {
-            RenderingSubtitles?.Invoke(this, new RenderingSubtitlesEventArgs(text, originalText, format, clock));
+            RenderingSubtitles?.Invoke(this, new RenderingSubtitlesEventArgs(text, originalText, format, position, duration));
         }
 
     }

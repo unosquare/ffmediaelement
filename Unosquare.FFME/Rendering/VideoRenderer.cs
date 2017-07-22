@@ -143,7 +143,7 @@
 
                     var updateRect = new Int32Rect(0, 0, b.PixelWidth, b.PixelHeight);
                     TargetBitmap.WritePixels(updateRect, b.Buffer, b.BufferLength, b.BufferStride);
-                    MediaElement.RaiseRenderingVideoEvent(TargetBitmap, cP);
+                    MediaElement.RaiseRenderingVideoEvent(TargetBitmap, b.StartTime, b.Duration);
 
                     var scaleTransform = MediaElement.ViewBox.LayoutTransform as ScaleTransform;
 

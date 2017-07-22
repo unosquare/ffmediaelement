@@ -17,13 +17,15 @@
         /// <param name="originalText">The original text.</param>
         /// <param name="format">The format.</param>
         /// <param name="position">The position.</param>
-        public RenderingSubtitlesEventArgs(List<string> text, List<string> originalText, AVSubtitleType format, TimeSpan position)
+        /// <param name="duration">The duration.</param>
+        public RenderingSubtitlesEventArgs(List<string> text, List<string> originalText, AVSubtitleType format, TimeSpan position, TimeSpan duration)
             : base()
         {
             Text = text;
             Format = format;
             Position = position;
             OriginalText = originalText;
+            Duration = duration;
         }
 
         /// <summary>
@@ -45,5 +47,10 @@
         /// Gets the position.
         /// </summary>
         public TimeSpan Position { get; }
+
+        /// <summary>
+        /// Gets the duration of this chunk.
+        /// </summary>
+        public TimeSpan Duration { get; }
     }
 }

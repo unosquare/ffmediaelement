@@ -10,15 +10,17 @@
     public class RenderingVideoEventArgs : EventArgs
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="RenderingVideoEventArgs"/> class.
+        /// Initializes a new instance of the <see cref="RenderingVideoEventArgs" /> class.
         /// </summary>
         /// <param name="bitmap">The bitmap.</param>
         /// <param name="position">The position.</param>
-        public RenderingVideoEventArgs(WriteableBitmap bitmap, TimeSpan position)
+        /// <param name="duration">The duration.</param>
+        public RenderingVideoEventArgs(WriteableBitmap bitmap, TimeSpan position, TimeSpan duration)
             : base()
         {
             Bitmap = bitmap;
             Position = position;
+            Duration = duration;
         }
 
 
@@ -27,6 +29,10 @@
         /// </summary>
         public TimeSpan Position { get; }
 
+        /// <summary>
+        /// Gets the duration of this chunk.
+        /// </summary>
+        public TimeSpan Duration { get; }
 
         /// <summary>
         /// Gets the writable bitmap filled with the video frame pixels.

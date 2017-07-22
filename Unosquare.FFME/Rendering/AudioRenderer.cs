@@ -278,7 +278,7 @@
                 // Write the block if we have to, avoiding repeated blocks.
                 if (AudioBuffer.WriteTag < audioBlock.StartTime)
                 {
-                    MediaElement.RaiseRenderingAudioEvent(audioBlock.Buffer, audioBlock.BufferLength, audioBlock.StartTime);
+                    MediaElement.RaiseRenderingAudioEvent(audioBlock.Buffer, audioBlock.BufferLength, audioBlock.StartTime, audioBlock.Duration);
                     AudioBuffer.Write(audioBlock.Buffer, audioBlock.BufferLength, audioBlock.StartTime, true);
                 }
 
