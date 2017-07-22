@@ -388,6 +388,56 @@ the FFmpeg library to perform reading and decoding of media streams.</p>
   </table>
   
   
+  <h4 id="Unosquare_FFME_MediaElement_SeekingEndedEvent" data-uid="Unosquare.FFME.MediaElement.SeekingEndedEvent">SeekingEndedEvent</h4>
+  <div class="markdown level1 summary"><p>SeekingEnded is a routed event</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly RoutedEvent SeekingEndedEvent</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEvent</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_SeekingStartedEvent" data-uid="Unosquare.FFME.MediaElement.SeekingStartedEvent">SeekingStartedEvent</h4>
+  <div class="markdown level1 summary"><p>SeekingStarted is a routed event</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly RoutedEvent SeekingStartedEvent</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEvent</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <h4 id="Unosquare_FFME_MediaElement_SourceProperty" data-uid="Unosquare.FFME.MediaElement.SourceProperty">SourceProperty</h4>
   <div class="markdown level1 summary"><p>DependencyProperty for FFmpegMediaElement Source property. </p>
 </div>
@@ -1166,6 +1216,32 @@ currently has an open media url.</p>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public bool IsSeekable { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_IsSeeking_" data-uid="Unosquare.FFME.MediaElement.IsSeeking*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_IsSeeking" data-uid="Unosquare.FFME.MediaElement.IsSeeking">IsSeeking</h4>
+  <div class="markdown level1 summary"><p>Gets a value indicating whether the media seeking is in progress.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsSeeking { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2219,6 +2295,56 @@ This does not include FFmpeg messages.</p>
     <tbody>
       <tr>
         <td><span class="xref">PropertyChangedEventHandler</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_SeekingEnded" data-uid="Unosquare.FFME.MediaElement.SeekingEnded">SeekingEnded</h4>
+  <div class="markdown level1 summary"><p>Occurs when Seeking of packets was Ended</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event RoutedEventHandler SeekingEnded</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEventHandler</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_SeekingStarted" data-uid="Unosquare.FFME.MediaElement.SeekingStarted">SeekingStarted</h4>
+  <div class="markdown level1 summary"><p>Occurs when Seeking of packets was started</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event RoutedEventHandler SeekingStarted</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEventHandler</span></td>
         <td></td>
       </tr>
     </tbody>

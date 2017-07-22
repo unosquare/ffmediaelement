@@ -565,6 +565,18 @@ references:
   commentId: Overload:Unosquare.FFME.MediaElement.IsSeekable
   fullName: Unosquare.FFME.MediaElement.IsSeekable
   nameWithType: MediaElement.IsSeekable
+- uid: Unosquare.FFME.MediaElement.IsSeeking
+  name: IsSeeking
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsSeeking
+  commentId: P:Unosquare.FFME.MediaElement.IsSeeking
+  fullName: Unosquare.FFME.MediaElement.IsSeeking
+  nameWithType: MediaElement.IsSeeking
+- uid: Unosquare.FFME.MediaElement.IsSeeking*
+  name: IsSeeking
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsSeeking_
+  commentId: Overload:Unosquare.FFME.MediaElement.IsSeeking
+  fullName: Unosquare.FFME.MediaElement.IsSeeking
+  nameWithType: MediaElement.IsSeeking
 - uid: Unosquare.FFME.MediaElement.LoadedBehavior
   name: LoadedBehavior
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_LoadedBehavior
@@ -775,6 +787,30 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.ScrubbingEnabledProperty
   fullName: Unosquare.FFME.MediaElement.ScrubbingEnabledProperty
   nameWithType: MediaElement.ScrubbingEnabledProperty
+- uid: Unosquare.FFME.MediaElement.SeekingEnded
+  name: SeekingEnded
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_SeekingEnded
+  commentId: E:Unosquare.FFME.MediaElement.SeekingEnded
+  fullName: Unosquare.FFME.MediaElement.SeekingEnded
+  nameWithType: MediaElement.SeekingEnded
+- uid: Unosquare.FFME.MediaElement.SeekingEndedEvent
+  name: SeekingEndedEvent
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_SeekingEndedEvent
+  commentId: F:Unosquare.FFME.MediaElement.SeekingEndedEvent
+  fullName: Unosquare.FFME.MediaElement.SeekingEndedEvent
+  nameWithType: MediaElement.SeekingEndedEvent
+- uid: Unosquare.FFME.MediaElement.SeekingStarted
+  name: SeekingStarted
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_SeekingStarted
+  commentId: E:Unosquare.FFME.MediaElement.SeekingStarted
+  fullName: Unosquare.FFME.MediaElement.SeekingStarted
+  nameWithType: MediaElement.SeekingStarted
+- uid: Unosquare.FFME.MediaElement.SeekingStartedEvent
+  name: SeekingStartedEvent
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_SeekingStartedEvent
+  commentId: F:Unosquare.FFME.MediaElement.SeekingStartedEvent
+  fullName: Unosquare.FFME.MediaElement.SeekingStartedEvent
+  nameWithType: MediaElement.SeekingStartedEvent
 - uid: Unosquare.FFME.MediaElement.Source
   name: Source
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Source
