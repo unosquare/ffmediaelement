@@ -120,7 +120,7 @@
         private void LogEventStart(RoutedEvent e)
         {
             if (Utils.IsInDebugMode)
-                Logger.Log(MediaLogMessageType.Debug, $"EVENT START: {e.Name}");
+                Logger.Log(MediaLogMessageType.Trace, $"EVENT START: {e.Name}");
         }
 
         /// <summary>
@@ -129,7 +129,7 @@
         private void LogEventDone(RoutedEvent e)
         {
             if (Utils.IsInDebugMode)
-                Logger.Log(MediaLogMessageType.Debug, $"EVENT DONE : {e.Name}");
+                Logger.Log(MediaLogMessageType.Trace, $"EVENT DONE : {e.Name}");
         }
 
         #endregion

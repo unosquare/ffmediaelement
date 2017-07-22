@@ -51,6 +51,10 @@
                     return;
                 }
 
+                // Signal to wait one more frame dcoding cycle before 
+                // sending blocks to the renderer.
+                m.HasDecoderSeeked = true;
+
                 // wait for the current reading and decoding cycles
                 // to finish. We don't want to interfere with reading in progress
                 // or decoding in progress
@@ -73,10 +77,6 @@
                     m.LastRenderTime[mt] = TimeSpan.MinValue;
                 }
 
-                // Signal to wait one more frame dcoding cycle before 
-                // sending blocks to the renderer.
-                m.HasDecoderSeeked = true;
-
                 // Populate frame queues with after-seek operation
                 var frames = m.Container.Seek(adjustedSeekTarget);
                 m.HasMediaEnded = false;
@@ -87,11 +87,11 @@
 
                 // Create the blocks from the obtained seek frames
                 foreach (var frame in frames)
-                    m.Blocks[frame.MediaType]?.Add(frame,  m.Container);
+                    m.Blocks[frame.MediaType]?.Add(frame, m.Container);
 
                 // Now read blocks until we have reached at least the Target Position
-                while (m.Container.IsAtEndOfStream == false 
-                    && m.Blocks[main].IsFull == false 
+                while (m.Container.IsAtEndOfStream == false
+                    && m.Blocks[main].IsFull == false
                     && m.Blocks[main].IsInRange(TargetPosition) == false)
                 {
                     // Read the next packet
@@ -143,8 +143,9 @@
             }
             finally
             {
-                m.Logger.Log(MediaLogMessageType.Debug,
-                    $"SEEK D: Elapsed: {startTime.FormatElapsed()} | Target: {TargetPosition.Format()}");
+                if (DateTime.UtcNow.Subtract(startTime).TotalMilliseconds > 5)
+                    m.Logger.Log(MediaLogMessageType.Trace,
+                        $"SEEK D: Elapsed: {startTime.FormatElapsed()} | Target: {TargetPosition.Format()}");
 
                 m.SeekingDone.Set();
             }

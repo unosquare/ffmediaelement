@@ -597,6 +597,9 @@
         /// <param name="e">The <see cref="MediaLogMessagEventArgs"/> instance containing the event data.</param>
         private void MediaElement_FFmpegMessageLogged(object sender, MediaLogMessagEventArgs e)
         {
+            if (e.Message.Contains("] Reinit context to "))
+                return;
+
             Debug.WriteLine($"{e.MessageType,10} - {e.Message}");
         }
 

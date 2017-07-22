@@ -232,25 +232,27 @@
             {
                 #region 1. Setup the Decoding Cycle
 
-                // Execute the following command at the beginning of the cycle
                 hasPendingSeeks = Commands.PendingCountOf(MediaCommandType.Seek) > 0;
                 if (IsSeeking == false && hasPendingSeeks)
                 {
                     IsSeeking = true;
                     RaiseSeekingStartedEvent();
                 }
-                else if (IsSeeking == true && hasPendingSeeks == false)
+
+                // Execute the following command at the beginning of the cycle
+                await Commands.ProcessNext();
+
+                hasPendingSeeks = Commands.PendingCountOf(MediaCommandType.Seek) > 0;
+                if (IsSeeking == true && hasPendingSeeks == false)
                 {
                     IsSeeking = false;
-                    
+
                     // Call the seek method on all renderers
                     foreach (var kvp in Renderers)
                         kvp.Value.Seek();
 
                     RaiseSeekingEndedEvent();
                 }
-
-                await Commands.ProcessNext();
 
                 // Check if one of the commands has requested an exit
                 if (IsTaskCancellationPending) break;
@@ -280,6 +282,11 @@
 
                     if (isInRange == false)
                     {
+                        // Clear the media blocks if we are outside of the required range
+                        // we don't need them and we now need as many playback blocks as we can have available
+                        if (blocks.IsFull)
+                            blocks.Clear();
+
                         // detect a buffering scenario
                         if (blocks.Count <= 0)
                         {
@@ -290,11 +297,6 @@
                             Logger.Log(MediaLogMessageType.Debug, $"SYNC BUFFER: Buffering Started.");
                         }
 
-                        // Clear the media blocks if we are outside of the required range
-                        // we don't need them and we now need as many playback blocks as we can have available
-                        if (blocks.IsFull)
-                            blocks.Clear();
-
                         // Read some frames and try to get a valid range
                         while (comp.PacketBufferCount > 0 && blocks.IsFull == false)
                         {
@@ -303,6 +305,7 @@
                             if (isInRange)
                                 break;
 
+                            // Try to get more packets by waiting for read cycles.
                             if (CanReadMorePackets && comp.PacketBufferCount <= 0 && isInRange == false)
                                 PacketReadingCycle.WaitOne();
                         }
@@ -481,9 +484,11 @@
             foreach (var t in all)
                 LastRenderTime[t] = TimeSpan.MinValue;
 
+            // Ensure the other workers are running
             PacketReadingCycle.WaitOne();
             FrameDecodingCycle.WaitOne();
 
+            // Set the initial clock position
             Clock.Position = Blocks[main].RangeStartTime;
             var wallClock = Clock.Position;
 
@@ -520,7 +525,7 @@
 
                     // render the frame if we have not rendered
                     if ((currentBlock[t].StartTime != LastRenderTime[t] || LastRenderTime[t] == TimeSpan.MinValue)
-                        && (IsPlaying == false || wallClock.Ticks >= currentBlock[t].StartTime.Ticks))
+                        && (IsPlaying == false || currentBlock[t].Contains(wallClock)))
                     {
                         LastRenderTime[t] = currentBlock[t].StartTime;
                         SendBlockToRenderer(currentBlock[t], wallClock);
@@ -543,6 +548,7 @@
                 if (IsTaskCancellationPending) break;
 
                 if (IsSeeking) continue;
+                UpdatePosition(wallClock);
 
                 // Spin the thread for a bit if we have no more stuff to process
                 if (renderedBlockCount <= 0 && Commands.PendingCount <= 0)
