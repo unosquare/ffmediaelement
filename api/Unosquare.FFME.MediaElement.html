@@ -2301,6 +2301,87 @@ This does not include FFmpeg messages.</p>
   </table>
   
   
+  <h4 id="Unosquare_FFME_MediaElement_RenderingAudio" data-uid="Unosquare.FFME.MediaElement.RenderingAudio">RenderingAudio</h4>
+  <div class="markdown level1 summary"><p>Occurs right before the audio is added to the audio buffer.
+You can update the bytes before they are enqueued.
+Ensure you handle this quickly before you get choppy audio.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event EventHandler&lt;RenderingAudioEventArgs&gt; RenderingAudio</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.EventHandler</span>&lt;<a class="xref" href="Unosquare.FFME.RenderingAudioEventArgs.html">RenderingAudioEventArgs</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_RenderingSubtitles" data-uid="Unosquare.FFME.MediaElement.RenderingSubtitles">RenderingSubtitles</h4>
+  <div class="markdown level1 summary"><p>Occurs right before the subtitles are rendered.
+You can update the text.
+Ensure you handle this quickly before you get choppy subtitles.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event EventHandler&lt;RenderingSubtitlesEventArgs&gt; RenderingSubtitles</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.EventHandler</span>&lt;<a class="xref" href="Unosquare.FFME.RenderingSubtitlesEventArgs.html">RenderingSubtitlesEventArgs</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_RenderingVideo" data-uid="Unosquare.FFME.MediaElement.RenderingVideo">RenderingVideo</h4>
+  <div class="markdown level1 summary"><p>Occurs right before the video is presented on the screen.
+You can update the image before it becomes rendered.
+Ensure you handle this very quickly as it runs on the UI thread.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event EventHandler&lt;RenderingVideoEventArgs&gt; RenderingVideo</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.EventHandler</span>&lt;<a class="xref" href="Unosquare.FFME.RenderingVideoEventArgs.html">RenderingVideoEventArgs</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <h4 id="Unosquare_FFME_MediaElement_SeekingEnded" data-uid="Unosquare.FFME.MediaElement.SeekingEnded">SeekingEnded</h4>
   <div class="markdown level1 summary"><p>Occurs when Seeking of packets was Ended</p>
 </div>
