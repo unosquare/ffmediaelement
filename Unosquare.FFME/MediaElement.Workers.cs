@@ -30,9 +30,6 @@
             { MediaType.Subtitle, 120 }
         };
 
-        private Dictionary<ManualResetEvent, int> WorkerDelayTimeouts = null;
-        private readonly object WorkerDelayLock = new object();
-
         #endregion
 
         #region State Variables
@@ -113,30 +110,18 @@
             }
         }
 
+
         /// <summary>
         /// Controls worker sleeping mechanisms.
         /// </summary>
-        private async Task DelayAsync(ManualResetEvent cycle)
+        private async Task DelayAsync(ManualResetEvent cycle, int timeoutMilliseconds)
         {
             const int AwaitThreshold = 17;
 
-            lock (WorkerDelayLock)
-            {
-                if (WorkerDelayTimeouts == null)
-                {
-                    WorkerDelayTimeouts = new Dictionary<ManualResetEvent, int>
-                    {
-                        { PacketReadingCycle, AwaitThreshold + 1 },
-                        { FrameDecodingCycle, AwaitThreshold + 1 },
-                        { BlockRenderingCycle, AwaitThreshold + 1 },
-                    };
-                }
-            }
-
-            if (WorkerDelayTimeouts[cycle] < AwaitThreshold)
-                Thread.Sleep(WorkerDelayTimeouts[cycle]);
+            if (timeoutMilliseconds < AwaitThreshold)
+                Thread.Sleep(timeoutMilliseconds);
             else
-                await Task.Delay(1);
+                await Task.Delay(1).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -236,7 +221,7 @@
 
                 // Wait some if we have a full packet buffer or we are unable to read more packets (i.e. EOF).
                 if (Container.Components.PacketBufferLength >= DownloadCacheLength || CanReadMorePackets == false)
-                    await DelayAsync(PacketReadingCycle);
+                    await DelayAsync(PacketReadingCycle, 17);
             }
 
             // Always exit notifying the reading cycle is done.
@@ -494,7 +479,7 @@
                 // Give it a break if there was nothing to decode.
                 // We probably need to wait for some more input
                 if (decodedFrameCount <= 0 && Commands.PendingCount <= 0)
-                    await DelayAsync(FrameDecodingCycle);
+                    await DelayAsync(FrameDecodingCycle, 17);
 
                 #endregion
             }
@@ -599,7 +584,7 @@
 
                 // Spin the thread for a bit if we have no more stuff to process
                 if (renderedBlockCount <= 0 && Commands.PendingCount <= 0)
-                    await DelayAsync(BlockRenderingCycle);
+                    await DelayAsync(BlockRenderingCycle, 17);
 
                 #endregion
             }

@@ -358,7 +358,7 @@
                     using (var g = System.Drawing.Graphics.FromImage(bmp))
                     {
                         g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Bilinear;
-                        g.DrawString($"{e.Position.TotalSeconds:0.000}", new System.Drawing.Font("Arial", 24, System.Drawing.FontStyle.Bold),
+                        g.DrawString($"{e.StartTime.TotalSeconds:0.000}", new System.Drawing.Font("Arial", 24, System.Drawing.FontStyle.Bold),
                             System.Drawing.Brushes.YellowGreen, new System.Drawing.PointF(40, 40));
                     }
                 }

@@ -174,7 +174,7 @@
 
             // Raise the subtitles event.
             MediaElement.RaiseRenderingSubtitlesEvent(subtitleBlock.Text,
-                subtitleBlock.OriginalText, subtitleBlock.OriginalTextType, subtitleBlock.StartTime, subtitleBlock.Duration);
+                subtitleBlock.OriginalText, subtitleBlock.OriginalTextType, subtitleBlock.StartTime, subtitleBlock.Duration, clockPosition);
 
             // Check if the text is within time range. If not, simply clear the text.
             var textToRender = subtitleBlock.Contains(clockPosition) == false ?
