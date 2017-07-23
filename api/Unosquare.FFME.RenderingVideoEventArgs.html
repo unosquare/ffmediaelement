@@ -80,17 +80,27 @@
   
   <h1 id="Unosquare_FFME_RenderingVideoEventArgs" data-uid="Unosquare.FFME.RenderingVideoEventArgs" class="text-break">Class RenderingVideoEventArgs
   </h1>
-  <div class="markdown level0 summary"><p>The Video Rendering event arguments</p>
+  <div class="markdown level0 summary"><p>The video rendering event arguments</p>
 </div>
   <div class="markdown level0 conceptual"></div>
   <div class="inheritance">
     <h5>Inheritance</h5>
     <div class="level0"><span class="xref">System.Object</span></div>
     <div class="level1"><span class="xref">System.EventArgs</span></div>
-    <div class="level2"><span class="xref">RenderingVideoEventArgs</span></div>
+    <div class="level2"><a class="xref" href="Unosquare.FFME.RenderingEventArgs.html">RenderingEventArgs</a></div>
+    <div class="level3"><span class="xref">RenderingVideoEventArgs</span></div>
   </div>
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
+    <div>
+      <a class="xref" href="Unosquare.FFME.RenderingEventArgs.html#Unosquare_FFME_RenderingEventArgs_Clock">RenderingEventArgs.Clock</a>
+    </div>
+    <div>
+      <a class="xref" href="Unosquare.FFME.RenderingEventArgs.html#Unosquare_FFME_RenderingEventArgs_StartTime">RenderingEventArgs.StartTime</a>
+    </div>
+    <div>
+      <a class="xref" href="Unosquare.FFME.RenderingEventArgs.html#Unosquare_FFME_RenderingEventArgs_Duration">RenderingEventArgs.Duration</a>
+    </div>
     <div>
       <span class="xref">System.EventArgs.Empty</span>
     </div>
@@ -120,58 +130,16 @@
   <h6><strong>Assembly</strong>: cs.temp.dll.dll</h6>
   <h5 id="Unosquare_FFME_RenderingVideoEventArgs_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public class RenderingVideoEventArgs : EventArgs</code></pre>
+    <pre><code class="lang-csharp hljs">public sealed class RenderingVideoEventArgs : RenderingEventArgs</code></pre>
   </div>
-  <h3 id="constructors">Constructors
-  </h3>
-  
-  
-  <a id="Unosquare_FFME_RenderingVideoEventArgs__ctor_" data-uid="Unosquare.FFME.RenderingVideoEventArgs.#ctor*"></a>
-  <h4 id="Unosquare_FFME_RenderingVideoEventArgs__ctor_WriteableBitmap_System_TimeSpan_System_TimeSpan_" data-uid="Unosquare.FFME.RenderingVideoEventArgs.#ctor(WriteableBitmap,System.TimeSpan,System.TimeSpan)">RenderingVideoEventArgs(WriteableBitmap, TimeSpan, TimeSpan)</h4>
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="Unosquare.FFME.RenderingVideoEventArgs.html">RenderingVideoEventArgs</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public RenderingVideoEventArgs(WriteableBitmap bitmap, TimeSpan position, TimeSpan duration)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">WriteableBitmap</span></td>
-        <td><span class="parametername">bitmap</span></td>
-        <td><p>The bitmap.</p>
-</td>
-      </tr>
-      <tr>
-        <td><span class="xref">System.TimeSpan</span></td>
-        <td><span class="parametername">position</span></td>
-        <td><p>The position.</p>
-</td>
-      </tr>
-      <tr>
-        <td><span class="xref">System.TimeSpan</span></td>
-        <td><span class="parametername">duration</span></td>
-        <td><p>The duration.</p>
-</td>
-      </tr>
-    </tbody>
-  </table>
   <h3 id="properties">Properties
   </h3>
   
   
   <a id="Unosquare_FFME_RenderingVideoEventArgs_Bitmap_" data-uid="Unosquare.FFME.RenderingVideoEventArgs.Bitmap*"></a>
   <h4 id="Unosquare_FFME_RenderingVideoEventArgs_Bitmap" data-uid="Unosquare.FFME.RenderingVideoEventArgs.Bitmap">Bitmap</h4>
-  <div class="markdown level1 summary"><p>Gets the writable bitmap filled with the video frame pixels.</p>
+  <div class="markdown level1 summary"><p>Gets the writable bitmap filled with the video frame pixels.
+Feel free to capture or change this image.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -189,58 +157,6 @@
     <tbody>
       <tr>
         <td><span class="xref">WriteableBitmap</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
-  <a id="Unosquare_FFME_RenderingVideoEventArgs_Duration_" data-uid="Unosquare.FFME.RenderingVideoEventArgs.Duration*"></a>
-  <h4 id="Unosquare_FFME_RenderingVideoEventArgs_Duration" data-uid="Unosquare.FFME.RenderingVideoEventArgs.Duration">Duration</h4>
-  <div class="markdown level1 summary"><p>Gets the duration of this chunk.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public TimeSpan Duration { get; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.TimeSpan</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
-  <a id="Unosquare_FFME_RenderingVideoEventArgs_Position_" data-uid="Unosquare.FFME.RenderingVideoEventArgs.Position*"></a>
-  <h4 id="Unosquare_FFME_RenderingVideoEventArgs_Position" data-uid="Unosquare.FFME.RenderingVideoEventArgs.Position">Position</h4>
-  <div class="markdown level1 summary"><p>Gets the clock position on which this rendering event was fired.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public TimeSpan Position { get; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.TimeSpan</span></td>
         <td></td>
       </tr>
     </tbody>

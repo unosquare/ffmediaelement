@@ -1555,18 +1555,6 @@ references:
   commentId: T:Unosquare.FFME.RenderingAudioEventArgs
   fullName: Unosquare.FFME.RenderingAudioEventArgs
   nameWithType: RenderingAudioEventArgs
-- uid: Unosquare.FFME.RenderingAudioEventArgs.#ctor(System.IntPtr,System.Int32,System.TimeSpan,System.TimeSpan)
-  name: RenderingAudioEventArgs(IntPtr, Int32, TimeSpan, TimeSpan)
-  href: api/Unosquare.FFME.RenderingAudioEventArgs.html#Unosquare_FFME_RenderingAudioEventArgs__ctor_System_IntPtr_System_Int32_System_TimeSpan_System_TimeSpan_
-  commentId: M:Unosquare.FFME.RenderingAudioEventArgs.#ctor(System.IntPtr,System.Int32,System.TimeSpan,System.TimeSpan)
-  fullName: Unosquare.FFME.RenderingAudioEventArgs.RenderingAudioEventArgs(System.IntPtr, System.Int32, System.TimeSpan, System.TimeSpan)
-  nameWithType: RenderingAudioEventArgs.RenderingAudioEventArgs(IntPtr, Int32, TimeSpan, TimeSpan)
-- uid: Unosquare.FFME.RenderingAudioEventArgs.#ctor*
-  name: RenderingAudioEventArgs
-  href: api/Unosquare.FFME.RenderingAudioEventArgs.html#Unosquare_FFME_RenderingAudioEventArgs__ctor_
-  commentId: Overload:Unosquare.FFME.RenderingAudioEventArgs.#ctor
-  fullName: Unosquare.FFME.RenderingAudioEventArgs.RenderingAudioEventArgs
-  nameWithType: RenderingAudioEventArgs.RenderingAudioEventArgs
 - uid: Unosquare.FFME.RenderingAudioEventArgs.Buffer
   name: Buffer
   href: api/Unosquare.FFME.RenderingAudioEventArgs.html#Unosquare_FFME_RenderingAudioEventArgs_Buffer
@@ -1579,18 +1567,6 @@ references:
   commentId: Overload:Unosquare.FFME.RenderingAudioEventArgs.Buffer
   fullName: Unosquare.FFME.RenderingAudioEventArgs.Buffer
   nameWithType: RenderingAudioEventArgs.Buffer
-- uid: Unosquare.FFME.RenderingAudioEventArgs.Duration
-  name: Duration
-  href: api/Unosquare.FFME.RenderingAudioEventArgs.html#Unosquare_FFME_RenderingAudioEventArgs_Duration
-  commentId: P:Unosquare.FFME.RenderingAudioEventArgs.Duration
-  fullName: Unosquare.FFME.RenderingAudioEventArgs.Duration
-  nameWithType: RenderingAudioEventArgs.Duration
-- uid: Unosquare.FFME.RenderingAudioEventArgs.Duration*
-  name: Duration
-  href: api/Unosquare.FFME.RenderingAudioEventArgs.html#Unosquare_FFME_RenderingAudioEventArgs_Duration_
-  commentId: Overload:Unosquare.FFME.RenderingAudioEventArgs.Duration
-  fullName: Unosquare.FFME.RenderingAudioEventArgs.Duration
-  nameWithType: RenderingAudioEventArgs.Duration
 - uid: Unosquare.FFME.RenderingAudioEventArgs.Length
   name: Length
   href: api/Unosquare.FFME.RenderingAudioEventArgs.html#Unosquare_FFME_RenderingAudioEventArgs_Length
@@ -1603,51 +1579,66 @@ references:
   commentId: Overload:Unosquare.FFME.RenderingAudioEventArgs.Length
   fullName: Unosquare.FFME.RenderingAudioEventArgs.Length
   nameWithType: RenderingAudioEventArgs.Length
-- uid: Unosquare.FFME.RenderingAudioEventArgs.Position
-  name: Position
-  href: api/Unosquare.FFME.RenderingAudioEventArgs.html#Unosquare_FFME_RenderingAudioEventArgs_Position
-  commentId: P:Unosquare.FFME.RenderingAudioEventArgs.Position
-  fullName: Unosquare.FFME.RenderingAudioEventArgs.Position
-  nameWithType: RenderingAudioEventArgs.Position
-- uid: Unosquare.FFME.RenderingAudioEventArgs.Position*
-  name: Position
-  href: api/Unosquare.FFME.RenderingAudioEventArgs.html#Unosquare_FFME_RenderingAudioEventArgs_Position_
-  commentId: Overload:Unosquare.FFME.RenderingAudioEventArgs.Position
-  fullName: Unosquare.FFME.RenderingAudioEventArgs.Position
-  nameWithType: RenderingAudioEventArgs.Position
+- uid: Unosquare.FFME.RenderingEventArgs
+  name: RenderingEventArgs
+  href: api/Unosquare.FFME.RenderingEventArgs.html
+  commentId: T:Unosquare.FFME.RenderingEventArgs
+  fullName: Unosquare.FFME.RenderingEventArgs
+  nameWithType: RenderingEventArgs
+- uid: Unosquare.FFME.RenderingEventArgs.#ctor(System.TimeSpan,System.TimeSpan,System.TimeSpan)
+  name: RenderingEventArgs(TimeSpan, TimeSpan, TimeSpan)
+  href: api/Unosquare.FFME.RenderingEventArgs.html#Unosquare_FFME_RenderingEventArgs__ctor_System_TimeSpan_System_TimeSpan_System_TimeSpan_
+  commentId: M:Unosquare.FFME.RenderingEventArgs.#ctor(System.TimeSpan,System.TimeSpan,System.TimeSpan)
+  fullName: Unosquare.FFME.RenderingEventArgs.RenderingEventArgs(System.TimeSpan, System.TimeSpan, System.TimeSpan)
+  nameWithType: RenderingEventArgs.RenderingEventArgs(TimeSpan, TimeSpan, TimeSpan)
+- uid: Unosquare.FFME.RenderingEventArgs.#ctor*
+  name: RenderingEventArgs
+  href: api/Unosquare.FFME.RenderingEventArgs.html#Unosquare_FFME_RenderingEventArgs__ctor_
+  commentId: Overload:Unosquare.FFME.RenderingEventArgs.#ctor
+  fullName: Unosquare.FFME.RenderingEventArgs.RenderingEventArgs
+  nameWithType: RenderingEventArgs.RenderingEventArgs
+- uid: Unosquare.FFME.RenderingEventArgs.Clock
+  name: Clock
+  href: api/Unosquare.FFME.RenderingEventArgs.html#Unosquare_FFME_RenderingEventArgs_Clock
+  commentId: P:Unosquare.FFME.RenderingEventArgs.Clock
+  fullName: Unosquare.FFME.RenderingEventArgs.Clock
+  nameWithType: RenderingEventArgs.Clock
+- uid: Unosquare.FFME.RenderingEventArgs.Clock*
+  name: Clock
+  href: api/Unosquare.FFME.RenderingEventArgs.html#Unosquare_FFME_RenderingEventArgs_Clock_
+  commentId: Overload:Unosquare.FFME.RenderingEventArgs.Clock
+  fullName: Unosquare.FFME.RenderingEventArgs.Clock
+  nameWithType: RenderingEventArgs.Clock
+- uid: Unosquare.FFME.RenderingEventArgs.Duration
+  name: Duration
+  href: api/Unosquare.FFME.RenderingEventArgs.html#Unosquare_FFME_RenderingEventArgs_Duration
+  commentId: P:Unosquare.FFME.RenderingEventArgs.Duration
+  fullName: Unosquare.FFME.RenderingEventArgs.Duration
+  nameWithType: RenderingEventArgs.Duration
+- uid: Unosquare.FFME.RenderingEventArgs.Duration*
+  name: Duration
+  href: api/Unosquare.FFME.RenderingEventArgs.html#Unosquare_FFME_RenderingEventArgs_Duration_
+  commentId: Overload:Unosquare.FFME.RenderingEventArgs.Duration
+  fullName: Unosquare.FFME.RenderingEventArgs.Duration
+  nameWithType: RenderingEventArgs.Duration
+- uid: Unosquare.FFME.RenderingEventArgs.StartTime
+  name: StartTime
+  href: api/Unosquare.FFME.RenderingEventArgs.html#Unosquare_FFME_RenderingEventArgs_StartTime
+  commentId: P:Unosquare.FFME.RenderingEventArgs.StartTime
+  fullName: Unosquare.FFME.RenderingEventArgs.StartTime
+  nameWithType: RenderingEventArgs.StartTime
+- uid: Unosquare.FFME.RenderingEventArgs.StartTime*
+  name: StartTime
+  href: api/Unosquare.FFME.RenderingEventArgs.html#Unosquare_FFME_RenderingEventArgs_StartTime_
+  commentId: Overload:Unosquare.FFME.RenderingEventArgs.StartTime
+  fullName: Unosquare.FFME.RenderingEventArgs.StartTime
+  nameWithType: RenderingEventArgs.StartTime
 - uid: Unosquare.FFME.RenderingSubtitlesEventArgs
   name: RenderingSubtitlesEventArgs
   href: api/Unosquare.FFME.RenderingSubtitlesEventArgs.html
   commentId: T:Unosquare.FFME.RenderingSubtitlesEventArgs
   fullName: Unosquare.FFME.RenderingSubtitlesEventArgs
   nameWithType: RenderingSubtitlesEventArgs
-- uid: Unosquare.FFME.RenderingSubtitlesEventArgs.#ctor(System.Collections.Generic.List{System.String},System.Collections.Generic.List{System.String},AVSubtitleType,System.TimeSpan,System.TimeSpan)
-  name: RenderingSubtitlesEventArgs(List<String>, List<String>, AVSubtitleType, TimeSpan, TimeSpan)
-  href: api/Unosquare.FFME.RenderingSubtitlesEventArgs.html#Unosquare_FFME_RenderingSubtitlesEventArgs__ctor_System_Collections_Generic_List_System_String__System_Collections_Generic_List_System_String__AVSubtitleType_System_TimeSpan_System_TimeSpan_
-  commentId: M:Unosquare.FFME.RenderingSubtitlesEventArgs.#ctor(System.Collections.Generic.List{System.String},System.Collections.Generic.List{System.String},AVSubtitleType,System.TimeSpan,System.TimeSpan)
-  name.vb: RenderingSubtitlesEventArgs(List(Of String), List(Of String), AVSubtitleType, TimeSpan, TimeSpan)
-  fullName: Unosquare.FFME.RenderingSubtitlesEventArgs.RenderingSubtitlesEventArgs(System.Collections.Generic.List<System.String>, System.Collections.Generic.List<System.String>, AVSubtitleType, System.TimeSpan, System.TimeSpan)
-  fullName.vb: Unosquare.FFME.RenderingSubtitlesEventArgs.RenderingSubtitlesEventArgs(System.Collections.Generic.List(Of System.String), System.Collections.Generic.List(Of System.String), AVSubtitleType, System.TimeSpan, System.TimeSpan)
-  nameWithType: RenderingSubtitlesEventArgs.RenderingSubtitlesEventArgs(List<String>, List<String>, AVSubtitleType, TimeSpan, TimeSpan)
-  nameWithType.vb: RenderingSubtitlesEventArgs.RenderingSubtitlesEventArgs(List(Of String), List(Of String), AVSubtitleType, TimeSpan, TimeSpan)
-- uid: Unosquare.FFME.RenderingSubtitlesEventArgs.#ctor*
-  name: RenderingSubtitlesEventArgs
-  href: api/Unosquare.FFME.RenderingSubtitlesEventArgs.html#Unosquare_FFME_RenderingSubtitlesEventArgs__ctor_
-  commentId: Overload:Unosquare.FFME.RenderingSubtitlesEventArgs.#ctor
-  fullName: Unosquare.FFME.RenderingSubtitlesEventArgs.RenderingSubtitlesEventArgs
-  nameWithType: RenderingSubtitlesEventArgs.RenderingSubtitlesEventArgs
-- uid: Unosquare.FFME.RenderingSubtitlesEventArgs.Duration
-  name: Duration
-  href: api/Unosquare.FFME.RenderingSubtitlesEventArgs.html#Unosquare_FFME_RenderingSubtitlesEventArgs_Duration
-  commentId: P:Unosquare.FFME.RenderingSubtitlesEventArgs.Duration
-  fullName: Unosquare.FFME.RenderingSubtitlesEventArgs.Duration
-  nameWithType: RenderingSubtitlesEventArgs.Duration
-- uid: Unosquare.FFME.RenderingSubtitlesEventArgs.Duration*
-  name: Duration
-  href: api/Unosquare.FFME.RenderingSubtitlesEventArgs.html#Unosquare_FFME_RenderingSubtitlesEventArgs_Duration_
-  commentId: Overload:Unosquare.FFME.RenderingSubtitlesEventArgs.Duration
-  fullName: Unosquare.FFME.RenderingSubtitlesEventArgs.Duration
-  nameWithType: RenderingSubtitlesEventArgs.Duration
 - uid: Unosquare.FFME.RenderingSubtitlesEventArgs.Format
   name: Format
   href: api/Unosquare.FFME.RenderingSubtitlesEventArgs.html#Unosquare_FFME_RenderingSubtitlesEventArgs_Format
@@ -1672,18 +1663,6 @@ references:
   commentId: Overload:Unosquare.FFME.RenderingSubtitlesEventArgs.OriginalText
   fullName: Unosquare.FFME.RenderingSubtitlesEventArgs.OriginalText
   nameWithType: RenderingSubtitlesEventArgs.OriginalText
-- uid: Unosquare.FFME.RenderingSubtitlesEventArgs.Position
-  name: Position
-  href: api/Unosquare.FFME.RenderingSubtitlesEventArgs.html#Unosquare_FFME_RenderingSubtitlesEventArgs_Position
-  commentId: P:Unosquare.FFME.RenderingSubtitlesEventArgs.Position
-  fullName: Unosquare.FFME.RenderingSubtitlesEventArgs.Position
-  nameWithType: RenderingSubtitlesEventArgs.Position
-- uid: Unosquare.FFME.RenderingSubtitlesEventArgs.Position*
-  name: Position
-  href: api/Unosquare.FFME.RenderingSubtitlesEventArgs.html#Unosquare_FFME_RenderingSubtitlesEventArgs_Position_
-  commentId: Overload:Unosquare.FFME.RenderingSubtitlesEventArgs.Position
-  fullName: Unosquare.FFME.RenderingSubtitlesEventArgs.Position
-  nameWithType: RenderingSubtitlesEventArgs.Position
 - uid: Unosquare.FFME.RenderingSubtitlesEventArgs.Text
   name: Text
   href: api/Unosquare.FFME.RenderingSubtitlesEventArgs.html#Unosquare_FFME_RenderingSubtitlesEventArgs_Text
@@ -1702,18 +1681,6 @@ references:
   commentId: T:Unosquare.FFME.RenderingVideoEventArgs
   fullName: Unosquare.FFME.RenderingVideoEventArgs
   nameWithType: RenderingVideoEventArgs
-- uid: Unosquare.FFME.RenderingVideoEventArgs.#ctor(WriteableBitmap,System.TimeSpan,System.TimeSpan)
-  name: RenderingVideoEventArgs(WriteableBitmap, TimeSpan, TimeSpan)
-  href: api/Unosquare.FFME.RenderingVideoEventArgs.html#Unosquare_FFME_RenderingVideoEventArgs__ctor_WriteableBitmap_System_TimeSpan_System_TimeSpan_
-  commentId: M:Unosquare.FFME.RenderingVideoEventArgs.#ctor(WriteableBitmap,System.TimeSpan,System.TimeSpan)
-  fullName: Unosquare.FFME.RenderingVideoEventArgs.RenderingVideoEventArgs(WriteableBitmap, System.TimeSpan, System.TimeSpan)
-  nameWithType: RenderingVideoEventArgs.RenderingVideoEventArgs(WriteableBitmap, TimeSpan, TimeSpan)
-- uid: Unosquare.FFME.RenderingVideoEventArgs.#ctor*
-  name: RenderingVideoEventArgs
-  href: api/Unosquare.FFME.RenderingVideoEventArgs.html#Unosquare_FFME_RenderingVideoEventArgs__ctor_
-  commentId: Overload:Unosquare.FFME.RenderingVideoEventArgs.#ctor
-  fullName: Unosquare.FFME.RenderingVideoEventArgs.RenderingVideoEventArgs
-  nameWithType: RenderingVideoEventArgs.RenderingVideoEventArgs
 - uid: Unosquare.FFME.RenderingVideoEventArgs.Bitmap
   name: Bitmap
   href: api/Unosquare.FFME.RenderingVideoEventArgs.html#Unosquare_FFME_RenderingVideoEventArgs_Bitmap
@@ -1726,30 +1693,6 @@ references:
   commentId: Overload:Unosquare.FFME.RenderingVideoEventArgs.Bitmap
   fullName: Unosquare.FFME.RenderingVideoEventArgs.Bitmap
   nameWithType: RenderingVideoEventArgs.Bitmap
-- uid: Unosquare.FFME.RenderingVideoEventArgs.Duration
-  name: Duration
-  href: api/Unosquare.FFME.RenderingVideoEventArgs.html#Unosquare_FFME_RenderingVideoEventArgs_Duration
-  commentId: P:Unosquare.FFME.RenderingVideoEventArgs.Duration
-  fullName: Unosquare.FFME.RenderingVideoEventArgs.Duration
-  nameWithType: RenderingVideoEventArgs.Duration
-- uid: Unosquare.FFME.RenderingVideoEventArgs.Duration*
-  name: Duration
-  href: api/Unosquare.FFME.RenderingVideoEventArgs.html#Unosquare_FFME_RenderingVideoEventArgs_Duration_
-  commentId: Overload:Unosquare.FFME.RenderingVideoEventArgs.Duration
-  fullName: Unosquare.FFME.RenderingVideoEventArgs.Duration
-  nameWithType: RenderingVideoEventArgs.Duration
-- uid: Unosquare.FFME.RenderingVideoEventArgs.Position
-  name: Position
-  href: api/Unosquare.FFME.RenderingVideoEventArgs.html#Unosquare_FFME_RenderingVideoEventArgs_Position
-  commentId: P:Unosquare.FFME.RenderingVideoEventArgs.Position
-  fullName: Unosquare.FFME.RenderingVideoEventArgs.Position
-  nameWithType: RenderingVideoEventArgs.Position
-- uid: Unosquare.FFME.RenderingVideoEventArgs.Position*
-  name: Position
-  href: api/Unosquare.FFME.RenderingVideoEventArgs.html#Unosquare_FFME_RenderingVideoEventArgs_Position_
-  commentId: Overload:Unosquare.FFME.RenderingVideoEventArgs.Position
-  fullName: Unosquare.FFME.RenderingVideoEventArgs.Position
-  nameWithType: RenderingVideoEventArgs.Position
 - uid: Unosquare.FFME.StreamInfo
   name: StreamInfo
   href: api/Unosquare.FFME.StreamInfo.html

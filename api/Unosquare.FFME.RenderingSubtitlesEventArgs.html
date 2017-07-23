@@ -80,17 +80,27 @@
   
   <h1 id="Unosquare_FFME_RenderingSubtitlesEventArgs" data-uid="Unosquare.FFME.RenderingSubtitlesEventArgs" class="text-break">Class RenderingSubtitlesEventArgs
   </h1>
-  <div class="markdown level0 summary"><p>The subtitle rendering event args</p>
+  <div class="markdown level0 summary"><p>The subtitle rendering event arguments.</p>
 </div>
   <div class="markdown level0 conceptual"></div>
   <div class="inheritance">
     <h5>Inheritance</h5>
     <div class="level0"><span class="xref">System.Object</span></div>
     <div class="level1"><span class="xref">System.EventArgs</span></div>
-    <div class="level2"><span class="xref">RenderingSubtitlesEventArgs</span></div>
+    <div class="level2"><a class="xref" href="Unosquare.FFME.RenderingEventArgs.html">RenderingEventArgs</a></div>
+    <div class="level3"><span class="xref">RenderingSubtitlesEventArgs</span></div>
   </div>
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
+    <div>
+      <a class="xref" href="Unosquare.FFME.RenderingEventArgs.html#Unosquare_FFME_RenderingEventArgs_Clock">RenderingEventArgs.Clock</a>
+    </div>
+    <div>
+      <a class="xref" href="Unosquare.FFME.RenderingEventArgs.html#Unosquare_FFME_RenderingEventArgs_StartTime">RenderingEventArgs.StartTime</a>
+    </div>
+    <div>
+      <a class="xref" href="Unosquare.FFME.RenderingEventArgs.html#Unosquare_FFME_RenderingEventArgs_Duration">RenderingEventArgs.Duration</a>
+    </div>
     <div>
       <span class="xref">System.EventArgs.Empty</span>
     </div>
@@ -120,96 +130,16 @@
   <h6><strong>Assembly</strong>: cs.temp.dll.dll</h6>
   <h5 id="Unosquare_FFME_RenderingSubtitlesEventArgs_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public class RenderingSubtitlesEventArgs : EventArgs</code></pre>
+    <pre><code class="lang-csharp hljs">public sealed class RenderingSubtitlesEventArgs : RenderingEventArgs</code></pre>
   </div>
-  <h3 id="constructors">Constructors
-  </h3>
-  
-  
-  <a id="Unosquare_FFME_RenderingSubtitlesEventArgs__ctor_" data-uid="Unosquare.FFME.RenderingSubtitlesEventArgs.#ctor*"></a>
-  <h4 id="Unosquare_FFME_RenderingSubtitlesEventArgs__ctor_System_Collections_Generic_List_System_String__System_Collections_Generic_List_System_String__AVSubtitleType_System_TimeSpan_System_TimeSpan_" data-uid="Unosquare.FFME.RenderingSubtitlesEventArgs.#ctor(System.Collections.Generic.List{System.String},System.Collections.Generic.List{System.String},AVSubtitleType,System.TimeSpan,System.TimeSpan)">RenderingSubtitlesEventArgs(List&lt;String&gt;, List&lt;String&gt;, AVSubtitleType, TimeSpan, TimeSpan)</h4>
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="Unosquare.FFME.RenderingSubtitlesEventArgs.html">RenderingSubtitlesEventArgs</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public RenderingSubtitlesEventArgs(List&lt;string&gt; text, List&lt;string&gt; originalText, AVSubtitleType format, TimeSpan position, TimeSpan duration)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.Collections.Generic.List</span>&lt;<span class="xref">System.String</span>&gt;</td>
-        <td><span class="parametername">text</span></td>
-        <td><p>The text.</p>
-</td>
-      </tr>
-      <tr>
-        <td><span class="xref">System.Collections.Generic.List</span>&lt;<span class="xref">System.String</span>&gt;</td>
-        <td><span class="parametername">originalText</span></td>
-        <td><p>The original text.</p>
-</td>
-      </tr>
-      <tr>
-        <td><span class="xref">AVSubtitleType</span></td>
-        <td><span class="parametername">format</span></td>
-        <td><p>The format.</p>
-</td>
-      </tr>
-      <tr>
-        <td><span class="xref">System.TimeSpan</span></td>
-        <td><span class="parametername">position</span></td>
-        <td><p>The position.</p>
-</td>
-      </tr>
-      <tr>
-        <td><span class="xref">System.TimeSpan</span></td>
-        <td><span class="parametername">duration</span></td>
-        <td><p>The duration.</p>
-</td>
-      </tr>
-    </tbody>
-  </table>
   <h3 id="properties">Properties
   </h3>
   
   
-  <a id="Unosquare_FFME_RenderingSubtitlesEventArgs_Duration_" data-uid="Unosquare.FFME.RenderingSubtitlesEventArgs.Duration*"></a>
-  <h4 id="Unosquare_FFME_RenderingSubtitlesEventArgs_Duration" data-uid="Unosquare.FFME.RenderingSubtitlesEventArgs.Duration">Duration</h4>
-  <div class="markdown level1 summary"><p>Gets the duration of this chunk.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public TimeSpan Duration { get; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.TimeSpan</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
   <a id="Unosquare_FFME_RenderingSubtitlesEventArgs_Format_" data-uid="Unosquare.FFME.RenderingSubtitlesEventArgs.Format*"></a>
   <h4 id="Unosquare_FFME_RenderingSubtitlesEventArgs_Format" data-uid="Unosquare.FFME.RenderingSubtitlesEventArgs.Format">Format</h4>
-  <div class="markdown level1 summary"><p>Gets the format.</p>
+  <div class="markdown level1 summary"><p>Gets the type of subtitle format the original
+text is in.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -235,7 +165,8 @@
   
   <a id="Unosquare_FFME_RenderingSubtitlesEventArgs_OriginalText_" data-uid="Unosquare.FFME.RenderingSubtitlesEventArgs.OriginalText*"></a>
   <h4 id="Unosquare_FFME_RenderingSubtitlesEventArgs_OriginalText" data-uid="Unosquare.FFME.RenderingSubtitlesEventArgs.OriginalText">OriginalText</h4>
-  <div class="markdown level1 summary"><p>Gets the original text.</p>
+  <div class="markdown level1 summary"><p>Gets the text as originally decoded including
+all markup and formatting.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -259,35 +190,11 @@
   </table>
   
   
-  <a id="Unosquare_FFME_RenderingSubtitlesEventArgs_Position_" data-uid="Unosquare.FFME.RenderingSubtitlesEventArgs.Position*"></a>
-  <h4 id="Unosquare_FFME_RenderingSubtitlesEventArgs_Position" data-uid="Unosquare.FFME.RenderingSubtitlesEventArgs.Position">Position</h4>
-  <div class="markdown level1 summary"><p>Gets the position.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public TimeSpan Position { get; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.TimeSpan</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
   <a id="Unosquare_FFME_RenderingSubtitlesEventArgs_Text_" data-uid="Unosquare.FFME.RenderingSubtitlesEventArgs.Text*"></a>
   <h4 id="Unosquare_FFME_RenderingSubtitlesEventArgs_Text" data-uid="Unosquare.FFME.RenderingSubtitlesEventArgs.Text">Text</h4>
-  <div class="markdown level1 summary"><p>Gets the text stripped out of ASS or SRT formatting.</p>
+  <div class="markdown level1 summary"><p>Gets the text stripped out of ASS or SRT formatting.
+This is what the default subtitle renderer will display
+on the screen.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
