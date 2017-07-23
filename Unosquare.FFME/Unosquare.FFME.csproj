@@ -73,6 +73,7 @@
     <Compile Include="Core\IMediaLogger.cs" />
     <Compile Include="Core\MediaTypeDictionary.cs" />
     <Compile Include="Core\NativeMethods.cs" />
+    <Compile Include="Core\ThreadTiming.cs" />
     <Compile Include="Decoding\ClosedCaptions\CCColorType.cs" />
     <Compile Include="Decoding\ClosedCaptions\CCMiscCommandType.cs" />
     <Compile Include="Decoding\ClosedCaptions\CCPacketType.cs" />

@@ -110,18 +110,12 @@
             }
         }
 
-
         /// <summary>
-        /// Controls worker sleeping mechanisms.
+        /// Give the CPU a break
         /// </summary>
-        private async Task DelayAsync(ManualResetEvent cycle, int timeoutMilliseconds)
+        private void Delay()
         {
-            const int AwaitThreshold = 17;
-
-            if (timeoutMilliseconds < AwaitThreshold)
-                Thread.Sleep(timeoutMilliseconds);
-            else
-                await Task.Delay(1).ConfigureAwait(false);
+            ThreadTiming.Suspend(20);
         }
 
         /// <summary>
@@ -157,7 +151,7 @@
         /// It reports on DownloadProgress by enqueueing an update to the property
         /// in order to avoid any kind of disruption to this thread caused by the UI thread.
         /// </summary>
-        internal async void RunPacketReadingWorker()
+        internal void RunPacketReadingWorker()
         {
             // Holds the packet count for each read cycle
             var packetsRead = new MediaTypeDictionary<int>();
@@ -221,7 +215,7 @@
 
                 // Wait some if we have a full packet buffer or we are unable to read more packets (i.e. EOF).
                 if (Container.Components.PacketBufferLength >= DownloadCacheLength || CanReadMorePackets == false)
-                    await DelayAsync(PacketReadingCycle, 17);
+                    Delay();
             }
 
             // Always exit notifying the reading cycle is done.
@@ -479,7 +473,7 @@
                 // Give it a break if there was nothing to decode.
                 // We probably need to wait for some more input
                 if (decodedFrameCount <= 0 && Commands.PendingCount <= 0)
-                    await DelayAsync(FrameDecodingCycle, 17);
+                    Delay();
 
                 #endregion
             }
@@ -497,7 +491,7 @@
         /// block buffer. This task is responsible for keeping track of the clock
         /// and calling the render methods appropriate for the current clock position.
         /// </summary>
-        internal async void RunBlockRenderingWorker()
+        internal void RunBlockRenderingWorker()
         {
             #region 0. Initialize Running State
 
@@ -584,7 +578,7 @@
 
                 // Spin the thread for a bit if we have no more stuff to process
                 if (renderedBlockCount <= 0 && Commands.PendingCount <= 0)
-                    await DelayAsync(BlockRenderingCycle, 17);
+                    Delay();
 
                 #endregion
             }
