@@ -115,7 +115,7 @@
         /// </summary>
         private void Delay()
         {
-            ThreadTiming.Suspend(20);
+            ThreadTiming.SuspendOne();
         }
 
         /// <summary>
