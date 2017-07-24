@@ -1555,6 +1555,18 @@ references:
   commentId: T:Unosquare.FFME.RenderingAudioEventArgs
   fullName: Unosquare.FFME.RenderingAudioEventArgs
   nameWithType: RenderingAudioEventArgs
+- uid: Unosquare.FFME.RenderingAudioEventArgs.BitsPerSample
+  name: BitsPerSample
+  href: api/Unosquare.FFME.RenderingAudioEventArgs.html#Unosquare_FFME_RenderingAudioEventArgs_BitsPerSample
+  commentId: P:Unosquare.FFME.RenderingAudioEventArgs.BitsPerSample
+  fullName: Unosquare.FFME.RenderingAudioEventArgs.BitsPerSample
+  nameWithType: RenderingAudioEventArgs.BitsPerSample
+- uid: Unosquare.FFME.RenderingAudioEventArgs.BitsPerSample*
+  name: BitsPerSample
+  href: api/Unosquare.FFME.RenderingAudioEventArgs.html#Unosquare_FFME_RenderingAudioEventArgs_BitsPerSample_
+  commentId: Overload:Unosquare.FFME.RenderingAudioEventArgs.BitsPerSample
+  fullName: Unosquare.FFME.RenderingAudioEventArgs.BitsPerSample
+  nameWithType: RenderingAudioEventArgs.BitsPerSample
 - uid: Unosquare.FFME.RenderingAudioEventArgs.Buffer
   name: Buffer
   href: api/Unosquare.FFME.RenderingAudioEventArgs.html#Unosquare_FFME_RenderingAudioEventArgs_Buffer
@@ -1567,18 +1579,66 @@ references:
   commentId: Overload:Unosquare.FFME.RenderingAudioEventArgs.Buffer
   fullName: Unosquare.FFME.RenderingAudioEventArgs.Buffer
   nameWithType: RenderingAudioEventArgs.Buffer
-- uid: Unosquare.FFME.RenderingAudioEventArgs.Length
-  name: Length
-  href: api/Unosquare.FFME.RenderingAudioEventArgs.html#Unosquare_FFME_RenderingAudioEventArgs_Length
-  commentId: P:Unosquare.FFME.RenderingAudioEventArgs.Length
-  fullName: Unosquare.FFME.RenderingAudioEventArgs.Length
-  nameWithType: RenderingAudioEventArgs.Length
-- uid: Unosquare.FFME.RenderingAudioEventArgs.Length*
-  name: Length
-  href: api/Unosquare.FFME.RenderingAudioEventArgs.html#Unosquare_FFME_RenderingAudioEventArgs_Length_
-  commentId: Overload:Unosquare.FFME.RenderingAudioEventArgs.Length
-  fullName: Unosquare.FFME.RenderingAudioEventArgs.Length
-  nameWithType: RenderingAudioEventArgs.Length
+- uid: Unosquare.FFME.RenderingAudioEventArgs.BufferLength
+  name: BufferLength
+  href: api/Unosquare.FFME.RenderingAudioEventArgs.html#Unosquare_FFME_RenderingAudioEventArgs_BufferLength
+  commentId: P:Unosquare.FFME.RenderingAudioEventArgs.BufferLength
+  fullName: Unosquare.FFME.RenderingAudioEventArgs.BufferLength
+  nameWithType: RenderingAudioEventArgs.BufferLength
+- uid: Unosquare.FFME.RenderingAudioEventArgs.BufferLength*
+  name: BufferLength
+  href: api/Unosquare.FFME.RenderingAudioEventArgs.html#Unosquare_FFME_RenderingAudioEventArgs_BufferLength_
+  commentId: Overload:Unosquare.FFME.RenderingAudioEventArgs.BufferLength
+  fullName: Unosquare.FFME.RenderingAudioEventArgs.BufferLength
+  nameWithType: RenderingAudioEventArgs.BufferLength
+- uid: Unosquare.FFME.RenderingAudioEventArgs.ChannelCount
+  name: ChannelCount
+  href: api/Unosquare.FFME.RenderingAudioEventArgs.html#Unosquare_FFME_RenderingAudioEventArgs_ChannelCount
+  commentId: P:Unosquare.FFME.RenderingAudioEventArgs.ChannelCount
+  fullName: Unosquare.FFME.RenderingAudioEventArgs.ChannelCount
+  nameWithType: RenderingAudioEventArgs.ChannelCount
+- uid: Unosquare.FFME.RenderingAudioEventArgs.ChannelCount*
+  name: ChannelCount
+  href: api/Unosquare.FFME.RenderingAudioEventArgs.html#Unosquare_FFME_RenderingAudioEventArgs_ChannelCount_
+  commentId: Overload:Unosquare.FFME.RenderingAudioEventArgs.ChannelCount
+  fullName: Unosquare.FFME.RenderingAudioEventArgs.ChannelCount
+  nameWithType: RenderingAudioEventArgs.ChannelCount
+- uid: Unosquare.FFME.RenderingAudioEventArgs.SampleRate
+  name: SampleRate
+  href: api/Unosquare.FFME.RenderingAudioEventArgs.html#Unosquare_FFME_RenderingAudioEventArgs_SampleRate
+  commentId: P:Unosquare.FFME.RenderingAudioEventArgs.SampleRate
+  fullName: Unosquare.FFME.RenderingAudioEventArgs.SampleRate
+  nameWithType: RenderingAudioEventArgs.SampleRate
+- uid: Unosquare.FFME.RenderingAudioEventArgs.SampleRate*
+  name: SampleRate
+  href: api/Unosquare.FFME.RenderingAudioEventArgs.html#Unosquare_FFME_RenderingAudioEventArgs_SampleRate_
+  commentId: Overload:Unosquare.FFME.RenderingAudioEventArgs.SampleRate
+  fullName: Unosquare.FFME.RenderingAudioEventArgs.SampleRate
+  nameWithType: RenderingAudioEventArgs.SampleRate
+- uid: Unosquare.FFME.RenderingAudioEventArgs.Samples
+  name: Samples
+  href: api/Unosquare.FFME.RenderingAudioEventArgs.html#Unosquare_FFME_RenderingAudioEventArgs_Samples
+  commentId: P:Unosquare.FFME.RenderingAudioEventArgs.Samples
+  fullName: Unosquare.FFME.RenderingAudioEventArgs.Samples
+  nameWithType: RenderingAudioEventArgs.Samples
+- uid: Unosquare.FFME.RenderingAudioEventArgs.Samples*
+  name: Samples
+  href: api/Unosquare.FFME.RenderingAudioEventArgs.html#Unosquare_FFME_RenderingAudioEventArgs_Samples_
+  commentId: Overload:Unosquare.FFME.RenderingAudioEventArgs.Samples
+  fullName: Unosquare.FFME.RenderingAudioEventArgs.Samples
+  nameWithType: RenderingAudioEventArgs.Samples
+- uid: Unosquare.FFME.RenderingAudioEventArgs.SamplesPerChannel
+  name: SamplesPerChannel
+  href: api/Unosquare.FFME.RenderingAudioEventArgs.html#Unosquare_FFME_RenderingAudioEventArgs_SamplesPerChannel
+  commentId: P:Unosquare.FFME.RenderingAudioEventArgs.SamplesPerChannel
+  fullName: Unosquare.FFME.RenderingAudioEventArgs.SamplesPerChannel
+  nameWithType: RenderingAudioEventArgs.SamplesPerChannel
+- uid: Unosquare.FFME.RenderingAudioEventArgs.SamplesPerChannel*
+  name: SamplesPerChannel
+  href: api/Unosquare.FFME.RenderingAudioEventArgs.html#Unosquare_FFME_RenderingAudioEventArgs_SamplesPerChannel_
+  commentId: Overload:Unosquare.FFME.RenderingAudioEventArgs.SamplesPerChannel
+  fullName: Unosquare.FFME.RenderingAudioEventArgs.SamplesPerChannel
+  nameWithType: RenderingAudioEventArgs.SamplesPerChannel
 - uid: Unosquare.FFME.RenderingEventArgs
   name: RenderingEventArgs
   href: api/Unosquare.FFME.RenderingEventArgs.html

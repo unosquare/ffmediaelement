@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Class RenderingAudioEventArgs
    | FFME: WPF MediaElement replacement based on FFmpeg ">
-    <meta name="generator" content="docfx 2.21.1.0">
+    <meta name="generator" content="docfx 2.21.2.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -80,7 +80,7 @@
   
   <h1 id="Unosquare_FFME_RenderingAudioEventArgs" data-uid="Unosquare.FFME.RenderingAudioEventArgs" class="text-break">Class RenderingAudioEventArgs
   </h1>
-  <div class="markdown level0 summary"><p>The audio rendering event arguments.</p>
+  <div class="markdown level0 summary"><p>Provides the audio samples rendering payload as event arguments.</p>
 </div>
   <div class="markdown level0 conceptual"></div>
   <div class="inheritance">
@@ -136,9 +136,36 @@
   </h3>
   
   
+  <a id="Unosquare_FFME_RenderingAudioEventArgs_BitsPerSample_" data-uid="Unosquare.FFME.RenderingAudioEventArgs.BitsPerSample*"></a>
+  <h4 id="Unosquare_FFME_RenderingAudioEventArgs_BitsPerSample" data-uid="Unosquare.FFME.RenderingAudioEventArgs.BitsPerSample">BitsPerSample</h4>
+  <div class="markdown level1 summary"><p>Gets the number of bits per sample.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int BitsPerSample { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <a id="Unosquare_FFME_RenderingAudioEventArgs_Buffer_" data-uid="Unosquare.FFME.RenderingAudioEventArgs.Buffer*"></a>
   <h4 id="Unosquare_FFME_RenderingAudioEventArgs_Buffer" data-uid="Unosquare.FFME.RenderingAudioEventArgs.Buffer">Buffer</h4>
-  <div class="markdown level1 summary"><p>Gets a pointer to the samples buffer</p>
+  <div class="markdown level1 summary"><p>Gets a pointer to the samples buffer.
+Samples are provided in PCM 16-bit signed, interleaved stereo.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -162,14 +189,118 @@
   </table>
   
   
-  <a id="Unosquare_FFME_RenderingAudioEventArgs_Length_" data-uid="Unosquare.FFME.RenderingAudioEventArgs.Length*"></a>
-  <h4 id="Unosquare_FFME_RenderingAudioEventArgs_Length" data-uid="Unosquare.FFME.RenderingAudioEventArgs.Length">Length</h4>
-  <div class="markdown level1 summary"><p>Gets the length of the samples buffer.</p>
+  <a id="Unosquare_FFME_RenderingAudioEventArgs_BufferLength_" data-uid="Unosquare.FFME.RenderingAudioEventArgs.BufferLength*"></a>
+  <h4 id="Unosquare_FFME_RenderingAudioEventArgs_BufferLength" data-uid="Unosquare.FFME.RenderingAudioEventArgs.BufferLength">BufferLength</h4>
+  <div class="markdown level1 summary"><p>Gets the length in bytes of the samples buffer.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int Length { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public int BufferLength { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_RenderingAudioEventArgs_ChannelCount_" data-uid="Unosquare.FFME.RenderingAudioEventArgs.ChannelCount*"></a>
+  <h4 id="Unosquare_FFME_RenderingAudioEventArgs_ChannelCount" data-uid="Unosquare.FFME.RenderingAudioEventArgs.ChannelCount">ChannelCount</h4>
+  <div class="markdown level1 summary"><p>Gets the number of channels.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int ChannelCount { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_RenderingAudioEventArgs_SampleRate_" data-uid="Unosquare.FFME.RenderingAudioEventArgs.SampleRate*"></a>
+  <h4 id="Unosquare_FFME_RenderingAudioEventArgs_SampleRate" data-uid="Unosquare.FFME.RenderingAudioEventArgs.SampleRate">SampleRate</h4>
+  <div class="markdown level1 summary"><p>Gets the number of samples in 1 second.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int SampleRate { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_RenderingAudioEventArgs_Samples_" data-uid="Unosquare.FFME.RenderingAudioEventArgs.Samples*"></a>
+  <h4 id="Unosquare_FFME_RenderingAudioEventArgs_Samples" data-uid="Unosquare.FFME.RenderingAudioEventArgs.Samples">Samples</h4>
+  <div class="markdown level1 summary"><p>Gets the number of samples in the buffer for all channels.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int Samples { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_RenderingAudioEventArgs_SamplesPerChannel_" data-uid="Unosquare.FFME.RenderingAudioEventArgs.SamplesPerChannel*"></a>
+  <h4 id="Unosquare_FFME_RenderingAudioEventArgs_SamplesPerChannel" data-uid="Unosquare.FFME.RenderingAudioEventArgs.SamplesPerChannel">SamplesPerChannel</h4>
+  <div class="markdown level1 summary"><p>Gets the number of samples in the buffer per channel.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int SamplesPerChannel { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
