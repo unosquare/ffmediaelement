@@ -345,26 +345,39 @@
             Media.PropertyChanged += Media_PropertyChanged;
             Unosquare.FFME.MediaElement.FFmpegMessageLogged += MediaElement_FFmpegMessageLogged;
 
-            return; // comment this line to enable watermarking example.
+            //return; // comment this line to enable watermarking example.
 #pragma warning disable CS0162 // Unreachable code detected
+
+            System.Drawing.Bitmap overlayBitmap = null;
+            System.Drawing.Graphics overlayGraphics = null;
+            var overlayFont = new System.Drawing.Font("Arial", 16, System.Drawing.FontStyle.Bold);
+            var overlayFontBrush = System.Drawing.Brushes.DarkOrange;
+            var overlayOffset = new System.Drawing.PointF(10, 10);
+            var overlayBackBuffer = IntPtr.Zero;
 
             Media.RenderingVideo += (s, e) =>
             {
-                e.Bitmap.Lock();
-                using (var bmp = new System.Drawing.Bitmap(
-                    e.Bitmap.PixelWidth, e.Bitmap.PixelHeight, e.Bitmap.BackBufferStride,
-                    System.Drawing.Imaging.PixelFormat.Format24bppRgb, e.Bitmap.BackBuffer))
+                if (overlayBackBuffer != e.Bitmap.BackBuffer)
                 {
-                    using (var g = System.Drawing.Graphics.FromImage(bmp))
-                    {
-                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Bilinear;
-                        g.DrawString($"{e.StartTime.TotalSeconds:0.000}", new System.Drawing.Font("Arial", 24, System.Drawing.FontStyle.Bold),
-                            System.Drawing.Brushes.YellowGreen, new System.Drawing.PointF(40, 40));
-                    }
+                    if (overlayGraphics != null) overlayGraphics.Dispose();
+                    if (overlayBitmap != null) overlayBitmap.Dispose();
+
+                    overlayBitmap = new System.Drawing.Bitmap(
+                        e.Bitmap.PixelWidth, e.Bitmap.PixelHeight, e.Bitmap.BackBufferStride,
+                        System.Drawing.Imaging.PixelFormat.Format24bppRgb, e.Bitmap.BackBuffer);
+
+                    overlayGraphics = System.Drawing.Graphics.FromImage(overlayBitmap);
+                    overlayGraphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
                 }
+
+                e.Bitmap.Lock();
+                var differenceMillis = TimeSpan.FromTicks(e.Clock.Ticks - e.StartTime.Ticks).TotalMilliseconds;
+
+                overlayGraphics.DrawString($"Clock: {e.StartTime.TotalSeconds:00.000} | Skew: {differenceMillis:00.000}",
+                    overlayFont, overlayFontBrush, overlayOffset);
+
                 e.Bitmap.AddDirtyRect(new Int32Rect(0, 0, e.Bitmap.PixelWidth, e.Bitmap.PixelHeight));
                 e.Bitmap.Unlock();
-
             };
 
             // a simple example of prefixing subtitles

@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME
 {
+    using Core;
     using FFmpeg.AutoGen;
     using System;
     using System.Collections.Generic;
@@ -121,7 +122,7 @@
     }
 
     /// <summary>
-    /// The audio rendering event arguments.
+    /// Provides the audio samples rendering payload as event arguments.
     /// </summary>
     /// <seealso cref="System.EventArgs" />
     public sealed class RenderingAudioEventArgs : RenderingEventArgs
@@ -138,23 +139,52 @@
             : base(startTime, duration, clock)
         {
             Buffer = buffer;
-            Length = length;
+            BufferLength = length;
+            SampleRate = AudioParams.Output.SampleRate;
+            ChannelCount = AudioParams.Output.ChannelCount;
+            BitsPerSample = AudioParams.OutputBitsPerSample;
+
         }
 
         /// <summary>
-        /// Gets a pointer to the samples buffer
+        /// Gets a pointer to the samples buffer.
+        /// Samples are provided in PCM 16-bit signed, interleaved stereo.
         /// </summary>
         public IntPtr Buffer { get; }
 
         /// <summary>
-        /// Gets the length of the samples buffer.
+        /// Gets the length in bytes of the samples buffer.
         /// </summary>
-        public int Length { get; }
+        public int BufferLength { get; }
+
+        /// <summary>
+        /// Gets the number of samples in 1 second.
+        /// </summary>
+        public int SampleRate { get; }
+
+        /// <summary>
+        /// Gets the number of channels.
+        /// </summary>
+        public int ChannelCount { get; }
+
+        /// <summary>
+        /// Gets the number of bits per sample.
+        /// </summary>
+        public int BitsPerSample { get; }
+
+        /// <summary>
+        /// Gets the number of samples in the buffer for all channels.
+        /// </summary>
+        public int Samples { get { return BufferLength / (BitsPerSample / 8); } }
+
+        /// <summary>
+        /// Gets the number of samples in the buffer per channel.
+        /// </summary>
+        public int SamplesPerChannel { get { return Samples / ChannelCount; } }
     }
 
-
     /// <summary>
-    /// The subtitle rendering event arguments.
+    /// Provides the subtitles rendering payload as event arguments.
     /// </summary>
     /// <seealso cref="System.EventArgs" />
     public sealed class RenderingSubtitlesEventArgs : RenderingEventArgs
@@ -169,7 +199,7 @@
         /// <param name="startTime">The start time.</param>
         /// <param name="duration">The duration.</param>
         /// <param name="clock">The clock.</param>
-        internal RenderingSubtitlesEventArgs(List<string> text, List<string> originalText, AVSubtitleType format, 
+        internal RenderingSubtitlesEventArgs(List<string> text, List<string> originalText, AVSubtitleType format,
             TimeSpan startTime, TimeSpan duration, TimeSpan clock)
             : base(startTime, duration, clock)
         {
@@ -193,7 +223,7 @@
 
         /// <summary>
         /// Gets the type of subtitle format the original
-        /// text is in.
+        /// subtitle text is in.
         /// </summary>
         public AVSubtitleType Format { get; }
 

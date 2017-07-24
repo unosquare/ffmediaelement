@@ -28,10 +28,13 @@
         /// </summary>
         static AudioParams()
         {
-            Output = new AudioParams();
-            Output.ChannelCount = 2;
-            Output.SampleRate = 48000;
-            Output.Format = AVSampleFormat.AV_SAMPLE_FMT_S16;
+            Output = new AudioParams()
+            {
+                ChannelCount = 2,
+                SampleRate = 48000,
+                Format = AVSampleFormat.AV_SAMPLE_FMT_S16
+            };
+
             Output.ChannelLayout = ffmpeg.av_get_default_channel_layout(Output.ChannelCount);
             Output.SamplesPerChannel = Output.SampleRate;
             Output.BufferLength = ffmpeg.av_samples_get_buffer_size(

@@ -111,14 +111,6 @@
         }
 
         /// <summary>
-        /// Give the CPU a break
-        /// </summary>
-        private void Delay()
-        {
-            ThreadTiming.SuspendOne();
-        }
-
-        /// <summary>
         /// Adds the blocks of the given media type.
         /// </summary>
         /// <param name="t">The t.</param>
@@ -214,8 +206,8 @@
                 if (IsTaskCancellationPending) break;
 
                 // Wait some if we have a full packet buffer or we are unable to read more packets (i.e. EOF).
-                if (Container.Components.PacketBufferLength >= DownloadCacheLength || CanReadMorePackets == false)
-                    Delay();
+                if (Container.Components.PacketBufferLength >= DownloadCacheLength || CanReadMorePackets == false || currentBytesRead <= 0)
+                    ThreadTiming.SuspendOne();
             }
 
             // Always exit notifying the reading cycle is done.
@@ -473,7 +465,7 @@
                 // Give it a break if there was nothing to decode.
                 // We probably need to wait for some more input
                 if (decodedFrameCount <= 0 && Commands.PendingCount <= 0)
-                    Delay();
+                    ThreadTiming.SuspendOne();
 
                 #endregion
             }
@@ -504,6 +496,7 @@
             // Holds a snapshot of the current block to render
             var currentBlock = new MediaTypeDictionary<MediaBlock>();
 
+            // Keeps track of how many blocks were rendered in the cycle.
             var renderedBlockCount = 0;
 
             // reset render times for all components
@@ -578,7 +571,7 @@
 
                 // Spin the thread for a bit if we have no more stuff to process
                 if (renderedBlockCount <= 0 && Commands.PendingCount <= 0)
-                    Delay();
+                    ThreadTiming.SuspendOne();
 
                 #endregion
             }
