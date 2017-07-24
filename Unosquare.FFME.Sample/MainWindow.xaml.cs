@@ -8,6 +8,7 @@
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Linq;
+    using System.Runtime.InteropServices;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Input;
@@ -345,20 +346,33 @@
             Media.PropertyChanged += Media_PropertyChanged;
             Unosquare.FFME.MediaElement.FFmpegMessageLogged += MediaElement_FFmpegMessageLogged;
 
-            //return; // comment this line to enable watermarking example.
-#pragma warning disable CS0162 // Unreachable code detected
+#if DEBUG
 
             System.Drawing.Bitmap overlayBitmap = null;
             System.Drawing.Graphics overlayGraphics = null;
-            var overlayFont = new System.Drawing.Font("Arial", 16, System.Drawing.FontStyle.Bold);
-            var overlayFontBrush = System.Drawing.Brushes.DarkOrange;
-            var overlayOffset = new System.Drawing.PointF(10, 10);
+            var overlayFont = new System.Drawing.Font("Arial", 14, System.Drawing.FontStyle.Bold);
+            var overlayFontBrush = System.Drawing.Brushes.WhiteSmoke;
+            var overlayOffset = new System.Drawing.PointF(12, 8);
             var overlayBackBuffer = IntPtr.Zero;
+
+            var leftVuMeterPen = new System.Drawing.Pen(System.Drawing.Color.OrangeRed, 12);
+            var rightVuMeterPen = new System.Drawing.Pen(System.Drawing.Color.GreenYellow, 12);
+
+            var amplLock = new object();
+
+            var leftAmplitudes = new SortedDictionary<TimeSpan, double>();
+            var rightAmplitudes = new SortedDictionary<TimeSpan, double>();
 
             Media.RenderingVideo += (s, e) =>
             {
                 if (overlayBackBuffer != e.Bitmap.BackBuffer)
                 {
+                    lock (amplLock)
+                    {
+                        leftAmplitudes.Clear();
+                        rightAmplitudes.Clear();
+                    }
+
                     if (overlayGraphics != null) overlayGraphics.Dispose();
                     if (overlayBitmap != null) overlayBitmap.Dispose();
 
@@ -366,8 +380,28 @@
                         e.Bitmap.PixelWidth, e.Bitmap.PixelHeight, e.Bitmap.BackBufferStride,
                         System.Drawing.Imaging.PixelFormat.Format24bppRgb, e.Bitmap.BackBuffer);
 
+                    overlayBackBuffer = e.Bitmap.BackBuffer;
                     overlayGraphics = System.Drawing.Graphics.FromImage(overlayBitmap);
                     overlayGraphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
+                }
+
+                var leftAmplitude = 0d;
+                var rightAmplitude = 0d;
+                lock (amplLock)
+                {
+                    leftAmplitude = leftAmplitudes.Where(kvp => kvp.Key > Media.Position).Select(kvp => kvp.Value).FirstOrDefault();
+                    rightAmplitude = rightAmplitudes.Where(kvp => kvp.Key > Media.Position).Select(kvp => kvp.Value).FirstOrDefault();
+
+                    // do some cleanup so the dictionary does not grow that big.
+                    if (leftAmplitudes.Count > 500)
+                    {
+                        var keysToRemove = leftAmplitudes.Keys.Where(k => k < Media.Position).ToArray();
+                        foreach (var k in keysToRemove)
+                        {
+                            leftAmplitudes.Remove(k);
+                            rightAmplitudes.Remove(k);
+                        }
+                    }
                 }
 
                 e.Bitmap.Lock();
@@ -376,9 +410,58 @@
                 overlayGraphics.DrawString($"Clock: {e.StartTime.TotalSeconds:00.000} | Skew: {differenceMillis:00.000}",
                     overlayFont, overlayFontBrush, overlayOffset);
 
+                const float leftVuOffset = 16;
+                const float topVuOffset = 40;
+                const float pixelFactor = 20;
+
+                // draw a simple VU meter
+                overlayGraphics.DrawLine(leftVuMeterPen,
+                    leftVuOffset, topVuOffset, 
+                    leftVuOffset + 5 + (Convert.ToSingle(leftAmplitude) * pixelFactor), topVuOffset);
+
+                overlayGraphics.DrawLine(rightVuMeterPen,
+                    leftVuOffset, topVuOffset + (topVuOffset / 2), 
+                    leftVuOffset + 5 + (Convert.ToSingle(rightAmplitude) * pixelFactor), topVuOffset + (topVuOffset / 2));
+
                 e.Bitmap.AddDirtyRect(new Int32Rect(0, 0, e.Bitmap.PixelWidth, e.Bitmap.PixelHeight));
                 e.Bitmap.Unlock();
             };
+
+            Media.RenderingAudio += (s, e) =>
+            {
+                var buffer = new byte[e.BufferLength];
+                Marshal.Copy(e.Buffer, buffer, 0, e.BufferLength);
+
+                var leftSamples = new double[e.SamplesPerChannel];
+                var rightSamples = new double[e.SamplesPerChannel];
+                var isLeftSample = true;
+                var sampleIndex = 0;
+                var sample = default(double);
+
+                for (var i = 0; i < e.BufferLength; i += e.BitsPerSample / 8)
+                {
+                    sample = 100d * Math.Abs((double)((short)(buffer[i] | (buffer[i + 1] << 8)))) / (double)short.MaxValue;
+
+                    if (isLeftSample)
+                        leftSamples[sampleIndex] = sample;
+                    else
+                        rightSamples[sampleIndex] = sample;
+
+                    sampleIndex += !isLeftSample ? 1 : 0;
+                    isLeftSample = !isLeftSample;
+                }
+
+                lock (amplLock)
+                {
+                    var leftRms = Math.Sqrt((1d / leftSamples.Length) * (leftSamples.Sum(n => n)));
+                    var rightRms = Math.Sqrt((1d / rightSamples.Length) * (rightSamples.Sum(n =>n)));
+
+                    // Note: this is fake. The VU meter should show something like RMS
+                    leftAmplitudes[e.StartTime] = leftRms;
+                    rightAmplitudes[e.StartTime] = rightRms; // rightSamples.Average(n => Math.Abs((double)n));
+                }
+            };
+
 
             // a simple example of prefixing subtitles
             Media.RenderingSubtitles += (s, e) =>
@@ -388,8 +471,7 @@
                     e.Text[0] = $"SUB: {e.Text[0]}";
                 }
             };
-
-#pragma warning restore CS0162 // Unreachable code detected
+#endif
         }
 
         /// <summary>

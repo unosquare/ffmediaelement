@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
 
     internal sealed class MediaCommandManager
@@ -57,6 +58,7 @@
 
         /// <summary>
         /// Opens the specified URI.
+        /// The command is processed in a Thread Pool Thread.
         /// </summary>
         /// <param name="uri">The URI.</param>
         /// <returns></returns>
@@ -67,8 +69,14 @@
                 Commands.Clear();
             }
 
-            var command = new OpenCommand(this, uri);
-            await command.ExecuteAsync();
+            // Process the command in a background thread as opposed
+            // to in the thread that it was called to prevent blocking.
+            await Task.Run(async () =>
+            {
+                var command = new OpenCommand(this, uri);
+                await command.ExecuteAsync();
+            });
+
         }
 
         /// <summary>
@@ -161,6 +169,7 @@
 
         /// <summary>
         /// Closes the specified media.
+        /// This command gets processed in a threadpool thread.
         /// </summary>
         /// <returns></returns>
         public async Task Close()
@@ -170,8 +179,13 @@
                 Commands.Clear();
             }
 
-            var command = new CloseCommand(this);
-            await command.ExecuteAsync();
+            // Process the command in a background thread as opposed
+            // to in the thread that it was called to prevent blocking.
+            await Task.Run(async () =>
+            {
+                var command = new CloseCommand(this);
+                await command.ExecuteAsync();
+            });
         }
 
         /// <summary>

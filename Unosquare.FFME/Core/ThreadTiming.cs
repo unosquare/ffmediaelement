@@ -108,6 +108,26 @@
             await Task.Delay(timeoutMilliseconds);
         }
 
+        /// <summary>
+        /// Promises the delay.
+        /// </summary>
+        /// <param name="timeoutMilliseconds">The timeout milliseconds.</param>
+        /// <returns></returns>
+        public static Task PromiseDelay(double timeoutMilliseconds)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+            var timer = new System.Timers.Timer
+            {
+                Interval = timeoutMilliseconds,
+                AutoReset = false,
+            };
+
+            timer.Elapsed += (s, e) => { tcs.TrySetResult(true); };
+            timer.Start();
+
+            return tcs.Task;
+        }
+
         #endregion
     }
 }

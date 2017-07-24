@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Commands
 {
+    using System;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -7,6 +8,10 @@
     /// </summary>
     internal abstract class MediaCommand
     {
+
+        private TaskCompletionSource<bool> TaskCompleter;
+        
+
         #region Constructor
 
         /// <summary>
@@ -18,7 +23,8 @@
         {
             Manager = manager;
             CommandType = commandType;
-            Promise = new Task(Execute);
+            TaskCompleter = new TaskCompletionSource<bool>();
+            Promise = TaskCompleter.Task;
         }
 
         #endregion
@@ -56,7 +62,8 @@
                 await m.Commands.ExecutingCommand.Promise;
 
             m.Commands.ExecutingCommand = this;
-            Promise.Start();
+            Execute();
+            TaskCompleter.TrySetResult(true);
             await Promise;
             m.Commands.ExecutingCommand = null;
         }
