@@ -140,6 +140,7 @@
             target.Duration = source.Duration;
             target.SampleRate = targetSpec.SampleRate;
             target.SamplesPerChannel = outputSamplesPerChannel;
+            target.StreamIndex = input.StreamIndex;
 
             return target;
 

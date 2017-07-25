@@ -301,7 +301,7 @@
         public ReadOnlyCollection<ProgramInfo> Programs { get; private set; }
 
         /// <summary>
-        /// Gets the dictionary of stream components.
+        /// Gets the dictionary of stream information components by stream index.
         /// </summary>
         public ReadOnlyDictionary<int, StreamInfo> Streams { get; private set; }
 

@@ -29,6 +29,7 @@
         {
             InternalPointer = pointer;
             StreamTimeBase = component.Stream->time_base;
+            StreamIndex = component.StreamIndex;
         }
 
         #endregion
@@ -52,6 +53,11 @@
         /// Gets the end time of the frame
         /// </summary>
         public TimeSpan EndTime { get; protected set; }
+
+        /// <summary>
+        /// Gets the index of the stream from which this frame was decoded.
+        /// </summary>
+        public int StreamIndex { get; protected set; }
 
         /// <summary>
         /// Gets the time base of the stream that generated this frame.

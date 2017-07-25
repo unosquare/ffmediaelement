@@ -5,6 +5,7 @@
     using System;
     using System.Collections.Generic;
     using System.Windows.Media.Imaging;
+    using Decoding;
 
     partial class MediaElement
     {
@@ -41,25 +42,24 @@
         /// Raises the rendering video event.
         /// </summary>
         /// <param name="bitmap">The bitmap.</param>
+        /// <param name="stream">The stream.</param>
         /// <param name="startTime">The start time.</param>
         /// <param name="duration">The duration.</param>
         /// <param name="clock">The clock.</param>
-        internal void RaiseRenderingVideoEvent(WriteableBitmap bitmap, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
+        internal void RaiseRenderingVideoEvent(WriteableBitmap bitmap, StreamInfo stream, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
         {
-            RenderingVideo?.Invoke(this, new RenderingVideoEventArgs(bitmap, startTime, duration, clock));
+            RenderingVideo?.Invoke(this, new RenderingVideoEventArgs(bitmap, stream, startTime, duration, clock));
         }
 
         /// <summary>
         /// Raises the rendering audio event.
         /// </summary>
-        /// <param name="buffer">The buffer.</param>
-        /// <param name="length">The length.</param>
-        /// <param name="startTime">The start time.</param>
-        /// <param name="duration">The duration.</param>
+        /// <param name="audioBlock">The audio block.</param>
         /// <param name="clock">The clock.</param>
-        internal void RaiseRenderingAudioEvent(IntPtr buffer, int length, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
+        internal void RaiseRenderingAudioEvent(AudioBlock audioBlock, TimeSpan clock)
         {
-            RenderingAudio?.Invoke(this, new RenderingAudioEventArgs(buffer, length, startTime, duration, clock));
+            RenderingAudio?.Invoke(this, new RenderingAudioEventArgs(audioBlock.Buffer, audioBlock.BufferLength, 
+                Container.MediaInfo.Streams[audioBlock.StreamIndex], audioBlock.StartTime, audioBlock.Duration, clock));
         }
 
 
@@ -67,15 +67,12 @@
         /// <summary>
         /// Raises the rendering subtitles event.
         /// </summary>
-        /// <param name="text">The text.</param>
-        /// <param name="originalText">The original text.</param>
-        /// <param name="format">The format.</param>
-        /// <param name="startTime">The start time.</param>
-        /// <param name="duration">The duration.</param>
+        /// <param name="block">The block.</param>
         /// <param name="clock">The clock.</param>
-        internal void RaiseRenderingSubtitlesEvent(List<string> text, List<string> originalText, AVSubtitleType format, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
+        internal void RaiseRenderingSubtitlesEvent(SubtitleBlock block, TimeSpan clock)
         {
-            RenderingSubtitles?.Invoke(this, new RenderingSubtitlesEventArgs(text, originalText, format, startTime, duration, clock));
+            RenderingSubtitles?.Invoke(this, new RenderingSubtitlesEventArgs(block.Text, block.OriginalText, block.OriginalTextType, 
+                Container.MediaInfo.Streams[block.StreamIndex], block.StartTime, block.Duration, clock));
         }
 
         #endregion
@@ -92,16 +89,24 @@
     public abstract class RenderingEventArgs : EventArgs
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="RenderingEventArgs"/> class.
+        /// Initializes a new instance of the <see cref="RenderingEventArgs" /> class.
         /// </summary>
+        /// <param name="stream">The stream.</param>
         /// <param name="startTime">The position.</param>
         /// <param name="duration">The duration.</param>
-        protected RenderingEventArgs(TimeSpan startTime, TimeSpan duration, TimeSpan clock)
+        /// <param name="clock">The clock.</param>
+        protected RenderingEventArgs(StreamInfo stream, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
         {
             StartTime = startTime;
             Duration = duration;
             Clock = clock;
+            Stream = stream;
         }
+
+        /// <summary>
+        /// Provides Stream Information coming from the media container.
+        /// </summary>
+        public StreamInfo Stream { get; }
 
         /// <summary>
         /// Gets the clock position at which the media
@@ -133,17 +138,18 @@
         /// </summary>
         /// <param name="buffer">The buffer.</param>
         /// <param name="length">The length.</param>
-        /// <param name="position">The position.</param>
+        /// <param name="stream">The stream.</param>
+        /// <param name="startTime">The start time.</param>
         /// <param name="duration">The duration.</param>
-        internal RenderingAudioEventArgs(IntPtr buffer, int length, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
-            : base(startTime, duration, clock)
+        /// <param name="clock">The clock.</param>
+        internal RenderingAudioEventArgs(IntPtr buffer, int length, StreamInfo stream, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
+            : base(stream, startTime, duration, clock)
         {
             Buffer = buffer;
             BufferLength = length;
             SampleRate = AudioParams.Output.SampleRate;
             ChannelCount = AudioParams.Output.ChannelCount;
             BitsPerSample = AudioParams.OutputBitsPerSample;
-
         }
 
         /// <summary>
@@ -191,17 +197,18 @@
     {
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RenderingSubtitlesEventArgs"/> class.
+        /// Initializes a new instance of the <see cref="RenderingSubtitlesEventArgs" /> class.
         /// </summary>
         /// <param name="text">The text.</param>
         /// <param name="originalText">The original text.</param>
         /// <param name="format">The format.</param>
+        /// <param name="stream">The stream.</param>
         /// <param name="startTime">The start time.</param>
         /// <param name="duration">The duration.</param>
         /// <param name="clock">The clock.</param>
         internal RenderingSubtitlesEventArgs(List<string> text, List<string> originalText, AVSubtitleType format,
-            TimeSpan startTime, TimeSpan duration, TimeSpan clock)
-            : base(startTime, duration, clock)
+            StreamInfo stream, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
+            : base(stream, startTime, duration, clock)
         {
             Text = text;
             Format = format;
@@ -238,14 +245,15 @@
     {
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RenderingVideoEventArgs"/> class.
+        /// Initializes a new instance of the <see cref="RenderingVideoEventArgs" /> class.
         /// </summary>
         /// <param name="bitmap">The bitmap.</param>
+        /// <param name="stream">The stream.</param>
         /// <param name="startTime">The start time.</param>
         /// <param name="duration">The duration.</param>
         /// <param name="clock">The clock.</param>
-        internal RenderingVideoEventArgs(WriteableBitmap bitmap, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
-            : base(startTime, duration, clock)
+        internal RenderingVideoEventArgs(WriteableBitmap bitmap, StreamInfo stream, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
+            : base(stream, startTime, duration, clock)
         {
             Bitmap = bitmap;
         }

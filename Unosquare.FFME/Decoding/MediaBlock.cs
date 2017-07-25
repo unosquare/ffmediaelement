@@ -33,6 +33,11 @@
         public TimeSpan EndTime { get; internal set; }
 
         /// <summary>
+        /// Gets or sets the index of the stream.
+        /// </summary>
+        public int StreamIndex { get; internal set; }
+
+        /// <summary>
         /// Gets the middle timestamp between the start and end time.
         /// Returns Zero if the duration is Zero or negative.
         /// </summary>

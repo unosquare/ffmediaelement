@@ -337,6 +337,7 @@
             // We set the target properties
             target.EndTime = source.EndTime;
             target.StartTime = source.StartTime;
+            target.StreamIndex = input.StreamIndex;
             target.BufferStride = targetStride[0];
             target.Duration = source.Duration;
             target.PixelHeight = source.Pointer->height;

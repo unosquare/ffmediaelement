@@ -56,6 +56,7 @@
             target.EndTime = source.EndTime;
             target.StartTime = source.StartTime;
             target.Duration = source.Duration;
+            target.StreamIndex = input.StreamIndex;
 
             target.OriginalText.Clear();
             if (source.Text.Count > 0)
