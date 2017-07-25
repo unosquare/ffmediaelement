@@ -131,13 +131,13 @@ rendering event arguments.</p>
   
   
   <a id="Unosquare_FFME_RenderingEventArgs__ctor_" data-uid="Unosquare.FFME.RenderingEventArgs.#ctor*"></a>
-  <h4 id="Unosquare_FFME_RenderingEventArgs__ctor_System_TimeSpan_System_TimeSpan_System_TimeSpan_" data-uid="Unosquare.FFME.RenderingEventArgs.#ctor(System.TimeSpan,System.TimeSpan,System.TimeSpan)">RenderingEventArgs(TimeSpan, TimeSpan, TimeSpan)</h4>
+  <h4 id="Unosquare_FFME_RenderingEventArgs__ctor_Unosquare_FFME_StreamInfo_System_TimeSpan_System_TimeSpan_System_TimeSpan_" data-uid="Unosquare.FFME.RenderingEventArgs.#ctor(Unosquare.FFME.StreamInfo,System.TimeSpan,System.TimeSpan,System.TimeSpan)">RenderingEventArgs(StreamInfo, TimeSpan, TimeSpan, TimeSpan)</h4>
   <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="Unosquare.FFME.RenderingEventArgs.html">RenderingEventArgs</a> class.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected RenderingEventArgs(TimeSpan startTime, TimeSpan duration, TimeSpan clock)</code></pre>
+    <pre><code class="lang-csharp hljs">protected RenderingEventArgs(StreamInfo stream, TimeSpan startTime, TimeSpan duration, TimeSpan clock)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -149,6 +149,12 @@ rendering event arguments.</p>
       </tr>
     </thead>
     <tbody>
+      <tr>
+        <td><a class="xref" href="Unosquare.FFME.StreamInfo.html">StreamInfo</a></td>
+        <td><span class="parametername">stream</span></td>
+        <td><p>The stream.</p>
+</td>
+      </tr>
       <tr>
         <td><span class="xref">System.TimeSpan</span></td>
         <td><span class="parametername">startTime</span></td>
@@ -164,7 +170,8 @@ rendering event arguments.</p>
       <tr>
         <td><span class="xref">System.TimeSpan</span></td>
         <td><span class="parametername">clock</span></td>
-        <td></td>
+        <td><p>The clock.</p>
+</td>
       </tr>
     </tbody>
   </table>
@@ -246,6 +253,32 @@ has to be presented.</p>
     <tbody>
       <tr>
         <td><span class="xref">System.TimeSpan</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_RenderingEventArgs_Stream_" data-uid="Unosquare.FFME.RenderingEventArgs.Stream*"></a>
+  <h4 id="Unosquare_FFME_RenderingEventArgs_Stream" data-uid="Unosquare.FFME.RenderingEventArgs.Stream">Stream</h4>
+  <div class="markdown level1 summary"><p>Provides Stream Information coming from the media container.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public StreamInfo Stream { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Unosquare.FFME.StreamInfo.html">StreamInfo</a></td>
         <td></td>
       </tr>
     </tbody>

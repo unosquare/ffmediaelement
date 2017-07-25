@@ -1645,12 +1645,12 @@ references:
   commentId: T:Unosquare.FFME.RenderingEventArgs
   fullName: Unosquare.FFME.RenderingEventArgs
   nameWithType: RenderingEventArgs
-- uid: Unosquare.FFME.RenderingEventArgs.#ctor(System.TimeSpan,System.TimeSpan,System.TimeSpan)
-  name: RenderingEventArgs(TimeSpan, TimeSpan, TimeSpan)
-  href: api/Unosquare.FFME.RenderingEventArgs.html#Unosquare_FFME_RenderingEventArgs__ctor_System_TimeSpan_System_TimeSpan_System_TimeSpan_
-  commentId: M:Unosquare.FFME.RenderingEventArgs.#ctor(System.TimeSpan,System.TimeSpan,System.TimeSpan)
-  fullName: Unosquare.FFME.RenderingEventArgs.RenderingEventArgs(System.TimeSpan, System.TimeSpan, System.TimeSpan)
-  nameWithType: RenderingEventArgs.RenderingEventArgs(TimeSpan, TimeSpan, TimeSpan)
+- uid: Unosquare.FFME.RenderingEventArgs.#ctor(Unosquare.FFME.StreamInfo,System.TimeSpan,System.TimeSpan,System.TimeSpan)
+  name: RenderingEventArgs(StreamInfo, TimeSpan, TimeSpan, TimeSpan)
+  href: api/Unosquare.FFME.RenderingEventArgs.html#Unosquare_FFME_RenderingEventArgs__ctor_Unosquare_FFME_StreamInfo_System_TimeSpan_System_TimeSpan_System_TimeSpan_
+  commentId: M:Unosquare.FFME.RenderingEventArgs.#ctor(Unosquare.FFME.StreamInfo,System.TimeSpan,System.TimeSpan,System.TimeSpan)
+  fullName: Unosquare.FFME.RenderingEventArgs.RenderingEventArgs(Unosquare.FFME.StreamInfo, System.TimeSpan, System.TimeSpan, System.TimeSpan)
+  nameWithType: RenderingEventArgs.RenderingEventArgs(StreamInfo, TimeSpan, TimeSpan, TimeSpan)
 - uid: Unosquare.FFME.RenderingEventArgs.#ctor*
   name: RenderingEventArgs
   href: api/Unosquare.FFME.RenderingEventArgs.html#Unosquare_FFME_RenderingEventArgs__ctor_
@@ -1693,6 +1693,18 @@ references:
   commentId: Overload:Unosquare.FFME.RenderingEventArgs.StartTime
   fullName: Unosquare.FFME.RenderingEventArgs.StartTime
   nameWithType: RenderingEventArgs.StartTime
+- uid: Unosquare.FFME.RenderingEventArgs.Stream
+  name: Stream
+  href: api/Unosquare.FFME.RenderingEventArgs.html#Unosquare_FFME_RenderingEventArgs_Stream
+  commentId: P:Unosquare.FFME.RenderingEventArgs.Stream
+  fullName: Unosquare.FFME.RenderingEventArgs.Stream
+  nameWithType: RenderingEventArgs.Stream
+- uid: Unosquare.FFME.RenderingEventArgs.Stream*
+  name: Stream
+  href: api/Unosquare.FFME.RenderingEventArgs.html#Unosquare_FFME_RenderingEventArgs_Stream_
+  commentId: Overload:Unosquare.FFME.RenderingEventArgs.Stream
+  fullName: Unosquare.FFME.RenderingEventArgs.Stream
+  nameWithType: RenderingEventArgs.Stream
 - uid: Unosquare.FFME.RenderingSubtitlesEventArgs
   name: RenderingSubtitlesEventArgs
   href: api/Unosquare.FFME.RenderingSubtitlesEventArgs.html
