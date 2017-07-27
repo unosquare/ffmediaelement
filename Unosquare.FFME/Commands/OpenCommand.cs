@@ -68,7 +68,9 @@
                 m.MediaState = System.Windows.Controls.MediaState.Manual;
 
                 var mediaUrl = Source.IsFile ? Source.LocalPath : Source.ToString();
-                m.Container = new MediaContainer(mediaUrl, m.Logger);
+
+                // the async protocol prefix allows for increased performance for local files.
+                m.Container = new MediaContainer(mediaUrl, m.Logger, Source.IsFile ? "async" : null);
                 m.RaiseMediaOpeningEvent();
                 m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Entered");
                 m.Container.Open();

@@ -94,6 +94,12 @@
         public string MediaUrl { get; private set; }
 
         /// <summary>
+        /// Gets the protocol prefix.
+        /// Typically async for local files and empty for other types.
+        /// </summary>
+        public string ProtocolPrefix { get; private set; }
+
+        /// <summary>
         /// The media initialization options.
         /// Options are applied when calling the Initialize method.
         /// After initialization, changing the options has no effect.
@@ -256,9 +262,13 @@
         /// Initializes a new instance of the <see cref="MediaContainer" /> class.
         /// </summary>
         /// <param name="mediaUrl">The media URL.</param>
-        /// <param name="mediaElement">The parent media element.</param>
+        /// <param name="logger">The logger.</param>
+        /// <param name="protocolPrefix">
+        /// The protocol prefix. See https://ffmpeg.org/ffmpeg-protocols.html 
+        /// Leave null if setting it is not intended.</param>
+        /// <exception cref="ArgumentNullException">mediaUrl</exception>
         /// <exception cref="System.ArgumentNullException">mediaUrl</exception>
-        public MediaContainer(string mediaUrl, IMediaLogger logger)
+        public MediaContainer(string mediaUrl, IMediaLogger logger, string protocolPrefix = null)
         {
             // Argument Validation
             if (string.IsNullOrWhiteSpace(mediaUrl))
@@ -271,6 +281,14 @@
             Logger = logger;
             MediaUrl = mediaUrl;
 
+            // drop the protocol prefix if it is redundant
+            if (string.IsNullOrWhiteSpace(MediaUrl) == false && string.IsNullOrWhiteSpace(protocolPrefix) == false
+                && MediaUrl.ToLowerInvariant().Trim().StartsWith(protocolPrefix.ToLowerInvariant() + ":"))
+            {
+                protocolPrefix = null;
+            }
+
+            ProtocolPrefix = protocolPrefix;
             StreamInitialize();
         }
 
@@ -491,11 +509,15 @@
                         // We set the start of the read operation time so tiomeouts can be detected
                         Thread.VolatileWrite(ref StreamReadInterruptStartTime, DateTime.UtcNow.Ticks);
                         fixed (AVDictionary** reference = &formatOptions.Pointer)
-                            openResult = ffmpeg.avformat_open_input(inputContext, $"async:{MediaUrl}", inputFormat, reference);
+                        {
+                            var prefix = string.IsNullOrWhiteSpace(ProtocolPrefix) ? string.Empty : $"{ProtocolPrefix.Trim()}:";
+                            openResult = ffmpeg.avformat_open_input(inputContext, $"{prefix}{MediaUrl}", inputFormat, reference);
+                        }
+
 
                         // Validate the open operation
                         if (openResult < 0)
-                            throw new MediaContainerException($"Could not open '{MediaUrl}'. " 
+                            throw new MediaContainerException($"Could not open '{MediaUrl}'. "
                                 + $"Error {openResult}: {Utils.FFmpeg.GetErrorMessage(openResult)}");
                     }
 
@@ -547,10 +569,9 @@
                 {
                     MediaStartTimeOffset = TimeSpan.Zero;
                     Logger?.Log(MediaLogMessageType.Warning,
-                        $"Unable to determine the media start time offset. " + 
+                        $"Unable to determine the media start time offset. " +
                         $"Media start time offset will be assumed to start at {TimeSpan.Zero}.");
                 }
-
 
                 // Extract detailed media information and set the default streams to the
                 // best available ones.
