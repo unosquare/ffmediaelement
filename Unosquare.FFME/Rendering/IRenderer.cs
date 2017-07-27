@@ -8,6 +8,12 @@
     /// </summary>
     internal interface IRenderer
     {
+
+        /// <summary>
+        /// Waits for the renderer to be ready to render.
+        /// </summary>
+        void WaitForReadyState();
+
         /// <summary>
         /// Executed when the Play method is called on the parent MediaElement
         /// </summary>

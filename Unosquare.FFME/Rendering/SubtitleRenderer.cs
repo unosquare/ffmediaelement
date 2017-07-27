@@ -5,6 +5,7 @@
     using System.Windows;
     using Unosquare.FFME.Core;
     using System.Collections.Generic;
+    using System.Threading;
 
     /// <summary>
     /// Subtitle Renderer - Does nothing at this point.
@@ -69,6 +70,16 @@
         public void Seek()
         {
             // placeholder
+        }
+
+        /// <summary>
+        /// Waits for the renderer to be ready to render.
+        /// </summary>
+        public void WaitForReadyState()
+        {
+            // This initializes the text blocks
+            // for subtitle rendering automatically.
+            SetText(string.Empty);
         }
 
         /// <summary>

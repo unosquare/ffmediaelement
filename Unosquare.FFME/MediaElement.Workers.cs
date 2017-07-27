@@ -511,6 +511,10 @@
             Clock.Position = Blocks[main].RangeStartTime;
             var wallClock = Clock.Position;
 
+            // Wait for renderers to be ready
+            foreach (var t in all)
+                Renderers[t]?.WaitForReadyState();
+
             #endregion
 
             while (IsTaskCancellationPending == false)
@@ -559,7 +563,7 @@
                 // Signal the rendering cycle was set.
                 BlockRenderingCycle.Set();
 
-                // Call the update method
+                // Call the update method on all renderers
                 foreach (var t in all)
                     Renderers[t]?.Update(wallClock);
 

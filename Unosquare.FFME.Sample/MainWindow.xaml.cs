@@ -366,7 +366,7 @@
             var vuMeterLeftValue = 0d;
             var vuMeterRightValue = 0d;
             const float vuMeterLeftOffset = 16;
-            const float vuMeterTopOffset = 40;
+            const float vuMeterTopOffset = 50;
             const float vuMeterScaleFactor = 20; // RMS * pixel factor = the length of the VU meter lines
 
             #endregion
@@ -437,8 +437,8 @@
                     vuMeterLeftOffset + 5 + (Convert.ToSingle(vuMeterLeftValue) * vuMeterScaleFactor), vuMeterTopOffset);
 
                 overlayGraphics.DrawLine(vuMeterRightPen,
-                    vuMeterLeftOffset, vuMeterTopOffset + (vuMeterTopOffset / 2),
-                    vuMeterLeftOffset + 5 + (Convert.ToSingle(vuMeterRightValue) * vuMeterScaleFactor), vuMeterTopOffset + (vuMeterTopOffset / 2));
+                    vuMeterLeftOffset, vuMeterTopOffset + 20,
+                    vuMeterLeftOffset + 5 + (Convert.ToSingle(vuMeterRightValue) * vuMeterScaleFactor), vuMeterTopOffset + 20);
 
                 e.Bitmap.AddDirtyRect(new Int32Rect(0, 0, e.Bitmap.PixelWidth, e.Bitmap.PixelHeight));
                 e.Bitmap.Unlock();

@@ -37,6 +37,8 @@
         private double SyncThesholdMilliseconds = 0d;
         private int SampleBlockSize = 0;
 
+        private readonly ManualResetEvent WaitForReadyEvent = new ManualResetEvent(false);
+
         #endregion
 
         #region Constructors
@@ -105,6 +107,8 @@
         {
             try
             {
+                WaitForReadyEvent.Reset();
+
                 // Remove the event handler
                 if (Application.Current != null)
                     Utils.UIInvoke(DispatcherPriority.Normal, () =>
@@ -351,6 +355,14 @@
 
         }
 
+        /// <summary>
+        /// Waits for the renderer to be ready to render.
+        /// </summary>
+        public void WaitForReadyState()
+        {
+            WaitForReadyEvent.WaitOne();
+        }
+
         #endregion
 
         #region DSP
@@ -571,6 +583,8 @@
             {
                 try
                 {
+                    WaitForReadyEvent.Set();
+
                     // Render silence if we don't need to output anything
                     if (MediaElement.IsPlaying == false || SpeedRatio <= 0d || MediaElement.HasAudio == false || AudioBuffer.ReadableCount <= 0)
                     {
@@ -626,14 +640,18 @@
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing">
+        /// <param name="alsoManaged">
         ///   <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        void Dispose(bool disposing)
+        void Dispose(bool alsoManaged)
         {
             if (!IsDisposed)
             {
-                if (disposing)
+                if (alsoManaged)
+                {
                     Destroy();
+                    WaitForReadyEvent.Set();
+                    WaitForReadyEvent.Dispose();
+                }
 
                 IsDisposed = true;
             }

@@ -121,6 +121,15 @@
         }
 
         /// <summary>
+        /// Waits for the renderer to be ready to render.
+        /// </summary>
+        public void WaitForReadyState()
+        {
+            // placeholder
+            // we don't need to be ready.
+        }
+
+        /// <summary>
         /// Renders the specified media block.
         /// This needs to return immediately so the calling thread is not disturbed.
         /// </summary>
