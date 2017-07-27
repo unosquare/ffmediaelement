@@ -491,7 +491,7 @@
                         // We set the start of the read operation time so tiomeouts can be detected
                         Thread.VolatileWrite(ref StreamReadInterruptStartTime, DateTime.UtcNow.Ticks);
                         fixed (AVDictionary** reference = &formatOptions.Pointer)
-                            openResult = ffmpeg.avformat_open_input(inputContext, $"{MediaUrl}", inputFormat, reference);
+                            openResult = ffmpeg.avformat_open_input(inputContext, $"async:{MediaUrl}", inputFormat, reference);
 
                         // Validate the open operation
                         if (openResult < 0)
@@ -516,7 +516,6 @@
                 }
 
                 // Inject Codec Parameters
-                InputContext->flags |= ffmpeg.AVFMT_FLAG_GENPTS;
                 if (MediaOptions.GeneratePts) { InputContext->flags |= ffmpeg.AVFMT_FLAG_GENPTS; }
                 ffmpeg.av_format_inject_global_side_data(InputContext);
 
