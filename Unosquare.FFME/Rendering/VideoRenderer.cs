@@ -90,7 +90,6 @@
             // placeholder
         }
 
-
         /// <summary>
         /// Executed when the Pause method is called on the parent MediaElement
         /// </summary>

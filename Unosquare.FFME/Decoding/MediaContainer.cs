@@ -514,7 +514,6 @@
                             openResult = ffmpeg.avformat_open_input(inputContext, $"{prefix}{MediaUrl}", inputFormat, reference);
                         }
 
-
                         // Validate the open operation
                         if (openResult < 0)
                             throw new MediaContainerException($"Could not open '{MediaUrl}'. "

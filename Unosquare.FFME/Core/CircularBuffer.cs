@@ -144,7 +144,6 @@
             }
         }
 
-
         /// <summary>
         /// Reads the specified number of bytes into the target array.
         /// </summary>
@@ -269,7 +268,5 @@
         }
 
         #endregion
-
-
     }
 }

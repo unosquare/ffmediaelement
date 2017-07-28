@@ -362,7 +362,6 @@
 
         #region IDisposable Support
 
-
         /// <summary>
         /// Destroys the filtergraph releasing unmanaged resources.
         /// </summary>
@@ -379,7 +378,6 @@
                 SourceOutput = null;
             }
         }
-
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
@@ -399,7 +397,6 @@
             base.Dispose(alsoManaged);
 
         }
-
         #endregion
     }
 }

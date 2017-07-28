@@ -13,7 +13,6 @@
     {
         #region Source
 
-
         /// <summary>
         /// DependencyProperty for FFmpegMediaElement Source property. 
         /// </summary>
@@ -188,7 +187,6 @@
                 audioRenderer.Volume = (double)e.NewValue;
         }
 
-
         /// <summary>
         /// Gets/Sets the Volume property on the MediaElement.
         /// Note: Valid values are from 0 to 1
@@ -241,8 +239,6 @@
             if (element.Renderers[MediaType.Audio] is AudioRenderer audioRenderer)
                 audioRenderer.Balance = (double)e.NewValue;
         }
-
-
 
         /// <summary>
         /// Gets/Sets the Balance property on the MediaElement. 
@@ -391,7 +387,6 @@
                             FrameworkPropertyMetadataOptions.None,
                             new PropertyChangedCallback(LoadedBehaviorPropertyChanged)));
 
-
         private static void LoadedBehaviorPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var element = d as MediaElement;
@@ -440,8 +435,6 @@
                               new PropertyChangedCallback(PositionPropertyChanged),
                               new CoerceValueCallback(CoercePositionProperty)));
 
-
-
         private static async void PositionPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var element = d as MediaElement;
@@ -473,7 +466,6 @@
             get { return (TimeSpan)GetValue(PositionProperty); }
             set { SetValue(PositionProperty, value); }
         }
-
 
         /// <summary>
         /// Updates the position property signaling the update is
@@ -511,7 +503,6 @@
                               FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender,
                               new PropertyChangedCallback(SpeedRatioPropertyChanged),
                               new CoerceValueCallback(CoerceSpeedRatioProperty)));
-
 
         public static object CoerceSpeedRatioProperty(DependencyObject d, object value)
         {

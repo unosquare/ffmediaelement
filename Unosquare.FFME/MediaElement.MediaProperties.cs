@@ -341,8 +341,6 @@
             OnPropertyChanged(nameof(BufferCacheLength));
             OnPropertyChanged(nameof(DownloadCacheLength));
             OnPropertyChanged(nameof(FrameStepDuration));
-
-
         }
 
         /// <summary>

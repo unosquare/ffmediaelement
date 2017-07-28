@@ -20,6 +20,7 @@ environment:
 init:
 - ps: $Env:LABEL = "CI" + $Env:APPVEYOR_BUILD_NUMBER.PadLeft(5, "0")
 before_build:
+- nuget restore
 - ps: |
         if(-Not $env:APPVEYOR_PULL_REQUEST_TITLE)
         {

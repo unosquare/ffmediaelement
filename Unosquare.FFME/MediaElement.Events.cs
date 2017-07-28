@@ -65,8 +65,6 @@
                 Container.MediaInfo.Streams[audioBlock.StreamIndex], audioBlock.StartTime, audioBlock.Duration, clock));
         }
 
-
-
         /// <summary>
         /// Raises the rendering subtitles event.
         /// </summary>
@@ -237,9 +235,7 @@
         /// subtitle text is in.
         /// </summary>
         public AVSubtitleType Format { get; }
-
     }
-
 
     /// <summary>
     /// The video rendering event arguments

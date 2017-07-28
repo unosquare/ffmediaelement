@@ -8,10 +8,8 @@
     /// </summary>
     internal abstract class MediaCommand
     {
-
         private TaskCompletionSource<bool> TaskCompleter;
         
-
         #region Constructor
 
         /// <summary>
