@@ -623,8 +623,6 @@
             // Picture attachments are only required after the first read or after a seek.
             RequiresPictureAttachments = true;
 
-            // Seek to the begining of the file
-            StreamSeekToStart();
         }
 
         /// <summary>

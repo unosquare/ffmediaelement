@@ -6,6 +6,7 @@
     using System.Collections.Generic;
     using System.Windows.Media.Imaging;
     using Decoding;
+    using System.Runtime.CompilerServices;
 
     partial class MediaElement
     {
@@ -46,6 +47,7 @@
         /// <param name="startTime">The start time.</param>
         /// <param name="duration">The duration.</param>
         /// <param name="clock">The clock.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseRenderingVideoEvent(WriteableBitmap bitmap, StreamInfo stream, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
         {
             RenderingVideo?.Invoke(this, new RenderingVideoEventArgs(bitmap, stream, startTime, duration, clock));
@@ -56,6 +58,7 @@
         /// </summary>
         /// <param name="audioBlock">The audio block.</param>
         /// <param name="clock">The clock.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseRenderingAudioEvent(AudioBlock audioBlock, TimeSpan clock)
         {
             RenderingAudio?.Invoke(this, new RenderingAudioEventArgs(audioBlock.Buffer, audioBlock.BufferLength, 
@@ -69,6 +72,7 @@
         /// </summary>
         /// <param name="block">The block.</param>
         /// <param name="clock">The clock.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseRenderingSubtitlesEvent(SubtitleBlock block, TimeSpan clock)
         {
             RenderingSubtitles?.Invoke(this, new RenderingSubtitlesEventArgs(block.Text, block.OriginalText, block.OriginalTextType, 

@@ -7,6 +7,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Windows.Controls;
@@ -80,6 +81,7 @@
         /// <summary>
         /// Gets a value indicating whether more frames can be converted into blocks of the given type.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool CanReadMoreFramesOf(MediaType t) { return CanReadMorePackets || Container.Components[t].PacketBufferLength > 0; }
 
         /// <summary>
@@ -87,15 +89,19 @@
         /// </summary>
         /// <param name="block">The block.</param>
         /// <param name="clockPosition">The clock position.</param>
-        private void SendBlockToRenderer(MediaBlock block, TimeSpan clockPosition)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private int SendBlockToRenderer(MediaBlock block, TimeSpan clockPosition)
         {
             Renderers[block.MediaType].Render(block, clockPosition);
             this.LogRenderBlock(block, clockPosition, Blocks[block.MediaType].IndexOf(clockPosition));
+            LastRenderTime[block.MediaType] = block.StartTime;
+            return 1;
         }
 
         /// <summary>
         /// Sets the clock to a discrete video position if possible
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void SnapVideoPosition(TimeSpan position)
         {
             if (Container == null) return;
@@ -115,6 +121,7 @@
         /// </summary>
         /// <param name="t">The t.</param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int AddBlocks(MediaType t)
         {
             var decodedFrameCount = 0;
@@ -543,16 +550,22 @@
                 // Render each of the Media Types if it is time to do so.
                 foreach (var t in all)
                 {
+                    // Skip rendering for nulls
                     if (currentBlock[t] == null)
                         continue;
 
-                    // render the frame if we have not rendered
-                    if ((currentBlock[t].StartTime != LastRenderTime[t] || LastRenderTime[t] == TimeSpan.MinValue)
-                        && (IsPlaying == false || currentBlock[t].Contains(wallClock)))
+                    // Render by forced signal (TimeSpan.MinValue)
+                    if (LastRenderTime[t] == TimeSpan.MinValue)
                     {
-                        LastRenderTime[t] = currentBlock[t].StartTime;
-                        SendBlockToRenderer(currentBlock[t], wallClock);
-                        renderedBlockCount += 1;
+                        renderedBlockCount += SendBlockToRenderer(currentBlock[t], wallClock);
+                        continue;
+                    }
+
+                    // Render because we simply have not rendered
+                    if (currentBlock[t].StartTime != LastRenderTime[t])
+                    {
+                        renderedBlockCount += SendBlockToRenderer(currentBlock[t], wallClock);
+                        continue;
                     }
                 }
 

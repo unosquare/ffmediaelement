@@ -4,6 +4,7 @@
     using System;
     using System.Linq;
     using System.Reflection;
+    using System.Runtime.CompilerServices;
     using System.Windows;
     using System.Windows.Media.Imaging;
     using System.Windows.Threading;
@@ -30,6 +31,7 @@
         /// Logs the start of an event
         /// </summary>
         /// <param name="e">The e.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void LogEventStart(RoutedEvent e)
         {
             if (Utils.IsInDebugMode)
@@ -39,6 +41,7 @@
         /// <summary>
         /// Logs the end of an event.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void LogEventDone(RoutedEvent e)
         {
             if (Utils.IsInDebugMode)
@@ -48,6 +51,7 @@
         /// <summary>
         /// Raises the buffering started event.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void RaiseBufferingStartedEvent()
         {
             LogEventStart(BufferingStartedEvent);
@@ -58,6 +62,7 @@
         /// <summary>
         /// Raises the buffering ended event.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void RaiseBufferingEndedEvent()
         {
             LogEventStart(BufferingEndedEvent);
@@ -68,6 +73,7 @@
         /// <summary>
         /// Raises the Seeking started event.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void RaiseSeekingStartedEvent()
         {
             LogEventStart(SeekingStartedEvent);
@@ -78,6 +84,7 @@
         /// <summary>
         /// Raises the Seeking ended event.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void RaiseSeekingEndedEvent()
         {
             LogEventStart(SeekingEndedEvent);
@@ -90,6 +97,7 @@
         /// Raises the media failed event.
         /// </summary>
         /// <param name="ex">The ex.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseMediaFailedEvent(Exception ex)
         {
             LogEventStart(MediaFailedEvent);
@@ -101,6 +109,7 @@
         /// <summary>
         /// Raises the media opened event.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseMediaOpenedEvent()
         {
             LogEventStart(MediaOpenedEvent);
@@ -111,6 +120,7 @@
         /// <summary>
         /// Raises the media opening event.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseMediaOpeningEvent()
         {
             LogEventStart(MediaOpeningEvent);
@@ -125,6 +135,7 @@
         /// <summary>
         /// Raises the media ended event.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void RaiseMediaEndedEvent()
         {
             LogEventStart(MediaEndedEvent);
