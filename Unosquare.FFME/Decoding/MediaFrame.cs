@@ -11,7 +11,6 @@
     /// <seealso cref="System.IDisposable" />
     internal unsafe abstract class MediaFrame : IDisposable, IComparable<MediaFrame>
     {
-
         #region Private Members
 
         protected void* InternalPointer;
@@ -101,8 +100,6 @@
         public abstract void Dispose();
 
         #endregion
-
-
     }
 
 }

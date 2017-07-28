@@ -46,7 +46,6 @@
             {
                 var rect = frame->rects[i];
 
-
                 if (rect->type == AVSubtitleType.SUBTITLE_TEXT)
                 {
                     if (rect->text != null)

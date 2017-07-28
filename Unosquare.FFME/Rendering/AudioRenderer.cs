@@ -98,7 +98,6 @@
             AudioDevice.Init(this);
         }
 
-
         /// <summary>
         /// Destroys the audio renderer.
         /// Makes it useless.
@@ -195,7 +194,6 @@
             get { return m_IsMuted; }
             set { m_IsMuted = value; }
         }
-
 
         /// <summary>
         /// Gets the realtime latency of the audio relative to the internal wall clock.
@@ -563,8 +561,6 @@
                 isLeftSample = !isLeftSample;
             }
         }
-
-
         #endregion
 
         #region IWaveProvider Support

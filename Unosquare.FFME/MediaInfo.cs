@@ -68,7 +68,6 @@
                 codecContext->coded_width = avObject->codec->coded_height;
                 codecContext->coded_height = avObject->codec->coded_width;
 
-
                 var bitsPerSample = codecContext->codec_type == AVMediaType.AVMEDIA_TYPE_AUDIO ?
                     ffmpeg.av_get_bits_per_sample(codecContext->codec_id) : 0;
 
@@ -127,7 +126,6 @@
                 // dump_sidedata
 
                 ffmpeg.avcodec_free_context(&codecContext);
-
 
                 result.Add(stream);
             }

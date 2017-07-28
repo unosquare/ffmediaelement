@@ -313,7 +313,6 @@
 
                 NativeMethods.SetDllDirectory(ffmpegPath);
 
-
                 if (File.Exists(Path.Combine(ffmpegPath, Constants.DllAVDevice)))
                     ffmpeg.avdevice_register_all();
 
@@ -640,7 +639,6 @@
             var inputParts = input.Split(new char[] { ',' }, 10);
             if (inputParts.Length != 10)
                 return string.Empty;
-
 
             input = inputParts[inputParts.Length - 1].Replace("\\n", " ").Replace("\\N", "\r\n");
             var builder = new StringBuilder(input.Length);

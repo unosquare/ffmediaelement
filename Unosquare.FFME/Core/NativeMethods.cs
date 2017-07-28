@@ -11,7 +11,6 @@ namespace Unosquare.FFME.Core
     {
         private const string Kernel32 = "kernel32.dll";
 
-
         /// <summary>
         /// Sets the DLL directory in which external dependencies can be located.
         /// </summary>

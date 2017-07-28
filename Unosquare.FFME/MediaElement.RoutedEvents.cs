@@ -85,7 +85,6 @@
             LogEventDone(SeekingEndedEvent);
         }
 
-
         /// <summary>
         /// Raises the media failed event.
         /// </summary>
@@ -260,7 +259,6 @@
                             RoutingStrategy.Bubble,
                             typeof(RoutedEventHandler),
                             typeof(MediaElement));
-
 
         /// <summary>
         /// Raised when the media is opened 

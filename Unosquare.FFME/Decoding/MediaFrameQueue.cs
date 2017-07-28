@@ -19,7 +19,6 @@
 
         #region Properties
 
-
         /// <summary>
         /// Gets or sets the <see cref="MediaFrame"/> at the specified index.
         /// </summary>
