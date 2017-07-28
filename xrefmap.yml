@@ -301,54 +301,6 @@ references:
   commentId: Overload:Unosquare.FFME.MediaElement.Close
   fullName: Unosquare.FFME.MediaElement.Close
   nameWithType: MediaElement.Close
-- uid: Unosquare.FFME.MediaElement.CoerceBalanceProperty(DependencyObject,System.Object)
-  name: CoerceBalanceProperty(DependencyObject, Object)
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_CoerceBalanceProperty_DependencyObject_System_Object_
-  commentId: M:Unosquare.FFME.MediaElement.CoerceBalanceProperty(DependencyObject,System.Object)
-  fullName: Unosquare.FFME.MediaElement.CoerceBalanceProperty(DependencyObject, System.Object)
-  nameWithType: MediaElement.CoerceBalanceProperty(DependencyObject, Object)
-- uid: Unosquare.FFME.MediaElement.CoerceBalanceProperty*
-  name: CoerceBalanceProperty
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_CoerceBalanceProperty_
-  commentId: Overload:Unosquare.FFME.MediaElement.CoerceBalanceProperty
-  fullName: Unosquare.FFME.MediaElement.CoerceBalanceProperty
-  nameWithType: MediaElement.CoerceBalanceProperty
-- uid: Unosquare.FFME.MediaElement.CoercePositionProperty(DependencyObject,System.Object)
-  name: CoercePositionProperty(DependencyObject, Object)
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_CoercePositionProperty_DependencyObject_System_Object_
-  commentId: M:Unosquare.FFME.MediaElement.CoercePositionProperty(DependencyObject,System.Object)
-  fullName: Unosquare.FFME.MediaElement.CoercePositionProperty(DependencyObject, System.Object)
-  nameWithType: MediaElement.CoercePositionProperty(DependencyObject, Object)
-- uid: Unosquare.FFME.MediaElement.CoercePositionProperty*
-  name: CoercePositionProperty
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_CoercePositionProperty_
-  commentId: Overload:Unosquare.FFME.MediaElement.CoercePositionProperty
-  fullName: Unosquare.FFME.MediaElement.CoercePositionProperty
-  nameWithType: MediaElement.CoercePositionProperty
-- uid: Unosquare.FFME.MediaElement.CoerceSpeedRatioProperty(DependencyObject,System.Object)
-  name: CoerceSpeedRatioProperty(DependencyObject, Object)
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_CoerceSpeedRatioProperty_DependencyObject_System_Object_
-  commentId: M:Unosquare.FFME.MediaElement.CoerceSpeedRatioProperty(DependencyObject,System.Object)
-  fullName: Unosquare.FFME.MediaElement.CoerceSpeedRatioProperty(DependencyObject, System.Object)
-  nameWithType: MediaElement.CoerceSpeedRatioProperty(DependencyObject, Object)
-- uid: Unosquare.FFME.MediaElement.CoerceSpeedRatioProperty*
-  name: CoerceSpeedRatioProperty
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_CoerceSpeedRatioProperty_
-  commentId: Overload:Unosquare.FFME.MediaElement.CoerceSpeedRatioProperty
-  fullName: Unosquare.FFME.MediaElement.CoerceSpeedRatioProperty
-  nameWithType: MediaElement.CoerceSpeedRatioProperty
-- uid: Unosquare.FFME.MediaElement.CoerceVolumeProperty(DependencyObject,System.Object)
-  name: CoerceVolumeProperty(DependencyObject, Object)
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_CoerceVolumeProperty_DependencyObject_System_Object_
-  commentId: M:Unosquare.FFME.MediaElement.CoerceVolumeProperty(DependencyObject,System.Object)
-  fullName: Unosquare.FFME.MediaElement.CoerceVolumeProperty(DependencyObject, System.Object)
-  nameWithType: MediaElement.CoerceVolumeProperty(DependencyObject, Object)
-- uid: Unosquare.FFME.MediaElement.CoerceVolumeProperty*
-  name: CoerceVolumeProperty
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_CoerceVolumeProperty_
-  commentId: Overload:Unosquare.FFME.MediaElement.CoerceVolumeProperty
-  fullName: Unosquare.FFME.MediaElement.CoerceVolumeProperty
-  nameWithType: MediaElement.CoerceVolumeProperty
 - uid: Unosquare.FFME.MediaElement.Dispose
   name: Dispose()
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Dispose
