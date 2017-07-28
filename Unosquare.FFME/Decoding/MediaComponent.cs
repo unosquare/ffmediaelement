@@ -97,13 +97,19 @@
         /// packet buffer. Limit your Reads to something reasonable before
         /// this becomes too large.
         /// </summary>
-        public int PacketBufferLength { get { return Packets.BufferLength; } }
+        public int PacketBufferLength
+        {
+            get { return Packets.BufferLength; }
+        }
 
         /// <summary>
         /// Gets the number of packets in the queue.
         /// Decode packets until this number becomes 0.
         /// </summary>
-        public int PacketBufferCount { get { return Packets.Count; } }
+        public int PacketBufferCount
+        {
+            get { return Packets.Count; }
+        }
 
         /// <summary>
         /// Gets the total amount of bytes read by this component.
@@ -235,7 +241,7 @@
             CodecId = Stream->codec->codec_id;
             CodecName = ffmpeg.avcodec_get_name(CodecId);
             Bitrate = (int)Stream->codec->bit_rate;
-            Container.Logger?.Log(MediaLogMessageType.Debug, 
+            Container.Logger?.Log(MediaLogMessageType.Debug,
                 $"COMP {MediaType.ToString().ToUpperInvariant()}: Start Offset: {StartTimeOffset.Format()}; Duration: {Duration.Format()}");
         }
 
@@ -312,7 +318,7 @@
         /// and uses the decoded frames (if any) to their corresponding
         /// ProcessFrame method.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The list of frames</returns>
         private List<MediaFrame> DecodeNextPacketInternal()
         {
             var result = new List<MediaFrame>();
@@ -472,15 +478,21 @@
         /// Creates a frame source object given the raw FFmpeg frame reference.
         /// </summary>
         /// <param name="frame">The raw FFmpeg frame pointer.</param>
-        /// <returns></returns>
-        protected virtual MediaFrame CreateFrameSource(AVFrame* frame) { return null; }
+        /// <returns>The media frame</returns>
+        protected virtual MediaFrame CreateFrameSource(AVFrame* frame)
+        {
+            return null;
+        }
 
         /// <summary>
         /// Creates a frame source object given the raw FFmpeg subtitle reference.
         /// </summary>
         /// <param name="frame">The raw FFmpeg subtitle pointer.</param>
-        /// <returns></returns>
-        protected virtual MediaFrame CreateFrameSource(AVSubtitle* frame) { return null; }
+        /// <returns>The media frame</returns>
+        protected virtual MediaFrame CreateFrameSource(AVSubtitle* frame)
+        {
+            return null;
+        }
 
         #endregion
 

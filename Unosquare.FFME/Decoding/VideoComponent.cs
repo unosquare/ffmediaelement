@@ -84,7 +84,10 @@
         /// Gets the base frame rate as reported by the stream component.
         /// All discrete timestamps can be represented in this framerate.
         /// </summary>
-        public double BaseFrameRate { get { return BaseFrameRateQ.ToDouble(); } }
+        public double BaseFrameRate
+        {
+            get { return BaseFrameRateQ.ToDouble(); }
+        }
 
         /// <summary>
         /// Gets the current frame rate as guessed by the last processed frame.
@@ -110,7 +113,7 @@
         /// Computes the frame filter arguments that are appropriate for the video filtering chain.
         /// </summary>
         /// <param name="frame">The frame.</param>
-        /// <returns></returns>
+        /// <returns>The base filter arguments</returns>
         private string ComputeFrameFilterArguments(AVFrame* frame)
         {
             var arguments =
@@ -303,10 +306,18 @@
                 throw new ArgumentNullException($"{nameof(input)} and {nameof(output)} are either null or not of a compatible media type '{MediaType}'");
 
             // Retrieve a suitable scaler or create it on the fly
-            Scaler = ffmpeg.sws_getCachedContext(Scaler,
-                    source.Pointer->width, source.Pointer->height, GetPixelFormat(source.Pointer),
-                    source.Pointer->width, source.Pointer->height,
-                    OutputPixelFormat, ScalerFlags, null, null, null);
+            Scaler = ffmpeg.sws_getCachedContext(
+                Scaler,
+                    source.Pointer->width,
+                    source.Pointer->height,
+                    GetPixelFormat(source.Pointer),
+                    source.Pointer->width,
+                    source.Pointer->height,
+                    OutputPixelFormat,
+                    ScalerFlags,
+                    null,
+                    null,
+                    null);
             RC.Current.Add(Scaler, $"311: {nameof(VideoComponent)}.{nameof(MaterializeFrame)}()");
 
             // Perform scaling and save the data to our unmanaged buffer pointer

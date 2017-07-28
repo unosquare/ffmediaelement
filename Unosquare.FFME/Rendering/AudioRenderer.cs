@@ -297,7 +297,10 @@
         /// This needs to return immediately so the calling thread is not disturbed.
         /// </summary>
         /// <param name="clockPosition">The clock position.</param>
-        public void Update(TimeSpan clockPosition) { }
+        public void Update(TimeSpan clockPosition)
+        {
+            // placeholder
+        }
 
         /// <summary>
         /// Executed when the Play method is called on the parent MediaElement
@@ -371,7 +374,7 @@
         /// <param name="targetBuffer">The target buffer.</param>
         /// <param name="targetBufferOffset">The target buffer offset.</param>
         /// <param name="requestedBytes">The requested bytes.</param>
-        /// <returns></returns>
+        /// <returns>True to continue processing. False to write silence.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool Synchronize(byte[] targetBuffer, int targetBufferOffset, int requestedBytes)
         {
@@ -570,7 +573,7 @@
         /// <param name="targetBuffer">The render buffer.</param>
         /// <param name="targetBufferOffset">The render buffer offset.</param>
         /// <param name="requestedBytes">The requested bytes.</param>
-        /// <returns></returns>
+        /// <returns>The number of bytes that were read.</returns>
         public int Read(byte[] targetBuffer, int targetBufferOffset, int requestedBytes)
         {
             lock (SyncLock)

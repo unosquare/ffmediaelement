@@ -44,7 +44,10 @@
         /// <summary>
         /// Prevents a default instance of the <see cref="AudioParams"/> class from being created.
         /// </summary>
-        private AudioParams() { }
+        private AudioParams()
+        {
+            // placeholder
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AudioParams"/> class.
@@ -103,7 +106,7 @@
         /// Creates a source audio spec based on the info in the given audio frame
         /// </summary>
         /// <param name="frame">The frame.</param>
-        /// <returns></returns>
+        /// <returns>The audio parameters</returns>
         internal static AudioParams CreateSource(AVFrame* frame)
         {
             var spec = new AudioParams(frame);

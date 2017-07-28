@@ -61,8 +61,9 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseRenderingAudioEvent(AudioBlock audioBlock, TimeSpan clock)
         {
-            RenderingAudio?.Invoke(this, new RenderingAudioEventArgs(audioBlock.Buffer, audioBlock.BufferLength, 
-                Container.MediaInfo.Streams[audioBlock.StreamIndex], audioBlock.StartTime, audioBlock.Duration, clock));
+            var args = new RenderingAudioEventArgs(
+                    audioBlock.Buffer, audioBlock.BufferLength, Container.MediaInfo.Streams[audioBlock.StreamIndex], audioBlock.StartTime, audioBlock.Duration, clock);
+            RenderingAudio?.Invoke(this, args);
         }
 
         /// <summary>
@@ -73,8 +74,9 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseRenderingSubtitlesEvent(SubtitleBlock block, TimeSpan clock)
         {
-            RenderingSubtitles?.Invoke(this, new RenderingSubtitlesEventArgs(block.Text, block.OriginalText, block.OriginalTextType, 
-                Container.MediaInfo.Streams[block.StreamIndex], block.StartTime, block.Duration, clock));
+            var args = new RenderingSubtitlesEventArgs(
+                    block.Text, block.OriginalText, block.OriginalTextType, Container.MediaInfo.Streams[block.StreamIndex], block.StartTime, block.Duration, clock);
+            RenderingSubtitles?.Invoke(this, args);
         }
 
         #endregion
@@ -183,12 +185,18 @@
         /// <summary>
         /// Gets the number of samples in the buffer for all channels.
         /// </summary>
-        public int Samples { get { return BufferLength / (BitsPerSample / 8); } }
+        public int Samples
+        {
+            get { return BufferLength / (BitsPerSample / 8); }
+        }
 
         /// <summary>
         /// Gets the number of samples in the buffer per channel.
         /// </summary>
-        public int SamplesPerChannel { get { return Samples / ChannelCount; } }
+        public int SamplesPerChannel
+        {
+            get { return Samples / ChannelCount; }
+        }
     }
 
     /// <summary>
@@ -208,8 +216,14 @@
         /// <param name="startTime">The start time.</param>
         /// <param name="duration">The duration.</param>
         /// <param name="clock">The clock.</param>
-        internal RenderingSubtitlesEventArgs(List<string> text, List<string> originalText, AVSubtitleType format,
-            StreamInfo stream, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
+        internal RenderingSubtitlesEventArgs(
+            List<string> text,
+            List<string> originalText,
+            AVSubtitleType format,
+            StreamInfo stream,
+            TimeSpan startTime,
+            TimeSpan duration,
+            TimeSpan clock)
             : base(stream, startTime, duration, clock)
         {
             Text = text;

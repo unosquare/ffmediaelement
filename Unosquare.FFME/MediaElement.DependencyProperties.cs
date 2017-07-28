@@ -17,17 +17,18 @@
         /// DependencyProperty for FFmpegMediaElement Source property. 
         /// </summary>
         public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
-            nameof(Source), typeof(Uri), typeof(MediaElement), new FrameworkPropertyMetadata(
-                null, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender,
-                OnSourcePropertyChanged, OnSourcePropertyCoerce));
+            nameof(Source),
+            typeof(Uri),
+            typeof(MediaElement),
+            new FrameworkPropertyMetadata(null, Constants.AffectsMeasureAndRender, OnSourcePropertyChanged, OnSourcePropertyCoerce));
 
         private static object OnSourcePropertyCoerce(DependencyObject dependencyObject, object baseValue)
         {
+            // TODO: Not sure why there was coersion in previous version...
             var element = dependencyObject as MediaElement;
             if (element == null) return null;
 
             return baseValue;
-            // TODO: Not sure why there was coersion in previous version...
         }
 
         /// <summary>
@@ -65,7 +66,8 @@
         /// Gets/Sets the Source on this MediaElement. 
         /// The Source property is the Uri of the media to be played.
         /// </summary> 
-        [Category(nameof(MediaElement)), Description("The URL to load the media from. Set it to null in order to close the currently open media.")]
+        [Category(nameof(MediaElement))]
+        [Description("The URL to load the media from. Set it to null in order to close the currently open media.")]
         public Uri Source
         {
             get { return GetValue(SourceProperty) as Uri; }
@@ -80,9 +82,10 @@
         /// DependencyProperty for Stretch property. 
         /// </summary> 
         public static readonly DependencyProperty StretchProperty = DependencyProperty.Register(
-            nameof(Stretch), typeof(Stretch), typeof(MediaElement), new FrameworkPropertyMetadata(
-                Stretch.Uniform, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender,
-                OnStretchPropertyChanged));
+            nameof(Stretch),
+            typeof(Stretch),
+            typeof(MediaElement),
+            new FrameworkPropertyMetadata(Stretch.Uniform, Constants.AffectsMeasureAndRender, OnStretchPropertyChanged));
 
         /// <summary>
         /// Called when [stretch property changed].
@@ -115,9 +118,10 @@
         /// DependencyProperty for StretchDirection property.
         /// </summary> 
         public static readonly DependencyProperty StretchDirectionProperty = DependencyProperty.Register(
-            nameof(StretchDirection), typeof(StretchDirection), typeof(MediaElement), new FrameworkPropertyMetadata(
-                StretchDirection.Both, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender,
-                OnStretchDirectionPropertyChanged));
+            nameof(StretchDirection),
+            typeof(StretchDirection),
+            typeof(MediaElement),
+            new FrameworkPropertyMetadata(StretchDirection.Both, Constants.AffectsMeasureAndRender, OnStretchDirectionPropertyChanged));
 
         /// <summary>
         /// Called when [stretch direction property changed].
@@ -151,16 +155,11 @@
         /// <summary> 
         /// The DependencyProperty for the MediaElement.Volume property.
         /// </summary>
-        public static readonly DependencyProperty VolumeProperty
-            = DependencyProperty.Register(
-                        nameof(Volume),
-                        typeof(double),
-                        typeof(MediaElement),
-                        new FrameworkPropertyMetadata(
-                              Constants.DefaultVolume,
-                              FrameworkPropertyMetadataOptions.None,
-                              new PropertyChangedCallback(VolumePropertyChanged),
-                              new CoerceValueCallback(CoerceVolumeProperty)));
+        public static readonly DependencyProperty VolumeProperty = DependencyProperty.Register(
+            nameof(Volume),
+            typeof(double),
+            typeof(MediaElement),
+            new FrameworkPropertyMetadata(Constants.DefaultVolume, FrameworkPropertyMetadataOptions.None, new PropertyChangedCallback(VolumePropertyChanged), new CoerceValueCallback(CoerceVolumeProperty)));
 
         private static object CoerceVolumeProperty(DependencyObject d, object value)
         {
@@ -191,7 +190,8 @@
         /// Gets/Sets the Volume property on the MediaElement.
         /// Note: Valid values are from 0 to 1
         /// </summary>
-        [Category(nameof(MediaElement)), Description("The playback volume. Ranges from 0.0 to 1.0")]
+        [Category(nameof(MediaElement))]
+        [Description("The playback volume. Ranges from 0.0 to 1.0")]
         public double Volume
         {
             get { return (double)GetValue(VolumeProperty); }
@@ -203,18 +203,13 @@
         #region Balance
 
         /// <summary>
-        ///     The DependencyProperty for the MediaElement.Balance property. 
+        /// The DependencyProperty for the MediaElement.Balance property. 
         /// </summary>
-        public static readonly DependencyProperty BalanceProperty
-            = DependencyProperty.Register(
-                        nameof(Balance),
-                        typeof(double),
-                        typeof(MediaElement),
-                        new FrameworkPropertyMetadata(
-                              Constants.DefaultBalance,
-                              FrameworkPropertyMetadataOptions.None,
-                              new PropertyChangedCallback(BalancePropertyChanged),
-                              new CoerceValueCallback(CoerceBalanceProperty)));
+        public static readonly DependencyProperty BalanceProperty = DependencyProperty.Register(
+            nameof(Balance),
+            typeof(double),
+            typeof(MediaElement),
+            new FrameworkPropertyMetadata(Constants.DefaultBalance, FrameworkPropertyMetadataOptions.None, new PropertyChangedCallback(BalancePropertyChanged), new CoerceValueCallback(CoerceBalanceProperty)));
 
         private static object CoerceBalanceProperty(DependencyObject d, object value)
         {
@@ -244,7 +239,8 @@
         /// Gets/Sets the Balance property on the MediaElement. 
         /// Note: Balance changes are not yet supported. Value will always be 0;
         /// </summary> 
-        [Category(nameof(MediaElement)), Description("The audio volume for left and right audio channels. Valid ranges are -1.0 to 1.0")]
+        [Category(nameof(MediaElement))]
+        [Description("The audio volume for left and right audio channels. Valid ranges are -1.0 to 1.0")]
         public double Balance
         {
             get { return (double)GetValue(BalanceProperty); }
@@ -258,16 +254,11 @@
         /// <summary> 
         /// The DependencyProperty for the MediaElement.IsMuted property.
         /// </summary> 
-        public static readonly DependencyProperty IsMutedProperty
-            = DependencyProperty.Register(
-                        nameof(IsMuted),
-                        typeof(bool),
-                        typeof(MediaElement),
-                        new FrameworkPropertyMetadata(
-                            false,
-                            FrameworkPropertyMetadataOptions.None,
-                            new PropertyChangedCallback(IsMutedPropertyChanged),
-                            new CoerceValueCallback(CoerceIsMutedProperty)));
+        public static readonly DependencyProperty IsMutedProperty = DependencyProperty.Register(
+            nameof(IsMuted),
+            typeof(bool),
+            typeof(MediaElement),
+            new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.None, new PropertyChangedCallback(IsMutedPropertyChanged), new CoerceValueCallback(CoerceIsMutedProperty)));
 
         private static object CoerceIsMutedProperty(DependencyObject d, object value)
         {
@@ -292,7 +283,8 @@
         /// <summary>
         /// Gets/Sets the IsMuted property on the MediaElement.
         /// </summary> 
-        [Category(nameof(MediaElement)), Description("Gets or sets whether audio samples should be rendered.")]
+        [Category(nameof(MediaElement))]
+        [Description("Gets or sets whether audio samples should be rendered.")]
         public bool IsMuted
         {
             get { return (bool)GetValue(IsMutedProperty); }
@@ -306,15 +298,11 @@
         /// <summary>
         /// The DependencyProperty for the MediaElement.ScrubbingEnabled property.
         /// </summary> 
-        public static readonly DependencyProperty ScrubbingEnabledProperty
-            = DependencyProperty.Register(
-                        nameof(ScrubbingEnabled),
-                        typeof(bool),
-                        typeof(MediaElement),
-                        new FrameworkPropertyMetadata(
-                            false,
-                            FrameworkPropertyMetadataOptions.None,
-                            new PropertyChangedCallback(ScrubbingEnabledPropertyChanged)));
+        public static readonly DependencyProperty ScrubbingEnabledProperty = DependencyProperty.Register(
+            nameof(ScrubbingEnabled),
+            typeof(bool),
+            typeof(MediaElement),
+            new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.None, new PropertyChangedCallback(ScrubbingEnabledPropertyChanged)));
 
         private static void ScrubbingEnabledPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -328,7 +316,8 @@
         /// that when it is set to true, setting values on the Position property occurs synchronously.
         /// Wehn it is set to false, setting values on the Position property occurs asyncrhonously
         /// </summary>
-        [Category(nameof(MediaElement)), Description("When set to true, frame seeking will occur synchronously. Otherwise it will occur asynchronously")]
+        [Category(nameof(MediaElement))]
+        [Description("When set to true, frame seeking will occur synchronously. Otherwise it will occur asynchronously")]
         public bool ScrubbingEnabled
         {
             get { return (bool)GetValue(ScrubbingEnabledProperty); }
@@ -419,20 +408,13 @@
         internal volatile bool IsPositionUpdating = false;
 
         /// <summary>
-        ///     The DependencyProperty for the MediaElement.Position property. 
+        /// The DependencyProperty for the MediaElement.Position property. 
         /// </summary>
-        public static readonly DependencyProperty PositionProperty
-            = DependencyProperty.Register(
-                        nameof(Position),
-                        typeof(TimeSpan),
-                        typeof(MediaElement),
-                        new FrameworkPropertyMetadata(
-                              TimeSpan.Zero,
-                              FrameworkPropertyMetadataOptions.AffectsMeasure
-                            | FrameworkPropertyMetadataOptions.AffectsRender
-                            | FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                              new PropertyChangedCallback(PositionPropertyChanged),
-                              new CoerceValueCallback(CoercePositionProperty)));
+        public static readonly DependencyProperty PositionProperty = DependencyProperty.Register(
+            nameof(Position),
+            typeof(TimeSpan),
+            typeof(MediaElement),
+            new FrameworkPropertyMetadata(TimeSpan.Zero, Constants.AffectsMeasureAndRender | FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, new PropertyChangedCallback(PositionPropertyChanged), new CoerceValueCallback(CoercePositionProperty)));
 
         private static async void PositionPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -459,7 +441,8 @@
         /// <summary>
         /// Gets/Sets the Position property on the MediaElement. 
         /// </summary> 
-        [Category(nameof(MediaElement)), Description("Specifies the position of the underlying media. Set this property to seek though the media stream.")]
+        [Category(nameof(MediaElement))]
+        [Description("Specifies the position of the underlying media. Set this property to seek though the media stream.")]
         public TimeSpan Position
         {
             get { return (TimeSpan)GetValue(PositionProperty); }
@@ -479,7 +462,8 @@
                 return;
 
             IsPositionUpdating = true;
-            Utils.UIInvoke(DispatcherPriority.DataBind, () => {
+            Utils.UIInvoke(DispatcherPriority.DataBind, () =>
+            {
                 SetValue(PositionProperty, value);
                 IsPositionUpdating = false;
             });
@@ -490,18 +474,13 @@
         #region SpeedRatio
 
         /// <summary>
-        ///     The DependencyProperty for the MediaElement.SpeedRatio property. 
+        /// The DependencyProperty for the MediaElement.SpeedRatio property. 
         /// </summary>
-        public static readonly DependencyProperty SpeedRatioProperty
-            = DependencyProperty.Register(
-                        nameof(SpeedRatio),
-                        typeof(double),
-                        typeof(MediaElement),
-                        new FrameworkPropertyMetadata(
-                              Constants.DefaultSpeedRatio,
-                              FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender,
-                              new PropertyChangedCallback(SpeedRatioPropertyChanged),
-                              new CoerceValueCallback(CoerceSpeedRatioProperty)));
+        public static readonly DependencyProperty SpeedRatioProperty = DependencyProperty.Register(
+            nameof(SpeedRatio),
+            typeof(double),
+            typeof(MediaElement),
+            new FrameworkPropertyMetadata(Constants.DefaultSpeedRatio, Constants.AffectsMeasureAndRender, new PropertyChangedCallback(SpeedRatioPropertyChanged), new CoerceValueCallback(CoerceSpeedRatioProperty)));
 
         private static object CoerceSpeedRatioProperty(DependencyObject d, object value)
         {
@@ -530,7 +509,8 @@
         /// <summary>
         /// Gets/Sets the SpeedRatio property on the MediaElement. 
         /// </summary> 
-        [Category(nameof(MediaElement)), Description("Specifies how quickly or how slowly the media should be rendered. 1.0 is normal speed. Value must be greater then or equal to 0.0")]
+        [Category(nameof(MediaElement))]
+        [Description("Specifies how quickly or how slowly the media should be rendered. 1.0 is normal speed. Value must be greater then or equal to 0.0")]
         public double SpeedRatio
         {
             get { return (double)GetValue(SpeedRatioProperty); }

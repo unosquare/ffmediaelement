@@ -19,26 +19,28 @@
         #region Properties
 
         /// <summary>
+        /// Gets the media type of the data
+        /// </summary>
+        public override MediaType MediaType => MediaType.Audio;
+
+        /// <summary>
         /// The picture buffer length of the last allocated buffer
         /// </summary>
-        internal int AudioBufferLength;
+        internal int AudioBufferLength { get; set; }
 
         /// <summary>
         /// Holds a reference to the last allocated buffer
         /// </summary>
-        internal IntPtr AudioBuffer;
-
-        /// <summary>
-        /// Gets the media type of the data
-        /// </summary>
-        /// <exception cref="System.NotImplementedException"></exception>
-        public override MediaType MediaType => MediaType.Audio;
+        internal IntPtr AudioBuffer { get; set; }
 
         /// <summary>
         /// Gets a pointer to the first byte of the data buffer.
         /// The format signed 16-bits per sample, channel interleaved
         /// </summary>
-        public IntPtr Buffer { get { return AudioBuffer; } }
+        public IntPtr Buffer
+        {
+            get { return AudioBuffer; }
+        }
 
         /// <summary>
         /// Gets the length of the buffer in bytes.

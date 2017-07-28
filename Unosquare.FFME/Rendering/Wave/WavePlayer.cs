@@ -139,8 +139,13 @@
             MmResult result;
             lock (WaveOutLock)
             {
-                result = WaveInterop.NativeMethods.waveOutOpenWindow(out DeviceHandle, DeviceNumber, WaveStream.WaveFormat,
-                    CallbackEvent.SafeWaitHandle.DangerousGetHandle(), IntPtr.Zero, WaveInterop.WaveInOutOpenFlags.CallbackEvent);
+                result = WaveInterop.NativeMethods.waveOutOpenWindow(
+                    out DeviceHandle, 
+                    DeviceNumber, 
+                    WaveStream.WaveFormat,
+                    CallbackEvent.SafeWaitHandle.DangerousGetHandle(), 
+                    IntPtr.Zero, 
+                    WaveInterop.WaveInOutOpenFlags.CallbackEvent);
             }
 
             MmException.Try(result, nameof(WaveInterop.NativeMethods.waveOutOpen));

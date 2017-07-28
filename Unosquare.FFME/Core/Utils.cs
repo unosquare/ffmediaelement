@@ -124,7 +124,7 @@
         /// Converts a byte pointer to a string
         /// </summary>
         /// <param name="bytePtr">The byte PTR.</param>
-        /// <returns></returns>
+        /// <returns>The string</returns>
         public static unsafe string PtrToString(byte* bytePtr)
         {
             return Marshal.PtrToStringAnsi(new IntPtr(bytePtr));
@@ -134,7 +134,7 @@
         /// Converts a byte pointer to a UTF8 encoded string.
         /// </summary>
         /// <param name="bytePtr">The byte PTR.</param>
-        /// <returns></returns>
+        /// <returns>The string</returns>
         public static unsafe string PtrToStringUTF8(byte* bytePtr)
         {
             if (bytePtr == null) return null;
@@ -165,7 +165,7 @@
         /// </summary>
         /// <param name="value">The value.</param>
         /// <param name="multiple">The multiple.</param>
-        /// <returns></returns>
+        /// <returns>The value</returns>
         public static double ToMultipleOf(this double value, double multiple)
         {
             var factor = (int)(value / multiple);
@@ -177,7 +177,7 @@
         /// </summary>
         /// <param name="pts">The PTS.</param>
         /// <param name="timeBase">The time base.</param>
-        /// <returns></returns>
+        /// <returns>The TimeSpan</returns>
         public static TimeSpan ToTimeSpan(this double pts, AVRational timeBase)
         {
             if (double.IsNaN(pts) || pts == Utils.FFmpeg.AV_NOPTS)
@@ -194,7 +194,7 @@
         /// </summary>
         /// <param name="pts">The PTS.</param>
         /// <param name="timeBase">The time base.</param>
-        /// <returns></returns>
+        /// <returns>The TimeSpan</returns>
         public static TimeSpan ToTimeSpan(this long pts, AVRational timeBase)
         {
             return ((double)pts).ToTimeSpan(timeBase);
@@ -205,7 +205,7 @@
         /// </summary>
         /// <param name="pts">The PTS in seconds.</param>
         /// <param name="timeBase">The time base.</param>
-        /// <returns></returns>
+        /// <returns>The TimeSpan</returns>
         public static TimeSpan ToTimeSpan(this double pts, double timeBase)
         {
             if (double.IsNaN(pts) || pts == Utils.FFmpeg.AV_NOPTS)
@@ -219,7 +219,7 @@
         /// </summary>
         /// <param name="pts">The PTS.</param>
         /// <param name="timeBase">The time base.</param>
-        /// <returns></returns>
+        /// <returns>The TimeSpan</returns>
         public static TimeSpan ToTimeSpan(this long pts, double timeBase)
         {
             return ((double)pts).ToTimeSpan(timeBase);
@@ -229,7 +229,7 @@
         /// Gets a timespan given a timestamp (in AV_TIME_BASE units)
         /// </summary>
         /// <param name="pts">The PTS.</param>
-        /// <returns></returns>
+        /// <returns>The TimeSpan</returns>
         public static TimeSpan ToTimeSpan(this double pts)
         {
             return ToTimeSpan(pts, ffmpeg.AV_TIME_BASE);
@@ -239,7 +239,7 @@
         /// Gets a timespan given a timestamp (in AV_TIME_BASE units)
         /// </summary>
         /// <param name="pts">The PTS.</param>
-        /// <returns></returns>
+        /// <returns>The TimeSpan</returns>
         public static TimeSpan ToTimeSpan(this long pts)
         {
             return ((double)pts).ToTimeSpan();
@@ -249,7 +249,7 @@
         /// Converts a fraction to a double
         /// </summary>
         /// <param name="rational">The rational.</param>
-        /// <returns></returns>
+        /// <returns>The value</returns>
         public static double ToDouble(this AVRational rational)
         {
             return (double)rational.num / rational.den;
@@ -259,21 +259,19 @@
         /// Rounds the ticks.
         /// </summary>
         /// <param name="ticks">The ticks.</param>
-        /// <returns></returns>
+        /// <returns>The ticks</returns>
         public static long RoundTicks(this long ticks)
         {
-            //return ticks;
-            return Convert.ToInt64((Convert.ToDouble(ticks) / 1000d)) * 1000;
+            return Convert.ToInt64(Convert.ToDouble(ticks) / 1000d) * 1000;
         }
 
         /// <summary>
         /// Rounds the seconds to 4 decimals.
         /// </summary>
         /// <param name="seconds">The seconds.</param>
-        /// <returns></returns>
+        /// <returns>The seconds</returns>
         public static decimal RoundSeconds(this decimal seconds)
         {
-            //return seconds;
             return Math.Round(seconds, 4);
         }
 
@@ -434,7 +432,7 @@
         /// <param name="priority">The priority.</param>
         /// <param name="action">The action.</param>
         /// <param name="args">The arguments.</param>
-        /// <returns></returns>
+        /// <returns>The awaitable task</returns>
         public static async Task InvokeAsync(this Dispatcher dispatcher, DispatcherPriority priority, Delegate action, params object[] args)
         {
             // exit if we don't have a valid dispatcher
@@ -556,7 +554,7 @@
         /// Returns a formatted timestamp string in Seconds
         /// </summary>
         /// <param name="ts">The ts.</param>
-        /// <returns></returns>
+        /// <returns>The formatted string</returns>
         internal static string Format(this TimeSpan ts)
         {
             if (ts == TimeSpan.MinValue)
@@ -570,7 +568,7 @@
         /// the specified date.
         /// </summary>
         /// <param name="dt">The dt.</param>
-        /// <returns></returns>
+        /// <returns>The formatted string</returns>
         internal static string FormatElapsed(this DateTime dt)
         {
             return $"{DateTime.UtcNow.Subtract(dt).TotalMilliseconds,6:0}";
@@ -582,7 +580,7 @@
         /// </summary>
         /// <param name="ts">The ts.</param>
         /// <param name="divideBy">The divide by.</param>
-        /// <returns></returns>
+        /// <returns>The formatted string</returns>
         internal static string Format(this long ts, double divideBy = 1)
         {
             if (divideBy == 1)
@@ -595,7 +593,7 @@
         /// Strips the SRT format and returns plain text.
         /// </summary>
         /// <param name="input">The input.</param>
-        /// <returns></returns>
+        /// <returns>The formatted string</returns>
         internal static string StripSrtFormat(this string input)
         {
             var output = new StringBuilder(input.Length);
@@ -627,7 +625,7 @@
         /// Strips a line of text from the ASS format.
         /// </summary>
         /// <param name="input">The input.</param>
-        /// <returns></returns>
+        /// <returns>The formatted string</returns>
         internal static string StripAssFormat(this string input)
         {
             const string DialoguePrefix = "dialogue:";
@@ -717,8 +715,7 @@
             public const long AV_NOPTS = long.MinValue;
 
             // public static readonly AVRational AV_TIME_BASE_Q = new AVRational { num = 1, den = ffmpeg.AV_TIME_BASE };
-            // public const int AVERROR_EAGAIN = -11; 
-            // http://www-numi.fnal.gov/offline_software/srt_public_context/WebDocs/Errors/unix_system_errors.html
+            // public const int AVERROR_EAGAIN = -11; // http://www-numi.fnal.gov/offline_software/srt_public_context/WebDocs/Errors/unix_system_errors.html
         }
     }
 }

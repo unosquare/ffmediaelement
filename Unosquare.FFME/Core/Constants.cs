@@ -5,6 +5,7 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using System.Windows;
 
     /// <summary>
     /// Defines library-wide constants
@@ -32,6 +33,9 @@
         public const string DllSWScale = "swscale-4.dll";
         public const string DllAVDevice = "avdevice-57.dll";
 
+        public const FrameworkPropertyMetadataOptions AffectsMeasureAndRender 
+            = FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender;
+
         public static readonly ReadOnlyCollection<MediaType> MediaTypes
             = new ReadOnlyCollection<MediaType>(Enum.GetValues(typeof(MediaType)).Cast<MediaType>().ToArray());
 
@@ -39,15 +43,16 @@
         public static readonly string[] LiveStreamFormatNames = new[] { "rtp", "rtsp", "sdp" };
         public static readonly TimeSpan UIPropertyUpdateInterval = TimeSpan.FromMilliseconds(50);
 
-        public static readonly Dictionary<int, MediaLogMessageType> FFmpegLogLevels = new Dictionary<int, MediaLogMessageType>
-        {
-            { ffmpeg.AV_LOG_DEBUG, MediaLogMessageType.Debug },
-            { ffmpeg.AV_LOG_ERROR, MediaLogMessageType.Error },
-            { ffmpeg.AV_LOG_FATAL, MediaLogMessageType.Error },
-            { ffmpeg.AV_LOG_INFO, MediaLogMessageType.Info },
-            { ffmpeg.AV_LOG_PANIC, MediaLogMessageType.Error },
-            { ffmpeg.AV_LOG_TRACE, MediaLogMessageType.Trace },
-            { ffmpeg.AV_LOG_WARNING, MediaLogMessageType.Warning },
-        };
+        public static readonly ReadOnlyDictionary<int, MediaLogMessageType> FFmpegLogLevels = new ReadOnlyDictionary<int, MediaLogMessageType>(
+            new Dictionary<int, MediaLogMessageType>
+            {
+                { ffmpeg.AV_LOG_DEBUG, MediaLogMessageType.Debug },
+                { ffmpeg.AV_LOG_ERROR, MediaLogMessageType.Error },
+                { ffmpeg.AV_LOG_FATAL, MediaLogMessageType.Error },
+                { ffmpeg.AV_LOG_INFO, MediaLogMessageType.Info },
+                { ffmpeg.AV_LOG_PANIC, MediaLogMessageType.Error },
+                { ffmpeg.AV_LOG_TRACE, MediaLogMessageType.Trace },
+                { ffmpeg.AV_LOG_WARNING, MediaLogMessageType.Warning },
+            });
     }
 }

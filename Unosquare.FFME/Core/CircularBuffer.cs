@@ -62,7 +62,8 @@
         /// </summary>
         public int RewindableCount
         {
-            get {
+            get
+            {
                 lock (SyncLock)
                 {
                     if (WriteIndex < ReadIndex)
@@ -91,12 +92,18 @@
         /// <summary>
         /// Gets the number of bytes that can be written.
         /// </summary>
-        public int WritableCount { get { return Length - ReadableCount; } }
+        public int WritableCount
+        {
+            get { return Length - ReadableCount; }
+        }
 
         /// <summary>
         /// Gets percentage of used bytes (readbale/available, from 0.0 to 1.0).
         /// </summary>
-        public double CapacityPercent { get { return 1.0 * ReadableCount / Length; } }
+        public double CapacityPercent
+        {
+            get { return 1.0 * ReadableCount / Length; }
+        }
 
         #endregion
 

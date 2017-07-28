@@ -36,12 +36,18 @@
         /// Gets a pointer to the first byte of the data buffer.
         /// The format is 24bit BGR
         /// </summary>
-        public IntPtr Buffer { get { return PictureBuffer; } }
+        public IntPtr Buffer
+        {
+            get { return PictureBuffer; }
+        }
 
         /// <summary>
         /// Gets the length of the buffer in bytes.
         /// </summary>
-        public int BufferLength { get { return PictureBufferLength; } }
+        public int BufferLength
+        {
+            get { return PictureBufferLength; }
+        }
 
         /// <summary>
         /// The picture buffer stride. 

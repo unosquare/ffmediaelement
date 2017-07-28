@@ -85,7 +85,7 @@
         /// <summary>
         /// Gets or creates the tex blocks that make up the subtitle text and outline.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The text blocks including the fill and outline (5 total)</returns>
         private List<System.Windows.Controls.TextBlock> GetTextBlocks()
         {
             const string SubtitleElementNamePrefix = "SubtitlesTextBlock_";
@@ -156,16 +156,18 @@
         private void SetText(string text)
         {
             // We fire-and-forget the update of the text
-            Utils.UIEnqueueInvoke(System.Windows.Threading.DispatcherPriority.DataBind, new Action<string>((s) =>
-            {
-                lock (SyncLock)
+            Utils.UIEnqueueInvoke(
+                System.Windows.Threading.DispatcherPriority.DataBind, 
+                new Action<string>((s) =>
                 {
-                    CurrentText = text;
-                    var textBlocks = GetTextBlocks();
-                    foreach (var tb in textBlocks)
-                        tb.Text = s;
-                }
-            }), text);
+                    lock (SyncLock)
+                    {
+                        CurrentText = text;
+                        var textBlocks = GetTextBlocks();
+                        foreach (var tb in textBlocks)
+                            tb.Text = s;
+                    }
+                }), text);
         }
 
         /// <summary>

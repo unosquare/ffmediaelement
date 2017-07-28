@@ -25,7 +25,7 @@
         /// Creates a frame source object given the raw FFmpeg subtitle reference.
         /// </summary>
         /// <param name="frame">The raw FFmpeg subtitle pointer.</param>
-        /// <returns></returns>
+        /// <returns>The managed frame</returns>
         protected override unsafe MediaFrame CreateFrameSource(AVSubtitle* frame)
         {
             var frameHolder = new SubtitleFrame(frame, this);

@@ -31,12 +31,18 @@
         /// Provides key-value pairs of the metadata contained in the media.
         /// Returns null when media has not been loaded.
         /// </summary>
-        public ICollectionView Metadata { get { return m_Metadata; } }
+        public ICollectionView Metadata
+        {
+            get { return m_Metadata; }
+        }
 
         /// <summary>
         /// Gets the media format. Returns null when media has not been loaded.
         /// </summary>
-        public string MediaFormat { get { return Container?.MediaFormatName; } }
+        public string MediaFormat
+        {
+            get { return Container?.MediaFormatName; }
+        }
 
         /// <summary>
         /// Gets the duration of a single frame step.
@@ -62,79 +68,118 @@
         /// Returns whether the given media has audio. 
         /// Only valid after the MediaOpened event has fired.
         /// </summary> 
-        public bool HasAudio { get { return Container == null ? false : Container.Components.HasAudio; } }
+        public bool HasAudio
+        {
+            get { return Container == null ? false : Container.Components.HasAudio; }
+        }
 
         /// <summary> 
         /// Returns whether the given media has video. Only valid after the
         /// MediaOpened event has fired.
         /// </summary>
-        public bool HasVideo { get { return Container?.Components.HasVideo ?? false; } }
+        public bool HasVideo
+        {
+            get { return Container?.Components.HasVideo ?? false; }
+        }
 
         /// <summary>
         /// Gets the video codec.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public string VideoCodec { get { return Container?.Components?.Video?.CodecName; } }
+        public string VideoCodec
+        {
+            get { return Container?.Components?.Video?.CodecName; }
+        }
 
         /// <summary>
         /// Gets the video bitrate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int VideoBitrate { get { return Container?.Components?.Video?.Bitrate ?? 0; } }
+        public int VideoBitrate
+        {
+            get { return Container?.Components?.Video?.Bitrate ?? 0; }
+        }
 
         /// <summary>
         /// Returns the natural width of the media in the video.
         /// Only valid after the MediaOpened event has fired.
         /// </summary> 
-        public int NaturalVideoWidth { get { return Container?.Components?.Video?.FrameWidth ?? 0; } }
+        public int NaturalVideoWidth
+        {
+            get { return Container?.Components?.Video?.FrameWidth ?? 0; }
+        }
 
         /// <summary> 
         /// Returns the natural height of the media in the video.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int NaturalVideoHeight { get { return Container?.Components.Video?.FrameHeight ?? 0; } }
+        public int NaturalVideoHeight
+        {
+            get { return Container?.Components.Video?.FrameHeight ?? 0; }
+        }
 
         /// <summary>
         /// Gets the video frame rate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public double VideoFrameRate { get { return Container?.Components.Video?.BaseFrameRate ?? 0; } }
+        public double VideoFrameRate
+        {
+            get { return Container?.Components.Video?.BaseFrameRate ?? 0; }
+        }
 
         /// <summary>
         /// Gets the duration in seconds of the video frame.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public double VideoFrameLength { get { return 1d / (Container?.Components?.Video?.BaseFrameRate ?? 0); } }
+        public double VideoFrameLength
+        {
+            get { return 1d / (Container?.Components?.Video?.BaseFrameRate ?? 0); }
+        }
 
         /// <summary>
         /// Gets the audio codec.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public string AudioCodec { get { return Container?.Components?.Audio?.CodecName; } }
+        public string AudioCodec
+        {
+            get { return Container?.Components?.Audio?.CodecName; }
+        }
 
         /// <summary>
         /// Gets the audio bitrate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int AudioBitrate { get { return Container?.Components?.Audio?.Bitrate ?? 0; } }
+        public int AudioBitrate
+        {
+            get { return Container?.Components?.Audio?.Bitrate ?? 0; }
+        }
 
         /// <summary>
         /// Gets the audio channels count.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int AudioChannels { get { return Container?.Components?.Audio?.Channels ?? 0; } }
+        public int AudioChannels
+        {
+            get { return Container?.Components?.Audio?.Channels ?? 0; }
+        }
 
         /// <summary>
         /// Gets the audio sample rate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int AudioSampleRate { get { return Container?.Components?.Audio?.SampleRate ?? 0; } }
+        public int AudioSampleRate
+        {
+            get { return Container?.Components?.Audio?.SampleRate ?? 0; }
+        }
 
         /// <summary>
         /// Gets the audio bits per sample.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int AudioBitsPerSample { get { return Container?.Components?.Audio?.BitsPerSample ?? 0; } }
+        public int AudioBitsPerSample
+        {
+            get { return Container?.Components?.Audio?.BitsPerSample ?? 0; }
+        }
 
         /// <summary>
         /// Gets the Media's natural duration
@@ -165,17 +210,26 @@
         /// Returns whether the currently loaded media is live or realtime
         /// This is only valid after the MediaOpened event has fired.
         /// </summary>
-        public bool IsLiveStream { get { return IsOpen ? Container.IsStreamRealtime : false; } }
+        public bool IsLiveStream
+        {
+            get { return IsOpen ? Container.IsStreamRealtime : false; }
+        }
 
         /// <summary>
         /// Gets a value indicating whether the currently loaded media can be seeked.
         /// </summary>
-        public bool IsSeekable { get { return Container != null ? Container.IsStreamSeekable : false; } }
+        public bool IsSeekable
+        {
+            get { return Container != null ? Container.IsStreamSeekable : false; }
+        }
 
         /// <summary>
         /// Gets a value indicating whether the media is playing.
         /// </summary>
-        public bool IsPlaying { get { return MediaState == MediaState.Play; } }
+        public bool IsPlaying
+        {
+            get { return MediaState == MediaState.Play; }
+        }
 
         /// <summary>
         /// Gets a value indicating whether the media has reached its end.

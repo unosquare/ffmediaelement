@@ -48,7 +48,10 @@
         /// <summary>
         /// Gets a value indicating whether the clock is running.
         /// </summary>
-        public bool IsRunning { get { lock (SyncLock) return Chrono.IsRunning; } }
+        public bool IsRunning
+        {
+            get { lock (SyncLock) return Chrono.IsRunning; }
+        }
 
         /// <summary>
         /// Gets or sets the speed ratio at which the clock runs.

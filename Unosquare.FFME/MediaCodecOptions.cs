@@ -36,7 +36,7 @@
         /// Converts a character to a media type.
         /// </summary>
         /// <param name="c">The c.</param>
-        /// <returns></returns>
+        /// <returns>The media type</returns>
         private static MediaType CharToMediaType(char c)
         {
             if (c == 'v') return MediaType.Video;
@@ -91,7 +91,7 @@
         /// <param name="format">The format.</param>
         /// <param name="stream">The stream.</param>
         /// <param name="codec">The codec.</param>
-        /// <returns></returns>
+        /// <returns>The filtered options</returns>
         internal unsafe FFDictionary FilterOptions(AVCodecID codecId, AVFormatContext* format, AVStream* stream, AVCodec* codec)
         {
             var result = new FFDictionary();
@@ -151,8 +151,7 @@
         /// Port of setup_find_stream_info_opts.
         /// </summary>
         /// <param name="format">The format.</param>
-        /// <param name="codecOptions">The codec options.</param>
-        /// <returns></returns>
+        /// <returns>The options per stream</returns>
         internal unsafe FFDictionary[] GetPerStreamOptions(AVFormatContext* format)
         {
             if (format->nb_streams == 0)

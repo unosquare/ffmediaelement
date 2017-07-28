@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    
+
     /// <summary>
     /// Represents a 3-byte packet of closed-captioning data in EIA-608 format.
     /// See: http://jackyjung.tistory.com/attachment/499e14e28c347DB.pdf
@@ -448,12 +448,20 @@
         /// <summary>
         /// Gets the first of the two-byte packet data
         /// </summary>
-        public byte D0 { get { return D[0]; } private set { D[0] = value; } }
+        public byte D0
+        {
+            get { return D[0]; }
+            private set { D[0] = value; }
+        }
 
         /// <summary>
         /// Gets the second of the two-byte packet data
         /// </summary>
-        public byte D1 { get { return D[1]; } private set { D[1] = value; } }
+        public byte D1
+        {
+            get { return D[1]; }
+            private set { D[1] = value; }
+        }
 
         /// <summary>
         /// Gets the timestamp this packet applies to.

@@ -62,7 +62,7 @@
         /// The <see cref="System.String"/>.
         /// </value>
         /// <param name="key">The key.</param>
-        /// <returns></returns>
+        /// <returns>The entry</returns>
         public string this[string key]
         {
             get
@@ -113,7 +113,7 @@
         /// <summary>
         /// Gets the first entry. Null if no entries.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The entry</returns>
         public FFDictionaryEntry First()
         {
             return Next(null);
@@ -123,7 +123,7 @@
         /// Gets the next entry based on the provided prior entry.
         /// </summary>
         /// <param name="prior">The prior entry.</param>
-        /// <returns></returns>
+        /// <returns>The entry</returns>
         public FFDictionaryEntry Next(FFDictionaryEntry prior)
         {
             if (Pointer == null)
@@ -139,7 +139,7 @@
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="matchCase">if set to <c>true</c> [match case].</param>
-        /// <returns></returns>
+        /// <returns>True or False</returns>
         public bool HasKey(string key, bool matchCase = true)
         {
             if (Pointer == null) return false;
@@ -152,7 +152,7 @@
         /// <param name="dictionary">The dictionary.</param>
         /// <param name="key">The key.</param>
         /// <param name="matchCase">if set to <c>true</c> [match case].</param>
-        /// <returns></returns>
+        /// <returns>The Entry</returns>
         public static FFDictionaryEntry GetEntry(AVDictionary* dictionary, string key, bool matchCase = true)
         {
             if (dictionary == null)
@@ -168,7 +168,7 @@
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="matchCase">if set to <c>true</c> [match case].</param>
-        /// <returns></returns>
+        /// <returns>The entry</returns>
         public FFDictionaryEntry GetEntry(string key, bool matchCase = true)
         {
             return GetEntry(Pointer, key, matchCase);
@@ -178,7 +178,7 @@
         /// Gets the value with specified key.
         /// </summary>
         /// <param name="key">The key.</param>
-        /// <returns></returns>
+        /// <returns>The value</returns>
         public string Get(string key)
         {
             var entry = GetEntry(key, true);

@@ -30,7 +30,7 @@
         /// The <see cref="AVPacket"/>.
         /// </value>
         /// <param name="index">The index.</param>
-        /// <returns></returns>
+        /// <returns>The packet reference</returns>
         private AVPacket* this[int index]
         {
             get
@@ -76,7 +76,7 @@
         /// Peeks the next available packet in the queue without removing it.
         /// If no packets are available, null is returned.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The packet</returns>
         public AVPacket* Peek()
         {
             lock (SyncRoot)

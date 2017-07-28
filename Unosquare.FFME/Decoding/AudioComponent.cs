@@ -68,7 +68,7 @@
         /// Creates a frame source object given the raw FFmpeg frame reference.
         /// </summary>
         /// <param name="frame">The raw FFmpeg frame pointer.</param>
-        /// <returns></returns>
+        /// <returns>The media frame</returns>
         protected override unsafe MediaFrame CreateFrameSource(AVFrame* frame)
         {
             var frameHolder = new AudioFrame(frame, this);
@@ -103,8 +103,16 @@
             // Initialize or update the audio scaler if required
             if (Scaler == null || LastSourceSpec == null || AudioParams.AreCompatible(LastSourceSpec, sourceSpec) == false)
             {
-                Scaler = ffmpeg.swr_alloc_set_opts(Scaler, targetSpec.ChannelLayout, targetSpec.Format, targetSpec.SampleRate,
-                    sourceSpec.ChannelLayout, sourceSpec.Format, sourceSpec.SampleRate, 0, null);
+                Scaler = ffmpeg.swr_alloc_set_opts(
+                    Scaler,
+                    targetSpec.ChannelLayout,
+                    targetSpec.Format,
+                    targetSpec.SampleRate,
+                    sourceSpec.ChannelLayout,
+                    sourceSpec.Format,
+                    sourceSpec.SampleRate,
+                    0,
+                    null);
 
                 RC.Current.Add(Scaler, $"109: {nameof(AudioComponent)}.{nameof(MaterializeFrame)}()");
                 ffmpeg.swr_init(Scaler);
@@ -125,8 +133,12 @@
 
             // Execute the conversion (audio scaling). It will return the number of samples that were output
             var outputSamplesPerChannel =
-                ffmpeg.swr_convert(Scaler, &outputBufferPtr, targetSpec.SamplesPerChannel,
-                    source.Pointer->extended_data, source.Pointer->nb_samples);
+                ffmpeg.swr_convert(
+                    Scaler,
+                    &outputBufferPtr,
+                    targetSpec.SamplesPerChannel,
+                    source.Pointer->extended_data,
+                    source.Pointer->nb_samples);
 
             // Compute the buffer length
             var outputBufferLength =

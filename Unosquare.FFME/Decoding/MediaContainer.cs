@@ -156,7 +156,10 @@
         /// <summary>
         /// Gets the media bitrate (bits per second). Returns 0 if not available.
         /// </summary>
-        public long MediaBitrate { get { return MediaInfo?.BitRate ?? 0; } }
+        public long MediaBitrate
+        {
+            get { return MediaInfo?.BitRate ?? 0; }
+        }
 
         /// <summary>
         /// Holds the metadata of the media file when the stream is initialized.
@@ -166,12 +169,18 @@
         /// <summary>
         /// Gets a value indicating whether an Input Context has been initialize.
         /// </summary>
-        public bool IsInitialized { get { return InputContext != null; } }
+        public bool IsInitialized
+        {
+            get { return InputContext != null; }
+        }
 
         /// <summary>
         /// Gets a value indicating whether this instance is open.
         /// </summary>
-        public bool IsOpen { get { return IsInitialized && Components.All.Count > 0; } }
+        public bool IsOpen
+        {
+            get { return IsInitialized && Components.All.Count > 0; }
+        }
 
         /// <summary>
         /// Gets the media start time by which all component streams are offset. 
@@ -197,7 +206,10 @@
         /// If this information is not available (i.e. realtime media) it will
         /// be set to TimeSpan.MinValue
         /// </summary>
-        public TimeSpan MediaDuration { get { return MediaInfo?.Duration ?? TimeSpan.MinValue; } }
+        public TimeSpan MediaDuration
+        {
+            get { return MediaInfo?.Duration ?? TimeSpan.MinValue; }
+        }
 
         /// <summary>
         /// Will be set to true whenever an End Of File situation is reached.
@@ -220,7 +232,10 @@
         /// <summary>
         /// Gets a value indicating whether the underlying media is seekable.
         /// </summary>
-        public bool IsStreamSeekable { get { return MediaDuration.TotalSeconds > 0 && MediaDuration != TimeSpan.MinValue; } }
+        public bool IsStreamSeekable
+        {
+            get { return MediaDuration.TotalSeconds > 0 && MediaDuration != TimeSpan.MinValue; }
+        }
 
         /// <summary>
         /// Gets a value indicating whether this container represents realtime media.
@@ -232,7 +247,10 @@
         /// <summary>
         /// Provides direct access to the individual Media components of the input stream.
         /// </summary>
-        public MediaComponentSet Components { get { return m_Components; } }
+        public MediaComponentSet Components
+        {
+            get { return m_Components; }
+        }
 
         #endregion
 
@@ -316,7 +334,7 @@
         /// Pass TimeSpan.Zero to seek to the beginning of the stream.
         /// </summary>
         /// <param name="position">The position.</param>
-        /// <returns></returns>
+        /// <returns>The list of media frames</returns>
         public List<MediaFrame> Seek(TimeSpan position)
         {
             lock (ReadSyncRoot)
@@ -356,7 +374,7 @@
         /// release the frame. Specify the release input argument as true and the frame will be automatically
         /// freed from memory.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The list of media frames</returns>
         public List<MediaFrame> Decode()
         {
             lock (DecodeSyncRoot)
@@ -381,7 +399,7 @@
         /// <param name="input">The raw frame source. Has to be compatiable with the target. (e.g. use VideoFrameSource to conver to VideoFrame)</param>
         /// <param name="output">The target frame. Has to be compatible with the source.</param>
         /// <param name="releaseInput">if set to <c>true</c> releases the raw frame source from unmanaged memory.</param>
-        /// <returns></returns>
+        /// <returns>The media block</returns>
         /// <exception cref="System.ArgumentNullException">input</exception>
         /// <exception cref="System.ArgumentException">
         /// input
@@ -626,11 +644,9 @@
         /// Creates the stream components by first finding the best available streams.
         /// Then it initializes the components of the correct type each.
         /// </summary>
-        /// <returns></returns>
-        /// <exception cref="Unosquare.FFME.MediaContainerException"></exception>
+        /// <exception cref="Unosquare.FFME.MediaContainerException">The exception ifnromation</exception>
         private void StreamCreateComponents()
         {
-
             // Create the audio component
             try
             {
@@ -818,7 +834,7 @@
         /// </summary>
         /// <param name="frames">The frames.</param>
         /// <param name="targetTime">The target time.</param>
-        /// <returns></returns>
+        /// <returns>The number of dropped frames</returns>
         private int DropSeekFrames(List<MediaFrame> frames, TimeSpan targetTime)
         {
             var result = 0;
@@ -857,7 +873,10 @@
         private void StreamSeekToStart()
         {
             if (MediaStartTimeOffset == TimeSpan.MinValue) return;
-            var seekResult = ffmpeg.av_seek_frame(InputContext, -1, SeekStartTimestamp,
+            var seekResult = ffmpeg.av_seek_frame(
+                InputContext,
+                -1,
+                SeekStartTimestamp,
                 MediaSeeksByBytes ? ffmpeg.AVSEEK_FLAG_BYTE : ffmpeg.AVSEEK_FLAG_BACKWARD);
 
             Components.ClearPacketQueues();
@@ -871,7 +890,7 @@
         /// </summary>
         /// <param name="targetTime">The target time.</param>
         /// <param name="doPreciseSeek">if set to <c>true</c> [do precise seek].</param>
-        /// <returns></returns>
+        /// <returns>The list of media frames</returns>
         private List<MediaFrame> StreamSeek(TimeSpan targetTime)
         {
             // Create the output result object
@@ -975,7 +994,9 @@
 
                 // Read and decode frames for all components and check if the decoded frames
                 // are on or right before the target time.
-                StreamSeekDecode(result, targetTime,
+                StreamSeekDecode(
+                    result,
+                    targetTime,
                     Components.Main.MediaType == MediaType.Audio ? SeekRequirement.MainComponentOnly : SeekRequirement.AudioAndVideo);
 
                 var firstAudioFrame = result.FirstOrDefault(f => f.MediaType == MediaType.Audio && f.StartTime <= targetTime);
@@ -1016,7 +1037,7 @@
         /// <param name="result">The list of frames that is currently being processed. Frames will be added here.</param>
         /// <param name="targetTime">The target time in absolute 0-based time.</param>
         /// <param name="requirement">The requirement.</param>
-        /// <returns></returns>
+        /// <returns>The number of decoded frames</returns>
         private int StreamSeekDecode(List<MediaFrame> result, TimeSpan targetTime, SeekRequirement requirement)
         {
             var readSeekCycles = 0;

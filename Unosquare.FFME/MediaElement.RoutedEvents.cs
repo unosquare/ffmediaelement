@@ -20,7 +20,7 @@
         /// <param name="routedEvent">The routed event.</param>
         /// <param name="sender">The sender.</param>
         /// <param name="errorException">The error exception.</param>
-        /// <returns></returns>
+        /// <returns>The event arguments</returns>
         private static ExceptionRoutedEventArgs CreateExceptionRoutedEventArgs(RoutedEvent routedEvent, object sender, Exception errorException)
         {
             var constructor = (typeof(ExceptionRoutedEventArgs) as TypeInfo).DeclaredConstructors.First();

@@ -75,13 +75,19 @@
         /// Gets a value indicating whether more packets can be read from the stream.
         /// This does not check if the packet queue is full.
         /// </summary>
-        private bool CanReadMorePackets { get { return (Container?.IsAtEndOfStream ?? true) == false; } }
+        private bool CanReadMorePackets
+        {
+            get { return (Container?.IsAtEndOfStream ?? true) == false; }
+        }
 
         /// <summary>
         /// Gets a value indicating whether more frames can be decoded from the packet queue.
         /// That is, if we have packets in the packet buffer or if we are not at the end of the stream.
         /// </summary>
-        private bool CanReadMoreFrames { get { return CanReadMorePackets || Container.Components.PacketBufferLength > 0; } }
+        private bool CanReadMoreFrames
+        {
+            get { return CanReadMorePackets || Container.Components.PacketBufferLength > 0; }
+        }
 
         #endregion
 
@@ -90,8 +96,15 @@
         /// <summary>
         /// Gets a value indicating whether more frames can be converted into blocks of the given type.
         /// </summary>
+        /// <param name="t">The t.</param>
+        /// <returns>
+        ///   <c>true</c> if this instance [can read more frames of] the specified t; otherwise, <c>false</c>.
+        /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool CanReadMoreFramesOf(MediaType t) { return CanReadMorePackets || Container.Components[t].PacketBufferLength > 0; }
+        private bool CanReadMoreFramesOf(MediaType t)
+        {
+            return CanReadMorePackets || Container.Components[t].PacketBufferLength > 0;
+        }
 
         /// <summary>
         /// Sends the given block to its corresponding media renderer.
@@ -129,7 +142,7 @@
         /// Adds the blocks of the given media type.
         /// </summary>
         /// <param name="t">The t.</param>
-        /// <returns></returns>
+        /// <returns>The number of blocks that were added</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int AddBlocks(MediaType t)
         {

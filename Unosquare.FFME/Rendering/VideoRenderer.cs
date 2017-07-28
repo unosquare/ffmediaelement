@@ -54,13 +54,20 @@
                 var pixelHeight = block?.PixelHeight ?? MediaElement.NaturalVideoHeight;
 
                 if (MediaElement.HasVideo && pixelWidth > 0 && pixelHeight > 0)
+                {
                     TargetBitmap = new WriteableBitmap(
                         block?.PixelWidth ?? MediaElement.NaturalVideoWidth,
                         block?.PixelHeight ?? MediaElement.NaturalVideoHeight,
-                        dpiX, dpiY, PixelFormats.Bgr24, null);
+                        dpiX,
+                        dpiY,
+                        PixelFormats.Bgr24,
+                        null);
+                }
                 else
+                {
                     TargetBitmap = null;
-                
+                }
+
                 MediaElement.ViewBox.Source = TargetBitmap;
             });
         }
@@ -142,56 +149,58 @@
 
             IsRenderingInProgress = true;
 
-            Utils.UIEnqueueInvoke(DispatcherPriority.Render, new Action<VideoBlock, TimeSpan>((b, cP) =>
-            {
-                try
+            Utils.UIEnqueueInvoke(
+                DispatcherPriority.Render,
+                new Action<VideoBlock, TimeSpan>((b, cP) =>
                 {
-                    if (TargetBitmap == null || TargetBitmap.PixelWidth != b.PixelWidth || TargetBitmap.PixelHeight != b.PixelHeight)
-                        InitializeTargetBitmap(b);
-
-                    var updateRect = new Int32Rect(0, 0, b.PixelWidth, b.PixelHeight);
-                    TargetBitmap.WritePixels(updateRect, b.Buffer, b.BufferLength, b.BufferStride);
-                    MediaElement.RaiseRenderingVideoEvent(TargetBitmap, MediaElement.Container.MediaInfo.Streams[b.StreamIndex], 
-                        b.StartTime, b.Duration, cP);
-
-                    var scaleTransform = MediaElement.ViewBox.LayoutTransform as ScaleTransform;
-
-                    // Process Aspect Ratio according to block.
-                    if (b.AspectWidth != b.AspectHeight)
+                    try
                     {
-                        var scaleX = b.AspectWidth > b.AspectHeight ? (double)b.AspectWidth / b.AspectHeight : 1d;
-                        var scaleY = b.AspectHeight > b.AspectWidth ? (double)b.AspectHeight / b.AspectWidth : 1d;
+                        if (TargetBitmap == null || TargetBitmap.PixelWidth != b.PixelWidth || TargetBitmap.PixelHeight != b.PixelHeight)
+                            InitializeTargetBitmap(b);
 
-                        if (scaleTransform == null)
+                        var updateRect = new Int32Rect(0, 0, b.PixelWidth, b.PixelHeight);
+                        TargetBitmap.WritePixels(updateRect, b.Buffer, b.BufferLength, b.BufferStride);
+                        MediaElement.RaiseRenderingVideoEvent(TargetBitmap, MediaElement.Container.MediaInfo.Streams[b.StreamIndex], b.StartTime, b.Duration, cP);
+
+                        var scaleTransform = MediaElement.ViewBox.LayoutTransform as ScaleTransform;
+
+                        // Process Aspect Ratio according to block.
+                        if (b.AspectWidth != b.AspectHeight)
                         {
-                            scaleTransform = new ScaleTransform(scaleX, scaleY);
-                            MediaElement.ViewBox.LayoutTransform = scaleTransform;
+                            var scaleX = b.AspectWidth > b.AspectHeight ? (double)b.AspectWidth / b.AspectHeight : 1d;
+                            var scaleY = b.AspectHeight > b.AspectWidth ? (double)b.AspectHeight / b.AspectWidth : 1d;
+
+                            if (scaleTransform == null)
+                            {
+                                scaleTransform = new ScaleTransform(scaleX, scaleY);
+                                MediaElement.ViewBox.LayoutTransform = scaleTransform;
+                            }
+
+                            if (scaleTransform.ScaleX != scaleX || scaleTransform.ScaleY != scaleY)
+                            {
+                                scaleTransform.ScaleX = scaleX;
+                                scaleTransform.ScaleY = scaleY;
+                            }
                         }
-
-                        if (scaleTransform.ScaleX != scaleX || scaleTransform.ScaleY != scaleY)
+                        else
                         {
-                            scaleTransform.ScaleX = scaleX;
-                            scaleTransform.ScaleY = scaleY;
+                            if (scaleTransform != null && (scaleTransform.ScaleX != 1d || scaleTransform.ScaleY != 1d))
+                            {
+                                scaleTransform.ScaleX = 1d;
+                                scaleTransform.ScaleY = 1d;
+                            }
                         }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        if (scaleTransform != null && (scaleTransform.ScaleX != 1d || scaleTransform.ScaleY != 1d))
-                        {
-                            scaleTransform.ScaleX = 1d;
-                            scaleTransform.ScaleY = 1d;
-                        }
+                        Utils.Log(MediaElement, MediaLogMessageType.Error, $"{nameof(VideoRenderer)} {ex.GetType()}: {ex.Message}. Stack Trace:\r\n{ex.StackTrace}");
                     }
-                }
-                catch (Exception ex)
-                {
-                    Utils.Log(MediaElement, MediaLogMessageType.Error, $"{nameof(VideoRenderer)} {ex.GetType()}: {ex.Message}. Stack Trace:\r\n{ex.StackTrace}");
-                }
-                finally
-                {
-                    IsRenderingInProgress = false;
-                }
-            }), block, clockPosition);
+                    finally
+                    {
+                        IsRenderingInProgress = false;
+                    }
+                }), block,
+                clockPosition);
         }
 
         /// <summary>
@@ -199,7 +208,10 @@
         /// This needs to return immediately so the calling thread is not disturbed.
         /// </summary>
         /// <param name="clockPosition">The clock position.</param>
-        public void Update(TimeSpan clockPosition) { }
+        public void Update(TimeSpan clockPosition)
+        {
+            // placeholder
+        }
 
         #endregion
     }

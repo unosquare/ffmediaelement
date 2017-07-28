@@ -142,17 +142,26 @@ namespace Unosquare.FFME.Rendering.Wave
         /// <summary>
         /// The device name Guid (if provided)
         /// </summary>
-        public Guid NameGuid { get { return nameGuid; } }
+        public Guid NameGuid
+        {
+            get { return nameGuid; }
+        }
 
         /// <summary>
         /// The product name Guid (if provided)
         /// </summary>
-        public Guid ProductGuid { get { return productGuid; } }
+        public Guid ProductGuid
+        {
+            get { return productGuid; }
+        }
 
         /// <summary>
         /// The manufacturer guid (if provided)
         /// </summary>
-        public Guid ManufacturerGuid { get { return manufacturerGuid; } }
+        public Guid ManufacturerGuid
+        {
+            get { return manufacturerGuid; }
+        }
     }
 
     /// <summary>

@@ -11,7 +11,7 @@
     /// <seealso cref="Unosquare.FFME.Commands.MediaCommand" />
     internal sealed class SeekCommand : MediaCommand
     {
-        public TimeSpan TargetPosition = TimeSpan.Zero;
+        public TimeSpan TargetPosition { get; set; } = TimeSpan.Zero;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SeekCommand" /> class.

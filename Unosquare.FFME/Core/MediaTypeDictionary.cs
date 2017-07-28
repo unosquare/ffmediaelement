@@ -29,7 +29,7 @@
         /// The <see cref="TValue"/>.
         /// </value>
         /// <param name="key">The key.</param>
-        /// <returns></returns>
+        /// <returns>The item</returns>
         public new TValue this[MediaType key]
         {
             get

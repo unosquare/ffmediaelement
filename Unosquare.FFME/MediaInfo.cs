@@ -47,7 +47,7 @@
         /// Extracts the stream infos from the input.
         /// </summary>
         /// <param name="ic">The ic.</param>
-        /// <returns></returns>
+        /// <returns>The list of stream infos</returns>
         private static List<StreamInfo> ExtractStreams(AVFormatContext* ic)
         {
             var result = new List<StreamInfo>();
@@ -77,12 +77,14 @@
 
                 if (sar.num != 0 && (sar.num != avObject->codecpar->sample_aspect_ratio.num || sar.den != avObject->codecpar->sample_aspect_ratio.den))
                 {
-                    ffmpeg.av_reduce(&dar.num, &dar.den,
+                    ffmpeg.av_reduce(
+                        &dar.num,
+                        &dar.den,
                         avObject->codecpar->width * avObject->sample_aspect_ratio.num,
                         avObject->codecpar->height * avObject->sample_aspect_ratio.den,
                         1024 * 1024);
                 }
-                
+
                 var stream = new StreamInfo
                 {
                     StreamId = avObject->id,
@@ -138,7 +140,7 @@
         /// </summary>
         /// <param name="ic">The ic.</param>
         /// <param name="streams">The streams.</param>
-        /// <returns></returns>
+        /// <returns>The star infos</returns>
         private static Dictionary<AVMediaType, StreamInfo> FindBestStreams(AVFormatContext* ic, ReadOnlyDictionary<int, StreamInfo> streams)
         {
 
@@ -155,23 +157,33 @@
                 AVCodec* requestedCodec = null;
 
                 streamIndexes[AVMediaType.AVMEDIA_TYPE_VIDEO] =
-                    ffmpeg.av_find_best_stream(ic, AVMediaType.AVMEDIA_TYPE_VIDEO,
-                                        streamIndexes[(int)AVMediaType.AVMEDIA_TYPE_VIDEO], -1,
-                                        &requestedCodec, 0);
+                    ffmpeg.av_find_best_stream(
+                        ic,
+                        AVMediaType.AVMEDIA_TYPE_VIDEO,
+                        streamIndexes[(int)AVMediaType.AVMEDIA_TYPE_VIDEO],
+                        -1,
+                        &requestedCodec,
+                        0);
 
                 streamIndexes[AVMediaType.AVMEDIA_TYPE_AUDIO] =
-                    ffmpeg.av_find_best_stream(ic, AVMediaType.AVMEDIA_TYPE_AUDIO,
-                                        streamIndexes[AVMediaType.AVMEDIA_TYPE_AUDIO],
-                                        streamIndexes[AVMediaType.AVMEDIA_TYPE_VIDEO],
-                                        &requestedCodec, 0);
+                    ffmpeg.av_find_best_stream(
+                        ic,
+                        AVMediaType.AVMEDIA_TYPE_AUDIO,
+                        streamIndexes[AVMediaType.AVMEDIA_TYPE_AUDIO],
+                        streamIndexes[AVMediaType.AVMEDIA_TYPE_VIDEO],
+                        &requestedCodec,
+                        0);
 
                 streamIndexes[AVMediaType.AVMEDIA_TYPE_SUBTITLE] =
-                    ffmpeg.av_find_best_stream(ic, AVMediaType.AVMEDIA_TYPE_SUBTITLE,
-                                        streamIndexes[AVMediaType.AVMEDIA_TYPE_SUBTITLE],
-                                        (streamIndexes[AVMediaType.AVMEDIA_TYPE_AUDIO] >= 0 ?
-                                         streamIndexes[AVMediaType.AVMEDIA_TYPE_AUDIO] :
-                                         streamIndexes[AVMediaType.AVMEDIA_TYPE_VIDEO]),
-                                        &requestedCodec, 0);
+                    ffmpeg.av_find_best_stream(
+                        ic,
+                        AVMediaType.AVMEDIA_TYPE_SUBTITLE,
+                        streamIndexes[AVMediaType.AVMEDIA_TYPE_SUBTITLE],
+                        streamIndexes[AVMediaType.AVMEDIA_TYPE_AUDIO] >= 0 ?
+                            streamIndexes[AVMediaType.AVMEDIA_TYPE_AUDIO] :
+                            streamIndexes[AVMediaType.AVMEDIA_TYPE_VIDEO],
+                        &requestedCodec,
+                        0);
             }
 
             var result = new Dictionary<AVMediaType, StreamInfo>();
@@ -187,7 +199,7 @@
         /// Extracts the chapters from the input.
         /// </summary>
         /// <param name="ic">The ic.</param>
-        /// <returns></returns>
+        /// <returns>The chapters</returns>
         private static List<ChapterInfo> ExtractChapters(AVFormatContext* ic)
         {
             var result = new List<ChapterInfo>();
@@ -217,7 +229,7 @@
         /// </summary>
         /// <param name="ic">The ic.</param>
         /// <param name="streams">The streams.</param>
-        /// <returns></returns>
+        /// <returns>The program information</returns>
         private static List<ProgramInfo> ExtractPrograms(AVFormatContext* ic, ReadOnlyDictionary<int, StreamInfo> streams)
         {
             var result = new List<ProgramInfo>();

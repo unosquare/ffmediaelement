@@ -158,7 +158,10 @@
         /// <summary>
         /// Gets the number of available playback blocks.
         /// </summary>
-        public int Count { get { lock (SyncRoot) return PlaybackBlocks.Count; } }
+        public int Count
+        {
+            get { lock (SyncRoot) return PlaybackBlocks.Count; }
+        }
 
         /// <summary>
         /// Gets the maximum count of this buffer.
@@ -168,12 +171,18 @@
         /// <summary>
         /// Gets the usage percent from 0.0 to 1.0
         /// </summary>
-        public double CapacityPercent { get { lock (SyncRoot) return (double)Count / Capacity; } }
+        public double CapacityPercent
+        {
+            get { lock (SyncRoot) return (double)Count / Capacity; }
+        }
 
         /// <summary>
         /// Gets a value indicating whether the playback blocks are all allocated.
         /// </summary>
-        public bool IsFull { get { lock (SyncRoot) return Count >= Capacity; } }
+        public bool IsFull
+        {
+            get { lock (SyncRoot) return Count >= Capacity; }
+        }
 
         #endregion
 
@@ -182,7 +191,7 @@
         /// <summary>
         /// Block factory method.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The media frame</returns>
         /// <exception cref="System.InvalidCastException">MediaBlock</exception>
         private MediaBlock CreateBlock()
         {
@@ -197,12 +206,12 @@
         /// Gets the percentage of the range for the given time position.
         /// </summary>
         /// <param name="position">The position.</param>
-        /// <returns></returns>
+        /// <returns>The percent of the range</returns>
         public double GetRangePercent(TimeSpan position)
         {
             lock (SyncRoot)
             {
-                return RangeDuration.Ticks != 0 ? 
+                return RangeDuration.Ticks != 0 ?
                     ((double)position.Ticks - RangeStartTime.Ticks) / RangeDuration.Ticks : 0d;
             }
         }
@@ -210,7 +219,7 @@
         /// <summary>
         /// Returns a formatted string with information about this buffer
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The formatted string</returns>
         internal string Debug()
         {
             lock (SyncRoot)
@@ -221,7 +230,7 @@
         /// Retrieves the block following the provided current block
         /// </summary>
         /// <param name="current">The current block.</param>
-        /// <returns></returns>
+        /// <returns>The next media block</returns>
         public MediaBlock Next(MediaBlock current)
         {
             lock (SyncRoot)
@@ -314,7 +323,7 @@
         /// If the render time is less than the range start time, it returns the first playback block index.
         /// </summary>
         /// <param name="renderTime">The render time.</param>
-        /// <returns></returns>
+        /// <returns>The media block's index</returns>
         public int IndexOf(TimeSpan renderTime)
         {
             lock (SyncRoot)
@@ -335,8 +344,8 @@
                 if (PlaybackBlocks[highIndex].StartTime <= renderTime) return highIndex;
 
                 // First guess, very low cost, very fast
-                if (midIndex < highIndex 
-                    && renderTime >= PlaybackBlocks[midIndex].StartTime 
+                if (midIndex < highIndex
+                    && renderTime >= PlaybackBlocks[midIndex].StartTime
                     && renderTime < PlaybackBlocks[midIndex + 1].StartTime)
                     return midIndex;
 

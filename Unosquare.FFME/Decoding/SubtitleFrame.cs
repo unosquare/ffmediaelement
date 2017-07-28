@@ -83,7 +83,10 @@
         /// <summary>
         /// Gets the pointer to the unmanaged subtitle struct
         /// </summary>
-        internal AVSubtitle* Pointer { get { return m_Pointer; } }
+        internal AVSubtitle* Pointer
+        {
+            get { return m_Pointer; }
+        }
 
         /// <summary>
         /// Gets lines of text that the subtitle frame contains.
@@ -145,7 +148,7 @@
         /// <summary>
         /// Allocates an AVSubtitle struct in unmanaged memory,
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The subtitle struct pointer</returns>
         internal static AVSubtitle* AllocateSubtitle()
         {
             return (AVSubtitle*)ffmpeg.av_malloc((ulong)Marshal.SizeOf(typeof(AVSubtitle)));

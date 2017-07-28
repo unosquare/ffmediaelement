@@ -77,7 +77,7 @@ namespace Unosquare.FFME.Rendering.Wave
         /// Gets the size of a wave buffer equivalent to the latency in milliseconds.
         /// </summary>
         /// <param name="milliseconds">The milliseconds.</param>
-        /// <returns></returns>
+        /// <returns>The size</returns>
         public int ConvertLatencyToByteSize(int milliseconds)
         {
             int bytes = (int)((AverageBytesPerSecond / 1000.0) * milliseconds);
@@ -86,6 +86,7 @@ namespace Unosquare.FFME.Rendering.Wave
                 // Return the upper BlockAligned
                 bytes = bytes + BlockAlign - (bytes % BlockAlign);
             }
+
             return bytes;
         }
 

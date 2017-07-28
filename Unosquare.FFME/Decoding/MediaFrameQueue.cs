@@ -80,7 +80,7 @@
         /// Peeks the next available frame in the queue without removing it.
         /// If no frames are available, null is returned.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The media frame</returns>
         public MediaFrame Peek()
         {
             lock (SyncRoot)
@@ -104,7 +104,7 @@
         /// <summary>
         /// Dequeues a frame from this queue.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The media frame</returns>
         public MediaFrame Dequeue()
         {
             lock (SyncRoot)

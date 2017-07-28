@@ -76,7 +76,10 @@
         /// <summary>
         /// Gets the pointer to the unmanaged frame.
         /// </summary>
-        internal AVFrame* Pointer { get { return m_Pointer; } }
+        internal AVFrame* Pointer
+        {
+            get { return m_Pointer; }
+        }
 
         /// <summary>
         /// Gets the closed caption data collected from the frame in CEA-708/EAS-608 format.

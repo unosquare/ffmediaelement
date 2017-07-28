@@ -150,17 +150,26 @@
         /// <summary>
         /// Gets a value indicating whether this instance has a video component.
         /// </summary>
-        public bool HasVideo { get { lock (SyncLock) return Items.ContainsKey(MediaType.Video); } }
+        public bool HasVideo
+        {
+            get { lock (SyncLock) return Items.ContainsKey(MediaType.Video); }
+        }
 
         /// <summary>
         /// Gets a value indicating whether this instance has an audio component.
         /// </summary>
-        public bool HasAudio { get { lock (SyncLock) return Items.ContainsKey(MediaType.Audio); } }
+        public bool HasAudio
+        {
+            get { lock (SyncLock) return Items.ContainsKey(MediaType.Audio); }
+        }
 
         /// <summary>
         /// Gets a value indicating whether this instance has a subtitles component.
         /// </summary>
-        public bool HasSubtitles { get { lock (SyncLock) return Items.ContainsKey(MediaType.Subtitle); } }
+        public bool HasSubtitles
+        {
+            get { lock (SyncLock) return Items.ContainsKey(MediaType.Subtitle); }
+        }
 
         /// <summary>
         /// Gets or sets the <see cref="MediaComponent"/> with the specified media type.
@@ -168,8 +177,8 @@
         /// Getting a non existing media component fro the given media type will return null.
         /// </summary>
         /// <param name="mediaType">Type of the media.</param>
-        /// <returns></returns>
-        /// <exception cref="System.ArgumentException"></exception>
+        /// <returns>The media component</returns>
+        /// <exception cref="System.ArgumentException">When the media type is invalid</exception>
         /// <exception cref="System.ArgumentNullException">MediaComponent</exception>
         public MediaComponent this[MediaType mediaType]
         {
@@ -229,7 +238,7 @@
         /// Returns the media type of the component that accepted the packet.
         /// </summary>
         /// <param name="packet">The packet.</param>
-        /// <returns></returns>
+        /// <returns>The media type</returns>
         internal unsafe MediaType SendPacket(AVPacket* packet)
         {
             lock (SyncLock)

@@ -56,7 +56,10 @@
         /// <summary>
         /// Gets the pointer to the unmanaged frame.
         /// </summary>
-        internal AVFrame* Pointer { get { return m_Pointer; } }
+        internal AVFrame* Pointer
+        {
+            get { return m_Pointer; }
+        }
 
         #endregion
 
@@ -71,11 +74,13 @@
             if (!IsDisposed)
             {
                 if (m_Pointer != null)
+                {
                     fixed (AVFrame** pointer = &m_Pointer)
                     {
                         RC.Current.Remove(*pointer);
                         ffmpeg.av_frame_free(pointer);
                     }
+                }
 
                 m_Pointer = null;
                 InternalPointer = null;
