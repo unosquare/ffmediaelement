@@ -121,7 +121,5 @@
         /// Can be changed to a different stream reference.
         /// </summary>
         public StreamInfo SubtitleStream { get; set; } = null;
-
     }
-
 }

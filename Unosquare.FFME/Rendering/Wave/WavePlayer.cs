@@ -29,8 +29,9 @@
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="WavePlayer"/> class.
+        /// Initializes a new instance of the <see cref="WavePlayer" /> class.
         /// </summary>
+        /// <param name="renderer">The renderer.</param>
         public WavePlayer(AudioRenderer renderer)
         {
             // Initialize the default values
@@ -38,6 +39,16 @@
             DeviceNumber = -1;
             DesiredLatency = 300;
             NumberOfBuffers = 2;
+        }
+
+        /// <summary>
+        /// Finalizes an instance of the <see cref="WavePlayer"/> class.
+        /// </summary>
+        ~WavePlayer()
+        {
+            Dispose(false);
+            Renderer.MediaElement.Logger.Log(MediaLogMessageType.Error,
+                $"{nameof(WavePlayer)}.{nameof(Dispose)} was not called. Please ensure you dispose when finished using this object.");
         }
 
         #endregion
@@ -162,7 +173,6 @@
                 };
                 AudioPlaybackTask.Start();
             }
-
             else if (m_PlaybackState == PlaybackState.Paused)
             {
                 Resume();
@@ -201,7 +211,6 @@
                 throw new MmException(result, nameof(WaveInterop.NativeMethods.waveOutRestart));
 
             m_PlaybackState = PlaybackState.Playing;
-
         }
 
         /// <summary>
@@ -223,7 +232,6 @@
                 throw new MmException(result, nameof(WaveInterop.NativeMethods.waveOutReset));
 
             CallbackEvent.Set(); // give the thread a kick, make sure we exit
-
         }
 
         /// <summary>
@@ -289,9 +297,13 @@
 
                 queued = 0; // requeue any buffers returned to us
                 if (Buffers != null)
+                {
                     foreach (var buffer in Buffers)
+                    {
                         if (buffer.InQueue || buffer.OnDone())
                             queued++;
+                    }
+                }
 
                 if (queued == 0)
                 {
@@ -341,6 +353,7 @@
                 CallbackEvent.Close();
                 CallbackEvent = null;
             }
+
             lock (WaveOutLock)
             {
                 if (DeviceHandle != IntPtr.Zero)
@@ -359,21 +372,10 @@
             if (Buffers != null)
             {
                 foreach (var buffer in Buffers)
-                {
                     buffer.Dispose();
-                }
+                
                 Buffers = null;
             }
-        }
-
-        /// <summary>
-        /// Finalizer. Only called when user forgets to call <see>Dispose</see>
-        /// </summary>
-        ~WavePlayer()
-        {
-            Dispose(false);
-            Renderer.MediaElement.Logger.Log(MediaLogMessageType.Error,
-                $"{nameof(WavePlayer)}.{nameof(Dispose)} was not called. Please ensure you dispose when finished using this object.");
         }
 
         #endregion

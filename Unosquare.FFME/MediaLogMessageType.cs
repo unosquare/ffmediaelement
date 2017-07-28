@@ -34,6 +34,5 @@
         /// The warning messge type
         /// </summary>
         Warning = 16,
-
     }
 }

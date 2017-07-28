@@ -232,7 +232,6 @@
                     // the current position is the Write tag minus the pending length
                     return TimeSpan.FromTicks(AudioBuffer.WriteTag.Ticks - pendingAudioLength.Ticks);
                 }
-
             }
         }
 
@@ -350,7 +349,6 @@
                 if (ReadBuffer != null)
                     Array.Clear(ReadBuffer, 0, ReadBuffer.Length);
             }
-
         }
 
         /// <summary>

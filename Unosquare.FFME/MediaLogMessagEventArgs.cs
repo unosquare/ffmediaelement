@@ -44,5 +44,4 @@
         /// </summary>
         public string Message { get; }
     }
-
 }

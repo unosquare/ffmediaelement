@@ -151,7 +151,7 @@ namespace Unosquare.FFME.Rendering.Wave
         private string function;
 
         /// <summary>
-        /// Creates a new MmException
+        /// Initializes a new instance of the <see cref="MmException"/> class.
         /// </summary>
         /// <param name="result">The result returned by the Windows API call</param>
         /// <param name="function">The name of the Windows API that failed</param>
@@ -162,9 +162,15 @@ namespace Unosquare.FFME.Rendering.Wave
             this.function = function;
         }
 
-        private static string ErrorMessage(MmResult result, string function)
+        /// <summary>
+        /// Returns the Windows API result
+        /// </summary>
+        public MmResult Result
         {
-            return String.Format("{0} calling {1}", result, function);
+            get
+            {
+                return result;
+            }
         }
 
         /// <summary>
@@ -179,14 +185,14 @@ namespace Unosquare.FFME.Rendering.Wave
         }
 
         /// <summary>
-        /// Returns the Windows API result
+        /// Creates an error message base don an erro result.
         /// </summary>
-        public MmResult Result
+        /// <param name="result">The result.</param>
+        /// <param name="function">The function.</param>
+        /// <returns>A descriptive rror message</returns>
+        private static string ErrorMessage(MmResult result, string function)
         {
-            get
-            {
-                return result;
-            }
+            return String.Format("{0} calling {1}", result, function);
         }
     }
 

@@ -140,7 +140,6 @@
                         m.Clock.Position = TargetPosition;
                     }
                 }
-
             }
             catch (Exception ex)
             {

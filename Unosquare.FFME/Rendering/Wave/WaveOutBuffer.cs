@@ -13,34 +13,34 @@ namespace Unosquare.FFME.Rendering.Wave
         private readonly byte[] buffer;
         private readonly IWaveProvider waveStream;
         private readonly object waveOutLock;
-        private GCHandle hBuffer;
-        private IntPtr hWaveOut;
-        private GCHandle hHeader; // we need to pin the header structure
-        private GCHandle hThis; // for the user callback
+        private GCHandle bufferHandle;
+        private IntPtr waveOutPtr;
+        private GCHandle headerHandle; // we need to pin the header structure
+        private GCHandle callbackHandle; // for the user callback
 
         /// <summary>
-        /// creates a new wavebuffer
+        /// Initializes a new instance of the <see cref="WaveOutBuffer"/> class.
         /// </summary>
         /// <param name="hWaveOut">WaveOut device to write to</param>
         /// <param name="bufferSize">Buffer size in bytes</param>
         /// <param name="bufferFillStream">Stream to provide more data</param>
-        /// <param name="waveOutLock">Lock to protect WaveOut API's from being called on >1 thread</param>
+        /// <param name="waveOutLock">Lock to protect WaveOut API's from being called on &gt;1 thread</param>
         public WaveOutBuffer(IntPtr hWaveOut, Int32 bufferSize, IWaveProvider bufferFillStream, object waveOutLock)
         {
             this.bufferSize = bufferSize;
             buffer = new byte[bufferSize];
-            hBuffer = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-            this.hWaveOut = hWaveOut;
+            bufferHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+            this.waveOutPtr = hWaveOut;
             waveStream = bufferFillStream;
             this.waveOutLock = waveOutLock;
 
             header = new WaveHeader();
-            hHeader = GCHandle.Alloc(header, GCHandleType.Pinned);
-            header.dataBuffer = hBuffer.AddrOfPinnedObject();
+            headerHandle = GCHandle.Alloc(header, GCHandleType.Pinned);
+            header.dataBuffer = bufferHandle.AddrOfPinnedObject();
             header.bufferLength = bufferSize;
             header.loops = 1;
-            hThis = GCHandle.Alloc(this);
-            header.userData = (IntPtr)hThis;
+            callbackHandle = GCHandle.Alloc(this);
+            header.userData = (IntPtr)callbackHandle;
             lock (waveOutLock)
             {
                 MmException.Try(WaveInterop.NativeMethods.waveOutPrepareHeader(hWaveOut, header, Marshal.SizeOf(header)), "waveOutPrepareHeader");
@@ -50,7 +50,7 @@ namespace Unosquare.FFME.Rendering.Wave
         #region Dispose Pattern
 
         /// <summary>
-        /// Finalizer for this wave buffer
+        /// Finalizes an instance of the <see cref="WaveOutBuffer"/> class.
         /// </summary>
         ~WaveOutBuffer()
         {
@@ -70,32 +70,35 @@ namespace Unosquare.FFME.Rendering.Wave
         /// <summary>
         /// Releases resources held by this WaveBuffer
         /// </summary>
-        protected void Dispose(bool disposing)
+        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        protected void Dispose(bool alsoManaged)
         {
-            if (disposing)
+            if (alsoManaged)
             {
                 // free managed resources
             }
-            // free unmanaged resources
-            if (hHeader.IsAllocated)
-                hHeader.Free();
-            if (hBuffer.IsAllocated)
-                hBuffer.Free();
-            if (hThis.IsAllocated)
-                hThis.Free();
-            if (hWaveOut != IntPtr.Zero)
+
+            if (headerHandle.IsAllocated)
+                headerHandle.Free();
+            if (bufferHandle.IsAllocated)
+                bufferHandle.Free();
+            if (callbackHandle.IsAllocated)
+                callbackHandle.Free();
+            if (waveOutPtr != IntPtr.Zero)
             {
                 lock (waveOutLock)
-                {
-                    WaveInterop.NativeMethods.waveOutUnprepareHeader(hWaveOut, header, Marshal.SizeOf(header));
-                }
-                hWaveOut = IntPtr.Zero;
+                    WaveInterop.NativeMethods.waveOutUnprepareHeader(waveOutPtr, header, Marshal.SizeOf(header));
+
+                waveOutPtr = IntPtr.Zero;
             }
         }
 
         #endregion
 
+        /// <summary>
         /// this is called by the WAVE callback and should be used to refill the buffer
+        /// </summary>
+        /// <returns>true when bytes were written. False if no bytes were written.</returns>
         internal bool OnDone()
         {
             int bytes;
@@ -103,14 +106,13 @@ namespace Unosquare.FFME.Rendering.Wave
             {
                 bytes = waveStream.Read(buffer, 0, buffer.Length);
             }
+
             if (bytes == 0)
-            {
                 return false;
-            }
+
             for (int n = bytes; n < buffer.Length; n++)
-            {
                 buffer[n] = 0;
-            }
+
             WriteToWaveOut();
             return true;
         }
@@ -136,9 +138,8 @@ namespace Unosquare.FFME.Rendering.Wave
             MmResult result;
 
             lock (waveOutLock)
-            {
-                result = WaveInterop.NativeMethods.waveOutWrite(hWaveOut, header, Marshal.SizeOf(header));
-            }
+                result = WaveInterop.NativeMethods.waveOutWrite(waveOutPtr, header, Marshal.SizeOf(header));
+
             if (result != MmResult.NoError)
             {
                 throw new MmException(result, nameof(WaveInterop.NativeMethods.waveOutWrite));
@@ -146,6 +147,5 @@ namespace Unosquare.FFME.Rendering.Wave
 
             GC.KeepAlive(this);
         }
-
     }
 }

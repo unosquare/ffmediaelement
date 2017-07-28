@@ -74,21 +74,23 @@
             m.MediaState = System.Windows.Controls.MediaState.Close;
 
             // Update notification properties
-            Utils.UIInvoke(DispatcherPriority.DataBind, () => { m.NotifyPropertyChanges(); m.ResetDependencyProperies(); });
+            Utils.UIInvoke(DispatcherPriority.DataBind, () =>
+            {
+                m.NotifyPropertyChanges();
+                m.ResetDependencyProperies();
+            });
 #if DEBUG
             if (RC.Current.InstancesByLocation.Count > 0)
             {
                 var builder = new StringBuilder();
                 builder.AppendLine("Unmanaged references were left alive. This is an indication that there is a memory leak.");
                 foreach (var kvp in RC.Current.InstancesByLocation)
-                {
                     builder.AppendLine($"    {kvp.Key,30}: {kvp.Value}");
-                }
+                
                 m.Logger.Log(MediaLogMessageType.Error, builder.ToString());
             }
 #endif
             m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(CloseCommand)}: Completed");
-
         }
     }
 }

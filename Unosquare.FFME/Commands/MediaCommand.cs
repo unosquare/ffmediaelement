@@ -52,7 +52,7 @@
         /// Executes this command asynchronously
         /// by starting the associated promise and awaiting it.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The awaitable task</returns>
         public async Task ExecuteAsync()
         {
             var m = Manager.MediaElement;

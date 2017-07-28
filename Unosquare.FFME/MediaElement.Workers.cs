@@ -12,7 +12,7 @@
     using System.Threading.Tasks;
     using System.Windows.Controls;
 
-    partial class MediaElement
+    public partial class MediaElement
     {
         /// <summary>
         /// This partial class implements: 
@@ -35,28 +35,37 @@
 
         #region State Variables
 
-        internal readonly MediaTypeDictionary<MediaBlockBuffer> Blocks
-            = new MediaTypeDictionary<MediaBlockBuffer>();
+        private volatile bool m_IsTaskCancellationPending = false;
+        private volatile bool m_HasDecoderSeeked = false;
 
-        internal readonly MediaTypeDictionary<IRenderer> Renderers
-            = new MediaTypeDictionary<IRenderer>();
+        internal MediaTypeDictionary<MediaBlockBuffer> Blocks { get; } = new MediaTypeDictionary<MediaBlockBuffer>();
 
-        internal readonly MediaTypeDictionary<TimeSpan> LastRenderTime
-            = new MediaTypeDictionary<TimeSpan>();
+        internal MediaTypeDictionary<IRenderer> Renderers { get; } = new MediaTypeDictionary<IRenderer>();
 
-        internal volatile bool IsTaskCancellationPending = false;
-        internal volatile bool HasDecoderSeeked = false;
+        internal MediaTypeDictionary<TimeSpan> LastRenderTime { get; } = new MediaTypeDictionary<TimeSpan>();
 
-        internal Thread PacketReadingTask;
-        internal readonly ManualResetEvent PacketReadingCycle = new ManualResetEvent(true);
+        internal bool IsTaskCancellationPending
+        {
+            get { return m_IsTaskCancellationPending; }
+            set { m_IsTaskCancellationPending = value; }
+        }
 
-        internal Thread FrameDecodingTask;
-        internal readonly ManualResetEvent FrameDecodingCycle = new ManualResetEvent(true);
+        internal bool HasDecoderSeeked
+        {
+            get { return m_HasDecoderSeeked; }
+            set { m_HasDecoderSeeked = value; }
+        }
 
-        internal Thread BlockRenderingTask;
-        internal readonly ManualResetEvent BlockRenderingCycle = new ManualResetEvent(true);
+        internal Thread PacketReadingTask { get; set; }
+        internal ManualResetEvent PacketReadingCycle { get; } = new ManualResetEvent(false);
 
-        internal readonly ManualResetEvent SeekingDone = new ManualResetEvent(true);
+        internal Thread FrameDecodingTask { get; set; }
+        internal ManualResetEvent FrameDecodingCycle { get; } = new ManualResetEvent(false);
+
+        internal Thread BlockRenderingTask { get; set; }
+        internal ManualResetEvent BlockRenderingCycle { get; } = new ManualResetEvent(false);
+
+        internal ManualResetEvent SeekingDone { get; } = new ManualResetEvent(true);
 
         #endregion
 
@@ -363,7 +372,6 @@
                             rangePercent = blocks.GetRangePercent(wallClock);
                         }
                     }
-
                 }
 
                 #endregion
@@ -478,7 +486,6 @@
             }
 
             FrameDecodingCycle.Set();
-
         }
 
         #endregion
@@ -594,7 +601,6 @@
             }
 
             BlockRenderingCycle.Set();
-
         }
 
         #endregion

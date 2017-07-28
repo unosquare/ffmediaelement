@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<RuleSet Name="Rules for StyleCop.Analyzers" Description="Code analysis rules for StyleCop.Analyzers.csproj." ToolsVersion="14.0">
+<RuleSet Name="Rules for StyleCop.Analyzers" Description="Code analysis rules for StyleCop.Analyzers.csproj." ToolsVersion="15.0">
   <Rules AnalyzerId="AsyncUsageAnalyzers" RuleNamespace="AsyncUsageAnalyzers">
     <Rule Id="UseConfigureAwait" Action="Warning" />
   </Rules>
@@ -71,33 +71,33 @@
     <Rule Id="IDE0003" Action="None" />
   </Rules>
   <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
-    <Rule Id="SA1305" Action="Warning" />
-    <Rule Id="SA1412" Action="Warning" />
-    <Rule Id="SA1600" Action="None" />
     <Rule Id="SA1001" Action="None" />
     <Rule Id="SA1003" Action="None" />
     <Rule Id="SA1009" Action="None" />
-    <Rule Id="SA1028" Action="None" />
     <Rule Id="SA1011" Action="None" />
     <Rule Id="SA1012" Action="None" />
     <Rule Id="SA1013" Action="None" />
     <Rule Id="SA1021" Action="None" />
+    <Rule Id="SA1028" Action="None" />
     <Rule Id="SA1101" Action="None" />
-    <Rule Id="SA1208" Action="None" />
     <Rule Id="SA1116" Action="None" />
     <Rule Id="SA1121" Action="None" />
-    <Rule Id="SA1124" Action="None" />
     <Rule Id="SA1123" Action="None" />
+    <Rule Id="SA1124" Action="None" />
+    <Rule Id="SA1208" Action="None" />
     <Rule Id="SA1210" Action="None" />
+    <Rule Id="SA1305" Action="Warning" />
+    <Rule Id="SA1306" Action="None" />
     <Rule Id="SA1308" Action="None" />
     <Rule Id="SA1309" Action="None" />
     <Rule Id="SA1402" Action="None" />
+    <Rule Id="SA1412" Action="Warning" />
     <Rule Id="SA1501" Action="None" />
     <Rule Id="SA1503" Action="None" />
     <Rule Id="SA1507" Action="Error" />
     <Rule Id="SA1516" Action="None" />
-    <Rule Id="SA1633" Action="None" />
-    <Rule Id="SA1609" Action="None" />
+    <Rule Id="SA1600" Action="None" />
     <Rule Id="SA1623" Action="None" />
+    <Rule Id="SA1633" Action="None" />
   </Rules>
 </RuleSet>

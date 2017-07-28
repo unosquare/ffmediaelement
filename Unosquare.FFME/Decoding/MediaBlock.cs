@@ -56,6 +56,9 @@
         /// Returns false if it does not have a valid duration.
         /// </summary>
         /// <param name="position">The position.</param>
+        /// <returns>
+        ///   <c>true</c> if [contains] [the specified position]; otherwise, <c>false</c>.
+        /// </returns>
         public bool Contains(TimeSpan position)
         {
             if (Duration <= TimeSpan.Zero)
@@ -82,5 +85,4 @@
         /// </summary>
         public abstract void Dispose();
     }
-
 }

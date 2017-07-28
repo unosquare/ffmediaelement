@@ -15,17 +15,16 @@
 
         private const int IntervalMilliseconds = 8;
 
-        private readonly System.Timers.Timer Timer = null;
-        private readonly ManualResetEvent TimerDone = new ManualResetEvent(false);
-        private readonly Stopwatch Stopwatch = new Stopwatch();
-
-        static private readonly object SyncLock = new object();
-
+        private static readonly object SyncLock = new object();
         private static Lazy<ThreadTiming> m_Instance = new Lazy<ThreadTiming>(() =>
         {
             lock (SyncLock)
                 return new ThreadTiming();
         }, true);
+
+        private readonly System.Timers.Timer Timer = null;
+        private readonly ManualResetEvent TimerDone = new ManualResetEvent(false);
+        private readonly Stopwatch Stopwatch = new Stopwatch();
 
         #endregion
 
@@ -51,7 +50,10 @@
         /// <summary>
         /// Gets the singleton, lazy-loaded instance.
         /// </summary>
-        private static ThreadTiming Instance { get { return m_Instance.Value; } }
+        private static ThreadTiming Instance
+        {
+            get { return m_Instance.Value; }
+        }
 
         #endregion
 
@@ -60,6 +62,7 @@
         /// <summary>
         /// Suspends the thread for at most the specified timeout.
         /// </summary>
+        /// <param name="timeoutMilliseconds">The timeout milliseconds.</param>
         public static void Suspend(int timeoutMilliseconds)
         {
             Instance.TimerDone.WaitOne(timeoutMilliseconds);
@@ -82,11 +85,13 @@
         {
             var startMillis = Instance.Stopwatch.ElapsedMilliseconds;
             var elapsedMillis = default(long);
+
             do
             {
                 SuspendOne();
                 elapsedMillis = Instance.Stopwatch.ElapsedMilliseconds - startMillis;
-            } while (elapsedMillis < timeoutMilliseconds);
+            }
+            while (elapsedMillis < timeoutMilliseconds);
         }
 
         /// <summary>
@@ -102,7 +107,7 @@
         /// Calls the classic Task.Delay method directly.
         /// </summary>
         /// <param name="timeoutMilliseconds">The timeout milliseconds.</param>
-        /// <returns></returns>
+        /// <returns>The awaitable task</returns>
         public static async Task SuspendAsync(int timeoutMilliseconds)
         {
             await Task.Delay(timeoutMilliseconds);
@@ -112,7 +117,7 @@
         /// Promises the delay.
         /// </summary>
         /// <param name="timeoutMilliseconds">The timeout milliseconds.</param>
-        /// <returns></returns>
+        /// <returns>The awaitable task</returns>
         public static Task PromiseDelay(double timeoutMilliseconds)
         {
             var tcs = new TaskCompletionSource<bool>();

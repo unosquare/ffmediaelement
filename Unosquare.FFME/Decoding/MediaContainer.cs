@@ -24,24 +24,24 @@
         #region Private Fields
 
         /// <summary>
-        /// Holds the set of components.
-        /// </summary>
-        private readonly MediaComponentSet m_Components = new MediaComponentSet();
-
-        /// <summary>
         /// The logger
         /// </summary>
         internal readonly IMediaLogger Logger;
 
         /// <summary>
-        /// To detect redundat Dispose calls
-        /// </summary>
-        private bool IsDisposed = false;
-
-        /// <summary>
         /// Holds a reference to an input context.
         /// </summary>
         internal AVFormatContext* InputContext = null;
+
+        /// <summary>
+        /// Holds the set of components.
+        /// </summary>
+        private readonly MediaComponentSet m_Components = new MediaComponentSet();
+
+        /// <summary>
+        /// To detect redundat Dispose calls
+        /// </summary>
+        private bool IsDisposed = false;
 
         /// <summary>
         /// Determines if the stream seeks by bytes always
@@ -82,6 +82,43 @@
         /// When a read operation is started, this is set to the ticks of UTC now.
         /// </summary>
         private long StreamReadInterruptStartTime = default(long);
+
+        #endregion
+
+        #region Constructor
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MediaContainer" /> class.
+        /// </summary>
+        /// <param name="mediaUrl">The media URL.</param>
+        /// <param name="logger">The logger.</param>
+        /// <param name="protocolPrefix">
+        /// The protocol prefix. See https://ffmpeg.org/ffmpeg-protocols.html 
+        /// Leave null if setting it is not intended.</param>
+        /// <exception cref="ArgumentNullException">mediaUrl</exception>
+        public MediaContainer(string mediaUrl, IMediaLogger logger, string protocolPrefix = null)
+        {
+            // Argument Validation
+            if (string.IsNullOrWhiteSpace(mediaUrl))
+                throw new ArgumentNullException($"{nameof(mediaUrl)}");
+
+            // Initialize the library (if not already done)
+            Utils.RegisterFFmpeg(null);
+
+            // Create the options object
+            Logger = logger;
+            MediaUrl = mediaUrl;
+
+            // drop the protocol prefix if it is redundant
+            if (string.IsNullOrWhiteSpace(MediaUrl) == false && string.IsNullOrWhiteSpace(protocolPrefix) == false
+                && MediaUrl.ToLowerInvariant().Trim().StartsWith(protocolPrefix.ToLowerInvariant() + ":"))
+            {
+                protocolPrefix = null;
+            }
+
+            ProtocolPrefix = protocolPrefix;
+            StreamInitialize();
+        }
 
         #endregion
 
@@ -230,6 +267,7 @@
         /// and these attached packets must be read before reading the first frame
         /// of the stream and after seeking. This property is not part of the public API
         /// and is meant more for internal purposes
+        /// </summary>
         internal bool RequiresPictureAttachments
         {
             get
@@ -252,44 +290,6 @@
                 else
                     m_RequiresPictureAttachments = false;
             }
-        }
-
-        #endregion
-
-        #region Constructor
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MediaContainer" /> class.
-        /// </summary>
-        /// <param name="mediaUrl">The media URL.</param>
-        /// <param name="logger">The logger.</param>
-        /// <param name="protocolPrefix">
-        /// The protocol prefix. See https://ffmpeg.org/ffmpeg-protocols.html 
-        /// Leave null if setting it is not intended.</param>
-        /// <exception cref="ArgumentNullException">mediaUrl</exception>
-        /// <exception cref="System.ArgumentNullException">mediaUrl</exception>
-        public MediaContainer(string mediaUrl, IMediaLogger logger, string protocolPrefix = null)
-        {
-            // Argument Validation
-            if (string.IsNullOrWhiteSpace(mediaUrl))
-                throw new ArgumentNullException($"{nameof(mediaUrl)}");
-
-            // Initialize the library (if not already done)
-            Utils.RegisterFFmpeg(null);
-
-            // Create the options object
-            Logger = logger;
-            MediaUrl = mediaUrl;
-
-            // drop the protocol prefix if it is redundant
-            if (string.IsNullOrWhiteSpace(MediaUrl) == false && string.IsNullOrWhiteSpace(protocolPrefix) == false
-                && MediaUrl.ToLowerInvariant().Trim().StartsWith(protocolPrefix.ToLowerInvariant() + ":"))
-            {
-                protocolPrefix = null;
-            }
-
-            ProtocolPrefix = protocolPrefix;
-            StreamInitialize();
         }
 
         #endregion
@@ -533,7 +533,6 @@
                         Logger?.Log(MediaLogMessageType.Warning, $"Invalid format option: '{currentEntry.Key}'");
                         currentEntry = formatOptions.Next(currentEntry);
                     }
-
                 }
 
                 // Inject Codec Parameters
@@ -621,7 +620,6 @@
             // Initially and depending on the video component, rquire picture attachments.
             // Picture attachments are only required after the first read or after a seek.
             RequiresPictureAttachments = true;
-
         }
 
         /// <summary>
@@ -675,14 +673,13 @@
             // Verify we have at least 1 valid stream component to work with.
             if (Components.HasVideo == false && Components.HasAudio == false)
                 throw new MediaContainerException($"{MediaUrl}: No audio or video streams found to decode.");
-
         }
 
         /// <summary>
         /// The interrupt callback to handle stream reading timeouts
         /// </summary>
         /// <param name="opaque">A pointer to the format input context</param>
-        /// <returns></returns>
+        /// <returns>0 for OK, 1 for error (timeout)</returns>
         private unsafe int StreamReadInterrupt(void* opaque)
         {
             const int ErrorResult = 1;
@@ -705,9 +702,9 @@
         /// Reads the next packet in the underlying stream and enqueues in the corresponding media component.
         /// Returns None of no packet was read.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The type of media packet that was read</returns>
         /// <exception cref="System.InvalidOperationException">Initialize</exception>
-        /// <exception cref="MediaContainerException"></exception>
+        /// <exception cref="MediaContainerException">Raised when an error reading from the stream occurs.</exception>
         private MediaType StreamRead()
         {
             // Check the context has been initialized
@@ -1003,7 +1000,6 @@
                 // Subtract 1 second from the relative target time.
                 // a new seek target will be computed and we will do a av_seek_frame again.
                 relativeTargetTime = relativeTargetTime.Subtract(TimeSpan.FromSeconds(1));
-
             }
 
             Logger?.Log(MediaLogMessageType.Trace,

@@ -263,7 +263,6 @@
         /// Feel free to capture or change this image.
         /// </summary>
         public WriteableBitmap Bitmap { get; }
-
     }
 
     #endregion

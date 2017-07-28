@@ -34,8 +34,8 @@
         /// Creates a new instance of the renderer of the given type.
         /// </summary>
         /// <param name="mediaType">Type of the media.</param>
-        /// <returns></returns>
-        /// <exception cref="System.ArgumentException"></exception>
+        /// <returns>The renderer that was created</returns>
+        /// <exception cref="ArgumentException">mediaType has to be of a vild type</exception>
         private IRenderer CreateRenderer(MediaType mediaType)
         {
             var m = Manager.MediaElement;

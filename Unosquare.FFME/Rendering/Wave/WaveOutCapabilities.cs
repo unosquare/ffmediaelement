@@ -10,36 +10,45 @@ namespace Unosquare.FFME.Rendering.Wave
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
     internal struct WaveOutCapabilities
     {
+        private const int MaxProductNameLength = 32;
+
         /// <summary>
         /// wMid
         /// </summary>
         private short manufacturerId;
+
         /// <summary>
         /// wPid
         /// </summary>
         private short productId;
+
         /// <summary>
         /// vDriverVersion
         /// </summary>
         private int driverVersion;
+
         /// <summary>
         /// Product Name (szPname)
         /// </summary>
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = MaxProductNameLength)]
         private string productName;
+
         /// <summary>
         /// Supported formats (bit flags) dwFormats 
         /// </summary>
         private SupportedWaveFormat supportedFormats;
+
         /// <summary>
         /// Supported channels (1 for mono 2 for stereo) (wChannels)
         /// Seems to be set to -1 on a lot of devices
         /// </summary>
         private short channels;
+
         /// <summary>
         /// wReserved1
         /// </summary>
         private short reserved;
+
         /// <summary>
         /// Optional functionality supported by the device
         /// </summary>
@@ -49,8 +58,6 @@ namespace Unosquare.FFME.Rendering.Wave
         private Guid manufacturerGuid;
         private Guid productGuid;
         private Guid nameGuid;
-
-        private const int MaxProductNameLength = 32;
 
         /// <summary>
         /// Number of channels supported
@@ -66,32 +73,50 @@ namespace Unosquare.FFME.Rendering.Wave
         /// <summary>
         /// Whether playback rate control is supported
         /// </summary>
-        public bool SupportsPlaybackRateControl { get { return support.HasFlag(WaveOutSupport.PlaybackRate); } }
+        public bool SupportsPlaybackRateControl
+        {
+            get { return support.HasFlag(WaveOutSupport.PlaybackRate); }
+        }
 
         /// <summary>
         /// Whether volume control is supported
         /// </summary>
-        public bool SupportsVolumeControl { get { return support.HasFlag(WaveOutSupport.Volume); } }
+        public bool SupportsVolumeControl
+        {
+            get { return support.HasFlag(WaveOutSupport.Volume); }
+        }
 
         /// <summary>
         /// Gets a value indicating whether this device supports independent channel volume control.
         /// </summary>
-        public bool SupportsChannelVolumeControl { get { return support.HasFlag(WaveOutSupport.LRVolume); } }
+        public bool SupportsChannelVolumeControl
+        {
+            get { return support.HasFlag(WaveOutSupport.LRVolume); }
+        }
 
         /// <summary>
         /// Gets a value indicating whether this device supports pitch control.
         /// </summary>
-        public bool SupportsPitchControl { get { return support.HasFlag(WaveOutSupport.Pitch); } }
+        public bool SupportsPitchControl
+        {
+            get { return support.HasFlag(WaveOutSupport.Pitch); }
+        }
 
         /// <summary>
         /// Gets a value indicating whether the device returns sample-accurate position information.
         /// </summary>
-        public bool SupportsSampleAccuratePosition { get { return support.HasFlag(WaveOutSupport.SampleAccurate); } }
+        public bool SupportsSampleAccuratePosition
+        {
+            get { return support.HasFlag(WaveOutSupport.SampleAccurate); }
+        }
 
         /// <summary>
         /// Gets a value indicating whether the driver is synchronous and will block while playing a buffer.
         /// </summary>
-        public bool IsSynchronousOutput { get { return support.HasFlag(WaveOutSupport.Sync); } }
+        public bool IsSynchronousOutput
+        {
+            get { return support.HasFlag(WaveOutSupport.Sync); }
+        }
 
         /// <summary>
         /// The product name
@@ -118,10 +143,12 @@ namespace Unosquare.FFME.Rendering.Wave
         /// The device name Guid (if provided)
         /// </summary>
         public Guid NameGuid { get { return nameGuid; } }
+
         /// <summary>
         /// The product name Guid (if provided)
         /// </summary>
         public Guid ProductGuid { get { return productGuid; } }
+
         /// <summary>
         /// The manufacturer guid (if provided)
         /// </summary>
@@ -138,46 +165,57 @@ namespace Unosquare.FFME.Rendering.Wave
         /// 11.025 kHz, Mono,   8-bit
         /// </summary>
         WAVE_FORMAT_1M08 = 0x00000001,
+
         /// <summary>
         /// 11.025 kHz, Stereo, 8-bit
         /// </summary>
         WAVE_FORMAT_1S08 = 0x00000002,
+
         /// <summary>
         /// 11.025 kHz, Mono,   16-bit
         /// </summary>
         WAVE_FORMAT_1M16 = 0x00000004,
+
         /// <summary>
         /// 11.025 kHz, Stereo, 16-bit
         /// </summary>
         WAVE_FORMAT_1S16 = 0x00000008,
+
         /// <summary>
         /// 22.05  kHz, Mono,   8-bit
         /// </summary>
         WAVE_FORMAT_2M08 = 0x00000010,
+
         /// <summary>
         /// 22.05  kHz, Stereo, 8-bit 
         /// </summary>
         WAVE_FORMAT_2S08 = 0x00000020,
+
         /// <summary>
         /// 22.05  kHz, Mono,   16-bit
         /// </summary>
         WAVE_FORMAT_2M16 = 0x00000040,
+
         /// <summary>
         /// 22.05  kHz, Stereo, 16-bit
         /// </summary>
         WAVE_FORMAT_2S16 = 0x00000080,
+
         /// <summary>
         /// 44.1   kHz, Mono,   8-bit 
         /// </summary>
         WAVE_FORMAT_4M08 = 0x00000100,
+
         /// <summary>
         /// 44.1   kHz, Stereo, 8-bit 
         /// </summary>
         WAVE_FORMAT_4S08 = 0x00000200,
+
         /// <summary>
         /// 44.1   kHz, Mono,   16-bit
         /// </summary>
         WAVE_FORMAT_4M16 = 0x00000400,
+
         /// <summary>
         ///  44.1   kHz, Stereo, 16-bit
         /// </summary>
@@ -187,46 +225,57 @@ namespace Unosquare.FFME.Rendering.Wave
         /// 44.1   kHz, Mono,   8-bit 
         /// </summary>
         WAVE_FORMAT_44M08 = 0x00000100,
+
         /// <summary>
         /// 44.1   kHz, Stereo, 8-bit 
         /// </summary>
         WAVE_FORMAT_44S08 = 0x00000200,
+
         /// <summary>
         /// 44.1   kHz, Mono,   16-bit
         /// </summary>
         WAVE_FORMAT_44M16 = 0x00000400,
+
         /// <summary>
         /// 44.1   kHz, Stereo, 16-bit
         /// </summary>
         WAVE_FORMAT_44S16 = 0x00000800,
+
         /// <summary>
         /// 48     kHz, Mono,   8-bit 
         /// </summary>
         WAVE_FORMAT_48M08 = 0x00001000,
+
         /// <summary>
         ///  48     kHz, Stereo, 8-bit
         /// </summary>
         WAVE_FORMAT_48S08 = 0x00002000,
+
         /// <summary>
         /// 48     kHz, Mono,   16-bit
         /// </summary>
         WAVE_FORMAT_48M16 = 0x00004000,
+
         /// <summary>
         /// 48     kHz, Stereo, 16-bit
         /// </summary>
         WAVE_FORMAT_48S16 = 0x00008000,
+
         /// <summary>
         /// 96     kHz, Mono,   8-bit 
         /// </summary>
         WAVE_FORMAT_96M08 = 0x00010000,
+
         /// <summary>
         /// 96     kHz, Stereo, 8-bit
         /// </summary>
         WAVE_FORMAT_96S08 = 0x00020000,
+
         /// <summary>
         /// 96     kHz, Mono,   16-bit
         /// </summary>
         WAVE_FORMAT_96M16 = 0x00040000,
+
         /// <summary>
         /// 96     kHz, Stereo, 16-bit
         /// </summary>

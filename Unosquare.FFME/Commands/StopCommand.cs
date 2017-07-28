@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Unosquare.FFME.Commands
+﻿namespace Unosquare.FFME.Commands
 {
+    using System;
+
     /// <summary>
     /// Implements the logic to pause and rewind the media stream
     /// </summary>
@@ -19,7 +15,7 @@ namespace Unosquare.FFME.Commands
         public StopCommand(MediaCommandManager manager) 
             : base(manager, MediaCommandType.Stop)
         {
-
+            // placeholder
         }
 
         /// <summary>
@@ -36,7 +32,6 @@ namespace Unosquare.FFME.Commands
                 renderer.Stop();
 
             m.MediaState = System.Windows.Controls.MediaState.Stop;
-
         }
     }
 }

@@ -35,7 +35,10 @@
         /// <summary>
         /// Gets the number of commands pending execution.
         /// </summary>
-        public int PendingCount { get { lock (SyncLock) return Commands.Count; } }
+        public int PendingCount
+        {
+            get { lock (SyncLock) return Commands.Count; }
+        }
 
         /// <summary>
         /// Gets or sets the currently executing command.
@@ -50,7 +53,10 @@
         /// <summary>
         /// Gets the parent media element.
         /// </summary>
-        public MediaElement MediaElement { get { return m_MediaElement; } }
+        public MediaElement MediaElement
+        {
+            get { return m_MediaElement; }
+        }
 
         #endregion
 
@@ -61,7 +67,7 @@
         /// The command is processed in a Thread Pool Thread.
         /// </summary>
         /// <param name="uri">The URI.</param>
-        /// <returns></returns>
+        /// <returns>The awaitable task</returns>
         public async Task Open(Uri uri)
         {
             lock (SyncLock)
@@ -76,13 +82,12 @@
                 var command = new OpenCommand(this, uri);
                 await command.ExecuteAsync();
             });
-
         }
 
         /// <summary>
         /// Starts playing the open media URI.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The awaitable task</returns>
         public async Task Play()
         {
             PlayCommand command = null;
@@ -103,7 +108,7 @@
         /// <summary>
         /// Pauses the media.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The awaitable task</returns>
         public async Task Pause()
         {
             PauseCommand command = null;
@@ -124,7 +129,7 @@
         /// <summary>
         /// Pauses and rewinds the media
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The awaitable task</returns>
         public async Task Stop()
         {
             StopCommand command = null;
@@ -146,7 +151,7 @@
         /// Seeks to the specified position within the media.
         /// </summary>
         /// <param name="position">The position.</param>
-        /// <returns></returns>
+        /// <returns>The awaitable task</returns>
         public async Task Seek(TimeSpan position)
         {
             SeekCommand command = null;
@@ -171,7 +176,7 @@
         /// Closes the specified media.
         /// This command gets processed in a threadpool thread.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The awaitable task</returns>
         public async Task Close()
         {
             lock (SyncLock)
@@ -192,7 +197,7 @@
         /// Sets the playback speed ratio.
         /// </summary>
         /// <param name="targetSpeedRatio">The target speed ratio.</param>
-        /// <returns></returns>
+        /// <returns>The awaitable task</returns>
         public async Task SetSpeedRatio(double targetSpeedRatio)
         {
             SpeedRatioCommand command = null;
@@ -217,6 +222,7 @@
         /// Processes the next command in the command queue.
         /// This method is called in every block rendering cycle.
         /// </summary>
+        /// <returns>The awaitable task</returns>
         public async Task ProcessNext()
         {
             MediaCommand command = null;
@@ -234,6 +240,8 @@
         /// <summary>
         /// Gets the pending count of the given command type.
         /// </summary>
+        /// <param name="t">The t.</param>
+        /// <returns>The amount of commands of the given type</returns>
         public int PendingCountOf(MediaCommandType t)
         {
             lock (SyncLock)

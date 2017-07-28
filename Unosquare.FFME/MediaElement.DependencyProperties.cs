@@ -269,9 +269,8 @@
                             new PropertyChangedCallback(IsMutedPropertyChanged),
                             new CoerceValueCallback(CoerceIsMutedProperty)));
 
-        public static object CoerceIsMutedProperty(DependencyObject d, object value)
+        private static object CoerceIsMutedProperty(DependencyObject d, object value)
         {
-
             var element = d as MediaElement;
             if (element == null) return false;
             if (element.HasAudio == false) return false;
