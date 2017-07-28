@@ -313,18 +313,6 @@ references:
   commentId: Overload:Unosquare.FFME.MediaElement.CoerceBalanceProperty
   fullName: Unosquare.FFME.MediaElement.CoerceBalanceProperty
   nameWithType: MediaElement.CoerceBalanceProperty
-- uid: Unosquare.FFME.MediaElement.CoerceIsMutedProperty(DependencyObject,System.Object)
-  name: CoerceIsMutedProperty(DependencyObject, Object)
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_CoerceIsMutedProperty_DependencyObject_System_Object_
-  commentId: M:Unosquare.FFME.MediaElement.CoerceIsMutedProperty(DependencyObject,System.Object)
-  fullName: Unosquare.FFME.MediaElement.CoerceIsMutedProperty(DependencyObject, System.Object)
-  nameWithType: MediaElement.CoerceIsMutedProperty(DependencyObject, Object)
-- uid: Unosquare.FFME.MediaElement.CoerceIsMutedProperty*
-  name: CoerceIsMutedProperty
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_CoerceIsMutedProperty_
-  commentId: Overload:Unosquare.FFME.MediaElement.CoerceIsMutedProperty
-  fullName: Unosquare.FFME.MediaElement.CoerceIsMutedProperty
-  nameWithType: MediaElement.CoerceIsMutedProperty
 - uid: Unosquare.FFME.MediaElement.CoercePositionProperty(DependencyObject,System.Object)
   name: CoercePositionProperty(DependencyObject, Object)
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_CoercePositionProperty_DependencyObject_System_Object_
