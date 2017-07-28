@@ -140,7 +140,6 @@
                 {
                     result[optionItem.Key] = optionItem.Value;
                 }
-
             }
 
             return result;

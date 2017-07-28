@@ -67,7 +67,6 @@
 
             if (performSort)
                 targetCC.Sort();
-
         }
     }
 }

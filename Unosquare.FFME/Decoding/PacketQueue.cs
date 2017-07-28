@@ -102,13 +102,12 @@
                 BufferLength += packet->size;
                 Duration += packet->duration;
             }
-
         }
 
         /// <summary>
         /// Dequeues a packet from this queue.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The dequeued packet</returns>
         public AVPacket* Dequeue()
         {
             lock (SyncRoot)
@@ -171,5 +170,4 @@
 
         #endregion
     }
-
 }

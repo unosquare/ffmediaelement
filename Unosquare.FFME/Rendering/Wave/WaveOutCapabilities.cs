@@ -280,6 +280,5 @@ namespace Unosquare.FFME.Rendering.Wave
         /// 96     kHz, Stereo, 16-bit
         /// </summary>
         WAVE_FORMAT_96S16 = 0x00080000,
-
     }
 }

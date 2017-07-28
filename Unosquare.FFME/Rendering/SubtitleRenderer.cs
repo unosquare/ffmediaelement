@@ -221,7 +221,6 @@
                 SetText(string.Empty);
                 return;
             }
-
         }
 
         /// <summary>

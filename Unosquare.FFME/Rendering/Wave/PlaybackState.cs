@@ -9,10 +9,12 @@
         /// Stopped
         /// </summary>
         Stopped,
+        
         /// <summary>
         /// Playing
         /// </summary>
         Playing,
+        
         /// <summary>
         /// Paused
         /// </summary>

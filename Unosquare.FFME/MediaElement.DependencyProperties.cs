@@ -149,7 +149,7 @@
         #region Volume
 
         /// <summary> 
-        ///     The DependencyProperty for the MediaElement.Volume property.
+        /// The DependencyProperty for the MediaElement.Volume property.
         /// </summary>
         public static readonly DependencyProperty VolumeProperty
             = DependencyProperty.Register(
@@ -162,7 +162,7 @@
                               new PropertyChangedCallback(VolumePropertyChanged),
                               new CoerceValueCallback(CoerceVolumeProperty)));
 
-        public static object CoerceVolumeProperty(DependencyObject d, object value)
+        private static object CoerceVolumeProperty(DependencyObject d, object value)
         {
 
             var element = d as MediaElement;
@@ -216,7 +216,7 @@
                               new PropertyChangedCallback(BalancePropertyChanged),
                               new CoerceValueCallback(CoerceBalanceProperty)));
 
-        public static object CoerceBalanceProperty(DependencyObject d, object value)
+        private static object CoerceBalanceProperty(DependencyObject d, object value)
         {
             var element = d as MediaElement;
             if (element == null) return Constants.DefaultBalance;
@@ -445,7 +445,7 @@
             await element.Commands.Seek((TimeSpan)e.NewValue);
         }
 
-        public static object CoercePositionProperty(DependencyObject d, object value)
+        private static object CoercePositionProperty(DependencyObject d, object value)
         {
             var element = d as MediaElement;
             if (element == null) return TimeSpan.Zero;
@@ -503,7 +503,7 @@
                               new PropertyChangedCallback(SpeedRatioPropertyChanged),
                               new CoerceValueCallback(CoerceSpeedRatioProperty)));
 
-        public static object CoerceSpeedRatioProperty(DependencyObject d, object value)
+        private static object CoerceSpeedRatioProperty(DependencyObject d, object value)
         {
             var element = d as MediaElement;
             if (element == null) return Constants.DefaultSpeedRatio;

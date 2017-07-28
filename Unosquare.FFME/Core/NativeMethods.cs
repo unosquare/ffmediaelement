@@ -15,7 +15,7 @@ namespace Unosquare.FFME.Core
         /// Sets the DLL directory in which external dependencies can be located.
         /// </summary>
         /// <param name="lpPathName">the full path.</param>
-        /// <returns></returns>
+        /// <returns>True if set, false if not set</returns>
         [DllImport(Kernel32, SetLastError = true, CharSet = CharSet.Unicode)]
         public static extern bool SetDllDirectory(string lpPathName);
 
@@ -26,7 +26,6 @@ namespace Unosquare.FFME.Core
         /// <param name="source">The source.</param>
         /// <param name="length">The length.</param>
         [DllImport(Kernel32, EntryPoint = "CopyMemory", SetLastError = false)]
-        public static extern void CopyMemory(IntPtr dest, IntPtr src, uint count);
-
+        public static extern void CopyMemory(IntPtr destination, IntPtr source, uint length);
     }
 }

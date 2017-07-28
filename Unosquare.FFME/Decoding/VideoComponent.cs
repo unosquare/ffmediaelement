@@ -214,7 +214,7 @@
         /// AV_PIX_FMT_YUVJ
         /// </summary>
         /// <param name="frame">The frame.</param>
-        /// <returns></returns>
+        /// <returns>A normalized pixel format</returns>
         private static AVPixelFormat GetPixelFormat(AVFrame* frame)
         {
             var currentFormat = (AVPixelFormat)frame->format;
@@ -227,14 +227,13 @@
                 case AVPixelFormat.AV_PIX_FMT_YUVJ444P: return AVPixelFormat.AV_PIX_FMT_YUV444P;
                 default: return currentFormat;
             }
-
         }
 
         /// <summary>
         /// Creates a frame source object given the raw FFmpeg frame reference.
         /// </summary>
         /// <param name="frame">The raw FFmpeg frame pointer.</param>
-        /// <returns></returns>
+        /// <returns>Create a managed fraome from an unmanaged one.</returns>
         protected override unsafe MediaFrame CreateFrameSource(AVFrame* frame)
         {
             if (string.IsNullOrWhiteSpace(VideoFilterString) == false)
@@ -268,7 +267,6 @@
                     RC.Current.Remove(frame);
                     ffmpeg.av_frame_free(&frame);
                 }
-
             }
             else
             {
@@ -395,8 +393,8 @@
             DestroyFiltergraph();
 
             base.Dispose(alsoManaged);
-
         }
+
         #endregion
     }
 }

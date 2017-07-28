@@ -14,7 +14,7 @@
         /// <summary>
         /// Provides suffixes for the different media types.
         /// </summary>
-        static public Dictionary<MediaType, char> Types = new Dictionary<MediaType, char>
+        public static Dictionary<MediaType, char> Types = new Dictionary<MediaType, char>
         {
             { MediaType.Audio, 'a' },
             { MediaType.Video, 'v' },

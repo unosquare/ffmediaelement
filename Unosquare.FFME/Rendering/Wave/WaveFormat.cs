@@ -9,42 +9,55 @@ namespace Unosquare.FFME.Rendering.Wave
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 2)]
     internal class WaveFormat
     {
-        protected short formatTag = 0x0001; // PCM
+        /// <summary>The format tag -- always 0x0001 PCM</summary>
+        protected short formatTag = 0x0001;
+        
         /// <summary>number of channels</summary>
         protected short channels;
+        
         /// <summary>sample rate</summary>
         protected int sampleRate;
+        
         /// <summary>for buffer estimation</summary>
         protected int averageBytesPerSecond;
+        
         /// <summary>block size of data</summary>
         protected short blockAlign;
+        
         /// <summary>number of bits per sample of mono data</summary>
         protected short bitsPerSample;
+        
         /// <summary>number of following bytes</summary>
         protected short extraSize;
 
         /// <summary>
-        /// Creates a new PCM 48Khz stereo 16 bit signed, interleaved, 2-channel format
+        /// Initializes a new instance of the <see cref="WaveFormat"/> class.
+        /// PCM 48Khz stereo 16 bit signed, interleaved, 2-channel format
         /// </summary>
-        public WaveFormat() : this(44100, 16, 2)
+        public WaveFormat() 
+            : this(44100, 16, 2)
         {
             // placeholder
         }
 
         /// <summary>
-        /// Creates a new 16 bit wave format with the specified sample
-        /// rate and channel count
+        /// Initializes a new instance of the <see cref="WaveFormat"/> class.
         /// </summary>
         /// <param name="sampleRate">Sample Rate</param>
         /// <param name="channels">Number of channels</param>
         public WaveFormat(int sampleRate, int channels)
             : this(sampleRate, 16, channels)
         {
+            // placeholder
         }
 
         /// <summary>
-        /// Creates a new PCM format with the specified sample rate, bit depth and channels
+        /// Initializes a new instance of the <see cref="WaveFormat"/> class.
         /// </summary>
+        /// <param name="rate">The rate.</param>
+        /// <param name="bits">The bits.</param>
+        /// <param name="channels">The channels.</param>
+        /// <exception cref="ArgumentOutOfRangeException">channels - channels</exception>
         public WaveFormat(int rate, int bits, int channels)
         {
             if (channels < 1)

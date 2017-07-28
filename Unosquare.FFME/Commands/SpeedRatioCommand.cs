@@ -14,11 +14,16 @@
         /// </summary>
         /// <param name="manager">The manager.</param>
         /// <param name="speedRatio">The speed ratio.</param>
-        public SpeedRatioCommand(MediaCommandManager manager, double speedRatio) 
+        public SpeedRatioCommand(MediaCommandManager manager, double speedRatio)
             : base(manager, MediaCommandType.SetSpeedRatio)
         {
             SpeedRatio = speedRatio;
         }
+
+        /// <summary>
+        /// The target speed ratio
+        /// </summary>
+        public double SpeedRatio { get; set; } = Constants.DefaultSpeedRatio;
 
         /// <summary>
         /// Performs the actions that this command implements.
@@ -31,12 +36,6 @@
             Utils.UIInvoke(DispatcherPriority.DataBind, () => {
                 Manager.MediaElement.SpeedRatio = SpeedRatio;
             });
-            
         }
-
-        /// <summary>
-        /// The target speed ratio
-        /// </summary>
-        public double SpeedRatio = 1.0d;
     }
 }

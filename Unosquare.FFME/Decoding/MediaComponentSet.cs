@@ -75,7 +75,6 @@
 
                     return CachedComponents;
                 }
-
             }
         }
 
@@ -195,7 +194,6 @@
 
                     Main = HasAudio ? Audio as MediaComponent : Video as MediaComponent;
                 }
-
             }
         }
 
@@ -250,7 +248,6 @@
 
                 return MediaType.None;
             }
-
         }
 
         /// <summary>

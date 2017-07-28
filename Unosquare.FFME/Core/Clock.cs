@@ -42,7 +42,6 @@
                     OffsetMilliseconds = value.TotalMilliseconds;
                     if (resume) Chrono.Start();
                 }
-
             }
         }
 
@@ -81,7 +80,6 @@
                 if (Chrono.IsRunning) return;
                 Chrono.Start();
             }
-
         }
 
         /// <summary>
@@ -103,8 +101,6 @@
                 OffsetMilliseconds = 0;
                 Chrono.Reset();
             }
-
         }
     }
-
 }

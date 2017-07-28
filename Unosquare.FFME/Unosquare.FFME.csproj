@@ -73,7 +73,6 @@
     <Compile Include="Commands\SeekCommand.cs" />
     <Compile Include="Commands\SpeedRatioCommand.cs" />
     <Compile Include="Commands\StopCommand.cs" />
-    <Compile Include="Core\ClockDirection.cs" />
     <Compile Include="Core\RC.cs" />
     <Compile Include="Core\GenericMediaLogger.cs" />
     <Compile Include="Core\IMediaLogger.cs" />

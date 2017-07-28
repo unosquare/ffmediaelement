@@ -146,7 +146,7 @@
         /// Allocates an AVSubtitle struct in unmanaged memory,
         /// </summary>
         /// <returns></returns>
-        static internal AVSubtitle* AllocateSubtitle()
+        internal static AVSubtitle* AllocateSubtitle()
         {
             return (AVSubtitle*)ffmpeg.av_malloc((ulong)Marshal.SizeOf(typeof(AVSubtitle)));
         }
@@ -155,7 +155,7 @@
         /// Deallocates the subtitle struct used to create in managed memory.
         /// </summary>
         /// <param name="frame">The frame.</param>
-        static internal void DeallocateSubtitle(AVSubtitle* frame)
+        internal static void DeallocateSubtitle(AVSubtitle* frame)
         {
             if (frame == null) return;
             ffmpeg.avsubtitle_free(frame);

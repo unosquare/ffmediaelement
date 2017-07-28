@@ -10,6 +10,9 @@
     {
         // TODO: Support specific stream selection for each component
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MediaOptions"/> class.
+        /// </summary>
         public MediaOptions()
         {
             FormatOptions["usetoc"] = "1";

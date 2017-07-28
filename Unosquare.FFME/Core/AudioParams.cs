@@ -14,7 +14,7 @@
         /// <summary>
         /// The standard output audio spec
         /// </summary>
-        static public readonly AudioParams Output;
+        public static readonly AudioParams Output;
 
         public const int BufferPadding = 256;
         public const int OutputBitsPerSample = 16;
@@ -104,7 +104,7 @@
         /// </summary>
         /// <param name="frame">The frame.</param>
         /// <returns></returns>
-        static internal AudioParams CreateSource(AVFrame* frame)
+        internal static AudioParams CreateSource(AVFrame* frame)
         {
             var spec = new AudioParams(frame);
             if (spec.ChannelLayout == 0)
@@ -118,8 +118,8 @@
         /// by the given source audio frame
         /// </summary>
         /// <param name="frame">The frame.</param>
-        /// <returns></returns>
-        static internal AudioParams CreateTarget(AVFrame* frame)
+        /// <returns>The audio parameters</returns>
+        internal static AudioParams CreateTarget(AVFrame* frame)
         {
             var spec = new AudioParams
             {
@@ -141,8 +141,8 @@
         /// </summary>
         /// <param name="a">a.</param>
         /// <param name="b">The b.</param>
-        /// <returns></returns>
-        static internal bool AreCompatible(AudioParams a, AudioParams b)
+        /// <returns>True if the params are compatible, flase otherwise.</returns>
+        internal static bool AreCompatible(AudioParams a, AudioParams b)
         {
             if (a.Format != b.Format) return false;
             if (a.ChannelCount != b.ChannelCount) return false;

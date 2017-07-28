@@ -25,20 +25,20 @@
     {
         #region Private Declarations
 
-        static private bool? m_IsInDesignTime;
-        static private bool? m_IsInDebugMode;
+        private static bool? m_IsInDesignTime;
+        private static bool? m_IsInDebugMode;
 
-        static private bool HasFFmpegRegistered = false;
-        static private string FFmpegRegisterPath = null;
-        static private readonly object FFmpegRegisterLock = new object();
+        private static bool HasFFmpegRegistered = false;
+        private static string FFmpegRegisterPath = null;
+        private static readonly object FFmpegRegisterLock = new object();
 
-        static unsafe private readonly av_log_set_callback_callback FFmpegLogCallback = FFmpegLog;
-        static private readonly DispatcherTimer LogOutputter = null;
-        static private readonly object LogSyncLock = new object();
+        private static unsafe readonly av_log_set_callback_callback FFmpegLogCallback = FFmpegLog;
+        private static readonly DispatcherTimer LogOutputter = null;
+        private static readonly object LogSyncLock = new object();
         private static readonly List<string> FFmpegLogBuffer = new List<string>();
         private static readonly ConcurrentQueue<MediaLogMessagEventArgs> LogQueue = new ConcurrentQueue<MediaLogMessagEventArgs>();
 
-        static unsafe private readonly av_lockmgr_register_cb FFmpegLockManagerCallback = FFmpegManageLocking;
+        private static unsafe readonly av_lockmgr_register_cb FFmpegLockManagerCallback = FFmpegManageLocking;
         private static readonly Dictionary<IntPtr, ManualResetEvent> FFmpegOpDone = new Dictionary<IntPtr, ManualResetEvent>();
 
         #endregion
@@ -339,7 +339,6 @@
                 FFmpegRegisterPath = ffmpegPath;
                 return FFmpegRegisterPath;
             }
-
         }
 
         /// <summary>
@@ -347,7 +346,7 @@
         /// </summary>
         /// <param name="mutex">The mutex.</param>
         /// <param name="op">The op.</param>
-        /// <returns></returns>
+        /// <returns>0 for success, 1 for error</returns>
         private static unsafe int FFmpegManageLocking(void** mutex, AVLockOp op)
         {
             switch (op)
@@ -360,6 +359,7 @@
                         FFmpegOpDone[mutexPointer] = m;
                         return 0;
                     }
+
                 case AVLockOp.AV_LOCK_OBTAIN:
                     {
                         var mutexPointer = new IntPtr(*mutex);
@@ -367,12 +367,14 @@
                         FFmpegOpDone[mutexPointer].Reset();
                         return 0;
                     }
+
                 case AVLockOp.AV_LOCK_RELEASE:
                     {
                         var mutexPointer = new IntPtr(*mutex);
                         FFmpegOpDone[mutexPointer].Set();
                         return 0;
                     }
+
                 case AVLockOp.AV_LOCK_DESTROY:
                     {
                         var mutexPointer = new IntPtr(*mutex);
@@ -385,7 +387,6 @@
             }
 
             return 1;
-
         }
 
         /// <summary>
@@ -414,13 +415,12 @@
 
                 if (line.EndsWith("\n"))
                 {
-                    line = string.Join("", FFmpegLogBuffer);
+                    line = string.Join(string.Empty, FFmpegLogBuffer);
                     line = line.TrimEnd();
                     FFmpegLogBuffer.Clear();
                     Utils.Log(typeof(MediaElement), messageType, line);
                 }
             }
-
         }
 
         #endregion
@@ -502,7 +502,6 @@
                 else
                     MediaElement.RaiseFFmpegMessageLogged(eventArgs);
             }
-
         }
 
         /// <summary>
@@ -535,13 +534,13 @@
             {
                 var drift = TimeSpan.FromTicks(clockPosition.Ticks - block.StartTime.Ticks);
                 element?.Logger.Log(MediaLogMessageType.Trace,
-                ($"{block.MediaType.ToString().Substring(0, 1)} "
+                $"{block.MediaType.ToString().Substring(0, 1)} "
                     + $"BLK: {block.StartTime.Format()} | "
                     + $"CLK: {clockPosition.Format()} | "
                     + $"DFT: {drift.TotalMilliseconds,4:0} | "
                     + $"IX: {renderIndex,3} | "
                     + $"PQ: {element.Container?.Components[block.MediaType]?.PacketBufferLength / 1024d,7:0.0}k | "
-                    + $"TQ: {element.Container?.Components.PacketBufferLength / 1024d,7:0.0}k"));
+                    + $"TQ: {element.Container?.Components.PacketBufferLength / 1024d,7:0.0}k");
             }
             catch
             {
@@ -671,14 +670,14 @@
         /// <summary>
         /// Additions to FFmpeg.Autogen
         /// </summary>
-        static public class FFmpeg
+        public static class FFmpeg
         {
 
             /// <summary>
             /// Gets the FFmpeg error mesage based on the error code
             /// </summary>
             /// <param name="code">The code.</param>
-            /// <returns></returns>
+            /// <returns>The decoded error message</returns>
             public static unsafe string GetErrorMessage(int code)
             {
                 var errorStrBytes = new byte[1024];
@@ -717,10 +716,9 @@
             public static readonly int AVERROR_EOF = -MKTAG('E', 'O', 'F', ' '); // http://www-numi.fnal.gov/offline_software/srt_public_context/WebDocs/Errors/unix_system_errors.html
             public const long AV_NOPTS = long.MinValue;
 
-            //public static readonly AVRational AV_TIME_BASE_Q = new AVRational { num = 1, den = ffmpeg.AV_TIME_BASE };
-            //public const int AVERROR_EAGAIN = -11; // http://www-numi.fnal.gov/offline_software/srt_public_context/WebDocs/Errors/unix_system_errors.html
+            // public static readonly AVRational AV_TIME_BASE_Q = new AVRational { num = 1, den = ffmpeg.AV_TIME_BASE };
+            // public const int AVERROR_EAGAIN = -11; 
+            // http://www-numi.fnal.gov/offline_software/srt_public_context/WebDocs/Errors/unix_system_errors.html
         }
-
     }
-
 }

@@ -11,7 +11,7 @@ namespace Unosquare.FFME.Sample.Config
     [Serializable]
     public class ConfigRoot
     {
-        static private string SavePath
+        private static string SavePath
         {
             get
             {

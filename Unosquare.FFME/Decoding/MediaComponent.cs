@@ -235,8 +235,8 @@
             CodecId = Stream->codec->codec_id;
             CodecName = ffmpeg.avcodec_get_name(CodecId);
             Bitrate = (int)Stream->codec->bit_rate;
-            Container.Logger?.Log(MediaLogMessageType.Debug, $"COMP {MediaType.ToString().ToUpperInvariant()}: Start Offset: {StartTimeOffset.Format()}; Duration: {Duration.Format()}");
-
+            Container.Logger?.Log(MediaLogMessageType.Debug, 
+                $"COMP {MediaType.ToString().ToUpperInvariant()}: Start Offset: {StartTimeOffset.Format()}; Duration: {Duration.Format()}");
         }
 
         #endregion
@@ -408,8 +408,8 @@
                             SubtitleFrame.DeallocateSubtitle(outputFrame);
                             throw;
                         }
-
                     }
+
                     // Let's check if we have more decoded frames from the same single packet
                     // Packets may contain more than 1 frame and the decoder is drained
                     // by passing an empty packet (data = null, size = 0)
@@ -430,7 +430,6 @@
                                     throw new MediaContainerException($"{MediaType} Component does not implement {nameof(CreateFrameSource)}");
                                 result.Add(managedFrame);
                             }
-
                         }
                         catch
                         {
@@ -545,5 +544,4 @@
         #endregion
 
     }
-
 }

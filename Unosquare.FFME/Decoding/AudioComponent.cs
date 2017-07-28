@@ -143,7 +143,6 @@
             target.StreamIndex = input.StreamIndex;
 
             return target;
-
         }
 
         #endregion

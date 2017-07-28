@@ -234,7 +234,6 @@
 
                 return null;
             }
-
         }
 
         /// <summary>
@@ -276,7 +275,6 @@
                 PlaybackBlocks.Sort();
                 return targetBlock;
             }
-
         }
 
         /// <summary>
@@ -293,7 +291,6 @@
 
                 PlaybackBlocks.Clear();
             }
-
         }
 
         /// <summary>
@@ -394,5 +391,4 @@
         #endregion
 
     }
-
 }

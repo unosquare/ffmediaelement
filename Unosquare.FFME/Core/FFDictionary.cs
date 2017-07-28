@@ -83,8 +83,8 @@
         /// Converts the AVDictionary to a regular dictionary.
         /// </summary>
         /// <param name="dictionary">The dictionary to convert from.</param>
-        /// <returns></returns>
-        static public Dictionary<string, string> ToDictionary(AVDictionary* dictionary)
+        /// <returns>the converterd dictionary</returns>
+        public static Dictionary<string, string> ToDictionary(AVDictionary* dictionary)
         {
 
             var result = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
@@ -102,7 +102,7 @@
         /// <summary>
         /// Fills this dictionary with a set of options
         /// </summary>
-        /// <param name="other"></param>
+        /// <param name="other">The other dictionary (source)</param>
         public void Fill(Dictionary<string, string> other)
         {
             if (other == null) return;

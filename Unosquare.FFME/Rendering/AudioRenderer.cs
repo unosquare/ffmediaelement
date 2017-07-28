@@ -615,7 +615,6 @@
                     }
 
                     ApplyVolumeAndBalance(targetBuffer, targetBufferOffset, requestedBytes);
-
                 }
                 catch (Exception ex)
                 {

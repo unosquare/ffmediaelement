@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    
     /// <summary>
     /// Represents a 3-byte packet of closed-captioning data in EIA-608 format.
     /// See: http://jackyjung.tistory.com/attachment/499e14e28c347DB.pdf
@@ -13,7 +14,7 @@
         /// <summary>
         /// Checks that the header byte starts with 11111b (5 ones binary)
         /// </summary>
-        static private bool HeaderHasMarkers(byte data)
+        private static bool HeaderHasMarkers(byte data)
         {
             return (data & 0xF8) == 0xF8;
         }
@@ -21,7 +22,7 @@
         /// <summary>
         /// Determines whether the valid flag of the header byte is set.
         /// </summary>
-        static private bool IsHeaderValidFalgSet(byte data)
+        private static bool IsHeaderValidFalgSet(byte data)
         {
             return (data & 0x04) == 0x04;
         }
@@ -30,7 +31,7 @@
         /// Gets the NTSC field type (1 or 2).
         /// Returns 0 for unknown.
         /// </summary>
-        static private int GetHeaderFieldType(byte data)
+        private static int GetHeaderFieldType(byte data)
         {
             if ((data & 0x03) == 2) return 0;
             return (data & 0x03) == 0 ? 1 : 2;
@@ -39,7 +40,7 @@
         /// <summary>
         /// Determines whether the data is null padding
         /// </summary>
-        static private bool IsEmptyChannelData(byte d0, byte d1)
+        private static bool IsEmptyChannelData(byte d0, byte d1)
         {
             return DropParityBit(d0) == 0 && DropParityBit(d1) == 0;
         }
@@ -47,7 +48,7 @@
         /// <summary>
         /// Drops the parity bit from the data byte.
         /// </summary>
-        static private byte DropParityBit(byte input)
+        private static byte DropParityBit(byte input)
         {
             return (byte)(input & 0x7F);
         }
@@ -55,7 +56,7 @@
         /// <summary>
         /// Converst an ASCII character code to an EIA-608 char (in Unicode)
         /// </summary>
-        static private char ToEia608Char(byte input)
+        private static char ToEia608Char(byte input)
         {
             // see: Annex A Character Set Differences, and Table 68
             if (input == 0x2A) return 'á';
@@ -85,7 +86,7 @@
 
         #region Dictionaries
 
-        static private readonly Dictionary<byte, string> SpecialNorthAmerican = new Dictionary<byte, string>()
+        private static readonly Dictionary<byte, string> SpecialNorthAmerican = new Dictionary<byte, string>()
         {
             { 0x30, "®"},
             { 0x31, "°"},
@@ -105,7 +106,7 @@
             { 0x3F, "û"},
         };
 
-        static private readonly Dictionary<byte, string> Spanish = new Dictionary<byte, string>()
+        private static readonly Dictionary<byte, string> Spanish = new Dictionary<byte, string>()
         {
             { 0x20, "Á"},
             { 0x21, "É"},
@@ -125,7 +126,7 @@
             { 0x2F, "\""},
         };
 
-        static private readonly Dictionary<byte, string> Portuguese = new Dictionary<byte, string>()
+        private static readonly Dictionary<byte, string> Portuguese = new Dictionary<byte, string>()
         {
             { 0x20, "Á"},
             { 0x21, "ã"},
@@ -145,7 +146,7 @@
             { 0x2F, "~"},
         };
 
-        static private readonly Dictionary<byte, string> French = new Dictionary<byte, string>()
+        private static readonly Dictionary<byte, string> French = new Dictionary<byte, string>()
         {
             { 0x30, "À"},
             { 0x31, "Â"},
@@ -165,7 +166,7 @@
             { 0x3F, "»"},
         };
 
-        static private readonly Dictionary<byte, string> German = new Dictionary<byte, string>()
+        private static readonly Dictionary<byte, string> German = new Dictionary<byte, string>()
         {
             { 0x30, "Ä"},
             { 0x31, "ä"},
@@ -185,7 +186,7 @@
             { 0x3F, "+"},
         };
 
-        static private readonly Dictionary<byte, int> OddPreambleRows = new Dictionary<byte, int>
+        private static readonly Dictionary<byte, int> OddPreambleRows = new Dictionary<byte, int>
         {
             { 0x11, 1 },
             { 0x19, 1 },
@@ -205,7 +206,7 @@
             { 0x1C, 15 },
         };
 
-        static private readonly Dictionary<byte, int> EvenPreambleRows = new Dictionary<byte, int>
+        private static readonly Dictionary<byte, int> EvenPreambleRows = new Dictionary<byte, int>
         {
             { 0x11, 2 },
             { 0x19, 2 },
@@ -568,7 +569,6 @@
         /// <returns>
         /// A value that indicates the relative order of the objects being compared. The return value has these meanings: Value Meaning Less than zero This instance precedes <paramref name="obj" /> in the sort order. Zero This instance occurs in the same position in the sort order as <paramref name="obj" />. Greater than zero This instance follows <paramref name="obj" /> in the sort order.
         /// </returns>
-        /// <exception cref="NotImplementedException"></exception>
         public int CompareTo(object obj)
         {
             if (obj is null || obj is ClosedCaptionPacket == false)
