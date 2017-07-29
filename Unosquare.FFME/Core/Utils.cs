@@ -27,7 +27,7 @@
 
         private static readonly object FFmpegRegisterLock = new object();
         private static unsafe readonly av_log_set_callback_callback FFmpegLogCallback = FFmpegLog;
-        
+
         private static readonly DispatcherTimer LogOutputter = null;
         private static readonly object LogSyncLock = new object();
         private static readonly List<string> FFmpegLogBuffer = new List<string>();
@@ -79,6 +79,7 @@
                     m_IsInDesignTime = (bool)DesignerProperties.IsInDesignModeProperty.GetMetadata(
                           typeof(DependencyObject)).DefaultValue;
                 }
+
                 return m_IsInDesignTime.Value;
             }
         }
@@ -339,88 +340,6 @@
             }
         }
 
-        /// <summary>
-        /// Manages FFmpeg Multithreaded locking
-        /// </summary>
-        /// <param name="mutex">The mutex.</param>
-        /// <param name="op">The op.</param>
-        /// <returns>0 for success, 1 for error</returns>
-        private static unsafe int FFmpegManageLocking(void** mutex, AVLockOp op)
-        {
-            switch (op)
-            {
-                case AVLockOp.AV_LOCK_CREATE:
-                    {
-                        var m = new ManualResetEvent(true);
-                        var mutexPointer = m.SafeWaitHandle.DangerousGetHandle();
-                        *mutex = (void*)mutexPointer;
-                        FFmpegOpDone[mutexPointer] = m;
-                        return 0;
-                    }
-
-                case AVLockOp.AV_LOCK_OBTAIN:
-                    {
-                        var mutexPointer = new IntPtr(*mutex);
-                        FFmpegOpDone[mutexPointer].WaitOne();
-                        FFmpegOpDone[mutexPointer].Reset();
-                        return 0;
-                    }
-
-                case AVLockOp.AV_LOCK_RELEASE:
-                    {
-                        var mutexPointer = new IntPtr(*mutex);
-                        FFmpegOpDone[mutexPointer].Set();
-                        return 0;
-                    }
-
-                case AVLockOp.AV_LOCK_DESTROY:
-                    {
-                        var mutexPointer = new IntPtr(*mutex);
-                        var m = FFmpegOpDone[mutexPointer];
-                        FFmpegOpDone.Remove(mutexPointer);
-                        m.Set();
-                        m.Dispose();
-                        return 0;
-                    }
-            }
-
-            return 1;
-        }
-
-        /// <summary>
-        /// Log message callback fro ffmpeg library.
-        /// </summary>
-        /// <param name="p0">The p0.</param>
-        /// <param name="level">The level.</param>
-        /// <param name="format">The format.</param>
-        /// <param name="vl">The vl.</param>
-        private static unsafe void FFmpegLog(void* p0, int level, string format, byte* vl)
-        {
-            const int lineSize = 1024;
-
-            lock (LogSyncLock)
-            {
-                if (level > ffmpeg.av_log_get_level()) return;
-                var lineBuffer = stackalloc byte[lineSize];
-                var printPrefix = 1;
-                ffmpeg.av_log_format_line(p0, level, format, vl, lineBuffer, lineSize, &printPrefix);
-                var line = Utils.PtrToString(lineBuffer);
-                FFmpegLogBuffer.Add(line);
-
-                var messageType = MediaLogMessageType.Debug;
-                if (Constants.FFmpegLogLevels.ContainsKey(level))
-                    messageType = Constants.FFmpegLogLevels[level];
-
-                if (line.EndsWith("\n"))
-                {
-                    line = string.Join(string.Empty, FFmpegLogBuffer);
-                    line = line.TrimEnd();
-                    FFmpegLogBuffer.Clear();
-                    Utils.Log(typeof(MediaElement), messageType, line);
-                }
-            }
-        }
-
         #endregion
 
         #region Dispatching
@@ -485,22 +404,6 @@
         #endregion
 
         #region Logging
-
-        /// <summary>
-        /// Handles the Tick event of the LogOutputter timer.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        private static void LogOutputter_Tick(object sender, EventArgs e)
-        {
-            while (LogQueue.TryDequeue(out MediaLogMessagEventArgs eventArgs))
-            {
-                if (eventArgs.Source != null)
-                    eventArgs.Source.RaiseMessageLogged(eventArgs);
-                else
-                    MediaElement.RaiseFFmpegMessageLogged(eventArgs);
-            }
-        }
 
         /// <summary>
         /// Logs the specified message.
@@ -586,7 +489,7 @@
             if (divideBy == 1)
                 return $"{ts,10:#,##0}";
             else
-                return $"{(ts / divideBy),10:#,##0.000}";
+                return $"{ts / divideBy,10:#,##0.000}";
         }
 
         /// <summary>
@@ -665,11 +568,119 @@
 
         #endregion
 
+        #region Private Methods and Callbacks
+
+        /// <summary>
+        /// Handles the Tick event of the LogOutputter timer.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private static void LogOutputter_Tick(object sender, EventArgs e)
+        {
+            while (LogQueue.TryDequeue(out MediaLogMessagEventArgs eventArgs))
+            {
+                if (eventArgs.Source != null)
+                    eventArgs.Source.RaiseMessageLogged(eventArgs);
+                else
+                    MediaElement.RaiseFFmpegMessageLogged(eventArgs);
+            }
+        }
+
+        /// <summary>
+        /// Manages FFmpeg Multithreaded locking
+        /// </summary>
+        /// <param name="mutex">The mutex.</param>
+        /// <param name="op">The op.</param>
+        /// <returns>0 for success, 1 for error</returns>
+        private static unsafe int FFmpegManageLocking(void** mutex, AVLockOp op)
+        {
+            switch (op)
+            {
+                case AVLockOp.AV_LOCK_CREATE:
+                    {
+                        var m = new ManualResetEvent(true);
+                        var mutexPointer = m.SafeWaitHandle.DangerousGetHandle();
+                        *mutex = (void*)mutexPointer;
+                        FFmpegOpDone[mutexPointer] = m;
+                        return 0;
+                    }
+
+                case AVLockOp.AV_LOCK_OBTAIN:
+                    {
+                        var mutexPointer = new IntPtr(*mutex);
+                        FFmpegOpDone[mutexPointer].WaitOne();
+                        FFmpegOpDone[mutexPointer].Reset();
+                        return 0;
+                    }
+
+                case AVLockOp.AV_LOCK_RELEASE:
+                    {
+                        var mutexPointer = new IntPtr(*mutex);
+                        FFmpegOpDone[mutexPointer].Set();
+                        return 0;
+                    }
+
+                case AVLockOp.AV_LOCK_DESTROY:
+                    {
+                        var mutexPointer = new IntPtr(*mutex);
+                        var m = FFmpegOpDone[mutexPointer];
+                        FFmpegOpDone.Remove(mutexPointer);
+                        m.Set();
+                        m.Dispose();
+                        return 0;
+                    }
+            }
+
+            return 1;
+        }
+
+        /// <summary>
+        /// Log message callback fro ffmpeg library.
+        /// </summary>
+        /// <param name="p0">The p0.</param>
+        /// <param name="level">The level.</param>
+        /// <param name="format">The format.</param>
+        /// <param name="vl">The vl.</param>
+        private static unsafe void FFmpegLog(void* p0, int level, string format, byte* vl)
+        {
+            const int lineSize = 1024;
+
+            lock (LogSyncLock)
+            {
+                if (level > ffmpeg.av_log_get_level()) return;
+                var lineBuffer = stackalloc byte[lineSize];
+                var printPrefix = 1;
+                ffmpeg.av_log_format_line(p0, level, format, vl, lineBuffer, lineSize, &printPrefix);
+                var line = Utils.PtrToString(lineBuffer);
+                FFmpegLogBuffer.Add(line);
+
+                var messageType = MediaLogMessageType.Debug;
+                if (Constants.FFmpegLogLevels.ContainsKey(level))
+                    messageType = Constants.FFmpegLogLevels[level];
+
+                if (line.EndsWith("\n"))
+                {
+                    line = string.Join(string.Empty, FFmpegLogBuffer);
+                    line = line.TrimEnd();
+                    FFmpegLogBuffer.Clear();
+                    Utils.Log(typeof(MediaElement), messageType, line);
+                }
+            }
+        }
+
+        #endregion
+
         /// <summary>
         /// Additions to FFmpeg.Autogen
         /// </summary>
         public static class FFmpeg
         {
+#pragma warning disable SA1310 // Field names must not contain underscore
+            public const long AV_NOPTS = long.MinValue;
+            public static readonly int AVERROR_EOF = -MKTAG('E', 'O', 'F', ' '); // http://www-numi.fnal.gov/offline_software/srt_public_context/WebDocs/Errors/unix_system_errors.html
+            // public static readonly AVRational AV_TIME_BASE_Q = new AVRational { num = 1, den = ffmpeg.AV_TIME_BASE };
+            // public const int AVERROR_EAGAIN = -11; // http://www-numi.fnal.gov/offline_software/srt_public_context/WebDocs/Errors/unix_system_errors.html
+#pragma warning restore SA1310 // Field names must not contain underscore
 
             /// <summary>
             /// Gets the FFmpeg error mesage based on the error code
@@ -692,7 +703,7 @@
 
             private static int MKTAG(params byte[] buff)
             {
-                //  ((a) | ((b) << 8) | ((c) << 16) | ((unsigned)(d) << 24))
+                // Port of: ((a) | ((b) << 8) | ((c) << 16) | ((unsigned)(d) << 24))
                 if (BitConverter.IsLittleEndian == false)
                     buff = buff.Reverse().ToArray();
 
@@ -711,11 +722,6 @@
 
             #endregion
 
-            public static readonly int AVERROR_EOF = -MKTAG('E', 'O', 'F', ' '); // http://www-numi.fnal.gov/offline_software/srt_public_context/WebDocs/Errors/unix_system_errors.html
-            public const long AV_NOPTS = long.MinValue;
-
-            // public static readonly AVRational AV_TIME_BASE_Q = new AVRational { num = 1, den = ffmpeg.AV_TIME_BASE };
-            // public const int AVERROR_EAGAIN = -11; // http://www-numi.fnal.gov/offline_software/srt_public_context/WebDocs/Errors/unix_system_errors.html
         }
     }
 }

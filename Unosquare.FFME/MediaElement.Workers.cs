@@ -35,37 +35,25 @@
 
         #region State Variables
 
-        private volatile bool m_IsTaskCancellationPending = false;
-        private volatile bool m_HasDecoderSeeked = false;
+#pragma warning disable SA1401 // Fields must be private
+        internal readonly ManualResetEvent PacketReadingCycle = new ManualResetEvent(false);
+        internal readonly ManualResetEvent FrameDecodingCycle = new ManualResetEvent(false);
+        internal readonly ManualResetEvent BlockRenderingCycle = new ManualResetEvent(false);
+        internal readonly ManualResetEvent SeekingDone = new ManualResetEvent(true);
+
+        internal Thread PacketReadingTask = null;
+        internal Thread FrameDecodingTask = null;
+        internal Thread BlockRenderingTask = null;
+
+        internal volatile bool IsTaskCancellationPending = false;
+        internal volatile bool HasDecoderSeeked = false;
+#pragma warning restore SA1401 // Fields must be private
 
         internal MediaTypeDictionary<MediaBlockBuffer> Blocks { get; } = new MediaTypeDictionary<MediaBlockBuffer>();
 
         internal MediaTypeDictionary<IRenderer> Renderers { get; } = new MediaTypeDictionary<IRenderer>();
 
         internal MediaTypeDictionary<TimeSpan> LastRenderTime { get; } = new MediaTypeDictionary<TimeSpan>();
-
-        internal bool IsTaskCancellationPending
-        {
-            get { return m_IsTaskCancellationPending; }
-            set { m_IsTaskCancellationPending = value; }
-        }
-
-        internal bool HasDecoderSeeked
-        {
-            get { return m_HasDecoderSeeked; }
-            set { m_HasDecoderSeeked = value; }
-        }
-
-        internal Thread PacketReadingTask = null;
-        internal readonly ManualResetEvent PacketReadingCycle = new ManualResetEvent(false);
-
-        internal Thread FrameDecodingTask = null;
-        internal ManualResetEvent FrameDecodingCycle = new ManualResetEvent(false);
-
-        internal Thread BlockRenderingTask = null;
-        internal ManualResetEvent BlockRenderingCycle = new ManualResetEvent(false);
-
-        internal ManualResetEvent SeekingDone = new ManualResetEvent(true);
 
         #endregion
 
@@ -94,6 +82,24 @@
         #region Methods
 
         /// <summary>
+        /// Sets the clock to a discrete video position if possible
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void SnapVideoPosition(TimeSpan position)
+        {
+            if (Container == null) return;
+
+            // Set the clock to a discrete video position if possible
+            if (Container.Components.Main.MediaType == MediaType.Video
+                && Blocks[MediaType.Video].IsInRange(position))
+            {
+                var block = Blocks[MediaType.Video][position];
+                if (block != null && block.Duration.Ticks > 0 && VideoFrameRate != 0d)
+                    Clock.Position = block.MidTime;
+            }
+        }
+
+        /// <summary>
         /// Gets a value indicating whether more frames can be converted into blocks of the given type.
         /// </summary>
         /// <param name="t">The t.</param>
@@ -111,6 +117,7 @@
         /// </summary>
         /// <param name="block">The block.</param>
         /// <param name="clockPosition">The clock position.</param>
+        /// <returns>The number of blocks sent to the renderer</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int SendBlockToRenderer(MediaBlock block, TimeSpan clockPosition)
         {
@@ -118,24 +125,6 @@
             this.LogRenderBlock(block, clockPosition, Blocks[block.MediaType].IndexOf(clockPosition));
             LastRenderTime[block.MediaType] = block.StartTime;
             return 1;
-        }
-
-        /// <summary>
-        /// Sets the clock to a discrete video position if possible
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void SnapVideoPosition(TimeSpan position)
-        {
-            if (Container == null) return;
-
-            // Set the clock to a discrete video position if possible
-            if (Container.Components.Main.MediaType == MediaType.Video
-                && Blocks[MediaType.Video].IsInRange(position))
-            {
-                var block = Blocks[MediaType.Video][position];
-                if (block != null && block.Duration.Ticks > 0 && VideoFrameRate != 0d)
-                    Clock.Position = block.MidTime;
-            }
         }
 
         /// <summary>

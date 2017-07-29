@@ -11,8 +11,6 @@
     /// <seealso cref="Unosquare.FFME.Commands.MediaCommand" />
     internal sealed class SeekCommand : MediaCommand
     {
-        public TimeSpan TargetPosition { get; set; } = TimeSpan.Zero;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="SeekCommand" /> class.
         /// </summary>
@@ -23,6 +21,14 @@
         {
             TargetPosition = targetPosition;
         }
+
+        /// <summary>
+        /// Gets or sets the target position.
+        /// </summary>
+        /// <value>
+        /// The target position.
+        /// </value>
+        public TimeSpan TargetPosition { get; set; } = TimeSpan.Zero;
 
         /// <summary>
         /// Performs the actions that this command implements.
@@ -150,8 +156,10 @@
             finally
             {
                 if (m.HasDecoderSeeked)
+                {
                     m.Logger.Log(MediaLogMessageType.Debug,
                         $"SEEK D: Elapsed: {startTime.FormatElapsed()} | Target: {TargetPosition.Format()}");
+                }
 
                 m.SeekingDone.Set();
             }

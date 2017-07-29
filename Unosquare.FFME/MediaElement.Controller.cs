@@ -7,6 +7,7 @@
     public partial class MediaElement
     {
         #region Internal Members
+#pragma warning disable SA1401 // Fields must be private
 
         /// <summary>
         /// The command queue to be executed in the order they were sent.
@@ -25,6 +26,7 @@
         /// </summary>
         internal MediaContainer Container = null;
 
+#pragma warning restore SA1401 // Fields must be private
         #endregion
 
         #region Public API

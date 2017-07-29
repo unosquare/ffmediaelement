@@ -13,14 +13,12 @@
     /// <seealso cref="Unosquare.FFME.Rendering.IRenderer" />
     internal class SubtitleRenderer : IRenderer
     {
-
         /// <summary>
         /// The synchronize lock
         /// </summary>
         private readonly object SyncLock = new object();
-
-        private TimeSpan? StartTime = new TimeSpan?();
-        private TimeSpan? EndTime = new TimeSpan?();
+        private TimeSpan? StartTime = default(TimeSpan?);
+        private TimeSpan? EndTime = default(TimeSpan?);
         private string CurrentText = string.Empty;
 
         /// <summary>
@@ -31,6 +29,11 @@
         {
             MediaElement = mediaElement;
         }
+
+        /// <summary>
+        /// Gets the parent media element.
+        /// </summary>
+        public MediaElement MediaElement { get; private set; }
 
         /// <summary>
         /// Executed when the Close method is called on the parent MediaElement
@@ -80,6 +83,60 @@
             // This initializes the text blocks
             // for subtitle rendering automatically.
             SetText(string.Empty);
+        }
+
+        /// <summary>
+        /// Renders the specified media block.
+        /// </summary>
+        /// <param name="mediaBlock">The media block.</param>
+        /// <param name="clockPosition">The clock position.</param>
+        public void Render(MediaBlock mediaBlock, TimeSpan clockPosition)
+        {
+            var subtitleBlock = mediaBlock as SubtitleBlock;
+            if (subtitleBlock == null) return;
+
+            // Save the start and end times. We will need
+            // them in order to make the subtitles disappear
+            StartTime = subtitleBlock.StartTime;
+            EndTime = subtitleBlock.EndTime;
+
+            // Raise the subtitles event.
+            MediaElement.RaiseRenderingSubtitlesEvent(subtitleBlock, clockPosition);
+
+            // Check if the text is within time range. If not, simply clear the text.
+            var textToRender = subtitleBlock.Contains(clockPosition) == false ?
+                string.Empty : 
+                string.Join("\r\n", subtitleBlock.Text);
+
+            // Call the set text on the UI thread.
+            SetText(textToRender);
+        }
+
+        /// <summary>
+        /// Called when a media block must stop being rendered.
+        /// This needs to return immediately so the calling thread is not disturbed.
+        /// </summary>
+        /// <param name="clockPosition">The clock position.</param>
+        public void Update(TimeSpan clockPosition)
+        {
+            // If we have already cleared the text we don't need to clear it again
+            if (string.IsNullOrWhiteSpace(CurrentText))
+                return;
+
+            // Check if we have received a start and end time value.
+            // if we have not, just clear the text
+            if (StartTime.HasValue == false || EndTime.HasValue == false)
+            {
+                SetText(string.Empty);
+                return;
+            }
+
+            // Check if the subtitle needs to be cleared based on the start and end times range
+            if (clockPosition > EndTime.Value || clockPosition < StartTime.Value)
+            {
+                SetText(string.Empty);
+                return;
+            }
         }
 
         /// <summary>
@@ -157,7 +214,7 @@
         {
             // We fire-and-forget the update of the text
             Utils.UIEnqueueInvoke(
-                System.Windows.Threading.DispatcherPriority.DataBind, 
+                System.Windows.Threading.DispatcherPriority.DataBind,
                 new Action<string>((s) =>
                 {
                     lock (SyncLock)
@@ -169,65 +226,5 @@
                     }
                 }), text);
         }
-
-        /// <summary>
-        /// Renders the specified media block.
-        /// </summary>
-        /// <param name="mediaBlock">The media block.</param>
-        /// <param name="clockPosition">The clock position.</param>
-        public void Render(MediaBlock mediaBlock, TimeSpan clockPosition)
-        {
-            var subtitleBlock = mediaBlock as SubtitleBlock;
-            if (subtitleBlock == null) return;
-
-            // Save the start and end times. We will need
-            // them in order to make the subtitles disappear
-            StartTime = subtitleBlock.StartTime;
-            EndTime = subtitleBlock.EndTime;
-
-            // Raise the subtitles event.
-            MediaElement.RaiseRenderingSubtitlesEvent(subtitleBlock, clockPosition);
-
-            // Check if the text is within time range. If not, simply clear the text.
-            var textToRender = subtitleBlock.Contains(clockPosition) == false ?
-                string.Empty : 
-                string.Join("\r\n", subtitleBlock.Text);
-
-            // Call the set text on the UI thread.
-            SetText(textToRender);
-        }
-
-        /// <summary>
-        /// Called when a media block must stop being rendered.
-        /// This needs to return immediately so the calling thread is not disturbed.
-        /// </summary>
-        /// <param name="clockPosition">The clock position.</param>
-        public void Update(TimeSpan clockPosition)
-        {
-
-            // If we have already cleared the text we don't need to clear it again
-            if (string.IsNullOrWhiteSpace(CurrentText))
-                return;
-
-            // Check if we have received a start and end time value.
-            // if we have not, just clear the text
-            if (StartTime.HasValue == false || EndTime.HasValue == false)
-            {
-                SetText(string.Empty);
-                return;
-            }
-
-            // Check if the subtitle needs to be cleared based on the start and end times range
-            if (clockPosition > EndTime.Value || clockPosition < StartTime.Value)
-            {
-                SetText(string.Empty);
-                return;
-            }
-        }
-
-        /// <summary>
-        /// Gets the parent media element.
-        /// </summary>
-        public MediaElement MediaElement { get; private set; }
     }
 }

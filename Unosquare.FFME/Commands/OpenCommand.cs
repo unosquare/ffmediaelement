@@ -15,11 +15,6 @@
     internal sealed class OpenCommand : MediaCommand
     {
         /// <summary>
-        /// Gets the source uri of the media stream.
-        /// </summary>
-        public Uri Source { get; private set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="OpenCommand" /> class.
         /// </summary>
         /// <param name="manager">The manager.</param>
@@ -31,20 +26,9 @@
         }
 
         /// <summary>
-        /// Creates a new instance of the renderer of the given type.
+        /// Gets the source uri of the media stream.
         /// </summary>
-        /// <param name="mediaType">Type of the media.</param>
-        /// <returns>The renderer that was created</returns>
-        /// <exception cref="ArgumentException">mediaType has to be of a vild type</exception>
-        private IRenderer CreateRenderer(MediaType mediaType)
-        {
-            var m = Manager.MediaElement;
-            if (mediaType == MediaType.Audio) return new AudioRenderer(m);
-            else if (mediaType == MediaType.Video) return new VideoRenderer(m);
-            else if (mediaType == MediaType.Subtitle) return new SubtitleRenderer(m);
-
-            throw new ArgumentException($"No suitable renderer for Media Type '{mediaType}'");
-        }
+        public Uri Source { get; private set; }
 
         /// <summary>
         /// Performs the actions that this command implements.
@@ -112,6 +96,22 @@
                 Utils.UIInvoke(DispatcherPriority.DataBind, () => { m.NotifyPropertyChanges(); });
                 m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Completed");
             }
+        }
+
+        /// <summary>
+        /// Creates a new instance of the renderer of the given type.
+        /// </summary>
+        /// <param name="mediaType">Type of the media.</param>
+        /// <returns>The renderer that was created</returns>
+        /// <exception cref="ArgumentException">mediaType has to be of a vild type</exception>
+        private IRenderer CreateRenderer(MediaType mediaType)
+        {
+            var m = Manager.MediaElement;
+            if (mediaType == MediaType.Audio) return new AudioRenderer(m);
+            else if (mediaType == MediaType.Video) return new VideoRenderer(m);
+            else if (mediaType == MediaType.Subtitle) return new SubtitleRenderer(m);
+
+            throw new ArgumentException($"No suitable renderer for Media Type '{mediaType}'");
         }
     }
 }

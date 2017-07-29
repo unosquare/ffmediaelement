@@ -237,15 +237,15 @@
             {
                 var time = new MmTime()
                 {
-                    wType = MmTime.TIME_BYTES
+                    Type = MmTime.TIME_BYTES
                 };
 
                 MmException.Try(WaveInterop.NativeMethods.waveOutGetPosition(DeviceHandle, out time, Marshal.SizeOf(time)), nameof(WaveInterop.NativeMethods.waveOutGetPosition));
 
-                if (time.wType != MmTime.TIME_BYTES)
-                    throw new Exception(string.Format($"{nameof(WaveInterop.NativeMethods.waveOutGetPosition)}: wType -> Expected {0}, Received {1}", MmTime.TIME_BYTES, time.wType));
+                if (time.Type != MmTime.TIME_BYTES)
+                    throw new Exception(string.Format($"{nameof(WaveInterop.NativeMethods.waveOutGetPosition)}: wType -> Expected {0}, Received {1}", MmTime.TIME_BYTES, time.Type));
 
-                return time.cb;
+                return time.CB;
             }
         }
 

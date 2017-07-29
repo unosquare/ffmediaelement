@@ -8,9 +8,8 @@
     using Decoding;
     using System.Runtime.CompilerServices;
 
-    partial class MediaElement
+    public partial class MediaElement
     {
-
         #region Events
 
         /// <summary>
@@ -136,7 +135,6 @@
     /// <seealso cref="System.EventArgs" />
     public sealed class RenderingAudioEventArgs : RenderingEventArgs
     {
-
         /// <summary>
         /// Initializes a new instance of the <see cref="RenderingAudioEventArgs" /> class.
         /// </summary>
@@ -205,7 +203,6 @@
     /// <seealso cref="System.EventArgs" />
     public sealed class RenderingSubtitlesEventArgs : RenderingEventArgs
     {
-
         /// <summary>
         /// Initializes a new instance of the <see cref="RenderingSubtitlesEventArgs" /> class.
         /// </summary>
@@ -257,7 +254,6 @@
     /// <seealso cref="System.EventArgs" />
     public sealed class RenderingVideoEventArgs : RenderingEventArgs
     {
-
         /// <summary>
         /// Initializes a new instance of the <see cref="RenderingVideoEventArgs" /> class.
         /// </summary>

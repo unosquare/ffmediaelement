@@ -31,7 +31,6 @@
         internal SubtitleFrame(AVSubtitle* frame, MediaComponent component)
             : base(frame, component)
         {
-
             m_Pointer = (AVSubtitle*)InternalPointer;
 
             // Extract timing information (pts for Subtitles is always in AV_TIME_BASE units)
@@ -72,6 +71,14 @@
             }
         }
 
+        /// <summary>
+        /// Finalizes an instance of the <see cref="SubtitleFrame"/> class.
+        /// </summary>
+        ~SubtitleFrame()
+        {
+            Dispose(false);
+        }
+
         #endregion
 
         #region Properties
@@ -80,14 +87,6 @@
         /// Gets the type of the media.
         /// </summary>
         public override MediaType MediaType => MediaType.Subtitle;
-
-        /// <summary>
-        /// Gets the pointer to the unmanaged subtitle struct
-        /// </summary>
-        internal AVSubtitle* Pointer
-        {
-            get { return m_Pointer; }
-        }
 
         /// <summary>
         /// Gets lines of text that the subtitle frame contains.
@@ -101,6 +100,47 @@
         /// The type of the text.
         /// </value>
         public AVSubtitleType TextType { get; } = AVSubtitleType.SUBTITLE_NONE;
+
+        /// <summary>
+        /// Gets the pointer to the unmanaged subtitle struct
+        /// </summary>
+        internal AVSubtitle* Pointer
+        {
+            get { return m_Pointer; }
+        }
+
+        #endregion
+
+        #region Static Methods
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        public override void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Allocates an AVSubtitle struct in unmanaged memory,
+        /// </summary>
+        /// <returns>The subtitle struct pointer</returns>
+        internal static AVSubtitle* AllocateSubtitle()
+        {
+            return (AVSubtitle*)ffmpeg.av_malloc((ulong)Marshal.SizeOf(typeof(AVSubtitle)));
+        }
+
+        /// <summary>
+        /// Deallocates the subtitle struct used to create in managed memory.
+        /// </summary>
+        /// <param name="frame">The frame.</param>
+        internal static void DeallocateSubtitle(AVSubtitle* frame)
+        {
+            if (frame == null) return;
+            ffmpeg.avsubtitle_free(frame);
+            ffmpeg.av_free(frame);
+        }
 
         #endregion
 
@@ -123,47 +163,6 @@
                 InternalPointer = null;
                 IsDisposed = true;
             }
-        }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="SubtitleFrame"/> class.
-        /// </summary>
-        ~SubtitleFrame()
-        {
-            Dispose(false);
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        public override void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        #endregion
-
-        #region Static Method
-
-        /// <summary>
-        /// Allocates an AVSubtitle struct in unmanaged memory,
-        /// </summary>
-        /// <returns>The subtitle struct pointer</returns>
-        internal static AVSubtitle* AllocateSubtitle()
-        {
-            return (AVSubtitle*)ffmpeg.av_malloc((ulong)Marshal.SizeOf(typeof(AVSubtitle)));
-        }
-
-        /// <summary>
-        /// Deallocates the subtitle struct used to create in managed memory.
-        /// </summary>
-        /// <param name="frame">The frame.</param>
-        internal static void DeallocateSubtitle(AVSubtitle* frame)
-        {
-            if (frame == null) return;
-            ffmpeg.avsubtitle_free(frame);
-            ffmpeg.av_free(frame);
         }
 
         #endregion

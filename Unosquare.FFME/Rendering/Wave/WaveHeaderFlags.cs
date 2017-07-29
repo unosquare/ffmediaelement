@@ -1,4 +1,4 @@
-namespace Unosquare.FFME.Rendering.Wave
+﻿namespace Unosquare.FFME.Rendering.Wave
 {
     using System;
 

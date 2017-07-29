@@ -1,7 +1,7 @@
-﻿using FFmpeg.AutoGen;
-
-namespace Unosquare.FFME.Core
+﻿namespace Unosquare.FFME.Core
 {
+    using FFmpeg.AutoGen;
+
     /// <summary>
     /// Enumerates the different Media Types
     /// </summary>

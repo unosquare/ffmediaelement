@@ -22,17 +22,6 @@
         }
 
         /// <summary>
-        /// Creates a frame source object given the raw FFmpeg subtitle reference.
-        /// </summary>
-        /// <param name="frame">The raw FFmpeg subtitle pointer.</param>
-        /// <returns>The managed frame</returns>
-        protected override unsafe MediaFrame CreateFrameSource(AVSubtitle* frame)
-        {
-            var frameHolder = new SubtitleFrame(frame, this);
-            return frameHolder;
-        }
-
-        /// <summary>
         /// Converts decoded, raw frame data in the frame source into a a usable frame. <br />
         /// The process includes performing picture, samples or text conversions
         /// so that the decoded source frame data is easily usable in multimedia applications
@@ -84,6 +73,17 @@
             }
 
             return target;
+        }
+
+        /// <summary>
+        /// Creates a frame source object given the raw FFmpeg subtitle reference.
+        /// </summary>
+        /// <param name="frame">The raw FFmpeg subtitle pointer.</param>
+        /// <returns>The managed frame</returns>
+        protected override unsafe MediaFrame CreateFrameSource(AVSubtitle* frame)
+        {
+            var frameHolder = new SubtitleFrame(frame, this);
+            return frameHolder;
         }
     }
 }

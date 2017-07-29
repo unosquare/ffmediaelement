@@ -14,29 +14,50 @@
         /// </summary>
         private static readonly object SyncLock = new object();
 
+        /// <summary>
+        /// The current reference counter instance
+        /// </summary>
         private static RC m_Current;
+
+        /// <summary>
+        /// The instances
+        /// </summary>
+        private readonly Dictionary<IntPtr, ReferenceEntry> Instances = new Dictionary<IntPtr, ReferenceEntry>();
 
         /// <summary>
         /// The types of tracked unmanaged types
         /// </summary>
         public enum UnmanagedType
         {
+            /// <summary>
+            /// The packet
+            /// </summary>
             Packet,
-            Frame,
-            FilterGraph,
-            SwrContext,
-            CodecContext,
-            SwsContext,
-        }
 
-        /// <summary>
-        /// A reference entry
-        /// </summary>
-        public class ReferenceEntry
-        {
-            public UnmanagedType Type = default(UnmanagedType);
-            public string Location = null;
-            public IntPtr Instance = IntPtr.Zero;
+            /// <summary>
+            /// The frame
+            /// </summary>
+            Frame,
+
+            /// <summary>
+            /// The filter graph
+            /// </summary>
+            FilterGraph,
+
+            /// <summary>
+            /// The SWR context
+            /// </summary>
+            SwrContext,
+
+            /// <summary>
+            /// The codec context
+            /// </summary>
+            CodecContext,
+
+            /// <summary>
+            /// The SWS context
+            /// </summary>
+            SwsContext,
         }
 
         /// <summary>
@@ -55,9 +76,28 @@
         }
 
         /// <summary>
-        /// The instances
+        /// Gets the number of instances by location.
         /// </summary>
-        private readonly Dictionary<IntPtr, ReferenceEntry> Instances = new Dictionary<IntPtr, ReferenceEntry>();
+        public Dictionary<string, int> InstancesByLocation
+        {
+            get
+            {
+                lock (SyncLock)
+                {
+                    var result = new Dictionary<string, int>();
+                    foreach (var kvp in Instances)
+                    {
+                        var loc = $"T: {kvp.Value.Type} | L: {kvp.Value.Location}";
+                        if (result.ContainsKey(loc) == false)
+                            result[loc] = 1;
+                        else
+                            result[loc] += 1;
+                    }
+
+                    return result;
+                }
+            }
+        }
 
         /// <summary>
         /// Adds the specified unmanaged object reference.
@@ -104,16 +144,31 @@
             Add(UnmanagedType.Packet, new IntPtr(packet), location);
         }
 
+        /// <summary>
+        /// Adds the specified context.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <param name="location">The location.</param>
         public void Add(SwrContext* context, string location)
         {
             Add(UnmanagedType.SwrContext, new IntPtr(context), location);
         }
 
+        /// <summary>
+        /// Adds the specified context.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <param name="location">The location.</param>
         public void Add(SwsContext* context, string location)
         {
             Add(UnmanagedType.SwsContext, new IntPtr(context), location);
         }
 
+        /// <summary>
+        /// Adds the specified codec.
+        /// </summary>
+        /// <param name="codec">The codec.</param>
+        /// <param name="location">The location.</param>
         public void Add(AVCodecContext* codec, string location)
         {
             Add(UnmanagedType.CodecContext, new IntPtr(codec), location);
@@ -140,27 +195,13 @@
         }
 
         /// <summary>
-        /// Gets the number of instances by location.
+        /// A reference entry
         /// </summary>
-        public Dictionary<string, int> InstancesByLocation
+        public class ReferenceEntry
         {
-            get
-            {
-                lock (SyncLock)
-                {
-                    var result = new Dictionary<string, int>();
-                    foreach (var kvp in Instances)
-                    {
-                        var loc = $"T: {kvp.Value.Type} | L: {kvp.Value.Location}";
-                        if (result.ContainsKey(loc) == false)
-                            result[loc] = 1;
-                        else
-                            result[loc] += 1;
-                    }
-
-                    return result;
-                }
-            }
+            public UnmanagedType Type { get; set; } = default(UnmanagedType);
+            public string Location { get; set; } = null;
+            public IntPtr Instance { get; set; } = IntPtr.Zero;
         }
     }
 }

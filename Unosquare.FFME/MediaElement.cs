@@ -24,14 +24,10 @@
     [DefaultProperty(nameof(Source))]
     public sealed partial class MediaElement : UserControl, IDisposable, INotifyPropertyChanged, IUriContext
     {
-        #region Static Definitions
+        #region Fields and Property Backing
 
-        private static string m_FFmpegDirectory = null;
-        internal static bool IsFFmpegLoaded = false;
-
-        #endregion
-
-        #region Property Backing
+#pragma warning disable SA1401 // Fields must be private
+        internal static volatile bool IsFFmpegLoaded = false;
 
         /// <summary>
         /// The logger
@@ -44,6 +40,18 @@
         internal readonly Image ViewBox = new Image();
 
         /// <summary>
+        /// When position is being set from within this control, this field will
+        /// be set to true. This is useful to detect if the user is setting the position
+        /// or if the Position property is being driven from within
+        /// </summary>
+        internal volatile bool IsPositionUpdating = false;
+
+        /// <summary>
+        /// The ffmpeg directory
+        /// </summary>
+        private static string m_FFmpegDirectory = null;
+
+        /// <summary>
         /// IUriContext BaseUri backing
         /// </summary>
         private Uri m_BaseUri = null;
@@ -53,12 +61,13 @@
         /// </summary>
         private DispatcherTimer UIPropertyUpdateTimer = null;
 
+#pragma warning restore SA1401 // Fields must be private
         #endregion
 
         #region Constructors
 
         /// <summary>
-        /// Initializes the <see cref="MediaElement"/> class.
+        /// Initializes static members of the <see cref="MediaElement"/> class.
         /// </summary>
         static MediaElement()
         {
@@ -201,6 +210,30 @@
                 if ((value?.Equals(m_FFmpegDirectory) ?? false) == false)
                     throw new InvalidOperationException($"Unable to set a new FFmpeg registration path: {value}. FFmpeg binaries have already been registered.");
             }
+        }
+
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        /// Updates the position property signaling the update is
+        /// coming internally. This is to distinguish between user/binding 
+        /// written value to the Position Porperty and value set by this control's
+        /// internal clock.
+        /// </summary>
+        /// <param name="value">The current position.</param>
+        internal void UpdatePosition(TimeSpan value)
+        {
+            if (IsPositionUpdating || IsSeeking)
+                return;
+
+            IsPositionUpdating = true;
+            Utils.UIInvoke(DispatcherPriority.DataBind, () =>
+            {
+                SetValue(PositionProperty, value);
+                IsPositionUpdating = false;
+            });
         }
 
         #endregion

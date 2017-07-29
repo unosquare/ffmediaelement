@@ -11,35 +11,13 @@
     {
         #region Private Declarations
 
-        private bool IsDisposed = false; // To detect redundant calls
         private readonly List<MediaFrame> Frames = new List<MediaFrame>();
         private readonly object SyncRoot = new object();
+        private bool IsDisposed = false; // To detect redundant calls
 
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Gets or sets the <see cref="MediaFrame"/> at the specified index.
-        /// </summary>
-        /// <value>
-        /// The <see cref="MediaFrame"/>.
-        /// </value>
-        /// <param name="index">The index.</param>
-        /// <returns>The frame</returns>
-        internal MediaFrame this[int index]
-        {
-            get
-            {
-                lock (SyncRoot)
-                    return Frames[index];
-            }
-            private set
-            {
-                lock (SyncRoot)
-                    Frames[index] = value;
-            }
-        }
 
         /// <summary>
         /// Gets the frame count.
@@ -72,6 +50,21 @@
         {
             get { lock (SyncRoot) return Frames.Count == 0 ? TimeSpan.Zero : Frames.Max(f => f.EndTime); }
         }
+
+        /// <summary>
+        /// Gets or sets the <see cref="MediaFrame"/> at the specified index.
+        /// </summary>
+        /// <value>
+        /// The <see cref="MediaFrame"/>.
+        /// </value>
+        /// <param name="index">The index.</param>
+        /// <returns>The frame</returns>
+        internal MediaFrame this[int index]
+        {
+            get { lock (SyncRoot) return Frames[index]; }
+            private set { lock (SyncRoot) Frames[index] = value; }
+        }
+
         #endregion
 
         #region Methods
@@ -132,6 +125,14 @@
             }
         }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
         #endregion
 
         #region IDisposable Support
@@ -148,14 +149,6 @@
                 if (alsoManaged)
                     Clear();
             }
-        }
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
         }
 
         #endregion

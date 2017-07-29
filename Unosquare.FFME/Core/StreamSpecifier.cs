@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Globalization;
 
     /// <summary>
@@ -9,20 +10,6 @@
     /// </summary>
     internal class StreamSpecifier
     {
-        #region Static Members
-
-        /// <summary>
-        /// Provides suffixes for the different media types.
-        /// </summary>
-        public static Dictionary<MediaType, char> Types = new Dictionary<MediaType, char>
-        {
-            { MediaType.Audio, 'a' },
-            { MediaType.Video, 'v' },
-            { MediaType.Subtitle, 's' },
-        };
-
-        #endregion
-
         #region Constructors
 
         /// <summary>
@@ -89,6 +76,17 @@
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// Provides suffixes for the different media types.
+        /// </summary>
+        public static ReadOnlyDictionary<MediaType, char> Types { get; }
+            = new ReadOnlyDictionary<MediaType, char>(new Dictionary<MediaType, char>
+            {
+                { MediaType.Audio, 'a' },
+                { MediaType.Video, 'v' },
+                { MediaType.Subtitle, 's' },
+            });
 
         /// <summary>
         /// Gets the stream identifier.

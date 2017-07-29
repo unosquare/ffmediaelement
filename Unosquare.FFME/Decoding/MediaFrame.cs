@@ -13,7 +13,9 @@
     {
         #region Private Members
 
+#pragma warning disable SA1401 // Fields must be private
         protected void* InternalPointer;
+#pragma warning restore SA1401 // Fields must be private
 
         #endregion
 
@@ -59,11 +61,6 @@
         public int StreamIndex { get; protected set; }
 
         /// <summary>
-        /// Gets the time base of the stream that generated this frame.
-        /// </summary>
-        internal AVRational StreamTimeBase { get; }
-
-        /// <summary>
         /// Gets the amount of time this data has to be presented
         /// </summary>
         public TimeSpan Duration { get; protected set; }
@@ -76,6 +73,11 @@
         {
             get { return InternalPointer == null; }
         }
+
+        /// <summary>
+        /// Gets the time base of the stream that generated this frame.
+        /// </summary>
+        internal AVRational StreamTimeBase { get; }
 
         #endregion
 

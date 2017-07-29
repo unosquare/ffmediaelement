@@ -15,35 +15,13 @@
     {
         #region Private Declarations
 
-        private bool IsDisposed = false; // To detect redundant calls
         private readonly List<IntPtr> PacketPointers = new List<IntPtr>();
         private readonly object SyncRoot = new object();
+        private bool IsDisposed = false; // To detect redundant calls
 
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Gets or sets the <see cref="AVPacket"/> at the specified index.
-        /// </summary>
-        /// <value>
-        /// The <see cref="AVPacket"/>.
-        /// </value>
-        /// <param name="index">The index.</param>
-        /// <returns>The packet reference</returns>
-        private AVPacket* this[int index]
-        {
-            get
-            {
-                lock (SyncRoot)
-                    return (AVPacket*)PacketPointers[index];
-            }
-            set
-            {
-                lock (SyncRoot)
-                    PacketPointers[index] = (IntPtr)value;
-            }
-        }
 
         /// <summary>
         /// Gets the packet count.
@@ -67,6 +45,28 @@
         /// Gets the total duration in stream TimeBase units.
         /// </summary>
         public long Duration { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="AVPacket"/> at the specified index.
+        /// </summary>
+        /// <value>
+        /// The <see cref="AVPacket"/>.
+        /// </value>
+        /// <param name="index">The index.</param>
+        /// <returns>The packet reference</returns>
+        private AVPacket* this[int index]
+        {
+            get
+            {
+                lock (SyncRoot)
+                    return (AVPacket*)PacketPointers[index];
+            }
+            set
+            {
+                lock (SyncRoot)
+                    PacketPointers[index] = (IntPtr)value;
+            }
+        }
 
         #endregion
 
@@ -147,6 +147,14 @@
         #region IDisposable Support
 
         /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
@@ -158,14 +166,6 @@
                 if (alsoManaged)
                     Clear();
             }
-        }
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
         }
 
         #endregion

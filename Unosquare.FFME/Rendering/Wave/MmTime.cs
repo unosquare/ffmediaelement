@@ -1,5 +1,7 @@
 ﻿namespace Unosquare.FFME.Rendering.Wave
 {
+#pragma warning disable SA1310 // Field names must not contain underscore
+
     using System;
     using System.Runtime.InteropServices;
 
@@ -14,33 +16,34 @@
         public const int TIME_BYTES = 0x0004;
 
         [FieldOffset(0)]
-        public UInt32 wType;
+        public uint Type;
         [FieldOffset(4)]
-        public UInt32 ms;
+        public uint Ms;
         [FieldOffset(4)]
-        public UInt32 sample;
+        public uint Sample;
         [FieldOffset(4)]
-        public UInt32 cb;
+        public uint CB;
         [FieldOffset(4)]
-        public UInt32 ticks;
+        public uint Ticks;
         [FieldOffset(4)]
-        public Byte smpteHour;
+        public byte SmpteHour;
         [FieldOffset(5)]
-        public Byte smpteMin;
+        public byte SmpteMin;
         [FieldOffset(6)]
-        public Byte smpteSec;
+        public byte SmpteSec;
         [FieldOffset(7)]
-        public Byte smpteFrame;
+        public byte SmpteFrame;
         [FieldOffset(8)]
-        public Byte smpteFps;
+        public byte SmpteFps;
         [FieldOffset(9)]
-        public Byte smpteDummy;
+        public byte SmpteDummy;
         [FieldOffset(10)]
-        public Byte smptePad0;
+        public byte SmptePad0;
         [FieldOffset(11)]
-        public Byte smptePad1;
+        public byte SmptePad1;
         [FieldOffset(4)]
-        public UInt32 midiSongPtrPos;
+        public uint MidiSongPtrPos;
     }
 
+#pragma warning restore SA1310 // Field names must not contain underscore
 }

@@ -7,20 +7,19 @@
     using System.ComponentModel;
     using System.Windows;
     using System.Windows.Controls;
-    using System.Windows.Threading;
 
-    partial class MediaElement
+    public partial class MediaElement
     {
         #region Property Backing
 
+        private readonly ObservableCollection<KeyValuePair<string, string>> m_MetadataBase;
+        private readonly ICollectionView m_Metadata;
         private bool m_HasMediaEnded = false;
         private double m_BufferingProgress = 0;
         private double m_DownloadProgress = 0;
         private bool m_IsBuffering = false;
         private MediaState m_MediaState = MediaState.Close;
         private bool m_IsOpening = false;
-        private readonly ObservableCollection<KeyValuePair<string, string>> m_MetadataBase;
-        private readonly ICollectionView m_Metadata;
         private volatile bool m_IsSeeking = false;
 
         #endregion
@@ -255,7 +254,11 @@
         /// </summary>
         public bool IsSeeking
         {
-            get { return m_IsSeeking; }
+            get
+            {
+                return m_IsSeeking;
+            }
+
             internal set
             {
                 if (m_IsSeeking == value) return;
@@ -284,7 +287,9 @@
             get
             {
                 if (Container == null || (HasVideo && VideoBitrate <= 0) || (HasAudio && AudioBitrate <= 0))
-                    return 512 * 1024;
+                {
+                    return 512 * 1024; // 512 kilobytes
+                }
                 else
                 {
                     var byteRate = (VideoBitrate + AudioBitrate) / 8;
@@ -341,7 +346,11 @@
         /// </summary>
         public MediaState MediaState
         {
-            get { return m_MediaState; }
+            get
+            {
+                return m_MediaState;
+            }
+
             internal set
             {
                 SetProperty(ref m_MediaState, value);
@@ -360,8 +369,10 @@
         {
             m_MetadataBase.Clear();
             if (Container != null && Container.Metadata != null)
+            {
                 foreach (var kvp in Container.Metadata)
                     m_MetadataBase.Add(kvp);
+            }
 
             OnPropertyChanged(nameof(Metadata));
         }
