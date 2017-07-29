@@ -328,7 +328,7 @@
             //ConsoleManager.ShowConsole();
             InitializeComponent();
             InitializeMediaEvents();
-            InitializeMouseEvents();
+            InitializeInputEvents();
             InitializeMainWindow();
 
             UpdateWindowTitle();
@@ -498,8 +498,13 @@
         /// <summary>
         /// Initializes the mouse events for the window.
         /// </summary>
-        private void InitializeMouseEvents()
+        private void InitializeInputEvents()
         {
+
+            window.PreviewKeyDown += (s, e) =>
+            {
+                Debug.WriteLine($"Key Down: {e.OriginalSource} - {e.Key}");
+            };
 
             #region Toggle Fullscreen with Double Click
 
@@ -927,6 +932,5 @@
         }
 
         #endregion
-
     }
 }

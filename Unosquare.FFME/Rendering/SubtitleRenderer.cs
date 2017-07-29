@@ -19,7 +19,8 @@
         private readonly object SyncLock = new object();
         private TimeSpan? StartTime = default(TimeSpan?);
         private TimeSpan? EndTime = default(TimeSpan?);
-        private string CurrentText = string.Empty;
+        private string BlockText = string.Empty;
+        private string RenderedText = string.Empty;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SubtitleRenderer"/> class.
@@ -92,24 +93,25 @@
         /// <param name="clockPosition">The clock position.</param>
         public void Render(MediaBlock mediaBlock, TimeSpan clockPosition)
         {
-            var subtitleBlock = mediaBlock as SubtitleBlock;
-            if (subtitleBlock == null) return;
+            lock (SyncLock)
+            {
+                var subtitleBlock = mediaBlock as SubtitleBlock;
+                if (subtitleBlock == null) return;
 
-            // Save the start and end times. We will need
-            // them in order to make the subtitles disappear
-            StartTime = subtitleBlock.StartTime;
-            EndTime = subtitleBlock.EndTime;
+                // Save the start and end times. We will need
+                // them in order to make the subtitles disappear
+                StartTime = subtitleBlock.StartTime;
+                EndTime = subtitleBlock.EndTime;
 
-            // Raise the subtitles event.
-            MediaElement.RaiseRenderingSubtitlesEvent(subtitleBlock, clockPosition);
+                // Raise the subtitles event.
+                MediaElement.RaiseRenderingSubtitlesEvent(subtitleBlock, clockPosition);
 
-            // Check if the text is within time range. If not, simply clear the text.
-            var textToRender = subtitleBlock.Contains(clockPosition) == false ?
-                string.Empty : 
-                string.Join("\r\n", subtitleBlock.Text);
+                // Keep track of the text
+                BlockText = string.Join("\r\n", subtitleBlock.Text);
 
-            // Call the set text on the UI thread.
-            SetText(textToRender);
+                // Call the selective update method
+                Update(clockPosition);
+            }
         }
 
         /// <summary>
@@ -119,10 +121,6 @@
         /// <param name="clockPosition">The clock position.</param>
         public void Update(TimeSpan clockPosition)
         {
-            // If we have already cleared the text we don't need to clear it again
-            if (string.IsNullOrWhiteSpace(CurrentText))
-                return;
-
             // Check if we have received a start and end time value.
             // if we have not, just clear the text
             if (StartTime.HasValue == false || EndTime.HasValue == false)
@@ -137,6 +135,9 @@
                 SetText(string.Empty);
                 return;
             }
+
+            // Update the text with the block text
+            SetText(BlockText);
         }
 
         /// <summary>
@@ -212,6 +213,9 @@
         /// <param name="text">The text.</param>
         private void SetText(string text)
         {
+            if (RenderedText.Equals(text))
+                return;
+
             // We fire-and-forget the update of the text
             Utils.UIEnqueueInvoke(
                 System.Windows.Threading.DispatcherPriority.DataBind,
@@ -219,10 +223,11 @@
                 {
                     lock (SyncLock)
                     {
-                        CurrentText = text;
                         var textBlocks = GetTextBlocks();
                         foreach (var tb in textBlocks)
                             tb.Text = s;
+
+                        RenderedText = s;
                     }
                 }), text);
         }
