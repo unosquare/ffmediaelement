@@ -2,6 +2,7 @@
 {
     using Core;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Windows.Threading;
 
     /// <summary>
@@ -41,9 +42,7 @@
             m.PacketReadingCycle.WaitOne();
 
             // Wait for threads to finish
-            m.BlockRenderingTask?.Join();
-            m.FrameDecodingTask?.Join();
-            m.PacketReadingTask?.Join();
+            Task.WaitAll(m.BlockRenderingTask, m.FrameDecodingTask, m.PacketReadingTask);
 
             // Set the threads to null
             m.BlockRenderingTask = null;

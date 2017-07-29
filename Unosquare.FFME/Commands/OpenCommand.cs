@@ -5,7 +5,7 @@
     using FFmpeg.AutoGen;
     using Rendering;
     using System;
-    using System.Threading;
+    using System.Threading.Tasks;
     using System.Windows.Threading;
 
     /// <summary>
@@ -77,15 +77,11 @@
                 m.BlockRenderingCycle.Reset();
                 m.FrameDecodingCycle.Reset();
                 m.PacketReadingCycle.Reset();
+
+                m.PacketReadingTask = Task.Run(() => m.RunPacketReadingWorker().GetAwaiter().GetResult());
+                m.FrameDecodingTask = Task.Run(() => m.RunFrameDecodingWorker().GetAwaiter().GetResult());
+                m.BlockRenderingTask = Task.Run(() => m.RunBlockRenderingWorker().GetAwaiter().GetResult());
                 
-                m.PacketReadingTask = new Thread(m.RunPacketReadingWorker) { IsBackground = true, Name = nameof(m.PacketReadingTask) };
-                m.FrameDecodingTask = new Thread(m.RunFrameDecodingWorker) { IsBackground = true, Name = nameof(m.FrameDecodingTask) };
-                m.BlockRenderingTask = new Thread(m.RunBlockRenderingWorker) { IsBackground = true, Name = nameof(m.BlockRenderingTask) };
-
-                m.PacketReadingTask.Start();
-                m.FrameDecodingTask.Start();
-                m.BlockRenderingTask.Start();
-
                 m.RaiseMediaOpenedEvent();
             }
             catch (Exception ex)

@@ -41,9 +41,9 @@
         internal readonly ManualResetEvent BlockRenderingCycle = new ManualResetEvent(false);
         internal readonly ManualResetEvent SeekingDone = new ManualResetEvent(true);
 
-        internal Thread PacketReadingTask = null;
-        internal Thread FrameDecodingTask = null;
-        internal Thread BlockRenderingTask = null;
+        internal Task PacketReadingTask = null;
+        internal Task FrameDecodingTask = null;
+        internal Task BlockRenderingTask = null;
 
         internal volatile bool IsTaskCancellationPending = false;
         internal volatile bool HasDecoderSeeked = false;
@@ -86,7 +86,8 @@
         /// It reports on DownloadProgress by enqueueing an update to the property
         /// in order to avoid any kind of disruption to this thread caused by the UI thread.
         /// </summary>
-        internal async void RunPacketReadingWorker()
+        /// <returns>The task.</returns>
+        internal async Task RunPacketReadingWorker()
         {
             // Holds the packet count for each read cycle
             var packetsRead = new MediaTypeDictionary<int>();
@@ -158,8 +159,7 @@
             }
 
             // Always exit notifying the reading cycle is done.
-            if (PacketReadingCycle.SafeWaitHandle.IsClosed == false)
-                PacketReadingCycle.Set();
+            PacketReadingCycle.Set();
         }
 
         #endregion
@@ -168,10 +168,11 @@
 
         /// <summary>
         /// Continually decodes the available packet buffer to have as
-        /// many frames as possible in each frame queue and 
+        /// many frames as possible in each frame queue and
         /// up to the MaxFrames on each component
         /// </summary>
-        internal async void RunFrameDecodingWorker()
+        /// <returns>The task.</returns>
+        internal async Task RunFrameDecodingWorker()
         {
             var decodedFrameCount = 0;
 
@@ -423,8 +424,7 @@
             }
 
             // Always exit notifying the cycle is done.
-            if (FrameDecodingCycle.SafeWaitHandle.IsClosed == false)
-                FrameDecodingCycle.Set();
+            FrameDecodingCycle.Set();
         }
 
         #endregion
@@ -436,7 +436,8 @@
         /// block buffer. This task is responsible for keeping track of the clock
         /// and calling the render methods appropriate for the current clock position.
         /// </summary>
-        internal async void RunBlockRenderingWorker()
+        /// <returns>The task.</returns>
+        internal async Task RunBlockRenderingWorker()
         {
             #region 0. Initialize Running State
 
@@ -543,8 +544,7 @@
             }
 
             // Always exit notifying the cycle is done.
-            if (BlockRenderingCycle.SafeWaitHandle.IsClosed == false)
-                BlockRenderingCycle.Set();
+            BlockRenderingCycle.Set();
         }
 
         #endregion
