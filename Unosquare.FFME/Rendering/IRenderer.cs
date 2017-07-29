@@ -8,6 +8,10 @@
     /// </summary>
     internal interface IRenderer
     {
+        /// <summary>
+        /// Gets the parent media element.
+        /// </summary>
+        MediaElement MediaElement { get; }
 
         /// <summary>
         /// Waits for the renderer to be ready to render.
@@ -53,10 +57,5 @@
         /// </summary>
         /// <param name="clockPosition">The clock position.</param>
         void Update(TimeSpan clockPosition);
-
-        /// <summary>
-        /// Gets the parent media element.
-        /// </summary>
-        MediaElement MediaElement { get; }
     }
 }

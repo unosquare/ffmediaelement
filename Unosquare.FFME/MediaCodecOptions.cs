@@ -33,20 +33,6 @@
         #region Methods
 
         /// <summary>
-        /// Converts a character to a media type.
-        /// </summary>
-        /// <param name="c">The c.</param>
-        /// <returns>The media type</returns>
-        private static MediaType CharToMediaType(char c)
-        {
-            if (c == 'v') return MediaType.Video;
-            if (c == 'a') return MediaType.Audio;
-            if (c == 's') return MediaType.Subtitle;
-
-            return MediaType.None;
-        }
-
-        /// <summary>
         /// Adds an option
         /// </summary>
         /// <param name="key">The key.</param>
@@ -162,6 +148,20 @@
                 result[i] = FilterOptions(format->streams[i]->codecpar->codec_id, format, format->streams[i], null);
 
             return result;
+        }
+
+        /// <summary>
+        /// Converts a character to a media type.
+        /// </summary>
+        /// <param name="c">The c.</param>
+        /// <returns>The media type</returns>
+        private static MediaType CharToMediaType(char c)
+        {
+            if (c == 'v') return MediaType.Video;
+            if (c == 'a') return MediaType.Audio;
+            if (c == 's') return MediaType.Subtitle;
+
+            return MediaType.None;
         }
 
         #endregion

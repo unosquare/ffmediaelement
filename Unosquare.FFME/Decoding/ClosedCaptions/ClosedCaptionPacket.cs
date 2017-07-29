@@ -9,81 +9,6 @@
     /// </summary>
     public class ClosedCaptionPacket : IComparable
     {
-        #region Static Methods
-
-        /// <summary>
-        /// Checks that the header byte starts with 11111b (5 ones binary)
-        /// </summary>
-        private static bool HeaderHasMarkers(byte data)
-        {
-            return (data & 0xF8) == 0xF8;
-        }
-
-        /// <summary>
-        /// Determines whether the valid flag of the header byte is set.
-        /// </summary>
-        private static bool IsHeaderValidFalgSet(byte data)
-        {
-            return (data & 0x04) == 0x04;
-        }
-
-        /// <summary>
-        /// Gets the NTSC field type (1 or 2).
-        /// Returns 0 for unknown.
-        /// </summary>
-        private static int GetHeaderFieldType(byte data)
-        {
-            if ((data & 0x03) == 2) return 0;
-            return (data & 0x03) == 0 ? 1 : 2;
-        }
-
-        /// <summary>
-        /// Determines whether the data is null padding
-        /// </summary>
-        private static bool IsEmptyChannelData(byte d0, byte d1)
-        {
-            return DropParityBit(d0) == 0 && DropParityBit(d1) == 0;
-        }
-
-        /// <summary>
-        /// Drops the parity bit from the data byte.
-        /// </summary>
-        private static byte DropParityBit(byte input)
-        {
-            return (byte)(input & 0x7F);
-        }
-
-        /// <summary>
-        /// Converst an ASCII character code to an EIA-608 char (in Unicode)
-        /// </summary>
-        private static char ToEia608Char(byte input)
-        {
-            // see: Annex A Character Set Differences, and Table 68
-            if (input == 0x2A) return 'á';
-            if (input == 0x5C) return 'é';
-            if (input == 0x5E) return 'í';
-            if (input == 0x5F) return 'ó';
-            if (input == 0x60) return 'ú';
-            if (input == 0x7B) return 'ç';
-            if (input == 0x7C) return '÷';
-            if (input == 0x7D) return 'Ñ';
-            if (input == 0x7E) return 'ñ';
-            if (input == 0x7F) return '█';
-
-            return (char)input;
-        }
-
-        #endregion
-
-        #region State Variables
-
-        /// <summary>
-        /// Holds the data bytes
-        /// </summary>
-        private readonly byte[] D = new byte[2];
-
-        #endregion
-
         #region Dictionaries
 
         private static readonly Dictionary<byte, string> SpecialNorthAmerican = new Dictionary<byte, string>()
@@ -223,6 +148,15 @@
             { 0x14, 14 },
             { 0x1C, 14 },
         };
+
+        #endregion
+
+        #region State Variables
+
+        /// <summary>
+        /// Holds the data bytes
+        /// </summary>
+        private readonly byte[] D = new byte[2];
 
         #endregion
 
@@ -605,6 +539,89 @@
                 throw new InvalidOperationException("Types must be compatible and non-null.");
 
             return Timestamp.Ticks.CompareTo((obj as ClosedCaptionPacket).Timestamp.Ticks);
+        }
+
+        #endregion
+
+        #region Static Methods
+
+        /// <summary>
+        /// Checks that the header byte starts with 11111b (5 ones binary)
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <returns>If header has markers</returns>
+        private static bool HeaderHasMarkers(byte data)
+        {
+            return (data & 0xF8) == 0xF8;
+        }
+
+        /// <summary>
+        /// Determines whether the valid flag of the header byte is set.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <returns>
+        ///   <c>true</c> if [is header valid falg set] [the specified data]; otherwise, <c>false</c>.
+        /// </returns>
+        private static bool IsHeaderValidFalgSet(byte data)
+        {
+            return (data & 0x04) == 0x04;
+        }
+
+        /// <summary>
+        /// Gets the NTSC field type (1 or 2).
+        /// Returns 0 for unknown.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <returns>The field type</returns>
+        private static int GetHeaderFieldType(byte data)
+        {
+            if ((data & 0x03) == 2) return 0;
+            return (data & 0x03) == 0 ? 1 : 2;
+        }
+
+        /// <summary>
+        /// Determines whether the data is null padding
+        /// </summary>
+        /// <param name="d0">The d0.</param>
+        /// <param name="d1">The d1.</param>
+        /// <returns>
+        ///   <c>true</c> if [is empty channel data] [the specified d0]; otherwise, <c>false</c>.
+        /// </returns>
+        private static bool IsEmptyChannelData(byte d0, byte d1)
+        {
+            return DropParityBit(d0) == 0 && DropParityBit(d1) == 0;
+        }
+
+        /// <summary>
+        /// Drops the parity bit from the data byte.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <returns>The byte without a parity bit.</returns>
+        private static byte DropParityBit(byte input)
+        {
+            return (byte)(input & 0x7F);
+        }
+
+        /// <summary>
+        /// Converst an ASCII character code to an EIA-608 char (in Unicode)
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <returns>The charset char.</returns>
+        private static char ToEia608Char(byte input)
+        {
+            // see: Annex A Character Set Differences, and Table 68
+            if (input == 0x2A) return 'á';
+            if (input == 0x5C) return 'é';
+            if (input == 0x5E) return 'í';
+            if (input == 0x5F) return 'ó';
+            if (input == 0x60) return 'ú';
+            if (input == 0x7B) return 'ç';
+            if (input == 0x7C) return '÷';
+            if (input == 0x7D) return 'Ñ';
+            if (input == 0x7E) return 'ñ';
+            if (input == 0x7F) return '█';
+
+            return (char)input;
         }
 
         #endregion

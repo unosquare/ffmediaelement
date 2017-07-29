@@ -69,45 +69,6 @@
 
         #endregion
 
-        #region Initialization and Destruction
-
-        /// <summary>
-        /// Destroys the audio renderer.
-        /// Makes it useless.
-        /// </summary>
-        private void Destroy()
-        {
-            try
-            {
-                WaitForReadyEvent.Reset();
-
-                // Remove the event handler
-                if (Application.Current != null)
-                {
-                    Utils.UIInvoke(DispatcherPriority.Normal, () =>
-                    {
-                        Application.Current.Exit -= OnApplicationExit;
-                    });
-                }
-            }
-            catch { }
-
-            if (AudioDevice != null)
-            {
-                AudioDevice.Stop();
-                AudioDevice.Dispose();
-                AudioDevice = null;
-            }
-
-            if (AudioBuffer != null)
-            {
-                AudioBuffer.Dispose();
-                AudioBuffer = null;
-            }
-        }
-
-        #endregion
-
         #region Properties
 
         /// <summary>
@@ -455,6 +416,41 @@
             var bufferLength = WaveFormat.ConvertLatencyToByteSize(AudioDevice.DesiredLatency) * MediaElement.Blocks[MediaType.Audio].Capacity / 2;
             AudioBuffer = new CircularBuffer(bufferLength);
             AudioDevice.Init(this);
+        }
+
+        /// <summary>
+        /// Destroys the audio renderer.
+        /// Makes it useless.
+        /// </summary>
+        private void Destroy()
+        {
+            try
+            {
+                WaitForReadyEvent.Reset();
+
+                // Remove the event handler
+                if (Application.Current != null)
+                {
+                    Utils.UIInvoke(DispatcherPriority.Normal, () =>
+                    {
+                        Application.Current.Exit -= OnApplicationExit;
+                    });
+                }
+            }
+            catch { }
+
+            if (AudioDevice != null)
+            {
+                AudioDevice.Stop();
+                AudioDevice.Dispose();
+                AudioDevice = null;
+            }
+
+            if (AudioBuffer != null)
+            {
+                AudioBuffer.Dispose();
+                AudioBuffer = null;
+            }
         }
 
         #endregion

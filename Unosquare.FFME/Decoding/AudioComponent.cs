@@ -65,17 +65,6 @@
         #region Methods
 
         /// <summary>
-        /// Creates a frame source object given the raw FFmpeg frame reference.
-        /// </summary>
-        /// <param name="frame">The raw FFmpeg frame pointer.</param>
-        /// <returns>The media frame</returns>
-        protected override unsafe MediaFrame CreateFrameSource(AVFrame* frame)
-        {
-            var frameHolder = new AudioFrame(frame, this);
-            return frameHolder;
-        }
-
-        /// <summary>
         /// Converts decoded, raw frame data in the frame source into a a usable frame. <br />
         /// The process includes performing picture, samples or text conversions
         /// so that the decoded source frame data is easily usable in multimedia applications
@@ -155,6 +144,17 @@
             target.StreamIndex = input.StreamIndex;
 
             return target;
+        }
+
+        /// <summary>
+        /// Creates a frame source object given the raw FFmpeg frame reference.
+        /// </summary>
+        /// <param name="frame">The raw FFmpeg frame pointer.</param>
+        /// <returns>The media frame</returns>
+        protected override unsafe MediaFrame CreateFrameSource(AVFrame* frame)
+        {
+            var frameHolder = new AudioFrame(frame, this);
+            return frameHolder;
         }
 
         #endregion

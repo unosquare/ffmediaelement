@@ -131,31 +131,6 @@
         }
 
         /// <summary>
-        /// Gets the <see cref="MediaBlock"/> at the specified index.
-        /// </summary>
-        public MediaBlock this[int index]
-        {
-            get { lock (SyncRoot) return PlaybackBlocks[index]; }
-        }
-
-        /// <summary>
-        /// Gets the <see cref="MediaBlock"/> at the specified timestamp.
-        /// </summary>
-        public MediaBlock this[TimeSpan at]
-        {
-            get
-            {
-                lock (SyncRoot)
-                {
-                    var index = IndexOf(at);
-                    if (index >= 0) { return PlaybackBlocks[index]; }
-
-                    return null;
-                }
-            }
-        }
-
-        /// <summary>
         /// Gets the number of available playback blocks.
         /// </summary>
         public int Count
@@ -184,23 +159,44 @@
             get { lock (SyncRoot) return Count >= Capacity; }
         }
 
+        /// <summary>
+        /// Gets the <see cref="MediaBlock" /> at the specified index.
+        /// </summary>
+        /// <value>
+        /// The <see cref="MediaBlock"/>.
+        /// </value>
+        /// <param name="index">The index.</param>
+        /// <returns>The media block</returns>
+        public MediaBlock this[int index]
+        {
+            get { lock (SyncRoot) return PlaybackBlocks[index]; }
+        }
+
+        /// <summary>
+        /// Gets the <see cref="MediaBlock" /> at the specified timestamp.
+        /// </summary>
+        /// <value>
+        /// The <see cref="MediaBlock"/>.
+        /// </value>
+        /// <param name="at">At time.</param>
+        /// <returns>The media block</returns>
+        public MediaBlock this[TimeSpan at]
+        {
+            get
+            {
+                lock (SyncRoot)
+                {
+                    var index = IndexOf(at);
+                    if (index >= 0) { return PlaybackBlocks[index]; }
+
+                    return null;
+                }
+            }
+        }
+
         #endregion
 
         #region Methods
-
-        /// <summary>
-        /// Block factory method.
-        /// </summary>
-        /// <returns>The media frame</returns>
-        /// <exception cref="System.InvalidCastException">MediaBlock</exception>
-        private MediaBlock CreateBlock()
-        {
-            if (MediaType == MediaType.Video) return new VideoBlock();
-            if (MediaType == MediaType.Audio) return new AudioBlock();
-            if (MediaType == MediaType.Subtitle) return new SubtitleBlock();
-
-            throw new InvalidCastException($"No {nameof(MediaBlock)} constructor for {nameof(MediaType)} '{MediaType}'");
-        }
 
         /// <summary>
         /// Gets the percentage of the range for the given time position.
@@ -214,16 +210,6 @@
                 return RangeDuration.Ticks != 0 ?
                     ((double)position.Ticks - RangeStartTime.Ticks) / RangeDuration.Ticks : 0d;
             }
-        }
-
-        /// <summary>
-        /// Returns a formatted string with information about this buffer
-        /// </summary>
-        /// <returns>The formatted string</returns>
-        internal string Debug()
-        {
-            lock (SyncRoot)
-                return $"{MediaType,-12} - CAP: {Capacity,10} | FRE: {PoolBlocks.Count,7} | USD: {PlaybackBlocks.Count,4} |  TM: {RangeStartTime.Format(),8} to {RangeEndTime.Format().Trim()}";
         }
 
         /// <summary>
@@ -252,6 +238,7 @@
         /// </summary>
         /// <param name="source">The source.</param>
         /// <param name="container">The container.</param>
+        /// <returns>The filled block.</returns>
         public MediaBlock Add(MediaFrame source, MediaContainer container)
         {
             lock (SyncRoot)
@@ -306,6 +293,9 @@
         /// Determines whether the given render time is within the range of playback blocks.
         /// </summary>
         /// <param name="renderTime">The render time.</param>
+        /// <returns>
+        ///   <c>true</c> if [is in range] [the specified render time]; otherwise, <c>false</c>.
+        /// </returns>
         public bool IsInRange(TimeSpan renderTime)
         {
             lock (SyncRoot)
@@ -337,7 +327,7 @@
                 // variable setup
                 var lowIndex = 0;
                 var highIndex = blockCount - 1;
-                var midIndex = 1 + lowIndex + (highIndex - lowIndex) / 2;
+                var midIndex = 1 + lowIndex + ((highIndex - lowIndex) / 2);
 
                 // edge condition cheching
                 if (PlaybackBlocks[lowIndex].StartTime >= renderTime) return lowIndex;
@@ -352,7 +342,7 @@
                 // binary search
                 while (highIndex - lowIndex > 1)
                 {
-                    midIndex = lowIndex + (highIndex - lowIndex) / 2;
+                    midIndex = lowIndex + ((highIndex - lowIndex) / 2);
                     if (renderTime < PlaybackBlocks[midIndex].StartTime)
                         highIndex = midIndex;
                     else
@@ -370,14 +360,9 @@
             }
         }
 
-        #endregion
-
-        #region IDisposable Implementation
-
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        /// <exception cref="System.NotImplementedException"></exception>
         public void Dispose()
         {
             lock (SyncRoot)
@@ -395,6 +380,30 @@
                     block.Dispose();
                 }
             }
+        }
+
+        /// <summary>
+        /// Returns a formatted string with information about this buffer
+        /// </summary>
+        /// <returns>The formatted string</returns>
+        internal string Debug()
+        {
+            lock (SyncRoot)
+                return $"{MediaType,-12} - CAP: {Capacity,10} | FRE: {PoolBlocks.Count,7} | USD: {PlaybackBlocks.Count,4} |  TM: {RangeStartTime.Format(),8} to {RangeEndTime.Format().Trim()}";
+        }
+
+        /// <summary>
+        /// Block factory method.
+        /// </summary>
+        /// <returns>The media frame</returns>
+        /// <exception cref="System.InvalidCastException">MediaBlock</exception>
+        private MediaBlock CreateBlock()
+        {
+            if (MediaType == MediaType.Video) return new VideoBlock();
+            if (MediaType == MediaType.Audio) return new AudioBlock();
+            if (MediaType == MediaType.Subtitle) return new SubtitleBlock();
+
+            throw new InvalidCastException($"No {nameof(MediaBlock)} constructor for {nameof(MediaType)} '{MediaType}'");
         }
 
         #endregion

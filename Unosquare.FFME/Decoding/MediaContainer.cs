@@ -24,6 +24,12 @@
         #region Private Fields
 
         /// <summary>
+        /// The read synchronize root
+        /// </summary>
+        private readonly object ReadSyncRoot = new object();
+
+#pragma warning disable SA1401 // Fields must be private
+        /// <summary>
         /// The logger
         /// </summary>
         internal readonly IMediaLogger Logger;
@@ -32,6 +38,7 @@
         /// Holds a reference to an input context.
         /// </summary>
         internal AVFormatContext* InputContext = null;
+#pragma warning restore SA1401 // Fields must be private
 
         /// <summary>
         /// Holds the set of components.
@@ -55,11 +62,6 @@
         /// of the stream and after seeking.
         /// </summary>
         private bool m_RequiresPictureAttachments = true;
-
-        /// <summary>
-        /// The read synchronize root
-        /// </summary>
-        private readonly object ReadSyncRoot = new object();
 
         /// <summary>
         /// The decode synchronize root
@@ -118,6 +120,14 @@
 
             ProtocolPrefix = protocolPrefix;
             StreamInitialize();
+        }
+
+        /// <summary>
+        /// Finalizes an instance of the <see cref="MediaContainer"/> class.
+        /// </summary>
+        ~MediaContainer()
+        {
+            Dispose(false);
         }
 
         #endregion
@@ -420,8 +430,11 @@
                 if (input == null)
                     throw new ArgumentNullException($"{nameof(input)} cannot be null.");
 
-                if (input.IsStale) throw new ArgumentException(
-                    $"The {nameof(input)} {nameof(MediaFrame)} ({input.MediaType}) has already been released (it's stale).");
+                if (input.IsStale)
+                {
+                    throw new ArgumentException(
+                        $"The {nameof(input)} {nameof(MediaFrame)} ({input.MediaType}) has already been released (it's stale).");
+                }
 
                 try
                 {
@@ -469,6 +482,15 @@
             }
         }
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
         #endregion
 
         #region Private Stream Methods
@@ -479,7 +501,7 @@
         /// to the Open method.
         /// </summary>
         /// <exception cref="System.InvalidOperationException">The input context has already been initialized.</exception>
-        /// <exception cref="MediaContainerException"></exception>
+        /// <exception cref="MediaContainerException">When an error initializing the stream occurs.</exception>
         private void StreamInitialize()
         {
             const string ScanAllPmts = "scan_all_pmts";
@@ -523,8 +545,10 @@
 
                         // Handle analyze duration overrides
                         if (MediaOptions.MaxAnalyzeDuration != default(TimeSpan))
+                        {
                             InputContext->max_analyze_duration = MediaOptions.MaxAnalyzeDuration <= TimeSpan.Zero ? 0 :
                                 (int)Math.Round(MediaOptions.MaxAnalyzeDuration.TotalSeconds * ffmpeg.AV_TIME_BASE, 0);
+                        }
 
                         // We set the start of the read operation time so tiomeouts can be detected
                         Thread.VolatileWrite(ref StreamReadInterruptStartTime, DateTime.UtcNow.Ticks);
@@ -536,8 +560,10 @@
 
                         // Validate the open operation
                         if (openResult < 0)
+                        {
                             throw new MediaContainerException($"Could not open '{MediaUrl}'. "
                                 + $"Error {openResult}: {Utils.FFmpeg.GetErrorMessage(openResult)}");
+                        }
                     }
 
                     // Set some general properties
@@ -771,7 +797,7 @@
                 ffmpeg.av_packet_free(&readPacket);
 
                 // Detect an end of file situation (makes the readers enter draining mode)
-                if ((readResult == Utils.FFmpeg.AVERROR_EOF || ffmpeg.avio_feof(InputContext->pb) != 0))
+                if (readResult == Utils.FFmpeg.AVERROR_EOF || ffmpeg.avio_feof(InputContext->pb) != 0)
                 {
                     // Force the decoders to enter draining mode (with empry packets)
                     if (IsAtEndOfStream == false)
@@ -962,7 +988,7 @@
                 // Compute the seek target, mostly based on the relative Target Time
                 var seekTarget = MediaSeeksByBytes ?
                     (long)Math.Round(MediaBitrate * relativeTargetTime.TotalSeconds / 8d, 0) :
-                    (long)Math.Round((relativeTargetTime.TotalSeconds) * timeBase.den / timeBase.num, 0);
+                    (long)Math.Round(relativeTargetTime.TotalSeconds * timeBase.den / timeBase.num, 0);
 
                 // Perform the seek. There is also avformat_seek_file which is the older version of av_seek_frame
                 // Check if we are seeking before the start of the stream in this cyle. If so, simply seek to the
@@ -1136,20 +1162,6 @@
             }
 
             IsDisposed = true;
-        }
-
-        ~MediaContainer()
-        {
-            Dispose(false);
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         #endregion

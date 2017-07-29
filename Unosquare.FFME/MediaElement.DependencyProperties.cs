@@ -351,7 +351,8 @@
         /// Specifies how the underlying media should behave when 
         /// it has ended. The default behavior is to Close the media.
         /// </summary> 
-        [Category(nameof(MediaElement)), Description("Specifies how the underlying media should behave when it has ended. The default behavior is to Close the media.")]
+        [Category(nameof(MediaElement))]
+        [Description("Specifies how the underlying media should behave when it has ended. The default behavior is to Close the media.")]
         public MediaState UnloadedBehavior
         {
             get { return (MediaState)GetValue(UnloadedBehaviorProperty); }
@@ -389,7 +390,8 @@
         /// to be playing the media. If a source is set and a loaded behavior is
         /// also set, then the loaded behavior takes control.
         /// </summary>
-        [Category(nameof(MediaElement)), Description("Specifies how the underlying media should behave when it has loaded. The default behavior is to Play the media.")]
+        [Category(nameof(MediaElement))]
+        [Description("Specifies how the underlying media should behave when it has loaded. The default behavior is to Play the media.")]
         public MediaState LoadedBehavior
         {
             get { return (MediaState)GetValue(LoadedBehaviorProperty); }

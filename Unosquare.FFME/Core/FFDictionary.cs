@@ -13,7 +13,14 @@
 
         // These pointers and references are created by unmanaged code
         // there is no need to pin them.
+#pragma warning disable SA1401 // Fields must be private
         public AVDictionary* Pointer;
+#pragma warning restore SA1401 // Fields must be private
+
+        /// <summary>
+        /// To detect redundant Dispose calls
+        /// </summary>
+        private bool IsDisposed = false;
 
         #endregion
 
@@ -99,6 +106,23 @@
         }
 
         /// <summary>
+        /// A wrapper for the av_dict_get method
+        /// </summary>
+        /// <param name="dictionary">The dictionary.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="matchCase">if set to <c>true</c> [match case].</param>
+        /// <returns>The Entry</returns>
+        public static FFDictionaryEntry GetEntry(AVDictionary* dictionary, string key, bool matchCase = true)
+        {
+            if (dictionary == null)
+                return null;
+
+            var entryPointer = ffmpeg.av_dict_get(dictionary, key, null, matchCase ? ffmpeg.AV_DICT_MATCH_CASE : 0);
+            if (entryPointer == null) return null;
+            return new FFDictionaryEntry(entryPointer);
+        }
+
+        /// <summary>
         /// Fills this dictionary with a set of options
         /// </summary>
         /// <param name="other">The other dictionary (source)</param>
@@ -143,23 +167,6 @@
         {
             if (Pointer == null) return false;
             return ffmpeg.av_dict_get(Pointer, key, null, matchCase ? ffmpeg.AV_DICT_MATCH_CASE : 0) != null;
-        }
-
-        /// <summary>
-        /// A wrapper for the av_dict_get method
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <param name="key">The key.</param>
-        /// <param name="matchCase">if set to <c>true</c> [match case].</param>
-        /// <returns>The Entry</returns>
-        public static FFDictionaryEntry GetEntry(AVDictionary* dictionary, string key, bool matchCase = true)
-        {
-            if (dictionary == null)
-                return null;
-
-            var entryPointer = ffmpeg.av_dict_get(dictionary, key, null, matchCase ? ffmpeg.AV_DICT_MATCH_CASE : 0);
-            if (entryPointer == null) return null;
-            return new FFDictionaryEntry(entryPointer);
         }
 
         /// <summary>
@@ -222,14 +229,17 @@
                 Set(key, null, false);
         }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
         #endregion
 
         #region IDisposable Support
-
-        /// <summary>
-        /// To detect redundant Dispose calls
-        /// </summary>
-        private bool IsDisposed = false;
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
@@ -247,14 +257,6 @@
 
                 IsDisposed = true;
             }
-        }
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
         }
 
         #endregion

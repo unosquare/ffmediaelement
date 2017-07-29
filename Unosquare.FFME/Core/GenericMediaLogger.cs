@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME.Core
 {
-
     /// <summary>
     /// Represents a generic Logger
     /// </summary>

@@ -18,14 +18,14 @@
         #region Private Declarations
 
         /// <summary>
-        /// To detect redundant Dispose calls
-        /// </summary>
-        private bool IsDisposed = false;
-
-        /// <summary>
         /// The internal Components
         /// </summary>
         private readonly MediaTypeDictionary<MediaComponent> Items = new MediaTypeDictionary<MediaComponent>();
+
+        /// <summary>
+        /// The synchronize lock
+        /// </summary>
+        private readonly object SyncLock = new object();
 
         /// <summary>
         /// Provides a cached array to the components backing the All property.
@@ -33,9 +33,9 @@
         private ReadOnlyCollection<MediaComponent> CachedComponents = null;
 
         /// <summary>
-        /// The synchronize lock
+        /// To detect redundant Dispose calls
         /// </summary>
-        private readonly object SyncLock = new object();
+        private bool IsDisposed = false;
 
         #endregion
 
@@ -228,6 +228,14 @@
             }
         }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
         #endregion
 
         #region Methods
@@ -304,18 +312,9 @@
                 }
 
                 // free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // set large fields to null.
-
+                // and set large fields to null.
                 IsDisposed = true;
             }
-        }
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
         }
 
         #endregion

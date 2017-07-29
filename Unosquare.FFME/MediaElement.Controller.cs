@@ -4,16 +4,14 @@
     using Decoding;
     using Unosquare.FFME.Commands;
 
-    partial class MediaElement
+    public partial class MediaElement
     {
-
         #region Internal Members
 
         /// <summary>
-        /// The underlying media container that provides access to 
-        /// individual media component streams
+        /// The command queue to be executed in the order they were sent.
         /// </summary>
-        internal MediaContainer Container = null;
+        internal readonly MediaCommandManager Commands = null;
 
         /// <summary>
         /// Represents a real-time time measuring device.
@@ -22,9 +20,10 @@
         internal readonly Clock Clock = new Clock();
 
         /// <summary>
-        /// The command queue to be executed in the order they were sent.
+        /// The underlying media container that provides access to 
+        /// individual media component streams
         /// </summary>
-        internal readonly MediaCommandManager Commands = null;
+        internal MediaContainer Container = null;
 
         #endregion
 
