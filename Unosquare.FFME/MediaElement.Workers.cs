@@ -34,8 +34,8 @@
         #endregion
 
         #region State Variables
-
 #pragma warning disable SA1401 // Fields must be private
+
         internal readonly ManualResetEvent PacketReadingCycle = new ManualResetEvent(false);
         internal readonly ManualResetEvent FrameDecodingCycle = new ManualResetEvent(false);
         internal readonly ManualResetEvent BlockRenderingCycle = new ManualResetEvent(false);
@@ -47,7 +47,6 @@
 
         internal volatile bool IsTaskCancellationPending = false;
         internal volatile bool HasDecoderSeeked = false;
-#pragma warning restore SA1401 // Fields must be private
 
         internal MediaTypeDictionary<MediaBlockBuffer> Blocks { get; } = new MediaTypeDictionary<MediaBlockBuffer>();
 
@@ -55,6 +54,7 @@
 
         internal MediaTypeDictionary<TimeSpan> LastRenderTime { get; } = new MediaTypeDictionary<TimeSpan>();
 
+#pragma warning restore SA1401 // Fields must be private
         #endregion
 
         #region Private Properties
@@ -75,81 +75,6 @@
         private bool CanReadMoreFrames
         {
             get { return CanReadMorePackets || Container.Components.PacketBufferLength > 0; }
-        }
-
-        #endregion
-
-        #region Methods
-
-        /// <summary>
-        /// Sets the clock to a discrete video position if possible
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void SnapVideoPosition(TimeSpan position)
-        {
-            if (Container == null) return;
-
-            // Set the clock to a discrete video position if possible
-            if (Container.Components.Main.MediaType == MediaType.Video
-                && Blocks[MediaType.Video].IsInRange(position))
-            {
-                var block = Blocks[MediaType.Video][position];
-                if (block != null && block.Duration.Ticks > 0 && VideoFrameRate != 0d)
-                    Clock.Position = block.MidTime;
-            }
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether more frames can be converted into blocks of the given type.
-        /// </summary>
-        /// <param name="t">The t.</param>
-        /// <returns>
-        ///   <c>true</c> if this instance [can read more frames of] the specified t; otherwise, <c>false</c>.
-        /// </returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool CanReadMoreFramesOf(MediaType t)
-        {
-            return CanReadMorePackets || Container.Components[t].PacketBufferLength > 0;
-        }
-
-        /// <summary>
-        /// Sends the given block to its corresponding media renderer.
-        /// </summary>
-        /// <param name="block">The block.</param>
-        /// <param name="clockPosition">The clock position.</param>
-        /// <returns>The number of blocks sent to the renderer</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int SendBlockToRenderer(MediaBlock block, TimeSpan clockPosition)
-        {
-            Renderers[block.MediaType].Render(block, clockPosition);
-            this.LogRenderBlock(block, clockPosition, Blocks[block.MediaType].IndexOf(clockPosition));
-            LastRenderTime[block.MediaType] = block.StartTime;
-            return 1;
-        }
-
-        /// <summary>
-        /// Adds the blocks of the given media type.
-        /// </summary>
-        /// <param name="t">The t.</param>
-        /// <returns>The number of blocks that were added</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int AddBlocks(MediaType t)
-        {
-            var decodedFrameCount = 0;
-
-            // Decode the frames
-            var frames = Container.Components[t].ReceiveFrames();
-
-            // exit the loop if there was nothing more to decode
-            foreach (var frame in frames)
-            {
-                // Add each decoded frame as a playback block
-                if (frame == null) continue;
-                Blocks[t].Add(frame, Container);
-                decodedFrameCount += 1;
-            }
-
-            return decodedFrameCount;
         }
 
         #endregion
@@ -251,8 +176,10 @@
 
             // Holds the main media type
             var main = Container.Components.Main.MediaType;
+            
             // Holds the auxiliary media types
             var auxs = Container.Components.MediaTypes.Where(x => x != main).ToArray();
+            
             // Holds all components
             var all = Container.Components.MediaTypes.ToArray();
 
@@ -402,6 +329,7 @@
                     while (comp.PacketBufferCount > 0 && blocks.RangeEndTime <= wallClock)
                     {
                         decodedFrameCount = AddBlocks(t);
+                        
                         // don't care if we are buffering
                         // always try to catch up by reading more packets.
                         if (comp.PacketBufferCount <= 0 && CanReadMorePackets)
@@ -505,10 +433,13 @@
 
             // Holds the main media type
             var main = Container.Components.Main.MediaType;
+            
             // Holds the auxiliary media types
             var auxs = Container.Components.MediaTypes.Where(t => t != main).ToArray();
+            
             // Holds all components
             var all = Container.Components.MediaTypes.ToArray();
+            
             // Holds a snapshot of the current block to render
             var currentBlock = new MediaTypeDictionary<MediaBlock>();
 
@@ -603,6 +534,82 @@
             }
 
             BlockRenderingCycle.Set();
+        }
+
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        /// Sets the clock to a discrete video position if possible
+        /// </summary>
+        /// <param name="position">The position.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void SnapVideoPosition(TimeSpan position)
+        {
+            if (Container == null) return;
+
+            // Set the clock to a discrete video position if possible
+            if (Container.Components.Main.MediaType == MediaType.Video
+                && Blocks[MediaType.Video].IsInRange(position))
+            {
+                var block = Blocks[MediaType.Video][position];
+                if (block != null && block.Duration.Ticks > 0 && VideoFrameRate != 0d)
+                    Clock.Position = block.MidTime;
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether more frames can be converted into blocks of the given type.
+        /// </summary>
+        /// <param name="t">The t.</param>
+        /// <returns>
+        ///   <c>true</c> if this instance [can read more frames of] the specified t; otherwise, <c>false</c>.
+        /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool CanReadMoreFramesOf(MediaType t)
+        {
+            return CanReadMorePackets || Container.Components[t].PacketBufferLength > 0;
+        }
+
+        /// <summary>
+        /// Sends the given block to its corresponding media renderer.
+        /// </summary>
+        /// <param name="block">The block.</param>
+        /// <param name="clockPosition">The clock position.</param>
+        /// <returns>The number of blocks sent to the renderer</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private int SendBlockToRenderer(MediaBlock block, TimeSpan clockPosition)
+        {
+            Renderers[block.MediaType].Render(block, clockPosition);
+            this.LogRenderBlock(block, clockPosition, Blocks[block.MediaType].IndexOf(clockPosition));
+            LastRenderTime[block.MediaType] = block.StartTime;
+            return 1;
+        }
+
+        /// <summary>
+        /// Adds the blocks of the given media type.
+        /// </summary>
+        /// <param name="t">The t.</param>
+        /// <returns>The number of blocks that were added</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private int AddBlocks(MediaType t)
+        {
+            var decodedFrameCount = 0;
+
+            // Decode the frames
+            var frames = Container.Components[t].ReceiveFrames();
+
+            // exit the loop if there was nothing more to decode
+            foreach (var frame in frames)
+            {
+                // Add each decoded frame as a playback block
+                if (frame == null) continue;
+                Blocks[t].Add(frame, Container);
+                decodedFrameCount += 1;
+            }
+
+            return decodedFrameCount;
         }
 
         #endregion

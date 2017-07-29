@@ -23,12 +23,8 @@
     {
         #region Private Fields
 
-        /// <summary>
-        /// The read synchronize root
-        /// </summary>
-        private readonly object ReadSyncRoot = new object();
-
 #pragma warning disable SA1401 // Fields must be private
+
         /// <summary>
         /// The logger
         /// </summary>
@@ -38,7 +34,23 @@
         /// Holds a reference to an input context.
         /// </summary>
         internal AVFormatContext* InputContext = null;
+
 #pragma warning restore SA1401 // Fields must be private
+
+        /// <summary>
+        /// The read synchronize root
+        /// </summary>
+        private readonly object ReadSyncRoot = new object();
+
+        /// <summary>
+        /// The decode synchronize root
+        /// </summary>
+        private readonly object DecodeSyncRoot = new object();
+
+        /// <summary>
+        /// The convert synchronize root
+        /// </summary>
+        private readonly object ConvertSyncRoot = new object();
 
         /// <summary>
         /// Holds the set of components.
@@ -62,16 +74,6 @@
         /// of the stream and after seeking.
         /// </summary>
         private bool m_RequiresPictureAttachments = true;
-
-        /// <summary>
-        /// The decode synchronize root
-        /// </summary>
-        private readonly object DecodeSyncRoot = new object();
-
-        /// <summary>
-        /// The convert synchronize root
-        /// </summary>
-        private readonly object ConvertSyncRoot = new object();
 
         /// <summary>
         /// The stream read interrupt callback.
@@ -193,25 +195,6 @@
         }
 
         /// <summary>
-        /// Gets the media start time by which all component streams are offset. 
-        /// Typically 0 but it could be something other than 0.
-        /// </summary>
-        internal TimeSpan MediaStartTimeOffset { get; private set; }
-
-        /// <summary>
-        /// Gets the seek start timestamp.
-        /// </summary>
-        internal long SeekStartTimestamp
-        {
-            get
-            {
-                var startSeekTime = (long)Math.Round(MediaStartTimeOffset.TotalSeconds * ffmpeg.AV_TIME_BASE, 0);
-                if (MediaSeeksByBytes) startSeekTime = 0;
-                return startSeekTime;
-            }
-        }
-
-        /// <summary>
         /// Gets the duration of the media.
         /// If this information is not available (i.e. realtime media) it will
         /// be set to TimeSpan.MinValue
@@ -265,6 +248,25 @@
         #endregion
 
         #region Internal Properties
+
+        /// <summary>
+        /// Gets the media start time by which all component streams are offset. 
+        /// Typically 0 but it could be something other than 0.
+        /// </summary>
+        internal TimeSpan MediaStartTimeOffset { get; private set; }
+
+        /// <summary>
+        /// Gets the seek start timestamp.
+        /// </summary>
+        internal long SeekStartTimestamp
+        {
+            get
+            {
+                var startSeekTime = (long)Math.Round(MediaStartTimeOffset.TotalSeconds * ffmpeg.AV_TIME_BASE, 0);
+                if (MediaSeeksByBytes) startSeekTime = 0;
+                return startSeekTime;
+            }
+        }
 
         /// <summary>
         /// Gets the time the last packet was read from the input

@@ -151,12 +151,52 @@
 
         #endregion
 
+        #region Events
+
+        /// <summary>
+        /// Occurs when a logging message from the FFmpeg library has been received.
+        /// This is shared across all instances of Media Elements
+        /// </summary>
+        public static event EventHandler<MediaLogMessagEventArgs> FFmpegMessageLogged;
+
+        /// <summary>
+        /// Multicast event for property change notifications.
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// Occurs when a logging message has been logged.
+        /// This does not include FFmpeg messages.
+        /// </summary>
+        public event EventHandler<MediaLogMessagEventArgs> MessageLogged;
+
+        #endregion
+
         #region Properties
 
         /// <summary>
-        /// Gets the grid control holding the rest of the controls.
+        /// Gets or sets the FFmpeg path from which to load the FFmpeg binaries.
+        /// You must set this path before setting the Source property for the first time on any instance of this control.
+        /// Settng this property when FFmpeg binaries have been registered will throw an exception.
         /// </summary>
-        internal Grid ContentGrid { get; }
+        public static string FFmpegDirectory
+        {
+            get
+            {
+                return m_FFmpegDirectory;
+            }
+            set
+            {
+                if (IsFFmpegLoaded == false)
+                {
+                    m_FFmpegDirectory = value;
+                    return;
+                }
+
+                if ((value?.Equals(m_FFmpegDirectory) ?? false) == false)
+                    throw new InvalidOperationException($"Unable to set a new FFmpeg registration path: {value}. FFmpeg binaries have already been registered.");
+            }
+        }
 
         /// <summary>
         /// Gets or sets the horizontal alignment characteristics applied to this element when it is 
@@ -191,30 +231,30 @@
         }
 
         /// <summary>
-        /// Gets or sets the FFmpeg path from which to load the FFmpeg binaries.
-        /// You must set this path before setting the Source property for the first time on any instance of this control.
-        /// Settng this property when FFmpeg binaries have been registered will throw an exception.
+        /// Gets the grid control holding the rest of the controls.
         /// </summary>
-        public static string FFmpegDirectory
-        {
-            get { return m_FFmpegDirectory; }
-            set
-            {
-
-                if (IsFFmpegLoaded == false)
-                {
-                    m_FFmpegDirectory = value;
-                    return;
-                }
-
-                if ((value?.Equals(m_FFmpegDirectory) ?? false) == false)
-                    throw new InvalidOperationException($"Unable to set a new FFmpeg registration path: {value}. FFmpeg binaries have already been registered.");
-            }
-        }
+        internal Grid ContentGrid { get; }
 
         #endregion
 
         #region Methods
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        /// <summary>
+        /// Raises the FFmpegMessageLogged event
+        /// </summary>
+        /// <param name="eventArgs">The <see cref="MediaLogMessagEventArgs" /> instance containing the event data.</param>
+        internal static void RaiseFFmpegMessageLogged(MediaLogMessagEventArgs eventArgs)
+        {
+            FFmpegMessageLogged?.Invoke(typeof(MediaElement), eventArgs);
+        }
 
         /// <summary>
         /// Updates the position property signaling the update is
@@ -241,27 +281,6 @@
         #region Logging Events
 
         /// <summary>
-        /// Occurs when a logging message from the FFmpeg library has been received.
-        /// This is shared across all instances of Media Elements
-        /// </summary>
-        public static event EventHandler<MediaLogMessagEventArgs> FFmpegMessageLogged;
-
-        /// <summary>
-        /// Raises the FFmpegMessageLogged event
-        /// </summary>
-        /// <param name="eventArgs">The <see cref="MediaLogMessagEventArgs" /> instance containing the event data.</param>
-        internal static void RaiseFFmpegMessageLogged(MediaLogMessagEventArgs eventArgs)
-        {
-            FFmpegMessageLogged?.Invoke(typeof(MediaElement), eventArgs);
-        }
-
-        /// <summary>
-        /// Occurs when a logging message has been logged.
-        /// This does not include FFmpeg messages.
-        /// </summary>
-        public event EventHandler<MediaLogMessagEventArgs> MessageLogged;
-
-        /// <summary>
         /// Raises the MessageLogged event
         /// </summary>
         /// <param name="eventArgs">The <see cref="MediaLogMessagEventArgs" /> instance containing the event data.</param>
@@ -273,11 +292,6 @@
         #endregion
 
         #region INotifyPropertyChanged Implementation
-
-        /// <summary>
-        /// Multicast event for property change notifications.
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
         /// Checks if a property already matches a desired value.  Sets the property and
@@ -319,14 +333,6 @@
         #endregion
 
         #region IDisposable Implementation
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-        }
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.

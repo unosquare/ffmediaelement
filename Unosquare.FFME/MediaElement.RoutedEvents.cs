@@ -6,12 +6,10 @@
     using System.Reflection;
     using System.Runtime.CompilerServices;
     using System.Windows;
-    using System.Windows.Media.Imaging;
     using System.Windows.Threading;
 
-    partial class MediaElement
+    public partial class MediaElement
     {
-
         #region Routed Event Registrations
 
         /// <summary>
@@ -176,6 +174,45 @@
         #region Helper Methods
 
         /// <summary>
+        /// Raises the media failed event.
+        /// </summary>
+        /// <param name="ex">The ex.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void RaiseMediaFailedEvent(Exception ex)
+        {
+            LogEventStart(MediaFailedEvent);
+            Logger.Log(MediaLogMessageType.Error, $"Media Failure - {ex?.GetType()}: {ex?.Message}");
+            Utils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(CreateExceptionRoutedEventArgs(MediaFailedEvent, this, ex)); });
+            LogEventDone(MediaFailedEvent);
+        }
+
+        /// <summary>
+        /// Raises the media opened event.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void RaiseMediaOpenedEvent()
+        {
+            LogEventStart(MediaOpenedEvent);
+            Utils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaOpenedEvent, this)); });
+            LogEventDone(MediaOpenedEvent);
+        }
+
+        /// <summary>
+        /// Raises the media opening event.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void RaiseMediaOpeningEvent()
+        {
+            LogEventStart(MediaOpeningEvent);
+            Utils.UIInvoke(DispatcherPriority.DataBind, () =>
+            {
+                RaiseEvent(new MediaOpeningRoutedEventArgs(MediaOpeningEvent, this, Container.MediaOptions, Container.MediaInfo));
+            });
+
+            LogEventDone(MediaOpeningEvent);
+        }
+
+        /// <summary>
         /// Creates a new instance of exception routed event arguments.
         /// This method exists because the constructor has not been made public for that class.
         /// </summary>
@@ -192,7 +229,7 @@
         /// <summary>
         /// Logs the start of an event
         /// </summary>
-        /// <param name="e">The e.</param>
+        /// <param name="e">The event.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void LogEventStart(RoutedEvent e)
         {
@@ -203,6 +240,7 @@
         /// <summary>
         /// Logs the end of an event.
         /// </summary>
+        /// <param name="e">The event.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void LogEventDone(RoutedEvent e)
         {
@@ -252,45 +290,6 @@
             LogEventStart(SeekingEndedEvent);
             Utils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(SeekingEndedEvent, this)); });
             LogEventDone(SeekingEndedEvent);
-        }
-
-        /// <summary>
-        /// Raises the media failed event.
-        /// </summary>
-        /// <param name="ex">The ex.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseMediaFailedEvent(Exception ex)
-        {
-            LogEventStart(MediaFailedEvent);
-            Logger.Log(MediaLogMessageType.Error, $"Media Failure - {ex?.GetType()}: {ex?.Message}");
-            Utils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(CreateExceptionRoutedEventArgs(MediaFailedEvent, this, ex)); });
-            LogEventDone(MediaFailedEvent);
-        }
-
-        /// <summary>
-        /// Raises the media opened event.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseMediaOpenedEvent()
-        {
-            LogEventStart(MediaOpenedEvent);
-            Utils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaOpenedEvent, this)); });
-            LogEventDone(MediaOpenedEvent);
-        }
-
-        /// <summary>
-        /// Raises the media opening event.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseMediaOpeningEvent()
-        {
-            LogEventStart(MediaOpeningEvent);
-            Utils.UIInvoke(DispatcherPriority.DataBind, () =>
-            {
-                RaiseEvent(new MediaOpeningRoutedEventArgs(MediaOpeningEvent, this, Container.MediaOptions, Container.MediaInfo));
-            });
-
-            LogEventDone(MediaOpeningEvent);
         }
 
         /// <summary>

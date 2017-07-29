@@ -204,47 +204,45 @@
         /// <returns>The star infos</returns>
         private static Dictionary<AVMediaType, StreamInfo> FindBestStreams(AVFormatContext* ic, ReadOnlyDictionary<int, StreamInfo> streams)
         {
-
             // Initialize and clear all the stream indexes.
             var streamIndexes = new Dictionary<AVMediaType, int>();
 
             for (var i = 0; i < (int)AVMediaType.AVMEDIA_TYPE_NB; i++)
                 streamIndexes[(AVMediaType)i] = -1;
 
-            { // Find best streams for each component
-                // if we passed null instead of the requestedCodec pointer, then
-                // find_best_stream would not validate whether a valid decoder is registed.
-                AVCodec* requestedCodec = null;
+            // Find best streams for each component
+            // if we passed null instead of the requestedCodec pointer, then
+            // find_best_stream would not validate whether a valid decoder is registed.
+            AVCodec* requestedCodec = null;
 
-                streamIndexes[AVMediaType.AVMEDIA_TYPE_VIDEO] =
-                    ffmpeg.av_find_best_stream(
-                        ic,
-                        AVMediaType.AVMEDIA_TYPE_VIDEO,
-                        streamIndexes[(int)AVMediaType.AVMEDIA_TYPE_VIDEO],
-                        -1,
-                        &requestedCodec,
-                        0);
+            streamIndexes[AVMediaType.AVMEDIA_TYPE_VIDEO] =
+                ffmpeg.av_find_best_stream(
+                    ic,
+                    AVMediaType.AVMEDIA_TYPE_VIDEO,
+                    streamIndexes[(int)AVMediaType.AVMEDIA_TYPE_VIDEO],
+                    -1,
+                    &requestedCodec,
+                    0);
 
-                streamIndexes[AVMediaType.AVMEDIA_TYPE_AUDIO] =
-                    ffmpeg.av_find_best_stream(
-                        ic,
-                        AVMediaType.AVMEDIA_TYPE_AUDIO,
-                        streamIndexes[AVMediaType.AVMEDIA_TYPE_AUDIO],
+            streamIndexes[AVMediaType.AVMEDIA_TYPE_AUDIO] =
+                ffmpeg.av_find_best_stream(
+                    ic,
+                    AVMediaType.AVMEDIA_TYPE_AUDIO,
+                    streamIndexes[AVMediaType.AVMEDIA_TYPE_AUDIO],
+                    streamIndexes[AVMediaType.AVMEDIA_TYPE_VIDEO],
+                    &requestedCodec,
+                    0);
+
+            streamIndexes[AVMediaType.AVMEDIA_TYPE_SUBTITLE] =
+                ffmpeg.av_find_best_stream(
+                    ic,
+                    AVMediaType.AVMEDIA_TYPE_SUBTITLE,
+                    streamIndexes[AVMediaType.AVMEDIA_TYPE_SUBTITLE],
+                    streamIndexes[AVMediaType.AVMEDIA_TYPE_AUDIO] >= 0 ?
+                        streamIndexes[AVMediaType.AVMEDIA_TYPE_AUDIO] :
                         streamIndexes[AVMediaType.AVMEDIA_TYPE_VIDEO],
-                        &requestedCodec,
-                        0);
-
-                streamIndexes[AVMediaType.AVMEDIA_TYPE_SUBTITLE] =
-                    ffmpeg.av_find_best_stream(
-                        ic,
-                        AVMediaType.AVMEDIA_TYPE_SUBTITLE,
-                        streamIndexes[AVMediaType.AVMEDIA_TYPE_SUBTITLE],
-                        streamIndexes[AVMediaType.AVMEDIA_TYPE_AUDIO] >= 0 ?
-                            streamIndexes[AVMediaType.AVMEDIA_TYPE_AUDIO] :
-                            streamIndexes[AVMediaType.AVMEDIA_TYPE_VIDEO],
-                        &requestedCodec,
-                        0);
-            }
+                    &requestedCodec,
+                    0);
 
             var result = new Dictionary<AVMediaType, StreamInfo>();
             foreach (var kvp in streamIndexes.Where(n => n.Value >= 0))
