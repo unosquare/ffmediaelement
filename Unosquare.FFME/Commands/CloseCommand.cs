@@ -51,7 +51,10 @@
             m.PacketReadingTask = null;
 
             // Call close on all renderers and clear them
-            foreach (var renderer in m.Renderers.Values) renderer.Close();
+            foreach (var renderer in m.Renderers.Values)
+                renderer.Close();
+
+            // Remove the renderers disposing of them
             m.Renderers.Clear();
 
             // Reset the clock

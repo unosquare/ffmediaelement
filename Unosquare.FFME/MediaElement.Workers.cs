@@ -106,6 +106,10 @@
             {
                 // Enter a read cycle
                 SeekingDone.WaitOne();
+
+                // Check if one of the commands has requested an exit
+                if (IsTaskCancellationPending) break;
+
                 PacketReadingCycle.Reset();
 
                 if (CanReadMorePackets && Container.Components.PacketBufferLength < DownloadCacheLength)
@@ -154,7 +158,8 @@
             }
 
             // Always exit notifying the reading cycle is done.
-            PacketReadingCycle.Set();
+            if (PacketReadingCycle.SafeWaitHandle.IsClosed == false)
+                PacketReadingCycle.Set();
         }
 
         #endregion
@@ -176,10 +181,10 @@
 
             // Holds the main media type
             var main = Container.Components.Main.MediaType;
-            
+
             // Holds the auxiliary media types
             var auxs = Container.Components.MediaTypes.Where(x => x != main).ToArray();
-            
+
             // Holds all components
             var all = Container.Components.MediaTypes.ToArray();
 
@@ -217,12 +222,14 @@
                     RaiseSeekingEndedEvent();
                 }
 
-                // Check if one of the commands has requested an exit
-                if (IsTaskCancellationPending) break;
-
                 // Wait for a seek operation to complete (if any)
                 // and initiate a frame decoding cycle.
                 SeekingDone.WaitOne();
+
+                // Check if one of the commands has requested an exit
+                if (IsTaskCancellationPending) break;
+
+                // Initiate the frame docding cycle
                 FrameDecodingCycle.Reset();
 
                 // Set initial state
@@ -329,7 +336,7 @@
                     while (comp.PacketBufferCount > 0 && blocks.RangeEndTime <= wallClock)
                     {
                         decodedFrameCount = AddBlocks(t);
-                        
+
                         // don't care if we are buffering
                         // always try to catch up by reading more packets.
                         if (comp.PacketBufferCount <= 0 && CanReadMorePackets)
@@ -415,7 +422,9 @@
                 #endregion
             }
 
-            FrameDecodingCycle.Set();
+            // Always exit notifying the cycle is done.
+            if (FrameDecodingCycle.SafeWaitHandle.IsClosed == false)
+                FrameDecodingCycle.Set();
         }
 
         #endregion
@@ -433,13 +442,13 @@
 
             // Holds the main media type
             var main = Container.Components.Main.MediaType;
-            
+
             // Holds the auxiliary media types
             var auxs = Container.Components.MediaTypes.Where(t => t != main).ToArray();
-            
+
             // Holds all components
             var all = Container.Components.MediaTypes.ToArray();
-            
+
             // Holds a snapshot of the current block to render
             var currentBlock = new MediaTypeDictionary<MediaBlock>();
 
@@ -533,7 +542,9 @@
                 #endregion
             }
 
-            BlockRenderingCycle.Set();
+            // Always exit notifying the cycle is done.
+            if (BlockRenderingCycle.SafeWaitHandle.IsClosed == false)
+                BlockRenderingCycle.Set();
         }
 
         #endregion
