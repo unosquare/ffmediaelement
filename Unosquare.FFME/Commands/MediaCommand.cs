@@ -56,6 +56,11 @@
         public async Task ExecuteAsync()
         {
             var m = Manager.MediaElement;
+
+            // Avoid processing the command if the element is disposed.
+            if (m.IsDisposed)
+                return;
+
             if (m.Commands.ExecutingCommand != null)
                 await m.Commands.ExecutingCommand.Promise;
 

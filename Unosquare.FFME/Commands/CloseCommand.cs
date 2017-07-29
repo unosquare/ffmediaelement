@@ -1,7 +1,6 @@
 ﻿namespace Unosquare.FFME.Commands
 {
     using Core;
-    using System;
     using System.Text;
     using System.Windows.Threading;
 
@@ -28,7 +27,7 @@
         {
             var m = Manager.MediaElement;
 
-            if (m.IsOpen == false || m.IsOpening) return;
+            if (m.IsDisposed || m.IsOpen == false || m.IsOpening) return;
 
             m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(CloseCommand)}: Entered");
             m.Clock.Pause();

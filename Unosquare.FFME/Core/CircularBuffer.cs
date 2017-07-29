@@ -21,7 +21,7 @@
         /// <summary>
         /// To detect redundant calls
         /// </summary>
-        private bool IsDisposed = false; // To detect redundant calls
+        private bool IsDisposed = false;
 
         /// <summary>
         /// The unbmanaged buffer

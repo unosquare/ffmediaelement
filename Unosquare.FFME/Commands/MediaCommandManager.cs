@@ -1,10 +1,12 @@
 ﻿namespace Unosquare.FFME.Commands
 {
+    using Core;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Windows.Threading;
 
     internal sealed class MediaCommandManager
     {
@@ -186,11 +188,11 @@
 
             // Process the command in a background thread as opposed
             // to in the thread that it was called to prevent blocking.
-            await Task.Run(async () =>
+            await Dispatcher.CurrentDispatcher.PumpInvokeAsync((Action)(() => 
             {
                 var command = new CloseCommand(this);
-                await command.ExecuteAsync();
-            });
+                command.Execute();
+            }));
         }
 
         /// <summary>

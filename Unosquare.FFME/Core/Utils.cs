@@ -10,6 +10,7 @@
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
     using System.Text;
     using System.Threading;
@@ -167,6 +168,7 @@
         /// <param name="value">The value.</param>
         /// <param name="multiple">The multiple.</param>
         /// <returns>The value</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double ToMultipleOf(this double value, double multiple)
         {
             var factor = (int)(value / multiple);
@@ -179,6 +181,7 @@
         /// <param name="pts">The PTS.</param>
         /// <param name="timeBase">The time base.</param>
         /// <returns>The TimeSpan</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TimeSpan ToTimeSpan(this double pts, AVRational timeBase)
         {
             if (double.IsNaN(pts) || pts == Utils.FFmpeg.AV_NOPTS)
@@ -196,6 +199,7 @@
         /// <param name="pts">The PTS.</param>
         /// <param name="timeBase">The time base.</param>
         /// <returns>The TimeSpan</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TimeSpan ToTimeSpan(this long pts, AVRational timeBase)
         {
             return ((double)pts).ToTimeSpan(timeBase);
@@ -207,6 +211,7 @@
         /// <param name="pts">The PTS in seconds.</param>
         /// <param name="timeBase">The time base.</param>
         /// <returns>The TimeSpan</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TimeSpan ToTimeSpan(this double pts, double timeBase)
         {
             if (double.IsNaN(pts) || pts == Utils.FFmpeg.AV_NOPTS)
@@ -221,6 +226,7 @@
         /// <param name="pts">The PTS.</param>
         /// <param name="timeBase">The time base.</param>
         /// <returns>The TimeSpan</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TimeSpan ToTimeSpan(this long pts, double timeBase)
         {
             return ((double)pts).ToTimeSpan(timeBase);
@@ -231,6 +237,7 @@
         /// </summary>
         /// <param name="pts">The PTS.</param>
         /// <returns>The TimeSpan</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TimeSpan ToTimeSpan(this double pts)
         {
             return ToTimeSpan(pts, ffmpeg.AV_TIME_BASE);
@@ -241,6 +248,7 @@
         /// </summary>
         /// <param name="pts">The PTS.</param>
         /// <returns>The TimeSpan</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TimeSpan ToTimeSpan(this long pts)
         {
             return ((double)pts).ToTimeSpan();
@@ -251,29 +259,10 @@
         /// </summary>
         /// <param name="rational">The rational.</param>
         /// <returns>The value</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double ToDouble(this AVRational rational)
         {
             return (double)rational.num / rational.den;
-        }
-
-        /// <summary>
-        /// Rounds the ticks.
-        /// </summary>
-        /// <param name="ticks">The ticks.</param>
-        /// <returns>The ticks</returns>
-        public static long RoundTicks(this long ticks)
-        {
-            return Convert.ToInt64(Convert.ToDouble(ticks) / 1000d) * 1000;
-        }
-
-        /// <summary>
-        /// Rounds the seconds to 4 decimals.
-        /// </summary>
-        /// <param name="seconds">The seconds.</param>
-        /// <returns>The seconds</returns>
-        public static decimal RoundSeconds(this decimal seconds)
-        {
-            return Math.Round(seconds, 4);
         }
 
         #endregion
@@ -343,6 +332,89 @@
         #endregion
 
         #region Dispatching
+
+        /// <summary>
+        /// Promises the delay.
+        /// </summary>
+        /// <param name="timeoutMilliseconds">The timeout milliseconds.</param>
+        /// <returns>
+        /// The awaitable task
+        /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task PromiseDelay(double timeoutMilliseconds = 1)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+            var timer = new System.Timers.Timer
+            {
+                Interval = timeoutMilliseconds,
+                AutoReset = false,
+            };
+
+            timer.Elapsed += (s, e) =>
+            {
+                tcs.TrySetResult(true);
+                timer.Dispose();
+            };
+
+            timer.Start();
+
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Invoke the given action asynchronously by starting a new background thread and continuing
+        /// dispatcher processing. This method is somewhat expensive but it guarantees
+        /// pending operations on the selected dispatcher do not cause a deadlock.
+        /// </summary>
+        /// <param name="dispatcher">The dispatcher.</param>
+        /// <param name="action">The action.</param>
+        /// <param name="args">The arguments.</param>
+        /// <returns>The awaitable promise.</returns>
+        public static Task PumpInvokeAsync(this Dispatcher dispatcher, Delegate action, params object[] args)
+        {
+            var completer = new TaskCompletionSource<bool>();
+
+            // exit if we don't have a valid dispatcher
+            if (dispatcher == null || dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)
+            {
+                completer.TrySetResult(true);
+                return completer.Task;
+            }
+
+            var threadFinished = new ManualResetEvent(false);
+            ThreadPool.QueueUserWorkItem(async (o) =>
+            {
+                await dispatcher?.InvokeAsync(() =>
+                {
+                    action.DynamicInvoke(o as object[]);
+                });
+                threadFinished.Set();
+                completer.TrySetResult(true);
+            }, args);
+
+            // The pumping of queued operations begins here.
+            do
+            {
+                // Error condition checking
+                if (dispatcher == null || dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)
+                    break;
+
+                try
+                {
+                    // Force the processing of the queue by pumping a new message at lower priority
+                    dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
+                }
+                catch
+                {
+                    break;
+                }
+            }
+            while (threadFinished.WaitOne(1) == false);
+
+            threadFinished.Dispose();
+            threadFinished = null;
+            return completer.Task;
+        }
 
         /// <summary>
         /// Invokes the specified delegate on the specified dispatcher.

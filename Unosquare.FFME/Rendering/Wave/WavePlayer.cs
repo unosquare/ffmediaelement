@@ -214,8 +214,10 @@
             // in the call to waveOutReset with function callbacks
             // some drivers will block here until OnDone is called
             // for every buffer
-            m_PlaybackState = PlaybackState.Stopped; // set this here to avoid a problem with some drivers whereby 
-            MmResult result;
+            m_PlaybackState = PlaybackState.Stopped; // set this here to avoid a problem with some drivers whereby
+            CallbackEvent?.WaitOne(DesiredLatency);
+
+            MmResult result = default(MmResult);
             lock (WaveOutLock)
                 result = WaveInterop.NativeMethods.waveOutReset(DeviceHandle);
 
@@ -265,15 +267,13 @@
         /// <summary>
         /// Closes the WaveOut device and disposes of buffers
         /// </summary>
-        /// <param name="disposing">True if called from <see>Dispose</see></param>
-        protected void Dispose(bool disposing)
+        /// <param name="alsoManaged">True if called from <see>Dispose</see></param>
+        protected void Dispose(bool alsoManaged)
         {
             Stop();
 
-            if (disposing)
-            {
+            if (alsoManaged)
                 DisposeBuffers();
-            }
 
             CloseWaveOut();
         }
@@ -310,6 +310,7 @@
             }
             finally
             {
+                CallbackEvent?.Set();
                 m_PlaybackState = PlaybackState.Stopped;
             }
         }

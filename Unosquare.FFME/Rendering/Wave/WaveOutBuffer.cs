@@ -82,7 +82,8 @@
         }
 
         /// <summary>
-        /// this is called by the WAVE callback and should be used to refill the buffer
+        /// this is called by the Wave callback and should be used to refill the buffer.
+        /// This calls the .Read method on the stream
         /// </summary>
         /// <returns>true when bytes were written. False if no bytes were written.</returns>
         internal bool OnDone()

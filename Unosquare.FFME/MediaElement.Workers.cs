@@ -150,7 +150,7 @@
 
                 // Wait some if we have a full packet buffer or we are unable to read more packets (i.e. EOF).
                 if (Container.Components.PacketBufferLength >= DownloadCacheLength || CanReadMorePackets == false || currentBytesRead <= 0)
-                    await ThreadTiming.PromiseDelay(10);
+                    await Utils.PromiseDelay();
             }
 
             // Always exit notifying the reading cycle is done.
@@ -410,7 +410,7 @@
                 // Give it a break if there was nothing to decode.
                 // We probably need to wait for some more input
                 if (decodedFrameCount <= 0 && Commands.PendingCount <= 0)
-                    await ThreadTiming.PromiseDelay(10);
+                    await Utils.PromiseDelay();
 
                 #endregion
             }
@@ -528,7 +528,7 @@
 
                 // Spin the thread for a bit if we have no more stuff to process
                 if (renderedBlockCount <= 0 && Commands.PendingCount <= 0)
-                    await ThreadTiming.PromiseDelay(10);
+                    await Utils.PromiseDelay();
 
                 #endregion
             }

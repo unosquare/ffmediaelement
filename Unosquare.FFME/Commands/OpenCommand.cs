@@ -37,6 +37,8 @@
         {
             var m = Manager.MediaElement;
 
+            if (m.IsDisposed || m.IsOpen || m.IsOpening) return;
+
             try
             {
                 // Register FFmpeg if not already done

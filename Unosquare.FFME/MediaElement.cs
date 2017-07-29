@@ -47,6 +47,11 @@
         internal volatile bool IsPositionUpdating = false;
 
         /// <summary>
+        /// To detect redundant calls
+        /// </summary>
+        internal bool IsDisposed = false;
+
+        /// <summary>
         /// The ffmpeg directory
         /// </summary>
         private static string m_FFmpegDirectory = null;
@@ -340,6 +345,8 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
+            if (IsDisposed) return;
+
             if (alsoManaged)
             {
                 // free managed resources
@@ -363,6 +370,8 @@
                 BlockRenderingCycle.Dispose();
                 SeekingDone.Dispose();
             }
+
+            IsDisposed = true;
         }
 
         #endregion

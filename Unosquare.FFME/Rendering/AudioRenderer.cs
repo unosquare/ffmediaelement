@@ -426,16 +426,8 @@
         {
             try
             {
-                WaitForReadyEvent.Reset();
-
-                // Remove the event handler
                 if (Application.Current != null)
-                {
-                    Utils.UIInvoke(DispatcherPriority.Normal, () =>
-                    {
-                        Application.Current.Exit -= OnApplicationExit;
-                    });
-                }
+                    Application.Current.Exit -= OnApplicationExit;
             }
             catch { }
 
@@ -669,7 +661,6 @@
                 if (alsoManaged)
                 {
                     Destroy();
-                    WaitForReadyEvent.Set();
                     WaitForReadyEvent.Dispose();
                 }
 
