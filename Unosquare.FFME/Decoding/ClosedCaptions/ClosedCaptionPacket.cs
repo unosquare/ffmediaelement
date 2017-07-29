@@ -417,14 +417,36 @@
 
             if (D0 == 0x12 || D0 == 0x1A)
             {
-                if (Spanish.ContainsKey(D1)) { Channel = 1; Text = Spanish[D1]; return; }
-                if (French.ContainsKey(D1)) { Channel = 2; Text = French[D1]; return; }
+                if (Spanish.ContainsKey(D1))
+                {
+                    Channel = 1;
+                    Text = Spanish[D1];
+                    return;
+                }
+
+                if (French.ContainsKey(D1))
+                {
+                    Channel = 2;
+                    Text = French[D1];
+                    return;
+                }
             }
 
             if (D0 == 0x13 || D0 == 0x1B)
             {
-                if (Portuguese.ContainsKey(D1)) { Channel = 1; Text = Portuguese[D1]; return; }
-                if (German.ContainsKey(D1)) { Channel = 2; Text = German[D1]; return; }
+                if (Portuguese.ContainsKey(D1))
+                {
+                    Channel = 1;
+                    Text = Portuguese[D1];
+                    return;
+                }
+
+                if (German.ContainsKey(D1))
+                {
+                    Channel = 2;
+                    Text = German[D1];
+                    return;
+                }
             }
 
             // Basic North American character set (2 chars)

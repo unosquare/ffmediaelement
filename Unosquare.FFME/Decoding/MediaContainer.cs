@@ -353,7 +353,9 @@
         /// Packets are queued internally. To dequeue them you need to call the receive frames
         /// method of each component until the packet buffer count becomes 0.
         /// </summary>
-        /// <exception cref="MediaContainerException"></exception>
+        /// <returns>The media type of the packet that was read</returns>
+        /// <exception cref="InvalidOperationException">No input context initialized</exception>
+        /// <exception cref="MediaContainerException">When a read error occurs</exception>
         public MediaType Read()
         {
             lock (ReadSyncRoot)
@@ -889,7 +891,6 @@
         /// Supports byte seeking.
         /// </summary>
         /// <param name="targetTime">The target time.</param>
-        /// <param name="doPreciseSeek">if set to <c>true</c> [do precise seek].</param>
         /// <returns>The list of media frames</returns>
         private List<MediaFrame> StreamSeek(TimeSpan targetTime)
         {

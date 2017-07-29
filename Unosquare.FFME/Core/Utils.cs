@@ -25,14 +25,9 @@
     {
         #region Private Declarations
 
-        private static bool? m_IsInDesignTime;
-        private static bool? m_IsInDebugMode;
-
-        private static bool HasFFmpegRegistered = false;
-        private static string FFmpegRegisterPath = null;
         private static readonly object FFmpegRegisterLock = new object();
-
         private static unsafe readonly av_log_set_callback_callback FFmpegLogCallback = FFmpegLog;
+        
         private static readonly DispatcherTimer LogOutputter = null;
         private static readonly object LogSyncLock = new object();
         private static readonly List<string> FFmpegLogBuffer = new List<string>();
@@ -41,12 +36,17 @@
         private static unsafe readonly av_lockmgr_register_cb FFmpegLockManagerCallback = FFmpegManageLocking;
         private static readonly Dictionary<IntPtr, ManualResetEvent> FFmpegOpDone = new Dictionary<IntPtr, ManualResetEvent>();
 
+        private static bool? m_IsInDesignTime;
+        private static bool? m_IsInDebugMode;
+        private static bool HasFFmpegRegistered = false;
+        private static string FFmpegRegisterPath = null;
+
         #endregion
 
         #region Initialization
 
         /// <summary>
-        /// Initializes the <see cref="Utils"/> class.
+        /// Initializes static members of the <see cref="Utils"/> class.
         /// </summary>
         static Utils()
         {
@@ -63,17 +63,6 @@
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Gets the assembly location.
-        /// </summary>
-        private static string AssemblyLocation
-        {
-            get
-            {
-                return Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
-            }
-        }
 
         /// <summary>
         /// Determines if we are currently in Design Time
@@ -114,6 +103,17 @@
         public static Dispatcher UIDispatcher
         {
             get { return Application.Current?.Dispatcher; }
+        }
+
+        /// <summary>
+        /// Gets the assembly location.
+        /// </summary>
+        private static string AssemblyLocation
+        {
+            get
+            {
+                return Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
+            }
         }
 
         #endregion
@@ -184,9 +184,9 @@
                 return TimeSpan.MinValue;
 
             if (timeBase.den == 0)
-                return TimeSpan.FromTicks((long)Math.Round(TimeSpan.TicksPerMillisecond * 1000 * pts / ffmpeg.AV_TIME_BASE, 0)); //) .FromSeconds(pts / ffmpeg.AV_TIME_BASE);
+                return TimeSpan.FromTicks((long)Math.Round(TimeSpan.TicksPerMillisecond * 1000 * pts / ffmpeg.AV_TIME_BASE, 0));
 
-            return TimeSpan.FromTicks((long)Math.Round(TimeSpan.TicksPerMillisecond * 1000 * pts * timeBase.num / timeBase.den, 0)); //pts * timeBase.num / timeBase.den);
+            return TimeSpan.FromTicks((long)Math.Round(TimeSpan.TicksPerMillisecond * 1000 * pts * timeBase.num / timeBase.den, 0));
         }
 
         /// <summary>
@@ -211,7 +211,7 @@
             if (double.IsNaN(pts) || pts == Utils.FFmpeg.AV_NOPTS)
                 return TimeSpan.MinValue;
 
-            return TimeSpan.FromTicks((long)Math.Round(TimeSpan.TicksPerMillisecond * 1000 * pts / timeBase, 0)); //pts / timeBase);
+            return TimeSpan.FromTicks((long)Math.Round(TimeSpan.TicksPerMillisecond * 1000 * pts / timeBase, 0));
         }
 
         /// <summary>
@@ -286,7 +286,7 @@
         /// </summary>
         /// <param name="overridePath">The override path.</param>
         /// <returns>Returns the path that FFmpeg was registered from.</returns>
-        /// <exception cref="System.IO.FileNotFoundException"></exception>
+        /// <exception cref="System.IO.FileNotFoundException">When the folder is not found</exception>
         public static unsafe string RegisterFFmpeg(string overridePath)
         {
             lock (FFmpegRegisterLock)

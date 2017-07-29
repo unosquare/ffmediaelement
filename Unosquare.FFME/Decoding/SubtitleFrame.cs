@@ -8,9 +8,10 @@
 
     /// <summary>
     /// Represents a wrapper for an unmanaged Subtitle frame.
-    /// TODO: Only text subtitles are supported currently
+    /// TODO: Only text (ASS and SRT) subtitles are supported currently.
+    /// There is no support to bitmap subtitles.
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.Core.MediaFrame" />
+    /// <seealso cref="Unosquare.FFME.Decoding.MediaFrame" />
     internal unsafe sealed class SubtitleFrame : MediaFrame
     {
         #region Private Members

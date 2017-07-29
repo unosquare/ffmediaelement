@@ -9,29 +9,28 @@
     /// </summary>
     public class ClosedCaptionCollection
     {
-
         private int CurrentNtscField = 1;
         private int CurrentChannel = 1;
 
         /// <summary>
         /// The CC1 Track Packets
         /// </summary>
-        public readonly List<ClosedCaptionPacket> CC1 = new List<ClosedCaptionPacket>();
+        public List<ClosedCaptionPacket> CC1 { get; } = new List<ClosedCaptionPacket>();
 
         /// <summary>
         /// The CC2 Track Packets
         /// </summary>
-        public readonly List<ClosedCaptionPacket> CC2 = new List<ClosedCaptionPacket>();
+        public List<ClosedCaptionPacket> CC2 { get; } = new List<ClosedCaptionPacket>();
 
         /// <summary>
         /// The CC3 Track Packets
         /// </summary>
-        public readonly List<ClosedCaptionPacket> CC3 = new List<ClosedCaptionPacket>();
+        public List<ClosedCaptionPacket> CC3 { get; } = new List<ClosedCaptionPacket>();
 
         /// <summary>
         /// The CC4 Track Packets
         /// </summary>
-        public readonly List<ClosedCaptionPacket> CC4 = new List<ClosedCaptionPacket>();
+        public List<ClosedCaptionPacket> CC4 { get; } = new List<ClosedCaptionPacket>();
 
         /// <summary>
         /// Adds the specified packet and automatically places it on the right track.

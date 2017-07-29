@@ -38,48 +38,13 @@
         }
 
         /// <summary>
-        /// Initializes the target bitmap. Pass a null block to initialize with the default video properties.
-        /// </summary>
-        /// <param name="block">The block.</param>
-        private void InitializeTargetBitmap(VideoBlock block)
-        {
-            Utils.UIInvoke(DispatcherPriority.Normal, () =>
-            {
-                var visual = PresentationSource.FromVisual(MediaElement);
-
-                var dpiX = 96.0 * visual?.CompositionTarget?.TransformToDevice.M11 ?? 96.0;
-                var dpiY = 96.0 * visual?.CompositionTarget?.TransformToDevice.M22 ?? 96.0;
-
-                var pixelWidth = block?.PixelWidth ?? MediaElement.NaturalVideoWidth;
-                var pixelHeight = block?.PixelHeight ?? MediaElement.NaturalVideoHeight;
-
-                if (MediaElement.HasVideo && pixelWidth > 0 && pixelHeight > 0)
-                {
-                    TargetBitmap = new WriteableBitmap(
-                        block?.PixelWidth ?? MediaElement.NaturalVideoWidth,
-                        block?.PixelHeight ?? MediaElement.NaturalVideoHeight,
-                        dpiX,
-                        dpiY,
-                        PixelFormats.Bgr24,
-                        null);
-                }
-                else
-                {
-                    TargetBitmap = null;
-                }
-
-                MediaElement.ViewBox.Source = TargetBitmap;
-            });
-        }
-
-        #endregion
-
-        #region Public API
-
-        /// <summary>
         /// Gets the parent media element.
         /// </summary>
         public MediaElement MediaElement { get; private set; }
+
+        #endregion
+
+        #region Methods
 
         /// <summary>
         /// Executed when the Play method is called on the parent MediaElement
@@ -214,5 +179,40 @@
         }
 
         #endregion
+
+        /// <summary>
+        /// Initializes the target bitmap. Pass a null block to initialize with the default video properties.
+        /// </summary>
+        /// <param name="block">The block.</param>
+        private void InitializeTargetBitmap(VideoBlock block)
+        {
+            Utils.UIInvoke(DispatcherPriority.Normal, () =>
+            {
+                var visual = PresentationSource.FromVisual(MediaElement);
+
+                var dpiX = 96.0 * visual?.CompositionTarget?.TransformToDevice.M11 ?? 96.0;
+                var dpiY = 96.0 * visual?.CompositionTarget?.TransformToDevice.M22 ?? 96.0;
+
+                var pixelWidth = block?.PixelWidth ?? MediaElement.NaturalVideoWidth;
+                var pixelHeight = block?.PixelHeight ?? MediaElement.NaturalVideoHeight;
+
+                if (MediaElement.HasVideo && pixelWidth > 0 && pixelHeight > 0)
+                {
+                    TargetBitmap = new WriteableBitmap(
+                        block?.PixelWidth ?? MediaElement.NaturalVideoWidth,
+                        block?.PixelHeight ?? MediaElement.NaturalVideoHeight,
+                        dpiX,
+                        dpiY,
+                        PixelFormats.Bgr24,
+                        null);
+                }
+                else
+                {
+                    TargetBitmap = null;
+                }
+
+                MediaElement.ViewBox.Source = TargetBitmap;
+            });
+        }
     }
 }

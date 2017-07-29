@@ -28,9 +28,9 @@
         }
 
         /// <summary>
-        /// Creates a Dictionary based on a KVP array of strings
+        /// Initializes a new instance of the <see cref="FFDictionary"/> class.
         /// </summary>
-        /// <param name="other"></param>
+        /// <param name="other">The other.</param>
         public FFDictionary(Dictionary<string, string> other)
         {
             Fill(other);
@@ -86,14 +86,13 @@
         /// <returns>the converterd dictionary</returns>
         public static Dictionary<string, string> ToDictionary(AVDictionary* dictionary)
         {
-
             var result = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
-            var metadataEntry = ffmpeg.av_dict_get(dictionary, "", null, ffmpeg.AV_DICT_IGNORE_SUFFIX);
+            var metadataEntry = ffmpeg.av_dict_get(dictionary, string.Empty, null, ffmpeg.AV_DICT_IGNORE_SUFFIX);
             while (metadataEntry != null)
             {
                 result[Utils.PtrToString(metadataEntry->key)] = Utils.PtrToString(metadataEntry->value);
-                metadataEntry = ffmpeg.av_dict_get(dictionary, "", metadataEntry, ffmpeg.AV_DICT_IGNORE_SUFFIX);
+                metadataEntry = ffmpeg.av_dict_get(dictionary, string.Empty, metadataEntry, ffmpeg.AV_DICT_IGNORE_SUFFIX);
             }
 
             return result;
@@ -130,7 +129,7 @@
                 return null;
 
             var priorEntry = prior == null ? null : prior.Pointer;
-            var nextEntry = ffmpeg.av_dict_get(Pointer, "", priorEntry, ffmpeg.AV_DICT_IGNORE_SUFFIX);
+            var nextEntry = ffmpeg.av_dict_get(Pointer, string.Empty, priorEntry, ffmpeg.AV_DICT_IGNORE_SUFFIX);
             return new FFDictionaryEntry(nextEntry);
         }
 

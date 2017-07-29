@@ -1,15 +1,20 @@
-#pragma warning disable IDE1006 // Naming Styles
+﻿#pragma warning disable IDE1006 // Naming Styles
 
 namespace Unosquare.FFME.Rendering.Wave
 {
     using System;
     using System.Runtime.InteropServices;
-
+    
     /// <summary>
     /// MME Wave function interop
     /// </summary>
     internal class WaveInterop
     {
+        // use the userdata as a reference
+        // WaveOutProc http://msdn.microsoft.com/en-us/library/dd743869%28VS.85%29.aspx
+        // WaveInProc http://msdn.microsoft.com/en-us/library/dd743849%28VS.85%29.aspx
+        public delegate void WaveCallback(IntPtr hWaveOut, WaveMessage message, IntPtr dwInstance, WaveHeader wavhdr, IntPtr dwReserved);
+
         [Flags]
         public enum WaveInOutOpenFlags
         {
@@ -88,11 +93,6 @@ namespace Unosquare.FFME.Rendering.Wave
             /// </summary>
             WaveOutOpen = 0x3BB
         }
-
-        // use the userdata as a reference
-        // WaveOutProc http://msdn.microsoft.com/en-us/library/dd743869%28VS.85%29.aspx
-        // WaveInProc http://msdn.microsoft.com/en-us/library/dd743849%28VS.85%29.aspx
-        public delegate void WaveCallback(IntPtr hWaveOut, WaveMessage message, IntPtr dwInstance, WaveHeader wavhdr, IntPtr dwReserved);
 
         public static class NativeMethods
         {
@@ -205,180 +205,6 @@ namespace Unosquare.FFME.Rendering.Wave
         {
             return String.Format("{0} calling {1}", result, function);
         }
-    }
-
-    /// <summary>
-    /// Windows multimedia error codes from mmsystem.h.
-    /// </summary>
-    internal enum MmResult
-    {
-        /// <summary>no error, MMSYSERR_NOERROR</summary>
-        NoError = 0,
-        
-        /// <summary>unspecified error, MMSYSERR_ERROR</summary>
-        UnspecifiedError = 1,
-        
-        /// <summary>device ID out of range, MMSYSERR_BADDEVICEID</summary>
-        BadDeviceId = 2,
-        
-        /// <summary>driver failed enable, MMSYSERR_NOTENABLED</summary>
-        NotEnabled = 3,
-        
-        /// <summary>device already allocated, MMSYSERR_ALLOCATED</summary>
-        AlreadyAllocated = 4,
-        
-        /// <summary>device handle is invalid, MMSYSERR_INVALHANDLE</summary>
-        InvalidHandle = 5,
-        
-        /// <summary>no device driver present, MMSYSERR_NODRIVER</summary>
-        NoDriver = 6,
-        
-        /// <summary>memory allocation error, MMSYSERR_NOMEM</summary>
-        MemoryAllocationError = 7,
-        
-        /// <summary>function isn't supported, MMSYSERR_NOTSUPPORTED</summary>
-        NotSupported = 8,
-        
-        /// <summary>error value out of range, MMSYSERR_BADERRNUM</summary>
-        BadErrorNumber = 9,
-        
-        /// <summary>invalid flag passed, MMSYSERR_INVALFLAG</summary>
-        InvalidFlag = 10,
-        
-        /// <summary>invalid parameter passed, MMSYSERR_INVALPARAM</summary>
-        InvalidParameter = 11,
-        
-        /// <summary>handle being used simultaneously on another thread (eg callback),MMSYSERR_HANDLEBUSY</summary>
-        HandleBusy = 12,
-        
-        /// <summary>specified alias not found, MMSYSERR_INVALIDALIAS</summary>
-        InvalidAlias = 13,
-        
-        /// <summary>bad registry database, MMSYSERR_BADDB</summary>
-        BadRegistryDatabase = 14,
-        
-        /// <summary>registry key not found, MMSYSERR_KEYNOTFOUND</summary>
-        RegistryKeyNotFound = 15,
-        
-        /// <summary>registry read error, MMSYSERR_READERROR</summary>
-        RegistryReadError = 16,
-        
-        /// <summary>registry write error, MMSYSERR_WRITEERROR</summary>
-        RegistryWriteError = 17,
-        
-        /// <summary>registry delete error, MMSYSERR_DELETEERROR</summary>
-        RegistryDeleteError = 18,
-        
-        /// <summary>registry value not found, MMSYSERR_VALNOTFOUND</summary>
-        RegistryValueNotFound = 19,
-        
-        /// <summary>driver does not call DriverCallback, MMSYSERR_NODRIVERCB</summary>
-        NoDriverCallback = 20,
-        
-        /// <summary>more data to be returned, MMSYSERR_MOREDATA</summary>
-        MoreData = 21,
-
-        /// <summary>unsupported wave format, WAVERR_BADFORMAT</summary>
-        WaveBadFormat = 32,
-        
-        /// <summary>still something playing, WAVERR_STILLPLAYING</summary>
-        WaveStillPlaying = 33,
-        
-        /// <summary>header not prepared, WAVERR_UNPREPARED</summary>
-        WaveHeaderUnprepared = 34,
-        
-        /// <summary>device is synchronous, WAVERR_SYNC</summary>
-        WaveSync = 35,
-
-        // ACM error codes, found in msacm.h
-
-        /// <summary>Conversion not possible (ACMERR_NOTPOSSIBLE)</summary>
-        AcmNotPossible = 512,
-        
-        /// <summary>Busy (ACMERR_BUSY)</summary>
-        AcmBusy = 513,
-        
-        /// <summary>Header Unprepared (ACMERR_UNPREPARED)</summary>
-        AcmHeaderUnprepared = 514,
-        
-        /// <summary>Cancelled (ACMERR_CANCELED)</summary>
-        AcmCancelled = 515,
-
-        // Mixer error codes, found in mmresult.h
-
-        /// <summary>invalid line (MIXERR_INVALLINE)</summary>
-        MixerInvalidLine = 1024,
-        
-        /// <summary>invalid control (MIXERR_INVALCONTROL)</summary>
-        MixerInvalidControl = 1025,
-        
-        /// <summary>invalid value (MIXERR_INVALVALUE)</summary>
-        MixerInvalidValue = 1026,
-    }
-
-    /// <summary>
-    /// http://msdn.microsoft.com/en-us/library/dd757347(v=VS.85).aspx
-    /// </summary>
-    [StructLayout(LayoutKind.Explicit)]
-    internal struct MmTime
-    {
-        public const int TIME_MS = 0x0001;
-        public const int TIME_SAMPLES = 0x0002;
-        public const int TIME_BYTES = 0x0004;
-
-        [FieldOffset(0)]
-        public UInt32 wType;
-        [FieldOffset(4)]
-        public UInt32 ms;
-        [FieldOffset(4)]
-        public UInt32 sample;
-        [FieldOffset(4)]
-        public UInt32 cb;
-        [FieldOffset(4)]
-        public UInt32 ticks;
-        [FieldOffset(4)]
-        public Byte smpteHour;
-        [FieldOffset(5)]
-        public Byte smpteMin;
-        [FieldOffset(6)]
-        public Byte smpteSec;
-        [FieldOffset(7)]
-        public Byte smpteFrame;
-        [FieldOffset(8)]
-        public Byte smpteFps;
-        [FieldOffset(9)]
-        public Byte smpteDummy;
-        [FieldOffset(10)]
-        public Byte smptePad0;
-        [FieldOffset(11)]
-        public Byte smptePad1;
-        [FieldOffset(4)]
-        public UInt32 midiSongPtrPos;
-    }
-
-    /// <summary>
-    /// Flags indicating what features this WaveOut device supports
-    /// </summary>
-    [Flags]
-    internal enum WaveOutSupport
-    {
-        /// <summary>supports pitch control (WAVECAPS_PITCH)</summary>
-        Pitch = 0x0001,
-        
-        /// <summary>supports playback rate control (WAVECAPS_PLAYBACKRATE)</summary>
-        PlaybackRate = 0x0002,
-        
-        /// <summary>supports volume control (WAVECAPS_VOLUME)</summary>
-        Volume = 0x0004,
-        
-        /// <summary>supports separate left-right volume control (WAVECAPS_LRVOLUME)</summary>
-        LRVolume = 0x0008,
-        
-        /// <summary>(WAVECAPS_SYNC)</summary>
-        Sync = 0x0010,
-        
-        /// <summary>(WAVECAPS_SAMPLEACCURATE)</summary>
-        SampleAccurate = 0x0020,
     }
 }
 

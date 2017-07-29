@@ -304,7 +304,6 @@
             if (alsoManaged)
             {
                 // free managed resources
-
                 Commands.Close().GetAwaiter().GetResult();
 
                 if (Container != null)

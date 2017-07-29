@@ -19,7 +19,9 @@
     {
         #region Private Members
 
+        private readonly ManualResetEvent WaitForReadyEvent = new ManualResetEvent(false);
         private readonly object SyncLock = new object();
+
         private WavePlayer AudioDevice;
         private CircularBuffer AudioBuffer;
         private bool IsDisposed = false;
@@ -36,8 +38,6 @@
         private int BytesPerSample = 2;
         private double SyncThesholdMilliseconds = 0d;
         private int SampleBlockSize = 0;
-
-        private readonly ManualResetEvent WaitForReadyEvent = new ManualResetEvent(false);
 
         #endregion
 
@@ -59,44 +59,17 @@
                 Initialize();
 
             if (Application.Current != null)
+            {
                 Utils.UIInvoke(DispatcherPriority.Normal, () =>
                 {
                     Application.Current.Exit += OnApplicationExit;
                 });
-        }
-
-        private void OnApplicationExit(object sender, ExitEventArgs e)
-        {
-            try { Dispose(); }
-            catch { }
+            }
         }
 
         #endregion
 
         #region Initialization and Destruction
-
-        /// <summary>
-        /// Initializes the audio renderer.
-        /// Call the Play Method to start reading samples
-        /// </summary>
-        private void Initialize()
-        {
-            Destroy();
-
-            AudioDevice = new WavePlayer(this)
-            {
-                DesiredLatency = 200,
-                NumberOfBuffers = 2,
-            };
-
-            SyncThesholdMilliseconds = 0.05 * DesiredLatency.TotalMilliseconds; // ~5% sync threshold for audio samples 
-            BytesPerSample = WaveFormat.BitsPerSample / 8;
-            SampleBlockSize = BytesPerSample * WaveFormat.Channels;
-
-            var bufferLength = WaveFormat.ConvertLatencyToByteSize(AudioDevice.DesiredLatency) * MediaElement.Blocks[MediaType.Audio].Capacity / 2;
-            AudioBuffer = new CircularBuffer(bufferLength);
-            AudioDevice.Init(this);
-        }
 
         /// <summary>
         /// Destroys the audio renderer.
@@ -110,10 +83,12 @@
 
                 // Remove the event handler
                 if (Application.Current != null)
+                {
                     Utils.UIInvoke(DispatcherPriority.Normal, () =>
                     {
                         Application.Current.Exit -= OnApplicationExit;
                     });
+                }
             }
             catch { }
 
@@ -156,7 +131,10 @@
         /// </value>
         public double Volume
         {
-            get { return Thread.VolatileRead(ref m_Volume); }
+            get
+            {
+                return Thread.VolatileRead(ref m_Volume);
+            }
             set
             {
                 if (value < 0) value = 0;
@@ -176,7 +154,10 @@
         /// </summary>
         public double Balance
         {
-            get { return Thread.VolatileRead(ref m_Balance); }
+            get
+            {
+                return Thread.VolatileRead(ref m_Balance);
+            }
             set
             {
                 if (value < -1.0) value = -1.0;
@@ -221,9 +202,10 @@
                 {
                     // if we don't have a valid write tag it's just wahtever has been read from the audio buffer
                     if (AudioBuffer.WriteTag == TimeSpan.MinValue)
-                        return TimeSpan.FromMilliseconds(
-                            (long)Math.Round(
-                                TimeSpan.TicksPerMillisecond * 1000d * (AudioBuffer.Length - AudioBuffer.ReadableCount) / WaveFormat.AverageBytesPerSecond, 0));
+                    {
+                        return TimeSpan.FromMilliseconds((long)Math.Round(
+                            TimeSpan.TicksPerMillisecond * 1000d * (AudioBuffer.Length - AudioBuffer.ReadableCount) / WaveFormat.AverageBytesPerSecond, 0));
+                    }
 
                     // the pending audio length is the amount of audio samples time that has not been yet read by the audio device.
                     var pendingAudioLength = TimeSpan.FromTicks(
@@ -316,7 +298,7 @@
         /// </summary>
         public void Pause()
         {
-            //nothing
+            // Placeholder
         }
 
         /// <summary>
@@ -360,6 +342,119 @@
         public void WaitForReadyState()
         {
             WaitForReadyEvent.WaitOne();
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        #endregion
+
+        #region IWaveProvider Support
+
+        /// <summary>
+        /// Called whenever the audio driver requests samples.
+        /// Do not call this method directly.
+        /// </summary>
+        /// <param name="targetBuffer">The render buffer.</param>
+        /// <param name="targetBufferOffset">The render buffer offset.</param>
+        /// <param name="requestedBytes">The requested bytes.</param>
+        /// <returns>The number of bytes that were read.</returns>
+        public int Read(byte[] targetBuffer, int targetBufferOffset, int requestedBytes)
+        {
+            lock (SyncLock)
+            {
+                try
+                {
+                    WaitForReadyEvent.Set();
+
+                    // Render silence if we don't need to output anything
+                    if (MediaElement.IsPlaying == false || SpeedRatio <= 0d || MediaElement.HasAudio == false || AudioBuffer.ReadableCount <= 0)
+                    {
+                        Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
+                        return requestedBytes;
+                    }
+
+                    // Ensure a preallocated ReadBuffer
+                    if (ReadBuffer == null || ReadBuffer.Length < (int)(requestedBytes * Constants.MaxSpeedRatio))
+                        ReadBuffer = new byte[(int)(requestedBytes * Constants.MaxSpeedRatio)];
+
+                    // Perform AV Synchronization if needed
+                    if (MediaElement.HasVideo && Synchronize(targetBuffer, targetBufferOffset, requestedBytes) == false)
+                        return requestedBytes;
+
+                    // Perform DSP
+                    if (SpeedRatio < 1.0)
+                    {
+                        ReadAndStretch(requestedBytes);
+                    }
+                    else if (SpeedRatio > 1.0)
+                    {
+                        ReadAndShrink(requestedBytes);
+                    }
+                    else
+                    {
+                        if (requestedBytes > AudioBuffer.ReadableCount)
+                        {
+                            Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
+                            return requestedBytes;
+                        }
+
+                        AudioBuffer.Read(requestedBytes, ReadBuffer, 0);
+                    }
+
+                    ApplyVolumeAndBalance(targetBuffer, targetBufferOffset, requestedBytes);
+                }
+                catch (Exception ex)
+                {
+                    MediaElement.Logger.Log(MediaLogMessageType.Error, $"{ex.GetType()} in {nameof(AudioRenderer)}.{nameof(Read)}: {ex.Message}. Stack Trace:\r\n{ex.StackTrace}");
+                    Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
+                }
+
+                return requestedBytes;
+            }
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        /// Called when [application exit].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="ExitEventArgs"/> instance containing the event data.</param>
+        private void OnApplicationExit(object sender, ExitEventArgs e)
+        {
+            try { Dispose(); }
+            catch { }
+        }
+
+        /// <summary>
+        /// Initializes the audio renderer.
+        /// Call the Play Method to start reading samples
+        /// </summary>
+        private void Initialize()
+        {
+            Destroy();
+
+            AudioDevice = new WavePlayer(this)
+            {
+                DesiredLatency = 200,
+                NumberOfBuffers = 2,
+            };
+
+            SyncThesholdMilliseconds = 0.05 * DesiredLatency.TotalMilliseconds; // ~5% sync threshold for audio samples 
+            BytesPerSample = WaveFormat.BitsPerSample / 8;
+            SampleBlockSize = BytesPerSample * WaveFormat.Channels;
+
+            var bufferLength = WaveFormat.ConvertLatencyToByteSize(AudioDevice.DesiredLatency) * MediaElement.Blocks[MediaType.Audio].Capacity / 2;
+            AudioBuffer = new CircularBuffer(bufferLength);
+            AudioDevice.Init(this);
         }
 
         #endregion
@@ -564,73 +659,6 @@
         }
         #endregion
 
-        #region IWaveProvider Support
-
-        /// <summary>
-        /// Called whenever the audio driver requests samples.
-        /// Do not call this method directly.
-        /// </summary>
-        /// <param name="targetBuffer">The render buffer.</param>
-        /// <param name="targetBufferOffset">The render buffer offset.</param>
-        /// <param name="requestedBytes">The requested bytes.</param>
-        /// <returns>The number of bytes that were read.</returns>
-        public int Read(byte[] targetBuffer, int targetBufferOffset, int requestedBytes)
-        {
-            lock (SyncLock)
-            {
-                try
-                {
-                    WaitForReadyEvent.Set();
-
-                    // Render silence if we don't need to output anything
-                    if (MediaElement.IsPlaying == false || SpeedRatio <= 0d || MediaElement.HasAudio == false || AudioBuffer.ReadableCount <= 0)
-                    {
-                        Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
-                        return requestedBytes;
-                    }
-
-                    // Ensure a preallocated ReadBuffer
-                    if (ReadBuffer == null || ReadBuffer.Length < (int)(requestedBytes * Constants.MaxSpeedRatio))
-                        ReadBuffer = new byte[(int)(requestedBytes * Constants.MaxSpeedRatio)];
-
-                    // Perform AV Synchronization if needed
-                    if (MediaElement.HasVideo && Synchronize(targetBuffer, targetBufferOffset, requestedBytes) == false)
-                        return requestedBytes;
-
-                    // Perform DSP
-                    if (SpeedRatio < 1.0)
-                    {
-                        ReadAndStretch(requestedBytes);
-                    }
-                    else if (SpeedRatio > 1.0)
-                    {
-                        ReadAndShrink(requestedBytes);
-                    }
-                    else
-                    {
-                        if (requestedBytes > AudioBuffer.ReadableCount)
-                        {
-                            Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
-                            return requestedBytes;
-                        }
-
-                        AudioBuffer.Read(requestedBytes, ReadBuffer, 0);
-                    }
-
-                    ApplyVolumeAndBalance(targetBuffer, targetBufferOffset, requestedBytes);
-                }
-                catch (Exception ex)
-                {
-                    MediaElement.Logger.Log(MediaLogMessageType.Error, $"{ex.GetType()} in {nameof(AudioRenderer)}.{nameof(Read)}: {ex.Message}. Stack Trace:\r\n{ex.StackTrace}");
-                    Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
-                }
-
-                return requestedBytes;
-            }
-        }
-
-        #endregion
-
         #region IDisposable Support
 
         /// <summary>
@@ -638,7 +666,7 @@
         /// </summary>
         /// <param name="alsoManaged">
         ///   <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        void Dispose(bool alsoManaged)
+        private void Dispose(bool alsoManaged)
         {
             if (!IsDisposed)
             {
@@ -651,14 +679,6 @@
 
                 IsDisposed = true;
             }
-        }
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
         }
 
         #endregion

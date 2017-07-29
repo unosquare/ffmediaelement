@@ -14,26 +14,9 @@
     /// <seealso cref="System.IDisposable" />
     internal unsafe abstract class MediaComponent : IDisposable
     {
-        #region Constants
-
-        /// <summary>
-        /// Contains constants defining dictionary entry names for codec options
-        /// </summary>
-        protected static class CodecOption
-        {
-            public const string Threads = "threads";
-            public const string RefCountedFrames = "refcounted_frames";
-            public const string LowRes = "lowres";
-        }
-
-        #endregion
-
         #region Private Declarations
 
-        /// <summary>
-        /// Detects redundant, unmanaged calls to the Dispose method.
-        /// </summary>
-        private bool IsDisposed = false;
+#pragma warning disable SA1401 // Field must be private
 
         /// <summary>
         /// Holds a reference to the Codec Context.
@@ -44,6 +27,8 @@
         /// Holds a reference to the associated input context stream
         /// </summary>
         internal AVStream* Stream;
+
+#pragma warning restore SA1401 // Field must be private
 
         /// <summary>
         /// Contains the packets pending to be sent to the decoder
@@ -57,9 +42,126 @@
         private readonly PacketQueue SentPackets = new PacketQueue();
 
         /// <summary>
+        /// Detects redundant, unmanaged calls to the Dispose method.
+        /// </summary>
+        private bool IsDisposed = false;
+
+        /// <summary>
         /// The m total bytes read
         /// </summary>
         private ulong m_TotalBytesRead = 0;
+
+        #endregion
+
+        #region Constructor
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MediaComponent"/> class.
+        /// </summary>
+        /// <param name="container">The container.</param>
+        /// <param name="streamIndex">Index of the stream.</param>
+        /// <exception cref="ArgumentNullException">container</exception>
+        /// <exception cref="MediaContainerException">The container exception.</exception>
+        protected MediaComponent(MediaContainer container, int streamIndex)
+        {
+            Container = container ?? throw new ArgumentNullException(nameof(container));
+            CodecContext = ffmpeg.avcodec_alloc_context3(null);
+            RC.Current.Add(CodecContext, $"134: {nameof(MediaComponent)}[{MediaType}].ctor()");
+            StreamIndex = streamIndex;
+            Stream = container.InputContext->streams[StreamIndex];
+            StreamInfo = container.MediaInfo.Streams[StreamIndex];
+
+            // Set codec options
+            var setCodecParamsResult = ffmpeg.avcodec_parameters_to_context(CodecContext, Stream->codecpar);
+
+            if (setCodecParamsResult < 0)
+                Container.Logger?.Log(MediaLogMessageType.Warning, $"Could not set codec parameters. Error code: {setCodecParamsResult}");
+
+            // We set the packet timebase in the same timebase as the stream as opposed to the tpyical AV_TIME_BASE
+            ffmpeg.av_codec_set_pkt_timebase(CodecContext, Stream->time_base);
+
+            // Find the codec and set it.
+            var codec = ffmpeg.avcodec_find_decoder(Stream->codec->codec_id);
+            if (codec == null)
+            {
+                var errorMessage = $"Fatal error. Unable to find suitable decoder for {Stream->codec->codec_id.ToString()}";
+                CloseComponent();
+                throw new MediaContainerException(errorMessage);
+            }
+
+            CodecContext->codec_id = codec->id;
+
+            // Process the low res index option
+            var lowResIndex = ffmpeg.av_codec_get_max_lowres(codec);
+            if (Container.MediaOptions.EnableLowRes)
+            {
+                ffmpeg.av_codec_set_lowres(CodecContext, lowResIndex);
+                CodecContext->flags |= ffmpeg.CODEC_FLAG_EMU_EDGE;
+            }
+            else
+            {
+                lowResIndex = 0;
+            }
+
+            // Configure the codec context flags
+            if (Container.MediaOptions.EnableFastDecoding) CodecContext->flags2 |= ffmpeg.AV_CODEC_FLAG2_FAST;
+            if ((codec->capabilities & ffmpeg.AV_CODEC_CAP_DR1) != 0) CodecContext->flags |= ffmpeg.CODEC_FLAG_EMU_EDGE;
+            if ((codec->capabilities & ffmpeg.AV_CODEC_CAP_TRUNCATED) != 0) CodecContext->flags |= ffmpeg.AV_CODEC_CAP_TRUNCATED;
+            if ((codec->capabilities & ffmpeg.CODEC_FLAG2_CHUNKS) != 0) CodecContext->flags |= ffmpeg.CODEC_FLAG2_CHUNKS;
+
+            // Setup additional settings. The most important one is Threads -- Setting it to 1 decoding is very slow. Setting it to auto
+            // decoding is very fast in most scenarios.
+            var codecOptions = Container.MediaOptions.CodecOptions.FilterOptions(CodecContext->codec_id, Container.InputContext, Stream, codec);
+            if (codecOptions.HasKey(Constants.CodecOptionThreads) == false) codecOptions[Constants.CodecOptionThreads] = "auto";
+            if (lowResIndex != 0) codecOptions[Constants.CodecOptionLowRes] = lowResIndex.ToString(CultureInfo.InvariantCulture);
+            if (CodecContext->codec_type == AVMediaType.AVMEDIA_TYPE_VIDEO || CodecContext->codec_type == AVMediaType.AVMEDIA_TYPE_AUDIO)
+                codecOptions[Constants.CodecOptionRefCountedFrames] = 1.ToString(CultureInfo.InvariantCulture);
+
+            // Open the CodecContext
+            var codecOpenResult = 0;
+            fixed (AVDictionary** reference = &codecOptions.Pointer)
+                codecOpenResult = ffmpeg.avcodec_open2(CodecContext, codec, reference);
+
+            if (codecOpenResult < 0)
+            {
+                CloseComponent();
+                throw new MediaContainerException($"Unable to open codec. Error code {codecOpenResult}");
+            }
+
+            // If there are any codec options left over from passing them, it means they were not consumed
+            if (codecOptions.First() != null)
+                Container.Logger?.Log(MediaLogMessageType.Warning, $"Codec Option '{codecOptions.First().Key}' not found.");
+
+            // Startup done. Set some options.
+            Stream->discard = AVDiscard.AVDISCARD_DEFAULT;
+            MediaType = (MediaType)CodecContext->codec_type;
+
+            // Compute the start time
+            if (Stream->start_time == Utils.FFmpeg.AV_NOPTS)
+                StartTimeOffset = Container.MediaStartTimeOffset;
+            else
+                StartTimeOffset = Stream->start_time.ToTimeSpan(Stream->time_base);
+
+            // compute the duration
+            if (Stream->duration == Utils.FFmpeg.AV_NOPTS || Stream->duration == 0)
+                Duration = Container.InputContext->duration.ToTimeSpan();
+            else
+                Duration = Stream->duration.ToTimeSpan(Stream->time_base);
+
+            CodecId = Stream->codec->codec_id;
+            CodecName = ffmpeg.avcodec_get_name(CodecId);
+            Bitrate = (int)Stream->codec->bit_rate;
+            Container.Logger?.Log(MediaLogMessageType.Debug,
+                $"COMP {MediaType.ToString().ToUpperInvariant()}: Start Offset: {StartTimeOffset.Format()}; Duration: {Duration.Format()}");
+        }
+
+        /// <summary>
+        /// Finalizes an instance of the <see cref="MediaComponent"/> class.
+        /// </summary>
+        ~MediaComponent()
+        {
+            Dispose(false);
+        }
 
         #endregion
 
@@ -68,7 +170,7 @@
         /// <summary>
         /// Gets the media container associated with this component.
         /// </summary>
-        internal MediaContainer Container { get; }
+        public MediaContainer Container { get; }
 
         /// <summary>
         /// Gets the type of the media.
@@ -143,127 +245,13 @@
 
         #endregion
 
-        #region Constructor
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MediaComponent"/> class.
-        /// </summary>
-        /// <param name="container">The container.</param>
-        /// <param name="streamIndex">Index of the stream.</param>
-        /// <exception cref="System.ArgumentNullException">container</exception>
-        /// <exception cref="System.Exception"></exception>
-        protected MediaComponent(MediaContainer container, int streamIndex)
-        {
-            Container = container ?? throw new ArgumentNullException(nameof(container));
-            CodecContext = ffmpeg.avcodec_alloc_context3(null);
-            RC.Current.Add(CodecContext, $"134: {nameof(MediaComponent)}[{MediaType}].ctor()");
-            StreamIndex = streamIndex;
-            Stream = container.InputContext->streams[StreamIndex];
-            StreamInfo = container.MediaInfo.Streams[StreamIndex];
-
-            // Set codec options
-            var setCodecParamsResult = ffmpeg.avcodec_parameters_to_context(CodecContext, Stream->codecpar);
-
-            if (setCodecParamsResult < 0)
-                Container.Logger?.Log(MediaLogMessageType.Warning, $"Could not set codec parameters. Error code: {setCodecParamsResult}");
-
-            // We set the packet timebase in the same timebase as the stream as opposed to the tpyical AV_TIME_BASE
-            ffmpeg.av_codec_set_pkt_timebase(CodecContext, Stream->time_base);
-
-            // Find the codec and set it.
-            var codec = ffmpeg.avcodec_find_decoder(Stream->codec->codec_id);
-            if (codec == null)
-            {
-                var errorMessage = $"Fatal error. Unable to find suitable decoder for {Stream->codec->codec_id.ToString()}";
-                CloseComponent();
-                throw new MediaContainerException(errorMessage);
-            }
-
-            CodecContext->codec_id = codec->id;
-
-            // Process the low res index option
-            var lowResIndex = ffmpeg.av_codec_get_max_lowres(codec);
-            if (Container.MediaOptions.EnableLowRes)
-            {
-                ffmpeg.av_codec_set_lowres(CodecContext, lowResIndex);
-                CodecContext->flags |= ffmpeg.CODEC_FLAG_EMU_EDGE;
-            }
-            else
-            {
-                lowResIndex = 0;
-            }
-
-            // Configure the codec context flags
-            if (Container.MediaOptions.EnableFastDecoding) CodecContext->flags2 |= ffmpeg.AV_CODEC_FLAG2_FAST;
-            if ((codec->capabilities & ffmpeg.AV_CODEC_CAP_DR1) != 0) CodecContext->flags |= ffmpeg.CODEC_FLAG_EMU_EDGE;
-            if ((codec->capabilities & ffmpeg.AV_CODEC_CAP_TRUNCATED) != 0) CodecContext->flags |= ffmpeg.AV_CODEC_CAP_TRUNCATED;
-            if ((codec->capabilities & ffmpeg.CODEC_FLAG2_CHUNKS) != 0) CodecContext->flags |= ffmpeg.CODEC_FLAG2_CHUNKS;
-
-            // Setup additional settings. The most important one is Threads -- Setting it to 1 decoding is very slow. Setting it to auto
-            // decoding is very fast in most scenarios.
-            var codecOptions = Container.MediaOptions.CodecOptions.FilterOptions(CodecContext->codec_id, Container.InputContext, Stream, codec);
-            if (codecOptions.HasKey(CodecOption.Threads) == false) codecOptions[CodecOption.Threads] = "auto";
-            if (lowResIndex != 0) codecOptions[CodecOption.LowRes] = lowResIndex.ToString(CultureInfo.InvariantCulture);
-            if (CodecContext->codec_type == AVMediaType.AVMEDIA_TYPE_VIDEO || CodecContext->codec_type == AVMediaType.AVMEDIA_TYPE_AUDIO)
-                codecOptions[CodecOption.RefCountedFrames] = 1.ToString(CultureInfo.InvariantCulture);
-
-            // Open the CodecContext
-            var codecOpenResult = 0;
-            fixed (AVDictionary** reference = &codecOptions.Pointer)
-                codecOpenResult = ffmpeg.avcodec_open2(CodecContext, codec, reference);
-
-            if (codecOpenResult < 0)
-            {
-                CloseComponent();
-                throw new MediaContainerException($"Unable to open codec. Error code {codecOpenResult}");
-            }
-
-            // If there are any codec options left over from passing them, it means they were not consumed
-            if (codecOptions.First() != null)
-                Container.Logger?.Log(MediaLogMessageType.Warning, $"Codec Option '{codecOptions.First().Key}' not found.");
-
-            // Startup done. Set some options.
-            Stream->discard = AVDiscard.AVDISCARD_DEFAULT;
-            MediaType = (MediaType)CodecContext->codec_type;
-
-            // Compute the start time
-            if (Stream->start_time == Utils.FFmpeg.AV_NOPTS)
-                StartTimeOffset = Container.MediaStartTimeOffset;
-            else
-                StartTimeOffset = Stream->start_time.ToTimeSpan(Stream->time_base);
-
-            // compute the duration
-            if (Stream->duration == Utils.FFmpeg.AV_NOPTS || Stream->duration == 0)
-                Duration = Container.InputContext->duration.ToTimeSpan();
-            else
-                Duration = Stream->duration.ToTimeSpan(Stream->time_base);
-
-            CodecId = Stream->codec->codec_id;
-            CodecName = ffmpeg.avcodec_get_name(CodecId);
-            Bitrate = (int)Stream->codec->bit_rate;
-            Container.Logger?.Log(MediaLogMessageType.Debug,
-                $"COMP {MediaType.ToString().ToUpperInvariant()}: Start Offset: {StartTimeOffset.Format()}; Duration: {Duration.Format()}");
-        }
-
-        #endregion
-
         #region Methods
-
-        /// <summary>
-        /// Determines whether the specified packet is a Null Packet (data = null, size = 0)
-        /// These null packets are used to read multiple frames from a single packet.
-        /// </summary>
-        protected static bool IsEmptyPacket(AVPacket* packet)
-        {
-            if (packet == null) return false;
-            return (packet->data == null && packet->size == 0);
-        }
 
         /// <summary>
         /// Clears the pending and sent Packet Queues releasing all memory held by those packets.
         /// Additionally it flushes the codec buffered packets.
         /// </summary>
-        internal void ClearPacketQueues()
+        public void ClearPacketQueues()
         {
             // Release packets that are already in the queue.
             SentPackets.Clear();
@@ -279,7 +267,7 @@
         /// Sends a special kind of packet (an empty packet)
         /// that tells the decoder to enter draining mode.
         /// </summary>
-        internal void SendEmptyPacket()
+        public void SendEmptyPacket()
         {
             var emptyPacket = ffmpeg.av_packet_alloc();
             RC.Current.Add(emptyPacket, $"259: {nameof(MediaComponent)}[{MediaType}].{nameof(SendEmptyPacket)}()");
@@ -293,7 +281,7 @@
         /// the start time and end time of 
         /// </summary>
         /// <param name="packet">The packet.</param>
-        internal void SendPacket(AVPacket* packet)
+        public void SendPacket(AVPacket* packet)
         {
             if (packet == null) return;
             Packets.Push(packet);
@@ -305,11 +293,103 @@
         /// Decodes the next packet in the packet queue in this media component.
         /// Returns the decoded frames.
         /// </summary>
-        internal List<MediaFrame> ReceiveFrames()
+        /// <returns>The received Media Frames</returns>
+        public List<MediaFrame> ReceiveFrames()
         {
             if (PacketBufferCount <= 0) return new List<MediaFrame>(0);
             var decodedFrames = DecodeNextPacketInternal();
             return decodedFrames;
+        }
+
+        /// <summary>
+        /// Converts decoded, raw frame data in the frame source into a a usable frame. <br />
+        /// The process includes performing picture, samples or text conversions
+        /// so that the decoded source frame data is easily usable in multimedia applications
+        /// </summary>
+        /// <param name="input">The source frame to use as an input.</param>
+        /// <param name="output">The target frame that will be updated with the source frame. If null is passed the frame will be instantiated.</param>
+        /// <returns>Return the updated output frame</returns>
+        public abstract MediaBlock MaterializeFrame(MediaFrame input, ref MediaBlock output);
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Determines whether the specified packet is a Null Packet (data = null, size = 0)
+        /// These null packets are used to read multiple frames from a single packet.
+        /// </summary>
+        /// <param name="packet">The packet.</param>
+        /// <returns>
+        ///   <c>true</c> if [is empty packet] [the specified packet]; otherwise, <c>false</c>.
+        /// </returns>
+        protected static bool IsEmptyPacket(AVPacket* packet)
+        {
+            if (packet == null) return false;
+            return packet->data == null && packet->size == 0;
+        }
+
+        /// <summary>
+        /// Creates a frame source object given the raw FFmpeg subtitle reference.
+        /// </summary>
+        /// <param name="frame">The raw FFmpeg subtitle pointer.</param>
+        /// <returns>The media frame</returns>
+        protected virtual MediaFrame CreateFrameSource(AVSubtitle* frame)
+        {
+            return null;
+        }
+
+        /// <summary>
+        /// Creates a frame source object given the raw FFmpeg frame reference.
+        /// </summary>
+        /// <param name="frame">The raw FFmpeg frame pointer.</param>
+        /// <returns>The media frame</returns>
+        protected virtual MediaFrame CreateFrameSource(AVFrame* frame)
+        {
+            return null;
+        }
+
+        /// <summary>
+        /// Releases the existing codec context and clears and disposes the packet queues.
+        /// </summary>
+        protected void CloseComponent()
+        {
+            if (CodecContext != null)
+            {
+                RC.Current.Remove(CodecContext);
+                fixed (AVCodecContext** codecContext = &CodecContext)
+                    ffmpeg.avcodec_free_context(codecContext);
+
+                // free all the pending and sent packets
+                ClearPacketQueues();
+                Packets.Dispose();
+                SentPackets.Dispose();
+            }
+
+            CodecContext = null;
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        protected virtual void Dispose(bool alsoManaged)
+        {
+            if (!IsDisposed)
+            {
+                if (alsoManaged)
+                {
+                    // no code for managed dispose
+                }
+
+                CloseComponent();
+                IsDisposed = true;
+            }
         }
 
         /// <summary>
@@ -424,6 +504,7 @@
                         outputFrame = SubtitleFrame.AllocateSubtitle();
                         var emptyPacket = ffmpeg.av_packet_alloc();
                         RC.Current.Add(emptyPacket, $"406: {nameof(MediaComponent)}[{MediaType}].{nameof(DecodeNextPacketInternal)}()");
+
                         // Receive the frames in a loop
                         try
                         {
@@ -462,95 +543,6 @@
             }
 
             return result;
-        }
-
-        /// <summary>
-        /// Converts decoded, raw frame data in the frame source into a a usable frame. <br />
-        /// The process includes performing picture, samples or text conversions
-        /// so that the decoded source frame data is easily usable in multimedia applications
-        /// </summary>
-        /// <param name="input">The source frame to use as an input.</param>
-        /// <param name="output">The target frame that will be updated with the source frame. If null is passed the frame will be instantiated.</param>
-        /// <returns>Return the updated output frame</returns>
-        internal abstract MediaBlock MaterializeFrame(MediaFrame input, ref MediaBlock output);
-
-        /// <summary>
-        /// Creates a frame source object given the raw FFmpeg frame reference.
-        /// </summary>
-        /// <param name="frame">The raw FFmpeg frame pointer.</param>
-        /// <returns>The media frame</returns>
-        protected virtual MediaFrame CreateFrameSource(AVFrame* frame)
-        {
-            return null;
-        }
-
-        /// <summary>
-        /// Creates a frame source object given the raw FFmpeg subtitle reference.
-        /// </summary>
-        /// <param name="frame">The raw FFmpeg subtitle pointer.</param>
-        /// <returns>The media frame</returns>
-        protected virtual MediaFrame CreateFrameSource(AVSubtitle* frame)
-        {
-            return null;
-        }
-
-        #endregion
-
-        #region IDisposable Support
-
-        /// <summary>
-        /// Releases the existing codec context and clears and disposes the packet queues.
-        /// </summary>
-        protected void CloseComponent()
-        {
-            if (CodecContext != null)
-            {
-                RC.Current.Remove(CodecContext);
-                fixed (AVCodecContext** codecContext = &CodecContext)
-                    ffmpeg.avcodec_free_context(codecContext);
-
-                // free all the pending and sent packets
-                ClearPacketQueues();
-                Packets.Dispose();
-                SentPackets.Dispose();
-            }
-
-            CodecContext = null;
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!IsDisposed)
-            {
-                if (disposing)
-                {
-                    // no code for managed dispose
-                }
-
-                CloseComponent();
-                IsDisposed = true;
-            }
-        }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="CircularBuffer"/> class.
-        /// </summary>
-        ~MediaComponent()
-        {
-            Dispose(false);
-        }
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         #endregion

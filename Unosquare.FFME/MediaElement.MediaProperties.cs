@@ -48,6 +48,7 @@
         /// Gets the duration of a single frame step.
         /// If there is a video component with a framerate, this propery returns the length of a frame.
         /// If there is no video component it simply returns a tenth of a second.
+        /// </summary>
         public TimeSpan FrameStepDuration
         {
             get

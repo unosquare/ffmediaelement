@@ -1,8 +1,8 @@
-namespace Unosquare.FFME.Rendering.Wave
+﻿namespace Unosquare.FFME.Rendering.Wave
 {
     using System;
     using System.Runtime.InteropServices;
-
+    
     /// <summary>
     /// A buffer of Wave samples for streaming to a Wave Output device
     /// </summary>
@@ -36,18 +36,16 @@ namespace Unosquare.FFME.Rendering.Wave
 
             header = new WaveHeader();
             headerHandle = GCHandle.Alloc(header, GCHandleType.Pinned);
-            header.dataBuffer = bufferHandle.AddrOfPinnedObject();
-            header.bufferLength = bufferSize;
-            header.loops = 1;
+            header.DataBuffer = bufferHandle.AddrOfPinnedObject();
+            header.BufferLength = bufferSize;
+            header.Loops = 1;
             callbackHandle = GCHandle.Alloc(this);
-            header.userData = (IntPtr)callbackHandle;
+            header.UserData = (IntPtr)callbackHandle;
             lock (waveOutLock)
             {
                 MmException.Try(WaveInterop.NativeMethods.waveOutPrepareHeader(hWaveOut, header, Marshal.SizeOf(header)), "waveOutPrepareHeader");
             }
         }
-
-        #region Dispose Pattern
 
         /// <summary>
         /// Finalizes an instance of the <see cref="WaveOutBuffer"/> class.
@@ -59,12 +57,50 @@ namespace Unosquare.FFME.Rendering.Wave
         }
 
         /// <summary>
+        /// Whether the header's in queue flag is set
+        /// </summary>
+        public bool InQueue
+        {
+            get
+            {
+                return (header.Flags & WaveHeaderFlags.InQueue) == WaveHeaderFlags.InQueue;
+            }
+        }
+
+        /// <summary>
+        /// The buffer size in bytes
+        /// </summary>
+        public int BufferSize => bufferSize;
+
+        /// <summary>
         /// Releases resources held by this WaveBuffer
         /// </summary>
         public void Dispose()
         {
             GC.SuppressFinalize(this);
             Dispose(true);
+        }
+
+        /// <summary>
+        /// this is called by the WAVE callback and should be used to refill the buffer
+        /// </summary>
+        /// <returns>true when bytes were written. False if no bytes were written.</returns>
+        internal bool OnDone()
+        {
+            int bytes;
+            lock (waveStream)
+            {
+                bytes = waveStream.Read(buffer, 0, buffer.Length);
+            }
+
+            if (bytes == 0)
+                return false;
+
+            for (int n = bytes; n < buffer.Length; n++)
+                buffer[n] = 0;
+
+            WriteToWaveOut();
+            return true;
         }
 
         /// <summary>
@@ -93,46 +129,10 @@ namespace Unosquare.FFME.Rendering.Wave
             }
         }
 
-        #endregion
-
         /// <summary>
-        /// this is called by the WAVE callback and should be used to refill the buffer
+        /// Writes to wave out.
         /// </summary>
-        /// <returns>true when bytes were written. False if no bytes were written.</returns>
-        internal bool OnDone()
-        {
-            int bytes;
-            lock (waveStream)
-            {
-                bytes = waveStream.Read(buffer, 0, buffer.Length);
-            }
-
-            if (bytes == 0)
-                return false;
-
-            for (int n = bytes; n < buffer.Length; n++)
-                buffer[n] = 0;
-
-            WriteToWaveOut();
-            return true;
-        }
-
-        /// <summary>
-        /// Whether the header's in queue flag is set
-        /// </summary>
-        public bool InQueue
-        {
-            get
-            {
-                return (header.flags & WaveHeaderFlags.InQueue) == WaveHeaderFlags.InQueue;
-            }
-        }
-
-        /// <summary>
-        /// The buffer size in bytes
-        /// </summary>
-        public int BufferSize => bufferSize;
-
+        /// <exception cref="Unosquare.FFME.Rendering.Wave.MmException">waveOutWrite</exception>
         private void WriteToWaveOut()
         {
             MmResult result;

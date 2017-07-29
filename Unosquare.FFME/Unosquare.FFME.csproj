@@ -92,7 +92,10 @@
     <Compile Include="MediaLogMessagEventArgs.cs" />
     <Compile Include="MediaElement.Workers.cs" />
     <Compile Include="Rendering\Wave\IWaveProvider.cs" />
+    <Compile Include="Rendering\Wave\MmResult.cs" />
+    <Compile Include="Rendering\Wave\MmTime.cs" />
     <Compile Include="Rendering\Wave\PlaybackState.cs" />
+    <Compile Include="Rendering\Wave\SupportedWaveFormat.cs" />
     <Compile Include="Rendering\Wave\WaveFormat.cs" />
     <Compile Include="Rendering\Wave\WaveHeader.cs" />
     <Compile Include="Rendering\Wave\WaveHeaderFlags.cs" />
@@ -132,6 +135,7 @@
     <Compile Include="MediaElement.MediaProperties.cs" />
     <Compile Include="MediaElement.RoutedEvents.cs" />
     <Compile Include="MediaOpeningRoutedEventArgs.cs" />
+    <Compile Include="Rendering\Wave\WaveOutSupport.cs" />
     <Compile Include="Rendering\Wave\WavePlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\StreamSpecifier.cs" />

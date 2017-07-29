@@ -11,8 +11,12 @@
     /// <seealso cref="System.IDisposable" />
     internal sealed class CircularBuffer : IDisposable
     {
-
         #region Private State Variables
+
+        /// <summary>
+        /// The locking object to perform synchronization.
+        /// </summary>
+        private readonly object SyncLock = new object();
 
         /// <summary>
         /// To detect redundant calls
@@ -23,11 +27,6 @@
         /// The unbmanaged buffer
         /// </summary>
         private IntPtr Buffer = IntPtr.Zero;
-
-        /// <summary>
-        /// The locking object to perform synchronization.
-        /// </summary>
-        private readonly object SyncLock = new object();
 
         #endregion
 
@@ -41,6 +40,14 @@
         {
             Length = bufferLength;
             Buffer = Marshal.AllocHGlobal(Length);
+        }
+
+        /// <summary>
+        /// Finalizes an instance of the <see cref="CircularBuffer"/> class.
+        /// </summary>
+        ~CircularBuffer()
+        {
+            Dispose(false);
         }
 
         #endregion
@@ -67,7 +74,7 @@
                 lock (SyncLock)
                 {
                     if (WriteIndex < ReadIndex)
-                        return (ReadIndex - WriteIndex);
+                        return ReadIndex - WriteIndex;
 
                     return ReadIndex;
                 }
@@ -113,14 +120,16 @@
         /// Skips the specified amount requested bytes to be read.
         /// </summary>
         /// <param name="requestedBytes">The requested bytes.</param>
-        /// <exception cref="System.InvalidOperationException"></exception>
+        /// <exception cref="System.InvalidOperationException">When requested bytes GT readable count</exception>
         public void Skip(int requestedBytes)
         {
             lock (SyncLock)
             {
                 if (requestedBytes > ReadableCount)
+                {
                     throw new InvalidOperationException(
                         $"Unable to skip {requestedBytes} bytes. Only {ReadableCount} bytes are available for skipping");
+                }
 
                 ReadIndex += requestedBytes;
                 ReadableCount -= requestedBytes;
@@ -134,14 +143,16 @@
         /// Rewinds the read position by specified requested amount of bytes.
         /// </summary>
         /// <param name="requestedBytes">The requested bytes.</param>
-        /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="InvalidOperationException">When requested GT rewindable</exception>
         public void Rewind(int requestedBytes)
         {
             lock (SyncLock)
             {
                 if (requestedBytes > RewindableCount)
+                {
                     throw new InvalidOperationException(
                         $"Unable to rewind {requestedBytes} bytes. Only {RewindableCount} bytes are available for rewinding");
+                }
 
                 ReadIndex -= requestedBytes;
                 ReadableCount += requestedBytes;
@@ -157,14 +168,16 @@
         /// <param name="requestedBytes">The requested bytes.</param>
         /// <param name="target">The target.</param>
         /// <param name="targetOffset">The target offset.</param>
-        /// <exception cref="System.InvalidOperationException"></exception>
+        /// <exception cref="System.InvalidOperationException">When requested GT readble</exception>
         public void Read(int requestedBytes, byte[] target, int targetOffset)
         {
             lock (SyncLock)
             {
                 if (requestedBytes > ReadableCount)
+                {
                     throw new InvalidOperationException(
                         $"Unable to read {requestedBytes} bytes. Only {ReadableCount} bytes are available");
+                }
 
                 var readCount = 0;
                 while (readCount < requestedBytes)
@@ -192,14 +205,16 @@
         /// <param name="writeTag">The write tag.</param>
         /// <param name="overwrite">if set to <c>true</c>, overwrites the data even if it has not been read.</param>
         /// <exception cref="InvalidOperationException">Read</exception>
-        /// <exception cref="System.InvalidOperationException">Read</exception>
+        /// <exception cref="System.InvalidOperationException">When read needs to be called more!</exception>
         public void Write(IntPtr source, int length, TimeSpan writeTag, bool overwrite)
         {
             lock (SyncLock)
             {
                 if (overwrite == false && length > WritableCount)
+                {
                     throw new InvalidOperationException(
                         $"Unable to write to circular buffer. Call the {nameof(Read)} method to make some additional room");
+                }
 
                 var writeCount = 0;
                 while (writeCount < length)
@@ -240,10 +255,19 @@
         #region IDisposable Support
 
         /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        void Dispose(bool alsoManaged)
+        private void Dispose(bool alsoManaged)
         {
             if (IsDisposed) return;
 
@@ -255,23 +279,6 @@
             Length = 0;
 
             IsDisposed = true;
-        }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="CircularBuffer"/> class.
-        /// </summary>
-        ~CircularBuffer()
-        {
-            Dispose(false);
-        }
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         #endregion

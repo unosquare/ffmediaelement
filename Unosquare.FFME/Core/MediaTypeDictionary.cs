@@ -6,9 +6,7 @@
     /// <summary>
     /// Represents a very simple dictionary for MediaType keys
     /// </summary>
-    /// <typeparam name="TKey">The type of the key.</typeparam>
     /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <seealso cref="System.Collections.Generic.Dictionary{TKey, TValue}" />
     internal sealed class MediaTypeDictionary<TValue>
         : Dictionary<MediaType, TValue>
     {
@@ -22,12 +20,9 @@
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="TValue"/> with the specified key.
+        /// Gets or sets the item with the specified key.
         /// return the default value of the value type when the key does not exist.
         /// </summary>
-        /// <value>
-        /// The <see cref="TValue"/>.
-        /// </value>
         /// <param name="key">The key.</param>
         /// <returns>The item</returns>
         public new TValue this[MediaType key]

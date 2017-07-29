@@ -1,7 +1,9 @@
-namespace Unosquare.FFME.Rendering.Wave
+﻿namespace Unosquare.FFME.Rendering.Wave
 {
     using System;
     using System.Runtime.InteropServices;
+
+#pragma warning disable SA1401 // Fields must be private
 
     /// <summary>
     /// WaveHeader interop structure (WAVEHDR)
@@ -11,27 +13,29 @@ namespace Unosquare.FFME.Rendering.Wave
     internal class WaveHeader
     {
         /// <summary>pointer to locked data buffer (lpData)</summary>
-        public IntPtr dataBuffer;
+        public IntPtr DataBuffer;
         
         /// <summary>length of data buffer (dwBufferLength)</summary>
-        public int bufferLength;
+        public int BufferLength;
         
         /// <summary>used for input only (dwBytesRecorded)</summary>
-        public int bytesRecorded;
+        public int BytesRecorded;
         
         /// <summary>for client's use (dwUser)</summary>
-        public IntPtr userData;
+        public IntPtr UserData;
         
         /// <summary>assorted flags (dwFlags)</summary>
-        public WaveHeaderFlags flags;
+        public WaveHeaderFlags Flags;
         
         /// <summary>loop control counter (dwLoops)</summary>
-        public int loops;
+        public int Loops;
         
         /// <summary>PWaveHdr, reserved for driver (lpNext)</summary>
-        public IntPtr next;
+        public IntPtr Next;
         
         /// <summary>reserved for driver</summary>
-        public IntPtr reserved;
+        public IntPtr Reserved;
     }
+
+#pragma warning restore SA1401 // Fields must be private
 }

@@ -56,16 +56,16 @@
             set { m_HasDecoderSeeked = value; }
         }
 
-        internal Thread PacketReadingTask { get; set; }
-        internal ManualResetEvent PacketReadingCycle { get; } = new ManualResetEvent(false);
+        internal Thread PacketReadingTask = null;
+        internal readonly ManualResetEvent PacketReadingCycle = new ManualResetEvent(false);
 
-        internal Thread FrameDecodingTask { get; set; }
-        internal ManualResetEvent FrameDecodingCycle { get; } = new ManualResetEvent(false);
+        internal Thread FrameDecodingTask = null;
+        internal ManualResetEvent FrameDecodingCycle = new ManualResetEvent(false);
 
-        internal Thread BlockRenderingTask { get; set; }
-        internal ManualResetEvent BlockRenderingCycle { get; } = new ManualResetEvent(false);
+        internal Thread BlockRenderingTask = null;
+        internal ManualResetEvent BlockRenderingCycle = new ManualResetEvent(false);
 
-        internal ManualResetEvent SeekingDone { get; } = new ManualResetEvent(true);
+        internal ManualResetEvent SeekingDone = new ManualResetEvent(true);
 
         #endregion
 

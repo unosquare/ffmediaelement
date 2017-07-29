@@ -12,6 +12,10 @@
     /// </summary>
     internal static class Constants
     {
+        public const string CodecOptionThreads = "threads";
+        public const string CodecOptionRefCountedFrames = "refcounted_frames";
+        public const string CodecOptionLowRes = "lowres";
+
         public const double DefaultSpeedRatio = 1.0d;
         public const double DefaultBalance = 0.0d;
         public const double DefaultVolume = 1.0d;

@@ -75,7 +75,10 @@
         /// </summary>
         public int DeviceNumber
         {
-            get { return m_DeviceNumber; }
+            get
+            {
+                return m_DeviceNumber;
+            }
             set
             {
                 m_DeviceNumber = value;
@@ -140,11 +143,11 @@
             lock (WaveOutLock)
             {
                 result = WaveInterop.NativeMethods.waveOutOpenWindow(
-                    out DeviceHandle, 
-                    DeviceNumber, 
+                    out DeviceHandle,
+                    DeviceNumber,
                     WaveStream.WaveFormat,
-                    CallbackEvent.SafeWaitHandle.DangerousGetHandle(), 
-                    IntPtr.Zero, 
+                    CallbackEvent.SafeWaitHandle.DangerousGetHandle(),
+                    IntPtr.Zero,
                     WaveInterop.WaveInOutOpenFlags.CallbackEvent);
             }
 
@@ -202,23 +205,6 @@
         }
 
         /// <summary>
-        /// Resume playing after a pause from the same position
-        /// </summary>
-        private void Resume()
-        {
-            if (m_PlaybackState != PlaybackState.Paused) return;
-
-            MmResult result;
-            lock (WaveOutLock)
-                result = WaveInterop.NativeMethods.waveOutRestart(DeviceHandle);
-
-            if (result != MmResult.NoError)
-                throw new MmException(result, nameof(WaveInterop.NativeMethods.waveOutRestart));
-
-            m_PlaybackState = PlaybackState.Playing;
-        }
-
-        /// <summary>
         /// Stop and reset the WaveOut device
         /// </summary>
         public void Stop()
@@ -249,23 +235,65 @@
         {
             lock (WaveOutLock)
             {
-                var mmTime = new MmTime()
+                var time = new MmTime()
                 {
                     wType = MmTime.TIME_BYTES
                 };
 
-                MmException.Try(WaveInterop.NativeMethods.waveOutGetPosition(DeviceHandle, out mmTime, Marshal.SizeOf(mmTime)), nameof(WaveInterop.NativeMethods.waveOutGetPosition));
+                MmException.Try(WaveInterop.NativeMethods.waveOutGetPosition(DeviceHandle, out time, Marshal.SizeOf(time)), nameof(WaveInterop.NativeMethods.waveOutGetPosition));
 
-                if (mmTime.wType != MmTime.TIME_BYTES)
-                    throw new Exception(string.Format($"{nameof(WaveInterop.NativeMethods.waveOutGetPosition)}: wType -> Expected {0}, Received {1}", MmTime.TIME_BYTES, mmTime.wType));
+                if (time.wType != MmTime.TIME_BYTES)
+                    throw new Exception(string.Format($"{nameof(WaveInterop.NativeMethods.waveOutGetPosition)}: wType -> Expected {0}, Received {1}", MmTime.TIME_BYTES, time.wType));
 
-                return mmTime.cb;
+                return time.cb;
             }
+        }
+
+        /// <summary>
+        /// Closes this WaveOut device
+        /// </summary>
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+            Dispose(true);
         }
 
         #endregion
 
-        #region Threading
+        #region Private Methods
+
+        /// <summary>
+        /// Closes the WaveOut device and disposes of buffers
+        /// </summary>
+        /// <param name="disposing">True if called from <see>Dispose</see></param>
+        protected void Dispose(bool disposing)
+        {
+            Stop();
+
+            if (disposing)
+            {
+                DisposeBuffers();
+            }
+
+            CloseWaveOut();
+        }
+
+        /// <summary>
+        /// Resume playing after a pause from the same position
+        /// </summary>
+        private void Resume()
+        {
+            if (m_PlaybackState != PlaybackState.Paused) return;
+
+            MmResult result;
+            lock (WaveOutLock)
+                result = WaveInterop.NativeMethods.waveOutRestart(DeviceHandle);
+
+            if (result != MmResult.NoError)
+                throw new MmException(result, nameof(WaveInterop.NativeMethods.waveOutRestart));
+
+            m_PlaybackState = PlaybackState.Playing;
+        }
 
         /// <summary>
         /// Starts the playback thread.
@@ -319,35 +347,6 @@
             }
         }
 
-        #endregion
-
-        #region IDispose Pattern
-
-        /// <summary>
-        /// Closes this WaveOut device
-        /// </summary>
-        public void Dispose()
-        {
-            GC.SuppressFinalize(this);
-            Dispose(true);
-        }
-
-        /// <summary>
-        /// Closes the WaveOut device and disposes of buffers
-        /// </summary>
-        /// <param name="disposing">True if called from <see>Dispose</see></param>
-        protected void Dispose(bool disposing)
-        {
-            Stop();
-
-            if (disposing)
-            {
-                DisposeBuffers();
-            }
-
-            CloseWaveOut();
-        }
-
         /// <summary>
         /// Closes the wave device.
         /// </summary>
@@ -378,7 +377,7 @@
             {
                 foreach (var buffer in Buffers)
                     buffer.Dispose();
-                
+
                 Buffers = null;
             }
         }

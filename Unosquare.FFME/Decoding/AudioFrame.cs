@@ -7,7 +7,8 @@
     /// <summary>
     /// Represents a wrapper from an unmanaged FFmpeg audio frame
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.Core.MediaFrame" />
+    /// <seealso cref="Unosquare.FFME.Decoding.MediaFrame" />
+    /// <seealso cref="System.IDisposable" />
     internal unsafe sealed class AudioFrame : MediaFrame, IDisposable
     {
         #region Private Members
@@ -29,8 +30,8 @@
         {
             m_Pointer = (AVFrame*)InternalPointer;
 
-            // Compute the timespans
-            //frame->pts = ffmpeg.av_frame_get_best_effort_timestamp(frame);
+            // Compute the timespans.
+            // We don't use for Audio frames: frame->pts = ffmpeg.av_frame_get_best_effort_timestamp(frame);
             StartTime = frame->pts == Utils.FFmpeg.AV_NOPTS ?
                 TimeSpan.FromTicks(component.Container.MediaStartTimeOffset.Ticks) :
                 TimeSpan.FromTicks(frame->pts.ToTimeSpan(StreamTimeBase).Ticks - component.Container.MediaStartTimeOffset.Ticks);
@@ -42,6 +43,14 @@
                 Duration = TimeSpan.FromTicks((long)Math.Round(TimeSpan.TicksPerMillisecond * 1000d * frame->nb_samples / frame->sample_rate, 0));
 
             EndTime = TimeSpan.FromTicks(StartTime.Ticks + Duration.Ticks);
+        }
+
+        /// <summary>
+        /// Finalizes an instance of the <see cref="AudioFrame"/> class.
+        /// </summary>
+        ~AudioFrame()
+        {
+            Dispose(false);
         }
 
         #endregion
@@ -68,8 +77,17 @@
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool disposing)
+        public override void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        private void Dispose(bool alsoManaged)
         {
             if (!IsDisposed)
             {
@@ -86,23 +104,6 @@
                 InternalPointer = null;
                 IsDisposed = true;
             }
-        }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="AudioFrame"/> class.
-        /// </summary>
-        ~AudioFrame()
-        {
-            Dispose(false);
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        public override void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         #endregion

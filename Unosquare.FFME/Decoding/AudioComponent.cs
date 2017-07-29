@@ -8,7 +8,7 @@
     /// <summary>
     /// Provides audio sample extraction, decoding and scaling functionality.
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.MediaComponent" />
+    /// <seealso cref="Unosquare.FFME.Decoding.MediaComponent" />
     internal sealed unsafe class AudioComponent : MediaComponent
     {
         #region Private Declarations
@@ -86,7 +86,7 @@
         /// Return the updated output frame
         /// </returns>
         /// <exception cref="System.ArgumentNullException">input</exception>
-        internal override MediaBlock MaterializeFrame(MediaFrame input, ref MediaBlock output)
+        public override MediaBlock MaterializeFrame(MediaFrame input, ref MediaBlock output)
         {
             if (output == null) output = new AudioBlock();
             var source = input as AudioFrame;
@@ -169,8 +169,10 @@
         {
             RC.Current.Remove(Scaler);
             if (Scaler != null)
+            {
                 fixed (SwrContext** scaler = &Scaler)
                     ffmpeg.swr_free(scaler);
+            }
 
             base.Dispose(alsoManaged);
         }

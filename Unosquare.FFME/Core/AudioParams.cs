@@ -11,20 +11,20 @@
     {
         #region Constant Definitions
 
+        public const int BufferPadding = 256;
+        public const int OutputBitsPerSample = 16;
+
         /// <summary>
         /// The standard output audio spec
         /// </summary>
         public static readonly AudioParams Output;
-
-        public const int BufferPadding = 256;
-        public const int OutputBitsPerSample = 16;
 
         #endregion
 
         #region Constructors
 
         /// <summary>
-        /// Initializes the <see cref="AudioParams"/> class.
+        /// Initializes static members of the <see cref="AudioParams"/> class.
         /// </summary>
         static AudioParams()
         {

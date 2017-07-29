@@ -45,7 +45,7 @@
         /// </summary>
         public void Pause()
         {
-            //placeholder
+            // Placeholder
         }
 
         /// <summary>
@@ -53,7 +53,7 @@
         /// </summary>
         public void Play()
         {
-            //placeholder
+            // placeholder
         }
 
         /// <summary>

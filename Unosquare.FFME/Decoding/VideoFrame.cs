@@ -9,7 +9,7 @@
     /// <summary>
     /// Represents a wrapper for an unmanaged ffmpeg video frame.
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.Core.MediaFrame" />
+    /// <seealso cref="Unosquare.FFME.Decoding.MediaFrame" />
     internal unsafe sealed class VideoFrame : MediaFrame
     {
         #region Private Members
@@ -53,7 +53,6 @@
                 // Parse 3 bytes at a time
                 for (var p = 0; p < sideData->size; p += 3)
                 {
-
                     var packet = new ClosedCaptionPacket(StartTime, sideData->data[p + 0], sideData->data[p + 1], sideData->data[p + 2]);
                     if (packet.PacketType == CCPacketType.NullPad || packet.PacketType == CCPacketType.Unrecognized)
                         continue;
@@ -62,6 +61,14 @@
                     ClosedCaptions.Add(packet);
                 }
             }
+        }
+
+        /// <summary>
+        /// Finalizes an instance of the <see cref="VideoFrame"/> class.
+        /// </summary>
+        ~VideoFrame()
+        {
+            Dispose(false);
         }
 
         #endregion
@@ -74,6 +81,11 @@
         public override MediaType MediaType => MediaType.Video;
 
         /// <summary>
+        /// Gets the closed caption data collected from the frame in CEA-708/EAS-608 format.
+        /// </summary>
+        public List<ClosedCaptionPacket> ClosedCaptions { get; } = new List<ClosedCaptionPacket>();
+
+        /// <summary>
         /// Gets the pointer to the unmanaged frame.
         /// </summary>
         internal AVFrame* Pointer
@@ -81,14 +93,18 @@
             get { return m_Pointer; }
         }
 
-        /// <summary>
-        /// Gets the closed caption data collected from the frame in CEA-708/EAS-608 format.
-        /// </summary>
-        public List<ClosedCaptionPacket> ClosedCaptions { get; } = new List<ClosedCaptionPacket>();
-
         #endregion
 
         #region IDisposable Support
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        public override void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
@@ -98,35 +114,19 @@
         {
             if (!IsDisposed)
             {
-
                 if (m_Pointer != null)
+                {
                     fixed (AVFrame** pointer = &m_Pointer)
                     {
                         RC.Current.Remove(*pointer);
                         ffmpeg.av_frame_free(pointer);
                     }
+                }
 
                 m_Pointer = null;
                 InternalPointer = null;
                 IsDisposed = true;
             }
-        }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="VideoFrame"/> class.
-        /// </summary>
-        ~VideoFrame()
-        {
-            Dispose(false);
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        public override void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         #endregion

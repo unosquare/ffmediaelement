@@ -8,10 +8,10 @@
     /// </summary>
     internal sealed class Clock
     {
+        private readonly object SyncLock = new object();
         private readonly Stopwatch Chrono = new Stopwatch();
         private double OffsetMilliseconds = 0;
         private double m_SpeedRatio = Constants.DefaultSpeedRatio;
-        private readonly object SyncLock = new object();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Clock"/> class.
@@ -58,13 +58,17 @@
         /// </summary>
         public double SpeedRatio
         {
-            get { lock (SyncLock) return m_SpeedRatio; }
+            get
+            {
+                lock (SyncLock) return m_SpeedRatio;
+            }
             set
             {
                 lock (SyncLock)
                 {
                     if (value < 0d) value = 0d;
-                    // capture the initial position se we set it even after the speedratio has changed
+
+                    // Capture the initial position se we set it even after the speedratio has changed
                     // this ensures a smooth position transition
                     var initialPosition = Position;
                     m_SpeedRatio = value;
