@@ -32,7 +32,7 @@
 
             // Compute the timespans.
             // We don't use for Audio frames: frame->pts = ffmpeg.av_frame_get_best_effort_timestamp(frame);
-            StartTime = frame->pts == Utils.FFmpeg.AV_NOPTS ?
+            StartTime = frame->pts == FFmpegEx.AV_NOPTS ?
                 TimeSpan.FromTicks(component.Container.MediaStartTimeOffset.Ticks) :
                 TimeSpan.FromTicks(frame->pts.ToTimeSpan(StreamTimeBase).Ticks - component.Container.MediaStartTimeOffset.Ticks);
 

@@ -564,7 +564,7 @@
                         if (openResult < 0)
                         {
                             throw new MediaContainerException($"Could not open '{MediaUrl}'. "
-                                + $"Error {openResult}: {Utils.FFmpeg.GetErrorMessage(openResult)}");
+                                + $"Error {openResult}: {FFmpegEx.GetErrorMessage(openResult)}");
                         }
                     }
 
@@ -799,7 +799,7 @@
                 ffmpeg.av_packet_free(&readPacket);
 
                 // Detect an end of file situation (makes the readers enter draining mode)
-                if (readResult == Utils.FFmpeg.AVERROR_EOF || ffmpeg.avio_feof(InputContext->pb) != 0)
+                if (readResult == FFmpegEx.AVERROR_EOF || ffmpeg.avio_feof(InputContext->pb) != 0)
                 {
                     // Force the decoders to enter draining mode (with empry packets)
                     if (IsAtEndOfStream == false)
@@ -811,7 +811,7 @@
                 else
                 {
                     if (InputContext->pb != null && InputContext->pb->error != 0)
-                        throw new MediaContainerException($"Input has produced an error. Error Code {readResult}, {Utils.FFmpeg.GetErrorMessage(readResult)}");
+                        throw new MediaContainerException($"Input has produced an error. Error Code {readResult}, {FFmpegEx.GetErrorMessage(readResult)}");
                 }
             }
             else
@@ -1017,7 +1017,7 @@
                 // Ensure we had a successful seek operation
                 if (seekResult < 0)
                 {
-                    Logger?.Log(MediaLogMessageType.Error, $"SEEK R: Elapsed: {startTime.FormatElapsed()} | Seek operation failed. Error code {seekResult}, {Utils.FFmpeg.GetErrorMessage(seekResult)}");
+                    Logger?.Log(MediaLogMessageType.Error, $"SEEK R: Elapsed: {startTime.FormatElapsed()} | Seek operation failed. Error code {seekResult}, {FFmpegEx.GetErrorMessage(seekResult)}");
                     break;
                 }
 

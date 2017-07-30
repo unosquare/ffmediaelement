@@ -274,11 +274,14 @@
                 return;
 
             IsPositionUpdating = true;
-            Utils.UIEnqueueInvoke(DispatcherPriority.DataBind, (Action<TimeSpan>)((v) =>
-            {
-                SetValue(PositionProperty, v);
-                IsPositionUpdating = false;
-            }), value);
+            Utils.UIEnqueueInvoke(
+                DispatcherPriority.DataBind, 
+                (Action<TimeSpan>)((v) =>
+                {
+                    SetValue(PositionProperty, v);
+                    IsPositionUpdating = false;
+                }), 
+                value);
         }
 
         #endregion

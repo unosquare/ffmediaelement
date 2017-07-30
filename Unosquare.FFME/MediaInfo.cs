@@ -28,10 +28,10 @@
             InputUrl = container.MediaUrl;
             Format = Utils.PtrToString(ic->iformat->name);
             Metadata = container.Metadata;
-            Duration = ic->duration != Utils.FFmpeg.AV_NOPTS ?
+            Duration = ic->duration != FFmpegEx.AV_NOPTS ?
                 ic->duration.ToTimeSpan() :
                 TimeSpan.MinValue;
-            StartTime = ic->start_time != Utils.FFmpeg.AV_NOPTS ?
+            StartTime = ic->start_time != FFmpegEx.AV_NOPTS ?
                 ic->start_time.ToTimeSpan() :
                 default(TimeSpan?);
             BitRate = ic->bit_rate;
