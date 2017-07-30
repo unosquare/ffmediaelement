@@ -302,7 +302,7 @@
         /// </summary>
         public void WaitForReadyState()
         {
-            WaitForReadyEvent.WaitOne();
+            //WaitForReadyEvent.WaitOne();
         }
 
         /// <summary>

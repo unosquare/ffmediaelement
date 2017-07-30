@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME.Commands
 {
     using Core;
+    using System.Diagnostics;
     using System.Text;
     using System.Threading.Tasks;
     using System.Windows.Threading;
@@ -36,13 +37,15 @@
             m.IsTaskCancellationPending = true;
 
             // Wait for cycles to complete.
+            var waitHandles = new[] { m.BlockRenderingCycle, m.FrameDecodingCycle, m.PacketReadingCycle };
+            var tasks = new[] { m.PacketReadingTask, m.FrameDecodingTask, m.BlockRenderingTask };
+
             m.SeekingDone.Set();
-            m.BlockRenderingCycle.WaitOne();
-            m.FrameDecodingCycle.WaitOne();
-            m.PacketReadingCycle.WaitOne();
+            foreach (var handle in waitHandles)
+                handle.WaitOne();
 
             // Wait for threads to finish
-            Task.WaitAll(m.BlockRenderingTask, m.FrameDecodingTask, m.PacketReadingTask);
+            Task.WaitAll(tasks);
 
             // Set the threads to null
             m.BlockRenderingTask = null;

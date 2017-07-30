@@ -334,34 +334,6 @@
         #region Dispatching
 
         /// <summary>
-        /// Promises the delay.
-        /// </summary>
-        /// <param name="timeoutMilliseconds">The timeout milliseconds.</param>
-        /// <returns>
-        /// The awaitable task
-        /// </returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task PromiseDelay(double timeoutMilliseconds = 1)
-        {
-            var tcs = new TaskCompletionSource<bool>();
-            var timer = new System.Timers.Timer
-            {
-                Interval = timeoutMilliseconds,
-                AutoReset = false,
-            };
-
-            timer.Elapsed += (s, e) =>
-            {
-                tcs.TrySetResult(true);
-                timer.Dispose();
-            };
-
-            timer.Start();
-
-            return tcs.Task;
-        }
-
-        /// <summary>
         /// Invoke the given action asynchronously by starting a new background thread and continuing
         /// dispatcher processing. This method is somewhat expensive but it guarantees
         /// pending operations on the selected dispatcher do not cause a deadlock.

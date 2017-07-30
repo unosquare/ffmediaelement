@@ -78,10 +78,12 @@
                 m.FrameDecodingCycle.Reset();
                 m.PacketReadingCycle.Reset();
 
-                m.PacketReadingTask = Task.Run(() => m.RunPacketReadingWorker().GetAwaiter().GetResult());
-                m.FrameDecodingTask = Task.Run(() => m.RunFrameDecodingWorker().GetAwaiter().GetResult());
-                m.BlockRenderingTask = Task.Run(() => m.RunBlockRenderingWorker().GetAwaiter().GetResult());
-                
+                m.PacketReadingTask = Task.Run(() => m.RunPacketReadingWorker());
+
+                m.FrameDecodingTask = Task.Run(() => m.RunFrameDecodingWorker());
+
+                m.BlockRenderingTask = Task.Run(() => m.RunBlockRenderingWorker());
+
                 m.RaiseMediaOpenedEvent();
             }
             catch (Exception ex)
