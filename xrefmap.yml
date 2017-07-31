@@ -1705,6 +1705,18 @@ references:
   commentId: Overload:Unosquare.FFME.RenderingVideoEventArgs.Bitmap
   fullName: Unosquare.FFME.RenderingVideoEventArgs.Bitmap
   nameWithType: RenderingVideoEventArgs.Bitmap
+- uid: Unosquare.FFME.RenderingVideoEventArgs.PictureNumber
+  name: PictureNumber
+  href: api/Unosquare.FFME.RenderingVideoEventArgs.html#Unosquare_FFME_RenderingVideoEventArgs_PictureNumber
+  commentId: P:Unosquare.FFME.RenderingVideoEventArgs.PictureNumber
+  fullName: Unosquare.FFME.RenderingVideoEventArgs.PictureNumber
+  nameWithType: RenderingVideoEventArgs.PictureNumber
+- uid: Unosquare.FFME.RenderingVideoEventArgs.PictureNumber*
+  name: PictureNumber
+  href: api/Unosquare.FFME.RenderingVideoEventArgs.html#Unosquare_FFME_RenderingVideoEventArgs_PictureNumber_
+  commentId: Overload:Unosquare.FFME.RenderingVideoEventArgs.PictureNumber
+  fullName: Unosquare.FFME.RenderingVideoEventArgs.PictureNumber
+  nameWithType: RenderingVideoEventArgs.PictureNumber
 - uid: Unosquare.FFME.StreamInfo
   name: StreamInfo
   href: api/Unosquare.FFME.StreamInfo.html
