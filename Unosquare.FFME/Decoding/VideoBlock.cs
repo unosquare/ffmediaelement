@@ -78,6 +78,18 @@
         public int AspectHeight { get; internal set; }
 
         /// <summary>
+        /// Gets the display picture number (frame number).
+        /// If not set by the decoder, this attempts to obtain it by dividing the start time by the 
+        /// frame duration
+        /// </summary>
+        public int DisplayPictureNumber { get; internal set; }
+
+        /// <summary>
+        /// Gets the coded picture number set by the decoder.
+        /// </summary>
+        public int CodedPictureNumber { get; internal set; }
+
+        /// <summary>
         /// The picture buffer length of the last allocated buffer
         /// </summary>
         internal int PictureBufferLength { get; set; }

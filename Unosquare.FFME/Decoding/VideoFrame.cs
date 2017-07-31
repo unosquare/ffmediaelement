@@ -44,21 +44,31 @@
             Duration = repeatFactor.ToTimeSpan(new AVRational { num = timeBase.den, den = timeBase.num });
             EndTime = TimeSpan.FromTicks(StartTime.Ticks + Duration.Ticks);
 
-            // Get the Closed-Caption packets
+            DisplayPictureNumber = frame->display_picture_number == 0 ?
+                (int)Math.Round((double)StartTime.Ticks / Duration.Ticks, 0) : 0;
+
+            CodedPictureNumber = frame->coded_picture_number;
+
+            // Process side data
             for (var i = 0; i < frame->nb_side_data; i++)
             {
                 var sideData = frame->side_data[i];
-                if (sideData->type != AVFrameSideDataType.AV_FRAME_DATA_A53_CC) continue;
 
-                // Parse 3 bytes at a time
-                for (var p = 0; p < sideData->size; p += 3)
+                // Get the Closed-Caption packets
+                if (sideData->type == AVFrameSideDataType.AV_FRAME_DATA_A53_CC)
                 {
-                    var packet = new ClosedCaptionPacket(StartTime, sideData->data[p + 0], sideData->data[p + 1], sideData->data[p + 2]);
-                    if (packet.PacketType == CCPacketType.NullPad || packet.PacketType == CCPacketType.Unrecognized)
-                        continue;
+                    // Parse 3 bytes at a time
+                    for (var p = 0; p < sideData->size; p += 3)
+                    {
+                        var packet = new ClosedCaptionPacket(StartTime, sideData->data[p + 0], sideData->data[p + 1], sideData->data[p + 2]);
+                        if (packet.PacketType == CCPacketType.NullPad || packet.PacketType == CCPacketType.Unrecognized)
+                            continue;
 
-                    // at this point, we have valid CC data
-                    ClosedCaptions.Add(packet);
+                        // at this point, we have valid CC data
+                        ClosedCaptions.Add(packet);
+                    }
+
+                    continue;
                 }
             }
         }
@@ -84,6 +94,18 @@
         /// Gets the closed caption data collected from the frame in CEA-708/EAS-608 format.
         /// </summary>
         public List<ClosedCaptionPacket> ClosedCaptions { get; } = new List<ClosedCaptionPacket>();
+
+        /// <summary>
+        /// Gets the display picture number (frame number).
+        /// If not set by the decoder, this attempts to obtain it by dividing the start time by the 
+        /// frame duration
+        /// </summary>
+        public int DisplayPictureNumber { get; }
+
+        /// <summary>
+        /// Gets the coded picture number set by the decoder.
+        /// </summary>
+        public int CodedPictureNumber { get; }
 
         /// <summary>
         /// Gets the pointer to the unmanaged frame.

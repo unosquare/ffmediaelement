@@ -428,7 +428,7 @@
                 e.Bitmap.Lock();
                 var differenceMillis = TimeSpan.FromTicks(e.Clock.Ticks - e.StartTime.Ticks).TotalMilliseconds;
 
-                overlayGraphics.DrawString($"Clock: {e.StartTime.TotalSeconds:00.000} | Skew: {differenceMillis:00.000}",
+                overlayGraphics.DrawString($"Clock: {e.StartTime.TotalSeconds:00.000} | Skew: {differenceMillis:00.000} | PN: {e.PictureNumber}",
                     overlayTextFont, overlayTextFontBrush, overlayTextOffset);
 
                 // draw a simple VU meter
