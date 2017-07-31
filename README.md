@@ -7,7 +7,7 @@
 ![ffmeplay](https://github.com/unosquare/ffmediaelement/raw/master/ffmeplay.png)
 
 - Current Status: (2017-07-26) - 2.0, codenamed Michelob is now in beta 1 (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
-- FFmpeg Version: <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.2.4-win32-shared.zip">3.2.4</a>
+- FFmpeg Version: <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.3.2-win32-shared.zip">3.3.2</a>
 - For a history of commits see the repo: https://github.com/unosquare/ffplaydotnet
 
 ## Features Overview
@@ -33,7 +33,7 @@ FFME provides multiple improvements over the standard MediaElement such as:
 *Please note that I am unable to distribute FFmpeg's binaries because I don't know if I am allowed to do so. Follow the instructions below to compile, run and test FFME. I will look into releasing a NuGet package. See issue #1*
 
 1. Clone this repository.
-2. Download the FFmpeg win32-shared binaries from <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.2.4-win32-shared.zip">Zeranoe FFmpeg Builds</a>.
+2. Download the FFmpeg win32-shared binaries from <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.3.2-win32-shared.zip">Zeranoe FFmpeg Builds</a>.
 3. Extract the contents of the <code>zip</code> file you just downloaded and go to the <code>bin</code> folder that got extracted. You should see 3 <code>exe</code> files and 8 <code>dll</code> files. Select and copy all of them.
 4. Now paste all 11 files from the prior step onto a well-known folder. Take note of the full path. (I used c:\ffmpeg\)
 5. Open the solution and set the <code>Unosquare.FFME.Sample</code> project as the startup project. You can do this by right clicking on the project and selecting <code>Set as startup project</code>
