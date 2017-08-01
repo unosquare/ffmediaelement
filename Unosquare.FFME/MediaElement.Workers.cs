@@ -86,9 +86,20 @@
         /// It reports on DownloadProgress by enqueueing an update to the property
         /// in order to avoid any kind of disruption to this thread caused by the UI thread.
         /// </summary>
-        /// <returns>The task.</returns>
-        internal async Task RunPacketReadingWorker()
+        internal void RunPacketReadingWorker()
         {
+            // Setup a thread suspension/delay mechanism
+            var timerLock = new ManualResetEvent(true);
+            var timer = new System.Timers.Timer(1);
+
+            timer.Elapsed += (s, e) =>
+            {
+                timerLock.Set();
+                timerLock.Reset();
+            };
+
+            timer.Start();
+
             // Holds the packet count for each read cycle
             var packetsRead = new MediaTypeDictionary<int>();
 
@@ -155,8 +166,13 @@
 
                 // Wait some if we have a full packet buffer or we are unable to read more packets (i.e. EOF).
                 if (Container.Components.PacketBufferLength >= DownloadCacheLength || CanReadMorePackets == false || currentBytesRead <= 0)
-                    await Task.Delay(1);
+                    timerLock.WaitOne();
             }
+
+            // Cleanup
+            timer.Stop();
+            timer.Dispose();
+            timerLock.Dispose();
 
             // Always exit notifying the reading cycle is done.
             PacketReadingCycle.Set();
@@ -174,6 +190,18 @@
         /// <returns>The task.</returns>
         internal async Task RunFrameDecodingWorker()
         {
+            // Setup a thread suspension/delay mechanism
+            var timerLock = new ManualResetEvent(true);
+            var timer = new System.Timers.Timer(1);
+
+            timer.Elapsed += (s, e) =>
+            {
+                timerLock.Set();
+                timerLock.Reset();
+            };
+
+            timer.Start();
+
             var decodedFrameCount = 0;
 
             var wallClock = TimeSpan.Zero;
@@ -418,10 +446,15 @@
                 // Give it a break if there was nothing to decode.
                 // We probably need to wait for some more input
                 if (decodedFrameCount <= 0 && Commands.PendingCount <= 0)
-                    await Task.Delay(1);
+                    timerLock.WaitOne();
 
                 #endregion
             }
+
+            // Cleanup
+            timer.Stop();
+            timer.Dispose();
+            timerLock.Dispose();
 
             // Always exit notifying the cycle is done.
             FrameDecodingCycle.Set();
@@ -436,10 +469,21 @@
         /// block buffer. This task is responsible for keeping track of the clock
         /// and calling the render methods appropriate for the current clock position.
         /// </summary>
-        /// <returns>The task.</returns>
-        internal async Task RunBlockRenderingWorker()
+        internal void RunBlockRenderingWorker()
         {
             #region 0. Initialize Running State
+
+            // Setup a thread suspension/delay mechanism
+            var timerLock = new ManualResetEvent(true);
+            var timer = new System.Timers.Timer(1);
+
+            timer.Elapsed += (s, e) =>
+            {
+                timerLock.Set();
+                timerLock.Reset();
+            };
+
+            timer.Start();
 
             // Holds the main media type
             var main = Container.Components.Main.MediaType;
@@ -538,10 +582,15 @@
 
                 // Spin the thread for a bit if we have no more stuff to process
                 if (renderedBlockCount <= 0 && Commands.PendingCount <= 0)
-                    await Task.Delay(1);
+                    timerLock.WaitOne();
 
                 #endregion
             }
+
+            // Cleanup
+            timer.Stop();
+            timer.Dispose();
+            timerLock.Dispose();
 
             // Always exit notifying the cycle is done.
             BlockRenderingCycle.Set();
