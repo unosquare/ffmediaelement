@@ -225,7 +225,7 @@
         /// This method is called in every block rendering cycle.
         /// </summary>
         /// <returns>The awaitable task</returns>
-        public async Task ProcessNext()
+        public async Task ProcessNextAsync()
         {
             MediaCommand command = null;
 
@@ -237,6 +237,15 @@
             }
 
             await command.ExecuteAsync();
+        }
+
+        /// <summary>
+        /// Processes the next command synchronously.
+        /// This method blocks the current thread.
+        /// </summary>
+        public void ProcessNext()
+        {
+            ProcessNextAsync().GetAwaiter().GetResult();
         }
 
         /// <summary>

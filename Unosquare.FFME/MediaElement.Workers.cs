@@ -187,8 +187,7 @@
         /// many frames as possible in each frame queue and
         /// up to the MaxFrames on each component
         /// </summary>
-        /// <returns>The task.</returns>
-        internal async Task RunFrameDecodingWorker()
+        internal void RunFrameDecodingWorker()
         {
             // Setup a thread suspension/delay mechanism
             var timerLock = new ManualResetEvent(true);
@@ -236,7 +235,7 @@
                 }
 
                 // Execute the following command at the beginning of the cycle
-                await Commands.ProcessNext();
+                Commands.ProcessNext();
 
                 hasPendingSeeks = Commands.PendingCountOf(MediaCommandType.Seek) > 0;
                 if (IsSeeking == true && hasPendingSeeks == false)

@@ -346,7 +346,7 @@
             Media.PropertyChanged += Media_PropertyChanged;
             Unosquare.FFME.MediaElement.FFmpegMessageLogged += MediaElement_FFmpegMessageLogged;
 
-#if DEBUG
+#if DEBUG2
 
             #region Audio and Video Frame Rendering Variables
 

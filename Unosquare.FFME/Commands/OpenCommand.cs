@@ -73,17 +73,18 @@
                 m.Clock.SpeedRatio = Constants.DefaultSpeedRatio;
                 m.IsTaskCancellationPending = false;
 
+                // Set the initial state of the task cycles.
                 m.SeekingDone.Set();
                 m.BlockRenderingCycle.Reset();
                 m.FrameDecodingCycle.Reset();
                 m.PacketReadingCycle.Reset();
 
+                // Start the tasks
                 m.PacketReadingTask = Task.Run(() => m.RunPacketReadingWorker());
-
                 m.FrameDecodingTask = Task.Run(() => m.RunFrameDecodingWorker());
-
                 m.BlockRenderingTask = Task.Run(() => m.RunBlockRenderingWorker());
 
+                // Raise the opened event
                 m.RaiseMediaOpenedEvent();
             }
             catch (Exception ex)
