@@ -1,7 +1,6 @@
 ﻿namespace Unosquare.FFME.Commands
 {
     using Core;
-    using System.Diagnostics;
     using System.Text;
     using System.Threading.Tasks;
     using System.Windows.Threading;
