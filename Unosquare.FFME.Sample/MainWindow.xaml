@@ -49,8 +49,7 @@
                     SmallChange="{Binding ElementName=Media, Path=FrameStepDuration, Converter={StaticResource TimeSpanToSecondsConverter}}"
                     LargeChange="{Binding ElementName=Media, Path=FrameStepDuration, Converter={StaticResource TimeSpanToSecondsConverter}}"
                     Maximum="{Binding ElementName=Media, Path=NaturalDuration, Converter={StaticResource TimeSpanToSecondsConverter}}" 
-                    Value="{Binding ElementName=Media, Path=Position, Converter={StaticResource TimeSpanToSecondsConverter}}"
-                    PreviewMouseDown="PositionSlider_MouseDown" PreviewMouseUp="PositionSlider_MouseUp" />
+                    Value="{Binding ElementName=Media, Path=Position, Converter={StaticResource TimeSpanToSecondsConverter}}" />
 
             <DockPanel Name="ProgressPanel" Grid.Row="2" LastChildFill="True" Margin="20,0">
                 <TextBlock Width="100" Visibility="{Binding ElementName=window, Path=IsMediaOpenVisibility}" VerticalAlignment="Center" DockPanel.Dock="Left" Foreground="{StaticResource CustomSliderHighlightBrush}" Text="{Binding ElementName=Media, Path=Position, Converter={StaticResource TimeSpanFormatter}, Mode=OneWay}" />

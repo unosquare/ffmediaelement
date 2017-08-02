@@ -506,6 +506,14 @@
                 Debug.WriteLine($"Key Down: {e.OriginalSource} - {e.Key}");
             };
 
+            #region Position Slider Events
+
+            // Had to wire up the events with handleEventToo = true because the control swallows these events in some cases
+            PositionSlider.AddHandler(Slider.PreviewMouseDownEvent, new RoutedEventHandler(PositionSlider_MouseDown), true);
+            PositionSlider.AddHandler(Slider.PreviewMouseUpEvent, new RoutedEventHandler(PositionSlider_MouseUp), true);
+            
+            #endregion
+
             #region Toggle Fullscreen with Double Click
 
             Media.PreviewMouseDoubleClick += (s, e) =>
@@ -829,19 +837,21 @@
         /// Handles the MouseDown event of the PositionSlider control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="System.Windows.Input.MouseButtonEventArgs"/> instance containing the event data.</param>
-        private void PositionSlider_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
+        private void PositionSlider_MouseDown(object sender, RoutedEventArgs e)
         {
             WasPlaying = Media.IsPlaying;
             Media.Pause();
+            // Debug.Assert(Media.IsPlaying == false); // TODO: CommandManager not awaiting :( -- Need to resort to manualresetevents
+            Debug.WriteLine($"{nameof(PositionSlider_MouseDown)} - {nameof(WasPlaying)} = {WasPlaying}");
         }
 
         /// <summary>
         /// Handles the MouseUp event of the PositionSlider control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="System.Windows.Input.MouseButtonEventArgs"/> instance containing the event data.</param>
-        private void PositionSlider_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
+        private void PositionSlider_MouseUp(object sender, RoutedEventArgs e)
         {
             if (WasPlaying) Media.Play();
         }
