@@ -26,7 +26,7 @@
         /// <param name="action">The action.</param>
         public static void UIInvoke(DispatcherPriority priority, Action action)
         {
-            UIDispatcher.Invoke(action, priority, null);
+            UIDispatcher?.Invoke(action, priority, null);
         }
 
         /// <summary>
@@ -38,7 +38,7 @@
         /// <param name="args">The arguments.</param>
         public static void UIEnqueueInvoke(DispatcherPriority priority, Delegate action, params object[] args)
         {
-            UIDispatcher.BeginInvoke(action, priority, args);
+            UIDispatcher?.BeginInvoke(action, priority, args);
         }
 
         /// <summary>

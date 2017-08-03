@@ -631,6 +631,9 @@
             Loaded += MainWindow_Loaded;
             UrlTextBox.Text = HistoryItems.Count > 0 ? HistoryItems.First() : string.Empty;
 
+            // Media.ScrubbingEnabled = true;
+            // Media.LoadedBehavior = MediaState.Pause;
+
             var args = Environment.GetCommandLineArgs();
             if (args != null && args.Length > 1)
             {

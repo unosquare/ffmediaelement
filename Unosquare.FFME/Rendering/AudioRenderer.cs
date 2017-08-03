@@ -250,8 +250,7 @@
         /// </summary>
         public void Play()
         {
-            lock (SyncLock)
-                AudioDevice?.Play();
+            // placeholder
         }
 
         /// <summary>
@@ -416,6 +415,7 @@
             var bufferLength = WaveFormat.ConvertLatencyToByteSize(AudioDevice.DesiredLatency) * MediaElement.Blocks[MediaType.Audio].Capacity / 2;
             AudioBuffer = new CircularBuffer(bufferLength);
             AudioDevice.Init(this);
+            AudioDevice.Play();
         }
 
         /// <summary>

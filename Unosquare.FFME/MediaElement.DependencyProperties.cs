@@ -86,6 +86,7 @@
 
         /// <summary> 
         /// The DependencyProperty for the MediaElement.UnloadedBehavior property. 
+        /// TODO: Currently this property has no effect. Needs implementation.
         /// </summary>
         public static readonly DependencyProperty UnloadedBehaviorProperty = DependencyProperty.Register(
             nameof(UnloadedBehavior),
@@ -226,7 +227,8 @@
         /// Gets/Sets the ScrubbingEnabled property on the MediaElement.
         /// Note: Frame scrubbing is always enabled. The real effect of this property is
         /// that when it is set to true, setting values on the Position property occurs synchronously.
-        /// Wehn it is set to false, setting values on the Position property occurs asyncrhonously
+        /// When it is set to false, setting values on the Position property occurs asyncrhonously
+        /// TODO: I still need to make this truly synchronous
         /// </summary>
         [Category(nameof(MediaElement))]
         [Description("When set to true, frame seeking will occur synchronously. Otherwise it will occur asynchronously")]
@@ -395,6 +397,9 @@
             if (element.Container == null) return;
 
             if (element.IsPositionUpdating || element.Container.IsStreamSeekable == false) return;
+
+            if (element.ScrubbingEnabled)
+                element.SeekingDone.WaitOne();
 
             element.Commands.Seek((TimeSpan)e.NewValue);
         }
