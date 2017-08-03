@@ -903,6 +903,7 @@
         private void StreamSeekToStart()
         {
             if (MediaStartTimeOffset == TimeSpan.MinValue) return;
+            Thread.VolatileWrite(ref StreamReadInterruptStartTime, DateTime.UtcNow.Ticks);
             var seekResult = ffmpeg.av_seek_frame(
                 InputContext,
                 -1,
@@ -995,6 +996,7 @@
                 // Perform the seek. There is also avformat_seek_file which is the older version of av_seek_frame
                 // Check if we are seeking before the start of the stream in this cyle. If so, simply seek to the
                 // begining of the stream. Otherwise, seek normally.
+                Thread.VolatileWrite(ref StreamReadInterruptStartTime, DateTime.UtcNow.Ticks);
                 if (relativeTargetTime.Ticks <= main.StartTimeOffset.Ticks)
                 {
                     seekResult = ffmpeg.av_seek_frame(InputContext, -1, SeekStartTimestamp, seekFlags);
