@@ -18,7 +18,7 @@
         /// <summary>
         /// Performs the actions that this command implements.
         /// </summary>
-        internal override void Execute()
+        internal override void ExecuteInternal()
         {
             var m = Manager.MediaElement;
             if (m.IsOpen == false) return;

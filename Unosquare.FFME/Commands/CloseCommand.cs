@@ -24,7 +24,7 @@
         /// <summary>
         /// Executes this command.
         /// </summary>
-        internal override void Execute()
+        internal override void ExecuteInternal()
         {
             var m = Manager.MediaElement;
 
@@ -77,7 +77,7 @@
             m.MediaState = System.Windows.Controls.MediaState.Close;
 
             // Update notification properties
-            Utils.UIInvoke(DispatcherPriority.DataBind, () =>
+            Runner.UIInvoke(DispatcherPriority.DataBind, () =>
             {
                 m.NotifyPropertyChanges();
                 m.ResetDependencyProperies();

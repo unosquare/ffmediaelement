@@ -63,8 +63,8 @@
                 if (m_OpenCommand == null)
                     m_OpenCommand = new DelegateCommand((a) =>
                     {
-                        Media.Source = new Uri(UrlTextBox.Text);
                         OpenMediaPopup.IsOpen = false;
+                        Media.Source = new Uri(UrlTextBox.Text);
                     }, null);
 
                 return m_OpenCommand;
@@ -842,8 +842,6 @@
         {
             WasPlaying = Media.IsPlaying;
             Media.Pause();
-            // Debug.Assert(Media.IsPlaying == false); // TODO: CommandManager not awaiting :( -- Need to resort to manualresetevents
-            Debug.WriteLine($"{nameof(PositionSlider_MouseDown)} - {nameof(WasPlaying)} = {WasPlaying}");
         }
 
         /// <summary>

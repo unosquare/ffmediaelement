@@ -8,13 +8,11 @@
     using System.ComponentModel;
     using System.Diagnostics;
     using System.IO;
-    using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
     using System.Text;
     using System.Threading;
-    using System.Threading.Tasks;
     using System.Windows;
     using System.Windows.Threading;
 
@@ -97,14 +95,6 @@
 
                 return m_IsInDebugMode.Value;
             }
-        }
-
-        /// <summary>
-        /// Gets the UI dispatcher.
-        /// </summary>
-        public static Dispatcher UIDispatcher
-        {
-            get { return Application.Current?.Dispatcher; }
         }
 
         /// <summary>
@@ -327,122 +317,6 @@
                 FFmpegRegisterPath = ffmpegPath;
                 return FFmpegRegisterPath;
             }
-        }
-
-        #endregion
-
-        #region Dispatching
-
-        /// <summary>
-        /// Invoke the given action asynchronously by starting a new background thread and continuing
-        /// dispatcher processing. This method is somewhat expensive but it guarantees
-        /// pending operations on the selected dispatcher do not cause a deadlock.
-        /// </summary>
-        /// <param name="dispatcher">The dispatcher.</param>
-        /// <param name="action">The action.</param>
-        /// <param name="args">The arguments.</param>
-        /// <returns>The awaitable promise.</returns>
-        public static Task PumpInvokeAsync(this Dispatcher dispatcher, Delegate action, params object[] args)
-        {
-            var completer = new TaskCompletionSource<bool>();
-
-            // exit if we don't have a valid dispatcher
-            if (dispatcher == null || dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)
-            {
-                completer.TrySetResult(true);
-                return completer.Task;
-            }
-
-            var threadFinished = new ManualResetEvent(false);
-            ThreadPool.QueueUserWorkItem(async (o) =>
-            {
-                await dispatcher?.InvokeAsync(() =>
-                {
-                    action.DynamicInvoke(o as object[]);
-                });
-                threadFinished.Set();
-                completer.TrySetResult(true);
-            }, args);
-
-            // The pumping of queued operations begins here.
-            do
-            {
-                // Error condition checking
-                if (dispatcher == null || dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)
-                    break;
-
-                try
-                {
-                    // Force the processing of the queue by pumping a new message at lower priority
-                    dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
-                }
-                catch
-                {
-                    break;
-                }
-            }
-            while (threadFinished.WaitOne(1) == false);
-
-            threadFinished.Dispose();
-            threadFinished = null;
-            return completer.Task;
-        }
-
-        /// <summary>
-        /// Invokes the specified delegate on the specified dispatcher.
-        /// </summary>
-        /// <param name="dispatcher">The dispatcher.</param>
-        /// <param name="priority">The priority.</param>
-        /// <param name="action">The action.</param>
-        /// <param name="args">The arguments.</param>
-        /// <returns>The awaitable task</returns>
-        public static async Task InvokeAsync(this Dispatcher dispatcher, DispatcherPriority priority, Delegate action, params object[] args)
-        {
-            // exit if we don't have a valid dispatcher
-            if (dispatcher == null || dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished) return;
-
-            // synchronously invoke if we are on the same context
-            if (Dispatcher.CurrentDispatcher == dispatcher)
-            {
-                action.DynamicInvoke(args);
-                return;
-            }
-
-            // Execute asynchronously
-            try
-            {
-                await dispatcher.InvokeAsync(() => { action.DynamicInvoke(args); }, priority);
-            }
-            catch (TaskCanceledException)
-            {
-                // swallow
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        /// <summary>
-        /// Synchronously invokes the given instructions on the main application dispatcher.
-        /// </summary>
-        /// <param name="priority">The priority. Set it to Normal by default.</param>
-        /// <param name="action">The action.</param>
-        public static void UIInvoke(DispatcherPriority priority, Action action)
-        {
-            UIDispatcher.InvokeAsync(priority, action, null).GetAwaiter().GetResult();
-        }
-
-        /// <summary>
-        /// Enqueues the given instructions with the given arguments on the main application dispatcher.
-        /// This is a way to execute code in a fire-and-forget style
-        /// </summary>
-        /// <param name="priority">The priority.</param>
-        /// <param name="action">The action.</param>
-        /// <param name="args">The arguments.</param>
-        public static void UIEnqueueInvoke(DispatcherPriority priority, Delegate action, params object[] args)
-        {
-            var task = UIDispatcher.InvokeAsync(priority, action, args);
         }
 
         #endregion

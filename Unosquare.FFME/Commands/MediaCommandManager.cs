@@ -4,10 +4,11 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
     using System.Windows.Threading;
 
+    /// <summary>
+    /// Represents a singlo point of contact for media command excution.
+    /// </summary>
     internal sealed class MediaCommandManager
     {
         #region Private Declarations
@@ -15,7 +16,6 @@
         private readonly object SyncLock = new object();
         private readonly List<MediaCommand> Commands = new List<MediaCommand>();
         private readonly MediaElement m_MediaElement;
-        private MediaCommand m_ExecutingCommand = null;
 
         #endregion
 
@@ -43,16 +43,6 @@
         }
 
         /// <summary>
-        /// Gets or sets the currently executing command.
-        /// If there are no commands being executed, then it returns null;
-        /// </summary>
-        public MediaCommand ExecutingCommand
-        {
-            get { lock (SyncLock) { return m_ExecutingCommand; } }
-            set { lock (SyncLock) { m_ExecutingCommand = value; } }
-        }
-
-        /// <summary>
         /// Gets the parent media element.
         /// </summary>
         public MediaElement MediaElement
@@ -69,8 +59,7 @@
         /// The command is processed in a Thread Pool Thread.
         /// </summary>
         /// <param name="uri">The URI.</param>
-        /// <returns>The awaitable task</returns>
-        public async Task Open(Uri uri)
+        public void Open(Uri uri)
         {
             lock (SyncLock)
             {
@@ -79,18 +68,17 @@
 
             // Process the command in a background thread as opposed
             // to in the thread that it was called to prevent blocking.
-            await Task.Run(async () =>
+            Runner.UIPumpInvoke(DispatcherPriority.Normal, () =>
             {
                 var command = new OpenCommand(this, uri);
-                await command.ExecuteAsync();
+                command.ExecuteInternal();
             });
         }
 
         /// <summary>
         /// Starts playing the open media URI.
         /// </summary>
-        /// <returns>The awaitable task</returns>
-        public async Task Play()
+        public void Play()
         {
             PlayCommand command = null;
 
@@ -100,18 +88,17 @@
                 if (command == null)
                 {
                     command = new PlayCommand(this);
-                    Commands.Add(command);
+                    EnqueueCommand(command);
                 }
             }
 
-            await command.Promise;
+            WaitFor(command);
         }
 
         /// <summary>
         /// Pauses the media.
         /// </summary>
-        /// <returns>The awaitable task</returns>
-        public async Task Pause()
+        public void Pause()
         {
             PauseCommand command = null;
 
@@ -121,18 +108,17 @@
                 if (command == null)
                 {
                     command = new PauseCommand(this);
-                    Commands.Add(command);
+                    EnqueueCommand(command);
                 }
             }
 
-            await command.Promise;
+            WaitFor(command);
         }
 
         /// <summary>
         /// Pauses and rewinds the media
         /// </summary>
-        /// <returns>The awaitable task</returns>
-        public async Task Stop()
+        public void Stop()
         {
             StopCommand command = null;
 
@@ -142,19 +128,18 @@
                 if (command == null)
                 {
                     command = new StopCommand(this);
-                    Commands.Add(command);
+                    EnqueueCommand(command);
                 }
             }
 
-            await command.Promise;
+            WaitFor(command);
         }
 
         /// <summary>
         /// Seeks to the specified position within the media.
         /// </summary>
         /// <param name="position">The position.</param>
-        /// <returns>The awaitable task</returns>
-        public async Task Seek(TimeSpan position)
+        public void Seek(TimeSpan position)
         {
             SeekCommand command = null;
             lock (SyncLock)
@@ -163,23 +148,20 @@
                 if (command == null)
                 {
                     command = new SeekCommand(this, position);
-                    Commands.Add(command);
+                    EnqueueCommand(command);
                 }
                 else
                 {
                     command.TargetPosition = position;
                 }
             }
-
-            await command.Promise;
         }
 
         /// <summary>
         /// Closes the specified media.
         /// This command gets processed in a threadpool thread.
         /// </summary>
-        /// <returns>The awaitable task</returns>
-        public async Task Close()
+        public void Close()
         {
             lock (SyncLock)
             {
@@ -188,19 +170,18 @@
 
             // Process the command in a background thread as opposed
             // to in the thread that it was called to prevent blocking.
-            await Dispatcher.CurrentDispatcher.PumpInvokeAsync((Action)(() => 
+            Runner.UIPumpInvoke(DispatcherPriority.Normal, () =>
             {
                 var command = new CloseCommand(this);
-                command.Execute();
-            }));
+                command.ExecuteInternal();
+            });
         }
 
         /// <summary>
         /// Sets the playback speed ratio.
         /// </summary>
         /// <param name="targetSpeedRatio">The target speed ratio.</param>
-        /// <returns>The awaitable task</returns>
-        public async Task SetSpeedRatio(double targetSpeedRatio)
+        public void SetSpeedRatio(double targetSpeedRatio)
         {
             SpeedRatioCommand command = null;
             lock (SyncLock)
@@ -209,23 +190,20 @@
                 if (command == null)
                 {
                     command = new SpeedRatioCommand(this, targetSpeedRatio);
-                    Commands.Add(command);
+                    EnqueueCommand(command);
                 }
                 else
                 {
                     command.SpeedRatio = targetSpeedRatio;
                 }
             }
-
-            await command.Promise;
         }
 
         /// <summary>
         /// Processes the next command in the command queue.
         /// This method is called in every block rendering cycle.
         /// </summary>
-        /// <returns>The awaitable task</returns>
-        public async Task ProcessNextAsync()
+        public void ProcessNext()
         {
             MediaCommand command = null;
 
@@ -236,16 +214,7 @@
                 Commands.RemoveAt(0);
             }
 
-            await command.ExecuteAsync();
-        }
-
-        /// <summary>
-        /// Processes the next command synchronously.
-        /// This method blocks the current thread.
-        /// </summary>
-        public void ProcessNext()
-        {
-            ProcessNextAsync().GetAwaiter().GetResult();
+            command.Execute();
         }
 
         /// <summary>
@@ -259,6 +228,32 @@
             {
                 return Commands.Count(c => c.CommandType == t);
             }
+        }
+
+        /// <summary>
+        /// Enqueues the command for execution.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        private void EnqueueCommand(MediaCommand command)
+        {
+            if (MediaElement.IsOpen == false)
+            {
+                command.Complete();
+                return;
+            }
+
+            lock (SyncLock)
+                Commands.Add(command);
+        }
+
+        /// <summary>
+        /// Waits for the command to complete execution.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        private void WaitFor(MediaCommand command)
+        {
+            while (command.HasCompleted == false && MediaElement.IsOpen)
+                Runner.DoEvents(); 
         }
 
         #endregion

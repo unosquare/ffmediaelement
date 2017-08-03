@@ -33,12 +33,12 @@
         /// <summary>
         /// Performs the actions that this command implements.
         /// </summary>
-        internal override void Execute()
+        internal override void ExecuteInternal()
         {
             var m = Manager.MediaElement;
 
             var pause = new PauseCommand(Manager);
-            pause.Execute();
+            pause.ExecuteInternal();
 
             var initialPosition = m.Clock.Position;
             m.SeekingDone.Reset();

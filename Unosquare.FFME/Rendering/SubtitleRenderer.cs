@@ -6,6 +6,7 @@
     using Unosquare.FFME.Core;
     using System.Collections.Generic;
     using System.Threading;
+    using System.Windows.Threading;
 
     /// <summary>
     /// Subtitle Renderer - Does nothing at this point.
@@ -217,8 +218,8 @@
                 return;
 
             // We fire-and-forget the update of the text
-            Utils.UIEnqueueInvoke(
-                System.Windows.Threading.DispatcherPriority.DataBind,
+            Runner.UIEnqueueInvoke(
+                DispatcherPriority.DataBind,
                 new Action<string>((s) =>
                 {
                     lock (SyncLock)

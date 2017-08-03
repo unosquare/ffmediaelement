@@ -260,7 +260,7 @@
             return baseValue;
         }
 
-        private static async void OnSourcePropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
+        private static void OnSourcePropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
         {
             var element = dependencyObject as MediaElement;
             if (element == null) return;
@@ -274,15 +274,15 @@
 
             if (uri != null)
             {
-                await element.Commands.Close();
-                await element.Commands.Open(uri);
+                element.Commands.Close();
+                element.Commands.Open(uri);
 
                 if (element.LoadedBehavior == System.Windows.Controls.MediaState.Play || element.CanPause == false)
-                    await element.Commands.Play();
+                    element.Commands.Play();
             }
             else
             {
-                await element.Commands.Close();
+                element.Commands.Close();
             }
         }
 
@@ -388,7 +388,7 @@
             if (element == null) return;
         }
 
-        private static async void PositionPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void PositionPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var element = d as MediaElement;
             if (element == null) return;
@@ -396,7 +396,7 @@
 
             if (element.IsPositionUpdating || element.Container.IsStreamSeekable == false) return;
 
-            await element.Commands.Seek((TimeSpan)e.NewValue);
+            element.Commands.Seek((TimeSpan)e.NewValue);
         }
 
         private static object CoercePositionProperty(DependencyObject d, object value)
@@ -424,14 +424,14 @@
             return targetValue;
         }
 
-        private static async void SpeedRatioPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void SpeedRatioPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var element = d as MediaElement;
             if (element == null) return;
             if (element.Container == null) return;
 
             var targetSpeedRatio = (double)e.NewValue;
-            await element.Commands.SetSpeedRatio(targetSpeedRatio);
+            element.Commands.SetSpeedRatio(targetSpeedRatio);
         }
 
         #endregion

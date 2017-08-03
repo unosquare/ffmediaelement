@@ -34,33 +34,33 @@
         /// <summary>
         /// Begins or resumes playback of the currently loaded media.
         /// </summary>
-        public async void Play()
+        public void Play()
         {
-            await Commands.Play();
+            Commands.Play();
         }
 
         /// <summary>
         /// Pauses playback of the currently loaded media.
         /// </summary>
-        public async void Pause()
+        public void Pause()
         {
-            await Commands.Pause();
+            Commands.Pause();
         }
 
         /// <summary>
         /// Pauses and rewinds the currently loaded media.
         /// </summary>
-        public async void Stop()
+        public void Stop()
         {
-            await Commands.Stop();
+            Commands.Stop();
         }
 
         /// <summary>
         /// Closes the currently loaded media.
         /// </summary>
-        public async void Close()
+        public void Close()
         {
-            await Commands.Close();
+            Commands.Close();
         }
 
         #endregion

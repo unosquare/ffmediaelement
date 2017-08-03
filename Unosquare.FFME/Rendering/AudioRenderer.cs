@@ -60,7 +60,7 @@
 
             if (Application.Current != null)
             {
-                Utils.UIInvoke(DispatcherPriority.Normal, () =>
+                Runner.UIInvoke(DispatcherPriority.Normal, () =>
                 {
                     Application.Current.Exit += OnApplicationExit;
                 });

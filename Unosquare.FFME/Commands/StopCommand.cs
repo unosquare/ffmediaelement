@@ -21,12 +21,12 @@
         /// <summary>
         /// Performs the actions that this command implements.
         /// </summary>
-        internal override void Execute()
+        internal override void ExecuteInternal()
         {
             var m = Manager.MediaElement;
             m.Clock.Reset();
             var seek = new SeekCommand(this.Manager, TimeSpan.Zero);
-            seek.Execute();
+            seek.ExecuteInternal();
 
             foreach (var renderer in m.Renderers.Values)
                 renderer.Stop();

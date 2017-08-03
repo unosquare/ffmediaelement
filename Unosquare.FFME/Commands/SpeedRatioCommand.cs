@@ -28,14 +28,14 @@
         /// <summary>
         /// Performs the actions that this command implements.
         /// </summary>
-        internal override void Execute()
+        internal override void ExecuteInternal()
         {
             if (Manager.MediaElement.Clock.SpeedRatio != SpeedRatio)
                 Manager.MediaElement.Clock.SpeedRatio = SpeedRatio;
 
-            Utils.UIInvoke(DispatcherPriority.DataBind, () => 
+            Runner.UIInvoke(DispatcherPriority.DataBind, () => 
             {
-                Manager.MediaElement.SpeedRatio = SpeedRatio;
+                Manager.MediaElement.SpeedRatio = Manager.MediaElement.Clock.SpeedRatio;
             });
         }
     }

@@ -182,7 +182,7 @@
         {
             LogEventStart(MediaFailedEvent);
             Logger.Log(MediaLogMessageType.Error, $"Media Failure - {ex?.GetType()}: {ex?.Message}");
-            Utils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(CreateExceptionRoutedEventArgs(MediaFailedEvent, this, ex)); });
+            Runner.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(CreateExceptionRoutedEventArgs(MediaFailedEvent, this, ex)); });
             LogEventDone(MediaFailedEvent);
         }
 
@@ -193,7 +193,7 @@
         internal void RaiseMediaOpenedEvent()
         {
             LogEventStart(MediaOpenedEvent);
-            Utils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaOpenedEvent, this)); });
+            Runner.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaOpenedEvent, this)); });
             LogEventDone(MediaOpenedEvent);
         }
 
@@ -204,7 +204,7 @@
         internal void RaiseMediaOpeningEvent()
         {
             LogEventStart(MediaOpeningEvent);
-            Utils.UIInvoke(DispatcherPriority.DataBind, () =>
+            Runner.UIInvoke(DispatcherPriority.DataBind, () =>
             {
                 RaiseEvent(new MediaOpeningRoutedEventArgs(MediaOpeningEvent, this, Container.MediaOptions, Container.MediaInfo));
             });
@@ -255,7 +255,7 @@
         private void RaiseBufferingStartedEvent()
         {
             LogEventStart(BufferingStartedEvent);
-            Utils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(BufferingStartedEvent, this)); });
+            Runner.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(BufferingStartedEvent, this)); });
             LogEventDone(BufferingStartedEvent);
         }
 
@@ -266,7 +266,7 @@
         private void RaiseBufferingEndedEvent()
         {
             LogEventStart(BufferingEndedEvent);
-            Utils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(BufferingEndedEvent, this)); });
+            Runner.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(BufferingEndedEvent, this)); });
             LogEventDone(BufferingEndedEvent);
         }
 
@@ -277,7 +277,7 @@
         private void RaiseSeekingStartedEvent()
         {
             LogEventStart(SeekingStartedEvent);
-            Utils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(SeekingStartedEvent, this)); });
+            Runner.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(SeekingStartedEvent, this)); });
             LogEventDone(SeekingStartedEvent);
         }
 
@@ -288,7 +288,7 @@
         private void RaiseSeekingEndedEvent()
         {
             LogEventStart(SeekingEndedEvent);
-            Utils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(SeekingEndedEvent, this)); });
+            Runner.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(SeekingEndedEvent, this)); });
             LogEventDone(SeekingEndedEvent);
         }
 
@@ -299,7 +299,7 @@
         private void RaiseMediaEndedEvent()
         {
             LogEventStart(MediaEndedEvent);
-            Utils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaEndedEvent, this)); });
+            Runner.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaEndedEvent, this)); });
             LogEventDone(MediaEndedEvent);
         }
 

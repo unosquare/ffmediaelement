@@ -1,15 +1,16 @@
 ﻿namespace Unosquare.FFME.Commands
 {
-    using System;
-    using System.Threading.Tasks;
-
     /// <summary>
     /// Represents a command to be executed against an intance of the MediaElement
     /// </summary>
     internal abstract class MediaCommand
     {
-        private TaskCompletionSource<bool> TaskCompleter;
-        
+        /// <summary>
+        /// Volatile flag set when the command has finished execution.
+        /// Do not use this field directly. It is managed internally by the command manager.
+        /// </summary>
+        private volatile bool m_HasCompleted = false;
+
         #region Constructor
 
         /// <summary>
@@ -21,8 +22,6 @@
         {
             Manager = manager;
             CommandType = commandType;
-            TaskCompleter = new TaskCompletionSource<bool>();
-            Promise = TaskCompleter.Task;
         }
 
         #endregion
@@ -40,41 +39,50 @@
         public MediaCommandType CommandType { get; private set; }
 
         /// <summary>
-        /// Gets the promise-mode Task. You can wait for this task
+        /// Gets a value indicating whether this command is marked as completed.
         /// </summary>
-        public Task Promise { get; private set; }
+        public bool HasCompleted
+        {
+            get { return m_HasCompleted; }
+        }
 
         #endregion
 
         #region Methods
 
         /// <summary>
-        /// Executes this command asynchronously
-        /// by starting the associated promise and awaiting it.
+        /// Marks the command as completed.
         /// </summary>
-        /// <returns>The awaitable task</returns>
-        public async Task ExecuteAsync()
+        public void Complete()
         {
-            var m = Manager.MediaElement;
+            m_HasCompleted = true;
+        }
 
-            // Avoid processing the command if the element is disposed.
-            if (m.IsDisposed)
-                return;
+        /// <summary>
+        /// Executes the code for the command
+        /// </summary>
+        public void Execute()
+        {
+            try
+            {
+                var m = Manager.MediaElement;
 
-            if (m.Commands.ExecutingCommand != null)
-                await m.Commands.ExecutingCommand.Promise;
+                // Avoid processing the command if the element is disposed.
+                if (m.IsDisposed)
+                    return;
 
-            m.Commands.ExecutingCommand = this;
-            Execute();
-            TaskCompleter.TrySetResult(true);
-            await Promise;
-            m.Commands.ExecutingCommand = null;
+                ExecuteInternal();
+            }
+            finally
+            {
+                Complete();
+            }
         }
 
         /// <summary>
         /// Performs the actions that this command implements.
         /// </summary>
-        internal abstract void Execute();
+        internal abstract void ExecuteInternal();
 
         #endregion
     }

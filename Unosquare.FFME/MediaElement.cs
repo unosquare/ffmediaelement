@@ -274,7 +274,7 @@
                 return;
 
             IsPositionUpdating = true;
-            Utils.UIEnqueueInvoke(
+            Runner.UIEnqueueInvoke(
                 DispatcherPriority.DataBind, 
                 (Action<TimeSpan>)((v) =>
                 {
@@ -332,7 +332,7 @@
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             if (PropertyChanged == null) return;
-            Utils.UIInvoke(DispatcherPriority.DataBind, () =>
+            Runner.UIInvoke(DispatcherPriority.DataBind, () =>
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             });
@@ -353,7 +353,7 @@
             if (alsoManaged)
             {
                 // free managed resources
-                Commands.Close().GetAwaiter().GetResult();
+                Commands.Close();
 
                 if (Container != null)
                 {

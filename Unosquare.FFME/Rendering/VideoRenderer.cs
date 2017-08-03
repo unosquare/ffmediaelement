@@ -75,7 +75,7 @@
         /// </summary>
         public void Close()
         {
-            Utils.UIInvoke(DispatcherPriority.Render, () =>
+            Runner.UIInvoke(DispatcherPriority.Render, () =>
             {
                 if (TargetBitmap == null) return;
                 TargetBitmap = null;
@@ -114,7 +114,7 @@
 
             IsRenderingInProgress = true;
 
-            Utils.UIEnqueueInvoke(
+            Runner.UIEnqueueInvoke(
                 DispatcherPriority.Render,
                 new Action<VideoBlock, TimeSpan>((b, cP) =>
                 {
@@ -186,7 +186,7 @@
         /// <param name="block">The block.</param>
         private void InitializeTargetBitmap(VideoBlock block)
         {
-            Utils.UIInvoke(DispatcherPriority.Normal, () =>
+            Runner.UIInvoke(DispatcherPriority.Normal, () =>
             {
                 var visual = PresentationSource.FromVisual(MediaElement);
 

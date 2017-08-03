@@ -33,7 +33,7 @@
         /// <summary>
         /// Performs the actions that this command implements.
         /// </summary>
-        internal override void Execute()
+        internal override void ExecuteInternal()
         {
             var m = Manager.MediaElement;
 
@@ -48,7 +48,7 @@
                     m.Logger.Log(MediaLogMessageType.Info, $"INIT FFMPEG: {ffmpeg.av_version_info()}");
                 }
 
-                Utils.UIInvoke(DispatcherPriority.DataBind, () => { m.ResetDependencyProperies(); });
+                Runner.UIInvoke(DispatcherPriority.DataBind, () => { m.ResetDependencyProperies(); });
                 MediaElement.IsFFmpegLoaded = true;
                 m.IsOpening = true;
                 m.MediaState = System.Windows.Controls.MediaState.Manual;
@@ -95,7 +95,7 @@
             finally
             {
                 m.IsOpening = false;
-                Utils.UIInvoke(DispatcherPriority.DataBind, () => { m.NotifyPropertyChanges(); });
+                Runner.UIInvoke(DispatcherPriority.DataBind, () => { m.NotifyPropertyChanges(); });
                 m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Completed");
             }
         }
