@@ -6,7 +6,7 @@
 
 ![ffmeplay](https://github.com/unosquare/ffmediaelement/raw/master/ffmeplay.png)
 
-- Current Status: (2017-07-26) - 2.0, codenamed Michelob is now in beta 1 (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
+- Current Status: (2017-08-04) - 2.0, codenamed Michelob is now in beta 1 (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
 - FFmpeg Version: <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.3.2-win32-shared.zip">3.3.2</a>
 - For a history of commits see the repo: https://github.com/unosquare/ffplaydotnet
 
@@ -62,6 +62,7 @@ FFME provides multiple improvements over the standard MediaElement such as:
 - To Barry Mieny for his beautiful <a href="http://barrymieny.deviantart.com/art/isabi4-for-Windows-105473723">FFmpeg logo</a>
 
 ## Similar Projects
+- <a href="https://github.com/higankanshi/Meta.Vlc">Meta Vlc</a>
 - <a href="https://github.com/Microsoft/FFmpegInterop">Microsoft FFmpeg Interop</a>
 - <a href="https://github.com/Sascha-L/WPF-MediaKit">WPF-MediaKit</a>
 - <a href="https://libvlcnet.codeplex.com/">LibVLC.NET</a>
