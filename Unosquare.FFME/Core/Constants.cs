@@ -45,7 +45,7 @@
 
         public static readonly string[] LiveStreamUrlPrefixes = new[] { "rtp:", "udp:" };
         public static readonly string[] LiveStreamFormatNames = new[] { "rtp", "rtsp", "sdp" };
-        public static readonly TimeSpan UIPropertyUpdateInterval = TimeSpan.FromMilliseconds(50);
+        public static readonly TimeSpan UIPropertyUpdateInterval = TimeSpan.FromMilliseconds(25);
 
         public static readonly ReadOnlyDictionary<int, MediaLogMessageType> FFmpegLogLevels = new ReadOnlyDictionary<int, MediaLogMessageType>(
             new Dictionary<int, MediaLogMessageType>

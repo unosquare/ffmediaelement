@@ -275,12 +275,14 @@
 
             IsPositionUpdating = true;
             Runner.UIEnqueueInvoke(
-                DispatcherPriority.DataBind, 
+                DispatcherPriority.DataBind,
                 (Action<TimeSpan>)((v) =>
                 {
-                    SetValue(PositionProperty, v);
+                    if (Position != v)
+                        SetValue(PositionProperty, v);
+
                     IsPositionUpdating = false;
-                }), 
+                }),
                 value);
         }
 

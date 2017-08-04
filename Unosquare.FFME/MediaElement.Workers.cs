@@ -577,8 +577,7 @@
                 if (IsTaskCancellationPending) break;
 
                 if (IsSeeking) continue;
-                UpdatePosition(wallClock);
-
+                
                 // Spin the thread for a bit if we have no more stuff to process
                 if (renderedBlockCount <= 0 && Commands.PendingCount <= 0)
                     timerLock.WaitOne();
