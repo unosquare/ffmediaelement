@@ -41,9 +41,9 @@
         internal readonly ManualResetEvent BlockRenderingCycle = new ManualResetEvent(false);
         internal readonly ManualResetEvent SeekingDone = new ManualResetEvent(true);
 
-        internal Task PacketReadingTask = null;
-        internal Task FrameDecodingTask = null;
-        internal Task BlockRenderingTask = null;
+        internal Thread PacketReadingTask = null;
+        internal Thread FrameDecodingTask = null;
+        internal Thread BlockRenderingTask = null;
 
         internal volatile bool IsTaskCancellationPending = false;
         internal volatile bool HasDecoderSeeked = false;

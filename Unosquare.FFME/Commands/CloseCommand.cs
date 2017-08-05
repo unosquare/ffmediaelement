@@ -2,7 +2,6 @@
 {
     using Core;
     using System.Text;
-    using System.Threading.Tasks;
     using System.Windows.Threading;
 
     /// <summary>
@@ -44,7 +43,8 @@
                 handle.WaitOne();
 
             // Wait for threads to finish
-            Task.WaitAll(tasks);
+            foreach (var t in tasks)
+                t.Join();
 
             // Set the threads to null
             m.BlockRenderingTask = null;
