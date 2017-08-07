@@ -283,6 +283,7 @@
         /// </summary>
         /// <param name="bitmap">The bitmap.</param>
         /// <param name="stream">The stream.</param>
+        /// <param name="smtpeTimecode">The smtpe timecode.</param>
         /// <param name="pictureNumber">The picture number.</param>
         /// <param name="startTime">The start time.</param>
         /// <param name="duration">The duration.</param>
