@@ -17,6 +17,7 @@
         private bool m_HasMediaEnded = false;
         private double m_BufferingProgress = 0;
         private double m_DownloadProgress = 0;
+        private string m_VideoSmtpeTimecode = string.Empty;
         private bool m_IsBuffering = false;
         private MediaState m_MediaState = MediaState.Close;
         private bool m_IsOpening = false;
@@ -268,6 +269,16 @@
         }
 
         /// <summary>
+        /// Returns the current video SMTPE timecode if available.
+        /// If not available, this property returns an empty string.
+        /// </summary>
+        public string VideoSmtpeTimecode
+        {
+            get { return m_VideoSmtpeTimecode; }
+            internal set { SetProperty(ref m_VideoSmtpeTimecode, value); }
+        }
+
+        /// <summary>
         /// Gets a value that indicates the percentage of buffering progress made.
         /// Range is from 0 to 1
         /// </summary>
@@ -420,6 +431,7 @@
             IsMuted = false;
             DownloadProgress = 0;
             BufferingProgress = 0;
+            VideoSmtpeTimecode = string.Empty;
             IsBuffering = false;
             IsMuted = false;
             HasMediaEnded = false;

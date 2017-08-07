@@ -161,6 +161,7 @@
             target.EndTime = source.EndTime;
             target.StartTime = source.StartTime;
             target.StreamIndex = input.StreamIndex;
+            target.SmtpeTimecode = source.SmtpeTimecode;
             target.DisplayPictureNumber = source.DisplayPictureNumber;
             target.CodedPictureNumber = source.DisplayPictureNumber;
             target.BufferStride = targetStride[0];

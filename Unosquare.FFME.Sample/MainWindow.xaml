@@ -221,142 +221,147 @@
 
                     <DockPanel Background="#FF444444">
                         <Label Style="{StaticResource Key}">Media Format</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=MediaFormat}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=MediaFormat, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Duration</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=NaturalDuration}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=NaturalDuration, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Is Open</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsOpen}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsOpen, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Is Opening</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsOpening}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsOpening, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Is Live Stream</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsLiveStream}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsLiveStream, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Can Pause</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=CanPause}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=CanPause, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Is Seekable</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsSeekable}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsSeekable, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Position</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=Position}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=Position, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">State</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=MediaState}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=MediaState, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Is Playing</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsPlaying}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsPlaying, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Has Ended</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=HasMediaEnded}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=HasMediaEnded, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Is Buffering</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsBuffering}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsBuffering, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Buffering Progress</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=BufferingProgress}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=BufferingProgress, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Max Buffer</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=BufferCacheLength}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=BufferCacheLength, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Download Progress</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=DownloadProgress}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=DownloadProgress, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Max Download</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=DownloadCacheLength}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=DownloadCacheLength, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel Background="#FF444444">
                         <Label Style="{StaticResource Key}">Has Video</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=HasVideo}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=HasVideo, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Video Codec</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=VideoCodec}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=VideoCodec, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Video Bitrate</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=VideoBitrate}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=VideoBitrate, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Video Width</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=NaturalVideoWidth}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=NaturalVideoWidth, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Video Height</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=NaturalVideoHeight}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=NaturalVideoHeight, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Video FPS</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=VideoFrameRate}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=VideoFrameRate, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Video SMTPE</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=VideoSmtpeTimecode, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel Background="#FF444444">
                         <Label Style="{StaticResource Key}">Has Audio</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=HasAudio}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=HasAudio, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Audio Codec</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=AudioCodec}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=AudioCodec, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Audio Bitrate</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=AudioBitrate}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=AudioBitrate, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Audio Channels</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=AudioChannels}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=AudioChannels, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Audio Sampling</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=AudioSampleRate}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=AudioSampleRate, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Audio Bits/Sample</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=AudioBitsPerSample}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=AudioBitsPerSample, Mode=OneWay}" />
                     </DockPanel>
 
                 </StackPanel>

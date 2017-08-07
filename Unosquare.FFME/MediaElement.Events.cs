@@ -43,14 +43,16 @@
         /// </summary>
         /// <param name="bitmap">The bitmap.</param>
         /// <param name="stream">The stream.</param>
+        /// <param name="smtpeTimecode">The smtpe timecode.</param>
         /// <param name="pictureNumber">The picture number.</param>
         /// <param name="startTime">The start time.</param>
         /// <param name="duration">The duration.</param>
         /// <param name="clock">The clock.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseRenderingVideoEvent(WriteableBitmap bitmap, StreamInfo stream, int pictureNumber, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
+        internal void RaiseRenderingVideoEvent(
+            WriteableBitmap bitmap, StreamInfo stream, string smtpeTimecode, int pictureNumber, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
         {
-            RenderingVideo?.Invoke(this, new RenderingVideoEventArgs(bitmap, stream, pictureNumber, startTime, duration, clock));
+            RenderingVideo?.Invoke(this, new RenderingVideoEventArgs(bitmap, stream, smtpeTimecode, pictureNumber, startTime, duration, clock));
         }
 
         /// <summary>
@@ -285,11 +287,12 @@
         /// <param name="startTime">The start time.</param>
         /// <param name="duration">The duration.</param>
         /// <param name="clock">The clock.</param>
-        internal RenderingVideoEventArgs(WriteableBitmap bitmap, StreamInfo stream, int pictureNumber, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
+        internal RenderingVideoEventArgs(WriteableBitmap bitmap, StreamInfo stream, string smtpeTimecode, int pictureNumber, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
             : base(stream, startTime, duration, clock)
         {
             PictureNumber = pictureNumber;
             Bitmap = bitmap;
+            SmtpeTimecode = smtpeTimecode;
         }
 
         /// <summary>
@@ -304,6 +307,11 @@
         /// frame duration
         /// </summary>
         public int PictureNumber { get; }
+
+        /// <summary>
+        /// Gets the SMTPE time code.
+        /// </summary>
+        public string SmtpeTimecode { get; }
     }
 
     #endregion

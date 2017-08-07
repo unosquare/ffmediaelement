@@ -5,6 +5,7 @@
     using FFmpeg.AutoGen;
     using System;
     using System.Collections.Generic;
+    using System.Runtime.InteropServices;
 
     /// <summary>
     /// Represents a wrapper for an unmanaged ffmpeg video frame.
@@ -29,6 +30,8 @@
         internal VideoFrame(AVFrame* frame, MediaComponent component)
             : base(frame, component)
         {
+            const int AV_TIMECODE_STR_SIZE = 16 + 1;
+
             m_Pointer = (AVFrame*)InternalPointer;
 
             // for vide frames, we always get the best effort timestamp as dts and pts might
@@ -48,6 +51,23 @@
                 (int)Math.Round((double)StartTime.Ticks / Duration.Ticks, 0) : 0;
 
             CodedPictureNumber = frame->coded_picture_number;
+
+            // SMTPE timecode calculation
+            var timeCodeInfo = (AVTimecode*)ffmpeg.av_malloc((ulong)Marshal.SizeOf(typeof(AVTimecode)));
+            ffmpeg.av_timecode_init(timeCodeInfo, timeBase, 0, 0, null);
+            var isNtsc = timeBase.num == 30000 && timeBase.den == 1001;
+            var frameNumber = isNtsc ? 
+                ffmpeg.av_timecode_adjust_ntsc_framenum2(DisplayPictureNumber, (int)timeCodeInfo->fps) : 
+                DisplayPictureNumber;
+
+            var timeCode = ffmpeg.av_timecode_get_smpte_from_framenum(timeCodeInfo, DisplayPictureNumber);
+            var timeCodeBuffer = (byte*)ffmpeg.av_malloc(AV_TIMECODE_STR_SIZE);
+
+            ffmpeg.av_timecode_make_smpte_tc_string(timeCodeBuffer, timeCode, 1);
+            SmtpeTimecode = Marshal.PtrToStringAnsi(new IntPtr(timeCodeBuffer));
+
+            ffmpeg.av_free(timeCodeInfo);
+            ffmpeg.av_free(timeCodeBuffer);
 
             // Process side data
             for (var i = 0; i < frame->nb_side_data; i++)
@@ -106,6 +126,11 @@
         /// Gets the coded picture number set by the decoder.
         /// </summary>
         public int CodedPictureNumber { get; }
+
+        /// <summary>
+        /// Gets the SMTPE time code.
+        /// </summary>
+        public string SmtpeTimecode { get; }
 
         /// <summary>
         /// Gets the pointer to the unmanaged frame.

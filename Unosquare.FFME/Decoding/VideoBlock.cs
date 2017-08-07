@@ -78,6 +78,11 @@
         public int AspectHeight { get; internal set; }
 
         /// <summary>
+        /// Gets the SMTPE time code.
+        /// </summary>
+        public string SmtpeTimecode { get; internal set; }
+
+        /// <summary>
         /// Gets the display picture number (frame number).
         /// If not set by the decoder, this attempts to obtain it by dividing the start time by the 
         /// frame duration

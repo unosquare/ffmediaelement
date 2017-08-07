@@ -128,7 +128,16 @@
 
                         var updateRect = new Int32Rect(0, 0, b.PixelWidth, b.PixelHeight);
                         TargetBitmap.WritePixels(updateRect, b.Buffer, b.BufferLength, b.BufferStride);
-                        MediaElement.RaiseRenderingVideoEvent(TargetBitmap, MediaElement.Container.MediaInfo.Streams[b.StreamIndex], b.DisplayPictureNumber, b.StartTime, b.Duration, cP);
+                        MediaElement.VideoSmtpeTimecode = b.SmtpeTimecode;
+                        MediaElement.RaiseRenderingVideoEvent(
+                            TargetBitmap, 
+                            MediaElement.Container.MediaInfo.Streams[b.StreamIndex], 
+                            b.SmtpeTimecode,
+                            b.DisplayPictureNumber, 
+                            b.StartTime, 
+                            b.Duration, 
+                            cP);
+
                         ApplyScaleTransform(b);
                     }
                     catch (Exception ex)
