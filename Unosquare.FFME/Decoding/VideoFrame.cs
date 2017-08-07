@@ -54,7 +54,8 @@
 
             // SMTPE timecode calculation
             var timeCodeInfo = (AVTimecode*)ffmpeg.av_malloc((ulong)Marshal.SizeOf(typeof(AVTimecode)));
-            ffmpeg.av_timecode_init(timeCodeInfo, timeBase, 0, 0, null);
+            var startFrameNumber = (int)Math.Round((double)component.StartTimeOffset.Ticks / Duration.Ticks, 0);
+            ffmpeg.av_timecode_init(timeCodeInfo, timeBase, 0, startFrameNumber, null);
             var isNtsc = timeBase.num == 30000 && timeBase.den == 1001;
             var frameNumber = isNtsc ? 
                 ffmpeg.av_timecode_adjust_ntsc_framenum2(DisplayPictureNumber, (int)timeCodeInfo->fps) : 
