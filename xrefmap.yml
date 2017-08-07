@@ -919,6 +919,18 @@ references:
   commentId: Overload:Unosquare.FFME.MediaElement.VideoFrameRate
   fullName: Unosquare.FFME.MediaElement.VideoFrameRate
   nameWithType: MediaElement.VideoFrameRate
+- uid: Unosquare.FFME.MediaElement.VideoSmtpeTimecode
+  name: VideoSmtpeTimecode
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoSmtpeTimecode
+  commentId: P:Unosquare.FFME.MediaElement.VideoSmtpeTimecode
+  fullName: Unosquare.FFME.MediaElement.VideoSmtpeTimecode
+  nameWithType: MediaElement.VideoSmtpeTimecode
+- uid: Unosquare.FFME.MediaElement.VideoSmtpeTimecode*
+  name: VideoSmtpeTimecode
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoSmtpeTimecode_
+  commentId: Overload:Unosquare.FFME.MediaElement.VideoSmtpeTimecode
+  fullName: Unosquare.FFME.MediaElement.VideoSmtpeTimecode
+  nameWithType: MediaElement.VideoSmtpeTimecode
 - uid: Unosquare.FFME.MediaElement.Volume
   name: Volume
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Volume
@@ -1729,6 +1741,18 @@ references:
   commentId: Overload:Unosquare.FFME.RenderingVideoEventArgs.PictureNumber
   fullName: Unosquare.FFME.RenderingVideoEventArgs.PictureNumber
   nameWithType: RenderingVideoEventArgs.PictureNumber
+- uid: Unosquare.FFME.RenderingVideoEventArgs.SmtpeTimecode
+  name: SmtpeTimecode
+  href: api/Unosquare.FFME.RenderingVideoEventArgs.html#Unosquare_FFME_RenderingVideoEventArgs_SmtpeTimecode
+  commentId: P:Unosquare.FFME.RenderingVideoEventArgs.SmtpeTimecode
+  fullName: Unosquare.FFME.RenderingVideoEventArgs.SmtpeTimecode
+  nameWithType: RenderingVideoEventArgs.SmtpeTimecode
+- uid: Unosquare.FFME.RenderingVideoEventArgs.SmtpeTimecode*
+  name: SmtpeTimecode
+  href: api/Unosquare.FFME.RenderingVideoEventArgs.html#Unosquare_FFME_RenderingVideoEventArgs_SmtpeTimecode_
+  commentId: Overload:Unosquare.FFME.RenderingVideoEventArgs.SmtpeTimecode
+  fullName: Unosquare.FFME.RenderingVideoEventArgs.SmtpeTimecode
+  nameWithType: RenderingVideoEventArgs.SmtpeTimecode
 - uid: Unosquare.FFME.StreamInfo
   name: StreamInfo
   href: api/Unosquare.FFME.StreamInfo.html
