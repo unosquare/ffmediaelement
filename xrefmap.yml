@@ -1651,6 +1651,18 @@ references:
   commentId: T:Unosquare.FFME.RenderingSubtitlesEventArgs
   fullName: Unosquare.FFME.RenderingSubtitlesEventArgs
   nameWithType: RenderingSubtitlesEventArgs
+- uid: Unosquare.FFME.RenderingSubtitlesEventArgs.Cancel
+  name: Cancel
+  href: api/Unosquare.FFME.RenderingSubtitlesEventArgs.html#Unosquare_FFME_RenderingSubtitlesEventArgs_Cancel
+  commentId: P:Unosquare.FFME.RenderingSubtitlesEventArgs.Cancel
+  fullName: Unosquare.FFME.RenderingSubtitlesEventArgs.Cancel
+  nameWithType: RenderingSubtitlesEventArgs.Cancel
+- uid: Unosquare.FFME.RenderingSubtitlesEventArgs.Cancel*
+  name: Cancel
+  href: api/Unosquare.FFME.RenderingSubtitlesEventArgs.html#Unosquare_FFME_RenderingSubtitlesEventArgs_Cancel_
+  commentId: Overload:Unosquare.FFME.RenderingSubtitlesEventArgs.Cancel
+  fullName: Unosquare.FFME.RenderingSubtitlesEventArgs.Cancel
+  nameWithType: RenderingSubtitlesEventArgs.Cancel
 - uid: Unosquare.FFME.RenderingSubtitlesEventArgs.Format
   name: Format
   href: api/Unosquare.FFME.RenderingSubtitlesEventArgs.html#Unosquare_FFME_RenderingSubtitlesEventArgs_Format
