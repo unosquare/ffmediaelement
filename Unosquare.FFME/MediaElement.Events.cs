@@ -61,9 +61,15 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseRenderingAudioEvent(AudioBlock audioBlock, TimeSpan clock)
         {
-            var args = new RenderingAudioEventArgs(
-                    audioBlock.Buffer, audioBlock.BufferLength, Container.MediaInfo.Streams[audioBlock.StreamIndex], audioBlock.StartTime, audioBlock.Duration, clock);
-            RenderingAudio?.Invoke(this, args);
+            var e = new RenderingAudioEventArgs(
+                    audioBlock.Buffer,
+                    audioBlock.BufferLength,
+                    Container.MediaInfo.Streams[audioBlock.StreamIndex], 
+                    audioBlock.StartTime, 
+                    audioBlock.Duration, 
+                    clock);
+
+            RenderingAudio?.Invoke(this, e);
         }
 
         /// <summary>
@@ -71,12 +77,21 @@
         /// </summary>
         /// <param name="block">The block.</param>
         /// <param name="clock">The clock.</param>
+        /// <returns>True if the rendering should be prevented</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseRenderingSubtitlesEvent(SubtitleBlock block, TimeSpan clock)
+        internal bool RaiseRenderingSubtitlesEvent(SubtitleBlock block, TimeSpan clock)
         {
-            var args = new RenderingSubtitlesEventArgs(
-                    block.Text, block.OriginalText, block.OriginalTextType, Container.MediaInfo.Streams[block.StreamIndex], block.StartTime, block.Duration, clock);
-            RenderingSubtitles?.Invoke(this, args);
+            var e = new RenderingSubtitlesEventArgs(
+                    block.Text, 
+                    block.OriginalText, 
+                    block.OriginalTextType, 
+                    Container.MediaInfo.Streams[block.StreamIndex], 
+                    block.StartTime, 
+                    block.Duration, 
+                    clock);
+
+            RenderingSubtitles?.Invoke(this, e);
+            return e.Cancel;
         }
 
         #endregion
@@ -247,6 +262,12 @@
         /// subtitle text is in.
         /// </summary>
         public AVSubtitleType Format { get; }
+
+        /// <summary>
+        /// When set to true, clears the current subtitle and 
+        /// prevents the subtitle block from being rendered.
+        /// </summary>
+        public bool Cancel { get; set; }
     }
 
     /// <summary>

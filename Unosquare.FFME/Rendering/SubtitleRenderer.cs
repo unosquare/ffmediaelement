@@ -20,7 +20,15 @@
         private readonly object SyncLock = new object();
         private TimeSpan? StartTime = default(TimeSpan?);
         private TimeSpan? EndTime = default(TimeSpan?);
+
+        /// <summary>
+        /// Holds the text to be rendered when the Update method is called.
+        /// </summary>
         private string BlockText = string.Empty;
+
+        /// <summary>
+        /// Holds the text that was last rendered when Update was called.
+        /// </summary>
         private string RenderedText = string.Empty;
 
         /// <summary>
@@ -104,11 +112,11 @@
                 StartTime = subtitleBlock.StartTime;
                 EndTime = subtitleBlock.EndTime;
 
-                // Raise the subtitles event.
-                MediaElement.RaiseRenderingSubtitlesEvent(subtitleBlock, clockPosition);
-
-                // Keep track of the text
-                BlockText = string.Join("\r\n", subtitleBlock.Text);
+                // Raise the subtitles event and keep track of the text.
+                if (MediaElement.RaiseRenderingSubtitlesEvent(subtitleBlock, clockPosition))
+                    BlockText = string.Empty;
+                else
+                    BlockText = string.Join("\r\n", subtitleBlock.Text);
 
                 // Call the selective update method
                 Update(clockPosition);

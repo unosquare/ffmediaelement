@@ -116,7 +116,6 @@
     <Compile Include="MediaLogMessageType.cs" />
     <Compile Include="MediaContainerException.cs" />
     <Compile Include="Decoding\MediaFrame.cs" />
-    <Compile Include="Decoding\MediaFrameQueue.cs" />
     <Compile Include="Decoding\MediaBlock.cs" />
     <Compile Include="Decoding\MediaComponent.cs" />
     <Compile Include="Decoding\MediaComponentSet.cs" />

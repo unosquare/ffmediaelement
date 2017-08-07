@@ -3,6 +3,7 @@
     using Core;
     using Decoding;
     using System;
+    using System.Runtime.CompilerServices;
     using System.Windows;
     using System.Windows.Media;
     using System.Windows.Media.Imaging;
@@ -17,10 +18,13 @@
         #region Private State
 
         /// <summary>
-        /// The target bitmap
+        /// The bitmap that is presented to the user.
         /// </summary>
-        private WriteableBitmap TargetBitmap;
+        private WriteableBitmap TargetBitmap = null;
 
+        /// <summary>
+        /// Set when a bitmap is being written to the target bitmap
+        /// </summary>
         private volatile bool IsRenderingInProgress = false;
 
         #endregion
@@ -77,9 +81,8 @@
         {
             Runner.UIInvoke(DispatcherPriority.Render, () =>
             {
-                if (TargetBitmap == null) return;
                 TargetBitmap = null;
-                MediaElement.ViewBox.Source = TargetBitmap;
+                MediaElement.ViewBox.Source = null;
             });
         }
 
@@ -126,35 +129,7 @@
                         var updateRect = new Int32Rect(0, 0, b.PixelWidth, b.PixelHeight);
                         TargetBitmap.WritePixels(updateRect, b.Buffer, b.BufferLength, b.BufferStride);
                         MediaElement.RaiseRenderingVideoEvent(TargetBitmap, MediaElement.Container.MediaInfo.Streams[b.StreamIndex], b.DisplayPictureNumber, b.StartTime, b.Duration, cP);
-
-                        var scaleTransform = MediaElement.ViewBox.LayoutTransform as ScaleTransform;
-
-                        // Process Aspect Ratio according to block.
-                        if (b.AspectWidth != b.AspectHeight)
-                        {
-                            var scaleX = b.AspectWidth > b.AspectHeight ? (double)b.AspectWidth / b.AspectHeight : 1d;
-                            var scaleY = b.AspectHeight > b.AspectWidth ? (double)b.AspectHeight / b.AspectWidth : 1d;
-
-                            if (scaleTransform == null)
-                            {
-                                scaleTransform = new ScaleTransform(scaleX, scaleY);
-                                MediaElement.ViewBox.LayoutTransform = scaleTransform;
-                            }
-
-                            if (scaleTransform.ScaleX != scaleX || scaleTransform.ScaleY != scaleY)
-                            {
-                                scaleTransform.ScaleX = scaleX;
-                                scaleTransform.ScaleY = scaleY;
-                            }
-                        }
-                        else
-                        {
-                            if (scaleTransform != null && (scaleTransform.ScaleX != 1d || scaleTransform.ScaleY != 1d))
-                            {
-                                scaleTransform.ScaleX = 1d;
-                                scaleTransform.ScaleY = 1d;
-                            }
-                        }
+                        ApplyScaleTransform(b);
                     }
                     catch (Exception ex)
                     {
@@ -213,6 +188,43 @@
 
                 MediaElement.ViewBox.Source = TargetBitmap;
             });
+        }
+
+        /// <summary>
+        /// Applies the scale transform according to the block's aspect ratio.
+        /// </summary>
+        /// <param name="b">The b.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ApplyScaleTransform(VideoBlock b)
+        {
+            var scaleTransform = MediaElement.ViewBox.LayoutTransform as ScaleTransform;
+
+            // Process Aspect Ratio according to block.
+            if (b.AspectWidth != b.AspectHeight)
+            {
+                var scaleX = b.AspectWidth > b.AspectHeight ? (double)b.AspectWidth / b.AspectHeight : 1d;
+                var scaleY = b.AspectHeight > b.AspectWidth ? (double)b.AspectHeight / b.AspectWidth : 1d;
+
+                if (scaleTransform == null)
+                {
+                    scaleTransform = new ScaleTransform(scaleX, scaleY);
+                    MediaElement.ViewBox.LayoutTransform = scaleTransform;
+                }
+
+                if (scaleTransform.ScaleX != scaleX || scaleTransform.ScaleY != scaleY)
+                {
+                    scaleTransform.ScaleX = scaleX;
+                    scaleTransform.ScaleY = scaleY;
+                }
+            }
+            else
+            {
+                if (scaleTransform != null && (scaleTransform.ScaleX != 1d || scaleTransform.ScaleY != 1d))
+                {
+                    scaleTransform.ScaleX = 1d;
+                    scaleTransform.ScaleY = 1d;
+                }
+            }
         }
     }
 }

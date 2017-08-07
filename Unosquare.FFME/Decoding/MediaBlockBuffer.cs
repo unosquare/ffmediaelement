@@ -4,6 +4,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// Represents a set of preallocated media blocks of the same media type.
@@ -397,6 +398,7 @@
         /// </summary>
         /// <returns>The media frame</returns>
         /// <exception cref="System.InvalidCastException">MediaBlock</exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private MediaBlock CreateBlock()
         {
             if (MediaType == MediaType.Video) return new VideoBlock();

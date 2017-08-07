@@ -104,8 +104,8 @@
                 var bitmap = Properties.Resources.FFmpegMediaElementBackground;
                 var bitmapSource = Imaging.CreateBitmapSourceFromHBitmap(
                     bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-                var targetBitmap = new WriteableBitmap(bitmapSource);
-                ViewBox.Source = targetBitmap;
+                var controlBitmap = new WriteableBitmap(bitmapSource);
+                ViewBox.Source = controlBitmap;
             }
             else
             {
@@ -268,6 +268,7 @@
         /// internal clock.
         /// </summary>
         /// <param name="value">The current position.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void UpdatePosition(TimeSpan value)
         {
             if (IsPositionUpdating || IsSeeking)

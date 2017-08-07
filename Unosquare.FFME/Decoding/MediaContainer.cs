@@ -6,6 +6,7 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -751,6 +752,7 @@
         /// <returns>The type of media packet that was read</returns>
         /// <exception cref="System.InvalidOperationException">Initialize</exception>
         /// <exception cref="MediaContainerException">Raised when an error reading from the stream occurs.</exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private MediaType StreamRead()
         {
             // Check the context has been initialized
@@ -865,6 +867,7 @@
         /// <param name="frames">The frames.</param>
         /// <param name="targetTime">The target time.</param>
         /// <returns>The number of dropped frames</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int DropSeekFrames(List<MediaFrame> frames, TimeSpan targetTime)
         {
             var result = 0;
@@ -921,6 +924,7 @@
         /// </summary>
         /// <param name="targetTime">The target time.</param>
         /// <returns>The list of media frames</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private List<MediaFrame> StreamSeek(TimeSpan targetTime)
         {
             // Create the output result object
@@ -1069,6 +1073,7 @@
         /// <param name="targetTime">The target time in absolute 0-based time.</param>
         /// <param name="requirement">The requirement.</param>
         /// <returns>The number of decoded frames</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int StreamSeekDecode(List<MediaFrame> result, TimeSpan targetTime, SeekRequirement requirement)
         {
             var readSeekCycles = 0;
