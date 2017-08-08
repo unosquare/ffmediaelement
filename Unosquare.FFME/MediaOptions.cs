@@ -114,6 +114,12 @@
         public StreamInfo VideoStream { get; set; } = null;
 
         /// <summary>
+        /// Allows for a custom audio filter string.
+        /// Please see: https://ffmpeg.org/ffmpeg-filters.html#Audio-Filters
+        /// </summary>
+        public string AudioFilter { get; set; } = string.Empty;
+
+        /// <summary>
         /// Initially contains the best suitable audio stream.
         /// Can be changed to a different stream reference.
         /// </summary>

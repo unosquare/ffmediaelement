@@ -8,7 +8,6 @@
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Linq;
-    using System.Runtime.InteropServices;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Input;
@@ -346,7 +345,7 @@
             Media.PropertyChanged += Media_PropertyChanged;
             Unosquare.FFME.MediaElement.FFmpegMessageLogged += MediaElement_FFmpegMessageLogged;
 
-#if DEBUG2
+#if HANDLE_RENDERING_EVENTS
 
             #region Audio and Video Frame Rendering Variables
 
@@ -837,6 +836,10 @@
                 e.Options.VideoFilter = "yadif";
             }
 
+#if APPLY_AUDIO_FILTER
+            // e.Options.AudioFilter = "aecho=0.8:0.9:1000:0.3";
+            e.Options.AudioFilter = "chorus=0.5:0.9:50|60|40:0.4|0.32|0.3:0.25|0.4|0.3:2|2.3|1.3";
+#endif
         }
 
         /// <summary>
@@ -881,9 +884,9 @@
             DebugWindowThumb.RaiseEvent(e);
         }
 
-        #endregion
+#endregion
 
-        #region Helper Methods and PRoperties
+#region Helper Methods and PRoperties
 
         /// <summary>
         /// Gets or sets the media zoom.
@@ -945,6 +948,6 @@
                 HistoryItems.Add(Config.HistoryEntries[entryIndex]);
         }
 
-        #endregion
+#endregion
     }
 }

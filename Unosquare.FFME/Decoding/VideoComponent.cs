@@ -26,14 +26,16 @@
         /// Holds a reference to the video scaler
         /// </summary>
         private SwsContext* Scaler = null;
+        private AVRational BaseFrameRateQ;
+
         private AVFilterGraph* FilterGraph = null;
         private AVFilterContext* SourceFilter = null;
         private AVFilterContext* SinkFilter = null;
         private AVFilterInOut* SinkInput = null;
         private AVFilterInOut* SourceOutput = null;
-        private AVRational BaseFrameRateQ;
-        private string CurrentInputArguments = null;
-        private string VideoFilterString = null;
+
+        private string CurrentFilterArguments = null;
+        private string FilterString = null;
 
         #endregion
 
@@ -48,7 +50,7 @@
             : base(container, streamIndex)
         {
             BaseFrameRateQ = ffmpeg.av_guess_frame_rate(container.InputContext, Stream, null);
-            VideoFilterString = container.MediaOptions.VideoFilter;
+            FilterString = container.MediaOptions.VideoFilter;
 
             if (double.IsNaN(BaseFrameRate))
                 BaseFrameRateQ = Stream->r_frame_rate;
@@ -191,13 +193,13 @@
         /// <returns>Create a managed fraome from an unmanaged one.</returns>
         protected override unsafe MediaFrame CreateFrameSource(AVFrame* frame)
         {
-            if (string.IsNullOrWhiteSpace(VideoFilterString) == false)
+            if (string.IsNullOrWhiteSpace(FilterString) == false)
                 InitializeFilterGraph(frame);
 
             AVFrame* outputFrame = null;
 
             // TODO: Support real-time changes in Video Filtergraph by checking if MediaOptions.VideoFilterGraph has changed
-            // Expose the VideoFilterGraph string as a MediaElementProperty
+            // Maybe expose the VideoFilterGraph string as a MediaElement Control Property
             if (FilterGraph != null)
             {
                 // Allocate the output frame
@@ -251,7 +253,6 @@
             }
 
             DestroyFiltergraph();
-
             base.Dispose(alsoManaged);
         }
 
@@ -280,7 +281,7 @@
         /// </summary>
         /// <param name="frame">The frame.</param>
         /// <returns>The base filter arguments</returns>
-        private string ComputeFrameFilterArguments(AVFrame* frame)
+        private string ComputeFilterArguments(AVFrame* frame)
         {
             var arguments =
                  $"video_size={frame->width}x{frame->height}:pix_fmt={frame->format}:" +
@@ -317,15 +318,15 @@
              * https://raw.githubusercontent.com/FFmpeg/FFmpeg/release/3.2/ffplay.c
              */
 
-            var frameArguments = ComputeFrameFilterArguments(frame);
-            if (string.IsNullOrWhiteSpace(CurrentInputArguments) || frameArguments.Equals(CurrentInputArguments) == false)
+            var frameArguments = ComputeFilterArguments(frame);
+            if (string.IsNullOrWhiteSpace(CurrentFilterArguments) || frameArguments.Equals(CurrentFilterArguments) == false)
                 DestroyFiltergraph();
             else
                 return;
 
             FilterGraph = ffmpeg.avfilter_graph_alloc();
             RC.Current.Add(FilterGraph, $"144: {nameof(VideoComponent)}.{nameof(InitializeFilterGraph)}()");
-            CurrentInputArguments = frameArguments;
+            CurrentFilterArguments = frameArguments;
 
             try
             {
@@ -334,7 +335,7 @@
                 fixed (AVFilterContext** source = &SourceFilter)
                 fixed (AVFilterContext** sink = &SinkFilter)
                 {
-                    result = ffmpeg.avfilter_graph_create_filter(source, ffmpeg.avfilter_get_by_name("buffer"), "video_buffer", CurrentInputArguments, null, FilterGraph);
+                    result = ffmpeg.avfilter_graph_create_filter(source, ffmpeg.avfilter_get_by_name("buffer"), "video_buffer", CurrentFilterArguments, null, FilterGraph);
                     if (result != 0)
                         throw new MediaContainerException($"{nameof(ffmpeg.avfilter_graph_create_filter)} (buffer) failed. Error {result}: {FFmpegEx.GetErrorMessage(result)}");
 
@@ -345,7 +346,7 @@
                     // TODO: from ffplay, ffmpeg.av_opt_set_int_list(sink, "pix_fmts", (byte*)&f0, 1, ffmpeg.AV_OPT_SEARCH_CHILDREN);
                 }
 
-                if (string.IsNullOrWhiteSpace(VideoFilterString))
+                if (string.IsNullOrWhiteSpace(FilterString))
                 {
                     result = ffmpeg.avfilter_link(SourceFilter, 0, SinkFilter, 0);
                     if (result != 0)
@@ -367,7 +368,7 @@
                     SinkInput->pad_idx = 0;
                     SinkInput->next = null;
 
-                    result = ffmpeg.avfilter_graph_parse(FilterGraph, VideoFilterString, SinkInput, SourceOutput, null);
+                    result = ffmpeg.avfilter_graph_parse(FilterGraph, FilterString, SinkInput, SourceOutput, null);
                     if (result != 0)
                         throw new MediaContainerException($"{nameof(ffmpeg.avfilter_graph_parse)} failed. Error {result}: {FFmpegEx.GetErrorMessage(result)}");
 
@@ -387,7 +388,7 @@
             }
             catch (Exception ex)
             {
-                Container.Logger?.Log(MediaLogMessageType.Error, $"Video filter graph could not be built: {VideoFilterString}.\r\n{ex.Message}");
+                Container.Logger?.Log(MediaLogMessageType.Error, $"Video filter graph could not be built: {FilterString}.\r\n{ex.Message}");
                 DestroyFiltergraph();
             }
         }
@@ -414,15 +415,5 @@
         }
 
         #endregion
-
-        /// <summary>
-        /// The filter pixel formats
-        /// </summary>
-        [StructLayout(LayoutKind.Sequential)]
-        private struct FilterFormats
-        {
-            public IntPtr F0;
-            public IntPtr F1;
-        }
     }
 }
