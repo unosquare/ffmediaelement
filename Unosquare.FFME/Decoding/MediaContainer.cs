@@ -762,7 +762,7 @@
             // Ensure read is not suspended
             StreamReadResume();
 
-            if (RequiresReadDelay)
+            if (false) // RequiresReadDelay)
             {
                 // in ffplay.c this is referenced via CONFIG_RTSP_DEMUXER || CONFIG_MMSH_PROTOCOL
                 var millisecondsDifference = (int)Math.Round(DateTime.UtcNow.Subtract(StreamLastReadTimeUtc).TotalMilliseconds, 2);
@@ -907,6 +907,7 @@
         {
             if (MediaStartTimeOffset == TimeSpan.MinValue) return;
             Thread.VolatileWrite(ref StreamReadInterruptStartTime, DateTime.UtcNow.Ticks);
+            StreamReadSuspend();
             var seekResult = ffmpeg.av_seek_frame(
                 InputContext,
                 -1,
@@ -916,6 +917,7 @@
             Components.ClearPacketQueues();
             RequiresPictureAttachments = true;
             IsAtEndOfStream = false;
+            StreamReadResume();
         }
 
         /// <summary>
@@ -1000,6 +1002,7 @@
                 // Perform the seek. There is also avformat_seek_file which is the older version of av_seek_frame
                 // Check if we are seeking before the start of the stream in this cyle. If so, simply seek to the
                 // begining of the stream. Otherwise, seek normally.
+                StreamReadSuspend();
                 Thread.VolatileWrite(ref StreamReadInterruptStartTime, DateTime.UtcNow.Ticks);
                 if (relativeTargetTime.Ticks <= main.StartTimeOffset.Ticks)
                 {
@@ -1019,6 +1022,7 @@
                 Components.ClearPacketQueues();
                 RequiresPictureAttachments = true;
                 IsAtEndOfStream = false;
+                StreamReadResume();
 
                 // Ensure we had a successful seek operation
                 if (seekResult < 0)
