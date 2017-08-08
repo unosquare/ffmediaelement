@@ -355,6 +355,8 @@
         {
             if (CallbackEvent != null)
             {
+                m_PlaybackState = PlaybackState.Stopped;
+                CallbackEvent.Set();
                 CallbackEvent.Close();
                 CallbackEvent = null;
             }

@@ -375,6 +375,7 @@
                 FrameDecodingCycle.Dispose();
                 BlockRenderingCycle.Dispose();
                 SeekingDone.Dispose();
+                DelayLock.Dispose();
             }
 
             IsDisposed = true;

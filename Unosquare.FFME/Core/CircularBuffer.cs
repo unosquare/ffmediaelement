@@ -40,6 +40,7 @@
         {
             Length = bufferLength;
             Buffer = Marshal.AllocHGlobal(Length);
+            NativeMethods.FillMemory(Buffer, (uint)Length, 0);
         }
 
         /// <summary>

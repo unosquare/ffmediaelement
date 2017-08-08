@@ -38,10 +38,9 @@
         internal readonly ManualResetEvent FrameDecodingCycle = new ManualResetEvent(false);
         internal readonly ManualResetEvent BlockRenderingCycle = new ManualResetEvent(false);
         internal readonly ManualResetEvent SeekingDone = new ManualResetEvent(true);
+        internal readonly ManualResetEvent DelayLock = new ManualResetEvent(true);
 
         internal System.Timers.Timer DelayTimer = null;
-        internal ManualResetEvent DelayLock = null;
-
         internal Thread PacketReadingTask = null;
         internal Thread FrameDecodingTask = null;
         internal Thread BlockRenderingTask = null;

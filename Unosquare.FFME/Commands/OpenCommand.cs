@@ -74,7 +74,6 @@
                 m.IsTaskCancellationPending = false;
 
                 // Setup the delay timer
-                m.DelayLock = new ManualResetEvent(true);
                 m.DelayTimer = new System.Timers.Timer(MediaElement.TimerIntervalMilliseconds);
                 m.DelayTimer.Elapsed += (s, e) =>
                 {
@@ -86,6 +85,7 @@
                     catch { }
                 };
 
+                m.DelayLock.Set();
                 m.DelayTimer.Start();
 
                 // Set the initial state of the task cycles.

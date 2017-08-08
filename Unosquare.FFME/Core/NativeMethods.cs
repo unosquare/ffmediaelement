@@ -26,5 +26,14 @@
         /// <param name="length">The length.</param>
         [DllImport(Kernel32, EntryPoint = "CopyMemory", SetLastError = false)]
         public static extern void CopyMemory(IntPtr destination, IntPtr source, uint length);
+
+        /// <summary>
+        /// Fills the memory.
+        /// </summary>
+        /// <param name="destination">The destination.</param>
+        /// <param name="length">The length.</param>
+        /// <param name="fill">The fill.</param>
+        [DllImport(Kernel32, EntryPoint = "RtlFillMemory", SetLastError = false)]
+        public static extern void FillMemory(IntPtr destination, uint length, byte fill);
     }
 }

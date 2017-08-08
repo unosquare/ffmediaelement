@@ -433,7 +433,7 @@
 
             if (AudioDevice != null)
             {
-                AudioDevice.Stop();
+                AudioDevice.Pause();
                 AudioDevice.Dispose();
                 AudioDevice = null;
             }
