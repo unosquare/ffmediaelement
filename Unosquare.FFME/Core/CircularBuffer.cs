@@ -270,16 +270,19 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
-            if (IsDisposed) return;
+            lock (SyncLock)
+            {
+                if (IsDisposed) return;
 
-            if (alsoManaged)
-                Clear();
+                if (alsoManaged)
+                    Clear();
 
-            Marshal.FreeHGlobal(Buffer);
-            Buffer = IntPtr.Zero;
-            Length = 0;
+                Marshal.FreeHGlobal(Buffer);
+                Buffer = IntPtr.Zero;
+                Length = 0;
 
-            IsDisposed = true;
+                IsDisposed = true;
+            }
         }
 
         #endregion
