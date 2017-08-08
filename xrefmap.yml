@@ -1243,6 +1243,18 @@ references:
   commentId: Overload:Unosquare.FFME.MediaOptions.#ctor
   fullName: Unosquare.FFME.MediaOptions.MediaOptions
   nameWithType: MediaOptions.MediaOptions
+- uid: Unosquare.FFME.MediaOptions.AudioFilter
+  name: AudioFilter
+  href: api/Unosquare.FFME.MediaOptions.html#Unosquare_FFME_MediaOptions_AudioFilter
+  commentId: P:Unosquare.FFME.MediaOptions.AudioFilter
+  fullName: Unosquare.FFME.MediaOptions.AudioFilter
+  nameWithType: MediaOptions.AudioFilter
+- uid: Unosquare.FFME.MediaOptions.AudioFilter*
+  name: AudioFilter
+  href: api/Unosquare.FFME.MediaOptions.html#Unosquare_FFME_MediaOptions_AudioFilter_
+  commentId: Overload:Unosquare.FFME.MediaOptions.AudioFilter
+  fullName: Unosquare.FFME.MediaOptions.AudioFilter
+  nameWithType: MediaOptions.AudioFilter
 - uid: Unosquare.FFME.MediaOptions.AudioStream
   name: AudioStream
   href: api/Unosquare.FFME.MediaOptions.html#Unosquare_FFME_MediaOptions_AudioStream
