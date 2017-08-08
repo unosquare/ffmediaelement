@@ -21,7 +21,10 @@
         /// 3. Block Rendering from block buffer
         /// </summary>
 
-        #region Constants
+        #region State Management
+#pragma warning disable SA1401 // Fields must be private
+
+        internal const int TimerIntervalMilliseconds = 1;
 
         // TODO: Make this configurable
         internal static readonly Dictionary<MediaType, int> MaxBlocks = new Dictionary<MediaType, int>
@@ -31,15 +34,13 @@
             { MediaType.Subtitle, 120 }
         };
 
-        #endregion
-
-        #region State Variables
-#pragma warning disable SA1401 // Fields must be private
-
         internal readonly ManualResetEvent PacketReadingCycle = new ManualResetEvent(false);
         internal readonly ManualResetEvent FrameDecodingCycle = new ManualResetEvent(false);
         internal readonly ManualResetEvent BlockRenderingCycle = new ManualResetEvent(false);
         internal readonly ManualResetEvent SeekingDone = new ManualResetEvent(true);
+
+        internal System.Timers.Timer DelayTimer = null;
+        internal ManualResetEvent DelayLock = null;
 
         internal Thread PacketReadingTask = null;
         internal Thread FrameDecodingTask = null;
@@ -88,18 +89,6 @@
         /// </summary>
         internal void RunPacketReadingWorker()
         {
-            // Setup a thread suspension/delay mechanism
-            var timerLock = new ManualResetEvent(true);
-            var timer = new System.Timers.Timer(1);
-
-            timer.Elapsed += (s, e) =>
-            {
-                timerLock.Set();
-                timerLock.Reset();
-            };
-
-            timer.Start();
-
             // Holds the packet count for each read cycle
             var packetsRead = new MediaTypeDictionary<int>();
 
@@ -166,13 +155,8 @@
 
                 // Wait some if we have a full packet buffer or we are unable to read more packets (i.e. EOF).
                 if (Container.Components.PacketBufferLength >= DownloadCacheLength || CanReadMorePackets == false || currentBytesRead <= 0)
-                    timerLock.WaitOne();
+                    DelayLock.WaitOne();
             }
-
-            // Cleanup
-            timer.Stop();
-            timer.Dispose();
-            timerLock.Dispose();
 
             // Always exit notifying the reading cycle is done.
             PacketReadingCycle.Set();
@@ -189,20 +173,8 @@
         /// </summary>
         internal void RunFrameDecodingWorker()
         {
-            // Setup a thread suspension/delay mechanism
-            var timerLock = new ManualResetEvent(true);
-            var timer = new System.Timers.Timer(1);
-
-            timer.Elapsed += (s, e) =>
-            {
-                timerLock.Set();
-                timerLock.Reset();
-            };
-
-            timer.Start();
-
+            // State variables
             var decodedFrameCount = 0;
-
             var wallClock = TimeSpan.Zero;
             var rangePercent = 0d;
             var isInRange = false;
@@ -445,15 +417,10 @@
                 // Give it a break if there was nothing to decode.
                 // We probably need to wait for some more input
                 if (decodedFrameCount <= 0 && Commands.PendingCount <= 0)
-                    timerLock.WaitOne();
+                    DelayLock.WaitOne();
 
                 #endregion
             }
-
-            // Cleanup
-            timer.Stop();
-            timer.Dispose();
-            timerLock.Dispose();
 
             // Always exit notifying the cycle is done.
             FrameDecodingCycle.Set();
@@ -471,18 +438,6 @@
         internal void RunBlockRenderingWorker()
         {
             #region 0. Initialize Running State
-
-            // Setup a thread suspension/delay mechanism
-            var timerLock = new ManualResetEvent(true);
-            var timer = new System.Timers.Timer(1);
-
-            timer.Elapsed += (s, e) =>
-            {
-                timerLock.Set();
-                timerLock.Reset();
-            };
-
-            timer.Start();
 
             // Holds the main media type
             var main = Container.Components.Main.MediaType;
@@ -580,15 +535,10 @@
                 
                 // Spin the thread for a bit if we have no more stuff to process
                 if (renderedBlockCount <= 0 && Commands.PendingCount <= 0)
-                    timerLock.WaitOne();
+                    DelayLock.WaitOne();
 
                 #endregion
             }
-
-            // Cleanup
-            timer.Stop();
-            timer.Dispose();
-            timerLock.Dispose();
 
             // Always exit notifying the cycle is done.
             BlockRenderingCycle.Set();

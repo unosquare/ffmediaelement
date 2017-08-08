@@ -375,7 +375,7 @@
 
             Media.RenderingVideo += (s, e) =>
             {
-                #region Create the overlay buffer to work with
+            #region Create the overlay buffer to work with
 
                 if (overlayBackBuffer != e.Bitmap.BackBuffer)
                 {
@@ -397,9 +397,9 @@
                     overlayGraphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
                 }
 
-                #endregion
+            #endregion
 
-                #region Read the instantaneous RMS of the audio
+            #region Read the instantaneous RMS of the audio
 
                 lock (vuMeterRmsLock)
                 {
@@ -421,9 +421,9 @@
                     }
                 }
 
-                #endregion
+            #endregion
 
-                #region Draw the text and the VU meter
+            #region Draw the text and the VU meter
 
                 e.Bitmap.Lock();
                 var differenceMillis = TimeSpan.FromTicks(e.Clock.Ticks - e.StartTime.Ticks).TotalMilliseconds;
@@ -443,7 +443,7 @@
                 e.Bitmap.AddDirtyRect(new Int32Rect(0, 0, e.Bitmap.PixelWidth, e.Bitmap.PixelHeight));
                 e.Bitmap.Unlock();
 
-                #endregion
+            #endregion
             };
 
             Media.RenderingAudio += (s, e) =>
@@ -511,7 +511,7 @@
             // Had to wire up the events with handleEventToo = true because the control swallows these events in some cases
             PositionSlider.AddHandler(Slider.PreviewMouseDownEvent, new RoutedEventHandler(PositionSlider_MouseDown), true);
             PositionSlider.AddHandler(Slider.PreviewMouseUpEvent, new RoutedEventHandler(PositionSlider_MouseUp), true);
-            
+
             #endregion
 
             #region Toggle Fullscreen with Double Click
@@ -786,6 +786,9 @@
         /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
         private void Media_MediaOpened(object sender, RoutedEventArgs e)
         {
+
+            // Set a start position (see issue #66)
+            // Media.Position = TimeSpan.FromSeconds(5);
             MediaZoom = 1d;
             var source = Media.Source.ToString();
 

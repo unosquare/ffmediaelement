@@ -38,6 +38,8 @@
             var waitHandles = new[] { m.BlockRenderingCycle, m.FrameDecodingCycle, m.PacketReadingCycle };
             var tasks = new[] { m.PacketReadingTask, m.FrameDecodingTask, m.BlockRenderingTask };
 
+            // Signal and wait for the handlers.
+            m.DelayLock.Set();
             m.SeekingDone.Set();
             foreach (var handle in waitHandles)
                 handle.WaitOne();
@@ -45,6 +47,13 @@
             // Wait for threads to finish
             foreach (var t in tasks)
                 t.Join();
+
+            // Stop the delays and allow signal the locking
+            m.DelayTimer.Stop();
+            m.DelayTimer.Dispose();
+            m.DelayLock.Dispose();
+            m.DelayTimer = null;
+            m.DelayLock = null;
 
             // Set the threads to null
             m.BlockRenderingTask = null;

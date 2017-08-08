@@ -8,7 +8,6 @@
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Threading;
-    using System.Threading.Tasks;
 
     /// <summary>
     /// A container capable of opening an input url,
@@ -762,7 +761,11 @@
             // Ensure read is not suspended
             StreamReadResume();
 
-            if (false) // RequiresReadDelay)
+#if CONFIG_RTSP_DEMUXER
+            // I am unsure how this code ported from ffplay provides any advantage or functionality
+            // I have tested with several streams and it does not make any difference other than 
+            // makeing the reads much longer and the buffers fill up more slowly.
+            if (RequiresReadDelay)
             {
                 // in ffplay.c this is referenced via CONFIG_RTSP_DEMUXER || CONFIG_MMSH_PROTOCOL
                 var millisecondsDifference = (int)Math.Round(DateTime.UtcNow.Subtract(StreamLastReadTimeUtc).TotalMilliseconds, 2);
@@ -772,6 +775,7 @@
                 if (sleepMilliseconds > 0)
                     Task.Delay(sleepMilliseconds).Wait(); // XXX: horrible
             }
+#endif
 
             if (RequiresPictureAttachments)
             {
@@ -843,6 +847,7 @@
         /// Suspends / pauses network streams
         /// This should only be called upon Dispose
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void StreamReadSuspend()
         {
             if (InputContext == null || CanReadSuspend == false || IsReadSuspended) return;
@@ -853,6 +858,7 @@
         /// <summary>
         /// Resumes the reads of network streams
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void StreamReadResume()
         {
             if (InputContext == null || CanReadSuspend == false || IsReadSuspended == false) return;
