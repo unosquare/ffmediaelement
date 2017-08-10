@@ -42,49 +42,6 @@
         }
 
         /// <summary>
-        /// Starts the action in a background thread while it continues to pump UI executions.
-        /// </summary>
-        /// <param name="priority">The priority.</param>
-        /// <param name="action">The action.</param>
-        public static void UIPumpInvoke(DispatcherPriority priority, Action action)
-        {
-            var completer = new ManualResetEvent(false);
-
-            try
-            {
-                ThreadPool.QueueUserWorkItem((o) =>
-                {
-                    action();
-                    completer.Set();
-                });
-
-                while (completer.WaitOne(1) == false)
-                    DoEvents();
-            }
-            catch
-            {
-                // placeholder
-            }
-            finally
-            {
-                completer.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Pumps frames into the UI dispatcher queue that enable
-        /// the continued execution of delegates.
-        /// </summary>
-        [SecurityPermissionAttribute(SecurityAction.Demand, Flags = SecurityPermissionFlag.UnmanagedCode)]
-        public static void DoEvents()
-        {
-            var frame = new DispatcherFrame();
-            UIDispatcher?.BeginInvoke(
-                DispatcherPriority.Background, new DispatcherOperationCallback(ExitFrame), frame);
-            Dispatcher.PushFrame(frame);
-        }
-
-        /// <summary>
         /// Exits the execution frame.
         /// </summary>
         /// <param name="f">The f.</param>

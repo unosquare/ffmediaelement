@@ -109,6 +109,10 @@
                 m.FrameDecodingTask.Start();
                 m.BlockRenderingTask.Start();
 
+                // Signal we are no longer in the opening state 
+                // so we can enqueue commands in the event handler
+                m.IsOpening = false;
+
                 // Raise the opened event
                 m.RaiseMediaOpenedEvent();
             }

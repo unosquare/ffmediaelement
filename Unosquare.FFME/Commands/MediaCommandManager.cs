@@ -1,9 +1,9 @@
 ﻿namespace Unosquare.FFME.Commands
 {
-    using Core;
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using System.Windows.Threading;
 
     /// <summary>
@@ -68,11 +68,10 @@
 
             // Process the command in a background thread as opposed
             // to in the thread that it was called to prevent blocking.
-            Runner.UIPumpInvoke(DispatcherPriority.Normal, () =>
-            {
-                var command = new OpenCommand(this, uri);
-                command.ExecuteInternal();
-            });
+            var command = new OpenCommand(this, uri);
+            ExecuteAndWaitFor(command);
+
+            // Debug.Assert(MediaElement.IsOpen == true && MediaElement.IsOpening == false && command.HasCompleted, "Synchronous conditions");
         }
 
         /// <summary>
@@ -170,11 +169,8 @@
 
             // Process the command in a background thread as opposed
             // to in the thread that it was called to prevent blocking.
-            Runner.UIPumpInvoke(DispatcherPriority.Normal, () =>
-            {
-                var command = new CloseCommand(this);
-                command.ExecuteInternal();
-            });
+            var command = new CloseCommand(this);
+            ExecuteAndWaitFor(command);
         }
 
         /// <summary>
@@ -252,8 +248,47 @@
         /// <param name="command">The command.</param>
         private void WaitFor(MediaCommand command)
         {
-            while (command.HasCompleted == false && MediaElement.IsOpen)
-                Runner.DoEvents(); 
+            var waitTask = Task.Run(async () =>
+            {
+                while (command.HasCompleted == false && MediaElement.IsOpen)
+                    await Task.Delay(10);
+            });
+
+            while (waitTask.IsCompleted == false)
+            {
+                // Pump invoke
+                Dispatcher.CurrentDispatcher.Invoke(
+                    DispatcherPriority.Background,
+                    new Action(() => { }));
+            }
+        }
+
+        /// <summary>
+        /// Calls the execution of the given command instance 
+        /// and wait for its completion without blocking the dispatcher
+        /// </summary>
+        /// <param name="command">The command.</param>
+        private void ExecuteAndWaitFor(MediaCommand command)
+        {
+            var executeTask = Task.Run(() =>
+            {
+                if (command.HasCompleted) return;
+                command.Execute();
+            });
+
+            var waitTask = Task.Run(async () =>
+            {
+                while (command.HasCompleted == false)
+                    await Task.Delay(10);
+            });
+
+            while (waitTask.IsCompleted == false)
+            {
+                // Pump invoke
+                Dispatcher.CurrentDispatcher.Invoke(
+                    DispatcherPriority.Background,
+                    new Action(() => { }));
+            }
         }
 
         #endregion
