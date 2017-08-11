@@ -630,7 +630,7 @@
             Loaded += MainWindow_Loaded;
             UrlTextBox.Text = HistoryItems.Count > 0 ? HistoryItems.First() : string.Empty;
 
-            // Media.ScrubbingEnabled = true;
+            // Media.ScrubbingEnabled = false;
             // Media.LoadedBehavior = MediaState.Pause;
 
             var args = Environment.GetCommandLineArgs();
@@ -788,6 +788,8 @@
 
             // Set a start position (see issue #66)
             // Media.Position = TimeSpan.FromSeconds(5);
+            // Media.Play();
+
             MediaZoom = 1d;
             var source = Media.Source.ToString();
 
@@ -884,9 +886,9 @@
             DebugWindowThumb.RaiseEvent(e);
         }
 
-#endregion
+        #endregion
 
-#region Helper Methods and PRoperties
+        #region Helper Methods and PRoperties
 
         /// <summary>
         /// Gets or sets the media zoom.
@@ -948,6 +950,6 @@
                 HistoryItems.Add(Config.HistoryEntries[entryIndex]);
         }
 
-#endregion
+        #endregion
     }
 }

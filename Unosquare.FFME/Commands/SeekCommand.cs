@@ -65,7 +65,6 @@
                 // to finish. We don't want to interfere with reading in progress
                 // or decoding in progress
                 m.PacketReadingCycle.WaitOne();
-                m.FrameDecodingCycle.WaitOne();
 
                 // Capture seek target adjustment
                 var adjustedSeekTarget = TargetPosition;

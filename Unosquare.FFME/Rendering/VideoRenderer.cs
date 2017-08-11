@@ -123,6 +123,10 @@
                 {
                     try
                     {
+                        // Skip rendering if Scrubbing is not enabled
+                        if (MediaElement.ScrubbingEnabled == false && MediaElement.IsPlaying == false)
+                            return;
+
                         if (TargetBitmap == null || TargetBitmap.PixelWidth != b.PixelWidth || TargetBitmap.PixelHeight != b.PixelHeight)
                             InitializeTargetBitmap(b);
 
@@ -130,12 +134,12 @@
                         TargetBitmap.WritePixels(updateRect, b.Buffer, b.BufferLength, b.BufferStride);
                         MediaElement.VideoSmtpeTimecode = b.SmtpeTimecode;
                         MediaElement.RaiseRenderingVideoEvent(
-                            TargetBitmap, 
-                            MediaElement.Container.MediaInfo.Streams[b.StreamIndex], 
+                            TargetBitmap,
+                            MediaElement.Container.MediaInfo.Streams[b.StreamIndex],
                             b.SmtpeTimecode,
-                            b.DisplayPictureNumber, 
-                            b.StartTime, 
-                            b.Duration, 
+                            b.DisplayPictureNumber,
+                            b.StartTime,
+                            b.Duration,
                             cP);
 
                         ApplyScaleTransform(b);

@@ -82,7 +82,7 @@
             nameof(ScrubbingEnabled),
             typeof(bool),
             typeof(MediaElement),
-            new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.None, new PropertyChangedCallback(ScrubbingEnabledPropertyChanged)));
+            new FrameworkPropertyMetadata(true, FrameworkPropertyMetadataOptions.None, new PropertyChangedCallback(ScrubbingEnabledPropertyChanged)));
 
         /// <summary> 
         /// The DependencyProperty for the MediaElement.UnloadedBehavior property. 
@@ -224,14 +224,11 @@
         }
 
         /// <summary>
-        /// Gets/Sets the ScrubbingEnabled property on the MediaElement.
-        /// Note: Frame scrubbing is always enabled. The real effect of this property is
-        /// that when it is set to true, setting values on the Position property occurs synchronously.
-        /// When it is set to false, setting values on the Position property occurs asyncrhonously
-        /// TODO: I still need to make this truly synchronous
+        /// Gets or sets a value that indicates whether the MediaElement will update frames 
+        /// for seek operations while paused. This is a dependency property.
         /// </summary>
         [Category(nameof(MediaElement))]
-        [Description("When set to true, frame seeking will occur synchronously. Otherwise it will occur asynchronously")]
+        [Description("Gets or sets a value that indicates whether the MediaElement will update frames for seek operations while paused.")]
         public bool ScrubbingEnabled
         {
             get { return (bool)GetValue(ScrubbingEnabledProperty); }
@@ -397,9 +394,6 @@
             if (element.Container == null) return;
 
             if (element.IsPositionUpdating || element.Container.IsStreamSeekable == false) return;
-
-            if (element.ScrubbingEnabled)
-                element.SeekingDone.WaitOne();
 
             element.Commands.Seek((TimeSpan)e.NewValue);
         }
