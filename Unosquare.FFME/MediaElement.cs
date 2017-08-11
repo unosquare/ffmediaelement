@@ -20,6 +20,10 @@
     /// In contrast with System.Windows.Controls.MediaElement, this version uses
     /// the FFmpeg library to perform reading and decoding of media streams.
     /// </summary>
+    /// <seealso cref="System.Windows.Controls.UserControl" />
+    /// <seealso cref="System.IDisposable" />
+    /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
+    /// <seealso cref="System.Windows.Markup.IUriContext" />
     [Localizability(LocalizationCategory.NeverLocalize)]
     [DefaultProperty(nameof(Source))]
     public sealed partial class MediaElement : UserControl, IDisposable, INotifyPropertyChanged, IUriContext

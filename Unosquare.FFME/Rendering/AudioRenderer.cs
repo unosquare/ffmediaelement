@@ -560,7 +560,8 @@
 
             var groupSize = (double)bytesToRead / requestedBytes;
             var targetOffset = 0;
-            var currentGroupSize = groupSize;
+            var currentGroupSizeW = (int)groupSize;
+            var currentGroupSizeF = groupSize - currentGroupSizeW;
             var leftSamples = 0d;
             var rightSamples = 0d;
             var isLeftSample = true;
@@ -573,7 +574,7 @@
                 leftSamples = 0;
                 rightSamples = 0;
                 samplesToAverage = 0;
-                for (var i = sourceOffset; i < sourceOffset + ((int)currentGroupSize * SampleBlockSize); i += BytesPerSample)
+                for (var i = sourceOffset; i < sourceOffset + (currentGroupSizeW * SampleBlockSize); i += BytesPerSample)
                 {
                     sample = (short)(ReadBuffer[i] | (ReadBuffer[i + 1] << 8));
                     if (isLeftSample)
@@ -600,8 +601,9 @@
                 ReadBuffer[targetOffset + 3] = (byte)((short)rightSamples >> 8);
 
                 // advance the base source offset
-                currentGroupSize += samplesToAverage;
-                if (currentGroupSize > groupSize) currentGroupSize = groupSize + (currentGroupSize % groupSize);
+                currentGroupSizeW = (int)(groupSize + currentGroupSizeF);
+                currentGroupSizeF = (groupSize + currentGroupSizeF) - currentGroupSizeW;
+
                 sourceOffset += samplesToAverage * SampleBlockSize;
                 targetOffset += SampleBlockSize;
             }
