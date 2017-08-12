@@ -113,7 +113,11 @@
         {
             var block = mediaBlock as VideoBlock;
             if (block == null) return;
-            if (IsRenderingInProgress) return;
+            if (IsRenderingInProgress)
+            {
+                MediaElement.Logger.Log(MediaLogMessageType.Debug, $"{nameof(VideoRenderer)}: Frame skipped at {mediaBlock.StartTime}");
+                return;
+            }
 
             IsRenderingInProgress = true;
 

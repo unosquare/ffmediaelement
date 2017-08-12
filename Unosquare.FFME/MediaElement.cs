@@ -114,7 +114,8 @@
             else
             {
                 // The UI Property update timer is responsible for timely updates to properties outside of the worker threads
-                UIPropertyUpdateTimer = new DispatcherTimer(DispatcherPriority.Background)
+                // We use the loaded priority because it is the priority right below the Render one.
+                UIPropertyUpdateTimer = new DispatcherTimer(DispatcherPriority.Loaded)
                 {
                     Interval = Constants.UIPropertyUpdateInterval,
                     IsEnabled = true
