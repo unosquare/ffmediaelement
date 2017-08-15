@@ -31,9 +31,9 @@
         private double RightVolume = 1.0d;
 
         private WaveFormat m_Format = null;
-        private double m_Volume = 1.0d;
-        private double m_Balance = 0.0d;
-        private volatile bool m_IsMuted = false;
+        private AtomicDouble m_Volume = new AtomicDouble { Value = Constants.DefaultVolume };
+        private AtomicDouble m_Balance = new AtomicDouble { Value = Constants.DefaultBalance };
+        private AtomicBoolean m_IsMuted = new AtomicBoolean();
 
         private int BytesPerSample = 2;
         private double SyncThesholdMilliseconds = 0d;
@@ -94,19 +94,19 @@
         {
             get
             {
-                return Thread.VolatileRead(ref m_Volume);
+                return m_Volume.Value;
             }
             set
             {
                 if (value < 0) value = 0;
                 if (value > 1) value = 1;
 
-                var leftFactor = m_Balance > 0 ? 1d - m_Balance : 1d;
-                var rightFactor = m_Balance < 0 ? 1d + m_Balance : 1d;
+                var leftFactor = m_Balance.Value > 0 ? 1d - m_Balance.Value : 1d;
+                var rightFactor = m_Balance.Value < 0 ? 1d + m_Balance.Value : 1d;
 
                 LeftVolume = leftFactor * value;
                 RightVolume = rightFactor * value;
-                Thread.VolatileWrite(ref m_Volume, value);
+                m_Volume.Value = value;
             }
         }
 
@@ -117,14 +117,14 @@
         {
             get
             {
-                return Thread.VolatileRead(ref m_Balance);
+                return m_Balance.Value;
             }
             set
             {
                 if (value < -1.0) value = -1.0;
                 if (value > 1.0) value = 1.0;
-                Thread.VolatileWrite(ref m_Balance, value);
-                Volume = Thread.VolatileRead(ref m_Volume);
+                m_Balance.Value = value;
+                Volume = m_Volume.Value;
             }
         }
 
@@ -133,8 +133,8 @@
         /// </summary>
         public bool IsMuted
         {
-            get { return m_IsMuted; }
-            set { m_IsMuted = value; }
+            get { return m_IsMuted.Value; }
+            set { m_IsMuted.Value = value; }
         }
 
         /// <summary>

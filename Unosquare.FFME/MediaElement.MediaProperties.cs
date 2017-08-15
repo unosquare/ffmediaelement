@@ -5,6 +5,7 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
+    using System.Threading;
     using System.Windows;
     using System.Windows.Controls;
 
@@ -21,7 +22,7 @@
         private bool m_IsBuffering = false;
         private MediaState m_MediaState = MediaState.Close;
         private bool m_IsOpening = false;
-        private volatile bool m_IsSeeking = false;
+        private AtomicBoolean m_IsSeeking = new AtomicBoolean();
 
         #endregion
 
@@ -257,13 +258,13 @@
         {
             get
             {
-                return m_IsSeeking;
+                return m_IsSeeking.Value == true;
             }
 
             internal set
             {
-                if (m_IsSeeking == value) return;
-                m_IsSeeking = value;
+                if (m_IsSeeking.Value == value) return;
+                m_IsSeeking.Value = value;
                 OnPropertyChanged();
             }
         }

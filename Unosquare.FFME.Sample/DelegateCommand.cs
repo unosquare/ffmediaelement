@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Threading;
     using System.Windows;
     using System.Windows.Input;
     using System.Windows.Threading;
@@ -16,7 +17,7 @@
         private readonly Action<object> m_Execute;
         private readonly Func<object, bool> m_CanExecute;
         private readonly Action<object> ExecuteAction;
-        private volatile bool IsExecuting;
+        private int IsExecuting = 0;
 
         #endregion // Fields
 
@@ -56,7 +57,7 @@
         [DebuggerStepThrough]
         public bool CanExecute(object parameter = null)
         {
-            if (IsExecuting) return false;
+            if (IsExecuting == 1) return false;
             return m_CanExecute == null || m_CanExecute(parameter);
         }
 
@@ -75,11 +76,11 @@
         /// <param name="parameter">Data used by the command.  If the command does not require data to be passed, this object can be set to null.</param>
         public async void Execute(object parameter = null)
         {
-            if (IsExecuting) return;
+            if (Volatile.Read(ref IsExecuting) == 1) return;
 
             try
             {
-                IsExecuting = true;
+                Interlocked.Exchange(ref IsExecuting, 1);
                 await Application.Current.Dispatcher.BeginInvoke(ExecuteAction, DispatcherPriority.Normal, parameter);
             }
             catch (Exception ex)
@@ -89,7 +90,7 @@
             }
             finally
             {
-                IsExecuting = false;
+                Interlocked.Exchange(ref IsExecuting, 0);
                 RaiseCanExecuteChanged();
             }
         }

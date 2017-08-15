@@ -1,15 +1,18 @@
 ﻿namespace Unosquare.FFME.Commands
 {
+    using Core;
+    using System.Threading;
+
     /// <summary>
     /// Represents a command to be executed against an intance of the MediaElement
     /// </summary>
     internal abstract class MediaCommand
     {
         /// <summary>
-        /// Volatile flag set when the command has finished execution.
+        /// Set when the command has finished execution.
         /// Do not use this field directly. It is managed internally by the command manager.
         /// </summary>
-        private volatile bool m_HasCompleted = false;
+        private AtomicBoolean m_HasCompleted = new AtomicBoolean();
 
         #region Constructor
 
@@ -43,7 +46,7 @@
         /// </summary>
         public bool HasCompleted
         {
-            get { return m_HasCompleted; }
+            get { return m_HasCompleted.Value; }
         }
 
         #endregion
@@ -55,7 +58,7 @@
         /// </summary>
         public void Complete()
         {
-            m_HasCompleted = true;
+            m_HasCompleted.Value = true;
         }
 
         /// <summary>

@@ -7,6 +7,7 @@
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
+    using System.Threading;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Data;
@@ -31,7 +32,7 @@
         #region Fields and Property Backing
 
 #pragma warning disable SA1401 // Fields must be private
-        internal static volatile bool IsFFmpegLoaded = false;
+        internal static AtomicBoolean IsFFmpegLoaded = new AtomicBoolean();
 
         /// <summary>
         /// The logger
@@ -42,13 +43,6 @@
         /// This is the image that will display the video from a Writeable Bitmap
         /// </summary>
         internal readonly Image ViewBox = new Image();
-
-        /// <summary>
-        /// When position is being set from within this control, this field will
-        /// be set to true. This is useful to detect if the user is setting the position
-        /// or if the Position property is being driven from within
-        /// </summary>
-        internal volatile bool IsPositionUpdating = false;
 
         /// <summary>
         /// To detect redundant calls
@@ -69,6 +63,13 @@
         /// The position update timer
         /// </summary>
         private DispatcherTimer UIPropertyUpdateTimer = null;
+
+        /// <summary>
+        /// When position is being set from within this control, this field will
+        /// be set to true. This is useful to detect if the user is setting the position
+        /// or if the Position property is being driven from within
+        /// </summary>
+        private AtomicBoolean m_IsPositionUpdating = new AtomicBoolean();
 
 #pragma warning restore SA1401 // Fields must be private
         #endregion
@@ -114,7 +115,8 @@
             else
             {
                 // The UI Property update timer is responsible for timely updates to properties outside of the worker threads
-                UIPropertyUpdateTimer = new DispatcherTimer(DispatcherPriority.Background)
+                // We use the loaded priority because it is the priority right below the Render one.
+                UIPropertyUpdateTimer = new DispatcherTimer(DispatcherPriority.Loaded)
                 {
                     Interval = Constants.UIPropertyUpdateInterval,
                     IsEnabled = true
@@ -196,7 +198,7 @@
             }
             set
             {
-                if (IsFFmpegLoaded == false)
+                if (IsFFmpegLoaded.Value == false)
                 {
                     m_FFmpegDirectory = value;
                     return;
@@ -237,6 +239,17 @@
             {
                 m_BaseUri = value;
             }
+        }
+
+        /// <summary>
+        /// When position is being set from within this control, this field will
+        /// be set to true. This is useful to detect if the user is setting the position
+        /// or if the Position property is being driven from within
+        /// </summary>
+        internal bool IsPositionUpdating
+        {
+            get { return m_IsPositionUpdating.Value; }
+            set { m_IsPositionUpdating.Value = value; }
         }
 
         /// <summary>

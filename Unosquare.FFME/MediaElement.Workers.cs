@@ -45,13 +45,42 @@
         internal Thread FrameDecodingTask = null;
         internal Thread BlockRenderingTask = null;
 
-        internal volatile bool IsTaskCancellationPending = false;
-        internal volatile bool HasDecoderSeeked = false;
+        private AtomicBoolean m_IsTaskCancellationPending = new AtomicBoolean();
+        private AtomicBoolean m_HasDecoderSeeked = new AtomicBoolean();
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the workedrs have been requested
+        /// an exit.
+        /// </summary>
+        internal bool IsTaskCancellationPending
+        {
+            get { return m_IsTaskCancellationPending.Value; }
+            set { m_IsTaskCancellationPending.Value = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the decoder has moved its byte position
+        /// to something other than the normal continuous reads in the last read cycle.
+        /// </summary>
+        internal bool HasDecoderSeeked
+        {
+            get { return m_HasDecoderSeeked.Value; }
+            set { m_HasDecoderSeeked.Value = value; }
+        }
+
+        /// <summary>
+        /// Holds the blocks
+        /// </summary>
         internal MediaTypeDictionary<MediaBlockBuffer> Blocks { get; } = new MediaTypeDictionary<MediaBlockBuffer>();
 
+        /// <summary>
+        /// Holds the block renderers
+        /// </summary>
         internal MediaTypeDictionary<IRenderer> Renderers { get; } = new MediaTypeDictionary<IRenderer>();
 
+        /// <summary>
+        /// Holds the last rendered StartTime for each of the media block types
+        /// </summary>
         internal MediaTypeDictionary<TimeSpan> LastRenderTime { get; } = new MediaTypeDictionary<TimeSpan>();
 
 #pragma warning restore SA1401 // Fields must be private

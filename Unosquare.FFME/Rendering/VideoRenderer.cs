@@ -4,6 +4,7 @@
     using Decoding;
     using System;
     using System.Runtime.CompilerServices;
+    using System.Threading;
     using System.Windows;
     using System.Windows.Media;
     using System.Windows.Media.Imaging;
@@ -25,7 +26,7 @@
         /// <summary>
         /// Set when a bitmap is being written to the target bitmap
         /// </summary>
-        private volatile bool IsRenderingInProgress = false;
+        private AtomicBoolean IsRenderingInProgress = new AtomicBoolean();
 
         #endregion
 
@@ -113,9 +114,13 @@
         {
             var block = mediaBlock as VideoBlock;
             if (block == null) return;
-            if (IsRenderingInProgress) return;
+            if (IsRenderingInProgress.Value == true)
+            {
+                MediaElement.Logger.Log(MediaLogMessageType.Debug, $"{nameof(VideoRenderer)}: Frame skipped at {mediaBlock.StartTime}");
+                return;
+            }
 
-            IsRenderingInProgress = true;
+            IsRenderingInProgress.Value = true;
 
             Runner.UIEnqueueInvoke(
                 DispatcherPriority.Render,
@@ -150,7 +155,7 @@
                     }
                     finally
                     {
-                        IsRenderingInProgress = false;
+                        IsRenderingInProgress.Value = false;
                     }
                 }), block,
                 clockPosition);
