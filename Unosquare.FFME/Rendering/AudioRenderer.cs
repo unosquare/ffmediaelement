@@ -33,7 +33,7 @@
         private WaveFormat m_Format = null;
         private double m_Volume = 1.0d;
         private double m_Balance = 0.0d;
-        private volatile bool m_IsMuted = false;
+        private int m_IsMuted = Constants.False;
 
         private int BytesPerSample = 2;
         private double SyncThesholdMilliseconds = 0d;
@@ -94,7 +94,7 @@
         {
             get
             {
-                return Thread.VolatileRead(ref m_Volume);
+                return m_Volume;
             }
             set
             {
@@ -106,7 +106,7 @@
 
                 LeftVolume = leftFactor * value;
                 RightVolume = rightFactor * value;
-                Thread.VolatileWrite(ref m_Volume, value);
+                Interlocked.Exchange(ref m_Volume, value);
             }
         }
 
@@ -117,14 +117,14 @@
         {
             get
             {
-                return Thread.VolatileRead(ref m_Balance);
+                return m_Balance;
             }
             set
             {
                 if (value < -1.0) value = -1.0;
                 if (value > 1.0) value = 1.0;
-                Thread.VolatileWrite(ref m_Balance, value);
-                Volume = Thread.VolatileRead(ref m_Volume);
+                Interlocked.Exchange(ref m_Balance, value);
+                Volume = m_Volume;
             }
         }
 
@@ -133,8 +133,8 @@
         /// </summary>
         public bool IsMuted
         {
-            get { return m_IsMuted; }
-            set { m_IsMuted = value; }
+            get { return m_IsMuted != Constants.False; }
+            set { Interlocked.Exchange(ref m_IsMuted, value ? Constants.True : Constants.False); }
         }
 
         /// <summary>

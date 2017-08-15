@@ -42,14 +42,14 @@
             try
             {
                 // Register FFmpeg if not already done
-                if (MediaElement.IsFFmpegLoaded == false)
+                if (MediaElement.IsFFmpegLoaded == Constants.False)
                 {
                     MediaElement.FFmpegDirectory = Utils.RegisterFFmpeg(MediaElement.FFmpegDirectory);
                     m.Logger.Log(MediaLogMessageType.Info, $"INIT FFMPEG: {ffmpeg.av_version_info()}");
                 }
 
                 Runner.UIInvoke(DispatcherPriority.DataBind, () => { m.ResetDependencyProperies(); });
-                MediaElement.IsFFmpegLoaded = true;
+                Interlocked.Exchange(ref MediaElement.IsFFmpegLoaded, Constants.True);
                 m.IsOpening = true;
                 m.MediaState = System.Windows.Controls.MediaState.Manual;
 
@@ -96,13 +96,13 @@
 
                 // Create the thread runners
                 m.PacketReadingTask = new Thread(m.RunPacketReadingWorker)
-                    { IsBackground = true, Name = nameof(m.PacketReadingTask), Priority = ThreadPriority.Normal };
+                { IsBackground = true, Name = nameof(m.PacketReadingTask), Priority = ThreadPriority.Normal };
 
                 m.FrameDecodingTask = new Thread(m.RunFrameDecodingWorker)
-                    { IsBackground = true, Name = nameof(m.FrameDecodingTask), Priority = ThreadPriority.AboveNormal };
+                { IsBackground = true, Name = nameof(m.FrameDecodingTask), Priority = ThreadPriority.AboveNormal };
 
                 m.BlockRenderingTask = new Thread(m.RunBlockRenderingWorker)
-                    { IsBackground = true, Name = nameof(m.BlockRenderingTask), Priority = ThreadPriority.Normal };
+                { IsBackground = true, Name = nameof(m.BlockRenderingTask), Priority = ThreadPriority.Normal };
 
                 // Fire up the threads
                 m.PacketReadingTask.Start();

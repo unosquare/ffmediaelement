@@ -4,6 +4,7 @@
     using Decoding;
     using System;
     using System.Runtime.CompilerServices;
+    using System.Threading;
     using System.Windows;
     using System.Windows.Media;
     using System.Windows.Media.Imaging;
@@ -25,7 +26,7 @@
         /// <summary>
         /// Set when a bitmap is being written to the target bitmap
         /// </summary>
-        private volatile bool IsRenderingInProgress = false;
+        private int IsRenderingInProgress = Constants.False;
 
         #endregion
 
@@ -113,13 +114,13 @@
         {
             var block = mediaBlock as VideoBlock;
             if (block == null) return;
-            if (IsRenderingInProgress)
+            if (IsRenderingInProgress == Constants.True)
             {
                 MediaElement.Logger.Log(MediaLogMessageType.Debug, $"{nameof(VideoRenderer)}: Frame skipped at {mediaBlock.StartTime}");
                 return;
             }
 
-            IsRenderingInProgress = true;
+            Interlocked.Exchange(ref IsRenderingInProgress, Constants.True);
 
             Runner.UIEnqueueInvoke(
                 DispatcherPriority.Render,
@@ -134,12 +135,12 @@
                         TargetBitmap.WritePixels(updateRect, b.Buffer, b.BufferLength, b.BufferStride);
                         MediaElement.VideoSmtpeTimecode = b.SmtpeTimecode;
                         MediaElement.RaiseRenderingVideoEvent(
-                            TargetBitmap, 
-                            MediaElement.Container.MediaInfo.Streams[b.StreamIndex], 
+                            TargetBitmap,
+                            MediaElement.Container.MediaInfo.Streams[b.StreamIndex],
                             b.SmtpeTimecode,
-                            b.DisplayPictureNumber, 
-                            b.StartTime, 
-                            b.Duration, 
+                            b.DisplayPictureNumber,
+                            b.StartTime,
+                            b.Duration,
                             cP);
 
                         ApplyScaleTransform(b);
@@ -150,7 +151,7 @@
                     }
                     finally
                     {
-                        IsRenderingInProgress = false;
+                        Interlocked.Exchange(ref IsRenderingInProgress, Constants.False);
                     }
                 }), block,
                 clockPosition);
