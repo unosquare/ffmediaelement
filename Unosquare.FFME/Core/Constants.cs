@@ -12,9 +12,6 @@
     /// </summary>
     internal static class Constants
     {
-        public const int False = 0;
-        public const int True = 1;
-
         public const string CodecOptionThreads = "threads";
         public const string CodecOptionRefCountedFrames = "refcounted_frames";
         public const string CodecOptionLowRes = "lowres";

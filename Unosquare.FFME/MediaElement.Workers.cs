@@ -45,8 +45,8 @@
         internal Thread FrameDecodingTask = null;
         internal Thread BlockRenderingTask = null;
 
-        private int m_IsTaskCancellationPending = Constants.False;
-        private int m_HasDecoderSeeked = Constants.False;
+        private AtomicBoolean m_IsTaskCancellationPending = new AtomicBoolean();
+        private AtomicBoolean m_HasDecoderSeeked = new AtomicBoolean();
 
         /// <summary>
         /// Gets or sets a value indicating whether the workedrs have been requested
@@ -54,8 +54,8 @@
         /// </summary>
         internal bool IsTaskCancellationPending
         {
-            get { return m_IsTaskCancellationPending != Constants.False; }
-            set { Interlocked.Exchange(ref m_IsTaskCancellationPending, value ? Constants.True : Constants.False); }
+            get { return m_IsTaskCancellationPending.Value; }
+            set { m_IsTaskCancellationPending.Value = value; }
         }
 
         /// <summary>
@@ -64,8 +64,8 @@
         /// </summary>
         internal bool HasDecoderSeeked
         {
-            get { return m_HasDecoderSeeked != Constants.False; }
-            set { Interlocked.Exchange(ref m_HasDecoderSeeked, value ? Constants.True : Constants.False); }
+            get { return m_HasDecoderSeeked.Value; }
+            set { m_HasDecoderSeeked.Value = value; }
         }
 
         /// <summary>

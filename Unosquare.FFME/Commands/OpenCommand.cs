@@ -42,14 +42,14 @@
             try
             {
                 // Register FFmpeg if not already done
-                if (MediaElement.IsFFmpegLoaded == Constants.False)
+                if (MediaElement.IsFFmpegLoaded.Value == false)
                 {
                     MediaElement.FFmpegDirectory = Utils.RegisterFFmpeg(MediaElement.FFmpegDirectory);
                     m.Logger.Log(MediaLogMessageType.Info, $"INIT FFMPEG: {ffmpeg.av_version_info()}");
                 }
 
                 Runner.UIInvoke(DispatcherPriority.DataBind, () => { m.ResetDependencyProperies(); });
-                Interlocked.Exchange(ref MediaElement.IsFFmpegLoaded, Constants.True);
+                MediaElement.IsFFmpegLoaded.Value = true;
                 m.IsOpening = true;
                 m.MediaState = System.Windows.Controls.MediaState.Manual;
 

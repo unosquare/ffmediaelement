@@ -12,7 +12,7 @@
         /// Set when the command has finished execution.
         /// Do not use this field directly. It is managed internally by the command manager.
         /// </summary>
-        private int m_HasCompleted = Constants.False;
+        private AtomicBoolean m_HasCompleted = new AtomicBoolean();
 
         #region Constructor
 
@@ -46,7 +46,7 @@
         /// </summary>
         public bool HasCompleted
         {
-            get { return m_HasCompleted != Constants.False; }
+            get { return m_HasCompleted.Value; }
         }
 
         #endregion
@@ -58,7 +58,7 @@
         /// </summary>
         public void Complete()
         {
-            Interlocked.Exchange(ref m_HasCompleted, Constants.True);
+            m_HasCompleted.Value = true;
         }
 
         /// <summary>

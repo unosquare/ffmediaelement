@@ -26,7 +26,7 @@
         /// <summary>
         /// Set when a bitmap is being written to the target bitmap
         /// </summary>
-        private int IsRenderingInProgress = Constants.False;
+        private AtomicBoolean IsRenderingInProgress = new AtomicBoolean();
 
         #endregion
 
@@ -114,13 +114,13 @@
         {
             var block = mediaBlock as VideoBlock;
             if (block == null) return;
-            if (IsRenderingInProgress == Constants.True)
+            if (IsRenderingInProgress.Value == true)
             {
                 MediaElement.Logger.Log(MediaLogMessageType.Debug, $"{nameof(VideoRenderer)}: Frame skipped at {mediaBlock.StartTime}");
                 return;
             }
 
-            Interlocked.Exchange(ref IsRenderingInProgress, Constants.True);
+            IsRenderingInProgress.Value = true;
 
             Runner.UIEnqueueInvoke(
                 DispatcherPriority.Render,
@@ -151,7 +151,7 @@
                     }
                     finally
                     {
-                        Interlocked.Exchange(ref IsRenderingInProgress, Constants.False);
+                        IsRenderingInProgress.Value = false;
                     }
                 }), block,
                 clockPosition);

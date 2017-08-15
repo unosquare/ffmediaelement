@@ -85,7 +85,7 @@
         /// The stream read interrupt start time.
         /// When a read operation is started, this is set to the ticks of UTC now.
         /// </summary>
-        private long StreamReadInterruptStartTime = default(long);
+        private AtomicLong StreamReadInterruptStartTime = new AtomicLong();
 
         #endregion
 
@@ -553,7 +553,7 @@
                         }
 
                         // We set the start of the read operation time so tiomeouts can be detected
-                        Interlocked.Exchange(ref StreamReadInterruptStartTime, DateTime.UtcNow.Ticks);
+                        StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
                         fixed (AVDictionary** reference = &formatOptions.Pointer)
                         {
                             var prefix = string.IsNullOrWhiteSpace(ProtocolPrefix) ? string.Empty : $"{ProtocolPrefix.Trim()}:";
@@ -734,7 +734,7 @@
             var nowTicks = DateTime.UtcNow.Ticks;
 
             // We use Interlocked read because in 32 bits it takes 2 trips!
-            var startTicks = Interlocked.Read(ref StreamReadInterruptStartTime);
+            var startTicks = StreamReadInterruptStartTime.Value;
             var timeDifference = TimeSpan.FromTicks(nowTicks - startTicks);
 
             if (MediaOptions.ReadTimeout.Ticks >= 0 && timeDifference.Ticks > MediaOptions.ReadTimeout.Ticks)
@@ -796,7 +796,7 @@
             // Allocate the packet to read
             var readPacket = ffmpeg.av_packet_alloc();
             RC.Current.Add(readPacket, $"725: {nameof(MediaComponent)}.{nameof(StreamRead)}()");
-            Interlocked.Exchange(ref StreamReadInterruptStartTime, DateTime.UtcNow.Ticks);
+            StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
             var readResult = ffmpeg.av_read_frame(InputContext, readPacket);
             StreamLastReadTimeUtc = DateTime.UtcNow;
 
@@ -914,7 +914,7 @@
         private void StreamSeekToStart()
         {
             if (MediaStartTimeOffset == TimeSpan.MinValue) return;
-            Interlocked.Exchange(ref StreamReadInterruptStartTime, DateTime.UtcNow.Ticks);
+            StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
             StreamReadSuspend();
             var seekResult = ffmpeg.av_seek_frame(
                 InputContext,
@@ -1011,7 +1011,7 @@
                 // Check if we are seeking before the start of the stream in this cyle. If so, simply seek to the
                 // begining of the stream. Otherwise, seek normally.
                 StreamReadSuspend();
-                Interlocked.Exchange(ref StreamReadInterruptStartTime, DateTime.UtcNow.Ticks);
+                StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
                 if (relativeTargetTime.Ticks <= main.StartTimeOffset.Ticks)
                 {
                     seekResult = ffmpeg.av_seek_frame(InputContext, -1, SeekStartTimestamp, seekFlags);

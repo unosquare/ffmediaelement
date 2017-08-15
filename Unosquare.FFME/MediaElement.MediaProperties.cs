@@ -22,7 +22,7 @@
         private bool m_IsBuffering = false;
         private MediaState m_MediaState = MediaState.Close;
         private bool m_IsOpening = false;
-        private int m_IsSeeking = Constants.False;
+        private AtomicBoolean m_IsSeeking = new AtomicBoolean();
 
         #endregion
 
@@ -258,13 +258,13 @@
         {
             get
             {
-                return m_IsSeeking == Constants.True;
+                return m_IsSeeking.Value == true;
             }
 
             internal set
             {
-                if (IsSeeking == value) return;
-                Interlocked.Exchange(ref m_IsSeeking, value ? Constants.True : Constants.False);
+                if (m_IsSeeking.Value == value) return;
+                m_IsSeeking.Value = value;
                 OnPropertyChanged();
             }
         }

@@ -32,7 +32,7 @@
         #region Fields and Property Backing
 
 #pragma warning disable SA1401 // Fields must be private
-        internal static int IsFFmpegLoaded = Constants.False;
+        internal static AtomicBoolean IsFFmpegLoaded = new AtomicBoolean();
 
         /// <summary>
         /// The logger
@@ -69,7 +69,7 @@
         /// be set to true. This is useful to detect if the user is setting the position
         /// or if the Position property is being driven from within
         /// </summary>
-        private int m_IsPositionUpdating = Constants.False;
+        private AtomicBoolean m_IsPositionUpdating = new AtomicBoolean();
 
 #pragma warning restore SA1401 // Fields must be private
         #endregion
@@ -198,7 +198,7 @@
             }
             set
             {
-                if (IsFFmpegLoaded == Constants.False)
+                if (IsFFmpegLoaded.Value == false)
                 {
                     m_FFmpegDirectory = value;
                     return;
@@ -248,8 +248,8 @@
         /// </summary>
         internal bool IsPositionUpdating
         {
-            get { return m_IsPositionUpdating != Constants.False; }
-            set { Interlocked.Exchange(ref m_IsPositionUpdating, value ? Constants.True : Constants.False); }
+            get { return m_IsPositionUpdating.Value; }
+            set { m_IsPositionUpdating.Value = value; }
         }
 
         /// <summary>

@@ -76,7 +76,7 @@
         /// <param name="parameter">Data used by the command.  If the command does not require data to be passed, this object can be set to null.</param>
         public async void Execute(object parameter = null)
         {
-            if (IsExecuting == 1) return;
+            if (Volatile.Read(ref IsExecuting) == 1) return;
 
             try
             {
