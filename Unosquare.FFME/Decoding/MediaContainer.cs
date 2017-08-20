@@ -590,7 +590,7 @@
                 // This is useful for file formats with no headers such as MPEG. This function also computes 
                 // the real framerate in case of MPEG-2 repeat frame mode.
                 if (ffmpeg.avformat_find_stream_info(InputContext, null) < 0)
-                    Logger?.Log(MediaLogMessageType.Warning, $"{MediaUrl}: could read stream info.");
+                    Logger?.Log(MediaLogMessageType.Warning, $"{MediaUrl}: could not read stream information.");
 
                 // HACK: From ffplay.c: maybe should not use avio_feof() to test for the end
                 if (InputContext->pb != null) InputContext->pb->eof_reached = 0;

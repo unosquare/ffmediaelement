@@ -463,7 +463,7 @@
         {
             var audioLatency = Latency;
 
-            if (audioLatency.TotalMilliseconds > SyncThesholdMilliseconds / 2d)
+            if (audioLatency.TotalMilliseconds > 2d * SyncThesholdMilliseconds)
             {
                 // a positive audio latency means we are rendering audio behind (after) the clock (skip some samples)
                 // and therefore we need to advance the buffer before we read from it.

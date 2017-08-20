@@ -282,23 +282,19 @@
                     {
                         // Clear the media blocks if we are outside of the required range
                         // we don't need them and we now need as many playback blocks as we can have available
-                        if (blocks.IsFull)
-                            blocks.Clear();
+                        blocks.Clear();
 
-                        // detect a buffering scenario
-                        if (blocks.Count <= 0)
-                        {
-                            HasDecoderSeeked = true;
-                            isBuffering = true;
-                            resumeClock = Clock.IsRunning;
-                            Clock.Pause();
-                            Logger.Log(MediaLogMessageType.Debug, $"SYNC BUFFER: Buffering Started.");
-                        }
+                        // Signal the start of a buffering scenario
+                        HasDecoderSeeked = true;
+                        isBuffering = true;
+                        resumeClock = Clock.IsRunning;
+                        Clock.Pause();
+                        Logger.Log(MediaLogMessageType.Debug, $"SYNC BUFFER: Buffering Started.");
 
                         // Read some frames and try to get a valid range
                         while (comp.PacketBufferCount > 0 && blocks.IsFull == false)
                         {
-                            decodedFrameCount = AddBlocks(main);
+                            decodedFrameCount += AddBlocks(main);
                             isInRange = blocks.IsInRange(wallClock);
                             if (isInRange)
                                 break;
@@ -321,6 +317,9 @@
 
                             // Update the clock to what the main component range mandates
                             Clock.Position = wallClock;
+
+                            // Call seek to invalidate
+                            Renderers[main].Seek();
                         }
                     }
                     else
@@ -332,7 +331,7 @@
                         while (comp.PacketBufferCount > 0 &&
                             ((rangePercent > 0.75d && blocks.IsFull) || blocks.IsFull == false))
                         {
-                            decodedFrameCount = AddBlocks(main);
+                            decodedFrameCount += AddBlocks(main);
                             rangePercent = blocks.GetRangePercent(wallClock);
                         }
                     }
@@ -350,46 +349,44 @@
                     // for easier readability
                     comp = Container.Components[t];
                     blocks = Blocks[t];
+                    isInRange = blocks.IsInRange(wallClock);
+
+                    // Invalidate the renderer if we don't have the block.
+                    if (isInRange == false) Renderers[t].Seek();
 
                     // wait for component to get there if we only have furutre blocks
                     // in auxiliary component.
-                    if (blocks.RangeStartTime > wallClock)
+                    if (blocks.Count > 0 && blocks.RangeStartTime > wallClock)
                         continue;
 
-                    // Wait for packets if we are buffering or we don't have enough packets
-                    if (CanReadMorePackets && (isBuffering || comp.PacketBufferCount <= 0))
-                        PacketReadingCycle.WaitOne();
-
-                    // catch up with the wall clock
-                    while (comp.PacketBufferCount > 0 && blocks.RangeEndTime <= wallClock)
+                    // Try to catch up with the wall clock
+                    while (blocks.Count == 0 || blocks.RangeEndTime <= wallClock)
                     {
-                        decodedFrameCount = AddBlocks(t);
-
-                        // don't care if we are buffering
-                        // always try to catch up by reading more packets.
-                        if (comp.PacketBufferCount <= 0 && CanReadMorePackets)
+                        // Wait for packets if we don't have enough packets
+                        if (CanReadMorePackets && comp.PacketBufferCount <= 0)
                             PacketReadingCycle.WaitOne();
+
+                        if (comp.PacketBufferCount <= 0)
+                            break;
+                        else
+                            decodedFrameCount += AddBlocks(t);
                     }
 
-                    rangePercent = blocks.GetRangePercent(wallClock);
                     isInRange = blocks.IsInRange(wallClock);
 
-                    // Wait for packets if we are buffering
-                    if (CanReadMorePackets && isBuffering)
-                        PacketReadingCycle.WaitOne();
+                    // Move to the next component if we don't meet a regular conditions
+                    if (isInRange == false || isBuffering || comp.PacketBufferCount <= 0)
+                        continue;
 
-                    while (comp.PacketBufferCount > 0 &&
-                        (
-                            (blocks.IsFull == true && isInRange && rangePercent > 0.75d && rangePercent < 1d) ||
-                            (blocks.IsFull == false)
-                        ))
+                    // Read as much as we can for this cycle.
+                    while (comp.PacketBufferCount > 0)
                     {
-                        decodedFrameCount = AddBlocks(t);
                         rangePercent = blocks.GetRangePercent(wallClock);
-                        isInRange = blocks.IsInRange(wallClock);
 
-                        if (CanReadMorePackets && isBuffering)
-                            PacketReadingCycle.WaitOne();
+                        if (blocks.IsFull == false || (blocks.IsFull && rangePercent > 0.75d && rangePercent < 1d))
+                            decodedFrameCount += AddBlocks(t);
+                        else
+                            break;
                     }
                 }
 
@@ -428,9 +425,16 @@
                 // complete buffering notifications
                 if (isBuffering)
                 {
+                    // Reset the buffering flag
                     isBuffering = false;
+
+                    // Resume the clock if it was playing
                     if (resumeClock) Clock.Play();
-                    Logger.Log(MediaLogMessageType.Debug, $"SYNC BUFFER: Buffering Finished. Clock set to {wallClock.Format()}");
+
+                    // log some message
+                    Logger.Log(
+                        MediaLogMessageType.Debug,
+                        $"SYNC BUFFER: Buffering Finished. Clock set to {wallClock.Format()}");
                 }
 
                 // Complete the frame decoding cycle
@@ -560,7 +564,7 @@
                 if (IsTaskCancellationPending) break;
 
                 if (IsSeeking) continue;
-                
+
                 // Spin the thread for a bit if we have no more stuff to process
                 if (renderedBlockCount <= 0 && Commands.PendingCount <= 0)
                     DelayLock.WaitOne();
