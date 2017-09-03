@@ -41,7 +41,7 @@
         /// Determines if the av_lockmgr_register is called.
         /// If this is set to false, then the number of threads will be set to 1.
         /// </summary>
-        public const bool EnableFFmpegLockManager = false;
+        public const bool EnableFFmpegLockManager = true;
 
         public const FrameworkPropertyMetadataOptions AffectsMeasureAndRender 
             = FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender;
