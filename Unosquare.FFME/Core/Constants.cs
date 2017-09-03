@@ -37,6 +37,12 @@
         public const string DllSWScale = "swscale-4.dll";
         public const string DllAVDevice = "avdevice-57.dll";
 
+        /// <summary>
+        /// Determines if the av_lockmgr_register is called.
+        /// If this is set to false, then the number of threads will be set to 1.
+        /// </summary>
+        public const bool EnableFFmpegLockManager = false;
+
         public const FrameworkPropertyMetadataOptions AffectsMeasureAndRender 
             = FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender;
 

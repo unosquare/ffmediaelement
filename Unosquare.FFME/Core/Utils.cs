@@ -311,7 +311,8 @@
                 // https://stackoverflow.com/questions/13888915/thread-safety-of-libav-ffmpeg
                 // we need to register a lock manager with av_lockmgr_register
                 // Just like in https://raw.githubusercontent.com/FFmpeg/FFmpeg/release/3.2/ffplay.c
-                ffmpeg.av_lockmgr_register(FFmpegLockManagerCallback);
+                if (Constants.EnableFFmpegLockManager)
+                    ffmpeg.av_lockmgr_register(FFmpegLockManagerCallback);
 
                 HasFFmpegRegistered = true;
                 FFmpegRegisterPath = ffmpegPath;
@@ -508,11 +509,13 @@
         /// Manages FFmpeg Multithreaded locking
         /// </summary>
         /// <param name="mutex">The mutex.</param>
-        /// <param name="op">The op.</param>
-        /// <returns>0 for success, 1 for error</returns>
-        private static unsafe int FFmpegManageLocking(void** mutex, AVLockOp op)
+        /// <param name="lockingOperation">The op.</param>
+        /// <returns>
+        /// 0 for success, 1 for error
+        /// </returns>
+        private static unsafe int FFmpegManageLocking(void** mutex, AVLockOp lockingOperation)
         {
-            switch (op)
+            switch (lockingOperation)
             {
                 case AVLockOp.AV_LOCK_CREATE:
                     {
@@ -553,7 +556,7 @@
         }
 
         /// <summary>
-        /// Log message callback fro ffmpeg library.
+        /// Log message callback from ffmpeg library.
         /// </summary>
         /// <param name="p0">The p0.</param>
         /// <param name="level">The level.</param>

@@ -112,7 +112,8 @@
             // Setup additional settings. The most important one is Threads -- Setting it to 1 decoding is very slow. Setting it to auto
             // decoding is very fast in most scenarios.
             var codecOptions = Container.MediaOptions.CodecOptions.FilterOptions(CodecContext->codec_id, Container.InputContext, Stream, codec);
-            if (codecOptions.HasKey(Constants.CodecOptionThreads) == false) codecOptions[Constants.CodecOptionThreads] = "auto";
+            if (codecOptions.HasKey(Constants.CodecOptionThreads) == false)
+                codecOptions[Constants.CodecOptionThreads] = Constants.EnableFFmpegLockManager ? "auto" : "1";
             if (lowResIndex != 0) codecOptions[Constants.CodecOptionLowRes] = lowResIndex.ToString(CultureInfo.InvariantCulture);
             if (CodecContext->codec_type == AVMediaType.AVMEDIA_TYPE_VIDEO || CodecContext->codec_type == AVMediaType.AVMEDIA_TYPE_AUDIO)
                 codecOptions[Constants.CodecOptionRefCountedFrames] = 1.ToString(CultureInfo.InvariantCulture);
