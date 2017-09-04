@@ -280,45 +280,41 @@
 
                     if (isInRange == false)
                     {
-                        // Clear the media blocks if we are outside of the required range
-                        // we don't need them and we now need as many playback blocks as we can have available
-                        blocks.Clear();
-
-                        // Signal the start of a buffering scenario
+                        // Signal the start of a sync-buffering scenario
                         HasDecoderSeeked = true;
                         isBuffering = true;
                         resumeClock = Clock.IsRunning;
                         Clock.Pause();
-                        Logger.Log(MediaLogMessageType.Debug, $"SYNC BUFFER: Buffering Started.");
+                        Logger.Log(MediaLogMessageType.Debug, $"SYNC-BUFFER: Started.");
 
                         // Read some frames and try to get a valid range
-                        while (comp.PacketBufferCount > 0 && blocks.IsFull == false)
+                        do
                         {
+                            // Try to get more packets by waiting for read cycles.
+                            if (CanReadMorePackets && comp.PacketBufferCount <= 0)
+                                PacketReadingCycle.WaitOne();
+
+                            // Decode some frames and check if we are in reange now
                             decodedFrameCount += AddBlocks(main);
                             isInRange = blocks.IsInRange(wallClock);
-                            if (isInRange)
-                                break;
 
-                            // Try to get more packets by waiting for read cycles.
-                            if (CanReadMorePackets && comp.PacketBufferCount <= 0 && isInRange == false)
-                                PacketReadingCycle.WaitOne();
+                            // Break the cycle if we are in range
+                            if (isInRange) { break; }
                         }
+                        while (comp.PacketBufferCount > 0 && blocks.IsFull == false);
 
                         // Unfortunately at this point we will need to adjust the clock after creating the frames.
                         // to ensure tha mian component is within the clock range if the decoded
                         // frames are not with range. This is normal while buffering though.
                         if (isInRange == false)
                         {
-                            wallClock = wallClock <= blocks.RangeStartTime ?
-                                blocks.RangeStartTime : blocks.RangeEndTime;
-
-                            if (isBuffering == false)
-                                Logger.Log(MediaLogMessageType.Warning, $"SYNC CLOCK: {Clock.Position.Format()} set to {wallClock.Format()}");
+                            // Update the wall clock to the most appropriate available block.
+                            wallClock = blocks[wallClock].StartTime;
 
                             // Update the clock to what the main component range mandates
                             Clock.Position = wallClock;
 
-                            // Call seek to invalidate
+                            // Call seek to invalidate renderer
                             Renderers[main].Seek();
                         }
                     }
@@ -434,7 +430,7 @@
                     // log some message
                     Logger.Log(
                         MediaLogMessageType.Debug,
-                        $"SYNC BUFFER: Buffering Finished. Clock set to {wallClock.Format()}");
+                        $"SYNC-BUFFER: Finished. Clock set to {wallClock.Format()}");
                 }
 
                 // Complete the frame decoding cycle

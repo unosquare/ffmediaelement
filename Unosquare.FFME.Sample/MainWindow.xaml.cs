@@ -815,7 +815,7 @@
         {
 
             // An example of switching to a different stream
-            if (e.Info.InputUrl.EndsWith("matroska.mkv2"))
+            if (e.Info.InputUrl.EndsWith("matroska.mkv"))
             {
                 var subtitleStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_SUBTITLE).Select(kvp => kvp.Value);
                 var englishSubtitleStream = subtitleStreams.FirstOrDefault(s => s.Language.StartsWith("en"));
@@ -825,10 +825,15 @@
                 var audioStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_AUDIO)
                     .Select(kvp => kvp.Value).ToArray();
 
-                var commentaryStream = audioStreams.FirstOrDefault(s => s.StreamIndex != e.Options.AudioStream.StreamIndex);
-                e.Options.AudioStream = commentaryStream;
+                // var commentaryStream = audioStreams.FirstOrDefault(s => s.StreamIndex != e.Options.AudioStream.StreamIndex);
+                // e.Options.AudioStream = commentaryStream;
             }
 
+            // In realtime streams probesize can be reduced to reduce latency
+            // e.Options.ProbeSize = 32; // 32 is the minimum
+
+            // In realtime strams analyze duration can be reduced to reduce latency
+            // e.Options.MaxAnalyzeDuration = TimeSpan.Zero;
 
             // The yadif filter deinterlaces the video; we check the field order if we need
             // to deinterlace the video automatically

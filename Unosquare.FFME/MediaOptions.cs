@@ -67,12 +67,15 @@
         public bool GeneratePts { get; set; } = false;
 
         /// <summary>
-        /// Gets or sets the maximum duration of the analyze.
+        /// Gets or sets the maximum duration to be analyzed before ifentifying stream information.
+        /// In realtime streams this can be reduced to reduce latency (i.e. TimeSpan.Zero)
         /// </summary>
         public TimeSpan MaxAnalyzeDuration { get; set; }
 
         /// <summary>
-        /// Gets or sets the size of the probe.
+        /// Gets or sets the amount of bytes to probe before getting the stram info
+        /// In realtime streams probesize can be reduced to reduce latency.
+        /// Minimum value is 32.
         /// </summary>
         public int ProbeSize { get; set; }
 
