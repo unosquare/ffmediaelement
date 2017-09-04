@@ -299,9 +299,9 @@
                             isInRange = blocks.IsInRange(wallClock);
 
                             // Break the cycle if we are in range
-                            if (isInRange) { break; }
+                            if (isInRange || CanReadMorePackets == false) { break; }
                         }
-                        while (comp.PacketBufferCount > 0 && blocks.IsFull == false);
+                        while (decodedFrameCount <= 0 && blocks.IsFull == false);
 
                         // Unfortunately at this point we will need to adjust the clock after creating the frames.
                         // to ensure tha mian component is within the clock range if the decoded
@@ -309,7 +309,10 @@
                         if (isInRange == false)
                         {
                             // Update the wall clock to the most appropriate available block.
-                            wallClock = blocks[wallClock].StartTime;
+                            if (blocks.Count > 0)
+                                wallClock = blocks[wallClock].StartTime;
+                            else
+                                resumeClock = false; // Hard stop the clock.
 
                             // Update the clock to what the main component range mandates
                             Clock.Position = wallClock;
