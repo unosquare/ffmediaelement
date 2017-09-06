@@ -92,6 +92,16 @@
                             typeof(RoutedEventHandler),
                             typeof(MediaElement));
 
+        /// <summary>
+        /// PositionChanged is a routed event 
+        /// </summary>
+        public static readonly RoutedEvent PositionChangedEvent =
+            EventManager.RegisterRoutedEvent(
+                            nameof(PositionChanged),
+                            RoutingStrategy.Bubble,
+                            typeof(RoutedEventHandler),
+                            typeof(MediaElement));
+
         #endregion
 
         #region CLR Accessors
@@ -167,6 +177,15 @@
         {
             add { AddHandler(MediaEndedEvent, value); }
             remove { RemoveHandler(MediaEndedEvent, value); }
+        }
+
+        /// <summary> 
+        /// Raised when media position changes.
+        /// </summary>
+        public event RoutedEventHandler PositionChanged
+        {
+            add { AddHandler(PositionChangedEvent, value); }
+            remove { RemoveHandler(PositionChangedEvent, value); }
         }
 
         #endregion
@@ -301,6 +320,17 @@
             LogEventStart(MediaEndedEvent);
             Runner.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaEndedEvent, this)); });
             LogEventDone(MediaEndedEvent);
+        }
+
+        /// <summary>
+        /// Raises the media position changed event.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void RaisePositionChangedEvent()
+        {
+            LogEventStart(PositionChangedEvent);
+            Runner.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(PositionChangedEvent, this)); });
+            LogEventDone(PositionChangedEvent);
         }
 
         #endregion

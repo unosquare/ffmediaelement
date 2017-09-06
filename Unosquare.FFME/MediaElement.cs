@@ -297,7 +297,10 @@
                 (Action<TimeSpan>)((v) =>
                 {
                     if (Position != v)
+                    {
                         SetValue(PositionProperty, v);
+                        RaisePositionChangedEvent();
+                    }
 
                     IsPositionUpdating = false;
                 }),
