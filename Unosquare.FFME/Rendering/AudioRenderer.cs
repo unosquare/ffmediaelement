@@ -350,11 +350,11 @@
                     // Perform DSP
                     if (SpeedRatio < 1.0)
                     {
-                        ReadAndStretch(requestedBytes);
+                        ReadAndSlowDown(requestedBytes);
                     }
                     else if (SpeedRatio > 1.0)
                     {
-                        ReadAndShrink(requestedBytes);
+                        ReadAndSpeedUp(requestedBytes, true);
                     }
                     else
                     {
@@ -509,7 +509,7 @@
         /// </summary>
         /// <param name="requestedBytes">The requested bytes.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ReadAndStretch(int requestedBytes)
+        private void ReadAndSlowDown(int requestedBytes)
         {
             var bytesToRead = Math.Min(
                 AudioBuffer.ReadableCount,
@@ -543,9 +543,10 @@
         /// This will make audio samples sound shrunken (high pitch).
         /// The result is put to the first requestedBytes count of the ReadBuffer.
         /// </summary>
-        /// <param name="requestedBytes">The requested bytes.</param>
+        /// <param name="requestedBytes">The requested number of bytes.</param>
+        /// <param name="computeAverage">if set to <c>true</c> average samples per block. Otherwise, take the first sample per block only</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ReadAndShrink(int requestedBytes)
+        private void ReadAndSpeedUp(int requestedBytes, bool computeAverage)
         {
             var bytesToRead = (int)(requestedBytes * SpeedRatio).ToMultipleOf(SampleBlockSize);
             var sourceOffset = 0;
@@ -574,25 +575,37 @@
                 leftSamples = 0;
                 rightSamples = 0;
                 samplesToAverage = 0;
-                for (var i = sourceOffset; i < sourceOffset + (currentGroupSizeW * SampleBlockSize); i += BytesPerSample)
+
+                if (computeAverage)
                 {
-                    sample = (short)(ReadBuffer[i] | (ReadBuffer[i + 1] << 8));
-                    if (isLeftSample)
+                    for (var i = sourceOffset; i < sourceOffset + (currentGroupSizeW * SampleBlockSize); i += BytesPerSample)
                     {
-                        leftSamples += sample;
-                        samplesToAverage += 1;
-                    }
-                    else
-                    {
-                        rightSamples += sample;
+                        sample = (short)(ReadBuffer[i] | (ReadBuffer[i + 1] << 8));
+                        if (isLeftSample)
+                        {
+                            leftSamples += sample;
+                            samplesToAverage += 1;
+                        }
+                        else
+                        {
+                            rightSamples += sample;
+                        }
+
+                        isLeftSample = !isLeftSample;
                     }
 
-                    isLeftSample = !isLeftSample;
+                    // compute an average of the samples
+                    leftSamples = Math.Round(leftSamples / samplesToAverage, 0);
+                    rightSamples = Math.Round(rightSamples / samplesToAverage, 0);
                 }
-
-                // compute an average of the samples
-                leftSamples = Math.Round(leftSamples / samplesToAverage, 0);
-                rightSamples = Math.Round(rightSamples / samplesToAverage, 0);
+                else
+                {
+                    // If I set samples to average to 1 here, it does not change the pitch but
+                    // audio gaps are noticeable
+                    samplesToAverage = 1; //  currentGroupSizeW * SampleBlockSize / BytesPerSample / 2;
+                    leftSamples = (short)(ReadBuffer[sourceOffset] | (ReadBuffer[sourceOffset + 1] << 8));
+                    rightSamples = (short)(ReadBuffer[sourceOffset + 2] | (ReadBuffer[sourceOffset + 3] << 8));
+                }
 
                 // Write the samples
                 ReadBuffer[targetOffset + 0] = (byte)((short)leftSamples & 0xff);
@@ -615,7 +628,7 @@
         /// </summary>
         /// <param name="targetBuffer">The target buffer.</param>
         /// <param name="targetBufferOffset">The target buffer offset.</param>
-        /// <param name="requestedBytes">The requested bytes.</param>
+        /// <param name="requestedBytes">The requested number of bytes.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ApplyVolumeAndBalance(byte[] targetBuffer, int targetBufferOffset, int requestedBytes)
         {
