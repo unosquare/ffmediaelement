@@ -11,6 +11,8 @@
     /// <seealso cref="Unosquare.FFME.Commands.MediaCommand" />
     internal sealed class SeekCommand : MediaCommand
     {
+        private bool WasPlaying = false;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SeekCommand" /> class.
         /// </summary>
@@ -36,6 +38,8 @@
         internal override void ExecuteInternal()
         {
             var m = Manager.MediaElement;
+
+            WasPlaying = m.IsPlaying;
 
             var pause = new PauseCommand(Manager);
             pause.ExecuteInternal();
@@ -161,6 +165,12 @@
                 }
 
                 m.SeekingDone.Set();
+
+                if (WasPlaying)
+                {
+                    var play = new PlayCommand(this.Manager);
+                    play.ExecuteInternal();
+                }
             }
         }
     }
