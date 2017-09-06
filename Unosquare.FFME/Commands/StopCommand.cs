@@ -25,6 +25,8 @@
         {
             var m = Manager.MediaElement;
             m.Clock.Reset();
+            var pause = new PauseCommand(this.Manager);
+            pause.ExecuteInternal();
             var seek = new SeekCommand(this.Manager, TimeSpan.Zero);
             seek.ExecuteInternal();
 

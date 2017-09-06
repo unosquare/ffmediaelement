@@ -36,7 +36,6 @@
         private readonly WindowStatus PreviousWindowStatus = new WindowStatus();
         private DateTime LastMouseMoveTime;
         private Point LastMousePosition;
-        private bool WasPlaying = false;
 
         private DelegateCommand m_OpenCommand = null;
         private DelegateCommand m_PauseCommand = null;
@@ -505,14 +504,6 @@
                 Debug.WriteLine($"Key Down: {e.OriginalSource} - {e.Key}");
             };
 
-            #region Position Slider Events
-
-            // Had to wire up the events with handleEventToo = true because the control swallows these events in some cases
-            PositionSlider.AddHandler(Slider.PreviewMouseDownEvent, new RoutedEventHandler(PositionSlider_MouseDown), true);
-            PositionSlider.AddHandler(Slider.PreviewMouseUpEvent, new RoutedEventHandler(PositionSlider_MouseUp), true);
-
-            #endregion
-
             #region Toggle Fullscreen with Double Click
 
             Media.PreviewMouseDoubleClick += (s, e) =>
@@ -848,27 +839,6 @@
             // e.Options.AudioFilter = "aecho=0.8:0.9:1000:0.3";
             e.Options.AudioFilter = "chorus=0.5:0.9:50|60|40:0.4|0.32|0.3:0.25|0.4|0.3:2|2.3|1.3";
 #endif
-        }
-
-        /// <summary>
-        /// Handles the MouseDown event of the PositionSlider control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
-        private void PositionSlider_MouseDown(object sender, RoutedEventArgs e)
-        {
-            WasPlaying = Media.IsPlaying;
-            Media.Pause();
-        }
-
-        /// <summary>
-        /// Handles the MouseUp event of the PositionSlider control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
-        private void PositionSlider_MouseUp(object sender, RoutedEventArgs e)
-        {
-            if (WasPlaying) Media.Play();
         }
 
         /// <summary>
