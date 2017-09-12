@@ -36,9 +36,6 @@
             // Let the threads know a cancellation is pending.
             m.IsTaskCancellationPending = true;
 
-            // Signal and wait for the handlers.
-            m.DelayLock.Set();
-
             // Call close on all renderers and clear them
             foreach (var renderer in m.Renderers.Values)
                 renderer.Close();
@@ -47,11 +44,6 @@
             var wrokers = new[] { m.PacketReadingTask, m.FrameDecodingTask, m.BlockRenderingTask };
             foreach (var w in wrokers)
                 w.Join();
-
-            // Stop the delays and allow signal the locking
-            m.DelayTimer.Stop();
-            m.DelayTimer.Dispose();
-            m.DelayTimer = null;
 
             // Set the threads to null
             m.BlockRenderingTask = null;

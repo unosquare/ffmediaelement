@@ -73,21 +73,6 @@
                 m.Clock.SpeedRatio = Constants.DefaultSpeedRatio;
                 m.IsTaskCancellationPending = false;
 
-                // Setup the delay timer
-                m.DelayTimer = new System.Timers.Timer(MediaElement.TimerIntervalMilliseconds);
-                m.DelayTimer.Elapsed += (s, e) =>
-                {
-                    try
-                    {
-                        m.DelayLock.Set();
-                        m.DelayLock.Reset();
-                    }
-                    catch { }
-                };
-
-                m.DelayLock.Set();
-                m.DelayTimer.Start();
-
                 // Set the initial state of the task cycles.
                 m.SeekingDone.Set();
                 m.BlockRenderingCycle.Reset();
