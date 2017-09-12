@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Class MediaElement
    | FFME: WPF MediaElement replacement based on FFmpeg ">
-    <meta name="generator" content="docfx 2.23.1.0">
+    <meta name="generator" content="docfx 2.24.0.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="../styles/main.css">
     <meta property="docfx:navrel" content="../toc.html">
     <meta property="docfx:tocrel" content="toc.html">
+    
     <meta property="docfx:rel" content="../">
     
   </head>
@@ -89,6 +90,12 @@ the FFmpeg library to perform reading and decoding of media streams.</p>
     <h5>Inheritance</h5>
     <div class="level0"><span class="xref">System.Object</span></div>
     <div class="level1"><span class="xref">MediaElement</span></div>
+  </div>
+  <div classs="implements">
+    <h5>Implements</h5>
+    <div><span class="xref">System.IDisposable</span></div>
+    <div><span class="xref">INotifyPropertyChanged</span></div>
+    <div><span class="xref">IUriContext</span></div>
   </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Unosquare.FFME.html">Unosquare.FFME</a></h6>
   <h6><strong>Assembly</strong>: cs.temp.dll.dll</h6>
@@ -1827,8 +1834,6 @@ Note: Valid values are from 0 to 1</p>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public void Dispose()</code></pre>
   </div>
-  <h5 class="implements">Implements</h5>
-      <div><span class="xref">System.IDisposable.Dispose()</span></div>
   
   
   <a id="Unosquare_FFME_MediaElement_Pause_" data-uid="Unosquare.FFME.MediaElement.Pause*"></a>
@@ -2224,6 +2229,16 @@ Ensure you handle this very quickly as it runs on the UI thread.</p>
       </tr>
     </tbody>
   </table>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <span class="xref">System.IDisposable</span>
+  </div>
+  <div>
+      <span class="xref">INotifyPropertyChanged</span>
+  </div>
+  <div>
+      <span class="xref">IUriContext</span>
+  </div>
   <h3 id="seealso">See Also</h3>
   <div class="seealso">
       <div><span class="xref">System.IDisposable</span></div>
