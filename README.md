@@ -6,8 +6,8 @@
 
 ![ffmeplay](https://github.com/unosquare/ffmediaelement/raw/master/ffmeplay.png)
 
-- Current Status: (2017-08-04) - 2.0, codenamed Michelob is now in beta 1 (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
-- FFmpeg Version: <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.3.2-win32-shared.zip">3.3.2</a>
+- Current Status: (2017-09-12) - 2.0, codenamed Michelob is now in beta 1 (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
+- FFmpeg Version: <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.3.3-win32-shared.zip">3.3.3</a>
 - For a history of commits see the repo: https://github.com/unosquare/ffplaydotnet
 
 ## Features Overview
@@ -27,6 +27,7 @@ FFME provides multiple improvements over the standard MediaElement such as:
 *Your help is welcome!*
 
 - I still have some items I need to address. See the issues section.
+- Working on Hardware acceleration D3D 9 and D3D 11
 - There currently is no support for opening capture devices such as webcams or TV cards. While this is not too hard to do, it is not (yet) implemented in this library. See issue #48
 
 ## Compiling, Running and Testing

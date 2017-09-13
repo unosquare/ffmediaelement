@@ -54,6 +54,9 @@
     <ApplicationIcon>ffmpeg.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FFmpeg.AutoGen, Version=3.3.3.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FFmpeg.AutoGen.3.3.3.1\lib\net45\FFmpeg.AutoGen.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -120,6 +123,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -142,10 +146,6 @@
     <Resource Include="ffmpeg.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FFmpeg.Autogen\FFmpeg.Autogen.csproj">
-      <Project>{f2ed59d8-4c8f-44a0-8532-21a5448e44dd}</Project>
-      <Name>FFmpeg.Autogen</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Unosquare.FFME\Unosquare.FFME.csproj">
       <Project>{a6eb99a6-aae2-4e6e-ab9e-93992ce5b84d}</Project>
       <Name>Unosquare.FFME</Name>
