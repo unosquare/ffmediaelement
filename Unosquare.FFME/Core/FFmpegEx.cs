@@ -14,6 +14,7 @@
 #pragma warning disable SA1310 // Field names must not contain underscore
         public const long AV_NOPTS = long.MinValue;
         public static readonly int AVERROR_EOF = -MKTAG('E', 'O', 'F', ' ');
+        public static readonly int AV_PIX_FMT_FLAG_HWACCEL = 1 << 3;
 
         // http://www-numi.fnal.gov/offline_software/srt_public_context/WebDocs/Errors/unix_system_errors.html
         // public static readonly AVRational AV_TIME_BASE_Q = new AVRational { num = 1, den = ffmpeg.AV_TIME_BASE };

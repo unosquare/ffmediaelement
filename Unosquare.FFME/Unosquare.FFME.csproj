@@ -94,6 +94,7 @@
     <Compile Include="Decoding\ClosedCaptions\CCXdsClassType.cs" />
     <Compile Include="Decoding\ClosedCaptions\ClosedCaptionCollection.cs" />
     <Compile Include="Decoding\ClosedCaptions\ClosedCaptionPacket.cs" />
+    <Compile Include="Decoding\HardwareAccelerator.cs" />
     <Compile Include="Decoding\SeekRequirement.cs" />
     <Compile Include="MediaElement.Events.cs" />
     <Compile Include="MediaInfo.cs" />

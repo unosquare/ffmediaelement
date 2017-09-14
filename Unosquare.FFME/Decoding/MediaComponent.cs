@@ -118,6 +118,13 @@
             if (CodecContext->codec_type == AVMediaType.AVMEDIA_TYPE_VIDEO || CodecContext->codec_type == AVMediaType.AVMEDIA_TYPE_AUDIO)
                 codecOptions[Constants.CodecOptionRefCountedFrames] = 1.ToString(CultureInfo.InvariantCulture);
 
+            // Enable Hardware acceleration
+            //if (CodecContext->codec_type == AVMediaType.AVMEDIA_TYPE_VIDEO)
+            //{
+            //    // TODO: add MediaOptions.DisableHardwareAcceleration and check here
+            //    HardwareAccelerator.Dxva2.AttachDevice(CodecContext);
+            //}
+
             // Open the CodecContext
             var codecOpenResult = 0;
             fixed (AVDictionary** reference = &codecOptions.Pointer)

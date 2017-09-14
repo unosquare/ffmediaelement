@@ -234,6 +234,7 @@
             if (outputFrame->width <= 0 || outputFrame->height <= 0)
                 return null;
 
+            // outputFrame = HardwareAccelerator.Dxva2.ExchangeFrame(CodecContext, outputFrame);
             var frameHolder = new VideoFrame(outputFrame, this);
             CurrentFrameRate = ffmpeg.av_guess_frame_rate(Container.InputContext, Stream, outputFrame).ToDouble();
             return frameHolder;
