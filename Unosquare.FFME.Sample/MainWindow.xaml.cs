@@ -833,6 +833,13 @@
                 && e.Options.VideoStream.FieldOrder != AVFieldOrder.AV_FIELD_UNKNOWN)
             {
                 e.Options.VideoFilter = "yadif";
+                // When enabling HW acceleration, the filtering does not seem to get applied for some reason.
+                e.Options.EnableHardwareAcceleration = false;
+            }
+            else
+            {
+                // Experimetal HW acceleration support. Remove if not needed.
+                e.Options.EnableHardwareAcceleration = true;
             }
 
 #if APPLY_AUDIO_FILTER

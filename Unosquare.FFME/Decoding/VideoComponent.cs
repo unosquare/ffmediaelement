@@ -22,6 +22,11 @@
 
         #region Private State Variables
 
+#pragma warning disable SA1401 // Fields must be private
+        internal AVBufferRef* HardwareDeviceContext = null;
+        internal HardwareAccelerator HardwareAccelerator = null;
+#pragma warning restore SA1401 // Fields must be private
+
         /// <summary>
         /// Holds a reference to the video scaler
         /// </summary>
@@ -126,7 +131,7 @@
                 Scaler,
                     source.Pointer->width,
                     source.Pointer->height,
-                    GetPixelFormat(source.Pointer),
+                    NormalizePixelFormat(source.Pointer),
                     source.Pointer->width,
                     source.Pointer->height,
                     OutputPixelFormat,
@@ -191,12 +196,15 @@
         /// </summary>
         /// <param name="frame">The raw FFmpeg frame pointer.</param>
         /// <returns>Create a managed fraome from an unmanaged one.</returns>
-        protected override unsafe MediaFrame CreateFrameSource(AVFrame* frame)
+        protected override unsafe MediaFrame CreateFrameSource(ref AVFrame* frame)
         {
             if (string.IsNullOrWhiteSpace(FilterString) == false)
                 InitializeFilterGraph(frame);
 
-            AVFrame* outputFrame = null;
+            if (HardwareAccelerator != null)
+                frame = HardwareAccelerator.ExchangeFrame(CodecContext, frame);
+
+            AVFrame* outputFrame;
 
             // TODO: Support real-time changes in Video Filtergraph by checking if MediaOptions.VideoFilterGraph has changed
             // Maybe expose the VideoFilterGraph string as a MediaElement Control Property
@@ -222,7 +230,8 @@
                     // the output frame is the new valid frame (output frame).
                     // threfore, we need to release the original
                     RC.Current.Remove(frame);
-                    ffmpeg.av_frame_free(&frame);
+                    var framePtr = frame;
+                    ffmpeg.av_frame_free(&framePtr);
                 }
             }
             else
@@ -254,6 +263,7 @@
             }
 
             DestroyFiltergraph();
+            HardwareAccelerator?.DetachDevice(this);
             base.Dispose(alsoManaged);
         }
 
@@ -263,7 +273,7 @@
         /// </summary>
         /// <param name="frame">The frame.</param>
         /// <returns>A normalized pixel format</returns>
-        private static AVPixelFormat GetPixelFormat(AVFrame* frame)
+        private static AVPixelFormat NormalizePixelFormat(AVFrame* frame)
         {
             var currentFormat = (AVPixelFormat)frame->format;
             switch (currentFormat)

@@ -2,11 +2,20 @@
 {
     using FFmpeg.AutoGen;
     using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using Unosquare.FFME.Core;
 
     internal unsafe class HardwareAccelerator
     {
+        /// <summary>
+        /// The get format callback
+        /// </summary>
         private readonly AVCodecContext_get_format GetFormatCallback;
 
+        /// <summary>
+        /// Initializes static members of the <see cref="HardwareAccelerator"/> class.
+        /// </summary>
         static HardwareAccelerator()
         {
             Dxva2 = new HardwareAccelerator
@@ -15,81 +24,133 @@
                 DeviceType = AVHWDeviceType.AV_HWDEVICE_TYPE_DXVA2,
                 PixelFormat = AVPixelFormat.AV_PIX_FMT_DXVA2_VLD,
             };
+
+            All = new ReadOnlyDictionary<AVPixelFormat, HardwareAccelerator>(
+                new Dictionary<AVPixelFormat, HardwareAccelerator>()
+                {
+                    { Dxva2.PixelFormat, Dxva2 }
+                });
         }
 
+        /// <summary>
+        /// Prevents a default instance of the <see cref="HardwareAccelerator"/> class from being created.
+        /// </summary>
         private HardwareAccelerator()
         {
             // prevent instantiation outside this class
-            GetFormatCallback = new AVCodecContext_get_format(GetFormat);
+            GetFormatCallback = new AVCodecContext_get_format(GetPixelFormat);
         }
 
+        /// <summary>
+        /// A dicitionary containing all Accelerators by pixel format
+        /// </summary>
+        public static ReadOnlyDictionary<AVPixelFormat, HardwareAccelerator> All { get; }
+
+        /// <summary>
+        /// Gets the dxva2 accelerator.
+        /// </summary>
         public static HardwareAccelerator Dxva2 { get; private set; }
 
         public string Name { get; private set; }
 
+        /// <summary>
+        /// Gets the hardware output pixel format.
+        /// </summary>
         public AVPixelFormat PixelFormat { get; private set; }
 
+        /// <summary>
+        /// Gets the type of the hardware device.
+        /// </summary>
         public AVHWDeviceType DeviceType { get; private set; }
 
-        public void AttachDevice(AVCodecContext* codecContext)
+        /// <summary>
+        /// Attaches a hardware device context to the specified video component.
+        /// </summary>
+        /// <param name="component">The component.</param>
+        /// <exception cref="Exception">Throws when unable to initialize the hardware device</exception>
+        public void AttachDevice(VideoComponent component)
         {
-            var result = ffmpeg.av_hwdevice_ctx_create(&codecContext->hw_device_ctx, DeviceType, "auto", null, 0);
-            if (result < 0)
-                throw new Exception($"Unable to initialize hardware context for device {Name}");
+            var result = 0;
 
-            codecContext->get_format = GetFormatCallback;
+            fixed (AVBufferRef** devContextRef = &component.HardwareDeviceContext)
+            {
+                result = ffmpeg.av_hwdevice_ctx_create(devContextRef, DeviceType, null, null, 0);
+                if (result < 0)
+                    throw new Exception($"Unable to initialize hardware context for device {Name}");
+            }
+
+            component.HardwareAccelerator = this;
+            component.CodecContext->hw_device_ctx = ffmpeg.av_buffer_ref(component.HardwareDeviceContext);
+            component.CodecContext->get_format = GetFormatCallback;
         }
 
+        /// <summary>
+        /// Detaches and disposes the hardware device context from the specified video component
+        /// </summary>
+        /// <param name="component">The component.</param>
+        public void DetachDevice(VideoComponent component)
+        {
+            // TODO: Check the blow code in the future because I am not sure 
+            // how to uninitialize the hardware device context
+            ffmpeg.av_buffer_unref(&component.CodecContext->hw_device_ctx);
+            component.CodecContext->hw_device_ctx = null;
+
+            fixed (AVBufferRef** hwdc = &component.HardwareDeviceContext)
+            {
+                ffmpeg.av_buffer_unref(hwdc);
+                component.HardwareDeviceContext = null;
+                component.HardwareAccelerator = null;
+            }
+        }
+
+        /// <summary>
+        /// Downloads the frame from the hardware into a software frame if possible.
+        /// The input hardware frame gets freed and the return value will point to the new software frame
+        /// </summary>
+        /// <param name="codecContext">The codec context.</param>
+        /// <param name="input">The input.</param>
+        /// <returns>The frame downloaded from the device into RAM</returns>
+        /// <exception cref="Exception">Failed to transfer data to output frame</exception>
         public AVFrame* ExchangeFrame(AVCodecContext* codecContext, AVFrame* input)
         {
             if (codecContext->hw_device_ctx == null)
                 return input;
 
-            var outputFormat = PixelFormat;
-
-            // Nothing to do.
-            if (input->format == (int)outputFormat)
+            if (input->format != (int)PixelFormat)
                 return input;
 
             var output = ffmpeg.av_frame_alloc();
-            output->format = (int)outputFormat;
 
             var result = ffmpeg.av_hwframe_transfer_data(output, input, 0);
+            ffmpeg.av_frame_copy_props(output, input);
             if (result < 0)
+            {
+                ffmpeg.av_frame_free(&output);
                 throw new Exception("Failed to transfer data to output frame");
-
-            try
-            {
-                result = ffmpeg.av_frame_copy_props(output, input);
-                if (result < 0)
-                {
-                    ffmpeg.av_frame_unref(input);
-                    throw new Exception("Failed to copy frame properties to output frame!");
-                }
-
-                ffmpeg.av_frame_unref(input);
-                ffmpeg.av_frame_move_ref(input, output);
-                ffmpeg.av_frame_free(&output);
             }
-            catch (Exception)
-            {
-                ffmpeg.av_frame_free(&output);
-                throw;
-            }
+
+            ffmpeg.av_frame_free(&input);
+            RC.Current.Remove((IntPtr)input);
+            RC.Current.Add(output, $"86: {nameof(HardwareAccelerator)}[{PixelFormat}].{nameof(ExchangeFrame)}()");
 
             return output;
         }
 
-        private AVPixelFormat GetFormat(AVCodecContext* avctx, AVPixelFormat* pix_fmts)
+        /// <summary>
+        /// Gets the pixel format.
+        /// Port of (get_format) method in ffmpeg.c
+        /// </summary>
+        /// <param name="avctx">The avctx.</param>
+        /// <param name="pix_fmts">The pix FMTS.</param>
+        /// <returns>The real pixel format</returns>
+        private AVPixelFormat GetPixelFormat(AVCodecContext* avctx, AVPixelFormat* pix_fmts)
         {
-            while (*pix_fmts != AVPixelFormat.AV_PIX_FMT_NONE)
+            for (var p = pix_fmts; *p != AVPixelFormat.AV_PIX_FMT_NONE; p++)
             {
                 if (*pix_fmts == PixelFormat)
                     return PixelFormat;
-
-                pix_fmts++;
             }
-            
+
             return AVPixelFormat.AV_PIX_FMT_NONE;
         }
     }

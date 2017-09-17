@@ -162,7 +162,7 @@
         /// </summary>
         /// <param name="frame">The raw FFmpeg frame pointer.</param>
         /// <returns>The media frame</returns>
-        protected override unsafe MediaFrame CreateFrameSource(AVFrame* frame)
+        protected override unsafe MediaFrame CreateFrameSource(ref AVFrame* frame)
         {
             if (string.IsNullOrWhiteSpace(FilterString) == false)
                 InitializeFilterGraph(frame);
@@ -193,7 +193,8 @@
                     // the output frame is the new valid frame (output frame).
                     // threfore, we need to release the original
                     RC.Current.Remove(frame);
-                    ffmpeg.av_frame_free(&frame);
+                    var framePtr = frame;
+                    ffmpeg.av_frame_free(&framePtr);
                 }
             }
             else

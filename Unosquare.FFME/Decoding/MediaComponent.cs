@@ -113,17 +113,18 @@
             // decoding is very fast in most scenarios.
             var codecOptions = Container.MediaOptions.CodecOptions.FilterOptions(CodecContext->codec_id, Container.InputContext, Stream, codec);
             if (codecOptions.HasKey(Constants.CodecOptionThreads) == false)
-                codecOptions[Constants.CodecOptionThreads] = Constants.EnableFFmpegLockManager ? "auto" : "1";
+            {
+                codecOptions[Constants.CodecOptionThreads] = 
+                    Constants.EnableFFmpegLockManager ? "auto" : "1";
+            }
+
             if (lowResIndex != 0) codecOptions[Constants.CodecOptionLowRes] = lowResIndex.ToString(CultureInfo.InvariantCulture);
             if (CodecContext->codec_type == AVMediaType.AVMEDIA_TYPE_VIDEO || CodecContext->codec_type == AVMediaType.AVMEDIA_TYPE_AUDIO)
                 codecOptions[Constants.CodecOptionRefCountedFrames] = 1.ToString(CultureInfo.InvariantCulture);
 
-            // Enable Hardware acceleration
-            //if (CodecContext->codec_type == AVMediaType.AVMEDIA_TYPE_VIDEO)
-            //{
-            //    // TODO: add MediaOptions.DisableHardwareAcceleration and check here
-            //    HardwareAccelerator.Dxva2.AttachDevice(CodecContext);
-            //}
+            // Enable Hardware acceleration if requested
+            if (this is VideoComponent && container.MediaOptions.EnableHardwareAcceleration)
+                HardwareAccelerator.Dxva2.AttachDevice(this as VideoComponent);
 
             // Open the CodecContext
             var codecOpenResult = 0;
@@ -357,7 +358,7 @@
         /// </summary>
         /// <param name="frame">The raw FFmpeg frame pointer.</param>
         /// <returns>The media frame</returns>
-        protected virtual MediaFrame CreateFrameSource(AVFrame* frame)
+        protected virtual MediaFrame CreateFrameSource(ref AVFrame* frame)
         {
             return null;
         }
@@ -447,7 +448,7 @@
                         if (receiveFrameResult == 0)
                         {
                             // Send the frame to processing
-                            managedFrame = CreateFrameSource(outputFrame);
+                            managedFrame = CreateFrameSource(ref outputFrame);
                             if (managedFrame != null)
                                 result.Add(managedFrame);
                         }

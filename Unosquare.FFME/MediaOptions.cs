@@ -60,6 +60,12 @@
         public MediaCodecOptions CodecOptions { get; } = new MediaCodecOptions();
 
         /// <summary>
+        /// Gets or sets a value indicating whether experimental hardware acceleration is enabled.
+        /// Defaults to false. This feature is experimental.
+        /// </summary>
+        public bool EnableHardwareAcceleration { get; set; } = false;
+
+        /// <summary>
         /// Gets or sets a value indicating whether PTS are generated automatically and not read
         /// from the packets themselves. Defaults to false.
         /// Port of genpts
