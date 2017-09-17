@@ -1291,6 +1291,18 @@ references:
   commentId: Overload:Unosquare.FFME.MediaOptions.EnableFastDecoding
   fullName: Unosquare.FFME.MediaOptions.EnableFastDecoding
   nameWithType: MediaOptions.EnableFastDecoding
+- uid: Unosquare.FFME.MediaOptions.EnableHardwareAcceleration
+  name: EnableHardwareAcceleration
+  href: api/Unosquare.FFME.MediaOptions.html#Unosquare_FFME_MediaOptions_EnableHardwareAcceleration
+  commentId: P:Unosquare.FFME.MediaOptions.EnableHardwareAcceleration
+  fullName: Unosquare.FFME.MediaOptions.EnableHardwareAcceleration
+  nameWithType: MediaOptions.EnableHardwareAcceleration
+- uid: Unosquare.FFME.MediaOptions.EnableHardwareAcceleration*
+  name: EnableHardwareAcceleration
+  href: api/Unosquare.FFME.MediaOptions.html#Unosquare_FFME_MediaOptions_EnableHardwareAcceleration_
+  commentId: Overload:Unosquare.FFME.MediaOptions.EnableHardwareAcceleration
+  fullName: Unosquare.FFME.MediaOptions.EnableHardwareAcceleration
+  nameWithType: MediaOptions.EnableHardwareAcceleration
 - uid: Unosquare.FFME.MediaOptions.EnableLowRes
   name: EnableLowRes
   href: api/Unosquare.FFME.MediaOptions.html#Unosquare_FFME_MediaOptions_EnableLowRes
