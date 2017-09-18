@@ -92,15 +92,22 @@
         {
             // TODO: Check the blow code in the future because I am not sure 
             // how to uninitialize the hardware device context
-            ffmpeg.av_buffer_unref(&component.CodecContext->hw_device_ctx);
-            component.CodecContext->hw_device_ctx = null;
-
-            fixed (AVBufferRef** hwdc = &component.HardwareDeviceContext)
+            if (component.CodecContext != null)
             {
-                ffmpeg.av_buffer_unref(hwdc);
-                component.HardwareDeviceContext = null;
-                component.HardwareAccelerator = null;
+                ffmpeg.av_buffer_unref(&component.CodecContext->hw_device_ctx);
+                component.CodecContext->hw_device_ctx = null;
             }
+
+            if (component.HardwareDeviceContext != null)
+            {
+                fixed (AVBufferRef** hwdc = &component.HardwareDeviceContext)
+                {
+                    ffmpeg.av_buffer_unref(hwdc);
+                    component.HardwareDeviceContext = null;
+                    component.HardwareAccelerator = null;
+                }
+            }
+
         }
 
         /// <summary>
@@ -140,18 +147,30 @@
         /// Gets the pixel format.
         /// Port of (get_format) method in ffmpeg.c
         /// </summary>
-        /// <param name="avctx">The avctx.</param>
-        /// <param name="pix_fmts">The pix FMTS.</param>
-        /// <returns>The real pixel format</returns>
+        /// <param name="avctx">The codec context.</param>
+        /// <param name="pix_fmts">The pixel formats.</param>
+        /// <returns>The real pixel format that the codec will be using</returns>
         private AVPixelFormat GetPixelFormat(AVCodecContext* avctx, AVPixelFormat* pix_fmts)
         {
+            // The default output is the first pixel format found.
+            var output = *pix_fmts;
+
+            // Iterate throught the different pixel formats provided by the codec
             for (var p = pix_fmts; *p != AVPixelFormat.AV_PIX_FMT_NONE; p++)
             {
+                // Try to select a hardware output pixel format that matches the HW device
                 if (*pix_fmts == PixelFormat)
-                    return PixelFormat;
+                {
+                    output = PixelFormat;
+                    break;
+                }
+
+                // Otherwise, just use the default SW pixel format
+                output = *p;
             }
 
-            return AVPixelFormat.AV_PIX_FMT_NONE;
+            // Return the current pixel format.
+            return output;
         }
     }
 }

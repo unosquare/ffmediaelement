@@ -766,7 +766,7 @@
 #if CONFIG_RTSP_DEMUXER
             // I am unsure how this code ported from ffplay provides any advantage or functionality
             // I have tested with several streams and it does not make any difference other than 
-            // makeing the reads much longer and the buffers fill up more slowly.
+            // making the reads much longer and the buffers fill up more slowly.
             if (RequiresReadDelay)
             {
                 // in ffplay.c this is referenced via CONFIG_RTSP_DEMUXER || CONFIG_MMSH_PROTOCOL

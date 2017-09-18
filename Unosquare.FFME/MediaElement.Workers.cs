@@ -134,9 +134,7 @@
                 // Enter a read cycle
                 SeekingDone.WaitOne();
 
-                // Check if one of the commands has requested an exit
-                if (IsTaskCancellationPending) break;
-
+                // Enter a packet reading cycle
                 PacketReadingCycle.Reset();
 
                 if (CanReadMorePackets && Container.Components.PacketBufferLength < DownloadCacheLength)
@@ -175,9 +173,6 @@
 
                 // finish the reading cycle.
                 PacketReadingCycle.Set();
-
-                // Simply exit the thread when cancellation has been requested
-                if (IsTaskCancellationPending) break;
 
                 // Wait some if we have a full packet buffer or we are unable to read more packets (i.e. EOF).
                 if (Container.Components.PacketBufferLength >= DownloadCacheLength || CanReadMorePackets == false || currentBytesRead <= 0)
@@ -225,6 +220,7 @@
             {
                 #region 1. Setup the Decoding Cycle
 
+                // Singal a Seek starting operation
                 hasPendingSeeks = Commands.PendingCountOf(MediaCommandType.Seek) > 0;
                 if (IsSeeking == false && hasPendingSeeks)
                 {
@@ -235,6 +231,7 @@
                 // Execute the following command at the beginning of the cycle
                 Commands.ProcessNext();
 
+                // Signal a Seek ending operation
                 hasPendingSeeks = Commands.PendingCountOf(MediaCommandType.Seek) > 0;
                 if (IsSeeking == true && hasPendingSeeks == false)
                 {
@@ -251,9 +248,6 @@
                 // Wait for a seek operation to complete (if any)
                 // and initiate a frame decoding cycle.
                 SeekingDone.WaitOne();
-
-                // Check if one of the commands has requested an exit
-                if (IsTaskCancellationPending) break;
 
                 // Initiate the frame docding cycle
                 FrameDecodingCycle.Reset();
@@ -440,9 +434,6 @@
                 // After a seek operation, always reset the has seeked flag.
                 HasDecoderSeeked = false;
 
-                // Simply exit the thread when cancellation has been requested
-                if (IsTaskCancellationPending) break;
-
                 // Give it a break if there was nothing to decode.
                 // We probably need to wait for some more input
                 if (decodedFrameCount <= 0 && Commands.PendingCount <= 0)
@@ -503,12 +494,11 @@
 
             while (IsTaskCancellationPending == false)
             {
-                renderedBlockCount = 0;
 
                 #region 1. Control and Capture
 
-                // Check if one of the commands has requested an exit
-                if (IsTaskCancellationPending) break;
+                // Reset the rendered count to 0
+                renderedBlockCount = 0;
 
                 // Capture current clock position for the rest of this cycle
                 BlockRenderingCycle.Reset();
@@ -553,17 +543,12 @@
                 // Signal the rendering cycle was set.
                 BlockRenderingCycle.Set();
 
-                // Call the update method on all renderers
+                // Call the update method on all renderers so they receive what the new wall clock is.
                 foreach (var t in all)
                     Renderers[t]?.Update(wallClock);
 
-                // Simply exit the thread when cancellation has been requested
-                if (IsTaskCancellationPending) break;
-
-                if (IsSeeking) continue;
-
-                // Spin the thread for a bit if we have no more stuff to process
-                if (renderedBlockCount <= 0 && Commands.PendingCount <= 0)
+                // Delay the thread for a bit if we have no more stuff to process
+                if (IsSeeking == false && renderedBlockCount <= 0 && Commands.PendingCount <= 0)
                     await Task.Delay(1);
 
                 #endregion
