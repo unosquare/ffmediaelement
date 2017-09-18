@@ -498,12 +498,12 @@
         /// </summary>
         private void InitializeInputEvents()
         {
+            var togglePlayPauseKeys = new[] { Key.Play, Key.MediaPlayPause, Key.Space };
+
             // Command keys
             window.PreviewKeyDown += (s, e) =>
             {
                 if (e.OriginalSource is TextBox) return;
-
-                var togglePlayPauseKeys = new[] { Key.Play, Key.MediaPlayPause, Key.Space };
 
                 // Pause
                 if (togglePlayPauseKeys.Contains(e.Key) && Media.IsPlaying)
