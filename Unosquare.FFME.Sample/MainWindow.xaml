@@ -41,7 +41,7 @@
                 <RowDefinition Height="40"></RowDefinition>
                 <RowDefinition Height="70"></RowDefinition>
             </Grid.RowDefinitions>
-            
+
             <Slider Name="PositionSlider" Grid.Row="1" Margin="10,0"
                     Visibility="{Binding ElementName=window, Path=SeekBarVisibility}"
                     Style="{DynamicResource PositionSliderStyle}"

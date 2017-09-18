@@ -498,10 +498,84 @@
         /// </summary>
         private void InitializeInputEvents()
         {
-
+            // Command keys
             window.PreviewKeyDown += (s, e) =>
             {
-                Debug.WriteLine($"Key Down: {e.OriginalSource} - {e.Key}");
+                if (e.OriginalSource is TextBox) return;
+
+                var togglePlayPauseKeys = new[] { Key.Play, Key.MediaPlayPause, Key.Space };
+
+                // Pause
+                if (togglePlayPauseKeys.Contains(e.Key) && Media.IsPlaying)
+                {
+                    PauseCommand.Execute();
+                    return;
+                }
+
+                // Play
+                if (togglePlayPauseKeys.Contains(e.Key) && Media.IsPlaying == false)
+                {
+                    PlayCommand.Execute();
+                    return;
+                }
+
+                // Seek to left
+                if (e.Key == Key.Left)
+                {
+                    if (Media.IsPlaying) PauseCommand.Execute();
+                    Media.Position -= Media.FrameStepDuration;
+                }
+
+                // Seek to right
+                if (e.Key == Key.Right)
+                {
+                    if (Media.IsPlaying) PauseCommand.Execute();
+                    Media.Position += Media.FrameStepDuration;
+                }
+
+                // Volume Up
+                if (e.Key == Key.Add || e.Key == Key.VolumeUp)
+                {
+                    Media.Volume += 0.05;
+                    return;
+                }
+
+                // Volume Down
+                if (e.Key == Key.Subtract || e.Key == Key.VolumeDown)
+                {
+                    Media.Volume -= 0.05;
+                    return;
+                }
+
+                // Mute/Unmute
+                if (e.Key == Key.M || e.Key == Key.VolumeMute)
+                {
+                    Media.IsMuted = !Media.IsMuted;
+                    return;
+                }
+
+                // Increase speed
+                if (e.Key == Key.Up)
+                {
+                    Media.SpeedRatio += 0.05;
+                    return;
+                }
+
+                // Decrease speed
+                if (e.Key == Key.Down)
+                {
+                    Media.SpeedRatio -= 0.05;
+                    return;
+                }
+
+                // Reset changes
+                if (e.Key == Key.R)
+                {
+                    Media.SpeedRatio = 1.0;
+                    Media.Volume = 1.0;
+                    Media.Balance = 0;
+                    Media.IsMuted = false;
+                }
             };
 
             #region Toggle Fullscreen with Double Click
@@ -752,7 +826,7 @@
         /// <param name="e">The <see cref="MediaLogMessagEventArgs"/> instance containing the event data.</param>
         private void MediaElement_FFmpegMessageLogged(object sender, MediaLogMessagEventArgs e)
         {
-            if (e.Message.Contains("] Reinit context to ") 
+            if (e.Message.Contains("] Reinit context to ")
                 || e.Message.Contains("Using non-standard frame rate"))
                 return;
 
@@ -839,7 +913,7 @@
             else
             {
                 // Experimetal HW acceleration support. Remove if not needed.
-                e.Options.EnableHardwareAcceleration = true;
+                e.Options.EnableHardwareAcceleration = Debugger.IsAttached;
             }
 
 #if APPLY_AUDIO_FILTER
