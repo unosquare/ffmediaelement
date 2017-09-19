@@ -191,10 +191,11 @@
         {
             get
             {
-                return Container == null ? Duration.Automatic :
-                    Container.MediaDuration == TimeSpan.MinValue ?
-                        Duration.Forever :
-                            new Duration(Container.MediaDuration);
+              return Container == null
+                ? Duration.Automatic
+                : (Container.MediaDuration == TimeSpan.MinValue
+                  ? Duration.Forever
+                  : (Container.MediaDuration < TimeSpan.Zero ? new Duration() : new Duration(Container.MediaDuration)));
             }
         }
 
