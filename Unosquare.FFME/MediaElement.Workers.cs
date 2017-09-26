@@ -153,7 +153,8 @@
                         t = Container.Read();
 
                         // Discard packets that we don't need (i.e. MediaType == None)
-                        if (Container.Components.MediaTypes.Contains(t) == false)
+                        // Container can be null, if close command (or dispose) occurs while package reading
+                        if (Container == null || Container.Components.MediaTypes.Contains(t) == false)
                             continue;
 
                         // Update the packet count for the components

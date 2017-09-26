@@ -372,7 +372,8 @@
         {
             lock (ReadSyncRoot)
             {
-                if (IsDisposed || InputContext == null) throw new InvalidOperationException("No input context initialized");
+                if (IsDisposed) return MediaType.None;
+                if (InputContext == null) throw new InvalidOperationException("No input context initialized");
                 return StreamRead();
             }
         }
@@ -1172,17 +1173,20 @@
                     m_Components.Dispose();
             }
 
-            if (InputContext != null)
+            lock (ReadSyncRoot)
             {
-                StreamReadSuspend();
-                fixed (AVFormatContext** inputContext = &InputContext)
-                    ffmpeg.avformat_close_input(inputContext);
+                if (InputContext != null)
+                {
+                    StreamReadSuspend();
+                    fixed (AVFormatContext** inputContext = &InputContext)
+                        ffmpeg.avformat_close_input(inputContext);
 
-                ffmpeg.avformat_free_context(InputContext);
-                InputContext = null;
+                    ffmpeg.avformat_free_context(InputContext);
+                    InputContext = null;
+                }
+
+                IsDisposed = true;
             }
-
-            IsDisposed = true;
         }
 
         #endregion
