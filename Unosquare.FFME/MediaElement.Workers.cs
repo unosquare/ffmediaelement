@@ -120,8 +120,13 @@
 
             // State variables for media types
             var t = MediaType.None;
-            var main = Container.Components.Main.MediaType;
-            var auxs = Container.Components.MediaTypes.Where(c => c != main && (c == MediaType.Audio || c == MediaType.Video)).ToArray();
+
+            // Store Container in local variable to prevent NullReferenceException
+            // when dispose occurs sametime with read cycle
+            var mediaContainer = Container;
+
+            var main = mediaContainer.Components.Main.MediaType;
+            var auxs = mediaContainer.Components.MediaTypes.Where(c => c != main && (c == MediaType.Audio || c == MediaType.Video)).ToArray();
             var all = auxs.Union(new[] { main }).ToArray();
 
             // State variables for bytes read (give-up condition)
@@ -137,24 +142,23 @@
                 // Enter a packet reading cycle
                 PacketReadingCycle.Reset();
 
-                if (CanReadMorePackets && Container.Components.PacketBufferLength < DownloadCacheLength)
+                if (CanReadMorePackets && mediaContainer.Components.PacketBufferLength < DownloadCacheLength)
                 {
                     // Initialize Packets read to 0 for each component and state variables
-                    foreach (var k in Container.Components.MediaTypes)
+                    foreach (var k in mediaContainer.Components.MediaTypes)
                         packetsRead[k] = 0;
 
-                    startBytesRead = Container.Components.TotalBytesRead;
+                    startBytesRead = mediaContainer.Components.TotalBytesRead;
                     currentBytesRead = 0UL;
 
                     // Start to perform the read loop
                     while (CanReadMorePackets)
                     {
                         // Perform a packet read. t will hold the packet type.
-                        t = Container.Read();
+                        t = mediaContainer.Read();
 
                         // Discard packets that we don't need (i.e. MediaType == None)
-                        // Container can be null, if close command (or dispose) occurs while package reading
-                        if (Container == null || Container.Components.MediaTypes.Contains(t) == false)
+                        if (mediaContainer.Components.MediaTypes.Contains(t) == false)
                             continue;
 
                         // Update the packet count for the components
@@ -166,7 +170,7 @@
 
                         // The give-up condition is that in spite of efforts to read at least one of each,
                         // we could not find the required packet types.
-                        currentBytesRead = Container.Components.TotalBytesRead - startBytesRead;
+                        currentBytesRead = mediaContainer.Components.TotalBytesRead - startBytesRead;
                         if (currentBytesRead > (ulong)DownloadCacheLength)
                             break;
                     }
@@ -176,7 +180,7 @@
                 PacketReadingCycle.Set();
 
                 // Wait some if we have a full packet buffer or we are unable to read more packets (i.e. EOF).
-                if (Container.Components.PacketBufferLength >= DownloadCacheLength || CanReadMorePackets == false || currentBytesRead <= 0)
+                if (mediaContainer.Components.PacketBufferLength >= DownloadCacheLength || CanReadMorePackets == false || currentBytesRead <= 0)
                     await Task.Delay(1);
             }
 
