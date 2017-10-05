@@ -166,15 +166,34 @@
             // The scaling is done here
             var outputHeight = ffmpeg.sws_scale(Scaler, source.Pointer->data, source.Pointer->linesize, 0, source.Pointer->height, targetScan, targetStride);
 
-            // We set the target properties
-            target.EndTime = source.EndTime;
-            target.StartTime = source.StartTime;
+            // Flag the block if we have to
+            target.IsStartTimeGuessed = source.HasValidStartTime == false;
+
+            // Try to fix the start time, duration and End time if we don't have valid data
+            if (source.HasValidStartTime == false && siblings != null && siblings.Count > 0)
+            {
+                // Get timing information from the last sibling
+                var lastSibling = siblings[siblings.Count - 1];
+
+                // We set the target properties
+                target.StartTime = lastSibling.EndTime;
+                target.Duration = source.Duration.Ticks > 0 ? source.Duration : lastSibling.Duration;
+                target.EndTime = TimeSpan.FromTicks(target.StartTime.Ticks + target.Duration.Ticks);
+            }
+            else
+            {
+                // We set the target properties directly from the source
+                target.StartTime = source.StartTime;
+                target.Duration = source.Duration;
+                target.EndTime = source.EndTime;
+            }
+
             target.StreamIndex = input.StreamIndex;
             target.SmtpeTimecode = source.SmtpeTimecode;
             target.DisplayPictureNumber = source.DisplayPictureNumber;
             target.CodedPictureNumber = source.DisplayPictureNumber;
             target.BufferStride = targetStride[0];
-            target.Duration = source.Duration;
+            
             target.PixelHeight = source.Pointer->height;
             target.PixelWidth = source.Pointer->width;
 

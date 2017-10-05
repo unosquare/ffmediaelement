@@ -265,12 +265,23 @@
 
                 // Get a block reference from the pool and convert it!
                 var targetBlock = PoolBlocks.Dequeue();
-
                 container.Convert(source, ref targetBlock, PlaybackBlocks, true);
 
-                // Add the converted block to the playback list and sort it.
-                PlaybackBlocks.Add(targetBlock);
-                PlaybackBlocks.Sort();
+                // Discard a frame with incorrect timing
+                if (targetBlock.IsStartTimeGuessed && IsMonotonic && PlaybackBlocks.Count > 1 
+                    && targetBlock.Duration != PlaybackBlocks.Last().Duration)
+                {
+                    // return the converted block to the pool
+                    PoolBlocks.Enqueue(targetBlock);
+                    return null;
+                }
+                else
+                {
+                    // Add the converted block to the playback list and sort it.
+                    PlaybackBlocks.Add(targetBlock);
+                    PlaybackBlocks.Sort();
+                }
+
                 return targetBlock;
             }
         }

@@ -146,12 +146,31 @@
             var outputBufferLength =
                 ffmpeg.av_samples_get_buffer_size(null, targetSpec.ChannelCount, outputSamplesPerChannel, targetSpec.Format, 1);
 
-            // set the target properties
-            target.StartTime = source.StartTime;
-            target.EndTime = source.EndTime;
+            // Flag the block if we have to
+            target.IsStartTimeGuessed = source.HasValidStartTime == false;
+
+            // Try to fix the start time, duration and End time if we don't have valid data
+            if (source.HasValidStartTime == false && siblings != null && siblings.Count > 0)
+            {
+                // Get timing information from the last sibling
+                var lastSibling = siblings[siblings.Count - 1];
+
+                // We set the target properties
+                target.StartTime = lastSibling.EndTime;
+                target.Duration = source.Duration.Ticks > 0 ? source.Duration : lastSibling.Duration;
+                target.EndTime = TimeSpan.FromTicks(target.StartTime.Ticks + target.Duration.Ticks);
+            }
+            else
+            {
+                // We set the target properties directly from the source
+                target.StartTime = source.StartTime;
+                target.Duration = source.Duration;
+                target.EndTime = source.EndTime;
+            }
+
             target.BufferLength = outputBufferLength;
             target.ChannelCount = targetSpec.ChannelCount;
-            target.Duration = source.Duration;
+
             target.SampleRate = targetSpec.SampleRate;
             target.SamplesPerChannel = outputSamplesPerChannel;
             target.StreamIndex = input.StreamIndex;

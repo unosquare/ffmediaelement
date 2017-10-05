@@ -18,6 +18,12 @@
         public abstract MediaType MediaType { get; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the start time was guessed from siblings
+        /// or the source frame PTS comes from a NO PTS value
+        /// </summary>
+        public bool IsStartTimeGuessed { get; internal set; }
+
+        /// <summary>
         /// Gets the time at which this data should be presented (PTS)
         /// </summary>
         public TimeSpan StartTime { get; internal set; }
