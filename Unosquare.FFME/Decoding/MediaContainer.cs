@@ -405,24 +405,26 @@
 
         /// <summary>
         /// Performs audio, video and subtitle conversions on the decoded input frame so data
-        /// can be used as a Frame. Please note that if the output is passed as a reference. 
-        /// This works as follows: if the output reference is null it will be automatically instantiated 
-        /// and returned by this function. This enables to  either instantiate or reuse a previously allocated Frame. 
-        /// This is important because buffer allocations are exepnsive operations and this allows you 
+        /// can be used as a Frame. Please note that if the output is passed as a reference.
+        /// This works as follows: if the output reference is null it will be automatically instantiated
+        /// and returned by this function. This enables to  either instantiate or reuse a previously allocated Frame.
+        /// This is important because buffer allocations are exepnsive operations and this allows you
         /// to perform the allocation once and continue reusing thae same buffer.
         /// </summary>
         /// <param name="input">The raw frame source. Has to be compatiable with the target. (e.g. use VideoFrameSource to conver to VideoFrame)</param>
         /// <param name="output">The target frame. Has to be compatible with the source.</param>
+        /// <param name="siblings">The siblings that may help guess additional output parameters.</param>
         /// <param name="releaseInput">if set to <c>true</c> releases the raw frame source from unmanaged memory.</param>
-        /// <returns>The media block</returns>
-        /// <exception cref="System.ArgumentNullException">input</exception>
-        /// <exception cref="System.ArgumentException">
-        /// input
-        /// or
-        /// input
-        /// </exception>
+        /// <returns>
+        /// The media block
+        /// </returns>
+        /// <exception cref="InvalidOperationException">No input context initialized</exception>
         /// <exception cref="MediaContainerException">MediaType</exception>
-        public MediaBlock Convert(MediaFrame input, ref MediaBlock output, bool releaseInput = true)
+        /// <exception cref="System.ArgumentNullException">input</exception>
+        /// <exception cref="System.ArgumentException">input
+        /// or
+        /// input</exception>
+        public MediaBlock Convert(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings, bool releaseInput = true)
         {
             lock (ConvertSyncRoot)
             {
@@ -444,15 +446,15 @@
                     switch (input.MediaType)
                     {
                         case MediaType.Video:
-                            if (Components.HasVideo) Components.Video.MaterializeFrame(input, ref output);
+                            if (Components.HasVideo) Components.Video.MaterializeFrame(input, ref output, siblings);
                             return output;
 
                         case MediaType.Audio:
-                            if (Components.HasAudio) Components.Audio.MaterializeFrame(input, ref output);
+                            if (Components.HasAudio) Components.Audio.MaterializeFrame(input, ref output, siblings);
                             return output;
 
                         case MediaType.Subtitle:
-                            if (Components.HasSubtitles) Components.Subtitles.MaterializeFrame(input, ref output);
+                            if (Components.HasSubtitles) Components.Subtitles.MaterializeFrame(input, ref output, siblings);
                             return output;
 
                         default:

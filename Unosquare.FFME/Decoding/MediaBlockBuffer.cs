@@ -265,7 +265,8 @@
 
                 // Get a block reference from the pool and convert it!
                 var targetBlock = PoolBlocks.Dequeue();
-                container.Convert(source, ref targetBlock, true);
+
+                container.Convert(source, ref targetBlock, PlaybackBlocks, true);
 
                 // Add the converted block to the playback list and sort it.
                 PlaybackBlocks.Add(targetBlock);

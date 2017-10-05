@@ -3,6 +3,7 @@
     using Core;
     using FFmpeg.AutoGen;
     using System;
+    using System.Collections.Generic;
     using System.Runtime.InteropServices;
 
     /// <summary>
@@ -113,11 +114,12 @@
         /// </summary>
         /// <param name="input">The source frame to use as an input.</param>
         /// <param name="output">The target frame that will be updated with the source frame. If null is passed the frame will be instantiated.</param>
+        /// <param name="siblings">The siblings to help guess additional frame parameters.</param>
         /// <returns>
         /// Return the updated output frame
         /// </returns>
         /// <exception cref="System.ArgumentNullException">input</exception>
-        public override MediaBlock MaterializeFrame(MediaFrame input, ref MediaBlock output)
+        public override MediaBlock MaterializeFrame(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings)
         {
             if (output == null) output = new VideoBlock();
             var source = input as VideoFrame;
@@ -243,7 +245,7 @@
             if (outputFrame->width <= 0 || outputFrame->height <= 0)
                 return null;
 
-            // outputFrame = HardwareAccelerator.Dxva2.ExchangeFrame(CodecContext, outputFrame);
+            // Create the frame holder object and return it.
             var frameHolder = new VideoFrame(outputFrame, this);
             CurrentFrameRate = ffmpeg.av_guess_frame_rate(Container.InputContext, Stream, outputFrame).ToDouble();
             return frameHolder;

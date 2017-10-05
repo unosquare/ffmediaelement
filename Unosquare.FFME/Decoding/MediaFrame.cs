@@ -66,6 +66,12 @@
         public TimeSpan Duration { get; protected set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether this frame obtained its start time
+        /// form a valid frame pts value
+        /// </summary>
+        public bool HasValidStartTime { get; protected set; } = true;
+
+        /// <summary>
         /// When the unmanaged frame is released (freed from unmanaged memory)
         /// this property will return true.
         /// </summary>

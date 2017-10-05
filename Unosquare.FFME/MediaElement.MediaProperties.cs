@@ -195,7 +195,7 @@
                 ? Duration.Automatic
                 : (Container.MediaDuration == TimeSpan.MinValue
                   ? Duration.Forever
-                  : (Container.MediaDuration < TimeSpan.Zero ? new Duration() : new Duration(Container.MediaDuration)));
+                  : (Container.MediaDuration < TimeSpan.Zero ? default(Duration) : new Duration(Container.MediaDuration)));
             }
         }
 

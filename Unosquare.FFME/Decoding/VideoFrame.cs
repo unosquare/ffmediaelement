@@ -34,17 +34,19 @@
 
             m_Pointer = (AVFrame*)InternalPointer;
 
+            var repeatFactor = 1d + (0.5d * frame->repeat_pict);
+            var timeBase = ffmpeg.av_guess_frame_rate(component.Container.InputContext, component.Stream, frame);
+            Duration = repeatFactor.ToTimeSpan(new AVRational { num = timeBase.den, den = timeBase.num });
+
             // for video frames, we always get the best effort timestamp as dts and pts might
             // contain different times.
             frame->pts = ffmpeg.av_frame_get_best_effort_timestamp(frame);
+
+            HasValidStartTime = frame->pts != FFmpegEx.AV_NOPTS;
             StartTime = frame->pts == FFmpegEx.AV_NOPTS ?
                 TimeSpan.FromTicks(component.Container.MediaStartTimeOffset.Ticks) :
                 TimeSpan.FromTicks(frame->pts.ToTimeSpan(StreamTimeBase).Ticks - component.Container.MediaStartTimeOffset.Ticks);
 
-            var repeatFactor = 1d + (0.5d * frame->repeat_pict);
-            var timeBase = ffmpeg.av_guess_frame_rate(component.Container.InputContext, component.Stream, frame);
-
-            Duration = repeatFactor.ToTimeSpan(new AVRational { num = timeBase.den, den = timeBase.num });
             EndTime = TimeSpan.FromTicks(StartTime.Ticks + Duration.Ticks);
 
             DisplayPictureNumber = frame->display_picture_number == 0 ?
@@ -70,7 +72,7 @@
             ffmpeg.av_free(timeCodeInfo);
             ffmpeg.av_free(timeCodeBuffer);
 
-            // Process side data
+            // Process side data such as CC packets
             for (var i = 0; i < frame->nb_side_data; i++)
             {
                 var sideData = frame->side_data[i];

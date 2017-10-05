@@ -107,7 +107,6 @@
                     component.HardwareAccelerator = null;
                 }
             }
-
         }
 
         /// <summary>

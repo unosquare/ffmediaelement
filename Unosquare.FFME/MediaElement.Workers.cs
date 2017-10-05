@@ -499,7 +499,6 @@
 
             while (IsTaskCancellationPending == false)
             {
-
                 #region 1. Control and Capture
 
                 // Reset the rendered count to 0
