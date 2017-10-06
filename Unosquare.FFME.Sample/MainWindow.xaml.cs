@@ -61,8 +61,17 @@
                 if (m_OpenCommand == null)
                     m_OpenCommand = new DelegateCommand((a) =>
                     {
-                        OpenMediaPopup.IsOpen = false;
-                        Media.Source = new Uri(UrlTextBox.Text);
+                        try
+                        {
+                            OpenMediaPopup.IsOpen = false;
+                            var target = new Uri(UrlTextBox.Text);
+                            Media.Source = target;
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Media Failed: {ex.GetType()}\r\n{ex.Message}",
+                                "MediaElement Error", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                        }
                     }, null);
 
                 return m_OpenCommand;
