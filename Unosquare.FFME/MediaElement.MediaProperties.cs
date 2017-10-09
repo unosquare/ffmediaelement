@@ -206,7 +206,7 @@
         /// </summary>
         public bool CanPause
         {
-            get { return IsOpen ? Container.IsStreamRealtime == false || Container.IsStreamSeekable : false; }
+            get { return IsOpen ? !IsLiveStream : false; }
         }
 
         /// <summary>
@@ -215,7 +215,7 @@
         /// </summary>
         public bool IsLiveStream
         {
-            get { return IsOpen ? Container.IsStreamRealtime : false; }
+            get { return IsOpen ? Container.IsStreamRealtime && Container.MediaDuration == TimeSpan.MinValue: false; }
         }
 
         /// <summary>
