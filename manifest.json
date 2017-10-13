@@ -18,7 +18,7 @@
       "output": {
         ".html": {
           "relative_path": "README.html",
-          "hash": "miLp61iSf1iYG9e/3pXbAg=="
+          "hash": "2dlDVUTYey3WaC7g5KlWdw=="
         }
       },
       "is_incremental": false,
@@ -30,7 +30,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.ChapterInfo.html",
-          "hash": "Uzk8mDCDc+A4DcKizI3kAw=="
+          "hash": "wK7a1ZgoPpu2wblk5UZVdA=="
         }
       },
       "is_incremental": false,
@@ -42,7 +42,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.MediaCodecOptions.html",
-          "hash": "uL28NoM9GVE27gYEQCtLBQ=="
+          "hash": "Mg0kqjLeiNf3oLwLgYNAwA=="
         }
       },
       "is_incremental": false,
@@ -54,7 +54,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.MediaContainerException.html",
-          "hash": "CXYVPO/ueEpnvOblhtf/vg=="
+          "hash": "3nxc5LVvsbd3zzccNKM07w=="
         }
       },
       "is_incremental": false,
@@ -66,7 +66,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.MediaElement.html",
-          "hash": "QblkPfls6xvCMBVtvH/0VQ=="
+          "hash": "q0mhOx0jGt9O6br/QNIr7g=="
         }
       },
       "is_incremental": false,
@@ -78,7 +78,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.MediaInfo.html",
-          "hash": "h2+VNqqms98uQbEkU2cu7A=="
+          "hash": "ips23DJMLOt/1TLREsoGOQ=="
         }
       },
       "is_incremental": false,
@@ -90,7 +90,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.MediaLogMessagEventArgs.html",
-          "hash": "7+qjtiG+mwBQXVs2G8VTtQ=="
+          "hash": "Coc4uAP6huAAE+vtk7SqyQ=="
         }
       },
       "is_incremental": false,
@@ -102,7 +102,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.MediaLogMessageType.html",
-          "hash": "cNjg4bIALjAlGGdCd0kKEA=="
+          "hash": "TbfVk1fm0KMGB3NdJHKm+w=="
         }
       },
       "is_incremental": false,
@@ -114,7 +114,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.MediaOpeningRoutedEventArgs.html",
-          "hash": "1zSd1mdT2h5BazCvaUM6BQ=="
+          "hash": "EqKTBcE0Vw/fYRz54ATMyw=="
         }
       },
       "is_incremental": false,
@@ -126,7 +126,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.MediaOptions.html",
-          "hash": "mfXU8MUWXO+b3UQSkQ9UnQ=="
+          "hash": "huJaNgdDJoAwZvA9hJBeag=="
         }
       },
       "is_incremental": false,
@@ -138,7 +138,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.ProgramInfo.html",
-          "hash": "lfWiwHJLjNxEFz5s5J2GoQ=="
+          "hash": "WiPuAHX3C2nh4NfTKqCZzw=="
         }
       },
       "is_incremental": false,
@@ -150,7 +150,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.RenderingAudioEventArgs.html",
-          "hash": "qw8jhz8Z4iRpQ4fexJf+sA=="
+          "hash": "aaj/sbdcVd/ZiwtOUEd4fA=="
         }
       },
       "is_incremental": false,
@@ -162,7 +162,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.RenderingEventArgs.html",
-          "hash": "FoQOaVNfnySF5hZm7yofCg=="
+          "hash": "OqLw3fLzWmKQbq4JESTnnQ=="
         }
       },
       "is_incremental": false,
@@ -174,7 +174,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.RenderingSubtitlesEventArgs.html",
-          "hash": "3YK2RaPBO0C2isqaVDpReQ=="
+          "hash": "MmBZSCciys78frckDtP88Q=="
         }
       },
       "is_incremental": false,
@@ -186,7 +186,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.RenderingVideoEventArgs.html",
-          "hash": "Uc7n+SlsoW0oU/U+sEHOVA=="
+          "hash": "jfhk1OQAJ1VH0d/ndeWD2A=="
         }
       },
       "is_incremental": false,
@@ -198,7 +198,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.StreamInfo.html",
-          "hash": "1hCHoVHZpGY2xObXfUK/KA=="
+          "hash": "BvrDFR7prKxRHHpwi5hvgg=="
         }
       },
       "is_incremental": false,
@@ -210,7 +210,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.html",
-          "hash": "eKcJP6Kco6E2IyaNmIqOLg=="
+          "hash": "7mdcitpgTZS1ByWRtwvCPw=="
         }
       },
       "is_incremental": false,
@@ -222,7 +222,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "Zl4AYbLdwgv32LW+QGKq2g=="
+          "hash": "eWA2+X5AZvtwpIEvBp3/1Q=="
         }
       },
       "is_incremental": false,
@@ -234,7 +234,7 @@
       "output": {
         ".html": {
           "relative_path": "toc.html",
-          "hash": "aBhOGkYaAwRbiseuu4uuvg=="
+          "hash": "grAPGrbeXY0s57+k0amK5A=="
         }
       },
       "is_incremental": false,
@@ -254,11 +254,6 @@
           "details": "Processor RestApiDocumentProcessor cannot suppport incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
           "incrementalPhase": "build"
         },
-        "TocDocumentProcessor": {
-          "can_incremental": false,
-          "details": "Processor TocDocumentProcessor cannot suppport incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
-          "incrementalPhase": "build"
-        },
         "ConceptualDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build"
@@ -270,6 +265,11 @@
         "ResourceDocumentProcessor": {
           "can_incremental": false,
           "details": "Processor ResourceDocumentProcessor cannot suppport incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
+          "incrementalPhase": "build"
+        },
+        "TocDocumentProcessor": {
+          "can_incremental": false,
+          "details": "Processor TocDocumentProcessor cannot suppport incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
           "incrementalPhase": "build"
         }
       }
