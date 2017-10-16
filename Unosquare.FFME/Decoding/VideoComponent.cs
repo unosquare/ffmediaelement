@@ -26,6 +26,7 @@
 #pragma warning disable SA1401 // Fields must be private
         internal AVBufferRef* HardwareDeviceContext = null;
         internal HardwareAccelerator HardwareAccelerator = null;
+        internal bool IsUsingHardwareDecoding = false;
 #pragma warning restore SA1401 // Fields must be private
 
         /// <summary>
@@ -223,7 +224,7 @@
                 InitializeFilterGraph(frame);
 
             if (HardwareAccelerator != null)
-                frame = HardwareAccelerator.ExchangeFrame(CodecContext, frame);
+                frame = HardwareAccelerator.ExchangeFrame(CodecContext, frame, out IsUsingHardwareDecoding);
 
             AVFrame* outputFrame;
 

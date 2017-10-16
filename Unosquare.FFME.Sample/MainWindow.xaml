@@ -187,7 +187,7 @@
         </Grid>
 
         <Popup Name="DebugWindowPopup" MouseDown="DebugWindowPopup_MouseDown" IsOpen="{Binding ElementName=OpenDebugButton, Path=IsChecked}" AllowsTransparency="True"
-               PlacementTarget="{Binding ElementName=window}" Placement="Right" HorizontalOffset="-10" VerticalOffset="10">
+               PlacementTarget="{Binding ElementName=window}" Placement="Right" HorizontalOffset="-10" VerticalOffset="-20">
             <Border BorderBrush="#FF767676" BorderThickness="1" Background="#ee1f1f1f">
                 <StackPanel Name="Properties" VerticalAlignment="Top" HorizontalAlignment="Right" Orientation="Vertical" 
                     Background="Transparent" Width="240" Cursor="SizeAll">
@@ -307,6 +307,11 @@
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Video Codec</Label>
                         <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=VideoCodec, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Video Accelerator</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=VideoHardwareDecoder, Mode=OneWay}" />
                     </DockPanel>
 
                     <DockPanel>

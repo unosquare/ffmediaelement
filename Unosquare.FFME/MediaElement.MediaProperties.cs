@@ -19,6 +19,7 @@
         private double m_BufferingProgress = 0;
         private double m_DownloadProgress = 0;
         private string m_VideoSmtpeTimecode = string.Empty;
+        private string m_VideoHardwareDecoder = string.Empty;
         private bool m_IsBuffering = false;
         private MediaState m_MediaState = MediaState.Close;
         private bool m_IsOpening = false;
@@ -139,6 +140,18 @@
         }
 
         /// <summary>
+        /// Gets the name of the video hardware decoder in use.
+        /// Enabling hardware acceleration does not guarantee decoding will be performed in hardware.
+        /// When hardware decoding of frames is in use this will return the name of the HW accelerator.
+        /// Otherwise it will return an empty string.
+        /// </summary>
+        public string VideoHardwareDecoder
+        {
+            get { return m_VideoHardwareDecoder; }
+            internal set { SetProperty(ref m_VideoHardwareDecoder, value); }
+        }
+
+        /// <summary>
         /// Gets the audio codec.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
@@ -191,11 +204,11 @@
         {
             get
             {
-              return Container == null
-                ? Duration.Automatic
-                : (Container.MediaDuration == TimeSpan.MinValue
-                  ? Duration.Forever
-                  : (Container.MediaDuration < TimeSpan.Zero ? default(Duration) : new Duration(Container.MediaDuration)));
+                return Container == null
+                  ? Duration.Automatic
+                  : (Container.MediaDuration == TimeSpan.MinValue
+                    ? Duration.Forever
+                    : (Container.MediaDuration < TimeSpan.Zero ? default(Duration) : new Duration(Container.MediaDuration)));
             }
         }
 
@@ -408,6 +421,7 @@
             OnPropertyChanged(nameof(NaturalVideoHeight));
             OnPropertyChanged(nameof(VideoFrameRate));
             OnPropertyChanged(nameof(VideoFrameLength));
+            OnPropertyChanged(nameof(VideoHardwareDecoder));
             OnPropertyChanged(nameof(AudioCodec));
             OnPropertyChanged(nameof(AudioBitrate));
             OnPropertyChanged(nameof(AudioChannels));
@@ -434,6 +448,7 @@
             DownloadProgress = 0;
             BufferingProgress = 0;
             VideoSmtpeTimecode = string.Empty;
+            VideoHardwareDecoder = string.Empty;
             IsBuffering = false;
             IsMuted = false;
             HasMediaEnded = false;

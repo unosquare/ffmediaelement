@@ -115,16 +115,22 @@
         /// </summary>
         /// <param name="codecContext">The codec context.</param>
         /// <param name="input">The input.</param>
-        /// <returns>The frame downloaded from the device into RAM</returns>
+        /// <param name="comesFromHardware">if set to <c>true</c> [comes from hardware] otherwise, hardware decoding was not perfomred.</param>
+        /// <returns>
+        /// The frame downloaded from the device into RAM
+        /// </returns>
         /// <exception cref="Exception">Failed to transfer data to output frame</exception>
-        public AVFrame* ExchangeFrame(AVCodecContext* codecContext, AVFrame* input)
+        public AVFrame* ExchangeFrame(AVCodecContext* codecContext, AVFrame* input, out bool comesFromHardware)
         {
+            comesFromHardware = false;
+
             if (codecContext->hw_device_ctx == null)
                 return input;
 
             if (input->format != (int)PixelFormat)
                 return input;
 
+            comesFromHardware = true;
             var output = ffmpeg.av_frame_alloc();
 
             var result = ffmpeg.av_hwframe_transfer_data(output, input, 0);

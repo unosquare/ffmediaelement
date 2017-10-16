@@ -138,6 +138,9 @@
                         var updateRect = new Int32Rect(0, 0, b.PixelWidth, b.PixelHeight);
                         TargetBitmap.WritePixels(updateRect, b.Buffer, b.BufferLength, b.BufferStride);
                         MediaElement.VideoSmtpeTimecode = b.SmtpeTimecode;
+                        MediaElement.VideoHardwareDecoder = (MediaElement.Container?.Components?.Video?.IsUsingHardwareDecoding ?? false) ?
+                            MediaElement.Container?.Components?.Video?.HardwareAccelerator?.Name ?? string.Empty : string.Empty;
+
                         MediaElement.RaiseRenderingVideoEvent(
                             TargetBitmap,
                             MediaElement.Container.MediaInfo.Streams[b.StreamIndex],

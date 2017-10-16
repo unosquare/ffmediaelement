@@ -917,13 +917,11 @@
             {
                 e.Options.VideoFilter = "yadif";
                 // When enabling HW acceleration, the filtering does not seem to get applied for some reason.
-                e.Options.EnableHardwareAcceleration = false;
+                // e.Options.EnableHardwareAcceleration = false;
             }
-            else
-            {
-                // Experimetal HW acceleration support. Remove if not needed.
-                e.Options.EnableHardwareAcceleration = Debugger.IsAttached;
-            }
+
+            // Experimetal HW acceleration support. Remove if not needed.
+            // e.Options.EnableHardwareAcceleration = Debugger.IsAttached;
 
 #if APPLY_AUDIO_FILTER
             // e.Options.AudioFilter = "aecho=0.8:0.9:1000:0.3";
