@@ -34,21 +34,37 @@
             { MediaType.Subtitle, 120 }
         };
 
-        internal ManualResetEvent PacketReadingCycle => m_IsDisposing.Value || IsDisposed ? null : m_PacketReadingCycle;
-        internal ManualResetEvent FrameDecodingCycle => m_IsDisposing.Value || IsDisposed ? null : m_FrameDecodingCycle;
-        internal ManualResetEvent BlockRenderingCycle => m_IsDisposing.Value || IsDisposed ? null : m_BlockRenderingCycle;
-        internal ManualResetEvent SeekingDone => m_IsDisposing.Value || IsDisposed ? null : m_SeekingDone;
-
         internal Thread PacketReadingTask = null;
         internal Thread FrameDecodingTask = null;
         internal Thread BlockRenderingTask = null;
 
-        private AtomicBoolean m_IsTaskCancellationPending = new AtomicBoolean();
-        private AtomicBoolean m_HasDecoderSeeked = new AtomicBoolean();
         private readonly ManualResetEvent m_PacketReadingCycle = new ManualResetEvent(false);
         private readonly ManualResetEvent m_FrameDecodingCycle = new ManualResetEvent(false);
         private readonly ManualResetEvent m_BlockRenderingCycle = new ManualResetEvent(false);
         private readonly ManualResetEvent m_SeekingDone = new ManualResetEvent(true);
+
+        private AtomicBoolean m_IsTaskCancellationPending = new AtomicBoolean();
+        private AtomicBoolean m_HasDecoderSeeked = new AtomicBoolean();
+
+        /// <summary>
+        /// Gets the packet reading cycle control evenet.
+        /// </summary>
+        internal ManualResetEvent PacketReadingCycle => m_IsDisposing.Value || IsDisposed ? null : m_PacketReadingCycle;
+
+        /// <summary>
+        /// Gets the frame decoding cycle control event.
+        /// </summary>
+        internal ManualResetEvent FrameDecodingCycle => m_IsDisposing.Value || IsDisposed ? null : m_FrameDecodingCycle;
+
+        /// <summary>
+        /// Gets the block rendering cycle control event.
+        /// </summary>
+        internal ManualResetEvent BlockRenderingCycle => m_IsDisposing.Value || IsDisposed ? null : m_BlockRenderingCycle;
+
+        /// <summary>
+        /// Gets the seeking done control event.
+        /// </summary>
+        internal ManualResetEvent SeekingDone => m_IsDisposing.Value || IsDisposed ? null : m_SeekingDone;
 
         /// <summary>
         /// Gets or sets a value indicating whether the workedrs have been requested

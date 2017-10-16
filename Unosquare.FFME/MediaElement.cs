@@ -378,6 +378,7 @@
             if (alsoManaged)
             {
                 m_IsDisposing.Value = true;
+
                 // free managed resources
                 Commands.Close();
 
