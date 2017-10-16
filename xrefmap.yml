@@ -919,6 +919,18 @@ references:
   commentId: Overload:Unosquare.FFME.MediaElement.VideoFrameRate
   fullName: Unosquare.FFME.MediaElement.VideoFrameRate
   nameWithType: MediaElement.VideoFrameRate
+- uid: Unosquare.FFME.MediaElement.VideoHardwareDecoder
+  name: VideoHardwareDecoder
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoHardwareDecoder
+  commentId: P:Unosquare.FFME.MediaElement.VideoHardwareDecoder
+  fullName: Unosquare.FFME.MediaElement.VideoHardwareDecoder
+  nameWithType: MediaElement.VideoHardwareDecoder
+- uid: Unosquare.FFME.MediaElement.VideoHardwareDecoder*
+  name: VideoHardwareDecoder
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoHardwareDecoder_
+  commentId: Overload:Unosquare.FFME.MediaElement.VideoHardwareDecoder
+  fullName: Unosquare.FFME.MediaElement.VideoHardwareDecoder
+  nameWithType: MediaElement.VideoHardwareDecoder
 - uid: Unosquare.FFME.MediaElement.VideoSmtpeTimecode
   name: VideoSmtpeTimecode
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoSmtpeTimecode
