@@ -45,7 +45,7 @@
             pause.ExecuteInternal();
 
             var initialPosition = m.Clock.Position;
-            m.SeekingDone.Reset();
+            m.SeekingDone?.Reset();
             var startTime = DateTime.UtcNow;
 
             try
@@ -68,7 +68,7 @@
                 // wait for the current reading and decoding cycles
                 // to finish. We don't want to interfere with reading in progress
                 // or decoding in progress
-                m.PacketReadingCycle.WaitOne();
+                m.PacketReadingCycle?.WaitOne();
 
                 // Capture seek target adjustment
                 var adjustedSeekTarget = TargetPosition;
@@ -164,7 +164,7 @@
                         $"SEEK D: Elapsed: {startTime.FormatElapsed()} | Target: {TargetPosition.Format()}");
                 }
 
-                m.SeekingDone.Set();
+                m.SeekingDone?.Set();
 
                 if (WasPlaying)
                 {

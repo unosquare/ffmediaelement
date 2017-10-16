@@ -74,10 +74,10 @@
                 m.IsTaskCancellationPending = false;
 
                 // Set the initial state of the task cycles.
-                m.SeekingDone.Set();
-                m.BlockRenderingCycle.Reset();
-                m.FrameDecodingCycle.Reset();
-                m.PacketReadingCycle.Reset();
+                m.SeekingDone?.Set();
+                m.BlockRenderingCycle?.Reset();
+                m.FrameDecodingCycle?.Reset();
+                m.PacketReadingCycle?.Reset();
 
                 // Create the thread runners
                 m.PacketReadingTask = new Thread(m.RunPacketReadingWorker)

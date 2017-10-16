@@ -71,6 +71,11 @@
         /// </summary>
         private AtomicBoolean m_IsPositionUpdating = new AtomicBoolean();
 
+        /// <summary>
+        /// Flag when disposing process start but not finished yet
+        /// </summary>
+        private AtomicBoolean m_IsDisposing = new AtomicBoolean();
+
 #pragma warning restore SA1401 // Fields must be private
         #endregion
 
@@ -372,6 +377,7 @@
 
             if (alsoManaged)
             {
+                m_IsDisposing.Value = true;
                 // free managed resources
                 Commands.Close();
 
@@ -388,10 +394,10 @@
                     UIPropertyUpdateTimer = null;
                 }
 
-                PacketReadingCycle.Dispose();
-                FrameDecodingCycle.Dispose();
-                BlockRenderingCycle.Dispose();
-                SeekingDone.Dispose();
+                m_PacketReadingCycle.Dispose();
+                m_FrameDecodingCycle.Dispose();
+                m_BlockRenderingCycle.Dispose();
+                m_SeekingDone.Dispose();
             }
 
             IsDisposed = true;
