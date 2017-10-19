@@ -427,7 +427,13 @@
             try
             {
                 if (Application.Current != null)
-                    Application.Current.Exit -= OnApplicationExit;
+                {
+                    Runner.UIInvoke(DispatcherPriority.Send, () =>
+                    {
+                        Application.Current.Exit -= OnApplicationExit;
+                    });
+                }
+
             }
             catch { }
 
