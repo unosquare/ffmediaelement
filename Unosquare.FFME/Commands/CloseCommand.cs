@@ -43,7 +43,10 @@
             // Wait for worker threads to finish
             var wrokers = new[] { m.PacketReadingTask, m.FrameDecodingTask, m.BlockRenderingTask };
             foreach (var w in wrokers)
+            {
+                w.Abort();
                 w.Join();
+            }
 
             // Set the threads to null
             m.BlockRenderingTask = null;

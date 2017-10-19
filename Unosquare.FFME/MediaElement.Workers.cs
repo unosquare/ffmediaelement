@@ -133,79 +133,85 @@
         /// It reports on DownloadProgress by enqueueing an update to the property
         /// in order to avoid any kind of disruption to this thread caused by the UI thread.
         /// </summary>
-        internal async void RunPacketReadingWorker()
+        internal void RunPacketReadingWorker()
         {
-            // Holds the packet count for each read cycle
-            var packetsRead = new MediaTypeDictionary<int>();
-
-            // State variables for media types
-            var t = MediaType.None;
-
-            // Store Container in local variable to prevent NullReferenceException
-            // when dispose occurs sametime with read cycle
-            var mediaContainer = Container;
-
-            var main = mediaContainer.Components.Main.MediaType;
-            var auxs = mediaContainer.Components.MediaTypes.Where(c => c != main && (c == MediaType.Audio || c == MediaType.Video)).ToArray();
-            var all = auxs.Union(new[] { main }).ToArray();
-
-            // State variables for bytes read (give-up condition)
-            var startBytesRead = 0UL;
-            var currentBytesRead = 0UL;
-
-            // Worker logic begins here
-            while (IsTaskCancellationPending == false)
+            try
             {
-                // Enter a read cycle
-                SeekingDone?.WaitOne();
+                // Holds the packet count for each read cycle
+                var packetsRead = new MediaTypeDictionary<int>();
 
-                // Enter a packet reading cycle
-                PacketReadingCycle?.Reset();
+                // State variables for media types
+                var t = MediaType.None;
 
-                if (CanReadMorePackets && mediaContainer.Components.PacketBufferLength < DownloadCacheLength)
+                // Store Container in local variable to prevent NullReferenceException
+                // when dispose occurs sametime with read cycle
+                var mediaContainer = Container;
+
+                var main = mediaContainer.Components.Main.MediaType;
+                var auxs = mediaContainer.Components.MediaTypes.Where(c => c != main && (c == MediaType.Audio || c == MediaType.Video)).ToArray();
+                var all = auxs.Union(new[] { main }).ToArray();
+
+                // State variables for bytes read (give-up condition)
+                var startBytesRead = 0UL;
+                var currentBytesRead = 0UL;
+
+                // Worker logic begins here
+                while (IsTaskCancellationPending == false)
                 {
-                    // Initialize Packets read to 0 for each component and state variables
-                    foreach (var k in mediaContainer.Components.MediaTypes)
-                        packetsRead[k] = 0;
+                    // Enter a read cycle
+                    SeekingDone?.WaitOne();
 
-                    startBytesRead = mediaContainer.Components.TotalBytesRead;
-                    currentBytesRead = 0UL;
+                    // Enter a packet reading cycle
+                    PacketReadingCycle?.Reset();
 
-                    // Start to perform the read loop
-                    while (CanReadMorePackets)
+                    if (CanReadMorePackets && mediaContainer.Components.PacketBufferLength < DownloadCacheLength)
                     {
-                        // Perform a packet read. t will hold the packet type.
-                        t = mediaContainer.Read();
+                        // Initialize Packets read to 0 for each component and state variables
+                        foreach (var k in mediaContainer.Components.MediaTypes)
+                            packetsRead[k] = 0;
 
-                        // Discard packets that we don't need (i.e. MediaType == None)
-                        if (mediaContainer.Components.MediaTypes.Contains(t) == false)
-                            continue;
+                        startBytesRead = mediaContainer.Components.TotalBytesRead;
+                        currentBytesRead = 0UL;
 
-                        // Update the packet count for the components
-                        packetsRead[t] += 1;
+                        // Start to perform the read loop
+                        while (CanReadMorePackets)
+                        {
+                            // Perform a packet read. t will hold the packet type.
+                            t = mediaContainer.Read();
 
-                        // Ensure we have read at least some packets from main and auxiliary streams.
-                        if (packetsRead.Where(k => all.Contains(k.Key)).All(c => c.Value > 0))
-                            break;
+                            // Discard packets that we don't need (i.e. MediaType == None)
+                            if (mediaContainer.Components.MediaTypes.Contains(t) == false)
+                                continue;
 
-                        // The give-up condition is that in spite of efforts to read at least one of each,
-                        // we could not find the required packet types.
-                        currentBytesRead = mediaContainer.Components.TotalBytesRead - startBytesRead;
-                        if (currentBytesRead > (ulong)DownloadCacheLength)
-                            break;
+                            // Update the packet count for the components
+                            packetsRead[t] += 1;
+
+                            // Ensure we have read at least some packets from main and auxiliary streams.
+                            if (packetsRead.Where(k => all.Contains(k.Key)).All(c => c.Value > 0))
+                                break;
+
+                            // The give-up condition is that in spite of efforts to read at least one of each,
+                            // we could not find the required packet types.
+                            currentBytesRead = mediaContainer.Components.TotalBytesRead - startBytesRead;
+                            if (currentBytesRead > (ulong)DownloadCacheLength)
+                                break;
+                        }
                     }
+
+                    // finish the reading cycle.
+                    PacketReadingCycle?.Set();
+
+                    // Wait some if we have a full packet buffer or we are unable to read more packets (i.e. EOF).
+                    if (mediaContainer.Components.PacketBufferLength >= DownloadCacheLength || CanReadMorePackets == false || currentBytesRead <= 0)
+                        Thread.Sleep(1);
                 }
 
-                // finish the reading cycle.
+                // Always exit notifying the reading cycle is done.
                 PacketReadingCycle?.Set();
-
-                // Wait some if we have a full packet buffer or we are unable to read more packets (i.e. EOF).
-                if (mediaContainer.Components.PacketBufferLength >= DownloadCacheLength || CanReadMorePackets == false || currentBytesRead <= 0)
-                    await Task.Delay(1);
             }
-
-            // Always exit notifying the reading cycle is done.
-            PacketReadingCycle?.Set();
+            catch (ThreadAbortException)
+            {
+            }
         }
 
         #endregion
@@ -217,258 +223,264 @@
         /// many frames as possible in each frame queue and
         /// up to the MaxFrames on each component
         /// </summary>
-        internal async void RunFrameDecodingWorker()
+        internal void RunFrameDecodingWorker()
         {
-            // State variables
-            var decodedFrameCount = 0;
-            var wallClock = TimeSpan.Zero;
-            var rangePercent = 0d;
-            var isInRange = false;
-
-            // Holds the main media type
-            var main = Container.Components.Main.MediaType;
-
-            // Holds the auxiliary media types
-            var auxs = Container.Components.MediaTypes.Where(x => x != main).ToArray();
-
-            // Holds all components
-            var all = Container.Components.MediaTypes.ToArray();
-
-            var isBuffering = false;
-            var resumeClock = false;
-            var hasPendingSeeks = false;
-
-            MediaComponent comp = null;
-            MediaBlockBuffer blocks = null;
-
-            while (IsTaskCancellationPending == false)
+            try
             {
-                #region 1. Setup the Decoding Cycle
+                // State variables
+                var decodedFrameCount = 0;
+                var wallClock = TimeSpan.Zero;
+                var rangePercent = 0d;
+                var isInRange = false;
 
-                // Singal a Seek starting operation
-                hasPendingSeeks = Commands.PendingCountOf(MediaCommandType.Seek) > 0;
-                if (IsSeeking == false && hasPendingSeeks)
+                // Holds the main media type
+                var main = Container.Components.Main.MediaType;
+
+                // Holds the auxiliary media types
+                var auxs = Container.Components.MediaTypes.Where(x => x != main).ToArray();
+
+                // Holds all components
+                var all = Container.Components.MediaTypes.ToArray();
+
+                var isBuffering = false;
+                var resumeClock = false;
+                var hasPendingSeeks = false;
+
+                MediaComponent comp = null;
+                MediaBlockBuffer blocks = null;
+
+                while (IsTaskCancellationPending == false)
                 {
-                    IsSeeking = true;
-                    RaiseSeekingStartedEvent();
-                }
+                    #region 1. Setup the Decoding Cycle
 
-                // Execute the following command at the beginning of the cycle
-                Commands.ProcessNext();
-
-                // Signal a Seek ending operation
-                hasPendingSeeks = Commands.PendingCountOf(MediaCommandType.Seek) > 0;
-                if (IsSeeking == true && hasPendingSeeks == false)
-                {
-                    SnapVideoPosition(Clock.Position);
-                    IsSeeking = false;
-
-                    // Call the seek method on all renderers
-                    foreach (var kvp in Renderers)
-                        kvp.Value.Seek();
-
-                    RaiseSeekingEndedEvent();
-                }
-
-                // Wait for a seek operation to complete (if any)
-                // and initiate a frame decoding cycle.
-                SeekingDone?.WaitOne();
-
-                // Initiate the frame docding cycle
-                FrameDecodingCycle?.Reset();
-
-                // Set initial state
-                wallClock = Clock.Position;
-                decodedFrameCount = 0;
-
-                #endregion
-
-                #region 2. Main Component Decoding
-
-                // Capture component and blocks for easier readability
-                comp = Container.Components[main];
-                blocks = Blocks[main];
-
-                // Handle the main component decoding; Start by checking we have some packets
-                if (comp.PacketBufferCount > 0)
-                {
-                    // Detect if we are in range for the main component
-                    isInRange = blocks.IsInRange(wallClock);
-
-                    if (isInRange == false)
+                    // Singal a Seek starting operation
+                    hasPendingSeeks = Commands.PendingCountOf(MediaCommandType.Seek) > 0;
+                    if (IsSeeking == false && hasPendingSeeks)
                     {
-                        // Signal the start of a sync-buffering scenario
-                        HasDecoderSeeked = true;
-                        isBuffering = true;
-                        resumeClock = Clock.IsRunning;
-                        Clock.Pause();
-                        Logger.Log(MediaLogMessageType.Debug, $"SYNC-BUFFER: Started.");
+                        IsSeeking = true;
+                        RaiseSeekingStartedEvent();
+                    }
 
-                        // Read some frames and try to get a valid range
-                        do
+                    // Execute the following command at the beginning of the cycle
+                    Commands.ProcessNext();
+
+                    // Signal a Seek ending operation
+                    hasPendingSeeks = Commands.PendingCountOf(MediaCommandType.Seek) > 0;
+                    if (IsSeeking == true && hasPendingSeeks == false)
+                    {
+                        SnapVideoPosition(Clock.Position);
+                        IsSeeking = false;
+
+                        // Call the seek method on all renderers
+                        foreach (var kvp in Renderers)
+                            kvp.Value.Seek();
+
+                        RaiseSeekingEndedEvent();
+                    }
+
+                    // Wait for a seek operation to complete (if any)
+                    // and initiate a frame decoding cycle.
+                    SeekingDone?.WaitOne();
+
+                    // Initiate the frame docding cycle
+                    FrameDecodingCycle?.Reset();
+
+                    // Set initial state
+                    wallClock = Clock.Position;
+                    decodedFrameCount = 0;
+
+                    #endregion
+
+                    #region 2. Main Component Decoding
+
+                    // Capture component and blocks for easier readability
+                    comp = Container.Components[main];
+                    blocks = Blocks[main];
+
+                    // Handle the main component decoding; Start by checking we have some packets
+                    if (comp.PacketBufferCount > 0)
+                    {
+                        // Detect if we are in range for the main component
+                        isInRange = blocks.IsInRange(wallClock);
+
+                        if (isInRange == false)
                         {
-                            // Try to get more packets by waiting for read cycles.
+                            // Signal the start of a sync-buffering scenario
+                            HasDecoderSeeked = true;
+                            isBuffering = true;
+                            resumeClock = Clock.IsRunning;
+                            Clock.Pause();
+                            Logger.Log(MediaLogMessageType.Debug, $"SYNC-BUFFER: Started.");
+
+                            // Read some frames and try to get a valid range
+                            do
+                            {
+                                // Try to get more packets by waiting for read cycles.
+                                if (CanReadMorePackets && comp.PacketBufferCount <= 0)
+                                    PacketReadingCycle?.WaitOne();
+
+                                // Decode some frames and check if we are in reange now
+                                decodedFrameCount += AddBlocks(main);
+                                isInRange = blocks.IsInRange(wallClock);
+
+                                // Break the cycle if we are in range
+                                if (isInRange || CanReadMorePackets == false) { break; }
+                            }
+                            while (decodedFrameCount <= 0 && blocks.IsFull == false);
+
+                            // Unfortunately at this point we will need to adjust the clock after creating the frames.
+                            // to ensure tha mian component is within the clock range if the decoded
+                            // frames are not with range. This is normal while buffering though.
+                            if (isInRange == false)
+                            {
+                                // Update the wall clock to the most appropriate available block.
+                                if (blocks.Count > 0)
+                                    wallClock = blocks[wallClock].StartTime;
+                                else
+                                    resumeClock = false; // Hard stop the clock.
+
+                                // Update the clock to what the main component range mandates
+                                Clock.Position = wallClock;
+
+                                // Call seek to invalidate renderer
+                                Renderers[main].Seek();
+                            }
+                        }
+                        else
+                        {
+                            // Check if we need more blocks for the current components
+                            rangePercent = blocks.GetRangePercent(wallClock);
+
+                            // Read as many blocks as we possibly can
+                            while (comp.PacketBufferCount > 0 &&
+                                   ((rangePercent > 0.75d && blocks.IsFull) || blocks.IsFull == false))
+                            {
+                                decodedFrameCount += AddBlocks(main);
+                                rangePercent = blocks.GetRangePercent(wallClock);
+                            }
+                        }
+                    }
+
+                    #endregion
+
+                    #region 3. Auxiliary Component Decoding
+
+                    foreach (var t in auxs)
+                    {
+                        if (IsSeeking) continue;
+
+                        // Capture the current block buffer and component
+                        // for easier readability
+                        comp = Container.Components[t];
+                        blocks = Blocks[t];
+                        isInRange = blocks.IsInRange(wallClock);
+
+                        // Invalidate the renderer if we don't have the block.
+                        if (isInRange == false) Renderers[t].Seek();
+
+                        // wait for component to get there if we only have furutre blocks
+                        // in auxiliary component.
+                        if (blocks.Count > 0 && blocks.RangeStartTime > wallClock)
+                            continue;
+
+                        // Try to catch up with the wall clock
+                        while (blocks.Count == 0 || blocks.RangeEndTime <= wallClock)
+                        {
+                            // Wait for packets if we don't have enough packets
                             if (CanReadMorePackets && comp.PacketBufferCount <= 0)
                                 PacketReadingCycle?.WaitOne();
 
-                            // Decode some frames and check if we are in reange now
-                            decodedFrameCount += AddBlocks(main);
-                            isInRange = blocks.IsInRange(wallClock);
-
-                            // Break the cycle if we are in range
-                            if (isInRange || CanReadMorePackets == false) { break; }
-                        }
-                        while (decodedFrameCount <= 0 && blocks.IsFull == false);
-
-                        // Unfortunately at this point we will need to adjust the clock after creating the frames.
-                        // to ensure tha mian component is within the clock range if the decoded
-                        // frames are not with range. This is normal while buffering though.
-                        if (isInRange == false)
-                        {
-                            // Update the wall clock to the most appropriate available block.
-                            if (blocks.Count > 0)
-                                wallClock = blocks[wallClock].StartTime;
+                            if (comp.PacketBufferCount <= 0)
+                                break;
                             else
-                                resumeClock = false; // Hard stop the clock.
+                                decodedFrameCount += AddBlocks(t);
+                        }
 
-                            // Update the clock to what the main component range mandates
-                            Clock.Position = wallClock;
+                        isInRange = blocks.IsInRange(wallClock);
 
-                            // Call seek to invalidate renderer
-                            Renderers[main].Seek();
+                        // Move to the next component if we don't meet a regular conditions
+                        if (isInRange == false || isBuffering || comp.PacketBufferCount <= 0)
+                            continue;
+
+                        // Read as much as we can for this cycle.
+                        while (comp.PacketBufferCount > 0)
+                        {
+                            rangePercent = blocks.GetRangePercent(wallClock);
+
+                            if (blocks.IsFull == false || (blocks.IsFull && rangePercent > 0.75d && rangePercent < 1d))
+                                decodedFrameCount += AddBlocks(t);
+                            else
+                                break;
+                        }
+                    }
+
+                    #endregion
+
+                    #region 4. Detect End of Media
+
+                    // Detect end of block rendering
+                    if (isBuffering == false
+                        && IsSeeking == false
+                        && CanReadMoreFramesOf(main) == false
+                        && Blocks[main].IndexOf(wallClock) == Blocks[main].Count - 1)
+                    {
+                        if (HasMediaEnded == false)
+                        {
+                            // Rendered all and nothing else to read
+                            Clock.Pause();
+                            Clock.Position = NaturalDuration.HasTimeSpan ?
+                                NaturalDuration.TimeSpan : Blocks[main].RangeEndTime;
+                            wallClock = Clock.Position;
+
+                            HasMediaEnded = true;
+                            MediaState = MediaState.Pause;
+                            RaiseMediaEndedEvent();
                         }
                     }
                     else
                     {
-                        // Check if we need more blocks for the current components
-                        rangePercent = blocks.GetRangePercent(wallClock);
-
-                        // Read as many blocks as we possibly can
-                        while (comp.PacketBufferCount > 0 &&
-                            ((rangePercent > 0.75d && blocks.IsFull) || blocks.IsFull == false))
-                        {
-                            decodedFrameCount += AddBlocks(main);
-                            rangePercent = blocks.GetRangePercent(wallClock);
-                        }
+                        HasMediaEnded = false;
                     }
-                }
 
-                #endregion
+                    #endregion
 
-                #region 3. Auxiliary Component Decoding
+                    #region 6. Finish the Cycle
 
-                foreach (var t in auxs)
-                {
-                    if (IsSeeking) continue;
-
-                    // Capture the current block buffer and component
-                    // for easier readability
-                    comp = Container.Components[t];
-                    blocks = Blocks[t];
-                    isInRange = blocks.IsInRange(wallClock);
-
-                    // Invalidate the renderer if we don't have the block.
-                    if (isInRange == false) Renderers[t].Seek();
-
-                    // wait for component to get there if we only have furutre blocks
-                    // in auxiliary component.
-                    if (blocks.Count > 0 && blocks.RangeStartTime > wallClock)
-                        continue;
-
-                    // Try to catch up with the wall clock
-                    while (blocks.Count == 0 || blocks.RangeEndTime <= wallClock)
+                    // complete buffering notifications
+                    if (isBuffering)
                     {
-                        // Wait for packets if we don't have enough packets
-                        if (CanReadMorePackets && comp.PacketBufferCount <= 0)
-                            PacketReadingCycle?.WaitOne();
+                        // Reset the buffering flag
+                        isBuffering = false;
 
-                        if (comp.PacketBufferCount <= 0)
-                            break;
-                        else
-                            decodedFrameCount += AddBlocks(t);
+                        // Resume the clock if it was playing
+                        if (resumeClock) Clock.Play();
+
+                        // log some message
+                        Logger.Log(
+                            MediaLogMessageType.Debug,
+                            $"SYNC-BUFFER: Finished. Clock set to {wallClock.Format()}");
                     }
 
-                    isInRange = blocks.IsInRange(wallClock);
+                    // Complete the frame decoding cycle
+                    FrameDecodingCycle?.Set();
 
-                    // Move to the next component if we don't meet a regular conditions
-                    if (isInRange == false || isBuffering || comp.PacketBufferCount <= 0)
-                        continue;
+                    // After a seek operation, always reset the has seeked flag.
+                    HasDecoderSeeked = false;
 
-                    // Read as much as we can for this cycle.
-                    while (comp.PacketBufferCount > 0)
-                    {
-                        rangePercent = blocks.GetRangePercent(wallClock);
+                    // Give it a break if there was nothing to decode.
+                    // We probably need to wait for some more input
+                    if (decodedFrameCount <= 0 && Commands.PendingCount <= 0)
+                        Thread.Sleep(1);
 
-                        if (blocks.IsFull == false || (blocks.IsFull && rangePercent > 0.75d && rangePercent < 1d))
-                            decodedFrameCount += AddBlocks(t);
-                        else
-                            break;
-                    }
+                    #endregion
                 }
 
-                #endregion
-
-                #region 4. Detect End of Media
-
-                // Detect end of block rendering
-                if (isBuffering == false
-                    && IsSeeking == false
-                    && CanReadMoreFramesOf(main) == false
-                    && Blocks[main].IndexOf(wallClock) == Blocks[main].Count - 1)
-                {
-                    if (HasMediaEnded == false)
-                    {
-                        // Rendered all and nothing else to read
-                        Clock.Pause();
-                        Clock.Position = NaturalDuration.HasTimeSpan ?
-                            NaturalDuration.TimeSpan : Blocks[main].RangeEndTime;
-                        wallClock = Clock.Position;
-
-                        HasMediaEnded = true;
-                        MediaState = MediaState.Pause;
-                        RaiseMediaEndedEvent();
-                    }
-                }
-                else
-                {
-                    HasMediaEnded = false;
-                }
-
-                #endregion
-
-                #region 6. Finish the Cycle
-
-                // complete buffering notifications
-                if (isBuffering)
-                {
-                    // Reset the buffering flag
-                    isBuffering = false;
-
-                    // Resume the clock if it was playing
-                    if (resumeClock) Clock.Play();
-
-                    // log some message
-                    Logger.Log(
-                        MediaLogMessageType.Debug,
-                        $"SYNC-BUFFER: Finished. Clock set to {wallClock.Format()}");
-                }
-
-                // Complete the frame decoding cycle
+                // Always exit notifying the cycle is done.
                 FrameDecodingCycle?.Set();
-
-                // After a seek operation, always reset the has seeked flag.
-                HasDecoderSeeked = false;
-
-                // Give it a break if there was nothing to decode.
-                // We probably need to wait for some more input
-                if (decodedFrameCount <= 0 && Commands.PendingCount <= 0)
-                    await Task.Delay(1);
-
-                #endregion
             }
-
-            // Always exit notifying the cycle is done.
-            FrameDecodingCycle?.Set();
+            catch (ThreadAbortException)
+            {
+            }
         }
 
         #endregion
@@ -480,106 +492,112 @@
         /// block buffer. This task is responsible for keeping track of the clock
         /// and calling the render methods appropriate for the current clock position.
         /// </summary>
-        internal async void RunBlockRenderingWorker()
+        internal void RunBlockRenderingWorker()
         {
-            #region 0. Initialize Running State
-
-            // Holds the main media type
-            var main = Container.Components.Main.MediaType;
-
-            // Holds the auxiliary media types
-            var auxs = Container.Components.MediaTypes.Where(t => t != main).ToArray();
-
-            // Holds all components
-            var all = Container.Components.MediaTypes.ToArray();
-
-            // Holds a snapshot of the current block to render
-            var currentBlock = new MediaTypeDictionary<MediaBlock>();
-
-            // Keeps track of how many blocks were rendered in the cycle.
-            var renderedBlockCount = 0;
-
-            // reset render times for all components
-            foreach (var t in all)
-                LastRenderTime[t] = TimeSpan.MinValue;
-
-            // Ensure the other workers are running
-            PacketReadingCycle?.WaitOne();
-            FrameDecodingCycle?.WaitOne();
-
-            // Set the initial clock position
-            Clock.Position = Blocks[main].RangeStartTime;
-            var wallClock = Clock.Position;
-
-            // Wait for renderers to be ready
-            foreach (var t in all)
-                Renderers[t]?.WaitForReadyState();
-
-            #endregion
-
-            while (IsTaskCancellationPending == false)
+            try
             {
-                #region 1. Control and Capture
+                #region 0. Initialize Running State
 
-                // Reset the rendered count to 0
-                renderedBlockCount = 0;
+                // Holds the main media type
+                var main = Container.Components.Main.MediaType;
 
-                // Capture current clock position for the rest of this cycle
-                BlockRenderingCycle?.Reset();
+                // Holds the auxiliary media types
+                var auxs = Container.Components.MediaTypes.Where(t => t != main).ToArray();
 
-                // capture the wall clock for this cycle
-                wallClock = Clock.Position;
+                // Holds all components
+                var all = Container.Components.MediaTypes.ToArray();
+
+                // Holds a snapshot of the current block to render
+                var currentBlock = new MediaTypeDictionary<MediaBlock>();
+
+                // Keeps track of how many blocks were rendered in the cycle.
+                var renderedBlockCount = 0;
+
+                // reset render times for all components
+                foreach (var t in all)
+                    LastRenderTime[t] = TimeSpan.MinValue;
+
+                // Ensure the other workers are running
+                PacketReadingCycle?.WaitOne();
+                FrameDecodingCycle?.WaitOne();
+
+                // Set the initial clock position
+                Clock.Position = Blocks[main].RangeStartTime;
+                var wallClock = Clock.Position;
+
+                // Wait for renderers to be ready
+                foreach (var t in all)
+                    Renderers[t]?.WaitForReadyState();
 
                 #endregion
 
-                #region 2. Handle Block Rendering
-
-                // Capture the blocks to render
-                foreach (var t in all)
-                    currentBlock[t] = HasDecoderSeeked ? null : Blocks[t][wallClock];
-
-                // Render each of the Media Types if it is time to do so.
-                foreach (var t in all)
+                while (IsTaskCancellationPending == false)
                 {
-                    // Skip rendering for nulls
-                    if (currentBlock[t] == null)
-                        continue;
+                    #region 1. Control and Capture
 
-                    // Render by forced signal (TimeSpan.MinValue)
-                    if (LastRenderTime[t] == TimeSpan.MinValue)
+                    // Reset the rendered count to 0
+                    renderedBlockCount = 0;
+
+                    // Capture current clock position for the rest of this cycle
+                    BlockRenderingCycle?.Reset();
+
+                    // capture the wall clock for this cycle
+                    wallClock = Clock.Position;
+
+                    #endregion
+
+                    #region 2. Handle Block Rendering
+
+                    // Capture the blocks to render
+                    foreach (var t in all)
+                        currentBlock[t] = HasDecoderSeeked ? null : Blocks[t][wallClock];
+
+                    // Render each of the Media Types if it is time to do so.
+                    foreach (var t in all)
                     {
-                        renderedBlockCount += SendBlockToRenderer(currentBlock[t], wallClock);
-                        continue;
+                        // Skip rendering for nulls
+                        if (currentBlock[t] == null)
+                            continue;
+
+                        // Render by forced signal (TimeSpan.MinValue)
+                        if (LastRenderTime[t] == TimeSpan.MinValue)
+                        {
+                            renderedBlockCount += SendBlockToRenderer(currentBlock[t], wallClock);
+                            continue;
+                        }
+
+                        // Render because we simply have not rendered
+                        if (currentBlock[t].StartTime != LastRenderTime[t])
+                        {
+                            renderedBlockCount += SendBlockToRenderer(currentBlock[t], wallClock);
+                            continue;
+                        }
                     }
 
-                    // Render because we simply have not rendered
-                    if (currentBlock[t].StartTime != LastRenderTime[t])
-                    {
-                        renderedBlockCount += SendBlockToRenderer(currentBlock[t], wallClock);
-                        continue;
-                    }
+                    #endregion
+
+                    #region 6. Finalize the Rendering Cycle
+
+                    // Signal the rendering cycle was set.
+                    BlockRenderingCycle?.Set();
+
+                    // Call the update method on all renderers so they receive what the new wall clock is.
+                    foreach (var t in all)
+                        Renderers[t]?.Update(wallClock);
+
+                    // Delay the thread for a bit if we have no more stuff to process
+                    if (IsSeeking == false && renderedBlockCount <= 0 && Commands.PendingCount <= 0)
+                        Thread.Sleep(1);
+
+                    #endregion
                 }
 
-                #endregion
-
-                #region 6. Finalize the Rendering Cycle
-
-                // Signal the rendering cycle was set.
+                // Always exit notifying the cycle is done.
                 BlockRenderingCycle?.Set();
-
-                // Call the update method on all renderers so they receive what the new wall clock is.
-                foreach (var t in all)
-                    Renderers[t]?.Update(wallClock);
-
-                // Delay the thread for a bit if we have no more stuff to process
-                if (IsSeeking == false && renderedBlockCount <= 0 && Commands.PendingCount <= 0)
-                    await Task.Delay(1);
-
-                #endregion
             }
-
-            // Always exit notifying the cycle is done.
-            BlockRenderingCycle?.Set();
+            catch (ThreadAbortException)
+            {
+            }
         }
 
         #endregion
