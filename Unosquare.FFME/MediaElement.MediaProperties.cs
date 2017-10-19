@@ -228,7 +228,7 @@
         /// </summary>
         public bool IsLiveStream
         {
-            get { return IsOpen ? Container.IsStreamRealtime && Container.MediaDuration == TimeSpan.MinValue: false; }
+            get { return IsOpen ? Container.IsStreamRealtime && Container.MediaDuration == TimeSpan.MinValue : false; }
         }
 
         /// <summary>

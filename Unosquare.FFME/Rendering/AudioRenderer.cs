@@ -433,7 +433,6 @@
                         Application.Current.Exit -= OnApplicationExit;
                     });
                 }
-
             }
             catch { }
 
