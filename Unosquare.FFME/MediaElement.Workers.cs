@@ -133,7 +133,7 @@
         /// It reports on DownloadProgress by enqueueing an update to the property
         /// in order to avoid any kind of disruption to this thread caused by the UI thread.
         /// </summary>
-        internal void RunPacketReadingWorker()
+        internal async void RunPacketReadingWorker()
         {
             try
             {
@@ -203,14 +203,16 @@
 
                     // Wait some if we have a full packet buffer or we are unable to read more packets (i.e. EOF).
                     if (mediaContainer.Components.PacketBufferLength >= DownloadCacheLength || CanReadMorePackets == false || currentBytesRead <= 0)
-                        Thread.Sleep(1);
+                        await Task.Delay(1);
                 }
-
-                // Always exit notifying the reading cycle is done.
-                PacketReadingCycle?.Set();
             }
             catch (ThreadAbortException)
             {
+            }
+            finally
+            {
+                // Always exit notifying the reading cycle is done.
+                PacketReadingCycle?.Set();
             }
         }
 
@@ -223,7 +225,7 @@
         /// many frames as possible in each frame queue and
         /// up to the MaxFrames on each component
         /// </summary>
-        internal void RunFrameDecodingWorker()
+        internal async void RunFrameDecodingWorker()
         {
             try
             {
@@ -470,16 +472,18 @@
                     // Give it a break if there was nothing to decode.
                     // We probably need to wait for some more input
                     if (decodedFrameCount <= 0 && Commands.PendingCount <= 0)
-                        Thread.Sleep(1);
+                        await Task.Delay(1);
 
                     #endregion
                 }
-
-                // Always exit notifying the cycle is done.
-                FrameDecodingCycle?.Set();
             }
             catch (ThreadAbortException)
             {
+            }
+            finally
+            {
+                // Always exit notifying the cycle is done.
+                FrameDecodingCycle?.Set();
             }
         }
 
@@ -492,7 +496,7 @@
         /// block buffer. This task is responsible for keeping track of the clock
         /// and calling the render methods appropriate for the current clock position.
         /// </summary>
-        internal void RunBlockRenderingWorker()
+        internal async void RunBlockRenderingWorker()
         {
             try
             {
@@ -587,16 +591,18 @@
 
                     // Delay the thread for a bit if we have no more stuff to process
                     if (IsSeeking == false && renderedBlockCount <= 0 && Commands.PendingCount <= 0)
-                        Thread.Sleep(1);
+                        await Task.Delay(1);
 
                     #endregion
                 }
-
-                // Always exit notifying the cycle is done.
-                BlockRenderingCycle?.Set();
             }
             catch (ThreadAbortException)
             {
+            }
+            finally
+            {
+                // Always exit notifying the cycle is done.
+                BlockRenderingCycle?.Set();
             }
         }
 
