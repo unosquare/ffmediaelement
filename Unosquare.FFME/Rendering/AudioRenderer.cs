@@ -350,23 +350,16 @@
                         return requestedBytes;
 
                     // Perform DSP
-                    if (SpeedRatio != 1.0)
+                    if (SpeedRatio < 1.0)
+                    {
+                        ReadAndSlowDown(requestedBytes);
+                    }
+                    else if (SpeedRatio > 1.0)
                     {
                         if (AudioProcessor != null)
-                        {
                             ReadAndUseAudioProcessor(requestedBytes);
-                        }
                         else
-                        {
-                            if (SpeedRatio < 1.0)
-                            {
-                                ReadAndSlowDown(requestedBytes);
-                            }
-                            else if (SpeedRatio > 1.0)
-                            {
-                                ReadAndSpeedUp(requestedBytes, true);
-                            }
-                        }
+                            ReadAndSpeedUp(requestedBytes, true);
                     }
                     else
                     {
