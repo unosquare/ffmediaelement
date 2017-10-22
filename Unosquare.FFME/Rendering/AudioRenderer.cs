@@ -22,8 +22,10 @@
         private readonly ManualResetEvent WaitForReadyEvent = new ManualResetEvent(false);
         private readonly object SyncLock = new object();
 
-        private WavePlayer AudioDevice;
-        private CircularBuffer AudioBuffer;
+        private WavePlayer AudioDevice = null;
+        private SoundTouch AudioProcessor = null;
+        private short[] AudioProcessorBuffer = null;
+        private CircularBuffer AudioBuffer = null;
         private bool IsDisposed = false;
 
         private byte[] ReadBuffer = null;
@@ -348,13 +350,23 @@
                         return requestedBytes;
 
                     // Perform DSP
-                    if (SpeedRatio < 1.0)
+                    if (SpeedRatio != 1.0)
                     {
-                        ReadAndSlowDown(requestedBytes);
-                    }
-                    else if (SpeedRatio > 1.0)
-                    {
-                        ReadAndSpeedUp(requestedBytes, true);
+                        if (AudioProcessor != null)
+                        {
+                            ReadAndUseAudioProcessor(requestedBytes);
+                        }
+                        else
+                        {
+                            if (SpeedRatio < 1.0)
+                            {
+                                ReadAndSlowDown(requestedBytes);
+                            }
+                            else if (SpeedRatio > 1.0)
+                            {
+                                ReadAndSpeedUp(requestedBytes, true);
+                            }
+                        }
                     }
                     else
                     {
@@ -402,6 +414,15 @@
         {
             Destroy();
 
+            if (SoundTouch.IsAvailable)
+            {
+                AudioProcessor = new SoundTouch
+                {
+                    Channels = (uint)WaveFormat.Channels,
+                    SampleRate = (uint)WaveFormat.SampleRate
+                };
+            }
+
             AudioDevice = new WavePlayer(this)
             {
                 DesiredLatency = 200,
@@ -447,6 +468,12 @@
             {
                 AudioBuffer.Dispose();
                 AudioBuffer = null;
+            }
+
+            if (AudioProcessor != null)
+            {
+                AudioProcessor.Dispose();
+                AudioProcessor = null;
             }
         }
 
@@ -625,6 +652,38 @@
                 sourceOffset += samplesToAverage * SampleBlockSize;
                 targetOffset += SampleBlockSize;
             }
+        }
+
+        /// <summary>
+        /// Reads from the Audio Buffer and uses the SoundTouch audio processor to adjust tempo
+        /// The result is put to the first requestedBytes count of the ReadBuffer.
+        /// This feature is experimental
+        /// </summary>
+        /// <param name="requestedBytes">The requested bytes.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ReadAndUseAudioProcessor(int requestedBytes)
+        {
+            if (AudioProcessorBuffer == null || AudioProcessorBuffer.Length < (int)(requestedBytes * Constants.MaxSpeedRatio))
+                AudioProcessorBuffer = new short[(int)(requestedBytes * Constants.MaxSpeedRatio / BytesPerSample)];
+
+            var speedRatio = SpeedRatio;
+            var bytesToRead = (int)(requestedBytes * speedRatio).ToMultipleOf(SampleBlockSize);
+            var samplesToRead = bytesToRead / SampleBlockSize;
+            var samplesToRequest = requestedBytes / SampleBlockSize;
+            AudioProcessor.Tempo = Convert.ToSingle(speedRatio);
+
+            while (AudioProcessor.AvailableSampleCount < samplesToRequest && AudioBuffer != null)
+            {
+                var realBytesToRead = Math.Min(AudioBuffer.ReadableCount, bytesToRead);
+                realBytesToRead = (int)(realBytesToRead * 1.0).ToMultipleOf(SampleBlockSize);
+                AudioBuffer.Read(realBytesToRead, ReadBuffer, 0);
+                Buffer.BlockCopy(ReadBuffer, 0, AudioProcessorBuffer, 0, realBytesToRead);
+                AudioProcessor.PutSamplesI16(AudioProcessorBuffer, (uint)(realBytesToRead / SampleBlockSize));
+            }
+
+            uint numSamples = AudioProcessor.ReceiveSamplesI16(AudioProcessorBuffer, (uint)samplesToRequest);
+            Array.Clear(ReadBuffer, 0, ReadBuffer.Length);
+            Buffer.BlockCopy(AudioProcessorBuffer, 0, ReadBuffer, 0, (int)(numSamples * SampleBlockSize));
         }
 
         /// <summary>
