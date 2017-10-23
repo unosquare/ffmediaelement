@@ -133,7 +133,7 @@
         /// It reports on DownloadProgress by enqueueing an update to the property
         /// in order to avoid any kind of disruption to this thread caused by the UI thread.
         /// </summary>
-        internal async void RunPacketReadingWorker()
+        internal void RunPacketReadingWorker()
         {
             try
             {
@@ -203,7 +203,7 @@
 
                     // Wait some if we have a full packet buffer or we are unable to read more packets (i.e. EOF).
                     if (mediaContainer.Components.PacketBufferLength >= DownloadCacheLength || CanReadMorePackets == false || currentBytesRead <= 0)
-                        await Task.Delay(1);
+                        Task.Delay(1).GetAwaiter().GetResult();
                 }
             }
             catch (ThreadAbortException)
@@ -225,7 +225,7 @@
         /// many frames as possible in each frame queue and
         /// up to the MaxFrames on each component
         /// </summary>
-        internal async void RunFrameDecodingWorker()
+        internal void RunFrameDecodingWorker()
         {
             try
             {
@@ -472,7 +472,7 @@
                     // Give it a break if there was nothing to decode.
                     // We probably need to wait for some more input
                     if (decodedFrameCount <= 0 && Commands.PendingCount <= 0)
-                        await Task.Delay(1);
+                        Task.Delay(1).GetAwaiter().GetResult();
 
                     #endregion
                 }
@@ -496,7 +496,7 @@
         /// block buffer. This task is responsible for keeping track of the clock
         /// and calling the render methods appropriate for the current clock position.
         /// </summary>
-        internal async void RunBlockRenderingWorker()
+        internal void RunBlockRenderingWorker()
         {
             try
             {
@@ -591,7 +591,7 @@
 
                     // Delay the thread for a bit if we have no more stuff to process
                     if (IsSeeking == false && renderedBlockCount <= 0 && Commands.PendingCount <= 0)
-                        await Task.Delay(1);
+                        Task.Delay(1).GetAwaiter().GetResult();
 
                     #endregion
                 }

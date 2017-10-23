@@ -54,6 +54,8 @@
 
         #region Methods
 
+        #region Synchronous, Direct Command Handlers: Priority 0
+
         /// <summary>
         /// Opens the specified URI.
         /// The command is processed in a Thread Pool Thread.
@@ -73,6 +75,27 @@
 
             // Debug.Assert(MediaElement.IsOpen == true && MediaElement.IsOpening == false && command.HasCompleted, "Synchronous conditions");
         }
+
+        /// <summary>
+        /// Closes the specified media.
+        /// This command gets processed in a threadpool thread.
+        /// </summary>
+        public void Close()
+        {
+            lock (SyncLock)
+            {
+                Commands.Clear();
+            }
+
+            // Process the command in a background thread as opposed
+            // to in the thread that it was called to prevent blocking.
+            var command = new CloseCommand(this);
+            ExecuteAndWaitFor(command);
+        }
+
+        #endregion
+
+        #region Singleton, Asynchronous Command Handlers: Priority 1
 
         /// <summary>
         /// Starts playing the open media URI.
@@ -116,6 +139,7 @@
 
         /// <summary>
         /// Pauses and rewinds the media
+        /// This command invalidates all queued commands
         /// </summary>
         public void Stop()
         {
@@ -134,8 +158,13 @@
             WaitFor(command);
         }
 
+        #endregion
+
+        #region Queued, Asynchronous Command Handlers: Priority 2
+
         /// <summary>
         /// Seeks to the specified position within the media.
+        /// This command is a queued command
         /// </summary>
         /// <param name="position">The position.</param>
         public void Seek(TimeSpan position)
@@ -143,7 +172,7 @@
             SeekCommand command = null;
             lock (SyncLock)
             {
-                command = Commands.FirstOrDefault(c => c.CommandType == MediaCommandType.Seek) as SeekCommand;
+                command = Commands.LastOrDefault(c => c.CommandType == MediaCommandType.Seek) as SeekCommand;
                 if (command == null)
                 {
                     command = new SeekCommand(this, position);
@@ -156,25 +185,10 @@
             }
         }
 
-        /// <summary>
-        /// Closes the specified media.
-        /// This command gets processed in a threadpool thread.
-        /// </summary>
-        public void Close()
-        {
-            lock (SyncLock)
-            {
-                Commands.Clear();
-            }
-
-            // Process the command in a background thread as opposed
-            // to in the thread that it was called to prevent blocking.
-            var command = new CloseCommand(this);
-            ExecuteAndWaitFor(command);
-        }
 
         /// <summary>
         /// Sets the playback speed ratio.
+        /// This command is a queued command
         /// </summary>
         /// <param name="targetSpeedRatio">The target speed ratio.</param>
         public void SetSpeedRatio(double targetSpeedRatio)
@@ -182,7 +196,7 @@
             SpeedRatioCommand command = null;
             lock (SyncLock)
             {
-                command = Commands.FirstOrDefault(c => c.CommandType == MediaCommandType.SetSpeedRatio) as SpeedRatioCommand;
+                command = Commands.LastOrDefault(c => c.CommandType == MediaCommandType.SetSpeedRatio) as SpeedRatioCommand;
                 if (command == null)
                 {
                     command = new SpeedRatioCommand(this, targetSpeedRatio);
@@ -194,6 +208,8 @@
                 }
             }
         }
+
+        #endregion        
 
         /// <summary>
         /// Processes the next command in the command queue.
