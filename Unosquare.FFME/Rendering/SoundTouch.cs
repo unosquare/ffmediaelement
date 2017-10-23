@@ -26,10 +26,10 @@
         #region Private Members
 
         private const string SoundTouchLibrary = "SoundTouch.dll";
+        private readonly object SyncRoot = new object();
         private bool IsDisposed = false;
         private IntPtr handle;
-        private readonly object SyncRoot = new object();
-
+        
         #endregion
 
         #region Constructor
@@ -42,81 +42,118 @@
             handle = NativeMethods.CreateInstance();
         }
 
-        #endregion
-
-        #region Sample Stream Methods
-
         /// <summary>
-        /// Flushes the last samples from the processing pipeline to the output.
-        /// Clears also the internal processing buffers.
-        /// 
-        /// Note: This function is meant for extracting the last samples of a sound
-        /// stream. This function may introduce additional blank samples in the end
-        /// of the sound stream, and thus it's not recommended to call this function
-        /// in the middle of a sound stream.
+        /// Finalizes an instance of the <see cref="SoundTouch"/> class.
         /// </summary>
-        public void Flush()
+        ~SoundTouch()
         {
-            lock (SyncRoot) { NativeMethods.Flush(handle); }
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(false);
         }
 
         /// <summary>
-        /// Clears all the samples in the object's output and internal processing
-        /// buffers.
+        /// Settings as defined in SoundTouch.h
         /// </summary>
-        public void Clear()
+        public enum Setting
         {
-            lock (SyncRoot) { NativeMethods.Clear(handle); }
-        }
+            /// <summary>
+            /// Enable/disable anti-alias filter in pitch transposer (0 = disable)
+            /// </summary>
+            UseAntiAliasFilter = 0,
 
-        /// <summary>
-        /// Adds 'numSamples' pcs of samples from the 'samples' memory position into
-        /// the input of the object. Notice that sample rate _has_to_ be set before
-        /// calling this function, otherwise throws a runtime_error exception.
-        /// </summary>
-        /// <param name="samples">Sample buffer to input</param>
-        /// <param name="numSamples">Number of sample frames in buffer. Notice
-        /// that in case of multi-channel sound a single sample frame contains 
-        /// data for all channels</param>
-        public void PutSamples(float[] samples, uint numSamples)
-        {
-            lock (SyncRoot) { NativeMethods.PutSamples(handle, samples, numSamples); }
-        }
+            /// <summary>
+            /// Pitch transposer anti-alias filter length (8 .. 128 taps, default = 32)
+            /// </summary>
+            AntiAliasFilterLength = 1,
 
-        /// <summary>
-        /// int16 version of putSamples(): This accept int16 (short) sample data
-        /// and internally converts it to float format before processing
-        /// </summary>
-        /// <param name="samples">Sample input buffer.</param>
-        /// <param name="numSamples">Number of sample frames in buffer. Notice
-        /// that in case of multi-channel sound a single 
-        /// sample frame contains data for all channels.</param>
-        public void PutSamplesI16(short[] samples, uint numSamples)
-        {
-            lock (SyncRoot) { NativeMethods.PutSamples_i16(handle, samples, numSamples); }
-        }
+            /// <summary>
+            /// Enable/disable quick seeking algorithm in tempo changer routine
+            /// (enabling quick seeking lowers CPU utilization but causes a minor sound
+            ///  quality compromising)
+            /// </summary>
+            UseQuickSeek = 2,
 
-        /// <summary>
-        /// Receive processed samples from the processor.
-        /// </summary>
-        /// <param name="outBuffer">Buffer where to copy output samples</param>
-        /// <param name="maxSamples">Max number of sample frames to receive</param>
-        /// <returns></returns>
-        public uint ReceiveSamples(float[] outBuffer, uint maxSamples)
-        {
-            lock (SyncRoot) { return NativeMethods.ReceiveSamples(handle, outBuffer, maxSamples); }
-        }
+            /// <summary>
+            /// Time-stretch algorithm single processing sequence length in milliseconds. This determines 
+            /// to how long sequences the original sound is chopped in the time-stretch algorithm. 
+            /// See "STTypes.h" or README for more information.
+            /// </summary>
+            SequenceMilliseconds = 3,
 
-        /// <summary>
-        /// int16 version of receiveSamples(): This converts internal float samples
-        /// into int16 (short) return data type
-        /// </summary>
-        /// <param name="outBuffer">Buffer where to copy output samples.</param>
-        /// <param name="maxSamples">How many samples to receive at max.</param>
-        /// <returns>Number of received sample frames</returns>
-        public uint ReceiveSamplesI16(short[] outBuffer, uint maxSamples)
-        {
-            lock (SyncRoot) { return NativeMethods.ReceiveSamples_i16(handle, outBuffer, maxSamples); }
+            /// <summary>
+            /// Time-stretch algorithm seeking window length in milliseconds for algorithm that finds the 
+            /// best possible overlapping location. This determines from how wide window the algorithm 
+            /// may look for an optimal joining location when mixing the sound sequences back together. 
+            /// See "STTypes.h" or README for more information.
+            /// </summary>
+            SeekWindowMilliseconds = 4,
+
+            /// <summary>
+            /// Time-stretch algorithm overlap length in milliseconds. When the chopped sound sequences 
+            /// are mixed back together, to form a continuous sound stream, this parameter defines over 
+            /// how long period the two consecutive sequences are let to overlap each other. 
+            /// See "STTypes.h" or README for more information.
+            /// </summary>
+            OverlapMilliseconds = 5,
+
+            /// <summary>
+            /// Call "getSetting" with this ID to query processing sequence size in samples. 
+            /// This value gives approximate value of how many input samples you'll need to 
+            /// feed into SoundTouch after initial buffering to get out a new batch of
+            /// output samples. 
+            ///
+            /// This value does not include initial buffering at beginning of a new processing 
+            /// stream, use SETTING_INITIAL_LATENCY to get the initial buffering size.
+            ///
+            /// Notices: 
+            /// - This is read-only parameter, i.e. setSetting ignores this parameter
+            /// - This parameter value is not constant but change depending on 
+            ///   tempo/pitch/rate/samplerate settings.
+            /// </summary>
+            NominalInputSequence = 6,
+
+            /// <summary>
+            /// Call "getSetting" with this ID to query nominal average processing output 
+            /// size in samples. This value tells approcimate value how many output samples 
+            /// SoundTouch outputs once it does DSP processing run for a batch of input samples.
+            ///
+            /// Notices: 
+            /// - This is read-only parameter, i.e. setSetting ignores this parameter
+            /// - This parameter value is not constant but change depending on 
+            ///   tempo/pitch/rate/samplerate settings.
+            /// </summary>
+            NominalOutputSequence = 7,
+
+            /// <summary>
+            /// Call "getSetting" with this ID to query initial processing latency, i.e.
+            /// approx. how many samples you'll need to enter to SoundTouch pipeline before 
+            /// you can expect to get first batch of ready output samples out. 
+            ///
+            /// After the first output batch, you can then expect to get approx. 
+            /// SETTING_NOMINAL_OUTPUT_SEQUENCE ready samples out for every
+            /// SETTING_NOMINAL_INPUT_SEQUENCE samples that you enter into SoundTouch.
+            ///
+            /// Example:
+            ///     processing with parameter -tempo=5
+            ///     => initial latency = 5509 samples
+            ///        input sequence  = 4167 samples
+            ///        output sequence = 3969 samples
+            ///
+            /// Accordingly, you can expect to feed in approx. 5509 samples at beginning of 
+            /// the stream, and then you'll get out the first 3969 samples. After that, for 
+            /// every approx. 4167 samples that you'll put in, you'll receive again approx. 
+            /// 3969 samples out.
+            ///
+            /// This also means that average latency during stream processing is 
+            /// INITIAL_LATENCY-OUTPUT_SEQUENCE/2, in the above example case 5509-3969/2 
+            /// = 3524 samples
+            /// 
+            /// Notices: 
+            /// - This is read-only parameter, i.e. setSetting ignores this parameter
+            /// - This parameter value is not constant but change depending on 
+            ///   tempo/pitch/rate/samplerate settings.
+            /// </summary>
+            InitialLatency = 8,
         }
 
         #endregion
@@ -151,22 +188,6 @@
                 {
                     return false;
                 }
-            }
-        }
-
-        /// <summary>
-        /// Changes or gets a setting controlling the processing system behaviour. See the
-        /// 'SETTING_...' defines for available setting ID's.
-        /// </summary>
-        public int this[Setting settingId]
-        {
-            get
-            {
-                lock (SyncRoot) { return NativeMethods.GetSetting(handle, (int)settingId); }
-            }
-            set
-            {
-                lock (SyncRoot) { NativeMethods.SetSetting(handle, (int)settingId, value); }
             }
         }
 
@@ -289,9 +310,116 @@
             set { lock (SyncRoot) { NativeMethods.SetPitchSemiTones(handle, value); } }
         }
 
+        /// <summary>
+        /// Changes or gets a setting controlling the processing system behaviour. See the
+        /// 'SETTING_...' defines for available setting ID's.
+        /// </summary>
+        /// <value>
+        /// The <see cref="System.Int32"/>.
+        /// </value>
+        /// <param name="settingId">The setting identifier.</param>
+        /// <returns>The value of the setting</returns>
+        public int this[Setting settingId]
+        {
+            get
+            {
+                lock (SyncRoot) { return NativeMethods.GetSetting(handle, (int)settingId); }
+            }
+            set
+            {
+                lock (SyncRoot) { NativeMethods.SetSetting(handle, (int)settingId, value); }
+            }
+        }
+
+        #endregion
+
+        #region Sample Stream Methods
+
+        /// <summary>
+        /// Flushes the last samples from the processing pipeline to the output.
+        /// Clears also the internal processing buffers.
+        /// 
+        /// Note: This function is meant for extracting the last samples of a sound
+        /// stream. This function may introduce additional blank samples in the end
+        /// of the sound stream, and thus it's not recommended to call this function
+        /// in the middle of a sound stream.
+        /// </summary>
+        public void Flush()
+        {
+            lock (SyncRoot) { NativeMethods.Flush(handle); }
+        }
+
+        /// <summary>
+        /// Clears all the samples in the object's output and internal processing
+        /// buffers.
+        /// </summary>
+        public void Clear()
+        {
+            lock (SyncRoot) { NativeMethods.Clear(handle); }
+        }
+
+        /// <summary>
+        /// Adds 'numSamples' pcs of samples from the 'samples' memory position into
+        /// the input of the object. Notice that sample rate _has_to_ be set before
+        /// calling this function, otherwise throws a runtime_error exception.
+        /// </summary>
+        /// <param name="samples">Sample buffer to input</param>
+        /// <param name="numSamples">Number of sample frames in buffer. Notice
+        /// that in case of multi-channel sound a single sample frame contains 
+        /// data for all channels</param>
+        public void PutSamples(float[] samples, uint numSamples)
+        {
+            lock (SyncRoot) { NativeMethods.PutSamples(handle, samples, numSamples); }
+        }
+
+        /// <summary>
+        /// int16 version of putSamples(): This accept int16 (short) sample data
+        /// and internally converts it to float format before processing
+        /// </summary>
+        /// <param name="samples">Sample input buffer.</param>
+        /// <param name="numSamples">Number of sample frames in buffer. Notice
+        /// that in case of multi-channel sound a single 
+        /// sample frame contains data for all channels.</param>
+        public void PutSamplesI16(short[] samples, uint numSamples)
+        {
+            lock (SyncRoot) { NativeMethods.PutSamples_i16(handle, samples, numSamples); }
+        }
+
+        /// <summary>
+        /// Receive processed samples from the processor.
+        /// </summary>
+        /// <param name="outBuffer">Buffer where to copy output samples</param>
+        /// <param name="maxSamples">Max number of sample frames to receive</param>
+        /// <returns>The number of samples received</returns>
+        public uint ReceiveSamples(float[] outBuffer, uint maxSamples)
+        {
+            lock (SyncRoot) { return NativeMethods.ReceiveSamples(handle, outBuffer, maxSamples); }
+        }
+
+        /// <summary>
+        /// int16 version of receiveSamples(): This converts internal float samples
+        /// into int16 (short) return data type
+        /// </summary>
+        /// <param name="outBuffer">Buffer where to copy output samples.</param>
+        /// <param name="maxSamples">How many samples to receive at max.</param>
+        /// <returns>Number of received sample frames</returns>
+        public uint ReceiveSamplesI16(short[] outBuffer, uint maxSamples)
+        {
+            lock (SyncRoot) { return NativeMethods.ReceiveSamples_i16(handle, outBuffer, maxSamples); }
+        }
+
         #endregion
 
         #region IDisposable Support
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
@@ -314,27 +442,9 @@
             }
         }
 
-        /// <summary>
-        /// Finalizes an instance of the <see cref="SoundTouch"/> class.
-        /// </summary>
-        ~SoundTouch()
-        {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-            Dispose(false);
-        }
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
         #endregion
 
-        #region Support Classes and Enumerations
+        #region Native Methods
 
         /// <summary>
         /// Provides direct access to mapped DLL methods
@@ -412,111 +522,6 @@
 
             [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_isEmpty")]
             public static extern int IsEmpty(IntPtr h);
-        }
-
-        /// <summary>
-        /// Settings as defined in SoundTouch.h
-        /// </summary>
-        public enum Setting
-        {
-            /// <summary>
-            /// Enable/disable anti-alias filter in pitch transposer (0 = disable)
-            /// </summary>
-            UseAntiAliasFilter = 0,
-
-            /// <summary>
-            /// Pitch transposer anti-alias filter length (8 .. 128 taps, default = 32)
-            /// </summary>
-            AntiAliasFilterLength = 1,
-
-            /// <summary>
-            /// Enable/disable quick seeking algorithm in tempo changer routine
-            /// (enabling quick seeking lowers CPU utilization but causes a minor sound
-            ///  quality compromising)
-            /// </summary>
-            UseQuickSeek = 2,
-
-            /// <summary>
-            /// Time-stretch algorithm single processing sequence length in milliseconds. This determines 
-            /// to how long sequences the original sound is chopped in the time-stretch algorithm. 
-            /// See "STTypes.h" or README for more information.
-            /// </summary>
-            SequenceMilliseconds = 3,
-
-            /// <summary>
-            /// Time-stretch algorithm seeking window length in milliseconds for algorithm that finds the 
-            /// best possible overlapping location. This determines from how wide window the algorithm 
-            /// may look for an optimal joining location when mixing the sound sequences back together. 
-            /// See "STTypes.h" or README for more information.
-            /// </summary>
-            SeekWindowMilliseconds = 4,
-
-            /// <summary>
-            /// Time-stretch algorithm overlap length in milliseconds. When the chopped sound sequences 
-            /// are mixed back together, to form a continuous sound stream, this parameter defines over 
-            /// how long period the two consecutive sequences are let to overlap each other. 
-            /// See "STTypes.h" or README for more information.
-            /// </summary>
-            OverlapMilliseconds = 5,
-
-            /// <summary>
-            /// Call "getSetting" with this ID to query processing sequence size in samples. 
-            /// This value gives approximate value of how many input samples you'll need to 
-            /// feed into SoundTouch after initial buffering to get out a new batch of
-            /// output samples. 
-            ///
-            /// This value does not include initial buffering at beginning of a new processing 
-            /// stream, use SETTING_INITIAL_LATENCY to get the initial buffering size.
-            ///
-            /// Notices: 
-            /// - This is read-only parameter, i.e. setSetting ignores this parameter
-            /// - This parameter value is not constant but change depending on 
-            ///   tempo/pitch/rate/samplerate settings.
-            /// </summary>
-            NominalInputSequence = 6,
-
-            /// <summary>
-            /// Call "getSetting" with this ID to query nominal average processing output 
-            /// size in samples. This value tells approcimate value how many output samples 
-            /// SoundTouch outputs once it does DSP processing run for a batch of input samples.
-            ///
-            /// Notices: 
-            /// - This is read-only parameter, i.e. setSetting ignores this parameter
-            /// - This parameter value is not constant but change depending on 
-            ///   tempo/pitch/rate/samplerate settings.
-            /// </summary>
-            NominalOutputSequence = 7,
-
-            /// <summary>
-            /// Call "getSetting" with this ID to query initial processing latency, i.e.
-            /// approx. how many samples you'll need to enter to SoundTouch pipeline before 
-            /// you can expect to get first batch of ready output samples out. 
-            ///
-            /// After the first output batch, you can then expect to get approx. 
-            /// SETTING_NOMINAL_OUTPUT_SEQUENCE ready samples out for every
-            /// SETTING_NOMINAL_INPUT_SEQUENCE samples that you enter into SoundTouch.
-            ///
-            /// Example:
-            ///     processing with parameter -tempo=5
-            ///     => initial latency = 5509 samples
-            ///        input sequence  = 4167 samples
-            ///        output sequence = 3969 samples
-            ///
-            /// Accordingly, you can expect to feed in approx. 5509 samples at beginning of 
-            /// the stream, and then you'll get out the first 3969 samples. After that, for 
-            /// every approx. 4167 samples that you'll put in, you'll receive again approx. 
-            /// 3969 samples out.
-            ///
-            /// This also means that average latency during stream processing is 
-            /// INITIAL_LATENCY-OUTPUT_SEQUENCE/2, in the above example case 5509-3969/2 
-            /// = 3524 samples
-            /// 
-            /// Notices: 
-            /// - This is read-only parameter, i.e. setSetting ignores this parameter
-            /// - This parameter value is not constant but change depending on 
-            ///   tempo/pitch/rate/samplerate settings.
-            /// </summary>
-            InitialLatency = 8,
         }
 
         #endregion
