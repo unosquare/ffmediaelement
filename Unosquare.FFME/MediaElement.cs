@@ -380,7 +380,7 @@
                 m_IsDisposing.Value = true;
 
                 // free managed resources
-                Commands.Close();
+                Commands.Close().Wait();
 
                 if (Container != null)
                 {

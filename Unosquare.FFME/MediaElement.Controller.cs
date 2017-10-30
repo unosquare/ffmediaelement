@@ -60,7 +60,7 @@
         /// </summary>
         public void Close()
         {
-            Commands.Close();
+            Commands.Close().Wait();
         }
 
         #endregion

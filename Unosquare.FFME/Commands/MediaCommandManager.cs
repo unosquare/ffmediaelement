@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using System.Windows.Threading;
+    using Unosquare.FFME.Core;
 
     /// <summary>
     /// Represents a singlo point of contact for media command excution.
@@ -13,9 +14,13 @@
     {
         #region Private Declarations
 
+        private readonly AtomicBoolean IsOpening = new AtomicBoolean() { Value = false };
+        private readonly AtomicBoolean IsClosing = new AtomicBoolean() { Value = false };
         private readonly object SyncLock = new object();
         private readonly List<MediaCommand> Commands = new List<MediaCommand>();
         private readonly MediaElement m_MediaElement;
+
+        private MediaCommand ExecutingCommand = null;
 
         #endregion
 
@@ -54,6 +59,40 @@
 
         #region Methods
 
+        /// <summary>
+        /// Gets a value indicating whether commands can be executed.
+        /// Returns false if an Opening or Closing Command is in progress.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance can execute commands; otherwise, <c>false</c>.
+        /// </value>
+        private bool CanExecuteCommands
+        {
+            get
+            {
+                if (MediaElement == null || MediaElement.IsDisposed)
+                {
+                    MediaElement?.Logger.Log(
+                        MediaLogMessageType.Warning,
+                        $"{nameof(MediaCommandManager)}: Associated {nameof(MediaElement)} is null, closing, or disposed.");
+
+                    return false;
+                }
+
+                if (IsOpening.Value || IsOpening.Value || MediaElement.IsOpening)
+                {
+                    MediaElement?.Logger.Log(
+                        MediaLogMessageType.Warning,
+                        $"{nameof(MediaCommandManager)}: Operation already in progress."
+                        + $" {nameof(IsOpening)} = {IsOpening.Value}; {nameof(IsClosing)} = {IsClosing.Value}.");
+
+                    return false;
+                }
+
+                return true;
+            }
+        }
+
         #region Synchronous, Direct Command Handlers: Priority 0
 
         /// <summary>
@@ -61,36 +100,96 @@
         /// The command is processed in a Thread Pool Thread.
         /// </summary>
         /// <param name="uri">The URI.</param>
-        public void Open(Uri uri)
+        /// <returns>The awaitable Open operation</returns>
+        public DispatcherOperation Open(Uri uri)
         {
-            lock (SyncLock)
+            // Check Uri Argument
+            if (uri == null)
             {
-                Commands.Clear();
+                MediaElement?.Logger.Log(
+                    MediaLogMessageType.Warning,
+                    $"{nameof(MediaCommandManager)}.{nameof(Open)}: '{nameof(uri)}' cannot be null");
+
+                return Dispatcher.CurrentDispatcher.CreatePumpOperation();
             }
 
-            // Process the command in a background thread as opposed
-            // to in the thread that it was called to prevent blocking.
-            var command = new OpenCommand(this, uri);
-            ExecuteAndWaitFor(command);
+            if (CanExecuteCommands == false)
+                return Dispatcher.CurrentDispatcher.CreatePumpOperation();
+            else
+                IsOpening.Value = true;
 
-            // Debug.Assert(MediaElement.IsOpen == true && MediaElement.IsOpening == false && command.HasCompleted, "Synchronous conditions");
+            var command = new OpenCommand(this, uri);
+            ExecutingCommand = command;
+            ClearCommandQueue();
+
+            var backgroundTask = Task.Run(() => 
+            {
+                try
+                {
+                    if (command.HasCompleted) return;
+                    command.Execute();
+                }
+                catch (Exception ex)
+                {
+                    MediaElement?.Logger.Log(
+                        MediaLogMessageType.Error,
+                        $"{nameof(MediaCommandManager)}.{nameof(Open)}: {ex.GetType()} - {ex.Message}");
+                }
+                finally
+                {
+                    ExecutingCommand?.Complete();
+                    ExecutingCommand = null;
+                    IsOpening.Value = false;
+                }
+
+                System.Diagnostics.Debug.Assert(
+                    MediaElement.IsOpen == true && MediaElement.IsOpening == false && command.HasCompleted,
+                    "Synchronous conditions not met");
+            });
+
+            var operation = Dispatcher.CurrentDispatcher.CreateAsynchronousPumpWaiter(backgroundTask);
+            return operation;
         }
 
         /// <summary>
         /// Closes the specified media.
         /// This command gets processed in a threadpool thread.
         /// </summary>
-        public void Close()
+        /// <returns>The awaitable close operation</returns>
+        public DispatcherOperation Close()
         {
-            lock (SyncLock)
-            {
-                Commands.Clear();
-            }
+            if (CanExecuteCommands == false)
+                return Dispatcher.CurrentDispatcher.CreatePumpOperation();
+            else
+                IsClosing.Value = true;
 
-            // Process the command in a background thread as opposed
-            // to in the thread that it was called to prevent blocking.
             var command = new CloseCommand(this);
-            ExecuteAndWaitFor(command);
+            ExecutingCommand = command;
+            ClearCommandQueue();
+
+            var backgroundTask = Task.Run(() =>
+            {
+                try
+                {
+                    if (command.HasCompleted) return;
+                    command.Execute();
+                }
+                catch (Exception ex)
+                {
+                    MediaElement?.Logger.Log(
+                        MediaLogMessageType.Error,
+                        $"{nameof(MediaCommandManager)}.{nameof(Close)}: {ex.GetType()} - {ex.Message}");
+                }
+                finally
+                {
+                    ExecutingCommand?.Complete();
+                    ExecutingCommand = null;
+                    IsClosing.Value = false;
+                }
+            });
+
+            var operation = Dispatcher.CurrentDispatcher.CreateAsynchronousPumpWaiter(backgroundTask);
+            return operation;
         }
 
         #endregion
@@ -258,6 +357,22 @@
         }
 
         /// <summary>
+        /// Clears the command queue.
+        /// </summary>
+        private void ClearCommandQueue()
+        {
+            lock (SyncLock)
+            {
+                // Mark every command as completed
+                foreach (var command in Commands)
+                    command?.Complete();
+
+                // Clear all commands from Queue
+                Commands.Clear();
+            }
+        }
+
+        /// <summary>
         /// Waits for the command to complete execution.
         /// </summary>
         /// <param name="command">The command.</param>
@@ -266,34 +381,6 @@
             var waitTask = Task.Run(async () =>
             {
                 while (command.HasCompleted == false && MediaElement.IsOpen)
-                    await Task.Delay(10);
-            });
-
-            while (waitTask.IsCompleted == false)
-            {
-                // Pump invoke
-                Dispatcher.CurrentDispatcher.Invoke(
-                    DispatcherPriority.Background,
-                    new Action(() => { }));
-            }
-        }
-
-        /// <summary>
-        /// Calls the execution of the given command instance 
-        /// and wait for its completion without blocking the dispatcher
-        /// </summary>
-        /// <param name="command">The command.</param>
-        private void ExecuteAndWaitFor(MediaCommand command)
-        {
-            var executeTask = Task.Run(() =>
-            {
-                if (command.HasCompleted) return;
-                command.Execute();
-            });
-
-            var waitTask = Task.Run(async () =>
-            {
-                while (command.HasCompleted == false)
                     await Task.Delay(10);
             });
 

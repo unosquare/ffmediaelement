@@ -259,7 +259,7 @@
             return baseValue;
         }
 
-        private static void OnSourcePropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
+        private static async void OnSourcePropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
         {
             var element = dependencyObject as MediaElement;
             if (element == null) return;
@@ -273,15 +273,14 @@
 
             if (uri != null)
             {
-                element.Commands.Close();
-                element.Commands.Open(uri);
-
+                await element.Commands.Close();
+                await element.Commands.Open(uri);
                 if (element.LoadedBehavior == System.Windows.Controls.MediaState.Play || element.CanPause == false)
                     element.Commands.Play();
             }
             else
             {
-                element.Commands.Close();
+                await element.Commands.Close();
             }
         }
 

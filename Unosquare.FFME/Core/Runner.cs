@@ -3,6 +3,7 @@
     using System;
     using System.Security.Permissions;
     using System.Threading;
+    using System.Threading.Tasks;
     using System.Windows;
     using System.Windows.Threading;
 
@@ -39,6 +40,45 @@
         public static void UIEnqueueInvoke(DispatcherPriority priority, Delegate action, params object[] args)
         {
             UIDispatcher?.BeginInvoke(action, priority, args);
+        }
+
+        /// <summary>
+        /// Creates an empty pump operation with background priority
+        /// </summary>
+        /// <param name="dispatcher">The dispatcher.</param>
+        /// <returns>an empty pump operation</returns>
+        public static DispatcherOperation CreatePumpOperation(this Dispatcher dispatcher)
+        {
+            return dispatcher.BeginInvoke(
+                DispatcherPriority.Background, new Action(async () => { await Dispatcher.Yield(); }));
+        }
+
+        /// <summary>
+        /// Creates the asynchronous waiter.
+        /// </summary>
+        /// <param name="dispatcher">The dispatcher.</param>
+        /// <param name="backgroundTask">The background task.</param>
+        /// <returns>
+        /// a dsipatcher operation that can be awaited
+        /// </returns>
+        public static DispatcherOperation CreateAsynchronousPumpWaiter(this Dispatcher dispatcher, Task backgroundTask)
+        {
+            var operation = dispatcher.BeginInvoke(new Action(() =>
+            {
+                var pumpTimes = 0;
+                while (backgroundTask.IsCompleted == false)
+                {
+                    // Pump invoke
+                    pumpTimes++;
+                    Dispatcher.CurrentDispatcher.Invoke(
+                        DispatcherPriority.Background,
+                        new Action(async () => { await Dispatcher.Yield(); }));
+                }
+
+                System.Diagnostics.Debug.WriteLine($"{nameof(CreateAsynchronousPumpWaiter)}: Pump Times: {pumpTimes}");
+            }), DispatcherPriority.Input);
+
+            return operation;
         }
 
         /// <summary>
