@@ -22,6 +22,9 @@
     }
   ],
   "build": {
+    "template": [
+      "best-practices/templates/default"
+    ],
     "content": [
       {
         "files": [
@@ -37,9 +40,16 @@
         ]
       }
     ],
+    "resource": [
+      {
+        "files": [ "best-practices/resources/**", "ffme.png"]
+      }
+    ],
     "globalMetadata": {
       "_appTitle": "FFME: WPF MediaElement replacement based on FFmpeg",
-      "_enableSearch": true
+      "_enableSearch": true,
+      "_docLogo":  "ffme.png",
+      "_appLogoPath": "best-practices/resources/images/logo.png"
     },
     "dest": "_site"
   }
