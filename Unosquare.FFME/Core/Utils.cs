@@ -310,7 +310,7 @@
                 // and because by default FFmpeg is not thread-safe,
                 // https://stackoverflow.com/questions/13888915/thread-safety-of-libav-ffmpeg
                 // we need to register a lock manager with av_lockmgr_register
-                // Just like in https://raw.githubusercontent.com/FFmpeg/FFmpeg/release/3.2/ffplay.c
+                // Just like in https://raw.githubusercontent.com/FFmpeg/FFmpeg/release/3.4/ffplay.c
                 if (Constants.EnableFFmpegLockManager)
                     ffmpeg.av_lockmgr_register(FFmpegLockManagerCallback);
 

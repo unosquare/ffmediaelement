@@ -329,7 +329,7 @@
             RefreshHistoryItems();
 
             // Change the default location of the ffmpeg binaries
-            // You can get the binaries here: http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.2.4-win32-shared.zip
+            // You can get the binaries here: http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip
             Unosquare.FFME.MediaElement.FFmpegDirectory = Config.FFmpegPath;
 
             //ConsoleManager.ShowConsole();
