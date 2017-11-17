@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.16
+VisualStudioVersion = 15.0.27019.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unosquare.FFME", "Unosquare.FFME\Unosquare.FFME.csproj", "{A6EB99A6-AAE2-4E6E-AB9E-93992CE5B84D}"
 EndProject
@@ -19,6 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Support", "Support", "{8BF2
 		toc.yml = toc.yml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unosquare.FFME.Common", "Unosquare.FFME.Common\Unosquare.FFME.Common.csproj", "{76B2DB70-C8AB-4517-8AFB-051383E496B7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{DC7D71DA-3D51-4252-BFC8-52CA269A311F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DC7D71DA-3D51-4252-BFC8-52CA269A311F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DC7D71DA-3D51-4252-BFC8-52CA269A311F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76B2DB70-C8AB-4517-8AFB-051383E496B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76B2DB70-C8AB-4517-8AFB-051383E496B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76B2DB70-C8AB-4517-8AFB-051383E496B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76B2DB70-C8AB-4517-8AFB-051383E496B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
