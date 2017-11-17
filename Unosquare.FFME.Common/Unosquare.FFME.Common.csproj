@@ -3,11 +3,24 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>Unosquare.FFME</RootNamespace>
+    <Version>3.4.0.1</Version>
+    <Authors>Mario Di Vece and Contributors to the FFME project</Authors>
+    <Company>Unosquare SA de CV</Company>
+    <Product>FFME Cross-Platform decoding logic</Product>
+    <Description>Contains all portable, corss platform decoding logic</Description>
+    <Copyright>Unosquare SA de CV, Mario Di Vece, and Contributors, (C) 2017</Copyright>
+    <PackageProjectUrl>https://github.com/unosquare/ffmediaelement</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/unosquare/ffmediaelement/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageIconUrl>https://github.com/unosquare/ffmediaelement/blob/master/ffme.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/unosquare/ffmediaelement</RepositoryUrl>
+    <RepositoryType>GitHub</RepositoryType>
+    <PackageTags>FFmpeg, Media, Audio, Video, Decoding</PackageTags>
+    <AssemblyName>ffmecommon</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="FFmpeg.AutoGen">
-      <Version>3.3.3.9</Version>
+      <Version>3.4.0</Version>
     </PackageReference>
   </ItemGroup>
 
