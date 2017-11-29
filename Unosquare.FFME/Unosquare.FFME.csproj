@@ -106,17 +106,7 @@
     <Compile Include="Core\CustomDispatcherTimer.cs" />
     <Compile Include="Core\NativeMethods.cs" />
     <Compile Include="Core\Runner.cs" />
-    <Compile Include="Decoding\ClosedCaptions\CCColorType.cs" />
-    <Compile Include="Decoding\ClosedCaptions\CCMiscCommandType.cs" />
-    <Compile Include="Decoding\ClosedCaptions\CCPacketType.cs" />
-    <Compile Include="Decoding\ClosedCaptions\CCStyleType.cs" />
-    <Compile Include="Decoding\ClosedCaptions\CCXdsClassType.cs" />
-    <Compile Include="Decoding\ClosedCaptions\ClosedCaptionCollection.cs" />
-    <Compile Include="Decoding\ClosedCaptions\ClosedCaptionPacket.cs" />
-    <Compile Include="Decoding\HardwareAccelerator.cs" />
-    <Compile Include="Decoding\SeekRequirement.cs" />
     <Compile Include="MediaElement.Events.cs" />
-    <Compile Include="MediaInfo.cs" />
     <Compile Include="MediaElement.Workers.cs" />
     <Compile Include="Rendering\SoundTouch.cs" />
     <Compile Include="Rendering\Wave\IWaveProvider.cs" />
@@ -131,23 +121,6 @@
     <Compile Include="Rendering\Wave\WaveOutBuffer.cs" />
     <Compile Include="Rendering\Wave\WaveOutCapabilities.cs" />
     <Compile Include="Core\WPFConstants.cs" />
-    <Compile Include="Decoding\AudioBlock.cs" />
-    <Compile Include="Decoding\AudioFrame.cs" />
-    <Compile Include="Decoding\MediaBlockBuffer.cs" />
-    <Compile Include="Decoding\AudioComponent.cs" />
-    <Compile Include="MediaContainerException.cs" />
-    <Compile Include="Decoding\MediaFrame.cs" />
-    <Compile Include="Decoding\MediaBlock.cs" />
-    <Compile Include="Decoding\MediaComponent.cs" />
-    <Compile Include="Decoding\MediaComponentSet.cs" />
-    <Compile Include="Decoding\SubtitleBlock.cs" />
-    <Compile Include="Decoding\SubtitleFrame.cs" />
-    <Compile Include="Decoding\VideoBlock.cs" />
-    <Compile Include="Decoding\VideoFrame.cs" />
-    <Compile Include="Decoding\MediaContainer.cs" />
-    <Compile Include="MediaOptions.cs" />
-    <Compile Include="Decoding\PacketQueue.cs" />
-    <Compile Include="MediaCodecOptions.cs" />
     <Compile Include="MediaElement.Controller.cs" />
     <Compile Include="MediaElement.cs" />
     <Compile Include="MediaElement.DependencyProperties.cs" />
@@ -157,9 +130,7 @@
     <Compile Include="Rendering\Wave\WaveOutSupport.cs" />
     <Compile Include="Rendering\Wave\WavePlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Decoding\SubtitleComponent.cs" />
     <Compile Include="Core\WPFUtils.cs" />
-    <Compile Include="Decoding\VideoComponent.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
