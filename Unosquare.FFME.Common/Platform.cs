@@ -1,5 +1,7 @@
 ﻿namespace Unosquare.FFME
 {
+    using Core;
+    using Rendering;
     using System;
 
     public enum DispatchPriority
@@ -65,5 +67,14 @@
         /// This is a way to execute code in a fire-and-forget style
         /// </summary>
         public static Action<DispatchPriority, Delegate, object[]> UIEnqueueInvoke;
+
+        /// <summary>
+        /// Creates a new instance of the renderer of the given type.
+        /// </summary>
+        /// <param name="mediaType">Type of the media.</param>
+        /// <param name="mediaElementCore">Media element core control.</param>
+        /// <returns>The renderer that was created</returns>
+        /// <exception cref="ArgumentException">mediaType has to be of a vild type</exception>
+        public static Func<MediaType, MediaElementCore, IRenderer> CreateRenderer;
     }
 }

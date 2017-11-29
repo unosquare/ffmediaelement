@@ -11,7 +11,7 @@
         /// <summary>
         /// Gets the parent media element.
         /// </summary>
-        MediaElement MediaElement { get; }
+        MediaElementCore MediaElementCore { get; }
 
         /// <summary>
         /// Waits for the renderer to be ready to render.

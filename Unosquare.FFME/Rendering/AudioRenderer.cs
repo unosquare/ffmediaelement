@@ -48,10 +48,10 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="AudioRenderer"/> class.
         /// </summary>
-        /// <param name="mediaElement">The media element.</param>
-        public AudioRenderer(MediaElement mediaElement)
+        /// <param name="mediaElementCore">The core media element.</param>
+        public AudioRenderer(MediaElementCore mediaElementCore)
         {
-            MediaElement = mediaElement;
+            MediaElementCore = mediaElementCore;
 
             m_Format = new WaveFormat(AudioParams.Output.SampleRate, AudioParams.OutputBitsPerSample, AudioParams.Output.ChannelCount);
             if (WaveFormat.BitsPerSample != 16 || WaveFormat.Channels != 2)
@@ -82,9 +82,14 @@
         }
 
         /// <summary>
-        /// Gets the parent media element.
+        /// Gets the parent media element (platform specific).
         /// </summary>
-        public MediaElement MediaElement { get; private set; }
+        public MediaElement MediaElement => (MediaElement)MediaElementCore.Parent;
+
+        /// <summary>
+        /// Gets the core platform independent player component.
+        /// </summary>
+        public MediaElementCore MediaElementCore { get; }
 
         /// <summary>
         /// Gets or sets the volume.

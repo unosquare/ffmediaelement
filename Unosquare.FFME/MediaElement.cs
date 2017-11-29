@@ -2,6 +2,7 @@
 {
     using Commands;
     using Core;
+    using Rendering;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -110,6 +111,14 @@
             };
             Platform.UIInvoke = (priority, action) => Runner.UIInvoke((DispatcherPriority)priority, action);
             Platform.UIEnqueueInvoke = (priority, action, args) => Runner.UIEnqueueInvoke((DispatcherPriority)priority, action, args);
+            Platform.CreateRenderer = (mediaType, m) =>
+            {
+                if (mediaType == MediaType.Audio) return new AudioRenderer(m);
+                else if (mediaType == MediaType.Video) return new VideoRenderer(m);
+                else if (mediaType == MediaType.Subtitle) return new SubtitleRenderer(m);
+
+                throw new ArgumentException($"No suitable renderer for Media Type '{mediaType}'");
+            };
 
             // Simply forward the calls
             MediaElementCore.FFmpegMessageLogged += (o, e) => FFmpegMessageLogged?.Invoke(o, e);
@@ -289,6 +298,11 @@
         /// Gets the grid control holding the rest of the controls.
         /// </summary>
         internal Grid ContentGrid { get; }
+
+        /// <summary>
+        /// Gets the internal core player component.
+        /// </summary>
+        internal MediaElementCore MediaElementCore => mediaElementCore;
 
         #endregion
 

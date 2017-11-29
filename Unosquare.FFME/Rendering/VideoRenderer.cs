@@ -35,17 +35,22 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="VideoRenderer"/> class.
         /// </summary>
-        /// <param name="mediaElement">The media element.</param>
-        public VideoRenderer(MediaElement mediaElement)
+        /// <param name="mediaElementCore">The core media element.</param>
+        public VideoRenderer(MediaElementCore mediaElementCore)
         {
-            MediaElement = mediaElement;
+            MediaElementCore = mediaElementCore;
             InitializeTargetBitmap(null);
         }
 
         /// <summary>
-        /// Gets the parent media element.
+        /// Gets the parent media element (platform specific).
         /// </summary>
-        public MediaElement MediaElement { get; private set; }
+        public MediaElement MediaElement => (MediaElement)MediaElementCore.Parent;
+
+        /// <summary>
+        /// Gets the core platform independent player component.
+        /// </summary>
+        public MediaElementCore MediaElementCore { get; }
 
         #endregion
 

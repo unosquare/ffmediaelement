@@ -34,16 +34,21 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="SubtitleRenderer"/> class.
         /// </summary>
-        /// <param name="mediaElement">The media element.</param>
-        public SubtitleRenderer(MediaElement mediaElement)
+        /// <param name="mediaElementCore">The core media element.</param>
+        public SubtitleRenderer(MediaElementCore mediaElementCore)
         {
-            MediaElement = mediaElement;
+            MediaElementCore = mediaElementCore;
         }
 
         /// <summary>
-        /// Gets the parent media element.
+        /// Gets the parent media element (platform specific).
         /// </summary>
-        public MediaElement MediaElement { get; private set; }
+        public MediaElement MediaElement => (MediaElement)MediaElementCore.Parent;
+
+        /// <summary>
+        /// Gets the core platform independent player component.
+        /// </summary>
+        public MediaElementCore MediaElementCore { get; }
 
         /// <summary>
         /// Executed when the Close method is called on the parent MediaElement

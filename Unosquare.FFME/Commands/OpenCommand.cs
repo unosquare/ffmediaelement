@@ -3,7 +3,6 @@
     using Core;
     using Decoding;
     using FFmpeg.AutoGen;
-    using Rendering;
     using System;
     using System.Threading;
     using System.Windows.Threading;
@@ -67,7 +66,7 @@
                 {
                     m.Blocks[t] = new MediaBlockBuffer(MediaElement.MaxBlocks[t], t);
                     m.LastRenderTime[t] = TimeSpan.MinValue;
-                    m.Renderers[t] = CreateRenderer(t);
+                    m.Renderers[t] = Platform.CreateRenderer(t, Manager.MediaElement.MediaElementCore);
                 }
 
                 m.Clock.SpeedRatio = Constants.DefaultSpeedRatio;
@@ -112,22 +111,6 @@
                 Runner.UIInvoke(DispatcherPriority.DataBind, () => { m.NotifyPropertyChanges(); });
                 m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Completed");
             }
-        }
-
-        /// <summary>
-        /// Creates a new instance of the renderer of the given type.
-        /// </summary>
-        /// <param name="mediaType">Type of the media.</param>
-        /// <returns>The renderer that was created</returns>
-        /// <exception cref="ArgumentException">mediaType has to be of a vild type</exception>
-        private IRenderer CreateRenderer(MediaType mediaType)
-        {
-            var m = Manager.MediaElement;
-            if (mediaType == MediaType.Audio) return new AudioRenderer(m);
-            else if (mediaType == MediaType.Video) return new VideoRenderer(m);
-            else if (mediaType == MediaType.Subtitle) return new SubtitleRenderer(m);
-
-            throw new ArgumentException($"No suitable renderer for Media Type '{mediaType}'");
         }
     }
 }

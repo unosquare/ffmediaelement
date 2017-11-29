@@ -4,11 +4,16 @@
 
     public class MediaElementCore
     {
+        /// <summary>
+        /// Gets the parent control (platform specific).
+        /// </summary>
+        public object Parent { get; }
+
         #region Constructors
 
         public MediaElementCore(object parent, bool isInDesignTime)
         {
-
+            Parent = parent;
         }
 
         #endregion
