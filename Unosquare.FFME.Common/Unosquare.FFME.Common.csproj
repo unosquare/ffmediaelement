@@ -17,9 +17,6 @@
     <PackageTags>FFmpeg, Media, Audio, Video, Decoding</PackageTags>
     <AssemblyName>ffmecommon</AssemblyName>
     <Platforms>AnyCPU;x64</Platforms>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
