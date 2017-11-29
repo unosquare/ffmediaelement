@@ -40,7 +40,7 @@
         {
             Length = bufferLength;
             Buffer = Marshal.AllocHGlobal(Length);
-            NativeMethods.FillMemory(Buffer, (uint)Length, 0);
+            Platform.FillMemory(Buffer, (uint)Length, 0);
         }
 
         /// <summary>
@@ -223,7 +223,7 @@
                     var copyLength = Math.Min(Length - WriteIndex, length - writeCount);
                     var sourcePtr = source + writeCount;
                     var targetPtr = Buffer + WriteIndex;
-                    NativeMethods.CopyMemory(targetPtr, sourcePtr, (uint)copyLength);
+                    Platform.CopyMemory(targetPtr, sourcePtr, (uint)copyLength);
 
                     writeCount += copyLength;
                     WriteIndex += copyLength;

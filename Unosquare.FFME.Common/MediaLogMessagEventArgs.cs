@@ -14,7 +14,7 @@
         /// <param name="mediaElement">The media element.</param>
         /// <param name="messageType">Type of the message.</param>
         /// <param name="message">The message.</param>
-        public MediaLogMessagEventArgs(MediaElement mediaElement, MediaLogMessageType messageType, string message)
+        public MediaLogMessagEventArgs(MediaElementCore mediaElement, MediaLogMessageType messageType, string message)
             : base()
         {
             MessageType = messageType;
@@ -27,7 +27,7 @@
         /// Gets the intance of the MediaElement that generated this message.
         /// When null, it means FFmpeg generated this message.
         /// </summary>
-        public MediaElement Source { get; }
+        public MediaElementCore Source { get; }
 
         /// <summary>
         /// Gets the timestamp.

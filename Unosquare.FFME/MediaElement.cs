@@ -79,6 +79,15 @@
 #pragma warning restore SA1401 // Fields must be private
         #endregion
 
+        #region Wrapped media control
+
+        /// <summary>
+        /// Common player part we are wrapping in this control.
+        /// </summary>
+        private MediaElementCore mediaElementCore;
+
+        #endregion
+
         #region Constructors
 
         /// <summary>
@@ -90,6 +99,20 @@
             style.Setters.Add(new Setter(FlowDirectionProperty, FlowDirection.LeftToRight));
             style.Seal();
             StyleProperty.OverrideMetadata(typeof(MediaElement), new FrameworkPropertyMetadata(style));
+
+            // Platform specific implementation
+            Platform.SetDllDirectory = NativeMethods.SetDllDirectory;
+            Platform.CopyMemory = NativeMethods.CopyMemory;
+            Platform.FillMemory = NativeMethods.FillMemory;
+            Platform.CreateTimer = (priority) =>
+            {
+                return new CustomDispatcherTimer((DispatcherPriority)priority);
+            };
+            Platform.UIInvoke = (priority, action) => Runner.UIInvoke((DispatcherPriority)priority, action);
+            Platform.UIEnqueueInvoke = (priority, action, args) => Runner.UIEnqueueInvoke((DispatcherPriority)priority, action, args);
+
+            // Simply forward the calls
+            MediaElementCore.FFmpegMessageLogged += (o, e) => FFmpegMessageLogged?.Invoke(o, e);
         }
 
         /// <summary>
@@ -108,7 +131,9 @@
             Logger = new GenericMediaLogger<MediaElement>(this);
             Commands = new MediaCommandManager(this);
 
-            if (Utils.IsInDesignTime)
+            mediaElementCore = new MediaElementCore(this, WPFUtils.IsInDesignTime);
+
+            if (WPFUtils.IsInDesignTime)
             {
                 // Shows an FFmpeg image if we are in design-time
                 var bitmap = Properties.Resources.FFmpegMediaElementBackground;
@@ -159,6 +184,9 @@
 
                 // Go ahead and fire up the continuous updates
                 UIPropertyUpdateTimer.Start();
+
+                // for now forward stuff to underlying implementation
+                mediaElementCore.MessageLogged += (o, e) => MessageLogged?.Invoke(o, e);
             }
 
             m_MetadataBase = new ObservableCollection<KeyValuePair<string, string>>();
@@ -275,15 +303,6 @@
         }
 
         /// <summary>
-        /// Raises the FFmpegMessageLogged event
-        /// </summary>
-        /// <param name="eventArgs">The <see cref="MediaLogMessagEventArgs" /> instance containing the event data.</param>
-        internal static void RaiseFFmpegMessageLogged(MediaLogMessagEventArgs eventArgs)
-        {
-            FFmpegMessageLogged?.Invoke(typeof(MediaElement), eventArgs);
-        }
-
-        /// <summary>
         /// Updates the position property signaling the update is
         /// coming internally. This is to distinguish between user/binding 
         /// written value to the Position Porperty and value set by this control's
@@ -307,19 +326,6 @@
                     IsPositionUpdating = false;
                 }),
                 value);
-        }
-
-        #endregion
-
-        #region Logging Events
-
-        /// <summary>
-        /// Raises the MessageLogged event
-        /// </summary>
-        /// <param name="eventArgs">The <see cref="MediaLogMessagEventArgs" /> instance containing the event data.</param>
-        internal void RaiseMessageLogged(MediaLogMessagEventArgs eventArgs)
-        {
-            MessageLogged?.Invoke(this, eventArgs);
         }
 
         #endregion

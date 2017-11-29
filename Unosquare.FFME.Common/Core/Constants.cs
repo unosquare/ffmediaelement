@@ -43,9 +43,6 @@
         /// </summary>
         public const bool EnableFFmpegLockManager = true;
 
-        public const FrameworkPropertyMetadataOptions AffectsMeasureAndRender 
-            = FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender;
-
         public static readonly ReadOnlyCollection<MediaType> MediaTypes
             = new ReadOnlyCollection<MediaType>(Enum.GetValues(typeof(MediaType)).Cast<MediaType>().ToArray());
 

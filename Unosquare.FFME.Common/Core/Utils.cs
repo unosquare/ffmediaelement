@@ -1,11 +1,9 @@
 ﻿namespace Unosquare.FFME.Core
 {
-    using Decoding;
     using FFmpeg.AutoGen;
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using System.Diagnostics;
     using System.IO;
     using System.Reflection;
@@ -13,8 +11,6 @@
     using System.Runtime.InteropServices;
     using System.Text;
     using System.Threading;
-    using System.Windows;
-    using System.Windows.Threading;
 
     /// <summary>
     /// Provides a set of utilities to perfrom logging, text formatting, 
@@ -27,7 +23,7 @@
         private static readonly object FFmpegRegisterLock = new object();
         private static unsafe readonly av_log_set_callback_callback FFmpegLogCallback = FFmpegLog;
 
-        private static readonly DispatcherTimer LogOutputter = null;
+        private static readonly IDispatcherTimer LogOutputter = null;
         private static readonly object LogSyncLock = new object();
         private static readonly List<string> FFmpegLogBuffer = new List<string>();
         private static readonly ConcurrentQueue<MediaLogMessagEventArgs> LogQueue = new ConcurrentQueue<MediaLogMessagEventArgs>();
@@ -35,7 +31,6 @@
         private static unsafe readonly av_lockmgr_register_cb FFmpegLockManagerCallback = FFmpegManageLocking;
         private static readonly Dictionary<IntPtr, ManualResetEvent> FFmpegOpDone = new Dictionary<IntPtr, ManualResetEvent>();
 
-        private static bool? m_IsInDesignTime;
         private static bool? m_IsInDebugMode;
         private static bool HasFFmpegRegistered = false;
         private static string FFmpegRegisterPath = null;
@@ -49,11 +44,7 @@
         /// </summary>
         static Utils()
         {
-            LogOutputter = new DispatcherTimer(DispatcherPriority.Background)
-            {
-                Interval = TimeSpan.FromMilliseconds(50),
-                IsEnabled = true,
-            };
+            LogOutputter = Platform.CreateTimer(DispatchPriority.Background);
 
             LogOutputter.Tick += LogOutputter_Tick;
             LogOutputter.Start();
@@ -62,26 +53,6 @@
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Determines if we are currently in Design Time
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if this instance is in design time; otherwise, <c>false</c>.
-        /// </value>
-        public static bool IsInDesignTime
-        {
-            get
-            {
-                if (!m_IsInDesignTime.HasValue)
-                {
-                    m_IsInDesignTime = (bool)DesignerProperties.IsInDesignModeProperty.GetMetadata(
-                          typeof(DependencyObject)).DefaultValue;
-                }
-
-                return m_IsInDesignTime.Value;
-            }
-        }
 
         /// <summary>
         /// Gets a value indicating whether this instance is in debug mode.
@@ -289,7 +260,7 @@
                         throw new FileNotFoundException($"Unable to load minimum set of FFmpeg binaries from folder '{ffmpegPath}'. File '{fileName}' is missing");
                 }
 
-                NativeMethods.SetDllDirectory(ffmpegPath);
+                Platform.SetDllDirectory(ffmpegPath);
 
                 if (File.Exists(Path.Combine(ffmpegPath, Constants.DllAVDevice)))
                     ffmpeg.avdevice_register_all();
@@ -334,7 +305,7 @@
         internal static void Log(object sender, MediaLogMessageType messageType, string message)
         {
             if (sender == null) throw new ArgumentNullException(nameof(sender));
-            var eventArgs = new MediaLogMessagEventArgs(sender as MediaElement, messageType, message);
+            var eventArgs = new MediaLogMessagEventArgs(sender as MediaElementCore, messageType, message);
             LogQueue.Enqueue(eventArgs);
         }
 
@@ -346,27 +317,28 @@
         /// <param name="block">The block.</param>
         /// <param name="clockPosition">The clock position.</param>
         /// <param name="renderIndex">Index of the render.</param>
-        internal static void LogRenderBlock(this MediaElement element, MediaBlock block, TimeSpan clockPosition, int renderIndex)
-        {
-            if (IsInDebugMode == false) return;
+        // TODO: uncomment
+        //internal static void LogRenderBlock(this MediaElement element, MediaBlock block, TimeSpan clockPosition, int renderIndex)
+        //{
+        //    if (IsInDebugMode == false) return;
 
-            try
-            {
-                var drift = TimeSpan.FromTicks(clockPosition.Ticks - block.StartTime.Ticks);
-                element?.Logger.Log(MediaLogMessageType.Trace,
-                $"{block.MediaType.ToString().Substring(0, 1)} "
-                    + $"BLK: {block.StartTime.Format()} | "
-                    + $"CLK: {clockPosition.Format()} | "
-                    + $"DFT: {drift.TotalMilliseconds,4:0} | "
-                    + $"IX: {renderIndex,3} | "
-                    + $"PQ: {element.Container?.Components[block.MediaType]?.PacketBufferLength / 1024d,7:0.0}k | "
-                    + $"TQ: {element.Container?.Components.PacketBufferLength / 1024d,7:0.0}k");
-            }
-            catch
-            {
-                // swallow
-            }
-        }
+        //    try
+        //    {
+        //        var drift = TimeSpan.FromTicks(clockPosition.Ticks - block.StartTime.Ticks);
+        //        element?.Logger.Log(MediaLogMessageType.Trace,
+        //        $"{block.MediaType.ToString().Substring(0, 1)} "
+        //            + $"BLK: {block.StartTime.Format()} | "
+        //            + $"CLK: {clockPosition.Format()} | "
+        //            + $"DFT: {drift.TotalMilliseconds,4:0} | "
+        //            + $"IX: {renderIndex,3} | "
+        //            + $"PQ: {element.Container?.Components[block.MediaType]?.PacketBufferLength / 1024d,7:0.0}k | "
+        //            + $"TQ: {element.Container?.Components.PacketBufferLength / 1024d,7:0.0}k");
+        //    }
+        //    catch
+        //    {
+        //        // swallow
+        //    }
+        //}
 
         #endregion
 
@@ -501,7 +473,7 @@
                 if (eventArgs.Source != null)
                     eventArgs.Source.RaiseMessageLogged(eventArgs);
                 else
-                    MediaElement.RaiseFFmpegMessageLogged(eventArgs);
+                    MediaElementCore.RaiseFFmpegMessageLogged(eventArgs);
             }
         }
 
@@ -584,7 +556,7 @@
                     line = string.Join(string.Empty, FFmpegLogBuffer);
                     line = line.TrimEnd();
                     FFmpegLogBuffer.Clear();
-                    Utils.Log(typeof(MediaElement), messageType, line);
+                    Utils.Log(typeof(MediaElementCore), messageType, line);
                 }
             }
         }
