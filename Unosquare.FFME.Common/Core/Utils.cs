@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Core
 {
+    using Decoding;
     using FFmpeg.AutoGen;
     using System;
     using System.Collections.Concurrent;
@@ -317,28 +318,27 @@
         /// <param name="block">The block.</param>
         /// <param name="clockPosition">The clock position.</param>
         /// <param name="renderIndex">Index of the render.</param>
-        // TODO: uncomment
-        //internal static void LogRenderBlock(this MediaElement element, MediaBlock block, TimeSpan clockPosition, int renderIndex)
-        //{
-        //    if (IsInDebugMode == false) return;
+        internal static void LogRenderBlock(this MediaElementCore element, MediaBlock block, TimeSpan clockPosition, int renderIndex)
+        {
+            if (IsInDebugMode == false) return;
 
-        //    try
-        //    {
-        //        var drift = TimeSpan.FromTicks(clockPosition.Ticks - block.StartTime.Ticks);
-        //        element?.Logger.Log(MediaLogMessageType.Trace,
-        //        $"{block.MediaType.ToString().Substring(0, 1)} "
-        //            + $"BLK: {block.StartTime.Format()} | "
-        //            + $"CLK: {clockPosition.Format()} | "
-        //            + $"DFT: {drift.TotalMilliseconds,4:0} | "
-        //            + $"IX: {renderIndex,3} | "
-        //            + $"PQ: {element.Container?.Components[block.MediaType]?.PacketBufferLength / 1024d,7:0.0}k | "
-        //            + $"TQ: {element.Container?.Components.PacketBufferLength / 1024d,7:0.0}k");
-        //    }
-        //    catch
-        //    {
-        //        // swallow
-        //    }
-        //}
+            try
+            {
+                var drift = TimeSpan.FromTicks(clockPosition.Ticks - block.StartTime.Ticks);
+                element?.Logger.Log(MediaLogMessageType.Trace,
+                $"{block.MediaType.ToString().Substring(0, 1)} "
+                    + $"BLK: {block.StartTime.Format()} | "
+                    + $"CLK: {clockPosition.Format()} | "
+                    + $"DFT: {drift.TotalMilliseconds,4:0} | "
+                    + $"IX: {renderIndex,3} | "
+                    + $"PQ: {element.Container?.Components[block.MediaType]?.PacketBufferLength / 1024d,7:0.0}k | "
+                    + $"TQ: {element.Container?.Components.PacketBufferLength / 1024d,7:0.0}k");
+            }
+            catch
+            {
+                // swallow
+            }
+        }
 
         #endregion
 

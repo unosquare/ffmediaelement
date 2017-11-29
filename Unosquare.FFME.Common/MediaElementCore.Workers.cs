@@ -651,8 +651,7 @@
         private int SendBlockToRenderer(MediaBlock block, TimeSpan clockPosition)
         {
             Renderers[block.MediaType].Render(block, clockPosition);
-            // TODO: uncomment when moved to common
-            //this.LogRenderBlock(block, clockPosition, Blocks[block.MediaType].IndexOf(clockPosition));
+            this.LogRenderBlock(block, clockPosition, Blocks[block.MediaType].IndexOf(clockPosition));
             LastRenderTime[block.MediaType] = block.StartTime;
             return 1;
         }
