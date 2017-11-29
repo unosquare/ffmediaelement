@@ -4,11 +4,10 @@
     using FFmpeg.AutoGen;
     using System;
     using System.Collections.Generic;
-    using System.Windows.Media.Imaging;
     using Decoding;
     using System.Runtime.CompilerServices;
 
-    public partial class MediaElement
+    public partial class MediaElementCore
     {
         #region Events
 
@@ -50,7 +49,7 @@
         /// <param name="clock">The clock.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseRenderingVideoEvent(
-            WriteableBitmap bitmap, StreamInfo stream, string smtpeTimecode, int pictureNumber, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
+            object bitmap, StreamInfo stream, string smtpeTimecode, int pictureNumber, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
         {
             RenderingVideo?.Invoke(this, new RenderingVideoEventArgs(bitmap, stream, smtpeTimecode, pictureNumber, startTime, duration, clock));
         }
@@ -288,7 +287,7 @@
         /// <param name="startTime">The start time.</param>
         /// <param name="duration">The duration.</param>
         /// <param name="clock">The clock.</param>
-        internal RenderingVideoEventArgs(WriteableBitmap bitmap, StreamInfo stream, string smtpeTimecode, int pictureNumber, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
+        internal RenderingVideoEventArgs(object bitmap, StreamInfo stream, string smtpeTimecode, int pictureNumber, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
             : base(stream, startTime, duration, clock)
         {
             PictureNumber = pictureNumber;
@@ -300,7 +299,7 @@
         /// Gets the writable bitmap filled with the video frame pixels.
         /// Feel free to capture or change this image.
         /// </summary>
-        public WriteableBitmap Bitmap { get; }
+        public object Bitmap { get; }
 
         /// <summary>
         /// Gets the display picture number (frame number).

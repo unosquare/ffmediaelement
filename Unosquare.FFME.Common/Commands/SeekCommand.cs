@@ -3,7 +3,6 @@
     using Core;
     using System;
     using System.Linq;
-    using System.Threading;
 
     /// <summary>
     /// Implements the logic to seek on the media stream

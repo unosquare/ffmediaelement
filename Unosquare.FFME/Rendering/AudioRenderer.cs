@@ -155,7 +155,7 @@
             {
                 // The delay is the clock position minus the current position
                 lock (SyncLock)
-                    return TimeSpan.FromTicks(MediaElement.Clock.Position.Ticks - Position.Ticks);
+                    return TimeSpan.FromTicks(MediaElementCore.Clock.Position.Ticks - Position.Ticks);
             }
         }
 
@@ -214,14 +214,14 @@
             if (MediaElement.IsSeeking) return;
 
             // Update the speedratio
-            SpeedRatio = MediaElement?.Clock?.SpeedRatio ?? 0d;
+            SpeedRatio = MediaElementCore?.Clock?.SpeedRatio ?? 0d;
 
             if (AudioBuffer == null) return;
 
             var block = mediaBlock as AudioBlock;
             if (block == null) return;
 
-            var audioBlocks = MediaElement.Blocks[MediaType.Audio];
+            var audioBlocks = MediaElementCore.Blocks[MediaType.Audio];
             var audioBlock = mediaBlock as AudioBlock;
 
             while (audioBlock != null)
@@ -229,7 +229,7 @@
                 // Write the block if we have to, avoiding repeated blocks.
                 if (AudioBuffer.WriteTag < audioBlock.StartTime)
                 {
-                    MediaElement.RaiseRenderingAudioEvent(audioBlock, clockPosition);
+                    MediaElementCore.RaiseRenderingAudioEvent(audioBlock, clockPosition);
                     AudioBuffer.Write(audioBlock.Buffer, audioBlock.BufferLength, audioBlock.StartTime, true);
                 }
 
@@ -431,7 +431,7 @@
             BytesPerSample = WaveFormat.BitsPerSample / 8;
             SampleBlockSize = BytesPerSample * WaveFormat.Channels;
 
-            var bufferLength = WaveFormat.ConvertLatencyToByteSize(AudioDevice.DesiredLatency) * MediaElement.Blocks[MediaType.Audio].Capacity / 2;
+            var bufferLength = WaveFormat.ConvertLatencyToByteSize(AudioDevice.DesiredLatency) * MediaElementCore.Blocks[MediaType.Audio].Capacity / 2;
             AudioBuffer = new CircularBuffer(bufferLength);
             AudioDevice.Init(this);
             AudioDevice.Play();
@@ -497,7 +497,7 @@
             {
                 // a positive audio latency means we are rendering audio behind (after) the clock (skip some samples)
                 // and therefore we need to advance the buffer before we read from it.
-                MediaElement.Container?.Logger?.Log(MediaLogMessageType.Warning,
+                MediaElementCore.Container?.Logger?.Log(MediaLogMessageType.Warning,
                     $"SYNC AUDIO: LATENCY: {audioLatency.Format()} | SKIP (samples being rendered too late)");
 
                 // skip some samples from the buffer.
@@ -519,7 +519,7 @@
                 {
                     // a negative audio latency means we are rendering audio ahead (before) the clock
                     // and therefore we need to render some silence until the clock catches up
-                    MediaElement.Container?.Logger?.Log(MediaLogMessageType.Warning,
+                    MediaElementCore.Container?.Logger?.Log(MediaLogMessageType.Warning,
                         $"SYNC AUDIO: LATENCY: {audioLatency.Format()} | WAIT (samples being rendered too early)");
 
                     // render silence for the wait time and return

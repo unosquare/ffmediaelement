@@ -5,7 +5,6 @@
     using FFmpeg.AutoGen;
     using System;
     using System.Threading;
-    using System.Windows.Threading;
 
     /// <summary>
     /// Implements the logic to open a media stream.
@@ -41,16 +40,16 @@
             try
             {
                 // Register FFmpeg if not already done
-                if (MediaElement.IsFFmpegLoaded.Value == false)
+                if (MediaElementCore.IsFFmpegLoaded.Value == false)
                 {
-                    MediaElement.FFmpegDirectory = Utils.RegisterFFmpeg(MediaElement.FFmpegDirectory);
+                    MediaElementCore.FFmpegDirectory = Utils.RegisterFFmpeg(MediaElementCore.FFmpegDirectory);
                     m.Logger.Log(MediaLogMessageType.Info, $"INIT FFMPEG: {ffmpeg.av_version_info()}");
                 }
 
-                Runner.UIInvoke(DispatcherPriority.DataBind, () => { m.ResetDependencyProperies(); });
-                MediaElement.IsFFmpegLoaded.Value = true;
+                Platform.UIInvoke(CoreDispatcherPriority.DataBind, () => { m.ResetDependencyProperies(); });
+                MediaElementCore.IsFFmpegLoaded.Value = true;
                 m.IsOpening = true;
-                m.MediaState = System.Windows.Controls.MediaState.Manual;
+                m.MediaState = CoreMediaState.Manual;
 
                 var mediaUrl = Source.IsFile ? Source.LocalPath : Source.ToString();
 
@@ -60,13 +59,13 @@
                 m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Entered");
                 m.Container.Open();
 
-                m.MediaState = System.Windows.Controls.MediaState.Stop;
+                m.MediaState = CoreMediaState.Stop;
 
                 foreach (var t in m.Container.Components.MediaTypes)
                 {
-                    m.Blocks[t] = new MediaBlockBuffer(MediaElement.MaxBlocks[t], t);
+                    m.Blocks[t] = new MediaBlockBuffer(MediaElementCore.MaxBlocks[t], t);
                     m.LastRenderTime[t] = TimeSpan.MinValue;
-                    m.Renderers[t] = Platform.CreateRenderer(t, Manager.MediaElement.MediaElementCore);
+                    m.Renderers[t] = Platform.CreateRenderer(t, Manager.MediaElement);
                 }
 
                 m.Clock.SpeedRatio = Constants.DefaultSpeedRatio;
@@ -102,13 +101,13 @@
             }
             catch (Exception ex)
             {
-                m.MediaState = System.Windows.Controls.MediaState.Close;
+                m.MediaState = CoreMediaState.Close;
                 m.RaiseMediaFailedEvent(ex);
             }
             finally
             {
                 m.IsOpening = false;
-                Runner.UIInvoke(DispatcherPriority.DataBind, () => { m.NotifyPropertyChanges(); });
+                Platform.UIInvoke(CoreDispatcherPriority.DataBind, () => { m.NotifyPropertyChanges(); });
                 m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Completed");
             }
         }

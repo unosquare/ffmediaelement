@@ -1,9 +1,7 @@
 ﻿namespace Unosquare.FFME.Commands
 {
     using Core;
-    using System;
     using System.Text;
-    using System.Windows.Threading;
 
     /// <summary>
     /// Implements the logic to close a media stream.
@@ -72,10 +70,10 @@
 
             // Clear the render times
             m.LastRenderTime.Clear();
-            m.MediaState = System.Windows.Controls.MediaState.Close;
+            m.MediaState = CoreMediaState.Close;
 
             // Update notification properties
-            Runner.UIInvoke(DispatcherPriority.DataBind, () =>
+            Platform.UIInvoke(CoreDispatcherPriority.DataBind, () =>
             {
                 m.ResetDependencyProperies();
                 m.NotifyPropertyChanges();

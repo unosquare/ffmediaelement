@@ -34,8 +34,8 @@
 
             m.SnapVideoPosition(m.Clock.Position);
 
-            if (m.MediaState != System.Windows.Controls.MediaState.Stop)
-                m.MediaState = System.Windows.Controls.MediaState.Pause;
+            if (m.MediaState != CoreMediaState.Stop)
+                m.MediaState = CoreMediaState.Pause;
         }
     }
 }

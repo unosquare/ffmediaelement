@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using System.Windows.Threading;
     using Unosquare.FFME.Core;
 
     /// <summary>
@@ -18,7 +17,7 @@
         private readonly AtomicBoolean IsClosing = new AtomicBoolean() { Value = false };
         private readonly object SyncLock = new object();
         private readonly List<MediaCommand> Commands = new List<MediaCommand>();
-        private readonly MediaElement m_MediaElement;
+        private readonly MediaElementCore m_MediaElement;
 
         private MediaCommand ExecutingCommand = null;
 
@@ -29,10 +28,10 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="MediaCommandManager"/> class.
         /// </summary>
-        /// <param name="mediaElement">The media element.</param>
-        public MediaCommandManager(MediaElement mediaElement)
+        /// <param name="mediaElementCore">The media element.</param>
+        public MediaCommandManager(MediaElementCore mediaElementCore)
         {
-            m_MediaElement = mediaElement;
+            m_MediaElement = mediaElementCore;
         }
 
         #endregion
@@ -48,12 +47,9 @@
         }
 
         /// <summary>
-        /// Gets the parent media element.
+        /// Gets the core platform independent player component.
         /// </summary>
-        public MediaElement MediaElement
-        {
-            get { return m_MediaElement; }
-        }
+        public MediaElementCore MediaElement => m_MediaElement;
 
         #endregion
 
@@ -101,7 +97,7 @@
         /// </summary>
         /// <param name="uri">The URI.</param>
         /// <returns>The awaitable Open operation</returns>
-        public DispatcherOperation Open(Uri uri)
+        public Task Open(Uri uri)
         {
             // Check Uri Argument
             if (uri == null)
@@ -110,11 +106,11 @@
                     MediaLogMessageType.Warning,
                     $"{nameof(MediaCommandManager)}.{nameof(Open)}: '{nameof(uri)}' cannot be null");
 
-                return Dispatcher.CurrentDispatcher.CreatePumpOperation();
+                return Platform.CreatePumpOperation();
             }
 
             if (CanExecuteCommands == false)
-                return Dispatcher.CurrentDispatcher.CreatePumpOperation();
+                return Platform.CreatePumpOperation();
             else
                 IsOpening.Value = true;
 
@@ -147,7 +143,7 @@
                     "Synchronous conditions not met");
             });
 
-            var operation = Dispatcher.CurrentDispatcher.CreateAsynchronousPumpWaiter(backgroundTask);
+            var operation = Platform.CreateAsynchronousPumpWaiter(backgroundTask);
             return operation;
         }
 
@@ -156,10 +152,10 @@
         /// This command gets processed in a threadpool thread.
         /// </summary>
         /// <returns>The awaitable close operation</returns>
-        public DispatcherOperation Close()
+        public Task Close()
         {
             if (CanExecuteCommands == false)
-                return Dispatcher.CurrentDispatcher.CreatePumpOperation();
+                return Platform.CreatePumpOperation();
             else
                 IsClosing.Value = true;
 
@@ -188,7 +184,7 @@
                 }
             });
 
-            var operation = Dispatcher.CurrentDispatcher.CreateAsynchronousPumpWaiter(backgroundTask);
+            var operation = Platform.CreateAsynchronousPumpWaiter(backgroundTask);
             return operation;
         }
 
@@ -387,8 +383,8 @@
             while (waitTask.IsCompleted == false)
             {
                 // Pump invoke
-                Dispatcher.CurrentDispatcher.Invoke(
-                    DispatcherPriority.Background,
+                Platform.UIInvoke(
+                    CoreDispatcherPriority.Background,
                     new Action(() => { }));
             }
         }

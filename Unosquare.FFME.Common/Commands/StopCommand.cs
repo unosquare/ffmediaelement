@@ -33,7 +33,7 @@
             foreach (var renderer in m.Renderers.Values)
                 renderer.Stop();
 
-            m.MediaState = System.Windows.Controls.MediaState.Stop;
+            m.MediaState = CoreMediaState.Stop;
         }
     }
 }

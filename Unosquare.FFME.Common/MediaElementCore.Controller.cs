@@ -1,10 +1,11 @@
 ﻿namespace Unosquare.FFME
 {
     using Core;
+    using Commands;
     using Decoding;
-    using Unosquare.FFME.Commands;
+    using System;
 
-    public partial class MediaElement
+    public partial class MediaElementCore
     {
         #region Internal Members
 #pragma warning disable SA1401 // Fields must be private
@@ -34,36 +35,35 @@
         /// <summary>
         /// Begins or resumes playback of the currently loaded media.
         /// </summary>
-        public void Play()
-        {
-            Commands.Play();
-        }
+        public void Play() => Commands.Play();
 
         /// <summary>
         /// Pauses playback of the currently loaded media.
         /// </summary>
-        public void Pause()
-        {
-            Commands.Pause();
-        }
+        public void Pause() => Commands.Pause();
 
         /// <summary>
         /// Pauses and rewinds the currently loaded media.
         /// </summary>
-        public void Stop()
-        {
-            Commands.Stop();
-        }
+        public void Stop() => Commands.Stop();
 
         /// <summary>
         /// Closes the currently loaded media.
         /// </summary>
-        public void Close()
-        {
-            Commands.Close().Wait();
-        }
+        public void Close() => Commands.Close();
+
+        /// <summary>
+        /// Seeks to the specified position.
+        /// </summary>
+        /// <param name="position">New position for the player.</param>
+        public void Seek(TimeSpan position) => Commands.Seek(position);
+
+        /// <summary>
+        /// Sets the specified target speed ration.
+        /// </summary>
+        /// <param name="targetSpeedRatio">New target speed ratio.</param>
+        public void SetSpeedRatio(double targetSpeedRatio) => Commands.SetSpeedRatio(targetSpeedRatio);
 
         #endregion
-
     }
 }

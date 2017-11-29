@@ -1,7 +1,6 @@
 ﻿namespace Unosquare.FFME.Commands
 {
     using Core;
-    using System.Threading;
 
     /// <summary>
     /// Represents a command to be executed against an intance of the MediaElement

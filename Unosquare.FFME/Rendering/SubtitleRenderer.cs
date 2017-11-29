@@ -118,7 +118,7 @@
                 EndTime = subtitleBlock.EndTime;
 
                 // Raise the subtitles event and keep track of the text.
-                if (MediaElement.RaiseRenderingSubtitlesEvent(subtitleBlock, clockPosition))
+                if (MediaElementCore.RaiseRenderingSubtitlesEvent(subtitleBlock, clockPosition))
                     BlockText = string.Empty;
                 else
                     BlockText = string.Join("\r\n", subtitleBlock.Text);
@@ -225,13 +225,13 @@
         /// Returns immediately because it enqueues the action on the UI thread.
         /// </summary>
         /// <param name="text">The text.</param>
-        private void SetText(string text)
+        private async void SetText(string text)
         {
             if (RenderedText.Equals(text))
                 return;
 
             // We fire-and-forget the update of the text
-            Runner.UIEnqueueInvoke(
+            await Runner.UIEnqueueInvoke(
                 DispatcherPriority.DataBind,
                 new Action<string>((s) =>
                 {

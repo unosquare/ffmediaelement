@@ -1,8 +1,6 @@
 ﻿namespace Unosquare.FFME.Core
 {
     using System;
-    using System.Security.Permissions;
-    using System.Threading;
     using System.Threading.Tasks;
     using System.Windows;
     using System.Windows.Threading;
@@ -15,10 +13,7 @@
         /// <summary>
         /// Gets the UI dispatcher.
         /// </summary>
-        public static Dispatcher UIDispatcher
-        {
-            get { return Application.Current?.Dispatcher; }
-        }
+        public static Dispatcher UIDispatcher => Application.Current?.Dispatcher;
 
         /// <summary>
         /// Synchronously invokes the given instructions on the main application dispatcher.
@@ -37,9 +32,10 @@
         /// <param name="priority">The priority.</param>
         /// <param name="action">The action.</param>
         /// <param name="args">The arguments.</param>
-        public static void UIEnqueueInvoke(DispatcherPriority priority, Delegate action, params object[] args)
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public static async Task UIEnqueueInvoke(DispatcherPriority priority, Delegate action, params object[] args)
         {
-            UIDispatcher?.BeginInvoke(action, priority, args);
+            await UIDispatcher?.BeginInvoke(action, priority, args);
         }
 
         /// <summary>

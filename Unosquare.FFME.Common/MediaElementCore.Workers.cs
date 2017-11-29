@@ -10,9 +10,8 @@
     using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Windows.Controls;
 
-    public partial class MediaElement
+    public partial class MediaElementCore
     {
         /// <summary>
         /// This partial class implements: 
@@ -430,12 +429,12 @@
                         {
                             // Rendered all and nothing else to read
                             Clock.Pause();
-                            Clock.Position = NaturalDuration.HasTimeSpan ?
-                                NaturalDuration.TimeSpan : Blocks[main].RangeEndTime;
+                            Clock.Position = NaturalDuration.HasValue ?
+                                NaturalDuration.Value : Blocks[main].RangeEndTime;
                             wallClock = Clock.Position;
 
                             HasMediaEnded = true;
-                            MediaState = MediaState.Pause;
+                            MediaState = CoreMediaState.Pause;
                             RaiseMediaEndedEvent();
                         }
                     }
