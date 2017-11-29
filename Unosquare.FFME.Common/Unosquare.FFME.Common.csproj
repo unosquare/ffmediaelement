@@ -16,6 +16,7 @@
     <RepositoryType>GitHub</RepositoryType>
     <PackageTags>FFmpeg, Media, Audio, Video, Decoding</PackageTags>
     <AssemblyName>ffmecommon</AssemblyName>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
