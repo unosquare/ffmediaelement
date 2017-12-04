@@ -37,6 +37,14 @@
         public const string DllSWScale = "swscale-4.dll";
         public const string DllAVDevice = "avdevice-57.dll";
 
+        public const string DllAVCodec_macOS = "avcodec.57.dylib";
+        public const string DllAVFilter_macOS = "avfilter.6.dylib";
+        public const string DllAVFormat_macOS = "avformat.57.dylib";
+        public const string DllAVUtil_macOS = "avutil.55.dylib";
+        public const string DllSWResample_macOS = "swresample.2.dylib";
+        public const string DllSWScale_macOS = "swscale.4.dylib";
+        public const string DllAVDevice_macOS = "avdevice.57.dylib";
+
         /// <summary>
         /// Determines if the av_lockmgr_register is called.
         /// If this is set to false, then the number of threads will be set to 1.

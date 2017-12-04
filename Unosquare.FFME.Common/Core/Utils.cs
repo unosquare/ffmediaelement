@@ -247,7 +247,10 @@
                     return FFmpegRegisterPath;
 
                 // Define the minimum set of ffmpeg binaries.
-                var minimumFFmpegSet = new[] { Constants.DllAVCodec, Constants.DllAVFormat, Constants.DllAVUtil, Constants.DllSWResample };
+                string[] minimumFFmpegSet = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                    ? new[] { Constants.DllAVCodec, Constants.DllAVFormat, Constants.DllAVUtil, Constants.DllSWResample }
+                    : new[] { Constants.DllAVCodec_macOS, Constants.DllAVFormat_macOS, Constants.DllAVUtil_macOS, Constants.DllSWResample_macOS };
+
 
                 var architecture = IntPtr.Size == 4 ? ProcessorArchitecture.X86 : ProcessorArchitecture.Amd64;
                 var ffmpegFolderName = architecture == ProcessorArchitecture.X86 ? "ffmpeg32" : "ffmpeg64";
@@ -263,10 +266,12 @@
 
                 Platform.SetDllDirectory(ffmpegPath);
 
-                if (File.Exists(Path.Combine(ffmpegPath, Constants.DllAVDevice)))
+                if ((RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && File.Exists(Path.Combine(ffmpegPath, Constants.DllAVDevice))) ||
+                    (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && File.Exists(Path.Combine(ffmpegPath, Constants.DllAVDevice_macOS))))
                     ffmpeg.avdevice_register_all();
 
-                if (File.Exists(Path.Combine(ffmpegPath, Constants.DllAVFilter)))
+                if ((RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && File.Exists(Path.Combine(ffmpegPath, Constants.DllAVFilter))) ||
+                    (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && File.Exists(Path.Combine(ffmpegPath, Constants.DllAVFilter_macOS))))
                     ffmpeg.avfilter_register_all();
 
                 ffmpeg.av_register_all();
