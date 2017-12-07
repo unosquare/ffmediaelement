@@ -106,15 +106,15 @@
 <li>Download the FFmpeg win32-shared binaries from <a href="http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip">Zeranoe FFmpeg Builds</a>.</li>
 <li>Extract the contents of the <code>zip</code> file you just downloaded and go to the <code>bin</code> folder that got extracted. You should see 3 <code>exe</code> files and 8 <code>dll</code> files. Select and copy all of them.</li>
 <li>Now paste all 11 files from the prior step onto a well-known folder. Take note of the full path. (I used c:\ffmpeg)</li>
-<li>Open the solution and set the <code>Unosquare.FFME.Sample</code> project as the startup project. You can do this by right clicking on the project and selecting <code>Set as startup project</code></li>
-<li>Under the <code>Unosquare.FFME.Sample</code> project, locate the line <code>public string FFmpegPath { get; set; } = @&quot;C:\ffmpeg\&quot;;</code> and replace the path so that it points to the folder where you extracted your FFmpeg binaries (dll files).</li>
+<li>Open the solution and set the <code>Unosquare.FFME.Windows.Sample</code> project as the startup project. You can do this by right clicking on the project and selecting <code>Set as startup project</code></li>
+<li>Under the <code>Unosquare.FFME.Windows.Sample</code> project, locate the line <code>public string FFmpegPath { get; set; } = @&quot;C:\ffmpeg\&quot;;</code> and replace the path so that it points to the folder where you extracted your FFmpeg binaries (dll files).</li>
 <li>Click on <code>Start</code> to run the project.</li>
 <li>You should see a sample media player. Click on the <code>Open</code> icon located at the bottom right and enter a URL or path to a media file.</li>
 <li>The file or URL should play immediately, and all the properties should display to the right of the media display by clicking on the <code>Info</code> icon.</li>
 <li>You can use the resulting compiled assembly in your project without further dependencies as FFME is entirely self-contained. The locations of the compiled FFME assembly, depending on your build configuration are either <code>...\ffmediaelement\Unosquare.FFME\bin\Debug\Unosquare.FFME.dll</code> or <code>...\ffmediaelement\Unosquare.FFME\bin\Release\Unosquare.FFME.dll</code></li>
 </ol>
-<h3 id="macos-player-in-preview">macOS player (in preview)</h3>
-<p>Compile FFmpeg for mac (instructions can be found on <a href="https://github.com/Ruslan-B/FFmpeg.AutoGen">FFmpeg.AutoGen</a>) and copy the following libraries from <code>/opt/local/lib</code> &#39;s to <code>/Users/{USER}/ffmpeg</code> (<code>~/ffmpeg</code>):</p>
+<h3 id="macos-player-in-preview">MacOS player (in preview)</h3>
+<p>Compile FFmpeg for Mac (instructions can be found on <a href="https://github.com/Ruslan-B/FFmpeg.AutoGen">FFmpeg.AutoGen</a>) and copy the following libraries from <code>/opt/local/lib</code> &#39;s to <code>/Users/{USER}/ffmpeg</code> (<code>~/ffmpeg</code>):</p>
 <ul>
 <li>avcodec.57.dylib</li>
 <li>avdevice.57.dylib</li>
@@ -122,20 +122,19 @@
 <li>avformat.57.dylib</li>
 <li>avutil.55.dylib</li>
 <li>swresample.2.dylib</li>
-<li><p>swscale.4.dylib</p>
-<p> Note: when building FFmpeg locally, compiled libraries are named differently than in the list above. E.g. <code>avcodec.57.dylib</code> is actually named <code>libavcodec.57.89.100.dylib</code>. To properly load libraries, copy and rename each library to match the format in the list above.</p>
-</li>
+<li>swscale.4.dylib</li>
 </ul>
-<p>In the sample macOS application, FFmpeg folder is configured to use <code>~/ffmpeg</code> in the following line of code:</p>
+<p>Note: when building FFmpeg locally, compiled libraries are named differently than in the list above. E.g. <code>avcodec.57.dylib</code> is actually named <code>libavcodec.57.89.100.dylib</code>. To properly load libraries, copy and rename each library to match the format in the list above.</p>
+<p>In the sample MacOS application, the FFmpeg folder is configured to use <code>~/ffmpeg</code> in the following line of code:</p>
 <pre><code class="lang-csharp">Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), &quot;ffmpeg&quot;);
 </code></pre><p>Note that it can be customized to point to any other folder.</p>
-<p>When distributing the player and the associated libraries with your application, dll&#39;s should be added to the project as <code>BundleResource</code>. Also, each library should be copied to the output directory on build. Afterwards, change the above configuration to use <code>Environment.CurrentDirectory</code> to search for FFmpeg libraries.</p>
+<p>When distributing the player and the associated libraries with your application, dll files should be added to the project as <code>BundleResource</code>. Also, each library should be copied to the output directory on build. Afterwards, change the above configuration to use <code>Environment.CurrentDirectory</code> to search for FFmpeg libraries.</p>
 <h2 id="using-ffme-in-your-project">Using FFME in your Project</h2>
-<p><em>Remember: The Unosquare.FFME.Sample provides a reference implementation of usage</em></p>
+<p><em>Remember: The Unosquare.FFME.Windows.Sample provides a reference implementation of usage</em></p>
 <ol>
 <li>Create a new WPF application</li>
 <li>Add a reference to <code>Unosquare.FFME.dll</code></li>
-<li>In your <code>MainForm.xaml</code>, add the namespace: <code>xmlns:ffme=&quot;clr-namespace:Unosquare.FFME;assembly=Unosquare.FFME&quot;</code></li>
+<li>In your <code>MainForm.xaml</code>, add the namespace: <code>xmlns:ffme=&quot;clr-namespace:Unosquare.FFME;assembly=ffme.win&quot;</code></li>
 <li>Finally, create an instance of the FFME control in your <code>MainForm.xaml</code> as follows: <code>&lt;ffme:MediaElement x:Name=&quot;MediaEl&quot; Background=&quot;Gray&quot; LoadedBehavior=&quot;Play&quot; UnloadedBehavior=&quot;Manual&quot; /&gt;</code></li>
 </ol>
 <h2 id="thanks">Thanks</h2>
