@@ -24,12 +24,7 @@
 
             // First initialize FFmpeg dependencies
 
-            var dir = Environment.CurrentDirectory;
-            dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "ffmpeg");
-
-            var loadedLibraries = new Dictionary<string, IntPtr>();
-
-            MediaElement.FFmpegDirectory = dir;
+            MediaElement.FFmpegDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "ffmpeg");
 
             // Create image view that will show each frame
 
