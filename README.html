@@ -8,7 +8,7 @@
     <title>FFME: WPF MediaElement Alternative | FFME: WPF MediaElement replacement based on FFmpeg </title>
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="FFME: WPF MediaElement Alternative | FFME: WPF MediaElement replacement based on FFmpeg ">
-    <meta name="generator" content="docfx 2.27.0.0">
+    <meta name="generator" content="docfx 2.28.1.0">
     
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="stylesheet" href="styles/docfx.vendor.css">
@@ -113,6 +113,23 @@
 <li>The file or URL should play immediately, and all the properties should display to the right of the media display by clicking on the <code>Info</code> icon.</li>
 <li>You can use the resulting compiled assembly in your project without further dependencies as FFME is entirely self-contained. The locations of the compiled FFME assembly, depending on your build configuration are either <code>...\ffmediaelement\Unosquare.FFME\bin\Debug\Unosquare.FFME.dll</code> or <code>...\ffmediaelement\Unosquare.FFME\bin\Release\Unosquare.FFME.dll</code></li>
 </ol>
+<h3 id="macos-player-in-preview">macOS player (in preview)</h3>
+<p>Compile FFmpeg for mac (instructions can be found on <a href="https://github.com/Ruslan-B/FFmpeg.AutoGen">FFmpeg.AutoGen</a>) and copy the following libraries from <code>/opt/local/lib</code> &#39;s to <code>/Users/{USER}/ffmpeg</code> (<code>~/ffmpeg</code>):</p>
+<ul>
+<li>avcodec.57.dylib</li>
+<li>avdevice.57.dylib</li>
+<li>avfilter.6.dylib</li>
+<li>avformat.57.dylib</li>
+<li>avutil.55.dylib</li>
+<li>swresample.2.dylib</li>
+<li><p>swscale.4.dylib</p>
+<p> Note: when building FFmpeg locally, compiled libraries are named differently than in the list above. E.g. <code>avcodec.57.dylib</code> is actually named <code>libavcodec.57.89.100.dylib</code>. To properly load libraries, copy and rename each library to match the format in the list above.</p>
+</li>
+</ul>
+<p>In the sample macOS application, FFmpeg folder is configured to use <code>~/ffmpeg</code> in the following line of code:</p>
+<pre><code class="lang-csharp">Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), &quot;ffmpeg&quot;);
+</code></pre><p>Note that it can be customized to point to any other folder.</p>
+<p>When distributing the player and the associated libraries with your application, dll&#39;s should be added to the project as <code>BundleResource</code>. Also, each library should be copied to the output directory on build. Afterwards, change the above configuration to use <code>Environment.CurrentDirectory</code> to search for FFmpeg libraries.</p>
 <h2 id="using-ffme-in-your-project">Using FFME in your Project</h2>
 <p><em>Remember: The Unosquare.FFME.Sample provides a reference implementation of usage</em></p>
 <ol>
