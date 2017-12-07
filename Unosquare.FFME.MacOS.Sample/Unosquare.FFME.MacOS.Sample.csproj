@@ -56,12 +56,12 @@
     </XamMacArch>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FFmpeg.AutoGen, Version=3.4.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FFmpeg.AutoGen.3.4.0.1\lib\netstandard2.0\FFmpeg.AutoGen.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.Mac" />
-    <Reference Include="FFmpeg.AutoGen">
-      <HintPath>..\packages\FFmpeg.AutoGen.3.4.0.1\lib\netstandard2.0\FFmpeg.AutoGen.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json" />
@@ -98,7 +98,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Unosquare.FFME.MacOS\Unosquare.FFME.MacOS.csproj">
-      <Project>{B1422238-50B9-4B01-A513-FFCB8631F1B2}</Project>
+      <Project>{b1422238-50b9-4b01-a513-ffcb8631f1b2}</Project>
       <Name>Unosquare.FFME.MacOS</Name>
     </ProjectReference>
   </ItemGroup>

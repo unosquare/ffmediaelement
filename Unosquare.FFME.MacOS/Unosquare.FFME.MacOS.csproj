@@ -50,12 +50,12 @@
     </XamMacArch>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FFmpeg.AutoGen, Version=3.4.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FFmpeg.AutoGen.3.4.0.1\lib\netstandard2.0\FFmpeg.AutoGen.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.Mac" />
-    <Reference Include="FFmpeg.AutoGen">
-      <HintPath>..\..\packages\FFmpeg.AutoGen.3.4.0.1\lib\netstandard2.0\FFmpeg.AutoGen.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -67,17 +67,16 @@
     <Compile Include="MediaElement.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Unosquare.FFME.Common\Unosquare.FFME.Common.csproj">
-      <Project>{76B2DB70-C8AB-4517-8AFB-051383E496B7}</Project>
-      <Name>Unosquare.FFME.Common</Name>
-    </ProjectReference>
+    <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Reference Include="netstandard" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <ProjectReference Include="..\Unosquare.FFME.Common\Unosquare.FFME.Common.csproj">
+      <Project>{76b2db70-c8ab-4517-8afb-051383e496b7}</Project>
+      <Name>Unosquare.FFME.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
 </Project>
