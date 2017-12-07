@@ -44,10 +44,8 @@ FFME provides multiple improvements over the standard MediaElement such as:
 9. The file or URL should play immediately, and all the properties should display to the right of the media display by clicking on the <code>Info</code> icon.
 10. You can use the resulting compiled assembly in your project without further dependencies as FFME is entirely self-contained. The locations of the compiled FFME assembly, depending on your build configuration are either <code>...\ffmediaelement\Unosquare.FFME\bin\Debug\Unosquare.FFME.dll</code> or <code>...\ffmediaelement\Unosquare.FFME\bin\Release\Unosquare.FFME.dll</code>
 
-### macOS player (in preview)
-
-Compile FFmpeg for mac (instructions can be found on [FFmpeg.AutoGen](https://github.com/Ruslan-B/FFmpeg.AutoGen)) and copy the following libraries from `/opt/local/lib` 's to `/Users/{USER}/ffmpeg` (`~/ffmpeg`):
-
+### MacOS player (in preview)
+Compile FFmpeg for Mac (instructions can be found on [FFmpeg.AutoGen](https://github.com/Ruslan-B/FFmpeg.AutoGen)) and copy the following libraries from `/opt/local/lib` 's to `/Users/{USER}/ffmpeg` (`~/ffmpeg`):
  - avcodec.57.dylib
  - avdevice.57.dylib
  - avfilter.6.dylib
@@ -56,9 +54,9 @@ Compile FFmpeg for mac (instructions can be found on [FFmpeg.AutoGen](https://gi
  - swresample.2.dylib
  - swscale.4.dylib
 
-    Note: when building FFmpeg locally, compiled libraries are named differently than in the list above. E.g. `avcodec.57.dylib` is actually named `libavcodec.57.89.100.dylib`. To properly load libraries, copy and rename each library to match the format in the list above.
+Note: when building FFmpeg locally, compiled libraries are named differently than in the list above. E.g. `avcodec.57.dylib` is actually named `libavcodec.57.89.100.dylib`. To properly load libraries, copy and rename each library to match the format in the list above.
 
-In the sample macOS application, FFmpeg folder is configured to use `~/ffmpeg` in the following line of code:
+In the sample MacOS application, the FFmpeg folder is configured to use `~/ffmpeg` in the following line of code:
 
 ```csharp
 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "ffmpeg");
@@ -66,7 +64,7 @@ Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "
 
 Note that it can be customized to point to any other folder.
 
-When distributing the player and the associated libraries with your application, dll's should be added to the project as `BundleResource`. Also, each library should be copied to the output directory on build. Afterwards, change the above configuration to use `Environment.CurrentDirectory` to search for FFmpeg libraries.
+When distributing the player and the associated libraries with your application, dll files should be added to the project as `BundleResource`. Also, each library should be copied to the output directory on build. Afterwards, change the above configuration to use `Environment.CurrentDirectory` to search for FFmpeg libraries.
 
 ## Using FFME in your Project
 *Remember: The Unosquare.FFME.Windows.Sample provides a reference implementation of usage*
