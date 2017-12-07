@@ -21,7 +21,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Support", "Support", "{8BF2
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unosquare.FFME.Common", "Unosquare.FFME.Common\Unosquare.FFME.Common.csproj", "{76B2DB70-C8AB-4517-8AFB-051383E496B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unosquare.FFME.MacOS.Sample", "Unosquare.FFME.MacOS.Sample\Unosquare.FFME.MacOS.Sample.csproj", "{A7497D7F-64C1-4746-A323-7E5C743F5363}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unosquare.FFME.MacOS.Sample", "Unosquare.FFME.MacOS.Sample2\Unosquare.FFME.MacOS.Sample.csproj", "{A7497D7F-64C1-4746-A323-7E5C743F5363}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unosquare.FFME.MacOS", "Unosquare.FFME.MacOS\Unosquare.FFME.MacOS.csproj", "{B1422238-50B9-4B01-A513-FFCB8631F1B2}"
 EndProject
