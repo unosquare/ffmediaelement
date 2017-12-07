@@ -1,6 +1,6 @@
 ﻿using AppKit;
 
-namespace Unosquare.FFME.macOS.Sample
+namespace Unosquare.FFME.MacOS.Sample
 {
     static class MainClass
     {

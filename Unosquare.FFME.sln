@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2010
+VisualStudioVersion = 15.0.27130.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unosquare.FFME", "Unosquare.FFME\Unosquare.FFME.csproj", "{A6EB99A6-AAE2-4E6E-AB9E-93992CE5B84D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unosquare.FFME.Windows", "Unosquare.FFME.Windows\Unosquare.FFME.Windows.csproj", "{A6EB99A6-AAE2-4E6E-AB9E-93992CE5B84D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unosquare.FFME.Sample", "Unosquare.FFME.Sample\Unosquare.FFME.Sample.csproj", "{DC7D71DA-3D51-4252-BFC8-52CA269A311F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unosquare.FFME.Windows.Sample", "Unosquare.FFME.Windows.Sample\Unosquare.FFME.Windows.Sample.csproj", "{DC7D71DA-3D51-4252-BFC8-52CA269A311F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Support", "Support", "{8BF26916-5094-4A04-B148-C19DCCC53A95}"
 	ProjectSection(SolutionItems) = preProject
@@ -19,13 +19,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Support", "Support", "{8BF2
 		toc.yml = toc.yml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unosquare.FFME.Common", "Unosquare.FFME.Common\Unosquare.FFME.Common.csproj", "{76B2DB70-C8AB-4517-8AFB-051383E496B7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unosquare.FFME.Common", "Unosquare.FFME.Common\Unosquare.FFME.Common.csproj", "{76B2DB70-C8AB-4517-8AFB-051383E496B7}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "macOS", "macOS", "{A5B50FFD-7385-4882-869C-1E7528A395C8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unosquare.FFME.MacOS.Sample", "Unosquare.FFME.MacOS.Sample\Unosquare.FFME.MacOS.Sample.csproj", "{A7497D7F-64C1-4746-A323-7E5C743F5363}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unosquare.FFME.macOS.Sample", "Unosquare.FFME.macOS.Sample\Unosquare.FFME.macOS.Sample.csproj", "{A7497D7F-64C1-4746-A323-7E5C743F5363}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unosquare.FFME.macOS", "Unosquare.FFME.macOS.Sample\Unosquare.FFME.macOS\Unosquare.FFME.macOS.csproj", "{B1422238-50B9-4B01-A513-FFCB8631F1B2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unosquare.FFME.MacOS", "Unosquare.FFME.MacOS\Unosquare.FFME.MacOS.csproj", "{B1422238-50B9-4B01-A513-FFCB8631F1B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,9 +79,5 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7E89E3EA-B5D6-4E75-8B7F-C1ED0D05D7D8}
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{A7497D7F-64C1-4746-A323-7E5C743F5363} = {A5B50FFD-7385-4882-869C-1E7528A395C8}
-		{B1422238-50B9-4B01-A513-FFCB8631F1B2} = {A5B50FFD-7385-4882-869C-1E7528A395C8}
 	EndGlobalSection
 EndGlobal

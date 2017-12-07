@@ -6,7 +6,7 @@
 //
 using Foundation;
 
-namespace Unosquare.FFME.macOS.Sample
+namespace Unosquare.FFME.MacOS.Sample
 {
     [Register("ViewController")]
     partial class ViewController

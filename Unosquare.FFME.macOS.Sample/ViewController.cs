@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.macOS.Sample
+﻿namespace Unosquare.FFME.MacOS.Sample
 {
     using System;
     using System.Collections.Generic;

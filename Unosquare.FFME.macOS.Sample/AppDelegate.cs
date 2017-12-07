@@ -1,7 +1,7 @@
 ﻿using AppKit;
 using Foundation;
 
-namespace Unosquare.FFME.macOS.Sample
+namespace Unosquare.FFME.MacOS.Sample
 {
     [Register("AppDelegate")]
     public class AppDelegate : NSApplicationDelegate

@@ -1,0 +1,377 @@
+﻿<Window x:Name="window" x:Class="Unosquare.FFME.Windows.Sample.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Unosquare.FFME.Windows.Sample"
+        xmlns:ffme="clr-namespace:Unosquare.FFME;assembly=ffme.win"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen" MinHeight="720" Height="0" MinWidth="1280" Width="0"
+        Title="{Binding ElementName=window, Path=WindowTitle}" Background="Black">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary>
+                    <local:TimeSpanToSecondsConverter x:Key="TimeSpanToSecondsConverter" />
+                    <local:TimeSpanFormatter x:Key="TimeSpanFormatter" />
+                    <local:PercentageFormatter x:Key="PercentageFormatter" />
+                </ResourceDictionary>
+                <ResourceDictionary Source="Icons.xaml" />
+                <ResourceDictionary Source="Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid Name="Player">
+        <Grid.Resources>
+            <Storyboard x:Key="ShowControlOpacity" Storyboard.TargetProperty="(Grid.Opacity)">
+                <DoubleAnimation To="1" Duration="0:0:0.100" FillBehavior="HoldEnd" />
+            </Storyboard>
+            <Storyboard x:Key="HideControlOpacity" Storyboard.TargetProperty="(Grid.Opacity)">
+                <DoubleAnimation To="0" Duration="0:0:0.300" FillBehavior="HoldEnd" />
+            </Storyboard>
+        </Grid.Resources>
+
+        <ffme:MediaElement Name="Media" Background="Black" Grid.Row="0" Grid.Column="0"></ffme:MediaElement>
+
+        <Grid Name="Controls" Style="{DynamicResource ControlsGridStyle}" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="30"></RowDefinition>
+                <RowDefinition Height="40"></RowDefinition>
+                <RowDefinition Height="70"></RowDefinition>
+            </Grid.RowDefinitions>
+
+            <Slider Name="PositionSlider" Grid.Row="1" Margin="10,0"
+                    Visibility="{Binding ElementName=window, Path=SeekBarVisibility}"
+                    Style="{DynamicResource PositionSliderStyle}"
+                    IsEnabled="{Binding ElementName=Media, Path=IsOpen}"
+                    SmallChange="{Binding ElementName=Media, Path=FrameStepDuration, Converter={StaticResource TimeSpanToSecondsConverter}}"
+                    LargeChange="{Binding ElementName=Media, Path=FrameStepDuration, Converter={StaticResource TimeSpanToSecondsConverter}}"
+                    Maximum="{Binding ElementName=Media, Path=NaturalDuration, Converter={StaticResource TimeSpanToSecondsConverter}}" 
+                    Value="{Binding ElementName=Media, Path=Position, Converter={StaticResource TimeSpanToSecondsConverter}}" />
+
+            <DockPanel Name="ProgressPanel" Grid.Row="2" LastChildFill="True" Margin="20,0">
+                <TextBlock Width="100" Visibility="{Binding ElementName=window, Path=IsMediaOpenVisibility}" VerticalAlignment="Center" DockPanel.Dock="Left" Foreground="{StaticResource CustomSliderHighlightBrush}" Text="{Binding ElementName=Media, Path=Position, Converter={StaticResource TimeSpanFormatter}, Mode=OneWay}" />
+                <TextBlock Width="100" Visibility="{Binding ElementName=window, Path=IsMediaOpenVisibility}" VerticalAlignment="Center" TextAlignment="Right" DockPanel.Dock="Right" Foreground="{StaticResource CustomSliderHighlightBrush}" Text="{Binding ElementName=Media, Path=Position, Converter={StaticResource TimeSpanFormatter}, ConverterParameter={x:Reference Media}, Mode=OneWay}" />
+                <Grid Width="500">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100" />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="100" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Visibility="{Binding ElementName=window, Path=BufferingProgressVisibility}" Grid.Column="0" VerticalAlignment="Center" TextAlignment="Center" Foreground="{StaticResource CustomSliderHighlightBrush}" Text="{Binding ElementName=Media,Path=BufferingProgress, Converter={StaticResource PercentageFormatter}}" ToolTip="Buffering Progress" />
+                    <ProgressBar Visibility="{Binding ElementName=window, Path=BufferingProgressVisibility}" Grid.Column="1" VerticalAlignment="Center"  Value="{Binding ElementName=Media,Path=BufferingProgress, Mode=OneWay}" Style="{DynamicResource NetworkProgressBarStyle}" IsIndeterminate="{Binding ElementName=Media, Path=IsOpening}"></ProgressBar>
+                    <ProgressBar Visibility="{Binding ElementName=window, Path=DownloadProgressVisibility}" Grid.Column="2" VerticalAlignment="Center" Value="{Binding ElementName=Media,Path=DownloadProgress, Mode=OneWay}" Style="{DynamicResource NetworkProgressBarStyle}" IsIndeterminate="{Binding ElementName=Media,Path=IsOpening}"></ProgressBar>
+                    <TextBlock Visibility="{Binding ElementName=window, Path=DownloadProgressVisibility}" Grid.Column="3" VerticalAlignment="Center" TextAlignment="Center" Foreground="{StaticResource CustomSliderHighlightBrush}" Text="{Binding ElementName=Media,Path=DownloadProgress, Converter={StaticResource PercentageFormatter}}" ToolTip="Download Progress" />
+
+                </Grid>
+            </DockPanel>
+
+            <Grid Name="ControlsPanel" Grid.Row="3" Margin="20,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+                <DockPanel Name="LeftControls" HorizontalAlignment="Left" Grid.Column="0">
+                    <ToggleButton Visibility="{Binding ElementName=window,Path=IsMediaOpenVisibility}" Name="SoundMenuButton" Style="{DynamicResource ModernToggleButtonStyle}">
+                        <Path Stretch="Uniform" Data="{Binding Source={StaticResource AudioMenuIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}}}" />
+                    </ToggleButton>
+                    <Popup IsOpen="{Binding IsChecked, ElementName=SoundMenuButton, Mode=TwoWay}" StaysOpen="False" Name="SoundMenuPopup"
+                           PopupAnimation="Fade" AllowsTransparency="True" Placement="Top" PlacementTarget="{Binding ElementName=SoundMenuButton}"
+                           VerticalOffset="2" HorizontalOffset="-18">
+                        <Popup.Resources>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{StaticResource CustomSliderHighlightBrush}" />
+                                <Setter Property="VerticalAlignment" Value="Center" />
+                                <Setter Property="TextAlignment" Value="Center" />
+                            </Style>
+                        </Popup.Resources>
+                        <Border Background="#FF1F1F1F" BorderBrush="#FF767676" BorderThickness="1">
+                            <Grid Width="364" Height="120">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="60" />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="60" />
+                                </Grid.ColumnDefinitions>
+
+                                <!--Volume Slider -->
+                                <TextBlock Grid.Row="0" Grid.Column="0">Volume</TextBlock>
+                                <Slider Grid.Row="0" IsEnabled="{Binding ElementName=window, Path=IsAudioControlEnabled}" Grid.Column="1" Style="{DynamicResource CustomSliderStyle}" Minimum="0.0" Maximum="1.0" Value="{Binding ElementName=Media, Path=Volume}" />
+                                <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding ElementName=Media, Path=Volume, Mode=OneWay, Converter={StaticResource PercentageFormatter}}" />
+
+                                <!--Balance Slider -->
+                                <TextBlock Grid.Row="1" Grid.Column="0">Balance</TextBlock>
+                                <Slider Grid.Row="1" IsEnabled="{Binding ElementName=window, Path=IsAudioControlEnabled}" Grid.Column="1" Style="{DynamicResource CustomSliderStyle}" Minimum="-1.0" Maximum="1.0" Value="{Binding ElementName=Media, Path=Balance}" />
+                                <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding ElementName=Media, Path=Balance, Mode=OneWay, Converter={StaticResource PercentageFormatter}, ConverterParameter=1}" />
+
+                                <!-- Speed Ration Slider -->
+                                <TextBlock Grid.Row="2" Grid.Column="0">Speed</TextBlock>
+                                <Slider IsEnabled="{Binding ElementName=window, Path=IsSpeedRatioEnabled}" Grid.Row="2" Grid.Column="1" Style="{DynamicResource CustomSliderStyle}" Minimum="0.0" Maximum="8.0" Value="{Binding ElementName=Media, Path=SpeedRatio}" />
+                                <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding ElementName=Media, Path=SpeedRatio, Mode=OneWay, Converter={StaticResource PercentageFormatter}}" />
+
+                            </Grid>
+                        </Border>
+                    </Popup>
+                    <ToggleButton Visibility="{Binding ElementName=window, Path=AudioControlVisibility}" Name="MuteUnmuteButton" Style="{DynamicResource ModernToggleButtonStyle}" IsChecked="{Binding ElementName=Media, Path=IsMuted, Mode=TwoWay}">
+                        <Path Stretch="Uniform" Data="{Binding Source={StaticResource UnmuteIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}}}" />
+                    </ToggleButton>
+                </DockPanel>
+
+                <DockPanel Name="RightControls" HorizontalAlignment="Right" Grid.Column="2">
+
+                    <Button Style="{DynamicResource ModernButtonStyle}" Command="{Binding ElementName=window, Path=CloseCommand}" Visibility="{Binding ElementName=window, Path=CloseButtonVisibility}">
+                        <Path Stretch="Uniform" Data="{Binding Source={StaticResource CloseIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
+                    </Button>
+
+                    <Button Name="ToggleFullscreenButton" Style="{DynamicResource ModernButtonStyle}" Command="{Binding ElementName=window, Path=ToggleFullscreenCommand}">
+                        <Path Stretch="Uniform" Data="{Binding Source={StaticResource ToggleFullscreenIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
+                    </Button>
+
+                    <ToggleButton Name="OpenDebugButton" Style="{DynamicResource ModernToggleButtonStyle}">
+                        <Path Stretch="Uniform" Data="{Binding Source={StaticResource OpenDebugIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}}}" />
+                    </ToggleButton>
+
+                    <ToggleButton Name="OpenMenuButton" Style="{DynamicResource ModernToggleButtonStyle}" Visibility="{Binding ElementName=window, Path=OpenButtonVisibility}">
+                        <Path Stretch="Uniform" Data="{Binding Source={StaticResource OpenMenuIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}}}" />
+                    </ToggleButton>
+
+                    <Popup Name="OpenMediaPopup" IsOpen="{Binding IsChecked, ElementName=OpenMenuButton, Mode=TwoWay}" StaysOpen="False" 
+                           PopupAnimation="Fade" AllowsTransparency="True" Placement="Top" PlacementTarget="{Binding ElementName=OpenMenuButton}"
+                           VerticalOffset="2" HorizontalOffset="-840">
+                        <Popup.Resources>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{StaticResource CustomSliderHighlightBrush}" />
+                                <Setter Property="VerticalAlignment" Value="Center" />
+                                <Setter Property="TextAlignment" Value="Left" />
+                            </Style>
+                        </Popup.Resources>
+                        <Border Background="#FF1F1F1F" BorderBrush="#FF767676" BorderThickness="1">
+                            <Grid Width="900">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" Text="Open File Path or URL" Padding="10,10,0,0" VerticalAlignment="Bottom" />
+                                <ComboBox Grid.Row="1" BorderThickness="0" Name="UrlTextBox" Margin="10" Padding="4" FontSize="15" IsEditable="True" StaysOpenOnEdit="True" />
+                                <Button HorizontalAlignment="Right" Margin="0,0,10,10" Grid.Row="2" Style="{DynamicResource ModernButtonStyle}" Command="{Binding ElementName=window, Path=OpenCommand}">
+                                    <Path Stretch="Uniform" Data="{Binding Source={StaticResource OpenIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </Popup>
+                </DockPanel>
+
+                <DockPanel Name="CenterControls" HorizontalAlignment="Center" Grid.Column="1">
+                    <Button Visibility="{Binding ElementName=window,Path=PlayButtonVisibility}" Style="{DynamicResource ModernButtonStyle}" Command="{Binding ElementName=window, Path=PlayCommand}">
+                        <Path Stretch="Uniform" Data="{Binding Source={StaticResource PlayIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
+                    </Button>
+                    <Button Visibility="{Binding ElementName=window,Path=PauseButtonVisibility}" Style="{DynamicResource ModernButtonStyle}" Command="{Binding ElementName=window, Path=PauseCommand}">
+                        <Path Stretch="Uniform" Data="{Binding Source={StaticResource PauseIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
+                    </Button>
+                    <Button Visibility="{Binding ElementName=window,Path=StopButtonVisibility}" Style="{DynamicResource ModernButtonStyle}" Command="{Binding ElementName=window, Path=StopCommand}">
+                        <Path Stretch="Uniform" Data="{Binding Source={StaticResource StopIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
+                    </Button>
+                </DockPanel>
+
+            </Grid>
+        </Grid>
+
+        <Popup Name="DebugWindowPopup" MouseDown="DebugWindowPopup_MouseDown" IsOpen="{Binding ElementName=OpenDebugButton, Path=IsChecked}" AllowsTransparency="True"
+               PlacementTarget="{Binding ElementName=window}" Placement="Right" HorizontalOffset="-10" VerticalOffset="-20">
+            <Border BorderBrush="#FF767676" BorderThickness="1" Background="#ee1f1f1f">
+                <StackPanel Name="Properties" VerticalAlignment="Top" HorizontalAlignment="Right" Orientation="Vertical" 
+                    Background="Transparent" Width="240" Cursor="SizeAll">
+                    <StackPanel.Resources>
+                        <Style TargetType="Label" x:Key="Key">
+                            <Setter Property="DockPanel.Dock" Value="Left" />
+                            <Setter Property="HorizontalAlignment" Value="Left" />
+                            <Setter Property="FontWeight" Value="Bold" />
+                            <Setter Property="TextBlock.FontSize" Value="10"></Setter>
+                            <Setter Property="BorderBrush" Value="#555" />
+                            <Setter Property="BorderThickness" Value="6,0,1,1" />
+                            <Setter Property="Width" Value="120" />
+                            <Setter Property="Foreground" Value="White" />
+                        </Style>
+                        <Style TargetType="Label" x:Key="Value">
+                            <Setter Property="DockPanel.Dock" Value="Right" />
+                            <Setter Property="HorizontalAlignment" Value="Stretch" />
+                            <Setter Property="FontWeight" Value="Normal" />
+                            <Setter Property="TextBlock.FontSize" Value="10"></Setter>
+                            <Setter Property="BorderBrush" Value="#555" />
+                            <Setter Property="BorderThickness" Value="0,0,0,1" />
+                            <Setter Property="Foreground" Value="White" />
+                        </Style>
+
+                        <Style TargetType="DockPanel">
+                            <Setter Property="LastChildFill" Value="True" />
+                        </Style>
+                    </StackPanel.Resources>
+
+                    <Thumb Name="DebugWindowThumb" DragDelta="DebugWindowThumb_DragDelta" Background="Transparent" Width="0" Height="0" />
+
+                    <DockPanel Background="#FF444444">
+                        <Label Style="{StaticResource Key}">Media Format</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=MediaFormat, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Duration</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=NaturalDuration, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Is Open</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsOpen, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Is Opening</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsOpening, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Is Live Stream</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsLiveStream, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Can Pause</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=CanPause, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Is Seekable</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsSeekable, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Position</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=Position, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">State</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=MediaState, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Is Playing</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsPlaying, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Has Ended</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=HasMediaEnded, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Is Buffering</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=IsBuffering, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Buffering Progress</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=BufferingProgress, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Max Buffer</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=BufferCacheLength, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Download Progress</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=DownloadProgress, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Max Download</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=DownloadCacheLength, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel Background="#FF444444">
+                        <Label Style="{StaticResource Key}">Has Video</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=HasVideo, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Video Codec</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=VideoCodec, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Video Accelerator</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=VideoHardwareDecoder, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Video Bitrate</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=VideoBitrate, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Video Width</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=NaturalVideoWidth, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Video Height</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=NaturalVideoHeight, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Video FPS</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=VideoFrameRate, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Video SMTPE</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=VideoSmtpeTimecode, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel Background="#FF444444">
+                        <Label Style="{StaticResource Key}">Has Audio</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=HasAudio, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Audio Codec</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=AudioCodec, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Audio Bitrate</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=AudioBitrate, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Audio Channels</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=AudioChannels, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Audio Sampling</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=AudioSampleRate, Mode=OneWay}" />
+                    </DockPanel>
+
+                    <DockPanel>
+                        <Label Style="{StaticResource Key}">Audio Bits/Sample</Label>
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=AudioBitsPerSample, Mode=OneWay}" />
+                    </DockPanel>
+
+                </StackPanel>
+            </Border>
+        </Popup>
+    </Grid>
+
+</Window>

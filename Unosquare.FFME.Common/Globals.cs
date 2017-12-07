@@ -1,4 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("ffme")]
+[assembly: InternalsVisibleTo("ffme.win")]
 [assembly: InternalsVisibleTo("ffme.macOS")]

@@ -37,8 +37,8 @@ FFME provides multiple improvements over the standard MediaElement such as:
 2. Download the FFmpeg win32-shared binaries from <a href="http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip">Zeranoe FFmpeg Builds</a>.
 3. Extract the contents of the <code>zip</code> file you just downloaded and go to the <code>bin</code> folder that got extracted. You should see 3 <code>exe</code> files and 8 <code>dll</code> files. Select and copy all of them.
 4. Now paste all 11 files from the prior step onto a well-known folder. Take note of the full path. (I used c:\ffmpeg\)
-5. Open the solution and set the <code>Unosquare.FFME.Sample</code> project as the startup project. You can do this by right clicking on the project and selecting <code>Set as startup project</code>
-6. Under the <code>Unosquare.FFME.Sample</code> project, locate the line <code>public string FFmpegPath { get; set; } = @"C:\ffmpeg\";</code> and replace the path so that it points to the folder where you extracted your FFmpeg binaries (dll files).
+5. Open the solution and set the <code>Unosquare.FFME.Windows.Sample</code> project as the startup project. You can do this by right clicking on the project and selecting <code>Set as startup project</code>
+6. Under the <code>Unosquare.FFME.Windows.Sample</code> project, locate the line <code>public string FFmpegPath { get; set; } = @"C:\ffmpeg\";</code> and replace the path so that it points to the folder where you extracted your FFmpeg binaries (dll files).
 7. Click on <code>Start</code> to run the project.
 8. You should see a sample media player. Click on the <code>Open</code> icon located at the bottom right and enter a URL or path to a media file.
 9. The file or URL should play immediately, and all the properties should display to the right of the media display by clicking on the <code>Info</code> icon.
@@ -69,11 +69,11 @@ Note that it can be customized to point to any other folder.
 When distributing the player and the associated libraries with your application, dll's should be added to the project as `BundleResource`. Also, each library should be copied to the output directory on build. Afterwards, change the above configuration to use `Environment.CurrentDirectory` to search for FFmpeg libraries.
 
 ## Using FFME in your Project
-*Remember: The Unosquare.FFME.Sample provides a reference implementation of usage*
+*Remember: The Unosquare.FFME.Windows.Sample provides a reference implementation of usage*
 
 1. Create a new WPF application
 2. Add a reference to <code>Unosquare.FFME.dll</code>
-3. In your <code>MainForm.xaml</code>, add the namespace: <code>xmlns:ffme="clr-namespace:Unosquare.FFME;assembly=Unosquare.FFME"</code>
+3. In your <code>MainForm.xaml</code>, add the namespace: <code>xmlns:ffme="clr-namespace:Unosquare.FFME;assembly=ffme.win"</code>
 4. Finally, create an instance of the FFME control in your <code>MainForm.xaml</code> as follows: `<ffme:MediaElement x:Name="MediaEl" Background="Gray" LoadedBehavior="Play" UnloadedBehavior="Manual" />`
 
 ## Thanks
