@@ -34,16 +34,21 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="SubtitleRenderer"/> class.
         /// </summary>
-        /// <param name="mediaElement">The media element.</param>
-        public SubtitleRenderer(MediaElement mediaElement)
+        /// <param name="mediaElementCore">The core media element.</param>
+        public SubtitleRenderer(MediaElementCore mediaElementCore)
         {
-            MediaElement = mediaElement;
+            MediaElementCore = mediaElementCore;
         }
 
         /// <summary>
-        /// Gets the parent media element.
+        /// Gets the parent media element (platform specific).
         /// </summary>
-        public MediaElement MediaElement { get; private set; }
+        public MediaElement MediaElement => (MediaElement)MediaElementCore.Parent;
+
+        /// <summary>
+        /// Gets the core platform independent player component.
+        /// </summary>
+        public MediaElementCore MediaElementCore { get; }
 
         /// <summary>
         /// Executed when the Close method is called on the parent MediaElement
@@ -113,7 +118,7 @@
                 EndTime = subtitleBlock.EndTime;
 
                 // Raise the subtitles event and keep track of the text.
-                if (MediaElement.RaiseRenderingSubtitlesEvent(subtitleBlock, clockPosition))
+                if (MediaElementCore.RaiseRenderingSubtitlesEvent(subtitleBlock, clockPosition))
                     BlockText = string.Empty;
                 else
                     BlockText = string.Join("\r\n", subtitleBlock.Text);
@@ -220,13 +225,13 @@
         /// Returns immediately because it enqueues the action on the UI thread.
         /// </summary>
         /// <param name="text">The text.</param>
-        private void SetText(string text)
+        private async void SetText(string text)
         {
             if (RenderedText.Equals(text))
                 return;
 
             // We fire-and-forget the update of the text
-            Runner.UIEnqueueInvoke(
+            await Runner.UIEnqueueInvoke(
                 DispatcherPriority.DataBind,
                 new Action<string>((s) =>
                 {

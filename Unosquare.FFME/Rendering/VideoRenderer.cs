@@ -4,7 +4,6 @@
     using Decoding;
     using System;
     using System.Runtime.CompilerServices;
-    using System.Threading;
     using System.Windows;
     using System.Windows.Media;
     using System.Windows.Media.Imaging;
@@ -35,17 +34,22 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="VideoRenderer"/> class.
         /// </summary>
-        /// <param name="mediaElement">The media element.</param>
-        public VideoRenderer(MediaElement mediaElement)
+        /// <param name="mediaElementCore">The core media element.</param>
+        public VideoRenderer(MediaElementCore mediaElementCore)
         {
-            MediaElement = mediaElement;
+            MediaElementCore = mediaElementCore;
             InitializeTargetBitmap(null);
         }
 
         /// <summary>
-        /// Gets the parent media element.
+        /// Gets the parent media element (platform specific).
         /// </summary>
-        public MediaElement MediaElement { get; private set; }
+        public MediaElement MediaElement => (MediaElement)MediaElementCore.Parent;
+
+        /// <summary>
+        /// Gets the core platform independent player component.
+        /// </summary>
+        public MediaElementCore MediaElementCore { get; }
 
         #endregion
 
@@ -110,7 +114,7 @@
         /// </summary>
         /// <param name="mediaBlock">The media block.</param>
         /// <param name="clockPosition">The clock position.</param>
-        public void Render(MediaBlock mediaBlock, TimeSpan clockPosition)
+        public async void Render(MediaBlock mediaBlock, TimeSpan clockPosition)
         {
             var block = mediaBlock as VideoBlock;
             if (block == null) return;
@@ -122,7 +126,7 @@
 
             IsRenderingInProgress.Value = true;
 
-            Runner.UIEnqueueInvoke(
+            await Runner.UIEnqueueInvoke(
                 DispatcherPriority.Render,
                 new Action<VideoBlock, TimeSpan>((b, cP) =>
                 {
@@ -137,13 +141,13 @@
 
                         var updateRect = new Int32Rect(0, 0, b.PixelWidth, b.PixelHeight);
                         TargetBitmap.WritePixels(updateRect, b.Buffer, b.BufferLength, b.BufferStride);
-                        MediaElement.VideoSmtpeTimecode = b.SmtpeTimecode;
-                        MediaElement.VideoHardwareDecoder = (MediaElement.Container?.Components?.Video?.IsUsingHardwareDecoding ?? false) ?
-                            MediaElement.Container?.Components?.Video?.HardwareAccelerator?.Name ?? string.Empty : string.Empty;
+                        MediaElementCore.VideoSmtpeTimecode = b.SmtpeTimecode;
+                        MediaElementCore.VideoHardwareDecoder = (MediaElementCore.Container?.Components?.Video?.IsUsingHardwareDecoding ?? false) ?
+                            MediaElementCore.Container?.Components?.Video?.HardwareAccelerator?.Name ?? string.Empty : string.Empty;
 
-                        MediaElement.RaiseRenderingVideoEvent(
+                        MediaElementCore.RaiseRenderingVideoEvent(
                             TargetBitmap,
-                            MediaElement.Container.MediaInfo.Streams[b.StreamIndex],
+                            MediaElementCore.Container.MediaInfo.Streams[b.StreamIndex],
                             b.SmtpeTimecode,
                             b.DisplayPictureNumber,
                             b.StartTime,

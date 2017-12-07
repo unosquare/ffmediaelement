@@ -206,7 +206,7 @@
             LogEventStart(MediaOpeningEvent);
             Runner.UIInvoke(DispatcherPriority.DataBind, () =>
             {
-                RaiseEvent(new MediaOpeningRoutedEventArgs(MediaOpeningEvent, this, Container.MediaOptions, Container.MediaInfo));
+                RaiseEvent(new MediaOpeningRoutedEventArgs(MediaOpeningEvent, this, mediaElementCore.Container.MediaOptions, mediaElementCore.Container.MediaInfo));
             });
 
             LogEventDone(MediaOpeningEvent);

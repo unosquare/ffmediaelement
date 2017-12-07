@@ -48,10 +48,33 @@
     <ApplicationIcon>
     </ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>CODE_ANALYSIS;TRACE;DEBUG</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\Debug\ffme.xml</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <LangVersion>default</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>..\StyleCop.Analyzers.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>CODE_ANALYSIS;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\Release\ffme.xml</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>..\StyleCop.Analyzers.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FFmpeg.AutoGen, Version=3.4.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\FFmpeg.AutoGen.3.4.0\lib\net45\FFmpeg.AutoGen.dll</HintPath>
-    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -65,41 +88,14 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="WindowsBase" />
+    <Reference Include="FFmpeg.AutoGen">
+      <HintPath>..\packages\FFmpeg.AutoGen.3.4.0.1\lib\net45\FFmpeg.AutoGen.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\CloseCommand.cs" />
-    <Compile Include="Commands\OpenCommand.cs" />
-    <Compile Include="Commands\PauseCommand.cs" />
-    <Compile Include="Commands\PlayCommand.cs" />
-    <Compile Include="Commands\MediaCommand.cs" />
-    <Compile Include="Commands\MediaCommandManager.cs" />
-    <Compile Include="Commands\MediaCommandType.cs" />
-    <Compile Include="Commands\SeekCommand.cs" />
-    <Compile Include="Commands\SpeedRatioCommand.cs" />
-    <Compile Include="Commands\StopCommand.cs" />
-    <Compile Include="Core\AtomicBoolean.cs" />
-    <Compile Include="Core\AtomicDouble.cs" />
-    <Compile Include="Core\AtomicLong.cs" />
-    <Compile Include="Core\FFmpegEx.cs" />
-    <Compile Include="Core\RC.cs" />
-    <Compile Include="Core\GenericMediaLogger.cs" />
-    <Compile Include="Core\IMediaLogger.cs" />
-    <Compile Include="Core\MediaTypeDictionary.cs" />
+    <Compile Include="Core\CustomDispatcherTimer.cs" />
     <Compile Include="Core\NativeMethods.cs" />
     <Compile Include="Core\Runner.cs" />
-    <Compile Include="Decoding\ClosedCaptions\CCColorType.cs" />
-    <Compile Include="Decoding\ClosedCaptions\CCMiscCommandType.cs" />
-    <Compile Include="Decoding\ClosedCaptions\CCPacketType.cs" />
-    <Compile Include="Decoding\ClosedCaptions\CCStyleType.cs" />
-    <Compile Include="Decoding\ClosedCaptions\CCXdsClassType.cs" />
-    <Compile Include="Decoding\ClosedCaptions\ClosedCaptionCollection.cs" />
-    <Compile Include="Decoding\ClosedCaptions\ClosedCaptionPacket.cs" />
-    <Compile Include="Decoding\HardwareAccelerator.cs" />
-    <Compile Include="Decoding\SeekRequirement.cs" />
-    <Compile Include="MediaElement.Events.cs" />
-    <Compile Include="MediaInfo.cs" />
-    <Compile Include="MediaLogMessagEventArgs.cs" />
-    <Compile Include="MediaElement.Workers.cs" />
     <Compile Include="Rendering\SoundTouch.cs" />
     <Compile Include="Rendering\Wave\IWaveProvider.cs" />
     <Compile Include="Rendering\Wave\MmResult.cs" />
@@ -112,33 +108,7 @@
     <Compile Include="Rendering\Wave\WaveInterop.cs" />
     <Compile Include="Rendering\Wave\WaveOutBuffer.cs" />
     <Compile Include="Rendering\Wave\WaveOutCapabilities.cs" />
-    <Compile Include="Core\CircularBuffer.cs" />
-    <Compile Include="Core\Clock.cs" />
-    <Compile Include="Core\Constants.cs" />
-    <Compile Include="Decoding\AudioBlock.cs" />
-    <Compile Include="Decoding\AudioFrame.cs" />
-    <Compile Include="Decoding\MediaBlockBuffer.cs" />
-    <Compile Include="Decoding\AudioComponent.cs" />
-    <Compile Include="Core\AudioParams.cs" />
-    <Compile Include="Core\CodecOption.cs" />
-    <Compile Include="Core\MediaType.cs" />
-    <Compile Include="MediaLogMessageType.cs" />
-    <Compile Include="MediaContainerException.cs" />
-    <Compile Include="Decoding\MediaFrame.cs" />
-    <Compile Include="Decoding\MediaBlock.cs" />
-    <Compile Include="Decoding\MediaComponent.cs" />
-    <Compile Include="Decoding\MediaComponentSet.cs" />
-    <Compile Include="Decoding\SubtitleBlock.cs" />
-    <Compile Include="Decoding\SubtitleFrame.cs" />
-    <Compile Include="Decoding\VideoBlock.cs" />
-    <Compile Include="Decoding\VideoFrame.cs" />
-    <Compile Include="Decoding\MediaContainer.cs" />
-    <Compile Include="MediaOptions.cs" />
-    <Compile Include="Decoding\PacketQueue.cs" />
-    <Compile Include="MediaCodecOptions.cs" />
-    <Compile Include="Core\FFDictionaryEntry.cs" />
-    <Compile Include="Core\FFDictionary.cs" />
-    <Compile Include="MediaElement.Controller.cs" />
+    <Compile Include="Core\WPFConstants.cs" />
     <Compile Include="MediaElement.cs" />
     <Compile Include="MediaElement.DependencyProperties.cs" />
     <Compile Include="MediaElement.MediaProperties.cs" />
@@ -147,17 +117,13 @@
     <Compile Include="Rendering\Wave\WaveOutSupport.cs" />
     <Compile Include="Rendering\Wave\WavePlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Core\StreamSpecifier.cs" />
-    <Compile Include="Decoding\SubtitleComponent.cs" />
-    <Compile Include="Core\Utils.cs" />
-    <Compile Include="Decoding\VideoComponent.cs" />
+    <Compile Include="Core\WPFUtils.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Rendering\AudioRenderer.cs" />
-    <Compile Include="Rendering\IRenderer.cs" />
     <Compile Include="Rendering\SubtitleRenderer.cs" />
     <Compile Include="Rendering\VideoRenderer.cs" />
   </ItemGroup>
@@ -177,6 +143,12 @@
   <ItemGroup>
     <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
     <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Unosquare.FFME.Common\Unosquare.FFME.Common.csproj">
+      <Project>{76b2db70-c8ab-4517-8afb-051383e496b7}</Project>
+      <Name>Unosquare.FFME.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

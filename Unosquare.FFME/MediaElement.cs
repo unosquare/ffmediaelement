@@ -1,13 +1,12 @@
 ﻿namespace Unosquare.FFME
 {
-    using Commands;
     using Core;
+    using Rendering;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
-    using System.Threading;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Data;
@@ -32,7 +31,6 @@
         #region Fields and Property Backing
 
 #pragma warning disable SA1401 // Fields must be private
-        internal static AtomicBoolean IsFFmpegLoaded = new AtomicBoolean();
 
         /// <summary>
         /// The logger
@@ -45,38 +43,20 @@
         internal readonly Image ViewBox = new Image();
 
         /// <summary>
-        /// To detect redundant calls
-        /// </summary>
-        internal bool IsDisposed = false;
-
-        /// <summary>
-        /// The ffmpeg directory
-        /// </summary>
-        private static string m_FFmpegDirectory = null;
-
-        /// <summary>
         /// IUriContext BaseUri backing
         /// </summary>
         private Uri m_BaseUri = null;
 
-        /// <summary>
-        /// The position update timer
-        /// </summary>
-        private DispatcherTimer UIPropertyUpdateTimer = null;
-
-        /// <summary>
-        /// When position is being set from within this control, this field will
-        /// be set to true. This is useful to detect if the user is setting the position
-        /// or if the Position property is being driven from within
-        /// </summary>
-        private AtomicBoolean m_IsPositionUpdating = new AtomicBoolean();
-
-        /// <summary>
-        /// Flag when disposing process start but not finished yet
-        /// </summary>
-        private AtomicBoolean m_IsDisposing = new AtomicBoolean();
-
 #pragma warning restore SA1401 // Fields must be private
+        #endregion
+
+        #region Wrapped media control
+
+        /// <summary>
+        /// Common player part we are wrapping in this control.
+        /// </summary>
+        private MediaElementCore mediaElementCore;
+
         #endregion
 
         #region Constructors
@@ -90,6 +70,28 @@
             style.Setters.Add(new Setter(FlowDirectionProperty, FlowDirection.LeftToRight));
             style.Seal();
             StyleProperty.OverrideMetadata(typeof(MediaElement), new FrameworkPropertyMetadata(style));
+
+            // Platform specific implementation
+            Platform.SetDllDirectory = NativeMethods.SetDllDirectory;
+            Platform.CopyMemory = NativeMethods.CopyMemory;
+            Platform.FillMemory = NativeMethods.FillMemory;
+            Platform.CreateTimer = (priority) =>
+            {
+                return new CustomDispatcherTimer((DispatcherPriority)priority);
+            };
+            Platform.UIInvoke = (priority, action) => Runner.UIInvoke((DispatcherPriority)priority, action);
+            Platform.UIEnqueueInvoke = (priority, action, args) => Runner.UIEnqueueInvoke((DispatcherPriority)priority, action, args);
+            Platform.CreateRenderer = (mediaType, m) =>
+            {
+                if (mediaType == MediaType.Audio) return new AudioRenderer(m);
+                else if (mediaType == MediaType.Video) return new VideoRenderer(m);
+                else if (mediaType == MediaType.Subtitle) return new SubtitleRenderer(m);
+
+                throw new ArgumentException($"No suitable renderer for Media Type '{mediaType}'");
+            };
+
+            // Simply forward the calls
+            MediaElementCore.FFmpegMessageLogged += (o, e) => FFmpegMessageLogged?.Invoke(o, e);
         }
 
         /// <summary>
@@ -106,9 +108,10 @@
             Stretch = ViewBox.Stretch;
             StretchDirection = ViewBox.StretchDirection;
             Logger = new GenericMediaLogger<MediaElement>(this);
-            Commands = new MediaCommandManager(this);
 
-            if (Utils.IsInDesignTime)
+            mediaElementCore = new MediaElementCore(this, WPFUtils.IsInDesignTime);
+
+            if (WPFUtils.IsInDesignTime)
             {
                 // Shows an FFmpeg image if we are in design-time
                 var bitmap = Properties.Resources.FFmpegMediaElementBackground;
@@ -119,50 +122,22 @@
             }
             else
             {
-                // The UI Property update timer is responsible for timely updates to properties outside of the worker threads
-                // We use the loaded priority because it is the priority right below the Render one.
-                UIPropertyUpdateTimer = new DispatcherTimer(DispatcherPriority.Loaded)
-                {
-                    Interval = Constants.UIPropertyUpdateInterval,
-                    IsEnabled = true
-                };
+                // for now forward stuff to underlying implementation
+                mediaElementCore.MessageLogged += (o, e) => MessageLogged?.Invoke(o, e);
 
-                // The tick callback performs the updates
-                UIPropertyUpdateTimer.Tick += (s, e) =>
-                {
-                    UpdatePosition(IsOpen ? Clock?.Position ?? TimeSpan.Zero : TimeSpan.Zero);
+                mediaElementCore.MediaOpening += (s, e) => RaiseMediaOpeningEvent();
+                mediaElementCore.MediaOpened += (s, e) => RaiseMediaOpenedEvent();
+                mediaElementCore.MediaFailed += (s, e) => RaiseMediaFailedEvent(e.Exception);
+                mediaElementCore.MediaEnded += (s, e) => RaiseMediaEndedEvent();
+                mediaElementCore.BufferingStarted += (s, e) => RaiseBufferingStartedEvent();
+                mediaElementCore.BufferingEnded += (s, e) => RaiseBufferingEndedEvent();
+                mediaElementCore.SeekingStarted += (s, e) => RaiseSeekingStartedEvent();
+                mediaElementCore.SeekingEnded += (s, e) => RaiseSeekingEndedEvent();
 
-                    if (HasMediaEnded == false && CanReadMorePackets && (IsOpening || IsOpen))
-                    {
-                        var bufferedLength = Container?.Components?.PacketBufferLength ?? 0d;
-                        BufferingProgress = Math.Min(1d, bufferedLength / BufferCacheLength);
-                        var oldIsBugffering = IsBuffering;
-                        var newIsBuffering = bufferedLength < BufferCacheLength;
-
-                        if (oldIsBugffering == false && newIsBuffering == true)
-                            RaiseBufferingStartedEvent();
-                        else if (oldIsBugffering == true && newIsBuffering == false)
-                            RaiseBufferingEndedEvent();
-
-                        IsBuffering = HasMediaEnded == false && newIsBuffering;
-                    }
-                    else
-                    {
-                        BufferingProgress = 0;
-                        IsBuffering = false;
-                    }
-
-                    var downloadProgress = Math.Min(1d, Math.Round((Container?.Components.PacketBufferLength ?? 0d) / DownloadCacheLength, 3));
-                    if (double.IsNaN(downloadProgress)) downloadProgress = 0;
-                    DownloadProgress = downloadProgress;
-                };
-
-                // Go ahead and fire up the continuous updates
-                UIPropertyUpdateTimer.Start();
+                mediaElementCore.PropertyChanged += MediaElementCore_PropertyChanged;
             }
 
-            m_MetadataBase = new ObservableCollection<KeyValuePair<string, string>>();
-            m_Metadata = CollectionViewSource.GetDefaultView(m_MetadataBase) as ICollectionView;
+            m_Metadata = CollectionViewSource.GetDefaultView(mediaElementCore.Metadata) as ICollectionView;
         }
 
         #endregion
@@ -197,21 +172,8 @@
         /// </summary>
         public static string FFmpegDirectory
         {
-            get
-            {
-                return m_FFmpegDirectory;
-            }
-            set
-            {
-                if (IsFFmpegLoaded.Value == false)
-                {
-                    m_FFmpegDirectory = value;
-                    return;
-                }
-
-                if ((value?.Equals(m_FFmpegDirectory) ?? false) == false)
-                    throw new InvalidOperationException($"Unable to set a new FFmpeg registration path: {value}. FFmpeg binaries have already been registered.");
-            }
+            get => MediaElementCore.FFmpegDirectory;
+            set => MediaElementCore.FFmpegDirectory = value;
         }
 
         /// <summary>
@@ -220,10 +182,7 @@
         /// </summary>
         public new HorizontalAlignment HorizontalAlignment
         {
-            get
-            {
-                return base.HorizontalAlignment;
-            }
+            get => base.HorizontalAlignment;
             set
             {
                 ViewBox.HorizontalAlignment = value;
@@ -236,14 +195,8 @@
         /// </summary>
         Uri IUriContext.BaseUri
         {
-            get
-            {
-                return m_BaseUri;
-            }
-            set
-            {
-                m_BaseUri = value;
-            }
+            get => m_BaseUri;
+            set => m_BaseUri = value;
         }
 
         /// <summary>
@@ -251,16 +204,36 @@
         /// be set to true. This is useful to detect if the user is setting the position
         /// or if the Position property is being driven from within
         /// </summary>
-        internal bool IsPositionUpdating
-        {
-            get { return m_IsPositionUpdating.Value; }
-            set { m_IsPositionUpdating.Value = value; }
-        }
+        internal bool IsPositionUpdating => mediaElementCore.IsPositionUpdating;
 
         /// <summary>
         /// Gets the grid control holding the rest of the controls.
         /// </summary>
         internal Grid ContentGrid { get; }
+
+        #endregion
+
+        #region Public API
+
+        /// <summary>
+        /// Begins or resumes playback of the currently loaded media.
+        /// </summary>
+        public void Play() => mediaElementCore.Play();
+
+        /// <summary>
+        /// Pauses playback of the currently loaded media.
+        /// </summary>
+        public void Pause() => mediaElementCore.Pause();
+
+        /// <summary>
+        /// Pauses and rewinds the currently loaded media.
+        /// </summary>
+        public void Stop() => mediaElementCore.Stop();
+
+        /// <summary>
+        /// Closes the currently loaded media.
+        /// </summary>
+        public void Close() => mediaElementCore.Close();
 
         #endregion
 
@@ -271,82 +244,85 @@
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            mediaElementCore.Dispose();
         }
 
-        /// <summary>
-        /// Raises the FFmpegMessageLogged event
-        /// </summary>
-        /// <param name="eventArgs">The <see cref="MediaLogMessagEventArgs" /> instance containing the event data.</param>
-        internal static void RaiseFFmpegMessageLogged(MediaLogMessagEventArgs eventArgs)
+        private void MediaElementCore_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            FFmpegMessageLogged?.Invoke(typeof(MediaElement), eventArgs);
-        }
+            switch (e.PropertyName)
+            {
+                // forward internal changes to the dependency properties
 
-        /// <summary>
-        /// Updates the position property signaling the update is
-        /// coming internally. This is to distinguish between user/binding 
-        /// written value to the Position Porperty and value set by this control's
-        /// internal clock.
-        /// </summary>
-        /// <param name="value">The current position.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdatePosition(TimeSpan value)
-        {
-            if (IsPositionUpdating || IsSeeking)
-                return;
+                // dependency properties
+                case nameof(MediaElementCore.Source):
+                    this.Source = mediaElementCore.Source;
+                    break;
+                case nameof(MediaElementCore.LoadedBehavior):
+                    this.LoadedBehavior = (MediaState)mediaElementCore.LoadedBehavior;
+                    break;
+                case nameof(MediaElementCore.SpeedRatio):
+                    this.SpeedRatio = mediaElementCore.SpeedRatio;
+                    break;
+                case nameof(MediaElementCore.UnloadedBehavior):
+                    this.UnloadedBehavior = (MediaState)mediaElementCore.UnloadedBehavior;
+                    break;
+                case nameof(MediaElementCore.Volume):
+                    this.Volume = mediaElementCore.Volume;
+                    break;
+                case nameof(MediaElementCore.Balance):
+                    this.Balance = mediaElementCore.Balance;
+                    break;
+                case nameof(MediaElementCore.IsMuted):
+                    this.IsMuted = mediaElementCore.IsMuted;
+                    break;
+                case nameof(MediaElementCore.ScrubbingEnabled):
+                    this.ScrubbingEnabled = mediaElementCore.ScrubbingEnabled;
+                    break;
+                case nameof(MediaElementCore.Position):
+                    this.Position = mediaElementCore.Position;
+                    break;
 
-            IsPositionUpdating = true;
-            Runner.UIEnqueueInvoke(
-                DispatcherPriority.DataBind,
-                (Action<TimeSpan>)((v) =>
-                {
-                    if (Position != v)
-                        SetValue(PositionProperty, v);
-
-                    IsPositionUpdating = false;
-                }),
-                value);
-        }
-
-        #endregion
-
-        #region Logging Events
-
-        /// <summary>
-        /// Raises the MessageLogged event
-        /// </summary>
-        /// <param name="eventArgs">The <see cref="MediaLogMessagEventArgs" /> instance containing the event data.</param>
-        internal void RaiseMessageLogged(MediaLogMessagEventArgs eventArgs)
-        {
-            MessageLogged?.Invoke(this, eventArgs);
+                // Simply forward notification of same-named properties
+                case nameof(IsOpen):
+                case nameof(IsOpening):
+                case nameof(MediaFormat):
+                case nameof(HasAudio):
+                case nameof(HasVideo):
+                case nameof(VideoCodec):
+                case nameof(VideoBitrate):
+                case nameof(NaturalVideoWidth):
+                case nameof(NaturalVideoHeight):
+                case nameof(VideoFrameRate):
+                case nameof(VideoFrameLength):
+                case nameof(AudioCodec):
+                case nameof(AudioBitrate):
+                case nameof(AudioChannels):
+                case nameof(AudioSampleRate):
+                case nameof(AudioBitsPerSample):
+                case nameof(NaturalDuration):
+                case nameof(CanPause):
+                case nameof(IsLiveStream):
+                case nameof(IsSeekable):
+                case nameof(BufferCacheLength):
+                case nameof(DownloadCacheLength):
+                case nameof(FrameStepDuration):
+                case nameof(MediaState):
+                case nameof(IsBuffering):
+                case nameof(BufferingProgress):
+                case nameof(IsPlaying):
+                case nameof(DownloadProgress):
+                case nameof(HasMediaEnded):
+                case nameof(IsSeeking):
+                case nameof(IsPositionUpdating):
+                case nameof(Metadata):
+                    OnPropertyChanged(e.PropertyName);
+                    break;
+            }
         }
 
         #endregion
 
         #region INotifyPropertyChanged Implementation
-
-        /// <summary>
-        /// Checks if a property already matches a desired value.  Sets the property and
-        /// notifies listeners only when necessary.
-        /// </summary>
-        /// <typeparam name="T">Type of the property.</typeparam>
-        /// <param name="storage">Reference to a property with both getter and setter.</param>
-        /// <param name="value">Desired value for the property.</param>
-        /// <param name="propertyName">Name of the property used to notify listeners.  This
-        /// value is optional and can be provided automatically when invoked from compilers that
-        /// support CallerMemberName.</param>
-        /// <returns>True if the value was changed, false if the existing value matched the
-        /// desired value.</returns>
-        private bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
-        {
-            if (Equals(storage, value))
-                return false;
-
-            storage = value;
-            OnPropertyChanged(propertyName);
-            return true;
-        }
 
         /// <summary>
         /// Notifies listeners that a property value has changed.
@@ -361,47 +337,6 @@
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             });
-        }
-
-        #endregion
-
-        #region IDisposable Implementation
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool alsoManaged)
-        {
-            if (IsDisposed) return;
-
-            if (alsoManaged)
-            {
-                m_IsDisposing.Value = true;
-
-                // free managed resources
-                Commands.Close().Wait();
-
-                if (Container != null)
-                {
-                    Container.Dispose();
-                    Container = null;
-                }
-
-                if (UIPropertyUpdateTimer != null)
-                {
-                    UIPropertyUpdateTimer.Stop();
-                    UIPropertyUpdateTimer.IsEnabled = false;
-                    UIPropertyUpdateTimer = null;
-                }
-
-                m_PacketReadingCycle.Dispose();
-                m_FrameDecodingCycle.Dispose();
-                m_BlockRenderingCycle.Dispose();
-                m_SeekingDone.Dispose();
-            }
-
-            IsDisposed = true;
         }
 
         #endregion
