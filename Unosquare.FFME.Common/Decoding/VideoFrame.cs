@@ -11,7 +11,7 @@
     /// Represents a wrapper for an unmanaged ffmpeg video frame.
     /// </summary>
     /// <seealso cref="Unosquare.FFME.Decoding.MediaFrame" />
-    internal unsafe sealed class VideoFrame : MediaFrame
+    internal sealed unsafe class VideoFrame : MediaFrame
     {
         #region Private Members
 
@@ -138,10 +138,7 @@
         /// <summary>
         /// Gets the pointer to the unmanaged frame.
         /// </summary>
-        internal AVFrame* Pointer
-        {
-            get { return m_Pointer; }
-        }
+        internal AVFrame* Pointer => m_Pointer;
 
         #endregion
 

@@ -9,7 +9,7 @@
     /// </summary>
     /// <seealso cref="Unosquare.FFME.Decoding.MediaFrame" />
     /// <seealso cref="System.IDisposable" />
-    internal unsafe sealed class AudioFrame : MediaFrame, IDisposable
+    internal sealed unsafe class AudioFrame : MediaFrame, IDisposable
     {
         #region Private Members
 
@@ -66,10 +66,7 @@
         /// <summary>
         /// Gets the pointer to the unmanaged frame.
         /// </summary>
-        internal AVFrame* Pointer
-        {
-            get { return m_Pointer; }
-        }
+        internal AVFrame* Pointer => m_Pointer;
 
         #endregion
 

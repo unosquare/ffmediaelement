@@ -28,18 +28,12 @@
         /// Provides key-value pairs of the metadata contained in the media.
         /// Returns null when media has not been loaded.
         /// </summary>
-        public ObservableCollection<KeyValuePair<string, string>> Metadata
-        {
-            get { return m_MetadataBase; }
-        }
+        public ObservableCollection<KeyValuePair<string, string>> Metadata => m_MetadataBase;
 
         /// <summary>
         /// Gets the media format. Returns null when media has not been loaded.
         /// </summary>
-        public string MediaFormat
-        {
-            get { return Container?.MediaFormatName; }
-        }
+        public string MediaFormat => Container?.MediaFormatName;
 
         /// <summary>
         /// Gets the duration of a single frame step.
@@ -66,73 +60,49 @@
         /// Returns whether the given media has audio. 
         /// Only valid after the MediaOpened event has fired.
         /// </summary> 
-        public bool HasAudio
-        {
-            get { return Container == null ? false : Container.Components.HasAudio; }
-        }
+        public bool HasAudio => Container?.Components.HasAudio ?? false;
 
         /// <summary> 
         /// Returns whether the given media has video. Only valid after the
         /// MediaOpened event has fired.
         /// </summary>
-        public bool HasVideo
-        {
-            get { return Container?.Components.HasVideo ?? false; }
-        }
+        public bool HasVideo => Container?.Components.HasVideo ?? false;
 
         /// <summary>
         /// Gets the video codec.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public string VideoCodec
-        {
-            get { return Container?.Components?.Video?.CodecName; }
-        }
+        public string VideoCodec => Container?.Components?.Video?.CodecName;
 
         /// <summary>
         /// Gets the video bitrate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int VideoBitrate
-        {
-            get { return Container?.Components?.Video?.Bitrate ?? 0; }
-        }
+        public int VideoBitrate => Container?.Components?.Video?.Bitrate ?? 0;
 
         /// <summary>
         /// Returns the natural width of the media in the video.
         /// Only valid after the MediaOpened event has fired.
         /// </summary> 
-        public int NaturalVideoWidth
-        {
-            get { return Container?.Components?.Video?.FrameWidth ?? 0; }
-        }
+        public int NaturalVideoWidth => Container?.Components?.Video?.FrameWidth ?? 0;
 
         /// <summary> 
         /// Returns the natural height of the media in the video.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int NaturalVideoHeight
-        {
-            get { return Container?.Components.Video?.FrameHeight ?? 0; }
-        }
+        public int NaturalVideoHeight => Container?.Components.Video?.FrameHeight ?? 0;
 
         /// <summary>
         /// Gets the video frame rate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public double VideoFrameRate
-        {
-            get { return Container?.Components.Video?.BaseFrameRate ?? 0; }
-        }
+        public double VideoFrameRate => Container?.Components.Video?.BaseFrameRate ?? 0;
 
         /// <summary>
         /// Gets the duration in seconds of the video frame.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public double VideoFrameLength
-        {
-            get { return 1d / (Container?.Components?.Video?.BaseFrameRate ?? 0); }
-        }
+        public double VideoFrameLength => 1d / (Container?.Components?.Video?.BaseFrameRate ?? 0);
 
         /// <summary>
         /// Gets the name of the video hardware decoder in use.
@@ -142,54 +112,39 @@
         /// </summary>
         public string VideoHardwareDecoder
         {
-            get { return m_VideoHardwareDecoder; }
-            internal set { SetProperty(ref m_VideoHardwareDecoder, value); }
+            get => m_VideoHardwareDecoder;
+            internal set => SetProperty(ref m_VideoHardwareDecoder, value);
         }
 
         /// <summary>
         /// Gets the audio codec.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public string AudioCodec
-        {
-            get { return Container?.Components?.Audio?.CodecName; }
-        }
+        public string AudioCodec => Container?.Components?.Audio?.CodecName;
 
         /// <summary>
         /// Gets the audio bitrate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int AudioBitrate
-        {
-            get { return Container?.Components?.Audio?.Bitrate ?? 0; }
-        }
+        public int AudioBitrate => Container?.Components?.Audio?.Bitrate ?? 0;
 
         /// <summary>
         /// Gets the audio channels count.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int AudioChannels
-        {
-            get { return Container?.Components?.Audio?.Channels ?? 0; }
-        }
+        public int AudioChannels => Container?.Components?.Audio?.Channels ?? 0;
 
         /// <summary>
         /// Gets the audio sample rate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int AudioSampleRate
-        {
-            get { return Container?.Components?.Audio?.SampleRate ?? 0; }
-        }
+        public int AudioSampleRate => Container?.Components?.Audio?.SampleRate ?? 0;
 
         /// <summary>
         /// Gets the audio bits per sample.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int AudioBitsPerSample
-        {
-            get { return Container?.Components?.Audio?.BitsPerSample ?? 0; }
-        }
+        public int AudioBitsPerSample => Container?.Components?.Audio?.BitsPerSample ?? 0;
 
         /// <summary>
         /// Gets the Media's natural duration
@@ -216,43 +171,31 @@
         /// This is only valid after the MediaOpened event has fired.
         /// Note that this property is computed based on wether the stream is detected to be a live stream.
         /// </summary>
-        public bool CanPause
-        {
-            get { return IsOpen ? !IsLiveStream : false; }
-        }
+        public bool CanPause => IsOpen ? !IsLiveStream : false;
 
         /// <summary>
         /// Returns whether the currently loaded media is live or realtime
         /// This is only valid after the MediaOpened event has fired.
         /// </summary>
-        public bool IsLiveStream
-        {
-            get { return IsOpen ? Container.IsStreamRealtime && Container.MediaDuration == TimeSpan.MinValue : false; }
-        }
+        public bool IsLiveStream => IsOpen ? Container.IsStreamRealtime && Container.MediaDuration == TimeSpan.MinValue : false;
 
         /// <summary>
         /// Gets a value indicating whether the currently loaded media can be seeked.
         /// </summary>
-        public bool IsSeekable
-        {
-            get { return Container != null ? Container.IsStreamSeekable : false; }
-        }
+        public bool IsSeekable => Container?.IsStreamSeekable ?? false;
 
         /// <summary>
         /// Gets a value indicating whether the media is playing.
         /// </summary>
-        public bool IsPlaying
-        {
-            get { return MediaState == CoreMediaState.Play; }
-        }
+        public bool IsPlaying => MediaState == CoreMediaState.Play;
 
         /// <summary>
         /// Gets a value indicating whether the media has reached its end.
         /// </summary>
         public bool HasMediaEnded
         {
-            get { return m_HasMediaEnded; }
-            internal set { SetProperty(ref m_HasMediaEnded, value); }
+            get => m_HasMediaEnded;
+            internal set => SetProperty(ref m_HasMediaEnded, value);
         }
 
         /// <summary>
@@ -260,8 +203,8 @@
         /// </summary>
         public bool IsBuffering
         {
-            get { return m_IsBuffering; }
-            private set { SetProperty(ref m_IsBuffering, value); }
+            get => m_IsBuffering;
+            private set => SetProperty(ref m_IsBuffering, value);
         }
 
         /// <summary>
@@ -269,10 +212,7 @@
         /// </summary>
         public bool IsSeeking
         {
-            get
-            {
-                return m_IsSeeking.Value == true;
-            }
+            get => m_IsSeeking.Value == true;
 
             internal set
             {
@@ -288,8 +228,8 @@
         /// </summary>
         public string VideoSmtpeTimecode
         {
-            get { return m_VideoSmtpeTimecode; }
-            internal set { SetProperty(ref m_VideoSmtpeTimecode, value); }
+            get => m_VideoSmtpeTimecode;
+            internal set => SetProperty(ref m_VideoSmtpeTimecode, value);
         }
 
         /// <summary>
@@ -298,8 +238,8 @@
         /// </summary>
         public double BufferingProgress
         {
-            get { return m_BufferingProgress; }
-            private set { SetProperty(ref m_BufferingProgress, value); }
+            get => m_BufferingProgress;
+            private set => SetProperty(ref m_BufferingProgress, value);
         }
 
         /// <summary>
@@ -330,8 +270,8 @@
         /// </summary>
         public double DownloadProgress
         {
-            get { return m_DownloadProgress; }
-            private set { SetProperty(ref m_DownloadProgress, value); }
+            get => m_DownloadProgress;
+            private set => SetProperty(ref m_DownloadProgress, value);
         }
 
         /// <summary>
@@ -339,42 +279,30 @@
         /// If it's a realtime stream it will return 30 times the buffer cache length.
         /// Otherwise, it will return  4 times of the buffer cache length.
         /// </summary>
-        public int DownloadCacheLength
-        {
-            get
-            {
-                return (Container?.IsStreamRealtime ?? false) ?
-                    BufferCacheLength * 30 : BufferCacheLength * 4;
-            }
-        }
+        public int DownloadCacheLength => (Container?.IsStreamRealtime ?? false) ?
+            BufferCacheLength * 30 : BufferCacheLength * 4;
 
         /// <summary>
         /// Gets a value indicating whether the media is in the process of opening.
         /// </summary>
         public bool IsOpening
         {
-            get { return m_IsOpening; }
-            internal set { SetProperty(ref m_IsOpening, value); }
+            get => m_IsOpening;
+            internal set => SetProperty(ref m_IsOpening, value);
         }
 
         /// <summary>
         /// Gets a value indicating whether this media element
         /// currently has an open media url.
         /// </summary>
-        public bool IsOpen
-        {
-            get { return (IsOpening == false) && (Container?.IsOpen ?? false); }
-        }
+        public bool IsOpen => (IsOpening == false) && (Container?.IsOpen ?? false);
 
         /// <summary>
         /// Gets the current playback state.
         /// </summary>
         public CoreMediaState MediaState
         {
-            get
-            {
-                return m_CoreMediaState;
-            }
+            get => m_CoreMediaState;
 
             internal set
             {
@@ -393,7 +321,7 @@
         internal void UpdateMetadaProperty()
         {
             m_MetadataBase.Clear();
-            if (Container != null && Container.Metadata != null)
+            if (Container?.Metadata != null)
             {
                 foreach (var kvp in Container.Metadata)
                     m_MetadataBase.Add(kvp);

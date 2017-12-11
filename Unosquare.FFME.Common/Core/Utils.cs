@@ -22,14 +22,14 @@
         #region Private Declarations
 
         private static readonly object FFmpegRegisterLock = new object();
-        private static unsafe readonly av_log_set_callback_callback FFmpegLogCallback = FFmpegLog;
+        private static readonly unsafe av_log_set_callback_callback FFmpegLogCallback = FFmpegLog;
 
         private static readonly IDispatcherTimer LogOutputter = null;
         private static readonly object LogSyncLock = new object();
         private static readonly List<string> FFmpegLogBuffer = new List<string>();
         private static readonly ConcurrentQueue<MediaLogMessagEventArgs> LogQueue = new ConcurrentQueue<MediaLogMessagEventArgs>();
 
-        private static unsafe readonly av_lockmgr_register_cb FFmpegLockManagerCallback = FFmpegManageLocking;
+        private static readonly unsafe av_lockmgr_register_cb FFmpegLockManagerCallback = FFmpegManageLocking;
         private static readonly Dictionary<IntPtr, ManualResetEvent> FFmpegOpDone = new Dictionary<IntPtr, ManualResetEvent>();
 
         private static bool? m_IsInDebugMode;
@@ -72,13 +72,7 @@
         /// <summary>
         /// Gets the assembly location.
         /// </summary>
-        private static string AssemblyLocation
-        {
-            get
-            {
-                return Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
-            }
-        }
+        private static string AssemblyLocation => Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
 
         #endregion
 
@@ -381,10 +375,7 @@
         /// <returns>The formatted string</returns>
         internal static string Format(this long ts, double divideBy = 1)
         {
-            if (divideBy == 1)
-                return $"{ts,10:#,##0}";
-            else
-                return $"{ts / divideBy,10:#,##0.000}";
+            return divideBy == 1 ? $"{ts,10:#,##0}" : $"{ts / divideBy,10:#,##0.000}";
         }
 
         /// <summary>
@@ -438,7 +429,7 @@
             input = inputParts[inputParts.Length - 1].Replace("\\n", " ").Replace("\\N", "\r\n");
             var builder = new StringBuilder(input.Length);
             var isInStyle = false;
-            char currentChar = default(char);
+            var currentChar = default(char);
 
             for (var i = 0; i < input.Length; i++)
             {

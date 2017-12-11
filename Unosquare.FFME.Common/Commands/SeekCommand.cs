@@ -2,7 +2,6 @@
 {
     using Core;
     using System;
-    using System.Linq;
 
     /// <summary>
     /// Implements the logic to seek on the media stream
@@ -10,7 +9,7 @@
     /// <seealso cref="Unosquare.FFME.Commands.MediaCommand" />
     internal sealed class SeekCommand : MediaCommand
     {
-        private bool WasPlaying = false;
+        private bool _wasPlaying = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SeekCommand" /> class.
@@ -38,7 +37,7 @@
         {
             var m = Manager.MediaElement;
 
-            WasPlaying = m.IsPlaying;
+            _wasPlaying = m.IsPlaying;
 
             var pause = new PauseCommand(Manager);
             pause.ExecuteInternal();
@@ -165,9 +164,9 @@
 
                 m.SeekingDone?.Set();
 
-                if (WasPlaying)
+                if (_wasPlaying)
                 {
-                    var play = new PlayCommand(this.Manager);
+                    var play = new PlayCommand(Manager);
                     play.ExecuteInternal();
                 }
             }

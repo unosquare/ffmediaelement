@@ -71,8 +71,8 @@
         /// </summary>
         internal bool IsTaskCancellationPending
         {
-            get { return m_IsTaskCancellationPending.Value; }
-            set { m_IsTaskCancellationPending.Value = value; }
+            get => m_IsTaskCancellationPending.Value;
+            set => m_IsTaskCancellationPending.Value = value;
         }
 
         /// <summary>
@@ -81,8 +81,8 @@
         /// </summary>
         internal bool HasDecoderSeeked
         {
-            get { return m_HasDecoderSeeked.Value; }
-            set { m_HasDecoderSeeked.Value = value; }
+            get => m_HasDecoderSeeked.Value;
+            set => m_HasDecoderSeeked.Value = value;
         }
 
         /// <summary>
@@ -109,19 +109,13 @@
         /// Gets a value indicating whether more packets can be read from the stream.
         /// This does not check if the packet queue is full.
         /// </summary>
-        private bool CanReadMorePackets
-        {
-            get { return (Container?.IsAtEndOfStream ?? true) == false; }
-        }
+        private bool CanReadMorePackets => (Container?.IsAtEndOfStream ?? true) == false;
 
         /// <summary>
         /// Gets a value indicating whether more frames can be decoded from the packet queue.
         /// That is, if we have packets in the packet buffer or if we are not at the end of the stream.
         /// </summary>
-        private bool CanReadMoreFrames
-        {
-            get { return CanReadMorePackets || Container.Components.PacketBufferLength > 0; }
-        }
+        private bool CanReadMoreFrames => CanReadMorePackets || Container.Components.PacketBufferLength > 0;
 
         #endregion
 

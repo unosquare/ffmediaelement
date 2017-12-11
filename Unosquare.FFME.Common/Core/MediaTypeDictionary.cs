@@ -27,17 +27,8 @@
         /// <returns>The item</returns>
         public new TValue this[MediaType key]
         {
-            get
-            {
-                if (ContainsKey(key) == false)
-                    return default(TValue);
-
-                return base[key];
-            }
-            set
-            {
-                base[key] = value;
-            }
+            get => ContainsKey(key) == false ? default(TValue) : base[key];
+            set => base[key] = value;
         }
     }
 }

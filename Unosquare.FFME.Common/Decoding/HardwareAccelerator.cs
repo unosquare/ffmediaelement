@@ -4,7 +4,7 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using Unosquare.FFME.Core;
+    using Core;
 
     internal unsafe class HardwareAccelerator
     {
@@ -28,7 +28,7 @@
             All = new ReadOnlyDictionary<AVPixelFormat, HardwareAccelerator>(
                 new Dictionary<AVPixelFormat, HardwareAccelerator>()
                 {
-                    { Dxva2.PixelFormat, Dxva2 }
+                    {Dxva2.PixelFormat, Dxva2}
                 });
         }
 
@@ -49,7 +49,7 @@
         /// <summary>
         /// Gets the dxva2 accelerator.
         /// </summary>
-        public static HardwareAccelerator Dxva2 { get; private set; }
+        public static HardwareAccelerator Dxva2 { get; }
 
         public string Name { get; private set; }
 
@@ -127,7 +127,7 @@
             if (codecContext->hw_device_ctx == null)
                 return input;
 
-            if (input->format != (int)PixelFormat)
+            if (input->format != (int) PixelFormat)
                 return input;
 
             comesFromHardware = true;
@@ -142,7 +142,7 @@
             }
 
             ffmpeg.av_frame_free(&input);
-            RC.Current.Remove((IntPtr)input);
+            RC.Current.Remove((IntPtr) input);
             RC.Current.Add(output, $"86: {nameof(HardwareAccelerator)}[{PixelFormat}].{nameof(ExchangeFrame)}()");
 
             return output;

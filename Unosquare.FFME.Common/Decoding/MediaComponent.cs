@@ -12,7 +12,7 @@
     /// logic.
     /// </summary>
     /// <seealso cref="System.IDisposable" />
-    internal unsafe abstract class MediaComponent : IDisposable
+    internal abstract unsafe class MediaComponent : IDisposable
     {
         #region Private Declarations
 
@@ -208,27 +208,21 @@
         /// packet buffer. Limit your Reads to something reasonable before
         /// this becomes too large.
         /// </summary>
-        public int PacketBufferLength
-        {
-            get { return Packets.BufferLength; }
-        }
+        public int PacketBufferLength => Packets.BufferLength;
 
         /// <summary>
         /// Gets the number of packets in the queue.
         /// Decode packets until this number becomes 0.
         /// </summary>
-        public int PacketBufferCount
-        {
-            get { return Packets.Count; }
-        }
+        public int PacketBufferCount => Packets.Count;
 
         /// <summary>
         /// Gets the total amount of bytes read by this component.
         /// </summary>
         public ulong TotalBytesRead
         {
-            get { return m_TotalBytesRead; }
-            private set { m_TotalBytesRead = value; }
+            get => m_TotalBytesRead;
+            private set => m_TotalBytesRead = value;
         }
 
         /// <summary>

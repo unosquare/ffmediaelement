@@ -24,8 +24,8 @@
         /// </summary>
         public long Value
         {
-            get { return Volatile.Read(ref m_Value); }
-            set { Interlocked.Exchange(ref m_Value, value); }
+            get => Volatile.Read(ref m_Value);
+            set => Interlocked.Exchange(ref m_Value, value);
         }
     }
 }

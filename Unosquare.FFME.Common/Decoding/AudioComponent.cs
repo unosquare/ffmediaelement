@@ -60,17 +60,17 @@
         /// <summary>
         /// Gets the number of audio channels.
         /// </summary>
-        public int Channels { get; private set; }
+        public int Channels { get; }
 
         /// <summary>
         /// Gets the audio sample rate.
         /// </summary>
-        public int SampleRate { get; private set; }
+        public int SampleRate { get; }
 
         /// <summary>
         /// Gets the bits per sample.
         /// </summary>
-        public int BitsPerSample { get; private set; }
+        public int BitsPerSample { get; }
 
         #endregion
 

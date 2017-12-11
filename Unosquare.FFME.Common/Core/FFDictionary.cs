@@ -72,14 +72,8 @@
         /// <returns>The entry</returns>
         public string this[string key]
         {
-            get
-            {
-                return Get(key);
-            }
-            set
-            {
-                Set(key, value, false);
-            }
+            get => Get(key);
+            set => Set(key, value, false);
         }
 
         #endregion
@@ -187,8 +181,8 @@
         /// <returns>The value</returns>
         public string Get(string key)
         {
-            var entry = GetEntry(key, true);
-            return entry == null ? null : entry.Value;
+            var entry = GetEntry(key);
+            return entry?.Value;
         }
 
         /// <summary>

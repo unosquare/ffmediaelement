@@ -76,10 +76,7 @@
         /// <summary>
         /// Gets the output format of the audio
         /// </summary>
-        public WaveFormat WaveFormat
-        {
-            get { return m_Format; }
-        }
+        public WaveFormat WaveFormat => m_Format;
 
         /// <summary>
         /// Gets the parent media element (platform specific).
@@ -99,10 +96,7 @@
         /// </value>
         public double Volume
         {
-            get
-            {
-                return m_Volume.Value;
-            }
+            get => m_Volume.Value;
             set
             {
                 if (value < 0) value = 0;
@@ -122,10 +116,7 @@
         /// </summary>
         public double Balance
         {
-            get
-            {
-                return m_Balance.Value;
-            }
+            get => m_Balance.Value;
             set
             {
                 if (value < -1.0) value = -1.0;
@@ -140,8 +131,8 @@
         /// </summary>
         public bool IsMuted
         {
-            get { return m_IsMuted.Value; }
-            set { m_IsMuted.Value = value; }
+            get => m_IsMuted.Value;
+            set => m_IsMuted.Value = value;
         }
 
         /// <summary>
@@ -189,10 +180,7 @@
         /// Gets the desired latency odf the audio device.
         /// Value is always positive and typically 200ms. This means audio gets rendered up to this late behind the wall clock.
         /// </summary>
-        public TimeSpan DesiredLatency
-        {
-            get { return TimeSpan.FromTicks((AudioDevice?.DesiredLatency ?? 1) * TimeSpan.TicksPerMillisecond); }
-        }
+        public TimeSpan DesiredLatency => TimeSpan.FromTicks((AudioDevice?.DesiredLatency ?? 1) * TimeSpan.TicksPerMillisecond);
 
         /// <summary>
         /// Gets the speed ratio.
@@ -453,7 +441,10 @@
                     });
                 }
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
 
             if (AudioDevice != null)
             {

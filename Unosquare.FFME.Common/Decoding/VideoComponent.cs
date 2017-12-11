@@ -83,10 +83,7 @@
         /// Gets the base frame rate as reported by the stream component.
         /// All discrete timestamps can be represented in this framerate.
         /// </summary>
-        public double BaseFrameRate
-        {
-            get { return BaseFrameRateQ.ToDouble(); }
-        }
+        public double BaseFrameRate => BaseFrameRateQ.ToDouble();
 
         /// <summary>
         /// Gets the current frame rate as guessed by the last processed frame.
@@ -97,12 +94,12 @@
         /// <summary>
         /// Gets the width of the picture frame.
         /// </summary>
-        public int FrameWidth { get; private set; }
+        public int FrameWidth { get; }
 
         /// <summary>
         /// Gets the height of the picture frame.
         /// </summary>
-        public int FrameHeight { get; private set; }
+        public int FrameHeight { get; }
 
         #endregion
 

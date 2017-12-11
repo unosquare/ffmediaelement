@@ -34,10 +34,7 @@
         /// Gets a pointer to the first byte of the data buffer.
         /// The format signed 16-bits per sample, channel interleaved
         /// </summary>
-        public IntPtr Buffer
-        {
-            get { return AudioBuffer; }
-        }
+        public IntPtr Buffer => AudioBuffer;
 
         /// <summary>
         /// Gets the length of the buffer in bytes.
