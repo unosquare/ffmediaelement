@@ -1,12 +1,14 @@
 # FFME: *WPF MediaElement Alternative*
 [![Analytics](https://ga-beacon.appspot.com/UA-8535255-2/unosquare/ffmediaelement/)](https://github.com/igrigorik/ga-beacon)
+[![NuGet version](https://badge.fury.io/nu/FFME.Windows.svg)](https://badge.fury.io/nu/FFME.Windows)
 [![Build status](https://ci.appveyor.com/api/projects/status/ppqeayanucj1hadj?svg=true)](https://ci.appveyor.com/project/geoperez/ffmediaelement)
 
 *:star:Please star this project if you find it useful!*
 
 ![ffmeplay](https://github.com/unosquare/ffmediaelement/raw/master/ffmeplay.png)
 
-- Current Status: (2017-09-12) - 2.0, codenamed Michelob is now in beta 1 (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
+- Current Status: (2017-12-121) - 2.0, codenamed Michelob is now in beta 2 (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
+- NuGet Package now available: https://www.nuget.org/packages/FFME.Windows/
 - FFmpeg Version: <a href="http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip">3.4.0 (32-bit)</a>
 - For a history of commits see the repo: https://github.com/unosquare/ffplaydotnet
 
@@ -31,6 +33,7 @@ FFME provides multiple improvements over the standard MediaElement such as:
 - There currently is no support for opening capture devices such as webcams or TV cards. While this is not too hard to do, it is not (yet) implemented in this library. See issue #48
 
 ## Compiling, Running and Testing
+
 *Please note that I am unable to distribute FFmpeg's binaries because I don't know if I am allowed to do so. Follow the instructions below to compile, run and test FFME. I will look into releasing a NuGet package. See issue #1*
 
 1. Clone this repository.
@@ -43,6 +46,11 @@ FFME provides multiple improvements over the standard MediaElement such as:
 8. You should see a sample media player. Click on the <code>Open</code> icon located at the bottom right and enter a URL or path to a media file.
 9. The file or URL should play immediately, and all the properties should display to the right of the media display by clicking on the <code>Info</code> icon.
 10. You can use the resulting compiled assembly in your project without further dependencies as FFME is entirely self-contained. The locations of the compiled FFME assembly, depending on your build configuration are either <code>...\ffmediaelement\Unosquare.FFME\bin\Debug\Unosquare.FFME.dll</code> or <code>...\ffmediaelement\Unosquare.FFME\bin\Release\Unosquare.FFME.dll</code>
+
+### NuGet Installation:
+```
+PM> Install-Package FFME.Windows
+```
 
 ### MacOS player (in preview)
 Compile FFmpeg for Mac (instructions can be found on [FFmpeg.AutoGen](https://github.com/Ruslan-B/FFmpeg.AutoGen)) and copy the following libraries from `/opt/local/lib` 's to `/Users/{USER}/ffmpeg` (`~/ffmpeg`):
