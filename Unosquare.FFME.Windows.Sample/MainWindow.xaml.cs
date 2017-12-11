@@ -20,13 +20,13 @@
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-
         #region State Variables, Property Backing and Events
 
         private readonly Dictionary<string, Action> PropertyUpdaters;
         private readonly Dictionary<string, string[]> PropertyTriggers;
-        private ConfigRoot Config;
         private readonly ObservableCollection<string> HistoryItems = new ObservableCollection<string>();
+
+        private ConfigRoot Config;
 
         /// <summary>
         /// Occurs when a property changes its value.
@@ -59,7 +59,8 @@
             get
             {
                 if (m_OpenCommand == null)
-                    m_OpenCommand = new DelegateCommand((a) =>
+                {
+                    m_OpenCommand = new DelegateCommand(a =>
                     {
                         try
                         {
@@ -72,7 +73,8 @@
                             MessageBox.Show($"Media Failed: {ex.GetType()}\r\n{ex.Message}",
                                 "MediaElement Error", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                         }
-                    }, null);
+                    });
+                }
 
                 return m_OpenCommand;
             }
@@ -89,7 +91,7 @@
             get
             {
                 if (m_PauseCommand == null)
-                    m_PauseCommand = new DelegateCommand((o) => { Media.Pause(); }, null);
+                    m_PauseCommand = new DelegateCommand(o => { Media.Pause(); });
 
                 return m_PauseCommand;
             }
@@ -106,7 +108,7 @@
             get
             {
                 if (m_PlayCommand == null)
-                    m_PlayCommand = new DelegateCommand((o) => { Media.Play(); }, null);
+                    m_PlayCommand = new DelegateCommand(o => { Media.Play(); });
 
                 return m_PlayCommand;
             }
@@ -123,7 +125,7 @@
             get
             {
                 if (m_StopCommand == null)
-                    m_StopCommand = new DelegateCommand((o) => { Media.Stop(); }, null);
+                    m_StopCommand = new DelegateCommand(o => { Media.Stop(); });
 
                 return m_StopCommand;
             }
@@ -140,7 +142,7 @@
             get
             {
                 if (m_CloseCommand == null)
-                    m_CloseCommand = new DelegateCommand((o) => { Media.Close(); }, null);
+                    m_CloseCommand = new DelegateCommand(o => { Media.Close(); });
 
                 return m_CloseCommand;
             }
@@ -157,7 +159,8 @@
             get
             {
                 if (m_ToggleFullscreenCommand == null)
-                    m_ToggleFullscreenCommand = new DelegateCommand((o) =>
+                {
+                    m_ToggleFullscreenCommand = new DelegateCommand(o =>
                     {
 
                         // If we are already in fullscreen, go back to normal
@@ -174,7 +177,8 @@
                             WindowState = WindowState.Normal;
                             WindowState = WindowState.Maximized;
                         }
-                    }, null);
+                    });
+                }
 
                 return m_ToggleFullscreenCommand;
             }
@@ -297,7 +301,6 @@
         /// </summary>
         public MainWindow()
         {
-
             PropertyUpdaters = new Dictionary<string, Action>
             {
                 { nameof(IsMediaOpenVisibility), () => { IsMediaOpenVisibility = Media.IsOpen ? Visibility.Visible : Visibility.Hidden; } },
@@ -990,8 +993,7 @@
                 }
             }
         }
-
-
+        
         /// <summary>
         /// Snaps to the given multiple multiple.
         /// </summary>

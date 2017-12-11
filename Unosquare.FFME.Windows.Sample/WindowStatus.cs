@@ -82,6 +82,5 @@
             w.Topmost = Topmost;
             w.ResizeMode = ResizeMode;
         }
-
     }
 }

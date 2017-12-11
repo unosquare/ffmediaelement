@@ -5,9 +5,36 @@
     using System.IO;
     using System.Xml.Serialization;
 
+    /// <summary>
+    /// Represents the Config Root
+    /// </summary>
     [Serializable]
     public class ConfigRoot
     {
+        /// <summary>
+        /// Gets or sets the version.
+        /// </summary>
+        /// <value>
+        /// The version.
+        /// </value>
+        public string Version { get; set; } = typeof(ConfigRoot).Assembly.GetName().Version.ToString();
+
+        /// <summary>
+        /// Gets or sets the ffmpeg path.
+        /// </summary>
+        /// <value>
+        /// The ffmpeg path.
+        /// </value>
+        public string FFmpegPath { get; set; } = @"C:\ffmpeg\";
+
+        /// <summary>
+        /// Gets or sets the history entries.
+        /// </summary>
+        /// <value>
+        /// The history entries.
+        /// </value>
+        public List<string> HistoryEntries { get; set; } = new List<string>();
+
         private static string SavePath
         {
             get
@@ -21,10 +48,10 @@
             }
         }
 
-        public string Version { get; set; } = typeof(ConfigRoot).Assembly.GetName().Version.ToString();
-        public string FFmpegPath { get; set; } = @"C:\ffmpeg\";
-        public List<string> HistoryEntries { get; set; } = new List<string>();
-
+        /// <summary>
+        /// Loads this instance.
+        /// </summary>
+        /// <returns>The ConfigRoot instance</returns>
         public static ConfigRoot Load()
         {
             if (File.Exists(SavePath) == false)
@@ -41,6 +68,9 @@
             }
         }
 
+        /// <summary>
+        /// Saves this instance.
+        /// </summary>
         public void Save()
         {
             var serializer = new XmlSerializer(typeof(ConfigRoot));

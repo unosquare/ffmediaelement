@@ -9,12 +9,11 @@
     public class MediaOpeningEventArgs : EventArgs
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="MediaOpeningRoutedEventArgs" /> class.
+        /// Initializes a new instance of the <see cref="MediaOpeningEventArgs"/> class.
         /// </summary>
-        /// <param name="routedEvent">The routed event.</param>
         /// <param name="source">The source.</param>
         /// <param name="options">The options.</param>
-        /// <param name="info">The input information.</param>
+        /// <param name="info">The information.</param>
         public MediaOpeningEventArgs(object source, MediaOptions options, MediaInfo info)
         {
             Source = source;

@@ -1,4 +1,5 @@
-﻿namespace Unosquare.FFME.Windows.Sample
+﻿#pragma warning disable SA1649 // File name must match first type name
+namespace Unosquare.FFME.Windows.Sample
 {
     using System;
     using System.Globalization;
@@ -21,11 +22,15 @@
         /// <returns>
         /// A converted value. If the method returns null, the valid null value is used.
         /// </returns>
-        public object Convert(object value, Type targetType,
-            object parameter, CultureInfo culture)
+        public object Convert(
+            object value, 
+            Type targetType,
+            object parameter, 
+            CultureInfo culture)
         {
-            if (value is TimeSpan) return ((TimeSpan)value).TotalSeconds;
-            if (value is Duration) return ((Duration)value).HasTimeSpan ? ((Duration)value).TimeSpan.TotalSeconds : 0d;
+            if (value is TimeSpan) return ((TimeSpan) value).TotalSeconds;
+            if (value is Duration)
+                return ((Duration) value).HasTimeSpan ? ((Duration) value).TimeSpan.TotalSeconds : 0d;
 
             return 0d;
         }
@@ -40,10 +45,14 @@
         /// <returns>
         /// A converted value. If the method returns null, the valid null value is used.
         /// </returns>
-        public object ConvertBack(object value, Type targetType,
-            object parameter, CultureInfo culture)
+        public object ConvertBack(
+            object value, 
+            Type targetType,
+            object parameter, 
+            CultureInfo culture)
         {
-            var result = TimeSpan.FromTicks((long)Math.Round(TimeSpan.TicksPerSecond * (double)value, 0));
+            var result = TimeSpan.FromTicks((long) Math.Round(TimeSpan.TicksPerSecond * (double) value, 0));
+
             // Do the conversion from visibility to bool
             if (targetType == typeof(TimeSpan)) return result;
             if (targetType == typeof(Duration)) return new Duration(result);
@@ -65,7 +74,7 @@
         /// <param name="targetType">Type of the target.</param>
         /// <param name="duration">The duration.</param>
         /// <param name="culture">The culture.</param>
-        /// <returns></returns>
+        /// <returns>The object converted</returns>
         public object Convert(object position, Type targetType, object duration, CultureInfo culture)
         {
             if (duration != null)
@@ -78,20 +87,21 @@
             var p = TimeSpan.Zero;
             var d = TimeSpan.Zero;
 
-            if (position is TimeSpan) p = (TimeSpan)position;
-            if (position is Duration) p = ((Duration)position).HasTimeSpan ? ((Duration)position).TimeSpan : TimeSpan.Zero;
+            if (position is TimeSpan) p = (TimeSpan) position;
+            if (position is Duration)
+                p = ((Duration) position).HasTimeSpan ? ((Duration) position).TimeSpan : TimeSpan.Zero;
 
             if (duration != null)
             {
-                if (duration is TimeSpan) d = (TimeSpan)duration;
-                if (duration is Duration) d = ((Duration)duration).HasTimeSpan ? ((Duration)duration).TimeSpan : TimeSpan.Zero;
+                if (duration is TimeSpan) d = (TimeSpan) duration;
+                if (duration is Duration)
+                    d = ((Duration) duration).HasTimeSpan ? ((Duration) duration).TimeSpan : TimeSpan.Zero;
 
                 if (d == TimeSpan.Zero) return string.Empty;
                 p = TimeSpan.FromTicks(d.Ticks - p.Ticks);
-
             }
 
-            return $"{(int)(p.TotalHours):00}:{p.Minutes:00}:{p.Seconds:00}.{p.Milliseconds:000}";
+            return $"{(int) (p.TotalHours):00}:{p.Minutes:00}:{p.Seconds:00}.{p.Milliseconds:000}";
         }
 
         /// <summary>
@@ -104,8 +114,11 @@
         /// <returns>
         /// A converted value. If the method returns null, the valid null value is used.
         /// </returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) { throw new NotImplementedException(); }
+        /// <exception cref="NotImplementedException">Expected error</exception>
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     /// <summary>
@@ -125,15 +138,14 @@
         public object Convert(object value, Type targetType, object format, CultureInfo culture)
         {
             var percentage = 0d;
-            if (value is double) percentage = (double)value;
+            if (value is double) percentage = (double) value;
 
             percentage = Math.Round(percentage * 100d, 0);
 
             if (format == null || percentage == 0d)
                 return $"{percentage,3:0}%";
 
-            else
-                return $"{((percentage > 0d) ? "R " : "L ")} {Math.Abs(percentage),3:0}%";
+            return $"{((percentage > 0d) ? "R " : "L ")} {Math.Abs(percentage),3:0}%";
         }
 
         /// <summary>
@@ -143,7 +155,13 @@
         /// <param name="targetType">Type of the target.</param>
         /// <param name="parameter">The parameter.</param>
         /// <param name="culture">The culture.</param>
-        /// <returns></returns>
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) { throw new NotImplementedException(); }
+        /// <returns>
+        /// A converted value. If the method returns null, the valid null value is used.
+        /// </returns>
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
+#pragma warning restore SA1649 // File name must match first type name

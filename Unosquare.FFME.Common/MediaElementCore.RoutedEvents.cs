@@ -1,17 +1,32 @@
-﻿namespace Unosquare.FFME
+﻿#pragma warning disable SA1649 // File name must match first type name
+namespace Unosquare.FFME
 {
     using Core;
     using System;
     using System.Runtime.CompilerServices;
 
+    /// <summary>
+    /// Represents an Exception event arguments
+    /// </summary>
+    /// <seealso cref="System.EventArgs" />
     public class ExceptionEventArgs : EventArgs
     {
-        public Exception Exception { get; }
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExceptionEventArgs"/> class.
+        /// </summary>
+        /// <param name="e">The e.</param>
         public ExceptionEventArgs(Exception e)
         {
             Exception = e;
         }
+
+        /// <summary>
+        /// Gets the exception.
+        /// </summary>
+        /// <value>
+        /// The exception.
+        /// </value>
+        public Exception Exception { get; }
     }
 
     public partial class MediaElementCore
@@ -94,7 +109,8 @@
         internal void RaiseMediaOpeningEvent()
         {
             LogEventStart(nameof(MediaOpening));
-            Platform.UIInvoke(CoreDispatcherPriority.DataBind, () => MediaOpening(this, new MediaOpeningEventArgs(this, Container.MediaOptions, Container.MediaInfo)));
+            Platform.UIInvoke(CoreDispatcherPriority.DataBind,
+                () => MediaOpening(this, new MediaOpeningEventArgs(this, Container.MediaOptions, Container.MediaInfo)));
 
             LogEventDone(nameof(MediaOpening));
         }
@@ -102,7 +118,7 @@
         /// <summary>
         /// Logs the start of an event
         /// </summary>
-        /// <param name="e">The event.</param>
+        /// <param name="callerName">Name of the caller.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void LogEventStart(string callerName)
         {
@@ -113,7 +129,7 @@
         /// <summary>
         /// Logs the end of an event.
         /// </summary>
-        /// <param name="e">The event.</param>
+        /// <param name="callerName">Name of the caller.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void LogEventDone(string callerName)
         {
@@ -179,3 +195,4 @@
         #endregion
     }
 }
+#pragma warning restore SA1649 // File name must match first type name

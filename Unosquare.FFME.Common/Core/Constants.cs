@@ -37,6 +37,7 @@
         public const string DllSWScale = "swscale-4.dll";
         public const string DllAVDevice = "avdevice-57.dll";
 
+#pragma warning disable SA1310 // Field names must not contain underscore
         public const string DllAVCodec_macOS = "avcodec.57.dylib";
         public const string DllAVFilter_macOS = "avfilter.6.dylib";
         public const string DllAVFormat_macOS = "avformat.57.dylib";
@@ -44,6 +45,7 @@
         public const string DllSWResample_macOS = "swresample.2.dylib";
         public const string DllSWScale_macOS = "swscale.4.dylib";
         public const string DllAVDevice_macOS = "avdevice.57.dylib";
+#pragma warning restore SA1310 // Field names must not contain underscore
 
         /// <summary>
         /// Determines if the av_lockmgr_register is called.

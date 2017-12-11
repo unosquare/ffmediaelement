@@ -16,11 +16,6 @@
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     public partial class MediaElementCore : IDisposable, INotifyPropertyChanged
     {
-        /// <summary>
-        /// Gets the parent control (platform specific).
-        /// </summary>
-        public object Parent { get; }
-
         #region Fields and Property Backing
 #pragma warning disable SA1401 // Fields must be private
         internal static AtomicBoolean IsFFmpegLoaded = new AtomicBoolean();
@@ -62,6 +57,11 @@
 
         #region Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MediaElementCore"/> class.
+        /// </summary>
+        /// <param name="parent">The parent.</param>
+        /// <param name="isInDesignTime">if set to <c>true</c> [is in design time].</param>
         public MediaElementCore(object parent, bool isInDesignTime)
         {
             Parent = parent;
@@ -158,6 +158,11 @@
         }
 
         /// <summary>
+        /// Gets the parent control (platform specific).
+        /// </summary>
+        public object Parent { get; }
+
+        /// <summary>
         /// When position is being set from within this control, this field will
         /// be set to true. This is useful to detect if the user is setting the position
         /// or if the Position property is being driven from within
@@ -171,6 +176,23 @@
         #endregion
 
         #region Methods
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        /// <summary>
+        /// Raises the FFmpegMessageLogged event
+        /// </summary>
+        /// <param name="eventArgs">The <see cref="MediaLogMessagEventArgs" /> instance containing the event data.</param>
+        internal static void RaiseFFmpegMessageLogged(MediaLogMessagEventArgs eventArgs)
+        {
+            FFmpegMessageLogged?.Invoke(typeof(MediaElementCore), eventArgs);
+        }
 
         internal async Task Open(Uri uri)
         {
@@ -192,14 +214,6 @@
             {
                 await Commands.Close();
             }
-        }
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
         }
 
         /// <summary>
@@ -226,15 +240,6 @@
                     IsPositionUpdating = false;
                 }),
                 new object[] { value });
-        }
-
-        /// <summary>
-        /// Raises the FFmpegMessageLogged event
-        /// </summary>
-        /// <param name="eventArgs">The <see cref="MediaLogMessagEventArgs" /> instance containing the event data.</param>
-        internal static void RaiseFFmpegMessageLogged(MediaLogMessagEventArgs eventArgs)
-        {
-            FFmpegMessageLogged?.Invoke(typeof(MediaElementCore), eventArgs);
         }
 
         #endregion

@@ -196,17 +196,20 @@
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
         public TimeSpan? NaturalDuration => Container?.MediaDuration;
-        //public Duration NaturalDuration
-        //{
-        //    get
-        //    {
-        //        return Container == null
-        //          ? Duration.Automatic
-        //          : (Container.MediaDuration == TimeSpan.MinValue
-        //            ? Duration.Forever
-        //            : (Container.MediaDuration < TimeSpan.Zero ? default(Duration) : new Duration(Container.MediaDuration)));
-        //    }
-        //}
+
+        /*
+        public Duration NaturalDuration
+        {
+            get
+            {
+                return Container == null
+                  ? Duration.Automatic
+                  : (Container.MediaDuration == TimeSpan.MinValue
+                    ? Duration.Forever
+                    : (Container.MediaDuration < TimeSpan.Zero ? default(Duration) : new Duration(Container.MediaDuration)));
+            }
+        }
+        */
 
         /// <summary>
         /// Returns whether the currently loaded media can be paused.
