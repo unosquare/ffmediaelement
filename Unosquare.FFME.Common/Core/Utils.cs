@@ -46,8 +46,9 @@
         static Utils()
         {
             LogOutputter = Platform.CreateTimer(CoreDispatcherPriority.Background);
-
+            LogOutputter.Interval = Constants.LogOutputterUpdateInterval;
             LogOutputter.Tick += LogOutputter_Tick;
+            LogOutputter.IsEnabled = true;
             LogOutputter.Start();
         }
 

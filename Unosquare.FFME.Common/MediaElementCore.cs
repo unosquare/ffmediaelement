@@ -74,7 +74,6 @@
                 // We use the loaded priority because it is the priority right below the Render one.
                 UIPropertyUpdateTimer = Platform.CreateTimer(CoreDispatcherPriority.Loaded);
                 UIPropertyUpdateTimer.Interval = Constants.UIPropertyUpdateInterval;
-                UIPropertyUpdateTimer.IsEnabled = true;
 
                 // The tick callback performs the updates
                 UIPropertyUpdateTimer.Tick += (s, e) =>
@@ -107,6 +106,7 @@
                 };
 
                 // Go ahead and fire up the continuous updates
+                UIPropertyUpdateTimer.IsEnabled = true;
                 UIPropertyUpdateTimer.Start();
             }
         }
