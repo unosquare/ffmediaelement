@@ -15,7 +15,7 @@
     <RepositoryUrl>https://github.com/unosquare/ffmediaelement</RepositoryUrl>
     <RepositoryType>GitHub</RepositoryType>
     <PackageTags>FFmpeg, Media, Audio, Video, Decoding</PackageTags>
-    <AssemblyName>ffmecommon</AssemblyName>
+    <AssemblyName>ffme.common</AssemblyName>
     <Platforms>AnyCPU;x64</Platforms>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CodeAnalysisRuleSet>..\StyleCop.Analyzers.ruleset</CodeAnalysisRuleSet>
@@ -26,6 +26,10 @@
     <WarningsAsErrors />
     <NoWarn />
     <DocumentationFile>bin\Debug\netstandard2.0\ffmecommon.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\netstandard2.0\ffme.common.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

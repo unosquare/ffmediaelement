@@ -48,6 +48,8 @@
     <LinkMode>None</LinkMode>
     <XamMacArch>
     </XamMacArch>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FFmpeg.AutoGen, Version=3.4.0.1, Culture=neutral, processorArchitecture=MSIL">
