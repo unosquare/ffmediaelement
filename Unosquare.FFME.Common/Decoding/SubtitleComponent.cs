@@ -3,7 +3,7 @@
     using FFmpeg.AutoGen;
     using System;
     using System.Collections.Generic;
-    using Unosquare.FFME.Core;
+    using Core;
 
     /// <summary>
     /// Performs subtitle stream extraction, decoding and text conversion.

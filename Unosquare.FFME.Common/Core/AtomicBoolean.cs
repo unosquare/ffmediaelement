@@ -25,8 +25,8 @@
         /// </summary>
         public bool Value
         {
-            get { return Volatile.Read(ref m_Value) != 0; }
-            set { Interlocked.Exchange(ref m_Value, value ? 1 : 0); }
+            get => Volatile.Read(ref m_Value) != 0;
+            set => Interlocked.Exchange(ref m_Value, value ? 1 : 0);
         }
     }
 }

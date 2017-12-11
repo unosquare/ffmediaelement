@@ -91,12 +91,12 @@
         /// <summary>
         /// Gets the stream identifier.
         /// </summary>
-        public int StreamId { get; private set; }
+        public int StreamId { get; }
 
         /// <summary>
         /// Gets the stream suffix.
         /// </summary>
-        public string StreamSuffix { get; private set; }
+        public string StreamSuffix { get; }
 
         #endregion
 

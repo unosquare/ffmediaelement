@@ -12,7 +12,7 @@
     /// There is no support to bitmap subtitles.
     /// </summary>
     /// <seealso cref="Unosquare.FFME.Decoding.MediaFrame" />
-    internal unsafe sealed class SubtitleFrame : MediaFrame
+    internal sealed unsafe class SubtitleFrame : MediaFrame
     {
         #region Private Members
 
@@ -105,10 +105,7 @@
         /// <summary>
         /// Gets the pointer to the unmanaged subtitle struct
         /// </summary>
-        internal AVSubtitle* Pointer
-        {
-            get { return m_Pointer; }
-        }
+        internal AVSubtitle* Pointer => m_Pointer;
 
         #endregion
 

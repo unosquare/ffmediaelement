@@ -54,7 +54,7 @@
         /// <summary>
         /// Gets the media type of the block buffer.
         /// </summary>
-        public MediaType MediaType { get; private set; }
+        public MediaType MediaType { get; }
 
         /// <summary>
         /// Gets the start time of the first block.
@@ -142,7 +142,7 @@
         /// <summary>
         /// Gets the maximum count of this buffer.
         /// </summary>
-        public int Capacity { get; private set; }
+        public int Capacity { get; }
 
         /// <summary>
         /// Gets the usage percent from 0.0 to 1.0
@@ -188,9 +188,7 @@
                 lock (SyncRoot)
                 {
                     var index = IndexOf(at);
-                    if (index >= 0) { return PlaybackBlocks[index]; }
-
-                    return null;
+                    return index >= 0 ? PlaybackBlocks[index] : null;
                 }
             }
         }

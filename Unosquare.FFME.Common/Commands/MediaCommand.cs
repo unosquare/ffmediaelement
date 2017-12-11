@@ -11,7 +11,7 @@
         /// Set when the command has finished execution.
         /// Do not use this field directly. It is managed internally by the command manager.
         /// </summary>
-        private AtomicBoolean m_HasCompleted = new AtomicBoolean();
+        private readonly AtomicBoolean m_HasCompleted = new AtomicBoolean();
 
         #region Constructor
 
@@ -33,20 +33,17 @@
         /// <summary>
         /// Gets the associated parent command manager
         /// </summary>
-        public MediaCommandManager Manager { get; private set; }
+        public MediaCommandManager Manager { get; }
 
         /// <summary>
         /// Gets the type of the command.
         /// </summary>
-        public MediaCommandType CommandType { get; private set; }
+        public MediaCommandType CommandType { get; }
 
         /// <summary>
         /// Gets a value indicating whether this command is marked as completed.
         /// </summary>
-        public bool HasCompleted
-        {
-            get { return m_HasCompleted.Value; }
-        }
+        public bool HasCompleted => m_HasCompleted.Value;
 
         #endregion
 

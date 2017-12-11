@@ -7,7 +7,6 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
-    using System.Windows;
 
     /// <summary>
     /// Holds media information about the input, its chapters, programs and individual stream components
@@ -49,57 +48,57 @@
         /// <summary>
         /// Gets the input URL string used to access and create the media container
         /// </summary>
-        public string InputUrl { get; private set; }
+        public string InputUrl { get; }
 
         /// <summary>
         /// Gets the name of the container format.
         /// </summary>
-        public string Format { get; private set; }
+        public string Format { get; }
 
         /// <summary>
         /// Gets the metadata for the input. This may include stuff like title, creation date, company name, etc.
         /// Individual stream components may contain additional metadata.
         /// The metadata 
         /// </summary>
-        public ReadOnlyDictionary<string, string> Metadata { get; private set; }
+        public ReadOnlyDictionary<string, string> Metadata { get; }
 
         /// <summary>
         /// Gets the duration of the input as reported by the container format.
         /// Individual stream components may have different values
         /// </summary>
-        public TimeSpan Duration { get; private set; }
+        public TimeSpan Duration { get; }
 
         /// <summary>
         /// Gets the start timestamp of the input as reported by the container format.
         /// Individual stream components may have different values
         /// </summary>
-        public TimeSpan? StartTime { get; private set; }
+        public TimeSpan? StartTime { get; }
 
         /// <summary>
         /// If available, returns a non-zero value as reported by the container format.
         /// </summary>
-        public long BitRate { get; private set; }
+        public long BitRate { get; }
 
         /// <summary>
         /// Gets a list of chapters
         /// </summary>
-        public ReadOnlyCollection<ChapterInfo> Chapters { get; private set; }
+        public ReadOnlyCollection<ChapterInfo> Chapters { get; }
 
         /// <summary>
         /// Gets a list of programs with their associated streams.
         /// </summary>
-        public ReadOnlyCollection<ProgramInfo> Programs { get; private set; }
+        public ReadOnlyCollection<ProgramInfo> Programs { get; }
 
         /// <summary>
         /// Gets the dictionary of stream information components by stream index.
         /// </summary>
-        public ReadOnlyDictionary<int, StreamInfo> Streams { get; private set; }
+        public ReadOnlyDictionary<int, StreamInfo> Streams { get; }
 
         /// <summary>
         /// Provides access to the best streams of each media type found in the container.
         /// This uses some internal FFmpeg heuristics.
         /// </summary>
-        public ReadOnlyDictionary<AVMediaType, StreamInfo> BestStreams { get; private set; }
+        public ReadOnlyDictionary<AVMediaType, StreamInfo> BestStreams { get; }
 
         #endregion
 

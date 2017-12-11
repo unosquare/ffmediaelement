@@ -88,9 +88,9 @@
                         var oldIsBugffering = IsBuffering;
                         var newIsBuffering = bufferedLength < BufferCacheLength;
 
-                        if (oldIsBugffering == false && newIsBuffering == true)
+                        if (oldIsBugffering == false && newIsBuffering)
                             RaiseBufferingStartedEvent();
-                        else if (oldIsBugffering == true && newIsBuffering == false)
+                        else if (oldIsBugffering && newIsBuffering == false)
                             RaiseBufferingEndedEvent();
 
                         IsBuffering = HasMediaEnded == false && newIsBuffering;

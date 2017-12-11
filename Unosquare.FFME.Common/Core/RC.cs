@@ -69,8 +69,7 @@
             {
                 lock (SyncLock)
                 {
-                    if (m_Current == null) m_Current = new RC();
-                    return m_Current;
+                    return m_Current ?? (m_Current = new RC());
                 }
             }
         }

@@ -80,16 +80,15 @@ namespace Unosquare.FFME.Windows.Sample
             if (duration != null)
             {
                 var media = (duration as MediaElement);
-                duration = media?.NaturalDuration;
-                if (duration == null) duration = TimeSpan.Zero;
+                duration = media?.NaturalDuration ?? TimeSpan.Zero;
             }
 
             var p = TimeSpan.Zero;
             var d = TimeSpan.Zero;
 
-            if (position is TimeSpan) p = (TimeSpan) position;
-            if (position is Duration)
-                p = ((Duration) position).HasTimeSpan ? ((Duration) position).TimeSpan : TimeSpan.Zero;
+            if (position is TimeSpan span) p = span;
+            if (position is Duration duration1)
+                p = duration1.HasTimeSpan ? duration1.TimeSpan : TimeSpan.Zero;
 
             if (duration != null)
             {
@@ -138,7 +137,7 @@ namespace Unosquare.FFME.Windows.Sample
         public object Convert(object value, Type targetType, object format, CultureInfo culture)
         {
             var percentage = 0d;
-            if (value is double) percentage = (double) value;
+            if (value is double d) percentage = d;
 
             percentage = Math.Round(percentage * 100d, 0);
 

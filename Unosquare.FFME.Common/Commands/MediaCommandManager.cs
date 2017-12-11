@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Unosquare.FFME.Core;
+    using Core;
 
     /// <summary>
     /// Represents a singlo point of contact for media command excution.
@@ -385,7 +385,7 @@
                 // Pump invoke
                 Platform.UIInvoke(
                     CoreDispatcherPriority.Background,
-                    new Action(() => { }));
+                    () => { });
             }
         }
 

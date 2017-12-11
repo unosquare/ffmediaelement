@@ -3,9 +3,8 @@
     using System;
     using Decoding;
     using System.Windows;
-    using Unosquare.FFME.Core;
+    using Core;
     using System.Collections.Generic;
-    using System.Threading;
     using System.Windows.Threading;
 
     /// <summary>
@@ -118,10 +117,9 @@
                 EndTime = subtitleBlock.EndTime;
 
                 // Raise the subtitles event and keep track of the text.
-                if (MediaElementCore.RaiseRenderingSubtitlesEvent(subtitleBlock, clockPosition))
-                    BlockText = string.Empty;
-                else
-                    BlockText = string.Join("\r\n", subtitleBlock.Text);
+                BlockText = MediaElementCore.RaiseRenderingSubtitlesEvent(subtitleBlock, clockPosition)
+                    ? string.Empty
+                    : string.Join("\r\n", subtitleBlock.Text);
 
                 // Call the selective update method
                 Update(clockPosition);
@@ -177,30 +175,30 @@
 
             if (textBlocks.Count > 0) return textBlocks;
 
-            var m = new System.Windows.Thickness(40, 0, 40, 200);
+            var m = new Thickness(40, 0, 40, 200);
 
             for (var i = 0; i <= 4; i++)
             {
                 var textBlock = new System.Windows.Controls.TextBlock()
                 {
                     Name = $"{SubtitleElementNamePrefix}{i}",
-                    TextWrapping = System.Windows.TextWrapping.Wrap,
+                    TextWrapping = TextWrapping.Wrap,
                     FontSize = 40,
                     FontWeight = FontWeights.DemiBold,
                     Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Black),
                     TextAlignment = TextAlignment.Center,
-                    VerticalAlignment = System.Windows.VerticalAlignment.Bottom,
-                    HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                    VerticalAlignment = VerticalAlignment.Bottom,
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
                     Margin = m
                 };
 
                 textBlocks.Add(textBlock);
             }
 
-            textBlocks[1].Margin = new System.Windows.Thickness(m.Left + OutlineWidth, m.Top, m.Right - OutlineWidth, m.Bottom);
-            textBlocks[2].Margin = new System.Windows.Thickness(m.Left - OutlineWidth, m.Top, m.Right + OutlineWidth, m.Bottom);
-            textBlocks[3].Margin = new System.Windows.Thickness(m.Left, m.Top + OutlineWidth, m.Right, m.Bottom - OutlineWidth);
-            textBlocks[4].Margin = new System.Windows.Thickness(m.Left, m.Top - OutlineWidth, m.Right, m.Bottom + OutlineWidth);
+            textBlocks[1].Margin = new Thickness(m.Left + OutlineWidth, m.Top, m.Right - OutlineWidth, m.Bottom);
+            textBlocks[2].Margin = new Thickness(m.Left - OutlineWidth, m.Top, m.Right + OutlineWidth, m.Bottom);
+            textBlocks[3].Margin = new Thickness(m.Left, m.Top + OutlineWidth, m.Right, m.Bottom - OutlineWidth);
+            textBlocks[4].Margin = new Thickness(m.Left, m.Top - OutlineWidth, m.Right, m.Bottom + OutlineWidth);
 
             textBlocks[0].Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.White);
 

@@ -9,7 +9,7 @@
     /// Derived classes implement the specifics of each media type.
     /// </summary>
     /// <seealso cref="System.IDisposable" />
-    internal unsafe abstract class MediaFrame : IDisposable, IComparable<MediaFrame>
+    internal abstract unsafe class MediaFrame : IDisposable, IComparable<MediaFrame>
     {
         #region Private Members
 
@@ -75,10 +75,7 @@
         /// When the unmanaged frame is released (freed from unmanaged memory)
         /// this property will return true.
         /// </summary>
-        public bool IsStale
-        {
-            get { return InternalPointer == null; }
-        }
+        public bool IsStale => InternalPointer == null;
 
         /// <summary>
         /// Gets the time base of the stream that generated this frame.

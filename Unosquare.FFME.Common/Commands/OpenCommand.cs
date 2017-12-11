@@ -26,7 +26,7 @@
         /// <summary>
         /// Gets the source uri of the media stream.
         /// </summary>
-        public Uri Source { get; private set; }
+        public Uri Source { get; }
 
         /// <summary>
         /// Performs the actions that this command implements.

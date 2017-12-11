@@ -7,7 +7,6 @@
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Runtime.CompilerServices;
-    using System.Threading;
 
     /// <summary>
     /// A container capable of opening an input url,
@@ -19,7 +18,7 @@
     /// 3. Perform continuous Decodes and Converts/Materialize
     /// </summary>
     /// <seealso cref="System.IDisposable" />
-    internal unsafe sealed class MediaContainer : IDisposable
+    internal sealed unsafe class MediaContainer : IDisposable
     {
         #region Private Fields
 
@@ -140,13 +139,13 @@
         /// Gets the media URL. This is the input url, file or device that is read
         /// by this container.
         /// </summary>
-        public string MediaUrl { get; private set; }
+        public string MediaUrl { get; }
 
         /// <summary>
         /// Gets the protocol prefix.
         /// Typically async for local files and empty for other types.
         /// </summary>
-        public string ProtocolPrefix { get; private set; }
+        public string ProtocolPrefix { get; }
 
         /// <summary>
         /// The media initialization options.
@@ -168,10 +167,7 @@
         /// <summary>
         /// Gets the media bitrate (bits per second). Returns 0 if not available.
         /// </summary>
-        public long MediaBitrate
-        {
-            get { return MediaInfo?.BitRate ?? 0; }
-        }
+        public long MediaBitrate => MediaInfo?.BitRate ?? 0;
 
         /// <summary>
         /// Holds the metadata of the media file when the stream is initialized.
@@ -181,28 +177,19 @@
         /// <summary>
         /// Gets a value indicating whether an Input Context has been initialize.
         /// </summary>
-        public bool IsInitialized
-        {
-            get { return InputContext != null; }
-        }
+        public bool IsInitialized => InputContext != null;
 
         /// <summary>
         /// Gets a value indicating whether this instance is open.
         /// </summary>
-        public bool IsOpen
-        {
-            get { return IsInitialized && Components.All.Count > 0; }
-        }
+        public bool IsOpen => IsInitialized && Components.All.Count > 0;
 
         /// <summary>
         /// Gets the duration of the media.
         /// If this information is not available (i.e. realtime media) it will
         /// be set to TimeSpan.MinValue
         /// </summary>
-        public TimeSpan MediaDuration
-        {
-            get { return MediaInfo?.Duration ?? TimeSpan.MinValue; }
-        }
+        public TimeSpan MediaDuration => MediaInfo?.Duration ?? TimeSpan.MinValue;
 
         /// <summary>
         /// Will be set to true whenever an End Of File situation is reached.
@@ -225,10 +212,7 @@
         /// <summary>
         /// Gets a value indicating whether the underlying media is seekable.
         /// </summary>
-        public bool IsStreamSeekable
-        {
-            get { return MediaDuration.TotalSeconds > 0 && MediaDuration != TimeSpan.MinValue; }
-        }
+        public bool IsStreamSeekable => MediaDuration.TotalSeconds > 0 && MediaDuration != TimeSpan.MinValue;
 
         /// <summary>
         /// Gets a value indicating whether this container represents realtime media.
@@ -240,10 +224,7 @@
         /// <summary>
         /// Provides direct access to the individual Media components of the input stream.
         /// </summary>
-        public MediaComponentSet Components
-        {
-            get { return m_Components; }
-        }
+        public MediaComponentSet Components => m_Components;
 
         #endregion
 
@@ -305,20 +286,14 @@
                 var canRequireAttachments = Components.HasVideo
                     && (Components.Video.Stream->disposition & ffmpeg.AV_DISPOSITION_ATTACHED_PIC) != 0;
 
-                if (canRequireAttachments == false)
-                    return false;
-                else
-                    return m_RequiresPictureAttachments;
+                return canRequireAttachments && m_RequiresPictureAttachments;
             }
             set
             {
                 var canRequireAttachments = Components.HasVideo
                     && (Components.Video.Stream->disposition & ffmpeg.AV_DISPOSITION_ATTACHED_PIC) != 0;
 
-                if (canRequireAttachments)
-                    m_RequiresPictureAttachments = value;
-                else
-                    m_RequiresPictureAttachments = false;
+                m_RequiresPictureAttachments = canRequireAttachments && value;
             }
         }
 
@@ -509,7 +484,7 @@
         /// <exception cref="MediaContainerException">When an error initializing the stream occurs.</exception>
         private void StreamInitialize()
         {
-            const string ScanAllPmts = "scan_all_pmts";
+            const string scanAllPmts = "scan_all_pmts";
 
             if (IsInitialized)
                 throw new InvalidOperationException("The input context has already been initialized.");
@@ -527,8 +502,8 @@
                 // Create the input format context, and open the input based on the provided format options.
                 using (var formatOptions = new FFDictionary(MediaOptions.FormatOptions))
                 {
-                    if (formatOptions.HasKey(ScanAllPmts) == false)
-                        formatOptions.Set(ScanAllPmts, "1", true);
+                    if (formatOptions.HasKey(scanAllPmts) == false)
+                        formatOptions.Set(scanAllPmts, "1", true);
 
                     // Allocate the input context and save it
                     InputContext = ffmpeg.avformat_alloc_context();
@@ -575,7 +550,7 @@
                     MediaFormatName = Utils.PtrToString(InputContext->iformat->name);
 
                     // If there are any optins left in the dictionary, it means they did not get used (invalid options).
-                    formatOptions.Remove(ScanAllPmts);
+                    formatOptions.Remove(scanAllPmts);
 
                     // Output the invalid options as warnings
                     var currentEntry = formatOptions.First();
@@ -894,7 +869,7 @@
 
                 if (currentFrame.StartTime >= targetTime)
                     break;
-                else if (currentFrame.StartTime < targetTime && nextFrame.StartTime <= targetTime)
+                if (currentFrame.StartTime < targetTime && nextFrame.StartTime <= targetTime)
                     framesToDrop.Add(i);
             }
 
@@ -1170,8 +1145,7 @@
 
             if (alsoManaged)
             {
-                if (m_Components != null)
-                    m_Components.Dispose();
+                m_Components?.Dispose();
             }
 
             lock (ReadSyncRoot)

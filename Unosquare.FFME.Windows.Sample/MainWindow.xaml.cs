@@ -312,7 +312,7 @@
                 { nameof(CloseButtonVisibility), () => { CloseButtonVisibility = Media.IsOpen ? Visibility.Visible : Visibility.Hidden; } },
                 { nameof(SeekBarVisibility), () => { SeekBarVisibility = Media.IsSeekable ? Visibility.Visible : Visibility.Hidden; } },
                 { nameof(BufferingProgressVisibility), () => { BufferingProgressVisibility = Media.IsBuffering ? Visibility.Visible : Visibility.Hidden; } },
-                { nameof(DownloadProgressVisibility), () => { DownloadProgressVisibility = Media.IsOpen && Media.HasMediaEnded == false  && ((Media.DownloadProgress > 0d && Media.DownloadProgress < 0.95) || Media.IsLiveStream) ? Visibility.Visible : Visibility.Hidden; } },
+                { nameof(DownloadProgressVisibility), () => { DownloadProgressVisibility = Media.IsOpen && Media.HasMediaEnded == false && ((Media.DownloadProgress > 0d && Media.DownloadProgress < 0.95) || Media.IsLiveStream) ? Visibility.Visible : Visibility.Hidden; } },
                 { nameof(OpenButtonVisibility), () => { OpenButtonVisibility = Media.IsOpening == false ? Visibility.Visible : Visibility.Hidden; } },
                 { nameof(IsSpeedRatioEnabled), () => { IsSpeedRatioEnabled = Media.IsOpen && Media.IsSeekable; } },
                 { nameof(WindowTitle), () => { UpdateWindowTitle(); } }
@@ -757,11 +757,13 @@
                 if (metadata != null)
                 {
                     foreach (var kvp in metadata)
+                    {
                         if (kvp.Key.ToLowerInvariant().Equals("title"))
                         {
                             title = kvp.Value;
                             break;
                         }
+                    }
                 }
             }
             else if (Media.IsOpening)
@@ -863,7 +865,6 @@
         /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
         private void Media_MediaOpened(object sender, RoutedEventArgs e)
         {
-
             // Set a start position (see issue #66)
             // Media.Position = TimeSpan.FromSeconds(5);
             // Media.Play();
@@ -880,7 +881,6 @@
             Config.HistoryEntries.Add(Media.Source.ToString());
             Config.Save();
             RefreshHistoryItems();
-
         }
 
         /// <summary>
@@ -965,8 +965,7 @@
             get
             {
                 var transform = Media.RenderTransform as ScaleTransform;
-                if (transform == null) return 1d;
-                return transform.ScaleX;
+                return transform?.ScaleX ?? 1d;
             }
             set
             {
