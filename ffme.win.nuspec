@@ -28,9 +28,9 @@ Release details: https://github.com/unosquare/ffmediaelement/issues/1</releaseNo
         </dependencies>
     </metadata>
     <files>
-        <file src="..\..\..\projects\ffmediaelement\Unosquare.FFME.Windows.Sample\bin\Release\ffme.common.dll" target="ffme.common.dll" />
-        <file src="..\..\..\projects\ffmediaelement\Unosquare.FFME.Windows.Sample\bin\Release\ffme.common.xml" target="ffme.common.xml" />
-        <file src="..\..\..\projects\ffmediaelement\Unosquare.FFME.Windows.Sample\bin\Release\ffme.win.dll" target="ffme.win.dll" />
-        <file src="..\..\..\projects\ffmediaelement\Unosquare.FFME.Windows.Sample\bin\Release\ffme.win.xml" target="ffme.win.xml" />
+        <file src="Unosquare.FFME.Windows\bin\Release\ffme.common.dll" target="ffme.common.dll" />
+        <file src="Unosquare.FFME.Windows\bin\Release\ffme.common.xml" target="ffme.common.xml" />
+        <file src="Unosquare.FFME.Windows\bin\Release\ffme.win.dll" target="ffme.win.dll" />
+        <file src="Unosquare.FFME.Windows\bin\Release\ffme.win.xml" target="ffme.win.xml" />
     </files>
 </package>
