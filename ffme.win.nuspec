@@ -28,6 +28,7 @@ Release details: https://github.com/unosquare/ffmediaelement/issues/1</releaseNo
         </dependencies>
     </metadata>
     <files>
+        <file src="Unosquare.FFME.Windows\readme.txt" target="" />
         <file src="Unosquare.FFME.Windows\bin\Release\ffme.common.dll" target="ffme.common.dll" />
         <file src="Unosquare.FFME.Windows\bin\Release\ffme.common.xml" target="ffme.common.xml" />
         <file src="Unosquare.FFME.Windows\bin\Release\ffme.win.dll" target="ffme.win.dll" />
