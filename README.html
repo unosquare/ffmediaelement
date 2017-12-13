@@ -117,7 +117,11 @@
 </ol>
 <h3 id="windows-nuget-installation">Windows: NuGet Installation</h3>
 <pre><code>PM&gt; Install-Package FFME.Windows
-</code></pre><h3 id="macos-sample-player-in-preview">MacOS: Sample Player (in preview)</h3>
+</code></pre><h3 id="windows-troubleshooting">Windows: Troubleshooting</h3>
+<p>If you get the following error:
+<em>The current .NET SDK does not support targeting .NET Standard 2.0. Either target .NET Standard 1.6 or lower, or use a version of the .NET SDK that supports .NET Standard 2.0.</em></p>
+<p>Simply download and install <a href="https://www.microsoft.com/net/download/windows">.NET Core SDK v2</a> or later.</p>
+<h3 id="macos-sample-player-in-preview">MacOS: Sample Player (in preview)</h3>
 <p>Compile FFmpeg for Mac (instructions can be found on <a href="https://github.com/Ruslan-B/FFmpeg.AutoGen">FFmpeg.AutoGen</a>) and copy the following libraries from <code>/opt/local/lib</code> &#39;s to <code>/Users/{USER}/ffmpeg</code> (<code>~/ffmpeg</code>):</p>
 <ul>
 <li>avcodec.57.dylib</li>
@@ -133,6 +137,8 @@
 <pre><code class="lang-csharp">Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), &quot;ffmpeg&quot;);
 </code></pre><p>Note that this can be customized to point to any other folder.</p>
 <p>When distributing the player and the associated libraries with your application, dll files should be added to the project as <code>BundleResource</code> items. Also, each library should be copied to the output directory on build. Afterwards, change the above configuration to use <code>Environment.CurrentDirectory</code> to search for FFmpeg libraries.</p>
+<h3 id="macos-troubleshooting">MacOS: Troubleshooting</h3>
+<p>Make sure you have Xamarin for Visual Studio 2017 installed if you want to open the MacOS projects.</p>
 <h2 id="windows-using-ffme-in-your-wpf-project">Windows: Using FFME in your WPF Project</h2>
 <p><em>Remember: The Unosquare.FFME.Windows.Sample provides a reference implementation of usage</em></p>
 <ol>
