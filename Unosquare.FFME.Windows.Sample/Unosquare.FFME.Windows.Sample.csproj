@@ -173,6 +173,10 @@
     <Resource Include="ffmpeg.ico" />
   </ItemGroup>
   <ItemGroup>
+    <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
+    <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Unosquare.FFME.Common\Unosquare.FFME.Common.csproj">
       <Project>{76b2db70-c8ab-4517-8afb-051383e496b7}</Project>
       <Name>Unosquare.FFME.Common</Name>
@@ -181,10 +185,6 @@
       <Project>{a6eb99a6-aae2-4e6e-ab9e-93992ce5b84d}</Project>
       <Name>Unosquare.FFME.Windows</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
-    <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

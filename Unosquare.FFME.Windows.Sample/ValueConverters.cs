@@ -23,14 +23,14 @@ namespace Unosquare.FFME.Windows.Sample
         /// A converted value. If the method returns null, the valid null value is used.
         /// </returns>
         public object Convert(
-            object value, 
+            object value,
             Type targetType,
-            object parameter, 
+            object parameter,
             CultureInfo culture)
         {
-            if (value is TimeSpan) return ((TimeSpan) value).TotalSeconds;
+            if (value is TimeSpan) return ((TimeSpan)value).TotalSeconds;
             if (value is Duration)
-                return ((Duration) value).HasTimeSpan ? ((Duration) value).TimeSpan.TotalSeconds : 0d;
+                return ((Duration)value).HasTimeSpan ? ((Duration)value).TimeSpan.TotalSeconds : 0d;
 
             return 0d;
         }
@@ -46,12 +46,12 @@ namespace Unosquare.FFME.Windows.Sample
         /// A converted value. If the method returns null, the valid null value is used.
         /// </returns>
         public object ConvertBack(
-            object value, 
+            object value,
             Type targetType,
-            object parameter, 
+            object parameter,
             CultureInfo culture)
         {
-            var result = TimeSpan.FromTicks((long) Math.Round(TimeSpan.TicksPerSecond * (double) value, 0));
+            var result = TimeSpan.FromTicks((long)Math.Round(TimeSpan.TicksPerSecond * (double)value, 0));
 
             // Do the conversion from visibility to bool
             if (targetType == typeof(TimeSpan)) return result;
@@ -79,7 +79,7 @@ namespace Unosquare.FFME.Windows.Sample
         {
             if (duration != null)
             {
-                var media = (duration as MediaElement);
+                var media = duration as MediaElement;
                 duration = media?.NaturalDuration ?? TimeSpan.Zero;
             }
 
@@ -92,15 +92,15 @@ namespace Unosquare.FFME.Windows.Sample
 
             if (duration != null)
             {
-                if (duration is TimeSpan) d = (TimeSpan) duration;
+                if (duration is TimeSpan) d = (TimeSpan)duration;
                 if (duration is Duration)
-                    d = ((Duration) duration).HasTimeSpan ? ((Duration) duration).TimeSpan : TimeSpan.Zero;
+                    d = ((Duration)duration).HasTimeSpan ? ((Duration)duration).TimeSpan : TimeSpan.Zero;
 
                 if (d == TimeSpan.Zero) return string.Empty;
                 p = TimeSpan.FromTicks(d.Ticks - p.Ticks);
             }
 
-            return $"{(int) (p.TotalHours):00}:{p.Minutes:00}:{p.Seconds:00}.{p.Milliseconds:000}";
+            return $"{(int)p.TotalHours:00}:{p.Minutes:00}:{p.Seconds:00}.{p.Milliseconds:000}";
         }
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace Unosquare.FFME.Windows.Sample
         /// <param name="targetType">Type of the target.</param>
         /// <param name="format">The format.</param>
         /// <param name="culture">The culture.</param>
-        /// <returns></returns>
+        /// <returns>The converted value</returns>
         public object Convert(object value, Type targetType, object format, CultureInfo culture)
         {
             var percentage = 0d;

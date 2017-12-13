@@ -20,20 +20,14 @@
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        #region State Variables, Property Backing and Events
+        #region Fields
 
         private readonly Dictionary<string, Action> PropertyUpdaters;
         private readonly Dictionary<string, string[]> PropertyTriggers;
         private readonly ObservableCollection<string> HistoryItems = new ObservableCollection<string>();
+        private readonly WindowStatus PreviousWindowStatus = new WindowStatus();
 
         private ConfigRoot Config;
-
-        /// <summary>
-        /// Occurs when a property changes its value.
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private readonly WindowStatus PreviousWindowStatus = new WindowStatus();
         private DateTime LastMouseMoveTime;
         private Point LastMousePosition;
 
@@ -46,7 +40,68 @@
 
         #endregion
 
-        #region Commands
+        #region Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MainWindow"/> class.
+        /// </summary>
+        public MainWindow()
+        {
+            PropertyUpdaters = new Dictionary<string, Action>
+            {
+                { nameof(IsMediaOpenVisibility), () => { IsMediaOpenVisibility = Media.IsOpen ? Visibility.Visible : Visibility.Hidden; } },
+                { nameof(AudioControlVisibility), () => { AudioControlVisibility = Media.HasAudio ? Visibility.Visible : Visibility.Hidden; } },
+                { nameof(IsAudioControlEnabled), () => { IsAudioControlEnabled = Media.HasAudio; } },
+                { nameof(PauseButtonVisibility), () => { PauseButtonVisibility = Media.CanPause && Media.IsPlaying ? Visibility.Visible : Visibility.Collapsed; } },
+                { nameof(PlayButtonVisibility), () => { PlayButtonVisibility = Media.IsOpen && Media.IsPlaying == false && Media.HasMediaEnded == false ? Visibility.Visible : Visibility.Collapsed; } },
+                { nameof(StopButtonVisibility), () => { StopButtonVisibility = Media.IsOpen && (Media.HasMediaEnded || (Media.IsSeekable && Media.MediaState != MediaState.Stop)) ? Visibility.Visible : Visibility.Hidden; } },
+                { nameof(CloseButtonVisibility), () => { CloseButtonVisibility = Media.IsOpen ? Visibility.Visible : Visibility.Hidden; } },
+                { nameof(SeekBarVisibility), () => { SeekBarVisibility = Media.IsSeekable ? Visibility.Visible : Visibility.Hidden; } },
+                { nameof(BufferingProgressVisibility), () => { BufferingProgressVisibility = Media.IsBuffering ? Visibility.Visible : Visibility.Hidden; } },
+                { nameof(DownloadProgressVisibility), () => { DownloadProgressVisibility = Media.IsOpen && Media.HasMediaEnded == false && ((Media.DownloadProgress > 0d && Media.DownloadProgress < 0.95) || Media.IsLiveStream) ? Visibility.Visible : Visibility.Hidden; } },
+                { nameof(OpenButtonVisibility), () => { OpenButtonVisibility = Media.IsOpening == false ? Visibility.Visible : Visibility.Hidden; } },
+                { nameof(IsSpeedRatioEnabled), () => { IsSpeedRatioEnabled = Media.IsOpen && Media.IsSeekable; } },
+                { nameof(WindowTitle), () => { UpdateWindowTitle(); } }
+            };
+
+            PropertyTriggers = new Dictionary<string, string[]>
+            {
+                { nameof(Media.IsOpen), PropertyUpdaters.Keys.ToArray() },
+                { nameof(Media.IsOpening), PropertyUpdaters.Keys.ToArray() },
+                { nameof(Media.MediaState), PropertyUpdaters.Keys.ToArray() },
+                { nameof(Media.HasMediaEnded), PropertyUpdaters.Keys.ToArray() },
+                { nameof(Media.DownloadProgress), new[] { nameof(DownloadProgressVisibility) } },
+                { nameof(Media.IsBuffering), new[] { nameof(BufferingProgressVisibility) } },
+            };
+
+            Config = ConfigRoot.Load();
+            RefreshHistoryItems();
+
+            // Change the default location of the ffmpeg binaries
+            // You can get the binaries here: http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip
+            Unosquare.FFME.MediaElement.FFmpegDirectory = Config.FFmpegPath;
+
+            // ConsoleManager.ShowConsole();
+            InitializeComponent();
+            InitializeMediaEvents();
+            InitializeInputEvents();
+            InitializeMainWindow();
+
+            UpdateWindowTitle();
+        }
+
+        #endregion
+
+        #region Events
+
+        /// <summary>
+        /// Occurs when a property changes its value.
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        #endregion
+
+        #region Properties: Commands
 
         /// <summary>
         /// Gets the open command.
@@ -70,8 +125,12 @@
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show($"Media Failed: {ex.GetType()}\r\n{ex.Message}",
-                                "MediaElement Error", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                            MessageBox.Show(
+                                $"Media Failed: {ex.GetType()}\r\n{ex.Message}",
+                                "MediaElement Error", 
+                                MessageBoxButton.OK, 
+                                MessageBoxImage.Error, 
+                                MessageBoxResult.OK);
                         }
                     });
                 }
@@ -162,7 +221,6 @@
                 {
                     m_ToggleFullscreenCommand = new DelegateCommand(o =>
                     {
-
                         // If we are already in fullscreen, go back to normal
                         if (window.WindowStyle == WindowStyle.None)
                         {
@@ -186,7 +244,7 @@
 
         #endregion
 
-        #region UI Notification Properties
+        #region Properties: Notification
 
         /// <summary>
         /// Gets or sets the window title.
@@ -292,56 +350,56 @@
         /// </value>
         public Visibility DownloadProgressVisibility { get; set; } = Visibility.Visible;
 
+        /// <summary>
+        /// Gets or sets the media zoom.
+        /// </summary>
+        private double MediaZoom
+        {
+            get
+            {
+                var transform = Media.RenderTransform as ScaleTransform;
+                return transform?.ScaleX ?? 1d;
+            }
+            set
+            {
+                var transform = Media.RenderTransform as ScaleTransform;
+                if (transform == null)
+                {
+                    transform = new ScaleTransform(1, 1);
+                    Media.RenderTransformOrigin = new Point(0.5, 0.5);
+                    Media.RenderTransform = transform;
+                }
+
+                transform.ScaleX = value;
+                transform.ScaleY = value;
+
+                if (transform.ScaleX < 0.1d || transform.ScaleY < 0.1)
+                {
+                    transform.ScaleX = 0.1d;
+                    transform.ScaleY = 0.1d;
+                }
+                else if (transform.ScaleX > 5d || transform.ScaleY > 5)
+                {
+                    transform.ScaleX = 5;
+                    transform.ScaleY = 5;
+                }
+            }
+        }
+
         #endregion
 
-        #region Constructor and Initialization
+        #region Methods: Helpers and Initialization
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MainWindow"/> class.
+        /// Snaps to the given multiple multiple.
         /// </summary>
-        public MainWindow()
+        /// <param name="value">The value.</param>
+        /// <param name="multiple">The multiple.</param>
+        /// <returns>The snapped multiple</returns>
+        private static double SnapToMultiple(double value, double multiple)
         {
-            PropertyUpdaters = new Dictionary<string, Action>
-            {
-                { nameof(IsMediaOpenVisibility), () => { IsMediaOpenVisibility = Media.IsOpen ? Visibility.Visible : Visibility.Hidden; } },
-                { nameof(AudioControlVisibility), () => { AudioControlVisibility = Media.HasAudio ? Visibility.Visible : Visibility.Hidden; } },
-                { nameof(IsAudioControlEnabled), () => { IsAudioControlEnabled = Media.HasAudio; } },
-                { nameof(PauseButtonVisibility), () => { PauseButtonVisibility = Media.CanPause && Media.IsPlaying ? Visibility.Visible : Visibility.Collapsed; } },
-                { nameof(PlayButtonVisibility), () => { PlayButtonVisibility = Media.IsOpen && Media.IsPlaying == false && Media.HasMediaEnded == false ? Visibility.Visible : Visibility.Collapsed; } },
-                { nameof(StopButtonVisibility), () => { StopButtonVisibility = Media.IsOpen && (Media.HasMediaEnded || Media.IsSeekable && Media.MediaState != MediaState.Stop) ? Visibility.Visible : Visibility.Hidden; } },
-                { nameof(CloseButtonVisibility), () => { CloseButtonVisibility = Media.IsOpen ? Visibility.Visible : Visibility.Hidden; } },
-                { nameof(SeekBarVisibility), () => { SeekBarVisibility = Media.IsSeekable ? Visibility.Visible : Visibility.Hidden; } },
-                { nameof(BufferingProgressVisibility), () => { BufferingProgressVisibility = Media.IsBuffering ? Visibility.Visible : Visibility.Hidden; } },
-                { nameof(DownloadProgressVisibility), () => { DownloadProgressVisibility = Media.IsOpen && Media.HasMediaEnded == false && ((Media.DownloadProgress > 0d && Media.DownloadProgress < 0.95) || Media.IsLiveStream) ? Visibility.Visible : Visibility.Hidden; } },
-                { nameof(OpenButtonVisibility), () => { OpenButtonVisibility = Media.IsOpening == false ? Visibility.Visible : Visibility.Hidden; } },
-                { nameof(IsSpeedRatioEnabled), () => { IsSpeedRatioEnabled = Media.IsOpen && Media.IsSeekable; } },
-                { nameof(WindowTitle), () => { UpdateWindowTitle(); } }
-            };
-
-            PropertyTriggers = new Dictionary<string, string[]>
-            {
-                { nameof(Media.IsOpen), PropertyUpdaters.Keys.ToArray() },
-                { nameof(Media.IsOpening), PropertyUpdaters.Keys.ToArray() },
-                { nameof(Media.MediaState), PropertyUpdaters.Keys.ToArray() },
-                { nameof(Media.HasMediaEnded), PropertyUpdaters.Keys.ToArray() },
-                { nameof(Media.DownloadProgress), new[] { nameof(DownloadProgressVisibility) } },
-                { nameof(Media.IsBuffering), new[] { nameof(BufferingProgressVisibility) } },
-            };
-
-            Config = ConfigRoot.Load();
-            RefreshHistoryItems();
-
-            // Change the default location of the ffmpeg binaries
-            // You can get the binaries here: http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip
-            Unosquare.FFME.MediaElement.FFmpegDirectory = Config.FFmpegPath;
-
-            //ConsoleManager.ShowConsole();
-            InitializeComponent();
-            InitializeMediaEvents();
-            InitializeInputEvents();
-            InitializeMainWindow();
-
-            UpdateWindowTitle();
+            var factor = (int)(value / multiple);
+            return factor * multiple;
         }
 
         /// <summary>
@@ -634,16 +692,17 @@
 
             #region Handle Play Pause with Mouse Clicks
 
-            //Media.PreviewMouseDown += (s, e) =>
-            //{
-            //    if (s != Media) return;
-            //    if (Media.IsOpen == false || Media.CanPause == false) return;
-
-            //    if (Media.IsPlaying)
-            //        PauseCommand.Execute();
-            //    else
-            //        PlayCommand.Execute();
-            //};
+            /*
+            Media.PreviewMouseDown += (s, e) =>
+            {
+                if (s != Media) return;
+                if (Media.IsOpen == false || Media.CanPause == false) return;
+                if (Media.IsPlaying)
+                    PauseCommand.Execute();
+                else
+                    PlayCommand.Execute();
+            };
+            */
 
             #endregion
 
@@ -690,7 +749,6 @@
                         sb.Begin();
                     }
                 }
-
             };
 
             mouseMoveTimer.Start();
@@ -707,8 +765,10 @@
             Loaded += MainWindow_Loaded;
             UrlTextBox.Text = HistoryItems.Count > 0 ? HistoryItems.First() : string.Empty;
 
-            // Media.ScrubbingEnabled = false;
-            // Media.LoadedBehavior = MediaState.Pause;
+            /*
+             * Media.ScrubbingEnabled = false;
+             * Media.LoadedBehavior = MediaState.Pause;
+             */
 
             var args = Environment.GetCommandLineArgs();
             if (args != null && args.Length > 1)
@@ -740,7 +800,7 @@
 
         #endregion
 
-        #region Event Handlers
+        #region Methods: Event Handlers
 
         /// <summary>
         /// Updates the window title according to the current state.
@@ -753,8 +813,7 @@
 
             if (Media.IsOpen)
             {
-                var metadata = (Media.Metadata.SourceCollection as IEnumerable<KeyValuePair<string, string>>);
-                if (metadata != null)
+                if (Media.Metadata.SourceCollection is IEnumerable<KeyValuePair<string, string>> metadata)
                 {
                     foreach (var kvp in metadata)
                     {
@@ -854,8 +913,12 @@
         /// <param name="e">The <see cref="ExceptionRoutedEventArgs"/> instance containing the event data.</param>
         private void Media_MediaFailed(object sender, ExceptionRoutedEventArgs e)
         {
-            MessageBox.Show($"Media Failed: {e.ErrorException.GetType()}\r\n{e.ErrorException.Message}",
-                "MediaElement Error", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+            MessageBox.Show(
+                $"Media Failed: {e.ErrorException.GetType()}\r\n{e.ErrorException.Message}",
+                "MediaElement Error", 
+                MessageBoxButton.OK, 
+                MessageBoxImage.Error, 
+                MessageBoxResult.OK);
         }
 
         /// <summary>
@@ -866,8 +929,10 @@
         private void Media_MediaOpened(object sender, RoutedEventArgs e)
         {
             // Set a start position (see issue #66)
-            // Media.Position = TimeSpan.FromSeconds(5);
-            // Media.Play();
+            /*
+            Media.Position = TimeSpan.FromSeconds(5);
+            Media.Play();
+            */
 
             MediaZoom = 1d;
             var source = Media.Source.ToString();
@@ -890,7 +955,6 @@
         /// <param name="e">The <see cref="MediaOpeningRoutedEventArgs"/> instance containing the event data.</param>
         private void Media_MediaOpening(object sender, MediaOpeningRoutedEventArgs e)
         {
-
             // An example of switching to a different stream
             if (e.Info.InputUrl.EndsWith("matroska.mkv"))
             {
@@ -919,12 +983,13 @@
                 && e.Options.VideoStream.FieldOrder != AVFieldOrder.AV_FIELD_UNKNOWN)
             {
                 e.Options.VideoFilter = "yadif";
+
                 // When enabling HW acceleration, the filtering does not seem to get applied for some reason.
                 // e.Options.EnableHardwareAcceleration = false;
             }
 
             // Experimetal HW acceleration support. Remove if not needed.
-            // e.Options.EnableHardwareAcceleration = Debugger.IsAttached;
+            /* e.Options.EnableHardwareAcceleration = Debugger.IsAttached; */
 
 #if APPLY_AUDIO_FILTER
             // e.Options.AudioFilter = "aecho=0.8:0.9:1000:0.3";
@@ -955,55 +1020,7 @@
 
         #endregion
 
-        #region Helper Methods and Properties
-
-        /// <summary>
-        /// Gets or sets the media zoom.
-        /// </summary>
-        private double MediaZoom
-        {
-            get
-            {
-                var transform = Media.RenderTransform as ScaleTransform;
-                return transform?.ScaleX ?? 1d;
-            }
-            set
-            {
-                var transform = Media.RenderTransform as ScaleTransform;
-                if (transform == null)
-                {
-                    transform = new ScaleTransform(1, 1);
-                    Media.RenderTransformOrigin = new Point(0.5, 0.5);
-                    Media.RenderTransform = transform;
-                }
-
-                transform.ScaleX = value;
-                transform.ScaleY = value;
-
-                if (transform.ScaleX < 0.1d || transform.ScaleY < 0.1)
-                {
-                    transform.ScaleX = 0.1d;
-                    transform.ScaleY = 0.1d;
-                }
-                else if (transform.ScaleX > 5d || transform.ScaleY > 5)
-                {
-                    transform.ScaleX = 5;
-                    transform.ScaleY = 5;
-                }
-            }
-        }
-        
-        /// <summary>
-        /// Snaps to the given multiple multiple.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <param name="multiple">The multiple.</param>
-        /// <returns></returns>
-        public static double SnapToMultiple(double value, double multiple)
-        {
-            var factor = (int)(value / multiple);
-            return factor * multiple;
-        }
+        #region Methods: Private Methods
 
         /// <summary>
         /// Refreshes the history items.

@@ -13,12 +13,12 @@
         /// <summary>
         /// The sw hide
         /// </summary>
-        public const int SW_HIDE = 0;
+        public const int WindowStatusHide = 0;
 
         /// <summary>
         /// The sw show
         /// </summary>
-        public const int SW_SHOW = 5;
+        public const int WindowStatusShow = 5;
         
         /// <summary>
         /// Allocs the console.
@@ -52,7 +52,7 @@
             if (handle == IntPtr.Zero)
                 AllocConsole();
             else
-                ShowWindow(handle, SW_SHOW);
+                ShowWindow(handle, WindowStatusShow);
         }
 
         /// <summary>
@@ -63,7 +63,7 @@
             var handle = GetConsoleWindow();
 
             if (handle != null)
-                ShowWindow(handle, SW_HIDE);
+                ShowWindow(handle, WindowStatusHide);
         }
     }
 }

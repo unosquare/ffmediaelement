@@ -19,8 +19,6 @@
         private readonly Action<object> ExecuteAction;
         private int IsExecuting = 0;
 
-        #endregion // Fields
-
         #region Constructors
 
         /// <summary>
@@ -45,6 +43,21 @@
 
         #endregion
 
+        #region Events
+
+        /// <summary>
+        /// Occurs when changes occur that affect whether or not the command should execute.
+        /// </summary>
+        public event EventHandler CanExecuteChanged
+        {
+            add { CommandManager.RequerySuggested += value; }
+            remove { CommandManager.RequerySuggested -= value; }
+        }
+
+        #endregion
+
+        #endregion
+
         #region ICommand Members
 
         /// <summary>
@@ -59,15 +72,6 @@
         {
             if (IsExecuting == 1) return false;
             return m_CanExecute == null || m_CanExecute(parameter);
-        }
-
-        /// <summary>
-        /// Occurs when changes occur that affect whether or not the command should execute.
-        /// </summary>
-        public event EventHandler CanExecuteChanged
-        {
-            add { CommandManager.RequerySuggested += value; }
-            remove { CommandManager.RequerySuggested -= value; }
         }
 
         /// <summary>
