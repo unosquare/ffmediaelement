@@ -687,10 +687,19 @@
         {
             // Samples are interleaved (left and right in 16-bit signed integers each)
             var isLeftSample = true;
-            short sample;
+            short sample = 0;
+
+            if (IsMuted)
+            {
+                for (var sourceBufferOffset = 0; sourceBufferOffset < requestedBytes; sourceBufferOffset++)
+                    targetBuffer[targetBufferOffset + sourceBufferOffset] = 0;
+
+                return;
+            }
 
             for (var sourceBufferOffset = 0; sourceBufferOffset < requestedBytes; sourceBufferOffset += BytesPerSample)
             {
+                // TODO: Make architecture-agnostic sound processing
                 // The sample has 2 bytes: at the base index is the LSB and at the baseIndex + 1 is the MSB
                 // this obviously only holds true for Little Endian architectures, and thus, the current code is not portable.
                 // This replaces BitConverter.ToInt16(ReadBuffer, baseIndex); which is obviously much slower.
@@ -713,6 +722,7 @@
                 isLeftSample = !isLeftSample;
             }
         }
+
         #endregion
 
         #region IDisposable Support
