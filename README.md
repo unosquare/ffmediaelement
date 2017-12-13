@@ -52,6 +52,13 @@ FFME provides multiple improvements over the standard MediaElement such as:
 PM> Install-Package FFME.Windows
 ```
 
+### Windows: Troubleshooting
+
+If you get the following error:
+*The current .NET SDK does not support targeting .NET Standard 2.0. Either target .NET Standard 1.6 or lower, or use a version of the .NET SDK that supports .NET Standard 2.0.*
+
+Simply download and install [.NET Core SDK v2](https://www.microsoft.com/net/download/windows) or later.
+
 ### MacOS: Sample Player (in preview)
 Compile FFmpeg for Mac (instructions can be found on [FFmpeg.AutoGen](https://github.com/Ruslan-B/FFmpeg.AutoGen)) and copy the following libraries from `/opt/local/lib` 's to `/Users/{USER}/ffmpeg` (`~/ffmpeg`):
  - avcodec.57.dylib
@@ -73,6 +80,9 @@ Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "
 Note that this can be customized to point to any other folder.
 
 When distributing the player and the associated libraries with your application, dll files should be added to the project as `BundleResource` items. Also, each library should be copied to the output directory on build. Afterwards, change the above configuration to use `Environment.CurrentDirectory` to search for FFmpeg libraries.
+
+### MacOS: Troubleshooting
+Make sure you have Xamarin for Visual Studio 2017 installed if you want to open the MacOS projects.
 
 ## Windows: Using FFME in your WPF Project
 *Remember: The Unosquare.FFME.Windows.Sample provides a reference implementation of usage*
