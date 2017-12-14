@@ -35,7 +35,22 @@
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public static async Task UIEnqueueInvoke(DispatcherPriority priority, Delegate action, params object[] args)
         {
-            await UIDispatcher?.BeginInvoke(action, priority, args);
+            try
+            {
+                // Call the code on the UI dispatcher
+                await UIDispatcher?.BeginInvoke(action, priority, args);
+            }
+            catch (TaskCanceledException)
+            {
+                // Swallow task cancellation exceptions. This is ok.
+                return;
+            }
+            catch
+            {
+                // Retrhow the exception
+                // TODO: Maybe logging here would be helpful?
+                throw;
+            }
         }
 
         /// <summary>

@@ -42,7 +42,7 @@
         /// <summary>
         /// Gets the parent media element (platform specific).
         /// </summary>
-        public MediaElement MediaElement => (MediaElement)MediaElementCore.Parent;
+        public MediaElement MediaElement => MediaElementCore?.Parent as MediaElement;
 
         /// <summary>
         /// Gets the core platform independent player component.
@@ -117,7 +117,7 @@
                 EndTime = subtitleBlock.EndTime;
 
                 // Raise the subtitles event and keep track of the text.
-                BlockText = MediaElementCore.RaiseRenderingSubtitlesEvent(subtitleBlock, clockPosition)
+                BlockText = MediaElement.RaiseRenderingSubtitlesEvent(subtitleBlock, clockPosition)
                     ? string.Empty
                     : string.Join("\r\n", subtitleBlock.Text);
 

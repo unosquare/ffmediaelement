@@ -8,6 +8,7 @@
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Linq;
+    using System.Runtime.InteropServices;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Input;
@@ -127,9 +128,9 @@
                         {
                             MessageBox.Show(
                                 $"Media Failed: {ex.GetType()}\r\n{ex.Message}",
-                                "MediaElement Error", 
-                                MessageBoxButton.OK, 
-                                MessageBoxImage.Error, 
+                                "MediaElement Error",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Error,
                                 MessageBoxResult.OK);
                         }
                     });
@@ -415,7 +416,6 @@
             Unosquare.FFME.MediaElement.FFmpegMessageLogged += MediaElement_FFmpegMessageLogged;
 
 #if HANDLE_RENDERING_EVENTS
-
             #region Audio and Video Frame Rendering Variables
 
             System.Drawing.Bitmap overlayBitmap = null;
@@ -425,17 +425,17 @@
             var overlayTextOffset = new System.Drawing.PointF(12, 8);
             var overlayBackBuffer = IntPtr.Zero;
 
-            var vuMeterLeftPen = new System.Drawing.Pen(System.Drawing.Color.OrangeRed, 12);
-            var vuMeterRightPen = new System.Drawing.Pen(System.Drawing.Color.GreenYellow, 12);
-            var vuMeterRmsLock = new object();
-            var vuMeterLeftRms = new SortedDictionary<TimeSpan, double>();
-            var vuMeterRightRms = new SortedDictionary<TimeSpan, double>();
+            var drawVuMeterLeftPen = new System.Drawing.Pen(System.Drawing.Color.OrangeRed, 12);
+            var drawVuMeterRightPen = new System.Drawing.Pen(System.Drawing.Color.GreenYellow, 12);
+            var drawVuMeterRmsLock = new object();
+            var drawVuMeterLeftRms = new SortedDictionary<TimeSpan, double>();
+            var drawVuMeterRightRms = new SortedDictionary<TimeSpan, double>();
 
-            var vuMeterLeftValue = 0d;
-            var vuMeterRightValue = 0d;
-            const float vuMeterLeftOffset = 16;
-            const float vuMeterTopOffset = 50;
-            const float vuMeterScaleFactor = 20; // RMS * pixel factor = the length of the VU meter lines
+            var drawVuMeterLeftValue = 0d;
+            var drawVuMeterRightValue = 0d;
+            const float drawVuMeterLeftOffset = 16;
+            const float drawVuMeterTopOffset = 50;
+            const float drawVuMeterScaleFactor = 20; // RMS * pixel factor = the length of the VU meter lines
 
             #endregion
 
@@ -443,75 +443,84 @@
 
             Media.RenderingVideo += (s, e) =>
             {
-            #region Create the overlay buffer to work with
+                #region Create the overlay buffer to work with
 
                 if (overlayBackBuffer != e.Bitmap.BackBuffer)
                 {
-                    lock (vuMeterRmsLock)
+                    lock (drawVuMeterRmsLock)
                     {
-                        vuMeterLeftRms.Clear();
-                        vuMeterRightRms.Clear();
+                        drawVuMeterLeftRms.Clear();
+                        drawVuMeterRightRms.Clear();
                     }
 
                     if (overlayGraphics != null) overlayGraphics.Dispose();
                     if (overlayBitmap != null) overlayBitmap.Dispose();
 
                     overlayBitmap = new System.Drawing.Bitmap(
-                        e.Bitmap.PixelWidth, e.Bitmap.PixelHeight, e.Bitmap.BackBufferStride,
-                        System.Drawing.Imaging.PixelFormat.Format24bppRgb, e.Bitmap.BackBuffer);
+                        e.Bitmap.PixelWidth,
+                        e.Bitmap.PixelHeight,
+                        e.Bitmap.BackBufferStride,
+                        System.Drawing.Imaging.PixelFormat.Format24bppRgb,
+                        e.Bitmap.BackBuffer);
 
                     overlayBackBuffer = e.Bitmap.BackBuffer;
                     overlayGraphics = System.Drawing.Graphics.FromImage(overlayBitmap);
                     overlayGraphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
                 }
 
-            #endregion
+                #endregion
 
-            #region Read the instantaneous RMS of the audio
+                #region Read the instantaneous RMS of the audio
 
-                lock (vuMeterRmsLock)
+                lock (drawVuMeterRmsLock)
                 {
-                    vuMeterLeftValue = vuMeterLeftRms.Where(kvp => kvp.Key > Media.Position).Select(kvp => kvp.Value).FirstOrDefault();
-                    vuMeterRightValue = vuMeterRightRms.Where(kvp => kvp.Key > Media.Position).Select(kvp => kvp.Value).FirstOrDefault();
+                    drawVuMeterLeftValue = drawVuMeterLeftRms.Where(kvp => kvp.Key > Media.Position).Select(kvp => kvp.Value).FirstOrDefault();
+                    drawVuMeterRightValue = drawVuMeterRightRms.Where(kvp => kvp.Key > Media.Position).Select(kvp => kvp.Value).FirstOrDefault();
 
                     // do some cleanup so the dictionary does not grow too big.
-                    if (vuMeterLeftRms.Count > 256)
+                    if (drawVuMeterLeftRms.Count > 256)
                     {
-                        var keysToRemove = vuMeterLeftRms.Keys.Where(k => k < Media.Position).OrderBy(k => k).ToArray();
+                        var keysToRemove = drawVuMeterLeftRms.Keys.Where(k => k < Media.Position).OrderBy(k => k).ToArray();
                         foreach (var k in keysToRemove)
                         {
-                            vuMeterLeftRms.Remove(k);
-                            vuMeterRightRms.Remove(k);
+                            drawVuMeterLeftRms.Remove(k);
+                            drawVuMeterRightRms.Remove(k);
 
-                            if (vuMeterLeftRms.Count < 256)
+                            if (drawVuMeterLeftRms.Count < 256)
                                 break;
                         }
                     }
                 }
 
-            #endregion
+                #endregion
 
-            #region Draw the text and the VU meter
+                #region Draw the text and the VU meter
 
                 e.Bitmap.Lock();
                 var differenceMillis = TimeSpan.FromTicks(e.Clock.Ticks - e.StartTime.Ticks).TotalMilliseconds;
 
                 overlayGraphics.DrawString($"Clock: {e.StartTime.TotalSeconds:00.000} | Skew: {differenceMillis:00.000} | PN: {e.PictureNumber}",
-                    overlayTextFont, overlayTextFontBrush, overlayTextOffset);
+                    overlayTextFont,
+                    overlayTextFontBrush,
+                    overlayTextOffset);
 
                 // draw a simple VU meter
-                overlayGraphics.DrawLine(vuMeterLeftPen,
-                    vuMeterLeftOffset, vuMeterTopOffset,
-                    vuMeterLeftOffset + 5 + (Convert.ToSingle(vuMeterLeftValue) * vuMeterScaleFactor), vuMeterTopOffset);
+                overlayGraphics.DrawLine(drawVuMeterLeftPen,
+                    drawVuMeterLeftOffset,
+                    drawVuMeterTopOffset,
+                    drawVuMeterLeftOffset + 5 + (Convert.ToSingle(drawVuMeterLeftValue) * drawVuMeterScaleFactor),
+                    drawVuMeterTopOffset);
 
-                overlayGraphics.DrawLine(vuMeterRightPen,
-                    vuMeterLeftOffset, vuMeterTopOffset + 20,
-                    vuMeterLeftOffset + 5 + (Convert.ToSingle(vuMeterRightValue) * vuMeterScaleFactor), vuMeterTopOffset + 20);
+                overlayGraphics.DrawLine(drawVuMeterRightPen,
+                    drawVuMeterLeftOffset,
+                    drawVuMeterTopOffset + 20,
+                    drawVuMeterLeftOffset + 5 + (Convert.ToSingle(drawVuMeterRightValue) * drawVuMeterScaleFactor),
+                    drawVuMeterTopOffset + 20);
 
                 e.Bitmap.AddDirtyRect(new Int32Rect(0, 0, e.Bitmap.PixelWidth, e.Bitmap.PixelHeight));
                 e.Bitmap.Unlock();
 
-            #endregion
+                #endregion
             };
 
             Media.RenderingAudio += (s, e) =>
@@ -543,11 +552,11 @@
                 }
 
                 // Compute the RMS of the samples and save it for the given point in time.
-                lock (vuMeterRmsLock)
+                lock (drawVuMeterRmsLock)
                 {
                     // The VU meter should show the audio RMS, we compute it and save it in a dictionary.
-                    vuMeterLeftRms[e.StartTime] = Math.Sqrt((1d / leftSamples.Length) * (leftSamples.Sum(n => n)));
-                    vuMeterRightRms[e.StartTime] = Math.Sqrt((1d / rightSamples.Length) * (rightSamples.Sum(n => n)));
+                    drawVuMeterLeftRms[e.StartTime] = Math.Sqrt((1d / leftSamples.Length) * leftSamples.Sum(n => n));
+                    drawVuMeterRightRms[e.StartTime] = Math.Sqrt((1d / rightSamples.Length) * rightSamples.Sum(n => n));
                 }
             };
 
@@ -915,9 +924,9 @@
         {
             MessageBox.Show(
                 $"Media Failed: {e.ErrorException.GetType()}\r\n{e.ErrorException.Message}",
-                "MediaElement Error", 
-                MessageBoxButton.OK, 
-                MessageBoxImage.Error, 
+                "MediaElement Error",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error,
                 MessageBoxResult.OK);
         }
 

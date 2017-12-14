@@ -81,7 +81,7 @@
         /// <summary>
         /// Gets the parent media element (platform specific).
         /// </summary>
-        public MediaElement MediaElement => (MediaElement)MediaElementCore.Parent;
+        public MediaElement MediaElement => MediaElementCore?.Parent as MediaElement;
 
         /// <summary>
         /// Gets the core platform independent player component.
@@ -217,7 +217,7 @@
                 // Write the block if we have to, avoiding repeated blocks.
                 if (AudioBuffer.WriteTag < audioBlock.StartTime)
                 {
-                    MediaElementCore.RaiseRenderingAudioEvent(audioBlock, clockPosition);
+                    MediaElement.RaiseRenderingAudioEvent(audioBlock, clockPosition);
                     AudioBuffer.Write(audioBlock.Buffer, audioBlock.BufferLength, audioBlock.StartTime, true);
                 }
 

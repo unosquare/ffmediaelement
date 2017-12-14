@@ -6,8 +6,9 @@
     using System.Collections.Generic;
     using Decoding;
     using System.Runtime.CompilerServices;
+    using System.Windows.Media.Imaging;
 
-    public partial class MediaElementCore
+    public partial class MediaElement
     {
         #region Events
 
@@ -49,7 +50,7 @@
         /// <param name="clock">The clock.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseRenderingVideoEvent(
-            object bitmap, StreamInfo stream, string smtpeTimecode, int pictureNumber, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
+            WriteableBitmap bitmap, StreamInfo stream, string smtpeTimecode, int pictureNumber, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
         {
             RenderingVideo?.Invoke(this, new RenderingVideoEventArgs(bitmap, stream, smtpeTimecode, pictureNumber, startTime, duration, clock));
         }
@@ -65,9 +66,9 @@
             var e = new RenderingAudioEventArgs(
                     audioBlock.Buffer,
                     audioBlock.BufferLength,
-                    Container.MediaInfo.Streams[audioBlock.StreamIndex], 
-                    audioBlock.StartTime, 
-                    audioBlock.Duration, 
+                    mediaElementCore.Container.MediaInfo.Streams[audioBlock.StreamIndex],
+                    audioBlock.StartTime,
+                    audioBlock.Duration,
                     clock);
 
             RenderingAudio?.Invoke(this, e);
@@ -83,12 +84,12 @@
         internal bool RaiseRenderingSubtitlesEvent(SubtitleBlock block, TimeSpan clock)
         {
             var e = new RenderingSubtitlesEventArgs(
-                    block.Text, 
-                    block.OriginalText, 
-                    block.OriginalTextType, 
-                    Container.MediaInfo.Streams[block.StreamIndex], 
-                    block.StartTime, 
-                    block.Duration, 
+                    block.Text,
+                    block.OriginalText,
+                    block.OriginalTextType,
+                    mediaElementCore.Container.MediaInfo.Streams[block.StreamIndex],
+                    block.StartTime,
+                    block.Duration,
                     clock);
 
             RenderingSubtitles?.Invoke(this, e);
@@ -281,7 +282,7 @@
         /// <param name="startTime">The start time.</param>
         /// <param name="duration">The duration.</param>
         /// <param name="clock">The clock.</param>
-        internal RenderingVideoEventArgs(object bitmap, StreamInfo stream, string smtpeTimecode, int pictureNumber, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
+        internal RenderingVideoEventArgs(WriteableBitmap bitmap, StreamInfo stream, string smtpeTimecode, int pictureNumber, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
             : base(stream, startTime, duration, clock)
         {
             PictureNumber = pictureNumber;
@@ -293,7 +294,7 @@
         /// Gets the writable bitmap filled with the video frame pixels.
         /// Feel free to capture or change this image.
         /// </summary>
-        public object Bitmap { get; }
+        public WriteableBitmap Bitmap { get; }
 
         /// <summary>
         /// Gets the display picture number (frame number).

@@ -44,7 +44,7 @@
         /// <summary>
         /// Gets the parent media element (platform specific).
         /// </summary>
-        public MediaElement MediaElement => (MediaElement)MediaElementCore.Parent;
+        public MediaElement MediaElement => MediaElementCore?.Parent as MediaElement;
 
         /// <summary>
         /// Gets the core platform independent player component.
@@ -145,7 +145,7 @@
                         MediaElementCore.VideoHardwareDecoder = (MediaElementCore.Container?.Components?.Video?.IsUsingHardwareDecoding ?? false) ?
                             MediaElementCore.Container?.Components?.Video?.HardwareAccelerator?.Name ?? string.Empty : string.Empty;
 
-                        MediaElementCore.RaiseRenderingVideoEvent(
+                        MediaElement.RaiseRenderingVideoEvent(
                             TargetBitmap,
                             MediaElementCore.Container.MediaInfo.Streams[b.StreamIndex],
                             b.SmtpeTimecode,
