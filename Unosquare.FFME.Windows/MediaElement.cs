@@ -125,6 +125,7 @@
 
                 mediaElementCore.MediaOpening += (s, e) => RaiseMediaOpeningEvent();
                 mediaElementCore.MediaOpened += (s, e) => RaiseMediaOpenedEvent();
+                mediaElementCore.MediaClosed += (s, e) => RaiseMediaClosedEvent();
                 mediaElementCore.MediaFailed += (s, e) => RaiseMediaFailedEvent(e.Exception);
                 mediaElementCore.MediaEnded += (s, e) => RaiseMediaEndedEvent();
                 mediaElementCore.BufferingStarted += (s, e) => RaiseBufferingStartedEvent();

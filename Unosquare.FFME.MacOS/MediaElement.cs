@@ -68,6 +68,7 @@
             };
 
             mediaElementCore.MediaOpening += (s, e) => { };
+            mediaElementCore.MediaClosed += (s, e) => { };
             mediaElementCore.MediaOpened += (s, e) => { };
             mediaElementCore.MediaFailed += (s, e) => { };
             mediaElementCore.MediaEnded += (s, e) => { };

@@ -44,12 +44,12 @@ namespace Unosquare.FFME
         public event EventHandler BufferingEnded;
 
         /// <summary>
-        /// Occurs when Seeking of packets was started
+        /// Occurs when Seeking of packets has started
         /// </summary>
         public event EventHandler SeekingStarted;
 
         /// <summary>
-        /// Occurs when Seeking of packets was Ended
+        /// Occurs when Seeking of packets has ended
         /// </summary>
         public event EventHandler SeekingEnded;
 
@@ -62,6 +62,11 @@ namespace Unosquare.FFME
         /// Raised when the media is opened 
         /// </summary> 
         public event EventHandler MediaOpened;
+
+        /// <summary>
+        /// Occurs when the underlying media stream is closed
+        /// </summary>
+        public event EventHandler MediaClosed;
 
         /// <summary>
         /// Raised before the input stream of the media is opened.
@@ -89,6 +94,17 @@ namespace Unosquare.FFME
             Logger.Log(MediaLogMessageType.Error, $"Media Failure - {ex?.GetType()}: {ex?.Message}");
             Platform.UIInvoke(CoreDispatcherPriority.DataBind, () => MediaFailed(this, new ExceptionEventArgs(ex)));
             LogEventDone(nameof(MediaFailed));
+        }
+
+        /// <summary>
+        /// Raises the media closed event.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void RaiseMediaClosedEvent()
+        {
+            LogEventStart(nameof(MediaClosed));
+            Platform.UIInvoke(CoreDispatcherPriority.DataBind, () => MediaClosed(this, EventArgs.Empty));
+            LogEventDone(nameof(MediaClosed));
         }
 
         /// <summary>

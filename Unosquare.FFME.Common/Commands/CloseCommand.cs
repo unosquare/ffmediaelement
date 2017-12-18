@@ -71,6 +71,7 @@
             // Clear the render times
             m.LastRenderTime.Clear();
             m.MediaState = CoreMediaState.Close;
+            m.RaiseMediaClosedEvent();
 
             // Update notification properties
             Platform.UIInvoke(CoreDispatcherPriority.DataBind, () =>

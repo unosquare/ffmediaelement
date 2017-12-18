@@ -72,6 +72,16 @@
                             typeof(RoutedEventHandler),
                             typeof(MediaElement));
 
+        /// <summary> 
+        /// MediaClosed is a routed event.
+        /// </summary> 
+        public static readonly RoutedEvent MediaClosedEvent =
+            EventManager.RegisterRoutedEvent(
+                            nameof(MediaClosed),
+                            RoutingStrategy.Bubble,
+                            typeof(RoutedEventHandler),
+                            typeof(MediaElement));
+
         /// <summary>
         /// MediaOpeningEvent is a routed event. 
         /// </summary>
@@ -151,6 +161,15 @@
         }
 
         /// <summary>
+        /// Raised when the media is closed 
+        /// </summary> 
+        public event RoutedEventHandler MediaClosed
+        {
+            add { AddHandler(MediaClosedEvent, value); }
+            remove { RemoveHandler(MediaClosedEvent, value); }
+        }
+
+        /// <summary>
         /// Raised before the input stream of the media is opened.
         /// Use this method to modify the input options.
         /// </summary>
@@ -195,6 +214,17 @@
             LogEventStart(MediaOpenedEvent);
             Runner.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaOpenedEvent, this)); });
             LogEventDone(MediaOpenedEvent);
+        }
+
+        /// <summary>
+        /// Raises the media closed event.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void RaiseMediaClosedEvent()
+        {
+            LogEventStart(MediaClosedEvent);
+            Runner.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaClosedEvent, this)); });
+            LogEventDone(MediaClosedEvent);
         }
 
         /// <summary>
