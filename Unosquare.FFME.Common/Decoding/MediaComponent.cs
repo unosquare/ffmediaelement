@@ -31,6 +31,11 @@
 #pragma warning restore SA1401 // Field must be private
 
         /// <summary>
+        /// Related to issue 94, looks like FFmpeg requires exclusive access when calling avcodec_open2()
+        /// </summary>
+        private static readonly object CodecOpenLock = new object();
+
+        /// <summary>
         /// Contains the packets pending to be sent to the decoder
         /// </summary>
         private readonly PacketQueue Packets = new PacketQueue();
@@ -126,11 +131,15 @@
             if (this is VideoComponent && container.MediaOptions.EnableHardwareAcceleration)
                 HardwareAccelerator.Dxva2.AttachDevice(this as VideoComponent);
 
-            // Open the CodecContext
+            // Open the CodecContext. This requires exclusive FFmpeg access
             var codecOpenResult = 0;
-            fixed (AVDictionary** reference = &codecOptions.Pointer)
-                codecOpenResult = ffmpeg.avcodec_open2(CodecContext, codec, reference);
+            lock (CodecOpenLock)
+            {
+                fixed (AVDictionary** reference = &codecOptions.Pointer)
+                    codecOpenResult = ffmpeg.avcodec_open2(CodecContext, codec, reference);
+            }
 
+            // Check if the codec opened successfully
             if (codecOpenResult < 0)
             {
                 CloseComponent();
