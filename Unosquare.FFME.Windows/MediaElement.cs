@@ -120,9 +120,7 @@
             }
             else
             {
-                // for now forward stuff to underlying implementation
-                mediaElementCore.MessageLogged += (o, e) => MessageLogged?.Invoke(o, e);
-
+                // Bind to RoutedEvent events
                 mediaElementCore.MediaOpening += (s, e) => RaiseMediaOpeningEvent();
                 mediaElementCore.MediaOpened += (s, e) => RaiseMediaOpenedEvent();
                 mediaElementCore.MediaClosed += (s, e) => RaiseMediaClosedEvent();
@@ -133,6 +131,11 @@
                 mediaElementCore.SeekingStarted += (s, e) => RaiseSeekingStartedEvent();
                 mediaElementCore.SeekingEnded += (s, e) => RaiseSeekingEndedEvent();
 
+                // Bind to non-RoutedEvent events
+                mediaElementCore.MessageLogged += (o, e) => MessageLogged?.Invoke(this, e);
+                mediaElementCore.PositionChanged += (s, e) => PositionChanged?.Invoke(this, e);
+
+                // Bind to INotifyPropertyChanged event: PropertyChanged
                 mediaElementCore.PropertyChanged += MediaElementCore_PropertyChanged;
             }
 
@@ -159,6 +162,13 @@
         /// This does not include FFmpeg messages.
         /// </summary>
         public event EventHandler<MediaLogMessagEventArgs> MessageLogged;
+
+        /// <summary>
+        /// Occurs when the underlying stream position is changed.
+        /// This event is not fired when the position is written from user code but rather when the
+        /// underlying media naturally drives the position.
+        /// </summary>
+        public event EventHandler<PositionChangedEventArgs> PositionChanged;
 
         #endregion
 

@@ -9,12 +9,12 @@
     public class MediaOpeningEventArgs : EventArgs
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="MediaOpeningEventArgs"/> class.
+        /// Initializes a new instance of the <see cref="MediaOpeningEventArgs" /> class.
         /// </summary>
         /// <param name="source">The source.</param>
         /// <param name="options">The options.</param>
         /// <param name="info">The information.</param>
-        public MediaOpeningEventArgs(object source, MediaOptions options, MediaInfo info)
+        public MediaOpeningEventArgs(MediaElementCore source, MediaOptions options, MediaInfo info)
         {
             Source = source;
             Options = options;
@@ -24,7 +24,7 @@
         /// <summary>
         /// Gets source.
         /// </summary>
-        public object Source { get; }
+        public MediaElementCore Source { get; }
 
         /// <summary>
         /// Set or change the options before the media is opened.

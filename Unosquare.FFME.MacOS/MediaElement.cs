@@ -60,13 +60,7 @@
             this.ImageView = imageView;
             this.mediaElementCore = new MediaElementCore(this, false);
 
-            // for now forward stuff to underlying implementation
-            mediaElementCore.MessageLogged += (s, e) =>
-            {
-                if (e.MessageType == MediaLogMessageType.Trace) return;
-                Console.WriteLine($"{e.MessageType,10} - {e.Message}");
-            };
-
+            // RoutedEvent event bindings
             mediaElementCore.MediaOpening += (s, e) => { };
             mediaElementCore.MediaClosed += (s, e) => { };
             mediaElementCore.MediaOpened += (s, e) => { };
@@ -77,6 +71,16 @@
             mediaElementCore.SeekingStarted += (s, e) => { };
             mediaElementCore.SeekingEnded += (s, e) => { };
 
+            // Non-RoutedEvent event bindings
+            mediaElementCore.MessageLogged += (s, e) =>
+            {
+                // TODO: This is incomplete
+                if (e.MessageType == MediaLogMessageType.Trace) return;
+                Console.WriteLine($"{e.MessageType,10} - {e.Message}");
+            };
+            mediaElementCore.PositionChanged += (s, e) => { };
+
+            // INotifyPropertyChanged PropertyChanged Event binding
             mediaElementCore.PropertyChanged += (s, e) => { };
         }
 

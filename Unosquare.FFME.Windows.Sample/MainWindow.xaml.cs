@@ -11,6 +11,7 @@
     using System.Runtime.InteropServices;
     using System.Windows;
     using System.Windows.Controls;
+    using System.Windows.Data;
     using System.Windows.Input;
     using System.Windows.Media;
     using System.Windows.Media.Animation;
@@ -48,6 +49,7 @@
         /// </summary>
         public MainWindow()
         {
+            // Define conditions for visibility properties
             PropertyUpdaters = new Dictionary<string, Action>
             {
                 { nameof(IsMediaOpenVisibility), () => { IsMediaOpenVisibility = Media.IsOpen ? Visibility.Visible : Visibility.Hidden; } },
@@ -65,6 +67,7 @@
                 { nameof(WindowTitle), () => { UpdateWindowTitle(); } }
             };
 
+            // Define triggering properties for the updaters above.
             PropertyTriggers = new Dictionary<string, string[]>
             {
                 { nameof(Media.IsOpen), PropertyUpdaters.Keys.ToArray() },
@@ -75,6 +78,10 @@
                 { nameof(Media.IsBuffering), new[] { nameof(BufferingProgressVisibility) } },
             };
 
+            // Load up WPF resources
+            InitializeComponent();
+
+            // Load simple config.
             Config = ConfigRoot.Load();
             RefreshHistoryItems();
 
@@ -82,12 +89,11 @@
             // You can get the binaries here: http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip
             Unosquare.FFME.MediaElement.FFmpegDirectory = Config.FFmpegPath;
 
+            // Setup the UI
             // ConsoleManager.ShowConsole();
-            InitializeComponent();
             InitializeMediaEvents();
             InitializeInputEvents();
             InitializeMainWindow();
-
             UpdateWindowTitle();
         }
 
@@ -408,12 +414,17 @@
         /// </summary>
         private void InitializeMediaEvents()
         {
+            Media.PositionChanged += (s, e) =>
+            {
+                // Debug.WriteLine($"{nameof(Media.Position)} = {e.Position}");
+            };
+
             Media.MediaOpened += Media_MediaOpened;
             Media.MediaOpening += Media_MediaOpening;
             Media.MediaFailed += Media_MediaFailed;
             Media.MessageLogged += Media_MessageLogged;
             Media.PropertyChanged += Media_PropertyChanged;
-            Unosquare.FFME.MediaElement.FFmpegMessageLogged += MediaElement_FFmpegMessageLogged;
+            FFME.MediaElement.FFmpegMessageLogged += MediaElement_FFmpegMessageLogged;
 
 #if HANDLE_RENDERING_EVENTS
             #region Audio and Video Frame Rendering Variables

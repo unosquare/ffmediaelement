@@ -1,33 +1,8 @@
-﻿#pragma warning disable SA1649 // File name must match first type name
-namespace Unosquare.FFME
+﻿namespace Unosquare.FFME
 {
     using Core;
     using System;
     using System.Runtime.CompilerServices;
-
-    /// <summary>
-    /// Represents an Exception event arguments
-    /// </summary>
-    /// <seealso cref="System.EventArgs" />
-    public class ExceptionEventArgs : EventArgs
-    {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ExceptionEventArgs"/> class.
-        /// </summary>
-        /// <param name="e">The e.</param>
-        public ExceptionEventArgs(Exception e)
-        {
-            Exception = e;
-        }
-
-        /// <summary>
-        /// Gets the exception.
-        /// </summary>
-        /// <value>
-        /// The exception.
-        /// </value>
-        public Exception Exception { get; }
-    }
 
     public partial class MediaElementCore
     {
@@ -78,6 +53,13 @@ namespace Unosquare.FFME
         /// Raised when the corresponding media ends.
         /// </summary>
         public event EventHandler MediaEnded;
+
+        /// <summary>
+        /// Occurs when position changed naturally.
+        /// Please note that this event is not fired when a change is written by 
+        /// user code but rather when the playbach updates the position internally
+        /// </summary>
+        public event EventHandler<PositionChangedEventArgs> PositionChanged;
 
         #endregion
 
@@ -208,7 +190,19 @@ namespace Unosquare.FFME
             LogEventDone(nameof(MediaEnded));
         }
 
+        /// <summary>
+        /// Raises the Position Changed event
+        /// </summary>
+        /// <param name="position">The position.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void RaisePositionChangedEvent(TimeSpan position)
+        {
+            LogEventStart(nameof(PositionChanged));
+            Platform.UIInvoke(CoreDispatcherPriority.DataBind,
+                () => PositionChanged(this, new PositionChangedEventArgs(this, position)));
+            LogEventDone(nameof(PositionChanged));
+        }
+
         #endregion
     }
 }
-#pragma warning restore SA1649 // File name must match first type name

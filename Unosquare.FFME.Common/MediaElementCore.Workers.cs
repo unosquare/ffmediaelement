@@ -423,8 +423,7 @@
                         {
                             // Rendered all and nothing else to read
                             Clock.Pause();
-                            Clock.Position = NaturalDuration.HasValue ?
-                                NaturalDuration.Value : Blocks[main].RangeEndTime;
+                            Clock.Position = NaturalDuration ?? Blocks[main].RangeEndTime;
                             wallClock = Clock.Position;
 
                             HasMediaEnded = true;

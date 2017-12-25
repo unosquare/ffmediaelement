@@ -235,7 +235,10 @@
                 (Action<TimeSpan>)((v) =>
                 {
                     if (Position != v)
+                    {
                         Position = v;
+                        RaisePositionChangedEvent(v);
+                    }
 
                     IsPositionUpdating = false;
                 }),
