@@ -4,30 +4,29 @@
     using Commands;
     using Decoding;
     using System;
+    using System.Threading.Tasks;
 
     public partial class MediaElementCore
     {
         #region Internal Members
-#pragma warning disable SA1401 // Fields must be private
 
         /// <summary>
         /// The command queue to be executed in the order they were sent.
         /// </summary>
-        internal readonly MediaCommandManager Commands = null;
+        internal MediaCommandManager Commands { get; private set; }
 
         /// <summary>
         /// Represents a real-time time measuring device.
         /// Rendering media should occur as requested by the clock.
         /// </summary>
-        internal readonly Clock Clock = new Clock();
+        internal Clock Clock { get; } = new Clock();
 
         /// <summary>
         /// The underlying media container that provides access to 
         /// individual media component streams
         /// </summary>
-        internal MediaContainer Container = null;
+        internal MediaContainer Container { get; set; } = null;
 
-#pragma warning restore SA1401 // Fields must be private
         #endregion
 
         #region Public API
@@ -48,9 +47,44 @@
         public void Stop() => Commands.Stop();
 
         /// <summary>
+        /// Opens the specified URI.
+        /// </summary>
+        /// <param name="uri">The URI.</param>
+        /// <returns>The awaitable task</returns>
+        /// <exception cref="InvalidOperationException">Source</exception>
+        public async Task Open(Uri uri)
+        {
+            Source = uri;
+
+            // TODO: Calling this multiple times while an operation is in progress breaks the control :(
+            // for now let's throw an exception but ideally we want the user NOT to be able to change the value in the first place.
+            if (IsOpening)
+                throw new InvalidOperationException($"Unable to change {nameof(Source)} to '{uri}' because {nameof(IsOpening)} is currently set to true.");
+
+            if (uri != null)
+            {
+                await Commands.CloseAsync()
+                    .ContinueWith(async (c) =>
+                    {
+                        await Commands.OpenAsync(uri)
+                            .ContinueWith(p =>
+                            {
+                                if (LoadedBehavior == CoreMediaState.Play || CanPause == false)
+                                    Commands.Play();
+                            });
+                    });
+            }
+            else
+            {
+                await Commands.CloseAsync();
+            }
+        }
+
+        /// <summary>
         /// Closes the currently loaded media.
         /// </summary>
-        public void Close() => Commands.Close();
+        /// <returns>The awaitable task</returns>
+        public async Task Close() => await Commands.CloseAsync();
 
         /// <summary>
         /// Seeks to the specified position.
@@ -59,9 +93,9 @@
         public void Seek(TimeSpan position) => Commands.Seek(position);
 
         /// <summary>
-        /// Sets the specified target speed ration.
+        /// Sets the specified playback speed ratio.
         /// </summary>
-        /// <param name="targetSpeedRatio">New target speed ratio.</param>
+        /// <param name="targetSpeedRatio">New playback speed ratio.</param>
         public void SetSpeedRatio(double targetSpeedRatio) => Commands.SetSpeedRatio(targetSpeedRatio);
 
         #endregion

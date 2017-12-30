@@ -23,8 +23,6 @@
         #region State Management
 #pragma warning disable SA1401 // Fields must be private
 
-        internal const int TimerIntervalMilliseconds = 1;
-
         // TODO: Make this configurable
         internal static readonly Dictionary<MediaType, int> MaxBlocks = new Dictionary<MediaType, int>
         {
@@ -37,6 +35,8 @@
         internal Thread FrameDecodingTask = null;
         internal Thread BlockRenderingTask = null;
 
+#pragma warning restore SA1401 // Fields must be private
+
         private readonly ManualResetEvent m_PacketReadingCycle = new ManualResetEvent(false);
         private readonly ManualResetEvent m_FrameDecodingCycle = new ManualResetEvent(false);
         private readonly ManualResetEvent m_BlockRenderingCycle = new ManualResetEvent(false);
@@ -48,22 +48,22 @@
         /// <summary>
         /// Gets the packet reading cycle control evenet.
         /// </summary>
-        internal ManualResetEvent PacketReadingCycle => m_IsDisposing.Value || IsDisposed ? null : m_PacketReadingCycle;
+        internal ManualResetEvent PacketReadingCycle => m_PacketReadingCycle;
 
         /// <summary>
         /// Gets the frame decoding cycle control event.
         /// </summary>
-        internal ManualResetEvent FrameDecodingCycle => m_IsDisposing.Value || IsDisposed ? null : m_FrameDecodingCycle;
+        internal ManualResetEvent FrameDecodingCycle => m_FrameDecodingCycle;
 
         /// <summary>
         /// Gets the block rendering cycle control event.
         /// </summary>
-        internal ManualResetEvent BlockRenderingCycle => m_IsDisposing.Value || IsDisposed ? null : m_BlockRenderingCycle;
+        internal ManualResetEvent BlockRenderingCycle => m_BlockRenderingCycle;
 
         /// <summary>
         /// Gets the seeking done control event.
         /// </summary>
-        internal ManualResetEvent SeekingDone => m_IsDisposing.Value || IsDisposed ? null : m_SeekingDone;
+        internal ManualResetEvent SeekingDone => m_SeekingDone;
 
         /// <summary>
         /// Gets or sets a value indicating whether the workedrs have been requested
@@ -100,22 +100,18 @@
         /// </summary>
         internal MediaTypeDictionary<TimeSpan> LastRenderTime { get; } = new MediaTypeDictionary<TimeSpan>();
 
-#pragma warning restore SA1401 // Fields must be private
-        #endregion
-
-        #region Private Properties
-
         /// <summary>
         /// Gets a value indicating whether more packets can be read from the stream.
         /// This does not check if the packet queue is full.
         /// </summary>
-        private bool CanReadMorePackets => (Container?.IsAtEndOfStream ?? true) == false;
+        internal bool CanReadMorePackets => (Container?.IsReadAborted ?? true) == false
+            && (Container?.IsAtEndOfStream ?? true) == false;
 
         /// <summary>
         /// Gets a value indicating whether more frames can be decoded from the packet queue.
         /// That is, if we have packets in the packet buffer or if we are not at the end of the stream.
         /// </summary>
-        private bool CanReadMoreFrames => CanReadMorePackets || Container.Components.PacketBufferLength > 0;
+        internal bool CanReadMoreFrames => CanReadMorePackets || Container.Components.PacketBufferLength > 0;
 
         #endregion
 
@@ -151,11 +147,11 @@
                 // Worker logic begins here
                 while (IsTaskCancellationPending == false)
                 {
-                    // Enter a read cycle
-                    SeekingDone?.WaitOne();
+                    // Wait for seeking to be done.
+                    SeekingDone.WaitOne();
 
                     // Enter a packet reading cycle
-                    PacketReadingCycle?.Reset();
+                    PacketReadingCycle.Reset();
 
                     if (CanReadMorePackets && mediaContainer.Components.PacketBufferLength < DownloadCacheLength)
                     {
@@ -192,7 +188,7 @@
                     }
 
                     // finish the reading cycle.
-                    PacketReadingCycle?.Set();
+                    PacketReadingCycle.Set();
 
                     // Wait some if we have a full packet buffer or we are unable to read more packets (i.e. EOF).
                     if (mediaContainer.Components.PacketBufferLength >= DownloadCacheLength || CanReadMorePackets == false || currentBytesRead <= 0)
@@ -205,7 +201,7 @@
             finally
             {
                 // Always exit notifying the reading cycle is done.
-                PacketReadingCycle?.Set();
+                PacketReadingCycle.Set();
             }
         }
 
@@ -275,10 +271,10 @@
 
                     // Wait for a seek operation to complete (if any)
                     // and initiate a frame decoding cycle.
-                    SeekingDone?.WaitOne();
+                    SeekingDone.WaitOne();
 
                     // Initiate the frame docding cycle
-                    FrameDecodingCycle?.Reset();
+                    FrameDecodingCycle.Reset();
 
                     // Set initial state
                     wallClock = Clock.Position;
@@ -312,7 +308,7 @@
                             {
                                 // Try to get more packets by waiting for read cycles.
                                 if (CanReadMorePackets && comp.PacketBufferCount <= 0)
-                                    PacketReadingCycle?.WaitOne();
+                                    PacketReadingCycle.WaitOne();
 
                                 // Decode some frames and check if we are in reange now
                                 decodedFrameCount += AddBlocks(main);
@@ -383,7 +379,7 @@
                         {
                             // Wait for packets if we don't have enough packets
                             if (CanReadMorePackets && comp.PacketBufferCount <= 0)
-                                PacketReadingCycle?.WaitOne();
+                                PacketReadingCycle.WaitOne();
 
                             if (comp.PacketBufferCount <= 0)
                                 break;
@@ -456,7 +452,7 @@
                     }
 
                     // Complete the frame decoding cycle
-                    FrameDecodingCycle?.Set();
+                    FrameDecodingCycle.Set();
 
                     // After a seek operation, always reset the has seeked flag.
                     HasDecoderSeeked = false;
@@ -475,7 +471,7 @@
             finally
             {
                 // Always exit notifying the cycle is done.
-                FrameDecodingCycle?.Set();
+                FrameDecodingCycle.Set();
             }
         }
 
@@ -514,8 +510,8 @@
                     LastRenderTime[t] = TimeSpan.MinValue;
 
                 // Ensure the other workers are running
-                PacketReadingCycle?.WaitOne();
-                FrameDecodingCycle?.WaitOne();
+                PacketReadingCycle.WaitOne();
+                FrameDecodingCycle.WaitOne();
 
                 // Set the initial clock position
                 Clock.Position = Blocks[main].RangeStartTime;
@@ -535,7 +531,7 @@
                     renderedBlockCount = 0;
 
                     // Capture current clock position for the rest of this cycle
-                    BlockRenderingCycle?.Reset();
+                    BlockRenderingCycle.Reset();
 
                     // capture the wall clock for this cycle
                     wallClock = Clock.Position;
@@ -575,7 +571,7 @@
                     #region 6. Finalize the Rendering Cycle
 
                     // Signal the rendering cycle was set.
-                    BlockRenderingCycle?.Set();
+                    BlockRenderingCycle.Set();
 
                     // Call the update method on all renderers so they receive what the new wall clock is.
                     foreach (var t in all)
@@ -594,7 +590,7 @@
             finally
             {
                 // Always exit notifying the cycle is done.
-                BlockRenderingCycle?.Set();
+                BlockRenderingCycle.Set();
             }
         }
 

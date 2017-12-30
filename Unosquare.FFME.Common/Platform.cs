@@ -152,16 +152,6 @@
         public static Func<CoreDispatcherPriority, IDispatcherTimer> CreateTimer { get; set; }
 
         /// <summary>
-        /// Creates an empty pump operation with background priority
-        /// </summary>
-        /// <returns>an empty pump operation</returns>
-        public static Task CreatePumpOperation()
-        {
-            return UIEnqueueInvoke(
-                CoreDispatcherPriority.Background, new Action(async () => { await Task.Yield(); }), null);
-        }
-
-        /// <summary>
         /// Creates the asynchronous waiter.
         /// </summary>
         /// <param name="backgroundTask">The background task.</param>

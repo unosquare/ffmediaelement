@@ -208,7 +208,7 @@
             get
             {
                 if (m_CloseCommand == null)
-                    m_CloseCommand = new DelegateCommand(o => { Media.Close(); });
+                    m_CloseCommand = new DelegateCommand(async (o) => { await Media.Close(); });
 
                 return m_CloseCommand;
             }

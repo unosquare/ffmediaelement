@@ -5,6 +5,7 @@
     using System;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
+    using System.Threading.Tasks;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Data;
@@ -77,8 +78,10 @@
             {
                 return new CustomDispatcherTimer((DispatcherPriority)priority);
             };
-            Platform.UIInvoke = (priority, action) => Runner.UIInvoke((DispatcherPriority)priority, action);
-            Platform.UIEnqueueInvoke = (priority, action, args) => Runner.UIEnqueueInvoke((DispatcherPriority)priority, action, args);
+
+            // Setup the Platform-specific factory callbacks
+            Platform.UIInvoke = (priority, action) => WPFUtils.UIInvoke((DispatcherPriority)priority, action);
+            Platform.UIEnqueueInvoke = (priority, action, args) => WPFUtils.UIEnqueueInvoke((DispatcherPriority)priority, action, args);
             Platform.CreateRenderer = (mediaType, m) =>
             {
                 if (mediaType == MediaType.Audio) return new AudioRenderer(m);
@@ -242,7 +245,8 @@
         /// <summary>
         /// Closes the currently loaded media.
         /// </summary>
-        public void Close() => mediaElementCore.Close();
+        /// <returns>The awaitable task</returns>
+        public async Task Close() => await mediaElementCore.Close();
 
         #endregion
 
@@ -342,7 +346,7 @@
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             if (PropertyChanged == null) return;
-            Runner.UIInvoke(DispatcherPriority.DataBind, () =>
+            WPFUtils.UIInvoke(DispatcherPriority.DataBind, () =>
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             });

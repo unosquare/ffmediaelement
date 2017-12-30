@@ -106,9 +106,9 @@
 
         #region Public methods
 
-        public void Open(Uri uri)
+        public async Task Open(Uri uri)
         {
-            mediaElementCore.Open(uri).GetAwaiter().GetResult();
+            await mediaElementCore.Open(uri);
         }
 
         #endregion

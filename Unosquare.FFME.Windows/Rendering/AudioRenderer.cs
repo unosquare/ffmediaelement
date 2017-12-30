@@ -62,7 +62,7 @@
 
             if (Application.Current != null)
             {
-                Runner.UIInvoke(DispatcherPriority.Normal, () =>
+                WPFUtils.UIInvoke(DispatcherPriority.Normal, () =>
                 {
                     Application.Current.Exit += OnApplicationExit;
                 });
@@ -435,7 +435,7 @@
             {
                 if (Application.Current != null)
                 {
-                    Runner.UIInvoke(DispatcherPriority.Send, () =>
+                    WPFUtils.UIInvoke(DispatcherPriority.Send, () =>
                     {
                         Application.Current.Exit -= OnApplicationExit;
                     });

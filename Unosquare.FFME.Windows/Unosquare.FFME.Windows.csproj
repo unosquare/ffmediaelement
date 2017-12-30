@@ -91,7 +91,6 @@
   <ItemGroup>
     <Compile Include="Core\CustomDispatcherTimer.cs" />
     <Compile Include="Core\NativeMethods.cs" />
-    <Compile Include="Core\Runner.cs" />
     <Compile Include="MediaElement.Events.cs" />
     <Compile Include="Rendering\SoundTouch.cs" />
     <Compile Include="Rendering\Wave\IWaveProvider.cs" />
@@ -105,7 +104,6 @@
     <Compile Include="Rendering\Wave\WaveInterop.cs" />
     <Compile Include="Rendering\Wave\WaveOutBuffer.cs" />
     <Compile Include="Rendering\Wave\WaveOutCapabilities.cs" />
-    <Compile Include="Core\WPFConstants.cs" />
     <Compile Include="MediaElement.cs" />
     <Compile Include="MediaElement.DependencyProperties.cs" />
     <Compile Include="MediaElement.MediaProperties.cs" />

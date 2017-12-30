@@ -84,7 +84,7 @@
         /// </summary>
         public void Close()
         {
-            Runner.UIInvoke(DispatcherPriority.Render, () =>
+            WPFUtils.UIInvoke(DispatcherPriority.Render, () =>
             {
                 TargetBitmap = null;
                 MediaElement.ViewBox.Source = null;
@@ -126,7 +126,7 @@
 
             IsRenderingInProgress.Value = true;
 
-            await Runner.UIEnqueueInvoke(
+            await WPFUtils.UIEnqueueInvoke(
                 DispatcherPriority.Render,
                 new Action<VideoBlock, TimeSpan>((b, cP) =>
                 {
@@ -186,7 +186,7 @@
         /// <param name="block">The block.</param>
         private void InitializeTargetBitmap(VideoBlock block)
         {
-            Runner.UIInvoke(DispatcherPriority.Normal, () =>
+            WPFUtils.UIInvoke(DispatcherPriority.Normal, () =>
             {
                 var visual = PresentationSource.FromVisual(MediaElement);
 

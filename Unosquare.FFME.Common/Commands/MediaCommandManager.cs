@@ -1,13 +1,13 @@
 ﻿namespace Unosquare.FFME.Commands
 {
+    using Core;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Core;
 
     /// <summary>
-    /// Represents a singlo point of contact for media command excution.
+    /// Represents a single point of contact for media command excution.
     /// </summary>
     internal sealed class MediaCommandManager
     {
@@ -93,24 +93,24 @@
 
         /// <summary>
         /// Opens the specified URI.
-        /// The command is processed in a Thread Pool Thread.
+        /// This command gets processed in a threadpool thread asynchronously.
         /// </summary>
         /// <param name="uri">The URI.</param>
-        /// <returns>The awaitable Open operation</returns>
-        public Task Open(Uri uri)
+        /// <returns>The asynchronous task</returns>
+        public async Task OpenAsync(Uri uri)
         {
             // Check Uri Argument
             if (uri == null)
             {
                 MediaElement?.Logger.Log(
                     MediaLogMessageType.Warning,
-                    $"{nameof(MediaCommandManager)}.{nameof(Open)}: '{nameof(uri)}' cannot be null");
+                    $"{nameof(MediaCommandManager)}.{nameof(OpenAsync)}: '{nameof(uri)}' cannot be null");
 
-                return Platform.CreatePumpOperation();
+                return; // Task.CompletedTask;
             }
 
             if (CanExecuteCommands == false)
-                return Platform.CreatePumpOperation();
+                return; // Task.CompletedTask;
             else
                 IsOpening.Value = true;
 
@@ -118,7 +118,7 @@
             ExecutingCommand = command;
             ClearCommandQueue();
 
-            var backgroundTask = Task.Run(() => 
+            var action = new Action(() =>
             {
                 try
                 {
@@ -129,7 +129,7 @@
                 {
                     MediaElement?.Logger.Log(
                         MediaLogMessageType.Error,
-                        $"{nameof(MediaCommandManager)}.{nameof(Open)}: {ex.GetType()} - {ex.Message}");
+                        $"{nameof(MediaCommandManager)}.{nameof(OpenAsync)}: {ex.GetType()} - {ex.Message}");
                 }
                 finally
                 {
@@ -137,25 +137,20 @@
                     ExecutingCommand = null;
                     IsOpening.Value = false;
                 }
-
-                System.Diagnostics.Debug.Assert(
-                    MediaElement.IsOpen == true && MediaElement.IsOpening == false && command.HasCompleted,
-                    "Synchronous conditions not met");
             });
 
-            var operation = Platform.CreateAsynchronousPumpWaiter(backgroundTask);
-            return operation;
+            await Task.Run(action);
         }
 
         /// <summary>
         /// Closes the specified media.
-        /// This command gets processed in a threadpool thread.
+        /// This command gets processed in a threadpool thread asynchronously.
         /// </summary>
-        /// <returns>The awaitable close operation</returns>
-        public Task Close()
+        /// <returns>Returns the background task.</returns>
+        public async Task CloseAsync()
         {
             if (CanExecuteCommands == false)
-                return Platform.CreatePumpOperation();
+                return;
             else
                 IsClosing.Value = true;
 
@@ -163,7 +158,7 @@
             ExecutingCommand = command;
             ClearCommandQueue();
 
-            var backgroundTask = Task.Run(() =>
+            var action = new Action(() =>
             {
                 try
                 {
@@ -174,7 +169,7 @@
                 {
                     MediaElement?.Logger.Log(
                         MediaLogMessageType.Error,
-                        $"{nameof(MediaCommandManager)}.{nameof(Close)}: {ex.GetType()} - {ex.Message}");
+                        $"{nameof(MediaCommandManager)}.{nameof(CloseAsync)}: {ex.GetType()} - {ex.Message}");
                 }
                 finally
                 {
@@ -184,8 +179,7 @@
                 }
             });
 
-            var operation = Platform.CreateAsynchronousPumpWaiter(backgroundTask);
-            return operation;
+            await Task.Run(action);
         }
 
         #endregion
@@ -311,6 +305,9 @@
         /// </summary>
         public void ProcessNext()
         {
+            if (MediaElement.IsTaskCancellationPending)
+                return;
+
             MediaCommand command = null;
 
             lock (SyncLock)
@@ -374,6 +371,8 @@
         /// <param name="command">The command.</param>
         private void WaitFor(MediaCommand command)
         {
+            return;
+            /*
             var waitTask = Task.Run(async () =>
             {
                 while (command.HasCompleted == false && MediaElement.IsOpen)
@@ -387,6 +386,7 @@
                     CoreDispatcherPriority.Background,
                     () => { });
             }
+            */
         }
 
         #endregion

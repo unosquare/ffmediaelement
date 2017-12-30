@@ -43,7 +43,7 @@
             pause.ExecuteInternal();
 
             var initialPosition = m.Clock.Position;
-            m.SeekingDone?.Reset();
+            m.SeekingDone.Reset();
             var startTime = DateTime.UtcNow;
 
             try
@@ -66,7 +66,7 @@
                 // wait for the current reading and decoding cycles
                 // to finish. We don't want to interfere with reading in progress
                 // or decoding in progress
-                m.PacketReadingCycle?.WaitOne();
+                m.PacketReadingCycle.WaitOne();
 
                 // Capture seek target adjustment
                 var adjustedSeekTarget = TargetPosition;
@@ -97,7 +97,7 @@
                     m.Blocks[frame.MediaType]?.Add(frame, m.Container);
 
                 // Now read blocks until we have reached at least the Target Position
-                while (m.Container.IsAtEndOfStream == false
+                while (m.CanReadMorePackets 
                     && m.Blocks[main].IsFull == false
                     && m.Blocks[main].IsInRange(TargetPosition) == false)
                 {
@@ -162,7 +162,7 @@
                         $"SEEK D: Elapsed: {startTime.FormatElapsed()} | Target: {TargetPosition.Format()}");
                 }
 
-                m.SeekingDone?.Set();
+                m.SeekingDone.Set();
 
                 if (_wasPlaying)
                 {

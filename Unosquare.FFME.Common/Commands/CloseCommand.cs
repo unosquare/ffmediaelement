@@ -34,6 +34,9 @@
             // Let the threads know a cancellation is pending.
             m.IsTaskCancellationPending = true;
 
+            // Cause an immediate Packet read abort
+            m.Container.AbortReads(false);
+
             // Call close on all renderers and clear them
             foreach (var renderer in m.Renderers.Values)
                 renderer.Close();
@@ -42,7 +45,10 @@
             var wrokers = new[] { m.PacketReadingTask, m.FrameDecodingTask, m.BlockRenderingTask };
             foreach (var w in wrokers)
             {
-                w.Abort();
+                // Abort causes memory leaks bacause packets and frames might not get disposed by the corresponding workers.
+                // w.Abort();
+
+                // Wait for all threads to join
                 w.Join();
             }
 

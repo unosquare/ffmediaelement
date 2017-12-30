@@ -194,28 +194,6 @@
             FFmpegMessageLogged?.Invoke(typeof(MediaElementCore), eventArgs);
         }
 
-        internal async Task Open(Uri uri)
-        {
-            Source = uri;
-
-            // TODO: Calling this multiple times while an operation is in progress breaks the control :(
-            // for now let's throw an exception but ideally we want the user NOT to be able to change the value in the first place.
-            if (IsOpening)
-                throw new InvalidOperationException($"Unable to change {nameof(Source)} to '{uri}' because {nameof(IsOpening)} is currently set to true.");
-
-            if (uri != null)
-            {
-                await Commands.Close();
-                await Commands.Open(uri);
-                if (LoadedBehavior == CoreMediaState.Play || CanPause == false)
-                    Commands.Play();
-            }
-            else
-            {
-                await Commands.Close();
-            }
-        }
-
         /// <summary>
         /// Updates the position property signaling the update is
         /// coming internally. This is to distinguish between user/binding 
@@ -305,9 +283,10 @@
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
+        /// Please not that this call is non-blocking/asynchronous.
         /// </summary>
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool alsoManaged)
+        private async void Dispose(bool alsoManaged)
         {
             if (IsDisposed) return;
 
@@ -315,26 +294,29 @@
             {
                 m_IsDisposing.Value = true;
 
-                // free managed resources
-                Commands.Close().Wait();
-
-                if (Container != null)
+                // free managed resources -- This is done asynchronously
+                await Commands.CloseAsync().ContinueWith(d =>
                 {
-                    Container.Dispose();
-                    Container = null;
-                }
+                    if (Container != null)
+                    {
+                        Container.Dispose();
+                        Container = null;
+                    }
 
-                if (UIPropertyUpdateTimer != null)
-                {
-                    UIPropertyUpdateTimer.Stop();
-                    UIPropertyUpdateTimer.IsEnabled = false;
-                    UIPropertyUpdateTimer = null;
-                }
+                    if (UIPropertyUpdateTimer != null)
+                    {
+                        UIPropertyUpdateTimer.Stop();
+                        UIPropertyUpdateTimer.IsEnabled = false;
+                        UIPropertyUpdateTimer = null;
+                    }
 
-                m_PacketReadingCycle.Dispose();
-                m_FrameDecodingCycle.Dispose();
-                m_BlockRenderingCycle.Dispose();
-                m_SeekingDone.Dispose();
+                    // Dispose the ManualResetEvent objects as they are
+                    // backed by unmanaged code
+                    m_PacketReadingCycle.Dispose();
+                    m_FrameDecodingCycle.Dispose();
+                    m_BlockRenderingCycle.Dispose();
+                    m_SeekingDone.Dispose();
+                });
             }
 
             IsDisposed = true;

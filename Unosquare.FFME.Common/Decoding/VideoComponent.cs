@@ -367,11 +367,11 @@
                 {
                     result = ffmpeg.avfilter_graph_create_filter(source, ffmpeg.avfilter_get_by_name("buffer"), "video_buffer", CurrentFilterArguments, null, FilterGraph);
                     if (result != 0)
-                        throw new MediaContainerException($"{nameof(ffmpeg.avfilter_graph_create_filter)} (buffer) failed. Error {result}: {FFmpegEx.GetErrorMessage(result)}");
+                        throw new MediaContainerException($"{nameof(ffmpeg.avfilter_graph_create_filter)} (buffer) failed. Error {result}: {Utils.DecodeFFmpegMessage(result)}");
 
                     result = ffmpeg.avfilter_graph_create_filter(sink, ffmpeg.avfilter_get_by_name("buffersink"), "video_buffersink", null, null, FilterGraph);
                     if (result != 0)
-                        throw new MediaContainerException($"{nameof(ffmpeg.avfilter_graph_create_filter)} (buffersink) failed. Error {result}: {FFmpegEx.GetErrorMessage(result)}");
+                        throw new MediaContainerException($"{nameof(ffmpeg.avfilter_graph_create_filter)} (buffersink) failed. Error {result}: {Utils.DecodeFFmpegMessage(result)}");
 
                     // TODO: from ffplay, ffmpeg.av_opt_set_int_list(sink, "pix_fmts", (byte*)&f0, 1, ffmpeg.AV_OPT_SEARCH_CHILDREN);
                 }
@@ -380,7 +380,7 @@
                 {
                     result = ffmpeg.avfilter_link(SourceFilter, 0, SinkFilter, 0);
                     if (result != 0)
-                        throw new MediaContainerException($"{nameof(ffmpeg.avfilter_link)} failed. Error {result}: {FFmpegEx.GetErrorMessage(result)}");
+                        throw new MediaContainerException($"{nameof(ffmpeg.avfilter_link)} failed. Error {result}: {Utils.DecodeFFmpegMessage(result)}");
                 }
                 else
                 {
@@ -400,7 +400,7 @@
 
                     result = ffmpeg.avfilter_graph_parse(FilterGraph, FilterString, SinkInput, SourceOutput, null);
                     if (result != 0)
-                        throw new MediaContainerException($"{nameof(ffmpeg.avfilter_graph_parse)} failed. Error {result}: {FFmpegEx.GetErrorMessage(result)}");
+                        throw new MediaContainerException($"{nameof(ffmpeg.avfilter_graph_parse)} failed. Error {result}: {Utils.DecodeFFmpegMessage(result)}");
 
                     // Reorder the filters to ensure that inputs of the custom filters are merged first
                     for (var i = 0; i < FilterGraph->nb_filters - initFilterCount; i++)
@@ -414,7 +414,7 @@
 
                 result = ffmpeg.avfilter_graph_config(FilterGraph, null);
                 if (result != 0)
-                    throw new MediaContainerException($"{nameof(ffmpeg.avfilter_graph_config)} failed. Error {result}: {FFmpegEx.GetErrorMessage(result)}");
+                    throw new MediaContainerException($"{nameof(ffmpeg.avfilter_graph_config)} failed. Error {result}: {Utils.DecodeFFmpegMessage(result)}");
             }
             catch (Exception ex)
             {

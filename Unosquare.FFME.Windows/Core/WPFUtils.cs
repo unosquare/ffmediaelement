@@ -2,7 +2,9 @@
 {
     using System;
     using System.ComponentModel;
+    using System.Threading.Tasks;
     using System.Windows;
+    using System.Windows.Threading;
 
     /// <summary>
     /// Provides a set of utilities to perfrom logging, text formatting, 
@@ -10,6 +12,13 @@
     /// </summary>
     internal static class WPFUtils
     {
+        #region Constants
+
+        public const FrameworkPropertyMetadataOptions AffectsMeasureAndRender
+            = FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender;
+
+        #endregion
+
         #region Private Declarations
 
         private static bool? m_IsInDesignTime;
@@ -50,6 +59,53 @@
                 }
 
                 return m_IsInDesignTime.Value;
+            }
+        }
+
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        /// Gets the UI dispatcher.
+        /// </summary>
+        public static Dispatcher UIDispatcher => Application.Current?.Dispatcher;
+
+        /// <summary>
+        /// Synchronously invokes the given instructions on the main application dispatcher.
+        /// </summary>
+        /// <param name="priority">The priority.</param>
+        /// <param name="action">The action.</param>
+        public static void UIInvoke(DispatcherPriority priority, Action action)
+        {
+            UIDispatcher?.Invoke(action, priority, null);
+        }
+
+        /// <summary>
+        /// Enqueues the given instructions with the given arguments on the main application dispatcher.
+        /// This is a way to execute code in a fire-and-forget style
+        /// </summary>
+        /// <param name="priority">The priority.</param>
+        /// <param name="action">The action.</param>
+        /// <param name="args">The arguments.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public static async Task UIEnqueueInvoke(DispatcherPriority priority, Delegate action, params object[] args)
+        {
+            try
+            {
+                // Call the code on the UI dispatcher
+                await UIDispatcher?.BeginInvoke(action, priority, args);
+            }
+            catch (TaskCanceledException)
+            {
+                // Swallow task cancellation exceptions. This is ok.
+                return;
+            }
+            catch
+            {
+                // Retrhow the exception
+                // TODO: Maybe logging here would be helpful?
+                throw;
             }
         }
 

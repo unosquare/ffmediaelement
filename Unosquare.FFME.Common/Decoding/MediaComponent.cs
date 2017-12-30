@@ -155,13 +155,13 @@
             MediaType = (MediaType)CodecContext->codec_type;
 
             // Compute the start time
-            if (Stream->start_time == FFmpegEx.AV_NOPTS)
+            if (Stream->start_time == ffmpeg.AV_NOPTS_VALUE)
                 StartTimeOffset = Container.MediaStartTimeOffset;
             else
                 StartTimeOffset = Stream->start_time.ToTimeSpan(Stream->time_base);
 
             // compute the duration
-            if (Stream->duration == FFmpegEx.AV_NOPTS || Stream->duration == 0)
+            if (Stream->duration == ffmpeg.AV_NOPTS_VALUE || Stream->duration == 0)
                 Duration = Container.InputContext->duration.ToTimeSpan();
             else
                 Duration = Stream->duration.ToTimeSpan(Stream->time_base);

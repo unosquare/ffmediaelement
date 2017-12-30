@@ -7,6 +7,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
+    using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
@@ -141,7 +142,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TimeSpan ToTimeSpan(this double pts, AVRational timeBase)
         {
-            if (double.IsNaN(pts) || pts == FFmpegEx.AV_NOPTS)
+            if (double.IsNaN(pts) || pts == ffmpeg.AV_NOPTS_VALUE)
                 return TimeSpan.MinValue;
 
             if (timeBase.den == 0)
@@ -171,7 +172,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TimeSpan ToTimeSpan(this double pts, double timeBase)
         {
-            if (double.IsNaN(pts) || pts == FFmpegEx.AV_NOPTS)
+            if (double.IsNaN(pts) || pts == ffmpeg.AV_NOPTS_VALUE)
                 return TimeSpan.MinValue;
 
             return TimeSpan.FromTicks((long)Math.Round(TimeSpan.TicksPerMillisecond * 1000 * pts / timeBase, 0));
@@ -289,6 +290,23 @@
                 FFmpegRegisterPath = ffmpegPath;
                 return FFmpegRegisterPath;
             }
+        }
+
+        /// <summary>
+        /// Gets the FFmpeg error mesage based on the error code
+        /// </summary>
+        /// <param name="code">The code.</param>
+        /// <returns>The decoded error message</returns>
+        public static unsafe string DecodeFFmpegMessage(int code)
+        {
+            var errorStrBytes = new byte[1024];
+            var errorStrPtr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(byte)) * errorStrBytes.Length);
+            ffmpeg.av_strerror(code, (byte*)errorStrPtr, (ulong)errorStrBytes.Length);
+            Marshal.Copy(errorStrPtr, errorStrBytes, 0, errorStrBytes.Length);
+            Marshal.FreeHGlobal(errorStrPtr);
+
+            var errorMessage = Encoding.GetEncoding(0).GetString(errorStrBytes).Split('\0').FirstOrDefault();
+            return errorMessage;
         }
 
         #endregion
