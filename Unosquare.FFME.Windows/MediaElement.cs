@@ -230,22 +230,25 @@
         /// <summary>
         /// Begins or resumes playback of the currently loaded media.
         /// </summary>
-        public void Play() => mediaElementCore.Play();
+        /// <returns>The awaitable command</returns>
+        public async Task Play() => await mediaElementCore.Play();
 
         /// <summary>
         /// Pauses playback of the currently loaded media.
         /// </summary>
-        public void Pause() => mediaElementCore.Pause();
+        /// <returns>The awaitable command</returns>
+        public async Task Pause() => await mediaElementCore.Pause();
 
         /// <summary>
         /// Pauses and rewinds the currently loaded media.
         /// </summary>
-        public void Stop() => mediaElementCore.Stop();
+        /// <returns>The awaitable command</returns>
+        public async Task Stop() => await mediaElementCore.Stop();
 
         /// <summary>
         /// Closes the currently loaded media.
         /// </summary>
-        /// <returns>The awaitable task</returns>
+        /// <returns>The awaitable command</returns>
         public async Task Close() => await mediaElementCore.Close();
 
         #endregion

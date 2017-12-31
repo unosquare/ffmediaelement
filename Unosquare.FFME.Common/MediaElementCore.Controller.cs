@@ -34,17 +34,20 @@
         /// <summary>
         /// Begins or resumes playback of the currently loaded media.
         /// </summary>
-        public void Play() => Commands.Play();
+        /// <returns>The awaitable command</returns>
+        public async Task Play() => await Commands.PlayAsync();
 
         /// <summary>
         /// Pauses playback of the currently loaded media.
         /// </summary>
-        public void Pause() => Commands.Pause();
+        /// <returns>The awaitable command</returns>
+        public async Task Pause() => await Commands.PauseAsync();
 
         /// <summary>
         /// Pauses and rewinds the currently loaded media.
         /// </summary>
-        public void Stop() => Commands.Stop();
+        /// <returns>The awaitable command</returns>
+        public async Task Stop() => await Commands.StopAsync();
 
         /// <summary>
         /// Opens the specified URI.
@@ -67,10 +70,10 @@
                     .ContinueWith(async (c) =>
                     {
                         await Commands.OpenAsync(uri)
-                            .ContinueWith(p =>
+                            .ContinueWith(async p =>
                             {
                                 if (LoadedBehavior == CoreMediaState.Play || CanPause == false)
-                                    Commands.Play();
+                                    await Commands.PlayAsync();
                             });
                     });
             }

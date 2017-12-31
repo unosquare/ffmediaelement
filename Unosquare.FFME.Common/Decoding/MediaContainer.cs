@@ -475,9 +475,10 @@
         /// <summary>
         /// Exits the aborted state for read operations
         /// </summary>
-        public void EnableReads()
+        public void ResumeReads()
         {
             StreamReadAbortRequested.Value = false;
+            StreamReadAbortAutoReset.Value = true;
         }
 
         /// <summary>

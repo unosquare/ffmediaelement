@@ -123,7 +123,7 @@
                 try
                 {
                     if (command.HasCompleted) return;
-                    command.Execute();
+                    command.ExecuteAsync().GetAwaiter().GetResult();
                 }
                 catch (Exception ex)
                 {
@@ -163,7 +163,7 @@
                 try
                 {
                     if (command.HasCompleted) return;
-                    command.Execute();
+                    command.ExecuteAsync().GetAwaiter().GetResult();
                 }
                 catch (Exception ex)
                 {
@@ -189,7 +189,8 @@
         /// <summary>
         /// Starts playing the open media URI.
         /// </summary>
-        public void Play()
+        /// <returns>The awaitable command</returns>
+        public async Task PlayAsync()
         {
             PlayCommand command = null;
 
@@ -203,13 +204,14 @@
                 }
             }
 
-            WaitFor(command);
+            await command.TaskContext;
         }
 
         /// <summary>
         /// Pauses the media.
         /// </summary>
-        public void Pause()
+        /// <returns>The awaitable command</returns>
+        public async Task PauseAsync()
         {
             PauseCommand command = null;
 
@@ -223,14 +225,15 @@
                 }
             }
 
-            WaitFor(command);
+            await command.TaskContext;
         }
 
         /// <summary>
         /// Pauses and rewinds the media
         /// This command invalidates all queued commands
         /// </summary>
-        public void Stop()
+        /// <returns>The awaitable command</returns>
+        public async Task StopAsync()
         {
             StopCommand command = null;
 
@@ -244,7 +247,7 @@
                 }
             }
 
-            WaitFor(command);
+            await command.TaskContext;
         }
 
         #endregion
@@ -262,7 +265,7 @@
             lock (SyncLock)
             {
                 command = Commands.LastOrDefault(c => c.CommandType == MediaCommandType.Seek) as SeekCommand;
-                if (command == null)
+                if (command == null || command.IsRunning)
                 {
                     command = new SeekCommand(this, position);
                     EnqueueCommand(command);
@@ -305,6 +308,7 @@
         /// </summary>
         public void ProcessNext()
         {
+            DumpQueue($"Before {nameof(ProcessNext)}", false);
             if (MediaElement.IsTaskCancellationPending)
                 return;
 
@@ -317,7 +321,21 @@
                 Commands.RemoveAt(0);
             }
 
-            command.Execute();
+            try
+            {
+                ExecutingCommand = command;
+                command.ExecuteAsync().GetAwaiter().GetResult();
+                DumpQueue($"After {nameof(ProcessNext)}", false);
+            }
+            catch (Exception ex)
+            {
+                MediaElement?.Logger.Log(MediaLogMessageType.Error, $"{ex.GetType()}: {ex.Message}");
+                throw;
+            }
+            finally
+            {
+                ExecutingCommand = null;
+            }
         }
 
         /// <summary>
@@ -350,6 +368,26 @@
         }
 
         /// <summary>
+        /// Outputs the state of the queue
+        /// </summary>
+        /// <param name="operation">The operation.</param>
+        /// <param name="outputEmpty">if set to <c>true</c> [output empty].</param>
+        private void DumpQueue(string operation, bool outputEmpty)
+        {
+#if DEBUG
+            lock (SyncLock)
+            {
+                if (outputEmpty == false && Commands.Count <= 0) return; // Prevent output for empty commands
+                MediaElement.Logger.Log(MediaLogMessageType.Debug, $"Command Queue ({Commands.Count} commands): {operation}");
+                foreach (var c in Commands)
+                {
+                    MediaElement.Logger.Log(MediaLogMessageType.Debug, $"   {c.ToString()}");
+                }
+            }
+#endif
+        }
+
+        /// <summary>
         /// Clears the command queue.
         /// </summary>
         private void ClearCommandQueue()
@@ -363,30 +401,6 @@
                 // Clear all commands from Queue
                 Commands.Clear();
             }
-        }
-
-        /// <summary>
-        /// Waits for the command to complete execution.
-        /// </summary>
-        /// <param name="command">The command.</param>
-        private void WaitFor(MediaCommand command)
-        {
-            return;
-            /*
-            var waitTask = Task.Run(async () =>
-            {
-                while (command.HasCompleted == false && MediaElement.IsOpen)
-                    await Task.Delay(10);
-            });
-
-            while (waitTask.IsCompleted == false)
-            {
-                // Pump invoke
-                Platform.UIInvoke(
-                    CoreDispatcherPriority.Background,
-                    () => { });
-            }
-            */
         }
 
         #endregion
