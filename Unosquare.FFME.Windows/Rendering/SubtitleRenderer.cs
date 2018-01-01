@@ -223,13 +223,13 @@
         /// Returns immediately because it enqueues the action on the UI thread.
         /// </summary>
         /// <param name="text">The text.</param>
-        private async void SetText(string text)
+        private void SetText(string text)
         {
             if (RenderedText.Equals(text))
                 return;
 
             // We fire-and-forget the update of the text
-            await WPFUtils.UIEnqueueInvoke(
+            Gui.UIEnqueueInvoke(
                 DispatcherPriority.DataBind,
                 new Action<string>((s) =>
                 {

@@ -507,7 +507,9 @@
         /// <summary>
         /// Signals the abortion of the current seek operation.
         /// </summary>
-        /// <returns>Returns true if there was a seek operation in progress when this method was called.</returns>
+        /// <returns>
+        /// Returns true if there was a seek operation in progress when this method was called.
+        /// </returns>
         public bool SignalAbortSeek()
         {
             var result = IsSeeking;
@@ -805,7 +807,7 @@
             // Check if a forced quit was triggered
             if (SignalAbortReadsRequested.Value)
             {
-                Utils.Log(Logger, MediaLogMessageType.Info, $"{nameof(StreamReadInterrupt)} was requested an immediate read exit.");
+                Logger?.Log(MediaLogMessageType.Info, $"{nameof(StreamReadInterrupt)} was requested an immediate read exit.");
                 if (SignalAbortReadsAutoReset.Value)
                     SignalAbortReadsRequested.Value = false;
 
@@ -820,7 +822,7 @@
 
             if (MediaOptions.ReadTimeout.Ticks >= 0 && timeDifference.Ticks > MediaOptions.ReadTimeout.Ticks)
             {
-                Utils.Log(Logger, MediaLogMessageType.Error, $"{nameof(StreamReadInterrupt)} timed out with  {timeDifference.Format()}");
+                Logger?.Log(MediaLogMessageType.Error, $"{nameof(StreamReadInterrupt)} timed out with  {timeDifference.Format()}");
                 return ErrorResult;
             }
 

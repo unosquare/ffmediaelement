@@ -30,13 +30,10 @@
             };
             Platform.UIEnqueueInvoke = (priority, action, args) =>
             {
-                var tcs = new TaskCompletionSource<bool>();
                 NSRunLoop.Main.BeginInvokeOnMainThread(() =>
                 {
                     action.DynamicInvoke(args);
-                    tcs.TrySetResult(true);
                 });
-                return tcs.Task;
             };
             Platform.CreateRenderer = (mediaType, m) =>
             {

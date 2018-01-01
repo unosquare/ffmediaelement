@@ -201,7 +201,7 @@
         {
             LogEventStart(MediaFailedEvent);
             Logger.Log(MediaLogMessageType.Error, $"Media Failure - {ex?.GetType()}: {ex?.Message}");
-            WPFUtils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(CreateExceptionRoutedEventArgs(MediaFailedEvent, this, ex)); });
+            Gui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(CreateExceptionRoutedEventArgs(MediaFailedEvent, this, ex)); });
             LogEventDone(MediaFailedEvent);
         }
 
@@ -212,7 +212,7 @@
         internal void RaiseMediaOpenedEvent()
         {
             LogEventStart(MediaOpenedEvent);
-            WPFUtils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaOpenedEvent, this)); });
+            Gui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaOpenedEvent, this)); });
             LogEventDone(MediaOpenedEvent);
         }
 
@@ -223,7 +223,7 @@
         internal void RaiseMediaClosedEvent()
         {
             LogEventStart(MediaClosedEvent);
-            WPFUtils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaClosedEvent, this)); });
+            Gui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaClosedEvent, this)); });
             LogEventDone(MediaClosedEvent);
         }
 
@@ -234,7 +234,7 @@
         internal void RaiseMediaOpeningEvent()
         {
             LogEventStart(MediaOpeningEvent);
-            WPFUtils.UIInvoke(DispatcherPriority.DataBind, () =>
+            Gui.UIInvoke(DispatcherPriority.DataBind, () =>
             {
                 RaiseEvent(new MediaOpeningRoutedEventArgs(MediaOpeningEvent, this, mediaElementCore.Container.MediaOptions, mediaElementCore.Container.MediaInfo));
             });
@@ -285,7 +285,7 @@
         private void RaiseBufferingStartedEvent()
         {
             LogEventStart(BufferingStartedEvent);
-            WPFUtils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(BufferingStartedEvent, this)); });
+            Gui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(BufferingStartedEvent, this)); });
             LogEventDone(BufferingStartedEvent);
         }
 
@@ -296,7 +296,7 @@
         private void RaiseBufferingEndedEvent()
         {
             LogEventStart(BufferingEndedEvent);
-            WPFUtils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(BufferingEndedEvent, this)); });
+            Gui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(BufferingEndedEvent, this)); });
             LogEventDone(BufferingEndedEvent);
         }
 
@@ -307,7 +307,7 @@
         private void RaiseSeekingStartedEvent()
         {
             LogEventStart(SeekingStartedEvent);
-            WPFUtils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(SeekingStartedEvent, this)); });
+            Gui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(SeekingStartedEvent, this)); });
             LogEventDone(SeekingStartedEvent);
         }
 
@@ -318,7 +318,7 @@
         private void RaiseSeekingEndedEvent()
         {
             LogEventStart(SeekingEndedEvent);
-            WPFUtils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(SeekingEndedEvent, this)); });
+            Gui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(SeekingEndedEvent, this)); });
             LogEventDone(SeekingEndedEvent);
         }
 
@@ -329,7 +329,7 @@
         private void RaiseMediaEndedEvent()
         {
             LogEventStart(MediaEndedEvent);
-            WPFUtils.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaEndedEvent, this)); });
+            Gui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaEndedEvent, this)); });
             LogEventDone(MediaEndedEvent);
         }
 

@@ -314,7 +314,7 @@
         #region Logging
 
         /// <summary>
-        /// Logs the specified message.
+        /// Logs the specified message. This the genric logging mechanism available to all classes.
         /// </summary>
         /// <param name="sender">The sender.</param>
         /// <param name="messageType">Type of the message.</param>

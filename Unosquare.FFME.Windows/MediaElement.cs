@@ -80,8 +80,8 @@
             };
 
             // Setup the Platform-specific factory callbacks
-            Platform.UIInvoke = (priority, action) => WPFUtils.UIInvoke((DispatcherPriority)priority, action);
-            Platform.UIEnqueueInvoke = (priority, action, args) => WPFUtils.UIEnqueueInvoke((DispatcherPriority)priority, action, args);
+            Platform.UIInvoke = (priority, action) => Gui.UIInvoke((DispatcherPriority)priority, action);
+            Platform.UIEnqueueInvoke = (priority, action, args) => Gui.UIEnqueueInvoke((DispatcherPriority)priority, action, args);
             Platform.CreateRenderer = (mediaType, m) =>
             {
                 if (mediaType == MediaType.Audio) return new AudioRenderer(m);
@@ -110,9 +110,9 @@
             StretchDirection = ViewBox.StretchDirection;
             Logger = new GenericMediaLogger<MediaElement>(this);
 
-            mediaElementCore = new MediaElementCore(this, WPFUtils.IsInDesignTime);
+            mediaElementCore = new MediaElementCore(this, Gui.IsInDesignTime);
 
-            if (WPFUtils.IsInDesignTime)
+            if (Gui.IsInDesignTime)
             {
                 // Shows an FFmpeg image if we are in design-time
                 var bitmap = Properties.Resources.FFmpegMediaElementBackground;
@@ -349,7 +349,7 @@
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             if (PropertyChanged == null) return;
-            WPFUtils.UIInvoke(DispatcherPriority.DataBind, () =>
+            Gui.UIInvoke(DispatcherPriority.DataBind, () =>
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             });

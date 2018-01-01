@@ -19,7 +19,7 @@
             nameof(Source),
             typeof(Uri),
             typeof(MediaElement),
-            new FrameworkPropertyMetadata(null, WPFUtils.AffectsMeasureAndRender, OnSourcePropertyChanged, OnSourcePropertyCoerce));
+            new FrameworkPropertyMetadata(null, Gui.AffectsMeasureAndRender, OnSourcePropertyChanged, OnSourcePropertyCoerce));
 
         /// <summary>
         /// DependencyProperty for Stretch property. 
@@ -28,7 +28,7 @@
             nameof(Stretch),
             typeof(Stretch),
             typeof(MediaElement),
-            new FrameworkPropertyMetadata(Stretch.Uniform, WPFUtils.AffectsMeasureAndRender, OnStretchPropertyChanged));
+            new FrameworkPropertyMetadata(Stretch.Uniform, Gui.AffectsMeasureAndRender, OnStretchPropertyChanged));
 
         /// <summary> 
         /// DependencyProperty for StretchDirection property.
@@ -37,7 +37,7 @@
             nameof(StretchDirection),
             typeof(StretchDirection),
             typeof(MediaElement),
-            new FrameworkPropertyMetadata(StretchDirection.Both, WPFUtils.AffectsMeasureAndRender, OnStretchDirectionPropertyChanged));
+            new FrameworkPropertyMetadata(StretchDirection.Both, Gui.AffectsMeasureAndRender, OnStretchDirectionPropertyChanged));
 
         /// <summary>
         /// The DependencyProperty for the MediaElement.Balance property. 
@@ -64,7 +64,7 @@
             nameof(SpeedRatio),
             typeof(double),
             typeof(MediaElement),
-            new FrameworkPropertyMetadata(Constants.DefaultSpeedRatio, WPFUtils.AffectsMeasureAndRender, new PropertyChangedCallback(SpeedRatioPropertyChanged), new CoerceValueCallback(CoerceSpeedRatioProperty)));
+            new FrameworkPropertyMetadata(Constants.DefaultSpeedRatio, Gui.AffectsMeasureAndRender, new PropertyChangedCallback(SpeedRatioPropertyChanged), new CoerceValueCallback(CoerceSpeedRatioProperty)));
 
         /// <summary> 
         /// The DependencyProperty for the MediaElement.Volume property.
@@ -110,7 +110,7 @@
             nameof(Position),
             typeof(TimeSpan),
             typeof(MediaElement),
-            new FrameworkPropertyMetadata(TimeSpan.Zero, WPFUtils.AffectsMeasureAndRender | FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, new PropertyChangedCallback(PositionPropertyChanged), new CoerceValueCallback(CoercePositionProperty)));
+            new FrameworkPropertyMetadata(TimeSpan.Zero, Gui.AffectsMeasureAndRender | FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, new PropertyChangedCallback(PositionPropertyChanged), new CoerceValueCallback(CoercePositionProperty)));
 
         #endregion
 

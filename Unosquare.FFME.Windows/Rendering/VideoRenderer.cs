@@ -84,7 +84,7 @@
         /// </summary>
         public void Close()
         {
-            WPFUtils.UIInvoke(DispatcherPriority.Render, () =>
+            Gui.UIInvoke(DispatcherPriority.Render, () =>
             {
                 TargetBitmap = null;
                 MediaElement.ViewBox.Source = null;
@@ -114,7 +114,7 @@
         /// </summary>
         /// <param name="mediaBlock">The media block.</param>
         /// <param name="clockPosition">The clock position.</param>
-        public async void Render(MediaBlock mediaBlock, TimeSpan clockPosition)
+        public void Render(MediaBlock mediaBlock, TimeSpan clockPosition)
         {
             var block = mediaBlock as VideoBlock;
             if (block == null) return;
@@ -126,7 +126,7 @@
 
             IsRenderingInProgress.Value = true;
 
-            await WPFUtils.UIEnqueueInvoke(
+            Gui.UIEnqueueInvoke(
                 DispatcherPriority.Render,
                 new Action<VideoBlock, TimeSpan>((b, cP) =>
                 {
@@ -186,7 +186,7 @@
         /// <param name="block">The block.</param>
         private void InitializeTargetBitmap(VideoBlock block)
         {
-            WPFUtils.UIInvoke(DispatcherPriority.Normal, () =>
+            Gui.UIInvoke(DispatcherPriority.Normal, () =>
             {
                 var visual = PresentationSource.FromVisual(MediaElement);
 

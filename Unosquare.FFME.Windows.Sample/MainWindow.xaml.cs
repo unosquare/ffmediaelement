@@ -157,7 +157,7 @@
             get
             {
                 if (m_PauseCommand == null)
-                    m_PauseCommand = new DelegateCommand(o => { Media.Pause(); });
+                    m_PauseCommand = new DelegateCommand(async o => { await Media.Pause(); });
 
                 return m_PauseCommand;
             }
@@ -174,7 +174,7 @@
             get
             {
                 if (m_PlayCommand == null)
-                    m_PlayCommand = new DelegateCommand(o => { Media.Play(); });
+                    m_PlayCommand = new DelegateCommand(async o => { await Media.Play(); });
 
                 return m_PlayCommand;
             }
@@ -191,7 +191,7 @@
             get
             {
                 if (m_StopCommand == null)
-                    m_StopCommand = new DelegateCommand(o => { Media.Stop(); });
+                    m_StopCommand = new DelegateCommand(async o => { await Media.Stop(); });
 
                 return m_StopCommand;
             }
