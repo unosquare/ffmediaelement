@@ -57,6 +57,11 @@
         private readonly MediaComponentSet m_Components = new MediaComponentSet();
 
         /// <summary>
+        /// The internal flag that determines if a seek operation is in progress.
+        /// </summary>
+        private AtomicBoolean m_IsSeeking = new AtomicBoolean();
+
+        /// <summary>
         /// To detect redundat Dispose calls
         /// </summary>
         private bool IsDisposed = false;
@@ -89,12 +94,17 @@
         /// <summary>
         /// The signal to request the abortion of the following read operation
         /// </summary>
-        private AtomicBoolean StreamReadAbortRequested = new AtomicBoolean();
+        private AtomicBoolean SignalAbortReadsRequested = new AtomicBoolean();
 
         /// <summary>
         /// If set to true, it will reset the abort requested flag to false.
         /// </summary>
-        private AtomicBoolean StreamReadAbortAutoReset = new AtomicBoolean();
+        private AtomicBoolean SignalAbortReadsAutoReset = new AtomicBoolean();
+
+        /// <summary>
+        /// If set to true, an ongoing seek operation will immediately try to return and cancel all reads.
+        /// </summary>
+        private AtomicBoolean SignalAbortSeekRequested = new AtomicBoolean();
 
         #endregion
 
@@ -242,7 +252,12 @@
         /// <summary>
         /// Gets a value indicating whether reads are in the aborted state.
         /// </summary>
-        public bool IsReadAborted => StreamReadAbortRequested.Value;
+        public bool IsReadAborted => SignalAbortReadsRequested.Value;
+
+        /// <summary>
+        /// Gets a value indicating whether a seek operation is in progress.
+        /// </summary>
+        public bool IsSeeking => m_IsSeeking.Value;
 
         #endregion
 
@@ -339,13 +354,36 @@
         /// Pass TimeSpan.Zero to seek to the beginning of the stream.
         /// </summary>
         /// <param name="position">The position.</param>
-        /// <returns>The list of media frames</returns>
-        public List<MediaFrame> Seek(TimeSpan position)
+        /// <param name="aborted">if set to <c>true</c> [aborted].</param>
+        /// <returns>
+        /// The list of media frames
+        /// </returns>
+        /// <exception cref="InvalidOperationException">No input context initialized</exception>
+        public List<MediaFrame> Seek(TimeSpan position, out bool aborted)
         {
-            lock (ReadSyncRoot)
+            try
             {
-                if (IsDisposed || InputContext == null) throw new InvalidOperationException("No input context initialized");
-                return StreamSeek(position);
+                if (SignalAbortSeekRequested.Value)
+                {
+                    aborted = false;
+                    return new List<MediaFrame>(0);
+                }
+
+                m_IsSeeking.Value = true;
+                lock (ReadSyncRoot)
+                {
+                    if (IsDisposed || InputContext == null) throw new InvalidOperationException("No input context initialized");
+                    return StreamSeek(position, out aborted);
+                }
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                SignalAbortSeekRequested.Value = false;
+                m_IsSeeking.Value = false;
             }
         }
 
@@ -454,6 +492,10 @@
                             throw new MediaContainerException($"Unable to materialize frame of {nameof(MediaType)} {input.MediaType}");
                     }
                 }
+                catch
+                {
+                    throw;
+                }
                 finally
                 {
                     if (releaseInput)
@@ -463,22 +505,33 @@
         }
 
         /// <summary>
-        /// Signals the packet reading operations to abort immediately.
+        /// Signals the abortion of the current seek operation.
         /// </summary>
-        /// <param name="reset">if set to true, the interrupt will reset the aborted state automatically</param>
-        public void AbortReads(bool reset)
+        /// <returns>Returns true if there was a seek operation in progress when this method was called.</returns>
+        public bool SignalAbortSeek()
         {
-            StreamReadAbortAutoReset.Value = reset;
-            StreamReadAbortRequested.Value = true;
+            var result = IsSeeking;
+            SignalAbortSeekRequested.Value = true;
+            return result;
         }
 
         /// <summary>
-        /// Exits the aborted state for read operations
+        /// Signals the packet reading operations to abort immediately.
         /// </summary>
-        public void ResumeReads()
+        /// <param name="reset">if set to true, the read interrupt will reset the aborted state automatically</param>
+        public void SignalAbortReads(bool reset)
         {
-            StreamReadAbortRequested.Value = false;
-            StreamReadAbortAutoReset.Value = true;
+            SignalAbortReadsAutoReset.Value = reset;
+            SignalAbortReadsRequested.Value = true;
+        }
+
+        /// <summary>
+        /// Signals the state for read operations to stop being in the aborted state
+        /// </summary>
+        public void SignalResumeReads()
+        {
+            SignalAbortReadsRequested.Value = false;
+            SignalAbortReadsAutoReset.Value = true;
         }
 
         /// <summary>
@@ -491,7 +544,7 @@
             {
                 lock (DecodeSyncRoot)
                 {
-                    AbortReads(false);
+                    SignalAbortReads(false);
                     if (IsDisposed || InputContext == null)
                         throw new InvalidOperationException("No input context initialized");
 
@@ -547,8 +600,8 @@
                     InputContext = ffmpeg.avformat_alloc_context();
 
                     // Setup an interrup callback to detect read timeouts
-                    StreamReadAbortRequested.Value = false;
-                    StreamReadAbortAutoReset.Value = true;
+                    SignalAbortReadsRequested.Value = false;
+                    SignalAbortReadsAutoReset.Value = true;
                     StreamReadInterruptCallback = StreamReadInterrupt;
                     InputContext->interrupt_callback.callback = StreamReadInterruptCallback;
                     InputContext->interrupt_callback.opaque = InputContext;
@@ -750,11 +803,11 @@
             const int OkResult = 0;
 
             // Check if a forced quit was triggered
-            if (StreamReadAbortRequested.Value)
+            if (SignalAbortReadsRequested.Value)
             {
                 Utils.Log(Logger, MediaLogMessageType.Info, $"{nameof(StreamReadInterrupt)} was requested an immediate read exit.");
-                if (StreamReadAbortAutoReset.Value)
-                    StreamReadAbortRequested.Value = false;
+                if (SignalAbortReadsAutoReset.Value)
+                    SignalAbortReadsRequested.Value = false;
 
                 return ErrorResult;
             }
@@ -946,11 +999,26 @@
             if (MediaStartTimeOffset == TimeSpan.MinValue) return;
             StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
             StreamReadSuspend();
+            
             var seekResult = ffmpeg.av_seek_frame(
                 InputContext,
                 -1,
                 SeekStartTimestamp,
                 MediaSeeksByBytes ? ffmpeg.AVSEEK_FLAG_BYTE : ffmpeg.AVSEEK_FLAG_BACKWARD);
+
+            /*
+            var seekResult = ffmpeg.av_seek_frame(
+                InputContext,
+                -1, // Components.Main.StreamIndex,
+                long.MinValue,
+                ffmpeg.AVSEEK_FLAG_BACKWARD | ffmpeg.AVSEEK_FLAG_ANY);
+            */
+
+            if (seekResult < 0)
+            {
+                Logger?.Log(MediaLogMessageType.Warning, 
+                    $"SEEK 0: {nameof(StreamSeekToStart)} operation failed. Error code {seekResult}, {Utils.DecodeFFmpegMessage(seekResult)}");
+            }
 
             Components.ClearPacketQueues();
             RequiresPictureAttachments = true;
@@ -963,12 +1031,16 @@
         /// Supports byte seeking.
         /// </summary>
         /// <param name="targetTime">The target time.</param>
-        /// <returns>The list of media frames</returns>
+        /// <param name="aborted">if set to <c>true</c> [aborted].</param>
+        /// <returns>
+        /// The list of media frames
+        /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private List<MediaFrame> StreamSeek(TimeSpan targetTime)
+        private List<MediaFrame> StreamSeek(TimeSpan targetTime, out bool aborted)
         {
             // Create the output result object
-            var result = new List<MediaFrame>();
+            aborted = SignalAbortSeekRequested.Value;
+            var result = new List<MediaFrame>(256);
 
             // A special kind of seek is the zero seek. Execute it if requested.
             if (targetTime <= TimeSpan.Zero)
@@ -1150,7 +1222,7 @@
 
             // Start reading and decoding util we reach the target
             var isDoneSeeking = false;
-            while (StreamReadAbortRequested.Value == false && IsAtEndOfStream == false && isDoneSeeking == false)
+            while (SignalAbortReadsRequested.Value == false && IsAtEndOfStream == false && isDoneSeeking == false)
             {
                 readSeekCycles++;
 
@@ -1213,7 +1285,7 @@
                 if (InputContext != null)
                 {
                     StreamReadSuspend();
-                    AbortReads(false);
+                    SignalAbortReads(false);
                     fixed (AVFormatContext** inputContext = &InputContext)
                         ffmpeg.avformat_close_input(inputContext);
 

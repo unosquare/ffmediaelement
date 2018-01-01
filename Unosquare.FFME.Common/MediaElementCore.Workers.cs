@@ -198,6 +198,10 @@
             catch (ThreadAbortException)
             {
             }
+            catch
+            {
+                throw;
+            }
             finally
             {
                 // Always exit notifying the reading cycle is done.
@@ -468,6 +472,10 @@
             catch (ThreadAbortException)
             {
             }
+            catch
+            {
+                throw;
+            }
             finally
             {
                 // Always exit notifying the cycle is done.
@@ -586,6 +594,10 @@
             }
             catch (ThreadAbortException)
             {
+            }
+            catch
+            {
+                throw;
             }
             finally
             {

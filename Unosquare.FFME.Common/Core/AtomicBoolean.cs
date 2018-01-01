@@ -16,7 +16,7 @@
         /// </summary>
         public AtomicBoolean()
         {
-            Value = false;
+            Value = default(bool); // false
         }
 
         /// <summary>

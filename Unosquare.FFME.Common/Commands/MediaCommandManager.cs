@@ -123,7 +123,7 @@
                 try
                 {
                     if (command.HasCompleted) return;
-                    command.ExecuteAsync().GetAwaiter().GetResult();
+                    command.RunSynchronously();
                 }
                 catch (Exception ex)
                 {
@@ -163,7 +163,7 @@
                 try
                 {
                     if (command.HasCompleted) return;
-                    command.ExecuteAsync().GetAwaiter().GetResult();
+                    command.RunSynchronously();
                 }
                 catch (Exception ex)
                 {
@@ -324,7 +324,7 @@
             try
             {
                 ExecutingCommand = command;
-                command.ExecuteAsync().GetAwaiter().GetResult();
+                command.RunSynchronously();
                 DumpQueue($"After {nameof(ProcessNext)}", false);
             }
             catch (Exception ex)

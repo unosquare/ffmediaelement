@@ -35,7 +35,7 @@
             m.IsTaskCancellationPending = true;
 
             // Cause an immediate Packet read abort
-            m.Container.AbortReads(false);
+            m.Container.SignalAbortReads(false);
 
             // Call close on all renderers and clear them
             foreach (var renderer in m.Renderers.Values)
