@@ -5,7 +5,6 @@
     using System;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
-    using System.Threading.Tasks;
 
     /// <summary>
     /// Represents a control that contains audio and/or video.
@@ -14,26 +13,29 @@
     /// </summary>
     /// <seealso cref="System.IDisposable" />
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
-    public partial class MediaElementCore : IDisposable, INotifyPropertyChanged
+    public partial class MediaElementCore : IDisposable
     {
         #region Fields and Property Backing
-#pragma warning disable SA1401 // Fields must be private
-        internal static AtomicBoolean IsFFmpegLoaded = new AtomicBoolean();
 
         /// <summary>
-        /// The logger
+        /// The initialize lock
         /// </summary>
-        internal readonly IMediaLogger Logger;
+        private static readonly object InitLock = new object();
 
         /// <summary>
-        /// To detect redundant calls
+        /// The has intialized flag
         /// </summary>
-        internal bool IsDisposed = false;
+        private static bool IsIntialized = default(bool);
 
         /// <summary>
         /// The ffmpeg directory
         /// </summary>
         private static string m_FFmpegDirectory = null;
+
+        /// <summary>
+        /// To detect redundant calls
+        /// </summary>
+        private bool m_IsDisposed = false;
 
         /// <summary>
         /// The position update timer
@@ -52,85 +54,76 @@
         /// </summary>
         private AtomicBoolean m_IsDisposing = new AtomicBoolean();
 
-#pragma warning restore SA1401 // Fields must be private
         #endregion
 
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MediaElementCore"/> class.
+        /// Initializes a new instance of the <see cref="MediaElementCore" /> class.
         /// </summary>
         /// <param name="parent">The parent.</param>
         /// <param name="isInDesignTime">if set to <c>true</c> [is in design time].</param>
-        public MediaElementCore(object parent, bool isInDesignTime)
+        /// <param name="connector">The connector.</param>
+        /// <exception cref="InvalidOperationException">Thrown when the static Initialize method has not been called.</exception>
+        internal MediaElementCore(object parent, bool isInDesignTime, IEventConnector connector)
         {
             Parent = parent;
             Logger = new GenericMediaLogger<MediaElementCore>(this);
             Commands = new MediaCommandManager(this);
+            Connector = connector;
 
-            if (!isInDesignTime)
+            // Don't start up timers or any other stoff if we are in design-time
+            if (isInDesignTime) return;
+
+            // Check initialization has taken place
+            lock (InitLock)
             {
-                // The UI Property update timer is responsible for timely updates to properties outside of the worker threads
-                // We use the loaded priority because it is the priority right below the Render one.
-                UIPropertyUpdateTimer = Platform.CreateTimer(CoreDispatcherPriority.Loaded);
-                UIPropertyUpdateTimer.Interval = Constants.UIPropertyUpdateInterval;
-
-                // The tick callback performs the updates
-                UIPropertyUpdateTimer.Tick += (s, e) =>
+                if (IsIntialized == false)
                 {
-                    UpdatePosition(IsOpen ? Clock?.Position ?? TimeSpan.Zero : TimeSpan.Zero);
-
-                    if (HasMediaEnded == false && CanReadMorePackets && (IsOpening || IsOpen))
-                    {
-                        var bufferedLength = Container?.Components?.PacketBufferLength ?? 0d;
-                        BufferingProgress = Math.Min(1d, bufferedLength / BufferCacheLength);
-                        var oldIsBugffering = IsBuffering;
-                        var newIsBuffering = bufferedLength < BufferCacheLength;
-
-                        if (oldIsBugffering == false && newIsBuffering)
-                            RaiseBufferingStartedEvent();
-                        else if (oldIsBugffering && newIsBuffering == false)
-                            RaiseBufferingEndedEvent();
-
-                        IsBuffering = HasMediaEnded == false && newIsBuffering;
-                    }
-                    else
-                    {
-                        BufferingProgress = 0;
-                        IsBuffering = false;
-                    }
-
-                    var downloadProgress = Math.Min(1d, Math.Round((Container?.Components.PacketBufferLength ?? 0d) / DownloadCacheLength, 3));
-                    if (double.IsNaN(downloadProgress)) downloadProgress = 0;
-                    DownloadProgress = downloadProgress;
-                };
-
-                // Go ahead and fire up the continuous updates
-                UIPropertyUpdateTimer.IsEnabled = true;
-                UIPropertyUpdateTimer.Start();
+                    throw new InvalidOperationException(
+                        $"{nameof(MediaElementCore)} not initialized. Call the static method {nameof(Initialize)}");
+                }
             }
+
+            // The UI Property update timer is responsible for timely updates to properties outside of the worker threads
+            // We use the loaded priority because it is the priority right below the Render one.
+            UIPropertyUpdateTimer = Platform.CreateTimer(CoreDispatcherPriority.Loaded);
+            UIPropertyUpdateTimer.Interval = Constants.UIPropertyUpdateInterval;
+
+            // The tick callback performs the updates
+            UIPropertyUpdateTimer.Tick += (s, e) =>
+            {
+                UpdatePosition(IsOpen ? Clock?.Position ?? TimeSpan.Zero : TimeSpan.Zero);
+
+                if (HasMediaEnded == false && CanReadMorePackets && (IsOpening || IsOpen))
+                {
+                    var bufferedLength = Container?.Components?.PacketBufferLength ?? 0d;
+                    BufferingProgress = Math.Min(1d, bufferedLength / BufferCacheLength);
+                    var oldIsBugffering = IsBuffering;
+                    var newIsBuffering = bufferedLength < BufferCacheLength;
+
+                    if (oldIsBugffering == false && newIsBuffering)
+                        RaiseBufferingStartedEvent();
+                    else if (oldIsBugffering && newIsBuffering == false)
+                        RaiseBufferingEndedEvent();
+
+                    IsBuffering = HasMediaEnded == false && newIsBuffering;
+                }
+                else
+                {
+                    BufferingProgress = 0;
+                    IsBuffering = false;
+                }
+
+                var downloadProgress = Math.Min(1d, Math.Round((Container?.Components.PacketBufferLength ?? 0d) / DownloadCacheLength, 3));
+                if (double.IsNaN(downloadProgress)) downloadProgress = 0;
+                DownloadProgress = downloadProgress;
+            };
+
+            // Go ahead and fire up the continuous updates
+            UIPropertyUpdateTimer.IsEnabled = true;
+            UIPropertyUpdateTimer.Start();
         }
-
-        #endregion
-
-        #region Events
-
-        /// <summary>
-        /// Occurs when a logging message from the FFmpeg library has been received.
-        /// This is shared across all instances of Media Elements
-        /// </summary>
-        public static event EventHandler<MediaLogMessagEventArgs> FFmpegMessageLogged;
-
-        /// <summary>
-        /// Multicast event for property change notifications.
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        /// <summary>
-        /// Occurs when a logging message has been logged.
-        /// This does not include FFmpeg messages.
-        /// </summary>
-        public event EventHandler<MediaLogMessagEventArgs> MessageLogged;
 
         #endregion
 
@@ -163,6 +156,34 @@
         public object Parent { get; }
 
         /// <summary>
+        /// Gets a value indicating whether this instance is disposed.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is disposed; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsDisposed => m_IsDisposed;
+
+        /// <summary>
+        /// Gets the platform-specific callbacks.
+        /// </summary>
+        internal static IPlatform Platform { get; private set; }
+
+        /// <summary>
+        /// Gets whether FFmpeg is logged or not
+        /// </summary>
+        internal static AtomicBoolean IsFFmpegLoaded { get; } = new AtomicBoolean();
+
+        /// <summary>
+        /// The logger
+        /// </summary>
+        internal IMediaLogger Logger { get; }
+
+        /// <summary>
+        /// Gets the event connector (platform specific).
+        /// </summary>
+        internal IEventConnector Connector { get; }
+
+        /// <summary>
         /// When position is being set from within this control, this field will
         /// be set to true. This is useful to detect if the user is setting the position
         /// or if the Position property is being driven from within
@@ -186,12 +207,19 @@
         }
 
         /// <summary>
-        /// Raises the FFmpegMessageLogged event
+        /// Initializes the MedieElementCore.
         /// </summary>
-        /// <param name="eventArgs">The <see cref="MediaLogMessagEventArgs" /> instance containing the event data.</param>
-        internal static void RaiseFFmpegMessageLogged(MediaLogMessagEventArgs eventArgs)
+        /// <param name="platform">The platform-specific implementation.</param>
+        internal static void Initialize(IPlatform platform)
         {
-            FFmpegMessageLogged?.Invoke(typeof(MediaElementCore), eventArgs);
+            lock (InitLock)
+            {
+                if (IsIntialized)
+                    return;
+
+                Platform = platform;
+                IsIntialized = true;
+            }
         }
 
         /// <summary>
@@ -221,19 +249,6 @@
                     IsPositionUpdating = false;
                 }),
                 new object[] { value });
-        }
-
-        #endregion
-
-        #region Logging Events
-
-        /// <summary>
-        /// Raises the MessageLogged event
-        /// </summary>
-        /// <param name="eventArgs">The <see cref="MediaLogMessagEventArgs" /> instance containing the event data.</param>
-        internal void RaiseMessageLogged(MediaLogMessagEventArgs eventArgs)
-        {
-            MessageLogged?.Invoke(this, eventArgs);
         }
 
         #endregion
@@ -270,10 +285,9 @@
         /// that support <see cref="CallerMemberNameAttribute"/>.</param>
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            if (PropertyChanged == null) return;
             Platform.UIInvoke(CoreDispatcherPriority.DataBind, () =>
             {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                Connector?.OnPropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             });
         }
 
@@ -288,7 +302,7 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private async void Dispose(bool alsoManaged)
         {
-            if (IsDisposed) return;
+            if (m_IsDisposed) return;
 
             if (alsoManaged)
             {
@@ -319,7 +333,7 @@
                 });
             }
 
-            IsDisposed = true;
+            m_IsDisposed = true;
         }
 
         #endregion

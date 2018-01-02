@@ -46,7 +46,7 @@
         /// </summary>
         static Utils()
         {
-            LogOutputter = Platform.CreateTimer(CoreDispatcherPriority.Background);
+            LogOutputter = MediaElementCore.Platform.CreateTimer(CoreDispatcherPriority.Background);
             LogOutputter.Interval = Constants.LogOutputterUpdateInterval;
             LogOutputter.Tick += LogOutputter_Tick;
             LogOutputter.IsEnabled = true;
@@ -259,7 +259,7 @@
                         throw new FileNotFoundException($"Unable to load minimum set of FFmpeg binaries from folder '{ffmpegPath}'. File '{fileName}' is missing");
                 }
 
-                Platform.SetDllDirectory(ffmpegPath);
+                MediaElementCore.Platform.SetDllDirectory(ffmpegPath);
 
                 if ((RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && File.Exists(Path.Combine(ffmpegPath, Constants.DllAVDevice))) ||
                     (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && File.Exists(Path.Combine(ffmpegPath, Constants.DllAVDevice_macOS))))
@@ -487,7 +487,7 @@
                 if (eventArgs.Source != null)
                     eventArgs.Source.RaiseMessageLogged(eventArgs);
                 else
-                    MediaElementCore.RaiseFFmpegMessageLogged(eventArgs);
+                    MediaElementCore.Platform?.OnFFmpegMessageLogged(typeof(MediaElementCore), eventArgs);
             }
         }
 

@@ -6,7 +6,7 @@
     /// <summary>
     /// FFmpeg Registration Native Methods
     /// </summary>
-    internal static class NativeMethods
+    internal static class WindowsNativeMethods
     {
         private const string Kernel32 = "kernel32.dll";
 

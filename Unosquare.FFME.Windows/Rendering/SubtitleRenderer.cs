@@ -229,7 +229,7 @@
                 return;
 
             // We fire-and-forget the update of the text
-            Gui.UIEnqueueInvoke(
+            WindowsGui.UIEnqueueInvoke(
                 DispatcherPriority.DataBind,
                 new Action<string>((s) =>
                 {

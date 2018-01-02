@@ -46,7 +46,8 @@
                     m.Logger.Log(MediaLogMessageType.Info, $"INIT FFMPEG: {ffmpeg.av_version_info()}");
                 }
 
-                Platform.UIInvoke(CoreDispatcherPriority.DataBind, () => { m.ResetDependencyProperies(); });
+                MediaElementCore.Platform.UIInvoke(
+                    CoreDispatcherPriority.DataBind, () => { m.ResetDependencyProperies(); });
                 MediaElementCore.IsFFmpegLoaded.Value = true;
                 m.IsOpening = true;
                 m.MediaState = CoreMediaState.Manual;
@@ -65,7 +66,7 @@
                 {
                     m.Blocks[t] = new MediaBlockBuffer(MediaElementCore.MaxBlocks[t], t);
                     m.LastRenderTime[t] = TimeSpan.MinValue;
-                    m.Renderers[t] = Platform.CreateRenderer(t, Manager.MediaElement);
+                    m.Renderers[t] = MediaElementCore.Platform.CreateRenderer(t, Manager.MediaElement);
                 }
 
                 m.Clock.SpeedRatio = Constants.DefaultSpeedRatio;
@@ -107,7 +108,7 @@
             finally
             {
                 m.IsOpening = false;
-                Platform.UIInvoke(CoreDispatcherPriority.DataBind, () => { m.NotifyPropertyChanges(); });
+                MediaElementCore.Platform.UIInvoke(CoreDispatcherPriority.DataBind, () => { m.NotifyPropertyChanges(); });
                 m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Completed");
             }
         }

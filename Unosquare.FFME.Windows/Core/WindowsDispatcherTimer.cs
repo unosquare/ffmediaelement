@@ -5,9 +5,9 @@
     /// <summary>
     /// WPF dispatcher that satisfies common code requirements.
     /// </summary>
-    internal class CustomDispatcherTimer : DispatcherTimer, IDispatcherTimer
+    internal class WindowsDispatcherTimer : DispatcherTimer, IDispatcherTimer
     {
-        public CustomDispatcherTimer(DispatcherPriority priority)
+        public WindowsDispatcherTimer(DispatcherPriority priority)
             : base(priority)
         {
         }

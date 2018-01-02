@@ -32,7 +32,7 @@
             if (Manager.MediaElement.Clock.SpeedRatio != SpeedRatio)
                 Manager.MediaElement.Clock.SpeedRatio = SpeedRatio;
 
-            Platform.UIInvoke(CoreDispatcherPriority.DataBind, () => 
+            MediaElementCore.Platform.UIInvoke(CoreDispatcherPriority.DataBind, () => 
             {
                 Manager.MediaElement.SpeedRatio = Manager.MediaElement.Clock.SpeedRatio;
             });

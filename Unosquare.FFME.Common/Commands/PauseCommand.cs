@@ -1,5 +1,7 @@
 ﻿namespace Unosquare.FFME.Commands
 {
+    using Core;
+
     /// <summary>
     /// Implements the logic to pause the media stream
     /// </summary>

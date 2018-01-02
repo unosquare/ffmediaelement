@@ -66,7 +66,7 @@
             var e = new RenderingAudioEventArgs(
                     audioBlock.Buffer,
                     audioBlock.BufferLength,
-                    mediaElementCore.Container.MediaInfo.Streams[audioBlock.StreamIndex],
+                    MediaCore.Container.MediaInfo.Streams[audioBlock.StreamIndex],
                     audioBlock.StartTime,
                     audioBlock.Duration,
                     clock);
@@ -87,7 +87,7 @@
                     block.Text,
                     block.OriginalText,
                     block.OriginalTextType,
-                    mediaElementCore.Container.MediaInfo.Streams[block.StreamIndex],
+                    MediaCore.Container.MediaInfo.Streams[block.StreamIndex],
                     block.StartTime,
                     block.Duration,
                     clock);

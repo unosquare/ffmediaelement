@@ -6,11 +6,12 @@
     using System.Threading.Tasks;
     using System.Windows;
     using System.Windows.Threading;
+    using Rendering;
 
     /// <summary>
     /// Provides platform-specific implementations of Gui functionality.
     /// </summary>
-    internal static class Gui
+    internal static class WindowsGui
     {
         #region Constants
 
@@ -41,14 +42,14 @@
         #region Initialization
 
         /// <summary>
-        /// Initializes static members of the <see cref="Gui"/> class.
+        /// Initializes static members of the <see cref="WindowsGui"/> class.
         /// </summary>
-        static Gui()
+        static WindowsGui()
         {
             // fancy way of ensuring Utils initializes
             // Since WPFUtils will be called in MediaElement's constructor, this means
             // we are also on the main thread!
-            Utils.Log(typeof(Gui),
+            Utils.Log(typeof(WindowsGui),
                 MediaLogMessageType.Debug,
                 $"Platform-specific initialization. Debug Mode: {Utils.IsInDebugMode}");
 
@@ -62,14 +63,14 @@
             if (WinFormsContext == null
                 || WinFormsContext.GetType() != typeof(System.Windows.Forms.WindowsFormsSynchronizationContext))
             {
-                Utils.Log(typeof(Gui),
+                Utils.Log(typeof(WindowsGui),
                     MediaLogMessageType.Error,
                     $"Failed to get a valid WinForms {nameof(SynchronizationContext)}.{nameof(SynchronizationContext.Current)}.");
 
                 return;
             }
 
-            Utils.Log(typeof(Gui),
+            Utils.Log(typeof(WindowsGui),
                 MediaLogMessageType.Warning,
                 "WinForms support is experimental. Please help by reporting any issues!");
         }
@@ -103,21 +104,57 @@
         #region Methods
 
         /// <summary>
+        /// Creates a dispatcher timer.
+        /// </summary>
+        /// <param name="priority">The priority.</param>
+        /// <returns>The WPF dispatcher timer</returns>
+        public static IDispatcherTimer CreateDispatcherTimer(CoreDispatcherPriority priority)
+        {
+            return new WindowsDispatcherTimer((DispatcherPriority)priority);
+        }
+
+        /// <summary>
+        /// Creates a renderer.
+        /// </summary>
+        /// <param name="mediaType">Type of the media.</param>
+        /// <param name="m">The m.</param>
+        /// <returns>The renderer of the given type</returns>
+        /// <exception cref="NotSupportedException">When a media type is not supported</exception>
+        public static IRenderer CreateRenderer(MediaType mediaType, MediaElementCore m)
+        {
+            if (mediaType == MediaType.Audio) return new AudioRenderer(m);
+            else if (mediaType == MediaType.Video) return new VideoRenderer(m);
+            else if (mediaType == MediaType.Subtitle) return new SubtitleRenderer(m);
+
+            throw new NotSupportedException($"No suitable renderer for Media Type '{mediaType}'");
+        }
+
+        /// <summary>
         /// Synchronously invokes the given instructions on the main application dispatcher.
         /// </summary>
         /// <param name="priority">The priority.</param>
         /// <param name="action">The action.</param>
         public static void UIInvoke(DispatcherPriority priority, Action action)
         {
+            UIInvoke((CoreDispatcherPriority)priority, action);
+        }
+
+        /// <summary>
+        /// Synchronously invokes the given instructions on the main application dispatcher.
+        /// </summary>
+        /// <param name="priority">The priority.</param>
+        /// <param name="action">The action.</param>
+        public static void UIInvoke(CoreDispatcherPriority priority, Action action)
+        {
             if (WpfDispatcher != null)
             {
-                WpfDispatcher.Invoke(action, priority, null);
+                WpfDispatcher.Invoke(action, (DispatcherPriority)priority, null);
                 return;
             }
 
             if (WinFormsContext != null)
             {
-                WinFormsContext.Send((s) => { action(); }, priority);
+                WinFormsContext.Send((s) => { action(); }, (DispatcherPriority)priority);
                 return;
             }
 
@@ -133,11 +170,23 @@
         /// <param name="args">The arguments.</param>
         public static void UIEnqueueInvoke(DispatcherPriority priority, Delegate action, params object[] args)
         {
+            UIEnqueueInvoke((CoreDispatcherPriority)priority, action, args);
+        }
+
+        /// <summary>
+        /// Enqueues the given instructions with the given arguments on the main application dispatcher.
+        /// This is a way to execute code in a fire-and-forget style
+        /// </summary>
+        /// <param name="priority">The priority.</param>
+        /// <param name="action">The action.</param>
+        /// <param name="args">The arguments.</param>
+        public static void UIEnqueueInvoke(CoreDispatcherPriority priority, Delegate action, params object[] args)
+        {
             try
             {
                 if (WpfDispatcher != null)
                 {
-                    WpfDispatcher.BeginInvoke(action, priority, args);
+                    WpfDispatcher.BeginInvoke(action, (DispatcherPriority)priority, args);
                     return;
                 }
 

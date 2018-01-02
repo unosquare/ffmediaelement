@@ -24,62 +24,62 @@
         /// <summary>
         /// Gets the media format. Returns null when media has not been loaded.
         /// </summary>
-        public string MediaFormat => mediaElementCore.Container?.MediaFormatName;
+        public string MediaFormat => MediaCore.Container?.MediaFormatName;
 
         /// <summary>
         /// Gets the duration of a single frame step.
         /// If there is a video component with a framerate, this propery returns the length of a frame.
         /// If there is no video component it simply returns a tenth of a second.
         /// </summary>
-        public TimeSpan FrameStepDuration => mediaElementCore.FrameStepDuration;
+        public TimeSpan FrameStepDuration => MediaCore.FrameStepDuration;
 
         /// <summary> 
         /// Returns whether the given media has audio. 
         /// Only valid after the MediaOpened event has fired.
         /// </summary> 
-        public bool HasAudio => mediaElementCore.HasAudio;
+        public bool HasAudio => MediaCore.HasAudio;
 
         /// <summary> 
         /// Returns whether the given media has video. Only valid after the
         /// MediaOpened event has fired.
         /// </summary>
-        public bool HasVideo => mediaElementCore.HasVideo;
+        public bool HasVideo => MediaCore.HasVideo;
 
         /// <summary>
         /// Gets the video codec.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public string VideoCodec => mediaElementCore.VideoCodec;
+        public string VideoCodec => MediaCore.VideoCodec;
 
         /// <summary>
         /// Gets the video bitrate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int VideoBitrate => mediaElementCore.VideoBitrate;
+        public int VideoBitrate => MediaCore.VideoBitrate;
 
         /// <summary>
         /// Returns the natural width of the media in the video.
         /// Only valid after the MediaOpened event has fired.
         /// </summary> 
-        public int NaturalVideoWidth => mediaElementCore.NaturalVideoWidth;
+        public int NaturalVideoWidth => MediaCore.NaturalVideoWidth;
 
         /// <summary> 
         /// Returns the natural height of the media in the video.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int NaturalVideoHeight => mediaElementCore.NaturalVideoHeight;
+        public int NaturalVideoHeight => MediaCore.NaturalVideoHeight;
 
         /// <summary>
         /// Gets the video frame rate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public double VideoFrameRate => mediaElementCore.VideoFrameRate;
+        public double VideoFrameRate => MediaCore.VideoFrameRate;
 
         /// <summary>
         /// Gets the duration in seconds of the video frame.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public double VideoFrameLength => mediaElementCore.VideoFrameLength;
+        public double VideoFrameLength => MediaCore.VideoFrameLength;
 
         /// <summary>
         /// Gets the name of the video hardware decoder in use.
@@ -87,37 +87,37 @@
         /// When hardware decoding of frames is in use this will return the name of the HW accelerator.
         /// Otherwise it will return an empty string.
         /// </summary>
-        public string VideoHardwareDecoder => mediaElementCore.VideoHardwareDecoder;
+        public string VideoHardwareDecoder => MediaCore.VideoHardwareDecoder;
 
         /// <summary>
         /// Gets the audio codec.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public string AudioCodec => mediaElementCore.AudioCodec;
+        public string AudioCodec => MediaCore.AudioCodec;
 
         /// <summary>
         /// Gets the audio bitrate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int AudioBitrate => mediaElementCore.AudioBitrate;
+        public int AudioBitrate => MediaCore.AudioBitrate;
 
         /// <summary>
         /// Gets the audio channels count.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int AudioChannels => mediaElementCore.AudioChannels;
+        public int AudioChannels => MediaCore.AudioChannels;
 
         /// <summary>
         /// Gets the audio sample rate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int AudioSampleRate => mediaElementCore.AudioSampleRate;
+        public int AudioSampleRate => MediaCore.AudioSampleRate;
 
         /// <summary>
         /// Gets the audio bits per sample.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int AudioBitsPerSample => mediaElementCore.AudioBitsPerSample;
+        public int AudioBitsPerSample => MediaCore.AudioBitsPerSample;
 
         /// <summary>
         /// Gets the Media's natural duration
@@ -127,13 +127,13 @@
         {
             get
             {
-                return mediaElementCore.Container == null
+                return MediaCore.Container == null
                   ? Duration.Automatic
-                  : (mediaElementCore.Container.MediaDuration == TimeSpan.MinValue
+                  : (MediaCore.Container.MediaDuration == TimeSpan.MinValue
                     ? Duration.Forever
-                    : (mediaElementCore.Container.MediaDuration < TimeSpan.Zero
+                    : (MediaCore.Container.MediaDuration < TimeSpan.Zero
                     ? default(Duration)
-                    : new Duration(mediaElementCore.Container.MediaDuration)));
+                    : new Duration(MediaCore.Container.MediaDuration)));
             }
         }
 
@@ -142,86 +142,86 @@
         /// This is only valid after the MediaOpened event has fired.
         /// Note that this property is computed based on wether the stream is detected to be a live stream.
         /// </summary>
-        public bool CanPause => mediaElementCore.CanPause;
+        public bool CanPause => MediaCore.CanPause;
 
         /// <summary>
         /// Returns whether the currently loaded media is live or realtime
         /// This is only valid after the MediaOpened event has fired.
         /// </summary>
-        public bool IsLiveStream => mediaElementCore.IsLiveStream;
+        public bool IsLiveStream => MediaCore.IsLiveStream;
 
         /// <summary>
         /// Gets a value indicating whether the currently loaded media can be seeked.
         /// </summary>
-        public bool IsSeekable => mediaElementCore.IsSeekable;
+        public bool IsSeekable => MediaCore.IsSeekable;
 
         /// <summary>
         /// Gets a value indicating whether the media is playing.
         /// </summary>
-        public bool IsPlaying => mediaElementCore.IsPlaying;
+        public bool IsPlaying => MediaCore.IsPlaying;
 
         /// <summary>
         /// Gets a value indicating whether the media has reached its end.
         /// </summary>
-        public bool HasMediaEnded => mediaElementCore.HasMediaEnded;
+        public bool HasMediaEnded => MediaCore.HasMediaEnded;
 
         /// <summary>
         /// Get a value indicating whether the media is buffering.
         /// </summary>
-        public bool IsBuffering => mediaElementCore.IsBuffering;
+        public bool IsBuffering => MediaCore.IsBuffering;
 
         /// <summary>
         /// Gets a value indicating whether the media seeking is in progress.
         /// </summary>
-        public bool IsSeeking => mediaElementCore.IsSeeking;
+        public bool IsSeeking => MediaCore.IsSeeking;
 
         /// <summary>
         /// Returns the current video SMTPE timecode if available.
         /// If not available, this property returns an empty string.
         /// </summary>
-        public string VideoSmtpeTimecode => mediaElementCore.VideoSmtpeTimecode;
+        public string VideoSmtpeTimecode => MediaCore.VideoSmtpeTimecode;
 
         /// <summary>
         /// Gets a value that indicates the percentage of buffering progress made.
         /// Range is from 0 to 1
         /// </summary>
-        public double BufferingProgress => mediaElementCore.BufferingProgress;
+        public double BufferingProgress => MediaCore.BufferingProgress;
 
         /// <summary>
         /// The wait packet buffer length.
         /// It is adjusted to 1 second if bitrate information is available.
         /// Otherwise, it's simply 512KB
         /// </summary>
-        public int BufferCacheLength => mediaElementCore.BufferCacheLength;
+        public int BufferCacheLength => MediaCore.BufferCacheLength;
 
         /// <summary>
         /// Gets a value that indicates the percentage of download progress made.
         /// Range is from 0 to 1
         /// </summary>
-        public double DownloadProgress => mediaElementCore.DownloadProgress;
+        public double DownloadProgress => MediaCore.DownloadProgress;
 
         /// <summary>
         /// Gets the maximum packet buffer length, according to the bitrate (if available).
         /// If it's a realtime stream it will return 30 times the buffer cache length.
         /// Otherwise, it will return  4 times of the buffer cache length.
         /// </summary>
-        public int DownloadCacheLength => mediaElementCore.DownloadCacheLength;
+        public int DownloadCacheLength => MediaCore.DownloadCacheLength;
 
         /// <summary>
         /// Gets a value indicating whether the media is in the process of opening.
         /// </summary>
-        public bool IsOpening => mediaElementCore.IsOpening;
+        public bool IsOpening => MediaCore.IsOpening;
 
         /// <summary>
         /// Gets a value indicating whether this media element
         /// currently has an open media url.
         /// </summary>
-        public bool IsOpen => mediaElementCore.IsOpen;
+        public bool IsOpen => MediaCore.IsOpen;
 
         /// <summary>
         /// Gets the current playback state.
         /// </summary>
-        public MediaState MediaState => (MediaState)mediaElementCore.MediaState;
+        public MediaState MediaState => (MediaState)MediaCore.MediaState;
 
         #endregion
     }

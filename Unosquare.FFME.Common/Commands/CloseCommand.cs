@@ -80,7 +80,7 @@
             m.RaiseMediaClosedEvent();
 
             // Update notification properties
-            Platform.UIInvoke(CoreDispatcherPriority.DataBind, () =>
+            MediaElementCore.Platform.UIInvoke(CoreDispatcherPriority.DataBind, () =>
             {
                 m.ResetDependencyProperies();
                 m.NotifyPropertyChanges();

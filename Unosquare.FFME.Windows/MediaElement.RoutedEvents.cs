@@ -2,6 +2,7 @@
 {
     using Core;
     using System;
+    using System.ComponentModel;
     using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
@@ -90,6 +91,16 @@
                             nameof(MediaOpening),
                             RoutingStrategy.Bubble,
                             typeof(EventHandler<MediaOpeningRoutedEventArgs>),
+                            typeof(MediaElement));
+
+        /// <summary>
+        /// PositionChanged is a routed event 
+        /// </summary>
+        public static readonly RoutedEvent PositionChangedEvent =
+            EventManager.RegisterRoutedEvent(
+                            nameof(PositionChanged),
+                            RoutingStrategy.Bubble,
+                            typeof(EventHandler<PositionChangedRoutedEventArgs>),
                             typeof(MediaElement));
 
         /// <summary>
@@ -188,58 +199,28 @@
             remove { RemoveHandler(MediaEndedEvent, value); }
         }
 
+        /// <summary>
+        /// Occurs when media position is changed
+        /// </summary>
+        public event EventHandler<PositionChangedRoutedEventArgs> PositionChanged
+        {
+            add { AddHandler(PositionChangedEvent, value); }
+            remove { RemoveHandler(PositionChangedEvent, value); }
+        }
+
         #endregion
 
         #region Helper Methods
 
         /// <summary>
-        /// Raises the media failed event.
+        /// Raises the FFmpeg message logged.
         /// </summary>
-        /// <param name="ex">The ex.</param>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="MediaLogMessagEventArgs"/> instance containing the event data.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseMediaFailedEvent(Exception ex)
+        internal static void RaiseFFmpegMessageLogged(object sender, MediaLogMessagEventArgs e)
         {
-            LogEventStart(MediaFailedEvent);
-            Logger.Log(MediaLogMessageType.Error, $"Media Failure - {ex?.GetType()}: {ex?.Message}");
-            Gui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(CreateExceptionRoutedEventArgs(MediaFailedEvent, this, ex)); });
-            LogEventDone(MediaFailedEvent);
-        }
-
-        /// <summary>
-        /// Raises the media opened event.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseMediaOpenedEvent()
-        {
-            LogEventStart(MediaOpenedEvent);
-            Gui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaOpenedEvent, this)); });
-            LogEventDone(MediaOpenedEvent);
-        }
-
-        /// <summary>
-        /// Raises the media closed event.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseMediaClosedEvent()
-        {
-            LogEventStart(MediaClosedEvent);
-            Gui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaClosedEvent, this)); });
-            LogEventDone(MediaClosedEvent);
-        }
-
-        /// <summary>
-        /// Raises the media opening event.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseMediaOpeningEvent()
-        {
-            LogEventStart(MediaOpeningEvent);
-            Gui.UIInvoke(DispatcherPriority.DataBind, () =>
-            {
-                RaiseEvent(new MediaOpeningRoutedEventArgs(MediaOpeningEvent, this, mediaElementCore.Container.MediaOptions, mediaElementCore.Container.MediaInfo));
-            });
-
-            LogEventDone(MediaOpeningEvent);
+            FFmpegMessageLogged?.Invoke(sender, e);
         }
 
         /// <summary>
@@ -250,11 +231,165 @@
         /// <param name="sender">The sender.</param>
         /// <param name="errorException">The error exception.</param>
         /// <returns>The event arguments</returns>
-        private static ExceptionRoutedEventArgs CreateExceptionRoutedEventArgs(RoutedEvent routedEvent, object sender, Exception errorException)
+        internal static ExceptionRoutedEventArgs CreateExceptionRoutedEventArgs(RoutedEvent routedEvent, object sender, Exception errorException)
         {
             var constructor = (typeof(ExceptionRoutedEventArgs) as TypeInfo).DeclaredConstructors.First();
             return constructor.Invoke(new object[] { routedEvent, sender, errorException }) as ExceptionRoutedEventArgs;
         }
+
+        /// <summary>
+        /// Raises the media failed event.
+        /// </summary>
+        /// <param name="ex">The ex.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void RaiseMediaFailedEvent(Exception ex)
+        {
+            LogEventStart(MediaFailedEvent);
+            Logger.Log(MediaLogMessageType.Error, $"Media Failure - {ex?.GetType()}: {ex?.Message}");
+            WindowsGui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(CreateExceptionRoutedEventArgs(MediaFailedEvent, this, ex)); });
+            LogEventDone(MediaFailedEvent);
+        }
+
+        /// <summary>
+        /// Raises the media opened event.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void RaiseMediaOpenedEvent()
+        {
+            LogEventStart(MediaOpenedEvent);
+            WindowsGui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaOpenedEvent, this)); });
+            LogEventDone(MediaOpenedEvent);
+        }
+
+        /// <summary>
+        /// Raises the media closed event.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void RaiseMediaClosedEvent()
+        {
+            LogEventStart(MediaClosedEvent);
+            WindowsGui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaClosedEvent, this)); });
+            LogEventDone(MediaClosedEvent);
+        }
+
+        /// <summary>
+        /// Raises the media opening event.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void RaiseMediaOpeningEvent()
+        {
+            LogEventStart(MediaOpeningEvent);
+            WindowsGui.UIInvoke(DispatcherPriority.DataBind, () =>
+            {
+                RaiseEvent(new MediaOpeningRoutedEventArgs(
+                    MediaOpeningEvent, 
+                    this, 
+                    MediaCore.Container.MediaOptions, 
+                    MediaCore.Container.MediaInfo));
+            });
+
+            LogEventDone(MediaOpeningEvent);
+        }
+
+        /// <summary>
+        /// Raises the position changed event.
+        /// </summary>
+        /// <param name="e">The <see cref="PositionChangedEventArgs"/> instance containing the event data.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void RaisePositionChangedEvent(PositionChangedEventArgs e)
+        {
+            WindowsGui.UIInvoke(DispatcherPriority.DataBind, () =>
+            {
+                RaiseEvent(new PositionChangedRoutedEventArgs(
+                    PositionChangedEvent,
+                    this,
+                    e.Position));
+            });
+        }
+
+        /// <summary>
+        /// Raises the buffering started event.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void RaiseBufferingStartedEvent()
+        {
+            LogEventStart(BufferingStartedEvent);
+            WindowsGui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(BufferingStartedEvent, this)); });
+            LogEventDone(BufferingStartedEvent);
+        }
+
+        /// <summary>
+        /// Raises the buffering ended event.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void RaiseBufferingEndedEvent()
+        {
+            LogEventStart(BufferingEndedEvent);
+            WindowsGui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(BufferingEndedEvent, this)); });
+            LogEventDone(BufferingEndedEvent);
+        }
+
+        /// <summary>
+        /// Raises the Seeking started event.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void RaiseSeekingStartedEvent()
+        {
+            LogEventStart(SeekingStartedEvent);
+            WindowsGui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(SeekingStartedEvent, this)); });
+            LogEventDone(SeekingStartedEvent);
+        }
+
+        /// <summary>
+        /// Raises the Seeking ended event.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void RaiseSeekingEndedEvent()
+        {
+            LogEventStart(SeekingEndedEvent);
+            WindowsGui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(SeekingEndedEvent, this)); });
+            LogEventDone(SeekingEndedEvent);
+        }
+
+        /// <summary>
+        /// Raises the media ended event.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void RaiseMediaEndedEvent()
+        {
+            LogEventStart(MediaEndedEvent);
+            WindowsGui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaEndedEvent, this)); });
+            LogEventDone(MediaEndedEvent);
+        }
+
+        /// <summary>
+        /// Notifies listeners that a property value has changed.
+        /// </summary>
+        /// <param name="propertyName">Name of the property used to notify listeners.  This
+        /// value is optional and can be provided automatically when invoked from compilers
+        /// that support <see cref="CallerMemberNameAttribute"/>.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void RaisePropertyChangedEvent(string propertyName)
+        {
+            WindowsGui.UIInvoke(DispatcherPriority.DataBind, () =>
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            });
+        }
+
+        /// <summary>
+        /// Raises the message logged event.
+        /// </summary>
+        /// <param name="e">The <see cref="MediaLogMessagEventArgs"/> instance containing the event data.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void RaiseMessageLoggedEvent(MediaLogMessagEventArgs e)
+        {
+            MessageLogged?.Invoke(this, e);
+        }
+
+        #endregion
+
+        #region Event Logging
 
         /// <summary>
         /// Logs the start of an event
@@ -276,61 +411,6 @@
         {
             if (Utils.IsInDebugMode)
                 Logger.Log(MediaLogMessageType.Trace, $"EVENT DONE : {e.Name}");
-        }
-
-        /// <summary>
-        /// Raises the buffering started event.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void RaiseBufferingStartedEvent()
-        {
-            LogEventStart(BufferingStartedEvent);
-            Gui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(BufferingStartedEvent, this)); });
-            LogEventDone(BufferingStartedEvent);
-        }
-
-        /// <summary>
-        /// Raises the buffering ended event.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void RaiseBufferingEndedEvent()
-        {
-            LogEventStart(BufferingEndedEvent);
-            Gui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(BufferingEndedEvent, this)); });
-            LogEventDone(BufferingEndedEvent);
-        }
-
-        /// <summary>
-        /// Raises the Seeking started event.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void RaiseSeekingStartedEvent()
-        {
-            LogEventStart(SeekingStartedEvent);
-            Gui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(SeekingStartedEvent, this)); });
-            LogEventDone(SeekingStartedEvent);
-        }
-
-        /// <summary>
-        /// Raises the Seeking ended event.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void RaiseSeekingEndedEvent()
-        {
-            LogEventStart(SeekingEndedEvent);
-            Gui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(SeekingEndedEvent, this)); });
-            LogEventDone(SeekingEndedEvent);
-        }
-
-        /// <summary>
-        /// Raises the media ended event.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void RaiseMediaEndedEvent()
-        {
-            LogEventStart(MediaEndedEvent);
-            Gui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaEndedEvent, this)); });
-            LogEventDone(MediaEndedEvent);
         }
 
         #endregion

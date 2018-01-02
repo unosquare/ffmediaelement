@@ -90,9 +90,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\CustomDispatcherTimer.cs" />
-    <Compile Include="Core\NativeMethods.cs" />
-    <Compile Include="MediaElement.Events.cs" />
+    <Compile Include="Core\WindowsEventConnector.cs" />
+    <Compile Include="Core\WindowsDispatcherTimer.cs" />
+    <Compile Include="Core\WindowsNativeMethods.cs" />
+    <Compile Include="Core\WindowsPlatform.cs" />
+    <Compile Include="MediaElement.RenderEvents.cs" />
+    <Compile Include="PositionChangedRoutedEventArgs.cs" />
     <Compile Include="Rendering\SoundTouch.cs" />
     <Compile Include="Rendering\Wave\IWaveProvider.cs" />
     <Compile Include="Rendering\Wave\MmResult.cs" />
@@ -113,7 +116,7 @@
     <Compile Include="Rendering\Wave\WaveOutSupport.cs" />
     <Compile Include="Rendering\Wave\WavePlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Core\Gui.cs" />
+    <Compile Include="Core\WindowsGui.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
