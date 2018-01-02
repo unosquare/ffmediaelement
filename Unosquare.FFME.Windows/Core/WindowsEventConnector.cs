@@ -1,9 +1,10 @@
 ﻿namespace Unosquare.FFME.Core
 {
+    using Shared;
     using System;
     using System.ComponentModel;
 
-    internal class WindowsEventConnector : IEventConnector
+    internal class WindowsEventConnector : IMediaEventConnector
     {
         private MediaElement Control = null;
 
@@ -12,49 +13,49 @@
             Control = control;
         }
 
-        public void OnBufferingEnded(object sender, EventArgs e)
+        public void OnBufferingEnded(object sender)
         {
             Control?.RaiseBufferingEndedEvent();
         }
 
-        public void OnBufferingStarted(object sender, EventArgs e)
+        public void OnBufferingStarted(object sender)
         {
             Control?.RaiseBufferingStartedEvent();
         }
 
-        public void OnMediaClosed(object sender, EventArgs e)
+        public void OnMediaClosed(object sender)
         {
             Control?.RaiseMediaClosedEvent();
         }
 
-        public void OnMediaEnded(object sender, EventArgs e)
+        public void OnMediaEnded(object sender)
         {
             Control?.RaiseMediaEndedEvent();
         }
 
-        public void OnMediaFailed(object sender, ExceptionEventArgs e)
+        public void OnMediaFailed(object sender, Exception e)
         {
-            Control?.RaiseMediaFailedEvent(e.Exception);
+            Control?.RaiseMediaFailedEvent(e);
         }
 
-        public void OnMediaOpened(object sender, EventArgs e)
+        public void OnMediaOpened(object sender)
         {
             Control?.RaiseMediaOpenedEvent();
         }
 
-        public void OnMediaOpening(object sender, MediaOpeningEventArgs e)
+        public void OnMediaOpening(object sender, MediaOptions mediaOptions, MediaInfo mediaInfo)
         {
             Control?.RaiseMediaOpeningEvent();
         }
 
-        public void OnMessageLogged(object sender, MediaLogMessagEventArgs e)
+        public void OnMessageLogged(object sender, MediaLogMessage e)
         {
             Control?.RaiseMessageLoggedEvent(e);
         }
 
-        public void OnPositionChanged(object sender, PositionChangedEventArgs e)
+        public void OnPositionChanged(object sender, TimeSpan position)
         {
-            Control?.RaisePositionChangedEvent(e);
+            Control?.RaisePositionChangedEvent(position);
         }
 
         public void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -62,78 +63,78 @@
             switch (e.PropertyName)
             {
                 // forward internal changes to the MediaElement dependency Properties
-                case nameof(MediaElementCore.Source):
+                case nameof(MediaEngine.Source):
                     Control.Source = Control.MediaCore.Source;
                     break;
-                case nameof(MediaElementCore.LoadedBehavior):
+                case nameof(MediaEngine.LoadedBehavior):
                     Control.LoadedBehavior = (System.Windows.Controls.MediaState)Control.MediaCore.LoadedBehavior;
                     break;
-                case nameof(MediaElementCore.SpeedRatio):
+                case nameof(MediaEngine.SpeedRatio):
                     Control.SpeedRatio = Control.MediaCore.SpeedRatio;
                     break;
-                case nameof(MediaElementCore.UnloadedBehavior):
+                case nameof(MediaEngine.UnloadedBehavior):
                     Control.UnloadedBehavior = (System.Windows.Controls.MediaState)Control.MediaCore.UnloadedBehavior;
                     break;
-                case nameof(MediaElementCore.Volume):
+                case nameof(MediaEngine.Volume):
                     Control.Volume = Control.MediaCore.Volume;
                     break;
-                case nameof(MediaElementCore.Balance):
+                case nameof(MediaEngine.Balance):
                     Control.Balance = Control.MediaCore.Balance;
                     break;
-                case nameof(MediaElementCore.IsMuted):
+                case nameof(MediaEngine.IsMuted):
                     Control.IsMuted = Control.MediaCore.IsMuted;
                     break;
-                case nameof(MediaElementCore.ScrubbingEnabled):
+                case nameof(MediaEngine.ScrubbingEnabled):
                     Control.ScrubbingEnabled = Control.MediaCore.ScrubbingEnabled;
                     break;
-                case nameof(MediaElementCore.Position):
+                case nameof(MediaEngine.Position):
                     Control.Position = Control.MediaCore.Position;
                     break;
 
                 // Simply forward notification of same-named properties
-                case nameof(MediaElementCore.IsOpen):
-                case nameof(MediaElementCore.IsOpening):
-                case nameof(MediaElementCore.MediaFormat):
-                case nameof(MediaElementCore.HasAudio):
-                case nameof(MediaElementCore.HasVideo):
-                case nameof(MediaElementCore.VideoCodec):
-                case nameof(MediaElementCore.VideoBitrate):
-                case nameof(MediaElementCore.NaturalVideoWidth):
-                case nameof(MediaElementCore.NaturalVideoHeight):
-                case nameof(MediaElementCore.VideoFrameRate):
-                case nameof(MediaElementCore.VideoFrameLength):
-                case nameof(MediaElementCore.AudioCodec):
-                case nameof(MediaElementCore.AudioBitrate):
-                case nameof(MediaElementCore.AudioChannels):
-                case nameof(MediaElementCore.AudioSampleRate):
-                case nameof(MediaElementCore.AudioBitsPerSample):
-                case nameof(MediaElementCore.NaturalDuration):
-                case nameof(MediaElementCore.CanPause):
-                case nameof(MediaElementCore.IsLiveStream):
-                case nameof(MediaElementCore.IsSeekable):
-                case nameof(MediaElementCore.BufferCacheLength):
-                case nameof(MediaElementCore.DownloadCacheLength):
-                case nameof(MediaElementCore.FrameStepDuration):
-                case nameof(MediaElementCore.MediaState):
-                case nameof(MediaElementCore.IsBuffering):
-                case nameof(MediaElementCore.BufferingProgress):
-                case nameof(MediaElementCore.IsPlaying):
-                case nameof(MediaElementCore.DownloadProgress):
-                case nameof(MediaElementCore.HasMediaEnded):
-                case nameof(MediaElementCore.IsSeeking):
-                case nameof(MediaElementCore.IsPositionUpdating):
-                case nameof(MediaElementCore.Metadata):
+                case nameof(MediaEngine.IsOpen):
+                case nameof(MediaEngine.IsOpening):
+                case nameof(MediaEngine.MediaFormat):
+                case nameof(MediaEngine.HasAudio):
+                case nameof(MediaEngine.HasVideo):
+                case nameof(MediaEngine.VideoCodec):
+                case nameof(MediaEngine.VideoBitrate):
+                case nameof(MediaEngine.NaturalVideoWidth):
+                case nameof(MediaEngine.NaturalVideoHeight):
+                case nameof(MediaEngine.VideoFrameRate):
+                case nameof(MediaEngine.VideoFrameLength):
+                case nameof(MediaEngine.AudioCodec):
+                case nameof(MediaEngine.AudioBitrate):
+                case nameof(MediaEngine.AudioChannels):
+                case nameof(MediaEngine.AudioSampleRate):
+                case nameof(MediaEngine.AudioBitsPerSample):
+                case nameof(MediaEngine.NaturalDuration):
+                case nameof(MediaEngine.CanPause):
+                case nameof(MediaEngine.IsLiveStream):
+                case nameof(MediaEngine.IsSeekable):
+                case nameof(MediaEngine.BufferCacheLength):
+                case nameof(MediaEngine.DownloadCacheLength):
+                case nameof(MediaEngine.FrameStepDuration):
+                case nameof(MediaEngine.MediaState):
+                case nameof(MediaEngine.IsBuffering):
+                case nameof(MediaEngine.BufferingProgress):
+                case nameof(MediaEngine.IsPlaying):
+                case nameof(MediaEngine.DownloadProgress):
+                case nameof(MediaEngine.HasMediaEnded):
+                case nameof(MediaEngine.IsSeeking):
+                case nameof(MediaEngine.IsPositionUpdating):
+                case nameof(MediaEngine.Metadata):
                     Control?.RaisePropertyChangedEvent(e.PropertyName);
                     break;
             }
         }
 
-        public void OnSeekingEnded(object sender, EventArgs e)
+        public void OnSeekingEnded(object sender)
         {
             Control?.RaiseSeekingEndedEvent();
         }
 
-        public void OnSeekingStarted(object sender, EventArgs e)
+        public void OnSeekingStarted(object sender)
         {
             Control?.RaiseSeekingStartedEvent();
         }

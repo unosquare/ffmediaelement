@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME.Commands
 {
     using Core;
+    using Shared;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -13,12 +14,11 @@
     {
         #region Private Declarations
 
-        private readonly AtomicBoolean IsOpening = new AtomicBoolean() { Value = false };
-        private readonly AtomicBoolean IsClosing = new AtomicBoolean() { Value = false };
+        private readonly AtomicBoolean IsOpening = new AtomicBoolean(false);
+        private readonly AtomicBoolean IsClosing = new AtomicBoolean(false);
         private readonly object SyncLock = new object();
         private readonly List<MediaCommand> Commands = new List<MediaCommand>();
-        private readonly MediaElementCore m_MediaElement;
-
+        private readonly MediaEngine m_MediaElement;
         private MediaCommand ExecutingCommand = null;
 
         #endregion
@@ -28,10 +28,10 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="MediaCommandManager"/> class.
         /// </summary>
-        /// <param name="mediaElementCore">The media element.</param>
-        public MediaCommandManager(MediaElementCore mediaElementCore)
+        /// <param name="mediaEngine">The media element.</param>
+        public MediaCommandManager(MediaEngine mediaEngine)
         {
-            m_MediaElement = mediaElementCore;
+            m_MediaElement = mediaEngine;
         }
 
         #endregion
@@ -49,7 +49,7 @@
         /// <summary>
         /// Gets the core platform independent player component.
         /// </summary>
-        public MediaElementCore MediaElement => m_MediaElement;
+        public MediaEngine MediaElement => m_MediaElement;
 
         #endregion
 

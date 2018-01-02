@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME.Commands
 {
-    using Core;
+    using Shared;
     using System;
 
     /// <summary>
@@ -32,7 +32,7 @@
                 renderer.Play();
 
             m.Clock.Play();
-            m.MediaState = CoreMediaState.Play;
+            m.MediaState = MediaEngineState.Play;
         }
     }
 }

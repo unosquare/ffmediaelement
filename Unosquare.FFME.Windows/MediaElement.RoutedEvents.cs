@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME
 {
     using Core;
+    using Shared;
     using System;
     using System.ComponentModel;
     using System.Linq;
@@ -216,11 +217,11 @@
         /// Raises the FFmpeg message logged.
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="MediaLogMessagEventArgs"/> instance containing the event data.</param>
+        /// <param name="e">The <see cref="MediaLogMessage"/> instance containing the event data.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void RaiseFFmpegMessageLogged(object sender, MediaLogMessagEventArgs e)
+        internal static void RaiseFFmpegMessageLogged(object sender, MediaLogMessage e)
         {
-            FFmpegMessageLogged?.Invoke(sender, e);
+            FFmpegMessageLogged?.Invoke(sender, new MediaLogMessageEventArgs(e));
         }
 
         /// <summary>
@@ -294,16 +295,16 @@
         /// <summary>
         /// Raises the position changed event.
         /// </summary>
-        /// <param name="e">The <see cref="PositionChangedEventArgs"/> instance containing the event data.</param>
+        /// <param name="position">The position.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaisePositionChangedEvent(PositionChangedEventArgs e)
+        internal void RaisePositionChangedEvent(TimeSpan position)
         {
             WindowsGui.UIInvoke(DispatcherPriority.DataBind, () =>
             {
                 RaiseEvent(new PositionChangedRoutedEventArgs(
                     PositionChangedEvent,
                     this,
-                    e.Position));
+                    position));
             });
         }
 
@@ -380,11 +381,11 @@
         /// <summary>
         /// Raises the message logged event.
         /// </summary>
-        /// <param name="e">The <see cref="MediaLogMessagEventArgs"/> instance containing the event data.</param>
+        /// <param name="e">The <see cref="MediaLogMessage"/> instance containing the event data.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseMessageLoggedEvent(MediaLogMessagEventArgs e)
+        internal void RaiseMessageLoggedEvent(MediaLogMessage e)
         {
-            MessageLogged?.Invoke(this, e);
+            MessageLogged?.Invoke(this, new MediaLogMessageEventArgs(e));
         }
 
         #endregion

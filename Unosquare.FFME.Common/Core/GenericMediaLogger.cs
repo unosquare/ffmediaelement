@@ -1,10 +1,12 @@
 ﻿namespace Unosquare.FFME.Core
 {
+    using Shared;
+
     /// <summary>
     /// Represents a generic Logger
     /// </summary>
     /// <typeparam name="T">The sender's concrete type</typeparam>
-    /// <seealso cref="Unosquare.FFME.Core.IMediaLogger" />
+    /// <seealso cref="Unosquare.FFME.Shared.IMediaLogger" />
     internal class GenericMediaLogger<T> : IMediaLogger
     {
         /// <summary>

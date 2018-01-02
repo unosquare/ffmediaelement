@@ -1,13 +1,12 @@
-﻿namespace Unosquare.FFME.Decoding
+﻿namespace Unosquare.FFME.Shared
 {
-    using Core;
     using System;
     using System.Runtime.InteropServices;
 
     /// <summary>
     /// A pre-allocated, scaled video block. The buffer is in BGR, 24-bit format
     /// </summary>
-    internal sealed class VideoBlock : MediaBlock, IDisposable
+    public sealed class VideoBlock : MediaBlock, IDisposable
     {
         #region Private Members
 
@@ -62,12 +61,12 @@
         public int PixelHeight { get; internal set; }
 
         /// <summary>
-        /// Gets or sets the width of the aspect ratio.
+        /// Gets the width of the aspect ratio.
         /// </summary>
         public int AspectWidth { get; internal set; }
 
         /// <summary>
-        /// Gets or sets the height of the aspect ratio.
+        /// Gets the height of the aspect ratio.
         /// </summary>
         public int AspectHeight { get; internal set; }
 

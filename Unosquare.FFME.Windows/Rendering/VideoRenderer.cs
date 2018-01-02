@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.Rendering
 {
     using Core;
-    using Decoding;
+    using Shared;
     using System;
     using System.Runtime.CompilerServices;
     using System.Windows;
@@ -12,8 +12,8 @@
     /// <summary>
     /// Provides Video Image Rendering via a WPF Writable Bitmap
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.Rendering.IRenderer" />
-    internal sealed class VideoRenderer : IRenderer
+    /// <seealso cref="Unosquare.FFME.Shared.IMediaRenderer" />
+    internal sealed class VideoRenderer : IMediaRenderer
     {
         #region Private State
 
@@ -25,7 +25,7 @@
         /// <summary>
         /// Set when a bitmap is being written to the target bitmap
         /// </summary>
-        private AtomicBoolean IsRenderingInProgress = new AtomicBoolean();
+        private AtomicBoolean IsRenderingInProgress = new AtomicBoolean(false);
 
         #endregion
 
@@ -34,22 +34,22 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="VideoRenderer"/> class.
         /// </summary>
-        /// <param name="mediaElementCore">The core media element.</param>
-        public VideoRenderer(MediaElementCore mediaElementCore)
+        /// <param name="mediaEngine">The core media element.</param>
+        public VideoRenderer(MediaEngine mediaEngine)
         {
-            MediaElementCore = mediaElementCore;
+            MediaCore = mediaEngine;
             InitializeTargetBitmap(null);
         }
 
         /// <summary>
         /// Gets the parent media element (platform specific).
         /// </summary>
-        public MediaElement MediaElement => MediaElementCore?.Parent as MediaElement;
+        public MediaElement MediaElement => MediaCore?.Parent as MediaElement;
 
         /// <summary>
         /// Gets the core platform independent player component.
         /// </summary>
-        public MediaElementCore MediaElementCore { get; }
+        public MediaEngine MediaCore { get; }
 
         #endregion
 
@@ -141,13 +141,13 @@
 
                         var updateRect = new Int32Rect(0, 0, b.PixelWidth, b.PixelHeight);
                         TargetBitmap.WritePixels(updateRect, b.Buffer, b.BufferLength, b.BufferStride);
-                        MediaElementCore.VideoSmtpeTimecode = b.SmtpeTimecode;
-                        MediaElementCore.VideoHardwareDecoder = (MediaElementCore.Container?.Components?.Video?.IsUsingHardwareDecoding ?? false) ?
-                            MediaElementCore.Container?.Components?.Video?.HardwareAccelerator?.Name ?? string.Empty : string.Empty;
+                        MediaCore.VideoSmtpeTimecode = b.SmtpeTimecode;
+                        MediaCore.VideoHardwareDecoder = (MediaCore.Container?.Components?.Video?.IsUsingHardwareDecoding ?? false) ?
+                            MediaCore.Container?.Components?.Video?.HardwareAccelerator?.Name ?? string.Empty : string.Empty;
 
                         MediaElement.RaiseRenderingVideoEvent(
                             TargetBitmap,
-                            MediaElementCore.Container.MediaInfo.Streams[b.StreamIndex],
+                            MediaCore.Container.MediaInfo.Streams[b.StreamIndex],
                             b.SmtpeTimecode,
                             b.DisplayPictureNumber,
                             b.StartTime,

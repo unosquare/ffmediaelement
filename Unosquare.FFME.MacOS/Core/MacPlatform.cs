@@ -1,15 +1,14 @@
 ﻿namespace Unosquare.FFME.MacOS.Core
 {
     using Foundation;
+    using Shared;
     using System;
-    using Unosquare.FFME.Core;
     using Unosquare.FFME.MacOS.Rendering;
-    using Unosquare.FFME.Rendering;
 
-    internal class MacPlatform : IPlatform
+    internal class MacPlatform : IPlatformConnector
     {
         private static readonly object SyncLock = new object();
-        private static IPlatform m_Instance = null;
+        private static IPlatformConnector m_Instance = null;
 
         /// <summary>
         /// Prevents a default instance of the <see cref="MacPlatform"/> class from being created.
@@ -22,7 +21,7 @@
         /// <summary>
         /// Gets the default Windows-specific implementation
         /// </summary>
-        public static IPlatform Default
+        public static IPlatformConnector Default
         {
             get
             {
@@ -42,12 +41,12 @@
 
         public Action<IntPtr, uint, byte> FillMemory => NativeMethods.FillMemory;
 
-        public Action<CoreDispatcherPriority, Action> UIInvoke => (priority, action) =>
+        public Action<ActionPriority, Action> UIInvoke => (priority, action) =>
         {
             NSRunLoop.Main.BeginInvokeOnMainThread(action.Invoke);
         };
 
-        public Action<CoreDispatcherPriority, Delegate, object[]> UIEnqueueInvoke => (priority, action, args) =>
+        public Action<ActionPriority, Delegate, object[]> UIEnqueueInvoke => (priority, action, args) =>
         {
             NSRunLoop.Main.BeginInvokeOnMainThread(() =>
             {
@@ -55,7 +54,7 @@
             });
         };
 
-        public Func<MediaType, MediaElementCore, IRenderer> CreateRenderer => (mediaType, m) =>
+        public Func<MediaType, MediaEngine, IMediaRenderer> CreateRenderer => (mediaType, m) =>
         {
             if (mediaType == MediaType.Audio) return new AudioRenderer(m);
             else if (mediaType == MediaType.Video) return new VideoRenderer(m);
@@ -64,9 +63,9 @@
             throw new ArgumentException($"No suitable renderer for Media Type '{mediaType}'");
         };
 
-        public Func<CoreDispatcherPriority, IDispatcherTimer> CreateTimer => (p) => { return new CustomDispatcherTimer(); };
+        public Func<ActionPriority, IDispatcherTimer> CreateTimer => (p) => { return new CustomDispatcherTimer(); };
 
-        public void OnFFmpegMessageLogged(object sender, MediaLogMessagEventArgs e)
+        public void OnFFmpegMessageLogged(object sender, MediaLogMessage e)
         {
             if (e.MessageType == MediaLogMessageType.Trace) return;
             Console.WriteLine($"{e.MessageType,10} - {e.Message}");

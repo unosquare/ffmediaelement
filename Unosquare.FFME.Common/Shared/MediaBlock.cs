@@ -1,16 +1,15 @@
-﻿namespace Unosquare.FFME.Decoding
+﻿namespace Unosquare.FFME.Shared
 {
-    using Core;
     using System;
 
     /// <summary>
     /// A base class for blocks of the deifferent MediaTypes.
     /// Blocks are the result of decoding and scaling a frame.
-    /// Blocks have preallocated buffers wich makes them memory and CPU efficient
-    /// Reue blocks as much as possible. Once you create a block from a frame,
+    /// Blocks have preallocated buffers wich makes them memory and CPU efficient.
+    /// Reuse blocks as much as possible. Once you create a block from a frame,
     /// you don't need the frame anymore so make sure you dispose the frame.
     /// </summary>
-    internal abstract class MediaBlock : IComparable<MediaBlock>, IDisposable
+    public abstract class MediaBlock : IComparable<MediaBlock>, IDisposable
     {
         /// <summary>
         /// Gets the media type of the data
@@ -18,7 +17,7 @@
         public abstract MediaType MediaType { get; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the start time was guessed from siblings
+        /// Gets a value indicating whether the start time was guessed from siblings
         /// or the source frame PTS comes from a NO PTS value
         /// </summary>
         public bool IsStartTimeGuessed { get; internal set; }
@@ -39,7 +38,7 @@
         public TimeSpan EndTime { get; internal set; }
 
         /// <summary>
-        /// Gets or sets the index of the stream.
+        /// Gets the index of the stream.
         /// </summary>
         public int StreamIndex { get; internal set; }
 

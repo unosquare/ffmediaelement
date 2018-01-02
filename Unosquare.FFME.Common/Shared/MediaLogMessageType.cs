@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME
+﻿namespace Unosquare.FFME.Shared
 {
     /// <summary>
     /// Defines the different log message types received by the log handler

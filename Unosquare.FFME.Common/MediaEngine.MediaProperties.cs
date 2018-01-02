@@ -1,11 +1,12 @@
 ﻿namespace Unosquare.FFME
 {
     using Core;
+    using Shared;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
 
-    public partial class MediaElementCore
+    public partial class MediaEngine
     {
         #region Property Backing
 
@@ -16,9 +17,9 @@
         private string m_VideoSmtpeTimecode = string.Empty;
         private string m_VideoHardwareDecoder = string.Empty;
         private bool m_IsBuffering = false;
-        private CoreMediaState m_CoreMediaState = CoreMediaState.Close;
+        private MediaEngineState m_CoreMediaState = MediaEngineState.Close;
         private bool m_IsOpening = false;
-        private AtomicBoolean m_IsSeeking = new AtomicBoolean();
+        private AtomicBoolean m_IsSeeking = new AtomicBoolean(false);
 
         #endregion
 
@@ -187,7 +188,7 @@
         /// <summary>
         /// Gets a value indicating whether the media is playing.
         /// </summary>
-        public bool IsPlaying => MediaState == CoreMediaState.Play;
+        public bool IsPlaying => MediaState == MediaEngineState.Play;
 
         /// <summary>
         /// Gets a value indicating whether the media has reached its end.
@@ -300,7 +301,7 @@
         /// <summary>
         /// Gets the current playback state.
         /// </summary>
-        public CoreMediaState MediaState
+        public MediaEngineState MediaState
         {
             get => m_CoreMediaState;
 

@@ -2,6 +2,7 @@
 {
     using Core;
     using FFmpeg.AutoGen;
+    using Shared;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -59,7 +60,7 @@
         /// <summary>
         /// The internal flag that determines if a seek operation is in progress.
         /// </summary>
-        private AtomicBoolean m_IsSeeking = new AtomicBoolean();
+        private AtomicBoolean m_IsSeeking = new AtomicBoolean(false);
 
         /// <summary>
         /// To detect redundat Dispose calls
@@ -94,17 +95,17 @@
         /// <summary>
         /// The signal to request the abortion of the following read operation
         /// </summary>
-        private AtomicBoolean SignalAbortReadsRequested = new AtomicBoolean();
+        private AtomicBoolean SignalAbortReadsRequested = new AtomicBoolean(false);
 
         /// <summary>
         /// If set to true, it will reset the abort requested flag to false.
         /// </summary>
-        private AtomicBoolean SignalAbortReadsAutoReset = new AtomicBoolean();
+        private AtomicBoolean SignalAbortReadsAutoReset = new AtomicBoolean(false);
 
         /// <summary>
         /// If set to true, an ongoing seek operation will immediately try to return and cancel all reads.
         /// </summary>
-        private AtomicBoolean SignalAbortSeekRequested = new AtomicBoolean();
+        private AtomicBoolean SignalAbortSeekRequested = new AtomicBoolean(false);
 
         #endregion
 
@@ -747,7 +748,7 @@
         /// Creates the stream components by first finding the best available streams.
         /// Then it initializes the components of the correct type each.
         /// </summary>
-        /// <exception cref="Unosquare.FFME.MediaContainerException">The exception ifnromation</exception>
+        /// <exception cref="Unosquare.FFME.Shared.MediaContainerException">The exception ifnromation</exception>
         private void StreamCreateComponents()
         {
             // Create the audio component

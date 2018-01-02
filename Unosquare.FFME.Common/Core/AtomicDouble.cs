@@ -20,6 +20,15 @@
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="AtomicDouble"/> class.
+        /// </summary>
+        /// <param name="initialValue">The initial value.</param>
+        public AtomicDouble(double initialValue)
+        {
+            Value = initialValue;
+        }
+
+        /// <summary>
         /// Gets or sets the latest value written by any of the processors in the machine
         /// </summary>
         public double Value

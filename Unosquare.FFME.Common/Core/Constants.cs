@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME.Core
 {
     using FFmpeg.AutoGen;
+    using Shared;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -28,6 +29,7 @@
         public const double MaxVolume = 1.0d;
         public const double MinVolume = 0.0d;
 
+        // TODO: provide platform-specific injector
         public const string DllAVCodec = "avcodec-57.dll";
         public const string DllAVFilter = "avfilter-6.dll";
         public const string DllAVFormat = "avformat-57.dll";
@@ -37,6 +39,8 @@
         public const string DllAVDevice = "avdevice-57.dll";
 
 #pragma warning disable SA1310 // Field names must not contain underscore
+
+        // TODO: provide platform-specific injector
         public const string DllAVCodec_macOS = "avcodec.57.dylib";
         public const string DllAVFilter_macOS = "avfilter.6.dylib";
         public const string DllAVFormat_macOS = "avformat.57.dylib";

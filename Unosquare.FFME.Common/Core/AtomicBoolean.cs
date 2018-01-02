@@ -20,6 +20,15 @@
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="AtomicBoolean"/> class.
+        /// </summary>
+        /// <param name="initialValue">if set to <c>true</c> [initial value].</param>
+        public AtomicBoolean(bool initialValue)
+        {
+            Value = initialValue;
+        }
+
+        /// <summary>
         /// Gets the latest value written by any of the processors in the machine
         /// Setting
         /// </summary>

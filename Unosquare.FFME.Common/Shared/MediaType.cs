@@ -1,11 +1,12 @@
-﻿namespace Unosquare.FFME.Core
+﻿namespace Unosquare.FFME.Shared
 {
     using FFmpeg.AutoGen;
 
     /// <summary>
-    /// Enumerates the different Media Types
+    /// Enumerates the different Media Types compatible with AVMEDIATYPE_* constants
+    /// defined by FFmpeg
     /// </summary>
-    internal enum MediaType
+    public enum MediaType
     {
         /// <summary>
         /// Represents an unexisting media type (-1)

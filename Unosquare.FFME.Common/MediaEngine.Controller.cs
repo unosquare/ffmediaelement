@@ -1,12 +1,13 @@
 ﻿namespace Unosquare.FFME
 {
-    using Core;
     using Commands;
+    using Core;
     using Decoding;
+    using Shared;
     using System;
     using System.Threading.Tasks;
 
-    public partial class MediaElementCore
+    public partial class MediaEngine
     {
         #region Internal Members
 
@@ -19,7 +20,7 @@
         /// Represents a real-time time measuring device.
         /// Rendering media should occur as requested by the clock.
         /// </summary>
-        internal Clock Clock { get; } = new Clock();
+        internal RealtimeClock Clock { get; } = new RealtimeClock();
 
         /// <summary>
         /// The underlying media container that provides access to 
@@ -72,7 +73,7 @@
                         await Commands.OpenAsync(uri)
                             .ContinueWith(async p =>
                             {
-                                if (LoadedBehavior == CoreMediaState.Play || CanPause == false)
+                                if (LoadedBehavior == MediaEngineState.Play || CanPause == false)
                                     await Commands.PlayAsync();
                             });
                     });

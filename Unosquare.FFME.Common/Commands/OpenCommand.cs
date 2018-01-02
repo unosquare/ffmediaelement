@@ -3,6 +3,7 @@
     using Core;
     using Decoding;
     using FFmpeg.AutoGen;
+    using Shared;
     using System;
     using System.Threading;
 
@@ -40,17 +41,17 @@
             try
             {
                 // Register FFmpeg if not already done
-                if (MediaElementCore.IsFFmpegLoaded.Value == false)
+                if (MediaEngine.IsFFmpegLoaded.Value == false)
                 {
-                    MediaElementCore.FFmpegDirectory = Utils.RegisterFFmpeg(MediaElementCore.FFmpegDirectory);
+                    MediaEngine.FFmpegDirectory = Utils.RegisterFFmpeg(MediaEngine.FFmpegDirectory);
                     m.Logger.Log(MediaLogMessageType.Info, $"INIT FFMPEG: {ffmpeg.av_version_info()}");
                 }
 
-                MediaElementCore.Platform.UIInvoke(
-                    CoreDispatcherPriority.DataBind, () => { m.ResetDependencyProperies(); });
-                MediaElementCore.IsFFmpegLoaded.Value = true;
+                MediaEngine.Platform.UIInvoke(
+                    ActionPriority.DataBind, () => { m.ResetDependencyProperies(); });
+                MediaEngine.IsFFmpegLoaded.Value = true;
                 m.IsOpening = true;
-                m.MediaState = CoreMediaState.Manual;
+                m.MediaState = MediaEngineState.Manual;
 
                 var mediaUrl = Source.IsFile ? Source.LocalPath : Source.ToString();
 
@@ -60,13 +61,13 @@
                 m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Entered");
                 m.Container.Open();
 
-                m.MediaState = CoreMediaState.Stop;
+                m.MediaState = MediaEngineState.Stop;
 
                 foreach (var t in m.Container.Components.MediaTypes)
                 {
-                    m.Blocks[t] = new MediaBlockBuffer(MediaElementCore.MaxBlocks[t], t);
+                    m.Blocks[t] = new MediaBlockBuffer(MediaEngine.MaxBlocks[t], t);
                     m.LastRenderTime[t] = TimeSpan.MinValue;
-                    m.Renderers[t] = MediaElementCore.Platform.CreateRenderer(t, Manager.MediaElement);
+                    m.Renderers[t] = MediaEngine.Platform.CreateRenderer(t, Manager.MediaElement);
                 }
 
                 m.Clock.SpeedRatio = Constants.DefaultSpeedRatio;
@@ -102,13 +103,13 @@
             }
             catch (Exception ex)
             {
-                m.MediaState = CoreMediaState.Close;
+                m.MediaState = MediaEngineState.Close;
                 m.RaiseMediaFailedEvent(ex);
             }
             finally
             {
                 m.IsOpening = false;
-                MediaElementCore.Platform.UIInvoke(CoreDispatcherPriority.DataBind, () => { m.NotifyPropertyChanges(); });
+                MediaEngine.Platform.UIInvoke(ActionPriority.DataBind, () => { m.NotifyPropertyChanges(); });
                 m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Completed");
             }
         }

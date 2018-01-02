@@ -1,36 +1,35 @@
 ﻿namespace Unosquare.FFME.MacOS.Rendering
 {
-    using System;
-    using System.Runtime.InteropServices;
     using AppKit;
     using CoreGraphics;
+    using Shared;
+    using System;
+    using System.Runtime.InteropServices;
     using Unosquare.FFME.Core;
-    using Unosquare.FFME.Decoding;
     using Unosquare.FFME.MacOS.Core;
-    using Unosquare.FFME.Rendering;
 
     /// <summary>
     /// Provides Video Image Rendering via NSImage.
     /// </summary>
     /// <seealso cref="Unosquare.FFME.Rendering.IRenderer" />
-    class VideoRenderer : IRenderer
+    class VideoRenderer : IMediaRenderer
     {
-        private AtomicBoolean IsRenderingInProgress = new AtomicBoolean();
+        private AtomicBoolean IsRenderingInProgress = new AtomicBoolean(false);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:Unosquare.FFME.MacOS.Rendering.VideoRenderer"/> class.
         /// </summary>
-        /// <param name="mediaElementCore">Media element core.</param>
-        public VideoRenderer(MediaElementCore mediaElementCore)
+        /// <param name="mediaEngine">Media element core.</param>
+        public VideoRenderer(MediaEngine mediaEngine)
         {
-            MediaElementCore = mediaElementCore;
+            MediaCore = mediaEngine;
         }
 
         /// <summary>
         /// Gets the media element core player component.
         /// </summary>
         /// <value>The media element core.</value>
-        public MediaElementCore MediaElementCore { get; }
+        public MediaEngine MediaCore { get; }
 
         public void Close()
         {
@@ -74,9 +73,9 @@
                 //var i = new CGImage(64, 64, 8, 24, 64 * 3, space, CGBitmapFlags.ByteOrderDefault, provider, null, false, CGColorRenderingIntent.Default);
                 var i = new CGImage(width, height, 8, 24, width * 3, space, CGBitmapFlags.ByteOrderDefault, provider, null, false, CGColorRenderingIntent.Default);
                 var nsImage = new NSImage(i, new CGSize(width, height));
-                MacPlatform.Default.UIInvoke(CoreDispatcherPriority.Normal, () =>
+                MacPlatform.Default.UIInvoke(ActionPriority.Normal, () =>
                 {
-                    ((MediaElementCore.Parent) as MediaElement).ImageView.Image = nsImage;
+                    ((MediaCore.Parent) as MediaElement).ImageView.Image = nsImage;
                 });
             }
             catch (Exception e)

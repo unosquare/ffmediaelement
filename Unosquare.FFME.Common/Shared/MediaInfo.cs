@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME
+﻿namespace Unosquare.FFME.Shared
 {
     using Core;
     using Decoding;

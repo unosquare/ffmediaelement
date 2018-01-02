@@ -3,6 +3,7 @@
     using ClosedCaptions;
     using Core;
     using FFmpeg.AutoGen;
+    using Shared;
     using System;
     using System.Collections.Generic;
     using System.Runtime.InteropServices;

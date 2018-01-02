@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.Core
+﻿namespace Unosquare.FFME.Shared
 {
     /// <summary>
     /// A very simple and standard interface for message logging

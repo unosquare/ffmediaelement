@@ -1,32 +1,32 @@
-﻿namespace Unosquare.FFME.Core
+﻿namespace Unosquare.FFME.Shared
 {
     /// <summary>
-    /// Media States
+    /// Media States compatible with MediaState enumeration
     /// </summary>
-    public enum CoreMediaState
+    public enum MediaEngineState
     {
         /// <summary>
-        /// The manual
+        /// The manual state
         /// </summary>
         Manual = 0,
 
         /// <summary>
-        /// The play
+        /// The play state
         /// </summary>
         Play = 1,
 
         /// <summary>
-        /// The close
+        /// The close state
         /// </summary>
         Close = 2,
 
         /// <summary>
-        /// The pause
+        /// The pause state
         /// </summary>
         Pause = 3,
 
         /// <summary>
-        /// The stop
+        /// The stop state
         /// </summary>
         Stop = 4
     }

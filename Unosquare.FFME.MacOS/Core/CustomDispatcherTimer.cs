@@ -2,6 +2,7 @@
 {
     using System;
     using System.Timers;
+    using Shared;
     using Unosquare.FFME.Core;
 
     class CustomDispatcherTimer : IDispatcherTimer

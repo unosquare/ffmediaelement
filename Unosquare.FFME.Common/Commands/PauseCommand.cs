@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME.Commands
 {
-    using Core;
+    using Shared;
 
     /// <summary>
     /// Implements the logic to pause the media stream
@@ -34,8 +34,8 @@
 
             m.SnapVideoPosition(m.Clock.Position);
 
-            if (m.MediaState != CoreMediaState.Stop)
-                m.MediaState = CoreMediaState.Pause;
+            if (m.MediaState != MediaEngineState.Stop)
+                m.MediaState = MediaEngineState.Pause;
         }
     }
 }

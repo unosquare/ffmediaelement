@@ -1,28 +1,27 @@
 ﻿namespace Unosquare.FFME.MacOS.Rendering
 {
     using System;
-    using Unosquare.FFME.Decoding;
-    using Unosquare.FFME.Rendering;
+    using Unosquare.FFME.Shared;
 
     /// <summary>
     /// Subtitle Renderer - Does nothing at this point.
     /// </summary>
-    class SubtitleRenderer : IRenderer
+    class SubtitleRenderer : IMediaRenderer
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="T:Unosquare.FFME.MacOS.Rendering.SubtitleRenderer"/> class.
         /// </summary>
-        /// <param name="mediaElementCore">Media element core.</param>
-        public SubtitleRenderer(MediaElementCore mediaElementCore)
+        /// <param name="mediaEngine">Media element core.</param>
+        public SubtitleRenderer(MediaEngine mediaEngine)
         {
-            MediaElementCore = mediaElementCore;
+            MediaCore = mediaEngine;
         }
 
         /// <summary>
         /// Gets the media element core player component.
         /// </summary>
         /// <value>The media element core.</value>
-        public MediaElementCore MediaElementCore { get; }
+        public MediaEngine MediaCore { get; }
 
         public void Close()
         {

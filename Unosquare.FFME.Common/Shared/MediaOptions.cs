@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME
+﻿namespace Unosquare.FFME.Shared
 {
     using System;
     using System.Collections.Generic;
@@ -8,22 +8,12 @@
     /// </summary>
     public class MediaOptions
     {
-        // TODO: Support specific stream selection for each component
-
         /// <summary>
         /// Initializes a new instance of the <see cref="MediaOptions"/> class.
         /// </summary>
         public MediaOptions()
         {
-            FormatOptions["usetoc"] = "1";
-
-            FormatOptions["user_agent"] = $"{typeof(MediaOptions).Namespace}/{typeof(MediaOptions).Assembly.GetName().Version}";
-            FormatOptions["headers"] = $"Referer:https://www.unosquare.com";
-            FormatOptions["multiple_requests"] = "1";
-            FormatOptions["reconnect"] = "1";
-            FormatOptions["reconnect_at_eof"] = "1";
-            FormatOptions["reconnect_streamed"] = "1";
-            FormatOptions["reconnect_delay_max"] = "10"; // in seconds
+            // placeholder
         }
 
         /// <summary>

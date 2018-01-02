@@ -3,7 +3,7 @@
     using Commands;
     using Core;
     using Decoding;
-    using Rendering;
+    using Shared;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -11,7 +11,7 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    public partial class MediaElementCore
+    public partial class MediaEngine
     {
         /// <summary>
         /// This partial class implements: 
@@ -42,8 +42,8 @@
         private readonly ManualResetEvent m_BlockRenderingCycle = new ManualResetEvent(false);
         private readonly ManualResetEvent m_SeekingDone = new ManualResetEvent(true);
 
-        private AtomicBoolean m_IsTaskCancellationPending = new AtomicBoolean();
-        private AtomicBoolean m_HasDecoderSeeked = new AtomicBoolean();
+        private AtomicBoolean m_IsTaskCancellationPending = new AtomicBoolean(false);
+        private AtomicBoolean m_HasDecoderSeeked = new AtomicBoolean(false);
 
         /// <summary>
         /// Gets the packet reading cycle control evenet.
@@ -93,7 +93,7 @@
         /// <summary>
         /// Holds the block renderers
         /// </summary>
-        internal MediaTypeDictionary<IRenderer> Renderers { get; } = new MediaTypeDictionary<IRenderer>();
+        internal MediaTypeDictionary<IMediaRenderer> Renderers { get; } = new MediaTypeDictionary<IMediaRenderer>();
 
         /// <summary>
         /// Holds the last rendered StartTime for each of the media block types
@@ -427,7 +427,7 @@
                             wallClock = Clock.Position;
 
                             HasMediaEnded = true;
-                            MediaState = CoreMediaState.Pause;
+                            MediaState = MediaEngineState.Pause;
                             RaiseMediaEndedEvent();
                         }
                     }

@@ -1,6 +1,5 @@
-﻿namespace Unosquare.FFME.Decoding
+﻿namespace Unosquare.FFME.Shared
 {
-    using Core;
     using System;
     using System.Runtime.InteropServices;
 
@@ -8,7 +7,7 @@
     /// A scaled, preallocated audio frame container.
     /// The buffer is in 16-bit signed, interleaved sample data
     /// </summary>
-    internal sealed class AudioBlock : MediaBlock
+    public sealed class AudioBlock : MediaBlock
     {
         #region Private Members
 

@@ -1,9 +1,9 @@
-﻿namespace Unosquare.FFME.Core
+﻿namespace Unosquare.FFME.Shared
 {
     /// <summary>
-    /// Dispatcher Priority Enum
+    /// Dispatcher Priority Enum compatible with DispatcherPriority
     /// </summary>
-    public enum CoreDispatcherPriority
+    public enum ActionPriority
     {
         /// <summary>
         /// The invalid

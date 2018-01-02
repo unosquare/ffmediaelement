@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.Rendering
+﻿namespace Unosquare.FFME.Shared
 {
     using Decoding;
     using System;
@@ -6,12 +6,12 @@
     /// <summary>
     /// Provides a unified API for media rendering classes
     /// </summary>
-    internal interface IRenderer
+    public interface IMediaRenderer
     {
         /// <summary>
-        /// Gets the parent media element.
+        /// Gets the parent media engine.
         /// </summary>
-        MediaElementCore MediaElementCore { get; }
+        MediaEngine MediaCore { get; }
 
         /// <summary>
         /// Waits for the renderer to be ready to render.

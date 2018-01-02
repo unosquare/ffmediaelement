@@ -1,28 +1,25 @@
 ﻿namespace Unosquare.FFME.MacOS
 {
     using AppKit;
-    using Foundation;
     using System;
     using System.Threading.Tasks;
-    using Unosquare.FFME.Core;
     using Unosquare.FFME.MacOS.Core;
-    using Unosquare.FFME.MacOS.Rendering;
 
     public class MediaElement
     {
-        private MediaElementCore mediaElementCore;
+        private MediaEngine MediaCore;
 
         #region Constructors
 
         static MediaElement()
         {
-            MediaElementCore.Initialize(MacPlatform.Default);
+            MediaEngine.Initialize(MacPlatform.Default);
         }
 
         public MediaElement(NSImageView imageView)
         {
             this.ImageView = imageView;
-            this.mediaElementCore = new MediaElementCore(this, false, new MacEventConnector(this));
+            this.MediaCore = new MediaEngine(this, false, new MacEventConnector(this));
         }
 
         #endregion
@@ -39,8 +36,8 @@
         /// </summary>
         public static string FFmpegDirectory
         {
-            get => MediaElementCore.FFmpegDirectory;
-            set => MediaElementCore.FFmpegDirectory = value;
+            get => MediaEngine.FFmpegDirectory;
+            set => MediaEngine.FFmpegDirectory = value;
         }
 
         #endregion
@@ -49,7 +46,7 @@
 
         public async Task Open(Uri uri)
         {
-            await mediaElementCore.Open(uri);
+            await MediaCore.Open(uri);
         }
 
         #endregion

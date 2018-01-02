@@ -1,12 +1,13 @@
 ﻿namespace Unosquare.FFME.Core
 {
+    using Shared;
+    using Rendering;
     using System;
     using System.ComponentModel;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Windows;
     using System.Windows.Threading;
-    using Rendering;
 
     /// <summary>
     /// Provides platform-specific implementations of Gui functionality.
@@ -108,7 +109,7 @@
         /// </summary>
         /// <param name="priority">The priority.</param>
         /// <returns>The WPF dispatcher timer</returns>
-        public static IDispatcherTimer CreateDispatcherTimer(CoreDispatcherPriority priority)
+        public static IDispatcherTimer CreateDispatcherTimer(ActionPriority priority)
         {
             return new WindowsDispatcherTimer((DispatcherPriority)priority);
         }
@@ -120,7 +121,7 @@
         /// <param name="m">The m.</param>
         /// <returns>The renderer of the given type</returns>
         /// <exception cref="NotSupportedException">When a media type is not supported</exception>
-        public static IRenderer CreateRenderer(MediaType mediaType, MediaElementCore m)
+        public static IMediaRenderer CreateRenderer(MediaType mediaType, MediaEngine m)
         {
             if (mediaType == MediaType.Audio) return new AudioRenderer(m);
             else if (mediaType == MediaType.Video) return new VideoRenderer(m);
@@ -136,7 +137,7 @@
         /// <param name="action">The action.</param>
         public static void UIInvoke(DispatcherPriority priority, Action action)
         {
-            UIInvoke((CoreDispatcherPriority)priority, action);
+            UIInvoke((ActionPriority)priority, action);
         }
 
         /// <summary>
@@ -144,7 +145,7 @@
         /// </summary>
         /// <param name="priority">The priority.</param>
         /// <param name="action">The action.</param>
-        public static void UIInvoke(CoreDispatcherPriority priority, Action action)
+        public static void UIInvoke(ActionPriority priority, Action action)
         {
             if (WpfDispatcher != null)
             {
@@ -170,7 +171,7 @@
         /// <param name="args">The arguments.</param>
         public static void UIEnqueueInvoke(DispatcherPriority priority, Delegate action, params object[] args)
         {
-            UIEnqueueInvoke((CoreDispatcherPriority)priority, action, args);
+            UIEnqueueInvoke((ActionPriority)priority, action, args);
         }
 
         /// <summary>
@@ -180,7 +181,7 @@
         /// <param name="priority">The priority.</param>
         /// <param name="action">The action.</param>
         /// <param name="args">The arguments.</param>
-        public static void UIEnqueueInvoke(CoreDispatcherPriority priority, Delegate action, params object[] args)
+        public static void UIEnqueueInvoke(ActionPriority priority, Delegate action, params object[] args)
         {
             try
             {

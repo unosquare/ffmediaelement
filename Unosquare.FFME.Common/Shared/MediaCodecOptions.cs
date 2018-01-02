@@ -1,7 +1,8 @@
-﻿namespace Unosquare.FFME
+﻿namespace Unosquare.FFME.Shared
 {
     using Core;
     using FFmpeg.AutoGen;
+    using Shared;
     using System.Collections.Generic;
 
     /// <summary>

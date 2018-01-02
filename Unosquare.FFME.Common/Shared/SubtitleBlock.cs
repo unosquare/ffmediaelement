@@ -1,13 +1,12 @@
-﻿namespace Unosquare.FFME.Decoding
+﻿namespace Unosquare.FFME.Shared
 {
-    using Core;
     using FFmpeg.AutoGen;
     using System.Collections.Generic;
 
     /// <summary>
     /// A subtitle frame container. Simply contains text lines.
     /// </summary>
-    internal sealed class SubtitleBlock : MediaBlock
+    public sealed class SubtitleBlock : MediaBlock
     {
         #region Properties
 

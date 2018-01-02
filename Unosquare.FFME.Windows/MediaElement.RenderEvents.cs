@@ -2,9 +2,9 @@
 {
     using Core;
     using FFmpeg.AutoGen;
+    using Shared;
     using System;
     using System.Collections.Generic;
-    using Decoding;
     using System.Runtime.CompilerServices;
     using System.Windows.Media.Imaging;
 

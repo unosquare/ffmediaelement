@@ -1,8 +1,8 @@
 ﻿namespace Unosquare.FFME.Rendering
 {
     using Core;
-    using Decoding;
     using Rendering.Wave;
+    using Shared;
     using System;
     using System.Runtime.CompilerServices;
     using System.Threading;
@@ -12,10 +12,10 @@
     /// <summary>
     /// Provides Audio Output capabilities by writing samples to the default audio output device.
     /// </summary>
+    /// <seealso cref="Unosquare.FFME.Shared.IMediaRenderer" />
     /// <seealso cref="Unosquare.FFME.Rendering.Wave.IWaveProvider" />
-    /// <seealso cref="Unosquare.FFME.Rendering.IRenderer" />
     /// <seealso cref="System.IDisposable" />
-    internal sealed class AudioRenderer : IDisposable, IRenderer, IWaveProvider
+    internal sealed class AudioRenderer : IDisposable, IMediaRenderer, IWaveProvider
     {
         #region Private Members
 
@@ -33,9 +33,9 @@
         private double RightVolume = 1.0d;
 
         private WaveFormat m_Format = null;
-        private AtomicDouble m_Volume = new AtomicDouble { Value = Constants.DefaultVolume };
-        private AtomicDouble m_Balance = new AtomicDouble { Value = Constants.DefaultBalance };
-        private AtomicBoolean m_IsMuted = new AtomicBoolean();
+        private AtomicDouble m_Volume = new AtomicDouble(Constants.DefaultVolume);
+        private AtomicDouble m_Balance = new AtomicDouble(Constants.DefaultBalance);
+        private AtomicBoolean m_IsMuted = new AtomicBoolean(false);
 
         private int BytesPerSample = 2;
         private double SyncThesholdMilliseconds = 0d;
@@ -48,10 +48,10 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="AudioRenderer"/> class.
         /// </summary>
-        /// <param name="mediaElementCore">The core media element.</param>
-        public AudioRenderer(MediaElementCore mediaElementCore)
+        /// <param name="mediaEngine">The core media element.</param>
+        public AudioRenderer(MediaEngine mediaEngine)
         {
-            MediaElementCore = mediaElementCore;
+            MediaCore = mediaEngine;
 
             m_Format = new WaveFormat(AudioParams.Output.SampleRate, AudioParams.OutputBitsPerSample, AudioParams.Output.ChannelCount);
             if (WaveFormat.BitsPerSample != 16 || WaveFormat.Channels != 2)
@@ -81,12 +81,12 @@
         /// <summary>
         /// Gets the parent media element (platform specific).
         /// </summary>
-        public MediaElement MediaElement => MediaElementCore?.Parent as MediaElement;
+        public MediaElement MediaElement => MediaCore?.Parent as MediaElement;
 
         /// <summary>
         /// Gets the core platform independent player component.
         /// </summary>
-        public MediaElementCore MediaElementCore { get; }
+        public MediaEngine MediaCore { get; }
 
         /// <summary>
         /// Gets or sets the volume.
@@ -146,7 +146,7 @@
             {
                 // The delay is the clock position minus the current position
                 lock (SyncLock)
-                    return TimeSpan.FromTicks(MediaElementCore.Clock.Position.Ticks - Position.Ticks);
+                    return TimeSpan.FromTicks(MediaCore.Clock.Position.Ticks - Position.Ticks);
             }
         }
 
@@ -202,14 +202,14 @@
             if (MediaElement.IsSeeking) return;
 
             // Update the speedratio
-            SpeedRatio = MediaElementCore?.Clock?.SpeedRatio ?? 0d;
+            SpeedRatio = MediaCore?.Clock?.SpeedRatio ?? 0d;
 
             if (AudioBuffer == null) return;
 
             var block = mediaBlock as AudioBlock;
             if (block == null) return;
 
-            var audioBlocks = MediaElementCore.Blocks[MediaType.Audio];
+            var audioBlocks = MediaCore.Blocks[MediaType.Audio];
             var audioBlock = mediaBlock as AudioBlock;
 
             while (audioBlock != null)
@@ -419,7 +419,7 @@
             BytesPerSample = WaveFormat.BitsPerSample / 8;
             SampleBlockSize = BytesPerSample * WaveFormat.Channels;
 
-            var bufferLength = WaveFormat.ConvertLatencyToByteSize(AudioDevice.DesiredLatency) * MediaElementCore.Blocks[MediaType.Audio].Capacity / 2;
+            var bufferLength = WaveFormat.ConvertLatencyToByteSize(AudioDevice.DesiredLatency) * MediaCore.Blocks[MediaType.Audio].Capacity / 2;
             AudioBuffer = new CircularBuffer(bufferLength);
             AudioDevice.Init(this);
             AudioDevice.Play();
@@ -488,7 +488,7 @@
             {
                 // a positive audio latency means we are rendering audio behind (after) the clock (skip some samples)
                 // and therefore we need to advance the buffer before we read from it.
-                MediaElementCore.Container?.Logger?.Log(MediaLogMessageType.Warning,
+                MediaCore.Container?.Logger?.Log(MediaLogMessageType.Warning,
                     $"SYNC AUDIO: LATENCY: {audioLatency.Format()} | SKIP (samples being rendered too late)");
 
                 // skip some samples from the buffer.
@@ -510,7 +510,7 @@
                 {
                     // a negative audio latency means we are rendering audio ahead (before) the clock
                     // and therefore we need to render some silence until the clock catches up
-                    MediaElementCore.Container?.Logger?.Log(MediaLogMessageType.Warning,
+                    MediaCore.Container?.Logger?.Log(MediaLogMessageType.Warning,
                         $"SYNC AUDIO: LATENCY: {audioLatency.Format()} | WAIT (samples being rendered too early)");
 
                     // render silence for the wait time and return

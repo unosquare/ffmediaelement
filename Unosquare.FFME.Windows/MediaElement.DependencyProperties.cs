@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME
 {
     using Core;
+    using Shared;
     using Rendering;
     using System;
     using System.ComponentModel;
@@ -371,7 +372,7 @@
             var element = d as MediaElement;
             if (element == null) return;
 
-            element.MediaCore.UnloadedBehavior = (CoreMediaState)(MediaState)e.NewValue;
+            element.MediaCore.UnloadedBehavior = (MediaEngineState)(MediaState)e.NewValue;
         }
 
         private static void LoadedBehaviorPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -379,7 +380,7 @@
             var element = d as MediaElement;
             if (element == null) return;
 
-            element.MediaCore.LoadedBehavior = (CoreMediaState)(MediaState)e.NewValue;
+            element.MediaCore.LoadedBehavior = (MediaEngineState)(MediaState)e.NewValue;
         }
 
         private static void PositionPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

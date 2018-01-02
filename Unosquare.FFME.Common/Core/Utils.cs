@@ -2,6 +2,7 @@
 {
     using Decoding;
     using FFmpeg.AutoGen;
+    using Shared;
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
@@ -28,7 +29,7 @@
         private static readonly IDispatcherTimer LogOutputter = null;
         private static readonly object LogSyncLock = new object();
         private static readonly List<string> FFmpegLogBuffer = new List<string>();
-        private static readonly ConcurrentQueue<MediaLogMessagEventArgs> LogQueue = new ConcurrentQueue<MediaLogMessagEventArgs>();
+        private static readonly ConcurrentQueue<MediaLogMessage> LogQueue = new ConcurrentQueue<MediaLogMessage>();
 
         private static readonly unsafe av_lockmgr_register_cb FFmpegLockManagerCallback = FFmpegManageLocking;
         private static readonly Dictionary<IntPtr, ManualResetEvent> FFmpegOpDone = new Dictionary<IntPtr, ManualResetEvent>();
@@ -46,7 +47,7 @@
         /// </summary>
         static Utils()
         {
-            LogOutputter = MediaElementCore.Platform.CreateTimer(CoreDispatcherPriority.Background);
+            LogOutputter = MediaEngine.Platform.CreateTimer(ActionPriority.Background);
             LogOutputter.Interval = Constants.LogOutputterUpdateInterval;
             LogOutputter.Tick += LogOutputter_Tick;
             LogOutputter.IsEnabled = true;
@@ -259,7 +260,7 @@
                         throw new FileNotFoundException($"Unable to load minimum set of FFmpeg binaries from folder '{ffmpegPath}'. File '{fileName}' is missing");
                 }
 
-                MediaElementCore.Platform.SetDllDirectory(ffmpegPath);
+                MediaEngine.Platform.SetDllDirectory(ffmpegPath);
 
                 if ((RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && File.Exists(Path.Combine(ffmpegPath, Constants.DllAVDevice))) ||
                     (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && File.Exists(Path.Combine(ffmpegPath, Constants.DllAVDevice_macOS))))
@@ -323,7 +324,7 @@
         internal static void Log(object sender, MediaLogMessageType messageType, string message)
         {
             if (sender == null) throw new ArgumentNullException(nameof(sender));
-            var eventArgs = new MediaLogMessagEventArgs(sender as MediaElementCore, messageType, message);
+            var eventArgs = new MediaLogMessage(sender as MediaEngine, messageType, message);
             LogQueue.Enqueue(eventArgs);
         }
 
@@ -335,7 +336,7 @@
         /// <param name="block">The block.</param>
         /// <param name="clockPosition">The clock position.</param>
         /// <param name="renderIndex">Index of the render.</param>
-        internal static void LogRenderBlock(this MediaElementCore element, MediaBlock block, TimeSpan clockPosition, int renderIndex)
+        internal static void LogRenderBlock(this MediaEngine element, MediaBlock block, TimeSpan clockPosition, int renderIndex)
         {
             if (IsInDebugMode == false) return;
 
@@ -482,12 +483,12 @@
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private static void LogOutputter_Tick(object sender, EventArgs e)
         {
-            while (LogQueue.TryDequeue(out MediaLogMessagEventArgs eventArgs))
+            while (LogQueue.TryDequeue(out MediaLogMessage eventArgs))
             {
                 if (eventArgs.Source != null)
                     eventArgs.Source.RaiseMessageLogged(eventArgs);
                 else
-                    MediaElementCore.Platform?.OnFFmpegMessageLogged(typeof(MediaElementCore), eventArgs);
+                    MediaEngine.Platform?.OnFFmpegMessageLogged(typeof(MediaEngine), eventArgs);
             }
         }
 
@@ -570,7 +571,7 @@
                     line = string.Join(string.Empty, FFmpegLogBuffer);
                     line = line.TrimEnd();
                     FFmpegLogBuffer.Clear();
-                    Utils.Log(typeof(MediaElementCore), messageType, line);
+                    Utils.Log(typeof(MediaEngine), messageType, line);
                 }
             }
         }

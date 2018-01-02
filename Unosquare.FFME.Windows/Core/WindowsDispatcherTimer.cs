@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Core
 {
+    using Shared;
     using System.Windows.Threading;
 
     /// <summary>

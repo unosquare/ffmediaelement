@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME.Commands
 {
-    using Core;
+    using Shared;
     using System;
 
     /// <summary>
@@ -34,7 +34,7 @@
             foreach (var renderer in m.Renderers.Values)
                 renderer.Stop();
 
-            m.MediaState = CoreMediaState.Stop;
+            m.MediaState = MediaEngineState.Stop;
         }
     }
 }

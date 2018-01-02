@@ -2,6 +2,7 @@
 {
     using Core;
     using System.Text;
+    using Shared;
 
     /// <summary>
     /// Implements the logic to close a media stream.
@@ -10,7 +11,7 @@
     internal sealed class CloseCommand : MediaCommand
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="CloseCommand"/> class.
+        /// Initializes a new instance of the <see cref="CloseCommand" /> class.
         /// </summary>
         /// <param name="manager">The media element.</param>
         public CloseCommand(MediaCommandManager manager)
@@ -76,11 +77,11 @@
 
             // Clear the render times
             m.LastRenderTime.Clear();
-            m.MediaState = CoreMediaState.Close;
+            m.MediaState = MediaEngineState.Close;
             m.RaiseMediaClosedEvent();
 
             // Update notification properties
-            MediaElementCore.Platform.UIInvoke(CoreDispatcherPriority.DataBind, () =>
+            MediaEngine.Platform.UIInvoke(ActionPriority.DataBind, () =>
             {
                 m.ResetDependencyProperies();
                 m.NotifyPropertyChanges();

@@ -2,6 +2,7 @@
 {
     using Config;
     using FFmpeg.AutoGen;
+    using Shared;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -905,8 +906,8 @@
         /// Handles the MessageLogged event of the Media control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="MediaLogMessagEventArgs"/> instance containing the event data.</param>
-        private void Media_MessageLogged(object sender, MediaLogMessagEventArgs e)
+        /// <param name="e">The <see cref="MediaLogMessageEventArgs" /> instance containing the event data.</param>
+        private void Media_MessageLogged(object sender, MediaLogMessageEventArgs e)
         {
             if (e.MessageType == MediaLogMessageType.Trace) return;
             Debug.WriteLine($"{e.MessageType,10} - {e.Message}");
@@ -916,8 +917,8 @@
         /// Handles the FFmpegMessageLogged event of the MediaElement control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="MediaLogMessagEventArgs"/> instance containing the event data.</param>
-        private void MediaElement_FFmpegMessageLogged(object sender, MediaLogMessagEventArgs e)
+        /// <param name="e">The <see cref="MediaLogMessageEventArgs"/> instance containing the event data.</param>
+        private void MediaElement_FFmpegMessageLogged(object sender, MediaLogMessageEventArgs e)
         {
             if (e.Message.Contains("] Reinit context to ")
                 || e.Message.Contains("Using non-standard frame rate"))
@@ -975,6 +976,19 @@
         /// <param name="e">The <see cref="MediaOpeningRoutedEventArgs"/> instance containing the event data.</param>
         private void Media_MediaOpening(object sender, MediaOpeningRoutedEventArgs e)
         {
+            // An example of injecting format options for http/https streams
+            if (e.Info.InputUrl.StartsWith("http://") || e.Info.InputUrl.StartsWith("https://"))
+            {
+                e.Options.FormatOptions["usetoc"] = "1";
+                e.Options.FormatOptions["user_agent"] = $"{typeof(MediaOptions).Namespace}/{typeof(MediaOptions).Assembly.GetName().Version}";
+                e.Options.FormatOptions["headers"] = $"Referer:https://www.unosquare.com";
+                e.Options.FormatOptions["multiple_requests"] = "1";
+                e.Options.FormatOptions["reconnect"] = "1";
+                e.Options.FormatOptions["reconnect_at_eof"] = "1";
+                e.Options.FormatOptions["reconnect_streamed"] = "1";
+                e.Options.FormatOptions["reconnect_delay_max"] = "10"; // in seconds
+            }
+
             // An example of switching to a different stream
             if (e.Info.InputUrl.EndsWith("matroska.mkv"))
             {

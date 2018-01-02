@@ -2,6 +2,7 @@
 {
     using Commands;
     using Core;
+    using Shared;
     using System;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
@@ -12,7 +13,7 @@
     /// </summary>
     /// <seealso cref="System.IDisposable" />
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
-    public partial class MediaElementCore : IDisposable
+    public partial class MediaEngine : IDisposable
     {
         #region Fields and Property Backing
 
@@ -46,28 +47,28 @@
         /// be set to true. This is useful to detect if the user is setting the position
         /// or if the Position property is being driven from within
         /// </summary>
-        private AtomicBoolean m_IsPositionUpdating = new AtomicBoolean();
+        private AtomicBoolean m_IsPositionUpdating = new AtomicBoolean(false);
 
         /// <summary>
         /// Flag when disposing process start but not finished yet
         /// </summary>
-        private AtomicBoolean m_IsDisposing = new AtomicBoolean();
+        private AtomicBoolean m_IsDisposing = new AtomicBoolean(false);
 
         #endregion
 
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MediaElementCore" /> class.
+        /// Initializes a new instance of the <see cref="MediaEngine" /> class.
         /// </summary>
         /// <param name="parent">The parent.</param>
         /// <param name="isInDesignTime">if set to <c>true</c> [is in design time].</param>
         /// <param name="connector">The connector.</param>
         /// <exception cref="InvalidOperationException">Thrown when the static Initialize method has not been called.</exception>
-        internal MediaElementCore(object parent, bool isInDesignTime, IEventConnector connector)
+        internal MediaEngine(object parent, bool isInDesignTime, IMediaEventConnector connector)
         {
             Parent = parent;
-            Logger = new GenericMediaLogger<MediaElementCore>(this);
+            Logger = new GenericMediaLogger<MediaEngine>(this);
             Commands = new MediaCommandManager(this);
             Connector = connector;
 
@@ -80,13 +81,13 @@
                 if (IsIntialized == false)
                 {
                     throw new InvalidOperationException(
-                        $"{nameof(MediaElementCore)} not initialized. Call the static method {nameof(Initialize)}");
+                        $"{nameof(MediaEngine)} not initialized. Call the static method {nameof(Initialize)}");
                 }
             }
 
             // The UI Property update timer is responsible for timely updates to properties outside of the worker threads
             // We use the loaded priority because it is the priority right below the Render one.
-            UIPropertyUpdateTimer = Platform.CreateTimer(CoreDispatcherPriority.Loaded);
+            UIPropertyUpdateTimer = Platform.CreateTimer(ActionPriority.Loaded);
             UIPropertyUpdateTimer.Interval = Constants.UIPropertyUpdateInterval;
 
             // The tick callback performs the updates
@@ -165,12 +166,12 @@
         /// <summary>
         /// Gets the platform-specific callbacks.
         /// </summary>
-        internal static IPlatform Platform { get; private set; }
+        internal static IPlatformConnector Platform { get; private set; }
 
         /// <summary>
         /// Gets whether FFmpeg is logged or not
         /// </summary>
-        internal static AtomicBoolean IsFFmpegLoaded { get; } = new AtomicBoolean();
+        internal static AtomicBoolean IsFFmpegLoaded { get; } = new AtomicBoolean(false);
 
         /// <summary>
         /// The logger
@@ -180,7 +181,7 @@
         /// <summary>
         /// Gets the event connector (platform specific).
         /// </summary>
-        internal IEventConnector Connector { get; }
+        internal IMediaEventConnector Connector { get; }
 
         /// <summary>
         /// When position is being set from within this control, this field will
@@ -209,7 +210,7 @@
         /// Initializes the MedieElementCore.
         /// </summary>
         /// <param name="platform">The platform-specific implementation.</param>
-        internal static void Initialize(IPlatform platform)
+        internal static void Initialize(IPlatformConnector platform)
         {
             lock (InitLock)
             {
@@ -236,7 +237,7 @@
 
             IsPositionUpdating = true;
             Platform.UIEnqueueInvoke(
-                CoreDispatcherPriority.DataBind,
+                ActionPriority.DataBind,
                 (Action<TimeSpan>)((v) =>
                 {
                     if (Position != v)
@@ -284,7 +285,7 @@
         /// that support <see cref="CallerMemberNameAttribute"/>.</param>
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            Platform.UIInvoke(CoreDispatcherPriority.DataBind, () =>
+            Platform.UIInvoke(ActionPriority.DataBind, () =>
             {
                 Connector?.OnPropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             });

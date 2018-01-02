@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Rendering.Wave
 {
+    using Shared;
     using System;
     using System.Runtime.InteropServices;
     using System.Threading;

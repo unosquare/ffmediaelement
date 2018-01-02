@@ -16,7 +16,7 @@
         /// </summary>
         public AtomicLong()
         {
-            Value = 0;
+            Value = default(long);
         }
 
         /// <summary>

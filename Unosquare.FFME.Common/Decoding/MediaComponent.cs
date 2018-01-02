@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
     using Core;
+    using Shared;
     using FFmpeg.AutoGen;
     using System;
     using System.Collections.Generic;

@@ -1,14 +1,15 @@
 ﻿namespace Unosquare.FFME
 {
     using Core;
+    using Shared;
     using System;
 
-    public partial class MediaElementCore
+    public partial class MediaEngine
     {
         private Uri source = null;
-        private CoreMediaState loadedBehavior = CoreMediaState.Play;
+        private MediaEngineState loadedBehavior = MediaEngineState.Play;
         private double speedRatio = Constants.DefaultSpeedRatio;
-        private CoreMediaState unloadedBehavior = CoreMediaState.Close;
+        private MediaEngineState unloadedBehavior = MediaEngineState.Close;
         private double volume = Constants.DefaultVolume;
         private double balance = Constants.DefaultBalance;
         private bool isMuted = false;
@@ -35,7 +36,7 @@
         /// to be playing the media. If a source is set and a loaded behavior is
         /// also set, then the loaded behavior takes control.
         /// </summary>
-        public CoreMediaState LoadedBehavior
+        public MediaEngineState LoadedBehavior
         {
             get => loadedBehavior;
             set => SetProperty(ref loadedBehavior, value);
@@ -54,7 +55,7 @@
         /// Specifies how the underlying media should behave when 
         /// it has ended. The default behavior is to Close the media.
         /// </summary> 
-        public CoreMediaState UnloadedBehavior
+        public MediaEngineState UnloadedBehavior
         {
             get => unloadedBehavior;
             set => SetProperty(ref unloadedBehavior, value);

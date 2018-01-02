@@ -93,8 +93,9 @@
     <Compile Include="Core\WindowsEventConnector.cs" />
     <Compile Include="Core\WindowsDispatcherTimer.cs" />
     <Compile Include="Core\WindowsNativeMethods.cs" />
-    <Compile Include="Core\WindowsPlatform.cs" />
+    <Compile Include="Core\WindowsPlatformConnector.cs" />
     <Compile Include="MediaElement.RenderEvents.cs" />
+    <Compile Include="MediaLogMessageEventArgs.cs" />
     <Compile Include="PositionChangedRoutedEventArgs.cs" />
     <Compile Include="Rendering\SoundTouch.cs" />
     <Compile Include="Rendering\Wave\IWaveProvider.cs" />

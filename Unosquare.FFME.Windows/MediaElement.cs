@@ -1,10 +1,9 @@
 ﻿namespace Unosquare.FFME
 {
     using Core;
-    using Rendering;
+    using Shared;
     using System;
     using System.ComponentModel;
-    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Windows;
     using System.Windows.Controls;
@@ -12,7 +11,6 @@
     using System.Windows.Interop;
     using System.Windows.Markup;
     using System.Windows.Media.Imaging;
-    using System.Windows.Threading;
 
     /// <summary>
     /// Represents a control that contains audio and/or video.
@@ -48,7 +46,7 @@
         /// </summary>
         private Uri m_BaseUri = null;
 
-        private MediaElementCore m_MediaCore;
+        private MediaEngine m_MediaCore;
 
         #endregion
 
@@ -65,7 +63,7 @@
             StyleProperty.OverrideMetadata(typeof(MediaElement), new FrameworkPropertyMetadata(style));
 
             // Initialize the core
-            MediaElementCore.Initialize(WindowsPlatform.Default);
+            MediaEngine.Initialize(WindowsPlatformConnector.Default);
         }
 
         /// <summary>
@@ -82,7 +80,7 @@
             Stretch = ViewBox.Stretch;
             StretchDirection = ViewBox.StretchDirection;
             Logger = new GenericMediaLogger<MediaElement>(this);
-            MediaCore = new MediaElementCore(this, WindowsGui.IsInDesignTime, new WindowsEventConnector(this));
+            MediaCore = new MediaEngine(this, WindowsGui.IsInDesignTime, new WindowsEventConnector(this));
 
             if (WindowsGui.IsInDesignTime)
             {
@@ -106,13 +104,13 @@
         /// Occurs when a logging message from the FFmpeg library has been received.
         /// This is shared across all instances of Media Elements
         /// </summary>
-        public static event EventHandler<MediaLogMessagEventArgs> FFmpegMessageLogged;
+        public static event EventHandler<MediaLogMessageEventArgs> FFmpegMessageLogged;
 
         /// <summary>
         /// Occurs when a logging message has been logged.
         /// This does not include FFmpeg messages.
         /// </summary>
-        public event EventHandler<MediaLogMessagEventArgs> MessageLogged;
+        public event EventHandler<MediaLogMessageEventArgs> MessageLogged;
 
         /// <summary>
         /// Multicast event for property change notifications.
@@ -130,8 +128,8 @@
         /// </summary>
         public static string FFmpegDirectory
         {
-            get => MediaElementCore.FFmpegDirectory;
-            set => MediaElementCore.FFmpegDirectory = value;
+            get => MediaEngine.FFmpegDirectory;
+            set => MediaEngine.FFmpegDirectory = value;
         }
 
         /// <summary>
@@ -160,7 +158,7 @@
         /// <summary>
         /// Common player part we are wrapping in this control.
         /// </summary>
-        internal MediaElementCore MediaCore
+        internal MediaEngine MediaCore
         {
             get { return m_MediaCore; }
             private set { m_MediaCore = value; }

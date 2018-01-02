@@ -1,21 +1,19 @@
-﻿namespace Unosquare.FFME
+﻿namespace Unosquare.FFME.Shared
 {
     using System;
 
     /// <summary>
-    /// Represents the contents of alogging message that was sent to the log manager.
+    /// Represents the contents of a logging message that was sent to the log manager.
     /// </summary>
-    /// <seealso cref="System.EventArgs" />
-    public class MediaLogMessagEventArgs : EventArgs
+    public class MediaLogMessage
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="MediaLogMessagEventArgs" /> class.
+        /// Initializes a new instance of the <see cref="MediaLogMessage" /> class.
         /// </summary>
         /// <param name="mediaElement">The media element.</param>
         /// <param name="messageType">Type of the message.</param>
         /// <param name="message">The message.</param>
-        public MediaLogMessagEventArgs(MediaElementCore mediaElement, MediaLogMessageType messageType, string message)
-            : base()
+        public MediaLogMessage(MediaEngine mediaElement, MediaLogMessageType messageType, string message)
         {
             MessageType = messageType;
             Message = message;
@@ -27,7 +25,7 @@
         /// Gets the intance of the MediaElement that generated this message.
         /// When null, it means FFmpeg generated this message.
         /// </summary>
-        public MediaElementCore Source { get; }
+        public MediaEngine Source { get; }
 
         /// <summary>
         /// Gets the timestamp.

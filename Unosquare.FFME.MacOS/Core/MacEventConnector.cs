@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Text;
-
-namespace Unosquare.FFME.MacOS.Core
+﻿namespace Unosquare.FFME.MacOS.Core
 {
-    internal class MacEventConnector : IEventConnector
+    using System;
+    using System.ComponentModel;
+    using Unosquare.FFME.Shared;
+
+    internal class MacEventConnector : IMediaEventConnector
     {
         private MediaElement Control = null;
 
@@ -14,48 +13,48 @@ namespace Unosquare.FFME.MacOS.Core
             Control = control;
         }
 
-        public void OnBufferingEnded(object sender, EventArgs e)
+        public void OnBufferingEnded(object sender)
         {
             // placeholder
         }
 
-        public void OnBufferingStarted(object sender, EventArgs e)
+        public void OnBufferingStarted(object sender)
         {
             // placeholder
         }
 
-        public void OnMediaClosed(object sender, EventArgs e)
+        public void OnMediaClosed(object sender)
         {
             // placeholder
         }
 
-        public void OnMediaEnded(object sender, EventArgs e)
+        public void OnMediaEnded(object sender)
         {
             // placeholder
         }
 
-        public void OnMediaFailed(object sender, ExceptionEventArgs e)
+        public void OnMediaFailed(object sender, Exception e)
         {
             // placeholder
         }
 
-        public void OnMediaOpened(object sender, EventArgs e)
+        public void OnMediaOpened(object sender)
         {
             // placeholder
         }
 
-        public void OnMediaOpening(object sender, MediaOpeningEventArgs e)
+        public void OnMediaOpening(object sender, MediaOptions mediaOptions, MediaInfo mediaInfo)
         {
             // placeholder
         }
 
-        public void OnMessageLogged(object sender, MediaLogMessagEventArgs e)
+        public void OnMessageLogged(object sender, MediaLogMessage e)
         {
             if (e.MessageType == MediaLogMessageType.Trace) return;
             Console.WriteLine($"{e.MessageType,10} - {e.Message}");
         }
 
-        public void OnPositionChanged(object sender, PositionChangedEventArgs e)
+        public void OnPositionChanged(object sender, TimeSpan position)
         {
             // placeholder
         }
@@ -65,12 +64,12 @@ namespace Unosquare.FFME.MacOS.Core
             // placeholder
         }
 
-        public void OnSeekingEnded(object sender, EventArgs e)
+        public void OnSeekingEnded(object sender)
         {
             // placeholder
         }
 
-        public void OnSeekingStarted(object sender, EventArgs e)
+        public void OnSeekingStarted(object sender)
         {
             // placeholder
         }
