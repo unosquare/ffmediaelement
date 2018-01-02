@@ -7,9 +7,8 @@
     using System.Runtime.CompilerServices;
 
     /// <summary>
-    /// Represents a control that contains audio and/or video.
-    /// In contrast with System.Windows.Controls.MediaElement, this version uses
-    /// the FFmpeg library to perform reading and decoding of media streams.
+    /// Represents a Media Engine that contains underlying streams of audio and/or video.
+    /// It the FFmpeg library to perform reading and decoding of media streams.
     /// </summary>
     /// <seealso cref="System.IDisposable" />
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
@@ -35,7 +34,7 @@
         /// <summary>
         /// To detect redundant calls
         /// </summary>
-        private bool m_IsDisposed = false;
+        private bool m_IsDisposed = default(bool);
 
         /// <summary>
         /// The position update timer
