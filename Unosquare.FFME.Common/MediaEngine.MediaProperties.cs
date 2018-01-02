@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME
 {
-    using Core;
+    using Primitives;
     using Shared;
     using System;
     using System.Collections.Generic;
@@ -179,6 +179,17 @@
         /// This is only valid after the MediaOpened event has fired.
         /// </summary>
         public bool IsLiveStream => IsOpen ? Container.IsStreamRealtime && Container.MediaDuration == TimeSpan.MinValue : false;
+
+        /// <summary>
+        /// When position is being set from within this control, this field will
+        /// be set to true. This is useful to detect if the user is setting the position
+        /// or if the Position property is being driven from within
+        /// </summary>
+        public bool IsPositionUpdating
+        {
+            get => m_IsPositionUpdating.Value;
+            set => m_IsPositionUpdating.Value = value;
+        }
 
         /// <summary>
         /// Gets a value indicating whether the currently loaded media can be seeked.
@@ -369,9 +380,9 @@
         /// </summary>
         internal void ResetDependencyProperies()
         {
-            Volume = Constants.DefaultVolume;
-            Balance = Constants.DefaultBalance;
-            SpeedRatio = Constants.DefaultSpeedRatio;
+            Volume = Defaults.DefaultVolume;
+            Balance = Defaults.DefaultBalance;
+            SpeedRatio = Defaults.DefaultSpeedRatio;
             IsMuted = false;
             DownloadProgress = 0;
             BufferingProgress = 0;

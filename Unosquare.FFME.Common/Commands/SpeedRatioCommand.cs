@@ -23,7 +23,7 @@
         /// <summary>
         /// The target speed ratio
         /// </summary>
-        public double SpeedRatio { get; set; } = Constants.DefaultSpeedRatio;
+        public double SpeedRatio { get; set; } = Defaults.DefaultSpeedRatio;
 
         /// <summary>
         /// Performs the actions that this command implements.

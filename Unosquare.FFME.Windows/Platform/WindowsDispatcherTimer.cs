@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.Core
+﻿namespace Unosquare.FFME.Platform
 {
     using Shared;
     using System.Windows.Threading;

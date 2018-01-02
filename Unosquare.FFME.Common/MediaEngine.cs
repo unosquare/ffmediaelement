@@ -2,6 +2,7 @@
 {
     using Commands;
     using Core;
+    using Primitives;
     using Shared;
     using System;
     using System.ComponentModel;
@@ -65,7 +66,7 @@
         /// <param name="isInDesignTime">if set to <c>true</c> [is in design time].</param>
         /// <param name="connector">The connector.</param>
         /// <exception cref="InvalidOperationException">Thrown when the static Initialize method has not been called.</exception>
-        internal MediaEngine(object parent, bool isInDesignTime, IMediaEventConnector connector)
+        public MediaEngine(object parent, bool isInDesignTime, IMediaEventConnector connector)
         {
             Parent = parent;
             Logger = new GenericMediaLogger<MediaEngine>(this);
@@ -183,34 +184,15 @@
         /// </summary>
         internal IMediaEventConnector Connector { get; }
 
-        /// <summary>
-        /// When position is being set from within this control, this field will
-        /// be set to true. This is useful to detect if the user is setting the position
-        /// or if the Position property is being driven from within
-        /// </summary>
-        internal bool IsPositionUpdating
-        {
-            get => m_IsPositionUpdating.Value;
-            set => m_IsPositionUpdating.Value = value;
-        }
-
         #endregion
 
         #region Methods
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-        }
-
-        /// <summary>
         /// Initializes the MedieElementCore.
         /// </summary>
         /// <param name="platform">The platform-specific implementation.</param>
-        internal static void Initialize(IPlatformConnector platform)
+        public static void Initialize(IPlatformConnector platform)
         {
             lock (InitLock)
             {
@@ -220,6 +202,24 @@
                 Platform = platform;
                 IsIntialized = true;
             }
+        }
+
+        /// <summary>
+        /// Retrieves the registered renderer for the given media type.
+        /// </summary>
+        /// <param name="mediaType">Type of the media.</param>
+        /// <returns>The media renderer</returns>
+        public IMediaRenderer RetrieveRenderer(MediaType mediaType)
+        {
+            return Renderers[mediaType];
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
         }
 
         /// <summary>

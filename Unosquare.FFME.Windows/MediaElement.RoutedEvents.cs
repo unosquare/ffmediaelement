@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME
 {
     using Core;
+    using Platform;
     using Shared;
     using System;
     using System.ComponentModel;
@@ -276,8 +277,10 @@
         /// <summary>
         /// Raises the media opening event.
         /// </summary>
+        /// <param name="mediaOptions">The media options.</param>
+        /// <param name="mediaInfo">The media information.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseMediaOpeningEvent()
+        internal void RaiseMediaOpeningEvent(MediaOptions mediaOptions, MediaInfo mediaInfo)
         {
             LogEventStart(MediaOpeningEvent);
             WindowsGui.UIInvoke(DispatcherPriority.DataBind, () =>
@@ -285,8 +288,8 @@
                 RaiseEvent(new MediaOpeningRoutedEventArgs(
                     MediaOpeningEvent, 
                     this, 
-                    MediaCore.Container.MediaOptions, 
-                    MediaCore.Container.MediaInfo));
+                    mediaOptions, 
+                    mediaInfo));
             });
 
             LogEventDone(MediaOpeningEvent);

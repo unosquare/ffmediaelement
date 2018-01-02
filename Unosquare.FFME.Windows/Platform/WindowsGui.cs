@@ -1,6 +1,7 @@
-﻿namespace Unosquare.FFME.Core
+﻿namespace Unosquare.FFME.Platform
 {
     using Shared;
+    using Core;
     using Rendering;
     using System;
     using System.ComponentModel;

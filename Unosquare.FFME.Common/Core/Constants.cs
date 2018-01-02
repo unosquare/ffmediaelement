@@ -16,19 +16,6 @@
         public const string CodecOptionRefCountedFrames = "refcounted_frames";
         public const string CodecOptionLowRes = "lowres";
 
-        public const double DefaultSpeedRatio = 1.0d;
-        public const double DefaultBalance = 0.0d;
-        public const double DefaultVolume = 1.0d;
-
-        public const double MinSpeedRatio = 0.0d;
-        public const double MaxSpeedRatio = 8.0d;
-
-        public const double MinBalance = -1.0d;
-        public const double MaxBalance = 1.0d;
-
-        public const double MaxVolume = 1.0d;
-        public const double MinVolume = 0.0d;
-
         // TODO: provide platform-specific injector
         public const string DllAVCodec = "avcodec-57.dll";
         public const string DllAVFilter = "avfilter-6.dll";

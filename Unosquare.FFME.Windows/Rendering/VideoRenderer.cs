@@ -1,6 +1,8 @@
 ﻿namespace Unosquare.FFME.Rendering
 {
     using Core;
+    using Platform;
+    using Primitives;
     using Shared;
     using System;
     using System.Runtime.CompilerServices;

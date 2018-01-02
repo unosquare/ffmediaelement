@@ -5,8 +5,8 @@
     using Shared;
     using System;
     using System.Runtime.InteropServices;
-    using Unosquare.FFME.Core;
-    using Unosquare.FFME.MacOS.Core;
+    using Unosquare.FFME.Primitives;
+    using Unosquare.FFME.MacOS.Platform;
 
     /// <summary>
     /// Provides Video Image Rendering via NSImage.

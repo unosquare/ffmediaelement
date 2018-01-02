@@ -1,6 +1,8 @@
 ﻿namespace Unosquare.FFME.Rendering
 {
     using Core;
+    using Primitives;
+    using Platform;
     using Rendering.Wave;
     using Shared;
     using System;
@@ -33,8 +35,8 @@
         private double RightVolume = 1.0d;
 
         private WaveFormat m_Format = null;
-        private AtomicDouble m_Volume = new AtomicDouble(Constants.DefaultVolume);
-        private AtomicDouble m_Balance = new AtomicDouble(Constants.DefaultBalance);
+        private AtomicDouble m_Volume = new AtomicDouble(Defaults.DefaultVolume);
+        private AtomicDouble m_Balance = new AtomicDouble(Defaults.DefaultBalance);
         private AtomicBoolean m_IsMuted = new AtomicBoolean(false);
 
         private int BytesPerSample = 2;
@@ -335,8 +337,8 @@
                     }
 
                     // Ensure a preallocated ReadBuffer
-                    if (ReadBuffer == null || ReadBuffer.Length < (int)(requestedBytes * Constants.MaxSpeedRatio))
-                        ReadBuffer = new byte[(int)(requestedBytes * Constants.MaxSpeedRatio)];
+                    if (ReadBuffer == null || ReadBuffer.Length < (int)(requestedBytes * Defaults.MaxSpeedRatio))
+                        ReadBuffer = new byte[(int)(requestedBytes * Defaults.MaxSpeedRatio)];
 
                     // Perform AV Synchronization if needed
                     if (MediaElement.HasVideo && Synchronize(targetBuffer, targetBufferOffset, requestedBytes) == false)
@@ -652,8 +654,8 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ReadAndUseAudioProcessor(int requestedBytes)
         {
-            if (AudioProcessorBuffer == null || AudioProcessorBuffer.Length < (int)(requestedBytes * Constants.MaxSpeedRatio))
-                AudioProcessorBuffer = new short[(int)(requestedBytes * Constants.MaxSpeedRatio / BytesPerSample)];
+            if (AudioProcessorBuffer == null || AudioProcessorBuffer.Length < (int)(requestedBytes * Defaults.MaxSpeedRatio))
+                AudioProcessorBuffer = new short[(int)(requestedBytes * Defaults.MaxSpeedRatio / BytesPerSample)];
 
             var speedRatio = SpeedRatio;
             var bytesToRead = (int)(requestedBytes * speedRatio).ToMultipleOf(SampleBlockSize);

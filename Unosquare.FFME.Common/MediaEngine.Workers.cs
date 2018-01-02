@@ -3,6 +3,7 @@
     using Commands;
     using Core;
     using Decoding;
+    using Primitives;
     using Shared;
     using System;
     using System.Collections.Generic;

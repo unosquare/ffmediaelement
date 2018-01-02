@@ -8,10 +8,10 @@
     {
         private Uri source = null;
         private MediaEngineState loadedBehavior = MediaEngineState.Play;
-        private double speedRatio = Constants.DefaultSpeedRatio;
+        private double speedRatio = Defaults.DefaultSpeedRatio;
         private MediaEngineState unloadedBehavior = MediaEngineState.Close;
-        private double volume = Constants.DefaultVolume;
-        private double balance = Constants.DefaultBalance;
+        private double volume = Defaults.DefaultVolume;
+        private double balance = Defaults.DefaultBalance;
         private bool isMuted = false;
         private bool scrubbingEnabled = true;
         private TimeSpan position = TimeSpan.Zero;

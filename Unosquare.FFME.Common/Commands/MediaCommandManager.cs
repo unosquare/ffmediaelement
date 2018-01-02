@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME.Commands
 {
-    using Core;
+    using Primitives;
     using Shared;
     using System;
     using System.Collections.Generic;

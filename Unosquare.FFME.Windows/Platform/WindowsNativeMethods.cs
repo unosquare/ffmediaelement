@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.Core
+﻿namespace Unosquare.FFME.Platform
 {
     using System;
     using System.Runtime.InteropServices;

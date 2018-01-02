@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME
 {
     using Core;
-    using Shared;
+    using Platform;
     using System;
     using System.ComponentModel;
     using System.Threading.Tasks;

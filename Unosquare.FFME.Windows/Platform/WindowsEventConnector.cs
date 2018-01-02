@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.Core
+﻿namespace Unosquare.FFME.Platform
 {
     using Shared;
     using System;
@@ -45,7 +45,7 @@
 
         public void OnMediaOpening(object sender, MediaOptions mediaOptions, MediaInfo mediaInfo)
         {
-            Control?.RaiseMediaOpeningEvent();
+            Control?.RaiseMediaOpeningEvent(mediaOptions, mediaInfo);
         }
 
         public void OnMessageLogged(object sender, MediaLogMessage e)

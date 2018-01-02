@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.Core
+﻿namespace Unosquare.FFME.Primitives
 {
     using System.Threading;
 
@@ -7,7 +7,7 @@
     /// Idea taken from Memory model and .NET operations in article:
     /// http://igoro.com/archive/volatile-keyword-in-c-memory-model-explained/
     /// </summary>
-    internal sealed class AtomicBoolean
+    public sealed class AtomicBoolean
     {
         private int m_Value = 0;
 

@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.Core
+﻿namespace Unosquare.FFME.Primitives
 {
     using System;
     using System.Runtime.InteropServices;
@@ -9,7 +9,7 @@
     /// the dispose method when you are donde using it.
     /// </summary>
     /// <seealso cref="System.IDisposable" />
-    internal sealed class CircularBuffer : IDisposable
+    public sealed class CircularBuffer : IDisposable
     {
         #region Private State Variables
 

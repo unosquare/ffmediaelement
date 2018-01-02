@@ -70,7 +70,7 @@
                     m.Renderers[t] = MediaEngine.Platform.CreateRenderer(t, Manager.MediaElement);
                 }
 
-                m.Clock.SpeedRatio = Constants.DefaultSpeedRatio;
+                m.Clock.SpeedRatio = Defaults.DefaultSpeedRatio;
                 m.IsTaskCancellationPending = false;
 
                 // Set the initial state of the task cycles.

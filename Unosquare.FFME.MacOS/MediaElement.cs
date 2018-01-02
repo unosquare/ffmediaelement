@@ -3,7 +3,7 @@
     using AppKit;
     using System;
     using System.Threading.Tasks;
-    using Unosquare.FFME.MacOS.Core;
+    using Unosquare.FFME.MacOS.Platform;
 
     public class MediaElement
     {

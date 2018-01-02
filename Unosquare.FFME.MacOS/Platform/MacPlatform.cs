@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.MacOS.Core
+﻿namespace Unosquare.FFME.MacOS.Platform
 {
     using Foundation;
     using Shared;
