@@ -6,6 +6,7 @@
     using CoreGraphics;
     using Unosquare.FFME.Core;
     using Unosquare.FFME.Decoding;
+    using Unosquare.FFME.MacOS.Core;
     using Unosquare.FFME.Rendering;
 
     /// <summary>
@@ -73,7 +74,7 @@
                 //var i = new CGImage(64, 64, 8, 24, 64 * 3, space, CGBitmapFlags.ByteOrderDefault, provider, null, false, CGColorRenderingIntent.Default);
                 var i = new CGImage(width, height, 8, 24, width * 3, space, CGBitmapFlags.ByteOrderDefault, provider, null, false, CGColorRenderingIntent.Default);
                 var nsImage = new NSImage(i, new CGSize(width, height));
-                Platform.UIInvoke(CoreDispatcherPriority.Normal, () =>
+                MacPlatform.Default.UIInvoke(CoreDispatcherPriority.Normal, () =>
                 {
                     ((MediaElementCore.Parent) as MediaElement).ImageView.Image = nsImage;
                 });

@@ -60,6 +60,8 @@
     <Reference Include="Xamarin.Mac" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\MacEventConnector.cs" />
+    <Compile Include="Core\MacPlatform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rendering\AudioRenderer.cs" />
     <Compile Include="Rendering\SubtitleRenderer.cs" />
