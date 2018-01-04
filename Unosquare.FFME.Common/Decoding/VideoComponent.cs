@@ -18,7 +18,7 @@
         /// <summary>
         /// The output pixel format of the scaler: 24-bit BGR
         /// </summary>
-        public const AVPixelFormat OutputPixelFormat = AVPixelFormat.AV_PIX_FMT_BGR24;
+        public const AVPixelFormat OutputPixelFormat = AVPixelFormat.AV_PIX_FMT_BGR0;
 
         #endregion
 

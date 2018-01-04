@@ -472,7 +472,7 @@
                         e.Bitmap.PixelWidth,
                         e.Bitmap.PixelHeight,
                         e.Bitmap.BackBufferStride,
-                        System.Drawing.Imaging.PixelFormat.Format24bppRgb,
+                        System.Drawing.Imaging.PixelFormat.Format32bppRgb,
                         e.Bitmap.BackBuffer);
 
                     overlayBackBuffer = e.Bitmap.BackBuffer;

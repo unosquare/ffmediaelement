@@ -205,7 +205,7 @@
                         block?.PixelHeight ?? MediaElement.NaturalVideoHeight,
                         dpiX,
                         dpiY,
-                        PixelFormats.Bgr24,
+                        PixelFormats.Bgr32,
                         null);
                 }
                 else
