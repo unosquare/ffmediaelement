@@ -7,7 +7,7 @@
 
 ![ffmeplay](https://github.com/unosquare/ffmediaelement/raw/master/ffmeplay.png)
 
-- Current Status: (2017-12-121) - 2.0, codenamed Michelob is now in beta 2 (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
+- Current Status: (2018-01-06) - 2.0, codenamed Michelob is now in beta 7 (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
 - NuGet Package now available: https://www.nuget.org/packages/FFME.Windows/
 - FFmpeg Version: <a href="http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip">3.4.0 (32-bit)</a>
 - For a history of commits see the repo: https://github.com/unosquare/ffplaydotnet
