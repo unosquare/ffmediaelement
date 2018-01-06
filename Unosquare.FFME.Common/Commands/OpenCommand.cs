@@ -3,6 +3,7 @@
     using Core;
     using Decoding;
     using FFmpeg.AutoGen;
+    using Shared;
     using System;
     using System.Threading;
 
@@ -33,42 +34,43 @@
         /// </summary>
         internal override void ExecuteInternal()
         {
-            var m = Manager.MediaElement;
+            var m = Manager.MediaCore;
 
             if (m.IsDisposed || m.IsOpen || m.IsOpening) return;
 
             try
             {
                 // Register FFmpeg if not already done
-                if (MediaElementCore.IsFFmpegLoaded.Value == false)
+                if (MediaEngine.IsFFmpegLoaded.Value == false)
                 {
-                    MediaElementCore.FFmpegDirectory = Utils.RegisterFFmpeg(MediaElementCore.FFmpegDirectory);
-                    m.Logger.Log(MediaLogMessageType.Info, $"INIT FFMPEG: {ffmpeg.av_version_info()}");
+                    MediaEngine.FFmpegDirectory = Utils.RegisterFFmpeg(MediaEngine.FFmpegDirectory);
+                    m.Log(MediaLogMessageType.Info, $"INIT FFMPEG: {ffmpeg.av_version_info()}");
                 }
 
-                Platform.UIInvoke(CoreDispatcherPriority.DataBind, () => { m.ResetDependencyProperies(); });
-                MediaElementCore.IsFFmpegLoaded.Value = true;
+                MediaEngine.Platform.UIInvoke(
+                    ActionPriority.DataBind, () => { m.ResetDependencyProperies(); });
+                MediaEngine.IsFFmpegLoaded.Value = true;
                 m.IsOpening = true;
-                m.MediaState = CoreMediaState.Manual;
+                m.MediaState = MediaEngineState.Manual;
 
                 var mediaUrl = Source.IsFile ? Source.LocalPath : Source.ToString();
 
                 // the async protocol prefix allows for increased performance for local files.
-                m.Container = new MediaContainer(mediaUrl, m.Logger, Source.IsFile ? "async" : null);
+                m.Container = new MediaContainer(mediaUrl, m, Source.IsFile ? "async" : null);
                 m.RaiseMediaOpeningEvent();
-                m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Entered");
+                m.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Entered");
                 m.Container.Open();
 
-                m.MediaState = CoreMediaState.Stop;
+                m.MediaState = MediaEngineState.Stop;
 
                 foreach (var t in m.Container.Components.MediaTypes)
                 {
-                    m.Blocks[t] = new MediaBlockBuffer(MediaElementCore.MaxBlocks[t], t);
+                    m.Blocks[t] = new MediaBlockBuffer(MediaEngine.MaxBlocks[t], t);
                     m.LastRenderTime[t] = TimeSpan.MinValue;
-                    m.Renderers[t] = Platform.CreateRenderer(t, Manager.MediaElement);
+                    m.Renderers[t] = MediaEngine.Platform.CreateRenderer(t, Manager.MediaCore);
                 }
 
-                m.Clock.SpeedRatio = Constants.DefaultSpeedRatio;
+                m.Clock.SpeedRatio = Defaults.DefaultSpeedRatio;
                 m.IsTaskCancellationPending = false;
 
                 // Set the initial state of the task cycles.
@@ -101,14 +103,14 @@
             }
             catch (Exception ex)
             {
-                m.MediaState = CoreMediaState.Close;
+                m.MediaState = MediaEngineState.Close;
                 m.RaiseMediaFailedEvent(ex);
             }
             finally
             {
                 m.IsOpening = false;
-                Platform.UIInvoke(CoreDispatcherPriority.DataBind, () => { m.NotifyPropertyChanges(); });
-                m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Completed");
+                MediaEngine.Platform.UIInvoke(ActionPriority.DataBind, () => { m.NotifyPropertyChanges(); });
+                m.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Completed");
             }
         }
     }

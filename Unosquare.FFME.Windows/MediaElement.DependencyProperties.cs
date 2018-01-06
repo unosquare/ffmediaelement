@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME
 {
-    using Core;
+    using Platform;
+    using Shared;
     using Rendering;
     using System;
     using System.ComponentModel;
@@ -19,7 +20,7 @@
             nameof(Source),
             typeof(Uri),
             typeof(MediaElement),
-            new FrameworkPropertyMetadata(null, WPFUtils.AffectsMeasureAndRender, OnSourcePropertyChanged, OnSourcePropertyCoerce));
+            new FrameworkPropertyMetadata(null, AffectsMeasureAndRender, OnSourcePropertyChanged, OnSourcePropertyCoerce));
 
         /// <summary>
         /// DependencyProperty for Stretch property. 
@@ -28,7 +29,7 @@
             nameof(Stretch),
             typeof(Stretch),
             typeof(MediaElement),
-            new FrameworkPropertyMetadata(Stretch.Uniform, WPFUtils.AffectsMeasureAndRender, OnStretchPropertyChanged));
+            new FrameworkPropertyMetadata(Stretch.Uniform, AffectsMeasureAndRender, OnStretchPropertyChanged));
 
         /// <summary> 
         /// DependencyProperty for StretchDirection property.
@@ -37,7 +38,7 @@
             nameof(StretchDirection),
             typeof(StretchDirection),
             typeof(MediaElement),
-            new FrameworkPropertyMetadata(StretchDirection.Both, WPFUtils.AffectsMeasureAndRender, OnStretchDirectionPropertyChanged));
+            new FrameworkPropertyMetadata(StretchDirection.Both, AffectsMeasureAndRender, OnStretchDirectionPropertyChanged));
 
         /// <summary>
         /// The DependencyProperty for the MediaElement.Balance property. 
@@ -46,7 +47,7 @@
             nameof(Balance),
             typeof(double),
             typeof(MediaElement),
-            new FrameworkPropertyMetadata(Constants.DefaultBalance, FrameworkPropertyMetadataOptions.None, new PropertyChangedCallback(BalancePropertyChanged), new CoerceValueCallback(CoerceBalanceProperty)));
+            new FrameworkPropertyMetadata(Defaults.DefaultBalance, FrameworkPropertyMetadataOptions.None, new PropertyChangedCallback(BalancePropertyChanged), new CoerceValueCallback(CoerceBalanceProperty)));
 
         /// <summary> 
         /// The DependencyProperty for the MediaElement.IsMuted property.
@@ -64,7 +65,7 @@
             nameof(SpeedRatio),
             typeof(double),
             typeof(MediaElement),
-            new FrameworkPropertyMetadata(Constants.DefaultSpeedRatio, WPFUtils.AffectsMeasureAndRender, new PropertyChangedCallback(SpeedRatioPropertyChanged), new CoerceValueCallback(CoerceSpeedRatioProperty)));
+            new FrameworkPropertyMetadata(Defaults.DefaultSpeedRatio, AffectsMeasureAndRender, new PropertyChangedCallback(SpeedRatioPropertyChanged), new CoerceValueCallback(CoerceSpeedRatioProperty)));
 
         /// <summary> 
         /// The DependencyProperty for the MediaElement.Volume property.
@@ -73,7 +74,7 @@
             nameof(Volume),
             typeof(double),
             typeof(MediaElement),
-            new FrameworkPropertyMetadata(Constants.DefaultVolume, FrameworkPropertyMetadataOptions.None, new PropertyChangedCallback(VolumePropertyChanged), new CoerceValueCallback(CoerceVolumeProperty)));
+            new FrameworkPropertyMetadata(Defaults.DefaultVolume, FrameworkPropertyMetadataOptions.None, new PropertyChangedCallback(VolumePropertyChanged), new CoerceValueCallback(CoerceVolumeProperty)));
 
         /// <summary>
         /// The DependencyProperty for the MediaElement.ScrubbingEnabled property.
@@ -110,7 +111,7 @@
             nameof(Position),
             typeof(TimeSpan),
             typeof(MediaElement),
-            new FrameworkPropertyMetadata(TimeSpan.Zero, WPFUtils.AffectsMeasureAndRender | FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, new PropertyChangedCallback(PositionPropertyChanged), new CoerceValueCallback(CoercePositionProperty)));
+            new FrameworkPropertyMetadata(TimeSpan.Zero, AffectsMeasureAndRender | FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, new PropertyChangedCallback(PositionPropertyChanged), new CoerceValueCallback(CoercePositionProperty)));
 
         #endregion
 
@@ -265,7 +266,7 @@
             if (element == null) return;
 
             var uri = e.NewValue as Uri;
-            await element.mediaElementCore.Open(uri);
+            await element.MediaCore.Open(uri);
         }
 
         private static void OnStretchPropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
@@ -287,15 +288,15 @@
         private static object CoerceVolumeProperty(DependencyObject d, object value)
         {
             var element = d as MediaElement;
-            if (element == null) return Constants.DefaultVolume;
-            if (element.HasAudio == false) return Constants.DefaultVolume;
+            if (element == null) return Defaults.DefaultVolume;
+            if (element.HasAudio == false) return Defaults.DefaultVolume;
 
             var targetValue = (double)value;
-            if (targetValue < Constants.MinVolume) targetValue = Constants.MinVolume;
-            if (targetValue > Constants.MaxVolume) targetValue = Constants.MaxVolume;
+            if (targetValue < Defaults.MinVolume) targetValue = Defaults.MinVolume;
+            if (targetValue > Defaults.MaxVolume) targetValue = Defaults.MaxVolume;
 
-            var audioRenderer = element.mediaElementCore.Renderers[MediaType.Audio] as AudioRenderer;
-            return audioRenderer == null ? Constants.DefaultVolume : targetValue;
+            var audioRenderer = element.MediaCore.RetrieveRenderer(MediaType.Audio) as AudioRenderer;
+            return audioRenderer == null ? Defaults.DefaultVolume : targetValue;
         }
 
         private static void VolumePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -304,24 +305,24 @@
             if (element == null) return;
             if (element.HasAudio == false) return;
 
-            if (element.mediaElementCore.Renderers[MediaType.Audio] is AudioRenderer audioRenderer)
+            if (element.MediaCore.RetrieveRenderer(MediaType.Audio) is AudioRenderer audioRenderer)
                 audioRenderer.Volume = (double)e.NewValue;
 
-            element.mediaElementCore.Volume = (double)e.NewValue;
+            element.MediaCore.Volume = (double)e.NewValue;
         }
 
         private static object CoerceBalanceProperty(DependencyObject d, object value)
         {
             var element = d as MediaElement;
-            if (element == null) return Constants.DefaultBalance;
-            if (element.HasAudio == false) return Constants.DefaultBalance;
+            if (element == null) return Defaults.DefaultBalance;
+            if (element.HasAudio == false) return Defaults.DefaultBalance;
 
             var targetValue = (double)value;
-            if (targetValue < Constants.MinBalance) targetValue = Constants.MinBalance;
-            if (targetValue > Constants.MaxBalance) targetValue = Constants.MaxBalance;
+            if (targetValue < Defaults.MinBalance) targetValue = Defaults.MinBalance;
+            if (targetValue > Defaults.MaxBalance) targetValue = Defaults.MaxBalance;
 
-            var audioRenderer = element.mediaElementCore.Renderers[MediaType.Audio] as AudioRenderer;
-            return audioRenderer == null ? Constants.DefaultBalance : targetValue;
+            var audioRenderer = element.MediaCore.RetrieveRenderer(MediaType.Audio) as AudioRenderer;
+            return audioRenderer == null ? Defaults.DefaultBalance : targetValue;
         }
 
         private static void BalancePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -330,10 +331,10 @@
             if (element == null) return;
             if (element.HasAudio == false) return;
 
-            if (element.mediaElementCore.Renderers[MediaType.Audio] is AudioRenderer audioRenderer)
+            if (element.MediaCore.RetrieveRenderer(MediaType.Audio) is AudioRenderer audioRenderer)
                 audioRenderer.Balance = (double)e.NewValue;
 
-            element.mediaElementCore.Balance = (double)e.NewValue;
+            element.MediaCore.Balance = (double)e.NewValue;
         }
 
         private static object CoerceIsMutedProperty(DependencyObject d, object value)
@@ -342,7 +343,7 @@
             if (element == null) return false;
             if (element.HasAudio == false) return false;
 
-            var audioRenderer = element.mediaElementCore.Renderers[MediaType.Audio] as AudioRenderer;
+            var audioRenderer = element.MediaCore.RetrieveRenderer(MediaType.Audio) as AudioRenderer;
             return audioRenderer == null ? false : (bool)value;
         }
 
@@ -352,10 +353,10 @@
             if (element == null) return;
             if (element.HasAudio == false) return;
 
-            if (element.mediaElementCore.Renderers[MediaType.Audio] is AudioRenderer audioRenderer)
+            if (element.MediaCore.RetrieveRenderer(MediaType.Audio) is AudioRenderer audioRenderer)
                 audioRenderer.IsMuted = (bool)e.NewValue;
 
-            element.mediaElementCore.IsMuted = (bool)e.NewValue;
+            element.MediaCore.IsMuted = (bool)e.NewValue;
         }
 
         private static void ScrubbingEnabledPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -363,7 +364,7 @@
             var element = d as MediaElement;
             if (element == null) return;
 
-            element.mediaElementCore.ScrubbingEnabled = (bool)e.NewValue;
+            element.MediaCore.ScrubbingEnabled = (bool)e.NewValue;
         }
 
         private static void UnloadedBehaviorPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -371,7 +372,7 @@
             var element = d as MediaElement;
             if (element == null) return;
 
-            element.mediaElementCore.UnloadedBehavior = (CoreMediaState)(MediaState)e.NewValue;
+            element.MediaCore.UnloadedBehavior = (MediaEngineState)(MediaState)e.NewValue;
         }
 
         private static void LoadedBehaviorPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -379,31 +380,25 @@
             var element = d as MediaElement;
             if (element == null) return;
 
-            element.mediaElementCore.LoadedBehavior = (CoreMediaState)(MediaState)e.NewValue;
+            element.MediaCore.LoadedBehavior = (MediaEngineState)(MediaState)e.NewValue;
         }
 
         private static void PositionPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var element = d as MediaElement;
             if (element == null) return;
+            if (element.MediaCore.IsDisposed) return;
+            if (element.IsPositionUpdating || element.MediaCore.IsSeekable == false) return;
 
-            var container = element.mediaElementCore.Container;
-            if (container == null) return;
-
-            if (element.IsPositionUpdating || container.IsStreamSeekable == false) return;
-
-            element.mediaElementCore.Seek((TimeSpan)e.NewValue);
+            element.MediaCore.Seek((TimeSpan)e.NewValue);
         }
 
         private static object CoercePositionProperty(DependencyObject d, object value)
         {
             var element = d as MediaElement;
             if (element == null) return TimeSpan.Zero;
-
-            var container = element.mediaElementCore.Container;
-            if (container == null) return TimeSpan.Zero;
-
-            if (container.IsStreamSeekable == false) return element.mediaElementCore.Clock.Position;
+            if (element.MediaCore.IsDisposed) return TimeSpan.Zero;
+            if (element.MediaCore.IsSeekable == false) return element.MediaCore.Position;
 
             return (TimeSpan)value;
         }
@@ -411,15 +406,13 @@
         private static object CoerceSpeedRatioProperty(DependencyObject d, object value)
         {
             var element = d as MediaElement;
-            if (element == null) return Constants.DefaultSpeedRatio;
-
-            var container = element.mediaElementCore.Container;
-            if (container == null) return Constants.DefaultSpeedRatio;
-            if (container.IsStreamSeekable == false) return Constants.DefaultSpeedRatio;
+            if (element == null) return Defaults.DefaultSpeedRatio;
+            if (element.MediaCore.IsDisposed) return Defaults.DefaultSpeedRatio;
+            if ((element.MediaCore?.IsSeekable ?? false) == false) return Defaults.DefaultSpeedRatio;
 
             var targetValue = (double)value;
-            if (targetValue < Constants.MinSpeedRatio) return Constants.MinSpeedRatio;
-            if (targetValue > Constants.MaxSpeedRatio) return Constants.MaxSpeedRatio;
+            if (targetValue < Defaults.MinSpeedRatio) return Defaults.MinSpeedRatio;
+            if (targetValue > Defaults.MaxSpeedRatio) return Defaults.MaxSpeedRatio;
 
             return targetValue;
         }
@@ -428,12 +421,10 @@
         {
             var element = d as MediaElement;
             if (element == null) return;
-
-            var container = element.mediaElementCore.Container;
-            if (container == null) return;
+            if (element.MediaCore.IsDisposed) return;
 
             var targetSpeedRatio = (double)e.NewValue;
-            element.mediaElementCore.SetSpeedRatio(targetSpeedRatio);
+            element.MediaCore.SetSpeedRatio(targetSpeedRatio);
         }
 
         #endregion

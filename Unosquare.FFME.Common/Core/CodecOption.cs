@@ -3,7 +3,7 @@
     /// <summary>
     /// A single codec option along with a stream specifier.
     /// </summary>
-    internal class CodecOption
+    internal sealed class CodecOption
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="CodecOption"/> class.

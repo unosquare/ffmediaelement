@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Commands
 {
+    using Shared;
     using System;
 
     /// <summary>
@@ -22,7 +23,7 @@
         /// </summary>
         internal override void ExecuteInternal()
         {
-            var m = Manager.MediaElement;
+            var m = Manager.MediaCore;
             if (m.IsOpen == false) return;
             if (m.HasMediaEnded || (m.NaturalDuration.HasValue && m.NaturalDuration != TimeSpan.MinValue && m.Clock.Position >= m.NaturalDuration.Value))
                 return;
@@ -31,7 +32,7 @@
                 renderer.Play();
 
             m.Clock.Play();
-            m.MediaState = CoreMediaState.Play;
+            m.MediaState = MediaEngineState.Play;
         }
     }
 }

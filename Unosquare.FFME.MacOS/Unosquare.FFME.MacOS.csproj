@@ -60,12 +60,14 @@
     <Reference Include="Xamarin.Mac" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Platform\MacMediaConnector.cs" />
+    <Compile Include="Platform\MacPlatform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rendering\AudioRenderer.cs" />
     <Compile Include="Rendering\SubtitleRenderer.cs" />
     <Compile Include="Rendering\VideoRenderer.cs" />
-    <Compile Include="Core\CustomDispatcherTimer.cs" />
-    <Compile Include="Core\NativeMethods.cs" />
+    <Compile Include="Platform\MacDispatcherTimer.cs" />
+    <Compile Include="Platform\MacNativeMethods.cs" />
     <Compile Include="MediaElement.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,7 @@
 ﻿namespace Unosquare.FFME.Commands
 {
+    using Shared;
+
     /// <summary>
     /// Implements the logic to pause the media stream
     /// </summary>
@@ -21,7 +23,7 @@
         /// </summary>
         internal override void ExecuteInternal()
         {
-            var m = Manager.MediaElement;
+            var m = Manager.MediaCore;
             if (m.IsOpen == false) return;
             if (m.CanPause == false) return;
 
@@ -32,8 +34,8 @@
 
             m.SnapVideoPosition(m.Clock.Position);
 
-            if (m.MediaState != CoreMediaState.Stop)
-                m.MediaState = CoreMediaState.Pause;
+            if (m.MediaState != MediaEngineState.Stop)
+                m.MediaState = MediaEngineState.Pause;
         }
     }
 }

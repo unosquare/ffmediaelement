@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME.Commands
 {
     using Core;
+    using Shared;
 
     /// <summary>
     /// A command to change speed ratio asynchronously
@@ -22,19 +23,19 @@
         /// <summary>
         /// The target speed ratio
         /// </summary>
-        public double SpeedRatio { get; set; } = Constants.DefaultSpeedRatio;
+        public double SpeedRatio { get; set; } = Defaults.DefaultSpeedRatio;
 
         /// <summary>
         /// Performs the actions that this command implements.
         /// </summary>
         internal override void ExecuteInternal()
         {
-            if (Manager.MediaElement.Clock.SpeedRatio != SpeedRatio)
-                Manager.MediaElement.Clock.SpeedRatio = SpeedRatio;
+            if (Manager.MediaCore.Clock.SpeedRatio != SpeedRatio)
+                Manager.MediaCore.Clock.SpeedRatio = SpeedRatio;
 
-            Platform.UIInvoke(CoreDispatcherPriority.DataBind, () => 
+            MediaEngine.Platform.UIInvoke(ActionPriority.DataBind, () => 
             {
-                Manager.MediaElement.SpeedRatio = Manager.MediaElement.Clock.SpeedRatio;
+                Manager.MediaCore.SpeedRatio = Manager.MediaCore.Clock.SpeedRatio;
             });
         }
     }

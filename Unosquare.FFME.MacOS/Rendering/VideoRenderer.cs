@@ -1,35 +1,35 @@
 ﻿namespace Unosquare.FFME.MacOS.Rendering
 {
-    using System;
-    using System.Runtime.InteropServices;
     using AppKit;
     using CoreGraphics;
-    using Unosquare.FFME.Core;
-    using Unosquare.FFME.Decoding;
-    using Unosquare.FFME.Rendering;
+    using Shared;
+    using System;
+    using System.Runtime.InteropServices;
+    using Unosquare.FFME.Primitives;
+    using Unosquare.FFME.MacOS.Platform;
 
     /// <summary>
     /// Provides Video Image Rendering via NSImage.
     /// </summary>
     /// <seealso cref="Unosquare.FFME.Rendering.IRenderer" />
-    class VideoRenderer : IRenderer
+    class VideoRenderer : IMediaRenderer
     {
-        private AtomicBoolean IsRenderingInProgress = new AtomicBoolean();
+        private AtomicBoolean IsRenderingInProgress = new AtomicBoolean(false);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:Unosquare.FFME.MacOS.Rendering.VideoRenderer"/> class.
         /// </summary>
-        /// <param name="mediaElementCore">Media element core.</param>
-        public VideoRenderer(MediaElementCore mediaElementCore)
+        /// <param name="mediaEngine">Media element core.</param>
+        public VideoRenderer(MediaEngine mediaEngine)
         {
-            MediaElementCore = mediaElementCore;
+            MediaCore = mediaEngine;
         }
 
         /// <summary>
         /// Gets the media element core player component.
         /// </summary>
         /// <value>The media element core.</value>
-        public MediaElementCore MediaElementCore { get; }
+        public MediaEngine MediaCore { get; }
 
         public void Close()
         {
@@ -71,12 +71,12 @@
                 var provider = new CGDataProvider(bytes);
                 //var provider = new CGDataProvider(buffer);
                 //var i = new CGImage(64, 64, 8, 24, 64 * 3, space, CGBitmapFlags.ByteOrderDefault, provider, null, false, CGColorRenderingIntent.Default);
-                var i = new CGImage(width, height, 8, 24, width * 3, space, CGBitmapFlags.ByteOrderDefault, provider, null, false, CGColorRenderingIntent.Default);
+                var i = new CGImage(width, height, 8, 32, width * 4, space, CGBitmapFlags.ByteOrderDefault, provider, null, false, CGColorRenderingIntent.Default);
                 var nsImage = new NSImage(i, new CGSize(width, height));
-                Platform.UIInvoke(CoreDispatcherPriority.Normal, () =>
+                MacPlatform.Current.UIInvoke(ActionPriority.Normal, (Action)(() =>
                 {
-                    ((MediaElementCore.Parent) as MediaElement).ImageView.Image = nsImage;
-                });
+                    ((MediaCore.Connector) as MediaElement).ImageView.Image = nsImage;
+                }));
             }
             catch (Exception e)
             {

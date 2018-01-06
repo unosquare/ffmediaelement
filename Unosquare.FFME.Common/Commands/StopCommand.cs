@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Commands
 {
+    using Shared;
     using System;
 
     /// <summary>
@@ -23,7 +24,7 @@
         /// </summary>
         internal override void ExecuteInternal()
         {
-            var m = Manager.MediaElement;
+            var m = Manager.MediaCore;
             m.Clock.Reset();
             var pause = new PauseCommand(Manager);
             pause.ExecuteInternal();
@@ -33,7 +34,7 @@
             foreach (var renderer in m.Renderers.Values)
                 renderer.Stop();
 
-            m.MediaState = CoreMediaState.Stop;
+            m.MediaState = MediaEngineState.Stop;
         }
     }
 }

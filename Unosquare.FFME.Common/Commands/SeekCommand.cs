@@ -2,6 +2,7 @@
 {
     using Core;
     using System;
+    using Shared;
 
     /// <summary>
     /// Implements the logic to seek on the media stream
@@ -9,7 +10,7 @@
     /// <seealso cref="Unosquare.FFME.Commands.MediaCommand" />
     internal sealed class SeekCommand : MediaCommand
     {
-        private bool _wasPlaying = false;
+        private bool WasPlaying = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SeekCommand" /> class.
@@ -35,9 +36,9 @@
         /// </summary>
         internal override void ExecuteInternal()
         {
-            var m = Manager.MediaElement;
+            var m = Manager.MediaCore;
 
-            _wasPlaying = m.IsPlaying;
+            WasPlaying = m.IsPlaying;
 
             var pause = new PauseCommand(Manager);
             pause.ExecuteInternal();
@@ -85,8 +86,10 @@
                 }
 
                 // Populate frame queues with after-seek operation
-                var frames = m.Container.Seek(adjustedSeekTarget);
+                var frames = m.Container.Seek(adjustedSeekTarget, out var seekAborted);
                 m.HasMediaEnded = false;
+
+                // TODO: Handle the seekAborted case
 
                 // Clear all the blocks. We don't need them
                 foreach (var kvp in m.Blocks)
@@ -125,7 +128,7 @@
                     var minStartTime = m.Blocks[main].RangeStartTime.Ticks;
                     var maxStartTime = m.Blocks[main].RangeEndTime.Ticks;
 
-                    m.Logger.Log(MediaLogMessageType.Warning, 
+                    m.Log(MediaLogMessageType.Warning, 
                         $"SEEK TP: Target Pos {TargetPosition.Format()} not between {m.Blocks[main].RangeStartTime.TotalSeconds:0.000} and {m.Blocks[main].RangeEndTime.TotalSeconds:0.000}");
 
                     if (adjustedSeekTarget.Ticks < minStartTime)
@@ -151,20 +154,20 @@
             catch (Exception ex)
             {
                 // Log the exception
-                m.Logger.Log(MediaLogMessageType.Error,
+                m.Log(MediaLogMessageType.Error,
                     $"SEEK E: {ex.GetType()} - {ex.Message}. Stack Trace:\r\n{ex.StackTrace}");
             }
             finally
             {
                 if (m.HasDecoderSeeked)
                 {
-                    m.Logger.Log(MediaLogMessageType.Debug,
+                    m.Log(MediaLogMessageType.Debug,
                         $"SEEK D: Elapsed: {startTime.FormatElapsed()} | Target: {TargetPosition.Format()}");
                 }
 
                 m.SeekingDone.Set();
 
-                if (_wasPlaying)
+                if (WasPlaying)
                 {
                     var play = new PlayCommand(Manager);
                     play.ExecuteInternal();

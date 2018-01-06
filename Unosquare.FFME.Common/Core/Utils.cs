@@ -1,11 +1,10 @@
 ﻿namespace Unosquare.FFME.Core
 {
-    using Decoding;
     using FFmpeg.AutoGen;
+    using Shared;
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Reflection;
@@ -25,15 +24,14 @@
         private static readonly object FFmpegRegisterLock = new object();
         private static readonly unsafe av_log_set_callback_callback FFmpegLogCallback = FFmpegLog;
 
-        private static readonly IDispatcherTimer LogOutputter = null;
         private static readonly object LogSyncLock = new object();
         private static readonly List<string> FFmpegLogBuffer = new List<string>();
-        private static readonly ConcurrentQueue<MediaLogMessagEventArgs> LogQueue = new ConcurrentQueue<MediaLogMessagEventArgs>();
+        private static readonly ConcurrentQueue<MediaLogMessage> LogQueue = new ConcurrentQueue<MediaLogMessage>();
 
         private static readonly unsafe av_lockmgr_register_cb FFmpegLockManagerCallback = FFmpegManageLocking;
         private static readonly Dictionary<IntPtr, ManualResetEvent> FFmpegOpDone = new Dictionary<IntPtr, ManualResetEvent>();
 
-        private static bool? m_IsInDebugMode;
+        private static IDispatcherTimer LogOutputter = null;
         private static bool HasFFmpegRegistered = false;
         private static string FFmpegRegisterPath = null;
 
@@ -46,30 +44,19 @@
         /// </summary>
         static Utils()
         {
-            LogOutputter = Platform.CreateTimer(CoreDispatcherPriority.Background);
-            LogOutputter.Interval = Constants.LogOutputterUpdateInterval;
-            LogOutputter.Tick += LogOutputter_Tick;
-            LogOutputter.IsEnabled = true;
-            LogOutputter.Start();
+            // MediaEngine.Platform.UIEnqueueInvoke(ActionPriority.Background, new Action(() =>
+            // {
+            // LogOutputter = MediaEngine.Platform.CreateDispatcherTimer(ActionPriority.Background);
+            // LogOutputter.Interval = Constants.LogOutputterUpdateInterval;
+            // LogOutputter.Tick += LogOutputter_Tick;
+            // LogOutputter.IsEnabled = true;
+            // LogOutputter.Start();
+            // }));
         }
 
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Gets a value indicating whether this instance is in debug mode.
-        /// </summary>
-        public static bool IsInDebugMode
-        {
-            get
-            {
-                if (!m_IsInDebugMode.HasValue)
-                    m_IsInDebugMode = Debugger.IsAttached;
-
-                return m_IsInDebugMode.Value;
-            }
-        }
 
         /// <summary>
         /// Gets the assembly location.
@@ -227,6 +214,15 @@
 
         #region FFmpeg Registration
 
+        public static void StartLogOutputter()
+        {
+            LogOutputter = MediaEngine.Platform.CreateDispatcherTimer(ActionPriority.Background);
+            LogOutputter.Interval = Constants.LogOutputterUpdateInterval;
+            LogOutputter.Tick += LogOutputter_Tick;
+            LogOutputter.IsEnabled = true;
+            LogOutputter.Start();
+        }
+
         /// <summary>
         /// Registers FFmpeg library and initializes its components.
         /// It only needs to be called once but calling it more than once
@@ -259,7 +255,7 @@
                         throw new FileNotFoundException($"Unable to load minimum set of FFmpeg binaries from folder '{ffmpegPath}'. File '{fileName}' is missing");
                 }
 
-                Platform.SetDllDirectory(ffmpegPath);
+                MediaEngine.Platform.NativeMethods.SetDllDirectory(ffmpegPath);
 
                 if ((RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && File.Exists(Path.Combine(ffmpegPath, Constants.DllAVDevice))) ||
                     (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && File.Exists(Path.Combine(ffmpegPath, Constants.DllAVDevice_macOS))))
@@ -274,7 +270,7 @@
                 ffmpeg.avformat_network_init();
 
                 ffmpeg.av_log_set_flags(ffmpeg.AV_LOG_SKIP_REPEATED);
-                ffmpeg.av_log_set_level(IsInDebugMode ? ffmpeg.AV_LOG_VERBOSE : ffmpeg.AV_LOG_WARNING);
+                ffmpeg.av_log_set_level(MediaEngine.Platform.IsInDebugMode ? ffmpeg.AV_LOG_VERBOSE : ffmpeg.AV_LOG_WARNING);
                 ffmpeg.av_log_set_callback(FFmpegLogCallback);
 
                 // because Zeranoe FFmpeg Builds don't have --enable-pthreads,
@@ -314,7 +310,7 @@
         #region Logging
 
         /// <summary>
-        /// Logs the specified message.
+        /// Logs the specified message. This the genric logging mechanism available to all classes.
         /// </summary>
         /// <param name="sender">The sender.</param>
         /// <param name="messageType">Type of the message.</param>
@@ -323,7 +319,7 @@
         internal static void Log(object sender, MediaLogMessageType messageType, string message)
         {
             if (sender == null) throw new ArgumentNullException(nameof(sender));
-            var eventArgs = new MediaLogMessagEventArgs(sender as MediaElementCore, messageType, message);
+            var eventArgs = new MediaLogMessage(sender as MediaEngine, messageType, message);
             LogQueue.Enqueue(eventArgs);
         }
 
@@ -331,25 +327,25 @@
         /// Logs a block rendering operation as a Trace Message
         /// if the debugger is attached.
         /// </summary>
-        /// <param name="element">The media element.</param>
+        /// <param name="mediaCore">The media engine.</param>
         /// <param name="block">The block.</param>
         /// <param name="clockPosition">The clock position.</param>
         /// <param name="renderIndex">Index of the render.</param>
-        internal static void LogRenderBlock(this MediaElementCore element, MediaBlock block, TimeSpan clockPosition, int renderIndex)
+        internal static void LogRenderBlock(this MediaEngine mediaCore, MediaBlock block, TimeSpan clockPosition, int renderIndex)
         {
-            if (IsInDebugMode == false) return;
+            if (MediaEngine.Platform.IsInDebugMode == false) return;
 
             try
             {
                 var drift = TimeSpan.FromTicks(clockPosition.Ticks - block.StartTime.Ticks);
-                element?.Logger.Log(MediaLogMessageType.Trace,
+                mediaCore?.Log(MediaLogMessageType.Trace,
                 $"{block.MediaType.ToString().Substring(0, 1)} "
                     + $"BLK: {block.StartTime.Format()} | "
                     + $"CLK: {clockPosition.Format()} | "
                     + $"DFT: {drift.TotalMilliseconds,4:0} | "
                     + $"IX: {renderIndex,3} | "
-                    + $"PQ: {element.Container?.Components[block.MediaType]?.PacketBufferLength / 1024d,7:0.0}k | "
-                    + $"TQ: {element.Container?.Components.PacketBufferLength / 1024d,7:0.0}k");
+                    + $"PQ: {mediaCore.Container?.Components[block.MediaType]?.PacketBufferLength / 1024d,7:0.0}k | "
+                    + $"TQ: {mediaCore.Container?.Components.PacketBufferLength / 1024d,7:0.0}k");
             }
             catch
             {
@@ -482,12 +478,12 @@
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private static void LogOutputter_Tick(object sender, EventArgs e)
         {
-            while (LogQueue.TryDequeue(out MediaLogMessagEventArgs eventArgs))
+            while (LogQueue.TryDequeue(out MediaLogMessage eventArgs))
             {
                 if (eventArgs.Source != null)
                     eventArgs.Source.RaiseMessageLogged(eventArgs);
                 else
-                    MediaElementCore.RaiseFFmpegMessageLogged(eventArgs);
+                    MediaEngine.Platform?.HandleFFmpegLogMessage(eventArgs);
             }
         }
 
@@ -570,7 +566,7 @@
                     line = string.Join(string.Empty, FFmpegLogBuffer);
                     line = line.TrimEnd();
                     FFmpegLogBuffer.Clear();
-                    Utils.Log(typeof(MediaElementCore), messageType, line);
+                    Utils.Log(typeof(MediaEngine), messageType, line);
                 }
             }
         }

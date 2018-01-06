@@ -1,15 +1,20 @@
 ﻿namespace Unosquare.FFME.Commands
 {
-    using Core;
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
     /// Represents a command to be executed against an intance of the MediaElement
     /// </summary>
-    internal abstract class MediaCommand
+    internal abstract class MediaCommand : IDisposable
     {
+        #region State Variables
+        
+        private bool IsDisposed = false; // To detect redundant calls
         private CancellationTokenSource CancelTokenSource = new CancellationTokenSource();
+
+        #endregion
 
         #region Constructor
 
@@ -42,7 +47,7 @@
         /// <summary>
         /// Gets a value indicating whether this command is marked as completed.
         /// </summary>
-        public bool HasCompleted => TaskContext.IsCompleted;
+        public bool HasCompleted => IsDisposed || TaskContext.IsCompleted;
 
         /// <summary>
         /// Gets the task that this command will run.
@@ -66,19 +71,22 @@
         /// </summary>
         public void Complete()
         {
+            if (IsDisposed) return;
+
+            // Signal the cancellation
             CancelTokenSource.Cancel();
         }
 
         /// <summary>
-        /// Executes the code for the command
+        /// Executes the code for the command asynchronously
         /// </summary>
         /// <returns>The awaitable task</returns>
-        public async Task ExecuteAsync()
+        public async Task StartAsync()
         {
-            var m = Manager.MediaElement;
+            var m = Manager.MediaCore;
 
             // Avoid processing the command if the element is disposed.
-            if (m.IsDisposed)
+            if (IsDisposed || m.IsDisposed)
                 return;
 
             // Start and await the task
@@ -86,12 +94,32 @@
             {
                 IsRunning = true;
                 TaskContext.Start();
-                await TaskContext;
+                await TaskContext.ContinueWith(a => { Dispose(); });
+            }
+            catch
+            {
+                throw;
             }
             finally
             {
                 IsRunning = false;
             }
+        }
+
+        /// <summary>
+        /// Executes the command Synchronously.
+        /// </summary>
+        public void RunSynchronously()
+        {
+            StartAsync().GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
         }
 
         /// <summary>
@@ -109,6 +137,29 @@
         /// Performs the actions that this command implements.
         /// </summary>
         internal abstract void ExecuteInternal();
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        protected virtual void Dispose(bool alsoManaged)
+        {
+            if (!IsDisposed)
+            {
+                // Set the disposed flag to true
+                IsDisposed = true;
+
+                if (alsoManaged)
+                {
+                    TaskContext?.Dispose();
+                    CancelTokenSource?.Dispose();
+                }
+
+                // free unmanaged resources and set fields to null;
+                TaskContext = null;
+                CancelTokenSource = null;
+            }
+        }
 
         #endregion
     }

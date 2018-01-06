@@ -1,7 +1,9 @@
 ﻿namespace Unosquare.FFME.Rendering
 {
     using Core;
-    using Decoding;
+    using Platform;
+    using Primitives;
+    using Shared;
     using System;
     using System.Runtime.CompilerServices;
     using System.Windows;
@@ -12,8 +14,8 @@
     /// <summary>
     /// Provides Video Image Rendering via a WPF Writable Bitmap
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.Rendering.IRenderer" />
-    internal sealed class VideoRenderer : IRenderer
+    /// <seealso cref="Unosquare.FFME.Shared.IMediaRenderer" />
+    internal sealed class VideoRenderer : IMediaRenderer
     {
         #region Private State
 
@@ -25,7 +27,7 @@
         /// <summary>
         /// Set when a bitmap is being written to the target bitmap
         /// </summary>
-        private AtomicBoolean IsRenderingInProgress = new AtomicBoolean();
+        private AtomicBoolean IsRenderingInProgress = new AtomicBoolean(false);
 
         #endregion
 
@@ -34,22 +36,22 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="VideoRenderer"/> class.
         /// </summary>
-        /// <param name="mediaElementCore">The core media element.</param>
-        public VideoRenderer(MediaElementCore mediaElementCore)
+        /// <param name="mediaEngine">The core media element.</param>
+        public VideoRenderer(MediaEngine mediaEngine)
         {
-            MediaElementCore = mediaElementCore;
+            MediaCore = mediaEngine;
             InitializeTargetBitmap(null);
         }
 
         /// <summary>
         /// Gets the parent media element (platform specific).
         /// </summary>
-        public MediaElement MediaElement => MediaElementCore?.Parent as MediaElement;
+        public MediaElement MediaElement => MediaCore?.Parent as MediaElement;
 
         /// <summary>
         /// Gets the core platform independent player component.
         /// </summary>
-        public MediaElementCore MediaElementCore { get; }
+        public MediaEngine MediaCore { get; }
 
         #endregion
 
@@ -84,7 +86,7 @@
         /// </summary>
         public void Close()
         {
-            WPFUtils.UIInvoke(DispatcherPriority.Render, () =>
+            WindowsPlatform.Instance.UIInvoke((ActionPriority)DispatcherPriority.Render, () =>
             {
                 TargetBitmap = null;
                 MediaElement.ViewBox.Source = null;
@@ -114,20 +116,20 @@
         /// </summary>
         /// <param name="mediaBlock">The media block.</param>
         /// <param name="clockPosition">The clock position.</param>
-        public async void Render(MediaBlock mediaBlock, TimeSpan clockPosition)
+        public void Render(MediaBlock mediaBlock, TimeSpan clockPosition)
         {
             var block = mediaBlock as VideoBlock;
             if (block == null) return;
             if (IsRenderingInProgress.Value == true)
             {
-                MediaElement.Logger.Log(MediaLogMessageType.Debug, $"{nameof(VideoRenderer)}: Frame skipped at {mediaBlock.StartTime}");
+                MediaElement?.MediaCore?.Log(MediaLogMessageType.Debug, $"{nameof(VideoRenderer)}: Frame skipped at {mediaBlock.StartTime}");
                 return;
             }
 
             IsRenderingInProgress.Value = true;
 
-            await WPFUtils.UIEnqueueInvoke(
-                DispatcherPriority.Render,
+            WindowsPlatform.Instance.UIEnqueueInvoke(
+                (ActionPriority)DispatcherPriority.Render,
                 new Action<VideoBlock, TimeSpan>((b, cP) =>
                 {
                     try
@@ -141,13 +143,13 @@
 
                         var updateRect = new Int32Rect(0, 0, b.PixelWidth, b.PixelHeight);
                         TargetBitmap.WritePixels(updateRect, b.Buffer, b.BufferLength, b.BufferStride);
-                        MediaElementCore.VideoSmtpeTimecode = b.SmtpeTimecode;
-                        MediaElementCore.VideoHardwareDecoder = (MediaElementCore.Container?.Components?.Video?.IsUsingHardwareDecoding ?? false) ?
-                            MediaElementCore.Container?.Components?.Video?.HardwareAccelerator?.Name ?? string.Empty : string.Empty;
+                        MediaCore.VideoSmtpeTimecode = b.SmtpeTimecode;
+                        MediaCore.VideoHardwareDecoder = (MediaCore.Container?.Components?.Video?.IsUsingHardwareDecoding ?? false) ?
+                            MediaCore.Container?.Components?.Video?.HardwareAccelerator?.Name ?? string.Empty : string.Empty;
 
                         MediaElement.RaiseRenderingVideoEvent(
                             TargetBitmap,
-                            MediaElementCore.Container.MediaInfo.Streams[b.StreamIndex],
+                            MediaCore.Container.MediaInfo.Streams[b.StreamIndex],
                             b.SmtpeTimecode,
                             b.DisplayPictureNumber,
                             b.StartTime,
@@ -158,7 +160,9 @@
                     }
                     catch (Exception ex)
                     {
-                        Utils.Log(MediaElement, MediaLogMessageType.Error, $"{nameof(VideoRenderer)} {ex.GetType()}: {ex.Message}. Stack Trace:\r\n{ex.StackTrace}");
+                        MediaElement?.MediaCore?.Log(
+                            MediaLogMessageType.Error, 
+                            $"{nameof(VideoRenderer)} {ex.GetType()}: {ex.Message}. Stack Trace:\r\n{ex.StackTrace}");
                     }
                     finally
                     {
@@ -186,7 +190,7 @@
         /// <param name="block">The block.</param>
         private void InitializeTargetBitmap(VideoBlock block)
         {
-            WPFUtils.UIInvoke(DispatcherPriority.Normal, () =>
+            WindowsPlatform.Instance.UIInvoke((ActionPriority)DispatcherPriority.Normal, () =>
             {
                 var visual = PresentationSource.FromVisual(MediaElement);
 
@@ -203,7 +207,7 @@
                         block?.PixelHeight ?? MediaElement.NaturalVideoHeight,
                         dpiX,
                         dpiY,
-                        PixelFormats.Bgr24,
+                        PixelFormats.Bgr32,
                         null);
                 }
                 else

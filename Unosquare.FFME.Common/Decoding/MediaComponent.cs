@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
     using Core;
+    using Shared;
     using FFmpeg.AutoGen;
     using System;
     using System.Collections.Generic;
@@ -80,7 +81,7 @@
             var setCodecParamsResult = ffmpeg.avcodec_parameters_to_context(CodecContext, Stream->codecpar);
 
             if (setCodecParamsResult < 0)
-                Container.Logger?.Log(MediaLogMessageType.Warning, $"Could not set codec parameters. Error code: {setCodecParamsResult}");
+                Container.Parent?.Log(MediaLogMessageType.Warning, $"Could not set codec parameters. Error code: {setCodecParamsResult}");
 
             // We set the packet timebase in the same timebase as the stream as opposed to the tpyical AV_TIME_BASE
             ffmpeg.av_codec_set_pkt_timebase(CodecContext, Stream->time_base);
@@ -148,7 +149,7 @@
 
             // If there are any codec options left over from passing them, it means they were not consumed
             if (codecOptions.First() != null)
-                Container.Logger?.Log(MediaLogMessageType.Warning, $"Codec Option '{codecOptions.First().Key}' not found.");
+                Container.Parent?.Log(MediaLogMessageType.Warning, $"Codec Option '{codecOptions.First().Key}' not found.");
 
             // Startup done. Set some options.
             Stream->discard = AVDiscard.AVDISCARD_DEFAULT;
@@ -169,7 +170,7 @@
             CodecId = Stream->codec->codec_id;
             CodecName = ffmpeg.avcodec_get_name(CodecId);
             Bitrate = (int)Stream->codec->bit_rate;
-            Container.Logger?.Log(MediaLogMessageType.Debug,
+            Container.Parent?.Log(MediaLogMessageType.Debug,
                 $"COMP {MediaType.ToString().ToUpperInvariant()}: Start Offset: {StartTimeOffset.Format()}; Duration: {Duration.Format()}");
         }
 
@@ -487,7 +488,7 @@
                 {
                     SubtitleFrame.DeallocateSubtitle(outputFrame);
                     SentPackets.Clear();
-                    Container.Logger?.Log(MediaLogMessageType.Error, $"{MediaType}: Error decoding. Error Code: {receiveFrameResult}");
+                    Container.Parent?.Log(MediaLogMessageType.Error, $"{MediaType}: Error decoding. Error Code: {receiveFrameResult}");
                 }
                 else
                 {

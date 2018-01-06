@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME
 {
+    using Shared;
     using System.Windows;
 
     /// <summary>

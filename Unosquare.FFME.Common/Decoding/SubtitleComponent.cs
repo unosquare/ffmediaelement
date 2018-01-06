@@ -1,9 +1,10 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
+    using Core;
     using FFmpeg.AutoGen;
+    using Shared;
     using System;
     using System.Collections.Generic;
-    using Core;
 
     /// <summary>
     /// Performs subtitle stream extraction, decoding and text conversion.

@@ -1,28 +1,27 @@
 ﻿namespace Unosquare.FFME.MacOS.Rendering
 {
     using System;
-    using Unosquare.FFME.Decoding;
-    using Unosquare.FFME.Rendering;
+    using Unosquare.FFME.Shared;
 
     /// <summary>
     /// Provides Audio Output capabilities.
     /// </summary>
-    class AudioRenderer : IRenderer
+    class AudioRenderer : IMediaRenderer
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="T:Unosquare.FFME.MacOS.Rendering.AudioRenderer"/> class.
         /// </summary>
-        /// <param name="mediaElementCore">Media element core.</param>
-        public AudioRenderer(MediaElementCore mediaElementCore)
+        /// <param name="mediaEngine">Media element core.</param>
+        public AudioRenderer(MediaEngine mediaEngine)
         {
-            MediaElementCore = mediaElementCore;
+            MediaCore = mediaEngine;
         }
 
         /// <summary>
         /// Gets the media element core player component.
         /// </summary>
         /// <value>The media element core.</value>
-        public MediaElementCore MediaElementCore { get; }
+        public MediaEngine MediaCore { get; }
 
         public void Close()
         {

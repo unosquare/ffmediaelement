@@ -5,7 +5,7 @@
 
     /// <summary>
     /// Contains audio format properties essential
-    /// to audio resampling
+    /// to audio processing and resampling
     /// </summary>
     internal sealed unsafe class AudioParams
     {

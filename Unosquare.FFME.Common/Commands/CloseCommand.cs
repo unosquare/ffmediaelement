@@ -2,6 +2,7 @@
 {
     using Core;
     using System.Text;
+    using Shared;
 
     /// <summary>
     /// Implements the logic to close a media stream.
@@ -10,7 +11,7 @@
     internal sealed class CloseCommand : MediaCommand
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="CloseCommand"/> class.
+        /// Initializes a new instance of the <see cref="CloseCommand" /> class.
         /// </summary>
         /// <param name="manager">The media element.</param>
         public CloseCommand(MediaCommandManager manager)
@@ -24,18 +25,18 @@
         /// </summary>
         internal override void ExecuteInternal()
         {
-            var m = Manager.MediaElement;
+            var m = Manager.MediaCore;
 
             if (m.IsDisposed || m.IsOpen == false || m.IsOpening) return;
 
-            m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(CloseCommand)}: Entered");
+            m.Log(MediaLogMessageType.Debug, $"{nameof(CloseCommand)}: Entered");
             m.Clock.Pause();
 
             // Let the threads know a cancellation is pending.
             m.IsTaskCancellationPending = true;
 
             // Cause an immediate Packet read abort
-            m.Container.AbortReads(false);
+            m.Container.SignalAbortReads(false);
 
             // Call close on all renderers and clear them
             foreach (var renderer in m.Renderers.Values)
@@ -76,11 +77,11 @@
 
             // Clear the render times
             m.LastRenderTime.Clear();
-            m.MediaState = CoreMediaState.Close;
+            m.MediaState = MediaEngineState.Close;
             m.RaiseMediaClosedEvent();
 
             // Update notification properties
-            Platform.UIInvoke(CoreDispatcherPriority.DataBind, () =>
+            MediaEngine.Platform.UIInvoke(ActionPriority.DataBind, () =>
             {
                 m.ResetDependencyProperies();
                 m.NotifyPropertyChanges();
@@ -94,10 +95,10 @@
                 foreach (var kvp in RC.Current.InstancesByLocation)
                     builder.AppendLine($"    {kvp.Key,30}: {kvp.Value}");
 
-                m.Logger.Log(MediaLogMessageType.Error, builder.ToString());
+                m.Log(MediaLogMessageType.Error, builder.ToString());
             }
 #endif
-            m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(CloseCommand)}: Completed");
+            m.Log(MediaLogMessageType.Debug, $"{nameof(CloseCommand)}: Completed");
         }
     }
 }

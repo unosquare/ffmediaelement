@@ -1,87 +1,25 @@
 ﻿namespace Unosquare.FFME.MacOS
 {
+    using AppKit;
     using System;
     using System.Threading.Tasks;
-    using AppKit;
-    using Foundation;
-    using Unosquare.FFME.Core;
-    using Unosquare.FFME.MacOS.Core;
-    using Unosquare.FFME.MacOS.Rendering;
+    using Unosquare.FFME.MacOS.Platform;
 
     public class MediaElement
     {
-        private MediaElementCore mediaElementCore;
+        private MediaEngine MediaCore;
 
         #region Constructors
 
         static MediaElement()
         {
-            // Platform specific implementation
-            Platform.SetDllDirectory = NativeMethods.SetDllDirectory;
-            Platform.CopyMemory = NativeMethods.CopyMemory;
-            Platform.FillMemory = NativeMethods.FillMemory;
-            Platform.CreateTimer = (priority) =>
-            {
-                return new CustomDispatcherTimer();
-            };
-            Platform.UIInvoke = (priority, action) =>
-            {
-                NSRunLoop.Main.BeginInvokeOnMainThread(action.Invoke);
-            };
-            Platform.UIEnqueueInvoke = (priority, action, args) =>
-            {
-                var tcs = new TaskCompletionSource<bool>();
-                NSRunLoop.Main.BeginInvokeOnMainThread(() =>
-                {
-                    action.DynamicInvoke(args);
-                    tcs.TrySetResult(true);
-                });
-                return tcs.Task;
-            };
-            Platform.CreateRenderer = (mediaType, m) =>
-            {
-                if (mediaType == MediaType.Audio) return new AudioRenderer(m);
-                else if (mediaType == MediaType.Video) return new VideoRenderer(m);
-                else if (mediaType == MediaType.Subtitle) return new SubtitleRenderer(m);
-
-                throw new ArgumentException($"No suitable renderer for Media Type '{mediaType}'");
-            };
-
-            // Simply forward the calls
-            MediaElementCore.FFmpegMessageLogged += (o, e) =>
-            {
-                if (e.MessageType == MediaLogMessageType.Trace) return;
-                Console.WriteLine($"{e.MessageType,10} - {e.Message}");
-            };
+            MediaEngine.Initialize(MacPlatform.Current);
         }
 
         public MediaElement(NSImageView imageView)
         {
             this.ImageView = imageView;
-            this.mediaElementCore = new MediaElementCore(this, false);
-
-            // RoutedEvent event bindings
-            mediaElementCore.MediaOpening += (s, e) => { };
-            mediaElementCore.MediaClosed += (s, e) => { };
-            mediaElementCore.MediaOpened += (s, e) => { };
-            mediaElementCore.MediaFailed += (s, e) => { };
-            mediaElementCore.MediaEnded += (s, e) => { };
-            mediaElementCore.BufferingStarted += (s, e) => { };
-            mediaElementCore.BufferingEnded += (s, e) => { };
-            mediaElementCore.SeekingStarted += (s, e) => { };
-            mediaElementCore.SeekingEnded += (s, e) => { };
-
-            // Non-RoutedEvent event bindings
-            mediaElementCore.MessageLogged += (s, e) =>
-            {
-                // TODO: This is incomplete
-                if (e.MessageType == MediaLogMessageType.Trace) return;
-                Console.WriteLine($"{e.MessageType,10} - {e.Message}");
-            };
-            mediaElementCore.PositionChanged += (s, e) => { };
-
-            // INotifyPropertyChanged PropertyChanged Event binding
-            mediaElementCore.PropertyChanged += (s, e) => { };
+            this.MediaCore = new MediaEngine(this, new MacMediaConnector(this));
         }
 
         #endregion
@@ -98,8 +36,8 @@
         /// </summary>
         public static string FFmpegDirectory
         {
-            get => MediaElementCore.FFmpegDirectory;
-            set => MediaElementCore.FFmpegDirectory = value;
+            get => MediaEngine.FFmpegDirectory;
+            set => MediaEngine.FFmpegDirectory = value;
         }
 
         #endregion
@@ -108,7 +46,7 @@
 
         public async Task Open(Uri uri)
         {
-            await mediaElementCore.Open(uri);
+            await MediaCore.Open(uri);
         }
 
         #endregion

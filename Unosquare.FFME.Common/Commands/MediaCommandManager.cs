@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME.Commands
 {
-    using Core;
+    using Primitives;
+    using Shared;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -13,12 +14,11 @@
     {
         #region Private Declarations
 
-        private readonly AtomicBoolean IsOpening = new AtomicBoolean() { Value = false };
-        private readonly AtomicBoolean IsClosing = new AtomicBoolean() { Value = false };
+        private readonly AtomicBoolean IsOpening = new AtomicBoolean(false);
+        private readonly AtomicBoolean IsClosing = new AtomicBoolean(false);
         private readonly object SyncLock = new object();
         private readonly List<MediaCommand> Commands = new List<MediaCommand>();
-        private readonly MediaElementCore m_MediaElement;
-
+        private readonly MediaEngine m_MediaCore;
         private MediaCommand ExecutingCommand = null;
 
         #endregion
@@ -28,10 +28,10 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="MediaCommandManager"/> class.
         /// </summary>
-        /// <param name="mediaElementCore">The media element.</param>
-        public MediaCommandManager(MediaElementCore mediaElementCore)
+        /// <param name="mediaEngine">The media element.</param>
+        public MediaCommandManager(MediaEngine mediaEngine)
         {
-            m_MediaElement = mediaElementCore;
+            m_MediaCore = mediaEngine;
         }
 
         #endregion
@@ -49,7 +49,7 @@
         /// <summary>
         /// Gets the core platform independent player component.
         /// </summary>
-        public MediaElementCore MediaElement => m_MediaElement;
+        public MediaEngine MediaCore => m_MediaCore;
 
         #endregion
 
@@ -66,18 +66,18 @@
         {
             get
             {
-                if (MediaElement == null || MediaElement.IsDisposed)
+                if (MediaCore == null || MediaCore.IsDisposed)
                 {
-                    MediaElement?.Logger.Log(
+                    MediaCore?.Log(
                         MediaLogMessageType.Warning,
-                        $"{nameof(MediaCommandManager)}: Associated {nameof(MediaElement)} is null, closing, or disposed.");
+                        $"{nameof(MediaCommandManager)}: Associated {nameof(MediaCore)} is null, closing, or disposed.");
 
                     return false;
                 }
 
-                if (IsOpening.Value || IsOpening.Value || MediaElement.IsOpening)
+                if (IsOpening.Value || IsOpening.Value || MediaCore.IsOpening)
                 {
-                    MediaElement?.Logger.Log(
+                    MediaCore?.Log(
                         MediaLogMessageType.Warning,
                         $"{nameof(MediaCommandManager)}: Operation already in progress."
                         + $" {nameof(IsOpening)} = {IsOpening.Value}; {nameof(IsClosing)} = {IsClosing.Value}.");
@@ -102,7 +102,7 @@
             // Check Uri Argument
             if (uri == null)
             {
-                MediaElement?.Logger.Log(
+                MediaCore?.Log(
                     MediaLogMessageType.Warning,
                     $"{nameof(MediaCommandManager)}.{nameof(OpenAsync)}: '{nameof(uri)}' cannot be null");
 
@@ -123,11 +123,11 @@
                 try
                 {
                     if (command.HasCompleted) return;
-                    command.ExecuteAsync().GetAwaiter().GetResult();
+                    command.RunSynchronously();
                 }
                 catch (Exception ex)
                 {
-                    MediaElement?.Logger.Log(
+                    MediaCore?.Log(
                         MediaLogMessageType.Error,
                         $"{nameof(MediaCommandManager)}.{nameof(OpenAsync)}: {ex.GetType()} - {ex.Message}");
                 }
@@ -163,11 +163,11 @@
                 try
                 {
                     if (command.HasCompleted) return;
-                    command.ExecuteAsync().GetAwaiter().GetResult();
+                    command.RunSynchronously();
                 }
                 catch (Exception ex)
                 {
-                    MediaElement?.Logger.Log(
+                    MediaCore?.Log(
                         MediaLogMessageType.Error,
                         $"{nameof(MediaCommandManager)}.{nameof(CloseAsync)}: {ex.GetType()} - {ex.Message}");
                 }
@@ -309,7 +309,7 @@
         public void ProcessNext()
         {
             DumpQueue($"Before {nameof(ProcessNext)}", false);
-            if (MediaElement.IsTaskCancellationPending)
+            if (MediaCore.IsTaskCancellationPending)
                 return;
 
             MediaCommand command = null;
@@ -324,12 +324,12 @@
             try
             {
                 ExecutingCommand = command;
-                command.ExecuteAsync().GetAwaiter().GetResult();
+                command.RunSynchronously();
                 DumpQueue($"After {nameof(ProcessNext)}", false);
             }
             catch (Exception ex)
             {
-                MediaElement?.Logger.Log(MediaLogMessageType.Error, $"{ex.GetType()}: {ex.Message}");
+                MediaCore?.Log(MediaLogMessageType.Error, $"{ex.GetType()}: {ex.Message}");
                 throw;
             }
             finally
@@ -357,7 +357,7 @@
         /// <param name="command">The command.</param>
         private void EnqueueCommand(MediaCommand command)
         {
-            if (MediaElement.IsOpen == false)
+            if (MediaCore.IsOpen == false)
             {
                 command.Complete();
                 return;
@@ -378,10 +378,10 @@
             lock (SyncLock)
             {
                 if (outputEmpty == false && Commands.Count <= 0) return; // Prevent output for empty commands
-                MediaElement.Logger.Log(MediaLogMessageType.Debug, $"Command Queue ({Commands.Count} commands): {operation}");
+                MediaCore.Log(MediaLogMessageType.Debug, $"Command Queue ({Commands.Count} commands): {operation}");
                 foreach (var c in Commands)
                 {
-                    MediaElement.Logger.Log(MediaLogMessageType.Debug, $"   {c.ToString()}");
+                    MediaCore.Log(MediaLogMessageType.Debug, $"   {c.ToString()}");
                 }
             }
 #endif

@@ -2,6 +2,7 @@
 {
     using Config;
     using FFmpeg.AutoGen;
+    using Shared;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -11,7 +12,6 @@
     using System.Runtime.InteropServices;
     using System.Windows;
     using System.Windows.Controls;
-    using System.Windows.Data;
     using System.Windows.Input;
     using System.Windows.Media;
     using System.Windows.Media.Animation;
@@ -157,7 +157,7 @@
             get
             {
                 if (m_PauseCommand == null)
-                    m_PauseCommand = new DelegateCommand(o => { Media.Pause(); });
+                    m_PauseCommand = new DelegateCommand(async o => { await Media.Pause(); });
 
                 return m_PauseCommand;
             }
@@ -174,7 +174,7 @@
             get
             {
                 if (m_PlayCommand == null)
-                    m_PlayCommand = new DelegateCommand(o => { Media.Play(); });
+                    m_PlayCommand = new DelegateCommand(async o => { await Media.Play(); });
 
                 return m_PlayCommand;
             }
@@ -191,7 +191,7 @@
             get
             {
                 if (m_StopCommand == null)
-                    m_StopCommand = new DelegateCommand(o => { Media.Stop(); });
+                    m_StopCommand = new DelegateCommand(async o => { await Media.Stop(); });
 
                 return m_StopCommand;
             }
@@ -427,6 +427,7 @@
             FFME.MediaElement.FFmpegMessageLogged += MediaElement_FFmpegMessageLogged;
 
 #if HANDLE_RENDERING_EVENTS
+
             #region Audio and Video Frame Rendering Variables
 
             System.Drawing.Bitmap overlayBitmap = null;
@@ -471,7 +472,7 @@
                         e.Bitmap.PixelWidth,
                         e.Bitmap.PixelHeight,
                         e.Bitmap.BackBufferStride,
-                        System.Drawing.Imaging.PixelFormat.Format24bppRgb,
+                        System.Drawing.Imaging.PixelFormat.Format32bppRgb,
                         e.Bitmap.BackBuffer);
 
                     overlayBackBuffer = e.Bitmap.BackBuffer;
@@ -905,8 +906,8 @@
         /// Handles the MessageLogged event of the Media control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="MediaLogMessagEventArgs"/> instance containing the event data.</param>
-        private void Media_MessageLogged(object sender, MediaLogMessagEventArgs e)
+        /// <param name="e">The <see cref="MediaLogMessageEventArgs" /> instance containing the event data.</param>
+        private void Media_MessageLogged(object sender, MediaLogMessageEventArgs e)
         {
             if (e.MessageType == MediaLogMessageType.Trace) return;
             Debug.WriteLine($"{e.MessageType,10} - {e.Message}");
@@ -916,8 +917,8 @@
         /// Handles the FFmpegMessageLogged event of the MediaElement control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="MediaLogMessagEventArgs"/> instance containing the event data.</param>
-        private void MediaElement_FFmpegMessageLogged(object sender, MediaLogMessagEventArgs e)
+        /// <param name="e">The <see cref="MediaLogMessageEventArgs"/> instance containing the event data.</param>
+        private void MediaElement_FFmpegMessageLogged(object sender, MediaLogMessageEventArgs e)
         {
             if (e.Message.Contains("] Reinit context to ")
                 || e.Message.Contains("Using non-standard frame rate"))
@@ -975,6 +976,19 @@
         /// <param name="e">The <see cref="MediaOpeningRoutedEventArgs"/> instance containing the event data.</param>
         private void Media_MediaOpening(object sender, MediaOpeningRoutedEventArgs e)
         {
+            // An example of injecting format options for http/https streams
+            if (e.Info.InputUrl.StartsWith("http://") || e.Info.InputUrl.StartsWith("https://"))
+            {
+                e.Options.FormatOptions["usetoc"] = "1";
+                e.Options.FormatOptions["user_agent"] = $"{typeof(MediaOptions).Namespace}/{typeof(MediaOptions).Assembly.GetName().Version}";
+                e.Options.FormatOptions["headers"] = $"Referer:https://www.unosquare.com";
+                e.Options.FormatOptions["multiple_requests"] = "1";
+                e.Options.FormatOptions["reconnect"] = "1";
+                e.Options.FormatOptions["reconnect_at_eof"] = "1";
+                e.Options.FormatOptions["reconnect_streamed"] = "1";
+                e.Options.FormatOptions["reconnect_delay_max"] = "10"; // in seconds
+            }
+
             // An example of switching to a different stream
             if (e.Info.InputUrl.EndsWith("matroska.mkv"))
             {
@@ -1005,13 +1019,14 @@
                 e.Options.VideoFilter = "yadif";
 
                 // When enabling HW acceleration, the filtering does not seem to get applied for some reason.
-                // e.Options.EnableHardwareAcceleration = false;
+                e.Options.EnableHardwareAcceleration = false;
             }
 
             // Experimetal HW acceleration support. Remove if not needed.
             /* e.Options.EnableHardwareAcceleration = Debugger.IsAttached; */
 
 #if APPLY_AUDIO_FILTER
+
             // e.Options.AudioFilter = "aecho=0.8:0.9:1000:0.3";
             e.Options.AudioFilter = "chorus=0.5:0.9:50|60|40:0.4|0.32|0.3:0.25|0.4|0.3:2|2.3|1.3";
 #endif

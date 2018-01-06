@@ -2,6 +2,8 @@
 {
     using Core;
     using FFmpeg.AutoGen;
+    using Primitives;
+    using Shared;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -27,7 +29,7 @@
         /// <summary>
         /// The logger
         /// </summary>
-        internal readonly IMediaLogger Logger;
+        internal readonly IMediaLogger Parent;
 
         /// <summary>
         /// Holds a reference to an input context.
@@ -55,6 +57,11 @@
         /// Holds the set of components.
         /// </summary>
         private readonly MediaComponentSet m_Components = new MediaComponentSet();
+
+        /// <summary>
+        /// The internal flag that determines if a seek operation is in progress.
+        /// </summary>
+        private AtomicBoolean m_IsSeeking = new AtomicBoolean(false);
 
         /// <summary>
         /// To detect redundat Dispose calls
@@ -89,12 +96,17 @@
         /// <summary>
         /// The signal to request the abortion of the following read operation
         /// </summary>
-        private AtomicBoolean StreamReadAbortRequested = new AtomicBoolean();
+        private AtomicBoolean SignalAbortReadsRequested = new AtomicBoolean(false);
 
         /// <summary>
         /// If set to true, it will reset the abort requested flag to false.
         /// </summary>
-        private AtomicBoolean StreamReadAbortAutoReset = new AtomicBoolean();
+        private AtomicBoolean SignalAbortReadsAutoReset = new AtomicBoolean(false);
+
+        /// <summary>
+        /// If set to true, an ongoing seek operation will immediately try to return and cancel all reads.
+        /// </summary>
+        private AtomicBoolean SignalAbortSeekRequested = new AtomicBoolean(false);
 
         #endregion
 
@@ -104,12 +116,12 @@
         /// Initializes a new instance of the <see cref="MediaContainer" /> class.
         /// </summary>
         /// <param name="mediaUrl">The media URL.</param>
-        /// <param name="logger">The logger.</param>
+        /// <param name="parent">The logger.</param>
         /// <param name="protocolPrefix">
         /// The protocol prefix. See https://ffmpeg.org/ffmpeg-protocols.html 
         /// Leave null if setting it is not intended.</param>
         /// <exception cref="ArgumentNullException">mediaUrl</exception>
-        public MediaContainer(string mediaUrl, IMediaLogger logger, string protocolPrefix = null)
+        public MediaContainer(string mediaUrl, IMediaLogger parent, string protocolPrefix = null)
         {
             // Argument Validation
             if (string.IsNullOrWhiteSpace(mediaUrl))
@@ -119,7 +131,7 @@
             Utils.RegisterFFmpeg(null);
 
             // Create the options object
-            Logger = logger;
+            Parent = parent;
             MediaUrl = mediaUrl;
 
             // drop the protocol prefix if it is redundant
@@ -242,7 +254,12 @@
         /// <summary>
         /// Gets a value indicating whether reads are in the aborted state.
         /// </summary>
-        public bool IsReadAborted => StreamReadAbortRequested.Value;
+        public bool IsReadAborted => SignalAbortReadsRequested.Value;
+
+        /// <summary>
+        /// Gets a value indicating whether a seek operation is in progress.
+        /// </summary>
+        public bool IsSeeking => m_IsSeeking.Value;
 
         #endregion
 
@@ -339,13 +356,36 @@
         /// Pass TimeSpan.Zero to seek to the beginning of the stream.
         /// </summary>
         /// <param name="position">The position.</param>
-        /// <returns>The list of media frames</returns>
-        public List<MediaFrame> Seek(TimeSpan position)
+        /// <param name="aborted">if set to <c>true</c> [aborted].</param>
+        /// <returns>
+        /// The list of media frames
+        /// </returns>
+        /// <exception cref="InvalidOperationException">No input context initialized</exception>
+        public List<MediaFrame> Seek(TimeSpan position, out bool aborted)
         {
-            lock (ReadSyncRoot)
+            try
             {
-                if (IsDisposed || InputContext == null) throw new InvalidOperationException("No input context initialized");
-                return StreamSeek(position);
+                if (SignalAbortSeekRequested.Value)
+                {
+                    aborted = false;
+                    return new List<MediaFrame>(0);
+                }
+
+                m_IsSeeking.Value = true;
+                lock (ReadSyncRoot)
+                {
+                    if (IsDisposed || InputContext == null) throw new InvalidOperationException("No input context initialized");
+                    return StreamSeek(position, out aborted);
+                }
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                SignalAbortSeekRequested.Value = false;
+                m_IsSeeking.Value = false;
             }
         }
 
@@ -454,6 +494,10 @@
                             throw new MediaContainerException($"Unable to materialize frame of {nameof(MediaType)} {input.MediaType}");
                     }
                 }
+                catch
+                {
+                    throw;
+                }
                 finally
                 {
                     if (releaseInput)
@@ -463,22 +507,35 @@
         }
 
         /// <summary>
-        /// Signals the packet reading operations to abort immediately.
+        /// Signals the abortion of the current seek operation.
         /// </summary>
-        /// <param name="reset">if set to true, the interrupt will reset the aborted state automatically</param>
-        public void AbortReads(bool reset)
+        /// <returns>
+        /// Returns true if there was a seek operation in progress when this method was called.
+        /// </returns>
+        public bool SignalAbortSeek()
         {
-            StreamReadAbortAutoReset.Value = reset;
-            StreamReadAbortRequested.Value = true;
+            var result = IsSeeking;
+            SignalAbortSeekRequested.Value = true;
+            return result;
         }
 
         /// <summary>
-        /// Exits the aborted state for read operations
+        /// Signals the packet reading operations to abort immediately.
         /// </summary>
-        public void ResumeReads()
+        /// <param name="reset">if set to true, the read interrupt will reset the aborted state automatically</param>
+        public void SignalAbortReads(bool reset)
         {
-            StreamReadAbortRequested.Value = false;
-            StreamReadAbortAutoReset.Value = true;
+            SignalAbortReadsAutoReset.Value = reset;
+            SignalAbortReadsRequested.Value = true;
+        }
+
+        /// <summary>
+        /// Signals the state for read operations to stop being in the aborted state
+        /// </summary>
+        public void SignalResumeReads()
+        {
+            SignalAbortReadsRequested.Value = false;
+            SignalAbortReadsAutoReset.Value = true;
         }
 
         /// <summary>
@@ -491,7 +548,7 @@
             {
                 lock (DecodeSyncRoot)
                 {
-                    AbortReads(false);
+                    SignalAbortReads(false);
                     if (IsDisposed || InputContext == null)
                         throw new InvalidOperationException("No input context initialized");
 
@@ -532,7 +589,7 @@
             if (string.IsNullOrWhiteSpace(MediaOptions.ForcedInputFormat) == false)
             {
                 inputFormat = ffmpeg.av_find_input_format(MediaOptions.ForcedInputFormat);
-                Logger?.Log(MediaLogMessageType.Warning, $"Format '{MediaOptions.ForcedInputFormat}' not found. Will use automatic format detection.");
+                Parent?.Log(MediaLogMessageType.Warning, $"Format '{MediaOptions.ForcedInputFormat}' not found. Will use automatic format detection.");
             }
 
             try
@@ -547,8 +604,8 @@
                     InputContext = ffmpeg.avformat_alloc_context();
 
                     // Setup an interrup callback to detect read timeouts
-                    StreamReadAbortRequested.Value = false;
-                    StreamReadAbortAutoReset.Value = true;
+                    SignalAbortReadsRequested.Value = false;
+                    SignalAbortReadsAutoReset.Value = true;
                     StreamReadInterruptCallback = StreamReadInterrupt;
                     InputContext->interrupt_callback.callback = StreamReadInterruptCallback;
                     InputContext->interrupt_callback.opaque = InputContext;
@@ -596,7 +653,7 @@
                     var currentEntry = formatOptions.First();
                     while (currentEntry != null && currentEntry?.Key != null)
                     {
-                        Logger?.Log(MediaLogMessageType.Warning, $"Invalid format option: '{currentEntry.Key}'");
+                        Parent?.Log(MediaLogMessageType.Warning, $"Invalid format option: '{currentEntry.Key}'");
                         currentEntry = formatOptions.Next(currentEntry);
                     }
                 }
@@ -608,7 +665,7 @@
                 // This is useful for file formats with no headers such as MPEG. This function also computes 
                 // the real framerate in case of MPEG-2 repeat frame mode.
                 if (ffmpeg.avformat_find_stream_info(InputContext, null) < 0)
-                    Logger?.Log(MediaLogMessageType.Warning, $"{MediaUrl}: could not read stream information.");
+                    Parent?.Log(MediaLogMessageType.Warning, $"{MediaUrl}: could not read stream information.");
 
                 // HACK: From ffplay.c: maybe should not use avio_feof() to test for the end
                 if (InputContext->pb != null) InputContext->pb->eof_reached = 0;
@@ -632,7 +689,7 @@
                 if (MediaStartTimeOffset == TimeSpan.MinValue)
                 {
                     MediaStartTimeOffset = TimeSpan.Zero;
-                    Logger?.Log(MediaLogMessageType.Warning,
+                    Parent?.Log(MediaLogMessageType.Warning,
                         $"Unable to determine the media start time offset. " +
                         $"Media start time offset will be assumed to start at {TimeSpan.Zero}.");
                 }
@@ -652,7 +709,7 @@
             }
             catch (Exception ex)
             {
-                Logger?.Log(MediaLogMessageType.Error,
+                Parent?.Log(MediaLogMessageType.Error,
                     $"Fatal error initializing {nameof(MediaContainer)} instance. {ex.Message}");
                 Dispose(true);
                 throw;
@@ -674,7 +731,7 @@
             var minOffset = Components.All.Count > 0 ? Components.All.Min(c => c.StartTimeOffset) : MediaStartTimeOffset;
             if (minOffset != MediaStartTimeOffset)
             {
-                Logger?.Log(MediaLogMessageType.Warning, $"Input Start: {MediaStartTimeOffset.Format()} Comp. Start: {minOffset.Format()}. Input start will be updated.");
+                Parent?.Log(MediaLogMessageType.Warning, $"Input Start: {MediaStartTimeOffset.Format()} Comp. Start: {minOffset.Format()}. Input start will be updated.");
                 MediaStartTimeOffset = minOffset;
             }
 
@@ -692,7 +749,7 @@
         /// Creates the stream components by first finding the best available streams.
         /// Then it initializes the components of the correct type each.
         /// </summary>
-        /// <exception cref="Unosquare.FFME.MediaContainerException">The exception ifnromation</exception>
+        /// <exception cref="Unosquare.FFME.Shared.MediaContainerException">The exception ifnromation</exception>
         private void StreamCreateComponents()
         {
             // Create the audio component
@@ -705,7 +762,7 @@
             }
             catch (Exception ex)
             {
-                Logger?.Log(MediaLogMessageType.Error, $"Unable to initialize {MediaType.Audio} component. {ex.Message}");
+                Parent?.Log(MediaLogMessageType.Error, $"Unable to initialize {MediaType.Audio} component. {ex.Message}");
             }
 
             // Create the video component
@@ -718,7 +775,7 @@
             }
             catch (Exception ex)
             {
-                Logger?.Log(MediaLogMessageType.Error, $"Unable to initialize {MediaType.Video} component. {ex.Message}");
+                Parent?.Log(MediaLogMessageType.Error, $"Unable to initialize {MediaType.Video} component. {ex.Message}");
             }
 
             // Create the subtitle component
@@ -731,7 +788,7 @@
             }
             catch (Exception ex)
             {
-                Logger?.Log(MediaLogMessageType.Error, $"Unable to initialize {MediaType.Subtitle} component. {ex.Message}");
+                Parent?.Log(MediaLogMessageType.Error, $"Unable to initialize {MediaType.Subtitle} component. {ex.Message}");
             }
 
             // Verify we have at least 1 valid stream component to work with.
@@ -750,11 +807,11 @@
             const int OkResult = 0;
 
             // Check if a forced quit was triggered
-            if (StreamReadAbortRequested.Value)
+            if (SignalAbortReadsRequested.Value)
             {
-                Utils.Log(Logger, MediaLogMessageType.Info, $"{nameof(StreamReadInterrupt)} was requested an immediate read exit.");
-                if (StreamReadAbortAutoReset.Value)
-                    StreamReadAbortRequested.Value = false;
+                Parent?.Log(MediaLogMessageType.Info, $"{nameof(StreamReadInterrupt)} was requested an immediate read exit.");
+                if (SignalAbortReadsAutoReset.Value)
+                    SignalAbortReadsRequested.Value = false;
 
                 return ErrorResult;
             }
@@ -767,7 +824,7 @@
 
             if (MediaOptions.ReadTimeout.Ticks >= 0 && timeDifference.Ticks > MediaOptions.ReadTimeout.Ticks)
             {
-                Utils.Log(Logger, MediaLogMessageType.Error, $"{nameof(StreamReadInterrupt)} timed out with  {timeDifference.Format()}");
+                Parent?.Log(MediaLogMessageType.Error, $"{nameof(StreamReadInterrupt)} timed out with  {timeDifference.Format()}");
                 return ErrorResult;
             }
 
@@ -946,11 +1003,26 @@
             if (MediaStartTimeOffset == TimeSpan.MinValue) return;
             StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
             StreamReadSuspend();
+            
             var seekResult = ffmpeg.av_seek_frame(
                 InputContext,
                 -1,
                 SeekStartTimestamp,
                 MediaSeeksByBytes ? ffmpeg.AVSEEK_FLAG_BYTE : ffmpeg.AVSEEK_FLAG_BACKWARD);
+
+            /*
+            var seekResult = ffmpeg.av_seek_frame(
+                InputContext,
+                -1, // Components.Main.StreamIndex,
+                long.MinValue,
+                ffmpeg.AVSEEK_FLAG_BACKWARD | ffmpeg.AVSEEK_FLAG_ANY);
+            */
+
+            if (seekResult < 0)
+            {
+                Parent?.Log(MediaLogMessageType.Warning, 
+                    $"SEEK 0: {nameof(StreamSeekToStart)} operation failed. Error code {seekResult}, {Utils.DecodeFFmpegMessage(seekResult)}");
+            }
 
             Components.ClearPacketQueues();
             RequiresPictureAttachments = true;
@@ -963,12 +1035,16 @@
         /// Supports byte seeking.
         /// </summary>
         /// <param name="targetTime">The target time.</param>
-        /// <returns>The list of media frames</returns>
+        /// <param name="aborted">if set to <c>true</c> [aborted].</param>
+        /// <returns>
+        /// The list of media frames
+        /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private List<MediaFrame> StreamSeek(TimeSpan targetTime)
+        private List<MediaFrame> StreamSeek(TimeSpan targetTime, out bool aborted)
         {
             // Create the output result object
-            var result = new List<MediaFrame>();
+            aborted = SignalAbortSeekRequested.Value;
+            var result = new List<MediaFrame>(256);
 
             // A special kind of seek is the zero seek. Execute it if requested.
             if (targetTime <= TimeSpan.Zero)
@@ -982,7 +1058,7 @@
             // Cancel the seek operation if the stream does not support it.
             if (IsStreamSeekable == false)
             {
-                Logger?.Log(MediaLogMessageType.Warning, $"Unable to seek. Underlying stream does not support seeking.");
+                Parent?.Log(MediaLogMessageType.Warning, $"Unable to seek. Underlying stream does not support seeking.");
                 return result;
             }
 
@@ -1059,7 +1135,7 @@
                         isAtStartOfStream = false;
                     }
 
-                    Logger?.Log(MediaLogMessageType.Trace,
+                    Parent?.Log(MediaLogMessageType.Trace,
                         $"SEEK L: Elapsed: {startTime.FormatElapsed()} | Target: {relativeTargetTime.Format()} | Seek: {seekTarget.Format()} | P0: {startPos.Format(1024)} | P1: {StreamPosition.Format(1024)} ");
                 }
 
@@ -1072,7 +1148,7 @@
                 // Ensure we had a successful seek operation
                 if (seekResult < 0)
                 {
-                    Logger?.Log(MediaLogMessageType.Error, $"SEEK R: Elapsed: {startTime.FormatElapsed()} | Seek operation failed. Error code {seekResult}, {Utils.DecodeFFmpegMessage(seekResult)}");
+                    Parent?.Log(MediaLogMessageType.Error, $"SEEK R: Elapsed: {startTime.FormatElapsed()} | Seek operation failed. Error code {seekResult}, {Utils.DecodeFFmpegMessage(seekResult)}");
                     break;
                 }
 
@@ -1107,7 +1183,7 @@
                 relativeTargetTime = relativeTargetTime.Subtract(TimeSpan.FromSeconds(1));
             }
 
-            Logger?.Log(MediaLogMessageType.Trace,
+            Parent?.Log(MediaLogMessageType.Trace,
                 $"SEEK R: Elapsed: {startTime.FormatElapsed()} | Target: {relativeTargetTime.Format()} | Seek: {default(long).Format()} | P0: {startPos.Format(1024)} | P1: {StreamPosition.Format(1024)} ");
             return result;
 
@@ -1150,7 +1226,7 @@
 
             // Start reading and decoding util we reach the target
             var isDoneSeeking = false;
-            while (StreamReadAbortRequested.Value == false && IsAtEndOfStream == false && isDoneSeeking == false)
+            while (SignalAbortReadsRequested.Value == false && IsAtEndOfStream == false && isDoneSeeking == false)
             {
                 readSeekCycles++;
 
@@ -1213,7 +1289,7 @@
                 if (InputContext != null)
                 {
                     StreamReadSuspend();
-                    AbortReads(false);
+                    SignalAbortReads(false);
                     fixed (AVFormatContext** inputContext = &InputContext)
                         ffmpeg.avformat_close_input(inputContext);
 

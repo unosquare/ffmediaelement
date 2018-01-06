@@ -1,17 +1,17 @@
 ﻿namespace Unosquare.FFME.Rendering
 {
+    using Platform;
+    using Shared;
     using System;
-    using Decoding;
-    using System.Windows;
-    using Core;
     using System.Collections.Generic;
+    using System.Windows;
     using System.Windows.Threading;
 
     /// <summary>
     /// Subtitle Renderer - Does nothing at this point.
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.Rendering.IRenderer" />
-    internal class SubtitleRenderer : IRenderer
+    /// <seealso cref="Unosquare.FFME.Shared.IMediaRenderer" />
+    internal class SubtitleRenderer : IMediaRenderer
     {
         /// <summary>
         /// The synchronize lock
@@ -33,21 +33,21 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="SubtitleRenderer"/> class.
         /// </summary>
-        /// <param name="mediaElementCore">The core media element.</param>
-        public SubtitleRenderer(MediaElementCore mediaElementCore)
+        /// <param name="mediaEngine">The core media element.</param>
+        public SubtitleRenderer(MediaEngine mediaEngine)
         {
-            MediaElementCore = mediaElementCore;
+            MediaCore = mediaEngine;
         }
 
         /// <summary>
         /// Gets the parent media element (platform specific).
         /// </summary>
-        public MediaElement MediaElement => MediaElementCore?.Parent as MediaElement;
+        public MediaElement MediaElement => MediaCore?.Parent as MediaElement;
 
         /// <summary>
         /// Gets the core platform independent player component.
         /// </summary>
-        public MediaElementCore MediaElementCore { get; }
+        public MediaEngine MediaCore { get; }
 
         /// <summary>
         /// Executed when the Close method is called on the parent MediaElement
@@ -223,14 +223,14 @@
         /// Returns immediately because it enqueues the action on the UI thread.
         /// </summary>
         /// <param name="text">The text.</param>
-        private async void SetText(string text)
+        private void SetText(string text)
         {
             if (RenderedText.Equals(text))
                 return;
 
             // We fire-and-forget the update of the text
-            await WPFUtils.UIEnqueueInvoke(
-                DispatcherPriority.DataBind,
+            WindowsPlatform.Instance.UIEnqueueInvoke(
+                (ActionPriority)DispatcherPriority.DataBind,
                 new Action<string>((s) =>
                 {
                     lock (SyncLock)
