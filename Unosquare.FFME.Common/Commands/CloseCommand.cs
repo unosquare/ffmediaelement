@@ -25,11 +25,11 @@
         /// </summary>
         internal override void ExecuteInternal()
         {
-            var m = Manager.MediaElement;
+            var m = Manager.MediaCore;
 
             if (m.IsDisposed || m.IsOpen == false || m.IsOpening) return;
 
-            m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(CloseCommand)}: Entered");
+            m.Log(MediaLogMessageType.Debug, $"{nameof(CloseCommand)}: Entered");
             m.Clock.Pause();
 
             // Let the threads know a cancellation is pending.
@@ -95,10 +95,10 @@
                 foreach (var kvp in RC.Current.InstancesByLocation)
                     builder.AppendLine($"    {kvp.Key,30}: {kvp.Value}");
 
-                m.Logger.Log(MediaLogMessageType.Error, builder.ToString());
+                m.Log(MediaLogMessageType.Error, builder.ToString());
             }
 #endif
-            m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(CloseCommand)}: Completed");
+            m.Log(MediaLogMessageType.Debug, $"{nameof(CloseCommand)}: Completed");
         }
     }
 }

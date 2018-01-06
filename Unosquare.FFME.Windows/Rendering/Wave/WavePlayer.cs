@@ -48,7 +48,7 @@
         ~WavePlayer()
         {
             Dispose(false);
-            Renderer.MediaElement.Logger.Log(MediaLogMessageType.Error,
+            Renderer?.MediaElement?.MediaCore?.Log(MediaLogMessageType.Error,
                 $"{nameof(WavePlayer)}.{nameof(Dispose)} was not called. Please ensure you dispose when finished using this object.");
         }
 
@@ -307,7 +307,7 @@
             }
             catch (Exception e)
             {
-                Renderer.MediaElement.Logger.Log(MediaLogMessageType.Error, $"{nameof(AudioPlaybackTask)} exiting. {e.Message}. Stack Trace:\r\n{e.StackTrace}");
+                Renderer?.MediaElement?.MediaCore?.Log(MediaLogMessageType.Error, $"{nameof(AudioPlaybackTask)} exiting. {e.Message}. Stack Trace:\r\n{e.StackTrace}");
             }
             finally
             {
@@ -325,7 +325,7 @@
             while (m_PlaybackState != PlaybackState.Stopped)
             {
                 if (!(CallbackEvent?.WaitOne(DesiredLatency) ?? false) && m_PlaybackState == PlaybackState.Playing)
-                    Renderer.MediaElement.Logger.Log(MediaLogMessageType.Warning, $"{nameof(AudioPlaybackTask)}:{nameof(CallbackEvent)} timed out. Desired Latency: {DesiredLatency}ms");
+                    Renderer?.MediaElement?.MediaCore?.Log(MediaLogMessageType.Warning, $"{nameof(AudioPlaybackTask)}:{nameof(CallbackEvent)} timed out. Desired Latency: {DesiredLatency}ms");
 
                 if (m_PlaybackState != PlaybackState.Playing)
                     continue;

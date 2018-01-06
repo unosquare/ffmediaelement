@@ -83,7 +83,7 @@
         /// <returns>The awaitable task</returns>
         public async Task StartAsync()
         {
-            var m = Manager.MediaElement;
+            var m = Manager.MediaCore;
 
             // Avoid processing the command if the element is disposed.
             if (IsDisposed || m.IsDisposed)

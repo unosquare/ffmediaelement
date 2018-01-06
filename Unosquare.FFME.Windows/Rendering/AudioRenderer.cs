@@ -64,7 +64,7 @@
 
             if (Application.Current != null)
             {
-                WindowsGui.UIInvoke(DispatcherPriority.Normal, () =>
+                WindowsPlatform.Instance.UIInvoke((ActionPriority)DispatcherPriority.Normal, () =>
                 {
                     Application.Current.Exit += OnApplicationExit;
                 });
@@ -371,7 +371,7 @@
                 }
                 catch (Exception ex)
                 {
-                    MediaElement.Logger.Log(MediaLogMessageType.Error, $"{ex.GetType()} in {nameof(AudioRenderer)}.{nameof(Read)}: {ex.Message}. Stack Trace:\r\n{ex.StackTrace}");
+                    MediaElement?.MediaCore?.Log(MediaLogMessageType.Error, $"{ex.GetType()} in {nameof(AudioRenderer)}.{nameof(Read)}: {ex.Message}. Stack Trace:\r\n{ex.StackTrace}");
                     Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
                 }
 
@@ -437,7 +437,7 @@
             {
                 if (Application.Current != null)
                 {
-                    WindowsGui.UIInvoke(DispatcherPriority.Send, () =>
+                    WindowsPlatform.Instance.UIInvoke((ActionPriority)DispatcherPriority.Send, () =>
                     {
                         Application.Current.Exit -= OnApplicationExit;
                     });
@@ -490,7 +490,7 @@
             {
                 // a positive audio latency means we are rendering audio behind (after) the clock (skip some samples)
                 // and therefore we need to advance the buffer before we read from it.
-                MediaCore.Container?.Logger?.Log(MediaLogMessageType.Warning,
+                MediaCore.Log(MediaLogMessageType.Warning,
                     $"SYNC AUDIO: LATENCY: {audioLatency.Format()} | SKIP (samples being rendered too late)");
 
                 // skip some samples from the buffer.
@@ -512,7 +512,7 @@
                 {
                     // a negative audio latency means we are rendering audio ahead (before) the clock
                     // and therefore we need to render some silence until the clock catches up
-                    MediaCore.Container?.Logger?.Log(MediaLogMessageType.Warning,
+                    MediaCore.Log(MediaLogMessageType.Warning,
                         $"SYNC AUDIO: LATENCY: {audioLatency.Format()} | WAIT (samples being rendered too early)");
 
                     // render silence for the wait time and return

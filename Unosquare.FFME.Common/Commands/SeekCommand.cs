@@ -36,7 +36,7 @@
         /// </summary>
         internal override void ExecuteInternal()
         {
-            var m = Manager.MediaElement;
+            var m = Manager.MediaCore;
 
             WasPlaying = m.IsPlaying;
 
@@ -128,7 +128,7 @@
                     var minStartTime = m.Blocks[main].RangeStartTime.Ticks;
                     var maxStartTime = m.Blocks[main].RangeEndTime.Ticks;
 
-                    m.Logger.Log(MediaLogMessageType.Warning, 
+                    m.Log(MediaLogMessageType.Warning, 
                         $"SEEK TP: Target Pos {TargetPosition.Format()} not between {m.Blocks[main].RangeStartTime.TotalSeconds:0.000} and {m.Blocks[main].RangeEndTime.TotalSeconds:0.000}");
 
                     if (adjustedSeekTarget.Ticks < minStartTime)
@@ -154,14 +154,14 @@
             catch (Exception ex)
             {
                 // Log the exception
-                m.Logger.Log(MediaLogMessageType.Error,
+                m.Log(MediaLogMessageType.Error,
                     $"SEEK E: {ex.GetType()} - {ex.Message}. Stack Trace:\r\n{ex.StackTrace}");
             }
             finally
             {
                 if (m.HasDecoderSeeked)
                 {
-                    m.Logger.Log(MediaLogMessageType.Debug,
+                    m.Log(MediaLogMessageType.Debug,
                         $"SEEK D: Elapsed: {startTime.FormatElapsed()} | Target: {TargetPosition.Format()}");
                 }
 

@@ -6,7 +6,7 @@
     /// <summary>
     /// Connects handlers between the Media Engine and a platfrom-secific implementation
     /// </summary>
-    public interface IMediaEventConnector
+    public interface IMediaConnector
     {
         /// <summary>
         /// Called when [media opening].
@@ -80,7 +80,8 @@
         void OnPositionChanged(object sender, TimeSpan position);
 
         /// <summary>
-        /// Called when [property changed].
+        /// Called when an underlying media engine property is changed.
+        /// This is used to handle property change notifications
         /// </summary>
         /// <param name="sender">The sender.</param>
         /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>

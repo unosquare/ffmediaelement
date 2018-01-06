@@ -30,12 +30,12 @@
         /// </summary>
         internal override void ExecuteInternal()
         {
-            if (Manager.MediaElement.Clock.SpeedRatio != SpeedRatio)
-                Manager.MediaElement.Clock.SpeedRatio = SpeedRatio;
+            if (Manager.MediaCore.Clock.SpeedRatio != SpeedRatio)
+                Manager.MediaCore.Clock.SpeedRatio = SpeedRatio;
 
             MediaEngine.Platform.UIInvoke(ActionPriority.DataBind, () => 
             {
-                Manager.MediaElement.SpeedRatio = Manager.MediaElement.Clock.SpeedRatio;
+                Manager.MediaCore.SpeedRatio = Manager.MediaCore.Clock.SpeedRatio;
             });
         }
     }

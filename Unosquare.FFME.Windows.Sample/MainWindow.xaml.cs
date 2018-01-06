@@ -12,7 +12,6 @@
     using System.Runtime.InteropServices;
     using System.Windows;
     using System.Windows.Controls;
-    using System.Windows.Data;
     using System.Windows.Input;
     using System.Windows.Media;
     using System.Windows.Media.Animation;
@@ -428,6 +427,7 @@
             FFME.MediaElement.FFmpegMessageLogged += MediaElement_FFmpegMessageLogged;
 
 #if HANDLE_RENDERING_EVENTS
+
             #region Audio and Video Frame Rendering Variables
 
             System.Drawing.Bitmap overlayBitmap = null;
@@ -1019,13 +1019,14 @@
                 e.Options.VideoFilter = "yadif";
 
                 // When enabling HW acceleration, the filtering does not seem to get applied for some reason.
-                // e.Options.EnableHardwareAcceleration = false;
+                e.Options.EnableHardwareAcceleration = false;
             }
 
             // Experimetal HW acceleration support. Remove if not needed.
             /* e.Options.EnableHardwareAcceleration = Debugger.IsAttached; */
 
 #if APPLY_AUDIO_FILTER
+
             // e.Options.AudioFilter = "aecho=0.8:0.9:1000:0.3";
             e.Options.AudioFilter = "chorus=0.5:0.9:50|60|40:0.4|0.32|0.3:0.25|0.4|0.3:2|2.3|1.3";
 #endif

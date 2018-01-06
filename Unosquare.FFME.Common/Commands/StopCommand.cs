@@ -24,7 +24,7 @@
         /// </summary>
         internal override void ExecuteInternal()
         {
-            var m = Manager.MediaElement;
+            var m = Manager.MediaCore;
             m.Clock.Reset();
             var pause = new PauseCommand(Manager);
             pause.ExecuteInternal();

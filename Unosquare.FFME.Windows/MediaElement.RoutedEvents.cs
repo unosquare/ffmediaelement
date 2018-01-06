@@ -247,8 +247,11 @@
         internal void RaiseMediaFailedEvent(Exception ex)
         {
             LogEventStart(MediaFailedEvent);
-            Logger.Log(MediaLogMessageType.Error, $"Media Failure - {ex?.GetType()}: {ex?.Message}");
-            WindowsGui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(CreateExceptionRoutedEventArgs(MediaFailedEvent, this, ex)); });
+            MediaCore?.Log(MediaLogMessageType.Error, $"Media Failure - {ex?.GetType()}: {ex?.Message}");
+            WindowsPlatform.Instance.UIInvoke((ActionPriority)DispatcherPriority.DataBind, () =>
+            {
+                RaiseEvent(CreateExceptionRoutedEventArgs(MediaFailedEvent, this, ex));
+            });
             LogEventDone(MediaFailedEvent);
         }
 
@@ -259,7 +262,10 @@
         internal void RaiseMediaOpenedEvent()
         {
             LogEventStart(MediaOpenedEvent);
-            WindowsGui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaOpenedEvent, this)); });
+            WindowsPlatform.Instance.UIInvoke((ActionPriority)DispatcherPriority.DataBind, () =>
+            {
+                RaiseEvent(new RoutedEventArgs(MediaOpenedEvent, this));
+            });
             LogEventDone(MediaOpenedEvent);
         }
 
@@ -270,7 +276,10 @@
         internal void RaiseMediaClosedEvent()
         {
             LogEventStart(MediaClosedEvent);
-            WindowsGui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaClosedEvent, this)); });
+            WindowsPlatform.Instance.UIInvoke((ActionPriority)DispatcherPriority.DataBind, () =>
+            {
+                RaiseEvent(new RoutedEventArgs(MediaClosedEvent, this));
+            });
             LogEventDone(MediaClosedEvent);
         }
 
@@ -283,12 +292,12 @@
         internal void RaiseMediaOpeningEvent(MediaOptions mediaOptions, MediaInfo mediaInfo)
         {
             LogEventStart(MediaOpeningEvent);
-            WindowsGui.UIInvoke(DispatcherPriority.DataBind, () =>
+            WindowsPlatform.Instance.UIInvoke((ActionPriority)DispatcherPriority.DataBind, () =>
             {
                 RaiseEvent(new MediaOpeningRoutedEventArgs(
-                    MediaOpeningEvent, 
-                    this, 
-                    mediaOptions, 
+                    MediaOpeningEvent,
+                    this,
+                    mediaOptions,
                     mediaInfo));
             });
 
@@ -302,7 +311,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaisePositionChangedEvent(TimeSpan position)
         {
-            WindowsGui.UIInvoke(DispatcherPriority.DataBind, () =>
+            WindowsPlatform.Instance.UIInvoke((ActionPriority)DispatcherPriority.DataBind, () =>
             {
                 RaiseEvent(new PositionChangedRoutedEventArgs(
                     PositionChangedEvent,
@@ -318,7 +327,10 @@
         internal void RaiseBufferingStartedEvent()
         {
             LogEventStart(BufferingStartedEvent);
-            WindowsGui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(BufferingStartedEvent, this)); });
+            WindowsPlatform.Instance.UIInvoke((ActionPriority)DispatcherPriority.DataBind, () =>
+            {
+                RaiseEvent(new RoutedEventArgs(BufferingStartedEvent, this));
+            });
             LogEventDone(BufferingStartedEvent);
         }
 
@@ -329,7 +341,10 @@
         internal void RaiseBufferingEndedEvent()
         {
             LogEventStart(BufferingEndedEvent);
-            WindowsGui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(BufferingEndedEvent, this)); });
+            WindowsPlatform.Instance.UIInvoke((ActionPriority)DispatcherPriority.DataBind, () =>
+            {
+                RaiseEvent(new RoutedEventArgs(BufferingEndedEvent, this));
+            });
             LogEventDone(BufferingEndedEvent);
         }
 
@@ -340,7 +355,10 @@
         internal void RaiseSeekingStartedEvent()
         {
             LogEventStart(SeekingStartedEvent);
-            WindowsGui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(SeekingStartedEvent, this)); });
+            WindowsPlatform.Instance.UIInvoke((ActionPriority)DispatcherPriority.DataBind, () =>
+            {
+                RaiseEvent(new RoutedEventArgs(SeekingStartedEvent, this));
+            });
             LogEventDone(SeekingStartedEvent);
         }
 
@@ -351,7 +369,10 @@
         internal void RaiseSeekingEndedEvent()
         {
             LogEventStart(SeekingEndedEvent);
-            WindowsGui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(SeekingEndedEvent, this)); });
+            WindowsPlatform.Instance.UIInvoke((ActionPriority)DispatcherPriority.DataBind, () =>
+            {
+                RaiseEvent(new RoutedEventArgs(SeekingEndedEvent, this));
+            });
             LogEventDone(SeekingEndedEvent);
         }
 
@@ -362,7 +383,10 @@
         internal void RaiseMediaEndedEvent()
         {
             LogEventStart(MediaEndedEvent);
-            WindowsGui.UIInvoke(DispatcherPriority.DataBind, () => { RaiseEvent(new RoutedEventArgs(MediaEndedEvent, this)); });
+            WindowsPlatform.Instance.UIInvoke((ActionPriority)DispatcherPriority.DataBind, () =>
+            {
+                RaiseEvent(new RoutedEventArgs(MediaEndedEvent, this));
+            });
             LogEventDone(MediaEndedEvent);
         }
 
@@ -375,7 +399,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaisePropertyChangedEvent(string propertyName)
         {
-            WindowsGui.UIInvoke(DispatcherPriority.DataBind, () =>
+            WindowsPlatform.Instance.UIInvoke((ActionPriority)DispatcherPriority.DataBind, () =>
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             });
@@ -402,8 +426,8 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void LogEventStart(RoutedEvent e)
         {
-            if (Utils.IsInDebugMode)
-                Logger.Log(MediaLogMessageType.Trace, $"EVENT START: {e.Name}");
+            if (WindowsPlatform.Instance.IsInDebugMode)
+                MediaCore?.Log(MediaLogMessageType.Trace, $"EVENT START: {e.Name}");
         }
 
         /// <summary>
@@ -413,8 +437,8 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void LogEventDone(RoutedEvent e)
         {
-            if (Utils.IsInDebugMode)
-                Logger.Log(MediaLogMessageType.Trace, $"EVENT DONE : {e.Name}");
+            if (WindowsPlatform.Instance.IsInDebugMode)
+                MediaCore?.Log(MediaLogMessageType.Trace, $"EVENT DONE : {e.Name}");
         }
 
         #endregion

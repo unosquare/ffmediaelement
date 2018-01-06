@@ -128,19 +128,33 @@
                 throw new ArgumentNullException($"{nameof(input)} and {nameof(output)} are either null or not of a compatible media type '{MediaType}'");
 
             // Retrieve a suitable scaler or create it on the fly
-            Scaler = ffmpeg.sws_getCachedContext(
+            var newScaler = ffmpeg.sws_getCachedContext(
                 Scaler,
-                    source.Pointer->width,
-                    source.Pointer->height,
-                    NormalizePixelFormat(source.Pointer),
-                    source.Pointer->width,
-                    source.Pointer->height,
-                    OutputPixelFormat,
-                    ScalerFlags,
-                    null,
-                    null,
-                    null);
-            RC.Current.Add(Scaler, $"311: {nameof(VideoComponent)}.{nameof(MaterializeFrame)}()");
+                source.Pointer->width,
+                source.Pointer->height,
+                NormalizePixelFormat(source.Pointer),
+                source.Pointer->width,
+                source.Pointer->height,
+                OutputPixelFormat,
+                ScalerFlags,
+                null,
+                null,
+                null);
+
+            // if it's the first time we set the scaler, simply assign it.
+            if (Scaler == null)
+            {
+                Scaler = newScaler;
+                RC.Current.Add(Scaler, $"311: {nameof(VideoComponent)}.{nameof(MaterializeFrame)}()");
+            }
+            
+            // Reassign to the new scaler and remove the reference to the existing one
+            // The get cached context function automatically frees the existing scaler.
+            if (Scaler != newScaler)
+            {
+                RC.Current.Remove(Scaler);
+                Scaler = newScaler;
+            }            
 
             // Perform scaling and save the data to our unmanaged buffer pointer
             var targetBufferStride = ffmpeg.av_image_get_linesize(OutputPixelFormat, source.Pointer->width, 0);
@@ -419,7 +433,7 @@
             }
             catch (Exception ex)
             {
-                Container.Logger?.Log(MediaLogMessageType.Error, $"Video filter graph could not be built: {FilterString}.\r\n{ex.Message}");
+                Container.Parent?.Log(MediaLogMessageType.Error, $"Video filter graph could not be built: {FilterString}.\r\n{ex.Message}");
                 DestroyFiltergraph();
             }
         }

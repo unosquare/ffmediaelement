@@ -306,7 +306,7 @@
                             isBuffering = true;
                             resumeClock = Clock.IsRunning;
                             Clock.Pause();
-                            Logger.Log(MediaLogMessageType.Debug, $"SYNC-BUFFER: Started.");
+                            Log(MediaLogMessageType.Debug, $"SYNC-BUFFER: Started.");
 
                             // Read some frames and try to get a valid range
                             do
@@ -451,7 +451,7 @@
                         if (resumeClock) Clock.Play();
 
                         // log some message
-                        Logger.Log(
+                        Log(
                             MediaLogMessageType.Debug,
                             $"SYNC-BUFFER: Finished. Clock set to {wallClock.Format()}");
                     }

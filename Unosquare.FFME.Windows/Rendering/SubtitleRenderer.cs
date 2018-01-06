@@ -229,8 +229,8 @@
                 return;
 
             // We fire-and-forget the update of the text
-            WindowsGui.UIEnqueueInvoke(
-                DispatcherPriority.DataBind,
+            WindowsPlatform.Instance.UIEnqueueInvoke(
+                (ActionPriority)DispatcherPriority.DataBind,
                 new Action<string>((s) =>
                 {
                     lock (SyncLock)

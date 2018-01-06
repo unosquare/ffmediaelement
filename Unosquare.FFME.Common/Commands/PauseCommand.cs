@@ -23,7 +23,7 @@
         /// </summary>
         internal override void ExecuteInternal()
         {
-            var m = Manager.MediaElement;
+            var m = Manager.MediaCore;
             if (m.IsOpen == false) return;
             if (m.CanPause == false) return;
 

@@ -40,7 +40,7 @@
         {
             Length = bufferLength;
             Buffer = Marshal.AllocHGlobal(Length);
-            MediaEngine.Platform.FillMemory(Buffer, (uint)Length, 0);
+            MediaEngine.Platform.NativeMethods.FillMemory(Buffer, (uint)Length, 0);
         }
 
         /// <summary>
@@ -217,7 +217,7 @@
                     var copyLength = Math.Min(Length - WriteIndex, length - writeCount);
                     var sourcePtr = source + writeCount;
                     var targetPtr = Buffer + WriteIndex;
-                    MediaEngine.Platform.CopyMemory(targetPtr, sourcePtr, (uint)copyLength);
+                    MediaEngine.Platform.NativeMethods.CopyMemory(targetPtr, sourcePtr, (uint)copyLength);
 
                     writeCount += copyLength;
                     WriteIndex += copyLength;

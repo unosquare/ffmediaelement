@@ -4,60 +4,115 @@
     using System;
     using System.ComponentModel;
 
-    internal class WindowsEventConnector : IMediaEventConnector
+    /// <summary>
+    /// The Media engine connector
+    /// </summary>
+    /// <seealso cref="Unosquare.FFME.Shared.IMediaConnector" />
+    internal class WindowsMediaConnector : IMediaConnector
     {
         private MediaElement Control = null;
 
-        public WindowsEventConnector(MediaElement control)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WindowsMediaConnector"/> class.
+        /// </summary>
+        /// <param name="control">The control.</param>
+        public WindowsMediaConnector(MediaElement control)
         {
             Control = control;
         }
 
+        /// <summary>
+        /// Called when [buffering ended].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
         public void OnBufferingEnded(object sender)
         {
             Control?.RaiseBufferingEndedEvent();
         }
 
+        /// <summary>
+        /// Called when [buffering started].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
         public void OnBufferingStarted(object sender)
         {
             Control?.RaiseBufferingStartedEvent();
         }
 
+        /// <summary>
+        /// Called when [media closed].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
         public void OnMediaClosed(object sender)
         {
             Control?.RaiseMediaClosedEvent();
         }
 
+        /// <summary>
+        /// Called when [media ended].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
         public void OnMediaEnded(object sender)
         {
             Control?.RaiseMediaEndedEvent();
         }
 
+        /// <summary>
+        /// Called when [media failed].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The e.</param>
         public void OnMediaFailed(object sender, Exception e)
         {
             Control?.RaiseMediaFailedEvent(e);
         }
 
+        /// <summary>
+        /// Called when [media opened].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
         public void OnMediaOpened(object sender)
         {
             Control?.RaiseMediaOpenedEvent();
         }
 
+        /// <summary>
+        /// Called when [media opening].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="mediaOptions">The media options.</param>
+        /// <param name="mediaInfo">The media information.</param>
         public void OnMediaOpening(object sender, MediaOptions mediaOptions, MediaInfo mediaInfo)
         {
             Control?.RaiseMediaOpeningEvent(mediaOptions, mediaInfo);
         }
 
+        /// <summary>
+        /// Called when [message logged].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="T:Unosquare.FFME.Shared.MediaLogMessage" /> instance containing the event data.</param>
         public void OnMessageLogged(object sender, MediaLogMessage e)
         {
             Control?.RaiseMessageLoggedEvent(e);
         }
 
+        /// <summary>
+        /// Called when [position changed].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="position">The position.</param>
         public void OnPositionChanged(object sender, TimeSpan position)
         {
             Control?.RaisePositionChangedEvent(position);
         }
 
+        /// <summary>
+        /// Called when an underlying media engine property is changed.
+        /// This is used to handle property change notifications
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="T:System.ComponentModel.PropertyChangedEventArgs" /> instance containing the event data.</param>
         public void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
@@ -129,11 +184,19 @@
             }
         }
 
+        /// <summary>
+        /// Called when [seeking ended].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
         public void OnSeekingEnded(object sender)
         {
             Control?.RaiseSeekingEndedEvent();
         }
 
+        /// <summary>
+        /// Called when [seeking started].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
         public void OnSeekingStarted(object sender)
         {
             Control?.RaiseSeekingStartedEvent();

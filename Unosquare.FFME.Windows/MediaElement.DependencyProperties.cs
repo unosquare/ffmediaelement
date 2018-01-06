@@ -20,7 +20,7 @@
             nameof(Source),
             typeof(Uri),
             typeof(MediaElement),
-            new FrameworkPropertyMetadata(null, WindowsGui.AffectsMeasureAndRender, OnSourcePropertyChanged, OnSourcePropertyCoerce));
+            new FrameworkPropertyMetadata(null, AffectsMeasureAndRender, OnSourcePropertyChanged, OnSourcePropertyCoerce));
 
         /// <summary>
         /// DependencyProperty for Stretch property. 
@@ -29,7 +29,7 @@
             nameof(Stretch),
             typeof(Stretch),
             typeof(MediaElement),
-            new FrameworkPropertyMetadata(Stretch.Uniform, WindowsGui.AffectsMeasureAndRender, OnStretchPropertyChanged));
+            new FrameworkPropertyMetadata(Stretch.Uniform, AffectsMeasureAndRender, OnStretchPropertyChanged));
 
         /// <summary> 
         /// DependencyProperty for StretchDirection property.
@@ -38,7 +38,7 @@
             nameof(StretchDirection),
             typeof(StretchDirection),
             typeof(MediaElement),
-            new FrameworkPropertyMetadata(StretchDirection.Both, WindowsGui.AffectsMeasureAndRender, OnStretchDirectionPropertyChanged));
+            new FrameworkPropertyMetadata(StretchDirection.Both, AffectsMeasureAndRender, OnStretchDirectionPropertyChanged));
 
         /// <summary>
         /// The DependencyProperty for the MediaElement.Balance property. 
@@ -65,7 +65,7 @@
             nameof(SpeedRatio),
             typeof(double),
             typeof(MediaElement),
-            new FrameworkPropertyMetadata(Defaults.DefaultSpeedRatio, WindowsGui.AffectsMeasureAndRender, new PropertyChangedCallback(SpeedRatioPropertyChanged), new CoerceValueCallback(CoerceSpeedRatioProperty)));
+            new FrameworkPropertyMetadata(Defaults.DefaultSpeedRatio, AffectsMeasureAndRender, new PropertyChangedCallback(SpeedRatioPropertyChanged), new CoerceValueCallback(CoerceSpeedRatioProperty)));
 
         /// <summary> 
         /// The DependencyProperty for the MediaElement.Volume property.
@@ -111,7 +111,7 @@
             nameof(Position),
             typeof(TimeSpan),
             typeof(MediaElement),
-            new FrameworkPropertyMetadata(TimeSpan.Zero, WindowsGui.AffectsMeasureAndRender | FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, new PropertyChangedCallback(PositionPropertyChanged), new CoerceValueCallback(CoercePositionProperty)));
+            new FrameworkPropertyMetadata(TimeSpan.Zero, AffectsMeasureAndRender | FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, new PropertyChangedCallback(PositionPropertyChanged), new CoerceValueCallback(CoercePositionProperty)));
 
         #endregion
 

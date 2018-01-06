@@ -3,25 +3,28 @@
     using Foundation;
     using Shared;
     using System;
+    using System.Diagnostics;
     using Unosquare.FFME.MacOS.Rendering;
 
-    internal class MacPlatform : IPlatformConnector
+    internal class MacPlatform : IPlatform
     {
         private static readonly object SyncLock = new object();
-        private static IPlatformConnector m_Instance = null;
+        private static IPlatform m_Instance = null;
 
         /// <summary>
         /// Prevents a default instance of the <see cref="MacPlatform"/> class from being created.
         /// </summary>
         private MacPlatform()
         {
-            // placeholder
+            NativeMethods = new MacNativeMethods();
+            IsInDebugMode = Debugger.IsAttached;
+            IsInDesignTime = false;
         }
 
         /// <summary>
         /// Gets the default Windows-specific implementation
         /// </summary>
-        public static IPlatformConnector Default
+        public static IPlatform Current
         {
             get
             {
@@ -35,40 +38,43 @@
             }
         }
 
-        public Func<string, bool> SetDllDirectory => NativeMethods.SetDllDirectory;
+        public INativeMethods NativeMethods { get; }
 
-        public Action<IntPtr, IntPtr, uint> CopyMemory => NativeMethods.CopyMemory;
+        public bool IsInDebugMode { get; }
 
-        public Action<IntPtr, uint, byte> FillMemory => NativeMethods.FillMemory;
+        public bool IsInDesignTime { get; }
 
-        public Action<ActionPriority, Action> UIInvoke => (priority, action) =>
+        public IDispatcherTimer CreateDispatcherTimer(ActionPriority priority)
         {
-            NSRunLoop.Main.BeginInvokeOnMainThread(action.Invoke);
-        };
+            return new MacDispatcherTimer();
+        }
 
-        public Action<ActionPriority, Delegate, object[]> UIEnqueueInvoke => (priority, action, args) =>
+        public IMediaRenderer CreateRenderer(MediaType mediaType, MediaEngine mediaEngine)
+        {
+            if (mediaType == MediaType.Audio) return new AudioRenderer(mediaEngine);
+            else if (mediaType == MediaType.Video) return new VideoRenderer(mediaEngine);
+            else if (mediaType == MediaType.Subtitle) return new SubtitleRenderer(mediaEngine);
+
+            throw new ArgumentException($"No suitable renderer for Media Type '{mediaType}'");
+        }
+
+        public void HandleFFmpegLogMessage(MediaLogMessage message)
+        {
+            if (message.MessageType == MediaLogMessageType.Trace) return;
+            Console.WriteLine($"{message.MessageType,10} - {message.Message}");
+        }
+
+        public void UIEnqueueInvoke(ActionPriority priority, Delegate callback, params object[] arguments)
         {
             NSRunLoop.Main.BeginInvokeOnMainThread(() =>
             {
-                action.DynamicInvoke(args);
+                callback.DynamicInvoke(arguments);
             });
-        };
+        }
 
-        public Func<MediaType, MediaEngine, IMediaRenderer> CreateRenderer => (mediaType, m) =>
+        public void UIInvoke(ActionPriority priority, Action action)
         {
-            if (mediaType == MediaType.Audio) return new AudioRenderer(m);
-            else if (mediaType == MediaType.Video) return new VideoRenderer(m);
-            else if (mediaType == MediaType.Subtitle) return new SubtitleRenderer(m);
-
-            throw new ArgumentException($"No suitable renderer for Media Type '{mediaType}'");
-        };
-
-        public Func<ActionPriority, IDispatcherTimer> CreateTimer => (p) => { return new CustomDispatcherTimer(); };
-
-        public void OnFFmpegMessageLogged(object sender, MediaLogMessage e)
-        {
-            if (e.MessageType == MediaLogMessageType.Trace) return;
-            Console.WriteLine($"{e.MessageType,10} - {e.Message}");
+            NSRunLoop.Main.BeginInvokeOnMainThread(action.Invoke);
         }
     }
 }

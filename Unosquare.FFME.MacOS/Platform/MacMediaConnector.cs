@@ -4,11 +4,11 @@
     using System.ComponentModel;
     using Unosquare.FFME.Shared;
 
-    internal class MacEventConnector : IMediaEventConnector
+    internal class MacMediaConnector : IMediaConnector
     {
         private MediaElement Control = null;
 
-        public MacEventConnector(MediaElement control)
+        public MacMediaConnector(MediaElement control)
         {
             Control = control;
         }

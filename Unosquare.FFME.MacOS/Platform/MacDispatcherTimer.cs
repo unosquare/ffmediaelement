@@ -1,11 +1,11 @@
 ﻿namespace Unosquare.FFME.MacOS.Platform
 {
+    using Shared;
     using System;
     using System.Timers;
-    using Shared;
-    using Unosquare.FFME.Core;
+    using Core;
 
-    class CustomDispatcherTimer : IDispatcherTimer
+    class MacDispatcherTimer : IDispatcherTimer
     {
         Timer timer;
 
@@ -19,7 +19,7 @@
 
         public event EventHandler Tick;
 
-        public CustomDispatcherTimer()
+        public MacDispatcherTimer()
         {
             timer = new Timer(Constants.UIPropertyUpdateInterval.TotalMilliseconds);
             timer.Elapsed += (sender, e) => Tick?.Invoke(this, EventArgs.Empty);

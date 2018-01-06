@@ -34,7 +34,7 @@
         /// </summary>
         internal override void ExecuteInternal()
         {
-            var m = Manager.MediaElement;
+            var m = Manager.MediaCore;
 
             if (m.IsDisposed || m.IsOpen || m.IsOpening) return;
 
@@ -44,7 +44,7 @@
                 if (MediaEngine.IsFFmpegLoaded.Value == false)
                 {
                     MediaEngine.FFmpegDirectory = Utils.RegisterFFmpeg(MediaEngine.FFmpegDirectory);
-                    m.Logger.Log(MediaLogMessageType.Info, $"INIT FFMPEG: {ffmpeg.av_version_info()}");
+                    m.Log(MediaLogMessageType.Info, $"INIT FFMPEG: {ffmpeg.av_version_info()}");
                 }
 
                 MediaEngine.Platform.UIInvoke(
@@ -56,9 +56,9 @@
                 var mediaUrl = Source.IsFile ? Source.LocalPath : Source.ToString();
 
                 // the async protocol prefix allows for increased performance for local files.
-                m.Container = new MediaContainer(mediaUrl, m.Logger, Source.IsFile ? "async" : null);
+                m.Container = new MediaContainer(mediaUrl, m, Source.IsFile ? "async" : null);
                 m.RaiseMediaOpeningEvent();
-                m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Entered");
+                m.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Entered");
                 m.Container.Open();
 
                 m.MediaState = MediaEngineState.Stop;
@@ -67,7 +67,7 @@
                 {
                     m.Blocks[t] = new MediaBlockBuffer(MediaEngine.MaxBlocks[t], t);
                     m.LastRenderTime[t] = TimeSpan.MinValue;
-                    m.Renderers[t] = MediaEngine.Platform.CreateRenderer(t, Manager.MediaElement);
+                    m.Renderers[t] = MediaEngine.Platform.CreateRenderer(t, Manager.MediaCore);
                 }
 
                 m.Clock.SpeedRatio = Defaults.DefaultSpeedRatio;
@@ -110,7 +110,7 @@
             {
                 m.IsOpening = false;
                 MediaEngine.Platform.UIInvoke(ActionPriority.DataBind, () => { m.NotifyPropertyChanges(); });
-                m.Logger.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Completed");
+                m.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Completed");
             }
         }
     }

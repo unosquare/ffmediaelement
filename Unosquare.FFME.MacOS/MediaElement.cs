@@ -13,13 +13,13 @@
 
         static MediaElement()
         {
-            MediaEngine.Initialize(MacPlatform.Default);
+            MediaEngine.Initialize(MacPlatform.Current);
         }
 
         public MediaElement(NSImageView imageView)
         {
             this.ImageView = imageView;
-            this.MediaCore = new MediaEngine(this, false, new MacEventConnector(this));
+            this.MediaCore = new MediaEngine(this, new MacMediaConnector(this));
         }
 
         #endregion

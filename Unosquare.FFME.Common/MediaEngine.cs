@@ -14,24 +14,9 @@
     /// </summary>
     /// <seealso cref="System.IDisposable" />
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
-    public partial class MediaEngine : IDisposable
+    public partial class MediaEngine : IDisposable, IMediaLogger
     {
         #region Fields and Property Backing
-
-        /// <summary>
-        /// The initialize lock
-        /// </summary>
-        private static readonly object InitLock = new object();
-
-        /// <summary>
-        /// The has intialized flag
-        /// </summary>
-        private static bool IsIntialized = default(bool);
-
-        /// <summary>
-        /// The ffmpeg directory
-        /// </summary>
-        private static string m_FFmpegDirectory = null;
 
         /// <summary>
         /// To detect redundant calls
@@ -62,19 +47,18 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="MediaEngine" /> class.
         /// </summary>
-        /// <param name="parent">The parent.</param>
-        /// <param name="isInDesignTime">if set to <c>true</c> [is in design time].</param>
-        /// <param name="connector">The connector.</param>
+        /// <param name="parent">The associated parent object.</param>
+        /// <param name="connector">The parent implementing connector methods.</param>
         /// <exception cref="InvalidOperationException">Thrown when the static Initialize method has not been called.</exception>
-        public MediaEngine(object parent, bool isInDesignTime, IMediaEventConnector connector)
+        public MediaEngine(object parent, IMediaConnector connector)
         {
+            // Assiciate the parent as the media connector that implements the callbacks
             Parent = parent;
-            Logger = new GenericMediaLogger<MediaEngine>(this);
-            Commands = new MediaCommandManager(this);
             Connector = connector;
+            Commands = new MediaCommandManager(this);
 
-            // Don't start up timers or any other stoff if we are in design-time
-            if (isInDesignTime) return;
+            // Don't start up timers or any other stuff if we are in design-time
+            if (Platform.IsInDesignTime) return;
 
             // Check initialization has taken place
             lock (InitLock)
@@ -88,7 +72,7 @@
 
             // The UI Property update timer is responsible for timely updates to properties outside of the worker threads
             // We use the loaded priority because it is the priority right below the Render one.
-            UIPropertyUpdateTimer = Platform.CreateTimer(ActionPriority.Loaded);
+            UIPropertyUpdateTimer = MediaEngine.Platform.CreateDispatcherTimer(ActionPriority.Loaded);
             UIPropertyUpdateTimer.Interval = Constants.UIPropertyUpdateInterval;
 
             // The tick callback performs the updates
@@ -131,28 +115,7 @@
         #region Properties
 
         /// <summary>
-        /// Gets or sets the FFmpeg path from which to load the FFmpeg binaries.
-        /// You must set this path before setting the Source property for the first time on any instance of this control.
-        /// Settng this property when FFmpeg binaries have been registered will throw an exception.
-        /// </summary>
-        public static string FFmpegDirectory
-        {
-            get => m_FFmpegDirectory;
-            set
-            {
-                if (IsFFmpegLoaded.Value == false)
-                {
-                    m_FFmpegDirectory = value;
-                    return;
-                }
-
-                if ((value?.Equals(m_FFmpegDirectory) ?? false) == false)
-                    throw new InvalidOperationException($"Unable to set a new FFmpeg registration path: {value}. FFmpeg binaries have already been registered.");
-            }
-        }
-
-        /// <summary>
-        /// Gets the parent control (platform specific).
+        /// Gets the associated parent object.
         /// </summary>
         public object Parent { get; }
 
@@ -165,43 +128,27 @@
         public bool IsDisposed => m_IsDisposed;
 
         /// <summary>
-        /// Gets the platform-specific callbacks.
-        /// </summary>
-        internal static IPlatformConnector Platform { get; private set; }
-
-        /// <summary>
         /// Gets whether FFmpeg is logged or not
         /// </summary>
         internal static AtomicBoolean IsFFmpegLoaded { get; } = new AtomicBoolean(false);
 
         /// <summary>
-        /// The logger
-        /// </summary>
-        internal IMediaLogger Logger { get; }
-
-        /// <summary>
         /// Gets the event connector (platform specific).
         /// </summary>
-        internal IMediaEventConnector Connector { get; }
+        internal IMediaConnector Connector { get; }
 
         #endregion
 
         #region Methods
 
         /// <summary>
-        /// Initializes the MedieElementCore.
+        /// Logs the specified message into the logger queue.
         /// </summary>
-        /// <param name="platform">The platform-specific implementation.</param>
-        public static void Initialize(IPlatformConnector platform)
+        /// <param name="messageType">Type of the message.</param>
+        /// <param name="message">The message.</param>
+        public void Log(MediaLogMessageType messageType, string message)
         {
-            lock (InitLock)
-            {
-                if (IsIntialized)
-                    return;
-
-                Platform = platform;
-                IsIntialized = true;
-            }
+            Utils.Log(this, messageType, message);
         }
 
         /// <summary>
@@ -285,10 +232,10 @@
         /// that support <see cref="CallerMemberNameAttribute"/>.</param>
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            Platform.UIInvoke(ActionPriority.DataBind, () =>
+            Platform.UIInvoke(ActionPriority.DataBind, (Action)(() =>
             {
-                Connector?.OnPropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            });
+                this.Connector?.OnPropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }));
         }
 
         #endregion

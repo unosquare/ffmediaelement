@@ -86,7 +86,7 @@
         /// </summary>
         public void Close()
         {
-            WindowsGui.UIInvoke(DispatcherPriority.Render, () =>
+            WindowsPlatform.Instance.UIInvoke((ActionPriority)DispatcherPriority.Render, () =>
             {
                 TargetBitmap = null;
                 MediaElement.ViewBox.Source = null;
@@ -122,14 +122,14 @@
             if (block == null) return;
             if (IsRenderingInProgress.Value == true)
             {
-                MediaElement.Logger.Log(MediaLogMessageType.Debug, $"{nameof(VideoRenderer)}: Frame skipped at {mediaBlock.StartTime}");
+                MediaElement?.MediaCore?.Log(MediaLogMessageType.Debug, $"{nameof(VideoRenderer)}: Frame skipped at {mediaBlock.StartTime}");
                 return;
             }
 
             IsRenderingInProgress.Value = true;
 
-            WindowsGui.UIEnqueueInvoke(
-                DispatcherPriority.Render,
+            WindowsPlatform.Instance.UIEnqueueInvoke(
+                (ActionPriority)DispatcherPriority.Render,
                 new Action<VideoBlock, TimeSpan>((b, cP) =>
                 {
                     try
@@ -160,7 +160,9 @@
                     }
                     catch (Exception ex)
                     {
-                        Utils.Log(MediaElement, MediaLogMessageType.Error, $"{nameof(VideoRenderer)} {ex.GetType()}: {ex.Message}. Stack Trace:\r\n{ex.StackTrace}");
+                        MediaElement?.MediaCore?.Log(
+                            MediaLogMessageType.Error, 
+                            $"{nameof(VideoRenderer)} {ex.GetType()}: {ex.Message}. Stack Trace:\r\n{ex.StackTrace}");
                     }
                     finally
                     {
@@ -188,7 +190,7 @@
         /// <param name="block">The block.</param>
         private void InitializeTargetBitmap(VideoBlock block)
         {
-            WindowsGui.UIInvoke(DispatcherPriority.Normal, () =>
+            WindowsPlatform.Instance.UIInvoke((ActionPriority)DispatcherPriority.Normal, () =>
             {
                 var visual = PresentationSource.FromVisual(MediaElement);
 

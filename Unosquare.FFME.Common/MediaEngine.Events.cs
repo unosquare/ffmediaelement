@@ -24,7 +24,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseMediaFailedEvent(Exception ex)
         {
-            Logger.Log(MediaLogMessageType.Error, $"Media Failure - {ex?.GetType()}: {ex?.Message}");
+            Log(MediaLogMessageType.Error, $"Media Failure - {ex?.GetType()}: {ex?.Message}");
             Platform.UIInvoke(ActionPriority.DataBind, () => Connector?.OnMediaFailed(this, ex));
         }
 

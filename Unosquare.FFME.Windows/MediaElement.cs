@@ -27,19 +27,8 @@
     {
         #region Fields and Property Backing
 
-#pragma warning disable SA1401 // Fields must be private
-
-        /// <summary>
-        /// The logger
-        /// </summary>
-        internal readonly GenericMediaLogger<MediaElement> Logger;
-
-        /// <summary>
-        /// This is the image that will display the video from a Writeable Bitmap
-        /// </summary>
-        internal readonly Image ViewBox = new Image();
-
-#pragma warning restore SA1401 // Fields must be private
+        internal const FrameworkPropertyMetadataOptions AffectsMeasureAndRender
+            = FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender;
 
         /// <summary>
         /// IUriContext BaseUri backing
@@ -63,7 +52,7 @@
             StyleProperty.OverrideMetadata(typeof(MediaElement), new FrameworkPropertyMetadata(style));
 
             // Initialize the core
-            MediaEngine.Initialize(WindowsPlatformConnector.Default);
+            MediaEngine.Initialize(WindowsPlatform.Instance);
         }
 
         /// <summary>
@@ -79,10 +68,9 @@
             ContentGrid.Children.Add(ViewBox);
             Stretch = ViewBox.Stretch;
             StretchDirection = ViewBox.StretchDirection;
-            Logger = new GenericMediaLogger<MediaElement>(this);
-            MediaCore = new MediaEngine(this, WindowsGui.IsInDesignTime, new WindowsEventConnector(this));
+            MediaCore = new MediaEngine(this, new WindowsMediaConnector(this));
 
-            if (WindowsGui.IsInDesignTime)
+            if (WindowsPlatform.Instance.IsInDesignTime)
             {
                 // Shows an FFmpeg image if we are in design-time
                 var bitmap = Properties.Resources.FFmpegMediaElementBackground;
@@ -131,6 +119,11 @@
             get => MediaEngine.FFmpegDirectory;
             set => MediaEngine.FFmpegDirectory = value;
         }
+
+        /// <summary>
+        /// This is the image that will display the video from a Writeable Bitmap
+        /// </summary>
+        public Image ViewBox { get; } = new Image();
 
         /// <summary>
         /// Gets or sets the horizontal alignment characteristics applied to this element when it is 

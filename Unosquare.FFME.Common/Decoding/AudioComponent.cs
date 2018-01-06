@@ -391,7 +391,7 @@
             }
             catch (Exception ex)
             {
-                Container.Logger?.Log(MediaLogMessageType.Error, $"Audio filter graph could not be built: {FilterString}.\r\n{ex.Message}");
+                Container.Parent?.Log(MediaLogMessageType.Error, $"Audio filter graph could not be built: {FilterString}.\r\n{ex.Message}");
                 DestroyFiltergraph();
             }
         }
