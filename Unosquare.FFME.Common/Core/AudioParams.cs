@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME.Core
 {
     using FFmpeg.AutoGen;
+    using Shared;
     using System;
 
     /// <summary>
@@ -10,9 +11,6 @@
     internal sealed unsafe class AudioParams
     {
         #region Constant Definitions
-
-        public const int BufferPadding = 256;
-        public const int OutputBitsPerSample = 16;
 
         /// <summary>
         /// The standard output audio spec
@@ -30,15 +28,15 @@
         {
             Output = new AudioParams()
             {
-                ChannelCount = 2,
-                SampleRate = 48000,
-                Format = AVSampleFormat.AV_SAMPLE_FMT_S16
+                ChannelCount = DecoderParams.AudioChannelCount,
+                SampleRate = DecoderParams.AudioSampleRate,
+                Format = DecoderParams.AudioSampleFormat
             };
 
             Output.ChannelLayout = ffmpeg.av_get_default_channel_layout(Output.ChannelCount);
             Output.SamplesPerChannel = Output.SampleRate;
             Output.BufferLength = ffmpeg.av_samples_get_buffer_size(
-                null, Output.ChannelCount, Output.SamplesPerChannel + BufferPadding, Output.Format, 1);
+                null, Output.ChannelCount, Output.SamplesPerChannel + DecoderParams.AudioBufferPadding, Output.Format, 1);
         }
 
         /// <summary>
@@ -134,7 +132,8 @@
 
             // The target transform is just a ratio of the source frame's sample. This is how many samples we desire
             spec.SamplesPerChannel = (int)Math.Round((double)frame->nb_samples * spec.SampleRate / frame->sample_rate, 0);
-            spec.BufferLength = ffmpeg.av_samples_get_buffer_size(null, spec.ChannelCount, spec.SamplesPerChannel + BufferPadding, spec.Format, 1);
+            spec.BufferLength = ffmpeg.av_samples_get_buffer_size(
+                null, spec.ChannelCount, spec.SamplesPerChannel + DecoderParams.AudioBufferPadding, spec.Format, 1);
             return spec;
         }
 

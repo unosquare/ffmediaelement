@@ -652,7 +652,21 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int SendBlockToRenderer(MediaBlock block, TimeSpan clockPosition)
         {
-            Renderers[block.MediaType].Render(block, clockPosition);
+            // Process property changes coming from video blocks
+            if (block != null && block.MediaType == MediaType.Video)
+            {
+                if (block is VideoBlock videoBlock)
+                {
+                    VideoSmtpeTimecode = videoBlock.SmtpeTimecode;
+                    VideoHardwareDecoder = (Container?.Components?.Video?.IsUsingHardwareDecoding ?? false) ?
+                        Container?.Components?.Video?.HardwareAccelerator?.Name ?? string.Empty : string.Empty;
+                }
+            }
+
+            // Send the block to its corresponding renderer
+            Renderers[block.MediaType]?.Render(block, clockPosition);
+
+            // Extension method for logging
             this.LogRenderBlock(block, clockPosition, Blocks[block.MediaType].IndexOf(clockPosition));
             LastRenderTime[block.MediaType] = block.StartTime;
             return 1;

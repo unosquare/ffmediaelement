@@ -1,10 +1,11 @@
 ﻿namespace Unosquare.FFME.Rendering
 {
-    using Core;
+    using FFmpeg.AutoGen;
     using Platform;
     using Primitives;
     using Shared;
     using System;
+    using System.Collections.Generic;
     using System.Runtime.CompilerServices;
     using System.Windows;
     using System.Windows.Media;
@@ -18,6 +19,14 @@
     internal sealed class VideoRenderer : IMediaRenderer
     {
         #region Private State
+
+        /// <summary>
+        /// Contains an equivalence lookup of FFmpeg pixel fromat and WPF pixel formats.
+        /// </summary>
+        private static readonly Dictionary<AVPixelFormat, PixelFormat> MediaPixelFormats = new Dictionary<AVPixelFormat, PixelFormat>
+        {
+            { AVPixelFormat.AV_PIX_FMT_BGR0, PixelFormats.Bgr32 }
+        };
 
         /// <summary>
         /// The bitmap that is presented to the user.
@@ -142,14 +151,18 @@
                             InitializeTargetBitmap(b);
 
                         var updateRect = new Int32Rect(0, 0, b.PixelWidth, b.PixelHeight);
-                        TargetBitmap.WritePixels(updateRect, b.Buffer, b.BufferLength, b.BufferStride);
-                        MediaCore.VideoSmtpeTimecode = b.SmtpeTimecode;
-                        MediaCore.VideoHardwareDecoder = (MediaCore.Container?.Components?.Video?.IsUsingHardwareDecoding ?? false) ?
-                            MediaCore.Container?.Components?.Video?.HardwareAccelerator?.Name ?? string.Empty : string.Empty;
+
+                        // This is equivalent to WritePixels except for all the error checking and helper method calling
+                        // and therefore it should perform slightly better.
+                        // // TargetBitmap.WritePixels(updateRect, b.Buffer, b.BufferLength, b.BufferStride);
+                        TargetBitmap.Lock();
+                        WindowsPlatform.Instance.NativeMethods.CopyMemory(TargetBitmap.BackBuffer, b.Buffer, (uint)b.BufferLength);
+                        TargetBitmap.AddDirtyRect(updateRect);
+                        TargetBitmap.Unlock();
 
                         MediaElement.RaiseRenderingVideoEvent(
                             TargetBitmap,
-                            MediaCore.Container.MediaInfo.Streams[b.StreamIndex],
+                            MediaCore.MediaInfo.Streams[b.StreamIndex],
                             b.SmtpeTimecode,
                             b.DisplayPictureNumber,
                             b.StartTime,
@@ -200,6 +213,9 @@
                 var pixelWidth = block?.PixelWidth ?? MediaElement.NaturalVideoWidth;
                 var pixelHeight = block?.PixelHeight ?? MediaElement.NaturalVideoHeight;
 
+                if (MediaPixelFormats.ContainsKey(DecoderParams.VideoPixelFormat) == false)
+                    throw new NotSupportedException($"Unable to get equivalent pixel fromat from source: {DecoderParams.VideoPixelFormat}");
+
                 if (MediaElement.HasVideo && pixelWidth > 0 && pixelHeight > 0)
                 {
                     TargetBitmap = new WriteableBitmap(
@@ -207,7 +223,7 @@
                         block?.PixelHeight ?? MediaElement.NaturalVideoHeight,
                         dpiX,
                         dpiY,
-                        PixelFormats.Bgr32,
+                        MediaPixelFormats[DecoderParams.VideoPixelFormat],
                         null);
                 }
                 else

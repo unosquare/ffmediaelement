@@ -1,37 +1,37 @@
 ﻿namespace Unosquare.FFME.Platform
 {
-    using Shared;
     using System;
     using System.ComponentModel;
+    using System.Threading;
     using System.Windows;
-    using System.Windows.Threading;
+    using Unosquare.FFME.Shared;
 
     /// <summary>
-    /// The WPF graphical context
+    /// The Windows forms graphical context
     /// </summary>
     /// <seealso cref="Unosquare.FFME.Platform.IGuiContext" />
-    internal class WpfGraphicalContext : IGuiContext
+    internal class WinFormsGuiContext : IGuiContext
     {
         /// <summary>
-        /// The WPF dispatcher
+        /// The application synchronization context
         /// </summary>
-        private static Dispatcher WpfDispatcher = null;
+        private SynchronizationContext WinFormsContext = null;
 
         /// <summary>
-        /// Initializes static members of the <see cref="WpfGraphicalContext"/> class.
+        /// Initializes static members of the <see cref="WinFormsGuiContext"/> class.
         /// </summary>
-        static WpfGraphicalContext()
+        static WinFormsGuiContext()
         {
-            Current = new WpfGraphicalContext();
+            Current = new WinFormsGuiContext();
         }
 
         /// <summary>
-        /// Prevents a default instance of the <see cref="WpfGraphicalContext"/> class from being created.
+        /// Prevents a default instance of the <see cref="WinFormsGuiContext"/> class from being created.
         /// </summary>
-        private WpfGraphicalContext()
+        private WinFormsGuiContext()
         {
-            WpfDispatcher = WpfDispatcher = Application.Current?.Dispatcher;
-            IsValid = WpfDispatcher != null && WpfDispatcher is System.Windows.Threading.Dispatcher;
+            WinFormsContext = SynchronizationContext.Current;
+            IsValid = WinFormsContext != null && WinFormsContext is System.Windows.Forms.WindowsFormsSynchronizationContext;
             try
             {
                 IsInDesignTime = (bool)DesignerProperties.IsInDesignModeProperty.GetMetadata(
@@ -44,9 +44,9 @@
         }
 
         /// <summary>
-        /// Gets the current instance.
+        /// Gets the current.
         /// </summary>
-        public static WpfGraphicalContext Current { get; }
+        public static WinFormsGuiContext Current { get; }
 
         /// <summary>
         /// Gets a value indicating whetherthe context is in design time
@@ -66,7 +66,13 @@
         /// <param name="arguments">The arguments.</param>
         public void EnqueueInvoke(ActionPriority priority, Delegate callback, params object[] arguments)
         {
-            WpfDispatcher.BeginInvoke(callback, (DispatcherPriority)priority, arguments);
+            var postState = new Tuple<Delegate, object[]>(callback, arguments);
+            WinFormsContext.Post((s) =>
+            {
+                var a = s as Tuple<Delegate, object[]>;
+                a.Item1.DynamicInvoke(a.Item2);
+            }, postState);
+            return;
         }
 
         /// <summary>
@@ -76,7 +82,7 @@
         /// <param name="action">The action.</param>
         public void Invoke(ActionPriority priority, Action action)
         {
-            WpfDispatcher.Invoke(action, (DispatcherPriority)priority, null);
+            WinFormsContext.Send((s) => { action(); }, priority);
         }
     }
 }

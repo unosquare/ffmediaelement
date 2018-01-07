@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME
 {
-    using Core;
     using FFmpeg.AutoGen;
     using Shared;
     using System;
@@ -66,7 +65,7 @@
             var e = new RenderingAudioEventArgs(
                     audioBlock.Buffer,
                     audioBlock.BufferLength,
-                    MediaCore.Container.MediaInfo.Streams[audioBlock.StreamIndex],
+                    MediaCore.MediaInfo.Streams[audioBlock.StreamIndex],
                     audioBlock.StartTime,
                     audioBlock.Duration,
                     clock);
@@ -87,7 +86,7 @@
                     block.Text,
                     block.OriginalText,
                     block.OriginalTextType,
-                    MediaCore.Container.MediaInfo.Streams[block.StreamIndex],
+                    MediaCore.MediaInfo.Streams[block.StreamIndex],
                     block.StartTime,
                     block.Duration,
                     clock);
@@ -167,9 +166,9 @@
         {
             Buffer = buffer;
             BufferLength = length;
-            SampleRate = AudioParams.Output.SampleRate;
-            ChannelCount = AudioParams.Output.ChannelCount;
-            BitsPerSample = AudioParams.OutputBitsPerSample;
+            SampleRate = DecoderParams.AudioSampleRate;
+            ChannelCount = DecoderParams.AudioChannelCount;
+            BitsPerSample = DecoderParams.AudioBitsPerSample;
         }
 
         /// <summary>

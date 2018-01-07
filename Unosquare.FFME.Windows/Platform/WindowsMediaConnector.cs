@@ -158,6 +158,8 @@
                 case nameof(MediaEngine.NaturalVideoHeight):
                 case nameof(MediaEngine.VideoFrameRate):
                 case nameof(MediaEngine.VideoFrameLength):
+                case nameof(MediaEngine.VideoSmtpeTimecode):
+                case nameof(MediaEngine.VideoHardwareDecoder):
                 case nameof(MediaEngine.AudioCodec):
                 case nameof(MediaEngine.AudioBitrate):
                 case nameof(MediaEngine.AudioChannels):

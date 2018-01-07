@@ -28,10 +28,10 @@
         {
             NativeMethods = WindowsNativeMethods.Instance;
 
-            if (WpfGraphicalContext.Current.IsValid)
-                Gui = WpfGraphicalContext.Current;
-            else if (WinFormsGraphicalContext.Current.IsValid)
-                Gui = WinFormsGraphicalContext.Current;
+            if (WpfGuiContext.Current.IsValid)
+                Gui = WpfGuiContext.Current;
+            else if (WinFormsGuiContext.Current.IsValid)
+                Gui = WinFormsGuiContext.Current;
             else
                 throw new InvalidOperationException("Unable to get a valid GUI context.");
 

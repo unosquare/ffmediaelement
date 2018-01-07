@@ -13,15 +13,6 @@
     /// <seealso cref="Unosquare.FFME.Decoding.MediaComponent" />
     internal sealed unsafe class VideoComponent : MediaComponent
     {
-        #region Constants
-
-        /// <summary>
-        /// The output pixel format of the scaler: 24-bit BGR
-        /// </summary>
-        public const AVPixelFormat OutputPixelFormat = AVPixelFormat.AV_PIX_FMT_BGR0;
-
-        #endregion
-
         #region Private State Variables
 
 #pragma warning disable SA1401 // Fields must be private
@@ -135,7 +126,7 @@
                 NormalizePixelFormat(source.Pointer),
                 source.Pointer->width,
                 source.Pointer->height,
-                OutputPixelFormat,
+                DecoderParams.VideoPixelFormat,
                 ScalerFlags,
                 null,
                 null,
@@ -157,9 +148,11 @@
             }            
 
             // Perform scaling and save the data to our unmanaged buffer pointer
-            var targetBufferStride = ffmpeg.av_image_get_linesize(OutputPixelFormat, source.Pointer->width, 0);
+            var targetBufferStride = ffmpeg.av_image_get_linesize(
+                DecoderParams.VideoPixelFormat, source.Pointer->width, 0);
             var targetStride = new int[] { targetBufferStride };
-            var targetLength = ffmpeg.av_image_get_buffer_size(OutputPixelFormat, source.Pointer->width, source.Pointer->height, 1);
+            var targetLength = ffmpeg.av_image_get_buffer_size(
+                DecoderParams.VideoPixelFormat, source.Pointer->width, source.Pointer->height, 1);
 
             // Ensure proper allocation of the buffer
             // If there is a size mismatch between the wanted buffer length and the existing one,

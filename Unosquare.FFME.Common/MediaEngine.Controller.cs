@@ -20,7 +20,7 @@
         /// Represents a real-time time measuring device.
         /// Rendering media should occur as requested by the clock.
         /// </summary>
-        internal RealtimeClock Clock { get; } = new RealtimeClock();
+        internal RealTimeClock Clock { get; } = new RealTimeClock();
 
         /// <summary>
         /// The underlying media container that provides access to 

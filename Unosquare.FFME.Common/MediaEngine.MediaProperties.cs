@@ -37,6 +37,12 @@
         public string MediaFormat => Container?.MediaFormatName;
 
         /// <summary>
+        /// Provides stream, chapter and program info of the underlying media.
+        /// Returns null when no media is loaded.
+        /// </summary>
+        public MediaInfo MediaInfo => Container?.MediaInfo;
+
+        /// <summary>
         /// Gets the duration of a single frame step.
         /// If there is a video component with a framerate, this propery returns the length of a frame.
         /// If there is no video component it simply returns a tenth of a second.

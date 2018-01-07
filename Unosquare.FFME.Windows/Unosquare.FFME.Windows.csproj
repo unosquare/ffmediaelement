@@ -97,8 +97,8 @@
     <Compile Include="Platform\WindowsPlatform.cs" />
     <Compile Include="MediaElement.RenderEvents.cs" />
     <Compile Include="MediaLogMessageEventArgs.cs" />
-    <Compile Include="Platform\WinFormsGraphicalContext.cs" />
-    <Compile Include="Platform\WpfGraphicalContext.cs" />
+    <Compile Include="Platform\WinFormsGuiContext.cs" />
+    <Compile Include="Platform\WpfGuiContext.cs" />
     <Compile Include="PositionChangedRoutedEventArgs.cs" />
     <Compile Include="Rendering\SoundTouch.cs" />
     <Compile Include="Rendering\Wave\IWaveProvider.cs" />

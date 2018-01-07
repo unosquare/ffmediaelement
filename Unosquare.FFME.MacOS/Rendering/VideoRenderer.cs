@@ -71,7 +71,19 @@
                 var provider = new CGDataProvider(bytes);
                 //var provider = new CGDataProvider(buffer);
                 //var i = new CGImage(64, 64, 8, 24, 64 * 3, space, CGBitmapFlags.ByteOrderDefault, provider, null, false, CGColorRenderingIntent.Default);
-                var i = new CGImage(width, height, 8, 32, width * 4, space, CGBitmapFlags.ByteOrderDefault, provider, null, false, CGColorRenderingIntent.Default);
+                var i = new CGImage(
+                    width, 
+                    height, 
+                    DecoderParams.VideoBitsPerComponent, 
+                    DecoderParams.VideoBitsPerPixel, 
+                    width * DecoderParams.VideoBytesPerPixel, 
+                    space, 
+                    CGBitmapFlags.ByteOrderDefault, 
+                    provider, 
+                    null, 
+                    false, 
+                    CGColorRenderingIntent.Default);
+
                 var nsImage = new NSImage(i, new CGSize(width, height));
                 MacPlatform.Current.GuiInvoke(ActionPriority.Normal, (Action)(() =>
                 {

@@ -43,13 +43,20 @@
         }
 
         /// <summary>
-        /// Gets/Sets the SpeedRatio property on the MediaElement. 
+        /// Gets or Sets the SpeedRatio property of the media. 
         /// </summary> 
         public double SpeedRatio
         {
             get => speedRatio;
             set => SetProperty(ref speedRatio, value);
         }
+
+        /// <summary>
+        /// Gets the internal real time clock speed ratio.
+        /// This is different from the regular property as this is the immediate value
+        /// (i.e. might not yet be applied)
+        /// </summary>
+        public double RealTimeClockSpeedRatio => Clock.SpeedRatio;
 
         /// <summary>
         /// Specifies how the underlying media should behave when 
@@ -100,13 +107,20 @@
         }
 
         /// <summary>
-        /// Gets/Sets the Position property on the MediaElement. 
+        /// Gets or Sets the Position property on the MediaElement. 
         /// </summary> 
         public TimeSpan Position
         {
             get => position;
             set => SetProperty(ref position, value);
         }
+
+        /// <summary>
+        /// Gets the internal real time clock position.
+        /// This is different from the regular property as this is the immediate value
+        /// (i.e. might not yet be applied)
+        /// </summary>
+        public TimeSpan RealTimeClockPosition => Clock.Position;
 
         #endregion
 

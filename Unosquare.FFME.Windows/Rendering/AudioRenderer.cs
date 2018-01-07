@@ -50,12 +50,16 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="AudioRenderer"/> class.
         /// </summary>
-        /// <param name="mediaEngine">The core media element.</param>
+        /// <param name="mediaEngine">The core media engine.</param>
         public AudioRenderer(MediaEngine mediaEngine)
         {
             MediaCore = mediaEngine;
 
-            m_Format = new WaveFormat(AudioParams.Output.SampleRate, AudioParams.OutputBitsPerSample, AudioParams.Output.ChannelCount);
+            m_Format = new WaveFormat(
+                DecoderParams.AudioSampleRate, 
+                DecoderParams.AudioBitsPerSample, 
+                DecoderParams.AudioChannelCount);
+
             if (WaveFormat.BitsPerSample != 16 || WaveFormat.Channels != 2)
                 throw new NotSupportedException("Wave Format has to be 16-bit and 2-channel.");
 
@@ -148,7 +152,7 @@
             {
                 // The delay is the clock position minus the current position
                 lock (SyncLock)
-                    return TimeSpan.FromTicks(MediaCore.Clock.Position.Ticks - Position.Ticks);
+                    return TimeSpan.FromTicks(MediaCore.RealTimeClockPosition.Ticks - Position.Ticks);
             }
         }
 
@@ -204,7 +208,7 @@
             if (MediaElement.IsSeeking) return;
 
             // Update the speedratio
-            SpeedRatio = MediaCore?.Clock?.SpeedRatio ?? 0d;
+            SpeedRatio = MediaCore?.RealTimeClockSpeedRatio ?? 0d;
 
             if (AudioBuffer == null) return;
 

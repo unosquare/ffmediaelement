@@ -7,7 +7,7 @@
     /// <summary>
     /// A time measurement artifact.
     /// </summary>
-    internal sealed class RealtimeClock
+    internal sealed class RealTimeClock
     {
         private readonly object SyncLock = new object();
         private readonly Stopwatch Chrono = new Stopwatch();
@@ -15,10 +15,10 @@
         private double m_SpeedRatio = Defaults.DefaultSpeedRatio;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RealtimeClock"/> class.
+        /// Initializes a new instance of the <see cref="RealTimeClock"/> class.
         /// The clock starts poaused and at the 0 position.
         /// </summary>
-        public RealtimeClock()
+        public RealTimeClock()
         {
             Reset();
         }
