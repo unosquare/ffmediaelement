@@ -22,16 +22,11 @@
         #region Private Declarations
 
         private static readonly object FFmpegRegisterLock = new object();
-        private static readonly unsafe av_log_set_callback_callback FFmpegLogCallback = FFmpegLog;
-
-        private static readonly object LogSyncLock = new object();
-        private static readonly List<string> FFmpegLogBuffer = new List<string>();
-        private static readonly ConcurrentQueue<MediaLogMessage> LogQueue = new ConcurrentQueue<MediaLogMessage>();
+        private static readonly unsafe av_log_set_callback_callback FFmpegLogCallback = LoggingWorker.OnFFmpegMessageLogged;
 
         private static readonly unsafe av_lockmgr_register_cb FFmpegLockManagerCallback = FFmpegManageLocking;
         private static readonly Dictionary<IntPtr, ManualResetEvent> FFmpegOpDone = new Dictionary<IntPtr, ManualResetEvent>();
 
-        private static Timer LogOutputter = null;
         private static bool HasFFmpegRegistered = false;
         private static string FFmpegRegisterPath = null;
 
@@ -87,26 +82,6 @@
         #endregion
 
         #region FFmpeg Registration
-
-        /// <summary>
-        /// Starts the log outputter dispatcher.
-        /// </summary>
-        public static void StartLogOutputter()
-        {
-            LogOutputter = new Timer((s) =>
-                {
-                    while (LogQueue.TryDequeue(out MediaLogMessage eventArgs))
-                    {
-                        if (eventArgs.Source != null)
-                            eventArgs.Source.SendOnMessageLogged(eventArgs);
-                        else
-                            MediaEngine.Platform?.HandleFFmpegLogMessage(eventArgs);
-                    }
-                }, 
-                LogQueue, 
-                Constants.LogOutputterUpdateInterval, 
-                Constants.LogOutputterUpdateInterval);
-        }
 
         /// <summary>
         /// Registers FFmpeg library and initializes its components.
@@ -180,140 +155,11 @@
         /// <returns>The decoded error message</returns>
         public static unsafe string DecodeFFmpegMessage(int code)
         {
-            var errorStrBytes = new byte[1024];
-            var errorStrPtr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(byte)) * errorStrBytes.Length);
-            ffmpeg.av_strerror(code, (byte*)errorStrPtr, (ulong)errorStrBytes.Length);
-            Marshal.Copy(errorStrPtr, errorStrBytes, 0, errorStrBytes.Length);
-            Marshal.FreeHGlobal(errorStrPtr);
-
-            var errorMessage = Encoding.GetEncoding(0).GetString(errorStrBytes).Split('\0').FirstOrDefault();
-            return errorMessage;
-        }
-
-        #endregion
-
-        #region Logging
-
-        /// <summary>
-        /// Logs the specified message. This the genric logging mechanism available to all classes.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="messageType">Type of the message.</param>
-        /// <param name="message">The message.</param>
-        /// <exception cref="System.ArgumentNullException">sender</exception>
-        internal static void Log(object sender, MediaLogMessageType messageType, string message)
-        {
-            if (sender == null) throw new ArgumentNullException(nameof(sender));
-            var eventArgs = new MediaLogMessage(sender as MediaEngine, messageType, message);
-            LogQueue.Enqueue(eventArgs);
-        }
-
-        /// <summary>
-        /// Logs a block rendering operation as a Trace Message
-        /// if the debugger is attached.
-        /// </summary>
-        /// <param name="mediaCore">The media engine.</param>
-        /// <param name="block">The block.</param>
-        /// <param name="clockPosition">The clock position.</param>
-        /// <param name="renderIndex">Index of the render.</param>
-        internal static void LogRenderBlock(this MediaEngine mediaCore, MediaBlock block, TimeSpan clockPosition, int renderIndex)
-        {
-            if (MediaEngine.Platform.IsInDebugMode == false) return;
-
-            try
-            {
-                var drift = TimeSpan.FromTicks(clockPosition.Ticks - block.StartTime.Ticks);
-                mediaCore?.Log(MediaLogMessageType.Trace,
-                $"{block.MediaType.ToString().Substring(0, 1)} "
-                    + $"BLK: {block.StartTime.Format()} | "
-                    + $"CLK: {clockPosition.Format()} | "
-                    + $"DFT: {drift.TotalMilliseconds,4:0} | "
-                    + $"IX: {renderIndex,3} | "
-                    + $"PQ: {mediaCore.Container?.Components[block.MediaType]?.PacketBufferLength / 1024d,7:0.0}k | "
-                    + $"TQ: {mediaCore.Container?.Components.PacketBufferLength / 1024d,7:0.0}k");
-            }
-            catch
-            {
-                // swallow
-            }
-        }
-
-        #endregion
-
-        #region Output Formatting
-
-        /// <summary>
-        /// Strips the SRT format and returns plain text.
-        /// </summary>
-        /// <param name="input">The input.</param>
-        /// <returns>The formatted string</returns>
-        internal static string StripSrtFormat(this string input)
-        {
-            var output = new StringBuilder(input.Length);
-            var isInTag = false;
-            var currentChar = default(char);
-
-            for (var i = 0; i < input.Length; i++)
-            {
-                currentChar = input[i];
-                if (currentChar == '<' && isInTag == false)
-                {
-                    isInTag = true;
-                    continue;
-                }
-
-                if (currentChar == '>' && isInTag == true)
-                {
-                    isInTag = false;
-                    continue;
-                }
-
-                output.Append(currentChar);
-            }
-
-            return output.ToString();
-        }
-
-        /// <summary>
-        /// Strips a line of text from the ASS format.
-        /// </summary>
-        /// <param name="input">The input.</param>
-        /// <returns>The formatted string</returns>
-        internal static string StripAssFormat(this string input)
-        {
-            const string DialoguePrefix = "dialogue:";
-
-            if (input.Substring(0, DialoguePrefix.Length).ToLowerInvariant().Equals(DialoguePrefix) == false)
-                return string.Empty;
-
-            var inputParts = input.Split(new char[] { ',' }, 10);
-            if (inputParts.Length != 10)
-                return string.Empty;
-
-            input = inputParts[inputParts.Length - 1].Replace("\\n", " ").Replace("\\N", "\r\n");
-            var builder = new StringBuilder(input.Length);
-            var isInStyle = false;
-            var currentChar = default(char);
-
-            for (var i = 0; i < input.Length; i++)
-            {
-                currentChar = input[i];
-                if (currentChar == '{' && isInStyle == false)
-                {
-                    isInStyle = true;
-                    continue;
-                }
-
-                if (currentChar == '}' && isInStyle == true)
-                {
-                    isInStyle = false;
-                    continue;
-                }
-
-                builder.Append(currentChar);
-            }
-
-            return builder.ToString().Trim();
+            var bufferSize = 1024;
+            var buffer = stackalloc byte[bufferSize];
+            ffmpeg.av_strerror(code, buffer, (ulong)bufferSize);
+            var message = Marshal.PtrToStringAnsi((IntPtr)buffer);
+            return message;
         }
 
         #endregion
@@ -368,40 +214,6 @@
             }
 
             return 1;
-        }
-
-        /// <summary>
-        /// Log message callback from ffmpeg library.
-        /// </summary>
-        /// <param name="p0">The p0.</param>
-        /// <param name="level">The level.</param>
-        /// <param name="format">The format.</param>
-        /// <param name="vl">The vl.</param>
-        private static unsafe void FFmpegLog(void* p0, int level, string format, byte* vl)
-        {
-            const int lineSize = 1024;
-
-            lock (LogSyncLock)
-            {
-                if (level > ffmpeg.av_log_get_level()) return;
-                var lineBuffer = stackalloc byte[lineSize];
-                var printPrefix = 1;
-                ffmpeg.av_log_format_line(p0, level, format, vl, lineBuffer, lineSize, &printPrefix);
-                var line = Utils.PtrToString(lineBuffer);
-                FFmpegLogBuffer.Add(line);
-
-                var messageType = MediaLogMessageType.Debug;
-                if (Constants.FFmpegLogLevels.ContainsKey(level))
-                    messageType = Constants.FFmpegLogLevels[level];
-
-                if (line.EndsWith("\n"))
-                {
-                    line = string.Join(string.Empty, FFmpegLogBuffer);
-                    line = line.TrimEnd();
-                    FFmpegLogBuffer.Clear();
-                    Utils.Log(typeof(MediaEngine), messageType, line);
-                }
-            }
         }
 
         #endregion

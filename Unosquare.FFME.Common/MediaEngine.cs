@@ -148,7 +148,7 @@
         /// <param name="message">The message.</param>
         public void Log(MediaLogMessageType messageType, string message)
         {
-            Utils.Log(this, messageType, message);
+            LoggingWorker.Log(this, messageType, message);
         }
 
         /// <summary>

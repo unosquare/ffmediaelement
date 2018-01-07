@@ -50,18 +50,5 @@
         public static readonly string[] LiveStreamFormatNames = new[] {"rtp", "rtsp", "sdp"};
         public static readonly TimeSpan UIPropertyUpdateInterval = TimeSpan.FromMilliseconds(25);
         public static readonly TimeSpan LogOutputterUpdateInterval = TimeSpan.FromMilliseconds(25);
-
-        public static readonly ReadOnlyDictionary<int, MediaLogMessageType> FFmpegLogLevels =
-            new ReadOnlyDictionary<int, MediaLogMessageType>(
-                new Dictionary<int, MediaLogMessageType>
-                {
-                    {ffmpeg.AV_LOG_DEBUG, MediaLogMessageType.Debug},
-                    {ffmpeg.AV_LOG_ERROR, MediaLogMessageType.Error},
-                    {ffmpeg.AV_LOG_FATAL, MediaLogMessageType.Error},
-                    {ffmpeg.AV_LOG_INFO, MediaLogMessageType.Info},
-                    {ffmpeg.AV_LOG_PANIC, MediaLogMessageType.Error},
-                    {ffmpeg.AV_LOG_TRACE, MediaLogMessageType.Trace},
-                    {ffmpeg.AV_LOG_WARNING, MediaLogMessageType.Warning},
-                });
     }
 }

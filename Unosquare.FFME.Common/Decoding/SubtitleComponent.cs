@@ -5,6 +5,7 @@
     using Shared;
     using System;
     using System.Collections.Generic;
+    using System.Text;
 
     /// <summary>
     /// Performs subtitle stream extraction, decoding and text conversion.
@@ -63,13 +64,13 @@
 
                 if (source.TextType == AVSubtitleType.SUBTITLE_ASS)
                 {
-                    var strippedText = text.StripAssFormat();
+                    var strippedText = StripAssFormat(text);
                     if (string.IsNullOrWhiteSpace(strippedText) == false)
                         target.Text.Add(strippedText);
                 }
                 else
                 {
-                    var strippedText = text.StripSrtFormat();
+                    var strippedText = StripSrtFormat(text);
                     if (string.IsNullOrWhiteSpace(strippedText) == false)
                         target.Text.Add(strippedText);
                 }
@@ -77,6 +78,84 @@
 
             return target;
         }
+
+        #region Output Formatting
+
+        /// <summary>
+        /// Strips the SRT format and returns plain text.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <returns>The formatted string</returns>
+        internal static string StripSrtFormat(string input)
+        {
+            var output = new StringBuilder(input.Length);
+            var isInTag = false;
+            var currentChar = default(char);
+
+            for (var i = 0; i < input.Length; i++)
+            {
+                currentChar = input[i];
+                if (currentChar == '<' && isInTag == false)
+                {
+                    isInTag = true;
+                    continue;
+                }
+
+                if (currentChar == '>' && isInTag == true)
+                {
+                    isInTag = false;
+                    continue;
+                }
+
+                output.Append(currentChar);
+            }
+
+            return output.ToString();
+        }
+
+        /// <summary>
+        /// Strips a line of text from the ASS format.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <returns>The formatted string</returns>
+        internal static string StripAssFormat(string input)
+        {
+            const string DialoguePrefix = "dialogue:";
+
+            if (input.Substring(0, DialoguePrefix.Length).ToLowerInvariant().Equals(DialoguePrefix) == false)
+                return string.Empty;
+
+            var inputParts = input.Split(new char[] { ',' }, 10);
+            if (inputParts.Length != 10)
+                return string.Empty;
+
+            input = inputParts[inputParts.Length - 1].Replace("\\n", " ").Replace("\\N", "\r\n");
+            var builder = new StringBuilder(input.Length);
+            var isInStyle = false;
+            var currentChar = default(char);
+
+            for (var i = 0; i < input.Length; i++)
+            {
+                currentChar = input[i];
+                if (currentChar == '{' && isInStyle == false)
+                {
+                    isInStyle = true;
+                    continue;
+                }
+
+                if (currentChar == '}' && isInStyle == true)
+                {
+                    isInStyle = false;
+                    continue;
+                }
+
+                builder.Append(currentChar);
+            }
+
+            return builder.ToString().Trim();
+        }
+
+        #endregion
 
         /// <summary>
         /// Creates a frame source object given the raw FFmpeg subtitle reference.

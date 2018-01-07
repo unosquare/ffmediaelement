@@ -59,7 +59,6 @@
                     return;
 
                 Platform = platform;
-                Utils.StartLogOutputter();
                 IsIntialized = true;
             }
         }
