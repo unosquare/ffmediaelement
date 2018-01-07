@@ -78,12 +78,12 @@
             // Clear the render times
             m.LastRenderTime.Clear();
             m.MediaState = MediaEngineState.Close;
-            m.RaiseMediaClosedEvent();
+            m.SendOnMediaClosed();
 
             // Update notification properties
             MediaEngine.Platform.GuiInvoke(ActionPriority.DataBind, () =>
             {
-                m.ResetDependencyProperies();
+                m.ResetControllerProperties();
                 m.NotifyPropertyChanges();
             });
 

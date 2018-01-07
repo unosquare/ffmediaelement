@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME
+﻿namespace Unosquare.FFME.Events
 {
     using Shared;
     using System.Windows;

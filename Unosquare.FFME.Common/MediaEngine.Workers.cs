@@ -254,7 +254,7 @@
                     if (IsSeeking == false && hasPendingSeeks)
                     {
                         IsSeeking = true;
-                        RaiseSeekingStartedEvent();
+                        SendOnSeekingStarted();
                     }
 
                     // Execute the following command at the beginning of the cycle
@@ -271,7 +271,7 @@
                         foreach (var kvp in Renderers)
                             kvp.Value.Seek();
 
-                        RaiseSeekingEndedEvent();
+                        SendOnSeekingEnded();
                     }
 
                     // Wait for a seek operation to complete (if any)
@@ -429,7 +429,7 @@
 
                             HasMediaEnded = true;
                             MediaState = MediaEngineState.Pause;
-                            RaiseMediaEndedEvent();
+                            SendOnMediaEnded();
                         }
                     }
                     else

@@ -73,10 +73,10 @@
                 //var i = new CGImage(64, 64, 8, 24, 64 * 3, space, CGBitmapFlags.ByteOrderDefault, provider, null, false, CGColorRenderingIntent.Default);
                 var i = new CGImage(
                     width, 
-                    height, 
-                    DecoderParams.VideoBitsPerComponent, 
-                    DecoderParams.VideoBitsPerPixel, 
-                    width * DecoderParams.VideoBytesPerPixel, 
+                    height,
+                    Defaults.VideoBitsPerComponent,
+                    Defaults.VideoBitsPerPixel, 
+                    width * Defaults.VideoBytesPerPixel, 
                     space, 
                     CGBitmapFlags.ByteOrderDefault, 
                     provider, 

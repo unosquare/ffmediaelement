@@ -88,9 +88,9 @@
                     var newIsBuffering = bufferedLength < BufferCacheLength;
 
                     if (oldIsBugffering == false && newIsBuffering)
-                        RaiseBufferingStartedEvent();
+                        SendOnBufferingStarted();
                     else if (oldIsBugffering && newIsBuffering == false)
-                        RaiseBufferingEndedEvent();
+                        SendOnBufferingEnded();
 
                     IsBuffering = HasMediaEnded == false && newIsBuffering;
                 }
@@ -190,7 +190,7 @@
                     if (Position != v)
                     {
                         Position = v;
-                        RaisePositionChangedEvent(v);
+                        SendOnPositionChanged(v);
                     }
 
                     IsPositionUpdating = false;
@@ -232,10 +232,7 @@
         /// that support <see cref="CallerMemberNameAttribute"/>.</param>
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            Platform.GuiInvoke(ActionPriority.DataBind, (Action)(() =>
-            {
-                this.Connector?.OnPropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }));
+            Connector?.OnPropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         }
 
         #endregion

@@ -98,7 +98,7 @@
                     while (LogQueue.TryDequeue(out MediaLogMessage eventArgs))
                     {
                         if (eventArgs.Source != null)
-                            eventArgs.Source.RaiseMessageLogged(eventArgs);
+                            eventArgs.Source.SendOnMessageLogged(eventArgs);
                         else
                             MediaEngine.Platform?.HandleFFmpegLogMessage(eventArgs);
                     }

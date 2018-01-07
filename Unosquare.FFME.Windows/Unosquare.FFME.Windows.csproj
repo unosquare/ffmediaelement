@@ -90,16 +90,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Events\RenderingAudioEventArgs.cs" />
+    <Compile Include="Events\RenderingEventArgs.cs" />
+    <Compile Include="Events\RenderingSubtitlesEventArgs.cs" />
+    <Compile Include="Events\RenderingVideoEventArgs.cs" />
     <Compile Include="Platform\IGuiContext.cs" />
     <Compile Include="Platform\WindowsMediaConnector.cs" />
     <Compile Include="Platform\WindowsDispatcherTimer.cs" />
     <Compile Include="Platform\WindowsNativeMethods.cs" />
     <Compile Include="Platform\WindowsPlatform.cs" />
     <Compile Include="MediaElement.RenderEvents.cs" />
-    <Compile Include="MediaLogMessageEventArgs.cs" />
+    <Compile Include="Events\MediaLogMessageEventArgs.cs" />
     <Compile Include="Platform\WinFormsGuiContext.cs" />
     <Compile Include="Platform\WpfGuiContext.cs" />
-    <Compile Include="PositionChangedRoutedEventArgs.cs" />
+    <Compile Include="Events\PositionChangedRoutedEventArgs.cs" />
     <Compile Include="Rendering\SoundTouch.cs" />
     <Compile Include="Rendering\Wave\IWaveProvider.cs" />
     <Compile Include="Rendering\Wave\MmResult.cs" />
@@ -116,7 +120,7 @@
     <Compile Include="MediaElement.DependencyProperties.cs" />
     <Compile Include="MediaElement.MediaProperties.cs" />
     <Compile Include="MediaElement.RoutedEvents.cs" />
-    <Compile Include="MediaOpeningRoutedEventArgs.cs" />
+    <Compile Include="Events\MediaOpeningRoutedEventArgs.cs" />
     <Compile Include="Rendering\Wave\WaveOutSupport.cs" />
     <Compile Include="Rendering\Wave\WavePlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

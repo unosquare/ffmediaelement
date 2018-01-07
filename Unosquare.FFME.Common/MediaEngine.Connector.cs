@@ -6,15 +6,16 @@
 
     public partial class MediaEngine
     {
-        #region Event Raiser Methods
+        #region Connector Signals
 
         /// <summary>
         /// Raises the MessageLogged event
         /// </summary>
-        /// <param name="eventArgs">The <see cref="MediaLogMessage" /> instance containing the event data.</param>
-        internal void RaiseMessageLogged(MediaLogMessage eventArgs)
+        /// <param name="message">The <see cref="MediaLogMessage" /> instance containing the message.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void SendOnMessageLogged(MediaLogMessage message)
         {
-            Connector?.OnMessageLogged(this, eventArgs);
+            Connector?.OnMessageLogged(this, message);
         }
 
         /// <summary>
@@ -22,83 +23,82 @@
         /// </summary>
         /// <param name="ex">The ex.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseMediaFailedEvent(Exception ex)
+        internal void SendOnMediaFailed(Exception ex)
         {
             Log(MediaLogMessageType.Error, $"Media Failure - {ex?.GetType()}: {ex?.Message}");
-            Platform.GuiInvoke(ActionPriority.DataBind, () => Connector?.OnMediaFailed(this, ex));
+            Connector?.OnMediaFailed(this, ex);
         }
 
         /// <summary>
         /// Raises the media closed event.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseMediaClosedEvent()
+        internal void SendOnMediaClosed()
         {
-            Platform.GuiInvoke(ActionPriority.DataBind, () => Connector?.OnMediaClosed(this));
+            Connector?.OnMediaClosed(this);
         }
 
         /// <summary>
         /// Raises the media opened event.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseMediaOpenedEvent()
+        internal void SendOnMediaOpened()
         {
-            Platform.GuiInvoke(ActionPriority.DataBind, () => Connector?.OnMediaOpened(this));
+            Connector?.OnMediaOpened(this);
         }
 
         /// <summary>
         /// Raises the media opening event.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseMediaOpeningEvent()
+        internal void SendOnMediaOpening()
         {
-            Platform.GuiInvoke(ActionPriority.DataBind,
-                () => Connector?.OnMediaOpening(this, Container.MediaOptions, Container.MediaInfo));
+            Connector?.OnMediaOpening(this, Container.MediaOptions, Container.MediaInfo);
         }
 
         /// <summary>
         /// Raises the buffering started event.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseBufferingStartedEvent()
+        internal void SendOnBufferingStarted()
         {
-            Platform.GuiInvoke(ActionPriority.DataBind, () => Connector?.OnBufferingStarted(this));
+            Connector?.OnBufferingStarted(this);
         }
 
         /// <summary>
         /// Raises the buffering ended event.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseBufferingEndedEvent()
+        internal void SendOnBufferingEnded()
         {
-            Platform.GuiInvoke(ActionPriority.DataBind, () => Connector?.OnBufferingEnded(this));
+            Connector?.OnBufferingEnded(this);
         }
 
         /// <summary>
         /// Raises the Seeking started event.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseSeekingStartedEvent()
+        internal void SendOnSeekingStarted()
         {
-            Platform.GuiInvoke(ActionPriority.DataBind, () => Connector?.OnSeekingStarted(this));
+            Connector?.OnSeekingStarted(this);
         }
 
         /// <summary>
         /// Raises the Seeking ended event.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseSeekingEndedEvent()
+        internal void SendOnSeekingEnded()
         {
-            Platform.GuiInvoke(ActionPriority.DataBind, () => Connector?.OnSeekingEnded(this));
+            Connector?.OnSeekingEnded(this);
         }
 
         /// <summary>
         /// Raises the media ended event.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseMediaEndedEvent()
+        internal void SendOnMediaEnded()
         {
-            Platform.GuiInvoke(ActionPriority.DataBind, () => Connector?.OnMediaEnded(this));
+            Connector?.OnMediaEnded(this);
         }
 
         /// <summary>
@@ -106,10 +106,9 @@
         /// </summary>
         /// <param name="position">The position.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaisePositionChangedEvent(TimeSpan position)
+        internal void SendOnPositionChanged(TimeSpan position)
         {
-            Platform.GuiInvoke(ActionPriority.DataBind,
-                () => Connector?.OnPositionChanged(this, position));
+            Connector?.OnPositionChanged(this, position);
         }
 
         #endregion

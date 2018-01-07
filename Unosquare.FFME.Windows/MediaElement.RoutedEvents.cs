@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME
 {
-    using Core;
+    using Events;
     using Platform;
     using Shared;
     using System;
@@ -215,6 +215,21 @@
         #region Helper Methods
 
         /// <summary>
+        /// Creates a new instance of exception routed event arguments.
+        /// This method exists because the constructor has not been made public for that class.
+        /// </summary>
+        /// <param name="routedEvent">The routed event.</param>
+        /// <param name="sender">The sender.</param>
+        /// <param name="errorException">The error exception.</param>
+        /// <returns>The event arguments</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static ExceptionRoutedEventArgs CreateExceptionRoutedEventArgs(RoutedEvent routedEvent, object sender, Exception errorException)
+        {
+            var constructor = (typeof(ExceptionRoutedEventArgs) as TypeInfo).DeclaredConstructors.First();
+            return constructor.Invoke(new object[] { routedEvent, sender, errorException }) as ExceptionRoutedEventArgs;
+        }
+
+        /// <summary>
         /// Raises the FFmpeg message logged.
         /// </summary>
         /// <param name="sender">The sender.</param>
@@ -226,17 +241,13 @@
         }
 
         /// <summary>
-        /// Creates a new instance of exception routed event arguments.
-        /// This method exists because the constructor has not been made public for that class.
+        /// Raises the message logged event.
         /// </summary>
-        /// <param name="routedEvent">The routed event.</param>
-        /// <param name="sender">The sender.</param>
-        /// <param name="errorException">The error exception.</param>
-        /// <returns>The event arguments</returns>
-        internal static ExceptionRoutedEventArgs CreateExceptionRoutedEventArgs(RoutedEvent routedEvent, object sender, Exception errorException)
+        /// <param name="e">The <see cref="MediaLogMessage"/> instance containing the event data.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void RaiseMessageLoggedEvent(MediaLogMessage e)
         {
-            var constructor = (typeof(ExceptionRoutedEventArgs) as TypeInfo).DeclaredConstructors.First();
-            return constructor.Invoke(new object[] { routedEvent, sender, errorException }) as ExceptionRoutedEventArgs;
+            MessageLogged?.Invoke(this, new MediaLogMessageEventArgs(e));
         }
 
         /// <summary>
@@ -399,31 +410,10 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaisePropertyChangedEvent(string propertyName)
         {
-            /*
-            WindowsPlatform.Instance.GuiEnqueueInvoke(
-                ActionPriority.DataBind, 
-                new Action<string>((n) => 
-                {
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
-                }), 
-                propertyName);
-            */
-
-            // Tried with enqueue and made no difference. Seems a simple synchronous invoke works fine
-            WindowsPlatform.Instance.GuiInvoke((ActionPriority)DispatcherPriority.DataBind, () =>
+            WindowsPlatform.Instance.GuiInvoke(ActionPriority.DataBind, () => 
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             });
-        }
-
-        /// <summary>
-        /// Raises the message logged event.
-        /// </summary>
-        /// <param name="e">The <see cref="MediaLogMessage"/> instance containing the event data.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseMessageLoggedEvent(MediaLogMessage e)
-        {
-            MessageLogged?.Invoke(this, new MediaLogMessageEventArgs(e));
         }
 
         #endregion

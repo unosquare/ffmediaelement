@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME
 {
-    using Core;
+    using Events;
     using Platform;
     using System;
     using System.ComponentModel;

@@ -48,7 +48,7 @@
                 }
 
                 MediaEngine.Platform.GuiInvoke(
-                    ActionPriority.DataBind, () => { m.ResetDependencyProperies(); });
+                    ActionPriority.DataBind, () => { m.ResetControllerProperties(); });
                 MediaEngine.IsFFmpegLoaded.Value = true;
                 m.IsOpening = true;
                 m.MediaState = MediaEngineState.Manual;
@@ -57,7 +57,7 @@
 
                 // the async protocol prefix allows for increased performance for local files.
                 m.Container = new MediaContainer(mediaUrl, m, Source.IsFile ? "async" : null);
-                m.RaiseMediaOpeningEvent();
+                m.SendOnMediaOpening();
                 m.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Entered");
                 m.Container.Open();
 
@@ -99,12 +99,12 @@
                 m.IsOpening = false;
 
                 // Raise the opened event
-                m.RaiseMediaOpenedEvent();
+                m.SendOnMediaOpened();
             }
             catch (Exception ex)
             {
                 m.MediaState = MediaEngineState.Close;
-                m.RaiseMediaFailedEvent(ex);
+                m.SendOnMediaFailed(ex);
             }
             finally
             {

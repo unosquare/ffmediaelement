@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
     using Config;
+    using Events;
     using FFmpeg.AutoGen;
     using Shared;
     using System;
@@ -9,7 +10,6 @@
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Linq;
-    using System.Runtime.InteropServices;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Input;
@@ -398,18 +398,6 @@
         #region Methods: Helpers and Initialization
 
         /// <summary>
-        /// Snaps to the given multiple multiple.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <param name="multiple">The multiple.</param>
-        /// <returns>The snapped multiple</returns>
-        private static double SnapToMultiple(double value, double multiple)
-        {
-            var factor = (int)(value / multiple);
-            return factor * multiple;
-        }
-
-        /// <summary>
         /// Initializes the media events.
         /// </summary>
         private void InitializeMediaEvents()
@@ -418,14 +406,14 @@
             {
                 // Debug.WriteLine($"{nameof(Media.Position)} = {e.Position}");
             };
-
+            
             Media.MediaOpened += Media_MediaOpened;
             Media.MediaOpening += Media_MediaOpening;
             Media.MediaFailed += Media_MediaFailed;
             Media.MessageLogged += Media_MessageLogged;
             Media.PropertyChanged += Media_PropertyChanged;
             FFME.MediaElement.FFmpegMessageLogged += MediaElement_FFmpegMessageLogged;
-
+            
 #if HANDLE_RENDERING_EVENTS
 
             #region Audio and Video Frame Rendering Variables
@@ -700,7 +688,7 @@
                 if (Media.IsOpen == false || Media.IsOpening)
                     return;
 
-                var delta = SnapToMultiple(e.Delta / 2000d, 0.05d);
+                var delta = (e.Delta / 2000d).ToMultipleOf(0.05d);
                 MediaZoom = Math.Round(MediaZoom + delta, 2);
             };
 
@@ -708,7 +696,7 @@
             {
                 e.Handled = true;
             };
-
+            
             #endregion
 
             #region Handle Play Pause with Mouse Clicks

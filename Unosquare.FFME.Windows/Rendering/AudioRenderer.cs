@@ -56,9 +56,9 @@
             MediaCore = mediaEngine;
 
             m_Format = new WaveFormat(
-                DecoderParams.AudioSampleRate, 
-                DecoderParams.AudioBitsPerSample, 
-                DecoderParams.AudioChannelCount);
+                Defaults.AudioSampleRate,
+                Defaults.AudioBitsPerSample,
+                Defaults.AudioChannelCount);
 
             if (WaveFormat.BitsPerSample != 16 || WaveFormat.Channels != 2)
                 throw new NotSupportedException("Wave Format has to be 16-bit and 2-channel.");

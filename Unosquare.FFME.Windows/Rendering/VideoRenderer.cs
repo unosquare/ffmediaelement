@@ -213,8 +213,8 @@
                 var pixelWidth = block?.PixelWidth ?? MediaElement.NaturalVideoWidth;
                 var pixelHeight = block?.PixelHeight ?? MediaElement.NaturalVideoHeight;
 
-                if (MediaPixelFormats.ContainsKey(DecoderParams.VideoPixelFormat) == false)
-                    throw new NotSupportedException($"Unable to get equivalent pixel fromat from source: {DecoderParams.VideoPixelFormat}");
+                if (MediaPixelFormats.ContainsKey(Defaults.VideoPixelFormat) == false)
+                    throw new NotSupportedException($"Unable to get equivalent pixel fromat from source: {Defaults.VideoPixelFormat}");
 
                 if (MediaElement.HasVideo && pixelWidth > 0 && pixelHeight > 0)
                 {
@@ -223,7 +223,7 @@
                         block?.PixelHeight ?? MediaElement.NaturalVideoHeight,
                         dpiX,
                         dpiY,
-                        MediaPixelFormats[DecoderParams.VideoPixelFormat],
+                        MediaPixelFormats[Defaults.VideoPixelFormat],
                         null);
                 }
                 else

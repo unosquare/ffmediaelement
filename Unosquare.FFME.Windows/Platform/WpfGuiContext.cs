@@ -76,7 +76,10 @@
         /// <param name="action">The action.</param>
         public void Invoke(ActionPriority priority, Action action)
         {
-            WpfDispatcher.Invoke(action, (DispatcherPriority)priority, null);
+            if (Dispatcher.CurrentDispatcher?.Thread.ManagedThreadId == WpfDispatcher.Thread.ManagedThreadId)
+                action();
+            else
+                WpfDispatcher.Invoke(action, (DispatcherPriority)priority, null);
         }
     }
 }

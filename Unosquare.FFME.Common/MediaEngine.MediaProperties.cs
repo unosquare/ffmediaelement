@@ -159,20 +159,6 @@
         /// </summary>
         public TimeSpan? NaturalDuration => Container?.MediaDuration;
 
-        /*
-        public Duration NaturalDuration
-        {
-            get
-            {
-                return Container == null
-                  ? Duration.Automatic
-                  : (Container.MediaDuration == TimeSpan.MinValue
-                    ? Duration.Forever
-                    : (Container.MediaDuration < TimeSpan.Zero ? default(Duration) : new Duration(Container.MediaDuration)));
-            }
-        }
-        */
-
         /// <summary>
         /// Returns whether the currently loaded media can be paused.
         /// This is only valid after the MediaOpened event has fired.
@@ -234,9 +220,10 @@
 
             internal set
             {
+                // Can't use SetProperty because the backing field is an AtomicBoolean
                 if (m_IsSeeking.Value == value) return;
                 m_IsSeeking.Value = value;
-                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsSeeking));
             }
         }
 
@@ -382,9 +369,9 @@
         }
 
         /// <summary>
-        /// Resets the dependency properies.
+        /// Resets the controller properies.
         /// </summary>
-        internal void ResetDependencyProperies()
+        internal void ResetControllerProperties()
         {
             Volume = Defaults.DefaultVolume;
             Balance = Defaults.DefaultBalance;
