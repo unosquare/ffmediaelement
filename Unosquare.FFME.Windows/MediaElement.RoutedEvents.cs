@@ -399,6 +399,17 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaisePropertyChangedEvent(string propertyName)
         {
+            /*
+            WindowsPlatform.Instance.GuiEnqueueInvoke(
+                ActionPriority.DataBind, 
+                new Action<string>((n) => 
+                {
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
+                }), 
+                propertyName);
+            */
+
+            // Tried with enqueue and made no difference. Seems a simple synchronous invoke works fine
             WindowsPlatform.Instance.GuiInvoke((ActionPriority)DispatcherPriority.DataBind, () =>
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

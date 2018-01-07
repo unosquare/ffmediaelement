@@ -7,6 +7,7 @@
 
     class MacDispatcherTimer : IDispatcherTimer
     {
+        internal const double DefaultIntervalMilliseconds = 25;
         Timer timer;
 
         public bool IsEnabled { get; set; }
@@ -21,7 +22,7 @@
 
         public MacDispatcherTimer()
         {
-            timer = new Timer(Constants.UIPropertyUpdateInterval.TotalMilliseconds);
+            timer = new Timer(DefaultIntervalMilliseconds);
             timer.Elapsed += (sender, e) => Tick?.Invoke(this, EventArgs.Empty);
         }
 

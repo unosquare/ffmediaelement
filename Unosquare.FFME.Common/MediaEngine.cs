@@ -120,6 +120,11 @@
         public object Parent { get; }
 
         /// <summary>
+        /// Gets the event connector (platform specific).
+        /// </summary>
+        public IMediaConnector Connector { get; }
+
+        /// <summary>
         /// Gets a value indicating whether this instance is disposed.
         /// </summary>
         /// <value>
@@ -131,11 +136,6 @@
         /// Gets whether FFmpeg is logged or not
         /// </summary>
         internal static AtomicBoolean IsFFmpegLoaded { get; } = new AtomicBoolean(false);
-
-        /// <summary>
-        /// Gets the event connector (platform specific).
-        /// </summary>
-        internal IMediaConnector Connector { get; }
 
         #endregion
 

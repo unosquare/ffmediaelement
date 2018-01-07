@@ -24,7 +24,7 @@
         /// <summary>
         /// Gets the media format. Returns null when media has not been loaded.
         /// </summary>
-        public string MediaFormat => MediaCore.Container?.MediaFormatName;
+        public string MediaFormat => MediaCore.MediaFormat;
 
         /// <summary>
         /// Gets the duration of a single frame step.
@@ -127,13 +127,13 @@
         {
             get
             {
-                return MediaCore.Container == null
+                return MediaCore.NaturalDuration == null
                   ? Duration.Automatic
-                  : (MediaCore.Container.MediaDuration == TimeSpan.MinValue
+                  : (MediaCore.NaturalDuration.Value == TimeSpan.MinValue
                     ? Duration.Forever
-                    : (MediaCore.Container.MediaDuration < TimeSpan.Zero
+                    : (MediaCore.NaturalDuration.Value < TimeSpan.Zero
                     ? default(Duration)
-                    : new Duration(MediaCore.Container.MediaDuration)));
+                    : new Duration(MediaCore.NaturalDuration.Value)));
             }
         }
 
