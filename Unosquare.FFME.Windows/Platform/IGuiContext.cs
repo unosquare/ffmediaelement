@@ -6,7 +6,7 @@
     /// <summary>
     /// Defines a generic graphical context (compatibility between WPF and WinForms apps)
     /// </summary>
-    internal interface IGraphicalContext
+    internal interface IGuiContext
     {
         /// <summary>
         /// Gets a value indicating whetherthe context is in design time
@@ -24,13 +24,13 @@
         /// <param name="priority">The priority.</param>
         /// <param name="callback">The callback.</param>
         /// <param name="arguments">The arguments.</param>
-        void UIEnqueueInvoke(ActionPriority priority, Delegate callback, params object[] arguments);
+        void EnqueueInvoke(ActionPriority priority, Delegate callback, params object[] arguments);
 
         /// <summary>
         /// Synchronously invokes the call on the UI thread
         /// </summary>
         /// <param name="priority">The priority.</param>
         /// <param name="action">The action.</param>
-        void UIInvoke(ActionPriority priority, Action action);
+        void Invoke(ActionPriority priority, Action action);
     }
 }

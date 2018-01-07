@@ -47,7 +47,7 @@
                     m.Log(MediaLogMessageType.Info, $"INIT FFMPEG: {ffmpeg.av_version_info()}");
                 }
 
-                MediaEngine.Platform.UIInvoke(
+                MediaEngine.Platform.GuiInvoke(
                     ActionPriority.DataBind, () => { m.ResetDependencyProperies(); });
                 MediaEngine.IsFFmpegLoaded.Value = true;
                 m.IsOpening = true;
@@ -109,7 +109,7 @@
             finally
             {
                 m.IsOpening = false;
-                MediaEngine.Platform.UIInvoke(ActionPriority.DataBind, () => { m.NotifyPropertyChanges(); });
+                MediaEngine.Platform.GuiInvoke(ActionPriority.DataBind, () => { m.NotifyPropertyChanges(); });
                 m.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Completed");
             }
         }

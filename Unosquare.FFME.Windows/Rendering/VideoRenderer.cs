@@ -86,7 +86,7 @@
         /// </summary>
         public void Close()
         {
-            WindowsPlatform.Instance.UIInvoke((ActionPriority)DispatcherPriority.Render, () =>
+            WindowsPlatform.Instance.GuiInvoke((ActionPriority)DispatcherPriority.Render, () =>
             {
                 TargetBitmap = null;
                 MediaElement.ViewBox.Source = null;
@@ -128,7 +128,7 @@
 
             IsRenderingInProgress.Value = true;
 
-            WindowsPlatform.Instance.UIEnqueueInvoke(
+            WindowsPlatform.Instance.GuiEnqueueInvoke(
                 (ActionPriority)DispatcherPriority.Render,
                 new Action<VideoBlock, TimeSpan>((b, cP) =>
                 {
@@ -190,7 +190,7 @@
         /// <param name="block">The block.</param>
         private void InitializeTargetBitmap(VideoBlock block)
         {
-            WindowsPlatform.Instance.UIInvoke((ActionPriority)DispatcherPriority.Normal, () =>
+            WindowsPlatform.Instance.GuiInvoke((ActionPriority)DispatcherPriority.Normal, () =>
             {
                 var visual = PresentationSource.FromVisual(MediaElement);
 

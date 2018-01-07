@@ -9,8 +9,8 @@
     /// <summary>
     /// The Windows forms graphical context
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.Platform.IGraphicalContext" />
-    internal class WinFormsGraphicalContext : IGraphicalContext
+    /// <seealso cref="Unosquare.FFME.Platform.IGuiContext" />
+    internal class WinFormsGraphicalContext : IGuiContext
     {
         /// <summary>
         /// The application synchronization context
@@ -64,7 +64,7 @@
         /// <param name="priority">The priority.</param>
         /// <param name="callback">The callback.</param>
         /// <param name="arguments">The arguments.</param>
-        public void UIEnqueueInvoke(ActionPriority priority, Delegate callback, params object[] arguments)
+        public void EnqueueInvoke(ActionPriority priority, Delegate callback, params object[] arguments)
         {
             var postState = new Tuple<Delegate, object[]>(callback, arguments);
             WinFormsContext.Post((s) =>
@@ -80,7 +80,7 @@
         /// </summary>
         /// <param name="priority">The priority.</param>
         /// <param name="action">The action.</param>
-        public void UIInvoke(ActionPriority priority, Action action)
+        public void Invoke(ActionPriority priority, Action action)
         {
             WinFormsContext.Send((s) => { action(); }, priority);
         }

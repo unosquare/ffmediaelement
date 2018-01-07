@@ -44,7 +44,7 @@
 
         public bool IsInDesignTime { get; }
 
-        public IDispatcherTimer CreateDispatcherTimer(ActionPriority priority)
+        public IDispatcherTimer CreateGuiTimer(ActionPriority priority)
         {
             return new MacDispatcherTimer();
         }
@@ -64,7 +64,7 @@
             Console.WriteLine($"{message.MessageType,10} - {message.Message}");
         }
 
-        public void UIEnqueueInvoke(ActionPriority priority, Delegate callback, params object[] arguments)
+        public void GuiEnqueueInvoke(ActionPriority priority, Delegate callback, params object[] arguments)
         {
             NSRunLoop.Main.BeginInvokeOnMainThread(() =>
             {
@@ -72,7 +72,7 @@
             });
         }
 
-        public void UIInvoke(ActionPriority priority, Action action)
+        public void GuiInvoke(ActionPriority priority, Action action)
         {
             NSRunLoop.Main.BeginInvokeOnMainThread(action.Invoke);
         }

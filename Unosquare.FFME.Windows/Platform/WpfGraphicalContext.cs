@@ -9,8 +9,8 @@
     /// <summary>
     /// The WPF graphical context
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.Platform.IGraphicalContext" />
-    internal class WpfGraphicalContext : IGraphicalContext
+    /// <seealso cref="Unosquare.FFME.Platform.IGuiContext" />
+    internal class WpfGraphicalContext : IGuiContext
     {
         /// <summary>
         /// The WPF dispatcher
@@ -64,7 +64,7 @@
         /// <param name="priority">The priority.</param>
         /// <param name="callback">The callback.</param>
         /// <param name="arguments">The arguments.</param>
-        public void UIEnqueueInvoke(ActionPriority priority, Delegate callback, params object[] arguments)
+        public void EnqueueInvoke(ActionPriority priority, Delegate callback, params object[] arguments)
         {
             WpfDispatcher.BeginInvoke(callback, (DispatcherPriority)priority, arguments);
         }
@@ -74,7 +74,7 @@
         /// </summary>
         /// <param name="priority">The priority.</param>
         /// <param name="action">The action.</param>
-        public void UIInvoke(ActionPriority priority, Action action)
+        public void Invoke(ActionPriority priority, Action action)
         {
             WpfDispatcher.Invoke(action, (DispatcherPriority)priority, null);
         }

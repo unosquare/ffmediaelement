@@ -24,20 +24,20 @@
         bool IsInDesignTime { get; }
 
         /// <summary>
-        /// Synchronously invokes the given instructions on the main application dispatcher.
+        /// Synchronously invokes the given instructions on the main GUI application dispatcher (the UI thread).
         /// </summary>
         /// <param name="priority">The priority.</param>
         /// <param name="action">The action.</param>
-        void UIInvoke(ActionPriority priority, Action action);
+        void GuiInvoke(ActionPriority priority, Action action);
 
         /// <summary>
-        /// Enqueues the given instructions with the given arguments on the main application dispatcher.
-        /// This is a way to execute code in a fire-and-forget style
+        /// Enqueues the given instructions with the given arguments on the main GUI application dispatcher.
+        /// This is a way to execute code in a fire-and-forget style on the UI thread.
         /// </summary>
         /// <param name="priority">The priority.</param>
         /// <param name="callback">The callback.</param>
         /// <param name="arguments">The arguments.</param>
-        void UIEnqueueInvoke(ActionPriority priority, Delegate callback, params object[] arguments);
+        void GuiEnqueueInvoke(ActionPriority priority, Delegate callback, params object[] arguments);
 
         /// <summary>
         /// Creates a renderer of the specified media type.
@@ -54,7 +54,7 @@
         /// <returns>
         /// An instance of the dispatcher timer
         /// </returns>
-        IDispatcherTimer CreateDispatcherTimer(ActionPriority priority);
+        IDispatcherTimer CreateGuiTimer(ActionPriority priority);
 
         /// <summary>
         /// Handles global FFmpeg library messages

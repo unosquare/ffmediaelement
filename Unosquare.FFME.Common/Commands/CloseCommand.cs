@@ -81,7 +81,7 @@
             m.RaiseMediaClosedEvent();
 
             // Update notification properties
-            MediaEngine.Platform.UIInvoke(ActionPriority.DataBind, () =>
+            MediaEngine.Platform.GuiInvoke(ActionPriority.DataBind, () =>
             {
                 m.ResetDependencyProperies();
                 m.NotifyPropertyChanges();

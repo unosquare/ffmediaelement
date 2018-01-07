@@ -25,7 +25,7 @@
         internal void RaiseMediaFailedEvent(Exception ex)
         {
             Log(MediaLogMessageType.Error, $"Media Failure - {ex?.GetType()}: {ex?.Message}");
-            Platform.UIInvoke(ActionPriority.DataBind, () => Connector?.OnMediaFailed(this, ex));
+            Platform.GuiInvoke(ActionPriority.DataBind, () => Connector?.OnMediaFailed(this, ex));
         }
 
         /// <summary>
@@ -34,7 +34,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseMediaClosedEvent()
         {
-            Platform.UIInvoke(ActionPriority.DataBind, () => Connector?.OnMediaClosed(this));
+            Platform.GuiInvoke(ActionPriority.DataBind, () => Connector?.OnMediaClosed(this));
         }
 
         /// <summary>
@@ -43,7 +43,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseMediaOpenedEvent()
         {
-            Platform.UIInvoke(ActionPriority.DataBind, () => Connector?.OnMediaOpened(this));
+            Platform.GuiInvoke(ActionPriority.DataBind, () => Connector?.OnMediaOpened(this));
         }
 
         /// <summary>
@@ -52,7 +52,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseMediaOpeningEvent()
         {
-            Platform.UIInvoke(ActionPriority.DataBind,
+            Platform.GuiInvoke(ActionPriority.DataBind,
                 () => Connector?.OnMediaOpening(this, Container.MediaOptions, Container.MediaInfo));
         }
 
@@ -62,7 +62,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseBufferingStartedEvent()
         {
-            Platform.UIInvoke(ActionPriority.DataBind, () => Connector?.OnBufferingStarted(this));
+            Platform.GuiInvoke(ActionPriority.DataBind, () => Connector?.OnBufferingStarted(this));
         }
 
         /// <summary>
@@ -71,7 +71,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseBufferingEndedEvent()
         {
-            Platform.UIInvoke(ActionPriority.DataBind, () => Connector?.OnBufferingEnded(this));
+            Platform.GuiInvoke(ActionPriority.DataBind, () => Connector?.OnBufferingEnded(this));
         }
 
         /// <summary>
@@ -80,7 +80,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseSeekingStartedEvent()
         {
-            Platform.UIInvoke(ActionPriority.DataBind, () => Connector?.OnSeekingStarted(this));
+            Platform.GuiInvoke(ActionPriority.DataBind, () => Connector?.OnSeekingStarted(this));
         }
 
         /// <summary>
@@ -89,7 +89,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseSeekingEndedEvent()
         {
-            Platform.UIInvoke(ActionPriority.DataBind, () => Connector?.OnSeekingEnded(this));
+            Platform.GuiInvoke(ActionPriority.DataBind, () => Connector?.OnSeekingEnded(this));
         }
 
         /// <summary>
@@ -98,7 +98,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseMediaEndedEvent()
         {
-            Platform.UIInvoke(ActionPriority.DataBind, () => Connector?.OnMediaEnded(this));
+            Platform.GuiInvoke(ActionPriority.DataBind, () => Connector?.OnMediaEnded(this));
         }
 
         /// <summary>
@@ -108,7 +108,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaisePositionChangedEvent(TimeSpan position)
         {
-            Platform.UIInvoke(ActionPriority.DataBind,
+            Platform.GuiInvoke(ActionPriority.DataBind,
                 () => Connector?.OnPositionChanged(this, position));
         }
 

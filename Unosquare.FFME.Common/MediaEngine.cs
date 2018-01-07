@@ -72,7 +72,7 @@
 
             // The UI Property update timer is responsible for timely updates to properties outside of the worker threads
             // We use the loaded priority because it is the priority right below the Render one.
-            UIPropertyUpdateTimer = MediaEngine.Platform.CreateDispatcherTimer(ActionPriority.Loaded);
+            UIPropertyUpdateTimer = MediaEngine.Platform.CreateGuiTimer(ActionPriority.Loaded);
             UIPropertyUpdateTimer.Interval = Constants.UIPropertyUpdateInterval;
 
             // The tick callback performs the updates
@@ -183,7 +183,7 @@
                 return;
 
             IsPositionUpdating = true;
-            Platform.UIEnqueueInvoke(
+            Platform.GuiEnqueueInvoke(
                 ActionPriority.DataBind,
                 (Action<TimeSpan>)((v) =>
                 {
@@ -232,7 +232,7 @@
         /// that support <see cref="CallerMemberNameAttribute"/>.</param>
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            Platform.UIInvoke(ActionPriority.DataBind, (Action)(() =>
+            Platform.GuiInvoke(ActionPriority.DataBind, (Action)(() =>
             {
                 this.Connector?.OnPropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }));

@@ -31,28 +31,9 @@
         private static readonly unsafe av_lockmgr_register_cb FFmpegLockManagerCallback = FFmpegManageLocking;
         private static readonly Dictionary<IntPtr, ManualResetEvent> FFmpegOpDone = new Dictionary<IntPtr, ManualResetEvent>();
 
-        private static IDispatcherTimer LogOutputter = null;
+        private static Timer LogOutputter = null;
         private static bool HasFFmpegRegistered = false;
         private static string FFmpegRegisterPath = null;
-
-        #endregion
-
-        #region Initialization
-
-        /// <summary>
-        /// Initializes static members of the <see cref="Utils"/> class.
-        /// </summary>
-        static Utils()
-        {
-            // MediaEngine.Platform.UIEnqueueInvoke(ActionPriority.Background, new Action(() =>
-            // {
-            // LogOutputter = MediaEngine.Platform.CreateDispatcherTimer(ActionPriority.Background);
-            // LogOutputter.Interval = Constants.LogOutputterUpdateInterval;
-            // LogOutputter.Tick += LogOutputter_Tick;
-            // LogOutputter.IsEnabled = true;
-            // LogOutputter.Start();
-            // }));
-        }
 
         #endregion
 
@@ -214,13 +195,24 @@
 
         #region FFmpeg Registration
 
+        /// <summary>
+        /// Starts the log outputter dispatcher.
+        /// </summary>
         public static void StartLogOutputter()
         {
-            LogOutputter = MediaEngine.Platform.CreateDispatcherTimer(ActionPriority.Background);
-            LogOutputter.Interval = Constants.LogOutputterUpdateInterval;
-            LogOutputter.Tick += LogOutputter_Tick;
-            LogOutputter.IsEnabled = true;
-            LogOutputter.Start();
+            LogOutputter = new Timer((s) =>
+                {
+                    while (LogQueue.TryDequeue(out MediaLogMessage eventArgs))
+                    {
+                        if (eventArgs.Source != null)
+                            eventArgs.Source.RaiseMessageLogged(eventArgs);
+                        else
+                            MediaEngine.Platform?.HandleFFmpegLogMessage(eventArgs);
+                    }
+                }, 
+                LogQueue, 
+                Constants.LogOutputterUpdateInterval, 
+                Constants.LogOutputterUpdateInterval);
         }
 
         /// <summary>
@@ -470,22 +462,6 @@
         #endregion
 
         #region Private Methods and Callbacks
-
-        /// <summary>
-        /// Handles the Tick event of the LogOutputter timer.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        private static void LogOutputter_Tick(object sender, EventArgs e)
-        {
-            while (LogQueue.TryDequeue(out MediaLogMessage eventArgs))
-            {
-                if (eventArgs.Source != null)
-                    eventArgs.Source.RaiseMessageLogged(eventArgs);
-                else
-                    MediaEngine.Platform?.HandleFFmpegLogMessage(eventArgs);
-            }
-        }
 
         /// <summary>
         /// Manages FFmpeg Multithreaded locking

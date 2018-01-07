@@ -54,7 +54,7 @@
         /// <summary>
         /// Gets the GUI contaxt implementation.
         /// </summary>
-        public IGraphicalContext Gui { get; }
+        public IGuiContext Gui { get; }
 
         /// <summary>
         /// Gets a value indicating whether this instance is in debug mode.
@@ -73,9 +73,9 @@
         /// <param name="priority">The priority.</param>
         /// <param name="callback">The callback.</param>
         /// <param name="arguments">The arguments.</param>
-        public void UIEnqueueInvoke(ActionPriority priority, Delegate callback, params object[] arguments)
+        public void GuiEnqueueInvoke(ActionPriority priority, Delegate callback, params object[] arguments)
         {
-            Gui?.UIEnqueueInvoke(priority, callback, arguments);
+            Gui?.EnqueueInvoke(priority, callback, arguments);
         }
 
         /// <summary>
@@ -83,19 +83,19 @@
         /// </summary>
         /// <param name="priority">The priority.</param>
         /// <param name="action">The action.</param>
-        public void UIInvoke(ActionPriority priority, Action action)
+        public void GuiInvoke(ActionPriority priority, Action action)
         {
-            Gui?.UIInvoke(priority, action);
+            Gui?.Invoke(priority, action);
         }
 
         /// <summary>
-        /// Creates a UI-aware dispatcher timer that executes actions on a schedule basis.
+        /// Creates a UI-aware timer that executes actions on a schedule basis.
         /// </summary>
         /// <param name="priority">The priority.</param>
         /// <returns>
         /// An instance of the dispatcher timer
         /// </returns>
-        public IDispatcherTimer CreateDispatcherTimer(ActionPriority priority)
+        public IDispatcherTimer CreateGuiTimer(ActionPriority priority)
         {
             return new WindowsDispatcherTimer((DispatcherPriority)priority);
         }
