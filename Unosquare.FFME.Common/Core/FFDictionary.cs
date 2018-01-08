@@ -89,11 +89,11 @@
         {
             var result = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
-            var metadataEntry = ffmpeg.av_dict_get(dictionary, string.Empty, null, ffmpeg.AV_DICT_IGNORE_SUFFIX);
-            while (metadataEntry != null)
+            var kvpEntry = ffmpeg.av_dict_get(dictionary, string.Empty, null, ffmpeg.AV_DICT_IGNORE_SUFFIX);
+            while (kvpEntry != null)
             {
-                result[FFInterop.PtrToString(metadataEntry->key)] = FFInterop.PtrToString(metadataEntry->value);
-                metadataEntry = ffmpeg.av_dict_get(dictionary, string.Empty, metadataEntry, ffmpeg.AV_DICT_IGNORE_SUFFIX);
+                result[FFInterop.PtrToString(kvpEntry->key)] = FFInterop.PtrToString(kvpEntry->value);
+                kvpEntry = ffmpeg.av_dict_get(dictionary, string.Empty, kvpEntry, ffmpeg.AV_DICT_IGNORE_SUFFIX);
             }
 
             return result;

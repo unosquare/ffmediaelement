@@ -24,13 +24,6 @@
         bool IsInDesignTime { get; }
 
         /// <summary>
-        /// Synchronously invokes the given instructions on the main GUI application dispatcher (the UI thread).
-        /// </summary>
-        /// <param name="priority">The priority.</param>
-        /// <param name="action">The action.</param>
-        void GuiInvoke(ActionPriority priority, Action action);
-
-        /// <summary>
         /// Enqueues the given instructions with the given arguments on the main GUI application dispatcher.
         /// This is a way to execute code in a fire-and-forget style on the UI thread.
         /// </summary>

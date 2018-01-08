@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME.Platform
 {
-    using Shared;
     using System;
     using System.ComponentModel;
     using System.Windows;
@@ -64,9 +63,9 @@
         /// <param name="priority">The priority.</param>
         /// <param name="callback">The callback.</param>
         /// <param name="arguments">The arguments.</param>
-        public void EnqueueInvoke(ActionPriority priority, Delegate callback, params object[] arguments)
+        public void EnqueueInvoke(DispatcherPriority priority, Delegate callback, params object[] arguments)
         {
-            WpfDispatcher.BeginInvoke(callback, (DispatcherPriority)priority, arguments);
+            WpfDispatcher.BeginInvoke(callback, priority, arguments);
         }
 
         /// <summary>
@@ -74,12 +73,12 @@
         /// </summary>
         /// <param name="priority">The priority.</param>
         /// <param name="action">The action.</param>
-        public void Invoke(ActionPriority priority, Action action)
+        public void Invoke(DispatcherPriority priority, Action action)
         {
             if (Dispatcher.CurrentDispatcher?.Thread.ManagedThreadId == WpfDispatcher.Thread.ManagedThreadId)
                 action();
             else
-                WpfDispatcher.Invoke(action, (DispatcherPriority)priority, null);
+                WpfDispatcher.Invoke(action, priority, null);
         }
     }
 }

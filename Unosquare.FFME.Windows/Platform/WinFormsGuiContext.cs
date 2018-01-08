@@ -4,7 +4,7 @@
     using System.ComponentModel;
     using System.Threading;
     using System.Windows;
-    using Unosquare.FFME.Shared;
+    using System.Windows.Threading;
 
     /// <summary>
     /// The Windows forms graphical context
@@ -64,7 +64,7 @@
         /// <param name="priority">The priority.</param>
         /// <param name="callback">The callback.</param>
         /// <param name="arguments">The arguments.</param>
-        public void EnqueueInvoke(ActionPriority priority, Delegate callback, params object[] arguments)
+        public void EnqueueInvoke(DispatcherPriority priority, Delegate callback, params object[] arguments)
         {
             var postState = new Tuple<Delegate, object[]>(callback, arguments);
             WinFormsContext.Post((s) =>
@@ -80,7 +80,7 @@
         /// </summary>
         /// <param name="priority">The priority.</param>
         /// <param name="action">The action.</param>
-        public void Invoke(ActionPriority priority, Action action)
+        public void Invoke(DispatcherPriority priority, Action action)
         {
             WinFormsContext.Send((s) => { action(); }, priority);
         }

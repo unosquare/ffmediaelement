@@ -66,7 +66,6 @@
         {
             try
             {
-
                 var space = CGColorSpace.CreateDeviceRGB();
                 var provider = new CGDataProvider(bytes);
                 //var provider = new CGDataProvider(buffer);
@@ -85,10 +84,10 @@
                     CGColorRenderingIntent.Default);
 
                 var nsImage = new NSImage(i, new CGSize(width, height));
-                MacPlatform.Current.GuiInvoke(ActionPriority.Normal, (Action)(() =>
+                MacPlatform.Current.GuiInvoke(ActionPriority.Normal, () =>
                 {
-                    ((MediaCore.Connector) as MediaElement).ImageView.Image = nsImage;
-                }));
+                    ((MediaCore.Parent) as MediaElement).ImageView.Image = nsImage;
+                });
             }
             catch (Exception e)
             {

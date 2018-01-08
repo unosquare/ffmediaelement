@@ -75,17 +75,7 @@
         /// <param name="arguments">The arguments.</param>
         public void GuiEnqueueInvoke(ActionPriority priority, Delegate callback, params object[] arguments)
         {
-            Gui?.EnqueueInvoke(priority, callback, arguments);
-        }
-
-        /// <summary>
-        /// Synchronously invokes the given instructions on the main application dispatcher.
-        /// </summary>
-        /// <param name="priority">The priority.</param>
-        /// <param name="action">The action.</param>
-        public void GuiInvoke(ActionPriority priority, Action action)
-        {
-            Gui?.Invoke(priority, action);
+            Gui?.EnqueueInvoke((DispatcherPriority)priority, callback, arguments);
         }
 
         /// <summary>

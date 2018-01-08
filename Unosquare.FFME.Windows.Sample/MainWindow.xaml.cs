@@ -383,15 +383,12 @@
 
             if (Media.IsOpen)
             {
-                if (Media.Metadata.SourceCollection is IEnumerable<KeyValuePair<string, string>> metadata)
+                foreach (var kvp in Media.Metadata)
                 {
-                    foreach (var kvp in metadata)
+                    if (kvp.Key.ToLowerInvariant().Equals("title"))
                     {
-                        if (kvp.Key.ToLowerInvariant().Equals("title"))
-                        {
-                            title = kvp.Value;
-                            break;
-                        }
+                        title = kvp.Value;
+                        break;
                     }
                 }
             }

@@ -237,7 +237,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void RaiseFFmpegMessageLogged(object sender, MediaLogMessage e)
         {
-            WindowsPlatform.Instance.GuiEnqueueInvoke(ActionPriority.Background,
+            WindowsPlatform.Instance.Gui?.EnqueueInvoke(DispatcherPriority.Background,
                 new Action<MediaLogMessage>((eventArgs) =>
                 {
                     FFmpegMessageLogged?.Invoke(sender, new MediaLogMessageEventArgs(e));
@@ -252,7 +252,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseMessageLoggedEvent(MediaLogMessage e)
         {
-            WindowsPlatform.Instance.GuiEnqueueInvoke(ActionPriority.Background,
+            WindowsPlatform.Instance.Gui?.EnqueueInvoke(DispatcherPriority.Background,
                 new Action<MediaLogMessage>((eventArgs) =>
                 {
                     MessageLogged?.Invoke(this, new MediaLogMessageEventArgs(eventArgs));
@@ -269,7 +269,7 @@
         {
             LogEventStart(MediaFailedEvent);
             MediaCore?.Log(MediaLogMessageType.Error, $"Media Failure - {ex?.GetType()}: {ex?.Message}");
-            WindowsPlatform.Instance.GuiInvoke((ActionPriority)DispatcherPriority.DataBind, () =>
+            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.DataBind, () =>
             {
                 RaiseEvent(CreateExceptionRoutedEventArgs(MediaFailedEvent, this, ex));
             });
@@ -283,7 +283,7 @@
         internal void RaiseMediaOpenedEvent()
         {
             LogEventStart(MediaOpenedEvent);
-            WindowsPlatform.Instance.GuiInvoke((ActionPriority)DispatcherPriority.DataBind, () =>
+            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.DataBind, () =>
             {
                 RaiseEvent(new RoutedEventArgs(MediaOpenedEvent, this));
             });
@@ -297,7 +297,7 @@
         internal void RaiseMediaClosedEvent()
         {
             LogEventStart(MediaClosedEvent);
-            WindowsPlatform.Instance.GuiInvoke((ActionPriority)DispatcherPriority.DataBind, () =>
+            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.DataBind, () =>
             {
                 RaiseEvent(new RoutedEventArgs(MediaClosedEvent, this));
             });
@@ -313,7 +313,7 @@
         internal void RaiseMediaOpeningEvent(MediaOptions mediaOptions, MediaInfo mediaInfo)
         {
             LogEventStart(MediaOpeningEvent);
-            WindowsPlatform.Instance.GuiInvoke((ActionPriority)DispatcherPriority.DataBind, () =>
+            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.DataBind, () =>
             {
                 RaiseEvent(new MediaOpeningRoutedEventArgs(
                     MediaOpeningEvent,
@@ -332,7 +332,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaisePositionChangedEvent(TimeSpan position)
         {
-            WindowsPlatform.Instance.GuiInvoke((ActionPriority)DispatcherPriority.DataBind, () =>
+            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.DataBind, () =>
             {
                 RaiseEvent(new PositionChangedRoutedEventArgs(
                     PositionChangedEvent,
@@ -348,7 +348,7 @@
         internal void RaiseBufferingStartedEvent()
         {
             LogEventStart(BufferingStartedEvent);
-            WindowsPlatform.Instance.GuiInvoke((ActionPriority)DispatcherPriority.DataBind, () =>
+            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.DataBind, () =>
             {
                 RaiseEvent(new RoutedEventArgs(BufferingStartedEvent, this));
             });
@@ -362,7 +362,7 @@
         internal void RaiseBufferingEndedEvent()
         {
             LogEventStart(BufferingEndedEvent);
-            WindowsPlatform.Instance.GuiInvoke((ActionPriority)DispatcherPriority.DataBind, () =>
+            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.DataBind, () =>
             {
                 RaiseEvent(new RoutedEventArgs(BufferingEndedEvent, this));
             });
@@ -376,7 +376,7 @@
         internal void RaiseSeekingStartedEvent()
         {
             LogEventStart(SeekingStartedEvent);
-            WindowsPlatform.Instance.GuiInvoke((ActionPriority)DispatcherPriority.DataBind, () =>
+            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.DataBind, () =>
             {
                 RaiseEvent(new RoutedEventArgs(SeekingStartedEvent, this));
             });
@@ -390,7 +390,7 @@
         internal void RaiseSeekingEndedEvent()
         {
             LogEventStart(SeekingEndedEvent);
-            WindowsPlatform.Instance.GuiInvoke((ActionPriority)DispatcherPriority.DataBind, () =>
+            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.DataBind, () =>
             {
                 RaiseEvent(new RoutedEventArgs(SeekingEndedEvent, this));
             });
@@ -404,7 +404,7 @@
         internal void RaiseMediaEndedEvent()
         {
             LogEventStart(MediaEndedEvent);
-            WindowsPlatform.Instance.GuiInvoke((ActionPriority)DispatcherPriority.DataBind, () =>
+            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.DataBind, () =>
             {
                 RaiseEvent(new RoutedEventArgs(MediaEndedEvent, this));
             });
@@ -413,6 +413,7 @@
 
         /// <summary>
         /// Notifies listeners that a property value has changed.
+        /// This must be called from a UI thread.
         /// </summary>
         /// <param name="propertyName">Name of the property used to notify listeners.  This
         /// value is optional and can be provided automatically when invoked from compilers
@@ -420,10 +421,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaisePropertyChangedEvent(string propertyName)
         {
-            WindowsPlatform.Instance.GuiInvoke(ActionPriority.DataBind, () =>
-            {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            });
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         #endregion

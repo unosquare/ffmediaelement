@@ -67,7 +67,7 @@
 
             if (Application.Current != null)
             {
-                WindowsPlatform.Instance.GuiInvoke((ActionPriority)DispatcherPriority.Normal, () =>
+                WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.Normal, () =>
                 {
                     Application.Current.Exit += OnApplicationExit;
                 });
@@ -440,7 +440,7 @@
             {
                 if (Application.Current != null)
                 {
-                    WindowsPlatform.Instance.GuiInvoke((ActionPriority)DispatcherPriority.Send, () =>
+                    WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.Send, () =>
                     {
                         Application.Current.Exit -= OnApplicationExit;
                     });

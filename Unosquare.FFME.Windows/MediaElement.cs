@@ -7,7 +7,6 @@
     using System.Threading.Tasks;
     using System.Windows;
     using System.Windows.Controls;
-    using System.Windows.Data;
     using System.Windows.Interop;
     using System.Windows.Markup;
     using System.Windows.Media.Imaging;
@@ -79,9 +78,6 @@
                 var controlBitmap = new WriteableBitmap(bitmapSource);
                 ViewBox.Source = controlBitmap;
             }
-
-            // TODO: Maybe make Metadata a little more accessible
-            m_Metadata = CollectionViewSource.GetDefaultView(MediaCore.Metadata) as ICollectionView;
         }
 
         #endregion

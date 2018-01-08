@@ -2,6 +2,7 @@
 {
     using Shared;
     using System;
+    using System.Windows.Threading;
 
     /// <summary>
     /// The Media engine connector
@@ -114,41 +115,44 @@
         /// <param name="propertyName">Name of the property.</param>
         public void OnPropertyChanged(object sender, string propertyName)
         {
-            switch (propertyName)
+            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.DataBind, () =>
             {
-                // forward internal changes to the MediaElement dependency Properties
-                case nameof(MediaEngine.Source):
-                    Control.Source = Control.MediaCore.Source;
-                    break;
-                case nameof(MediaEngine.LoadedBehavior):
-                    Control.LoadedBehavior = (System.Windows.Controls.MediaState)Control.MediaCore.LoadedBehavior;
-                    break;
-                case nameof(MediaEngine.SpeedRatio):
-                    Control.SpeedRatio = Control.MediaCore.SpeedRatio;
-                    break;
-                case nameof(MediaEngine.UnloadedBehavior):
-                    Control.UnloadedBehavior = (System.Windows.Controls.MediaState)Control.MediaCore.UnloadedBehavior;
-                    break;
-                case nameof(MediaEngine.Volume):
-                    Control.Volume = Control.MediaCore.Volume;
-                    break;
-                case nameof(MediaEngine.Balance):
-                    Control.Balance = Control.MediaCore.Balance;
-                    break;
-                case nameof(MediaEngine.IsMuted):
-                    Control.IsMuted = Control.MediaCore.IsMuted;
-                    break;
-                case nameof(MediaEngine.ScrubbingEnabled):
-                    Control.ScrubbingEnabled = Control.MediaCore.ScrubbingEnabled;
-                    break;
-                case nameof(MediaEngine.Position):
-                    Control.Position = Control.MediaCore.Position;
-                    break;
-                default:
-                    // Simply forward notification of same-named properties
-                    Control?.RaisePropertyChangedEvent(propertyName);
-                    break;
-            }
+                switch (propertyName)
+                {
+                    // forward internal changes to the MediaElement dependency Properties
+                    case nameof(MediaEngine.Source):
+                        Control.Source = Control.MediaCore.Source;
+                        break;
+                    case nameof(MediaEngine.LoadedBehavior):
+                        Control.LoadedBehavior = (System.Windows.Controls.MediaState)Control.MediaCore.LoadedBehavior;
+                        break;
+                    case nameof(MediaEngine.SpeedRatio):
+                        Control.SpeedRatio = Control.MediaCore.SpeedRatio;
+                        break;
+                    case nameof(MediaEngine.UnloadedBehavior):
+                        Control.UnloadedBehavior = (System.Windows.Controls.MediaState)Control.MediaCore.UnloadedBehavior;
+                        break;
+                    case nameof(MediaEngine.Volume):
+                        Control.Volume = Control.MediaCore.Volume;
+                        break;
+                    case nameof(MediaEngine.Balance):
+                        Control.Balance = Control.MediaCore.Balance;
+                        break;
+                    case nameof(MediaEngine.IsMuted):
+                        Control.IsMuted = Control.MediaCore.IsMuted;
+                        break;
+                    case nameof(MediaEngine.ScrubbingEnabled):
+                        Control.ScrubbingEnabled = Control.MediaCore.ScrubbingEnabled;
+                        break;
+                    case nameof(MediaEngine.Position):
+                        Control.Position = Control.MediaCore.Position;
+                        break;
+                    default:
+                        // Simply forward notification of same-named properties
+                        Control?.RaisePropertyChangedEvent(propertyName);
+                        break;
+                }
+            });
         }
 
         /// <summary>

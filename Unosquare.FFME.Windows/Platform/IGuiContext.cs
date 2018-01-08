@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.Platform
 {
-    using Shared;
     using System;
+    using System.Windows.Threading;
 
     /// <summary>
     /// Defines a generic graphical context (compatibility between WPF and WinForms apps)
@@ -24,13 +24,13 @@
         /// <param name="priority">The priority.</param>
         /// <param name="callback">The callback.</param>
         /// <param name="arguments">The arguments.</param>
-        void EnqueueInvoke(ActionPriority priority, Delegate callback, params object[] arguments);
+        void EnqueueInvoke(DispatcherPriority priority, Delegate callback, params object[] arguments);
 
         /// <summary>
         /// Synchronously invokes the call on the UI thread
         /// </summary>
         /// <param name="priority">The priority.</param>
         /// <param name="action">The action.</param>
-        void Invoke(ActionPriority priority, Action action);
+        void Invoke(DispatcherPriority priority, Action action);
     }
 }

@@ -53,9 +53,7 @@
                     m.Log(MediaLogMessageType.Info, $"INIT FFMPEG: {ffmpeg.av_version_info()}");
                 }
 
-                MediaEngine.Platform.GuiInvoke(
-                    ActionPriority.DataBind, () => { m.ResetControllerProperties(); });
-
+                m.ResetControllerProperties();
                 m.IsOpening = true;
                 m.MediaState = MediaEngineState.Manual;
 
@@ -115,7 +113,7 @@
             finally
             {
                 m.IsOpening = false;
-                MediaEngine.Platform.GuiInvoke(ActionPriority.DataBind, () => { m.NotifyPropertyChanges(); });
+                m.NotifyPropertyChanges();
                 m.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Completed");
             }
         }

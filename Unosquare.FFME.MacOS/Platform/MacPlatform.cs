@@ -9,7 +9,7 @@
     internal class MacPlatform : IPlatform
     {
         private static readonly object SyncLock = new object();
-        private static IPlatform m_Instance = null;
+        private static MacPlatform m_Instance = null;
 
         /// <summary>
         /// Prevents a default instance of the <see cref="MacPlatform"/> class from being created.
@@ -24,7 +24,7 @@
         /// <summary>
         /// Gets the default Windows-specific implementation
         /// </summary>
-        public static IPlatform Current
+        public static MacPlatform Current
         {
             get
             {

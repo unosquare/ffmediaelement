@@ -10,7 +10,8 @@
     {
         #region Property Backing
 
-        private readonly ObservableCollection<KeyValuePair<string, string>> m_MetadataBase = new ObservableCollection<KeyValuePair<string, string>>();
+        private readonly ReadOnlyDictionary<string, string> EmptyDictionary 
+            = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
         private bool m_HasMediaEnded = false;
         private double m_BufferingProgress = 0;
         private double m_DownloadProgress = 0;
@@ -29,7 +30,7 @@
         /// Provides key-value pairs of the metadata contained in the media.
         /// Returns null when media has not been loaded.
         /// </summary>
-        public ObservableCollection<KeyValuePair<string, string>> Metadata => m_MetadataBase;
+        public ReadOnlyDictionary<string, string> Metadata => Container.Metadata ?? EmptyDictionary;
 
         /// <summary>
         /// Gets the media format. Returns null when media has not been loaded.
@@ -321,28 +322,11 @@
         #region Methods
 
         /// <summary>
-        /// Updates the metada property.
-        /// </summary>
-        internal void UpdateMetadaProperty()
-        {
-            m_MetadataBase.Clear();
-            if (Container?.Metadata != null)
-            {
-                foreach (var kvp in Container.Metadata)
-                    m_MetadataBase.Add(kvp);
-            }
-
-            SendOnPropertyChanged(nameof(Metadata));
-        }
-
-        /// <summary>
         /// Updates the media properties notifying that there are new values to be read from all of them.
         /// Call this method only when necessary because it creates a lot of events.
         /// </summary>
         internal void NotifyPropertyChanges()
         {
-            UpdateMetadaProperty();
-
             SendOnPropertyChanged(nameof(IsOpen));
             SendOnPropertyChanged(nameof(MediaFormat));
             SendOnPropertyChanged(nameof(HasAudio));
@@ -366,6 +350,7 @@
             SendOnPropertyChanged(nameof(BufferCacheLength));
             SendOnPropertyChanged(nameof(DownloadCacheLength));
             SendOnPropertyChanged(nameof(FrameStepDuration));
+            SendOnPropertyChanged(nameof(Metadata));
         }
 
         /// <summary>

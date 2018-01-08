@@ -81,11 +81,8 @@
             m.SendOnMediaClosed();
 
             // Update notification properties
-            MediaEngine.Platform.GuiInvoke(ActionPriority.DataBind, () =>
-            {
-                m.ResetControllerProperties();
-                m.NotifyPropertyChanges();
-            });
+            m.ResetControllerProperties();
+            m.NotifyPropertyChanges();
 
             if (MediaEngine.Platform.IsInDebugMode)
             {

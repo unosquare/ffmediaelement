@@ -1,25 +1,19 @@
 ﻿namespace Unosquare.FFME
 {
     using System;
-    using System.ComponentModel;
+    using System.Collections.ObjectModel;
     using System.Windows;
     using System.Windows.Controls;
 
     public partial class MediaElement
     {
-        #region Property Backing
-
-        private readonly ICollectionView m_Metadata;
-
-        #endregion
-
         #region Notification Properties
 
         /// <summary>
         /// Provides key-value pairs of the metadata contained in the media.
         /// Returns null when media has not been loaded.
         /// </summary>
-        public ICollectionView Metadata => m_Metadata;
+        public ReadOnlyDictionary<string, string> Metadata => MediaCore?.Metadata;
 
         /// <summary>
         /// Gets the media format. Returns null when media has not been loaded.
