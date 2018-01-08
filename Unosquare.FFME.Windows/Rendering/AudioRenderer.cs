@@ -1,8 +1,7 @@
 ﻿namespace Unosquare.FFME.Rendering
 {
-    using Core;
-    using Primitives;
     using Platform;
+    using Primitives;
     using Rendering.Wave;
     using Shared;
     using System;

@@ -1,8 +1,7 @@
 ﻿namespace Unosquare.FFME.Commands
 {
-    using Core;
-    using System;
     using Shared;
+    using System;
 
     /// <summary>
     /// Implements the logic to seek on the media stream

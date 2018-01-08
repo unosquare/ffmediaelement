@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME
 {
-    using Core;
     using Shared;
     using System;
 

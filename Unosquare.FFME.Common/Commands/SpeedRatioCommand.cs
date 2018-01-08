@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME.Commands
 {
-    using Core;
     using Shared;
 
     /// <summary>

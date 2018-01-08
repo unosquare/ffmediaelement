@@ -52,7 +52,7 @@
                             MediaEngine.Platform?.HandleFFmpegLogMessage(eventArgs);
                     }
                 },
-                LogQueue,
+                LogQueue, // the state argument passed on to the ticker
                 (int)Defaults.TimerLowPriorityInterval.TotalMilliseconds,
                 (int)Defaults.TimerLowPriorityInterval.TotalMilliseconds);
         }

@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Unosquare.FFME.Windows.Sample"
+        xmlns:local="clr-namespace:Unosquare.FFME.Windows.Sample.Kernel"
         xmlns:ffme="clr-namespace:Unosquare.FFME;assembly=ffme.win"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen" MinHeight="720" Height="0" MinWidth="1280" Width="0"

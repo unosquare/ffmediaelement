@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.Windows.Sample.Config
+﻿namespace Unosquare.FFME.Windows.Sample.Kernel
 {
     using System;
     using System.Collections.Generic;

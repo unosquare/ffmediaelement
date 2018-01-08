@@ -1,8 +1,7 @@
 ﻿namespace Unosquare.FFME
 {
-    using Platform;
-    using Shared;
     using Rendering;
+    using Shared;
     using System;
     using System.ComponentModel;
     using System.Windows;

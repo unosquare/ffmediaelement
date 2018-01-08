@@ -4,7 +4,6 @@
     using System;
     using System.IO;
     using System.Reflection;
-    using System.Runtime.InteropServices;
 
     /// <summary>
     /// Defaults and constants of the Media Engine
@@ -114,12 +113,7 @@
         /// <summary>
         /// Gets the assembly location.
         /// </summary>
-        public static string EntryAssemblyPath { get; } = Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
-
-        /// <summary>
-        /// Gets the architecture C.
-        /// </summary>
-        public static Architecture Architecture { get; } = RuntimeInformation.ProcessArchitecture;
+        public static string FFmpegSearchPath { get; } = Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
 
         /// <summary>
         /// The timer high priority interval for stuff like rendering

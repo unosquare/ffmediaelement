@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME
 {
-    using Core;
     using Shared;
     using System;
 
@@ -19,7 +18,7 @@
         /// <summary>
         /// The ffmpeg directory
         /// </summary>
-        private static string m_FFmpegDirectory = Defaults.EntryAssemblyPath;
+        private static string m_FFmpegDirectory = Defaults.FFmpegSearchPath;
 
         /// <summary>
         /// Stores the load mode flags

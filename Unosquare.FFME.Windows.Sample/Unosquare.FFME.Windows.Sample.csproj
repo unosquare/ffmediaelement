@@ -103,11 +103,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Config\ConfigRoot.cs" />
-    <Compile Include="DelegateCommand.cs" />
-    <Compile Include="ConsoleManager.cs" />
-    <Compile Include="ValueConverters.cs" />
-    <Compile Include="WindowStatus.cs" />
+    <Compile Include="Kernel\ConfigRoot.cs" />
+    <Compile Include="Kernel\DelegateCommand.cs" />
+    <Compile Include="Kernel\ConsoleManager.cs" />
+    <Compile Include="Kernel\ValueConverters.cs" />
+    <Compile Include="Kernel\WindowStatus.cs" />
     <Page Include="Icons.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -120,6 +120,9 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="MainWindow.Commands.cs" />
+    <Compile Include="MainWindow.EventHandlers.cs" />
+    <Compile Include="MainWindow.Properties.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -130,6 +133,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MainWindow.RenderingEvents.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

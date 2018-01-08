@@ -1,7 +1,6 @@
 ﻿namespace Unosquare.FFME.Shared
 {
     using System;
-    using System.Collections.Generic;
 
     /// <summary>
     /// Represents a set of options that are used to initialize a media container.

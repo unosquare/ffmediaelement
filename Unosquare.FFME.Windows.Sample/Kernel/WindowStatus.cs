@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.Windows.Sample
+﻿namespace Unosquare.FFME.Windows.Sample.Kernel
 {
     using System.Windows;
 

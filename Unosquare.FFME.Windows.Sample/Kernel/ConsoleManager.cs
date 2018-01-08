@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.Windows.Sample
+﻿namespace Unosquare.FFME.Windows.Sample.Kernel
 {
     using System;
     using System.Runtime.InteropServices;
@@ -8,7 +8,7 @@
     /// Represents a Console Manager static object
     /// </summary>
     [SuppressUnmanagedCodeSecurity]
-    public static class ConsoleManager
+    internal static class ConsoleManager
     {
         /// <summary>
         /// The sw hide

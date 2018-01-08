@@ -237,7 +237,12 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void RaiseFFmpegMessageLogged(object sender, MediaLogMessage e)
         {
-            FFmpegMessageLogged?.Invoke(sender, new MediaLogMessageEventArgs(e));
+            WindowsPlatform.Instance.GuiEnqueueInvoke(ActionPriority.Background,
+                new Action<MediaLogMessage>((eventArgs) =>
+                {
+                    FFmpegMessageLogged?.Invoke(sender, new MediaLogMessageEventArgs(e));
+                }),
+                e);
         }
 
         /// <summary>
@@ -247,7 +252,12 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseMessageLoggedEvent(MediaLogMessage e)
         {
-            MessageLogged?.Invoke(this, new MediaLogMessageEventArgs(e));
+            WindowsPlatform.Instance.GuiEnqueueInvoke(ActionPriority.Background,
+                new Action<MediaLogMessage>((eventArgs) =>
+                {
+                    MessageLogged?.Invoke(this, new MediaLogMessageEventArgs(eventArgs));
+                }),
+                e);
         }
 
         /// <summary>
@@ -410,7 +420,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaisePropertyChangedEvent(string propertyName)
         {
-            WindowsPlatform.Instance.GuiInvoke(ActionPriority.DataBind, () => 
+            WindowsPlatform.Instance.GuiInvoke(ActionPriority.DataBind, () =>
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             });

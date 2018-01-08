@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME.Shared
 {
-    using Decoding;
     using System;
 
     /// <summary>

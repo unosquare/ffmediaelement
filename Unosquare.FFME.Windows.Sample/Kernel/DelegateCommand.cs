@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.Windows.Sample
+﻿namespace Unosquare.FFME.Windows.Sample.Kernel
 {
     using System;
     using System.Diagnostics;
@@ -108,46 +108,5 @@
         }
 
         #endregion
-    }
-
-    /// <summary>
-    /// A delegate command that takes in a Typed argument value
-    /// </summary>
-    /// <typeparam name="T">The type of action parameter to execute</typeparam>
-    /// <seealso cref="System.Windows.Input.ICommand" />
-    public class DelegateCommand<T> : DelegateCommand
-        where T : class
-    {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DelegateCommand{T}"/> class.
-        /// </summary>
-        /// <param name="execute">The execute.</param>
-        /// <param name="canExecute">The can execute.</param>
-        public DelegateCommand(Action<T> execute, Func<T, bool> canExecute)
-            : base(
-                o => execute(o as T),
-                   canExecute == null ? null : new Func<object, bool>(o => canExecute(o as T)))
-        {
-            // placeholder
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DelegateCommand{T}"/> class.
-        /// </summary>
-        /// <param name="execute">The execute.</param>
-        public DelegateCommand(Action<T> execute)
-            : this(execute, null)
-        {
-            // placeholder
-        }
-
-        /// <summary>
-        /// Executes the specified arguments.
-        /// </summary>
-        /// <param name="args">The arguments.</param>
-        public void Execute(T args)
-        {
-            base.Execute(args);
-        }
     }
 }

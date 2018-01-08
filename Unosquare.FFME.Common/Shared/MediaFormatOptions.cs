@@ -1,8 +1,6 @@
 ﻿namespace Unosquare.FFME.Shared
 {
     using System;
-    using System.Collections.Generic;
-    using System.Text;
 
     /// <summary>
     /// Contains options for the format context as documented:

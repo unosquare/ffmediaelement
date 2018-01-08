@@ -2,7 +2,6 @@
 {
     using Core;
     using FFmpeg.AutoGen;
-    using Shared;
     using System.Collections.Generic;
 
     /// <summary>

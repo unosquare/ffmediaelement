@@ -1,5 +1,5 @@
 ﻿#pragma warning disable SA1649 // File name must match first type name
-namespace Unosquare.FFME.Windows.Sample
+namespace Unosquare.FFME.Windows.Sample.Kernel
 {
     using System;
     using System.Globalization;
@@ -10,7 +10,7 @@ namespace Unosquare.FFME.Windows.Sample
     /// Converts between TimeSpans and double-precision Seconds time measures
     /// </summary>
     /// <seealso cref="System.Windows.Data.IValueConverter" />
-    public class TimeSpanToSecondsConverter : IValueConverter
+    internal class TimeSpanToSecondsConverter : IValueConverter
     {
         /// <summary>
         /// Converts a value.
@@ -65,7 +65,7 @@ namespace Unosquare.FFME.Windows.Sample
     /// Formsts timespan time measures as string with 3-decimal milliseconds
     /// </summary>
     /// <seealso cref="System.Windows.Data.IValueConverter" />
-    public class TimeSpanFormatter : IValueConverter
+    internal class TimeSpanFormatter : IValueConverter
     {
         /// <summary>
         /// Converts the specified position.
@@ -124,7 +124,7 @@ namespace Unosquare.FFME.Windows.Sample
     /// Formats a fractional value as a percentage string.
     /// </summary>
     /// <seealso cref="System.Windows.Data.IValueConverter" />
-    public class PercentageFormatter : IValueConverter
+    internal class PercentageFormatter : IValueConverter
     {
         /// <summary>
         /// Converts the specified value.

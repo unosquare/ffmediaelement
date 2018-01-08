@@ -100,7 +100,7 @@
 
                 // Get the temporary path where FFmpeg binaries are located
                 var ffmpegPath = string.IsNullOrWhiteSpace(overridePath) == false ?
-                    Path.GetFullPath(overridePath) : Defaults.EntryAssemblyPath;
+                    Path.GetFullPath(overridePath) : Defaults.FFmpegSearchPath;
 
                 // Sometimes we need to set the DLL directory even if we try to load the
                 // library from the full path. In some Windows systems we get error 126
