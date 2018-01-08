@@ -6,27 +6,27 @@
 
     /// <summary>
     /// Contains audio format properties essential
-    /// to audio processing and resampling
+    /// to audio processing and resampling in FFmpeg libraries
     /// </summary>
-    internal sealed unsafe class AudioParams
+    internal sealed unsafe class FFAudioParams
     {
         #region Constant Definitions
 
         /// <summary>
         /// The standard output audio spec
         /// </summary>
-        public static readonly AudioParams Output;
+        public static readonly FFAudioParams Output;
 
         #endregion
 
         #region Constructors
 
         /// <summary>
-        /// Initializes static members of the <see cref="AudioParams"/> class.
+        /// Initializes static members of the <see cref="FFAudioParams"/> class.
         /// </summary>
-        static AudioParams()
+        static FFAudioParams()
         {
-            Output = new AudioParams()
+            Output = new FFAudioParams()
             {
                 ChannelCount = Defaults.AudioChannelCount,
                 SampleRate = Defaults.AudioSampleRate,
@@ -40,18 +40,18 @@
         }
 
         /// <summary>
-        /// Prevents a default instance of the <see cref="AudioParams"/> class from being created.
+        /// Prevents a default instance of the <see cref="FFAudioParams"/> class from being created.
         /// </summary>
-        private AudioParams()
+        private FFAudioParams()
         {
             // placeholder
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AudioParams"/> class.
+        /// Initializes a new instance of the <see cref="FFAudioParams"/> class.
         /// </summary>
         /// <param name="frame">The frame.</param>
-        private AudioParams(AVFrame* frame)
+        private FFAudioParams(AVFrame* frame)
         {
             ChannelCount = ffmpeg.av_frame_get_channels(frame);
             ChannelLayout = ffmpeg.av_frame_get_channel_layout(frame);
@@ -105,9 +105,9 @@
         /// </summary>
         /// <param name="frame">The frame.</param>
         /// <returns>The audio parameters</returns>
-        internal static AudioParams CreateSource(AVFrame* frame)
+        internal static FFAudioParams CreateSource(AVFrame* frame)
         {
-            var spec = new AudioParams(frame);
+            var spec = new FFAudioParams(frame);
             if (spec.ChannelLayout == 0)
                 spec.ChannelLayout = ffmpeg.av_get_default_channel_layout(spec.ChannelCount);
 
@@ -120,9 +120,9 @@
         /// </summary>
         /// <param name="frame">The frame.</param>
         /// <returns>The audio parameters</returns>
-        internal static AudioParams CreateTarget(AVFrame* frame)
+        internal static FFAudioParams CreateTarget(AVFrame* frame)
         {
-            var spec = new AudioParams
+            var spec = new FFAudioParams
             {
                 ChannelCount = Output.ChannelCount,
                 Format = Output.Format,
@@ -144,7 +144,7 @@
         /// <param name="a">a.</param>
         /// <param name="b">The b.</param>
         /// <returns>True if the params are compatible, flase otherwise.</returns>
-        internal static bool AreCompatible(AudioParams a, AudioParams b)
+        internal static bool AreCompatible(FFAudioParams a, FFAudioParams b)
         {
             if (a.Format != b.Format) return false;
             if (a.ChannelCount != b.ChannelCount) return false;

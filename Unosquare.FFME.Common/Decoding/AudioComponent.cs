@@ -25,7 +25,7 @@
         /// <summary>
         /// Used to determine if we have to reset the scaler parameters
         /// </summary>
-        private AudioParams LastSourceSpec = null;
+        private FFAudioParams LastSourceSpec = null;
 
         private AVFilterGraph* FilterGraph = null;
         private AVFilterContext* SourceFilter = null;
@@ -100,11 +100,11 @@
 
             // Create the source and target ausio specs. We might need to scale from
             // the source to the target
-            var sourceSpec = AudioParams.CreateSource(source.Pointer);
-            var targetSpec = AudioParams.CreateTarget(source.Pointer);
+            var sourceSpec = FFAudioParams.CreateSource(source.Pointer);
+            var targetSpec = FFAudioParams.CreateTarget(source.Pointer);
 
             // Initialize or update the audio scaler if required
-            if (Scaler == null || LastSourceSpec == null || AudioParams.AreCompatible(LastSourceSpec, sourceSpec) == false)
+            if (Scaler == null || LastSourceSpec == null || FFAudioParams.AreCompatible(LastSourceSpec, sourceSpec) == false)
             {
                 Scaler = ffmpeg.swr_alloc_set_opts(
                     Scaler,

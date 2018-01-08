@@ -132,11 +132,6 @@
         /// </value>
         public bool IsDisposed => m_IsDisposed;
 
-        /// <summary>
-        /// Gets whether FFmpeg is logged or not
-        /// </summary>
-        internal static AtomicBoolean IsFFmpegLoaded { get; } = new AtomicBoolean(false);
-
         #endregion
 
         #region Methods

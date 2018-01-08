@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME
 {
+    using Core;
     using Shared;
-    using System;
 
     public partial class MediaEngine
     {
@@ -33,21 +33,17 @@
         /// <summary>
         /// Gets or sets the FFmpeg path from which to load the FFmpeg binaries.
         /// You must set this path before setting the Source property for the first time on any instance of this control.
-        /// Settng this property when FFmpeg binaries have been registered will throw an exception.
+        /// Settng this property when FFmpeg binaries have been registered will have no effect.
         /// </summary>
         public static string FFmpegDirectory
         {
             get => m_FFmpegDirectory;
             set
             {
-                if (IsFFmpegLoaded.Value == false)
-                {
-                    m_FFmpegDirectory = value;
+                if (FFInterop.IsInitialized)
                     return;
-                }
 
-                if ((value?.Equals(m_FFmpegDirectory) ?? false) == false)
-                    throw new InvalidOperationException($"Unable to set a new FFmpeg registration path: {value}. FFmpeg binaries have already been registered.");
+                m_FFmpegDirectory = value;
             }
         }
 
@@ -63,7 +59,7 @@
             }
             set
             {
-                if (IsFFmpegLoaded.Value)
+                if (FFInterop.IsInitialized)
                     return;
 
                 m_FFmpegLoadModeFlags = value;

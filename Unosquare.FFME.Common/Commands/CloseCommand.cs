@@ -87,17 +87,19 @@
                 m.NotifyPropertyChanges();
             });
 
-#if DEBUG
-            if (RC.Current.InstancesByLocation.Count > 0)
+            if (MediaEngine.Platform.IsInDebugMode)
             {
-                var builder = new StringBuilder();
-                builder.AppendLine("Unmanaged references were left alive. This is an indication that there is a memory leak.");
-                foreach (var kvp in RC.Current.InstancesByLocation)
-                    builder.AppendLine($"    {kvp.Key,30}: {kvp.Value}");
+                if (RC.Current.InstancesByLocation.Count > 0)
+                {
+                    var builder = new StringBuilder();
+                    builder.AppendLine("Unmanaged references were left alive. This is an indication that there is a memory leak.");
+                    foreach (var kvp in RC.Current.InstancesByLocation)
+                        builder.AppendLine($"    {kvp.Key,30}: {kvp.Value}");
 
-                m.Log(MediaLogMessageType.Error, builder.ToString());
+                    m.Log(MediaLogMessageType.Error, builder.ToString());
+                }
             }
-#endif
+
             m.Log(MediaLogMessageType.Debug, $"{nameof(CloseCommand)}: Completed");
         }
     }

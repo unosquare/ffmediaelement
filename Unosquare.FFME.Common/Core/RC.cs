@@ -106,10 +106,10 @@
         /// <param name="location">The location.</param>
         public void Add(UnmanagedType t, IntPtr ptr, string location)
         {
-#if DEBUG
+            if (MediaEngine.Platform.IsInDebugMode == false) return;
+
             lock (SyncLock) Instances[ptr] =
                 new ReferenceEntry() { Instance = ptr, Type = t, Location = location };
-#endif
         }
 
         /// <summary>
@@ -118,10 +118,10 @@
         /// <param name="ptr">The PTR.</param>
         public void Remove(IntPtr ptr)
         {
-#if DEBUG
+            if (MediaEngine.Platform.IsInDebugMode == false) return;
+
             lock (SyncLock)
                 Instances.Remove(ptr);
-#endif
         }
 
         /// <summary>

@@ -145,42 +145,8 @@
                 case nameof(MediaEngine.Position):
                     Control.Position = Control.MediaCore.Position;
                     break;
-
-                // Simply forward notification of same-named properties
-                case nameof(MediaEngine.IsOpen):
-                case nameof(MediaEngine.IsOpening):
-                case nameof(MediaEngine.MediaFormat):
-                case nameof(MediaEngine.HasAudio):
-                case nameof(MediaEngine.HasVideo):
-                case nameof(MediaEngine.VideoCodec):
-                case nameof(MediaEngine.VideoBitrate):
-                case nameof(MediaEngine.NaturalVideoWidth):
-                case nameof(MediaEngine.NaturalVideoHeight):
-                case nameof(MediaEngine.VideoFrameRate):
-                case nameof(MediaEngine.VideoFrameLength):
-                case nameof(MediaEngine.VideoSmtpeTimecode):
-                case nameof(MediaEngine.VideoHardwareDecoder):
-                case nameof(MediaEngine.AudioCodec):
-                case nameof(MediaEngine.AudioBitrate):
-                case nameof(MediaEngine.AudioChannels):
-                case nameof(MediaEngine.AudioSampleRate):
-                case nameof(MediaEngine.AudioBitsPerSample):
-                case nameof(MediaEngine.NaturalDuration):
-                case nameof(MediaEngine.CanPause):
-                case nameof(MediaEngine.IsLiveStream):
-                case nameof(MediaEngine.IsSeekable):
-                case nameof(MediaEngine.BufferCacheLength):
-                case nameof(MediaEngine.DownloadCacheLength):
-                case nameof(MediaEngine.FrameStepDuration):
-                case nameof(MediaEngine.MediaState):
-                case nameof(MediaEngine.IsBuffering):
-                case nameof(MediaEngine.BufferingProgress):
-                case nameof(MediaEngine.IsPlaying):
-                case nameof(MediaEngine.DownloadProgress):
-                case nameof(MediaEngine.HasMediaEnded):
-                case nameof(MediaEngine.IsSeeking):
-                case nameof(MediaEngine.IsPositionUpdating):
-                case nameof(MediaEngine.Metadata):
+                default:
+                    // Simply forward notification of same-named properties
                     Control?.RaisePropertyChangedEvent(e.PropertyName);
                     break;
             }

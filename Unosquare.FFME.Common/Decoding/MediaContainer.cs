@@ -131,7 +131,7 @@
                 throw new ArgumentNullException($"{nameof(mediaUrl)}");
 
             // Initialize the library (if not already done)
-            FFInterop.RegisterFFmpeg(null, FFmpegLoadMode.FullFeatures);
+            FFInterop.Initialize(null, FFmpegLoadMode.FullFeatures);
 
             // Create the options object
             Parent = parent;

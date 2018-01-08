@@ -374,7 +374,9 @@
         /// <param name="outputEmpty">if set to <c>true</c> [output empty].</param>
         private void DumpQueue(string operation, bool outputEmpty)
         {
-#if DEBUG
+            if (MediaEngine.Platform.IsInDebugMode == false)
+                return;
+
             lock (SyncLock)
             {
                 if (outputEmpty == false && Commands.Count <= 0) return; // Prevent output for empty commands
@@ -384,7 +386,6 @@
                     MediaCore.Log(MediaLogMessageType.Debug, $"   {c.ToString()}");
                 }
             }
-#endif
         }
 
         /// <summary>

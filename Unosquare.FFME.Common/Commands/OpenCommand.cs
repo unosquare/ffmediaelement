@@ -41,17 +41,18 @@
             try
             {
                 // Register FFmpeg if not already done
-                if (MediaEngine.IsFFmpegLoaded.Value == false)
+                if (FFInterop.IsInitialized == false)
                 {
-                    MediaEngine.FFmpegDirectory = FFInterop.RegisterFFmpeg(
-                        MediaEngine.FFmpegDirectory, MediaEngine.FFmpegLoadModeFlags);
+                    FFInterop.Initialize(MediaEngine.FFmpegDirectory, MediaEngine.FFmpegLoadModeFlags);
+                    MediaEngine.FFmpegDirectory = FFInterop.LibrariesPath;
+                    MediaEngine.FFmpegLoadModeFlags = FFInterop.LibraryIdentifiers;
 
                     m.Log(MediaLogMessageType.Info, $"INIT FFMPEG: {ffmpeg.av_version_info()}");
                 }
 
                 MediaEngine.Platform.GuiInvoke(
                     ActionPriority.DataBind, () => { m.ResetControllerProperties(); });
-                MediaEngine.IsFFmpegLoaded.Value = true;
+
                 m.IsOpening = true;
                 m.MediaState = MediaEngineState.Manual;
 
