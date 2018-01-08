@@ -448,7 +448,7 @@
 
             Media.RenderingVideo += (s, e) =>
             {
-                #region Create the overlay buffer to work with
+            #region Create the overlay buffer to work with
 
                 if (overlayBackBuffer != e.Bitmap.BackBuffer)
                 {
@@ -473,9 +473,9 @@
                     overlayGraphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
                 }
 
-                #endregion
+            #endregion
 
-                #region Read the instantaneous RMS of the audio
+            #region Read the instantaneous RMS of the audio
 
                 lock (drawVuMeterRmsLock)
                 {
@@ -497,9 +497,9 @@
                     }
                 }
 
-                #endregion
+            #endregion
 
-                #region Draw the text and the VU meter
+            #region Draw the text and the VU meter
 
                 e.Bitmap.Lock();
                 var differenceMillis = TimeSpan.FromTicks(e.Clock.Ticks - e.StartTime.Ticks).TotalMilliseconds;
@@ -525,7 +525,7 @@
                 e.Bitmap.AddDirtyRect(new Int32Rect(0, 0, e.Bitmap.PixelWidth, e.Bitmap.PixelHeight));
                 e.Bitmap.Unlock();
 
-                #endregion
+            #endregion
             };
 
             Media.RenderingAudio += (s, e) =>
@@ -907,7 +907,9 @@
         /// <param name="e">The <see cref="MediaLogMessageEventArgs" /> instance containing the event data.</param>
         private void Media_MessageLogged(object sender, MediaLogMessageEventArgs e)
         {
-            if (e.MessageType == MediaLogMessageType.Trace) return;
+            if (e.MessageType == MediaLogMessageType.Trace)
+                return;
+
             Debug.WriteLine($"{e.MessageType,10} - {e.Message}");
         }
 
@@ -920,7 +922,9 @@
         {
             if (e.Message.Contains("] Reinit context to ")
                 || e.Message.Contains("Using non-standard frame rate"))
+            {
                 return;
+            }
 
             Debug.WriteLine($"{e.MessageType,10} - {e.Message}");
         }

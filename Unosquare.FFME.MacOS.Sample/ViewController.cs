@@ -31,9 +31,10 @@
             imageView = new NSImageView(new CoreGraphics.CGRect(
                 (View.Bounds.Width - 640) / 2,
                 (View.Bounds.Height - 480) / 2,
-                640, 480));
-
-            imageView.Image = new NSImage(new NSUrl("https://github.com/unosquare/ffmediaelement/raw/master/Support/ffme.png"));
+                640, 480))
+            {
+                Image = new NSImage(new NSUrl("https://github.com/unosquare/ffmediaelement/raw/master/Support/ffme.png"))
+            };
             View.AddSubview(imageView);
 
             imageView.AutoresizingMask = NSViewResizingMask.WidthSizable | NSViewResizingMask.HeightSizable;
@@ -42,7 +43,7 @@
 
             var mediaElement = new MediaElement(imageView);
             var uri = @"http://www.quirksmode.org/html5/videos/big_buck_bunny.mp4";
-            mediaElement.Open(new Uri(uri));
+            var openTask = mediaElement.Open(new Uri(uri));
         }
 
         public override NSObject RepresentedObject

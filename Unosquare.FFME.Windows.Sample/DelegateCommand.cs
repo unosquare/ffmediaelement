@@ -124,7 +124,8 @@
         /// <param name="execute">The execute.</param>
         /// <param name="canExecute">The can execute.</param>
         public DelegateCommand(Action<T> execute, Func<T, bool> canExecute)
-            : base(o => execute(o as T),
+            : base(
+                o => execute(o as T),
                    canExecute == null ? null : new Func<object, bool>(o => canExecute(o as T)))
         {
             // placeholder

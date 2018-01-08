@@ -19,7 +19,7 @@
         /// The sw show
         /// </summary>
         public const int WindowStatusShow = 5;
-        
+
         /// <summary>
         /// Allocs the console.
         /// </summary>
