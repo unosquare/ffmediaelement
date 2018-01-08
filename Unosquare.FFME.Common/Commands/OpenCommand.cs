@@ -43,7 +43,9 @@
                 // Register FFmpeg if not already done
                 if (MediaEngine.IsFFmpegLoaded.Value == false)
                 {
-                    MediaEngine.FFmpegDirectory = FFInterop.RegisterFFmpeg(MediaEngine.FFmpegDirectory);
+                    MediaEngine.FFmpegDirectory = FFInterop.RegisterFFmpeg(
+                        MediaEngine.FFmpegDirectory, MediaEngine.FFmpegLoadModeFlags);
+
                     m.Log(MediaLogMessageType.Info, $"INIT FFMPEG: {ffmpeg.av_version_info()}");
                 }
 

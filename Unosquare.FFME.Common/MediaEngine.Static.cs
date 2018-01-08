@@ -19,7 +19,12 @@
         /// <summary>
         /// The ffmpeg directory
         /// </summary>
-        private static string m_FFmpegDirectory = null;
+        private static string m_FFmpegDirectory = Defaults.EntryAssemblyPath;
+
+        /// <summary>
+        /// Stores the load mode flags
+        /// </summary>
+        private static int m_FFmpegLoadModeFlags = FFmpegLoadMode.FullFeatures;
 
         /// <summary>
         /// Gets the platform-specific implementation requirements.
@@ -44,6 +49,25 @@
 
                 if ((value?.Equals(m_FFmpegDirectory) ?? false) == false)
                     throw new InvalidOperationException($"Unable to set a new FFmpeg registration path: {value}. FFmpeg binaries have already been registered.");
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the bitwise library identifiers to load.
+        /// If FFmpeg is already loaded, the value cannot be changed.
+        /// </summary>
+        public static int FFmpegLoadModeFlags
+        {
+            get
+            {
+                return m_FFmpegLoadModeFlags;
+            }
+            set
+            {
+                if (IsFFmpegLoaded.Value)
+                    return;
+
+                m_FFmpegLoadModeFlags = value;
             }
         }
 

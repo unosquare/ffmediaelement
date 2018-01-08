@@ -121,6 +121,17 @@
         }
 
         /// <summary>
+        /// Specifies the bitwise flags that correspond to FFmpeg library identifiers.
+        /// Please use the <see cref="Shared.FFmpegLoadMode"/> class for valid combinations.
+        /// If FFmpeg is already loaded, the value cannot be changed.
+        /// </summary>
+        public static int FFmpegLoadModeFlags
+        {
+            get => MediaEngine.FFmpegLoadModeFlags;
+            set => MediaEngine.FFmpegLoadModeFlags = value;
+        }
+
+        /// <summary>
         /// This is the image that will display the video from a Writeable Bitmap
         /// </summary>
         public Image ViewBox { get; } = new Image();

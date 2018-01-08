@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.0
+VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unosquare.FFME.Windows", "Unosquare.FFME.Windows\Unosquare.FFME.Windows.csproj", "{A6EB99A6-AAE2-4E6E-AB9E-93992CE5B84D}"
 EndProject
@@ -11,12 +11,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Support", "Support", "{8BF2
 	ProjectSection(SolutionItems) = preProject
 		appveyor.yml = appveyor.yml
 		docfx.json = docfx.json
-		ffme.win.nuspec = ffme.win.nuspec
-		ffmeplay.png = ffmeplay.png
+		Support\ffme.png = Support\ffme.png
+		Support\ffme.win.nuspec = Support\ffme.win.nuspec
+		Support\ffmeplay.png = Support\ffmeplay.png
 		LICENSE = LICENSE
 		README.md = README.md
+		Support\SoundTouch COPYING.TXT = Support\SoundTouch COPYING.TXT
+		Support\SoundTouch.dll = Support\SoundTouch.dll
+		Support\SoundTouch_x64.dll = Support\SoundTouch_x64.dll
 		StyleCop.Analyzers.ruleset = StyleCop.Analyzers.ruleset
-		test-suite.html = test-suite.html
+		Support\test-suite.html = Support\test-suite.html
 		toc.yml = toc.yml
 	EndProjectSection
 EndProject

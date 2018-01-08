@@ -38,6 +38,9 @@
 
 #pragma warning restore SA1401 // Fields must be private
 
+        private static readonly string[] LiveStreamUrlPrefixes = new[] { "rtp:", "udp:" };
+        private static readonly string[] LiveStreamFormatNames = new[] { "rtp", "rtsp", "sdp" };
+
         /// <summary>
         /// The read synchronize root
         /// </summary>
@@ -128,7 +131,7 @@
                 throw new ArgumentNullException($"{nameof(mediaUrl)}");
 
             // Initialize the library (if not already done)
-            FFInterop.RegisterFFmpeg(null);
+            FFInterop.RegisterFFmpeg(null, FFmpegLoadMode.FullFeatures);
 
             // Create the options object
             Parent = parent;
@@ -571,6 +574,58 @@
         #region Private Stream Methods
 
         /// <summary>
+        /// Initializes the InputContext and applies format options.
+        /// https://www.ffmpeg.org/ffmpeg-formats.html#Format-Options
+        /// </summary>
+        private void InitializeInputContext()
+        {
+            // Allocate the input context and save it
+            InputContext = ffmpeg.avformat_alloc_context();
+
+            // Setup an interrupt callback to detect read timeouts
+            SignalAbortReadsRequested.Value = false;
+            SignalAbortReadsAutoReset.Value = true;
+            StreamReadInterruptCallback = StreamReadInterrupt;
+            InputContext->interrupt_callback.callback = StreamReadInterruptCallback;
+            InputContext->interrupt_callback.opaque = InputContext;
+
+            // Acquire the format options to be applied
+            var opts = MediaOptions.FormatOptions;
+
+            // Apply the options
+            if (opts.EnableReducedBuffering) InputContext->avio_flags |= ffmpeg.AVIO_FLAG_DIRECT;
+            if (opts.PacketSize != default(int)) InputContext->packet_size = (uint)opts.PacketSize;
+            if (opts.ProbeSize != default(int)) InputContext->probesize = MediaOptions.FormatOptions.ProbeSize <= 32 ? 32 : opts.ProbeSize;
+
+            // Flags
+            InputContext->flags |= opts.FlagDiscardCorrupt ? ffmpeg.AVFMT_FLAG_DISCARD_CORRUPT : InputContext->flags;
+            InputContext->flags |= opts.FlagEnableFastSeek ? ffmpeg.AVFMT_FLAG_FAST_SEEK : InputContext->flags;
+            InputContext->flags |= opts.FlagEnableLatmPayload ? ffmpeg.AVFMT_FLAG_MP4A_LATM : InputContext->flags;
+            InputContext->flags |= opts.FlagEnableNoFillin ? ffmpeg.AVFMT_FLAG_NOFILLIN : InputContext->flags;
+            InputContext->flags |= opts.FlagGeneratePts ? ffmpeg.AVFMT_FLAG_GENPTS : InputContext->flags;
+            InputContext->flags |= opts.FlagIgnoreDts ? ffmpeg.AVFMT_FLAG_IGNDTS : InputContext->flags;
+            InputContext->flags |= opts.FlagIgnoreIndex ? ffmpeg.AVFMT_FLAG_IGNIDX : InputContext->flags;
+            InputContext->flags |= opts.FlagKeepSideData ? ffmpeg.AVFMT_FLAG_KEEP_SIDE_DATA : InputContext->flags;
+            InputContext->flags |= opts.FlagNoBuffer ? ffmpeg.AVFMT_FLAG_NOBUFFER : InputContext->flags;
+            InputContext->flags |= opts.FlagSortDts ? ffmpeg.AVFMT_FLAG_SORT_DTS : InputContext->flags;
+            InputContext->flags |= opts.FlagStopAtShortest ? ffmpeg.AVFMT_FLAG_SHORTEST : InputContext->flags;
+
+            InputContext->seek2any = opts.SeekToAny ? 1 : 0;
+
+            // Handle analyze duration overrides
+            if (opts.MaxAnalyzeDuration != default(TimeSpan))
+            {
+                InputContext->max_analyze_duration = opts.MaxAnalyzeDuration <= TimeSpan.Zero ? 0 :
+                    (int)Math.Round(opts.MaxAnalyzeDuration.TotalSeconds * ffmpeg.AV_TIME_BASE, 0);
+            }
+
+            if (string.IsNullOrEmpty(opts.CryptoKey) == false)
+            {
+                // TODO: not yet supported
+            }
+        }
+
+        /// <summary>
         /// Initializes the input context to start read operations.
         /// This does NOT create the stream components and therefore, there needs to be a call
         /// to the Open method.
@@ -579,8 +634,6 @@
         /// <exception cref="MediaContainerException">When an error initializing the stream occurs.</exception>
         private void StreamInitialize()
         {
-            const string scanAllPmts = "scan_all_pmts";
-
             if (IsInitialized)
                 throw new InvalidOperationException("The input context has already been initialized.");
 
@@ -595,20 +648,13 @@
             try
             {
                 // Create the input format context, and open the input based on the provided format options.
-                using (var formatOptions = new FFDictionary(MediaOptions.FormatOptions))
+                using (var inputOptions = new FFDictionary(MediaOptions.InputOptions))
                 {
-                    if (formatOptions.HasKey(scanAllPmts) == false)
-                        formatOptions.Set(scanAllPmts, "1", true);
+                    if (inputOptions.HasKey(MediaInputOptions.Names.ScanAllPmts) == false)
+                        inputOptions.Set(MediaInputOptions.Names.ScanAllPmts, "1", true);
 
-                    // Allocate the input context and save it
-                    InputContext = ffmpeg.avformat_alloc_context();
-
-                    // Setup an interrup callback to detect read timeouts
-                    SignalAbortReadsRequested.Value = false;
-                    SignalAbortReadsAutoReset.Value = true;
-                    StreamReadInterruptCallback = StreamReadInterrupt;
-                    InputContext->interrupt_callback.callback = StreamReadInterruptCallback;
-                    InputContext->interrupt_callback.opaque = InputContext;
+                    // Create the input context
+                    InitializeInputContext();
 
                     // Try to open the input
                     fixed (AVFormatContext** inputContext = &InputContext)
@@ -616,30 +662,19 @@
                         // Open the input file
                         var openResult = 0;
 
-                        // Handle overriding of probe sizes
-                        if (MediaOptions.ProbeSize != default(int))
-                            InputContext->probesize = MediaOptions.ProbeSize <= 32 ? 32 : MediaOptions.ProbeSize;
-
-                        // Handle analyze duration overrides
-                        if (MediaOptions.MaxAnalyzeDuration != default(TimeSpan))
-                        {
-                            InputContext->max_analyze_duration = MediaOptions.MaxAnalyzeDuration <= TimeSpan.Zero ? 0 :
-                                (int)Math.Round(MediaOptions.MaxAnalyzeDuration.TotalSeconds * ffmpeg.AV_TIME_BASE, 0);
-                        }
-
                         // We set the start of the read operation time so tiomeouts can be detected
                         StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
-                        fixed (AVDictionary** reference = &formatOptions.Pointer)
+                        fixed (AVDictionary** inputOptionsRef = &inputOptions.Pointer)
                         {
                             var prefix = string.IsNullOrWhiteSpace(ProtocolPrefix) ? string.Empty : $"{ProtocolPrefix.Trim()}:";
-                            openResult = ffmpeg.avformat_open_input(inputContext, $"{prefix}{MediaUrl}", inputFormat, reference);
+                            openResult = ffmpeg.avformat_open_input(inputContext, $"{prefix}{MediaUrl}", inputFormat, inputOptionsRef);
                         }
 
                         // Validate the open operation
                         if (openResult < 0)
                         {
                             throw new MediaContainerException($"Could not open '{MediaUrl}'. "
-                                + $"Error {openResult}: {FFInterop.DecodeFFmpegMessage(openResult)}");
+                                + $"Error {openResult}: {FFInterop.DecodeMessage(openResult)}");
                         }
                     }
 
@@ -647,19 +682,17 @@
                     MediaFormatName = FFInterop.PtrToString(InputContext->iformat->name);
 
                     // If there are any optins left in the dictionary, it means they did not get used (invalid options).
-                    formatOptions.Remove(scanAllPmts);
+                    inputOptions.Remove(MediaInputOptions.Names.ScanAllPmts);
 
                     // Output the invalid options as warnings
-                    var currentEntry = formatOptions.First();
+                    var currentEntry = inputOptions.First();
                     while (currentEntry != null && currentEntry?.Key != null)
                     {
                         Parent?.Log(MediaLogMessageType.Warning, $"Invalid format option: '{currentEntry.Key}'");
-                        currentEntry = formatOptions.Next(currentEntry);
+                        currentEntry = inputOptions.Next(currentEntry);
                     }
                 }
 
-                // Inject Codec Parameters
-                if (MediaOptions.GeneratePts) { InputContext->flags |= ffmpeg.AVFMT_FLAG_GENPTS; }
                 ffmpeg.av_format_inject_global_side_data(InputContext);
 
                 // This is useful for file formats with no headers such as MPEG. This function also computes 
@@ -673,8 +706,8 @@
                 // Setup initial state variables
                 Metadata = new ReadOnlyDictionary<string, string>(FFDictionary.ToDictionary(InputContext->metadata));
 
-                IsStreamRealtime = Constants.LiveStreamFormatNames.Any(s => MediaFormatName.Equals(s)) ||
-                    (InputContext->pb != null && Constants.LiveStreamUrlPrefixes.Any(s => MediaUrl.StartsWith(s)));
+                IsStreamRealtime = LiveStreamFormatNames.Any(s => MediaFormatName.Equals(s)) ||
+                    (InputContext->pb != null && LiveStreamUrlPrefixes.Any(s => MediaUrl.StartsWith(s)));
 
                 // Unsure how this works. Ported from ffplay 
                 RequiresReadDelay = MediaFormatName.Equals("rstp") || MediaUrl.StartsWith("mmsh:");
@@ -906,7 +939,7 @@
                 else
                 {
                     if (InputContext->pb != null && InputContext->pb->error != 0)
-                        throw new MediaContainerException($"Input has produced an error. Error Code {readResult}, {FFInterop.DecodeFFmpegMessage(readResult)}");
+                        throw new MediaContainerException($"Input has produced an error. Error Code {readResult}, {FFInterop.DecodeMessage(readResult)}");
                 }
             }
             else
@@ -1003,7 +1036,7 @@
             if (MediaStartTimeOffset == TimeSpan.MinValue) return;
             StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
             StreamReadSuspend();
-            
+
             var seekResult = ffmpeg.av_seek_frame(
                 InputContext,
                 -1,
@@ -1020,8 +1053,8 @@
 
             if (seekResult < 0)
             {
-                Parent?.Log(MediaLogMessageType.Warning, 
-                    $"SEEK 0: {nameof(StreamSeekToStart)} operation failed. Error code {seekResult}, {FFInterop.DecodeFFmpegMessage(seekResult)}");
+                Parent?.Log(MediaLogMessageType.Warning,
+                    $"SEEK 0: {nameof(StreamSeekToStart)} operation failed. Error code {seekResult}, {FFInterop.DecodeMessage(seekResult)}");
             }
 
             Components.ClearPacketQueues();
@@ -1148,7 +1181,7 @@
                 // Ensure we had a successful seek operation
                 if (seekResult < 0)
                 {
-                    Parent?.Log(MediaLogMessageType.Error, $"SEEK R: Elapsed: {startTime.FormatElapsed()} | Seek operation failed. Error code {seekResult}, {FFInterop.DecodeFFmpegMessage(seekResult)}");
+                    Parent?.Log(MediaLogMessageType.Error, $"SEEK R: Elapsed: {startTime.FormatElapsed()} | Seek operation failed. Error code {seekResult}, {FFInterop.DecodeMessage(seekResult)}");
                     break;
                 }
 

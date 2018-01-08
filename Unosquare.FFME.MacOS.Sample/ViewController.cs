@@ -33,7 +33,7 @@
                 (View.Bounds.Height - 480) / 2,
                 640, 480));
 
-            imageView.Image = new NSImage(new NSUrl("https://github.com/unosquare/ffmediaelement/raw/master/ffme.png"));
+            imageView.Image = new NSImage(new NSUrl("https://github.com/unosquare/ffmediaelement/raw/master/Support/ffme.png"));
             View.AddSubview(imageView);
 
             imageView.AutoresizingMask = NSViewResizingMask.WidthSizable | NSViewResizingMask.HeightSizable;

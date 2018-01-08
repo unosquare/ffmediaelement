@@ -65,11 +65,22 @@
         /// Gets the FFmpeg log callback method.
         /// Example: ffmpeg.av_log_set_callback(LoggingWorker.FFmpegLogCallback);
         /// </summary>
-        public static unsafe av_log_set_callback_callback FFmpegLogCallback { get; } = OnFFmpegMessageLogged;
+        private static unsafe av_log_set_callback_callback FFmpegLogCallback { get; } = OnFFmpegMessageLogged;
 
         #endregion
 
         #region Methods
+
+        /// <summary>
+        /// Starts to listen to FFmpeg logging messages.
+        /// This method is not thread-safe.
+        /// </summary>
+        public static void ConnectToFFmpeg()
+        {
+            ffmpeg.av_log_set_flags(ffmpeg.AV_LOG_SKIP_REPEATED);
+            ffmpeg.av_log_set_level(MediaEngine.Platform.IsInDebugMode ? ffmpeg.AV_LOG_VERBOSE : ffmpeg.AV_LOG_WARNING);
+            ffmpeg.av_log_set_callback(FFmpegLogCallback);
+        }
 
         /// <summary>
         /// Logs the specified message. This the genric logging mechanism available to all classes.
@@ -137,7 +148,6 @@
         private static unsafe void OnFFmpegMessageLogged(void* p0, int level, string format, byte* vl)
         {
             const int lineSize = 1024;
-
             lock (FFmpegLogBufferSyncLock)
             {
                 if (level > ffmpeg.av_log_get_level()) return;

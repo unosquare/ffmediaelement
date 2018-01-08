@@ -38,21 +38,19 @@
                 LibSWScale,
                 LibAVDevice
             });
-
-            MinimumSet = new ReadOnlyCollection<FFLibrary>(All.Where(l => l.IsRequired).ToList());
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FFLibrary"/> class.
+        /// Initializes a new instance of the <see cref="FFLibrary" /> class.
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="version">The version.</param>
-        /// <param name="isRequired">if set to <c>true</c> [is required].</param>
-        private FFLibrary(string name, int version, bool isRequired)
+        /// <param name="flagId">The flag identifier.</param>
+        private FFLibrary(string name, int version, int flagId)
         {
             Name = name;
             Version = version;
-            IsRequired = isRequired;
+            FlagId = flagId;
         }
 
         #endregion
@@ -65,53 +63,48 @@
         public static ReadOnlyCollection<FFLibrary> All { get; }
 
         /// <summary>
-        /// Gets the minimum required set of libraries as a collection.
-        /// </summary>
-        public static ReadOnlyCollection<FFLibrary> MinimumSet { get; }
-
-        /// <summary>
         /// Gets the AVCodec library.
         /// </summary>
-        public static FFLibrary LibAVCodec { get; } = new FFLibrary(Names.AVCodec, 57, true);
-
-        /// <summary>
-        /// Gets the AVFilter library.
-        /// </summary>
-        public static FFLibrary LibAVFilter { get; } = new FFLibrary(Names.AVFilter, 6, false);
+        public static FFLibrary LibAVCodec { get; } = new FFLibrary(Names.AVCodec, 57, 1);
 
         /// <summary>
         /// Gets the AVFormat library.
         /// </summary>
-        public static FFLibrary LibAVFormat { get; } = new FFLibrary(Names.AVFormat, 57, true);
+        public static FFLibrary LibAVFormat { get; } = new FFLibrary(Names.AVFormat, 57, 2);
 
         /// <summary>
         /// Gets the AVUtil library.
         /// </summary>
-        public static FFLibrary LibAVUtil { get; } = new FFLibrary(Names.AVUtil, 55, true);
+        public static FFLibrary LibAVUtil { get; } = new FFLibrary(Names.AVUtil, 55, 4);
 
         /// <summary>
         /// Gets the SWResample library.
         /// </summary>
-        public static FFLibrary LibSWResample { get; } = new FFLibrary(Names.SWResample, 2, true);
+        public static FFLibrary LibSWResample { get; } = new FFLibrary(Names.SWResample, 2, 8);
 
         /// <summary>
         /// Gets the SWScale library.
         /// </summary>
-        public static FFLibrary LibSWScale { get; } = new FFLibrary(Names.SWScale, 4, false);
+        public static FFLibrary LibSWScale { get; } = new FFLibrary(Names.SWScale, 4, 16);
 
         /// <summary>
         /// Gets the AVDevice library.
         /// </summary>
-        public static FFLibrary LibAVDevice { get; } = new FFLibrary(Names.AVDevice, 57, false);
+        public static FFLibrary LibAVDevice { get; } = new FFLibrary(Names.AVDevice, 57, 32);
+
+        /// <summary>
+        /// Gets the AVFilter library.
+        /// </summary>
+        public static FFLibrary LibAVFilter { get; } = new FFLibrary(Names.AVFilter, 6, 64);
 
         #endregion
 
         #region Instance Properties
 
         /// <summary>
-        /// Gets a value indicating whether the library is part of the minimum required set.
+        /// Gets the flag identifier.
         /// </summary>
-        public bool IsRequired { get; }
+        public int FlagId { get; }
 
         /// <summary>
         /// Gets the name of the library.
@@ -137,7 +130,12 @@
         /// <summary>
         /// Gets a value indicating whether the library has already been loaded.
         /// </summary>
-        public bool IsAvailable => Reference != IntPtr.Zero;
+        public bool IsLoaded => Reference != IntPtr.Zero;
+
+        /// <summary>
+        /// Gets the load error code. 0 for success.
+        /// </summary>
+        public int LoadErrorCode { get; private set; }
 
         #endregion
 
@@ -157,10 +155,12 @@
                     throw new InvalidOperationException($"Library {Name} was already loaded.");
 
                 var result = LibraryLoader.LoadNativeLibraryUsingPlatformNamingConvention(basePath, Name, Version);
+                
                 if (result != IntPtr.Zero)
                 {
                     Reference = result;
                     BasePath = basePath;
+                    LoadErrorCode = 0;
                     return true;
                 }
 

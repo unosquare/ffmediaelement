@@ -2,6 +2,7 @@
 {
     using System;
     using System.Runtime.InteropServices;
+    using Platform;
 
     /// <summary>
     /// SoundTouch audio processing library wrapper (SoundTouch.cs)
@@ -181,12 +182,19 @@
             {
                 try
                 {
+                    // Include the ffmpeg directory in the search path
+                    WindowsNativeMethods.Instance.SetDllDirectory(MediaElement.FFmpegDirectory);
                     var versionId = NativeMethods.GetVersionId();
                     return versionId != 0;
                 }
                 catch
                 {
                     return false;
+                }
+                finally
+                {
+                    // Reset the search path
+                    WindowsNativeMethods.Instance.SetDllDirectory(null);
                 }
             }
         }

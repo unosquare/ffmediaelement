@@ -167,5 +167,25 @@
 
         #endregion
 
+        /// <summary>
+        /// Well-known codec option names
+        /// </summary>
+        public static class Names
+        {
+            /// <summary>
+            /// The threads
+            /// </summary>
+            public const string Threads = "threads";
+
+            /// <summary>
+            /// The reference counted frames
+            /// </summary>
+            public const string RefCountedFrames = "refcounted_frames";
+
+            /// <summary>
+            /// The low resource
+            /// </summary>
+            public const string LowRes = "lowres";
+        }
     }
 }

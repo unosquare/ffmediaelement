@@ -37,10 +37,11 @@
         public bool EnableFastDecoding { get; set; } = false;
 
         /// <summary>
-        /// A dictionary of Format options.
-        /// Supported format options are specified in https://www.ffmpeg.org/ffmpeg-formats.html#Format-Options
+        /// A dictionary containing generic input options for both:
+        /// Global Codec Options: https://www.ffmpeg.org/ffmpeg-all.html#Codec-Options
+        /// Demuxer-Private Options: https://ffmpeg.org/ffmpeg-all.html#Demuxers
         /// </summary>
-        public Dictionary<string, string> FormatOptions { get; } = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+        public MediaInputOptions InputOptions { get; } = new MediaInputOptions();
 
         /// <summary>
         /// Gets the codec options.
@@ -50,30 +51,16 @@
         public MediaCodecOptions CodecOptions { get; } = new MediaCodecOptions();
 
         /// <summary>
+        /// Contains options for the format context as documented:
+        /// https://ffmpeg.org/ffmpeg-formats.html#Format-Options
+        /// </summary>
+        public MediaFormatOptions FormatOptions { get; } = new MediaFormatOptions();
+
+        /// <summary>
         /// Gets or sets a value indicating whether experimental hardware acceleration is enabled.
         /// Defaults to false. This feature is experimental.
         /// </summary>
-        public bool EnableHardwareAcceleration { get; set; } = false;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether PTS are generated automatically and not read
-        /// from the packets themselves. Defaults to false.
-        /// Port of genpts
-        /// </summary>
-        public bool GeneratePts { get; set; } = false;
-
-        /// <summary>
-        /// Gets or sets the maximum duration to be analyzed before ifentifying stream information.
-        /// In realtime streams this can be reduced to reduce latency (i.e. TimeSpan.Zero)
-        /// </summary>
-        public TimeSpan MaxAnalyzeDuration { get; set; }
-
-        /// <summary>
-        /// Gets or sets the amount of bytes to probe before getting the stram info
-        /// In realtime streams probesize can be reduced to reduce latency.
-        /// Minimum value is 32.
-        /// </summary>
-        public int ProbeSize { get; set; }
+        public bool EnableHardwareAcceleration { get; set; }
 
         /// <summary>
         /// Gets or sets the amount of time to wait for a an open or read operation to complete.

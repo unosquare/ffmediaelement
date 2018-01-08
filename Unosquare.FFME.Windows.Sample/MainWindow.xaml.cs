@@ -90,6 +90,10 @@
             // You can get the binaries here: http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip
             Unosquare.FFME.MediaElement.FFmpegDirectory = Config.FFmpegPath;
 
+            // You can pick which FFmpeg binaries are loaded. See issue #28
+            // Full Features is already the default.
+            Unosquare.FFME.MediaElement.FFmpegLoadModeFlags = FFmpegLoadMode.FullFeatures;
+
             // Setup the UI
             // ConsoleManager.ShowConsole();
             InitializeMediaEvents();
@@ -973,14 +977,14 @@
             // An example of injecting format options for http/https streams
             if (e.Info.InputUrl.StartsWith("http://") || e.Info.InputUrl.StartsWith("https://"))
             {
-                e.Options.FormatOptions["usetoc"] = "1";
-                e.Options.FormatOptions["user_agent"] = $"{typeof(MediaOptions).Namespace}/{typeof(MediaOptions).Assembly.GetName().Version}";
-                e.Options.FormatOptions["headers"] = $"Referer:https://www.unosquare.com";
-                e.Options.FormatOptions["multiple_requests"] = "1";
-                e.Options.FormatOptions["reconnect"] = "1";
-                e.Options.FormatOptions["reconnect_at_eof"] = "1";
-                e.Options.FormatOptions["reconnect_streamed"] = "1";
-                e.Options.FormatOptions["reconnect_delay_max"] = "10"; // in seconds
+                e.Options.InputOptions["usetoc"] = "1";
+                e.Options.InputOptions["user_agent"] = $"{typeof(MediaOptions).Namespace}/{typeof(MediaOptions).Assembly.GetName().Version}";
+                e.Options.InputOptions["headers"] = $"Referer:https://www.unosquare.com";
+                e.Options.InputOptions["multiple_requests"] = "1";
+                e.Options.InputOptions["reconnect"] = "1";
+                e.Options.InputOptions["reconnect_at_eof"] = "1";
+                e.Options.InputOptions["reconnect_streamed"] = "1";
+                e.Options.InputOptions["reconnect_delay_max"] = "10"; // in seconds
             }
 
             // An example of switching to a different stream

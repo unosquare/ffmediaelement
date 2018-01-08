@@ -5,7 +5,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Reflection;
+    using System.Linq;
     using System.Runtime.InteropServices;
     using System.Text;
 
@@ -24,6 +24,20 @@
         #endregion
 
         #region Interop
+
+        /// <summary>
+        /// Gets the FFmpeg error mesage based on the error code
+        /// </summary>
+        /// <param name="errorCode">The code.</param>
+        /// <returns>The decoded error message</returns>
+        public static unsafe string DecodeMessage(int errorCode)
+        {
+            var bufferSize = 1024;
+            var buffer = stackalloc byte[bufferSize];
+            ffmpeg.av_strerror(errorCode, buffer, (ulong)bufferSize);
+            var message = Marshal.PtrToStringAnsi((IntPtr)buffer);
+            return message;
+        }
 
         /// <summary>
         /// Converts a byte pointer to a string
@@ -71,77 +85,62 @@
         /// has no effect. Returns the path that FFmpeg was registered from.
         /// </summary>
         /// <param name="overridePath">The override path.</param>
-        /// <returns>Returns the path that FFmpeg was registered from.</returns>
+        /// <param name="bitwiseFlagIdentifiers">The bitwaise flag identifiers corresponding to the libraries.</param>
+        /// <returns>
+        /// Returns the path that FFmpeg was registered from.
+        /// </returns>
+        /// <exception cref="FileNotFoundException">When ffmpeg libraries are not found</exception>
         /// <exception cref="System.IO.FileNotFoundException">When the folder is not found</exception>
-        public static unsafe string RegisterFFmpeg(string overridePath)
+        public static unsafe string RegisterFFmpeg(string overridePath, int bitwiseFlagIdentifiers)
         {
             lock (FFmpegRegisterLock)
             {
                 if (HasFFmpegRegistered)
                     return FFmpegRegisterPath;
 
-                // Define the minimum set of ffmpeg binaries.
-                string[] minimumFFmpegSet = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                    ? new[] { Constants.DllAVCodec, Constants.DllAVFormat, Constants.DllAVUtil, Constants.DllSWResample }
-                    : new[] { Constants.DllAVCodec_macOS, Constants.DllAVFormat_macOS, Constants.DllAVUtil_macOS, Constants.DllSWResample_macOS };
-
-                var architecture = IntPtr.Size == 4 ? ProcessorArchitecture.X86 : ProcessorArchitecture.Amd64;
-                var ffmpegFolderName = architecture == ProcessorArchitecture.X86 ? "ffmpeg32" : "ffmpeg64";
+                // Get the temporary path where FFmpeg binaries are located
                 var ffmpegPath = string.IsNullOrWhiteSpace(overridePath) == false ?
-                    overridePath : Path.GetFullPath(Path.Combine(Defaults.EntryAssemblyPath, ffmpegFolderName));
+                    Path.GetFullPath(overridePath) : Defaults.EntryAssemblyPath;
 
-                // Ensure all files exist
-                foreach (var fileName in minimumFFmpegSet)
-                {
-                    if (File.Exists(Path.Combine(ffmpegPath, fileName)) == false)
-                        throw new FileNotFoundException($"Unable to load minimum set of FFmpeg binaries from folder '{ffmpegPath}'. File '{fileName}' is missing");
-                }
-
+                // Sometimes we need to set the DLL directory even if we try to load the
+                // library from the full path. In some Windows systems we get error 126
                 MediaEngine.Platform.NativeMethods.SetDllDirectory(ffmpegPath);
 
-                if ((RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && File.Exists(Path.Combine(ffmpegPath, Constants.DllAVDevice))) ||
-                    (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && File.Exists(Path.Combine(ffmpegPath, Constants.DllAVDevice_macOS))))
+                // Load the minimum set of FFmpeg binaries
+                foreach (var lib in FFLibrary.All)
+                {
+                    if ((lib.FlagId & bitwiseFlagIdentifiers) != 0)
+                        lib.Load(ffmpegPath);
+                }
+
+                // Check if libraries were loaded correctly
+                if (FFLibrary.All.All(lib => lib.IsLoaded == false))
+                {
+                    // Reset the search path
+                    MediaEngine.Platform.NativeMethods.SetDllDirectory(null);
+                    throw new FileNotFoundException($"Unable to load FFmpeg binaries from folder '{ffmpegPath}'.");
+                }
+
+                if (FFLibrary.LibAVDevice.IsLoaded)
                     ffmpeg.avdevice_register_all();
 
-                if ((RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && File.Exists(Path.Combine(ffmpegPath, Constants.DllAVFilter))) ||
-                    (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && File.Exists(Path.Combine(ffmpegPath, Constants.DllAVFilter_macOS))))
+                if (FFLibrary.LibAVFilter.IsLoaded)
                     ffmpeg.avfilter_register_all();
 
                 ffmpeg.av_register_all();
                 ffmpeg.avcodec_register_all();
                 ffmpeg.avformat_network_init();
 
-                ffmpeg.av_log_set_flags(ffmpeg.AV_LOG_SKIP_REPEATED);
-                ffmpeg.av_log_set_level(MediaEngine.Platform.IsInDebugMode ? ffmpeg.AV_LOG_VERBOSE : ffmpeg.AV_LOG_WARNING);
-                ffmpeg.av_log_set_callback(LoggingWorker.FFmpegLogCallback);
+                LoggingWorker.ConnectToFFmpeg();
+                FFLockManager.Register();
 
-                // because Zeranoe FFmpeg Builds don't have --enable-pthreads,
-                // https://ffmpeg.zeranoe.com/builds/readme/win64/static/ffmpeg-20170620-ae6f6d4-win64-static-readme.txt
-                // and because by default FFmpeg is not thread-safe,
-                // https://stackoverflow.com/questions/13888915/thread-safety-of-libav-ffmpeg
-                // we need to register a lock manager with av_lockmgr_register
-                // Just like in https://raw.githubusercontent.com/FFmpeg/FFmpeg/release/3.4/ffplay.c
-                if (Constants.EnableFFmpegLockManager)
-                    ffmpeg.av_lockmgr_register(FFLockManager.LockOpCallback);
+                // Reset the search path
+                MediaEngine.Platform.NativeMethods.SetDllDirectory(null);
 
                 HasFFmpegRegistered = true;
                 FFmpegRegisterPath = ffmpegPath;
                 return FFmpegRegisterPath;
             }
-        }
-
-        /// <summary>
-        /// Gets the FFmpeg error mesage based on the error code
-        /// </summary>
-        /// <param name="code">The code.</param>
-        /// <returns>The decoded error message</returns>
-        public static unsafe string DecodeFFmpegMessage(int code)
-        {
-            var bufferSize = 1024;
-            var buffer = stackalloc byte[bufferSize];
-            ffmpeg.av_strerror(code, buffer, (ulong)bufferSize);
-            var message = Marshal.PtrToStringAnsi((IntPtr)buffer);
-            return message;
         }
 
         #endregion

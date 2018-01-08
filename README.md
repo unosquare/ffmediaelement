@@ -5,7 +5,7 @@
 
 *:star:Please star this project if you find it useful!*
 
-![ffmeplay](https://github.com/unosquare/ffmediaelement/raw/master/ffmeplay.png)
+![ffmeplay](https://github.com/unosquare/ffmediaelement/raw/master/Support/ffmeplay.png)
 
 - Current Status: (2018-01-06) - 2.0, codenamed Michelob is now in beta 7 (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
 - NuGet Package now available: https://www.nuget.org/packages/FFME.Windows/
