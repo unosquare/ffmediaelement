@@ -18,7 +18,7 @@
       "output": {
         ".html": {
           "relative_path": "README.html",
-          "hash": "G01H+CzPuHfPUYhuXDyivg=="
+          "hash": "xnAVFDtjhpSGSn0QBpzhPw=="
         }
       },
       "is_incremental": false,
@@ -52,17 +52,6 @@
       "output": {
         "resource": {
           "relative_path": "best-practices/resources/images/transparent.gif"
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "Resource",
-      "source_relative_path": "ffme.png",
-      "output": {
-        "resource": {
-          "relative_path": "ffme.png"
         }
       },
       "is_incremental": false,
