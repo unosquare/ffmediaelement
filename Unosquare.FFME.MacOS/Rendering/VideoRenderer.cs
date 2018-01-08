@@ -84,7 +84,7 @@
                     CGColorRenderingIntent.Default);
 
                 var nsImage = new NSImage(i, new CGSize(width, height));
-                MacPlatform.Current.GuiInvoke(ActionPriority.Normal, () =>
+                MacPlatform.Current.GuiInvoke(() =>
                 {
                     ((MediaCore.Parent) as MediaElement).ImageView.Image = nsImage;
                 });

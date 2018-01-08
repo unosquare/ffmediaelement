@@ -4,7 +4,6 @@
     using Shared;
     using System;
     using System.Diagnostics;
-    using System.Windows.Threading;
 
     /// <summary>
     /// Root for platform-specific implementations
@@ -65,18 +64,6 @@
         /// Gets a value indicating whether this instance is in design time.
         /// </summary>
         public bool IsInDesignTime { get; }
-
-        /// <summary>
-        /// Creates a UI-aware timer that executes actions on a schedule basis.
-        /// </summary>
-        /// <param name="priority">The priority.</param>
-        /// <returns>
-        /// An instance of the dispatcher timer
-        /// </returns>
-        public IDispatcherTimer CreateGuiTimer(ActionPriority priority)
-        {
-            return new WindowsDispatcherTimer((DispatcherPriority)priority);
-        }
 
         /// <summary>
         /// Creates a renderer of the specified media type.

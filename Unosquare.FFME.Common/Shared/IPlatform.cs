@@ -30,15 +30,6 @@
         IMediaRenderer CreateRenderer(MediaType mediaType, MediaEngine mediaEngine);
 
         /// <summary>
-        /// Creates a UI-aware dispatcher timer that executes actions on a schedule basis.
-        /// </summary>
-        /// <param name="priority">The priority.</param>
-        /// <returns>
-        /// An instance of the dispatcher timer
-        /// </returns>
-        IDispatcherTimer CreateGuiTimer(ActionPriority priority);
-
-        /// <summary>
         /// Handles global FFmpeg library messages
         /// </summary>
         /// <param name="message">The message.</param>

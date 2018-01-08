@@ -44,11 +44,6 @@
 
         public bool IsInDesignTime { get; }
 
-        public IDispatcherTimer CreateGuiTimer(ActionPriority priority)
-        {
-            return new MacDispatcherTimer();
-        }
-
         public IMediaRenderer CreateRenderer(MediaType mediaType, MediaEngine mediaEngine)
         {
             if (mediaType == MediaType.Audio) return new AudioRenderer(mediaEngine);
@@ -64,7 +59,7 @@
             Console.WriteLine($"{message.MessageType,10} - {message.Message}");
         }
 
-        public void GuiInvoke(ActionPriority priority, Action action)
+        public void GuiInvoke(Action action)
         {
             NSRunLoop.Main.BeginInvokeOnMainThread(action.Invoke);
         }

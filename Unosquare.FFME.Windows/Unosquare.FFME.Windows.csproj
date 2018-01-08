@@ -96,7 +96,6 @@
     <Compile Include="Events\RenderingVideoEventArgs.cs" />
     <Compile Include="Platform\IGuiContext.cs" />
     <Compile Include="Platform\WindowsMediaConnector.cs" />
-    <Compile Include="Platform\WindowsDispatcherTimer.cs" />
     <Compile Include="Platform\WindowsNativeMethods.cs" />
     <Compile Include="Platform\WindowsPlatform.cs" />
     <Compile Include="MediaElement.RenderEvents.cs" />

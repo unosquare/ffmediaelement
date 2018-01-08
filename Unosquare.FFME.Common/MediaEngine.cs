@@ -6,6 +6,7 @@
     using Shared;
     using System;
     using System.Runtime.CompilerServices;
+    using System.Threading;
 
     /// <summary>
     /// Represents a Media Engine that contains underlying streams of audio and/or video.
@@ -25,7 +26,7 @@
         /// <summary>
         /// The position update timer
         /// </summary>
-        private IDispatcherTimer UIPropertyUpdateTimer = null;
+        private Timer PropertyUpdateTimer = null;
 
         /// <summary>
         /// When position is being set from within this control, this field will
@@ -69,44 +70,57 @@
                 }
             }
 
+            var isRunningPropertyUpdates = new AtomicBoolean();
+
             // The UI Property update timer is responsible for timely updates to properties outside of the worker threads
             // We use the loaded priority because it is the priority right below the Render one.
-            UIPropertyUpdateTimer = Platform.CreateGuiTimer(ActionPriority.Loaded);
-            UIPropertyUpdateTimer.Interval = Defaults.TimerMediumPriorityInterval;
-
-            // The tick callback performs the updates
-            UIPropertyUpdateTimer.Tick += (s, e) =>
+            PropertyUpdateTimer = new Timer((s) =>
             {
-                UpdatePosition(IsOpen ? Clock?.Position ?? TimeSpan.Zero : TimeSpan.Zero);
-
-                if (HasMediaEnded == false && CanReadMorePackets && (IsOpening || IsOpen))
-                {
-                    var bufferedLength = Container?.Components?.PacketBufferLength ?? 0d;
-                    BufferingProgress = Math.Min(1d, bufferedLength / BufferCacheLength);
-                    var oldIsBugffering = IsBuffering;
-                    var newIsBuffering = bufferedLength < BufferCacheLength;
-
-                    if (oldIsBugffering == false && newIsBuffering)
-                        SendOnBufferingStarted();
-                    else if (oldIsBugffering && newIsBuffering == false)
-                        SendOnBufferingEnded();
-
-                    IsBuffering = HasMediaEnded == false && newIsBuffering;
-                }
+                if (isRunningPropertyUpdates.Value || m_IsDisposing.Value)
+                    return;
                 else
+                    isRunningPropertyUpdates.Value = true;
+
+                try
                 {
-                    BufferingProgress = 0;
-                    IsBuffering = false;
+                    UpdatePosition(IsOpen ? Clock?.Position ?? TimeSpan.Zero : TimeSpan.Zero);
+
+                    if (HasMediaEnded == false && CanReadMorePackets && (IsOpening || IsOpen))
+                    {
+                        var bufferedLength = Container?.Components?.PacketBufferLength ?? 0d;
+                        BufferingProgress = Math.Min(1d, bufferedLength / BufferCacheLength);
+                        var oldIsBugffering = IsBuffering;
+                        var newIsBuffering = bufferedLength < BufferCacheLength;
+
+                        if (oldIsBugffering == false && newIsBuffering)
+                            SendOnBufferingStarted();
+                        else if (oldIsBugffering && newIsBuffering == false)
+                            SendOnBufferingEnded();
+
+                        IsBuffering = HasMediaEnded == false && newIsBuffering;
+                    }
+                    else
+                    {
+                        BufferingProgress = 0;
+                        IsBuffering = false;
+                    }
+
+                    var downloadProgress = Math.Min(1d, Math.Round((Container?.Components.PacketBufferLength ?? 0d) / DownloadCacheLength, 3));
+                    if (double.IsNaN(downloadProgress)) downloadProgress = 0;
+                    DownloadProgress = downloadProgress;
                 }
-
-                var downloadProgress = Math.Min(1d, Math.Round((Container?.Components.PacketBufferLength ?? 0d) / DownloadCacheLength, 3));
-                if (double.IsNaN(downloadProgress)) downloadProgress = 0;
-                DownloadProgress = downloadProgress;
-            };
-
-            // Go ahead and fire up the continuous updates
-            UIPropertyUpdateTimer.IsEnabled = true;
-            UIPropertyUpdateTimer.Start();
+                catch (Exception ex)
+                {
+                    Log(MediaLogMessageType.Error, $"{nameof(PropertyUpdateTimer)} callabck failed. {ex.GetType()}: {ex.Message}");
+                }
+                finally
+                {
+                    isRunningPropertyUpdates.Value = false;
+                }
+            },
+            this, // the state argument passed on to the ticker
+            (int)Defaults.TimerMediumPriorityInterval.TotalMilliseconds,
+            (int)Defaults.TimerMediumPriorityInterval.TotalMilliseconds);
         }
 
         #endregion
@@ -240,11 +254,10 @@
                         Container = null;
                     }
 
-                    if (UIPropertyUpdateTimer != null)
+                    if (PropertyUpdateTimer != null)
                     {
-                        UIPropertyUpdateTimer.Stop();
-                        UIPropertyUpdateTimer.IsEnabled = false;
-                        UIPropertyUpdateTimer = null;
+                        PropertyUpdateTimer.Dispose();
+                        PropertyUpdateTimer = null;
                     }
 
                     // Dispose the ManualResetEvent objects as they are
