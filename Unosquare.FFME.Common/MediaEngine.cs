@@ -5,15 +5,14 @@
     using Primitives;
     using Shared;
     using System;
-    using System.ComponentModel;
     using System.Runtime.CompilerServices;
 
     /// <summary>
     /// Represents a Media Engine that contains underlying streams of audio and/or video.
     /// It the FFmpeg library to perform reading and decoding of media streams.
     /// </summary>
+    /// <seealso cref="Unosquare.FFME.Shared.IMediaLogger" />
     /// <seealso cref="System.IDisposable" />
-    /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     public partial class MediaEngine : IDisposable, IMediaLogger
     {
         #region Fields and Property Backing
@@ -215,19 +214,8 @@
                 return false;
 
             storage = value;
-            OnPropertyChanged(propertyName);
+            SendOnPropertyChanged(propertyName);
             return true;
-        }
-
-        /// <summary>
-        /// Notifies listeners that a property value has changed.
-        /// </summary>
-        /// <param name="propertyName">Name of the property used to notify listeners.  This
-        /// value is optional and can be provided automatically when invoked from compilers
-        /// that support <see cref="CallerMemberNameAttribute"/>.</param>
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            Connector?.OnPropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         }
 
         #endregion

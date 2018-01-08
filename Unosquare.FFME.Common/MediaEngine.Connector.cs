@@ -111,6 +111,17 @@
             Connector?.OnPositionChanged(this, position);
         }
 
+        /// <summary>
+        /// Notifies the platform connector that a property value has changed.
+        /// </summary>
+        /// <param name="propertyName">Name of the property used to notify listeners.  This
+        /// value is optional and can be provided automatically when invoked from compilers
+        /// that support <see cref="CallerMemberNameAttribute"/>.</param>
+        private void SendOnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            Connector?.OnPropertyChanged(this, propertyName);
+        }
+
         #endregion
     }
 }

@@ -1,7 +1,6 @@
 ﻿namespace Unosquare.FFME.Shared
 {
     using System;
-    using System.ComponentModel;
 
     /// <summary>
     /// Connects handlers between the Media Engine and a platfrom-secific implementation
@@ -84,7 +83,7 @@
         /// This is used to handle property change notifications
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
-        void OnPropertyChanged(object sender, PropertyChangedEventArgs e);
+        /// <param name="propertyName">Name of the property.</param>
+        void OnPropertyChanged(object sender, string propertyName);
     }
 }

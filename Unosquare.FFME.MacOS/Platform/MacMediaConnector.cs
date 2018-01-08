@@ -59,7 +59,7 @@
             // placeholder
         }
 
-        public void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        public void OnPropertyChanged(object sender, string propertyName)
         {
             // placeholder
         }

@@ -621,7 +621,7 @@
 
             if (string.IsNullOrEmpty(opts.CryptoKey) == false)
             {
-                // TODO: not yet supported
+                // TODO: not yet implemented
             }
         }
 

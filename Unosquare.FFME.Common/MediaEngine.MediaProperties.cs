@@ -223,7 +223,7 @@
                 // Can't use SetProperty because the backing field is an AtomicBoolean
                 if (m_IsSeeking.Value == value) return;
                 m_IsSeeking.Value = value;
-                OnPropertyChanged(nameof(IsSeeking));
+                SendOnPropertyChanged(nameof(IsSeeking));
             }
         }
 
@@ -312,7 +312,7 @@
             internal set
             {
                 SetProperty(ref m_CoreMediaState, value);
-                OnPropertyChanged(nameof(IsPlaying));
+                SendOnPropertyChanged(nameof(IsPlaying));
             }
         }
 
@@ -332,7 +332,7 @@
                     m_MetadataBase.Add(kvp);
             }
 
-            OnPropertyChanged(nameof(Metadata));
+            SendOnPropertyChanged(nameof(Metadata));
         }
 
         /// <summary>
@@ -343,29 +343,29 @@
         {
             UpdateMetadaProperty();
 
-            OnPropertyChanged(nameof(IsOpen));
-            OnPropertyChanged(nameof(MediaFormat));
-            OnPropertyChanged(nameof(HasAudio));
-            OnPropertyChanged(nameof(HasVideo));
-            OnPropertyChanged(nameof(VideoCodec));
-            OnPropertyChanged(nameof(VideoBitrate));
-            OnPropertyChanged(nameof(NaturalVideoWidth));
-            OnPropertyChanged(nameof(NaturalVideoHeight));
-            OnPropertyChanged(nameof(VideoFrameRate));
-            OnPropertyChanged(nameof(VideoFrameLength));
-            OnPropertyChanged(nameof(VideoHardwareDecoder));
-            OnPropertyChanged(nameof(AudioCodec));
-            OnPropertyChanged(nameof(AudioBitrate));
-            OnPropertyChanged(nameof(AudioChannels));
-            OnPropertyChanged(nameof(AudioSampleRate));
-            OnPropertyChanged(nameof(AudioBitsPerSample));
-            OnPropertyChanged(nameof(NaturalDuration));
-            OnPropertyChanged(nameof(CanPause));
-            OnPropertyChanged(nameof(IsLiveStream));
-            OnPropertyChanged(nameof(IsSeekable));
-            OnPropertyChanged(nameof(BufferCacheLength));
-            OnPropertyChanged(nameof(DownloadCacheLength));
-            OnPropertyChanged(nameof(FrameStepDuration));
+            SendOnPropertyChanged(nameof(IsOpen));
+            SendOnPropertyChanged(nameof(MediaFormat));
+            SendOnPropertyChanged(nameof(HasAudio));
+            SendOnPropertyChanged(nameof(HasVideo));
+            SendOnPropertyChanged(nameof(VideoCodec));
+            SendOnPropertyChanged(nameof(VideoBitrate));
+            SendOnPropertyChanged(nameof(NaturalVideoWidth));
+            SendOnPropertyChanged(nameof(NaturalVideoHeight));
+            SendOnPropertyChanged(nameof(VideoFrameRate));
+            SendOnPropertyChanged(nameof(VideoFrameLength));
+            SendOnPropertyChanged(nameof(VideoHardwareDecoder));
+            SendOnPropertyChanged(nameof(AudioCodec));
+            SendOnPropertyChanged(nameof(AudioBitrate));
+            SendOnPropertyChanged(nameof(AudioChannels));
+            SendOnPropertyChanged(nameof(AudioSampleRate));
+            SendOnPropertyChanged(nameof(AudioBitsPerSample));
+            SendOnPropertyChanged(nameof(NaturalDuration));
+            SendOnPropertyChanged(nameof(CanPause));
+            SendOnPropertyChanged(nameof(IsLiveStream));
+            SendOnPropertyChanged(nameof(IsSeekable));
+            SendOnPropertyChanged(nameof(BufferCacheLength));
+            SendOnPropertyChanged(nameof(DownloadCacheLength));
+            SendOnPropertyChanged(nameof(FrameStepDuration));
         }
 
         /// <summary>

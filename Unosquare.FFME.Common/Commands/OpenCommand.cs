@@ -40,6 +40,9 @@
 
             try
             {
+                // TODO: Sometimes when the stream can't be read, the sample player stays as if it were trying to open
+                // until the interrupt timeout occurs but and the Real-Time Clock continues. Strange behavior.
+
                 // Register FFmpeg if not already done
                 if (FFInterop.IsInitialized == false)
                 {

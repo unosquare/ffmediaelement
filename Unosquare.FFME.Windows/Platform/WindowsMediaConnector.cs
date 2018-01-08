@@ -2,7 +2,6 @@
 {
     using Shared;
     using System;
-    using System.ComponentModel;
 
     /// <summary>
     /// The Media engine connector
@@ -112,10 +111,10 @@
         /// This is used to handle property change notifications
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="T:System.ComponentModel.PropertyChangedEventArgs" /> instance containing the event data.</param>
-        public void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        /// <param name="propertyName">Name of the property.</param>
+        public void OnPropertyChanged(object sender, string propertyName)
         {
-            switch (e.PropertyName)
+            switch (propertyName)
             {
                 // forward internal changes to the MediaElement dependency Properties
                 case nameof(MediaEngine.Source):
@@ -147,7 +146,7 @@
                     break;
                 default:
                     // Simply forward notification of same-named properties
-                    Control?.RaisePropertyChangedEvent(e.PropertyName);
+                    Control?.RaisePropertyChangedEvent(propertyName);
                     break;
             }
         }
