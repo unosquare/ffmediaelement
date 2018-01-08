@@ -181,7 +181,7 @@
         public bool IsPositionUpdating
         {
             get => m_IsPositionUpdating.Value;
-            set => m_IsPositionUpdating.Value = value;
+            private set => m_IsPositionUpdating.Value = value;
         }
 
         /// <summary>

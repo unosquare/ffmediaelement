@@ -64,14 +64,6 @@
             Console.WriteLine($"{message.MessageType,10} - {message.Message}");
         }
 
-        public void GuiEnqueueInvoke(ActionPriority priority, Delegate callback, params object[] arguments)
-        {
-            NSRunLoop.Main.BeginInvokeOnMainThread(() =>
-            {
-                callback.DynamicInvoke(arguments);
-            });
-        }
-
         public void GuiInvoke(ActionPriority priority, Action action)
         {
             NSRunLoop.Main.BeginInvokeOnMainThread(action.Invoke);

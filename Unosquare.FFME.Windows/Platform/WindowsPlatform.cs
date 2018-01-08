@@ -67,18 +67,6 @@
         public bool IsInDesignTime { get; }
 
         /// <summary>
-        /// Enqueues the given instructions with the given arguments on the main application dispatcher.
-        /// This is a way to execute code in a fire-and-forget style
-        /// </summary>
-        /// <param name="priority">The priority.</param>
-        /// <param name="callback">The callback.</param>
-        /// <param name="arguments">The arguments.</param>
-        public void GuiEnqueueInvoke(ActionPriority priority, Delegate callback, params object[] arguments)
-        {
-            Gui?.EnqueueInvoke((DispatcherPriority)priority, callback, arguments);
-        }
-
-        /// <summary>
         /// Creates a UI-aware timer that executes actions on a schedule basis.
         /// </summary>
         /// <param name="priority">The priority.</param>

@@ -176,20 +176,16 @@
             if (IsPositionUpdating || IsSeeking)
                 return;
 
-            IsPositionUpdating = true;
-            Platform.GuiEnqueueInvoke(
-                ActionPriority.DataBind,
-                (Action<TimeSpan>)((v) =>
-                {
-                    if (Position != v)
-                    {
-                        Position = v;
-                        SendOnPositionChanged(v);
-                    }
-
-                    IsPositionUpdating = false;
-                }),
-                new object[] { value });
+            try
+            {
+                IsPositionUpdating = true;
+                Position = value;
+            }
+            catch { }
+            finally
+            {
+                IsPositionUpdating = false;
+            }
         }
 
         #endregion
