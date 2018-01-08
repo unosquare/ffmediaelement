@@ -92,7 +92,7 @@
             var metadataEntry = ffmpeg.av_dict_get(dictionary, string.Empty, null, ffmpeg.AV_DICT_IGNORE_SUFFIX);
             while (metadataEntry != null)
             {
-                result[Utils.PtrToString(metadataEntry->key)] = Utils.PtrToString(metadataEntry->value);
+                result[FFInterop.PtrToString(metadataEntry->key)] = FFInterop.PtrToString(metadataEntry->value);
                 metadataEntry = ffmpeg.av_dict_get(dictionary, string.Empty, metadataEntry, ffmpeg.AV_DICT_IGNORE_SUFFIX);
             }
 

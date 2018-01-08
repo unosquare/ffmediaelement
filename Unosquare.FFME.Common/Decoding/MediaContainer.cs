@@ -128,7 +128,7 @@
                 throw new ArgumentNullException($"{nameof(mediaUrl)}");
 
             // Initialize the library (if not already done)
-            Utils.RegisterFFmpeg(null);
+            FFInterop.RegisterFFmpeg(null);
 
             // Create the options object
             Parent = parent;
@@ -639,12 +639,12 @@
                         if (openResult < 0)
                         {
                             throw new MediaContainerException($"Could not open '{MediaUrl}'. "
-                                + $"Error {openResult}: {Utils.DecodeFFmpegMessage(openResult)}");
+                                + $"Error {openResult}: {FFInterop.DecodeFFmpegMessage(openResult)}");
                         }
                     }
 
                     // Set some general properties
-                    MediaFormatName = Utils.PtrToString(InputContext->iformat->name);
+                    MediaFormatName = FFInterop.PtrToString(InputContext->iformat->name);
 
                     // If there are any optins left in the dictionary, it means they did not get used (invalid options).
                     formatOptions.Remove(scanAllPmts);
@@ -906,7 +906,7 @@
                 else
                 {
                     if (InputContext->pb != null && InputContext->pb->error != 0)
-                        throw new MediaContainerException($"Input has produced an error. Error Code {readResult}, {Utils.DecodeFFmpegMessage(readResult)}");
+                        throw new MediaContainerException($"Input has produced an error. Error Code {readResult}, {FFInterop.DecodeFFmpegMessage(readResult)}");
                 }
             }
             else
@@ -1021,7 +1021,7 @@
             if (seekResult < 0)
             {
                 Parent?.Log(MediaLogMessageType.Warning, 
-                    $"SEEK 0: {nameof(StreamSeekToStart)} operation failed. Error code {seekResult}, {Utils.DecodeFFmpegMessage(seekResult)}");
+                    $"SEEK 0: {nameof(StreamSeekToStart)} operation failed. Error code {seekResult}, {FFInterop.DecodeFFmpegMessage(seekResult)}");
             }
 
             Components.ClearPacketQueues();
@@ -1148,7 +1148,7 @@
                 // Ensure we had a successful seek operation
                 if (seekResult < 0)
                 {
-                    Parent?.Log(MediaLogMessageType.Error, $"SEEK R: Elapsed: {startTime.FormatElapsed()} | Seek operation failed. Error code {seekResult}, {Utils.DecodeFFmpegMessage(seekResult)}");
+                    Parent?.Log(MediaLogMessageType.Error, $"SEEK R: Elapsed: {startTime.FormatElapsed()} | Seek operation failed. Error code {seekResult}, {FFInterop.DecodeFFmpegMessage(seekResult)}");
                     break;
                 }
 

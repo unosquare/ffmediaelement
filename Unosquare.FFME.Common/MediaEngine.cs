@@ -72,8 +72,8 @@
 
             // The UI Property update timer is responsible for timely updates to properties outside of the worker threads
             // We use the loaded priority because it is the priority right below the Render one.
-            UIPropertyUpdateTimer = MediaEngine.Platform.CreateGuiTimer(ActionPriority.Loaded);
-            UIPropertyUpdateTimer.Interval = Constants.UIPropertyUpdateInterval;
+            UIPropertyUpdateTimer = Platform.CreateGuiTimer(ActionPriority.Loaded);
+            UIPropertyUpdateTimer.Interval = Defaults.TimerMediumPriorityInterval;
 
             // The tick callback performs the updates
             UIPropertyUpdateTimer.Tick += (s, e) =>

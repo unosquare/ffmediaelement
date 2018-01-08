@@ -587,6 +587,8 @@
                         Renderers[t]?.Update(wallClock);
 
                     // Delay the thread for a bit if we have no more stuff to process
+                    // TODO: Check the minimum distance of the following block and if it less than
+                    // Defaults.TimerHighPriorityInterval, then don't delay!
                     if (IsSeeking == false && renderedBlockCount <= 0 && Commands.PendingCount <= 0)
                         Task.Delay(1).GetAwaiter().GetResult();
 

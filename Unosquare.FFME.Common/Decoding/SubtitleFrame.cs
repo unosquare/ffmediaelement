@@ -52,7 +52,7 @@
                 {
                     if (rect->text != null)
                     {
-                        Text.Add(Utils.PtrToStringUTF8(rect->text));
+                        Text.Add(FFInterop.PtrToStringUTF8(rect->text));
                         TextType = AVSubtitleType.SUBTITLE_TEXT;
                         break;
                     }
@@ -61,7 +61,7 @@
                 {
                     if (rect->ass != null)
                     {
-                        Text.Add(Utils.PtrToStringUTF8(rect->ass));
+                        Text.Add(FFInterop.PtrToStringUTF8(rect->ass));
                         TextType = AVSubtitleType.SUBTITLE_ASS;
                         break;
                     }

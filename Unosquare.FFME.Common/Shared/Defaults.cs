@@ -1,6 +1,10 @@
 ﻿namespace Unosquare.FFME.Shared
 {
     using FFmpeg.AutoGen;
+    using System;
+    using System.IO;
+    using System.Reflection;
+    using System.Runtime.InteropServices;
 
     /// <summary>
     /// Defaults and constants of the Media Engine
@@ -102,6 +106,35 @@
         /// The video pixel format. BGRX, 32bit
         /// </summary>
         public const AVPixelFormat VideoPixelFormat = AVPixelFormat.AV_PIX_FMT_BGR0;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Gets the assembly location.
+        /// </summary>
+        public static string EntryAssemblyPath { get; } = Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
+
+        /// <summary>
+        /// Gets the architecture C.
+        /// </summary>
+        public static Architecture Architecture { get; } = RuntimeInformation.ProcessArchitecture;
+
+        /// <summary>
+        /// The timer high priority interval for stuff like rendering
+        /// </summary>
+        public static TimeSpan TimerHighPriorityInterval { get; } = TimeSpan.FromMilliseconds(15);
+
+        /// <summary>
+        /// The timer medium priority interval for stuff like property updates
+        /// </summary>
+        public static TimeSpan TimerMediumPriorityInterval { get; } = TimeSpan.FromMilliseconds(25);
+
+        /// <summary>
+        /// The timer low priority interval for stuff like logging
+        /// </summary>
+        public static TimeSpan TimerLowPriorityInterval { get; } = TimeSpan.FromMilliseconds(40);
 
         #endregion
     }

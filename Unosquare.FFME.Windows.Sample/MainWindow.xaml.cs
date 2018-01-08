@@ -407,14 +407,14 @@
             {
                 // Debug.WriteLine($"{nameof(Media.Position)} = {e.Position}");
             };
-            
+
             Media.MediaOpened += Media_MediaOpened;
             Media.MediaOpening += Media_MediaOpening;
             Media.MediaFailed += Media_MediaFailed;
             Media.MessageLogged += Media_MessageLogged;
             Media.PropertyChanged += Media_PropertyChanged;
             FFME.MediaElement.FFmpegMessageLogged += MediaElement_FFmpegMessageLogged;
-            
+
 #if HANDLE_RENDERING_EVENTS
 
             #region Audio and Video Frame Rendering Variables
@@ -697,7 +697,7 @@
             {
                 e.Handled = true;
             };
-            
+
             #endregion
 
             #region Handle Play Pause with Mouse Clicks
@@ -734,7 +734,12 @@
                 LastMouseMoveTime = DateTime.UtcNow.Subtract(TimeSpan.FromSeconds(10));
             };
 
-            var mouseMoveTimer = new DispatcherTimer(DispatcherPriority.Background) { Interval = TimeSpan.FromMilliseconds(150), IsEnabled = true };
+            var mouseMoveTimer = new DispatcherTimer(DispatcherPriority.Background)
+            {
+                Interval = TimeSpan.FromMilliseconds(150),
+                IsEnabled = true
+            };
+
             mouseMoveTimer.Tick += (s, e) =>
             {
                 var elapsedSinceMouseMove = DateTime.UtcNow.Subtract(LastMouseMoveTime);

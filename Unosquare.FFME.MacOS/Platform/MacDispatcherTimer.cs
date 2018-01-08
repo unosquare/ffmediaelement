@@ -3,11 +3,11 @@
     using Shared;
     using System;
     using System.Timers;
-    using Core;
 
-    class MacDispatcherTimer : IDispatcherTimer
+    internal class MacDispatcherTimer : IDispatcherTimer
     {
-        internal const double DefaultIntervalMilliseconds = 25;
+        internal static readonly double DefaultIntervalMilliseconds 
+            = Defaults.TimerMediumPriorityInterval.TotalMilliseconds;
         Timer timer;
 
         public bool IsEnabled { get; set; }

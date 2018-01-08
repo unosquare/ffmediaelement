@@ -25,12 +25,12 @@
         /// Gets the key.
         /// </summary>
         public string Key => Pointer != null ?
-                    Utils.PtrToString(Pointer->key) : null;
+                    FFInterop.PtrToString(Pointer->key) : null;
 
         /// <summary>
         /// Gets the value.
         /// </summary>
         public string Value => Pointer != null ?
-                    Utils.PtrToString(Pointer->value) : null;
+                    FFInterop.PtrToString(Pointer->value) : null;
     }
 }

@@ -3,41 +3,23 @@
     using FFmpeg.AutoGen;
     using Shared;
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using System.Reflection;
-    using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
     using System.Text;
-    using System.Threading;
 
     /// <summary>
     /// Provides a set of utilities to perfrom logging, text formatting, 
     /// conversion and other handy calculations.
     /// </summary>
-    internal static class Utils
+    internal static class FFInterop
     {
         #region Private Declarations
 
         private static readonly object FFmpegRegisterLock = new object();
-        private static readonly unsafe av_log_set_callback_callback FFmpegLogCallback = LoggingWorker.OnFFmpegMessageLogged;
-
-        private static readonly unsafe av_lockmgr_register_cb FFmpegLockManagerCallback = FFmpegManageLocking;
-        private static readonly Dictionary<IntPtr, ManualResetEvent> FFmpegOpDone = new Dictionary<IntPtr, ManualResetEvent>();
-
         private static bool HasFFmpegRegistered = false;
         private static string FFmpegRegisterPath = null;
-
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        /// Gets the assembly location.
-        /// </summary>
-        private static string AssemblyLocation => Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
 
         #endregion
 
@@ -106,7 +88,7 @@
                 var architecture = IntPtr.Size == 4 ? ProcessorArchitecture.X86 : ProcessorArchitecture.Amd64;
                 var ffmpegFolderName = architecture == ProcessorArchitecture.X86 ? "ffmpeg32" : "ffmpeg64";
                 var ffmpegPath = string.IsNullOrWhiteSpace(overridePath) == false ?
-                    overridePath : Path.GetFullPath(Path.Combine(AssemblyLocation, ffmpegFolderName));
+                    overridePath : Path.GetFullPath(Path.Combine(Defaults.EntryAssemblyPath, ffmpegFolderName));
 
                 // Ensure all files exist
                 foreach (var fileName in minimumFFmpegSet)
@@ -131,7 +113,7 @@
 
                 ffmpeg.av_log_set_flags(ffmpeg.AV_LOG_SKIP_REPEATED);
                 ffmpeg.av_log_set_level(MediaEngine.Platform.IsInDebugMode ? ffmpeg.AV_LOG_VERBOSE : ffmpeg.AV_LOG_WARNING);
-                ffmpeg.av_log_set_callback(FFmpegLogCallback);
+                ffmpeg.av_log_set_callback(LoggingWorker.FFmpegLogCallback);
 
                 // because Zeranoe FFmpeg Builds don't have --enable-pthreads,
                 // https://ffmpeg.zeranoe.com/builds/readme/win64/static/ffmpeg-20170620-ae6f6d4-win64-static-readme.txt
@@ -140,7 +122,7 @@
                 // we need to register a lock manager with av_lockmgr_register
                 // Just like in https://raw.githubusercontent.com/FFmpeg/FFmpeg/release/3.4/ffplay.c
                 if (Constants.EnableFFmpegLockManager)
-                    ffmpeg.av_lockmgr_register(FFmpegLockManagerCallback);
+                    ffmpeg.av_lockmgr_register(FFLockManager.LockOpCallback);
 
                 HasFFmpegRegistered = true;
                 FFmpegRegisterPath = ffmpegPath;
@@ -160,60 +142,6 @@
             ffmpeg.av_strerror(code, buffer, (ulong)bufferSize);
             var message = Marshal.PtrToStringAnsi((IntPtr)buffer);
             return message;
-        }
-
-        #endregion
-
-        #region Private Methods and Callbacks
-
-        /// <summary>
-        /// Manages FFmpeg Multithreaded locking
-        /// </summary>
-        /// <param name="mutex">The mutex.</param>
-        /// <param name="lockingOperation">The op.</param>
-        /// <returns>
-        /// 0 for success, 1 for error
-        /// </returns>
-        private static unsafe int FFmpegManageLocking(void** mutex, AVLockOp lockingOperation)
-        {
-            switch (lockingOperation)
-            {
-                case AVLockOp.AV_LOCK_CREATE:
-                    {
-                        var m = new ManualResetEvent(true);
-                        var mutexPointer = m.SafeWaitHandle.DangerousGetHandle();
-                        *mutex = (void*)mutexPointer;
-                        FFmpegOpDone[mutexPointer] = m;
-                        return 0;
-                    }
-
-                case AVLockOp.AV_LOCK_OBTAIN:
-                    {
-                        var mutexPointer = new IntPtr(*mutex);
-                        FFmpegOpDone[mutexPointer].WaitOne();
-                        FFmpegOpDone[mutexPointer].Reset();
-                        return 0;
-                    }
-
-                case AVLockOp.AV_LOCK_RELEASE:
-                    {
-                        var mutexPointer = new IntPtr(*mutex);
-                        FFmpegOpDone[mutexPointer].Set();
-                        return 0;
-                    }
-
-                case AVLockOp.AV_LOCK_DESTROY:
-                    {
-                        var mutexPointer = new IntPtr(*mutex);
-                        var m = FFmpegOpDone[mutexPointer];
-                        FFmpegOpDone.Remove(mutexPointer);
-                        m.Set();
-                        m.Dispose();
-                        return 0;
-                    }
-            }
-
-            return 1;
         }
 
         #endregion

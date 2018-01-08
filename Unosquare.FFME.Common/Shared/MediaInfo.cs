@@ -25,7 +25,7 @@
             // Reference: https://ffmpeg.org/doxygen/3.2/dump_8c_source.html --
             var ic = container.InputContext;
             InputUrl = container.MediaUrl;
-            Format = Utils.PtrToString(ic->iformat->name);
+            Format = FFInterop.PtrToString(ic->iformat->name);
             Metadata = container.Metadata;
             Duration = ic->duration != ffmpeg.AV_NOPTS_VALUE ?
                 ic->duration.ToTimeSpan() :

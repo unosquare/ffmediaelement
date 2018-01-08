@@ -1,19 +1,21 @@
 ﻿namespace Unosquare.FFME.Core
 {
+    using FFmpeg.AutoGen;
+    using Shared;
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.Text;
     using System.Threading;
-    using FFmpeg.AutoGen;
-    using Shared;
 
     /// <summary>
-    /// A queue-based logger
+    /// A queue-based logger that automatically stats a background timer that
+    /// empties the queue constantly, at low priority.
     /// </summary>
     internal static class LoggingWorker
     {
+        #region Private Members
+
         private static readonly ConcurrentQueue<MediaLogMessage> LogQueue = new ConcurrentQueue<MediaLogMessage>();
         private static readonly List<string> FFmpegLogBuffer = new List<string>();
         private static readonly object FFmpegLogBufferSyncLock = new object();
@@ -31,6 +33,10 @@
                 });
         private static Timer LogOutputter = null;
 
+        #endregion
+
+        #region Constructor
+
         /// <summary>
         /// Initializes static members of the <see cref="LoggingWorker"/> class.
         /// </summary>
@@ -47,9 +53,23 @@
                     }
                 },
                 LogQueue,
-                Constants.LogOutputterUpdateInterval,
-                Constants.LogOutputterUpdateInterval);
+                (int)Defaults.TimerLowPriorityInterval.TotalMilliseconds,
+                (int)Defaults.TimerLowPriorityInterval.TotalMilliseconds);
         }
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Gets the FFmpeg log callback method.
+        /// Example: ffmpeg.av_log_set_callback(LoggingWorker.FFmpegLogCallback);
+        /// </summary>
+        public static unsafe av_log_set_callback_callback FFmpegLogCallback { get; } = OnFFmpegMessageLogged;
+
+        #endregion
+
+        #region Methods
 
         /// <summary>
         /// Logs the specified message. This the genric logging mechanism available to all classes.
@@ -57,8 +77,9 @@
         /// <param name="sender">The sender.</param>
         /// <param name="messageType">Type of the message.</param>
         /// <param name="message">The message.</param>
-        /// <exception cref="System.ArgumentNullException">sender</exception>
-        public static void Log(object sender, MediaLogMessageType messageType, string message)
+        /// <exception cref="ArgumentNullException">sender</exception>
+        /// <exception cref="System.ArgumentNullException">When sender is null</exception>
+        public static void Log(MediaEngine sender, MediaLogMessageType messageType, string message)
         {
             if (sender == null) throw new ArgumentNullException(nameof(sender));
             var eventArgs = new MediaLogMessage(sender as MediaEngine, messageType, message);
@@ -96,13 +117,24 @@
         }
 
         /// <summary>
+        /// Logs the specified message. This the way ffmpeg messages are logged.
+        /// </summary>
+        /// <param name="messageType">Type of the message.</param>
+        /// <param name="message">The message.</param>
+        private static void LogGlobal(MediaLogMessageType messageType, string message)
+        {
+            var eventArgs = new MediaLogMessage(null, messageType, message);
+            LogQueue.Enqueue(eventArgs);
+        }
+
+        /// <summary>
         /// Log message callback from ffmpeg library.
         /// </summary>
         /// <param name="p0">The p0.</param>
         /// <param name="level">The level.</param>
         /// <param name="format">The format.</param>
         /// <param name="vl">The vl.</param>
-        internal static unsafe void OnFFmpegMessageLogged(void* p0, int level, string format, byte* vl)
+        private static unsafe void OnFFmpegMessageLogged(void* p0, int level, string format, byte* vl)
         {
             const int lineSize = 1024;
 
@@ -112,7 +144,7 @@
                 var lineBuffer = stackalloc byte[lineSize];
                 var printPrefix = 1;
                 ffmpeg.av_log_format_line(p0, level, format, vl, lineBuffer, lineSize, &printPrefix);
-                var line = Utils.PtrToString(lineBuffer);
+                var line = FFInterop.PtrToString(lineBuffer);
                 FFmpegLogBuffer.Add(line);
 
                 var messageType = MediaLogMessageType.Debug;
@@ -124,9 +156,11 @@
                     line = string.Join(string.Empty, FFmpegLogBuffer);
                     line = line.TrimEnd();
                     FFmpegLogBuffer.Clear();
-                    LoggingWorker.Log(typeof(MediaEngine), messageType, line);
+                    LogGlobal(messageType, line);
                 }
             }
         }
+
+        #endregion
     }
 }
