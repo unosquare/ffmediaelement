@@ -10,7 +10,7 @@
 
     /// <summary>
     /// Represents a Media Engine that contains underlying streams of audio and/or video.
-    /// It the FFmpeg library to perform reading and decoding of media streams.
+    /// It uses the fantastic FFmpeg library to perform reading and decoding of media streams.
     /// </summary>
     /// <seealso cref="Unosquare.FFME.Shared.IMediaLogger" />
     /// <seealso cref="System.IDisposable" />

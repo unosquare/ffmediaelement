@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.Decoding.ClosedCaptions
+﻿namespace Unosquare.FFME.ClosedCaptions
 {
     using System;
     using System.Collections.Generic;

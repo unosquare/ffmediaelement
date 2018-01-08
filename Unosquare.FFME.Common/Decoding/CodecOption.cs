@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.Core
+﻿namespace Unosquare.FFME.Decoding
 {
     /// <summary>
     /// A single codec option along with a stream specifier.

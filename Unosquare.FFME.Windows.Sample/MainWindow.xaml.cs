@@ -108,8 +108,10 @@
         /// </summary>
         private void InitializeMediaEvents()
         {
+            // Global FFmpeg message handler
             FFME.MediaElement.FFmpegMessageLogged += MediaElement_FFmpegMessageLogged;
-
+            
+            // MediaElement event bindings
             Media.PositionChanged += Media_PositionChanged;
             Media.MediaOpened += Media_MediaOpened;
             Media.MediaOpening += Media_MediaOpening;

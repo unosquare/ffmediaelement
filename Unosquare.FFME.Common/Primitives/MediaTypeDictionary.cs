@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.Core
+﻿namespace Unosquare.FFME.Primitives
 {
     using Shared;
     using System;
@@ -8,7 +8,7 @@
     /// Represents a very simple dictionary for MediaType keys
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
-    internal sealed class MediaTypeDictionary<TValue>
+    public sealed class MediaTypeDictionary<TValue>
         : Dictionary<MediaType, TValue>
     {
         /// <summary>
@@ -29,7 +29,7 @@
         public new TValue this[MediaType key]
         {
             get => ContainsKey(key) == false ? default(TValue) : base[key];
-            set => base[key] = value;
+            internal set => base[key] = value;
         }
     }
 }

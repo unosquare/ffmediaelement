@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.Decoding.ClosedCaptions
+﻿namespace Unosquare.FFME.ClosedCaptions
 {
     /// <summary>
     /// Enumerates the Closed-Captioning misc commands

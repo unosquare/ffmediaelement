@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Support", "Support", "{8BF2
 	ProjectSection(SolutionItems) = preProject
 		appveyor.yml = appveyor.yml
 		docfx.json = docfx.json
+		Support\EIA-CEA-608.pdf = Support\EIA-CEA-608.pdf
 		Support\ffme.png = Support\ffme.png
 		Support\ffme.win.nuspec = Support\ffme.win.nuspec
 		Support\ffmeplay.png = Support\ffmeplay.png

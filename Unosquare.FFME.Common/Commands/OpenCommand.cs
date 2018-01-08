@@ -3,6 +3,7 @@
     using Core;
     using Decoding;
     using FFmpeg.AutoGen;
+    using Primitives;
     using Shared;
     using System;
     using System.Threading;

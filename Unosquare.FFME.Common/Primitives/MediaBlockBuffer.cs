@@ -1,5 +1,6 @@
-﻿namespace Unosquare.FFME.Decoding
+﻿namespace Unosquare.FFME.Primitives
 {
+    using Decoding;
     using Shared;
     using System;
     using System.Collections.Generic;
@@ -12,7 +13,7 @@
     /// can be reused. Playback blocks are blocks that have been filled.
     /// This class is thread safe.
     /// </summary>
-    internal sealed class MediaBlockBuffer : IDisposable
+    public sealed class MediaBlockBuffer : IDisposable
     {
         #region Private Declarations
 
@@ -231,76 +232,6 @@
         }
 
         /// <summary>
-        /// Adds a block to the playback blocks by converting the given frame.
-        /// If there are no more blocks in the pool, the oldest block is returned to the pool
-        /// and reused for the new block. The source frame is automatically disposed.
-        /// </summary>
-        /// <param name="source">The source.</param>
-        /// <param name="container">The container.</param>
-        /// <returns>The filled block.</returns>
-        public MediaBlock Add(MediaFrame source, MediaContainer container)
-        {
-            lock (SyncRoot)
-            {
-                // Check if we already have a block at the given time
-                if (IsInRange(source.StartTime))
-                {
-                    var reapeatedBlock = PlaybackBlocks.FirstOrDefault(f => f.StartTime.Ticks == source.StartTime.Ticks);
-                    if (reapeatedBlock != null)
-                    {
-                        PlaybackBlocks.Remove(reapeatedBlock);
-                        PoolBlocks.Enqueue(reapeatedBlock);
-                    }
-                }
-
-                // if there are no available blocks, make room!
-                if (PoolBlocks.Count <= 0)
-                {
-                    var firstBlock = PlaybackBlocks[0];
-                    PlaybackBlocks.RemoveAt(0);
-                    PoolBlocks.Enqueue(firstBlock);
-                }
-
-                // Get a block reference from the pool and convert it!
-                var targetBlock = PoolBlocks.Dequeue();
-                container.Convert(source, ref targetBlock, PlaybackBlocks, true);
-
-                // Discard a frame with incorrect timing
-                if (targetBlock.IsStartTimeGuessed && IsMonotonic && PlaybackBlocks.Count > 1 
-                    && targetBlock.Duration != PlaybackBlocks.Last().Duration)
-                {
-                    // return the converted block to the pool
-                    PoolBlocks.Enqueue(targetBlock);
-                    return null;
-                }
-                else
-                {
-                    // Add the converted block to the playback list and sort it.
-                    PlaybackBlocks.Add(targetBlock);
-                    PlaybackBlocks.Sort();
-                }
-
-                return targetBlock;
-            }
-        }
-
-        /// <summary>
-        /// Clears all the playback blocks returning them to the 
-        /// block pool.
-        /// </summary>
-        public void Clear()
-        {
-            lock (SyncRoot)
-            {
-                // return all the blocks to the block pool
-                foreach (var block in PlaybackBlocks)
-                    PoolBlocks.Enqueue(block);
-
-                PlaybackBlocks.Clear();
-            }
-        }
-
-        /// <summary>
         /// Determines whether the given render time is within the range of playback blocks.
         /// </summary>
         /// <param name="renderTime">The render time.</param>
@@ -390,6 +321,76 @@
                     PlaybackBlocks.RemoveAt(i);
                     block.Dispose();
                 }
+            }
+        }
+
+        /// <summary>
+        /// Adds a block to the playback blocks by converting the given frame.
+        /// If there are no more blocks in the pool, the oldest block is returned to the pool
+        /// and reused for the new block. The source frame is automatically disposed.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <param name="container">The container.</param>
+        /// <returns>The filled block.</returns>
+        internal MediaBlock Add(MediaFrame source, MediaContainer container)
+        {
+            lock (SyncRoot)
+            {
+                // Check if we already have a block at the given time
+                if (IsInRange(source.StartTime))
+                {
+                    var reapeatedBlock = PlaybackBlocks.FirstOrDefault(f => f.StartTime.Ticks == source.StartTime.Ticks);
+                    if (reapeatedBlock != null)
+                    {
+                        PlaybackBlocks.Remove(reapeatedBlock);
+                        PoolBlocks.Enqueue(reapeatedBlock);
+                    }
+                }
+
+                // if there are no available blocks, make room!
+                if (PoolBlocks.Count <= 0)
+                {
+                    var firstBlock = PlaybackBlocks[0];
+                    PlaybackBlocks.RemoveAt(0);
+                    PoolBlocks.Enqueue(firstBlock);
+                }
+
+                // Get a block reference from the pool and convert it!
+                var targetBlock = PoolBlocks.Dequeue();
+                container.Convert(source, ref targetBlock, PlaybackBlocks, true);
+
+                // Discard a frame with incorrect timing
+                if (targetBlock.IsStartTimeGuessed && IsMonotonic && PlaybackBlocks.Count > 1
+                    && targetBlock.Duration != PlaybackBlocks.Last().Duration)
+                {
+                    // return the converted block to the pool
+                    PoolBlocks.Enqueue(targetBlock);
+                    return null;
+                }
+                else
+                {
+                    // Add the converted block to the playback list and sort it.
+                    PlaybackBlocks.Add(targetBlock);
+                    PlaybackBlocks.Sort();
+                }
+
+                return targetBlock;
+            }
+        }
+
+        /// <summary>
+        /// Clears all the playback blocks returning them to the 
+        /// block pool.
+        /// </summary>
+        internal void Clear()
+        {
+            lock (SyncRoot)
+            {
+                // return all the blocks to the block pool
+                foreach (var block in PlaybackBlocks)
+                    PoolBlocks.Enqueue(block);
+
+                PlaybackBlocks.Clear();
             }
         }
 

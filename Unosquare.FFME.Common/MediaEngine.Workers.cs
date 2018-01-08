@@ -47,6 +47,11 @@
         private AtomicBoolean m_HasDecoderSeeked = new AtomicBoolean(false);
 
         /// <summary>
+        /// Holds the blocks
+        /// </summary>
+        public MediaTypeDictionary<MediaBlockBuffer> Blocks { get; } = new MediaTypeDictionary<MediaBlockBuffer>();
+
+        /// <summary>
         /// Gets the packet reading cycle control evenet.
         /// </summary>
         internal ManualResetEvent PacketReadingCycle => m_PacketReadingCycle;
@@ -85,11 +90,6 @@
             get => m_HasDecoderSeeked.Value;
             set => m_HasDecoderSeeked.Value = value;
         }
-
-        /// <summary>
-        /// Holds the blocks
-        /// </summary>
-        internal MediaTypeDictionary<MediaBlockBuffer> Blocks { get; } = new MediaTypeDictionary<MediaBlockBuffer>();
 
         /// <summary>
         /// Holds the block renderers
