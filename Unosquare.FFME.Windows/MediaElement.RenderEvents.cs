@@ -1,10 +1,8 @@
 ﻿namespace Unosquare.FFME
 {
-    using ClosedCaptions;
     using Events;
     using Shared;
     using System;
-    using System.Collections.Generic;
     using System.Runtime.CompilerServices;
     using System.Windows.Media.Imaging;
 
@@ -41,19 +39,25 @@
         /// <summary>
         /// Raises the rendering video event.
         /// </summary>
+        /// <param name="videoBlock">The block.</param>
         /// <param name="bitmap">The bitmap.</param>
-        /// <param name="stream">The stream.</param>
-        /// <param name="closedCaptions">The closed captions.</param>
-        /// <param name="smtpeTimecode">The smtpe timecode.</param>
-        /// <param name="pictureNumber">The picture number.</param>
-        /// <param name="startTime">The start time.</param>
-        /// <param name="duration">The duration.</param>
         /// <param name="clock">The clock.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseRenderingVideoEvent(
-            WriteableBitmap bitmap, StreamInfo stream, List<ClosedCaptionPacket> closedCaptions, string smtpeTimecode, int pictureNumber, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
+        internal void RaiseRenderingVideoEvent(VideoBlock videoBlock, WriteableBitmap bitmap, TimeSpan clock)
         {
-            RenderingVideo?.Invoke(this, new RenderingVideoEventArgs(bitmap, stream, closedCaptions, smtpeTimecode, pictureNumber, startTime, duration, clock));
+            if (RenderingVideo == null) return;
+
+            var e = new RenderingVideoEventArgs(
+                bitmap,
+                MediaCore.MediaInfo.Streams[videoBlock.StreamIndex],
+                videoBlock.ClosedCaptions,
+                videoBlock.SmtpeTimecode,
+                videoBlock.DisplayPictureNumber,
+                videoBlock.StartTime,
+                videoBlock.Duration,
+                clock);
+
+            RenderingVideo?.Invoke(this, e);
         }
 
         /// <summary>
@@ -64,6 +68,8 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseRenderingAudioEvent(AudioBlock audioBlock, TimeSpan clock)
         {
+            if (RenderingAudio == null) return;
+
             var e = new RenderingAudioEventArgs(
                     audioBlock.Buffer,
                     audioBlock.BufferLength,
@@ -84,6 +90,8 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool RaiseRenderingSubtitlesEvent(SubtitleBlock block, TimeSpan clock)
         {
+            if (RenderingSubtitles == null) return false;
+
             var e = new RenderingSubtitlesEventArgs(
                     block.Text,
                     block.OriginalText,

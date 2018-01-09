@@ -156,19 +156,11 @@
                         // and therefore it should perform slightly better.
                         // // TargetBitmap.WritePixels(updateRect, b.Buffer, b.BufferLength, b.BufferStride);
                         TargetBitmap.Lock();
-                        WindowsPlatform.Instance.NativeMethods.CopyMemory(TargetBitmap.BackBuffer, b.Buffer, (uint)b.BufferLength);
+                        WindowsNativeMethods.Instance.CopyMemory(TargetBitmap.BackBuffer, b.Buffer, (uint)b.BufferLength);
                         TargetBitmap.AddDirtyRect(updateRect);
                         TargetBitmap.Unlock();
 
-                        MediaElement.RaiseRenderingVideoEvent(
-                            TargetBitmap,
-                            MediaCore.MediaInfo.Streams[b.StreamIndex],
-                            b.ClosedCaptions,
-                            b.SmtpeTimecode,
-                            b.DisplayPictureNumber,
-                            b.StartTime,
-                            b.Duration,
-                            cP);
+                        MediaElement.RaiseRenderingVideoEvent(b, TargetBitmap, cP);
 
                         ApplyScaleTransform(b);
                     }

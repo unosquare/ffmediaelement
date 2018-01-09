@@ -3,12 +3,7 @@
     using System;
 
     /// <summary>
-    /// The Platform-specific implementation interface
-    /// Platform specific stuff:
-    ///  - UI aware timer
-    ///  - Invocation on UI thread
-    ///  - Renderer creation
-    ///  - TODO: Add the remainder of utility callbacks
+    /// Defines platform-specific methods
     /// </summary>
     public interface INativeMethods
     {
