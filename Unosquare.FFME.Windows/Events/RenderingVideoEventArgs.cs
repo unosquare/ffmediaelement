@@ -1,7 +1,9 @@
 ﻿namespace Unosquare.FFME.Events
 {
+    using ClosedCaptions;
     using Shared;
     using System;
+    using System.Collections.Generic;
     using System.Windows.Media.Imaging;
 
     /// <summary>
@@ -15,17 +17,19 @@
         /// </summary>
         /// <param name="bitmap">The bitmap.</param>
         /// <param name="stream">The stream.</param>
+        /// <param name="closedCaptions">The closed captions.</param>
         /// <param name="smtpeTimecode">The smtpe timecode.</param>
         /// <param name="pictureNumber">The picture number.</param>
         /// <param name="startTime">The start time.</param>
         /// <param name="duration">The duration.</param>
         /// <param name="clock">The clock.</param>
-        internal RenderingVideoEventArgs(WriteableBitmap bitmap, StreamInfo stream, string smtpeTimecode, int pictureNumber, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
+        internal RenderingVideoEventArgs(WriteableBitmap bitmap, StreamInfo stream, List<ClosedCaptionPacket> closedCaptions, string smtpeTimecode, int pictureNumber, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
             : base(stream, startTime, duration, clock)
         {
             PictureNumber = pictureNumber;
             Bitmap = bitmap;
             SmtpeTimecode = smtpeTimecode;
+            ClosedCaptions = closedCaptions;
         }
 
         /// <summary>
@@ -33,6 +37,11 @@
         /// Feel free to capture or change this image.
         /// </summary>
         public WriteableBitmap Bitmap { get; }
+
+        /// <summary>
+        /// Gets the closed caption decoded packets.
+        /// </summary>
+        public List<ClosedCaptionPacket> ClosedCaptions { get; }
 
         /// <summary>
         /// Gets the display picture number (frame number).

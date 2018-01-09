@@ -1,6 +1,8 @@
 ﻿namespace Unosquare.FFME.Shared
 {
+    using ClosedCaptions;
     using System;
+    using System.Collections.Generic;
     using System.Runtime.InteropServices;
 
     /// <summary>
@@ -86,6 +88,11 @@
         /// Gets the coded picture number set by the decoder.
         /// </summary>
         public int CodedPictureNumber { get; internal set; }
+
+        /// <summary>
+        /// Gets the closed caption packets for this video block.
+        /// </summary>
+        public List<ClosedCaptionPacket> ClosedCaptions { get; internal set; }
 
         /// <summary>
         /// The picture buffer length of the last allocated buffer

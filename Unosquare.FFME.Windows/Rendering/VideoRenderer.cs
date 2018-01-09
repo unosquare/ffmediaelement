@@ -163,6 +163,7 @@
                         MediaElement.RaiseRenderingVideoEvent(
                             TargetBitmap,
                             MediaCore.MediaInfo.Streams[b.StreamIndex],
+                            b.ClosedCaptions,
                             b.SmtpeTimecode,
                             b.DisplayPictureNumber,
                             b.StartTime,

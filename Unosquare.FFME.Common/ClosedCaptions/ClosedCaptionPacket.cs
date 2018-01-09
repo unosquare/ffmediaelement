@@ -151,15 +151,6 @@
 
         #endregion
 
-        #region State Variables
-
-        /// <summary>
-        /// Holds the data bytes
-        /// </summary>
-        private readonly byte[] D = new byte[2];
-
-        #endregion
-
         #region Constructors
 
         /// <summary>
@@ -183,10 +174,12 @@
         /// <param name="d1">The d1.</param>
         public ClosedCaptionPacket(TimeSpan timestamp, byte header, byte d0, byte d1)
         {
+            Data = new byte[] { header, d0, d1 };
+
             D0 = DropParityBit(d0);
             D1 = DropParityBit(d1);
 
-            NtscField = ClosedCaptionPacket.GetHeaderFieldType(header);
+            NtscField = GetHeaderFieldType(header);
             Channel = 0;
             Timestamp = timestamp;
 
@@ -402,12 +395,17 @@
         #region Properties
 
         /// <summary>
+        /// Gets the original packet data.
+        /// </summary>
+        public byte[] Data { get; }
+
+        /// <summary>
         /// Gets the first of the two-byte packet data
         /// </summary>
         public byte D0
         {
-            get { return D[0]; }
-            private set { D[0] = value; }
+            get { return Data[1]; }
+            private set { Data[1] = value; }
         }
 
         /// <summary>
@@ -415,8 +413,8 @@
         /// </summary>
         public byte D1
         {
-            get { return D[1]; }
-            private set { D[1] = value; }
+            get { return Data[2]; }
+            private set { Data[2] = value; }
         }
 
         /// <summary>

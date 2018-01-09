@@ -1,8 +1,10 @@
 ﻿namespace Unosquare.FFME
 {
+    using ClosedCaptions;
+    using Events;
     using Shared;
     using System;
-    using Events;
+    using System.Collections.Generic;
     using System.Runtime.CompilerServices;
     using System.Windows.Media.Imaging;
 
@@ -41,6 +43,7 @@
         /// </summary>
         /// <param name="bitmap">The bitmap.</param>
         /// <param name="stream">The stream.</param>
+        /// <param name="closedCaptions">The closed captions.</param>
         /// <param name="smtpeTimecode">The smtpe timecode.</param>
         /// <param name="pictureNumber">The picture number.</param>
         /// <param name="startTime">The start time.</param>
@@ -48,9 +51,9 @@
         /// <param name="clock">The clock.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseRenderingVideoEvent(
-            WriteableBitmap bitmap, StreamInfo stream, string smtpeTimecode, int pictureNumber, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
+            WriteableBitmap bitmap, StreamInfo stream, List<ClosedCaptionPacket> closedCaptions, string smtpeTimecode, int pictureNumber, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
         {
-            RenderingVideo?.Invoke(this, new RenderingVideoEventArgs(bitmap, stream, smtpeTimecode, pictureNumber, startTime, duration, clock));
+            RenderingVideo?.Invoke(this, new RenderingVideoEventArgs(bitmap, stream, closedCaptions, smtpeTimecode, pictureNumber, startTime, duration, clock));
         }
 
         /// <summary>
