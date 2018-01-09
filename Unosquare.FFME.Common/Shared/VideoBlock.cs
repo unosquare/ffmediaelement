@@ -37,7 +37,7 @@
 
         /// <summary>
         /// Gets a pointer to the first byte of the data buffer.
-        /// The format is 24bit BGR
+        /// The format is 32-bit BGRA
         /// </summary>
         public IntPtr Buffer => PictureBuffer;
 
