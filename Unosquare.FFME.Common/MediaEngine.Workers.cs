@@ -7,6 +7,7 @@
     using Shared;
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Threading;
@@ -514,6 +515,13 @@
                 // Keeps track of how many blocks were rendered in the cycle.
                 var renderedBlockCount = 0;
 
+                // used to calculate the ticks elapsed in the render operations
+                var renderStopWatch = new Stopwatch();
+                renderStopWatch.Start();
+                
+                // The maximum amount of ticks before a delay occurs
+                var skewThreshold = Defaults.TimerHighPriorityInterval.Ticks;
+
                 // reset render times for all components
                 foreach (var t in all)
                     LastRenderTime[t] = TimeSpan.MinValue;
@@ -589,8 +597,11 @@
                     // Delay the thread for a bit if we have no more stuff to process
                     // TODO: Check the minimum distance of the following block and if it less than
                     // Defaults.TimerHighPriorityInterval, then don't delay!
-                    if (IsSeeking == false && renderedBlockCount <= 0 && Commands.PendingCount <= 0)
+                    if (!IsSeeking && renderStopWatch.ElapsedTicks < skewThreshold)
                         Task.Delay(1).GetAwaiter().GetResult();
+
+                    if (renderStopWatch.ElapsedTicks > skewThreshold)
+                        renderStopWatch.Restart();
 
                     #endregion
                 }
@@ -612,6 +623,45 @@
         #endregion
 
         #region Methods
+
+        /// <summary>
+        /// Initializes the media block buffers and 
+        /// starts packet reader, frame decoder, and block rendering workers.
+        /// </summary>
+        internal void StartWorkers()
+        {
+            // Initialize the block buffers
+            foreach (var t in Container.Components.MediaTypes)
+            {
+                Blocks[t] = new MediaBlockBuffer(MaxBlocks[t], t);
+                LastRenderTime[t] = TimeSpan.MinValue;
+                Renderers[t] = Platform.CreateRenderer(t, this);
+            }
+
+            Clock.SpeedRatio = Defaults.DefaultSpeedRatio;
+            IsTaskCancellationPending = false;
+
+            // Set the initial state of the task cycles.
+            SeekingDone.Set();
+            BlockRenderingCycle.Reset();
+            FrameDecodingCycle.Reset();
+            PacketReadingCycle.Reset();
+
+            // Create the thread runners
+            PacketReadingTask = new Thread(RunPacketReadingWorker)
+            { IsBackground = true, Name = nameof(PacketReadingTask), Priority = ThreadPriority.Normal };
+
+            FrameDecodingTask = new Thread(RunFrameDecodingWorker)
+            { IsBackground = true, Name = nameof(FrameDecodingTask), Priority = ThreadPriority.AboveNormal };
+
+            BlockRenderingTask = new Thread(RunBlockRenderingWorker)
+            { IsBackground = true, Name = nameof(BlockRenderingTask), Priority = ThreadPriority.Normal };
+
+            // Fire up the threads
+            PacketReadingTask.Start();
+            FrameDecodingTask.Start();
+            BlockRenderingTask.Start();
+        }
 
         /// <summary>
         /// Sets the clock to a discrete video position if possible
