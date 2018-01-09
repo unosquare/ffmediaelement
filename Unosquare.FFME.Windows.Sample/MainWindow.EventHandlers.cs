@@ -187,7 +187,7 @@
             }
 
             // Experimetal HW acceleration support. Remove if not needed.
-            /* e.Options.EnableHardwareAcceleration = Debugger.IsAttached; */
+            e.Options.EnableHardwareAcceleration = false;
 
 #if APPLY_AUDIO_FILTER
 

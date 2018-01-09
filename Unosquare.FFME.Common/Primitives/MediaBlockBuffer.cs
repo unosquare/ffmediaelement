@@ -6,6 +6,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Runtime.CompilerServices;
+    using System.Threading;
 
     /// <summary>
     /// Represents a set of preallocated media blocks of the same media type.
@@ -17,7 +18,10 @@
     {
         #region Private Declarations
 
-        private readonly object SyncRoot = new object();
+        /// <summary>
+        /// Controls multiple reads and exclusive writes
+        /// </summary>
+        private readonly ReaderWriterLock Locker = new ReaderWriterLock();
 
         /// <summary>
         /// The blocks that are available to be filled.
@@ -45,7 +49,7 @@
 
             // allocate the blocks
             for (var i = 0; i < capacity; i++)
-                PoolBlocks.Enqueue(CreateBlock());
+                PoolBlocks.Enqueue(CreateBlock(mediaType));
         }
 
         #endregion
@@ -64,8 +68,13 @@
         {
             get
             {
-                lock (SyncRoot)
+                try
+                {
+                    Locker.AcquireReaderLock(Timeout.Infinite);
                     return PlaybackBlocks.Count == 0 ? TimeSpan.Zero : PlaybackBlocks[0].StartTime;
+                }
+                catch { throw; }
+                finally { Locker.ReleaseReaderLock(); }
             }
         }
 
@@ -76,12 +85,15 @@
         {
             get
             {
-                lock (SyncRoot)
+                try
                 {
+                    Locker.AcquireReaderLock(Timeout.Infinite);
                     if (PlaybackBlocks.Count == 0) return TimeSpan.Zero;
                     var lastBlock = PlaybackBlocks[PlaybackBlocks.Count - 1];
                     return TimeSpan.FromTicks(lastBlock.EndTime.Ticks);
                 }
+                catch { throw; }
+                finally { Locker.ReleaseReaderLock(); }
             }
         }
 
@@ -92,8 +104,13 @@
         {
             get
             {
-                lock (SyncRoot)
+                try
+                {
+                    Locker.AcquireReaderLock(Timeout.Infinite);
                     return TimeSpan.FromTicks(RangeEndTime.Ticks - RangeStartTime.Ticks);
+                }
+                catch { throw; }
+                finally { Locker.ReleaseReaderLock(); }
             }
         }
 
@@ -104,11 +121,14 @@
         {
             get
             {
-                lock (SyncRoot)
+                try
                 {
+                    Locker.AcquireReaderLock(Timeout.Infinite);
                     if (PlaybackBlocks.Count <= 0) return TimeSpan.Zero;
                     return TimeSpan.FromTicks((long)PlaybackBlocks.Average(b => Convert.ToDouble(b.Duration.Ticks)));
                 }
+                catch { throw; }
+                finally { Locker.ReleaseReaderLock(); }
             }
         }
 
@@ -119,8 +139,9 @@
         {
             get
             {
-                lock (SyncRoot)
+                try
                 {
+                    Locker.AcquireReaderLock(Timeout.Infinite);
                     if (PlaybackBlocks.Count > 1)
                     {
                         var firstBlockDuration = PlaybackBlocks[0].Duration;
@@ -129,6 +150,8 @@
 
                     return false;
                 }
+                catch { throw; }
+                finally { Locker.ReleaseReaderLock(); }
             }
         }
 
@@ -137,7 +160,16 @@
         /// </summary>
         public int Count
         {
-            get { lock (SyncRoot) return PlaybackBlocks.Count; }
+            get
+            {
+                try
+                {
+                    Locker.AcquireReaderLock(Timeout.Infinite);
+                    return PlaybackBlocks.Count;
+                }
+                catch { throw; }
+                finally { Locker.ReleaseReaderLock(); }
+            }
         }
 
         /// <summary>
@@ -150,7 +182,16 @@
         /// </summary>
         public double CapacityPercent
         {
-            get { lock (SyncRoot) return (double)Count / Capacity; }
+            get
+            {
+                try
+                {
+                    Locker.AcquireReaderLock(Timeout.Infinite);
+                    return (double)Count / Capacity;
+                }
+                catch { throw; }
+                finally { Locker.ReleaseReaderLock(); }
+            }
         }
 
         /// <summary>
@@ -158,7 +199,16 @@
         /// </summary>
         public bool IsFull
         {
-            get { lock (SyncRoot) return Count >= Capacity; }
+            get
+            {
+                try
+                {
+                    Locker.AcquireReaderLock(Timeout.Infinite);
+                    return PlaybackBlocks.Count >= Capacity;
+                }
+                catch { throw; }
+                finally { Locker.ReleaseReaderLock(); }
+            }
         }
 
         /// <summary>
@@ -171,7 +221,16 @@
         /// <returns>The media block</returns>
         public MediaBlock this[int index]
         {
-            get { lock (SyncRoot) return PlaybackBlocks[index]; }
+            get
+            {
+                try
+                {
+                    Locker.AcquireReaderLock(Timeout.Infinite);
+                    return PlaybackBlocks[index];
+                }
+                catch { throw; }
+                finally { Locker.ReleaseReaderLock(); }
+            }
         }
 
         /// <summary>
@@ -186,11 +245,14 @@
         {
             get
             {
-                lock (SyncRoot)
+                try
                 {
+                    Locker.AcquireReaderLock(Timeout.Infinite);
                     var index = IndexOf(at);
                     return index >= 0 ? PlaybackBlocks[index] : null;
                 }
+                catch { throw; }
+                finally { Locker.ReleaseReaderLock(); }
             }
         }
 
@@ -205,11 +267,14 @@
         /// <returns>The percent of the range</returns>
         public double GetRangePercent(TimeSpan position)
         {
-            lock (SyncRoot)
+            try
             {
+                Locker.AcquireReaderLock(Timeout.Infinite);
                 return RangeDuration.Ticks != 0 ?
                     ((double)position.Ticks - RangeStartTime.Ticks) / RangeDuration.Ticks : 0d;
             }
+            catch { throw; }
+            finally { Locker.ReleaseReaderLock(); }
         }
 
         /// <summary>
@@ -219,8 +284,9 @@
         /// <returns>The next media block</returns>
         public MediaBlock Next(MediaBlock current)
         {
-            lock (SyncRoot)
+            try
             {
+                Locker.AcquireReaderLock(Timeout.Infinite);
                 var currentIndex = PlaybackBlocks.IndexOf(current);
                 if (currentIndex < 0) return null;
 
@@ -229,6 +295,8 @@
 
                 return null;
             }
+            catch { throw; }
+            finally { Locker.ReleaseReaderLock(); }
         }
 
         /// <summary>
@@ -240,11 +308,14 @@
         /// </returns>
         public bool IsInRange(TimeSpan renderTime)
         {
-            lock (SyncRoot)
+            try
             {
+                Locker.AcquireReaderLock(Timeout.Infinite);
                 if (PlaybackBlocks.Count == 0) return false;
                 return renderTime.Ticks >= RangeStartTime.Ticks && renderTime.Ticks <= RangeEndTime.Ticks;
             }
+            catch { throw; }
+            finally { Locker.ReleaseReaderLock(); }
         }
 
         /// <summary>
@@ -258,8 +329,9 @@
         /// <returns>The media block's index</returns>
         public int IndexOf(TimeSpan renderTime)
         {
-            lock (SyncRoot)
+            try
             {
+                Locker.AcquireReaderLock(Timeout.Infinite);
                 var blockCount = PlaybackBlocks.Count;
 
                 // fast condition checking
@@ -300,6 +372,8 @@
 
                 return -1;
             }
+            catch { throw; }
+            finally { Locker.ReleaseReaderLock(); }
         }
 
         /// <summary>
@@ -307,8 +381,10 @@
         /// </summary>
         public void Dispose()
         {
-            lock (SyncRoot)
+            try
             {
+                Locker.AcquireWriterLock(Timeout.Infinite);
+
                 while (PoolBlocks.Count > 0)
                 {
                     var block = PoolBlocks.Dequeue();
@@ -322,6 +398,11 @@
                     block.Dispose();
                 }
             }
+            catch { throw; }
+            finally
+            {
+                Locker.ReleaseWriterLock();
+            }
         }
 
         /// <summary>
@@ -334,8 +415,10 @@
         /// <returns>The filled block.</returns>
         internal MediaBlock Add(MediaFrame source, MediaContainer container)
         {
-            lock (SyncRoot)
+            try
             {
+                Locker.AcquireWriterLock(Timeout.Infinite);
+
                 // Check if we already have a block at the given time
                 if (IsInRange(source.StartTime))
                 {
@@ -376,6 +459,8 @@
 
                 return targetBlock;
             }
+            catch { throw; }
+            finally { Locker.ReleaseWriterLock(); }
         }
 
         /// <summary>
@@ -384,14 +469,18 @@
         /// </summary>
         internal void Clear()
         {
-            lock (SyncRoot)
+            try
             {
+                Locker.AcquireWriterLock(Timeout.Infinite);
+
                 // return all the blocks to the block pool
                 foreach (var block in PlaybackBlocks)
                     PoolBlocks.Enqueue(block);
 
                 PlaybackBlocks.Clear();
             }
+            catch { throw; }
+            finally { Locker.ReleaseWriterLock(); }
         }
 
         /// <summary>
@@ -400,23 +489,31 @@
         /// <returns>The formatted string</returns>
         internal string Debug()
         {
-            lock (SyncRoot)
-                return $"{MediaType,-12} - CAP: {Capacity,10} | FRE: {PoolBlocks.Count,7} | USD: {PlaybackBlocks.Count,4} |  TM: {RangeStartTime.Format(),8} to {RangeEndTime.Format().Trim()}";
+            try
+            {
+                Locker.AcquireReaderLock(Timeout.Infinite);
+                return $"{MediaType,-12} - CAP: {Capacity,10} | FRE: {PoolBlocks.Count,7} | " +
+                    $"USD: {PlaybackBlocks.Count,4} |  RNG: {RangeStartTime.Format(),8} to {RangeEndTime.Format().Trim()}";
+            }
+            catch { throw; }
+            finally { Locker.ReleaseReaderLock(); }
         }
 
         /// <summary>
         /// Block factory method.
         /// </summary>
-        /// <returns>The media frame</returns>
-        /// <exception cref="System.InvalidCastException">MediaBlock</exception>
+        /// <param name="mediaType">Type of the media.</param>
+        /// <exception cref="InvalidCastException">MediaBlock</exception>
+        /// <exception cref="System.InvalidCastException">MediaBlock does not have a valid type</exception>
+        /// <returns>An instance of the block of the specified type</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private MediaBlock CreateBlock()
+        private static MediaBlock CreateBlock(MediaType mediaType)
         {
-            if (MediaType == MediaType.Video) return new VideoBlock();
-            if (MediaType == MediaType.Audio) return new AudioBlock();
-            if (MediaType == MediaType.Subtitle) return new SubtitleBlock();
+            if (mediaType == MediaType.Video) return new VideoBlock();
+            if (mediaType == MediaType.Audio) return new AudioBlock();
+            if (mediaType == MediaType.Subtitle) return new SubtitleBlock();
 
-            throw new InvalidCastException($"No {nameof(MediaBlock)} constructor for {nameof(MediaType)} '{MediaType}'");
+            throw new InvalidCastException($"No {nameof(MediaBlock)} constructor for {nameof(MediaType)} '{mediaType}'");
         }
 
         #endregion

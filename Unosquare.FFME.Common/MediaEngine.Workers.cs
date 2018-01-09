@@ -500,6 +500,9 @@
             {
                 #region 0. Initialize Running State
 
+                // When this elapses there is no pause on this thread.
+                var renderTimeoutMs = Defaults.TimerHighPriorityInterval.TotalMilliseconds;
+
                 // Holds the main media type
                 var main = Container.Components.Main.MediaType;
 
@@ -519,9 +522,6 @@
                 var renderStopWatch = new Stopwatch();
                 renderStopWatch.Start();
                 
-                // The maximum amount of ticks before a delay occurs
-                var skewThreshold = Defaults.TimerHighPriorityInterval.Ticks;
-
                 // reset render times for all components
                 foreach (var t in all)
                     LastRenderTime[t] = TimeSpan.MinValue;
@@ -594,13 +594,12 @@
                     foreach (var t in all)
                         Renderers[t]?.Update(wallClock);
 
-                    // Delay the thread for a bit if we have no more stuff to process
-                    // TODO: Check the minimum distance of the following block and if it less than
-                    // Defaults.TimerHighPriorityInterval, then don't delay!
-                    if (!IsSeeking && renderStopWatch.ElapsedTicks < skewThreshold)
+                    // Delay the thread for a bit if the render timeout has expired
+                    if (!IsSeeking && renderStopWatch.ElapsedMilliseconds < renderTimeoutMs)
                         Task.Delay(1).GetAwaiter().GetResult();
 
-                    if (renderStopWatch.ElapsedTicks > skewThreshold)
+                    // Restart the stopwatch if the timeout was reached or if we rendered something
+                    if (renderedBlockCount > 0 || renderStopWatch.ElapsedMilliseconds >= renderTimeoutMs)
                         renderStopWatch.Restart();
 
                     #endregion
