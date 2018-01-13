@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>FFME.Windows</id>
-        <version>3.4.0.2-b2</version>
+        <version>3.4.0.2-b8</version>
         <title>FFME: WPF MediaElement Control Alternative</title>
         <authors>Mario Di Vece and the FFME contributors</authors>
         <owners>MarioDiVece,Unosquare</owners>
