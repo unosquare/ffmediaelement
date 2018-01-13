@@ -1,7 +1,9 @@
 ﻿namespace Unosquare.FFME.Shared
 {
     using FFmpeg.AutoGen;
+    using Primitives;
     using System;
+    using System.Collections.Generic;
     using System.Runtime.CompilerServices;
 
     /// <summary>
@@ -155,6 +157,110 @@
         public static double ToDouble(this AVRational rational)
         {
             return (double)rational.num / rational.den;
+        }
+
+        #endregion
+
+        #region Faster-than-Linq replacements
+
+        /// <summary>
+        /// Gets the fundamental (audio or video only) auxiliary media types.
+        /// </summary>
+        /// <param name="all">All.</param>
+        /// <param name="main">The main.</param>
+        /// <returns>The non-main audio or video media types</returns>
+        internal static MediaType[] FundamentalAuxsFor(this MediaType[] all, MediaType main)
+        {
+            var result = new List<MediaType>(16);
+            var current = MediaType.None;
+            for (var i = 0; i < all.Length; i++)
+            {
+                current = all[i];
+                if (current != main && (current == MediaType.Audio || current == MediaType.Video))
+                    result.Add(current);
+            }
+
+            return result.ToArray();
+        }
+
+        /// <summary>
+        /// Excludes the type of the media.
+        /// </summary>
+        /// <param name="all">All.</param>
+        /// <param name="main">The main.</param>
+        /// <returns>An array without the media type</returns>
+        internal static MediaType[] ExcludeMediaType(this MediaType[] all, MediaType main)
+        {
+            var result = new List<MediaType>(16);
+            var current = MediaType.None;
+            for (var i = 0; i < all.Length; i++)
+            {
+                current = all[i];
+                if (current != main)
+                    result.Add(current);
+            }
+
+            return result.ToArray();
+        }
+
+        /// <summary>
+        /// Joins the media types.
+        /// </summary>
+        /// <param name="main">The main.</param>
+        /// <param name="with">The with.</param>
+        /// <returns>An array of the media types</returns>
+        internal static MediaType[] JoinMediaTypes(this MediaType main, MediaType[] with)
+        {
+            var result = new List<MediaType>(16) { main };
+            result.AddRange(with);
+            return result.ToArray();
+        }
+
+        /// <summary>
+        /// Determines whether the array contains the media type
+        /// </summary>
+        /// <param name="all">All.</param>
+        /// <param name="t">The t.</param>
+        /// <returns>True if it exists in the array</returns>
+        internal static bool HasMediaType(this MediaType[] all, MediaType t)
+        {
+            for (var i = 0; i < all.Length; i++)
+            {
+                if (all[i] == t) return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Deep-copies the array
+        /// </summary>
+        /// <param name="all">All.</param>
+        /// <returns>The copy of the array</returns>
+        internal static MediaType[] DeepCopy(this MediaType[] all)
+        {
+            var result = new List<MediaType>(16);
+            for (var i = 0; i < all.Length; i++)
+            {
+                result.Add(all[i]);
+            }
+
+            return result.ToArray();
+        }
+
+        /// <summary>
+        /// Verifies all components are greater than zero
+        /// </summary>
+        /// <param name="all">All.</param>
+        /// <returns>True if all components are GTZ</returns>
+        internal static bool AllGreaterThanZero(this MediaTypeDictionary<int> all)
+        {
+            foreach (var kvp in all)
+            {
+                if (kvp.Value <= 0) return false;
+            }
+
+            return true;
         }
 
         #endregion

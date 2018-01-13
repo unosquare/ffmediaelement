@@ -4,6 +4,7 @@
     using FFmpeg.AutoGen;
     using System;
     using System.Collections.Generic;
+    using System.Threading;
 
     /// <summary>
     /// A data structure containing a quque of packets to process.
@@ -16,7 +17,7 @@
         #region Private Declarations
 
         private readonly List<IntPtr> PacketPointers = new List<IntPtr>();
-        private readonly object SyncRoot = new object();
+        private ReaderWriterLock Locker = new ReaderWriterLock();
         private bool IsDisposed = false; // To detect redundant calls
 
         #endregion
@@ -30,8 +31,15 @@
         {
             get
             {
-                lock (SyncRoot)
+                try
+                {
+                    Locker.AcquireReaderLock(Timeout.Infinite);
                     return PacketPointers.Count;
+                }
+                finally
+                {
+                    Locker.ReleaseReaderLock();
+                }
             }
         }
 
@@ -58,13 +66,27 @@
         {
             get
             {
-                lock (SyncRoot)
+                try
+                {
+                    Locker.AcquireReaderLock(Timeout.Infinite);
                     return (AVPacket*)PacketPointers[index];
+                }
+                finally
+                {
+                    Locker.ReleaseReaderLock();
+                }
             }
             set
             {
-                lock (SyncRoot)
+                try
+                {
+                    Locker.AcquireWriterLock(Timeout.Infinite);
                     PacketPointers[index] = (IntPtr)value;
+                }
+                finally
+                {
+                    Locker.ReleaseWriterLock();
+                }
             }
         }
 
@@ -79,10 +101,15 @@
         /// <returns>The packet</returns>
         public AVPacket* Peek()
         {
-            lock (SyncRoot)
+            try
             {
+                Locker.AcquireReaderLock(Timeout.Infinite);
                 if (PacketPointers.Count <= 0) return null;
                 return (AVPacket*)PacketPointers[0];
+            }
+            finally
+            {
+                Locker.ReleaseReaderLock();
             }
         }
 
@@ -93,14 +120,19 @@
         /// <param name="packet">The packet.</param>
         public void Push(AVPacket* packet)
         {
-            // avoid puching null packets
+            // avoid pushing null packets
             if (packet == null) return;
 
-            lock (SyncRoot)
+            try
             {
+                Locker.AcquireWriterLock(Timeout.Infinite);
                 PacketPointers.Add((IntPtr)packet);
                 BufferLength += packet->size;
                 Duration += packet->duration;
+            }
+            finally
+            {
+                Locker.ReleaseWriterLock();
             }
         }
 
@@ -110,8 +142,10 @@
         /// <returns>The dequeued packet</returns>
         public AVPacket* Dequeue()
         {
-            lock (SyncRoot)
+            try
             {
+                Locker.AcquireWriterLock(Timeout.Infinite);
+
                 if (PacketPointers.Count <= 0) return null;
                 var result = PacketPointers[0];
                 PacketPointers.RemoveAt(0);
@@ -121,6 +155,10 @@
                 Duration -= packet->duration;
                 return packet;
             }
+            finally
+            {
+                Locker.ReleaseWriterLock();
+            }
         }
 
         /// <summary>
@@ -128,8 +166,10 @@
         /// </summary>
         public void Clear()
         {
-            lock (SyncRoot)
+            try
             {
+                Locker.AcquireWriterLock(Timeout.Infinite);
+
                 while (PacketPointers.Count > 0)
                 {
                     var packet = Dequeue();
@@ -139,6 +179,10 @@
 
                 BufferLength = 0;
                 Duration = 0;
+            }
+            finally
+            {
+                Locker.ReleaseWriterLock();
             }
         }
 
@@ -164,7 +208,9 @@
             {
                 IsDisposed = true;
                 if (alsoManaged)
+                {
                     Clear();
+                }  
             }
         }
 

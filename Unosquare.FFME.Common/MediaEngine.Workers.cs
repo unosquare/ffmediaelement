@@ -8,7 +8,6 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
@@ -139,8 +138,8 @@
                 var mediaContainer = Container;
 
                 var main = mediaContainer.Components.Main.MediaType;
-                var auxs = mediaContainer.Components.MediaTypes.Where(c => c != main && (c == MediaType.Audio || c == MediaType.Video)).ToArray();
-                var all = auxs.Union(new[] { main }).ToArray();
+                var auxs = mediaContainer.Components.MediaTypes.FundamentalAuxsFor(main);
+                var all = main.JoinMediaTypes(auxs);
 
                 // State variables for bytes read (give-up condition)
                 var startBytesRead = 0UL;
@@ -155,46 +154,47 @@
                     // Enter a packet reading cycle
                     PacketReadingCycle.Reset();
 
-                    if (CanReadMorePackets && mediaContainer.Components.PacketBufferLength < DownloadCacheLength)
+                    // Initialize Packets read to 0 for each component and state variables
+                    foreach (var k in mediaContainer.Components.MediaTypes)
+                        packetsRead[k] = 0;
+
+                    startBytesRead = mediaContainer.Components.TotalBytesRead;
+                    currentBytesRead = 0UL;
+
+                    // Start to perform the read loop
+                    while (CanReadMorePackets && IsTaskCancellationPending == false)
                     {
-                        // Initialize Packets read to 0 for each component and state variables
-                        foreach (var k in mediaContainer.Components.MediaTypes)
-                            packetsRead[k] = 0;
+                        // Perform a packet read. t will hold the packet type.
+                        t = mediaContainer.Read();
 
-                        startBytesRead = mediaContainer.Components.TotalBytesRead;
-                        currentBytesRead = 0UL;
+                        // Discard packets that we don't need (i.e. MediaType == None)
+                        if (mediaContainer.Components.MediaTypes.HasMediaType(t) == false)
+                            continue;
 
-                        // Start to perform the read loop
-                        while (CanReadMorePackets)
-                        {
-                            // Perform a packet read. t will hold the packet type.
-                            t = mediaContainer.Read();
+                        // Update the packet count for the components
+                        packetsRead[t] += 1;
 
-                            // Discard packets that we don't need (i.e. MediaType == None)
-                            if (mediaContainer.Components.MediaTypes.Contains(t) == false)
-                                continue;
+                        // The give-up condition is that in spite of efforts to read at least one of each,
+                        // we could not find the required packet types.
+                        currentBytesRead = mediaContainer.Components.TotalBytesRead - startBytesRead;
+                        if (currentBytesRead > (ulong)DownloadCacheLength)
+                            break;
 
-                            // Update the packet count for the components
-                            packetsRead[t] += 1;
-
-                            // Ensure we have read at least some packets from main and auxiliary streams.
-                            if (packetsRead.Where(k => all.Contains(k.Key)).All(c => c.Value > 0))
-                                break;
-
-                            // The give-up condition is that in spite of efforts to read at least one of each,
-                            // we could not find the required packet types.
-                            currentBytesRead = mediaContainer.Components.TotalBytesRead - startBytesRead;
-                            if (currentBytesRead > (ulong)DownloadCacheLength)
-                                break;
-                        }
+                        // Ensure we have read at least some packets from main and auxiliary streams.
+                        if (packetsRead.AllGreaterThanZero())
+                            break;
                     }
 
                     // finish the reading cycle.
                     PacketReadingCycle.Set();
 
                     // Wait some if we have a full packet buffer or we are unable to read more packets (i.e. EOF).
-                    if (mediaContainer.Components.PacketBufferLength >= DownloadCacheLength || CanReadMorePackets == false || currentBytesRead <= 0)
+                    if (mediaContainer.Components.PacketBufferLength >= DownloadCacheLength 
+                        || CanReadMorePackets == false 
+                        || currentBytesRead <= 0)
+                    {
                         Task.Delay(1).GetAwaiter().GetResult();
+                    }
                 }
             }
             catch (ThreadAbortException)
@@ -234,10 +234,10 @@
                 var main = Container.Components.Main.MediaType;
 
                 // Holds the auxiliary media types
-                var auxs = Container.Components.MediaTypes.Where(x => x != main).ToArray();
+                var auxs = Container.Components.MediaTypes.ExcludeMediaType(main);
 
                 // Holds all components
-                var all = Container.Components.MediaTypes.ToArray();
+                var all = Container.Components.MediaTypes.DeepCopy();
 
                 var isBuffering = false;
                 var resumeClock = false;
@@ -295,6 +295,9 @@
                     blocks = Blocks[main];
 
                     // Handle the main component decoding; Start by checking we have some packets
+                    while (comp.PacketBufferCount <= 0 && CanReadMorePackets)
+                         PacketReadingCycle.WaitOne();
+
                     if (comp.PacketBufferCount > 0)
                     {
                         // Detect if we are in range for the main component
@@ -343,17 +346,21 @@
                                 Renderers[main].Seek();
                             }
                         }
-                        else
+
+                        if (isInRange)
                         {
                             // Check if we need more blocks for the current components
                             rangePercent = blocks.GetRangePercent(wallClock);
 
-                            // Read as many blocks as we possibly can
-                            while (comp.PacketBufferCount > 0 &&
-                                   ((rangePercent > 0.75d && blocks.IsFull) || blocks.IsFull == false))
+                            // Read as much as we can for this cycle.
+                            while (comp.PacketBufferCount > 0)
                             {
-                                decodedFrameCount += AddBlocks(main);
                                 rangePercent = blocks.GetRangePercent(wallClock);
+
+                                if (blocks.IsFull == false || (blocks.IsFull && rangePercent > 0.75d && rangePercent < 1d))
+                                    decodedFrameCount += AddBlocks(main);
+                                else
+                                    break;
                             }
                         }
                     }
@@ -504,10 +511,10 @@
                 var main = Container.Components.Main.MediaType;
 
                 // Holds the auxiliary media types
-                var auxs = Container.Components.MediaTypes.Where(t => t != main).ToArray();
+                var auxs = Container.Components.MediaTypes.ExcludeMediaType(main);
 
                 // Holds all components
-                var all = Container.Components.MediaTypes.ToArray();
+                var all = Container.Components.MediaTypes.DeepCopy();
 
                 // Holds a snapshot of the current block to render
                 var currentBlock = new MediaTypeDictionary<MediaBlock>();
