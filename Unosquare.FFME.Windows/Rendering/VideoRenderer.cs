@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Rendering
 {
+    using Events;
     using FFmpeg.AutoGen;
     using Platform;
     using Primitives;
@@ -7,6 +8,7 @@
     using System;
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
+    using System.Threading.Tasks;
     using System.Windows;
     using System.Windows.Media;
     using System.Windows.Media.Imaging;
@@ -20,6 +22,9 @@
     {
         #region Private State
 
+        private const double DefaultDpi = 96.0;
+        private const DispatcherPriority BlockRenderPriority = DispatcherPriority.Render;
+
         /// <summary>
         /// Contains an equivalence lookup of FFmpeg pixel fromat and WPF pixel formats.
         /// </summary>
@@ -27,6 +32,11 @@
         {
             { AVPixelFormat.AV_PIX_FMT_BGR0, PixelFormats.Bgr32 }
         };
+
+        /// <summary>
+        /// The action to perform when a render is enqueued on the UI thread.
+        /// </summary>
+        private readonly Action<VideoBlock, BitmapDataBuffer, TimeSpan> RenderTargetDelegate;
 
         /// <summary>
         /// The bitmap that is presented to the user.
@@ -37,6 +47,16 @@
         /// Set when a bitmap is being written to the target bitmap
         /// </summary>
         private AtomicBoolean IsRenderingInProgress = new AtomicBoolean(false);
+
+        /// <summary>
+        /// The load block buffer on locking
+        /// </summary>
+        private bool LoadBlockBufferOnGui = true;
+
+        /// <summary>
+        /// The raise video event on GUI
+        /// </summary>
+        private bool RaiseVideoEventOnGui = true;
 
         #endregion
 
@@ -49,7 +69,21 @@
         public VideoRenderer(MediaEngine mediaEngine)
         {
             MediaCore = mediaEngine;
-            InitializeTargetBitmap(null);
+
+            // Check that the renderer supports the passed in Pixel format
+            if (MediaPixelFormats.ContainsKey(Defaults.VideoPixelFormat) == false)
+                throw new NotSupportedException($"Unable to get equivalent pixel fromat from source: {Defaults.VideoPixelFormat}");
+
+            // Set the DPI
+            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.Normal, () =>
+            {
+                var visual = PresentationSource.FromVisual(MediaElement);
+                DpiX = 96.0 * visual?.CompositionTarget?.TransformToDevice.M11 ?? 96.0;
+                DpiY = 96.0 * visual?.CompositionTarget?.TransformToDevice.M22 ?? 96.0;
+            });
+
+            // Set the render target delegate
+            RenderTargetDelegate = RenderTarget;
         }
 
         /// <summary>
@@ -64,7 +98,21 @@
 
         #endregion
 
-        #region Methods
+        #region Properties
+
+        /// <summary>
+        /// Gets the DPI along the X axis.
+        /// </summary>
+        public double DpiX { get; private set; } = DefaultDpi;
+
+        /// <summary>
+        /// Gets the DPI along the Y axis.
+        /// </summary>
+        public double DpiY { get; private set; } = DefaultDpi;
+
+        #endregion
+
+        #region Unused Media Renderer Methods
 
         /// <summary>
         /// Executed when the Play method is called on the parent MediaElement
@@ -91,18 +139,6 @@
         }
 
         /// <summary>
-        /// Executed when the Close method is called on the parent MediaElement
-        /// </summary>
-        public void Close()
-        {
-            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.Render, () =>
-            {
-                TargetBitmap = null;
-                MediaElement.ViewBox.Source = null;
-            });
-        }
-
-        /// <summary>
         /// Executed after a Seek operation is performed on the parent MediaElement
         /// </summary>
         public void Seek()
@@ -116,8 +152,21 @@
         public void WaitForReadyState()
         {
             // placeholder
-            // we don't need to be ready.
         }
+
+        /// <summary>
+        /// Called on every block rendering clock cycle just in case some update operation needs to be performed.
+        /// This needs to return immediately so the calling thread is not disturbed.
+        /// </summary>
+        /// <param name="clockPosition">The clock position.</param>
+        public void Update(TimeSpan clockPosition)
+        {
+            // placeholder
+        }
+
+        #endregion
+
+        #region MediaRenderer Methods
 
         /// <summary>
         /// Renders the specified media block.
@@ -135,97 +184,147 @@
                 return;
             }
 
+            // Flag the start of a rendering cycle
             IsRenderingInProgress.Value = true;
 
+            // Ensure the target bitmap can be loaded
+            var bitmapData = LockTarget(block, BlockRenderPriority);
+
+            // Check if we have a valid pointer to the back-buffer
+            if (bitmapData == null)
+            {
+                IsRenderingInProgress.Value = false;
+                return;
+            }
+
+            // Write the pixels on a non-UI thread
+            if (LoadBlockBufferOnGui == false)
+                LoadTarget(bitmapData, block);
+
+            // Fire the rendering event o a non-UI thread
+            if (RaiseVideoEventOnGui == false)
+                MediaElement.RaiseRenderingVideoEvent(block, bitmapData, clockPosition);
+
+            // Send to the rendering to the UI
             WindowsPlatform.Instance.Gui?.EnqueueInvoke(
-                DispatcherPriority.Render,
-                new Action<VideoBlock, TimeSpan>((b, cP) =>
-                {
-                    try
-                    {
-                        // Skip rendering if Scrubbing is not enabled
-                        if (MediaElement.ScrubbingEnabled == false && MediaElement.IsPlaying == false)
-                            return;
-
-                        if (TargetBitmap == null || TargetBitmap.PixelWidth != b.PixelWidth || TargetBitmap.PixelHeight != b.PixelHeight)
-                            InitializeTargetBitmap(b);
-
-                        var updateRect = new Int32Rect(0, 0, b.PixelWidth, b.PixelHeight);
-
-                        // This is equivalent to WritePixels except for all the error checking and helper method calling
-                        // and therefore it should perform slightly better.
-                        // // TargetBitmap.WritePixels(updateRect, b.Buffer, b.BufferLength, b.BufferStride);
-                        TargetBitmap.Lock();
-                        WindowsNativeMethods.Instance.CopyMemory(TargetBitmap.BackBuffer, b.Buffer, (uint)b.BufferLength);
-                        TargetBitmap.AddDirtyRect(updateRect);
-                        TargetBitmap.Unlock();
-
-                        MediaElement.RaiseRenderingVideoEvent(b, TargetBitmap, cP);
-
-                        ApplyScaleTransform(b);
-                    }
-                    catch (Exception ex)
-                    {
-                        MediaElement?.MediaCore?.Log(
-                            MediaLogMessageType.Error, 
-                            $"{nameof(VideoRenderer)} {ex.GetType()}: {ex.Message}. Stack Trace:\r\n{ex.StackTrace}");
-                    }
-                    finally
-                    {
-                        IsRenderingInProgress.Value = false;
-                    }
-                }), block,
-                clockPosition);
+                BlockRenderPriority, RenderTargetDelegate, block, bitmapData, clockPosition);
         }
 
         /// <summary>
-        /// Called on every block rendering clock cycle just in case some update operation needs to be performed.
-        /// This needs to return immediately so the calling thread is not disturbed.
+        /// Executed when the Close method is called on the parent MediaElement
         /// </summary>
-        /// <param name="clockPosition">The clock position.</param>
-        public void Update(TimeSpan clockPosition)
+        public void Close()
         {
-            // placeholder
+            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.Render, () =>
+            {
+                TargetBitmap = null;
+                MediaElement.ViewBox.Source = null;
+            });
         }
 
         #endregion
 
+        private void RenderTarget(VideoBlock block, BitmapDataBuffer bitmapData, TimeSpan clockPosition)
+        {
+            try
+            {
+                if (RaiseVideoEventOnGui)
+                    MediaElement.RaiseRenderingVideoEvent(block, bitmapData, clockPosition);
+
+                // Signal an update on the rendering surface
+                TargetBitmap.AddDirtyRect(bitmapData.UpdateRect);
+                TargetBitmap.Unlock();
+                ApplyScaleTransform(block);
+            }
+            catch (Exception ex)
+            {
+                MediaElement?.MediaCore?.Log(
+                    MediaLogMessageType.Error,
+                    $"{nameof(VideoRenderer)} {ex.GetType()}: {ex.Message}. Stack Trace:\r\n{ex.StackTrace}");
+            }
+            finally
+            {
+                IsRenderingInProgress.Value = false;
+            }
+        }
+
         /// <summary>
-        /// Initializes the target bitmap. Pass a null block to initialize with the default video properties.
+        /// Initializes the target bitmap if not available and locks it for loading the back-buffer.
         /// </summary>
         /// <param name="block">The block.</param>
-        private void InitializeTargetBitmap(VideoBlock block)
+        /// <param name="priority">The priority.</param>
+        /// <returns>
+        /// The locking result. Returns a null pointer on back buffer for invalid.
+        /// </returns>
+        private BitmapDataBuffer LockTarget(VideoBlock block, DispatcherPriority priority)
         {
-            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.Normal, () =>
+            // Result will be set on the GUI thread
+            BitmapDataBuffer result = null;
+
+            WindowsPlatform.Instance.Gui?.Invoke(priority, () =>
             {
-                var visual = PresentationSource.FromVisual(MediaElement);
+                // Skip the locking if scrubbing is not enabled
+                if (MediaElement.ScrubbingEnabled == false && MediaElement.IsPlaying == false)
+                    return;
 
-                var dpiX = 96.0 * visual?.CompositionTarget?.TransformToDevice.M11 ?? 96.0;
-                var dpiY = 96.0 * visual?.CompositionTarget?.TransformToDevice.M22 ?? 96.0;
+                // Figure out what we need to do
+                var needsCreation = TargetBitmap == null && MediaElement.HasVideo;
+                var needsModification = needsCreation == false && (TargetBitmap.PixelWidth != block.PixelWidth || TargetBitmap.PixelHeight != block.PixelHeight);
+                var hasValidDimensions = block.PixelWidth > 0 && block.PixelHeight > 0;
 
-                var pixelWidth = block?.PixelWidth ?? MediaElement.NaturalVideoWidth;
-                var pixelHeight = block?.PixelHeight ?? MediaElement.NaturalVideoHeight;
-
-                if (MediaPixelFormats.ContainsKey(Defaults.VideoPixelFormat) == false)
-                    throw new NotSupportedException($"Unable to get equivalent pixel fromat from source: {Defaults.VideoPixelFormat}");
-
-                if (MediaElement.HasVideo && pixelWidth > 0 && pixelHeight > 0)
+                // Instantiate or update the target bitmap
+                if ((needsCreation || needsModification) && hasValidDimensions)
                 {
                     TargetBitmap = new WriteableBitmap(
-                        block?.PixelWidth ?? MediaElement.NaturalVideoWidth,
-                        block?.PixelHeight ?? MediaElement.NaturalVideoHeight,
-                        dpiX,
-                        dpiY,
-                        MediaPixelFormats[Defaults.VideoPixelFormat],
-                        null);
+                        block.PixelWidth, block.PixelHeight, DpiX, DpiY, MediaPixelFormats[Defaults.VideoPixelFormat], null);
                 }
-                else
+                else if (hasValidDimensions == false)
                 {
                     TargetBitmap = null;
                 }
 
-                MediaElement.ViewBox.Source = TargetBitmap;
+                // Update the target ViewBox image if not already set
+                if (MediaElement.ViewBox.Source != TargetBitmap)
+                    MediaElement.ViewBox.Source = TargetBitmap;
+
+                // Don't set the result
+                if (TargetBitmap == null) return;
+
+                // Lock the back-buffer and create a pointer to it
+                TargetBitmap.Lock();
+                result = BitmapDataBuffer.FromWriteableBitmap(TargetBitmap);
+
+                if (LoadBlockBufferOnGui)
+                    LoadTarget(result, block);
             });
+
+            return result;
+        }
+
+        /// <summary>
+        /// Loads that target data buffer with block data
+        /// </summary>
+        /// <param name="target">The target.</param>
+        /// <param name="source">The source.</param>
+        private void LoadTarget(BitmapDataBuffer target, VideoBlock source)
+        {
+            // Copy the block data into the back buffer of the target bitmap.
+            if (target.Stride == source.BufferStride)
+            {
+                WindowsNativeMethods.Instance.CopyMemory(target.Scan0, source.Buffer, (uint)source.BufferLength);
+            }
+            else
+            {
+                var format = MediaPixelFormats[Defaults.VideoPixelFormat];
+                var bytesPerPixel = format.BitsPerPixel / 8;
+                var copyLength = (uint)Math.Min(target.Stride, source.BufferStride);
+                Parallel.For(0, source.PixelHeight, (i) =>
+                {
+                    var sourceOffset = source.Buffer + (i * source.BufferStride);
+                    var targetOffset = target.Scan0 + (i * target.Stride);
+                    WindowsNativeMethods.Instance.CopyMemory(targetOffset, sourceOffset, copyLength);
+                });
+            }
         }
 
         /// <summary>

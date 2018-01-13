@@ -90,6 +90,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Events\BitmapDataBuffer.cs" />
     <Compile Include="Events\RenderingAudioEventArgs.cs" />
     <Compile Include="Events\RenderingEventArgs.cs" />
     <Compile Include="Events\RenderingSubtitlesEventArgs.cs" />
@@ -103,8 +104,7 @@
     <Compile Include="Platform\WinFormsGuiContext.cs" />
     <Compile Include="Platform\WpfGuiContext.cs" />
     <Compile Include="Events\PositionChangedRoutedEventArgs.cs" />
-    <Compile Include="Rendering\SharedMemoryBitmap.cs" />
-    <Compile Include="Rendering\SoundTouch.cs" />
+    <Compile Include="Platform\SoundTouch.cs" />
     <Compile Include="Rendering\Wave\IWaveProvider.cs" />
     <Compile Include="Rendering\Wave\MmResult.cs" />
     <Compile Include="Rendering\Wave\MmTime.cs" />

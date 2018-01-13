@@ -14,7 +14,7 @@
         /// <summary>
         /// The WPF dispatcher
         /// </summary>
-        private static Dispatcher WpfDispatcher = null;
+        private static Dispatcher GuiDispatcher = null;
 
         /// <summary>
         /// Initializes static members of the <see cref="WpfGuiContext"/> class.
@@ -29,8 +29,10 @@
         /// </summary>
         private WpfGuiContext()
         {
-            WpfDispatcher = WpfDispatcher = Application.Current?.Dispatcher;
-            IsValid = WpfDispatcher != null && WpfDispatcher is System.Windows.Threading.Dispatcher;
+            GuiDispatcher = Application.Current?.Dispatcher;
+            IsValid = GuiDispatcher != null && GuiDispatcher is Dispatcher;
+
+            // Design-time detection
             try
             {
                 IsInDesignTime = (bool)DesignerProperties.IsInDesignModeProperty.GetMetadata(
@@ -65,7 +67,7 @@
         /// <param name="arguments">The arguments.</param>
         public void EnqueueInvoke(DispatcherPriority priority, Delegate callback, params object[] arguments)
         {
-            WpfDispatcher.BeginInvoke(callback, priority, arguments);
+            GuiDispatcher.BeginInvoke(callback, priority, arguments);
         }
 
         /// <summary>
@@ -75,10 +77,10 @@
         /// <param name="action">The action.</param>
         public void Invoke(DispatcherPriority priority, Action action)
         {
-            if (Dispatcher.CurrentDispatcher?.Thread.ManagedThreadId == WpfDispatcher.Thread.ManagedThreadId)
+            if (Dispatcher.CurrentDispatcher?.Thread.ManagedThreadId == GuiDispatcher.Thread.ManagedThreadId)
                 action();
             else
-                WpfDispatcher.Invoke(action, priority, null);
+                GuiDispatcher.Invoke(action, priority, null);
         }
     }
 }

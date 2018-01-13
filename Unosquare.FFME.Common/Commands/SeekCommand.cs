@@ -59,7 +59,7 @@
                     return;
                 }
 
-                // Signal to wait one more frame dcoding cycle before 
+                // Signal to wait one more frame decoding cycle before 
                 // sending blocks to the renderer.
                 m.HasDecoderSeeked = true;
 

@@ -5,7 +5,6 @@
     using System.IO;
     using System.Linq;
     using System.Runtime.InteropServices;
-    using System.Windows;
 
     public partial class MainWindow
     {
@@ -65,7 +64,7 @@
 
                 #region Create the overlay buffer to work with
 
-                if (overlayBackBuffer != e.Bitmap.BackBuffer)
+                if (overlayBackBuffer != e.Bitmap.Scan0)
                 {
                     lock (drawVuMeterRmsLock)
                     {
@@ -79,11 +78,11 @@
                     overlayBitmap = new System.Drawing.Bitmap(
                         e.Bitmap.PixelWidth,
                         e.Bitmap.PixelHeight,
-                        e.Bitmap.BackBufferStride,
+                        e.Bitmap.Stride,
                         System.Drawing.Imaging.PixelFormat.Format32bppRgb,
-                        e.Bitmap.BackBuffer);
+                        e.Bitmap.Scan0);
 
-                    overlayBackBuffer = e.Bitmap.BackBuffer;
+                    overlayBackBuffer = e.Bitmap.Scan0;
                     overlayGraphics = System.Drawing.Graphics.FromImage(overlayBitmap);
                     overlayGraphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
                 }
@@ -94,13 +93,14 @@
 
                 lock (drawVuMeterRmsLock)
                 {
-                    drawVuMeterLeftValue = drawVuMeterLeftRms.Where(kvp => kvp.Key > Media.Position).Select(kvp => kvp.Value).FirstOrDefault();
-                    drawVuMeterRightValue = drawVuMeterRightRms.Where(kvp => kvp.Key > Media.Position).Select(kvp => kvp.Value).FirstOrDefault();
+                    var position = e.Clock;
+                    drawVuMeterLeftValue = drawVuMeterLeftRms.Where(kvp => kvp.Key > position).Select(kvp => kvp.Value).FirstOrDefault();
+                    drawVuMeterRightValue = drawVuMeterRightRms.Where(kvp => kvp.Key > position).Select(kvp => kvp.Value).FirstOrDefault();
 
                     // do some cleanup so the dictionary does not grow too big.
                     if (drawVuMeterLeftRms.Count > 256)
                     {
-                        var keysToRemove = drawVuMeterLeftRms.Keys.Where(k => k < Media.Position).OrderBy(k => k).ToArray();
+                        var keysToRemove = drawVuMeterLeftRms.Keys.Where(k => k < position).OrderBy(k => k).ToArray();
                         foreach (var k in keysToRemove)
                         {
                             drawVuMeterLeftRms.Remove(k);
@@ -116,7 +116,6 @@
 
                 #region Draw the text and the VU meter
 
-                e.Bitmap.Lock();
                 var differenceMillis = TimeSpan.FromTicks(e.Clock.Ticks - e.StartTime.Ticks).TotalMilliseconds;
 
                 overlayGraphics.DrawString($"Clock: {e.StartTime.TotalSeconds:00.000} | Skew: {differenceMillis:00.000} | PN: {e.PictureNumber}",
@@ -136,9 +135,6 @@
                     drawVuMeterTopOffset + 20,
                     drawVuMeterLeftOffset + 5 + (Convert.ToSingle(drawVuMeterRightValue) * drawVuMeterScaleFactor),
                     drawVuMeterTopOffset + 20);
-
-                e.Bitmap.AddDirtyRect(new Int32Rect(0, 0, e.Bitmap.PixelWidth, e.Bitmap.PixelHeight));
-                e.Bitmap.Unlock();
 
                 #endregion
             };

@@ -500,9 +500,6 @@
             {
                 #region 0. Initialize Running State
 
-                // When this elapses there is no pause on this thread.
-                var renderTimeoutMs = Defaults.TimerHighPriorityInterval.TotalMilliseconds;
-
                 // Holds the main media type
                 var main = Container.Components.Main.MediaType;
 
@@ -516,12 +513,12 @@
                 var currentBlock = new MediaTypeDictionary<MediaBlock>();
 
                 // Keeps track of how many blocks were rendered in the cycle.
-                var renderedBlockCount = 0;
+                var renderedBlockCount = new MediaTypeDictionary<int>();
 
                 // used to calculate the ticks elapsed in the render operations
                 var renderStopWatch = new Stopwatch();
                 renderStopWatch.Start();
-                
+
                 // reset render times for all components
                 foreach (var t in all)
                     LastRenderTime[t] = TimeSpan.MinValue;
@@ -543,9 +540,12 @@
                 while (IsTaskCancellationPending == false)
                 {
                     #region 1. Control and Capture
+                    // Start measuring the render cycle
+                    renderStopWatch.Restart();
 
                     // Reset the rendered count to 0
-                    renderedBlockCount = 0;
+                    foreach (var t in all)
+                        renderedBlockCount[t] = 0;
 
                     // Capture current clock position for the rest of this cycle
                     BlockRenderingCycle.Reset();
@@ -559,7 +559,7 @@
 
                     // Capture the blocks to render
                     foreach (var t in all)
-                        currentBlock[t] = HasDecoderSeeked ? null : Blocks[t][wallClock];
+                        currentBlock[t] = Blocks[t][wallClock];
 
                     // Render each of the Media Types if it is time to do so.
                     foreach (var t in all)
@@ -571,14 +571,14 @@
                         // Render by forced signal (TimeSpan.MinValue)
                         if (LastRenderTime[t] == TimeSpan.MinValue)
                         {
-                            renderedBlockCount += SendBlockToRenderer(currentBlock[t], wallClock);
+                            renderedBlockCount[t] += SendBlockToRenderer(currentBlock[t], wallClock);
                             continue;
                         }
 
                         // Render because we simply have not rendered
                         if (currentBlock[t].StartTime != LastRenderTime[t])
                         {
-                            renderedBlockCount += SendBlockToRenderer(currentBlock[t], wallClock);
+                            renderedBlockCount[t] += SendBlockToRenderer(currentBlock[t], wallClock);
                             continue;
                         }
                     }
@@ -594,13 +594,15 @@
                     foreach (var t in all)
                         Renderers[t]?.Update(wallClock);
 
-                    // Delay the thread for a bit if the render timeout has expired
-                    if (!IsSeeking && renderStopWatch.ElapsedMilliseconds < renderTimeoutMs)
-                        Task.Delay(1).GetAwaiter().GetResult();
+                    // Don't stop if more time has elapsed than he allotted timeframe
+                    if (IsTaskCancellationPending || renderStopWatch.Elapsed.Ticks >= Defaults.TimerHighPriorityInterval.Ticks)
+                        continue;
 
-                    // Restart the stopwatch if the timeout was reached or if we rendered something
-                    if (renderedBlockCount > 0 || renderStopWatch.ElapsedMilliseconds >= renderTimeoutMs)
-                        renderStopWatch.Restart();
+                    // Pause based on a seek operation
+                    if (SeekingDone.WaitOne(0))
+                        Thread.Sleep(Defaults.TimerHighPriorityInterval);
+                    else
+                        SeekingDone.WaitOne(Defaults.TimerHighPriorityInterval);
 
                     #endregion
                 }

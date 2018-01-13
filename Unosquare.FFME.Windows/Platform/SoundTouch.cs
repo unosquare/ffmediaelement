@@ -1,8 +1,7 @@
-﻿namespace Unosquare.FFME.Rendering
+﻿namespace Unosquare.FFME.Platform
 {
     using System;
     using System.Runtime.InteropServices;
-    using Platform;
 
     /// <summary>
     /// SoundTouch audio processing library wrapper (SoundTouch.cs)

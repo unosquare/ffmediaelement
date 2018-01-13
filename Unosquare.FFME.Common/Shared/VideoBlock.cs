@@ -48,7 +48,7 @@
 
         /// <summary>
         /// The picture buffer stride. 
-        /// Pixel Width * 24-bit color (3 byes) + alignment (typically 0 for modern hw).
+        /// Pixel Width * 32-bit color (4 byes) + alignment (typically 0 for modern hw).
         /// </summary>
         public int BufferStride { get; internal set; }
 

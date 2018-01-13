@@ -156,9 +156,10 @@
         }
 
         /// <summary>
-        /// Common player part we are wrapping in this control.
+        /// Provides access to the underlying media engine driving this control.
+        /// This property is intender for advance usages only.
         /// </summary>
-        internal MediaEngine MediaCore
+        public MediaEngine MediaCore
         {
             get { return m_MediaCore; }
             private set { m_MediaCore = value; }

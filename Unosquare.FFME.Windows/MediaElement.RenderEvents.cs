@@ -4,7 +4,6 @@
     using Shared;
     using System;
     using System.Runtime.CompilerServices;
-    using System.Windows.Media.Imaging;
 
     public partial class MediaElement
     {
@@ -43,7 +42,7 @@
         /// <param name="bitmap">The bitmap.</param>
         /// <param name="clock">The clock.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseRenderingVideoEvent(VideoBlock videoBlock, WriteableBitmap bitmap, TimeSpan clock)
+        internal void RaiseRenderingVideoEvent(VideoBlock videoBlock, BitmapDataBuffer bitmap, TimeSpan clock)
         {
             if (RenderingVideo == null) return;
 
