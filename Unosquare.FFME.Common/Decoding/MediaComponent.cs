@@ -127,7 +127,7 @@
 
             // Enable Hardware acceleration if requested
             if (this is VideoComponent && container.MediaOptions.EnableHardwareAcceleration)
-                HardwareAccelerator.Dxva2.AttachDevice(this as VideoComponent);
+                HardwareAccelerator.Cuda.AttachDevice(this as VideoComponent);
 
             // Open the CodecContext. This requires exclusive FFmpeg access
             var codecOpenResult = 0;

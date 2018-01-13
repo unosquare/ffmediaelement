@@ -23,12 +23,22 @@
                 Name = "DXVA2",
                 DeviceType = AVHWDeviceType.AV_HWDEVICE_TYPE_DXVA2,
                 PixelFormat = AVPixelFormat.AV_PIX_FMT_DXVA2_VLD,
+                RequiresTransfer = true,
+            };
+
+            Cuda = new HardwareAccelerator
+            {
+                Name = "CUVID",
+                DeviceType = AVHWDeviceType.AV_HWDEVICE_TYPE_CUDA,
+                PixelFormat = AVPixelFormat.AV_PIX_FMT_CUDA,
+                RequiresTransfer = false,
             };
 
             All = new ReadOnlyDictionary<AVPixelFormat, HardwareAccelerator>(
                 new Dictionary<AVPixelFormat, HardwareAccelerator>()
                 {
-                    {Dxva2.PixelFormat, Dxva2}
+                    { Dxva2.PixelFormat, Dxva2 },
+                    { Cuda.PixelFormat, Cuda }
                 });
         }
 
@@ -51,7 +61,21 @@
         /// </summary>
         public static HardwareAccelerator Dxva2 { get; }
 
+        /// <summary>
+        /// Gets the CUDA video accelerator.
+        /// </summary>
+        public static HardwareAccelerator Cuda { get; }
+
+        /// <summary>
+        /// Gets the name of the HW accelerator.
+        /// </summary>
         public string Name { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the frame requires the transfer from
+        /// the hardware to RAM
+        /// </summary>
+        public bool RequiresTransfer { get; private set; }
 
         /// <summary>
         /// Gets the hardware output pixel format.
@@ -127,10 +151,14 @@
             if (codecContext->hw_device_ctx == null)
                 return input;
 
+            comesFromHardware = true;
+
             if (input->format != (int) PixelFormat)
                 return input;
 
-            comesFromHardware = true;
+            if (RequiresTransfer == false)
+                return input;
+
             var output = ffmpeg.av_frame_alloc();
 
             var result = ffmpeg.av_hwframe_transfer_data(output, input, 0);
