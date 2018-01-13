@@ -3,14 +3,15 @@
     using Shared;
     using System;
     using System.Diagnostics;
+    using System.Threading;
 
     /// <summary>
     /// A time measurement artifact.
     /// </summary>
     internal sealed class RealTimeClock
     {
-        private readonly object SyncLock = new object();
         private readonly Stopwatch Chrono = new Stopwatch();
+        private ReaderWriterLock Locker = new ReaderWriterLock();
         private double OffsetMilliseconds = 0;
         private double m_SpeedRatio = Defaults.DefaultSpeedRatio;
 
@@ -30,18 +31,30 @@
         {
             get
             {
-                lock (SyncLock)
+                try
+                {
+                    Locker.AcquireReaderLock(Timeout.Infinite);
                     return TimeSpan.FromTicks((long)Math.Round(
                         (OffsetMilliseconds + (Chrono.ElapsedMilliseconds * SpeedRatio)) * TimeSpan.TicksPerMillisecond, 0));
+                }
+                finally
+                {
+                    Locker.ReleaseReaderLock();
+                }
             }
             set
             {
-                lock (SyncLock)
+                try
                 {
+                    Locker.AcquireWriterLock(Timeout.Infinite);
                     var resume = Chrono.IsRunning;
                     Chrono.Reset();
                     OffsetMilliseconds = value.TotalMilliseconds;
                     if (resume) Chrono.Start();
+                }
+                finally
+                {
+                    Locker.ReleaseWriterLock();
                 }
             }
         }
@@ -51,7 +64,18 @@
         /// </summary>
         public bool IsRunning
         {
-            get { lock (SyncLock) return Chrono.IsRunning; }
+            get
+            {
+                try
+                {
+                    Locker.AcquireReaderLock(Timeout.Infinite);
+                    return Chrono.IsRunning;
+                }
+                finally
+                {
+                    Locker.ReleaseReaderLock();
+                }
+            }
         }
 
         /// <summary>
@@ -61,12 +85,21 @@
         {
             get
             {
-                lock (SyncLock) return m_SpeedRatio;
+                try
+                {
+                    Locker.AcquireReaderLock(Timeout.Infinite);
+                    return m_SpeedRatio;
+                }
+                finally
+                {
+                    Locker.ReleaseReaderLock();
+                }
             }
             set
             {
-                lock (SyncLock)
+                try
                 {
+                    Locker.AcquireWriterLock(Timeout.Infinite);
                     if (value < 0d) value = 0d;
 
                     // Capture the initial position se we set it even after the speedratio has changed
@@ -74,6 +107,10 @@
                     var initialPosition = Position;
                     m_SpeedRatio = value;
                     Position = initialPosition;
+                }
+                finally
+                {
+                    Locker.ReleaseWriterLock();
                 }
             }
         }
@@ -83,10 +120,15 @@
         /// </summary>
         public void Play()
         {
-            lock (SyncLock)
+            try
             {
+                Locker.AcquireWriterLock(Timeout.Infinite);
                 if (Chrono.IsRunning) return;
                 Chrono.Start();
+            }
+            finally
+            {
+                Locker.ReleaseWriterLock();
             }
         }
 
@@ -95,7 +137,15 @@
         /// </summary>
         public void Pause()
         {
-            Chrono.Stop();
+            try
+            {
+                Locker.AcquireWriterLock(Timeout.Infinite);
+                Chrono.Stop();
+            }
+            finally
+            {
+                Locker.ReleaseWriterLock();
+            }
         }
 
         /// <summary>
@@ -104,10 +154,15 @@
         /// </summary>
         public void Reset()
         {
-            lock (SyncLock)
+            try
             {
+                Locker.AcquireWriterLock(Timeout.Infinite);
                 OffsetMilliseconds = 0;
                 Chrono.Reset();
+            }
+            finally
+            {
+                Locker.ReleaseWriterLock();
             }
         }
     }
