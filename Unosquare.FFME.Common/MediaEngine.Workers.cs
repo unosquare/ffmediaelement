@@ -600,7 +600,7 @@
 
                     // Pause based on a seek operation
                     if (SeekingDone.WaitOne(0))
-                        Thread.Sleep(Defaults.TimerHighPriorityInterval);
+                        Task.Delay(1).GetAwaiter().GetResult();
                     else
                         SeekingDone.WaitOne(Defaults.TimerHighPriorityInterval);
 
