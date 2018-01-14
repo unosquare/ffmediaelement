@@ -43,16 +43,15 @@
         public int StreamIndex { get; internal set; }
 
         /// <summary>
-        /// Gets the middle timestamp between the start and end time.
-        /// Returns Zero if the duration is Zero or negative.
+        /// Gets a safe timestamp the the block can be displayed.
+        /// Returns StartTime if the duration is Zero or negative.
         /// </summary>
-        public TimeSpan MidTime
+        public TimeSpan SnapTime
         {
             get
             {
-                if (Duration.Ticks <= 0) return TimeSpan.Zero;
-                return TimeSpan.FromTicks((long)Math.Round(
-                        StartTime.Ticks + (Duration.Ticks / 2d), 0));
+                if (Duration.Ticks <= 0) return StartTime;
+                return TimeSpan.FromTicks(StartTime.Ticks + TimeSpan.TicksPerMillisecond);
             }
         }
 

@@ -46,6 +46,8 @@
         private AtomicBoolean m_IsTaskCancellationPending = new AtomicBoolean(false);
         private AtomicBoolean m_HasDecoderSeeked = new AtomicBoolean(false);
 
+        private ulong? BufferBytesPerSecond = default(ulong?);
+
         /// <summary>
         /// Holds the blocks
         /// </summary>
@@ -125,26 +127,27 @@
         /// </summary>
         internal void RunPacketReadingWorker()
         {
+            // Holds the packet count for each read cycle
+            var packetsRead = new MediaTypeDictionary<int>();
+            BufferBytesPerSecond = default(ulong?);
+
+            // State variables for media types
+            var t = MediaType.None;
+
+            // Store Container in local variable to prevent NullReferenceException
+            // when dispose occurs sametime with read cycle
+            var mediaContainer = Container;
+
+            var main = mediaContainer.Components.Main.MediaType;
+            var auxs = mediaContainer.Components.MediaTypes.FundamentalAuxsFor(main);
+            var all = main.JoinMediaTypes(auxs);
+
+            // State variables for bytes read (give-up condition)
+            var startBytesRead = 0UL;
+            var currentBytesRead = 0UL;
+
             try
             {
-                // Holds the packet count for each read cycle
-                var packetsRead = new MediaTypeDictionary<int>();
-
-                // State variables for media types
-                var t = MediaType.None;
-
-                // Store Container in local variable to prevent NullReferenceException
-                // when dispose occurs sametime with read cycle
-                var mediaContainer = Container;
-
-                var main = mediaContainer.Components.Main.MediaType;
-                var auxs = mediaContainer.Components.MediaTypes.FundamentalAuxsFor(main);
-                var all = main.JoinMediaTypes(auxs);
-
-                // State variables for bytes read (give-up condition)
-                var startBytesRead = 0UL;
-                var currentBytesRead = 0UL;
-
                 // Worker logic begins here
                 while (IsTaskCancellationPending == false)
                 {
@@ -189,8 +192,8 @@
                     PacketReadingCycle.Set();
 
                     // Wait some if we have a full packet buffer or we are unable to read more packets (i.e. EOF).
-                    if (mediaContainer.Components.PacketBufferLength >= DownloadCacheLength 
-                        || CanReadMorePackets == false 
+                    if (mediaContainer.Components.PacketBufferLength >= DownloadCacheLength
+                        || CanReadMorePackets == false
                         || currentBytesRead <= 0)
                     {
                         Task.Delay(1).GetAwaiter().GetResult();
@@ -296,7 +299,7 @@
 
                     // Handle the main component decoding; Start by checking we have some packets
                     while (comp.PacketBufferCount <= 0 && CanReadMorePackets)
-                         PacketReadingCycle.WaitOne();
+                        PacketReadingCycle.WaitOne();
 
                     if (comp.PacketBufferCount > 0)
                     {
@@ -470,6 +473,9 @@
                     // After a seek operation, always reset the has seeked flag.
                     HasDecoderSeeked = false;
 
+                    // If not already set, guess the bitrate
+                    GuessBitrate(all);
+
                     // Give it a break if there was nothing to decode.
                     // We probably need to wait for some more input
                     if (decodedFrameCount <= 0 && Commands.PendingCount <= 0)
@@ -633,6 +639,73 @@
         #region Methods
 
         /// <summary>
+        /// Guesses the bitrate of the input stream.
+        /// </summary>
+        /// <param name="all">The mediatypes of the stream</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void GuessBitrate(MediaType[] all)
+        {
+            if (BufferBytesPerSecond != null)
+                return;
+
+            #region Check if we have a container Bitrate
+
+            var containerBitrate = 0;
+            if (HasVideo)
+            {
+                if (VideoBitrate > 0)
+                    containerBitrate = VideoBitrate;
+                else
+                    containerBitrate = -1;
+            }
+
+            if (containerBitrate != -1 && HasAudio)
+            {
+                if (AudioBitrate > 0)
+                    containerBitrate += AudioBitrate;
+                else
+                    containerBitrate = -1;
+            }
+
+            if (containerBitrate > 0)
+            {
+                BufferBytesPerSecond = Convert.ToUInt64(containerBitrate / 8);
+                BufferCacheLength = Convert.ToInt32(BufferBytesPerSecond);
+                DownloadCacheLength = BufferCacheLength * (IsLiveStream ? 30 : 4);
+                return;
+            }
+
+            #endregion
+
+            #region If we don't then try to guess it!
+
+            // Capture the read bytes of a 1-second buffer
+            var bytesRead = Container.Components.TotalBytesRead;
+            var allHaveOneSecond = true;
+
+            foreach (var t in all)
+            {
+                if (t != MediaType.Audio && t != MediaType.Video)
+                    continue;
+
+                if (Blocks[t].HistoricalDuration.TotalSeconds < 1)
+                {
+                    allHaveOneSecond = false;
+                    break;
+                }
+            }
+
+            if (allHaveOneSecond)
+            {
+                BufferBytesPerSecond = bytesRead;
+                BufferCacheLength = Convert.ToInt32(bytesRead);
+                DownloadCacheLength = BufferCacheLength * (IsLiveStream ? 30 : 4);
+            }
+
+            #endregion
+        }
+
+        /// <summary>
         /// Initializes the media block buffers and 
         /// starts packet reader, frame decoder, and block rendering workers.
         /// </summary>
@@ -686,7 +759,7 @@
             {
                 var block = Blocks[MediaType.Video][position];
                 if (block != null && block.Duration.Ticks > 0 && VideoFrameRate != 0d)
-                    Clock.Position = block.MidTime;
+                    Clock.Position = block.SnapTime;
             }
         }
 

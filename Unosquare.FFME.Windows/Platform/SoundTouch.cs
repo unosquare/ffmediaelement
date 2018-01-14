@@ -29,7 +29,7 @@
         private readonly object SyncRoot = new object();
         private bool IsDisposed = false;
         private IntPtr handle;
-        
+
         #endregion
 
         #region Constructor
@@ -251,7 +251,13 @@
         /// </summary>
         public float Tempo
         {
-            set { lock (SyncRoot) { NativeMethods.SetTempo(handle, value); } }
+            set
+            {
+                lock (SyncRoot)
+                {
+                    NativeMethods.SetTempo(handle, value);
+                }
+            }
         }
 
         /// <summary>

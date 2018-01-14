@@ -39,8 +39,9 @@
         /// <param name="targetAddress">The target address.</param>
         /// <param name="sourceAddress">The source address.</param>
         /// <param name="copyLength">Length of the copy.</param>
-        public void CopyMemory(IntPtr targetAddress, IntPtr sourceAddress, uint copyLength)
+        public unsafe void CopyMemory(IntPtr targetAddress, IntPtr sourceAddress, uint copyLength)
         {
+            // Buffer.MemoryCopy(sourceAddress.ToPointer(), targetAddress.ToPointer(), copyLength, copyLength);
             NativeMethods.CopyMemory(targetAddress, sourceAddress, copyLength);
         }
 

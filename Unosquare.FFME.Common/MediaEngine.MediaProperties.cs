@@ -14,7 +14,9 @@
             = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
         private bool m_HasMediaEnded = false;
         private double m_BufferingProgress = 0;
+        private int m_BufferCacheLength = 0;
         private double m_DownloadProgress = 0;
+        private int m_DownloadCacheLength = 0;
         private string m_VideoSmtpeTimecode = string.Empty;
         private string m_VideoHardwareDecoder = string.Empty;
         private bool m_IsBuffering = false;
@@ -251,23 +253,12 @@
         /// <summary>
         /// The wait packet buffer length.
         /// It is adjusted to 1 second if bitrate information is available.
-        /// Otherwise, it's simply 512KB
+        /// Otherwise, it's simply 512KB.
         /// </summary>
         public int BufferCacheLength
         {
-            get
-            {
-                if (Container == null || (HasVideo && VideoBitrate <= 0) || (HasAudio && AudioBitrate <= 0))
-                {
-                    return 512 * 1024; // 512 kilobytes
-                }
-                else
-                {
-                    var byteRate = (VideoBitrate + AudioBitrate) / 8;
-                    return (Container?.IsStreamRealtime ?? false) ?
-                        byteRate / 2 : byteRate;
-                }
-            }
+            get => m_BufferCacheLength;
+            internal set => SetProperty(ref m_BufferCacheLength, value);
         }
 
         /// <summary>
@@ -285,8 +276,11 @@
         /// If it's a realtime stream it will return 30 times the buffer cache length.
         /// Otherwise, it will return  4 times of the buffer cache length.
         /// </summary>
-        public int DownloadCacheLength => (Container?.IsStreamRealtime ?? false) ?
-            BufferCacheLength * 30 : BufferCacheLength * 4;
+        public int DownloadCacheLength
+        {
+            get => m_DownloadCacheLength;
+            internal set => SetProperty(ref m_DownloadCacheLength, value);
+        }
 
         /// <summary>
         /// Gets a value indicating whether the media is in the process of opening.

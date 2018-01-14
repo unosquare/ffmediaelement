@@ -105,7 +105,9 @@
                         IsBuffering = false;
                     }
 
-                    var downloadProgress = Math.Min(1d, Math.Round((Container?.Components.PacketBufferLength ?? 0d) / DownloadCacheLength, 3));
+                    var downloadProgress = Math.Min(
+                        1d, Math.Round((Container?.Components.PacketBufferLength ?? 0d) / DownloadCacheLength, 3));
+
                     if (double.IsNaN(downloadProgress)) downloadProgress = 0;
                     DownloadProgress = downloadProgress;
                 }

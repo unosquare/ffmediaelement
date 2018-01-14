@@ -187,6 +187,11 @@
         }
 
         /// <summary>
+        /// Holds the duration of all the blocks that have been added
+        /// </summary>
+        internal TimeSpan HistoricalDuration { get; private set; } = TimeSpan.Zero;
+
+        /// <summary>
         /// Gets the <see cref="MediaBlock" /> at the specified index.
         /// </summary>
         /// <value>
@@ -408,6 +413,7 @@
                     PlaybackBlocks.Sort();
                 }
 
+                HistoricalDuration = TimeSpan.FromTicks(HistoricalDuration.Ticks + targetBlock.Duration.Ticks);
                 return targetBlock;
             }
         }

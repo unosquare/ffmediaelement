@@ -380,10 +380,10 @@
             lock (SyncLock)
             {
                 if (outputEmpty == false && Commands.Count <= 0) return; // Prevent output for empty commands
-                MediaCore.Log(MediaLogMessageType.Debug, $"Command Queue ({Commands.Count} commands): {operation}");
+                MediaCore.Log(MediaLogMessageType.Trace, $"Command Queue ({Commands.Count} commands): {operation}");
                 foreach (var c in Commands)
                 {
-                    MediaCore.Log(MediaLogMessageType.Debug, $"   {c.ToString()}");
+                    MediaCore.Log(MediaLogMessageType.Trace, $"   {c.ToString()}");
                 }
             }
         }

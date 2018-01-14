@@ -20,6 +20,11 @@
     {
         #region Private Members
 
+        private const double SyncThresholdPerfect = 10;
+        private const double SyncThresholdLagging = 100;
+        private const double SyncThresholdLeading = -25;
+        private const int SyncThresholdStep = 5;
+
         private readonly ManualResetEvent WaitForReadyEvent = new ManualResetEvent(false);
         private readonly object SyncLock = new object();
 
@@ -39,8 +44,8 @@
         private AtomicBoolean m_IsMuted = new AtomicBoolean(false);
 
         private int BytesPerSample = 2;
-        private double SyncThesholdMilliseconds = 0d;
         private int SampleBlockSize = 0;
+        private int SyncThresholdStepBytes = 0;
 
         #endregion
 
@@ -58,6 +63,8 @@
                 Defaults.AudioSampleRate,
                 Defaults.AudioBitsPerSample,
                 Defaults.AudioChannelCount);
+
+            SyncThresholdStepBytes = WaveFormat.ConvertLatencyToByteSize(SyncThresholdStep);
 
             if (WaveFormat.BitsPerSample != 16 || WaveFormat.Channels != 2)
                 throw new NotSupportedException("Wave Format has to be 16-bit and 2-channel.");
@@ -350,7 +357,10 @@
                     // Perform DSP
                     if (SpeedRatio < 1.0)
                     {
-                        ReadAndSlowDown(requestedBytes);
+                        if (AudioProcessor != null)
+                            ReadAndUseAudioProcessor(requestedBytes);
+                        else
+                            ReadAndSlowDown(requestedBytes);
                     }
                     else if (SpeedRatio > 1.0)
                     {
@@ -420,7 +430,6 @@
                 NumberOfBuffers = 2,
             };
 
-            SyncThesholdMilliseconds = 0.05 * DesiredLatency.TotalMilliseconds; // ~5% sync threshold for audio samples 
             BytesPerSample = WaveFormat.BitsPerSample / 8;
             SampleBlockSize = BytesPerSample * WaveFormat.Channels;
 
@@ -487,24 +496,49 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool Synchronize(byte[] targetBuffer, int targetBufferOffset, int requestedBytes)
         {
-            var audioLatency = Latency;
+            /*
+             * Wikipedia says:
+             * For television applications, audio should lead video by no more than 15 milliseconds and audio should
+             * lag video by no more than 45 milliseconds. For film, acceptable lip sync is considered to be no more 
+             * than 22 milliseconds in either direction.
+             * 
+             * The Media and Acoustics Perception Lab says:
+             * The results of the experiment determined that the average audio leading threshold for a/v sync 
+             * detection was 185.19 ms, with a standard deviation of 42.32 ms
+             * 
+             * The ATSC says:
+             * At first glance it seems loose: +90 ms to -185 ms as a Window of Acceptability
+             * - Undetectable from -100 ms to +25 ms
+             * - Detectable at -125 ms & +45 ms
+             * - Becomes unacceptable at -185 ms & +90 ms
+             * 
+             * NOTE: (- Sound delayed, + Sound advanced)
+             */
 
-            if (audioLatency.TotalMilliseconds > 2d * SyncThesholdMilliseconds)
+            var audioLatencyMs = Latency.TotalMilliseconds;
+            var isBeyondThreshold = false;
+
+            if (audioLatencyMs > SyncThresholdLagging)
             {
+                isBeyondThreshold = true;
+
                 // a positive audio latency means we are rendering audio behind (after) the clock (skip some samples)
                 // and therefore we need to advance the buffer before we read from it.
                 MediaCore.Log(MediaLogMessageType.Warning,
-                    $"SYNC AUDIO: LATENCY: {audioLatency.Format()} | SKIP (samples being rendered too late)");
+                    $"SYNC AUDIO: LATENCY: {Latency.Format()} | SKIP (samples being rendered too late)");
 
                 // skip some samples from the buffer.
-                var audioLatencyBytes = WaveFormat.ConvertLatencyToByteSize((int)Math.Ceiling(audioLatency.TotalMilliseconds));
-                AudioBuffer.Skip(Math.Min(audioLatencyBytes, AudioBuffer.ReadableCount));
+                var audioLatencyBytes = WaveFormat.ConvertLatencyToByteSize((int)Math.Ceiling(audioLatencyMs));
+                AudioBuffer.Skip(Math.Min(audioLatencyBytes, AudioBuffer.ReadableCount / 2));
             }
-            else if (audioLatency.TotalMilliseconds < -2d * SyncThesholdMilliseconds)
+            else if (audioLatencyMs < SyncThresholdLeading)
             {
+                isBeyondThreshold = true;
+
                 // Compute the latency in bytes
-                var audioLatencyBytes = WaveFormat.ConvertLatencyToByteSize((int)Math.Ceiling(Math.Abs(audioLatency.TotalMilliseconds)));
-                audioLatencyBytes = requestedBytes; // TODO: Comment this line to enable rewinding.
+                var audioLatencyBytes = WaveFormat.ConvertLatencyToByteSize((int)Math.Ceiling(Math.Abs(audioLatencyMs)));
+
+                // audioLatencyBytes = requestedBytes; // uncomment this line to enable rewinding.
                 if (audioLatencyBytes > requestedBytes && audioLatencyBytes < AudioBuffer.RewindableCount)
                 {
                     // This means we have the audio pointer a little too ahead of time and we need to
@@ -516,12 +550,21 @@
                     // a negative audio latency means we are rendering audio ahead (before) the clock
                     // and therefore we need to render some silence until the clock catches up
                     MediaCore.Log(MediaLogMessageType.Warning,
-                        $"SYNC AUDIO: LATENCY: {audioLatency.Format()} | WAIT (samples being rendered too early)");
+                        $"SYNC AUDIO: LATENCY: {Latency.Format()} | WAIT (samples being rendered too early)");
 
                     // render silence for the wait time and return
                     Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
                     return false;
                 }
+            }
+
+            // Perform minor adjustments until the delay is less than 10ms in either direction
+            if (isBeyondThreshold == false && Math.Abs(audioLatencyMs) > SyncThresholdPerfect)
+            {
+                if (audioLatencyMs > SyncThresholdPerfect)
+                    AudioBuffer.Skip(Math.Min(SyncThresholdStepBytes, AudioBuffer.ReadableCount / 2));
+                else if (audioLatencyMs < -SyncThresholdPerfect)
+                    AudioBuffer.Rewind(Math.Min(SyncThresholdStepBytes, AudioBuffer.RewindableCount));
             }
 
             return true;
@@ -664,17 +707,23 @@
             var bytesToRead = (int)(requestedBytes * speedRatio).ToMultipleOf(SampleBlockSize);
             var samplesToRead = bytesToRead / SampleBlockSize;
             var samplesToRequest = requestedBytes / SampleBlockSize;
+
+            // Set the new tempo (without changing the pitch) according to the speed ratio
             AudioProcessor.Tempo = Convert.ToSingle(speedRatio);
 
+            // Sending Samples to the processor
             while (AudioProcessor.AvailableSampleCount < samplesToRequest && AudioBuffer != null)
             {
                 var realBytesToRead = Math.Min(AudioBuffer.ReadableCount, bytesToRead);
+                if (realBytesToRead == 0) break;
+
                 realBytesToRead = (int)(realBytesToRead * 1.0).ToMultipleOf(SampleBlockSize);
                 AudioBuffer.Read(realBytesToRead, ReadBuffer, 0);
                 Buffer.BlockCopy(ReadBuffer, 0, AudioProcessorBuffer, 0, realBytesToRead);
                 AudioProcessor.PutSamplesI16(AudioProcessorBuffer, (uint)(realBytesToRead / SampleBlockSize));
             }
 
+            // Receiving samples from the processor
             uint numSamples = AudioProcessor.ReceiveSamplesI16(AudioProcessorBuffer, (uint)samplesToRequest);
             Array.Clear(ReadBuffer, 0, ReadBuffer.Length);
             Buffer.BlockCopy(AudioProcessorBuffer, 0, ReadBuffer, 0, (int)(numSamples * SampleBlockSize));
