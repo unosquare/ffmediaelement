@@ -88,7 +88,7 @@
                 return;
             }
 
-            Debug.WriteLine($"{e.MessageType,10} - {e.Message}");
+            Debug.WriteLine($"{e.MessageType, 10} - {e.Message}");
         }
 
         /// <summary>

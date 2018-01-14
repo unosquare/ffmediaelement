@@ -185,25 +185,45 @@
         /// Begins or resumes playback of the currently loaded media.
         /// </summary>
         /// <returns>The awaitable command</returns>
-        public async Task Play() => await MediaCore.Play();
+        public async Task Play()
+        {
+            try { await MediaCore.Play(); }
+            catch (TaskCanceledException) { }
+            catch (Exception ex) { RaiseMediaFailedEvent(ex); }
+        }
 
         /// <summary>
         /// Pauses playback of the currently loaded media.
         /// </summary>
         /// <returns>The awaitable command</returns>
-        public async Task Pause() => await MediaCore.Pause();
+        public async Task Pause()
+        {
+            try { await MediaCore.Pause(); }
+            catch (TaskCanceledException) { }
+            catch (Exception ex) { RaiseMediaFailedEvent(ex); }
+        }
 
         /// <summary>
         /// Pauses and rewinds the currently loaded media.
         /// </summary>
         /// <returns>The awaitable command</returns>
-        public async Task Stop() => await MediaCore.Stop();
+        public async Task Stop()
+        {
+            try { await MediaCore.Stop(); }
+            catch (TaskCanceledException) { }
+            catch (Exception ex) { RaiseMediaFailedEvent(ex); }
+        }
 
         /// <summary>
         /// Closes the currently loaded media.
         /// </summary>
         /// <returns>The awaitable command</returns>
-        public async Task Close() => await MediaCore.Close();
+        public async Task Close()
+        {
+            try { await MediaCore.Close(); }
+            catch (TaskCanceledException) { }
+            catch (Exception ex) { RaiseMediaFailedEvent(ex); }
+        }
 
         #endregion
 
