@@ -517,6 +517,8 @@
 
             var audioLatencyMs = Latency.TotalMilliseconds;
             var isBeyondThreshold = false;
+            var readableCount = AudioBuffer.ReadableCount;
+            var rewindableCount = AudioBuffer.RewindableCount;
 
             if (audioLatencyMs > SyncThresholdLagging)
             {
@@ -529,7 +531,7 @@
 
                 // skip some samples from the buffer.
                 var audioLatencyBytes = WaveFormat.ConvertLatencyToByteSize((int)Math.Ceiling(audioLatencyMs));
-                AudioBuffer.Skip(Math.Min(audioLatencyBytes, AudioBuffer.ReadableCount / 2));
+                AudioBuffer.Skip(Math.Min(audioLatencyBytes, readableCount));
             }
             else if (audioLatencyMs < SyncThresholdLeading)
             {
@@ -539,11 +541,11 @@
                 var audioLatencyBytes = WaveFormat.ConvertLatencyToByteSize((int)Math.Ceiling(Math.Abs(audioLatencyMs)));
 
                 // audioLatencyBytes = requestedBytes; // uncomment this line to enable rewinding.
-                if (audioLatencyBytes > requestedBytes && audioLatencyBytes < AudioBuffer.RewindableCount)
+                if (audioLatencyBytes > requestedBytes && audioLatencyBytes < rewindableCount)
                 {
                     // This means we have the audio pointer a little too ahead of time and we need to
                     // rewind it the requested amount of bytes.
-                    AudioBuffer.Rewind(Math.Min(audioLatencyBytes, AudioBuffer.RewindableCount));
+                    AudioBuffer.Rewind(Math.Min(audioLatencyBytes, rewindableCount));
                 }
                 else
                 {
@@ -562,9 +564,9 @@
             if (isBeyondThreshold == false && Math.Abs(audioLatencyMs) > SyncThresholdPerfect)
             {
                 if (audioLatencyMs > SyncThresholdPerfect)
-                    AudioBuffer.Skip(Math.Min(SyncThresholdStepBytes, AudioBuffer.ReadableCount / 2));
+                    AudioBuffer.Skip(Math.Min(SyncThresholdStepBytes, readableCount));
                 else if (audioLatencyMs < -SyncThresholdPerfect)
-                    AudioBuffer.Rewind(Math.Min(SyncThresholdStepBytes, AudioBuffer.RewindableCount));
+                    AudioBuffer.Rewind(Math.Min(SyncThresholdStepBytes, rewindableCount));
             }
 
             return true;

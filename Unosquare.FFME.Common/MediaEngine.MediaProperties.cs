@@ -10,8 +10,10 @@
     {
         #region Property Backing
 
-        private readonly ReadOnlyDictionary<string, string> EmptyDictionary 
+        private readonly ReadOnlyDictionary<string, string> EmptyDictionary
             = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
+
+        private ulong? m_BufferBytesPerSecond = default(ulong?);
         private bool m_HasMediaEnded = false;
         private double m_BufferingProgress = 0;
         private int m_BufferCacheLength = 0;
@@ -170,7 +172,7 @@
         public bool CanPause => IsOpen ? !IsLiveStream : false;
 
         /// <summary>
-        /// Returns whether the currently loaded media is live or realtime
+        /// Returns whether the currently loaded media is live or realtime and does not have a set duration
         /// This is only valid after the MediaOpened event has fired.
         /// </summary>
         public bool IsLiveStream => IsOpen ? Container.IsStreamRealtime && Container.MediaDuration == TimeSpan.MinValue : false;
@@ -241,19 +243,30 @@
         }
 
         /// <summary>
+        /// Gets the guessed buffered bytes in the packet queue per second.
+        /// If bitrate information is available, then it returns the bitrate converted to byte rate.
+        /// Returns null if it has not been guessed.
+        /// </summary>
+        public ulong? BufferBytesPerSecond
+        {
+            get => m_BufferBytesPerSecond;
+            internal set => SetProperty(ref m_BufferBytesPerSecond, value);
+        }
+
+        /// <summary>
         /// Gets a value that indicates the percentage of buffering progress made.
         /// Range is from 0 to 1
         /// </summary>
         public double BufferingProgress
         {
             get => m_BufferingProgress;
-            private set => SetProperty(ref m_BufferingProgress, value);
+            internal set => SetProperty(ref m_BufferingProgress, value);
         }
 
         /// <summary>
-        /// The wait packet buffer length.
+        /// The packet buffer length.
         /// It is adjusted to 1 second if bitrate information is available.
-        /// Otherwise, it's simply 512KB.
+        /// Otherwise, it's simply 512KB and it is guessed later on.
         /// </summary>
         public int BufferCacheLength
         {
@@ -268,7 +281,7 @@
         public double DownloadProgress
         {
             get => m_DownloadProgress;
-            private set => SetProperty(ref m_DownloadProgress, value);
+            internal set => SetProperty(ref m_DownloadProgress, value);
         }
 
         /// <summary>
@@ -341,6 +354,7 @@
             SendOnPropertyChanged(nameof(CanPause));
             SendOnPropertyChanged(nameof(IsLiveStream));
             SendOnPropertyChanged(nameof(IsSeekable));
+            SendOnPropertyChanged(nameof(BufferBytesPerSecond));
             SendOnPropertyChanged(nameof(BufferCacheLength));
             SendOnPropertyChanged(nameof(DownloadCacheLength));
             SendOnPropertyChanged(nameof(FrameStepDuration));
@@ -356,11 +370,8 @@
             Balance = Defaults.DefaultBalance;
             SpeedRatio = Defaults.DefaultSpeedRatio;
             IsMuted = false;
-            DownloadProgress = 0;
-            BufferingProgress = 0;
             VideoSmtpeTimecode = string.Empty;
             VideoHardwareDecoder = string.Empty;
-            IsBuffering = false;
             IsMuted = false;
             HasMediaEnded = false;
             UpdatePosition(TimeSpan.Zero);

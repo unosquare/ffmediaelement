@@ -70,46 +70,20 @@
                 }
             }
 
-            var isRunningPropertyUpdates = new AtomicBoolean();
+            var isRunningPropertyUpdates = false;
 
-            // The UI Property update timer is responsible for timely updates to properties outside of the worker threads
-            // We use the loaded priority because it is the priority right below the Render one.
+            // The Property update timer is responsible for timely updates to properties outside of the worker threads
             PropertyUpdateTimer = new Timer((s) =>
             {
-                if (isRunningPropertyUpdates.Value || m_IsDisposing.Value)
+                if (isRunningPropertyUpdates || m_IsDisposing.Value)
                     return;
-                else
-                    isRunningPropertyUpdates.Value = true;
+
+                isRunningPropertyUpdates = true;
 
                 try
                 {
                     UpdatePosition(IsOpen ? Clock?.Position ?? TimeSpan.Zero : TimeSpan.Zero);
-
-                    if (HasMediaEnded == false && CanReadMorePackets && (IsOpening || IsOpen))
-                    {
-                        var bufferedLength = Container?.Components?.PacketBufferLength ?? 0d;
-                        BufferingProgress = Math.Min(1d, bufferedLength / BufferCacheLength);
-                        var oldIsBugffering = IsBuffering;
-                        var newIsBuffering = bufferedLength < BufferCacheLength;
-
-                        if (oldIsBugffering == false && newIsBuffering)
-                            SendOnBufferingStarted();
-                        else if (oldIsBugffering && newIsBuffering == false)
-                            SendOnBufferingEnded();
-
-                        IsBuffering = HasMediaEnded == false && newIsBuffering;
-                    }
-                    else
-                    {
-                        BufferingProgress = 0;
-                        IsBuffering = false;
-                    }
-
-                    var downloadProgress = Math.Min(
-                        1d, Math.Round((Container?.Components.PacketBufferLength ?? 0d) / DownloadCacheLength, 3));
-
-                    if (double.IsNaN(downloadProgress)) downloadProgress = 0;
-                    DownloadProgress = downloadProgress;
+                    UpdateBufferingProperties();
                 }
                 catch (Exception ex)
                 {
@@ -117,7 +91,7 @@
                 }
                 finally
                 {
-                    isRunningPropertyUpdates.Value = false;
+                    isRunningPropertyUpdates = false;
                 }
             },
             this, // the state argument passed on to the ticker
@@ -201,6 +175,117 @@
             finally
             {
                 IsPositionUpdating = false;
+            }
+        }
+
+        /// <summary>
+        /// Resets all the buffering properties to their defaults.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void ResetBufferingProperties()
+        {
+            const int MinimumBitrate = 512 * 1024 * 8;
+
+            BufferBytesPerSecond = default(ulong?);
+
+            if (Container == null)
+            {
+                IsBuffering = false;
+                BufferCacheLength = 0;
+                DownloadCacheLength = 0;
+                BufferingProgress = 0;
+                DownloadProgress = 0;
+                return;
+            }
+
+            if (Container.MediaBitrate > MinimumBitrate)
+            {
+                BufferCacheLength = (int)Container.MediaBitrate / 8;
+                BufferBytesPerSecond = (ulong)BufferCacheLength;
+            }
+            else
+            {
+                BufferCacheLength = MinimumBitrate / 8;
+            }
+
+            DownloadCacheLength = BufferCacheLength * (IsLiveStream ? 30 : 4);
+            IsBuffering = false;
+            BufferingProgress = 0;
+            DownloadProgress = 0;
+        }
+
+        /// <summary>
+        /// Updates the buffering properties: IsBuffering, BufferingProgress, DownloadProgress.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void UpdateBufferingProperties()
+        {
+            var packetBufferLength = Container?.Components?.PacketBufferLength ?? 0d;
+
+            // Update the buffering progress
+            var bufferingProgress = Math.Min(
+                1d, Math.Round(packetBufferLength / BufferCacheLength, 3));
+            BufferingProgress = double.IsNaN(bufferingProgress) ? 0 : bufferingProgress;
+
+            // Update the download progress
+            var downloadProgress = Math.Min(
+                1d, Math.Round(packetBufferLength / DownloadCacheLength, 3));
+            DownloadProgress = double.IsNaN(downloadProgress) ? 0 : downloadProgress;
+
+            // IsBuffering and BufferingProgress
+            if (HasMediaEnded == false && CanReadMorePackets && (IsOpening || IsOpen))
+            {
+                var wasBuffering = IsBuffering;
+                var isNowBuffering = packetBufferLength < BufferCacheLength;
+                IsBuffering = isNowBuffering;
+
+                if (wasBuffering == false && isNowBuffering)
+                    SendOnBufferingStarted();
+                else if (wasBuffering && isNowBuffering == false)
+                    SendOnBufferingEnded();
+            }
+            else
+            {
+                IsBuffering = false;
+            }
+        }
+
+        /// <summary>
+        /// Guesses the bitrate of the input stream.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void GuessBufferingProperties()
+        {
+            if (BufferBytesPerSecond != null || Container == null || Container.Components == null)
+                return;
+
+            // Capture the read bytes of a 1-second buffer
+            var bytesRead = Container.Components.TotalBytesRead;
+            var shortestDuration = TimeSpan.MaxValue;
+            var currentDuration = TimeSpan.Zero;
+
+            foreach (var t in Container.Components.MediaTypes)
+            {
+                if (t != MediaType.Audio && t != MediaType.Video)
+                    continue;
+
+                currentDuration = Blocks[t].HistoricalDuration;
+
+                if (currentDuration.TotalSeconds < 1)
+                {
+                    shortestDuration = TimeSpan.Zero;
+                    break;
+                }
+
+                if (currentDuration < shortestDuration)
+                    shortestDuration = currentDuration;
+            }
+
+            if (shortestDuration.TotalSeconds >= 1 && shortestDuration != TimeSpan.MaxValue)
+            {
+                BufferBytesPerSecond = (ulong)(bytesRead / shortestDuration.TotalSeconds);
+                BufferCacheLength = Convert.ToInt32(BufferBytesPerSecond);
+                DownloadCacheLength = BufferCacheLength * (IsLiveStream ? 30 : 4);
             }
         }
 

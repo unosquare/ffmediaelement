@@ -46,8 +46,6 @@
         private AtomicBoolean m_IsTaskCancellationPending = new AtomicBoolean(false);
         private AtomicBoolean m_HasDecoderSeeked = new AtomicBoolean(false);
 
-        private ulong? BufferBytesPerSecond = default(ulong?);
-
         /// <summary>
         /// Holds the blocks
         /// </summary>
@@ -111,6 +109,25 @@
             && (Container?.IsAtEndOfStream ?? true) == false;
 
         /// <summary>
+        /// Gets a value indicating whether room is available in the download cache.
+        /// </summary>
+        internal bool ShouldReadMorePackets
+        {
+            get
+            {
+                if (Container == null || Container.Components == null)
+                    return false;
+
+                // If it's a live stream and we have not guessed the buffer bytes per second
+                // always continue reading regardless
+                if (IsLiveStream && BufferBytesPerSecond == null)
+                    return true;
+
+                return Container.Components.PacketBufferLength < DownloadCacheLength;
+            }
+        }
+
+        /// <summary>
         /// Gets a value indicating whether more frames can be decoded from the packet queue.
         /// That is, if we have packets in the packet buffer or if we are not at the end of the stream.
         /// </summary>
@@ -129,8 +146,7 @@
         {
             // Holds the packet count for each read cycle
             var packetsRead = new MediaTypeDictionary<int>();
-            BufferBytesPerSecond = default(ulong?);
-
+            
             // State variables for media types
             var t = MediaType.None;
 
@@ -165,7 +181,7 @@
                     currentBytesRead = 0UL;
 
                     // Start to perform the read loop
-                    while (CanReadMorePackets && IsTaskCancellationPending == false)
+                    while (CanReadMorePackets && ShouldReadMorePackets && IsTaskCancellationPending == false)
                     {
                         // Perform a packet read. t will hold the packet type.
                         t = mediaContainer.Read();
@@ -192,7 +208,7 @@
                     PacketReadingCycle.Set();
 
                     // Wait some if we have a full packet buffer or we are unable to read more packets (i.e. EOF).
-                    if (mediaContainer.Components.PacketBufferLength >= DownloadCacheLength
+                    if (ShouldReadMorePackets == false
                         || CanReadMorePackets == false
                         || currentBytesRead <= 0)
                     {
@@ -473,8 +489,8 @@
                     // After a seek operation, always reset the has seeked flag.
                     HasDecoderSeeked = false;
 
-                    // If not already set, guess the bitrate
-                    GuessBitrate(all);
+                    // If not already set, guess the 1-second buffer length
+                    GuessBufferingProperties();
 
                     // Give it a break if there was nothing to decode.
                     // We probably need to wait for some more input
@@ -637,73 +653,6 @@
         #endregion
 
         #region Methods
-
-        /// <summary>
-        /// Guesses the bitrate of the input stream.
-        /// </summary>
-        /// <param name="all">The mediatypes of the stream</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void GuessBitrate(MediaType[] all)
-        {
-            if (BufferBytesPerSecond != null)
-                return;
-
-            #region Check if we have a container Bitrate
-
-            var containerBitrate = 0;
-            if (HasVideo)
-            {
-                if (VideoBitrate > 0)
-                    containerBitrate = VideoBitrate;
-                else
-                    containerBitrate = -1;
-            }
-
-            if (containerBitrate != -1 && HasAudio)
-            {
-                if (AudioBitrate > 0)
-                    containerBitrate += AudioBitrate;
-                else
-                    containerBitrate = -1;
-            }
-
-            if (containerBitrate > 0)
-            {
-                BufferBytesPerSecond = Convert.ToUInt64(containerBitrate / 8);
-                BufferCacheLength = Convert.ToInt32(BufferBytesPerSecond);
-                DownloadCacheLength = BufferCacheLength * (IsLiveStream ? 30 : 4);
-                return;
-            }
-
-            #endregion
-
-            #region If we don't then try to guess it!
-
-            // Capture the read bytes of a 1-second buffer
-            var bytesRead = Container.Components.TotalBytesRead;
-            var allHaveOneSecond = true;
-
-            foreach (var t in all)
-            {
-                if (t != MediaType.Audio && t != MediaType.Video)
-                    continue;
-
-                if (Blocks[t].HistoricalDuration.TotalSeconds < 1)
-                {
-                    allHaveOneSecond = false;
-                    break;
-                }
-            }
-
-            if (allHaveOneSecond)
-            {
-                BufferBytesPerSecond = bytesRead;
-                BufferCacheLength = Convert.ToInt32(bytesRead);
-                DownloadCacheLength = BufferCacheLength * (IsLiveStream ? 30 : 4);
-            }
-
-            #endregion
-        }
 
         /// <summary>
         /// Initializes the media block buffers and 

@@ -56,6 +56,7 @@
                 m.IsOpening = true;
                 m.MediaState = MediaEngineState.Manual;
 
+                // Convert the URI object to something the Media Container understands
                 var mediaUrl = Source.IsFile ? Source.LocalPath : Source.ToString();
 
                 // Create the stream container
@@ -64,25 +65,12 @@
                 m.SendOnMediaOpening();
                 m.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Entered");
                 m.Container.Open();
+                m.ResetBufferingProperties();
 
                 // Set the state to stopped
                 m.MediaState = MediaEngineState.Stop;
 
-                // Set some container properties
-                if ((m.HasVideo && m.VideoBitrate <= 0) || (m.HasAudio && m.AudioBitrate <= 0))
-                {
-                    m.BufferCacheLength = 512 * 1024;
-                }
-                else
-                {
-                    var byteRate = (m.VideoBitrate + m.AudioBitrate) / 8;
-                    m.BufferCacheLength = m.Container.IsStreamRealtime ?
-                        byteRate / 2 : byteRate;
-                }
-
-                m.DownloadCacheLength = m.BufferCacheLength * (m.Container.IsStreamRealtime ? 30 : 4);
-
-                // Fire up the worker threads!
+                // Charge! Fire up the worker threads!
                 m.StartWorkers();
 
                 // Signal we are no longer in the opening state 
