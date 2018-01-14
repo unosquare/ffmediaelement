@@ -1,19 +1,20 @@
 ﻿namespace Unosquare.FFME.Core
 {
+    using Primitives;
     using Shared;
     using System;
     using System.Diagnostics;
-    using System.Threading;
 
     /// <summary>
     /// A time measurement artifact.
     /// </summary>
-    internal sealed class RealTimeClock
+    internal sealed class RealTimeClock : IDisposable
     {
         private readonly Stopwatch Chrono = new Stopwatch();
-        private ReaderWriterLock Locker = new ReaderWriterLock();
+        private ISyncLocker Locker = SyncLockerFactory.CreateSlim();
         private double OffsetMilliseconds = 0;
         private double m_SpeedRatio = Defaults.DefaultSpeedRatio;
+        private bool IsDisposed = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RealTimeClock"/> class.
@@ -31,30 +32,20 @@
         {
             get
             {
-                try
+                using (Locker.AcquireReaderLock())
                 {
-                    Locker.AcquireReaderLock(Timeout.Infinite);
                     return TimeSpan.FromTicks((long)Math.Round(
                         (OffsetMilliseconds + (Chrono.ElapsedMilliseconds * SpeedRatio)) * TimeSpan.TicksPerMillisecond, 0));
-                }
-                finally
-                {
-                    Locker.ReleaseReaderLock();
                 }
             }
             set
             {
-                try
+                using (Locker.AcquireWriterLock())
                 {
-                    Locker.AcquireWriterLock(Timeout.Infinite);
                     var resume = Chrono.IsRunning;
                     Chrono.Reset();
                     OffsetMilliseconds = value.TotalMilliseconds;
                     if (resume) Chrono.Start();
-                }
-                finally
-                {
-                    Locker.ReleaseWriterLock();
                 }
             }
         }
@@ -66,14 +57,9 @@
         {
             get
             {
-                try
+                using (Locker.AcquireReaderLock())
                 {
-                    Locker.AcquireReaderLock(Timeout.Infinite);
                     return Chrono.IsRunning;
-                }
-                finally
-                {
-                    Locker.ReleaseReaderLock();
                 }
             }
         }
@@ -85,21 +71,15 @@
         {
             get
             {
-                try
+                using (Locker.AcquireReaderLock())
                 {
-                    Locker.AcquireReaderLock(Timeout.Infinite);
                     return m_SpeedRatio;
-                }
-                finally
-                {
-                    Locker.ReleaseReaderLock();
                 }
             }
             set
             {
-                try
+                using (Locker.AcquireWriterLock())
                 {
-                    Locker.AcquireWriterLock(Timeout.Infinite);
                     if (value < 0d) value = 0d;
 
                     // Capture the initial position se we set it even after the speedratio has changed
@@ -107,10 +87,6 @@
                     var initialPosition = Position;
                     m_SpeedRatio = value;
                     Position = initialPosition;
-                }
-                finally
-                {
-                    Locker.ReleaseWriterLock();
                 }
             }
         }
@@ -120,15 +96,10 @@
         /// </summary>
         public void Play()
         {
-            try
+            using (Locker.AcquireWriterLock())
             {
-                Locker.AcquireWriterLock(Timeout.Infinite);
                 if (Chrono.IsRunning) return;
                 Chrono.Start();
-            }
-            finally
-            {
-                Locker.ReleaseWriterLock();
             }
         }
 
@@ -137,14 +108,9 @@
         /// </summary>
         public void Pause()
         {
-            try
+            using (Locker.AcquireWriterLock())
             {
-                Locker.AcquireWriterLock(Timeout.Infinite);
                 Chrono.Stop();
-            }
-            finally
-            {
-                Locker.ReleaseWriterLock();
             }
         }
 
@@ -154,15 +120,36 @@
         /// </summary>
         public void Reset()
         {
-            try
+            using (Locker.AcquireWriterLock())
             {
-                Locker.AcquireWriterLock(Timeout.Infinite);
                 OffsetMilliseconds = 0;
                 Chrono.Reset();
             }
-            finally
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        private void Dispose(bool alsoManaged)
+        {
+            if (!IsDisposed)
             {
-                Locker.ReleaseWriterLock();
+                if (alsoManaged)
+                {
+                    Locker?.Dispose();
+                }
+
+                Locker = null;
+                IsDisposed = true;
             }
         }
     }

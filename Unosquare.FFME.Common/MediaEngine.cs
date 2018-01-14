@@ -260,6 +260,9 @@
                         PropertyUpdateTimer = null;
                     }
 
+                    // Dispose the RTC
+                    Clock?.Dispose();
+
                     // Dispose the ManualResetEvent objects as they are
                     // backed by unmanaged code
                     m_PacketReadingCycle.Dispose();

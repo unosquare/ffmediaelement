@@ -2,7 +2,6 @@
 {
     using System;
     using System.Runtime.InteropServices;
-    using System.Threading;
 
     /// <summary>
     /// A fixed-size buffer that acts as an infinite length one.
@@ -17,7 +16,7 @@
         /// <summary>
         /// The locking object to perform synchronization.
         /// </summary>
-        private ReaderWriterLock Locker = new ReaderWriterLock();
+        private ISyncLocker Locker = SyncLockerFactory.CreateSlim();
 
         /// <summary>
         /// To detect redundant calls
@@ -25,7 +24,7 @@
         private bool IsDisposed = false;
 
         /// <summary>
-        /// The unbmanaged buffer
+        /// The unmanaged buffer
         /// </summary>
         private IntPtr Buffer = IntPtr.Zero;
 
@@ -70,14 +69,9 @@
         {
             get
             {
-                try
+                using (Locker.AcquireReaderLock())
                 {
-                    Locker.AcquireReaderLock(Timeout.Infinite);
                     return m_Length;
-                }
-                finally
-                {
-                    Locker.ReleaseReaderLock();
                 }
             }
         }
@@ -89,14 +83,9 @@
         {
             get
             {
-                try
+                using (Locker.AcquireReaderLock())
                 {
-                    Locker.AcquireReaderLock(Timeout.Infinite);
                     return m_ReadIndex;
-                }
-                finally
-                {
-                    Locker.ReleaseReaderLock();
                 }
             }
         }
@@ -108,17 +97,12 @@
         {
             get
             {
-                try
+                using (Locker.AcquireReaderLock())
                 {
-                    Locker.AcquireReaderLock(Timeout.Infinite);
                     if (m_WriteIndex < m_ReadIndex)
                         return m_ReadIndex - m_WriteIndex;
 
                     return m_ReadIndex;
-                }
-                finally
-                {
-                    Locker.ReleaseReaderLock();
                 }
             }
         }
@@ -130,14 +114,9 @@
         {
             get
             {
-                try
+                using (Locker.AcquireReaderLock())
                 {
-                    Locker.AcquireReaderLock(Timeout.Infinite);
                     return m_WriteIndex;
-                }
-                finally
-                {
-                    Locker.ReleaseReaderLock();
                 }
             }
         }
@@ -149,14 +128,9 @@
         {
             get
             {
-                try
+                using (Locker.AcquireReaderLock())
                 {
-                    Locker.AcquireReaderLock(Timeout.Infinite);
                     return m_WriteTag;
-                }
-                finally
-                {
-                    Locker.ReleaseReaderLock();
                 }
             }
         }
@@ -168,14 +142,9 @@
         {
             get
             {
-                try
+                using (Locker.AcquireReaderLock())
                 {
-                    Locker.AcquireReaderLock(Timeout.Infinite);
                     return m_ReadableCount;
-                }
-                finally
-                {
-                    Locker.ReleaseReaderLock();
                 }
             }
         }
@@ -187,14 +156,9 @@
         {
             get
             {
-                try
+                using (Locker.AcquireReaderLock())
                 {
-                    Locker.AcquireReaderLock(Timeout.Infinite);
                     return m_Length - m_ReadableCount;
-                }
-                finally
-                {
-                    Locker.ReleaseReaderLock();
                 }
             }
         }
@@ -206,14 +170,9 @@
         {
             get
             {
-                try
+                using (Locker.AcquireReaderLock())
                 {
-                    Locker.AcquireReaderLock(Timeout.Infinite);
                     return 1.0 * m_ReadableCount / m_Length;
-                }
-                finally
-                {
-                    Locker.ReleaseReaderLock();
                 }
             }
         }
@@ -229,9 +188,8 @@
         /// <exception cref="System.InvalidOperationException">When requested bytes GT readable count</exception>
         public void Skip(int requestedBytes)
         {
-            try
+            using (Locker.AcquireWriterLock())
             {
-                Locker.AcquireWriterLock(Timeout.Infinite);
                 if (requestedBytes > m_ReadableCount)
                 {
                     throw new InvalidOperationException(
@@ -244,10 +202,6 @@
                 if (m_ReadIndex >= m_Length)
                     m_ReadIndex = 0;
             }
-            finally
-            {
-                Locker.ReleaseWriterLock();
-            }
         }
 
         /// <summary>
@@ -257,9 +211,8 @@
         /// <exception cref="InvalidOperationException">When requested GT rewindable</exception>
         public void Rewind(int requestedBytes)
         {
-            try
+            using (Locker.AcquireWriterLock())
             {
-                Locker.AcquireWriterLock(Timeout.Infinite);
                 if (requestedBytes > RewindableCount)
                 {
                     throw new InvalidOperationException(
@@ -272,10 +225,6 @@
                 if (m_ReadIndex < 0)
                     m_ReadIndex = 0;
             }
-            finally
-            {
-                Locker.ReleaseWriterLock();
-            }
         }
 
         /// <summary>
@@ -287,9 +236,8 @@
         /// <exception cref="System.InvalidOperationException">When requested GT readble</exception>
         public void Read(int requestedBytes, byte[] target, int targetOffset)
         {
-            try
+            using (Locker.AcquireWriterLock())
             {
-                Locker.AcquireWriterLock(Timeout.Infinite);
                 if (requestedBytes > m_ReadableCount)
                 {
                     throw new InvalidOperationException(
@@ -311,10 +259,6 @@
                         m_ReadIndex = 0;
                 }
             }
-            finally
-            {
-                Locker.ReleaseWriterLock();
-            }
         }
 
         /// <summary>
@@ -329,9 +273,8 @@
         /// <exception cref="System.InvalidOperationException">When read needs to be called more!</exception>
         public void Write(IntPtr source, int length, TimeSpan writeTag, bool overwrite)
         {
-            try
+            using (Locker.AcquireWriterLock())
             {
-                Locker.AcquireWriterLock(Timeout.Infinite);
                 if (overwrite == false && length > WritableCount)
                 {
                     throw new InvalidOperationException(
@@ -356,10 +299,6 @@
 
                 m_WriteTag = writeTag;
             }
-            finally
-            {
-                Locker.ReleaseWriterLock();
-            }
         }
 
         /// <summary>
@@ -367,17 +306,12 @@
         /// </summary>
         public void Clear()
         {
-            try
+            using (Locker.AcquireWriterLock())
             {
-                Locker.AcquireWriterLock(Timeout.Infinite);
                 m_WriteIndex = 0;
                 m_ReadIndex = 0;
                 m_WriteTag = TimeSpan.MinValue;
                 m_ReadableCount = 0;
-            }
-            finally
-            {
-                Locker.ReleaseWriterLock();
             }
         }
 
@@ -400,24 +334,20 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
-            try
+            if (IsDisposed) return;
+
+            if (alsoManaged)
             {
-                Locker.AcquireWriterLock(Timeout.Infinite);
-                if (IsDisposed) return;
-
-                if (alsoManaged)
-                    Clear();
-
-                Marshal.FreeHGlobal(Buffer);
-                Buffer = IntPtr.Zero;
-                m_Length = 0;
-
-                IsDisposed = true;
+                Clear();
+                Locker?.Dispose();
             }
-            finally
-            {
-                Locker.ReleaseWriterLock();
-            }
+
+            Marshal.FreeHGlobal(Buffer);
+            Buffer = IntPtr.Zero;
+            m_Length = 0;
+            Locker = null;
+
+            IsDisposed = true;
         }
 
         #endregion
