@@ -184,7 +184,8 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void ResetBufferingProperties()
         {
-            const int MinimumBitrate = 512 * 1024 * 8;
+            const int MinimumValidBitrate = 512 * 1024; // 524kbps
+            const int StartingCacheLength = 512 * 1024; // Half a megabyte
 
             GuessedBytesRate = default(ulong?);
 
@@ -198,14 +199,14 @@
                 return;
             }
 
-            if (Container.MediaBitrate > MinimumBitrate)
+            if (Container.MediaBitrate > MinimumValidBitrate)
             {
                 BufferCacheLength = (int)Container.MediaBitrate / 8;
                 GuessedBytesRate = (ulong)BufferCacheLength;
             }
             else
             {
-                BufferCacheLength = MinimumBitrate / 8;
+                BufferCacheLength = StartingCacheLength;
             }
 
             DownloadCacheLength = BufferCacheLength * (IsLiveStream ? 30 : 4);
