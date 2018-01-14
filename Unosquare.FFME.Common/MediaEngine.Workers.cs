@@ -120,7 +120,7 @@
 
                 // If it's a live stream and we have not guessed the buffer bytes per second
                 // always continue reading regardless
-                if (IsLiveStream && BufferBytesPerSecond == null)
+                if (IsLiveStream && GuessedBytesRate == null)
                     return true;
 
                 return Container.Components.PacketBufferLength < DownloadCacheLength;

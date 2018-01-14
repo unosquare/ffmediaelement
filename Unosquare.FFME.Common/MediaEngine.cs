@@ -186,7 +186,7 @@
         {
             const int MinimumBitrate = 512 * 1024 * 8;
 
-            BufferBytesPerSecond = default(ulong?);
+            GuessedBytesRate = default(ulong?);
 
             if (Container == null)
             {
@@ -201,7 +201,7 @@
             if (Container.MediaBitrate > MinimumBitrate)
             {
                 BufferCacheLength = (int)Container.MediaBitrate / 8;
-                BufferBytesPerSecond = (ulong)BufferCacheLength;
+                GuessedBytesRate = (ulong)BufferCacheLength;
             }
             else
             {
@@ -256,7 +256,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void GuessBufferingProperties()
         {
-            if (BufferBytesPerSecond != null || Container == null || Container.Components == null)
+            if (GuessedBytesRate != null || Container == null || Container.Components == null)
                 return;
 
             // Capture the read bytes of a 1-second buffer
@@ -283,8 +283,8 @@
 
             if (shortestDuration.TotalSeconds >= 1 && shortestDuration != TimeSpan.MaxValue)
             {
-                BufferBytesPerSecond = (ulong)(bytesRead / shortestDuration.TotalSeconds);
-                BufferCacheLength = Convert.ToInt32(BufferBytesPerSecond);
+                GuessedBytesRate = (ulong)(bytesRead / shortestDuration.TotalSeconds);
+                BufferCacheLength = Convert.ToInt32(GuessedBytesRate);
                 DownloadCacheLength = BufferCacheLength * (IsLiveStream ? 30 : 4);
             }
         }

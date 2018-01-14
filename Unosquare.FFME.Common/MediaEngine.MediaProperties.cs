@@ -13,7 +13,7 @@
         private readonly ReadOnlyDictionary<string, string> EmptyDictionary
             = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
 
-        private ulong? m_BufferBytesPerSecond = default(ulong?);
+        private ulong? m_GuessedByteRate = default(ulong?);
         private bool m_HasMediaEnded = false;
         private double m_BufferingProgress = 0;
         private int m_BufferCacheLength = 0;
@@ -247,10 +247,10 @@
         /// If bitrate information is available, then it returns the bitrate converted to byte rate.
         /// Returns null if it has not been guessed.
         /// </summary>
-        public ulong? BufferBytesPerSecond
+        public ulong? GuessedBytesRate
         {
-            get => m_BufferBytesPerSecond;
-            internal set => SetProperty(ref m_BufferBytesPerSecond, value);
+            get => m_GuessedByteRate;
+            internal set => SetProperty(ref m_GuessedByteRate, value);
         }
 
         /// <summary>
@@ -354,7 +354,7 @@
             SendOnPropertyChanged(nameof(CanPause));
             SendOnPropertyChanged(nameof(IsLiveStream));
             SendOnPropertyChanged(nameof(IsSeekable));
-            SendOnPropertyChanged(nameof(BufferBytesPerSecond));
+            SendOnPropertyChanged(nameof(GuessedBytesRate));
             SendOnPropertyChanged(nameof(BufferCacheLength));
             SendOnPropertyChanged(nameof(DownloadCacheLength));
             SendOnPropertyChanged(nameof(FrameStepDuration));
