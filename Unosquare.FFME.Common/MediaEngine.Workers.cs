@@ -360,6 +360,11 @@
 
                                 // Call seek to invalidate renderer
                                 Renderers[main].Seek();
+
+                                // Try to recover the regular loop
+                                isInRange = true;
+                                while (CanReadMorePackets && comp.PacketBufferCount <= 0)
+                                    PacketReadingCycle.WaitOne();
                             }
                         }
 
