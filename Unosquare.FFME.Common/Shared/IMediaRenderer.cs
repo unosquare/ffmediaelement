@@ -14,6 +14,7 @@
 
         /// <summary>
         /// Waits for the renderer to be ready to render.
+        /// This is called only once before all Render calls are made
         /// </summary>
         void WaitForReadyState();
 

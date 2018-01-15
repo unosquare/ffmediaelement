@@ -6,7 +6,6 @@
     using Shared;
     using System;
     using System.Runtime.CompilerServices;
-    using System.Threading;
 
     /// <summary>
     /// Represents a Media Engine that contains underlying streams of audio and/or video.
@@ -22,11 +21,6 @@
         /// To detect redundant calls
         /// </summary>
         private bool m_IsDisposed = default(bool);
-
-        /// <summary>
-        /// The position update timer
-        /// </summary>
-        private Timer PropertyUpdateTimer = null;
 
         /// <summary>
         /// When position is being set from within this control, this field will
@@ -52,6 +46,7 @@
         /// <exception cref="InvalidOperationException">Thrown when the static Initialize method has not been called.</exception>
         public MediaEngine(object parent, IMediaConnector connector)
         {
+            // var props = typeof(MediaEngine).GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
             // Assiciate the parent as the media connector that implements the callbacks
             Parent = parent;
             Connector = connector;
@@ -69,34 +64,6 @@
                         $"{nameof(MediaEngine)} not initialized. Call the static method {nameof(Initialize)}");
                 }
             }
-
-            var isRunningPropertyUpdates = false;
-
-            // The Property update timer is responsible for timely updates to properties outside of the worker threads
-            PropertyUpdateTimer = new Timer((s) =>
-            {
-                if (isRunningPropertyUpdates || m_IsDisposing.Value)
-                    return;
-
-                isRunningPropertyUpdates = true;
-
-                try
-                {
-                    UpdatePosition(IsOpen ? Clock?.Position ?? TimeSpan.Zero : TimeSpan.Zero);
-                    UpdateBufferingProperties();
-                }
-                catch (Exception ex)
-                {
-                    Log(MediaLogMessageType.Error, $"{nameof(PropertyUpdateTimer)} callabck failed. {ex.GetType()}: {ex.Message}");
-                }
-                finally
-                {
-                    isRunningPropertyUpdates = false;
-                }
-            },
-            this, // the state argument passed on to the ticker
-            (int)Defaults.TimerMediumPriorityInterval.TotalMilliseconds,
-            (int)Defaults.TimerMediumPriorityInterval.TotalMilliseconds);
         }
 
         #endregion
@@ -150,6 +117,7 @@
         /// </summary>
         public void Dispose()
         {
+            // TODO: Looks like MediaElement is not calling this when closing the container?
             Dispose(true);
         }
 
@@ -336,17 +304,9 @@
                 // free managed resources -- This is done asynchronously
                 await Commands.CloseAsync().ContinueWith(d =>
                 {
-                    if (Container != null)
-                    {
-                        Container.Dispose();
-                        Container = null;
-                    }
-
-                    if (PropertyUpdateTimer != null)
-                    {
-                        PropertyUpdateTimer.Dispose();
-                        PropertyUpdateTimer = null;
-                    }
+                    // Dispose the container
+                    Container?.Dispose();
+                    Container = null;
 
                     // Dispose the RTC
                     Clock?.Dispose();

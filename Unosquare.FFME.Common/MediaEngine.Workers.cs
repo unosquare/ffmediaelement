@@ -7,7 +7,6 @@
     using Shared;
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
@@ -31,17 +30,15 @@
             { MediaType.Audio, 120 },
             { MediaType.Subtitle, 120 }
         };
-
-        internal Thread PacketReadingTask = null;
-        internal Thread FrameDecodingTask = null;
-        internal Thread BlockRenderingTask = null;
-
 #pragma warning restore SA1401 // Fields must be private
 
         private readonly ManualResetEvent m_PacketReadingCycle = new ManualResetEvent(false);
         private readonly ManualResetEvent m_FrameDecodingCycle = new ManualResetEvent(false);
         private readonly ManualResetEvent m_BlockRenderingCycle = new ManualResetEvent(false);
         private readonly ManualResetEvent m_SeekingDone = new ManualResetEvent(true);
+
+        private Thread PacketReadingTask = null;
+        private Thread FrameDecodingTask = null;
 
         private AtomicBoolean m_IsTaskCancellationPending = new AtomicBoolean(false);
         private AtomicBoolean m_HasDecoderSeeked = new AtomicBoolean(false);
@@ -516,142 +513,6 @@
 
         #endregion
 
-        #region Block Rendering Worker
-
-        /// <summary>
-        /// Continuously converts frmes and places them on the corresponding
-        /// block buffer. This task is responsible for keeping track of the clock
-        /// and calling the render methods appropriate for the current clock position.
-        /// </summary>
-        internal void RunBlockRenderingWorker()
-        {
-            try
-            {
-                #region 0. Initialize Running State
-
-                // Holds the main media type
-                var main = Container.Components.Main.MediaType;
-
-                // Holds the auxiliary media types
-                var auxs = Container.Components.MediaTypes.ExcludeMediaType(main);
-
-                // Holds all components
-                var all = Container.Components.MediaTypes.DeepCopy();
-
-                // Holds a snapshot of the current block to render
-                var currentBlock = new MediaTypeDictionary<MediaBlock>();
-
-                // Keeps track of how many blocks were rendered in the cycle.
-                var renderedBlockCount = new MediaTypeDictionary<int>();
-
-                // used to calculate the ticks elapsed in the render operations
-                var renderStopWatch = new Stopwatch();
-                renderStopWatch.Start();
-
-                // reset render times for all components
-                foreach (var t in all)
-                    LastRenderTime[t] = TimeSpan.MinValue;
-
-                // Ensure the other workers are running
-                PacketReadingCycle.WaitOne();
-                FrameDecodingCycle.WaitOne();
-
-                // Set the initial clock position
-                Clock.Position = Blocks[main].RangeStartTime;
-                var wallClock = Clock.Position;
-
-                // Wait for renderers to be ready
-                foreach (var t in all)
-                    Renderers[t]?.WaitForReadyState();
-
-                #endregion
-
-                while (IsTaskCancellationPending == false)
-                {
-                    #region 1. Control and Capture
-                    // Start measuring the render cycle
-                    renderStopWatch.Restart();
-
-                    // Reset the rendered count to 0
-                    foreach (var t in all)
-                        renderedBlockCount[t] = 0;
-
-                    // Capture current clock position for the rest of this cycle
-                    BlockRenderingCycle.Reset();
-
-                    // capture the wall clock for this cycle
-                    wallClock = Clock.Position;
-
-                    #endregion
-
-                    #region 2. Handle Block Rendering
-
-                    // Capture the blocks to render
-                    foreach (var t in all)
-                        currentBlock[t] = Blocks[t][wallClock];
-
-                    // Render each of the Media Types if it is time to do so.
-                    foreach (var t in all)
-                    {
-                        // Skip rendering for nulls
-                        if (currentBlock[t] == null)
-                            continue;
-
-                        // Render by forced signal (TimeSpan.MinValue)
-                        if (LastRenderTime[t] == TimeSpan.MinValue)
-                        {
-                            renderedBlockCount[t] += SendBlockToRenderer(currentBlock[t], wallClock);
-                            continue;
-                        }
-
-                        // Render because we simply have not rendered
-                        if (currentBlock[t].StartTime != LastRenderTime[t])
-                        {
-                            renderedBlockCount[t] += SendBlockToRenderer(currentBlock[t], wallClock);
-                            continue;
-                        }
-                    }
-
-                    #endregion
-
-                    #region 6. Finalize the Rendering Cycle
-
-                    // Signal the rendering cycle was set.
-                    BlockRenderingCycle.Set();
-
-                    // Call the update method on all renderers so they receive what the new wall clock is.
-                    foreach (var t in all)
-                        Renderers[t]?.Update(wallClock);
-
-                    // Don't stop if more time has elapsed than he allotted timeframe
-                    if (IsTaskCancellationPending || renderStopWatch.Elapsed.Ticks >= Defaults.TimerHighPriorityInterval.Ticks)
-                        continue;
-
-                    // Pause based on a seek operation
-                    if (SeekingDone.WaitOne(0))
-                        Task.Delay(1).GetAwaiter().GetResult();
-                    else
-                        SeekingDone.WaitOne(Defaults.TimerHighPriorityInterval);
-
-                    #endregion
-                }
-            }
-            catch (ThreadAbortException)
-            {
-            }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                // Always exit notifying the cycle is done.
-                BlockRenderingCycle.Set();
-            }
-        }
-
-        #endregion
-
         #region Methods
 
         /// <summary>
@@ -684,13 +545,33 @@
             FrameDecodingTask = new Thread(RunFrameDecodingWorker)
             { IsBackground = true, Name = nameof(FrameDecodingTask), Priority = ThreadPriority.AboveNormal };
 
-            BlockRenderingTask = new Thread(RunBlockRenderingWorker)
-            { IsBackground = true, Name = nameof(BlockRenderingTask), Priority = ThreadPriority.Normal };
-
             // Fire up the threads
             PacketReadingTask.Start();
             FrameDecodingTask.Start();
-            BlockRenderingTask.Start();
+            StartBlockRenderingWorker(); // BlockRenderingTask.Start();
+        }
+
+        /// <summary>
+        /// Stops the packet reader, frame decoder, and block renderers
+        /// </summary>
+        internal void StopWorkers()
+        {
+            StopBlockRenderingWorker();
+
+            // Wait for worker threads to finish
+            var wrokers = new[] { PacketReadingTask, FrameDecodingTask };
+            foreach (var w in wrokers)
+            {
+                // Abort causes memory leaks bacause packets and frames might not get disposed by the corresponding workers.
+                // w.Abort();
+
+                // Wait for all threads to join
+                w.Join();
+            }
+
+            // Set the threads to null
+            FrameDecodingTask = null;
+            PacketReadingTask = null;
         }
 
         /// <summary>

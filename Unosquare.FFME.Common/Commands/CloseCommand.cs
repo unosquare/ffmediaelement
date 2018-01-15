@@ -38,25 +38,12 @@
             // Cause an immediate Packet read abort
             m.Container.SignalAbortReads(false);
 
-            // Call close on all renderers and clear them
+            // Call close on all renderers
             foreach (var renderer in m.Renderers.Values)
                 renderer.Close();
 
-            // Wait for worker threads to finish
-            var wrokers = new[] { m.PacketReadingTask, m.FrameDecodingTask, m.BlockRenderingTask };
-            foreach (var w in wrokers)
-            {
-                // Abort causes memory leaks bacause packets and frames might not get disposed by the corresponding workers.
-                // w.Abort();
-
-                // Wait for all threads to join
-                w.Join();
-            }
-
-            // Set the threads to null
-            m.BlockRenderingTask = null;
-            m.FrameDecodingTask = null;
-            m.PacketReadingTask = null;
+            // Stop all the workers
+            m.StopWorkers();
 
             // Remove the renderers disposing of them
             m.Renderers.Clear();
