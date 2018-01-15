@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net46</TargetFrameworks>
     <RootNamespace>Unosquare.FFME</RootNamespace>
     <Version>3.4.0.1</Version>
     <Authors>Mario Di Vece and Contributors to the FFME project</Authors>
     <Company>Unosquare SA de CV</Company>
-    <Product>FFME Cross-Platform decoding logic</Product>
-    <Description>Contains all portable, corss platform decoding logic</Description>
+    <Product>FFME Cross-Platform Media Engine</Product>
+    <Description>Contains all portable, corss platform Media Core engine</Description>
     <Copyright>Unosquare SA de CV, Mario Di Vece, and Contributors, (C) 2017</Copyright>
     <PackageProjectUrl>https://github.com/unosquare/ffmediaelement</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/unosquare/ffmediaelement/blob/master/LICENSE</PackageLicenseUrl>
@@ -33,7 +33,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FFmpeg.AutoGen" Version="3.4.0.1" />
+    <PackageReference Include="FFmpeg.AutoGen" Version="3.4.0.2" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
   </ItemGroup>
 
