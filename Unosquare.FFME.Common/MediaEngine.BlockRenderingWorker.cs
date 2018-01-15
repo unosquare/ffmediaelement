@@ -60,7 +60,7 @@
             {
                 #region Detect a Timer Stop
 
-                if (IsTaskCancellationPending || HasBlockRenderingWorkerExited.WaitOne(0) || m_IsDisposing.Value)
+                if (IsTaskCancellationPending || HasBlockRenderingWorkerExited.IsSet() || m_IsDisposing.Value)
                 {
                     HasBlockRenderingWorkerExited.Set();
                     return;
@@ -188,11 +188,11 @@
                 return;
 
             HasBlockRenderingWorkerExited.WaitOne();
+            BlockRenderingCycle.WaitOne();
             BlockRenderingWorker.Dispose();
             BlockRenderingWorker = null;
             HasBlockRenderingWorkerExited.Dispose();
             HasBlockRenderingWorkerExited = null;
-            BlockRenderingCycle.Set();
         }
     }
 }

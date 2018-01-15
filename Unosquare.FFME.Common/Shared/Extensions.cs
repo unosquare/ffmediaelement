@@ -5,6 +5,7 @@
     using System;
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
+    using System.Threading;
 
     /// <summary>
     /// Provides various helpers and extension methods.
@@ -164,6 +165,18 @@
         #region Faster-than-Linq replacements
 
         /// <summary>
+        /// Determines whether the event is in its set state.
+        /// </summary>
+        /// <param name="m">The event.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified m is set; otherwise, <c>false</c>.
+        /// </returns>
+        internal static bool IsSet(this ManualResetEvent m)
+        {
+            return m?.WaitOne(0) ?? true;
+        }
+
+        /// <summary>
         /// Gets the fundamental (audio or video only) auxiliary media types.
         /// </summary>
         /// <param name="all">All.</param>
@@ -249,18 +262,41 @@
         }
 
         /// <summary>
-        /// Verifies all components are greater than zero
+        /// Verifies all fundamental (audio and video) components are greater than zero
         /// </summary>
         /// <param name="all">All.</param>
-        /// <returns>True if all components are GTZ</returns>
-        internal static bool AllGreaterThanZero(this MediaTypeDictionary<int> all)
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// True if all components are greater than the value
+        /// </returns>
+        internal static bool FundamentalsGreaterThan(this MediaTypeDictionary<int> all, int value)
         {
+            var hasFundamentals = false;
             foreach (var kvp in all)
             {
-                if (kvp.Value <= 0) return false;
+                // Skip over non-fundamental types
+                if (kvp.Key != MediaType.Audio && kvp.Key != MediaType.Video)
+                    continue;
+
+                hasFundamentals = true;
+                if (kvp.Value <= value) return false;
             }
 
-            return true;
+            return hasFundamentals;
+        }
+
+        /// <summary>
+        /// Gets the sum of all the values in the keyed dictionary.
+        /// </summary>
+        /// <param name="all">All.</param>
+        /// <returns>The sum of all values.</returns>
+        internal static int GetSum(this MediaTypeDictionary<int> all)
+        {
+            var result = default(int);
+            foreach (var kvp in all)
+                result += kvp.Value;
+
+            return result;
         }
 
         #endregion

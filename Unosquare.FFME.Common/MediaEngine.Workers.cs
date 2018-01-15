@@ -115,10 +115,8 @@
                 if (Container == null || Container.Components == null)
                     return false;
 
-                // If it's a live stream and we have not guessed the buffer bytes per second
-                // always continue reading regardless
-                if (IsLiveStream && GuessedByteRate == null)
-                    return true;
+                // If it's a live stream always continue reading regardless
+                if (IsLiveStream) return true;
 
                 return Container.Components.PacketBufferLength < DownloadCacheLength;
             }
@@ -143,7 +141,7 @@
         {
             // Holds the packet count for each read cycle
             var packetsRead = new MediaTypeDictionary<int>();
-            
+
             // State variables for media types
             var t = MediaType.None;
 
@@ -154,10 +152,6 @@
             var main = mediaContainer.Components.Main.MediaType;
             var auxs = mediaContainer.Components.MediaTypes.FundamentalAuxsFor(main);
             var all = main.JoinMediaTypes(auxs);
-
-            // State variables for bytes read (give-up condition)
-            var startBytesRead = 0UL;
-            var currentBytesRead = 0UL;
 
             try
             {
@@ -174,10 +168,8 @@
                     foreach (var k in mediaContainer.Components.MediaTypes)
                         packetsRead[k] = 0;
 
-                    startBytesRead = mediaContainer.Components.TotalBytesRead;
-                    currentBytesRead = 0UL;
-
                     // Start to perform the read loop
+                    // NOTE: Disrupting the packet reader causes errors in UPD streams. Disrupt as little as possible
                     while (CanReadMorePackets && ShouldReadMorePackets && IsTaskCancellationPending == false)
                     {
                         // Perform a packet read. t will hold the packet type.
@@ -190,24 +182,22 @@
                         // Update the packet count for the components
                         packetsRead[t] += 1;
 
-                        // The give-up condition is that in spite of efforts to read at least one of each,
-                        // we could not find the required packet types.
-                        currentBytesRead = mediaContainer.Components.TotalBytesRead - startBytesRead;
-                        if (currentBytesRead > (ulong)DownloadCacheLength)
-                            break;
-
                         // Ensure we have read at least some packets from main and auxiliary streams.
-                        if (packetsRead.AllGreaterThanZero())
+                        if (packetsRead.FundamentalsGreaterThan(0))
                             break;
                     }
 
                     // finish the reading cycle.
                     PacketReadingCycle.Set();
 
+                    // Don't evaluate a pause condition if we are seeking
+                    if (SeekingDone.IsSet() == false)
+                        continue;
+
                     // Wait some if we have a full packet buffer or we are unable to read more packets (i.e. EOF).
                     if (ShouldReadMorePackets == false
                         || CanReadMorePackets == false
-                        || currentBytesRead <= 0)
+                        || packetsRead.GetSum() <= 0)
                     {
                         Task.Delay(1).GetAwaiter().GetResult();
                     }
@@ -561,22 +551,41 @@
         /// </summary>
         internal void StopWorkers()
         {
+            // Pause the clock so no further updates are propagated
+            Clock.Pause();
+
+            // Let the threads know a cancellation is pending.
+            IsTaskCancellationPending = true;
+
+            // Cause an immediate Packet read abort
+            Container.SignalAbortReads(false);
+
+            // Stop the rendering worker before anything else
             StopBlockRenderingWorker();
 
-            // Wait for worker threads to finish
+            // Call close on all renderers
+            foreach (var renderer in Renderers.Values)
+                renderer.Close();
+
+            // Stop the rest of the workers
+            // i.e. wait for worker threads to finish
             var wrokers = new[] { PacketReadingTask, FrameDecodingTask };
             foreach (var w in wrokers)
             {
-                // Abort causes memory leaks bacause packets and frames might not get disposed by the corresponding workers.
-                // w.Abort();
-
-                // Wait for all threads to join
+                // w.Abort(); //Abort causes memory leaks bacause packets and frames might not 
+                // get disposed by the corresponding workers. We use Join instead.
                 w.Join();
             }
 
             // Set the threads to null
             FrameDecodingTask = null;
             PacketReadingTask = null;
+
+            // Remove the renderers disposing of them
+            Renderers.Clear();
+
+            // Reset the clock
+            Clock.Reset();
         }
 
         /// <summary>

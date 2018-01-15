@@ -30,26 +30,7 @@
             if (m.IsDisposed || m.IsOpen == false || m.IsOpening) return;
 
             m.Log(MediaLogMessageType.Debug, $"{nameof(CloseCommand)}: Entered");
-            m.Clock.Pause();
-
-            // Let the threads know a cancellation is pending.
-            m.IsTaskCancellationPending = true;
-
-            // Cause an immediate Packet read abort
-            m.Container.SignalAbortReads(false);
-
-            // Call close on all renderers
-            foreach (var renderer in m.Renderers.Values)
-                renderer.Close();
-
-            // Stop all the workers
             m.StopWorkers();
-
-            // Remove the renderers disposing of them
-            m.Renderers.Clear();
-
-            // Reset the clock
-            m.Clock.Reset();
 
             // Dispose the container
             if (m.Container != null)

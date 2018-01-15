@@ -53,9 +53,9 @@
         private bool IsDisposed = false;
 
         /// <summary>
-        /// The m total bytes read
+        /// Holds total bytes read in the lifetime of this object
         /// </summary>
-        private ulong m_TotalBytesRead = 0;
+        private ulong m_LifetimeBytesRead = 0;
 
         #endregion
 
@@ -224,12 +224,12 @@
         public int PacketBufferCount => Packets.Count;
 
         /// <summary>
-        /// Gets the total amount of bytes read by this component.
+        /// Gets the total amount of bytes read by this component in the lifetime of this component.
         /// </summary>
-        public ulong TotalBytesRead
+        public ulong LifetimeBytesRead
         {
-            get => m_TotalBytesRead;
-            private set => m_TotalBytesRead = value;
+            get => m_LifetimeBytesRead;
+            private set => m_LifetimeBytesRead = value;
         }
 
         /// <summary>
@@ -296,7 +296,7 @@
             if (packet == null) return;
             Packets.Push(packet);
             if (packet->size > 0)
-                TotalBytesRead += (ulong)packet->size;
+                LifetimeBytesRead += (ulong)packet->size;
         }
 
         /// <summary>

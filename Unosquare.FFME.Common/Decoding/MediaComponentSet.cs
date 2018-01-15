@@ -130,9 +130,9 @@
         }
 
         /// <summary>
-        /// Gets the total bytes read by all components.
+        /// Gets the total bytes read by all components in the lifetime of this object.
         /// </summary>
-        public ulong TotalBytesRead
+        public ulong LifetimeBytesRead
         {
             get
             {
@@ -140,7 +140,7 @@
                 {
                     ulong result = 0;
                     foreach (var c in All)
-                        result = unchecked(result + c.TotalBytesRead);
+                        result = unchecked(result + c.LifetimeBytesRead);
 
                     return result;
                 }

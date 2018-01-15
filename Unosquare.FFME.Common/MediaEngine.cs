@@ -47,6 +47,11 @@
         public MediaEngine(object parent, IMediaConnector connector)
         {
             // var props = typeof(MediaEngine).GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+            // foreach (var p in props)
+            // {
+            //     Console.WriteLine(p);
+            // }
+            
             // Assiciate the parent as the media connector that implements the callbacks
             Parent = parent;
             Connector = connector;
@@ -229,7 +234,7 @@
                 return;
 
             // Capture the read bytes of a 1-second buffer
-            var bytesRead = Container.Components.TotalBytesRead;
+            var bytesReadSoFar = Container.Components.LifetimeBytesRead;
             var shortestDuration = TimeSpan.MaxValue;
             var currentDuration = TimeSpan.Zero;
 
@@ -238,7 +243,7 @@
                 if (t != MediaType.Audio && t != MediaType.Video)
                     continue;
 
-                currentDuration = Blocks[t].HistoricalDuration;
+                currentDuration = Blocks[t].LifetimeBlockDuration;
 
                 if (currentDuration.TotalSeconds < 1)
                 {
@@ -252,7 +257,7 @@
 
             if (shortestDuration.TotalSeconds >= 1 && shortestDuration != TimeSpan.MaxValue)
             {
-                GuessedByteRate = (ulong)(bytesRead / shortestDuration.TotalSeconds);
+                GuessedByteRate = (ulong)(1.5 * bytesReadSoFar / shortestDuration.TotalSeconds);
                 BufferCacheLength = Convert.ToInt32(GuessedByteRate);
                 DownloadCacheLength = BufferCacheLength * (IsLiveStream ? 30 : 4);
             }

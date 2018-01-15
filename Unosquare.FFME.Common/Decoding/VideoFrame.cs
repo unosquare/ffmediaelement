@@ -51,7 +51,8 @@
             EndTime = TimeSpan.FromTicks(StartTime.Ticks + Duration.Ticks);
 
             DisplayPictureNumber = frame->display_picture_number == 0 ?
-                (int)Math.Round((double)StartTime.Ticks / Duration.Ticks, 0) : 0;
+                1 + (int)Math.Round((double)StartTime.Ticks / Duration.Ticks, 0) : 
+                frame->display_picture_number;
 
             CodedPictureNumber = frame->coded_picture_number;
 

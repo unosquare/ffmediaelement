@@ -70,12 +70,12 @@
                 // Set the state to stopped
                 m.MediaState = MediaEngineState.Stop;
 
-                // Charge! Fire up the worker threads!
-                m.StartWorkers();
-
                 // Signal we are no longer in the opening state 
                 // so we can enqueue commands in the event handler
                 m.IsOpening = false;
+
+                // Charge! Fire up the worker threads!
+                m.StartWorkers();
 
                 // Raise the opened event
                 m.SendOnMediaOpened();

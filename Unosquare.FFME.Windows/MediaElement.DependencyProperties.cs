@@ -371,7 +371,7 @@
             var element = d as MediaElement;
             if (element == null) return;
 
-            element.MediaCore.UnloadedBehavior = (MediaEngineState)(MediaState)e.NewValue;
+            element.MediaCore.UnloadedBehavior = (MediaEngineState)e.NewValue;
         }
 
         private static void LoadedBehaviorPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -379,7 +379,7 @@
             var element = d as MediaElement;
             if (element == null) return;
 
-            element.MediaCore.LoadedBehavior = (MediaEngineState)(MediaState)e.NewValue;
+            element.MediaCore.LoadedBehavior = (MediaEngineState)e.NewValue;
         }
 
         private static void PositionPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
