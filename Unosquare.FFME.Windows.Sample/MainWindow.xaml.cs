@@ -129,11 +129,11 @@
             Loaded += MainWindow_Loaded;
             UrlTextBox.Text = HistoryItems.Count > 0 ? HistoryItems.First() : string.Empty;
 
-            /*
-             * Media.ScrubbingEnabled = false;
-             * Media.LoadedBehavior = MediaState.Pause;
-             */
+            // If you don't want to show the first frame upon loading.
+            // Media.ScrubbingEnabled = false;
+            // Media.LoadedBehavior = MediaState.Pause;
 
+            // Open a file if it is specified in the arguments
             var args = Environment.GetCommandLineArgs();
             if (args != null && args.Length > 1)
             {
