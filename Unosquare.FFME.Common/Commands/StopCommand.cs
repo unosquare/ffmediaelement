@@ -26,15 +26,12 @@
         {
             var m = Manager.MediaCore;
             m.Clock.Reset();
-            var pause = new PauseCommand(Manager);
-            pause.ExecuteInternal();
+            m.MediaState = MediaEngineState.Stop;
             var seek = new SeekCommand(Manager, TimeSpan.Zero);
             seek.ExecuteInternal();
 
             foreach (var renderer in m.Renderers.Values)
                 renderer.Stop();
-
-            m.MediaState = MediaEngineState.Stop;
         }
     }
 }

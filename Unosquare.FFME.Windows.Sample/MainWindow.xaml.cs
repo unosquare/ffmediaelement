@@ -171,9 +171,15 @@
 
             var togglePlayPauseKeys = new[] { Key.Play, Key.MediaPlayPause, Key.Space };
 
-            window.PreviewKeyDown += (s, e) =>
+            window.PreviewKeyDown += async (s, e) =>
             {
-                if (e.OriginalSource is TextBox) return;
+                // Console.WriteLine($"KEY: {e.Key}, SRC: {e.OriginalSource?.GetType().Name}");
+                if (e.OriginalSource is TextBox)
+                    return;
+
+                // Keep the key focus on the main window
+                FocusManager.SetIsFocusScope(this, true);
+                FocusManager.SetFocusedElement(this, this);
 
                 // Pause
                 if (togglePlayPauseKeys.Contains(e.Key) && Media.IsPlaying)
@@ -192,14 +198,14 @@
                 // Seek to left
                 if (e.Key == Key.Left)
                 {
-                    if (Media.IsPlaying) PauseCommand.Execute();
+                    if (Media.IsPlaying) await Media.Pause();
                     Media.Position -= Media.FrameStepDuration;
                 }
 
                 // Seek to right
                 if (e.Key == Key.Right)
                 {
-                    if (Media.IsPlaying) PauseCommand.Execute();
+                    if (Media.IsPlaying) await Media.Pause();
                     Media.Position += Media.FrameStepDuration;
                 }
 

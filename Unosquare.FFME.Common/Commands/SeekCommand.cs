@@ -39,9 +39,7 @@
 
             WasPlaying = m.IsPlaying;
 
-            var pause = new PauseCommand(Manager);
-            pause.ExecuteInternal();
-
+            m.Clock.Pause();
             var initialPosition = m.Clock.Position;
             m.SeekingDone.Reset();
             var startTime = DateTime.UtcNow;
@@ -168,8 +166,7 @@
 
                 if (WasPlaying)
                 {
-                    var play = new PlayCommand(Manager);
-                    play.ExecuteInternal();
+                    var playTask = m.Commands.PlayAsync();
                 }
             }
         }

@@ -113,7 +113,7 @@
                                 <Slider Grid.Row="1" IsEnabled="{Binding ElementName=window, Path=IsAudioControlEnabled}" Grid.Column="1" Style="{DynamicResource CustomSliderStyle}" Minimum="-1.0" Maximum="1.0" Value="{Binding ElementName=Media, Path=Balance}" />
                                 <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding ElementName=Media, Path=Balance, Mode=OneWay, Converter={StaticResource PercentageFormatter}, ConverterParameter=1}" />
 
-                                <!-- Speed Ration Slider -->
+                                <!-- Speed Ratio Slider -->
                                 <TextBlock Grid.Row="2" Grid.Column="0">Speed</TextBlock>
                                 <Slider IsEnabled="{Binding ElementName=window, Path=IsSpeedRatioEnabled}" Grid.Row="2" Grid.Column="1" Style="{DynamicResource CustomSliderStyle}" Minimum="0.0" Maximum="8.0" Value="{Binding ElementName=Media, Path=SpeedRatio}" />
                                 <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding ElementName=Media, Path=SpeedRatio, Mode=OneWay, Converter={StaticResource PercentageFormatter}}" />

@@ -121,6 +121,10 @@
 
                     #region 2. Handle Block Rendering
 
+                    // Wait for the seek op to finish before we capture blocks
+                    if (IsSeeking)
+                        SeekingDone.WaitOne();
+
                     // Capture the blocks to render
                     foreach (var t in all)
                         currentBlock[t] = Blocks[t][wallClock];

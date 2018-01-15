@@ -58,11 +58,8 @@
             {
                 if (IsOpen == false) { return TimeSpan.Zero; }
 
-                if (HasVideo)
-                {
-                    if (VideoFrameLength > 0)
-                        return TimeSpan.FromTicks((long)Math.Round(TimeSpan.TicksPerMillisecond * VideoFrameLength * 1000d, 0));
-                }
+                if (HasVideo && VideoFrameLength > 0)
+                    return TimeSpan.FromMilliseconds(VideoFrameLength * 1000);
 
                 return TimeSpan.FromSeconds(0.1d);
             }
@@ -247,7 +244,7 @@
         /// If bitrate information is available, then it returns the bitrate converted to byte rate.
         /// Returns null if it has not been guessed.
         /// </summary>
-        public ulong? GuessedBytesRate
+        public ulong? GuessedByteRate
         {
             get => m_GuessedByteRate;
             internal set => SetProperty(ref m_GuessedByteRate, value);
@@ -354,7 +351,7 @@
             SendOnPropertyChanged(nameof(CanPause));
             SendOnPropertyChanged(nameof(IsLiveStream));
             SendOnPropertyChanged(nameof(IsSeekable));
-            SendOnPropertyChanged(nameof(GuessedBytesRate));
+            SendOnPropertyChanged(nameof(GuessedByteRate));
             SendOnPropertyChanged(nameof(BufferCacheLength));
             SendOnPropertyChanged(nameof(DownloadCacheLength));
             SendOnPropertyChanged(nameof(FrameStepDuration));

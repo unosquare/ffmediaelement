@@ -117,7 +117,7 @@
 
                 // If it's a live stream and we have not guessed the buffer bytes per second
                 // always continue reading regardless
-                if (IsLiveStream && GuessedBytesRate == null)
+                if (IsLiveStream && GuessedByteRate == null)
                     return true;
 
                 return Container.Components.PacketBufferLength < DownloadCacheLength;
@@ -277,6 +277,10 @@
                     // Execute the following command at the beginning of the cycle
                     Commands.ProcessNext();
 
+                    // Wait for a seek operation to complete (if any)
+                    // and initiate a frame decoding cycle.
+                    SeekingDone.WaitOne();
+
                     // Signal a Seek ending operation
                     hasPendingSeeks = Commands.PendingCountOf(MediaCommandType.Seek) > 0;
                     if (IsSeeking == true && hasPendingSeeks == false)
@@ -290,10 +294,6 @@
 
                         SendOnSeekingEnded();
                     }
-
-                    // Wait for a seek operation to complete (if any)
-                    // and initiate a frame decoding cycle.
-                    SeekingDone.WaitOne();
 
                     // Initiate the frame docding cycle
                     FrameDecodingCycle.Reset();

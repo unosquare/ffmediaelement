@@ -399,7 +399,13 @@
             if (element.MediaCore.IsDisposed) return TimeSpan.Zero;
             if (element.MediaCore.IsSeekable == false) return element.MediaCore.Position;
 
-            return (TimeSpan)value;
+            var minPosition = element.MediaCore?.MediaInfo?.StartTime ?? TimeSpan.Zero;
+            var maxPosition = minPosition + (element.MediaCore?.MediaInfo?.Duration ?? TimeSpan.Zero);
+            var val = (TimeSpan)value;
+
+            if (val < minPosition) return minPosition;
+            if (val > maxPosition) return maxPosition;
+            return val;
         }
 
         private static object CoerceSpeedRatioProperty(DependencyObject d, object value)
