@@ -564,7 +564,10 @@
             }
 
             // Perform minor adjustments until the delay is less than 10ms in either direction
-            if (SpeedRatio == 1.0 && isBeyondThreshold == false && Math.Abs(audioLatencyMs) > SyncThresholdPerfect)
+            if (MediaCore.HasVideo && 
+                SpeedRatio == 1.0 && 
+                isBeyondThreshold == false && 
+                Math.Abs(audioLatencyMs) > SyncThresholdPerfect)
             {
                 var stepDurationMillis = (int)Math.Min(SyncThresholdMaxStep, Math.Abs(audioLatencyMs));
                 var stepDurationBytes = WaveFormat.ConvertLatencyToByteSize(stepDurationMillis);
