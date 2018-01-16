@@ -13,7 +13,7 @@
         private readonly Stopwatch Chrono = new Stopwatch();
         private ISyncLocker Locker = SyncLockerFactory.CreateSlim();
         private double OffsetMilliseconds = 0;
-        private double m_SpeedRatio = Defaults.DefaultSpeedRatio;
+        private double m_SpeedRatio = Constants.Controller.DefaultSpeedRatio;
         private bool IsDisposed = false;
 
         /// <summary>

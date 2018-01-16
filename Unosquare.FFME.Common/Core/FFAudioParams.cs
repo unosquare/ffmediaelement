@@ -28,15 +28,15 @@
         {
             Output = new FFAudioParams()
             {
-                ChannelCount = Defaults.AudioChannelCount,
-                SampleRate = Defaults.AudioSampleRate,
-                Format = Defaults.AudioSampleFormat
+                ChannelCount = Constants.Audio.ChannelCount,
+                SampleRate = Constants.Audio.SampleRate,
+                Format = Constants.Audio.SampleFormat
             };
 
             Output.ChannelLayout = ffmpeg.av_get_default_channel_layout(Output.ChannelCount);
             Output.SamplesPerChannel = Output.SampleRate;
             Output.BufferLength = ffmpeg.av_samples_get_buffer_size(
-                null, Output.ChannelCount, Output.SamplesPerChannel + Defaults.AudioBufferPadding, Output.Format, 1);
+                null, Output.ChannelCount, Output.SamplesPerChannel + Constants.Audio.BufferPadding, Output.Format, 1);
         }
 
         /// <summary>
@@ -91,7 +91,7 @@
         public AVSampleFormat Format { get; private set; }
 
         /// <summary>
-        /// Gets the length of the buffer required to store 
+        /// Gets the length of the buffer required to store
         /// the samples in the current format.
         /// </summary>
         public int BufferLength { get; private set; }
@@ -115,7 +115,7 @@
         }
 
         /// <summary>
-        /// Creates a target audio spec using the sample quantities provided 
+        /// Creates a target audio spec using the sample quantities provided
         /// by the given source audio frame
         /// </summary>
         /// <param name="frame">The frame.</param>
@@ -133,7 +133,7 @@
             // The target transform is just a ratio of the source frame's sample. This is how many samples we desire
             spec.SamplesPerChannel = (int)Math.Round((double)frame->nb_samples * spec.SampleRate / frame->sample_rate, 0);
             spec.BufferLength = ffmpeg.av_samples_get_buffer_size(
-                null, spec.ChannelCount, spec.SamplesPerChannel + Defaults.AudioBufferPadding, spec.Format, 1);
+                null, spec.ChannelCount, spec.SamplesPerChannel + Constants.Audio.BufferPadding, spec.Format, 1);
             return spec;
         }
 

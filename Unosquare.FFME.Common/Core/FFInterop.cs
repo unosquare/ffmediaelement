@@ -78,7 +78,7 @@
                 {
                     // Get the temporary path where FFmpeg binaries are located
                     var ffmpegPath = string.IsNullOrWhiteSpace(overridePath) == false ?
-                        Path.GetFullPath(overridePath) : Defaults.FFmpegSearchPath;
+                        Path.GetFullPath(overridePath) : Constants.FFmpegSearchPath;
 
                     var registrationIds = 0;
 

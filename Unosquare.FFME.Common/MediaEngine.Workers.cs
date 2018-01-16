@@ -524,7 +524,7 @@
                 Renderers[t] = Platform.CreateRenderer(t, this);
             }
 
-            Clock.SpeedRatio = Defaults.DefaultSpeedRatio;
+            Clock.SpeedRatio = Constants.Controller.DefaultSpeedRatio;
             IsTaskCancellationPending = false;
 
             // Set the initial state of the task cycles.

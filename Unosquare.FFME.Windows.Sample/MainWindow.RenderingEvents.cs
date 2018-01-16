@@ -18,6 +18,7 @@
 #if !HANDLE_RENDERING_EVENTS
             return;
 #endif
+
             // We can extract the closed caption data into a file if we need to.
             var closedCaptionsFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "608.bin");
             var saveClosedCaptions = false;
@@ -156,7 +157,7 @@
 
                 for (var i = 0; i < e.BufferLength; i += e.BitsPerSample / 8)
                 {
-                    samplePercent = 100d * Math.Abs((double)((short)(buffer[i] | (buffer[i + 1] << 8)))) / (double)short.MaxValue;
+                    samplePercent = 100d * Math.Abs((double)((short)(buffer[i] | (buffer[i + 1] << 8)))) / short.MaxValue;
 
                     if (isLeftSample)
                         leftSamples[sampleIndex] = samplePercent;

@@ -176,7 +176,7 @@
             },
             this, // the state argument passed on to the ticker
             0,
-            (int)Defaults.TimerHighPriorityInterval.TotalMilliseconds);
+            (int)Constants.Interval.HighPriority.TotalMilliseconds);
         }
 
         /// <summary>

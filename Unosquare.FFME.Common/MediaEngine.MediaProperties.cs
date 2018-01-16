@@ -65,13 +65,13 @@
             }
         }
 
-        /// <summary> 
-        /// Returns whether the given media has audio. 
+        /// <summary>
+        /// Returns whether the given media has audio.
         /// Only valid after the MediaOpened event has fired.
-        /// </summary> 
+        /// </summary>
         public bool HasAudio => Container?.Components.HasAudio ?? false;
 
-        /// <summary> 
+        /// <summary>
         /// Returns whether the given media has video. Only valid after the
         /// MediaOpened event has fired.
         /// </summary>
@@ -92,10 +92,10 @@
         /// <summary>
         /// Returns the natural width of the media in the video.
         /// Only valid after the MediaOpened event has fired.
-        /// </summary> 
+        /// </summary>
         public int NaturalVideoWidth => Container?.Components?.Video?.FrameWidth ?? 0;
 
-        /// <summary> 
+        /// <summary>
         /// Returns the natural height of the media in the video.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
@@ -363,9 +363,9 @@
         /// </summary>
         internal void ResetControllerProperties()
         {
-            Volume = Defaults.DefaultVolume;
-            Balance = Defaults.DefaultBalance;
-            SpeedRatio = Defaults.DefaultSpeedRatio;
+            Volume = Constants.Controller.DefaultVolume;
+            Balance = Constants.Controller.DefaultBalance;
+            SpeedRatio = Constants.Controller.DefaultSpeedRatio;
             IsMuted = false;
             VideoSmtpeTimecode = string.Empty;
             VideoHardwareDecoder = string.Empty;

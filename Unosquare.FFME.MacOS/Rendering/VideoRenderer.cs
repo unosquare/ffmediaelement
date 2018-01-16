@@ -73,9 +73,9 @@
                 var i = new CGImage(
                     width, 
                     height,
-                    Defaults.VideoBitsPerComponent,
-                    Defaults.VideoBitsPerPixel, 
-                    width * Defaults.VideoBytesPerPixel, 
+                    Constants.Video.BitsPerComponent,
+                    Constants.Video.BitsPerPixel, 
+                    width * Constants.Video.BytesPerPixel, 
                     space, 
                     CGBitmapFlags.ByteOrderDefault, 
                     provider, 

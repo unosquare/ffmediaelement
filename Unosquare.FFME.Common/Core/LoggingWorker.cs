@@ -53,8 +53,8 @@
                     }
                 },
                 LogQueue, // the state argument passed on to the ticker
-                (int)Defaults.TimerLowPriorityInterval.TotalMilliseconds,
-                (int)Defaults.TimerLowPriorityInterval.TotalMilliseconds);
+                (int)Constants.Interval.LowPriority.TotalMilliseconds,
+                (int)Constants.Interval.LowPriority.TotalMilliseconds);
         }
 
         #endregion

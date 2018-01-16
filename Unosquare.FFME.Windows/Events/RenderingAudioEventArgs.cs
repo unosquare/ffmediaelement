@@ -6,7 +6,7 @@
     /// <summary>
     /// Provides the audio samples rendering payload as event arguments.
     /// </summary>
-    /// <seealso cref="System.EventArgs" />
+    /// <seealso cref="EventArgs" />
     public sealed class RenderingAudioEventArgs : RenderingEventArgs
     {
         /// <summary>
@@ -23,9 +23,9 @@
         {
             Buffer = buffer;
             BufferLength = length;
-            SampleRate = Defaults.AudioSampleRate;
-            ChannelCount = Defaults.AudioChannelCount;
-            BitsPerSample = Defaults.AudioBitsPerSample;
+            SampleRate = Constants.Audio.SampleRate;
+            ChannelCount = Constants.Audio.ChannelCount;
+            BitsPerSample = Constants.Audio.BitsPerSample;
         }
 
         /// <summary>

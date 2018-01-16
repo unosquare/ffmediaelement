@@ -5,7 +5,7 @@
     /// <summary>
     /// A command to change speed ratio asynchronously
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.Commands.MediaCommand" />
+    /// <seealso cref="MediaCommand" />
     internal sealed class SpeedRatioCommand : MediaCommand
     {
         /// <summary>
@@ -22,7 +22,7 @@
         /// <summary>
         /// The target speed ratio
         /// </summary>
-        public double SpeedRatio { get; set; } = Defaults.DefaultSpeedRatio;
+        public double SpeedRatio { get; set; } = Constants.Controller.DefaultSpeedRatio;
 
         /// <summary>
         /// Performs the actions that this command implements.

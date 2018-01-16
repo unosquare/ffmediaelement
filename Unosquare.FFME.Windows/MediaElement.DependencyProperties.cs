@@ -13,7 +13,7 @@
         #region Dependency Property Registrations
 
         /// <summary>
-        /// DependencyProperty for FFmpegMediaElement Source property. 
+        /// DependencyProperty for FFmpegMediaElement Source property.
         /// </summary>
         public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
             nameof(Source),
@@ -22,17 +22,17 @@
             new FrameworkPropertyMetadata(null, AffectsMeasureAndRender, OnSourcePropertyChanged, OnSourcePropertyCoerce));
 
         /// <summary>
-        /// DependencyProperty for Stretch property. 
-        /// </summary> 
+        /// DependencyProperty for Stretch property.
+        /// </summary>
         public static readonly DependencyProperty StretchProperty = DependencyProperty.Register(
             nameof(Stretch),
             typeof(Stretch),
             typeof(MediaElement),
             new FrameworkPropertyMetadata(Stretch.Uniform, AffectsMeasureAndRender, OnStretchPropertyChanged));
 
-        /// <summary> 
+        /// <summary>
         /// DependencyProperty for StretchDirection property.
-        /// </summary> 
+        /// </summary>
         public static readonly DependencyProperty StretchDirectionProperty = DependencyProperty.Register(
             nameof(StretchDirection),
             typeof(StretchDirection),
@@ -40,17 +40,17 @@
             new FrameworkPropertyMetadata(StretchDirection.Both, AffectsMeasureAndRender, OnStretchDirectionPropertyChanged));
 
         /// <summary>
-        /// The DependencyProperty for the MediaElement.Balance property. 
+        /// The DependencyProperty for the MediaElement.Balance property.
         /// </summary>
         public static readonly DependencyProperty BalanceProperty = DependencyProperty.Register(
             nameof(Balance),
             typeof(double),
             typeof(MediaElement),
-            new FrameworkPropertyMetadata(Defaults.DefaultBalance, FrameworkPropertyMetadataOptions.None, new PropertyChangedCallback(BalancePropertyChanged), new CoerceValueCallback(CoerceBalanceProperty)));
+            new FrameworkPropertyMetadata(Constants.Controller.DefaultBalance, FrameworkPropertyMetadataOptions.None, new PropertyChangedCallback(BalancePropertyChanged), new CoerceValueCallback(CoerceBalanceProperty)));
 
-        /// <summary> 
+        /// <summary>
         /// The DependencyProperty for the MediaElement.IsMuted property.
-        /// </summary> 
+        /// </summary>
         public static readonly DependencyProperty IsMutedProperty = DependencyProperty.Register(
             nameof(IsMuted),
             typeof(bool),
@@ -58,34 +58,34 @@
             new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.None, new PropertyChangedCallback(IsMutedPropertyChanged), new CoerceValueCallback(CoerceIsMutedProperty)));
 
         /// <summary>
-        /// The DependencyProperty for the MediaElement.SpeedRatio property. 
+        /// The DependencyProperty for the MediaElement.SpeedRatio property.
         /// </summary>
         public static readonly DependencyProperty SpeedRatioProperty = DependencyProperty.Register(
             nameof(SpeedRatio),
             typeof(double),
             typeof(MediaElement),
-            new FrameworkPropertyMetadata(Defaults.DefaultSpeedRatio, AffectsMeasureAndRender, new PropertyChangedCallback(SpeedRatioPropertyChanged), new CoerceValueCallback(CoerceSpeedRatioProperty)));
+            new FrameworkPropertyMetadata(Constants.Controller.DefaultSpeedRatio, AffectsMeasureAndRender, new PropertyChangedCallback(SpeedRatioPropertyChanged), new CoerceValueCallback(CoerceSpeedRatioProperty)));
 
-        /// <summary> 
+        /// <summary>
         /// The DependencyProperty for the MediaElement.Volume property.
         /// </summary>
         public static readonly DependencyProperty VolumeProperty = DependencyProperty.Register(
             nameof(Volume),
             typeof(double),
             typeof(MediaElement),
-            new FrameworkPropertyMetadata(Defaults.DefaultVolume, FrameworkPropertyMetadataOptions.None, new PropertyChangedCallback(VolumePropertyChanged), new CoerceValueCallback(CoerceVolumeProperty)));
+            new FrameworkPropertyMetadata(Constants.Controller.DefaultVolume, FrameworkPropertyMetadataOptions.None, new PropertyChangedCallback(VolumePropertyChanged), new CoerceValueCallback(CoerceVolumeProperty)));
 
         /// <summary>
         /// The DependencyProperty for the MediaElement.ScrubbingEnabled property.
-        /// </summary> 
+        /// </summary>
         public static readonly DependencyProperty ScrubbingEnabledProperty = DependencyProperty.Register(
             nameof(ScrubbingEnabled),
             typeof(bool),
             typeof(MediaElement),
             new FrameworkPropertyMetadata(true, FrameworkPropertyMetadataOptions.None, new PropertyChangedCallback(ScrubbingEnabledPropertyChanged)));
 
-        /// <summary> 
-        /// The DependencyProperty for the MediaElement.UnloadedBehavior property. 
+        /// <summary>
+        /// The DependencyProperty for the MediaElement.UnloadedBehavior property.
         /// TODO: Currently this property has no effect. Needs implementation.
         /// </summary>
         public static readonly DependencyProperty UnloadedBehaviorProperty = DependencyProperty.Register(
@@ -104,7 +104,7 @@
             new FrameworkPropertyMetadata(MediaState.Play, FrameworkPropertyMetadataOptions.None, new PropertyChangedCallback(LoadedBehaviorPropertyChanged)));
 
         /// <summary>
-        /// The DependencyProperty for the MediaElement.Position property. 
+        /// The DependencyProperty for the MediaElement.Position property.
         /// </summary>
         public static readonly DependencyProperty PositionProperty = DependencyProperty.Register(
             nameof(Position),
@@ -117,9 +117,9 @@
         #region Dependency Property CLR Accessors
 
         /// <summary>
-        /// Gets/Sets the Source on this MediaElement. 
+        /// Gets/Sets the Source on this MediaElement.
         /// The Source property is the Uri of the media to be played.
-        /// </summary> 
+        /// </summary>
         [Category(nameof(MediaElement))]
         [Description("The URL to load the media from. Set it to null in order to close the currently open media.")]
         public Uri Source
@@ -130,7 +130,7 @@
 
         /// <summary>
         /// Gets/Sets the Stretch on this MediaElement.
-        /// The Stretch property determines how large the MediaElement will be drawn. 
+        /// The Stretch property determines how large the MediaElement will be drawn.
         /// </summary>
         public Stretch Stretch
         {
@@ -138,12 +138,12 @@
             set { SetValue(StretchProperty, value); }
         }
 
-        /// <summary> 
+        /// <summary>
         /// Gets/Sets the stretch direction of the Viewbox, which determines the restrictions on
-        /// scaling that are applied to the content inside the Viewbox.  For instance, this property 
-        /// can be used to prevent the content from being smaller than its native size or larger than 
+        /// scaling that are applied to the content inside the Viewbox.  For instance, this property
+        /// can be used to prevent the content from being smaller than its native size or larger than
         /// its native size.
-        /// </summary> 
+        /// </summary>
         public StretchDirection StretchDirection
         {
             get { return (StretchDirection)GetValue(StretchDirectionProperty); }
@@ -151,10 +151,10 @@
         }
 
         /// <summary>
-        /// Specifies the behavior that the media element should have when it 
-        /// is loaded. The default behavior is that it is under manual control 
+        /// Specifies the behavior that the media element should have when it
+        /// is loaded. The default behavior is that it is under manual control
         /// (i.e. the caller should call methods such as Play in order to play
-        /// the media). If a source is set, then the default behavior changes to 
+        /// the media). If a source is set, then the default behavior changes to
         /// to be playing the media. If a source is set and a loaded behavior is
         /// also set, then the loaded behavior takes control.
         /// </summary>
@@ -167,8 +167,8 @@
         }
 
         /// <summary>
-        /// Gets/Sets the SpeedRatio property on the MediaElement. 
-        /// </summary> 
+        /// Gets/Sets the SpeedRatio property on the MediaElement.
+        /// </summary>
         [Category(nameof(MediaElement))]
         [Description("Specifies how quickly or how slowly the media should be rendered. 1.0 is normal speed. Value must be greater then or equal to 0.0")]
         public double SpeedRatio
@@ -178,9 +178,9 @@
         }
 
         /// <summary>
-        /// Specifies how the underlying media should behave when 
+        /// Specifies how the underlying media should behave when
         /// it has ended. The default behavior is to Close the media.
-        /// </summary> 
+        /// </summary>
         [Category(nameof(MediaElement))]
         [Description("Specifies how the underlying media should behave when it has ended. The default behavior is to Close the media.")]
         public MediaState UnloadedBehavior
@@ -202,8 +202,8 @@
         }
 
         /// <summary>
-        /// Gets/Sets the Balance property on the MediaElement. 
-        /// </summary> 
+        /// Gets/Sets the Balance property on the MediaElement.
+        /// </summary>
         [Category(nameof(MediaElement))]
         [Description("The audio volume for left and right audio channels. Valid ranges are -1.0 to 1.0")]
         public double Balance
@@ -214,7 +214,7 @@
 
         /// <summary>
         /// Gets/Sets the IsMuted property on the MediaElement.
-        /// </summary> 
+        /// </summary>
         [Category(nameof(MediaElement))]
         [Description("Gets or sets whether audio samples should be rendered.")]
         public bool IsMuted
@@ -224,7 +224,7 @@
         }
 
         /// <summary>
-        /// Gets or sets a value that indicates whether the MediaElement will update frames 
+        /// Gets or sets a value that indicates whether the MediaElement will update frames
         /// for seek operations while paused. This is a dependency property.
         /// </summary>
         [Category(nameof(MediaElement))]
@@ -236,8 +236,8 @@
         }
 
         /// <summary>
-        /// Gets/Sets the Position property on the MediaElement. 
-        /// </summary> 
+        /// Gets/Sets the Position property on the MediaElement.
+        /// </summary>
         [Category(nameof(MediaElement))]
         [Description("Specifies the position of the underlying media. Set this property to seek though the media stream.")]
         public TimeSpan Position
@@ -287,15 +287,15 @@
         private static object CoerceVolumeProperty(DependencyObject d, object value)
         {
             var element = d as MediaElement;
-            if (element == null) return Defaults.DefaultVolume;
-            if (element.HasAudio == false) return Defaults.DefaultVolume;
+            if (element == null) return Constants.Controller.DefaultVolume;
+            if (element.HasAudio == false) return Constants.Controller.DefaultVolume;
 
             var targetValue = (double)value;
-            if (targetValue < Defaults.MinVolume) targetValue = Defaults.MinVolume;
-            if (targetValue > Defaults.MaxVolume) targetValue = Defaults.MaxVolume;
+            if (targetValue < Constants.Controller.MinVolume) targetValue = Constants.Controller.MinVolume;
+            if (targetValue > Constants.Controller.MaxVolume) targetValue = Constants.Controller.MaxVolume;
 
             var audioRenderer = element.MediaCore.RetrieveRenderer(MediaType.Audio) as AudioRenderer;
-            return audioRenderer == null ? Defaults.DefaultVolume : targetValue;
+            return audioRenderer == null ? Constants.Controller.DefaultVolume : targetValue;
         }
 
         private static void VolumePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -313,15 +313,15 @@
         private static object CoerceBalanceProperty(DependencyObject d, object value)
         {
             var element = d as MediaElement;
-            if (element == null) return Defaults.DefaultBalance;
-            if (element.HasAudio == false) return Defaults.DefaultBalance;
+            if (element == null) return Constants.Controller.DefaultBalance;
+            if (element.HasAudio == false) return Constants.Controller.DefaultBalance;
 
             var targetValue = (double)value;
-            if (targetValue < Defaults.MinBalance) targetValue = Defaults.MinBalance;
-            if (targetValue > Defaults.MaxBalance) targetValue = Defaults.MaxBalance;
+            if (targetValue < Constants.Controller.MinBalance) targetValue = Constants.Controller.MinBalance;
+            if (targetValue > Constants.Controller.MaxBalance) targetValue = Constants.Controller.MaxBalance;
 
             var audioRenderer = element.MediaCore.RetrieveRenderer(MediaType.Audio) as AudioRenderer;
-            return audioRenderer == null ? Defaults.DefaultBalance : targetValue;
+            return audioRenderer == null ? Constants.Controller.DefaultBalance : targetValue;
         }
 
         private static void BalancePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -411,13 +411,13 @@
         private static object CoerceSpeedRatioProperty(DependencyObject d, object value)
         {
             var element = d as MediaElement;
-            if (element == null) return Defaults.DefaultSpeedRatio;
-            if (element.MediaCore.IsDisposed) return Defaults.DefaultSpeedRatio;
-            if ((element.MediaCore?.IsSeekable ?? false) == false) return Defaults.DefaultSpeedRatio;
+            if (element == null) return Constants.Controller.DefaultSpeedRatio;
+            if (element.MediaCore.IsDisposed) return Constants.Controller.DefaultSpeedRatio;
+            if ((element.MediaCore?.IsSeekable ?? false) == false) return Constants.Controller.DefaultSpeedRatio;
 
             var targetValue = (double)value;
-            if (targetValue < Defaults.MinSpeedRatio) return Defaults.MinSpeedRatio;
-            if (targetValue > Defaults.MaxSpeedRatio) return Defaults.MaxSpeedRatio;
+            if (targetValue < Constants.Controller.MinSpeedRatio) return Constants.Controller.MinSpeedRatio;
+            if (targetValue > Constants.Controller.MaxSpeedRatio) return Constants.Controller.MaxSpeedRatio;
 
             return targetValue;
         }

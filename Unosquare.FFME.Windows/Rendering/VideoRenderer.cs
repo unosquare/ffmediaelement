@@ -17,7 +17,7 @@
     /// <summary>
     /// Provides Video Image Rendering via a WPF Writable Bitmap
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.Shared.IMediaRenderer" />
+    /// <seealso cref="IMediaRenderer" />
     internal sealed class VideoRenderer : IMediaRenderer
     {
         #region Private State
@@ -71,8 +71,8 @@
             MediaCore = mediaEngine;
 
             // Check that the renderer supports the passed in Pixel format
-            if (MediaPixelFormats.ContainsKey(Defaults.VideoPixelFormat) == false)
-                throw new NotSupportedException($"Unable to get equivalent pixel fromat from source: {Defaults.VideoPixelFormat}");
+            if (MediaPixelFormats.ContainsKey(Constants.Video.VideoPixelFormat) == false)
+                throw new NotSupportedException($"Unable to get equivalent pixel fromat from source: {Constants.Video.VideoPixelFormat}");
 
             // Set the DPI
             WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.Normal, () =>
@@ -276,7 +276,7 @@
                 if ((needsCreation || needsModification) && hasValidDimensions)
                 {
                     TargetBitmap = new WriteableBitmap(
-                        block.PixelWidth, block.PixelHeight, DpiX, DpiY, MediaPixelFormats[Defaults.VideoPixelFormat], null);
+                        block.PixelWidth, block.PixelHeight, DpiX, DpiY, MediaPixelFormats[Constants.Video.VideoPixelFormat], null);
                 }
                 else if (hasValidDimensions == false)
                 {
@@ -315,7 +315,7 @@
             }
             else
             {
-                var format = MediaPixelFormats[Defaults.VideoPixelFormat];
+                var format = MediaPixelFormats[Constants.Video.VideoPixelFormat];
                 var bytesPerPixel = format.BitsPerPixel / 8;
                 var copyLength = (uint)Math.Min(target.Stride, source.BufferStride);
                 Parallel.For(0, source.PixelHeight, (i) =>

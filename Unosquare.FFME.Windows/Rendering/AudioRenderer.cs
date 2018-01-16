@@ -13,9 +13,9 @@
     /// <summary>
     /// Provides Audio Output capabilities by writing samples to the default audio output device.
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.Shared.IMediaRenderer" />
-    /// <seealso cref="Unosquare.FFME.Rendering.Wave.IWaveProvider" />
-    /// <seealso cref="System.IDisposable" />
+    /// <seealso cref="IMediaRenderer" />
+    /// <seealso cref="IWaveProvider" />
+    /// <seealso cref="IDisposable" />
     internal sealed class AudioRenderer : IDisposable, IMediaRenderer, IWaveProvider
     {
         #region Private Members
@@ -39,8 +39,8 @@
         private double RightVolume = 1.0d;
 
         private WaveFormat m_Format = null;
-        private AtomicDouble m_Volume = new AtomicDouble(Defaults.DefaultVolume);
-        private AtomicDouble m_Balance = new AtomicDouble(Defaults.DefaultBalance);
+        private AtomicDouble m_Volume = new AtomicDouble(Constants.Controller.DefaultVolume);
+        private AtomicDouble m_Balance = new AtomicDouble(Constants.Controller.DefaultBalance);
         private AtomicBoolean m_IsMuted = new AtomicBoolean(false);
 
         private int BytesPerSample = 2;
@@ -59,9 +59,9 @@
             MediaCore = mediaEngine;
 
             m_Format = new WaveFormat(
-                Defaults.AudioSampleRate,
-                Defaults.AudioBitsPerSample,
-                Defaults.AudioChannelCount);
+                Constants.Audio.SampleRate,
+                Constants.Audio.BitsPerSample,
+                Constants.Audio.ChannelCount);
 
             if (WaveFormat.BitsPerSample != 16 || WaveFormat.Channels != 2)
                 throw new NotSupportedException("Wave Format has to be 16-bit and 2-channel.");
@@ -344,8 +344,8 @@
                     }
 
                     // Ensure a preallocated ReadBuffer
-                    if (ReadBuffer == null || ReadBuffer.Length < (int)(requestedBytes * Defaults.MaxSpeedRatio))
-                        ReadBuffer = new byte[(int)(requestedBytes * Defaults.MaxSpeedRatio)];
+                    if (ReadBuffer == null || ReadBuffer.Length < (int)(requestedBytes * Constants.Controller.MaxSpeedRatio))
+                        ReadBuffer = new byte[(int)(requestedBytes * Constants.Controller.MaxSpeedRatio)];
 
                     // Perform AV Synchronization if needed
                     if (MediaElement.HasVideo && Synchronize(targetBuffer, targetBufferOffset, requestedBytes) == false)
@@ -496,19 +496,19 @@
             /*
              * Wikipedia says:
              * For television applications, audio should lead video by no more than 15 milliseconds and audio should
-             * lag video by no more than 45 milliseconds. For film, acceptable lip sync is considered to be no more 
+             * lag video by no more than 45 milliseconds. For film, acceptable lip sync is considered to be no more
              * than 22 milliseconds in either direction.
-             * 
+             *
              * The Media and Acoustics Perception Lab says:
-             * The results of the experiment determined that the average audio leading threshold for a/v sync 
+             * The results of the experiment determined that the average audio leading threshold for a/v sync
              * detection was 185.19 ms, with a standard deviation of 42.32 ms
-             * 
+             *
              * The ATSC says:
              * At first glance it seems loose: +90 ms to -185 ms as a Window of Acceptability
              * - Undetectable from -100 ms to +25 ms
              * - Detectable at -125 ms & +45 ms
              * - Becomes unacceptable at -185 ms & +90 ms
-             * 
+             *
              * NOTE: (- Sound delayed, + Sound advanced)
              */
 
@@ -564,9 +564,9 @@
             }
 
             // Perform minor adjustments until the delay is less than 10ms in either direction
-            if (MediaCore.HasVideo && 
-                SpeedRatio == 1.0 && 
-                isBeyondThreshold == false && 
+            if (MediaCore.HasVideo &&
+                SpeedRatio == 1.0 &&
+                isBeyondThreshold == false &&
                 Math.Abs(audioLatencyMs) > SyncThresholdPerfect)
             {
                 var stepDurationMillis = (int)Math.Min(SyncThresholdMaxStep, Math.Abs(audioLatencyMs));
@@ -711,8 +711,8 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ReadAndUseAudioProcessor(int requestedBytes)
         {
-            if (AudioProcessorBuffer == null || AudioProcessorBuffer.Length < (int)(requestedBytes * Defaults.MaxSpeedRatio))
-                AudioProcessorBuffer = new short[(int)(requestedBytes * Defaults.MaxSpeedRatio / BytesPerSample)];
+            if (AudioProcessorBuffer == null || AudioProcessorBuffer.Length < (int)(requestedBytes * Constants.Controller.MaxSpeedRatio))
+                AudioProcessorBuffer = new short[(int)(requestedBytes * Constants.Controller.MaxSpeedRatio / BytesPerSample)];
 
             var speedRatio = SpeedRatio;
             var bytesToRead = (int)(requestedBytes * speedRatio).ToMultipleOf(SampleBlockSize);

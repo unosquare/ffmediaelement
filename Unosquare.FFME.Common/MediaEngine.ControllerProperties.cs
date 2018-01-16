@@ -7,10 +7,10 @@
     {
         private Uri source = null;
         private MediaEngineState loadedBehavior = MediaEngineState.Play;
-        private double speedRatio = Defaults.DefaultSpeedRatio;
+        private double speedRatio = Constants.Controller.DefaultSpeedRatio;
         private MediaEngineState unloadedBehavior = MediaEngineState.Close;
-        private double volume = Defaults.DefaultVolume;
-        private double balance = Defaults.DefaultBalance;
+        private double volume = Constants.Controller.DefaultVolume;
+        private double balance = Constants.Controller.DefaultBalance;
         private bool isMuted = false;
         private bool scrubbingEnabled = true;
         private TimeSpan position = TimeSpan.Zero;
@@ -18,9 +18,9 @@
         #region Dependency Property CLR Accessors
 
         /// <summary>
-        /// Gets/Sets the Source on this MediaElement. 
+        /// Gets or Sets the Source on this MediaElement.
         /// The Source property is the Uri of the media to be played.
-        /// </summary> 
+        /// </summary>
         public Uri Source
         {
             get => source;
@@ -28,10 +28,10 @@
         }
 
         /// <summary>
-        /// Specifies the behavior that the media element should have when it 
-        /// is loaded. The default behavior is that it is under manual control 
+        /// Specifies the behavior that the media element should have when it
+        /// is loaded. The default behavior is that it is under manual control
         /// (i.e. the caller should call methods such as Play in order to play
-        /// the media). If a source is set, then the default behavior changes to 
+        /// the media). If a source is set, then the default behavior changes to
         /// to be playing the media. If a source is set and a loaded behavior is
         /// also set, then the loaded behavior takes control.
         /// </summary>
@@ -42,8 +42,8 @@
         }
 
         /// <summary>
-        /// Gets or Sets the SpeedRatio property of the media. 
-        /// </summary> 
+        /// Gets or Sets the SpeedRatio property of the media.
+        /// </summary>
         public double SpeedRatio
         {
             get => speedRatio;
@@ -58,9 +58,9 @@
         public double RealTimeClockSpeedRatio => Clock.SpeedRatio;
 
         /// <summary>
-        /// Specifies how the underlying media should behave when 
+        /// Specifies how the underlying media should behave when
         /// it has ended. The default behavior is to Close the media.
-        /// </summary> 
+        /// </summary>
         public MediaEngineState UnloadedBehavior
         {
             get => unloadedBehavior;
@@ -78,8 +78,8 @@
         }
 
         /// <summary>
-        /// Gets/Sets the Balance property on the MediaElement. 
-        /// </summary> 
+        /// Gets/Sets the Balance property on the MediaElement.
+        /// </summary>
         public double Balance
         {
             get => balance;
@@ -88,7 +88,7 @@
 
         /// <summary>
         /// Gets/Sets the IsMuted property on the MediaElement.
-        /// </summary> 
+        /// </summary>
         public bool IsMuted
         {
             get => isMuted;
@@ -96,7 +96,7 @@
         }
 
         /// <summary>
-        /// Gets or sets a value that indicates whether the MediaElement will update frames 
+        /// Gets or sets a value that indicates whether the MediaElement will update frames
         /// for seek operations while paused. This is a dependency property.
         /// </summary>
         public bool ScrubbingEnabled
@@ -106,8 +106,8 @@
         }
 
         /// <summary>
-        /// Gets or Sets the Position property on the MediaElement. 
-        /// </summary> 
+        /// Gets or Sets the Position property on the MediaElement.
+        /// </summary>
         public TimeSpan Position
         {
             get => position;

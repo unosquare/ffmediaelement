@@ -18,7 +18,7 @@
         /// <summary>
         /// The ffmpeg directory
         /// </summary>
-        private static string m_FFmpegDirectory = Defaults.FFmpegSearchPath;
+        private static string m_FFmpegDirectory = Constants.FFmpegSearchPath;
 
         /// <summary>
         /// Stores the load mode flags
