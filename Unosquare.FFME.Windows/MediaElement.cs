@@ -64,9 +64,9 @@
             Content = ContentGrid;
             ContentGrid.HorizontalAlignment = HorizontalAlignment.Stretch;
             ContentGrid.VerticalAlignment = VerticalAlignment.Stretch;
-            ContentGrid.Children.Add(ViewBox);
-            Stretch = ViewBox.Stretch;
-            StretchDirection = ViewBox.StretchDirection;
+            ContentGrid.Children.Add(VideoView);
+            Stretch = VideoView.Stretch;
+            StretchDirection = VideoView.StretchDirection;
             MediaCore = new MediaEngine(this, new WindowsMediaConnector(this));
 
             if (WindowsPlatform.Instance.IsInDesignTime)
@@ -76,7 +76,7 @@
                 var bitmapSource = Imaging.CreateBitmapSourceFromHBitmap(
                     bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
                 var controlBitmap = new WriteableBitmap(bitmapSource);
-                ViewBox.Source = controlBitmap;
+                VideoView.Source = controlBitmap;
             }
         }
 
@@ -128,11 +128,6 @@
         }
 
         /// <summary>
-        /// This is the image that will display the video from a Writeable Bitmap
-        /// </summary>
-        public Image ViewBox { get; } = new Image();
-
-        /// <summary>
         /// Gets or sets the horizontal alignment characteristics applied to this element when it is 
         /// composed within a parent element, such as a panel or items control.
         /// </summary>
@@ -141,7 +136,7 @@
             get => base.HorizontalAlignment;
             set
             {
-                ViewBox.HorizontalAlignment = value;
+                VideoView.HorizontalAlignment = value;
                 base.HorizontalAlignment = value;
             }
         }
@@ -176,6 +171,16 @@
         /// Gets the grid control holding the rest of the controls.
         /// </summary>
         internal Grid ContentGrid { get; }
+
+        /// <summary>
+        /// This is the image that holds video bitmaps
+        /// </summary>
+        internal Image VideoView { get; } = new Image();
+
+        /// <summary>
+        /// A viewbox holding the subtitle text blocks
+        /// </summary>
+        internal Viewbox SubtitleView { get; } = new Viewbox();
 
         #endregion
 

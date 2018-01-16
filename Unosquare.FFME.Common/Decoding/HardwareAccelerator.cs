@@ -1,10 +1,10 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
+    using Core;
     using FFmpeg.AutoGen;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using Core;
 
     internal unsafe class HardwareAccelerator
     {
@@ -114,7 +114,7 @@
         /// <param name="component">The component.</param>
         public void DetachDevice(VideoComponent component)
         {
-            // TODO: Check the blow code in the future because I am not sure 
+            // TODO: Check the blow code in the future because I am not sure
             // how to uninitialize the hardware device context
             if (component.CodecContext != null)
             {
@@ -153,7 +153,7 @@
 
             comesFromHardware = true;
 
-            if (input->format != (int) PixelFormat)
+            if (input->format != (int)PixelFormat)
                 return input;
 
             if (RequiresTransfer == false)
@@ -170,7 +170,7 @@
             }
 
             ffmpeg.av_frame_free(&input);
-            RC.Current.Remove((IntPtr) input);
+            RC.Current.Remove((IntPtr)input);
             RC.Current.Add(output, $"86: {nameof(HardwareAccelerator)}[{PixelFormat}].{nameof(ExchangeFrame)}()");
 
             return output;

@@ -13,102 +13,102 @@
 
         private static readonly Dictionary<byte, string> SpecialNorthAmerican = new Dictionary<byte, string>()
         {
-            { 0x30, "®"},
-            { 0x31, "°"},
-            { 0x32, "½"},
-            { 0x33, "¿"},
-            { 0x34, "™"},
-            { 0x35, "¢"},
-            { 0x36, "£"},
-            { 0x37, "♪"},
-            { 0x38, "à"},
-            { 0x39, " "},
-            { 0x3A, "è"},
-            { 0x3B, "â"},
-            { 0x3C, "ê"},
-            { 0x3D, "î"},
-            { 0x3E, "ô"},
-            { 0x3F, "û"},
+            { 0x30, "®" },
+            { 0x31, "°" },
+            { 0x32, "½" },
+            { 0x33, "¿" },
+            { 0x34, "™" },
+            { 0x35, "¢" },
+            { 0x36, "£" },
+            { 0x37, "♪" },
+            { 0x38, "à" },
+            { 0x39, " " },
+            { 0x3A, "è" },
+            { 0x3B, "â" },
+            { 0x3C, "ê" },
+            { 0x3D, "î" },
+            { 0x3E, "ô" },
+            { 0x3F, "û" },
         };
 
         private static readonly Dictionary<byte, string> Spanish = new Dictionary<byte, string>()
         {
-            { 0x20, "Á"},
-            { 0x21, "É"},
-            { 0x22, "Ó"},
-            { 0x23, "Ú"},
-            { 0x24, "Ü"},
-            { 0x25, "ü"},
-            { 0x26, "´"},
-            { 0x27, "¡"},
-            { 0x28, "*"},
-            { 0x29, "'"},
-            { 0x2A, "-"},
-            { 0x2B, "©"},
-            { 0x2C, "S"},
-            { 0x2D, "·"},
-            { 0x2E, "\""},
-            { 0x2F, "\""},
+            { 0x20, "Á" },
+            { 0x21, "É" },
+            { 0x22, "Ó" },
+            { 0x23, "Ú" },
+            { 0x24, "Ü" },
+            { 0x25, "ü" },
+            { 0x26, "´" },
+            { 0x27, "¡" },
+            { 0x28, "*" },
+            { 0x29, "'" },
+            { 0x2A, "-" },
+            { 0x2B, "©" },
+            { 0x2C, "S" },
+            { 0x2D, "·" },
+            { 0x2E, "\"" },
+            { 0x2F, "\"" },
         };
 
         private static readonly Dictionary<byte, string> Portuguese = new Dictionary<byte, string>()
         {
-            { 0x20, "Á"},
-            { 0x21, "ã"},
-            { 0x22, "Í"},
-            { 0x23, "Ì"},
-            { 0x24, "ì"},
-            { 0x25, "Ò"},
-            { 0x26, "ò"},
-            { 0x27, "Õ"},
-            { 0x28, "õ"},
-            { 0x29, "{"},
-            { 0x2A, "}"},
-            { 0x2B, "\\"},
-            { 0x2C, "^"},
-            { 0x2D, "_"},
-            { 0x2E, "|"},
-            { 0x2F, "~"},
+            { 0x20, "Á" },
+            { 0x21, "ã" },
+            { 0x22, "Í" },
+            { 0x23, "Ì" },
+            { 0x24, "ì" },
+            { 0x25, "Ò" },
+            { 0x26, "ò" },
+            { 0x27, "Õ" },
+            { 0x28, "õ" },
+            { 0x29, "{" },
+            { 0x2A, "}" },
+            { 0x2B, "\\" },
+            { 0x2C, "^" },
+            { 0x2D, "_" },
+            { 0x2E, "|" },
+            { 0x2F, "~" },
         };
 
         private static readonly Dictionary<byte, string> French = new Dictionary<byte, string>()
         {
-            { 0x30, "À"},
-            { 0x31, "Â"},
-            { 0x32, "Ç"},
-            { 0x33, "È"},
-            { 0x34, "Ê"},
-            { 0x35, "Ë"},
-            { 0x36, "ë"},
-            { 0x37, "Î"},
-            { 0x38, "Ï"},
-            { 0x39, "ï"},
-            { 0x3A, "Ô"},
-            { 0x3B, "Ù"},
-            { 0x3C, "ù"},
-            { 0x3D, "Û"},
-            { 0x3E, "«"},
-            { 0x3F, "»"},
+            { 0x30, "À" },
+            { 0x31, "Â" },
+            { 0x32, "Ç" },
+            { 0x33, "È" },
+            { 0x34, "Ê" },
+            { 0x35, "Ë" },
+            { 0x36, "ë" },
+            { 0x37, "Î" },
+            { 0x38, "Ï" },
+            { 0x39, "ï" },
+            { 0x3A, "Ô" },
+            { 0x3B, "Ù" },
+            { 0x3C, "ù" },
+            { 0x3D, "Û" },
+            { 0x3E, "«" },
+            { 0x3F, "»" },
         };
 
         private static readonly Dictionary<byte, string> German = new Dictionary<byte, string>()
         {
-            { 0x30, "Ä"},
-            { 0x31, "ä"},
-            { 0x32, "Ö"},
-            { 0x33, "ö"},
-            { 0x34, "ß"},
-            { 0x35, "¥"},
-            { 0x36, "¤"},
-            { 0x37, "¦"},
-            { 0x38, "Å"},
-            { 0x39, "å"},
-            { 0x3A, "Ø"},
-            { 0x3B, "ø"},
-            { 0x3C, "+"},
-            { 0x3D, "+"},
-            { 0x3E, "+"},
-            { 0x3F, "+"},
+            { 0x30, "Ä" },
+            { 0x31, "ä" },
+            { 0x32, "Ö" },
+            { 0x33, "ö" },
+            { 0x34, "ß" },
+            { 0x35, "¥" },
+            { 0x36, "¤" },
+            { 0x37, "¦" },
+            { 0x38, "Å" },
+            { 0x39, "å" },
+            { 0x3A, "Ø" },
+            { 0x3B, "ø" },
+            { 0x3C, "+" },
+            { 0x3D, "+" },
+            { 0x3E, "+" },
+            { 0x3F, "+" },
         };
 
         private static readonly Dictionary<byte, int> OddPreambleRows = new Dictionary<byte, int>
@@ -484,10 +484,10 @@
         #region Methods
 
         /// <summary>
-        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// Returns a <see cref="string" /> that represents this instance.
         /// </summary>
         /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
+        /// A <see cref="string" /> that represents this instance.
         /// </returns>
         public override string ToString()
         {
@@ -513,6 +513,7 @@
                     output = $"{ts} TXT F{NtscField} C{(Channel == 0 ? "A" : Channel.ToString())} - '{Text}'"; break;
                 case CCPacketType.XdsClass:
                     output = $"{ts} XDS F{NtscField} C{Channel} - {nameof(XdsClass)}: {XdsClass}"; break;
+                case CCPacketType.Unrecognized:
                 default:
                     output = $"{ts} UNR F{NtscField} C{Channel} - 0x{D0:X} 0x{D1:X}"; break;
             }

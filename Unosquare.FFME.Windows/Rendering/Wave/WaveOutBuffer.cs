@@ -2,14 +2,14 @@
 {
     using System;
     using System.Runtime.InteropServices;
-    
+
     /// <summary>
     /// A buffer of Wave samples for streaming to a Wave Output device
     /// </summary>
     internal class WaveOutBuffer : IDisposable
     {
         private readonly WaveHeader header;
-        private readonly Int32 bufferSize; // allocated bytes, may not be the same as bytes read
+        private readonly int bufferSize; // allocated bytes, may not be the same as bytes read
         private readonly byte[] buffer;
         private readonly IWaveProvider waveStream;
         private readonly object waveOutLock;
@@ -25,12 +25,12 @@
         /// <param name="bufferSize">Buffer size in bytes</param>
         /// <param name="bufferFillStream">Stream to provide more data</param>
         /// <param name="waveOutLock">Lock to protect WaveOut API's from being called on &gt;1 thread</param>
-        public WaveOutBuffer(IntPtr hWaveOut, Int32 bufferSize, IWaveProvider bufferFillStream, object waveOutLock)
+        public WaveOutBuffer(IntPtr hWaveOut, int bufferSize, IWaveProvider bufferFillStream, object waveOutLock)
         {
             this.bufferSize = bufferSize;
             buffer = new byte[bufferSize];
             bufferHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-            this.waveOutPtr = hWaveOut;
+            waveOutPtr = hWaveOut;
             waveStream = bufferFillStream;
             this.waveOutLock = waveOutLock;
 
@@ -133,7 +133,7 @@
         /// <summary>
         /// Writes to wave out.
         /// </summary>
-        /// <exception cref="Unosquare.FFME.Rendering.Wave.MmException">waveOutWrite</exception>
+        /// <exception cref="MmException">waveOutWrite</exception>
         private void WriteToWaveOut()
         {
             MmResult result;

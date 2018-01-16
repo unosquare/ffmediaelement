@@ -419,7 +419,7 @@
         }
 
         /// <summary>
-        /// Clears all the playback blocks returning them to the 
+        /// Clears all the playback blocks returning them to the
         /// block pool.
         /// </summary>
         internal void Clear()
@@ -451,8 +451,7 @@
         /// Block factory method.
         /// </summary>
         /// <param name="mediaType">Type of the media.</param>
-        /// <exception cref="InvalidCastException">MediaBlock</exception>
-        /// <exception cref="System.InvalidCastException">MediaBlock does not have a valid type</exception>
+        /// <exception cref="InvalidCastException">MediaBlock does not have a valid type</exception>
         /// <returns>An instance of the block of the specified type</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static MediaBlock CreateBlock(MediaType mediaType)

@@ -23,9 +23,9 @@
         public static string Format(this TimeSpan ts)
         {
             if (ts == TimeSpan.MinValue)
-                return $"{"N/A",10}";
+                return $"{"N/A", 10}";
             else
-                return $"{ts.TotalSeconds,10:0.000}";
+                return $"{ts.TotalSeconds, 10:0.000}";
         }
 
         /// <summary>
@@ -37,7 +37,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string FormatElapsed(this DateTime dt)
         {
-            return $"{DateTime.UtcNow.Subtract(dt).TotalMilliseconds,6:0}";
+            return $"{DateTime.UtcNow.Subtract(dt).TotalMilliseconds, 6:0}";
         }
 
         /// <summary>
@@ -50,7 +50,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string Format(this long ts, double divideBy = 1)
         {
-            return divideBy == 1 ? $"{ts,10:#,##0}" : $"{ts / divideBy,10:#,##0.000}";
+            return divideBy == 1 ? $"{ts, 10:#,##0}" : $"{ts / divideBy, 10:#,##0.000}";
         }
 
         #endregion

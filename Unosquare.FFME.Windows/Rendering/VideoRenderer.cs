@@ -218,7 +218,7 @@
             WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.Render, () =>
             {
                 TargetBitmap = null;
-                MediaElement.ViewBox.Source = null;
+                MediaElement.VideoView.Source = null;
             });
         }
 
@@ -284,8 +284,8 @@
                 }
 
                 // Update the target ViewBox image if not already set
-                if (MediaElement.ViewBox.Source != TargetBitmap)
-                    MediaElement.ViewBox.Source = TargetBitmap;
+                if (MediaElement.VideoView.Source != TargetBitmap)
+                    MediaElement.VideoView.Source = TargetBitmap;
 
                 // Don't set the result
                 if (TargetBitmap == null) return;
@@ -334,7 +334,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ApplyScaleTransform(VideoBlock b)
         {
-            var scaleTransform = MediaElement.ViewBox.LayoutTransform as ScaleTransform;
+            var scaleTransform = MediaElement.VideoView.LayoutTransform as ScaleTransform;
 
             // Process Aspect Ratio according to block.
             if (b.AspectWidth != b.AspectHeight)
@@ -345,7 +345,7 @@
                 if (scaleTransform == null)
                 {
                     scaleTransform = new ScaleTransform(scaleX, scaleY);
-                    MediaElement.ViewBox.LayoutTransform = scaleTransform;
+                    MediaElement.VideoView.LayoutTransform = scaleTransform;
                 }
 
                 if (scaleTransform.ScaleX != scaleX || scaleTransform.ScaleY != scaleY)

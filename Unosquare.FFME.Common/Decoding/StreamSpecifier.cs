@@ -26,7 +26,7 @@
         /// Initializes a new instance of the <see cref="StreamSpecifier"/> class.
         /// </summary>
         /// <param name="streamId">The stream identifier.</param>
-        /// <exception cref="System.ArgumentException">streamId</exception>
+        /// <exception cref="ArgumentException">streamId</exception>
         public StreamSpecifier(int streamId)
         {
             if (streamId < 0)
@@ -40,7 +40,7 @@
         /// Initializes a new instance of the <see cref="StreamSpecifier"/> class.
         /// </summary>
         /// <param name="mediaType">Type of the media.</param>
-        /// <exception cref="System.ArgumentException">streamType</exception>
+        /// <exception cref="ArgumentException">streamType</exception>
         public StreamSpecifier(MediaType mediaType)
         {
             var streamType = Types[mediaType];
@@ -56,7 +56,7 @@
         /// </summary>
         /// <param name="mediaType">Type of the media.</param>
         /// <param name="streamId">The stream identifier.</param>
-        /// <exception cref="System.ArgumentException">
+        /// <exception cref="ArgumentException">
         /// streamType
         /// or
         /// streamId
@@ -104,10 +104,10 @@
         #region Methods
 
         /// <summary>
-        /// Returns a <see cref="System.String" /> that represents this stream specifier.
+        /// Returns a <see cref="string" /> that represents this stream specifier.
         /// </summary>
         /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
+        /// A <see cref="string" /> that represents this instance.
         /// </returns>
         public override string ToString()
         {

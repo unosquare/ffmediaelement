@@ -14,7 +14,7 @@
     public partial class MediaEngine
     {
         /// <summary>
-        /// This partial class implements: 
+        /// This partial class implements:
         /// 1. Packet reading from the Container
         /// 2. Frame Decoding from packet buffer and Block buffering
         /// 3. Block Rendering from block buffer
@@ -511,7 +511,7 @@
         #region Methods
 
         /// <summary>
-        /// Initializes the media block buffers and 
+        /// Initializes the media block buffers and
         /// starts packet reader, frame decoder, and block rendering workers.
         /// </summary>
         internal void StartWorkers()
@@ -572,7 +572,7 @@
             var wrokers = new[] { PacketReadingTask, FrameDecodingTask };
             foreach (var w in wrokers)
             {
-                // w.Abort(); //Abort causes memory leaks bacause packets and frames might not 
+                // w.Abort(); //Abort causes memory leaks bacause packets and frames might not
                 // get disposed by the corresponding workers. We use Join instead.
                 w.Join();
             }

@@ -4,7 +4,7 @@ namespace Unosquare.FFME.Rendering.Wave
 {
     using System;
     using System.Runtime.InteropServices;
-    
+
     /// <summary>
     /// MME Wave function interop
     /// </summary>
@@ -23,31 +23,31 @@ namespace Unosquare.FFME.Rendering.Wave
             /// No callback
             /// </summary>
             CallbackNull = 0,
-            
+
             /// <summary>
             /// CALLBACK_FUNCTION
-            /// dwCallback is a FARPROC 
+            /// dwCallback is a FARPROC
             /// </summary>
             CallbackFunction = 0x30000,
-            
+
             /// <summary>
             /// CALLBACK_EVENT
-            /// dwCallback is an EVENT handle 
+            /// dwCallback is an EVENT handle
             /// </summary>
             CallbackEvent = 0x50000,
-            
+
             /// <summary>
             /// CALLBACK_WINDOW
-            /// dwCallback is a HWND 
+            /// dwCallback is a HWND
             /// </summary>
             CallbackWindow = 0x10000,
-            
+
             /// <summary>
             /// CALLBACK_THREAD
-            /// callback is a thread ID 
+            /// callback is a thread ID
             /// </summary>
             CallbackThread = 0x20000,
-            
+
             /*
             WAVE_FORMAT_QUERY = 1,
             WAVE_MAPPED = 4,
@@ -56,9 +56,9 @@ namespace Unosquare.FFME.Rendering.Wave
         }
 
         /*
-        public const int TIME_MS = 0x0001;  // time in milliseconds 
-        public const int TIME_SAMPLES = 0x0002;  // number of wave samples 
-        public const int TIME_BYTES = 0x0004;  // current byte offset 
+        public const int TIME_MS = 0x0001;  // time in milliseconds
+        public const int TIME_SAMPLES = 0x0002;  // number of wave samples
+        public const int TIME_BYTES = 0x0004;  // current byte offset
         */
 
         public enum WaveMessage
@@ -67,12 +67,12 @@ namespace Unosquare.FFME.Rendering.Wave
             /// WIM_OPEN
             /// </summary>
             WaveInOpen = 0x3BE,
-            
+
             /// <summary>
             /// WIM_CLOSE
             /// </summary>
             WaveInClose = 0x3BF,
-            
+
             /// <summary>
             /// WIM_DATA
             /// </summary>
@@ -82,12 +82,12 @@ namespace Unosquare.FFME.Rendering.Wave
             /// WOM_CLOSE
             /// </summary>
             WaveOutClose = 0x3BC,
-            
+
             /// <summary>
             /// WOM_DONE
             /// </summary>
             WaveOutDone = 0x3BD,
-            
+
             /// <summary>
             /// WOM_OPEN
             /// </summary>
@@ -99,7 +99,7 @@ namespace Unosquare.FFME.Rendering.Wave
             private const string WinMM = "winmm.dll";
 
             [DllImport(WinMM)]
-            public static extern Int32 waveOutGetNumDevs();
+            public static extern int waveOutGetNumDevs();
 
             [DllImport(WinMM)]
             public static extern MmResult waveOutPrepareHeader(IntPtr hWaveOut, WaveHeader lpWaveOutHdr, int uSize);
@@ -167,7 +167,7 @@ namespace Unosquare.FFME.Rendering.Wave
         /// <param name="result">The result returned by the Windows API call</param>
         /// <param name="function">The name of the Windows API that failed</param>
         public MmException(MmResult result, string function)
-            : base(MmException.ErrorMessage(result, function))
+            : base(ErrorMessage(result, function))
         {
             this.result = result;
             this.function = function;
@@ -203,7 +203,7 @@ namespace Unosquare.FFME.Rendering.Wave
         /// <returns>A descriptive rror message</returns>
         private static string ErrorMessage(MmResult result, string function)
         {
-            return String.Format("{0} calling {1}", result, function);
+            return string.Format("{0} calling {1}", result, function);
         }
     }
 }

@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net46</TargetFrameworks>
+    <TargetFrameworks>net46;netstandard2.0</TargetFrameworks>
     <RootNamespace>Unosquare.FFME</RootNamespace>
-    <Version>3.4.0.1</Version>
+    <Version>3.4.0.2</Version>
     <Authors>Mario Di Vece and Contributors to the FFME project</Authors>
     <Company>Unosquare SA de CV</Company>
     <Product>FFME Cross-Platform Media Engine</Product>
-    <Description>Contains all portable, corss platform Media Core engine</Description>
+    <Description>Contains all portable, cross platform Media Core engine components</Description>
     <Copyright>Unosquare SA de CV, Mario Di Vece, and Contributors, (C) 2017</Copyright>
     <PackageProjectUrl>https://github.com/unosquare/ffmediaelement</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/unosquare/ffmediaelement/blob/master/LICENSE</PackageLicenseUrl>
@@ -16,22 +16,36 @@
     <RepositoryType>GitHub</RepositoryType>
     <PackageTags>FFmpeg, Media, Audio, Video, Decoding</PackageTags>
     <AssemblyName>ffme.common</AssemblyName>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>AnyCPU</Platforms>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CodeAnalysisRuleSet>..\StyleCop.Analyzers.ruleset</CodeAnalysisRuleSet>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net46|AnyCPU'">
+    <PlatformTarget>x86</PlatformTarget>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <NoWarn />
-    <DocumentationFile>bin\Debug\netstandard2.0\ffmecommon.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\net46\ffme.common.xml</DocumentationFile>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net46|AnyCPU'">
+    <PlatformTarget>x86</PlatformTarget>
+    <DocumentationFile>bin\Release\net46\ffme.common.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+    <NoWarn />
+    <DocumentationFile>bin\Debug\netstandard2.0\ffme.common.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
     <DocumentationFile>bin\Release\netstandard2.0\ffme.common.xml</DocumentationFile>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="FFmpeg.AutoGen" Version="3.4.0.2" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />

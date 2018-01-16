@@ -14,12 +14,12 @@
     /// A container capable of opening an input url,
     /// reading packets from it, decoding frames, seeking, and pausing and resuming network streams
     /// Code heavily based on https://raw.githubusercontent.com/FFmpeg/FFmpeg/release/3.2/ffplay.c
-    /// The method pipeline should be: 
-    /// 1. Set Options (or don't, for automatic options) and Initialize, 
-    /// 2. Perform continuous Reads, 
+    /// The method pipeline should be:
+    /// 1. Set Options (or don't, for automatic options) and Initialize,
+    /// 2. Perform continuous Reads,
     /// 3. Perform continuous Decodes and Converts/Materialize
     /// </summary>
-    /// <seealso cref="System.IDisposable" />
+    /// <seealso cref="IDisposable" />
     internal sealed unsafe class MediaContainer : IDisposable
     {
         #region Private Fields
@@ -121,7 +121,7 @@
         /// <param name="mediaUrl">The media URL.</param>
         /// <param name="parent">The logger.</param>
         /// <param name="protocolPrefix">
-        /// The protocol prefix. See https://ffmpeg.org/ffmpeg-protocols.html 
+        /// The protocol prefix. See https://ffmpeg.org/ffmpeg-protocols.html
         /// Leave null if setting it is not intended.</param>
         /// <exception cref="ArgumentNullException">mediaUrl</exception>
         public MediaContainer(string mediaUrl, IMediaLogger parent, string protocolPrefix = null)
@@ -269,7 +269,7 @@
         #region Internal Properties
 
         /// <summary>
-        /// Gets the media start time by which all component streams are offset. 
+        /// Gets the media start time by which all component streams are offset.
         /// Typically 0 but it could be something other than 0.
         /// </summary>
         internal TimeSpan MediaStartTimeOffset { get; private set; }
@@ -456,8 +456,8 @@
         /// </returns>
         /// <exception cref="InvalidOperationException">No input context initialized</exception>
         /// <exception cref="MediaContainerException">MediaType</exception>
-        /// <exception cref="System.ArgumentNullException">input</exception>
-        /// <exception cref="System.ArgumentException">input
+        /// <exception cref="ArgumentNullException">input</exception>
+        /// <exception cref="ArgumentException">input
         /// or
         /// input</exception>
         public MediaBlock Convert(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings, bool releaseInput = true)
@@ -630,7 +630,7 @@
         /// This does NOT create the stream components and therefore, there needs to be a call
         /// to the Open method.
         /// </summary>
-        /// <exception cref="System.InvalidOperationException">The input context has already been initialized.</exception>
+        /// <exception cref="InvalidOperationException">The input context has already been initialized.</exception>
         /// <exception cref="MediaContainerException">When an error initializing the stream occurs.</exception>
         private void StreamInitialize()
         {
@@ -695,7 +695,7 @@
 
                 ffmpeg.av_format_inject_global_side_data(InputContext);
 
-                // This is useful for file formats with no headers such as MPEG. This function also computes 
+                // This is useful for file formats with no headers such as MPEG. This function also computes
                 // the real framerate in case of MPEG-2 repeat frame mode.
                 if (ffmpeg.avformat_find_stream_info(InputContext, null) < 0)
                     Parent?.Log(MediaLogMessageType.Warning, $"{MediaUrl}: could not read stream information.");
@@ -709,7 +709,7 @@
                 IsStreamRealtime = LiveStreamFormatNames.Any(s => MediaFormatName.Equals(s)) ||
                     (InputContext->pb != null && LiveStreamUrlPrefixes.Any(s => MediaUrl.StartsWith(s)));
 
-                // Unsure how this works. Ported from ffplay 
+                // Unsure how this works. Ported from ffplay
                 RequiresReadDelay = MediaFormatName.Equals("rstp") || MediaUrl.StartsWith("mmsh:");
 
                 // Determine the seek mode of the input format
@@ -782,7 +782,7 @@
         /// Creates the stream components by first finding the best available streams.
         /// Then it initializes the components of the correct type each.
         /// </summary>
-        /// <exception cref="Unosquare.FFME.Shared.MediaContainerException">The exception ifnromation</exception>
+        /// <exception cref="MediaContainerException">The exception ifnromation</exception>
         private void StreamCreateComponents()
         {
             // Create the audio component
@@ -869,7 +869,7 @@
         /// Returns None of no packet was read.
         /// </summary>
         /// <returns>The type of media packet that was read</returns>
-        /// <exception cref="System.InvalidOperationException">Initialize</exception>
+        /// <exception cref="InvalidOperationException">Initialize</exception>
         /// <exception cref="MediaContainerException">Raised when an error reading from the stream occurs.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private MediaType StreamRead()

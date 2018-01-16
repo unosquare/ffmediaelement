@@ -11,8 +11,8 @@
     /// Represents a Media Engine that contains underlying streams of audio and/or video.
     /// It uses the fantastic FFmpeg library to perform reading and decoding of media streams.
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.Shared.IMediaLogger" />
-    /// <seealso cref="System.IDisposable" />
+    /// <seealso cref="IMediaLogger" />
+    /// <seealso cref="IDisposable" />
     public partial class MediaEngine : IDisposable, IMediaLogger
     {
         #region Fields and Property Backing
@@ -51,7 +51,7 @@
             // {
             //     Console.WriteLine(p);
             // }
-            
+
             // Assiciate the parent as the media connector that implements the callbacks
             Parent = parent;
             Connector = connector;
@@ -128,7 +128,7 @@
 
         /// <summary>
         /// Updates the position property signaling the update is
-        /// coming internally. This is to distinguish between user/binding 
+        /// coming internally. This is to distinguish between user/binding
         /// written value to the Position Porperty and value set by this control's
         /// internal clock.
         /// </summary>

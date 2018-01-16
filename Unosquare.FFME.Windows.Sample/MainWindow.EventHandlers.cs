@@ -14,7 +14,7 @@
     {
         #region Methods: Event Handlers
 
-        private void Media_PositionChanged(object sender, Events.PositionChangedRoutedEventArgs e)
+        private void Media_PositionChanged(object sender, PositionChangedRoutedEventArgs e)
         {
             // Debug.WriteLine($"{nameof(Media.Position)} = {e.Position}");
         }
@@ -72,7 +72,7 @@
             if (e.MessageType == MediaLogMessageType.Trace)
                 return;
 
-            Debug.WriteLine($"{e.MessageType,10} - {e.Message}");
+            Debug.WriteLine($"{e.MessageType, 10} - {e.Message}");
         }
 
         /// <summary>

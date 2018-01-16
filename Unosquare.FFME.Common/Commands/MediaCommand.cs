@@ -10,7 +10,7 @@
     internal abstract class MediaCommand : IDisposable
     {
         #region State Variables
-        
+
         private bool IsDisposed = false; // To detect redundant calls
         private CancellationTokenSource CancelTokenSource = new CancellationTokenSource();
 
@@ -117,21 +117,17 @@
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         /// <summary>
-        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// Returns a <see cref="string" /> that represents this instance.
         /// </summary>
         /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
+        /// A <see cref="string" /> that represents this instance.
         /// </returns>
-        public override string ToString()
-        {
-            return $"{CommandType} - ID: {TaskContext.Id} Canceled: {TaskContext.IsCanceled}; Completed: {TaskContext.IsCompleted}; Status: {TaskContext.Status}; State: {TaskContext.AsyncState}";
-        }
+        public override string ToString() => $"{CommandType} - " +
+            $"ID: {TaskContext.Id} Canceled: {TaskContext.IsCanceled}; " +
+            $"Completed: {TaskContext.IsCompleted}; Status: {TaskContext.Status}; State: {TaskContext.AsyncState}";
 
         /// <summary>
         /// Performs the actions that this command implements.

@@ -273,7 +273,7 @@
             var element = dependencyObject as MediaElement;
             if (element == null) return;
 
-            element.ViewBox.Stretch = (Stretch)e.NewValue;
+            element.VideoView.Stretch = (Stretch)e.NewValue;
         }
 
         private static void OnStretchDirectionPropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
@@ -281,7 +281,7 @@
             var element = dependencyObject as MediaElement;
             if (element == null) return;
 
-            element.ViewBox.StretchDirection = (StretchDirection)e.NewValue;
+            element.VideoView.StretchDirection = (StretchDirection)e.NewValue;
         }
 
         private static object CoerceVolumeProperty(DependencyObject d, object value)

@@ -1,18 +1,18 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
     using Core;
-    using Shared;
     using FFmpeg.AutoGen;
+    using Shared;
     using System;
     using System.Collections.Generic;
     using System.Globalization;
 
     /// <summary>
-    /// Represents a media component of a given media type within a 
+    /// Represents a media component of a given media type within a
     /// media container. Derived classes must implement frame handling
     /// logic.
     /// </summary>
-    /// <seealso cref="System.IDisposable" />
+    /// <seealso cref="IDisposable" />
     internal abstract unsafe class MediaComponent : IDisposable
     {
         #region Private Declarations
@@ -199,7 +199,7 @@
         public int StreamIndex { get; }
 
         /// <summary>
-        /// Returns the component's stream start timestamp as reported 
+        /// Gets the component's stream start timestamp as reported
         /// by the start time of the stream.
         /// </summary>
         public TimeSpan StartTimeOffset { get; }
@@ -211,7 +211,7 @@
         public TimeSpan Duration { get; }
 
         /// <summary>
-        /// Gets the current length in bytes of the 
+        /// Gets the current length in bytes of the
         /// packet buffer. Limit your Reads to something reasonable before
         /// this becomes too large.
         /// </summary>
@@ -243,7 +243,7 @@
         public string CodecName { get; }
 
         /// <summary>
-        /// Gets the bitrate of this component as reported by the codec context. 
+        /// Gets the bitrate of this component as reported by the codec context.
         /// Returns 0 for unknown.
         /// </summary>
         public int Bitrate { get; }
@@ -287,8 +287,7 @@
         /// <summary>
         /// Pushes a packet into the decoding Packet Queue
         /// and processes the packet in order to try to decode
-        /// 1 or more frames. The packet has to be within the range of
-        /// the start time and end time of 
+        /// 1 or more frames.
         /// </summary>
         /// <param name="packet">The packet.</param>
         public void SendPacket(AVPacket* packet)
@@ -440,7 +439,7 @@
                 MediaFrame managedFrame = null;
                 while (receiveFrameResult == 0)
                 {
-                    // Allocate a frame in unmanaged memory and 
+                    // Allocate a frame in unmanaged memory and
                     // Try to receive the decompressed frame data
                     var outputFrame = ffmpeg.av_frame_alloc();
                     RC.Current.Add(outputFrame, $"327: {nameof(MediaComponent)}[{MediaType}].{nameof(DecodeNextPacketInternal)}()");

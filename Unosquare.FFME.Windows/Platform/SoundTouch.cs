@@ -5,15 +5,15 @@
 
     /// <summary>
     /// SoundTouch audio processing library wrapper (SoundTouch.cs)
-    /// 
+    ///
     /// Original code by
     /// Copyright (c) Olli Parviainen
     /// http://www.surina.net/soundtouch
     /// LGPL License
-    /// 
+    ///
     /// Modified Code by:
     /// Mario Di Vece
-    /// 
+    ///
     /// Changes:
     /// Set-prefixed methods to proety setters
     /// Native wrappers to NativeMethods class name
@@ -74,62 +74,62 @@
             UseQuickSeek = 2,
 
             /// <summary>
-            /// Time-stretch algorithm single processing sequence length in milliseconds. This determines 
-            /// to how long sequences the original sound is chopped in the time-stretch algorithm. 
+            /// Time-stretch algorithm single processing sequence length in milliseconds. This determines
+            /// to how long sequences the original sound is chopped in the time-stretch algorithm.
             /// See "STTypes.h" or README for more information.
             /// </summary>
             SequenceMilliseconds = 3,
 
             /// <summary>
-            /// Time-stretch algorithm seeking window length in milliseconds for algorithm that finds the 
-            /// best possible overlapping location. This determines from how wide window the algorithm 
-            /// may look for an optimal joining location when mixing the sound sequences back together. 
+            /// Time-stretch algorithm seeking window length in milliseconds for algorithm that finds the
+            /// best possible overlapping location. This determines from how wide window the algorithm
+            /// may look for an optimal joining location when mixing the sound sequences back together.
             /// See "STTypes.h" or README for more information.
             /// </summary>
             SeekWindowMilliseconds = 4,
 
             /// <summary>
-            /// Time-stretch algorithm overlap length in milliseconds. When the chopped sound sequences 
-            /// are mixed back together, to form a continuous sound stream, this parameter defines over 
-            /// how long period the two consecutive sequences are let to overlap each other. 
+            /// Time-stretch algorithm overlap length in milliseconds. When the chopped sound sequences
+            /// are mixed back together, to form a continuous sound stream, this parameter defines over
+            /// how long period the two consecutive sequences are let to overlap each other.
             /// See "STTypes.h" or README for more information.
             /// </summary>
             OverlapMilliseconds = 5,
 
             /// <summary>
-            /// Call "getSetting" with this ID to query processing sequence size in samples. 
-            /// This value gives approximate value of how many input samples you'll need to 
+            /// Call "getSetting" with this ID to query processing sequence size in samples.
+            /// This value gives approximate value of how many input samples you'll need to
             /// feed into SoundTouch after initial buffering to get out a new batch of
-            /// output samples. 
+            /// output samples.
             ///
-            /// This value does not include initial buffering at beginning of a new processing 
+            /// This value does not include initial buffering at beginning of a new processing
             /// stream, use SETTING_INITIAL_LATENCY to get the initial buffering size.
             ///
-            /// Notices: 
+            /// Notices:
             /// - This is read-only parameter, i.e. setSetting ignores this parameter
-            /// - This parameter value is not constant but change depending on 
+            /// - This parameter value is not constant but change depending on
             ///   tempo/pitch/rate/samplerate settings.
             /// </summary>
             NominalInputSequence = 6,
 
             /// <summary>
-            /// Call "getSetting" with this ID to query nominal average processing output 
-            /// size in samples. This value tells approcimate value how many output samples 
+            /// Call "getSetting" with this ID to query nominal average processing output
+            /// size in samples. This value tells approcimate value how many output samples
             /// SoundTouch outputs once it does DSP processing run for a batch of input samples.
             ///
-            /// Notices: 
+            /// Notices:
             /// - This is read-only parameter, i.e. setSetting ignores this parameter
-            /// - This parameter value is not constant but change depending on 
+            /// - This parameter value is not constant but change depending on
             ///   tempo/pitch/rate/samplerate settings.
             /// </summary>
             NominalOutputSequence = 7,
 
             /// <summary>
             /// Call "getSetting" with this ID to query initial processing latency, i.e.
-            /// approx. how many samples you'll need to enter to SoundTouch pipeline before 
-            /// you can expect to get first batch of ready output samples out. 
+            /// approx. how many samples you'll need to enter to SoundTouch pipeline before
+            /// you can expect to get first batch of ready output samples out.
             ///
-            /// After the first output batch, you can then expect to get approx. 
+            /// After the first output batch, you can then expect to get approx.
             /// SETTING_NOMINAL_OUTPUT_SEQUENCE ready samples out for every
             /// SETTING_NOMINAL_INPUT_SEQUENCE samples that you enter into SoundTouch.
             ///
@@ -139,18 +139,18 @@
             ///        input sequence  = 4167 samples
             ///        output sequence = 3969 samples
             ///
-            /// Accordingly, you can expect to feed in approx. 5509 samples at beginning of 
-            /// the stream, and then you'll get out the first 3969 samples. After that, for 
-            /// every approx. 4167 samples that you'll put in, you'll receive again approx. 
+            /// Accordingly, you can expect to feed in approx. 5509 samples at beginning of
+            /// the stream, and then you'll get out the first 3969 samples. After that, for
+            /// every approx. 4167 samples that you'll put in, you'll receive again approx.
             /// 3969 samples out.
             ///
-            /// This also means that average latency during stream processing is 
-            /// INITIAL_LATENCY-OUTPUT_SEQUENCE/2, in the above example case 5509-3969/2 
+            /// This also means that average latency during stream processing is
+            /// INITIAL_LATENCY-OUTPUT_SEQUENCE/2, in the above example case 5509-3969/2
             /// = 3524 samples
-            /// 
-            /// Notices: 
+            ///
+            /// Notices:
             /// - This is read-only parameter, i.e. setSetting ignores this parameter
-            /// - This parameter value is not constant but change depending on 
+            /// - This parameter value is not constant but change depending on
             ///   tempo/pitch/rate/samplerate settings.
             /// </summary>
             InitialLatency = 8,
@@ -226,7 +226,6 @@
 
         /// <summary>
         /// Sets the number of channels
-        /// 
         /// Value: 1 = mono, 2 = stereo, n = multichannel
         /// </summary>
         public uint Channels
@@ -244,8 +243,7 @@
         }
 
         /// <summary>
-        /// Sets new tempo control value. 
-        /// 
+        /// Sets new tempo control value.
         /// Value: Tempo setting. Normal tempo = 1.0, smaller values
         /// represent slower tempo, larger faster tempo.
         /// </summary>
@@ -270,7 +268,7 @@
         }
 
         /// <summary>
-        /// Sets new rate control value. 
+        /// Sets new rate control value.
         /// Rate setting. Normal rate = 1.0, smaller values
         /// represent slower rate, larger faster rate.
         /// </summary>
@@ -282,7 +280,6 @@
         /// <summary>
         /// Sets new rate control value as a difference in percents compared
         /// to the original rate (-50 .. +100 %);
-        /// 
         /// Value: Rate setting is in %
         /// </summary>
         public float RateChange
@@ -291,8 +288,7 @@
         }
 
         /// <summary>
-        /// Sets new pitch control value. 
-        /// 
+        /// Sets new pitch control value.
         /// Value: Pitch setting. Original pitch = 1.0, smaller values
         /// represent lower pitches, larger values higher pitch.
         /// </summary>
@@ -302,9 +298,8 @@
         }
 
         /// <summary>
-        /// Sets pitch change in octaves compared to the original pitch  
+        /// Sets pitch change in octaves compared to the original pitch
         /// (-1.00 .. +1.00 for +- one octave);
-        /// 
         /// Value: Pitch setting in octaves
         /// </summary>
         public float PitchOctaves
@@ -315,7 +310,6 @@
         /// <summary>
         /// Sets pitch change in semi-tones compared to the original pitch
         /// (-12 .. +12 for +- one octave);
-        /// 
         /// Value: Pitch setting in semitones
         /// </summary>
         public float PitchSemiTones
@@ -328,7 +322,7 @@
         /// 'SETTING_...' defines for available setting ID's.
         /// </summary>
         /// <value>
-        /// The <see cref="System.Int32"/>.
+        /// The <see cref="int"/>.
         /// </value>
         /// <param name="settingId">The setting identifier.</param>
         /// <returns>The value of the setting</returns>
@@ -351,7 +345,6 @@
         /// <summary>
         /// Flushes the last samples from the processing pipeline to the output.
         /// Clears also the internal processing buffers.
-        /// 
         /// Note: This function is meant for extracting the last samples of a sound
         /// stream. This function may introduce additional blank samples in the end
         /// of the sound stream, and thus it's not recommended to call this function
@@ -378,7 +371,7 @@
         /// </summary>
         /// <param name="samples">Sample buffer to input</param>
         /// <param name="numSamples">Number of sample frames in buffer. Notice
-        /// that in case of multi-channel sound a single sample frame contains 
+        /// that in case of multi-channel sound a single sample frame contains
         /// data for all channels</param>
         public void PutSamples(float[] samples, uint numSamples)
         {
@@ -391,7 +384,7 @@
         /// </summary>
         /// <param name="samples">Sample input buffer.</param>
         /// <param name="numSamples">Number of sample frames in buffer. Notice
-        /// that in case of multi-channel sound a single 
+        /// that in case of multi-channel sound a single
         /// sample frame contains data for all channels.</param>
         public void PutSamplesI16(short[] samples, uint numSamples)
         {

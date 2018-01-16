@@ -300,7 +300,7 @@
             }
         }
 
-        #endregion        
+        #endregion
 
         /// <summary>
         /// Processes the next command in the command queue.

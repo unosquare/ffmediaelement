@@ -66,7 +66,7 @@
         /// Gets or sets the value with the specified key.
         /// </summary>
         /// <value>
-        /// The <see cref="System.String"/>.
+        /// The <see cref="string"/>.
         /// </value>
         /// <param name="key">The key.</param>
         /// <returns>The entry</returns>

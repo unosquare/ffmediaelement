@@ -23,13 +23,13 @@
             new ReadOnlyDictionary<int, MediaLogMessageType>(
                 new Dictionary<int, MediaLogMessageType>
                 {
-                    {ffmpeg.AV_LOG_DEBUG, MediaLogMessageType.Debug},
-                    {ffmpeg.AV_LOG_ERROR, MediaLogMessageType.Error},
-                    {ffmpeg.AV_LOG_FATAL, MediaLogMessageType.Error},
-                    {ffmpeg.AV_LOG_INFO, MediaLogMessageType.Info},
-                    {ffmpeg.AV_LOG_PANIC, MediaLogMessageType.Error},
-                    {ffmpeg.AV_LOG_TRACE, MediaLogMessageType.Trace},
-                    {ffmpeg.AV_LOG_WARNING, MediaLogMessageType.Warning},
+                    { ffmpeg.AV_LOG_DEBUG, MediaLogMessageType.Debug },
+                    { ffmpeg.AV_LOG_ERROR, MediaLogMessageType.Error },
+                    { ffmpeg.AV_LOG_FATAL, MediaLogMessageType.Error },
+                    { ffmpeg.AV_LOG_INFO, MediaLogMessageType.Info },
+                    { ffmpeg.AV_LOG_PANIC, MediaLogMessageType.Error },
+                    { ffmpeg.AV_LOG_TRACE, MediaLogMessageType.Trace },
+                    { ffmpeg.AV_LOG_WARNING, MediaLogMessageType.Warning },
                 });
         private static Timer LogOutputter = null;
 
@@ -89,7 +89,7 @@
         /// <param name="messageType">Type of the message.</param>
         /// <param name="message">The message.</param>
         /// <exception cref="ArgumentNullException">sender</exception>
-        /// <exception cref="System.ArgumentNullException">When sender is null</exception>
+        /// <exception cref="ArgumentNullException">When sender is null</exception>
         public static void Log(MediaEngine sender, MediaLogMessageType messageType, string message)
         {
             if (sender == null) throw new ArgumentNullException(nameof(sender));
@@ -116,10 +116,10 @@
                 $"{block.MediaType.ToString().Substring(0, 1)} "
                     + $"BLK: {block.StartTime.Format()} | "
                     + $"CLK: {clockPosition.Format()} | "
-                    + $"DFT: {drift.TotalMilliseconds,4:0} | "
-                    + $"IX: {renderIndex,3} | "
-                    + $"PQ: {mediaCore.Container?.Components[block.MediaType]?.PacketBufferLength / 1024d,7:0.0}k | "
-                    + $"TQ: {mediaCore.Container?.Components.PacketBufferLength / 1024d,7:0.0}k");
+                    + $"DFT: {drift.TotalMilliseconds, 4:0} | "
+                    + $"IX: {renderIndex, 3} | "
+                    + $"PQ: {mediaCore.Container?.Components[block.MediaType]?.PacketBufferLength / 1024d, 7:0.0}k | "
+                    + $"TQ: {mediaCore.Container?.Components.PacketBufferLength / 1024d, 7:0.0}k");
             }
             catch
             {
