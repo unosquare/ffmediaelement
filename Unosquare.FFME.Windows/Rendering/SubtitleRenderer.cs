@@ -3,14 +3,12 @@
     using Platform;
     using Shared;
     using System;
-    using System.Collections.Generic;
-    using System.Windows;
     using System.Windows.Threading;
 
     /// <summary>
     /// Subtitle Renderer - Does nothing at this point.
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.Shared.IMediaRenderer" />
+    /// <seealso cref="IMediaRenderer" />
     internal class SubtitleRenderer : IMediaRenderer
     {
         /// <summary>
@@ -153,72 +151,6 @@
         }
 
         /// <summary>
-        /// Gets or creates the tex blocks that make up the subtitle text and outline.
-        /// </summary>
-        /// <returns>The text blocks including the fill and outline (5 total)</returns>
-        private List<System.Windows.Controls.TextBlock> GetTextBlocks()
-        {
-            const string SubtitleElementNamePrefix = "SubtitlesTextBlock_";
-            const double OutlineWidth = 1d;
-
-            var contentChildren = MediaElement.ContentGrid.Children;
-            var textBlocks = new List<System.Windows.Controls.TextBlock>();
-            for (var i = 0; i < contentChildren.Count; i++)
-            {
-                var currentChild = contentChildren[i] as System.Windows.Controls.TextBlock;
-                if (currentChild == null)
-                    continue;
-
-                if (currentChild.Name.StartsWith(SubtitleElementNamePrefix))
-                    textBlocks.Add(currentChild);
-            }
-
-            if (textBlocks.Count > 0) return textBlocks;
-
-            var m = new Thickness(40, 0, 40, 200);
-
-            for (var i = 0; i <= 4; i++)
-            {
-                var textBlock = new System.Windows.Controls.TextBlock()
-                {
-                    Name = $"{SubtitleElementNamePrefix}{i}",
-                    TextWrapping = TextWrapping.Wrap,
-                    FontSize = 40,
-                    FontWeight = FontWeights.DemiBold,
-                    Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Black),
-                    TextAlignment = TextAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Bottom,
-                    HorizontalAlignment = HorizontalAlignment.Stretch,
-                    Margin = m
-                };
-
-                textBlocks.Add(textBlock);
-            }
-
-            textBlocks[1].Margin = new Thickness(m.Left + OutlineWidth, m.Top, m.Right - OutlineWidth, m.Bottom);
-            textBlocks[2].Margin = new Thickness(m.Left - OutlineWidth, m.Top, m.Right + OutlineWidth, m.Bottom);
-            textBlocks[3].Margin = new Thickness(m.Left, m.Top + OutlineWidth, m.Right, m.Bottom - OutlineWidth);
-            textBlocks[4].Margin = new Thickness(m.Left, m.Top - OutlineWidth, m.Right, m.Bottom + OutlineWidth);
-
-            textBlocks[0].Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.White);
-
-            textBlocks[0].Effect = new System.Windows.Media.Effects.DropShadowEffect
-            {
-                BlurRadius = 4,
-                Color = System.Windows.Media.Colors.Black,
-                Direction = 315,
-                Opacity = 0.75,
-                RenderingBias = System.Windows.Media.Effects.RenderingBias.Performance,
-                ShadowDepth = 4
-            };
-
-            for (var i = 4; i >= 0; i--)
-                MediaElement.ContentGrid.Children.Add(textBlocks[i]);
-
-            return textBlocks;
-        }
-
-        /// <summary>
         /// Sets the text to be rendered on the text blocks.
         /// Returns immediately because it enqueues the action on the UI thread.
         /// </summary>
@@ -235,10 +167,7 @@
                 {
                     lock (SyncLock)
                     {
-                        var textBlocks = GetTextBlocks();
-                        foreach (var tb in textBlocks)
-                            tb.Text = s;
-
+                        MediaElement.SubtitleView.Text = s;
                         RenderedText = s;
                     }
                 }), text);

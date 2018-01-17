@@ -2,6 +2,7 @@
 {
     using Events;
     using Platform;
+    using Rendering;
     using System;
     using System.ComponentModel;
     using System.Threading.Tasks;
@@ -34,6 +35,9 @@
         /// </summary>
         private Uri m_BaseUri = null;
 
+        /// <summary>
+        /// Holds the Media Engine
+        /// </summary>
         private MediaEngine m_MediaCore;
 
         #endregion
@@ -64,11 +68,16 @@
             Content = ContentGrid;
             ContentGrid.HorizontalAlignment = HorizontalAlignment.Stretch;
             ContentGrid.VerticalAlignment = VerticalAlignment.Stretch;
-            ContentGrid.Children.Add(VideoView);
             Stretch = VideoView.Stretch;
             StretchDirection = VideoView.StretchDirection;
-            MediaCore = new MediaEngine(this, new WindowsMediaConnector(this));
 
+            // Add the child controls
+            ContentGrid.Children.Add(VideoView);
+            ContentGrid.Children.Add(SubtitleView);
+            SubtitleView.VerticalAlignment = VerticalAlignment.Top;
+            SubtitleView.MaxHeight = 200;
+
+            // Display the control (or not)
             if (WindowsPlatform.Instance.IsInDesignTime)
             {
                 // Shows an FFmpeg image if we are in design-time
@@ -77,6 +86,11 @@
                     bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
                 var controlBitmap = new WriteableBitmap(bitmapSource);
                 VideoView.Source = controlBitmap;
+            }
+            else
+            {
+                // Setup the media engine
+                MediaCore = new MediaEngine(this, new WindowsMediaConnector(this));
             }
         }
 
@@ -128,17 +142,13 @@
         }
 
         /// <summary>
-        /// Gets or sets the horizontal alignment characteristics applied to this element when it is
-        /// composed within a parent element, such as a panel or items control.
+        /// Provides access to the underlying media engine driving this control.
+        /// This property is intender for advance usages only.
         /// </summary>
-        public new HorizontalAlignment HorizontalAlignment
+        public MediaEngine MediaCore
         {
-            get => base.HorizontalAlignment;
-            set
-            {
-                VideoView.HorizontalAlignment = value;
-                base.HorizontalAlignment = value;
-            }
+            get { return m_MediaCore; }
+            private set { m_MediaCore = value; }
         }
 
         /// <summary>
@@ -151,21 +161,14 @@
         }
 
         /// <summary>
-        /// Provides access to the underlying media engine driving this control.
-        /// This property is intender for advance usages only.
+        /// This is the image that holds video bitmaps
         /// </summary>
-        public MediaEngine MediaCore
-        {
-            get { return m_MediaCore; }
-            private set { m_MediaCore = value; }
-        }
+        public Image VideoView { get; } = new Image();
 
         /// <summary>
-        /// When position is being set from within this control, this field will
-        /// be set to true. This is useful to detect if the user is setting the position
-        /// or if the Position property is being driven from within
+        /// A viewbox holding the subtitle text blocks
         /// </summary>
-        internal bool IsPositionUpdating => MediaCore.IsPositionUpdating;
+        public SubtitleTextBlock SubtitleView { get; } = new SubtitleTextBlock();
 
         /// <summary>
         /// Gets the grid control holding the rest of the controls.
@@ -173,14 +176,11 @@
         internal Grid ContentGrid { get; }
 
         /// <summary>
-        /// This is the image that holds video bitmaps
+        /// When position is being set from within this control, this field will
+        /// be set to true. This is useful to detect if the user is setting the position
+        /// or if the Position property is being driven from within
         /// </summary>
-        internal Image VideoView { get; } = new Image();
-
-        /// <summary>
-        /// A viewbox holding the subtitle text blocks
-        /// </summary>
-        internal Viewbox SubtitleView { get; } = new Viewbox();
+        internal bool IsPositionUpdating => MediaCore.IsPositionUpdating;
 
         #endregion
 
@@ -240,6 +240,20 @@
         public void Dispose()
         {
             m_MediaCore.Dispose();
+        }
+
+        /// <summary>
+        /// Invoked whenever the effective value of any dependency property on this <see cref="T:System.Windows.FrameworkElement" /> has been updated. The specific dependency property that changed is reported in the arguments parameter. Overrides <see cref="M:System.Windows.DependencyObject.OnPropertyChanged(System.Windows.DependencyPropertyChangedEventArgs)" />.
+        /// </summary>
+        /// <param name="e">The event data that describes the property that changed, as well as old and new values.</param>
+        protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
+        {
+            if (e.Property.Name == nameof(HorizontalAlignment))
+                VideoView.HorizontalAlignment = (HorizontalAlignment)e.NewValue;
+            else if (e.Property.Name == nameof(VerticalAlignment))
+                VideoView.VerticalAlignment = (VerticalAlignment)e.NewValue;
+
+            base.OnPropertyChanged(e);
         }
 
         #endregion

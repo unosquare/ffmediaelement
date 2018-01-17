@@ -43,7 +43,7 @@
     <DocumentationFile>bin\Release\ffme.win.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
-	<CodeAnalysisRuleSet>..\StyleCop.Analyzers.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\StyleCop.Analyzers.ruleset</CodeAnalysisRuleSet>
     <ApplicationIcon />
   </PropertyGroup>
   <ItemGroup>
@@ -76,6 +76,7 @@
     <Compile Include="Platform\WpfGuiContext.cs" />
     <Compile Include="Events\PositionChangedRoutedEventArgs.cs" />
     <Compile Include="Platform\SoundTouch.cs" />
+    <Compile Include="Rendering\SubtitleTextBlock.cs" />
     <Compile Include="Rendering\Wave\IWaveProvider.cs" />
     <Compile Include="Rendering\Wave\MmResult.cs" />
     <Compile Include="Rendering\Wave\MmTime.cs" />

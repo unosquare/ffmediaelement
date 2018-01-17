@@ -34,7 +34,7 @@
         /// Provides key-value pairs of the metadata contained in the media.
         /// Returns null when media has not been loaded.
         /// </summary>
-        public ReadOnlyDictionary<string, string> Metadata => Container.Metadata ?? EmptyDictionary;
+        public ReadOnlyDictionary<string, string> Metadata => Container?.Metadata ?? EmptyDictionary;
 
         /// <summary>
         /// Gets the media format. Returns null when media has not been loaded.
