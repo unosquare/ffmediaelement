@@ -8,7 +8,7 @@
     /// <summary>
     /// The WPF graphical context
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.Platform.IGuiContext" />
+    /// <seealso cref="IGuiContext" />
     internal class WpfGuiContext : IGuiContext
     {
         /// <summary>

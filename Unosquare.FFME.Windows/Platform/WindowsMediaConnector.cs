@@ -7,7 +7,7 @@
     /// <summary>
     /// The Media engine connector
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.Shared.IMediaConnector" />
+    /// <seealso cref="IMediaConnector" />
     internal class WindowsMediaConnector : IMediaConnector
     {
         private MediaElement Control = null;
