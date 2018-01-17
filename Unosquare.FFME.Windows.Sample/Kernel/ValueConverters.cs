@@ -9,7 +9,7 @@ namespace Unosquare.FFME.Windows.Sample.Kernel
     /// <summary>
     /// Converts between TimeSpans and double-precision Seconds time measures
     /// </summary>
-    /// <seealso cref="System.Windows.Data.IValueConverter" />
+    /// <seealso cref="IValueConverter" />
     internal class TimeSpanToSecondsConverter : IValueConverter
     {
         /// <summary>
@@ -64,7 +64,7 @@ namespace Unosquare.FFME.Windows.Sample.Kernel
     /// <summary>
     /// Formsts timespan time measures as string with 3-decimal milliseconds
     /// </summary>
-    /// <seealso cref="System.Windows.Data.IValueConverter" />
+    /// <seealso cref="IValueConverter" />
     internal class TimeSpanFormatter : IValueConverter
     {
         /// <summary>
@@ -121,9 +121,71 @@ namespace Unosquare.FFME.Windows.Sample.Kernel
     }
 
     /// <summary>
+    /// Formats a byte value to a human-readable value.
+    /// </summary>
+    /// <seealso cref="IValueConverter" />
+    internal class ByteFormatter : IValueConverter
+    {
+        /// <summary>
+        /// Converts the specified value.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <param name="targetType">Type of the target.</param>
+        /// <param name="format">The format.</param>
+        /// <param name="culture">The culture.</param>
+        /// <returns>The converted value</returns>
+        public object Convert(object value, Type targetType, object format, CultureInfo culture)
+        {
+            const double minKiloByte = 1024;
+            const double minMegaByte = 1024 * 1024;
+            const double minGigaByte = 1024 * 1024 * 1024;
+
+            var byteCount = System.Convert.ToDouble(value);
+
+            var suffix = "b";
+            var output = 0d;
+
+            if (byteCount >= minKiloByte)
+            {
+                suffix = "kB";
+                output = Math.Round(byteCount / minKiloByte, 2);
+            }
+
+            if (byteCount >= minMegaByte)
+            {
+                suffix = "MB";
+                output = Math.Round(byteCount / minMegaByte, 2);
+            }
+
+            if (byteCount >= minGigaByte)
+            {
+                suffix = "GB";
+                output = Math.Round(byteCount / minGigaByte, 2);
+            }
+
+            return $"{output:0.00} {suffix}";
+        }
+
+        /// <summary>
+        /// Converts the back.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <param name="targetType">Type of the target.</param>
+        /// <param name="parameter">The parameter.</param>
+        /// <param name="culture">The culture.</param>
+        /// <returns>
+        /// A converted value. If the method returns null, the valid null value is used.
+        /// </returns>
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
     /// Formats a fractional value as a percentage string.
     /// </summary>
-    /// <seealso cref="System.Windows.Data.IValueConverter" />
+    /// <seealso cref="IValueConverter" />
     internal class PercentageFormatter : IValueConverter
     {
         /// <summary>
@@ -142,9 +204,9 @@ namespace Unosquare.FFME.Windows.Sample.Kernel
             percentage = Math.Round(percentage * 100d, 0);
 
             if (format == null || percentage == 0d)
-                return $"{percentage, 3:0}%";
+                return $"{percentage,3:0}%";
 
-            return $"{((percentage > 0d) ? "R " : "L ")} {Math.Abs(percentage), 3:0}%";
+            return $"{((percentage > 0d) ? "R " : "L ")} {Math.Abs(percentage),3:0}%";
         }
 
         /// <summary>

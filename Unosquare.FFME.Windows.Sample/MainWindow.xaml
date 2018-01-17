@@ -15,6 +15,7 @@
                     <local:TimeSpanToSecondsConverter x:Key="TimeSpanToSecondsConverter" />
                     <local:TimeSpanFormatter x:Key="TimeSpanFormatter" />
                     <local:PercentageFormatter x:Key="PercentageFormatter" />
+                    <local:ByteFormatter x:Key="ByteFormatter" />
                 </ResourceDictionary>
                 <ResourceDictionary Source="Icons.xaml" />
                 <ResourceDictionary Source="Styles.xaml" />
@@ -281,22 +282,22 @@
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Buffering Progress</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=BufferingProgress, Mode=OneWay}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=BufferingProgress, Mode=OneWay, Converter={StaticResource PercentageFormatter}}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Max Buffer</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=BufferCacheLength, Mode=OneWay}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=BufferCacheLength, Mode=OneWay, Converter={StaticResource ByteFormatter}}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Download Progress</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=DownloadProgress, Mode=OneWay}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=DownloadProgress, Mode=OneWay, Converter={StaticResource PercentageFormatter}}" />
                     </DockPanel>
 
                     <DockPanel>
                         <Label Style="{StaticResource Key}">Max Download</Label>
-                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=DownloadCacheLength, Mode=OneWay}" />
+                        <Label Style="{StaticResource Value}" Content="{Binding ElementName=Media, Path=DownloadCacheLength, Mode=OneWay, Converter={StaticResource ByteFormatter}}" />
                     </DockPanel>
 
                     <DockPanel Background="#FF444444">
