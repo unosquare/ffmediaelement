@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Rendering
 {
+    using Platform;
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Windows;
@@ -139,6 +140,11 @@
             FontSize = DefaultFontSize;
             FontWeight = FontWeights.DemiBold;
             VerticalAlignment = VerticalAlignment.Bottom;
+
+            if (WindowsPlatform.Instance.IsInDesignTime)
+            {
+                Text = "Subtitle TextBlock\r\n(Design-Time Preview)";
+            }
         }
 
         private enum Block

@@ -74,8 +74,21 @@
             // Add the child controls
             ContentGrid.Children.Add(VideoView);
             ContentGrid.Children.Add(SubtitleView);
+
+            // TODO update as the VideoView updates but check if there are valid dimensions and it actually has video
+            /*
             SubtitleView.VerticalAlignment = VerticalAlignment.Top;
             SubtitleView.MaxHeight = 200;
+
+            VideoView.LayoutUpdated += (s, e) =>
+            {
+                var videoViewPosition = VideoView.TransformToAncestor(VideoView.Parent as System.Windows.Media.Visual)
+                              .Transform(new Point(0, 0));
+                SubtitleView.MaxHeight = VideoView.ActualHeight / 5;
+
+                SubtitleView.Margin = new Thickness(0, videoViewPosition.Y, 0, 0);
+            };
+            */
 
             // Display the control (or not)
             if (WindowsPlatform.Instance.IsInDesignTime)
