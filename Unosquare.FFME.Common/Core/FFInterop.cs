@@ -10,7 +10,7 @@
     using System.Text;
 
     /// <summary>
-    /// Provides a set of utilities to perfrom logging, text formatting, 
+    /// Provides a set of utilities to perfrom logging, text formatting,
     /// conversion and other handy calculations.
     /// </summary>
     internal static class FFInterop
@@ -67,7 +67,6 @@
         /// as there is already a valid initialization.
         /// </returns>
         /// <exception cref="FileNotFoundException">When ffmpeg libraries are not found</exception>
-        /// <exception cref="System.IO.FileNotFoundException">When the folder is not found</exception>
         public static unsafe bool Initialize(string overridePath, int libIdentifiers)
         {
             lock (SyncLock)

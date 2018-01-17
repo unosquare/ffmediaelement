@@ -16,10 +16,10 @@
     /// In contrast with System.Windows.Controls.MediaElement, this version uses
     /// the FFmpeg library to perform reading and decoding of media streams.
     /// </summary>
-    /// <seealso cref="System.Windows.Controls.UserControl" />
-    /// <seealso cref="System.IDisposable" />
-    /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
-    /// <seealso cref="System.Windows.Markup.IUriContext" />
+    /// <seealso cref="UserControl" />
+    /// <seealso cref="IDisposable" />
+    /// <seealso cref="INotifyPropertyChanged" />
+    /// <seealso cref="IUriContext" />
     [Localizability(LocalizationCategory.NeverLocalize)]
     [DefaultProperty(nameof(Source))]
     public sealed partial class MediaElement : UserControl, IDisposable, INotifyPropertyChanged, IUriContext
@@ -128,7 +128,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the horizontal alignment characteristics applied to this element when it is 
+        /// Gets or sets the horizontal alignment characteristics applied to this element when it is
         /// composed within a parent element, such as a panel or items control.
         /// </summary>
         public new HorizontalAlignment HorizontalAlignment

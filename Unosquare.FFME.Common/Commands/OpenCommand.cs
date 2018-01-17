@@ -9,7 +9,7 @@
     /// <summary>
     /// Implements the logic to open a media stream.
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.Commands.MediaCommand" />
+    /// <seealso cref="MediaCommand" />
     internal sealed class OpenCommand : MediaCommand
     {
         /// <summary>
@@ -55,7 +55,7 @@
                     MediaEngine.FFmpegLoadModeFlags = FFInterop.LibraryIdentifiers;
 
                     // Log an init message
-                    m.Log(MediaLogMessageType.Info, 
+                    m.Log(MediaLogMessageType.Info,
                         $"{nameof(FFInterop)}.{nameof(FFInterop.Initialize)}: FFmpeg v{ffmpeg.av_version_info()}");
                 }
 
@@ -73,7 +73,7 @@
                 // Set the state to stopped
                 m.MediaState = MediaEngineState.Stop;
 
-                // Signal we are no longer in the opening state 
+                // Signal we are no longer in the opening state
                 // so we can enqueue commands in the event handler
                 m.IsOpening = false;
 
