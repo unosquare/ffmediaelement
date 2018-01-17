@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME.MacOS.Platform
 {
-	using System;
+    using System;
     using FFmpeg.AutoGen;
     using Unosquare.FFME.Shared;
 
@@ -8,7 +8,8 @@
     {
         public bool SetDllDirectory(string lpPathName)
         {
-            ffmpeg.RootPath = lpPathName;
+            if (lpPathName != null)
+                ffmpeg.RootPath = lpPathName ?? string.Empty;
             return true;
         }
 
