@@ -63,7 +63,8 @@
         /// <param name="overridePath">The override path.</param>
         /// <param name="libIdentifiers">The bitwaise flag identifiers corresponding to the libraries.</param>
         /// <returns>
-        /// Returns the path that FFmpeg was registered from.
+        /// Returns true if it was a new initialization and it succeeded. False if there was no need to initialize
+        /// as there is already a valid initialization.
         /// </returns>
         /// <exception cref="FileNotFoundException">When ffmpeg libraries are not found</exception>
         /// <exception cref="System.IO.FileNotFoundException">When the folder is not found</exception>
@@ -72,7 +73,7 @@
             lock (SyncLock)
             {
                 if (m_IsInitialized)
-                    return m_IsInitialized;
+                    return false;
 
                 try
                 {
@@ -83,19 +84,14 @@
                     var registrationIds = 0;
 
                     // Sometimes we need to set the DLL directory even if we try to load the
-                    // library from the full path. In some Windows systems we get error 126
+                    // library from the full path. In some Windows systems we get error 126 if we don't
                     MediaEngine.Platform.NativeMethods.SetDllDirectory(ffmpegPath);
 
                     // Load the minimum set of FFmpeg binaries
                     foreach (var lib in FFLibrary.All)
                     {
-                        if ((lib.FlagId & libIdentifiers) != 0)
-                        {
-                            if (lib.Load(ffmpegPath))
-                            {
+                        if ((lib.FlagId & libIdentifiers) != 0 && lib.Load(ffmpegPath))
                                 registrationIds |= lib.FlagId;
-                            }
-                        }
                     }
 
                     // Check if libraries were loaded correctly
@@ -119,22 +115,23 @@
                     LoggingWorker.ConnectToFFmpeg();
                     FFLockManager.Register();
 
-                    m_IsInitialized = true;
+                    // set the static environment properties
                     m_LibrariesPath = ffmpegPath;
                     m_LibraryIdentifiers = registrationIds;
+                    m_IsInitialized = true;
                 }
                 catch
                 {
-                    m_IsInitialized = true;
                     m_LibrariesPath = string.Empty;
                     m_LibraryIdentifiers = 0;
+                    m_IsInitialized = false;
 
                     // rethrow the exception with the original stack trace.
                     throw;
                 }
                 finally
                 {
-                    // Reset the search path
+                    // Reset the search path after registration
                     MediaEngine.Platform.NativeMethods.SetDllDirectory(null);
                 }
 

@@ -42,19 +42,22 @@
                 // TODO: Sometimes when the stream can't be read, the sample player stays as if it were trying to open
                 // until the interrupt timeout occurs but and the Real-Time Clock continues. Strange behavior.
 
-                // Register FFmpeg if not already done
-                if (FFInterop.IsInitialized == false)
-                {
-                    FFInterop.Initialize(MediaEngine.FFmpegDirectory, MediaEngine.FFmpegLoadModeFlags);
-                    MediaEngine.FFmpegDirectory = FFInterop.LibrariesPath;
-                    MediaEngine.FFmpegLoadModeFlags = FFInterop.LibraryIdentifiers;
-
-                    m.Log(MediaLogMessageType.Info, $"INIT FFMPEG: {ffmpeg.av_version_info()}");
-                }
-
+                // Signal the initial state
                 m.ResetControllerProperties();
                 m.IsOpening = true;
                 m.MediaState = MediaEngineState.Manual;
+
+                // Register FFmpeg libraries if not already done
+                if (FFInterop.Initialize(MediaEngine.FFmpegDirectory, MediaEngine.FFmpegLoadModeFlags))
+                {
+                    // Set the folders and lib identifiers
+                    MediaEngine.FFmpegDirectory = FFInterop.LibrariesPath;
+                    MediaEngine.FFmpegLoadModeFlags = FFInterop.LibraryIdentifiers;
+
+                    // Log an init message
+                    m.Log(MediaLogMessageType.Info, 
+                        $"{nameof(FFInterop)}.{nameof(FFInterop.Initialize)}: FFmpeg v{ffmpeg.av_version_info()}");
+                }
 
                 // Convert the URI object to something the Media Container understands
                 var mediaUrl = Source.IsFile ? Source.LocalPath : Source.ToString();
