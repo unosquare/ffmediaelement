@@ -122,7 +122,7 @@
                     #region 2. Handle Block Rendering
 
                     // Wait for the seek op to finish before we capture blocks
-                    if (IsSeeking)
+                    if (HasDecoderSeeked)
                         SeekingDone.WaitOne();
 
                     // Capture the blocks to render
