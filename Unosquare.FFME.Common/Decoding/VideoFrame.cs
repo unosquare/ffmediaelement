@@ -11,7 +11,7 @@
     /// <summary>
     /// Represents a wrapper for an unmanaged ffmpeg video frame.
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.Decoding.MediaFrame" />
+    /// <seealso cref="MediaFrame" />
     internal sealed unsafe class VideoFrame : MediaFrame
     {
         #region Private Members
@@ -51,7 +51,7 @@
             EndTime = TimeSpan.FromTicks(StartTime.Ticks + Duration.Ticks);
 
             DisplayPictureNumber = frame->display_picture_number == 0 ?
-                1 + (int)Math.Round((double)StartTime.Ticks / Duration.Ticks, 0) : 
+                1 + (int)Math.Round((double)StartTime.Ticks / Duration.Ticks, 0) :
                 frame->display_picture_number;
 
             CodedPictureNumber = frame->coded_picture_number;
@@ -61,8 +61,8 @@
             var startFrameNumber = (int)Math.Round((double)component.StartTimeOffset.Ticks / Duration.Ticks, 0);
             ffmpeg.av_timecode_init(timeCodeInfo, timeBase, 0, startFrameNumber, null);
             var isNtsc = timeBase.num == 30000 && timeBase.den == 1001;
-            var frameNumber = isNtsc ? 
-                ffmpeg.av_timecode_adjust_ntsc_framenum2(DisplayPictureNumber, (int)timeCodeInfo->fps) : 
+            var frameNumber = isNtsc ?
+                ffmpeg.av_timecode_adjust_ntsc_framenum2(DisplayPictureNumber, (int)timeCodeInfo->fps) :
                 DisplayPictureNumber;
 
             var timeCode = ffmpeg.av_timecode_get_smpte_from_framenum(timeCodeInfo, DisplayPictureNumber);
@@ -122,7 +122,7 @@
 
         /// <summary>
         /// Gets the display picture number (frame number).
-        /// If not set by the decoder, this attempts to obtain it by dividing the start time by the 
+        /// If not set by the decoder, this attempts to obtain it by dividing the start time by the
         /// frame duration
         /// </summary>
         public int DisplayPictureNumber { get; }

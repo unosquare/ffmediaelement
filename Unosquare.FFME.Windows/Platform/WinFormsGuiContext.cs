@@ -9,7 +9,7 @@
     /// <summary>
     /// The Windows forms graphical context
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.Platform.IGuiContext" />
+    /// <seealso cref="IGuiContext" />
     internal class WinFormsGuiContext : IGuiContext
     {
         /// <summary>

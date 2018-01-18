@@ -6,7 +6,7 @@
     /// <summary>
     /// Contains the Message Logged Event Arguments
     /// </summary>
-    /// <seealso cref="System.EventArgs" />
+    /// <seealso cref="EventArgs" />
     public class MediaLogMessageEventArgs : EventArgs
     {
         /// <summary>

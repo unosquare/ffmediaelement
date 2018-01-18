@@ -9,7 +9,7 @@
     /// <summary>
     /// Performs subtitle stream extraction, decoding and text conversion.
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.Decoding.MediaComponent" />
+    /// <seealso cref="MediaComponent" />
     internal sealed unsafe class SubtitleComponent : MediaComponent
     {
         /// <summary>
@@ -34,7 +34,7 @@
         /// <returns>
         /// Return the updated output frame
         /// </returns>
-        /// <exception cref="System.ArgumentNullException">input cannot be null</exception>
+        /// <exception cref="ArgumentNullException">input cannot be null</exception>
         public override MediaBlock MaterializeFrame(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings)
         {
             if (output == null) output = new SubtitleBlock();

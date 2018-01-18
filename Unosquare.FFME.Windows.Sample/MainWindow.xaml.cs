@@ -76,11 +76,11 @@
 
             // Change the default location of the ffmpeg binaries
             // You can get the binaries here: http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip
-            Unosquare.FFME.MediaElement.FFmpegDirectory = Config.FFmpegPath;
+            FFME.MediaElement.FFmpegDirectory = Config.FFmpegPath;
 
             // You can pick which FFmpeg binaries are loaded. See issue #28
             // Full Features is already the default.
-            Unosquare.FFME.MediaElement.FFmpegLoadModeFlags = FFmpegLoadMode.FullFeatures;
+            FFME.MediaElement.FFmpegLoadModeFlags = FFmpegLoadMode.FullFeatures;
 
             // Setup the UI
             // ConsoleManager.ShowConsole();
@@ -346,7 +346,7 @@
                 {
                     if (Controls.Opacity != 0d)
                     {
-                        Cursor = System.Windows.Input.Cursors.None;
+                        Cursor = Cursors.None;
                         var sb = Player.FindResource("HideControlOpacity") as Storyboard;
                         Storyboard.SetTarget(sb, Controls);
                         sb.Begin();
@@ -356,7 +356,7 @@
                 {
                     if (Controls.Opacity != 1d)
                     {
-                        Cursor = System.Windows.Input.Cursors.Arrow;
+                        Cursor = Cursors.Arrow;
                         var sb = Player.FindResource("ShowControlOpacity") as Storyboard;
                         Storyboard.SetTarget(sb, Controls);
                         sb.Begin();

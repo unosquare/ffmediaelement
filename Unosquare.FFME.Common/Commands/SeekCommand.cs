@@ -6,7 +6,7 @@
     /// <summary>
     /// Implements the logic to seek on the media stream
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.Commands.MediaCommand" />
+    /// <seealso cref="MediaCommand" />
     internal sealed class SeekCommand : MediaCommand
     {
         private bool WasPlaying = false;
@@ -57,7 +57,7 @@
                     return;
                 }
 
-                // Signal to wait one more frame decoding cycle before 
+                // Signal to wait one more frame decoding cycle before
                 // sending blocks to the renderer.
                 m.HasDecoderSeeked = true;
 
@@ -97,7 +97,7 @@
                     m.Blocks[frame.MediaType]?.Add(frame, m.Container);
 
                 // Now read blocks until we have reached at least the Target Position
-                while (m.CanReadMorePackets 
+                while (m.CanReadMorePackets
                     && m.Blocks[main].IsFull == false
                     && m.Blocks[main].IsInRange(TargetPosition) == false)
                 {
@@ -125,7 +125,7 @@
                     var minStartTime = m.Blocks[main].RangeStartTime.Ticks;
                     var maxStartTime = m.Blocks[main].RangeEndTime.Ticks;
 
-                    m.Log(MediaLogMessageType.Warning, 
+                    m.Log(MediaLogMessageType.Warning,
                         $"SEEK TP: Target Pos {TargetPosition.Format()} not between {m.Blocks[main].RangeStartTime.TotalSeconds:0.000} and {m.Blocks[main].RangeEndTime.TotalSeconds:0.000}");
 
                     if (adjustedSeekTarget.Ticks < minStartTime)

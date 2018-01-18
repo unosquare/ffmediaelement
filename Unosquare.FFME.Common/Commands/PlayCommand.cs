@@ -6,7 +6,7 @@
     /// <summary>
     /// Implements the logic to start or resume media playback
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.Commands.MediaCommand" />
+    /// <seealso cref="MediaCommand" />
     internal sealed class PlayCommand : MediaCommand
     {
         /// <summary>

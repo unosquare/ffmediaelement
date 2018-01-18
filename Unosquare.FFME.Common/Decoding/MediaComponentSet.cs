@@ -9,7 +9,7 @@
 
     /// <summary>
     /// Represents a set of Audio, Video and Subtitle components.
-    /// This class is useful in order to group all components into 
+    /// This class is useful in order to group all components into
     /// a single set. Sending packets is automatically handled by
     /// this class. This class is thread safe.
     /// </summary>
@@ -178,8 +178,8 @@
         /// </summary>
         /// <param name="mediaType">Type of the media.</param>
         /// <returns>The media component</returns>
-        /// <exception cref="System.ArgumentException">When the media type is invalid</exception>
-        /// <exception cref="System.ArgumentNullException">MediaComponent</exception>
+        /// <exception cref="ArgumentException">When the media type is invalid</exception>
+        /// <exception cref="ArgumentNullException">MediaComponent</exception>
         public MediaComponent this[MediaType mediaType]
         {
             get

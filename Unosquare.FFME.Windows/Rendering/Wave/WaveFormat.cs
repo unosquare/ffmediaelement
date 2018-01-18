@@ -34,7 +34,7 @@
         /// Initializes a new instance of the <see cref="WaveFormat"/> class.
         /// PCM 48Khz stereo 16 bit signed, interleaved, 2-channel format
         /// </summary>
-        public WaveFormat() 
+        public WaveFormat()
             : this(44100, 16, 2)
         {
             // placeholder

@@ -34,7 +34,7 @@
         private string productName;
 
         /// <summary>
-        /// Supported formats (bit flags) dwFormats 
+        /// Supported formats (bit flags) dwFormats
         /// </summary>
         private SupportedWaveFormat supportedFormats;
 

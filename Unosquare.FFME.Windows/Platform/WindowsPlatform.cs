@@ -8,7 +8,7 @@
     /// <summary>
     /// Root for platform-specific implementations
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.Shared.IPlatform" />
+    /// <seealso cref="IPlatform" />
     internal class WindowsPlatform : IPlatform
     {
         /// <summary>

@@ -6,7 +6,7 @@
     /// <summary>
     /// Contains the position changed routed event args
     /// </summary>
-    /// <seealso cref="System.Windows.RoutedEventArgs" />
+    /// <seealso cref="RoutedEventArgs" />
     public class PositionChangedRoutedEventArgs : RoutedEventArgs
     {
         /// <summary>

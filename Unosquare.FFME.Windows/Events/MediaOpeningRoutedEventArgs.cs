@@ -6,7 +6,7 @@
     /// <summary>
     /// Represents the event arguments of the MediaOpening routed event.
     /// </summary>
-    /// <seealso cref="System.Windows.RoutedEventArgs" />
+    /// <seealso cref="RoutedEventArgs" />
     public class MediaOpeningRoutedEventArgs : RoutedEventArgs
     {
         /// <summary>

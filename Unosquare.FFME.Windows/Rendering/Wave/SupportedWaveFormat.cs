@@ -34,7 +34,7 @@
         WAVE_FORMAT_2M08 = 0x00000010,
 
         /// <summary>
-        /// 22.05  kHz, Stereo, 8-bit 
+        /// 22.05  kHz, Stereo, 8-bit
         /// </summary>
         WAVE_FORMAT_2S08 = 0x00000020,
 
@@ -49,12 +49,12 @@
         WAVE_FORMAT_2S16 = 0x00000080,
 
         /// <summary>
-        /// 44.1   kHz, Mono,   8-bit 
+        /// 44.1   kHz, Mono,   8-bit
         /// </summary>
         WAVE_FORMAT_4M08 = 0x00000100,
 
         /// <summary>
-        /// 44.1   kHz, Stereo, 8-bit 
+        /// 44.1   kHz, Stereo, 8-bit
         /// </summary>
         WAVE_FORMAT_4S08 = 0x00000200,
 
@@ -69,12 +69,12 @@
         WAVE_FORMAT_4S16 = 0x00000800,
 
         /// <summary>
-        /// 44.1   kHz, Mono,   8-bit 
+        /// 44.1   kHz, Mono,   8-bit
         /// </summary>
         WAVE_FORMAT_44M08 = 0x00000100,
 
         /// <summary>
-        /// 44.1   kHz, Stereo, 8-bit 
+        /// 44.1   kHz, Stereo, 8-bit
         /// </summary>
         WAVE_FORMAT_44S08 = 0x00000200,
 
@@ -89,7 +89,7 @@
         WAVE_FORMAT_44S16 = 0x00000800,
 
         /// <summary>
-        /// 48     kHz, Mono,   8-bit 
+        /// 48     kHz, Mono,   8-bit
         /// </summary>
         WAVE_FORMAT_48M08 = 0x00001000,
 
@@ -109,7 +109,7 @@
         WAVE_FORMAT_48S16 = 0x00008000,
 
         /// <summary>
-        /// 96     kHz, Mono,   8-bit 
+        /// 96     kHz, Mono,   8-bit
         /// </summary>
         WAVE_FORMAT_96M08 = 0x00010000,
 

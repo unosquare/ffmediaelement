@@ -7,7 +7,7 @@
     /// A base class to represent media block
     /// rendering event arguments.
     /// </summary>
-    /// <seealso cref="System.EventArgs" />
+    /// <seealso cref="EventArgs" />
     public abstract class RenderingEventArgs : EventArgs
     {
         /// <summary>

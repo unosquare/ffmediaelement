@@ -27,13 +27,13 @@
         /// </summary>
         public TimeSpan FrameStepDuration => MediaCore.FrameStepDuration;
 
-        /// <summary> 
-        /// Returns whether the given media has audio. 
+        /// <summary>
+        /// Returns whether the given media has audio.
         /// Only valid after the MediaOpened event has fired.
-        /// </summary> 
+        /// </summary>
         public bool HasAudio => MediaCore.HasAudio;
 
-        /// <summary> 
+        /// <summary>
         /// Returns whether the given media has video. Only valid after the
         /// MediaOpened event has fired.
         /// </summary>
@@ -54,10 +54,10 @@
         /// <summary>
         /// Returns the natural width of the media in the video.
         /// Only valid after the MediaOpened event has fired.
-        /// </summary> 
+        /// </summary>
         public int NaturalVideoWidth => MediaCore.NaturalVideoWidth;
 
-        /// <summary> 
+        /// <summary>
         /// Returns the natural height of the media in the video.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>

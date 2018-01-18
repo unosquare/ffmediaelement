@@ -11,7 +11,7 @@
     /// <summary>
     /// Provides audio sample extraction, decoding and scaling functionality.
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.Decoding.MediaComponent" />
+    /// <seealso cref="MediaComponent" />
     internal sealed unsafe class AudioComponent : MediaComponent
     {
         #region Private Declarations
@@ -88,7 +88,7 @@
         /// <returns>
         /// Return the updated output frame
         /// </returns>
-        /// <exception cref="System.ArgumentNullException">input</exception>
+        /// <exception cref="ArgumentNullException">input</exception>
         public override MediaBlock MaterializeFrame(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings)
         {
             if (output == null) output = new AudioBlock();
@@ -204,7 +204,7 @@
 
                 if (outputFrame->nb_samples <= 0)
                 {
-                    // If we don't have a valid output frame simply release it and 
+                    // If we don't have a valid output frame simply release it and
                     // return the original input frame
                     RC.Current.Remove(outputFrame);
                     ffmpeg.av_frame_free(&outputFrame);

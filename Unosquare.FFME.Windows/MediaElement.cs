@@ -10,6 +10,7 @@
     using System.Windows.Controls;
     using System.Windows.Interop;
     using System.Windows.Markup;
+    using System.Windows.Media;
     using System.Windows.Media.Imaging;
 
     /// <summary>
@@ -75,11 +76,13 @@
             ContentGrid.Children.Add(VideoView);
             ContentGrid.Children.Add(SubtitleView);
             SubtitleView.Padding = new Thickness(5, 0, 5, 0);
-            SubtitleView.FontSize = 60;
-            SubtitleView.FontFamily = new System.Windows.Media.FontFamily("Arial Rounded MT Bold");
+
+            // Setup the Subtitle View
+            SubtitleView.FontSize = 48;
+            SubtitleView.FontFamily = new FontFamily("Arial Rounded MT Bold");
             SubtitleView.FontWeight = FontWeights.Normal;
             SubtitleView.TextOutlineWidth = new Thickness(4);
-            SubtitleView.TextForeground = System.Windows.Media.Brushes.LightYellow;
+            SubtitleView.TextForeground = Brushes.LightYellow;
 
             // Update as the VideoView updates but check if there are valid dimensions and it actually has video
             VideoView.LayoutUpdated += (s, e) =>

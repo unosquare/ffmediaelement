@@ -55,10 +55,10 @@
 
         #endregion
 
-        #region Math 
+        #region Math
 
         /// <summary>
-        /// Converts the given value to a value that is of the given multiple. 
+        /// Converts the given value to a value that is of the given multiple.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <param name="multiple">The multiple.</param>

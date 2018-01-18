@@ -17,12 +17,12 @@
         /// The video media type (0)
         /// </summary>
         Video = AVMediaType.AVMEDIA_TYPE_VIDEO,
-        
+
         /// <summary>
         /// The audio media type (1)
         /// </summary>
         Audio = AVMediaType.AVMEDIA_TYPE_AUDIO,
-        
+
         /// <summary>
         /// The subtitle media type (3)
         /// </summary>

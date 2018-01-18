@@ -5,7 +5,7 @@
     /// <summary>
     /// A Media Container Exception
     /// </summary>
-    /// <seealso cref="System.Exception" />
+    /// <seealso cref="Exception" />
     [Serializable]
     public class MediaContainerException : Exception
     {
@@ -15,7 +15,7 @@
         /// Initializes a new instance of the <see cref="MediaContainerException"/> class.
         /// </summary>
         /// <param name="message">The message that describes the error.</param>
-        public MediaContainerException(string message) 
+        public MediaContainerException(string message)
             : base(message)
         {
             // placeholder

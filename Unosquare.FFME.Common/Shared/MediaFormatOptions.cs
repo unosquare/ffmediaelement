@@ -15,7 +15,7 @@
         public bool EnableReducedBuffering { get; set; }
 
         /// <summary>
-        /// Set probing size in bytes, i.e. the size of the data to analyze to get stream information. 
+        /// Set probing size in bytes, i.e. the size of the data to analyze to get stream information.
         /// A higher value will enable detecting more information in case it is dispersed into the stream,
         /// but will increase latency. Must be an integer not lesser than 32. It is 5000000 by default.
         /// </summary>
@@ -87,7 +87,7 @@
         public bool FlagNoBuffer { get; set; }
 
         /// <summary>
-        /// Stop muxing at the end of the shortest stream. 
+        /// Stop muxing at the end of the shortest stream.
         /// It may be needed to increase max_interleave_delta to avoid flushing the longer streams before EOF.
         /// Port of ffflags
         /// </summary>

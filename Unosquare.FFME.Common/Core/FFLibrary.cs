@@ -6,7 +6,7 @@
     using System.Collections.ObjectModel;
 
     /// <summary>
-    /// Defines FFmpeg library metadata and access. 
+    /// Defines FFmpeg library metadata and access.
     /// It allows for the loading of individual libraries.
     /// </summary>
     internal class FFLibrary
@@ -154,7 +154,7 @@
                     throw new InvalidOperationException($"Library {Name} was already loaded.");
 
                 var result = LibraryLoader.LoadNativeLibraryUsingPlatformNamingConvention(basePath, Name, Version);
-                
+
                 if (result != IntPtr.Zero)
                 {
                     Reference = result;

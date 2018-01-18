@@ -92,7 +92,7 @@
         }
 
         /// <summary>
-        /// Gets a <see cref="Wave.WaveFormat"/> instance indicating the format the hardware is using.
+        /// Gets a <see cref="WaveFormat"/> instance indicating the format the hardware is using.
         /// </summary>
         public WaveFormat OutputWaveFormat
         {
@@ -120,7 +120,7 @@
         /// Initializes the specified wave provider.
         /// </summary>
         /// <param name="waveProvider">The wave provider.</param>
-        /// <exception cref="System.InvalidOperationException">Can't re-initialize during playback</exception>
+        /// <exception cref="InvalidOperationException">Can't re-initialize during playback</exception>
         public void Init(IWaveProvider waveProvider)
         {
             if (m_PlaybackState != PlaybackState.Stopped)

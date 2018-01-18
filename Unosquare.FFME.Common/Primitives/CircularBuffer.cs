@@ -8,7 +8,7 @@
     /// This buffer is backed by unmanaged, very fast memory so ensure you call
     /// the dispose method when you are donde using it.
     /// </summary>
-    /// <seealso cref="System.IDisposable" />
+    /// <seealso cref="IDisposable" />
     public sealed class CircularBuffer : IDisposable
     {
         #region Private State Variables
@@ -185,7 +185,7 @@
         /// Skips the specified amount requested bytes to be read.
         /// </summary>
         /// <param name="requestedBytes">The requested bytes.</param>
-        /// <exception cref="System.InvalidOperationException">When requested bytes GT readable count</exception>
+        /// <exception cref="InvalidOperationException">When requested bytes GT readable count</exception>
         public void Skip(int requestedBytes)
         {
             using (Locker.AcquireWriterLock())
@@ -233,7 +233,7 @@
         /// <param name="requestedBytes">The requested bytes.</param>
         /// <param name="target">The target.</param>
         /// <param name="targetOffset">The target offset.</param>
-        /// <exception cref="System.InvalidOperationException">When requested GT readble</exception>
+        /// <exception cref="InvalidOperationException">When requested bytes is greater than readble count</exception>
         public void Read(int requestedBytes, byte[] target, int targetOffset)
         {
             using (Locker.AcquireWriterLock())
@@ -241,7 +241,7 @@
                 if (requestedBytes > m_ReadableCount)
                 {
                     throw new InvalidOperationException(
-                        $"Unable to read {requestedBytes} bytes. Only {m_ReadableCount} bytes are available");
+                        $"Unable to read {requestedBytes} bytes. Only {m_ReadableCount} bytes are available.");
                 }
 
                 var readCount = 0;
@@ -269,8 +269,7 @@
         /// <param name="length">The length.</param>
         /// <param name="writeTag">The write tag.</param>
         /// <param name="overwrite">if set to <c>true</c>, overwrites the data even if it has not been read.</param>
-        /// <exception cref="InvalidOperationException">Read</exception>
-        /// <exception cref="System.InvalidOperationException">When read needs to be called more!</exception>
+        /// <exception cref="InvalidOperationException">When read needs to be called more often!</exception>
         public void Write(IntPtr source, int length, TimeSpan writeTag, bool overwrite)
         {
             using (Locker.AcquireWriterLock())

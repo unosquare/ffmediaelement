@@ -7,7 +7,7 @@
     /// <summary>
     /// Implements the logic to close a media stream.
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.Commands.MediaCommand" />
+    /// <seealso cref="MediaCommand" />
     internal sealed class CloseCommand : MediaCommand
     {
         /// <summary>

@@ -8,7 +8,7 @@
     /// <summary>
     /// Provides the subtitles rendering payload as event arguments.
     /// </summary>
-    /// <seealso cref="System.EventArgs" />
+    /// <seealso cref="EventArgs" />
     public sealed class RenderingSubtitlesEventArgs : RenderingEventArgs
     {
         /// <summary>
@@ -56,7 +56,7 @@
         public AVSubtitleType Format { get; }
 
         /// <summary>
-        /// When set to true, clears the current subtitle and 
+        /// When set to true, clears the current subtitle and
         /// prevents the subtitle block from being rendered.
         /// </summary>
         public bool Cancel { get; set; }

@@ -57,8 +57,7 @@
 
         /// <summary>
         /// Gets the metadata for the input. This may include stuff like title, creation date, company name, etc.
-        /// Individual stream components may contain additional metadata.
-        /// The metadata 
+        /// Individual stream components, chapters and programs may contain additional metadata.
         /// </summary>
         public ReadOnlyDictionary<string, string> Metadata { get; }
 
@@ -360,7 +359,7 @@
         public string CodecName { get; internal set; }
 
         /// <summary>
-        /// Gets the codec profile. Only valid for H.264 or 
+        /// Gets the codec profile. Only valid for H.264 or
         /// video codecs that use profiles. Otherwise empty.
         /// </summary>
         public string CodecProfile { get; internal set; }
@@ -388,7 +387,7 @@
         public AVPixelFormat PixelFormat { get; internal set; }
 
         /// <summary>
-        /// Gets the width of the video frames. 
+        /// Gets the width of the video frames.
         /// </summary>
         public int PixelWidth { get; internal set; }
 

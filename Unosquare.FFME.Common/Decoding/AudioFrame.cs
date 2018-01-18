@@ -8,8 +8,8 @@
     /// <summary>
     /// Represents a wrapper from an unmanaged FFmpeg audio frame
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.Decoding.MediaFrame" />
-    /// <seealso cref="System.IDisposable" />
+    /// <seealso cref="MediaFrame" />
+    /// <seealso cref="IDisposable" />
     internal sealed unsafe class AudioFrame : MediaFrame, IDisposable
     {
         #region Private Members

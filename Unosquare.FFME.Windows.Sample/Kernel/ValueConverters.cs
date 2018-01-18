@@ -204,9 +204,9 @@ namespace Unosquare.FFME.Windows.Sample.Kernel
             percentage = Math.Round(percentage * 100d, 0);
 
             if (format == null || percentage == 0d)
-                return $"{percentage,3:0}%";
+                return $"{percentage, 3:0}%";
 
-            return $"{((percentage > 0d) ? "R " : "L ")} {Math.Abs(percentage),3:0}%";
+            return $"{((percentage > 0d) ? "R " : "L ")} {Math.Abs(percentage), 3:0}%";
         }
 
         /// <summary>

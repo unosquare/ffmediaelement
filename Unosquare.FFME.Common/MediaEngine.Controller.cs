@@ -23,7 +23,7 @@
         internal RealTimeClock Clock { get; } = new RealTimeClock();
 
         /// <summary>
-        /// The underlying media container that provides access to 
+        /// The underlying media container that provides access to
         /// individual media component streams
         /// </summary>
         internal MediaContainer Container { get; set; } = null;

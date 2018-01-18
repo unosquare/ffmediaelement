@@ -6,14 +6,14 @@
     /// <summary>
     /// Implements the logic to pause and rewind the media stream
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.Commands.MediaCommand" />
+    /// <seealso cref="MediaCommand" />
     internal sealed class StopCommand : MediaCommand
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="StopCommand" /> class.
         /// </summary>
         /// <param name="manager">The media element.</param>
-        public StopCommand(MediaCommandManager manager) 
+        public StopCommand(MediaCommandManager manager)
             : base(manager, MediaCommandType.Stop)
         {
             // placeholder

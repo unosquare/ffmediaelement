@@ -8,7 +8,7 @@
     /// <summary>
     /// The video rendering event arguments
     /// </summary>
-    /// <seealso cref="System.EventArgs" />
+    /// <seealso cref="EventArgs" />
     public sealed class RenderingVideoEventArgs : RenderingEventArgs
     {
         /// <summary>
@@ -44,7 +44,7 @@
 
         /// <summary>
         /// Gets the display picture number (frame number).
-        /// If not set by the decoder, this attempts to obtain it by dividing the start time by the 
+        /// If not set by the decoder, this attempts to obtain it by dividing the start time by the
         /// frame duration
         /// </summary>
         public int PictureNumber { get; }

@@ -5,7 +5,7 @@
     /// <summary>
     /// Implements the logic to pause the media stream
     /// </summary>
-    /// <seealso cref="Unosquare.FFME.Commands.MediaCommand" />
+    /// <seealso cref="MediaCommand" />
     internal sealed class PauseCommand : MediaCommand
     {
         /// <summary>

@@ -8,7 +8,7 @@
     /// Represents a wrapper for an unmanaged frame.
     /// Derived classes implement the specifics of each media type.
     /// </summary>
-    /// <seealso cref="System.IDisposable" />
+    /// <seealso cref="IDisposable" />
     internal abstract unsafe class MediaFrame : IDisposable, IComparable<MediaFrame>
     {
         #region Private Members

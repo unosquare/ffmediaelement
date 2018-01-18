@@ -56,7 +56,7 @@
                     typeof(MediaElement));
 
         /// <summary>
-        /// MediaFailedEvent is a routed event. 
+        /// MediaFailedEvent is a routed event.
         /// </summary>
         public static readonly RoutedEvent MediaFailedEvent =
             EventManager.RegisterRoutedEvent(
@@ -65,9 +65,9 @@
                             typeof(EventHandler<ExceptionRoutedEventArgs>),
                             typeof(MediaElement));
 
-        /// <summary> 
+        /// <summary>
         /// MediaOpened is a routed event.
-        /// </summary> 
+        /// </summary>
         public static readonly RoutedEvent MediaOpenedEvent =
             EventManager.RegisterRoutedEvent(
                             nameof(MediaOpened),
@@ -75,9 +75,9 @@
                             typeof(RoutedEventHandler),
                             typeof(MediaElement));
 
-        /// <summary> 
+        /// <summary>
         /// MediaClosed is a routed event.
-        /// </summary> 
+        /// </summary>
         public static readonly RoutedEvent MediaClosedEvent =
             EventManager.RegisterRoutedEvent(
                             nameof(MediaClosed),
@@ -86,7 +86,7 @@
                             typeof(MediaElement));
 
         /// <summary>
-        /// MediaOpeningEvent is a routed event. 
+        /// MediaOpeningEvent is a routed event.
         /// </summary>
         public static readonly RoutedEvent MediaOpeningEvent =
             EventManager.RegisterRoutedEvent(
@@ -96,7 +96,7 @@
                             typeof(MediaElement));
 
         /// <summary>
-        /// PositionChanged is a routed event 
+        /// PositionChanged is a routed event
         /// </summary>
         public static readonly RoutedEvent PositionChangedEvent =
             EventManager.RegisterRoutedEvent(
@@ -106,7 +106,7 @@
                             typeof(MediaElement));
 
         /// <summary>
-        /// MediaEnded is a routed event 
+        /// MediaEnded is a routed event
         /// </summary>
         public static readonly RoutedEvent MediaEndedEvent =
             EventManager.RegisterRoutedEvent(
@@ -165,8 +165,8 @@
         }
 
         /// <summary>
-        /// Raised when the media is opened 
-        /// </summary> 
+        /// Raised when the media is opened
+        /// </summary>
         public event RoutedEventHandler MediaOpened
         {
             add { AddHandler(MediaOpenedEvent, value); }
@@ -174,8 +174,8 @@
         }
 
         /// <summary>
-        /// Raised when the media is closed 
-        /// </summary> 
+        /// Raised when the media is closed
+        /// </summary>
         public event RoutedEventHandler MediaClosed
         {
             add { AddHandler(MediaClosedEvent, value); }
@@ -192,7 +192,7 @@
             remove { RemoveHandler(MediaOpeningEvent, value); }
         }
 
-        /// <summary> 
+        /// <summary>
         /// Raised when the corresponding media ends.
         /// </summary>
         public event RoutedEventHandler MediaEnded
