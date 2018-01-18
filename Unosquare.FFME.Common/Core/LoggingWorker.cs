@@ -154,7 +154,7 @@
                 var lineBuffer = stackalloc byte[lineSize];
                 var printPrefix = 1;
                 ffmpeg.av_log_format_line(p0, level, format, vl, lineBuffer, lineSize, &printPrefix);
-                var line = FFInterop.PtrToString(lineBuffer);
+                var line = FFInterop.PtrToStringUTF8(lineBuffer);
                 FFmpegLogBuffer.Add(line);
 
                 var messageType = MediaLogMessageType.Debug;

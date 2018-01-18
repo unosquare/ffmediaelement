@@ -3,7 +3,6 @@
     using FFmpeg.AutoGen;
     using Shared;
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Runtime.InteropServices;
@@ -21,6 +20,8 @@
         private static bool m_IsInitialized = false;
         private static string m_LibrariesPath = string.Empty;
         private static int m_LibraryIdentifiers = 0;
+        private static byte[] TempStringBuffer = new byte[512 * 1024]; // a temp buffer of 512kB
+        private static int TempByteLength = 0;
 
         #endregion
 
@@ -90,7 +91,7 @@
                     foreach (var lib in FFLibrary.All)
                     {
                         if ((lib.FlagId & libIdentifiers) != 0 && lib.Load(ffmpegPath))
-                                registrationIds |= lib.FlagId;
+                            registrationIds |= lib.FlagId;
                     }
 
                     // Check if libraries were loaded correctly
@@ -152,44 +153,38 @@
             var bufferSize = 1024;
             var buffer = stackalloc byte[bufferSize];
             ffmpeg.av_strerror(errorCode, buffer, (ulong)bufferSize);
-            var message = Marshal.PtrToStringAnsi((IntPtr)buffer);
+            var message = PtrToStringUTF8(buffer);
             return message;
-        }
-
-        /// <summary>
-        /// Converts a byte pointer to a string
-        /// </summary>
-        /// <param name="bytePtr">The byte PTR.</param>
-        /// <returns>The string</returns>
-        public static unsafe string PtrToString(byte* bytePtr)
-        {
-            return Marshal.PtrToStringAnsi(new IntPtr(bytePtr));
         }
 
         /// <summary>
         /// Converts a byte pointer to a UTF8 encoded string.
         /// </summary>
-        /// <param name="bytePtr">The byte PTR.</param>
+        /// <param name="stringAddress">The pointer to the starting character</param>
         /// <returns>The string</returns>
-        public static unsafe string PtrToStringUTF8(byte* bytePtr)
+        public static unsafe string PtrToStringUTF8(byte* stringAddress)
         {
-            if (bytePtr == null) return null;
-            if (*bytePtr == 0) return string.Empty;
-
-            var byteBuffer = new List<byte>(1024);
-            var currentByte = default(byte);
-
-            while (true)
+            lock (SyncLock)
             {
-                currentByte = *bytePtr;
-                if (currentByte == 0)
-                    break;
+                if (stringAddress == null) return null;
+                if (*stringAddress == 0) return string.Empty;
+                var stringPointer = (IntPtr)stringAddress;
 
-                byteBuffer.Add(currentByte);
-                bytePtr++;
+                TempByteLength = 0;
+                while (true)
+                {
+                    if (Marshal.ReadByte(stringPointer, TempByteLength) == 0)
+                        break;
+
+                    TempByteLength += 1;
+                }
+
+                if (TempStringBuffer == null || TempStringBuffer.Length < TempByteLength)
+                    TempStringBuffer = new byte[TempByteLength];
+
+                Marshal.Copy(stringPointer, TempStringBuffer, 0, TempByteLength);
+                return Encoding.UTF8.GetString(TempStringBuffer, 0, TempByteLength);
             }
-
-            return Encoding.UTF8.GetString(byteBuffer.ToArray());
         }
 
         #endregion
