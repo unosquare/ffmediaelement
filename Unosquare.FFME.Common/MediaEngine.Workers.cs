@@ -443,9 +443,12 @@
                         {
                             // Rendered all and nothing else to read
                             Clock.Pause();
-                            Clock.Position = NaturalDuration ?? Blocks[main].RangeEndTime;
-                            wallClock = Clock.Position;
+                            if (NaturalDuration != null && NaturalDuration != TimeSpan.MinValue)
+                                Clock.Position = NaturalDuration.Value;
+                            else
+                                Clock.Position = Blocks[main].RangeEndTime;
 
+                            wallClock = Clock.Position;
                             HasMediaEnded = true;
                             MediaState = MediaEngineState.Pause;
                             SendOnMediaEnded();
