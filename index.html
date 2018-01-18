@@ -77,10 +77,10 @@
 <p><em><span class="emoji" shortcode="star">⭐</span>Please star this project if you find it useful!</em></p>
 <p><img src="https://github.com/unosquare/ffmediaelement/raw/master/Support/ffmeplay.png" alt="ffmeplay"></p>
 <ul>
-<li>Current Status: (2018-01-06) - 2.0, codenamed Michelob is now in beta 7 (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)</li>
+<li>Current Status: (2018-01-18) - 2.0, codenamed Michelob is now in beta 9 (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)</li>
 <li>NuGet Package now available: <a href="https://www.nuget.org/packages/FFME.Windows/">https://www.nuget.org/packages/FFME.Windows/</a></li>
 <li>FFmpeg Version: <a href="http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip">3.4.0 (32-bit)</a></li>
-<li>For a history of commits see the repo: <a href="https://github.com/unosquare/ffplaydotnet">https://github.com/unosquare/ffplaydotnet</a></li>
+<li>For a history of old commits see the repo: <a href="https://github.com/unosquare/ffplaydotnet">https://github.com/unosquare/ffplaydotnet</a></li>
 </ul>
 <h2 id="features-overview">Features Overview</h2>
 <p>FFME is a close (and I&#39;d like to think better) drop-in replacement for <a href="https://msdn.microsoft.com/en-us/library/system.windows.controls.mediaelement(v=vs.110).aspx">Microsoft&#39;s WPF MediaElement Control</a>. While the standard MediaElement uses DirectX (DirectShow) for media playback, FFME uses <a href="http://ffmpeg.org/">FFmpeg</a> to read and decode audio and video. This means that for those of you who want to support stuff like HLS playback, or just don&#39;t want to go through the hassle of installing codecs on client machines, using FFME <em>might</em> just be the answer. </p>
@@ -94,6 +94,27 @@
 <li>Ability to apply volume, balance and speed ratio to media playback.</li>
 </ul>
 <p><em>... all in a single MediaElement control</em></p>
+<h3 id="about-how-it-works">About how it works</h3>
+<p>First off, let&#39;s review a few concepts. A <code>packet</code> is a group of bytes read from the input. All <code>packets</code> are of a specific <code>MediaType</code> (Audio, Video, Subtitle, Data), and contain some timing information and most importantly compressed data. Packets are sent to a <code>Codec</code> and in turn, the codec produces <code>Frames</code>. Please note that producing 1 <code>frome</code> does not always take exactly 1 <code>packet</code>. A <code>packet</code> may contain many <code>frames</code> but also a <code>frame</code> may require several <code>packets</code> for the decoder to build it. <code>Frames</code> will contain timing informattion and the raw, uncompressed data. Now, you may think you can use <code>frames</code> and show pixels on the screen or data to the sound card. We are close, but we still need to do some additional processing. Turns out different <code>Codecs</code> will produce different uncompressed data formats. For example, some video codecs will output pixel data in ARGB, some others in RGB, and some other in YUV420. Therefore, we will need to <code>Convert</code> these <code>frames</code> into something all hardware can use. I call these converted frames, <code>MediaBlocks</code>. These <code>MediaBlocks</code> will contain uncompressed data in standard Audio and Video formats.</p>
+<p>The process described above is implemented in 3 different layers:</p>
+<ul>
+<li>The <code>MediaContainer</code> wraps an input stream. This layer keeps track of a <code>MediaComponentSet</code> which is nothing more than a collecttion of <code>MediaComponent</code> objects. Each <code>MediaComponent</code> holds <code>packet</code> <strong>caching</strong>, <code>frame</code> <strong>decoding</strong>, and <code>block</code> <strong>conversion</strong> logic. It provides the following important functionality:<ul>
+<li><code>Open</code> to open the input stream and detect the different stream components. This also determines the codecs to use.</li>
+<li><code>Read</code> to read the next available packet and store it in its corresponding component (audio, video, subtitle, data, etc)</li>
+<li><code>Decode</code> to read the following packet from the queue that each of the components hold, and return a set of frames.</li>
+<li><code>Convert</code> to turn a given <code>frame</code> into a <code>MediaBlock</code>.</li>
+</ul>
+</li>
+<li>The <code>MediaEngine</code> wraps a <code>MediaContainer</code> and it is responsible for executing commands to control the input stream (Play, Pause, Stop, Seek, etc.) while keeping keeping 3 background workers.<ul>
+<li>The <code>PacketReadingWroker</code> is designed to continuously read packets from the <code>MediaContainer</code>. It will read packets when it needs them and it will pause if it does not. This is determined by how much data is in the cache. It will try to keep approximately 1 second of media packets at all times.</li>
+<li>The <code>FrameDecodingWroker</code> gets the packets that the <code>PAcketReadingWorker</code> writes and decodes them into frames. It then converts those frames into <code>blocks</code> and writes them to a <code>MediaBlockBuffer</code>. This block buffer can then be read by something else (the following worker described here) so its contents can be rendered.</li>
+<li>Finally, the <code>BlockRenderingWorker</code> reads blocks form the <code>MediaBlockBuffer</code>s and sends those blocks to a plat-from specific <code>IMediaRenderer</code>.</li>
+</ul>
+</li>
+<li>At the highest level, we have a <code>MediaElement</code>. It wraps a <code>MediaEngine</code> and it contains platform-specific implementation of methods to perform stuff like audio rendering, video rendering, subtitle rendering, and property synchronization between the <code>MediaEngine</code> and itself.</li>
+</ul>
+<p>A high-level diagram is provided as additional reference below.
+<img src="https://github.com/unosquare/ffmediaelement/raw/master/Support/arch-michelob-2.0.png" alt="arch-michelob-2.0"></p>
 <h3 id="known-limitations">Known Limitations</h3>
 <p><em>Your help is welcome!</em></p>
 <ul>
