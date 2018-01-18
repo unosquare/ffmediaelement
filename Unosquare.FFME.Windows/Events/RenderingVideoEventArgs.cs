@@ -3,7 +3,6 @@
     using ClosedCaptions;
     using Shared;
     using System;
-    using System.Collections.Generic;
 
     /// <summary>
     /// The video rendering event arguments
@@ -22,7 +21,7 @@
         /// <param name="startTime">The start time.</param>
         /// <param name="duration">The duration.</param>
         /// <param name="clock">The clock.</param>
-        internal RenderingVideoEventArgs(BitmapDataBuffer bitmap, StreamInfo stream, List<ClosedCaptionPacket> closedCaptions, string smtpeTimecode, int pictureNumber, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
+        internal RenderingVideoEventArgs(BitmapDataBuffer bitmap, StreamInfo stream, ClosedCaptionCollection closedCaptions, string smtpeTimecode, int pictureNumber, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
             : base(stream, startTime, duration, clock)
         {
             PictureNumber = pictureNumber;
@@ -40,7 +39,7 @@
         /// <summary>
         /// Gets the closed caption decoded packets.
         /// </summary>
-        public List<ClosedCaptionPacket> ClosedCaptions { get; }
+        public ClosedCaptionCollection ClosedCaptions { get; }
 
         /// <summary>
         /// Gets the display picture number (frame number).

@@ -198,7 +198,7 @@
             target.SmtpeTimecode = source.SmtpeTimecode;
             target.DisplayPictureNumber = source.DisplayPictureNumber;
             target.CodedPictureNumber = source.DisplayPictureNumber;
-            target.ClosedCaptions = source.ClosedCaptions;
+            target.ClosedCaptions = new ClosedCaptions.ClosedCaptionCollection(source.ClosedCaptions);
             target.BufferStride = targetStride[0];
 
             target.PixelHeight = source.Pointer->height;
