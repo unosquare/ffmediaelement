@@ -74,21 +74,38 @@
             // Add the child controls
             ContentGrid.Children.Add(VideoView);
             ContentGrid.Children.Add(SubtitleView);
+            SubtitleView.Padding = new Thickness(5, 0, 5, 0);
+            SubtitleView.FontSize = 60;
+            SubtitleView.FontFamily = new System.Windows.Media.FontFamily("Arial Rounded MT Bold");
+            SubtitleView.FontWeight = FontWeights.Normal;
+            SubtitleView.TextOutlineWidth = new Thickness(4);
+            SubtitleView.TextForeground = System.Windows.Media.Brushes.LightYellow;
 
-            // TODO update as the VideoView updates but check if there are valid dimensions and it actually has video
-            /*
-            SubtitleView.VerticalAlignment = VerticalAlignment.Top;
-            SubtitleView.MaxHeight = 200;
-
+            // Update as the VideoView updates but check if there are valid dimensions and it actually has video
             VideoView.LayoutUpdated += (s, e) =>
             {
-                var videoViewPosition = VideoView.TransformToAncestor(VideoView.Parent as System.Windows.Media.Visual)
-                              .Transform(new Point(0, 0));
-                SubtitleView.MaxHeight = VideoView.ActualHeight / 5;
+                // When video dimensions are invalid, let's not do any layout.
+                if (VideoView.ActualWidth <= 0 || VideoView.ActualHeight <= 0)
+                    return;
 
-                SubtitleView.Margin = new Thickness(0, videoViewPosition.Y, 0, 0);
+                // Position the Subtitles
+                var videoViewPosition = VideoView.TransformToAncestor(ContentGrid).Transform(new Point(0, 0));
+                var targetHeight = VideoView.ActualHeight / 5d;
+                var targetWidth = VideoView.ActualWidth;
+
+                if (SubtitleView.Height != targetHeight)
+                    SubtitleView.Height = targetHeight;
+
+                if (SubtitleView.Width != targetWidth)
+                    SubtitleView.Width = targetWidth;
+
+                var verticalOffset = ContentGrid.ActualHeight - (videoViewPosition.Y + VideoView.ActualHeight);
+                var verticalOffsetPadding = VideoView.ActualHeight / 20;
+                var marginBottom = verticalOffset + verticalOffsetPadding;
+
+                if (SubtitleView.Margin.Bottom != marginBottom)
+                    SubtitleView.Margin = new Thickness(0, 0, 0, marginBottom);
             };
-            */
 
             // Display the control (or not)
             if (WindowsPlatform.Instance.IsInDesignTime)

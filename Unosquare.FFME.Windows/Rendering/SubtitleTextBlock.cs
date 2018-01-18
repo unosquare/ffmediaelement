@@ -66,7 +66,7 @@
 
         #region Private State Backing
 
-        private const double DefaultFontSize = 40;
+        private const double DefaultFontSize = 48;
         private const FrameworkPropertyMetadataOptions AffectsMeasureAndRender
             = FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender;
         private static Brush DefaultTextForegound = Brushes.WhiteSmoke;
@@ -92,6 +92,11 @@
         /// </summary>
         private readonly Viewbox Container = new Viewbox();
 
+        /// <summary>
+        /// A Layout transform to condense text.
+        /// </summary>
+        private readonly ScaleTransform CondenseTransform = new ScaleTransform { ScaleX = 0.82 };
+
         #endregion
 
         /// <summary>
@@ -110,7 +115,9 @@
                     Name = $"{nameof(SubtitleTextBlock)}_{(Block)i}",
                     TextWrapping = TextWrapping.Wrap,
                     TextAlignment = TextAlignment.Center,
-                    HorizontalAlignment = HorizontalAlignment.Stretch
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    // LayoutTransform = CondenseTransform
                 };
 
                 TextBlocks[(Block)i] = textBlock;
@@ -135,6 +142,7 @@
             Container.Stretch = Stretch.Uniform;
             Container.StretchDirection = StretchDirection.DownOnly;
             Content = Container;
+            Height = 0;
 
             // set font defaults
             FontSize = DefaultFontSize;
@@ -280,8 +288,10 @@
             if (element == null) return;
 
             var value = e.NewValue as string;
+            if (string.IsNullOrWhiteSpace(value)) value = $" \r\n ";
+            if (value.Contains("\n") == false) value = $"{value}\r\n ";
             foreach (var t in element.TextBlocks)
-                t.Value.Text = value ?? string.Empty;
+                t.Value.Text = value;
         }
 
         private static void OnTextForegroundPropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
