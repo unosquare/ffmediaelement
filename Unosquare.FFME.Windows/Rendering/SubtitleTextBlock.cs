@@ -95,7 +95,7 @@
         /// <summary>
         /// A Layout transform to condense text.
         /// </summary>
-        private readonly ScaleTransform CondenseTransform = new ScaleTransform { ScaleX = 0.82 };
+        private readonly ScaleTransform CondenseTransform = new ScaleTransform();
 
         #endregion
 
@@ -117,7 +117,7 @@
                     TextAlignment = TextAlignment.Center,
                     HorizontalAlignment = HorizontalAlignment.Stretch,
                     VerticalAlignment = VerticalAlignment.Center,
-                    // LayoutTransform = CondenseTransform
+                    LayoutTransform = CondenseTransform
                 };
 
                 TextBlocks[(Block)i] = textBlock;
