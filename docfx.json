@@ -3,19 +3,8 @@
     {
       "src": [
         {
-          "files": [
-            "Unosquare.FFME/**/*.cs"
-          ],
-          "exclude": [
-            "**/bin/**",
-            "**/obj/**",
-            "**/Commands/**",
-            "**/Core/**",
-            "**/Decoding/**",
-            "**/FFmpeg/**",
-            "**/Rendering/**",
-            "**/Resources/**"
-          ]
+          "files": [ "Unosquare.FFME.Windows/**/*.cs" ],
+          "exclude": [ "**/bin/**", "**/obj/**" ]
         }
       ],
       "dest": "obj/api"
