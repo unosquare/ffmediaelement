@@ -31,6 +31,18 @@ references:
   commentId: Overload:Unosquare.FFME.Events.BitmapDataBuffer.BitsPerPixel
   fullName: Unosquare.FFME.Events.BitmapDataBuffer.BitsPerPixel
   nameWithType: BitmapDataBuffer.BitsPerPixel
+- uid: Unosquare.FFME.Events.BitmapDataBuffer.BufferLength
+  name: BufferLength
+  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_BufferLength
+  commentId: P:Unosquare.FFME.Events.BitmapDataBuffer.BufferLength
+  fullName: Unosquare.FFME.Events.BitmapDataBuffer.BufferLength
+  nameWithType: BitmapDataBuffer.BufferLength
+- uid: Unosquare.FFME.Events.BitmapDataBuffer.BufferLength*
+  name: BufferLength
+  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_BufferLength_
+  commentId: Overload:Unosquare.FFME.Events.BitmapDataBuffer.BufferLength
+  fullName: Unosquare.FFME.Events.BitmapDataBuffer.BufferLength
+  nameWithType: BitmapDataBuffer.BufferLength
 - uid: Unosquare.FFME.Events.BitmapDataBuffer.BytesPerPixel
   name: BytesPerPixel
   href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_BytesPerPixel
@@ -67,6 +79,30 @@ references:
   commentId: Overload:Unosquare.FFME.Events.BitmapDataBuffer.DpiY
   fullName: Unosquare.FFME.Events.BitmapDataBuffer.DpiY
   nameWithType: BitmapDataBuffer.DpiY
+- uid: Unosquare.FFME.Events.BitmapDataBuffer.Palette
+  name: Palette
+  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_Palette
+  commentId: P:Unosquare.FFME.Events.BitmapDataBuffer.Palette
+  fullName: Unosquare.FFME.Events.BitmapDataBuffer.Palette
+  nameWithType: BitmapDataBuffer.Palette
+- uid: Unosquare.FFME.Events.BitmapDataBuffer.Palette*
+  name: Palette
+  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_Palette_
+  commentId: Overload:Unosquare.FFME.Events.BitmapDataBuffer.Palette
+  fullName: Unosquare.FFME.Events.BitmapDataBuffer.Palette
+  nameWithType: BitmapDataBuffer.Palette
+- uid: Unosquare.FFME.Events.BitmapDataBuffer.PixelFormat
+  name: PixelFormat
+  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_PixelFormat
+  commentId: P:Unosquare.FFME.Events.BitmapDataBuffer.PixelFormat
+  fullName: Unosquare.FFME.Events.BitmapDataBuffer.PixelFormat
+  nameWithType: BitmapDataBuffer.PixelFormat
+- uid: Unosquare.FFME.Events.BitmapDataBuffer.PixelFormat*
+  name: PixelFormat
+  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_PixelFormat_
+  commentId: Overload:Unosquare.FFME.Events.BitmapDataBuffer.PixelFormat
+  fullName: Unosquare.FFME.Events.BitmapDataBuffer.PixelFormat
+  nameWithType: BitmapDataBuffer.PixelFormat
 - uid: Unosquare.FFME.Events.BitmapDataBuffer.PixelHeight
   name: PixelHeight
   href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_PixelHeight
