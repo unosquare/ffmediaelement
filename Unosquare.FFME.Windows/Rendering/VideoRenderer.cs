@@ -51,7 +51,7 @@
         /// <summary>
         /// The load block buffer on locking
         /// </summary>
-        private bool LoadBlockBufferOnGui = false;
+        private bool LoadBlockBufferOnGui = true;
 
         /// <summary>
         /// The raise video event on GUI

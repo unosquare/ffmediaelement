@@ -29,7 +29,7 @@
         /// <summary>
         /// Enumerates memory copy methods
         /// </summary>
-        public enum MemoryCopyStartegy
+        private enum MemoryCopyStartegy
         {
             /// <summary>
             /// The native
@@ -58,7 +58,7 @@
         /// <summary>
         /// Gets or sets a value indicating whether Parallel Copy is enabled.
         /// </summary>
-        public MemoryCopyStartegy CopyStrategy { get; set; } = MemoryCopyStartegy.Native;
+        private MemoryCopyStartegy CopyStrategy { get; set; } = MemoryCopyStartegy.Native;
 
         /// <summary>
         /// Fills the memory with the specified value repeated.
