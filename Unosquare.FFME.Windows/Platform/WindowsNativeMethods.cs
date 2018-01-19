@@ -27,12 +27,38 @@
         }
 
         /// <summary>
+        /// Enumerates memory copy methods
+        /// </summary>
+        public enum MemoryCopyStartegy
+        {
+            /// <summary>
+            /// The native
+            /// </summary>
+            Native,
+
+            /// <summary>
+            /// The parallel native
+            /// </summary>
+            ParallelNative,
+
+            /// <summary>
+            /// The buffer
+            /// </summary>
+            Buffer
+        }
+
+        /// <summary>
         /// Gets the instance.
         /// </summary>
         /// <value>
         /// The instance.
         /// </value>
         public static WindowsNativeMethods Instance { get; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether Parallel Copy is enabled.
+        /// </summary>
+        public MemoryCopyStartegy CopyStrategy { get; set; } = MemoryCopyStartegy.Native;
 
         /// <summary>
         /// Fills the memory with the specified value repeated.
@@ -65,9 +91,26 @@
         /// <param name="copyLength">Length of the copy.</param>
         public unsafe void CopyMemory(IntPtr targetAddress, IntPtr sourceAddress, uint copyLength)
         {
-            // Buffer.MemoryCopy(sourceAddress.ToPointer(), targetAddress.ToPointer(), copyLength, copyLength);
-            // CopyMemoryParallel(targetAddress, sourceAddress, copyLength);
-            NativeMethods.CopyMemory(targetAddress, sourceAddress, copyLength);
+            switch (CopyStrategy)
+            {
+                case MemoryCopyStartegy.Native:
+                    {
+                        NativeMethods.CopyMemory(targetAddress, sourceAddress, copyLength);
+                        break;
+                    }
+
+                case MemoryCopyStartegy.ParallelNative:
+                    {
+                        CopyMemoryParallel(targetAddress, sourceAddress, copyLength);
+                        break;
+                    }
+
+                case MemoryCopyStartegy.Buffer:
+                    {
+                        Buffer.MemoryCopy(sourceAddress.ToPointer(), targetAddress.ToPointer(), copyLength, copyLength);
+                        break;
+                    }
+            }
         }
 
         /// <summary>
