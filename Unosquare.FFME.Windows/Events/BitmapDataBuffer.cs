@@ -2,6 +2,7 @@
 {
     using System;
     using System.Windows;
+    using System.Windows.Media;
     using System.Windows.Media.Imaging;
 
     /// <summary>
@@ -12,7 +13,7 @@
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BitmapDataBuffer"/> class.
+        /// Initializes a new instance of the <see cref="BitmapDataBuffer" /> class.
         /// </summary>
         /// <param name="scan0">The scan0.</param>
         /// <param name="stride">The stride.</param>
@@ -21,8 +22,18 @@
         /// <param name="pixelHeight">Height of the pixel.</param>
         /// <param name="dpiX">The dpi x.</param>
         /// <param name="dpiY">The dpi y.</param>
-        internal BitmapDataBuffer(
-            IntPtr scan0, int stride, int bytesPerPixel, int pixelWidth, int pixelHeight, double dpiX, double dpiY)
+        /// <param name="palette">The palette.</param>
+        /// <param name="pixelFormat">The pixel format.</param>
+        private BitmapDataBuffer(
+            IntPtr scan0,
+            int stride,
+            int bytesPerPixel,
+            int pixelWidth,
+            int pixelHeight,
+            double dpiX,
+            double dpiY,
+            BitmapPalette palette,
+            PixelFormat pixelFormat)
         {
             Scan0 = scan0;
             Stride = stride;
@@ -34,11 +45,19 @@
             DpiY = dpiY;
 
             UpdateRect = new Int32Rect(0, 0, pixelWidth, pixelHeight);
+            BufferLength = (uint)(Stride * PixelHeight);
+            Palette = palette;
+            PixelFormat = pixelFormat;
         }
 
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// Gets the length of the buffer (Stride x Pixel Height).
+        /// </summary>
+        public uint BufferLength { get; }
 
         /// <summary>
         /// Gets a pointer to the raw pixel data
@@ -85,6 +104,16 @@
         /// </summary>
         public Int32Rect UpdateRect { get; }
 
+        /// <summary>
+        /// Gets the palette.
+        /// </summary>
+        public BitmapPalette Palette { get; }
+
+        /// <summary>
+        /// Gets the pixel format.
+        /// </summary>
+        public PixelFormat PixelFormat { get; }
+
         #endregion
 
         #region Factory Methods
@@ -97,7 +126,16 @@
         internal static BitmapDataBuffer FromWriteableBitmap(WriteableBitmap w)
         {
             var result = new BitmapDataBuffer(
-                w.BackBuffer, w.BackBufferStride, w.Format.BitsPerPixel / 8, w.PixelWidth, w.PixelHeight, w.DpiX, w.DpiY);
+                w.BackBuffer,
+                w.BackBufferStride,
+                w.Format.BitsPerPixel / 8,
+                w.PixelWidth,
+                w.PixelHeight,
+                w.DpiX,
+                w.DpiY,
+                w.Palette,
+                w.Format);
+
             return result;
         }
 
