@@ -263,6 +263,7 @@
         {
             var element = dependencyObject as MediaElement;
             if (element == null) return;
+            if (element.MediaCore == null || element.MediaCore.IsDisposed) return;
 
             var uri = e.NewValue as Uri;
             await element.MediaCore.Open(uri);
@@ -294,7 +295,7 @@
             if (targetValue < Constants.Controller.MinVolume) targetValue = Constants.Controller.MinVolume;
             if (targetValue > Constants.Controller.MaxVolume) targetValue = Constants.Controller.MaxVolume;
 
-            var audioRenderer = element.MediaCore.RetrieveRenderer(MediaType.Audio) as AudioRenderer;
+            var audioRenderer = element.MediaCore?.RetrieveRenderer(MediaType.Audio) as AudioRenderer;
             return audioRenderer == null ? Constants.Controller.DefaultVolume : targetValue;
         }
 
@@ -303,6 +304,7 @@
             var element = d as MediaElement;
             if (element == null) return;
             if (element.HasAudio == false) return;
+            if (element.MediaCore == null || element.MediaCore.IsDisposed) return;
 
             if (element.MediaCore.RetrieveRenderer(MediaType.Audio) is AudioRenderer audioRenderer)
                 audioRenderer.Volume = (double)e.NewValue;
@@ -315,6 +317,7 @@
             var element = d as MediaElement;
             if (element == null) return Constants.Controller.DefaultBalance;
             if (element.HasAudio == false) return Constants.Controller.DefaultBalance;
+            if (element.MediaCore == null || element.MediaCore.IsDisposed) return Constants.Controller.DefaultBalance;
 
             var targetValue = (double)value;
             if (targetValue < Constants.Controller.MinBalance) targetValue = Constants.Controller.MinBalance;
@@ -329,6 +332,7 @@
             var element = d as MediaElement;
             if (element == null) return;
             if (element.HasAudio == false) return;
+            if (element.MediaCore == null || element.MediaCore.IsDisposed) return;
 
             if (element.MediaCore.RetrieveRenderer(MediaType.Audio) is AudioRenderer audioRenderer)
                 audioRenderer.Balance = (double)e.NewValue;
@@ -341,6 +345,7 @@
             var element = d as MediaElement;
             if (element == null) return false;
             if (element.HasAudio == false) return false;
+            if (element.MediaCore == null || element.MediaCore.IsDisposed) return false;
 
             var audioRenderer = element.MediaCore.RetrieveRenderer(MediaType.Audio) as AudioRenderer;
             return audioRenderer == null ? false : (bool)value;
@@ -351,6 +356,7 @@
             var element = d as MediaElement;
             if (element == null) return;
             if (element.HasAudio == false) return;
+            if (element.MediaCore == null || element.MediaCore.IsDisposed) return;
 
             if (element.MediaCore.RetrieveRenderer(MediaType.Audio) is AudioRenderer audioRenderer)
                 audioRenderer.IsMuted = (bool)e.NewValue;
@@ -362,6 +368,7 @@
         {
             var element = d as MediaElement;
             if (element == null) return;
+            if (element.MediaCore == null || element.MediaCore.IsDisposed) return;
 
             element.MediaCore.ScrubbingEnabled = (bool)e.NewValue;
         }
@@ -370,6 +377,7 @@
         {
             var element = d as MediaElement;
             if (element == null) return;
+            if (element.MediaCore == null || element.MediaCore.IsDisposed) return;
 
             element.MediaCore.UnloadedBehavior = (MediaEngineState)e.NewValue;
         }
@@ -378,6 +386,7 @@
         {
             var element = d as MediaElement;
             if (element == null) return;
+            if (element.MediaCore == null || element.MediaCore.IsDisposed) return;
 
             element.MediaCore.LoadedBehavior = (MediaEngineState)e.NewValue;
         }
@@ -386,7 +395,7 @@
         {
             var element = d as MediaElement;
             if (element == null) return;
-            if (element.MediaCore.IsDisposed) return;
+            if (element.MediaCore == null || element.MediaCore.IsDisposed) return;
             if (element.IsPositionUpdating || element.MediaCore.IsSeekable == false) return;
 
             element.MediaCore.Seek((TimeSpan)e.NewValue);
@@ -396,7 +405,7 @@
         {
             var element = d as MediaElement;
             if (element == null) return TimeSpan.Zero;
-            if (element.MediaCore.IsDisposed) return TimeSpan.Zero;
+            if (element.MediaCore == null || element.MediaCore.IsDisposed) return TimeSpan.Zero;
             if (element.MediaCore.IsSeekable == false) return element.MediaCore.Position;
 
             var minPosition = element.MediaCore?.MediaInfo?.StartTime ?? TimeSpan.Zero;
@@ -412,7 +421,7 @@
         {
             var element = d as MediaElement;
             if (element == null) return Constants.Controller.DefaultSpeedRatio;
-            if (element.MediaCore.IsDisposed) return Constants.Controller.DefaultSpeedRatio;
+            if (element.MediaCore == null || element.MediaCore.IsDisposed) return Constants.Controller.DefaultSpeedRatio;
             if ((element.MediaCore?.IsSeekable ?? false) == false) return Constants.Controller.DefaultSpeedRatio;
 
             var targetValue = (double)value;
@@ -426,7 +435,7 @@
         {
             var element = d as MediaElement;
             if (element == null) return;
-            if (element.MediaCore.IsDisposed) return;
+            if (element.MediaCore == null || element.MediaCore.IsDisposed) return;
 
             var targetSpeedRatio = (double)e.NewValue;
             element.MediaCore.SetSpeedRatio(targetSpeedRatio);

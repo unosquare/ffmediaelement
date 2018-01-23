@@ -181,6 +181,11 @@
                 FocusManager.SetIsFocusScope(this, true);
                 FocusManager.SetFocusedElement(this, this);
 
+                if (e.Key == Key.G)
+                {
+                    Subtitles.SetForeground(Media, System.Windows.Media.Brushes.Yellow);
+                }
+
                 // Pause
                 if (togglePlayPauseKeys.Contains(e.Key) && Media.IsPlaying)
                 {

@@ -739,6 +739,14 @@
                     else if (s.Key == AVMediaType.AVMEDIA_TYPE_SUBTITLE)
                         MediaOptions.SubtitleStream = s.Value;
                 }
+
+                // Set disabled audio or video if scaling libs not found
+                // This prevents the creation of unavailable audio or video components.
+                if (FFLibrary.LibSWScale.IsLoaded == false)
+                    MediaOptions.IsVideoDisabled = true;
+
+                if (FFLibrary.LibSWResample.IsLoaded == false)
+                    MediaOptions.IsAudioDisabled = true;
             }
             catch (Exception ex)
             {

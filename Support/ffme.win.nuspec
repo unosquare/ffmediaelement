@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>FFME.Windows</id>
-        <version>3.4.0.2-b9</version>
+        <version>3.4.0.2-b10</version>
         <title>FFME: WPF MediaElement Control Alternative</title>
         <authors>Mario Di Vece and the FFME contributors</authors>
         <owners>MarioDiVece,Unosquare</owners>
@@ -28,10 +28,10 @@ Release details: https://github.com/unosquare/ffmediaelement/issues/1</releaseNo
         </dependencies>
     </metadata>
     <files>
-        <file src="Unosquare.FFME.Windows\readme.txt" target="" />
-        <file src="Unosquare.FFME.Windows\bin\Release\ffme.common.dll" target="ffme.common.dll" />
-        <file src="Unosquare.FFME.Windows\bin\Release\ffme.common.xml" target="ffme.common.xml" />
-        <file src="Unosquare.FFME.Windows\bin\Release\ffme.win.dll" target="ffme.win.dll" />
-        <file src="Unosquare.FFME.Windows\bin\Release\ffme.win.xml" target="ffme.win.xml" />
+        <file src="..\Unosquare.FFME.Windows\readme.txt" target="" />
+        <file src="..\Unosquare.FFME.Windows\bin\Release\ffme.common.dll" target="ffme.common.dll" />
+        <file src="..\Unosquare.FFME.Windows\bin\Release\ffme.common.xml" target="ffme.common.xml" />
+        <file src="..\Unosquare.FFME.Windows\bin\Release\ffme.win.dll" target="ffme.win.dll" />
+        <file src="..\Unosquare.FFME.Windows\bin\Release\ffme.win.xml" target="ffme.win.xml" />
     </files>
 </package>

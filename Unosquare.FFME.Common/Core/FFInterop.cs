@@ -87,7 +87,7 @@
                     // library from the full path. In some Windows systems we get error 126 if we don't
                     MediaEngine.Platform.NativeMethods.SetDllDirectory(ffmpegPath);
 
-                    // Load the minimum set of FFmpeg binaries
+                    // Load FFmpeg binaries by Library ID
                     foreach (var lib in FFLibrary.All)
                     {
                         if ((lib.FlagId & libIdentifiers) != 0 && lib.Load(ffmpegPath))

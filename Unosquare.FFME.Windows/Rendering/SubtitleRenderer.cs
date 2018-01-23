@@ -167,7 +167,7 @@
                 {
                     lock (SyncLock)
                     {
-                        MediaElement.SubtitleView.Text = s;
+                        MediaElement.SubtitlesView.Text = s;
                         RenderedText = s;
                     }
                 }), text);
