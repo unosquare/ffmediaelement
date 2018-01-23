@@ -207,28 +207,6 @@
         }
 
         /// <summary>
-        /// Removes the component of specified media type (if registered).
-        /// It calls the dispose method of the media component too.
-        /// </summary>
-        /// <param name="mediaType">Type of the media.</param>
-        public void Remove(MediaType mediaType)
-        {
-            lock (SyncLock)
-            {
-                if (Items.ContainsKey(mediaType) == false) return;
-
-                try
-                {
-                    var component = Items[mediaType];
-                    Items.Remove(mediaType);
-                    component.Dispose();
-                }
-                catch
-                { }
-            }
-        }
-
-        /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
@@ -247,7 +225,7 @@
         /// </summary>
         /// <param name="packet">The packet.</param>
         /// <returns>The media type</returns>
-        internal unsafe MediaType SendPacket(AVPacket* packet)
+        public unsafe MediaType SendPacket(AVPacket* packet)
         {
             lock (SyncLock)
             {
@@ -270,9 +248,9 @@
         /// <summary>
         /// Sends an empty packet to all media components.
         /// When an EOF/EOS situation is encountered, this forces
-        /// the decoders to enter drainig mode untill all frames are decoded.
+        /// the decoders to enter drainig mode until all frames are decoded.
         /// </summary>
-        internal void SendEmptyPackets()
+        public void SendEmptyPackets()
         {
             lock (SyncLock)
                 foreach (var component in All)
@@ -285,7 +263,7 @@
         /// This is useful after a seek operation is performed or a stream
         /// index is changed.
         /// </summary>
-        internal void ClearPacketQueues()
+        public void ClearPacketQueues()
         {
             lock (SyncLock)
                 foreach (var component in All)
@@ -295,6 +273,28 @@
         #endregion
 
         #region IDisposable Support
+
+        /// <summary>
+        /// Removes the component of specified media type (if registered).
+        /// It calls the dispose method of the media component too.
+        /// </summary>
+        /// <param name="mediaType">Type of the media.</param>
+        private void RemoveComponent(MediaType mediaType)
+        {
+            lock (SyncLock)
+            {
+                if (Items.ContainsKey(mediaType) == false) return;
+
+                try
+                {
+                    var component = Items[mediaType];
+                    Items.Remove(mediaType);
+                    component.Dispose();
+                }
+                catch
+                { }
+            }
+        }
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
@@ -308,7 +308,7 @@
                 {
                     var componentKeys = Items.Keys.ToArray();
                     foreach (var mediaType in componentKeys)
-                        Remove(mediaType);
+                        RemoveComponent(mediaType);
                 }
 
                 // free unmanaged resources (unmanaged objects) and override a finalizer below.

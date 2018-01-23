@@ -172,7 +172,7 @@
         /// Returns whether the currently loaded media is live or realtime and does not have a set duration
         /// This is only valid after the MediaOpened event has fired.
         /// </summary>
-        public bool IsLiveStream => IsOpen ? Container.IsStreamRealtime && Container.MediaDuration == TimeSpan.MinValue : false;
+        public bool IsLiveStream => IsOpen ? Container.IsLiveStream : false;
 
         /// <summary>
         /// When position is being set from within this control, this field will

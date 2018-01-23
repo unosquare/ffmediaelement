@@ -13,33 +13,22 @@
     /// <summary>
     /// A container capable of opening an input url,
     /// reading packets from it, decoding frames, seeking, and pausing and resuming network streams
-    /// Code heavily based on https://raw.githubusercontent.com/FFmpeg/FFmpeg/release/3.2/ffplay.c
+    /// Code based on https://raw.githubusercontent.com/FFmpeg/FFmpeg/release/3.2/ffplay.c
     /// The method pipeline should be:
     /// 1. Set Options (or don't, for automatic options) and Initialize,
-    /// 2. Perform continuous Reads,
-    /// 3. Perform continuous Decodes and Converts/Materialize
+    /// 2. Perform continuous packet reads,
+    /// 3. Perform continuous frame decodes
+    /// 4. Perform continuous block materialization
     /// </summary>
     /// <seealso cref="IDisposable" />
     internal sealed unsafe class MediaContainer : IDisposable
     {
         #region Private Fields
 
-#pragma warning disable SA1401 // Fields must be private
-
         /// <summary>
-        /// The logger
+        /// The exception message no input context
         /// </summary>
-        internal readonly IMediaLogger Parent;
-
-        /// <summary>
-        /// Holds a reference to an input context.
-        /// </summary>
-        internal AVFormatContext* InputContext = null;
-
-#pragma warning restore SA1401 // Fields must be private
-
-        private static readonly string[] LiveStreamUrlPrefixes = new[] { "rtp:", "udp:" };
-        private static readonly string[] LiveStreamFormatNames = new[] { "rtp", "rtsp", "sdp" };
+        private const string ExceptionMessageNoInputContext = "Stream InputContext has not been initialized.";
 
         /// <summary>
         /// The read synchronize root
@@ -57,16 +46,6 @@
         private readonly object ConvertSyncRoot = new object();
 
         /// <summary>
-        /// Holds the set of components.
-        /// </summary>
-        private readonly MediaComponentSet m_Components = new MediaComponentSet();
-
-        /// <summary>
-        /// The internal flag that determines if a seek operation is in progress.
-        /// </summary>
-        private AtomicBoolean m_IsSeeking = new AtomicBoolean(false);
-
-        /// <summary>
         /// To detect redundat Dispose calls
         /// </summary>
         private bool IsDisposed = false;
@@ -82,7 +61,7 @@
         /// and these attached packets must be read before reading the first frame
         /// of the stream and after seeking.
         /// </summary>
-        private bool m_RequiresPictureAttachments = true;
+        private bool RequiresPictureAttachments = true;
 
         /// <summary>
         /// The stream read interrupt callback.
@@ -105,11 +84,6 @@
         /// If set to true, it will reset the abort requested flag to false.
         /// </summary>
         private AtomicBoolean SignalAbortReadsAutoReset = new AtomicBoolean(false);
-
-        /// <summary>
-        /// If set to true, an ongoing seek operation will immediately try to return and cancel all reads.
-        /// </summary>
-        private AtomicBoolean SignalAbortSeekRequested = new AtomicBoolean(false);
 
         #endregion
 
@@ -148,17 +122,14 @@
             StreamInitialize();
         }
 
-        /// <summary>
-        /// Finalizes an instance of the <see cref="MediaContainer"/> class.
-        /// </summary>
-        ~MediaContainer()
-        {
-            Dispose(false);
-        }
-
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// Logging Messages will be sent to this parent object.
+        /// </summary>
+        public IMediaLogger Parent { get; }
 
         /// <summary>
         /// Gets the media URL. This is the input url, file or device that is read
@@ -181,6 +152,7 @@
 
         /// <summary>
         /// Provides stream, chapter and program info held by this container.
+        /// This property is null if the the stream has not been opened.
         /// </summary>
         public MediaInfo MediaInfo { get; private set; }
 
@@ -222,7 +194,7 @@
         /// <value>
         ///   <c>true</c> if this instance is at end of stream; otherwise, <c>false</c>.
         /// </value>
-        public bool IsAtEndOfStream { get; private set; }
+        public bool IsAtEndOfStream { get; private set; } = false;
 
         /// <summary>
         /// Gets the byte position at which the stream is being read.
@@ -243,16 +215,22 @@
         public bool IsStreamSeekable => MediaDuration.TotalSeconds > 0 && MediaDuration != TimeSpan.MinValue;
 
         /// <summary>
-        /// Gets a value indicating whether this container represents realtime media.
-        /// If the format name is rtp, rtsp, or sdp or if the url starts with udp: or rtp:
+        /// Gets a value indicating whether this container represents live media.
+        /// If the stream is classified as a network stream and it is not seekable, then this property will return true.
+        /// </summary>
+        public bool IsLiveStream => IsNetworkStream && IsStreamSeekable == false;
+
+        /// <summary>
+        /// Gets a value indicating whether the input stream is a network stream.
+        /// If the format name is rtp, rtsp, or sdp or if the url starts with udp:, http:, https:, tcp:, or rtp:
         /// then this property will be set to true.
         /// </summary>
-        public bool IsStreamRealtime { get; private set; }
+        public bool IsNetworkStream { get; private set; }
 
         /// <summary>
         /// Provides direct access to the individual Media components of the input stream.
         /// </summary>
-        public MediaComponentSet Components => m_Components;
+        public MediaComponentSet Components { get; } = new MediaComponentSet();
 
         /// <summary>
         /// Gets a value indicating whether reads are in the aborted state.
@@ -260,24 +238,28 @@
         public bool IsReadAborted => SignalAbortReadsRequested.Value;
 
         /// <summary>
-        /// Gets a value indicating whether a seek operation is in progress.
+        /// Gets the media start time by which all component streams are offset.
+        /// Typically 0 but it could be something other than 0.
         /// </summary>
-        public bool IsSeeking => m_IsSeeking.Value;
+        public TimeSpan MediaStartTimeOffset { get; private set; }
 
         #endregion
 
         #region Internal Properties
 
         /// <summary>
-        /// Gets the media start time by which all component streams are offset.
-        /// Typically 0 but it could be something other than 0.
+        /// Holds a reference to the input context.
         /// </summary>
-        internal TimeSpan MediaStartTimeOffset { get; private set; }
+        internal AVFormatContext* InputContext { get; private set; } = null;
+
+        #endregion
+
+        #region Private State Management
 
         /// <summary>
         /// Gets the seek start timestamp.
         /// </summary>
-        internal long SeekStartTimestamp
+        private long StateStartTimestamp
         {
             get
             {
@@ -290,18 +272,7 @@
         /// <summary>
         /// Gets the time the last packet was read from the input
         /// </summary>
-        internal DateTime StreamLastReadTimeUtc { get; private set; } = DateTime.MinValue;
-
-        /// <summary>
-        /// For RTSP and other realtime streams reads can be suspended.
-        /// </summary>
-        internal bool CanReadSuspend { get; private set; }
-
-        /// <summary>
-        /// For RTSP and other realtime streams reads can be suspended.
-        /// This property will return true if reads have been suspended.
-        /// </summary>
-        internal bool IsReadSuspended { get; private set; }
+        private DateTime StateLastReadTimeUtc { get; set; } = DateTime.MinValue;
 
         /// <summary>
         /// Gets a value indicating whether a packet read delay witll be enforced.
@@ -309,7 +280,7 @@
         /// Reading packets will block for at most 10 milliseconds depending on the last read time.
         /// This is a hack according to the source code in ffplay.c
         /// </summary>
-        internal bool RequiresReadDelay { get; private set; }
+        private bool StateRequiresReadDelay { get; set; }
 
         /// <summary>
         /// Picture attachments are required when video streams support them
@@ -317,21 +288,21 @@
         /// of the stream and after seeking. This property is not part of the public API
         /// and is meant more for internal purposes
         /// </summary>
-        internal bool RequiresPictureAttachments
+        private bool StateRequiresPictureAttachments
         {
             get
             {
                 var canRequireAttachments = Components.HasVideo
                     && (Components.Video.Stream->disposition & ffmpeg.AV_DISPOSITION_ATTACHED_PIC) != 0;
 
-                return canRequireAttachments && m_RequiresPictureAttachments;
+                return canRequireAttachments && RequiresPictureAttachments;
             }
             set
             {
                 var canRequireAttachments = Components.HasVideo
                     && (Components.Video.Stream->disposition & ffmpeg.AV_DISPOSITION_ATTACHED_PIC) != 0;
 
-                m_RequiresPictureAttachments = canRequireAttachments && value;
+                RequiresPictureAttachments = canRequireAttachments && value;
             }
         }
 
@@ -347,6 +318,9 @@
         {
             lock (ReadSyncRoot)
             {
+                if (IsDisposed) throw new ObjectDisposedException(nameof(MediaContainer));
+                if (InputContext == null) throw new InvalidOperationException(ExceptionMessageNoInputContext);
+
                 StreamOpen();
             }
         }
@@ -359,36 +333,18 @@
         /// Pass TimeSpan.Zero to seek to the beginning of the stream.
         /// </summary>
         /// <param name="position">The position.</param>
-        /// <param name="aborted">if set to <c>true</c> [aborted].</param>
         /// <returns>
         /// The list of media frames
         /// </returns>
         /// <exception cref="InvalidOperationException">No input context initialized</exception>
-        public List<MediaFrame> Seek(TimeSpan position, out bool aborted)
+        public List<MediaFrame> Seek(TimeSpan position)
         {
-            try
+            lock (ReadSyncRoot)
             {
-                if (SignalAbortSeekRequested.Value)
-                {
-                    aborted = false;
-                    return new List<MediaFrame>(0);
-                }
+                if (IsDisposed) throw new ObjectDisposedException(nameof(MediaContainer));
+                if (InputContext == null) throw new InvalidOperationException(ExceptionMessageNoInputContext);
 
-                m_IsSeeking.Value = true;
-                lock (ReadSyncRoot)
-                {
-                    if (IsDisposed || InputContext == null) throw new InvalidOperationException("No input context initialized");
-                    return StreamSeek(position, out aborted);
-                }
-            }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                SignalAbortSeekRequested.Value = false;
-                m_IsSeeking.Value = false;
+                return StreamSeek(position);
             }
         }
 
@@ -408,8 +364,9 @@
         {
             lock (ReadSyncRoot)
             {
-                if (IsDisposed) return MediaType.None;
-                if (InputContext == null) throw new InvalidOperationException("No input context initialized");
+                if (IsDisposed) throw new ObjectDisposedException(nameof(MediaContainer));
+                if (InputContext == null) throw new InvalidOperationException(ExceptionMessageNoInputContext);
+
                 return StreamRead();
             }
         }
@@ -430,6 +387,9 @@
         {
             lock (DecodeSyncRoot)
             {
+                if (IsDisposed) throw new ObjectDisposedException(nameof(MediaContainer));
+                if (InputContext == null) throw new InvalidOperationException(ExceptionMessageNoInputContext);
+
                 var result = new List<MediaFrame>(64);
                 foreach (var component in Components.All)
                     result.AddRange(component.ReceiveFrames());
@@ -464,8 +424,8 @@
         {
             lock (ConvertSyncRoot)
             {
-                if (IsDisposed || InputContext == null)
-                    throw new InvalidOperationException("No input context initialized");
+                if (IsDisposed) throw new ObjectDisposedException(nameof(MediaContainer));
+                if (InputContext == null) throw new InvalidOperationException(ExceptionMessageNoInputContext);
 
                 // Check the input parameters
                 if (input == null)
@@ -510,24 +470,14 @@
         }
 
         /// <summary>
-        /// Signals the abortion of the current seek operation.
-        /// </summary>
-        /// <returns>
-        /// Returns true if there was a seek operation in progress when this method was called.
-        /// </returns>
-        public bool SignalAbortSeek()
-        {
-            var result = IsSeeking;
-            SignalAbortSeekRequested.Value = true;
-            return result;
-        }
-
-        /// <summary>
         /// Signals the packet reading operations to abort immediately.
         /// </summary>
         /// <param name="reset">if set to true, the read interrupt will reset the aborted state automatically</param>
         public void SignalAbortReads(bool reset)
         {
+            if (IsDisposed) throw new ObjectDisposedException(nameof(MediaContainer));
+            if (InputContext == null) throw new InvalidOperationException(ExceptionMessageNoInputContext);
+
             SignalAbortReadsAutoReset.Value = reset;
             SignalAbortReadsRequested.Value = true;
         }
@@ -537,6 +487,9 @@
         /// </summary>
         public void SignalResumeReads()
         {
+            if (IsDisposed) throw new ObjectDisposedException(nameof(MediaContainer));
+            if (InputContext == null) throw new InvalidOperationException(ExceptionMessageNoInputContext);
+
             SignalAbortReadsRequested.Value = false;
             SignalAbortReadsAutoReset.Value = true;
         }
@@ -547,83 +500,20 @@
         /// </summary>
         public void Close()
         {
-            lock (ReadSyncRoot)
-            {
-                lock (DecodeSyncRoot)
-                {
-                    SignalAbortReads(false);
-                    if (IsDisposed || InputContext == null)
-                        throw new InvalidOperationException("No input context initialized");
-
-                    Dispose();
-                }
-            }
+            Dispose();
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         #endregion
 
         #region Private Stream Methods
-
-        /// <summary>
-        /// Initializes the InputContext and applies format options.
-        /// https://www.ffmpeg.org/ffmpeg-formats.html#Format-Options
-        /// </summary>
-        private void InitializeInputContext()
-        {
-            // Allocate the input context and save it
-            InputContext = ffmpeg.avformat_alloc_context();
-
-            // Setup an interrupt callback to detect read timeouts
-            SignalAbortReadsRequested.Value = false;
-            SignalAbortReadsAutoReset.Value = true;
-            StreamReadInterruptCallback = StreamReadInterrupt;
-            InputContext->interrupt_callback.callback = StreamReadInterruptCallback;
-            InputContext->interrupt_callback.opaque = InputContext;
-
-            // Acquire the format options to be applied
-            var opts = MediaOptions.FormatOptions;
-
-            // Apply the options
-            if (opts.EnableReducedBuffering) InputContext->avio_flags |= ffmpeg.AVIO_FLAG_DIRECT;
-            if (opts.PacketSize != default(int)) InputContext->packet_size = (uint)opts.PacketSize;
-            if (opts.ProbeSize != default(int)) InputContext->probesize = MediaOptions.FormatOptions.ProbeSize <= 32 ? 32 : opts.ProbeSize;
-
-            // Flags
-            InputContext->flags |= opts.FlagDiscardCorrupt ? ffmpeg.AVFMT_FLAG_DISCARD_CORRUPT : InputContext->flags;
-            InputContext->flags |= opts.FlagEnableFastSeek ? ffmpeg.AVFMT_FLAG_FAST_SEEK : InputContext->flags;
-            InputContext->flags |= opts.FlagEnableLatmPayload ? ffmpeg.AVFMT_FLAG_MP4A_LATM : InputContext->flags;
-            InputContext->flags |= opts.FlagEnableNoFillin ? ffmpeg.AVFMT_FLAG_NOFILLIN : InputContext->flags;
-            InputContext->flags |= opts.FlagGeneratePts ? ffmpeg.AVFMT_FLAG_GENPTS : InputContext->flags;
-            InputContext->flags |= opts.FlagIgnoreDts ? ffmpeg.AVFMT_FLAG_IGNDTS : InputContext->flags;
-            InputContext->flags |= opts.FlagIgnoreIndex ? ffmpeg.AVFMT_FLAG_IGNIDX : InputContext->flags;
-            InputContext->flags |= opts.FlagKeepSideData ? ffmpeg.AVFMT_FLAG_KEEP_SIDE_DATA : InputContext->flags;
-            InputContext->flags |= opts.FlagNoBuffer ? ffmpeg.AVFMT_FLAG_NOBUFFER : InputContext->flags;
-            InputContext->flags |= opts.FlagSortDts ? ffmpeg.AVFMT_FLAG_SORT_DTS : InputContext->flags;
-            InputContext->flags |= opts.FlagStopAtShortest ? ffmpeg.AVFMT_FLAG_SHORTEST : InputContext->flags;
-
-            InputContext->seek2any = opts.SeekToAny ? 1 : 0;
-
-            // Handle analyze duration overrides
-            if (opts.MaxAnalyzeDuration != default(TimeSpan))
-            {
-                InputContext->max_analyze_duration = opts.MaxAnalyzeDuration <= TimeSpan.Zero ? 0 :
-                    (int)Math.Round(opts.MaxAnalyzeDuration.TotalSeconds * ffmpeg.AV_TIME_BASE, 0);
-            }
-
-            if (string.IsNullOrEmpty(opts.CryptoKey) == false)
-            {
-                // TODO: not yet implemented
-            }
-        }
 
         /// <summary>
         /// Initializes the input context to start read operations.
@@ -654,28 +544,28 @@
                         inputOptions.Set(MediaInputOptions.Names.ScanAllPmts, "1", true);
 
                     // Create the input context
-                    InitializeInputContext();
+                    StreamInitializeInputContext();
 
                     // Try to open the input
-                    fixed (AVFormatContext** inputContext = &InputContext)
+                    var inputContextPtr = InputContext;
+
+                    // Open the input file
+                    var openResult = 0;
+
+                    // We set the start of the read operation time so tiomeouts can be detected
+                    StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
+                    fixed (AVDictionary** inputOptionsRef = &inputOptions.Pointer)
                     {
-                        // Open the input file
-                        var openResult = 0;
+                        var prefix = string.IsNullOrWhiteSpace(ProtocolPrefix) ? string.Empty : $"{ProtocolPrefix.Trim()}:";
+                        openResult = ffmpeg.avformat_open_input(&inputContextPtr, $"{prefix}{MediaUrl}", inputFormat, inputOptionsRef);
+                        InputContext = inputContextPtr;
+                    }
 
-                        // We set the start of the read operation time so tiomeouts can be detected
-                        StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
-                        fixed (AVDictionary** inputOptionsRef = &inputOptions.Pointer)
-                        {
-                            var prefix = string.IsNullOrWhiteSpace(ProtocolPrefix) ? string.Empty : $"{ProtocolPrefix.Trim()}:";
-                            openResult = ffmpeg.avformat_open_input(inputContext, $"{prefix}{MediaUrl}", inputFormat, inputOptionsRef);
-                        }
-
-                        // Validate the open operation
-                        if (openResult < 0)
-                        {
-                            throw new MediaContainerException($"Could not open '{MediaUrl}'. "
-                                + $"Error {openResult}: {FFInterop.DecodeMessage(openResult)}");
-                        }
+                    // Validate the open operation
+                    if (openResult < 0)
+                    {
+                        throw new MediaContainerException($"Could not open '{MediaUrl}'. "
+                            + $"Error {openResult}: {FFInterop.DecodeMessage(openResult)}");
                     }
 
                     // Set some general properties
@@ -706,11 +596,11 @@
                 // Setup initial state variables
                 Metadata = new ReadOnlyDictionary<string, string>(FFDictionary.ToDictionary(InputContext->metadata));
 
-                IsStreamRealtime = LiveStreamFormatNames.Any(s => MediaFormatName.Equals(s)) ||
-                    (InputContext->pb != null && LiveStreamUrlPrefixes.Any(s => MediaUrl.StartsWith(s)));
+                // If read_play is set, it is only relevant to network streams
+                IsNetworkStream = InputContext->iformat->read_play.Pointer != IntPtr.Zero;
 
                 // Unsure how this works. Ported from ffplay
-                RequiresReadDelay = MediaFormatName.Equals("rstp") || MediaUrl.StartsWith("mmsh:");
+                StateRequiresReadDelay = MediaFormatName.Equals("rstp") || MediaUrl.StartsWith("mmsh:");
 
                 // Determine the seek mode of the input format
                 var inputAllowsDiscontinuities = (InputContext->iformat->flags & ffmpeg.AVFMT_TS_DISCONT) != 0;
@@ -752,8 +642,60 @@
             {
                 Parent?.Log(MediaLogMessageType.Error,
                     $"Fatal error initializing {nameof(MediaContainer)} instance. {ex.Message}");
-                Dispose(true);
+                Close();
                 throw;
+            }
+        }
+
+        /// <summary>
+        /// Initializes the InputContext and applies format options.
+        /// https://www.ffmpeg.org/ffmpeg-formats.html#Format-Options
+        /// </summary>
+        private void StreamInitializeInputContext()
+        {
+            // Allocate the input context and save it
+            InputContext = ffmpeg.avformat_alloc_context();
+
+            // Setup an interrupt callback to detect read timeouts
+            SignalAbortReadsRequested.Value = false;
+            SignalAbortReadsAutoReset.Value = true;
+            StreamReadInterruptCallback = OnStreamReadInterrupt;
+            InputContext->interrupt_callback.callback = StreamReadInterruptCallback;
+            InputContext->interrupt_callback.opaque = InputContext;
+
+            // Acquire the format options to be applied
+            var opts = MediaOptions.FormatOptions;
+
+            // Apply the options
+            if (opts.EnableReducedBuffering) InputContext->avio_flags |= ffmpeg.AVIO_FLAG_DIRECT;
+            if (opts.PacketSize != default(int)) InputContext->packet_size = (uint)opts.PacketSize;
+            if (opts.ProbeSize != default(int)) InputContext->probesize = MediaOptions.FormatOptions.ProbeSize <= 32 ? 32 : opts.ProbeSize;
+
+            // Flags
+            InputContext->flags |= opts.FlagDiscardCorrupt ? ffmpeg.AVFMT_FLAG_DISCARD_CORRUPT : InputContext->flags;
+            InputContext->flags |= opts.FlagEnableFastSeek ? ffmpeg.AVFMT_FLAG_FAST_SEEK : InputContext->flags;
+            InputContext->flags |= opts.FlagEnableLatmPayload ? ffmpeg.AVFMT_FLAG_MP4A_LATM : InputContext->flags;
+            InputContext->flags |= opts.FlagEnableNoFillin ? ffmpeg.AVFMT_FLAG_NOFILLIN : InputContext->flags;
+            InputContext->flags |= opts.FlagGeneratePts ? ffmpeg.AVFMT_FLAG_GENPTS : InputContext->flags;
+            InputContext->flags |= opts.FlagIgnoreDts ? ffmpeg.AVFMT_FLAG_IGNDTS : InputContext->flags;
+            InputContext->flags |= opts.FlagIgnoreIndex ? ffmpeg.AVFMT_FLAG_IGNIDX : InputContext->flags;
+            InputContext->flags |= opts.FlagKeepSideData ? ffmpeg.AVFMT_FLAG_KEEP_SIDE_DATA : InputContext->flags;
+            InputContext->flags |= opts.FlagNoBuffer ? ffmpeg.AVFMT_FLAG_NOBUFFER : InputContext->flags;
+            InputContext->flags |= opts.FlagSortDts ? ffmpeg.AVFMT_FLAG_SORT_DTS : InputContext->flags;
+            InputContext->flags |= opts.FlagStopAtShortest ? ffmpeg.AVFMT_FLAG_SHORTEST : InputContext->flags;
+
+            InputContext->seek2any = opts.SeekToAny ? 1 : 0;
+
+            // Handle analyze duration overrides
+            if (opts.MaxAnalyzeDuration != default(TimeSpan))
+            {
+                InputContext->max_analyze_duration = opts.MaxAnalyzeDuration <= TimeSpan.Zero ? 0 :
+                    (int)Math.Round(opts.MaxAnalyzeDuration.TotalSeconds * ffmpeg.AV_TIME_BASE, 0);
+            }
+
+            if (string.IsNullOrEmpty(opts.CryptoKey) == false)
+            {
+                // TODO: not yet implemented
             }
         }
 
@@ -766,7 +708,7 @@
             if (IsOpen) throw new InvalidOperationException("The stream components are already open.");
 
             // Open the best suitable streams. Throw if no audio and/or video streams are found
-            StreamCreateComponents();
+            StreamOpenCreateComponents();
 
             // Verify the stream input start offset. This is the zero measure for all sub-streams.
             var minOffset = Components.All.Count > 0 ? Components.All.Min(c => c.StartTimeOffset) : MediaStartTimeOffset;
@@ -776,14 +718,9 @@
                 MediaStartTimeOffset = minOffset;
             }
 
-            // For network streams, figure out if reads can be paused and then start them.
-            CanReadSuspend = ffmpeg.av_read_pause(InputContext) == 0;
-            ffmpeg.av_read_play(InputContext);
-            IsReadSuspended = false;
-
             // Initially and depending on the video component, rquire picture attachments.
             // Picture attachments are only required after the first read or after a seek.
-            RequiresPictureAttachments = true;
+            StateRequiresPictureAttachments = true;
         }
 
         /// <summary>
@@ -791,7 +728,7 @@
         /// Then it initializes the components of the correct type each.
         /// </summary>
         /// <exception cref="MediaContainerException">The exception ifnromation</exception>
-        private void StreamCreateComponents()
+        private void StreamOpenCreateComponents()
         {
             // Create the audio component
             try
@@ -838,41 +775,6 @@
         }
 
         /// <summary>
-        /// The interrupt callback to handle stream reading timeouts
-        /// </summary>
-        /// <param name="opaque">A pointer to the format input context</param>
-        /// <returns>0 for OK, 1 for error (timeout)</returns>
-        private unsafe int StreamReadInterrupt(void* opaque)
-        {
-            const int ErrorResult = 1;
-            const int OkResult = 0;
-
-            // Check if a forced quit was triggered
-            if (SignalAbortReadsRequested.Value)
-            {
-                Parent?.Log(MediaLogMessageType.Info, $"{nameof(StreamReadInterrupt)} was requested an immediate read exit.");
-                if (SignalAbortReadsAutoReset.Value)
-                    SignalAbortReadsRequested.Value = false;
-
-                return ErrorResult;
-            }
-
-            var nowTicks = DateTime.UtcNow.Ticks;
-
-            // We use Interlocked read because in 32 bits it takes 2 trips!
-            var startTicks = StreamReadInterruptStartTime.Value;
-            var timeDifference = TimeSpan.FromTicks(nowTicks - startTicks);
-
-            if (MediaOptions.ReadTimeout.Ticks >= 0 && timeDifference.Ticks > MediaOptions.ReadTimeout.Ticks)
-            {
-                Parent?.Log(MediaLogMessageType.Error, $"{nameof(StreamReadInterrupt)} timed out with  {timeDifference.Format()}");
-                return ErrorResult;
-            }
-
-            return OkResult;
-        }
-
-        /// <summary>
         /// Reads the next packet in the underlying stream and enqueues in the corresponding media component.
         /// Returns None of no packet was read.
         /// </summary>
@@ -888,9 +790,6 @@
 
             if (IsReadAborted)
                 return MediaType.None;
-
-            // Ensure read is not suspended
-            StreamReadResume();
 
 #if CONFIG_RTSP_DEMUXER
             // I am unsure how this code ported from ffplay provides any advantage or functionality
@@ -908,7 +807,7 @@
             }
 #endif
 
-            if (RequiresPictureAttachments)
+            if (StateRequiresPictureAttachments)
             {
                 var attachedPacket = ffmpeg.av_packet_clone(&Components.Video.Stream->attached_pic);
                 RC.Current.Add(attachedPacket, $"710: {nameof(MediaComponent)}.{nameof(StreamRead)}()");
@@ -918,7 +817,7 @@
                     Components.Video.SendEmptyPacket();
                 }
 
-                RequiresPictureAttachments = false;
+                StateRequiresPictureAttachments = false;
             }
 
             // Allocate the packet to read
@@ -926,7 +825,7 @@
             RC.Current.Add(readPacket, $"725: {nameof(MediaComponent)}.{nameof(StreamRead)}()");
             StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
             var readResult = ffmpeg.av_read_frame(InputContext, readPacket);
-            StreamLastReadTimeUtc = DateTime.UtcNow;
+            StateLastReadTimeUtc = DateTime.UtcNow;
 
             if (readResult < 0)
             {
@@ -974,101 +873,38 @@
         }
 
         /// <summary>
-        /// Suspends / pauses network streams
-        /// This should only be called upon Dispose
+        /// The interrupt callback to handle stream reading timeouts
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void StreamReadSuspend()
+        /// <param name="opaque">A pointer to the format input context</param>
+        /// <returns>0 for OK, 1 for error (timeout)</returns>
+        private unsafe int OnStreamReadInterrupt(void* opaque)
         {
-            if (InputContext == null || CanReadSuspend == false || IsReadSuspended) return;
-            ffmpeg.av_read_pause(InputContext);
-            IsReadSuspended = true;
-        }
+            const int ErrorResult = 1;
+            const int OkResult = 0;
 
-        /// <summary>
-        /// Resumes the reads of network streams
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void StreamReadResume()
-        {
-            if (InputContext == null || CanReadSuspend == false || IsReadSuspended == false) return;
-            ffmpeg.av_read_play(InputContext);
-            IsReadSuspended = false;
-        }
-
-        /// <summary>
-        /// Drops the seek frames that are no longer needed.
-        /// Target time should be provided in absolute, 0-based time
-        /// </summary>
-        /// <param name="frames">The frames.</param>
-        /// <param name="targetTime">The target time.</param>
-        /// <returns>The number of dropped frames</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int DropSeekFrames(List<MediaFrame> frames, TimeSpan targetTime)
-        {
-            var result = 0;
-            if (frames.Count < 2) return result;
-            frames.Sort();
-
-            var framesToDrop = new List<int>(frames.Count);
-            var frameType = frames[0].MediaType;
-
-            for (var i = 0; i < frames.Count - 1; i++)
+            // Check if a forced quit was triggered
+            if (SignalAbortReadsRequested.Value)
             {
-                var currentFrame = frames[i];
-                var nextFrame = frames[i + 1];
+                Parent?.Log(MediaLogMessageType.Info, $"{nameof(OnStreamReadInterrupt)} was requested an immediate read exit.");
+                if (SignalAbortReadsAutoReset.Value)
+                    SignalAbortReadsRequested.Value = false;
 
-                if (currentFrame.StartTime >= targetTime)
-                    break;
-                if (currentFrame.StartTime < targetTime && nextFrame.StartTime <= targetTime)
-                    framesToDrop.Add(i);
+                return ErrorResult;
             }
 
-            for (var i = framesToDrop.Count - 1; i >= 0; i--)
+            var nowTicks = DateTime.UtcNow.Ticks;
+
+            // We use Interlocked read because in 32 bits it takes 2 trips!
+            var startTicks = StreamReadInterruptStartTime.Value;
+            var timeDifference = TimeSpan.FromTicks(nowTicks - startTicks);
+
+            if (MediaOptions.ReadTimeout.Ticks >= 0 && timeDifference.Ticks > MediaOptions.ReadTimeout.Ticks)
             {
-                var dropIndex = framesToDrop[i];
-                var frame = frames[dropIndex];
-                frames.RemoveAt(dropIndex);
-                frame.Dispose();
-                result++;
+                Parent?.Log(MediaLogMessageType.Error, $"{nameof(OnStreamReadInterrupt)} timed out with  {timeDifference.Format()}");
+                return ErrorResult;
             }
 
-            return result;
-        }
-
-        /// <summary>
-        /// Seeks to the position at the start of the stream.
-        /// </summary>
-        private void StreamSeekToStart()
-        {
-            if (MediaStartTimeOffset == TimeSpan.MinValue) return;
-            StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
-            StreamReadSuspend();
-
-            var seekResult = ffmpeg.av_seek_frame(
-                InputContext,
-                -1,
-                SeekStartTimestamp,
-                MediaSeeksByBytes ? ffmpeg.AVSEEK_FLAG_BYTE : ffmpeg.AVSEEK_FLAG_BACKWARD);
-
-            /*
-            var seekResult = ffmpeg.av_seek_frame(
-                InputContext,
-                -1, // Components.Main.StreamIndex,
-                long.MinValue,
-                ffmpeg.AVSEEK_FLAG_BACKWARD | ffmpeg.AVSEEK_FLAG_ANY);
-            */
-
-            if (seekResult < 0)
-            {
-                Parent?.Log(MediaLogMessageType.Warning,
-                    $"SEEK 0: {nameof(StreamSeekToStart)} operation failed. Error code {seekResult}, {FFInterop.DecodeMessage(seekResult)}");
-            }
-
-            Components.ClearPacketQueues();
-            RequiresPictureAttachments = true;
-            IsAtEndOfStream = false;
-            StreamReadResume();
+            return OkResult;
         }
 
         /// <summary>
@@ -1076,15 +912,13 @@
         /// Supports byte seeking.
         /// </summary>
         /// <param name="targetTime">The target time.</param>
-        /// <param name="aborted">if set to <c>true</c> [aborted].</param>
         /// <returns>
         /// The list of media frames
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private List<MediaFrame> StreamSeek(TimeSpan targetTime, out bool aborted)
+        private List<MediaFrame> StreamSeek(TimeSpan targetTime)
         {
             // Create the output result object
-            aborted = SignalAbortSeekRequested.Value;
             var result = new List<MediaFrame>(256);
 
             // A special kind of seek is the zero seek. Execute it if requested.
@@ -1163,11 +997,10 @@
                 }
                 else
                 {
-                    StreamReadSuspend();
                     StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
                     if (relativeTargetTime.Ticks <= main.StartTimeOffset.Ticks)
                     {
-                        seekResult = ffmpeg.av_seek_frame(InputContext, -1, SeekStartTimestamp, seekFlags);
+                        seekResult = ffmpeg.av_seek_frame(InputContext, -1, StateStartTimestamp, seekFlags);
                         isAtStartOfStream = true;
                     }
                     else
@@ -1182,9 +1015,8 @@
 
                 // Flush the buffered packets and codec on every seek.
                 Components.ClearPacketQueues();
-                RequiresPictureAttachments = true;
+                StateRequiresPictureAttachments = true;
                 IsAtEndOfStream = false;
-                StreamReadResume();
 
                 // Ensure we had a successful seek operation
                 if (seekResult < 0)
@@ -1230,6 +1062,40 @@
 
             #endregion
 
+        }
+
+        /// <summary>
+        /// Seeks to the position at the start of the stream.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void StreamSeekToStart()
+        {
+            if (MediaStartTimeOffset == TimeSpan.MinValue) return;
+            StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
+
+            var seekResult = ffmpeg.av_seek_frame(
+                InputContext,
+                -1,
+                StateStartTimestamp,
+                MediaSeeksByBytes ? ffmpeg.AVSEEK_FLAG_BYTE : ffmpeg.AVSEEK_FLAG_BACKWARD);
+
+            /*
+            var seekResult = ffmpeg.av_seek_frame(
+                InputContext,
+                -1, // Components.Main.StreamIndex,
+                long.MinValue,
+                ffmpeg.AVSEEK_FLAG_BACKWARD | ffmpeg.AVSEEK_FLAG_ANY);
+            */
+
+            if (seekResult < 0)
+            {
+                Parent?.Log(MediaLogMessageType.Warning,
+                    $"SEEK 0: {nameof(StreamSeekToStart)} operation failed. Error code {seekResult}, {FFInterop.DecodeMessage(seekResult)}");
+            }
+
+            Components.ClearPacketQueues();
+            StateRequiresPictureAttachments = true;
+            IsAtEndOfStream = false;
         }
 
         /// <summary>
@@ -1286,7 +1152,7 @@
                 {
                     // cleanup frames if the output becomes too big
                     if (componentFrames.Count >= 24)
-                        DropSeekFrames(componentFrames, targetTime);
+                        StreamSeekDiscardFrames(componentFrames, targetTime);
                 }
 
                 // Based on the required components check the target time ranges
@@ -1299,12 +1165,52 @@
             foreach (var kvp in outputFrames)
             {
                 var componentFrames = kvp.Value;
-                DropSeekFrames(componentFrames, targetTime);
+                StreamSeekDiscardFrames(componentFrames, targetTime);
                 result.AddRange(componentFrames);
             }
 
             result.Sort();
             return readSeekCycles;
+        }
+
+        /// <summary>
+        /// Drops the seek frames that are no longer needed.
+        /// Target time should be provided in absolute, 0-based time
+        /// </summary>
+        /// <param name="frames">The frames.</param>
+        /// <param name="targetTime">The target time.</param>
+        /// <returns>The number of dropped frames</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private int StreamSeekDiscardFrames(List<MediaFrame> frames, TimeSpan targetTime)
+        {
+            var result = 0;
+            if (frames.Count <= 1) return result;
+            frames.Sort();
+
+            var framesToDrop = new List<int>(frames.Count);
+            var frameType = frames[0].MediaType;
+
+            for (var i = 0; i < frames.Count - 1; i++)
+            {
+                var currentFrame = frames[i];
+                var nextFrame = frames[i + 1];
+
+                if (currentFrame.StartTime >= targetTime)
+                    break;
+                if (currentFrame.StartTime < targetTime && nextFrame.StartTime <= targetTime)
+                    framesToDrop.Add(i);
+            }
+
+            for (var i = framesToDrop.Count - 1; i >= 0; i--)
+            {
+                var dropIndex = framesToDrop[i];
+                var frame = frames[dropIndex];
+                frames.RemoveAt(dropIndex);
+                frame.Dispose();
+                result++;
+            }
+
+            return result;
         }
 
         #endregion
@@ -1314,34 +1220,33 @@
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="alsoManaged">
-        ///   <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
             if (IsDisposed) return;
 
-            if (alsoManaged)
-            {
-                m_Components?.Dispose();
-            }
-
             lock (ReadSyncRoot)
             {
-                if (InputContext != null)
+                lock (DecodeSyncRoot)
                 {
-                    StreamReadSuspend();
-                    SignalAbortReads(false);
-                    fixed (AVFormatContext** inputContext = &InputContext)
-                        ffmpeg.avformat_close_input(inputContext);
+                    lock (ConvertSyncRoot)
+                    {
+                        Components.Dispose();
+                        if (InputContext != null)
+                        {
+                            SignalAbortReads(false);
+                            var inputContextPtr = InputContext;
+                            ffmpeg.avformat_close_input(&inputContextPtr);
+                            InputContext = null;
+                        }
 
-                    ffmpeg.avformat_free_context(InputContext);
-                    InputContext = null;
+                        IsDisposed = true;
+                    }
                 }
-
-                IsDisposed = true;
             }
         }
 
         #endregion
+
     }
 }
