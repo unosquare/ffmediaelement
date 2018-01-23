@@ -375,38 +375,41 @@
         /// </summary>
         private void Destroy()
         {
-            try
+            lock (SyncLock)
             {
-                if (Application.Current != null)
+                try
                 {
-                    WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.Send, () =>
+                    if (Application.Current != null)
                     {
-                        Application.Current.Exit -= OnApplicationExit;
-                    });
+                        WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.Send, () =>
+                        {
+                            Application.Current.Exit -= OnApplicationExit;
+                        });
+                    }
                 }
-            }
-            catch
-            {
-                // ignored
-            }
+                catch
+                {
+                    // ignored
+                }
 
-            if (AudioDevice != null)
-            {
-                AudioDevice.Pause();
-                AudioDevice.Dispose();
-                AudioDevice = null;
-            }
+                if (AudioDevice != null)
+                {
+                    AudioDevice.Pause();
+                    AudioDevice.Dispose();
+                    AudioDevice = null;
+                }
 
-            if (AudioBuffer != null)
-            {
-                AudioBuffer.Dispose();
-                AudioBuffer = null;
-            }
+                if (AudioBuffer != null)
+                {
+                    AudioBuffer.Dispose();
+                    AudioBuffer = null;
+                }
 
-            if (AudioProcessor != null)
-            {
-                AudioProcessor.Dispose();
-                AudioProcessor = null;
+                if (AudioProcessor != null)
+                {
+                    AudioProcessor.Dispose();
+                    AudioProcessor = null;
+                }
             }
         }
 
