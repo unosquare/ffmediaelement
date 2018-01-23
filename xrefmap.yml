@@ -1117,18 +1117,6 @@ references:
   commentId: Overload:Unosquare.FFME.MediaElement.NaturalVideoWidth
   fullName: Unosquare.FFME.MediaElement.NaturalVideoWidth
   nameWithType: MediaElement.NaturalVideoWidth
-- uid: Unosquare.FFME.MediaElement.OnPropertyChanged(DependencyPropertyChangedEventArgs)
-  name: OnPropertyChanged(DependencyPropertyChangedEventArgs)
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_OnPropertyChanged_DependencyPropertyChangedEventArgs_
-  commentId: M:Unosquare.FFME.MediaElement.OnPropertyChanged(DependencyPropertyChangedEventArgs)
-  fullName: Unosquare.FFME.MediaElement.OnPropertyChanged(DependencyPropertyChangedEventArgs)
-  nameWithType: MediaElement.OnPropertyChanged(DependencyPropertyChangedEventArgs)
-- uid: Unosquare.FFME.MediaElement.OnPropertyChanged*
-  name: OnPropertyChanged
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_OnPropertyChanged_
-  commentId: Overload:Unosquare.FFME.MediaElement.OnPropertyChanged
-  fullName: Unosquare.FFME.MediaElement.OnPropertyChanged
-  nameWithType: MediaElement.OnPropertyChanged
 - uid: Unosquare.FFME.MediaElement.Pause
   name: Pause()
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Pause
@@ -1333,18 +1321,6 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.StretchProperty
   fullName: Unosquare.FFME.MediaElement.StretchProperty
   nameWithType: MediaElement.StretchProperty
-- uid: Unosquare.FFME.MediaElement.SubtitleView
-  name: SubtitleView
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_SubtitleView
-  commentId: P:Unosquare.FFME.MediaElement.SubtitleView
-  fullName: Unosquare.FFME.MediaElement.SubtitleView
-  nameWithType: MediaElement.SubtitleView
-- uid: Unosquare.FFME.MediaElement.SubtitleView*
-  name: SubtitleView
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_SubtitleView_
-  commentId: Overload:Unosquare.FFME.MediaElement.SubtitleView
-  fullName: Unosquare.FFME.MediaElement.SubtitleView
-  nameWithType: MediaElement.SubtitleView
 - uid: Unosquare.FFME.MediaElement.UnloadedBehavior
   name: UnloadedBehavior
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_UnloadedBehavior
@@ -1435,18 +1411,6 @@ references:
   commentId: Overload:Unosquare.FFME.MediaElement.VideoSmtpeTimecode
   fullName: Unosquare.FFME.MediaElement.VideoSmtpeTimecode
   nameWithType: MediaElement.VideoSmtpeTimecode
-- uid: Unosquare.FFME.MediaElement.VideoView
-  name: VideoView
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoView
-  commentId: P:Unosquare.FFME.MediaElement.VideoView
-  fullName: Unosquare.FFME.MediaElement.VideoView
-  nameWithType: MediaElement.VideoView
-- uid: Unosquare.FFME.MediaElement.VideoView*
-  name: VideoView
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoView_
-  commentId: Overload:Unosquare.FFME.MediaElement.VideoView
-  fullName: Unosquare.FFME.MediaElement.VideoView
-  nameWithType: MediaElement.VideoView
 - uid: Unosquare.FFME.MediaElement.Volume
   name: Volume
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Volume
@@ -1465,129 +1429,219 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.VolumeProperty
   fullName: Unosquare.FFME.MediaElement.VolumeProperty
   nameWithType: MediaElement.VolumeProperty
-- uid: Unosquare.FFME.Rendering
-  name: Unosquare.FFME.Rendering
-  href: api/Unosquare.FFME.Rendering.html
-  commentId: N:Unosquare.FFME.Rendering
-  fullName: Unosquare.FFME.Rendering
-  nameWithType: Unosquare.FFME.Rendering
-- uid: Unosquare.FFME.Rendering.SubtitleTextBlock
-  name: SubtitleTextBlock
-  href: api/Unosquare.FFME.Rendering.SubtitleTextBlock.html
-  commentId: T:Unosquare.FFME.Rendering.SubtitleTextBlock
-  fullName: Unosquare.FFME.Rendering.SubtitleTextBlock
-  nameWithType: SubtitleTextBlock
-- uid: Unosquare.FFME.Rendering.SubtitleTextBlock.#ctor
-  name: SubtitleTextBlock()
-  href: api/Unosquare.FFME.Rendering.SubtitleTextBlock.html#Unosquare_FFME_Rendering_SubtitleTextBlock__ctor
-  commentId: M:Unosquare.FFME.Rendering.SubtitleTextBlock.#ctor
-  fullName: Unosquare.FFME.Rendering.SubtitleTextBlock.SubtitleTextBlock()
-  nameWithType: SubtitleTextBlock.SubtitleTextBlock()
-- uid: Unosquare.FFME.Rendering.SubtitleTextBlock.#ctor*
-  name: SubtitleTextBlock
-  href: api/Unosquare.FFME.Rendering.SubtitleTextBlock.html#Unosquare_FFME_Rendering_SubtitleTextBlock__ctor_
-  commentId: Overload:Unosquare.FFME.Rendering.SubtitleTextBlock.#ctor
-  fullName: Unosquare.FFME.Rendering.SubtitleTextBlock.SubtitleTextBlock
-  nameWithType: SubtitleTextBlock.SubtitleTextBlock
-- uid: Unosquare.FFME.Rendering.SubtitleTextBlock.OnPropertyChanged(DependencyPropertyChangedEventArgs)
-  name: OnPropertyChanged(DependencyPropertyChangedEventArgs)
-  href: api/Unosquare.FFME.Rendering.SubtitleTextBlock.html#Unosquare_FFME_Rendering_SubtitleTextBlock_OnPropertyChanged_DependencyPropertyChangedEventArgs_
-  commentId: M:Unosquare.FFME.Rendering.SubtitleTextBlock.OnPropertyChanged(DependencyPropertyChangedEventArgs)
-  fullName: Unosquare.FFME.Rendering.SubtitleTextBlock.OnPropertyChanged(DependencyPropertyChangedEventArgs)
-  nameWithType: SubtitleTextBlock.OnPropertyChanged(DependencyPropertyChangedEventArgs)
-- uid: Unosquare.FFME.Rendering.SubtitleTextBlock.OnPropertyChanged*
-  name: OnPropertyChanged
-  href: api/Unosquare.FFME.Rendering.SubtitleTextBlock.html#Unosquare_FFME_Rendering_SubtitleTextBlock_OnPropertyChanged_
-  commentId: Overload:Unosquare.FFME.Rendering.SubtitleTextBlock.OnPropertyChanged
-  fullName: Unosquare.FFME.Rendering.SubtitleTextBlock.OnPropertyChanged
-  nameWithType: SubtitleTextBlock.OnPropertyChanged
-- uid: Unosquare.FFME.Rendering.SubtitleTextBlock.Text
-  name: Text
-  href: api/Unosquare.FFME.Rendering.SubtitleTextBlock.html#Unosquare_FFME_Rendering_SubtitleTextBlock_Text
-  commentId: P:Unosquare.FFME.Rendering.SubtitleTextBlock.Text
-  fullName: Unosquare.FFME.Rendering.SubtitleTextBlock.Text
-  nameWithType: SubtitleTextBlock.Text
-- uid: Unosquare.FFME.Rendering.SubtitleTextBlock.Text*
-  name: Text
-  href: api/Unosquare.FFME.Rendering.SubtitleTextBlock.html#Unosquare_FFME_Rendering_SubtitleTextBlock_Text_
-  commentId: Overload:Unosquare.FFME.Rendering.SubtitleTextBlock.Text
-  fullName: Unosquare.FFME.Rendering.SubtitleTextBlock.Text
-  nameWithType: SubtitleTextBlock.Text
-- uid: Unosquare.FFME.Rendering.SubtitleTextBlock.TextForeground
-  name: TextForeground
-  href: api/Unosquare.FFME.Rendering.SubtitleTextBlock.html#Unosquare_FFME_Rendering_SubtitleTextBlock_TextForeground
-  commentId: P:Unosquare.FFME.Rendering.SubtitleTextBlock.TextForeground
-  fullName: Unosquare.FFME.Rendering.SubtitleTextBlock.TextForeground
-  nameWithType: SubtitleTextBlock.TextForeground
-- uid: Unosquare.FFME.Rendering.SubtitleTextBlock.TextForeground*
-  name: TextForeground
-  href: api/Unosquare.FFME.Rendering.SubtitleTextBlock.html#Unosquare_FFME_Rendering_SubtitleTextBlock_TextForeground_
-  commentId: Overload:Unosquare.FFME.Rendering.SubtitleTextBlock.TextForeground
-  fullName: Unosquare.FFME.Rendering.SubtitleTextBlock.TextForeground
-  nameWithType: SubtitleTextBlock.TextForeground
-- uid: Unosquare.FFME.Rendering.SubtitleTextBlock.TextForegroundEffect
-  name: TextForegroundEffect
-  href: api/Unosquare.FFME.Rendering.SubtitleTextBlock.html#Unosquare_FFME_Rendering_SubtitleTextBlock_TextForegroundEffect
-  commentId: P:Unosquare.FFME.Rendering.SubtitleTextBlock.TextForegroundEffect
-  fullName: Unosquare.FFME.Rendering.SubtitleTextBlock.TextForegroundEffect
-  nameWithType: SubtitleTextBlock.TextForegroundEffect
-- uid: Unosquare.FFME.Rendering.SubtitleTextBlock.TextForegroundEffect*
-  name: TextForegroundEffect
-  href: api/Unosquare.FFME.Rendering.SubtitleTextBlock.html#Unosquare_FFME_Rendering_SubtitleTextBlock_TextForegroundEffect_
-  commentId: Overload:Unosquare.FFME.Rendering.SubtitleTextBlock.TextForegroundEffect
-  fullName: Unosquare.FFME.Rendering.SubtitleTextBlock.TextForegroundEffect
-  nameWithType: SubtitleTextBlock.TextForegroundEffect
-- uid: Unosquare.FFME.Rendering.SubtitleTextBlock.TextForegroundEffectProperty
-  name: TextForegroundEffectProperty
-  href: api/Unosquare.FFME.Rendering.SubtitleTextBlock.html#Unosquare_FFME_Rendering_SubtitleTextBlock_TextForegroundEffectProperty
-  commentId: F:Unosquare.FFME.Rendering.SubtitleTextBlock.TextForegroundEffectProperty
-  fullName: Unosquare.FFME.Rendering.SubtitleTextBlock.TextForegroundEffectProperty
-  nameWithType: SubtitleTextBlock.TextForegroundEffectProperty
-- uid: Unosquare.FFME.Rendering.SubtitleTextBlock.TextForegroundProperty
-  name: TextForegroundProperty
-  href: api/Unosquare.FFME.Rendering.SubtitleTextBlock.html#Unosquare_FFME_Rendering_SubtitleTextBlock_TextForegroundProperty
-  commentId: F:Unosquare.FFME.Rendering.SubtitleTextBlock.TextForegroundProperty
-  fullName: Unosquare.FFME.Rendering.SubtitleTextBlock.TextForegroundProperty
-  nameWithType: SubtitleTextBlock.TextForegroundProperty
-- uid: Unosquare.FFME.Rendering.SubtitleTextBlock.TextOutline
-  name: TextOutline
-  href: api/Unosquare.FFME.Rendering.SubtitleTextBlock.html#Unosquare_FFME_Rendering_SubtitleTextBlock_TextOutline
-  commentId: P:Unosquare.FFME.Rendering.SubtitleTextBlock.TextOutline
-  fullName: Unosquare.FFME.Rendering.SubtitleTextBlock.TextOutline
-  nameWithType: SubtitleTextBlock.TextOutline
-- uid: Unosquare.FFME.Rendering.SubtitleTextBlock.TextOutline*
-  name: TextOutline
-  href: api/Unosquare.FFME.Rendering.SubtitleTextBlock.html#Unosquare_FFME_Rendering_SubtitleTextBlock_TextOutline_
-  commentId: Overload:Unosquare.FFME.Rendering.SubtitleTextBlock.TextOutline
-  fullName: Unosquare.FFME.Rendering.SubtitleTextBlock.TextOutline
-  nameWithType: SubtitleTextBlock.TextOutline
-- uid: Unosquare.FFME.Rendering.SubtitleTextBlock.TextOutlineProperty
-  name: TextOutlineProperty
-  href: api/Unosquare.FFME.Rendering.SubtitleTextBlock.html#Unosquare_FFME_Rendering_SubtitleTextBlock_TextOutlineProperty
-  commentId: F:Unosquare.FFME.Rendering.SubtitleTextBlock.TextOutlineProperty
-  fullName: Unosquare.FFME.Rendering.SubtitleTextBlock.TextOutlineProperty
-  nameWithType: SubtitleTextBlock.TextOutlineProperty
-- uid: Unosquare.FFME.Rendering.SubtitleTextBlock.TextOutlineWidth
-  name: TextOutlineWidth
-  href: api/Unosquare.FFME.Rendering.SubtitleTextBlock.html#Unosquare_FFME_Rendering_SubtitleTextBlock_TextOutlineWidth
-  commentId: P:Unosquare.FFME.Rendering.SubtitleTextBlock.TextOutlineWidth
-  fullName: Unosquare.FFME.Rendering.SubtitleTextBlock.TextOutlineWidth
-  nameWithType: SubtitleTextBlock.TextOutlineWidth
-- uid: Unosquare.FFME.Rendering.SubtitleTextBlock.TextOutlineWidth*
-  name: TextOutlineWidth
-  href: api/Unosquare.FFME.Rendering.SubtitleTextBlock.html#Unosquare_FFME_Rendering_SubtitleTextBlock_TextOutlineWidth_
-  commentId: Overload:Unosquare.FFME.Rendering.SubtitleTextBlock.TextOutlineWidth
-  fullName: Unosquare.FFME.Rendering.SubtitleTextBlock.TextOutlineWidth
-  nameWithType: SubtitleTextBlock.TextOutlineWidth
-- uid: Unosquare.FFME.Rendering.SubtitleTextBlock.TextOutlineWidthProperty
-  name: TextOutlineWidthProperty
-  href: api/Unosquare.FFME.Rendering.SubtitleTextBlock.html#Unosquare_FFME_Rendering_SubtitleTextBlock_TextOutlineWidthProperty
-  commentId: F:Unosquare.FFME.Rendering.SubtitleTextBlock.TextOutlineWidthProperty
-  fullName: Unosquare.FFME.Rendering.SubtitleTextBlock.TextOutlineWidthProperty
-  nameWithType: SubtitleTextBlock.TextOutlineWidthProperty
-- uid: Unosquare.FFME.Rendering.SubtitleTextBlock.TextProperty
-  name: TextProperty
-  href: api/Unosquare.FFME.Rendering.SubtitleTextBlock.html#Unosquare_FFME_Rendering_SubtitleTextBlock_TextProperty
-  commentId: F:Unosquare.FFME.Rendering.SubtitleTextBlock.TextProperty
-  fullName: Unosquare.FFME.Rendering.SubtitleTextBlock.TextProperty
-  nameWithType: SubtitleTextBlock.TextProperty
+- uid: Unosquare.FFME.Subtitles
+  name: Subtitles
+  href: api/Unosquare.FFME.Subtitles.html
+  commentId: T:Unosquare.FFME.Subtitles
+  fullName: Unosquare.FFME.Subtitles
+  nameWithType: Subtitles
+- uid: Unosquare.FFME.Subtitles.EffectProperty
+  name: EffectProperty
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_EffectProperty
+  commentId: F:Unosquare.FFME.Subtitles.EffectProperty
+  fullName: Unosquare.FFME.Subtitles.EffectProperty
+  nameWithType: Subtitles.EffectProperty
+- uid: Unosquare.FFME.Subtitles.FontFamilyProperty
+  name: FontFamilyProperty
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_FontFamilyProperty
+  commentId: F:Unosquare.FFME.Subtitles.FontFamilyProperty
+  fullName: Unosquare.FFME.Subtitles.FontFamilyProperty
+  nameWithType: Subtitles.FontFamilyProperty
+- uid: Unosquare.FFME.Subtitles.FontSizeProperty
+  name: FontSizeProperty
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_FontSizeProperty
+  commentId: F:Unosquare.FFME.Subtitles.FontSizeProperty
+  fullName: Unosquare.FFME.Subtitles.FontSizeProperty
+  nameWithType: Subtitles.FontSizeProperty
+- uid: Unosquare.FFME.Subtitles.FontWeightProperty
+  name: FontWeightProperty
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_FontWeightProperty
+  commentId: F:Unosquare.FFME.Subtitles.FontWeightProperty
+  fullName: Unosquare.FFME.Subtitles.FontWeightProperty
+  nameWithType: Subtitles.FontWeightProperty
+- uid: Unosquare.FFME.Subtitles.ForegroundProperty
+  name: ForegroundProperty
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_ForegroundProperty
+  commentId: F:Unosquare.FFME.Subtitles.ForegroundProperty
+  fullName: Unosquare.FFME.Subtitles.ForegroundProperty
+  nameWithType: Subtitles.ForegroundProperty
+- uid: Unosquare.FFME.Subtitles.GetEffect(Unosquare.FFME.MediaElement)
+  name: GetEffect(MediaElement)
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_GetEffect_Unosquare_FFME_MediaElement_
+  commentId: M:Unosquare.FFME.Subtitles.GetEffect(Unosquare.FFME.MediaElement)
+  fullName: Unosquare.FFME.Subtitles.GetEffect(Unosquare.FFME.MediaElement)
+  nameWithType: Subtitles.GetEffect(MediaElement)
+- uid: Unosquare.FFME.Subtitles.GetEffect*
+  name: GetEffect
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_GetEffect_
+  commentId: Overload:Unosquare.FFME.Subtitles.GetEffect
+  fullName: Unosquare.FFME.Subtitles.GetEffect
+  nameWithType: Subtitles.GetEffect
+- uid: Unosquare.FFME.Subtitles.GetFontFamily(Unosquare.FFME.MediaElement)
+  name: GetFontFamily(MediaElement)
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_GetFontFamily_Unosquare_FFME_MediaElement_
+  commentId: M:Unosquare.FFME.Subtitles.GetFontFamily(Unosquare.FFME.MediaElement)
+  fullName: Unosquare.FFME.Subtitles.GetFontFamily(Unosquare.FFME.MediaElement)
+  nameWithType: Subtitles.GetFontFamily(MediaElement)
+- uid: Unosquare.FFME.Subtitles.GetFontFamily*
+  name: GetFontFamily
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_GetFontFamily_
+  commentId: Overload:Unosquare.FFME.Subtitles.GetFontFamily
+  fullName: Unosquare.FFME.Subtitles.GetFontFamily
+  nameWithType: Subtitles.GetFontFamily
+- uid: Unosquare.FFME.Subtitles.GetFontSize(Unosquare.FFME.MediaElement)
+  name: GetFontSize(MediaElement)
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_GetFontSize_Unosquare_FFME_MediaElement_
+  commentId: M:Unosquare.FFME.Subtitles.GetFontSize(Unosquare.FFME.MediaElement)
+  fullName: Unosquare.FFME.Subtitles.GetFontSize(Unosquare.FFME.MediaElement)
+  nameWithType: Subtitles.GetFontSize(MediaElement)
+- uid: Unosquare.FFME.Subtitles.GetFontSize*
+  name: GetFontSize
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_GetFontSize_
+  commentId: Overload:Unosquare.FFME.Subtitles.GetFontSize
+  fullName: Unosquare.FFME.Subtitles.GetFontSize
+  nameWithType: Subtitles.GetFontSize
+- uid: Unosquare.FFME.Subtitles.GetFontWeight(Unosquare.FFME.MediaElement)
+  name: GetFontWeight(MediaElement)
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_GetFontWeight_Unosquare_FFME_MediaElement_
+  commentId: M:Unosquare.FFME.Subtitles.GetFontWeight(Unosquare.FFME.MediaElement)
+  fullName: Unosquare.FFME.Subtitles.GetFontWeight(Unosquare.FFME.MediaElement)
+  nameWithType: Subtitles.GetFontWeight(MediaElement)
+- uid: Unosquare.FFME.Subtitles.GetFontWeight*
+  name: GetFontWeight
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_GetFontWeight_
+  commentId: Overload:Unosquare.FFME.Subtitles.GetFontWeight
+  fullName: Unosquare.FFME.Subtitles.GetFontWeight
+  nameWithType: Subtitles.GetFontWeight
+- uid: Unosquare.FFME.Subtitles.GetForeground(Unosquare.FFME.MediaElement)
+  name: GetForeground(MediaElement)
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_GetForeground_Unosquare_FFME_MediaElement_
+  commentId: M:Unosquare.FFME.Subtitles.GetForeground(Unosquare.FFME.MediaElement)
+  fullName: Unosquare.FFME.Subtitles.GetForeground(Unosquare.FFME.MediaElement)
+  nameWithType: Subtitles.GetForeground(MediaElement)
+- uid: Unosquare.FFME.Subtitles.GetForeground*
+  name: GetForeground
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_GetForeground_
+  commentId: Overload:Unosquare.FFME.Subtitles.GetForeground
+  fullName: Unosquare.FFME.Subtitles.GetForeground
+  nameWithType: Subtitles.GetForeground
+- uid: Unosquare.FFME.Subtitles.GetOutlineBrush(Unosquare.FFME.MediaElement)
+  name: GetOutlineBrush(MediaElement)
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_GetOutlineBrush_Unosquare_FFME_MediaElement_
+  commentId: M:Unosquare.FFME.Subtitles.GetOutlineBrush(Unosquare.FFME.MediaElement)
+  fullName: Unosquare.FFME.Subtitles.GetOutlineBrush(Unosquare.FFME.MediaElement)
+  nameWithType: Subtitles.GetOutlineBrush(MediaElement)
+- uid: Unosquare.FFME.Subtitles.GetOutlineBrush*
+  name: GetOutlineBrush
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_GetOutlineBrush_
+  commentId: Overload:Unosquare.FFME.Subtitles.GetOutlineBrush
+  fullName: Unosquare.FFME.Subtitles.GetOutlineBrush
+  nameWithType: Subtitles.GetOutlineBrush
+- uid: Unosquare.FFME.Subtitles.GetOutlineWidth(Unosquare.FFME.MediaElement)
+  name: GetOutlineWidth(MediaElement)
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_GetOutlineWidth_Unosquare_FFME_MediaElement_
+  commentId: M:Unosquare.FFME.Subtitles.GetOutlineWidth(Unosquare.FFME.MediaElement)
+  fullName: Unosquare.FFME.Subtitles.GetOutlineWidth(Unosquare.FFME.MediaElement)
+  nameWithType: Subtitles.GetOutlineWidth(MediaElement)
+- uid: Unosquare.FFME.Subtitles.GetOutlineWidth*
+  name: GetOutlineWidth
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_GetOutlineWidth_
+  commentId: Overload:Unosquare.FFME.Subtitles.GetOutlineWidth
+  fullName: Unosquare.FFME.Subtitles.GetOutlineWidth
+  nameWithType: Subtitles.GetOutlineWidth
+- uid: Unosquare.FFME.Subtitles.OutlineBrushProperty
+  name: OutlineBrushProperty
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_OutlineBrushProperty
+  commentId: F:Unosquare.FFME.Subtitles.OutlineBrushProperty
+  fullName: Unosquare.FFME.Subtitles.OutlineBrushProperty
+  nameWithType: Subtitles.OutlineBrushProperty
+- uid: Unosquare.FFME.Subtitles.OutlineWidthProperty
+  name: OutlineWidthProperty
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_OutlineWidthProperty
+  commentId: F:Unosquare.FFME.Subtitles.OutlineWidthProperty
+  fullName: Unosquare.FFME.Subtitles.OutlineWidthProperty
+  nameWithType: Subtitles.OutlineWidthProperty
+- uid: Unosquare.FFME.Subtitles.SetEffect(Unosquare.FFME.MediaElement,Effect)
+  name: SetEffect(MediaElement, Effect)
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_SetEffect_Unosquare_FFME_MediaElement_Effect_
+  commentId: M:Unosquare.FFME.Subtitles.SetEffect(Unosquare.FFME.MediaElement,Effect)
+  fullName: Unosquare.FFME.Subtitles.SetEffect(Unosquare.FFME.MediaElement, Effect)
+  nameWithType: Subtitles.SetEffect(MediaElement, Effect)
+- uid: Unosquare.FFME.Subtitles.SetEffect*
+  name: SetEffect
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_SetEffect_
+  commentId: Overload:Unosquare.FFME.Subtitles.SetEffect
+  fullName: Unosquare.FFME.Subtitles.SetEffect
+  nameWithType: Subtitles.SetEffect
+- uid: Unosquare.FFME.Subtitles.SetFontFamily(Unosquare.FFME.MediaElement,FontFamily)
+  name: SetFontFamily(MediaElement, FontFamily)
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_SetFontFamily_Unosquare_FFME_MediaElement_FontFamily_
+  commentId: M:Unosquare.FFME.Subtitles.SetFontFamily(Unosquare.FFME.MediaElement,FontFamily)
+  fullName: Unosquare.FFME.Subtitles.SetFontFamily(Unosquare.FFME.MediaElement, FontFamily)
+  nameWithType: Subtitles.SetFontFamily(MediaElement, FontFamily)
+- uid: Unosquare.FFME.Subtitles.SetFontFamily*
+  name: SetFontFamily
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_SetFontFamily_
+  commentId: Overload:Unosquare.FFME.Subtitles.SetFontFamily
+  fullName: Unosquare.FFME.Subtitles.SetFontFamily
+  nameWithType: Subtitles.SetFontFamily
+- uid: Unosquare.FFME.Subtitles.SetFontSize(Unosquare.FFME.MediaElement,System.Double)
+  name: SetFontSize(MediaElement, Double)
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_SetFontSize_Unosquare_FFME_MediaElement_System_Double_
+  commentId: M:Unosquare.FFME.Subtitles.SetFontSize(Unosquare.FFME.MediaElement,System.Double)
+  fullName: Unosquare.FFME.Subtitles.SetFontSize(Unosquare.FFME.MediaElement, System.Double)
+  nameWithType: Subtitles.SetFontSize(MediaElement, Double)
+- uid: Unosquare.FFME.Subtitles.SetFontSize*
+  name: SetFontSize
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_SetFontSize_
+  commentId: Overload:Unosquare.FFME.Subtitles.SetFontSize
+  fullName: Unosquare.FFME.Subtitles.SetFontSize
+  nameWithType: Subtitles.SetFontSize
+- uid: Unosquare.FFME.Subtitles.SetFontWeight(Unosquare.FFME.MediaElement,FontWeight)
+  name: SetFontWeight(MediaElement, FontWeight)
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_SetFontWeight_Unosquare_FFME_MediaElement_FontWeight_
+  commentId: M:Unosquare.FFME.Subtitles.SetFontWeight(Unosquare.FFME.MediaElement,FontWeight)
+  fullName: Unosquare.FFME.Subtitles.SetFontWeight(Unosquare.FFME.MediaElement, FontWeight)
+  nameWithType: Subtitles.SetFontWeight(MediaElement, FontWeight)
+- uid: Unosquare.FFME.Subtitles.SetFontWeight*
+  name: SetFontWeight
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_SetFontWeight_
+  commentId: Overload:Unosquare.FFME.Subtitles.SetFontWeight
+  fullName: Unosquare.FFME.Subtitles.SetFontWeight
+  nameWithType: Subtitles.SetFontWeight
+- uid: Unosquare.FFME.Subtitles.SetForeground(Unosquare.FFME.MediaElement,Brush)
+  name: SetForeground(MediaElement, Brush)
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_SetForeground_Unosquare_FFME_MediaElement_Brush_
+  commentId: M:Unosquare.FFME.Subtitles.SetForeground(Unosquare.FFME.MediaElement,Brush)
+  fullName: Unosquare.FFME.Subtitles.SetForeground(Unosquare.FFME.MediaElement, Brush)
+  nameWithType: Subtitles.SetForeground(MediaElement, Brush)
+- uid: Unosquare.FFME.Subtitles.SetForeground*
+  name: SetForeground
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_SetForeground_
+  commentId: Overload:Unosquare.FFME.Subtitles.SetForeground
+  fullName: Unosquare.FFME.Subtitles.SetForeground
+  nameWithType: Subtitles.SetForeground
+- uid: Unosquare.FFME.Subtitles.SetOutlineBrush(Unosquare.FFME.MediaElement,Brush)
+  name: SetOutlineBrush(MediaElement, Brush)
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_SetOutlineBrush_Unosquare_FFME_MediaElement_Brush_
+  commentId: M:Unosquare.FFME.Subtitles.SetOutlineBrush(Unosquare.FFME.MediaElement,Brush)
+  fullName: Unosquare.FFME.Subtitles.SetOutlineBrush(Unosquare.FFME.MediaElement, Brush)
+  nameWithType: Subtitles.SetOutlineBrush(MediaElement, Brush)
+- uid: Unosquare.FFME.Subtitles.SetOutlineBrush*
+  name: SetOutlineBrush
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_SetOutlineBrush_
+  commentId: Overload:Unosquare.FFME.Subtitles.SetOutlineBrush
+  fullName: Unosquare.FFME.Subtitles.SetOutlineBrush
+  nameWithType: Subtitles.SetOutlineBrush
+- uid: Unosquare.FFME.Subtitles.SetOutlineWidth(Unosquare.FFME.MediaElement,Thickness)
+  name: SetOutlineWidth(MediaElement, Thickness)
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_SetOutlineWidth_Unosquare_FFME_MediaElement_Thickness_
+  commentId: M:Unosquare.FFME.Subtitles.SetOutlineWidth(Unosquare.FFME.MediaElement,Thickness)
+  fullName: Unosquare.FFME.Subtitles.SetOutlineWidth(Unosquare.FFME.MediaElement, Thickness)
+  nameWithType: Subtitles.SetOutlineWidth(MediaElement, Thickness)
+- uid: Unosquare.FFME.Subtitles.SetOutlineWidth*
+  name: SetOutlineWidth
+  href: api/Unosquare.FFME.Subtitles.html#Unosquare_FFME_Subtitles_SetOutlineWidth_
+  commentId: Overload:Unosquare.FFME.Subtitles.SetOutlineWidth
+  fullName: Unosquare.FFME.Subtitles.SetOutlineWidth
+  nameWithType: Subtitles.SetOutlineWidth
