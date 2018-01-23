@@ -160,6 +160,23 @@
             return (double)rational.num / rational.den;
         }
 
+        /// <summary>
+        /// Clamps the specified value between the minimum and the maximum
+        /// </summary>
+        /// <typeparam name="T">The type of value to clamp</typeparam>
+        /// <param name="value">The value.</param>
+        /// <param name="min">The minimum.</param>
+        /// <param name="max">The maximum.</param>
+        /// <returns>A value that indicates the relative order of the objects being compared</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T Clamp<T>(this T value, T min, T max)
+            where T : struct, IComparable
+        {
+            if (value.CompareTo(min) < 0) return min;
+
+            return value.CompareTo(max) > 0 ? max : value;
+        }
+
         #endregion
 
         #region Faster-than-Linq replacements

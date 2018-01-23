@@ -108,16 +108,6 @@
         }
 
         /// <summary>
-        /// Retrieves the registered renderer for the given media type.
-        /// </summary>
-        /// <param name="mediaType">Type of the media.</param>
-        /// <returns>The media renderer</returns>
-        public IMediaRenderer RetrieveRenderer(MediaType mediaType)
-        {
-            return Renderers[mediaType];
-        }
-
-        /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()

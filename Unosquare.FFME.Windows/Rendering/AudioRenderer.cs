@@ -35,14 +35,7 @@
         private bool IsDisposed = false;
 
         private byte[] ReadBuffer = null;
-        private double LeftVolume = 1.0d;
-        private double RightVolume = 1.0d;
-
         private WaveFormat m_Format = null;
-        private AtomicDouble m_Volume = new AtomicDouble(Constants.Controller.DefaultVolume);
-        private AtomicDouble m_Balance = new AtomicDouble(Constants.Controller.DefaultBalance);
-        private AtomicBoolean m_IsMuted = new AtomicBoolean(false);
-
         private int BytesPerSample = 2;
         private int SampleBlockSize = 0;
 
@@ -83,11 +76,6 @@
         #region Properties
 
         /// <summary>
-        /// Gets the output format of the audio
-        /// </summary>
-        public WaveFormat WaveFormat => m_Format;
-
-        /// <summary>
         /// Gets the parent media element (platform specific).
         /// </summary>
         public MediaElement MediaElement => MediaCore?.Parent as MediaElement;
@@ -98,51 +86,9 @@
         public MediaEngine MediaCore { get; }
 
         /// <summary>
-        /// Gets or sets the volume.
+        /// Gets the output format of the audio
         /// </summary>
-        /// <value>
-        /// The volume.
-        /// </value>
-        public double Volume
-        {
-            get => m_Volume.Value;
-            set
-            {
-                if (value < 0) value = 0;
-                if (value > 1) value = 1;
-
-                var leftFactor = m_Balance.Value > 0 ? 1d - m_Balance.Value : 1d;
-                var rightFactor = m_Balance.Value < 0 ? 1d + m_Balance.Value : 1d;
-
-                LeftVolume = leftFactor * value;
-                RightVolume = rightFactor * value;
-                m_Volume.Value = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the balance (-1.0 to 1.0).
-        /// </summary>
-        public double Balance
-        {
-            get => m_Balance.Value;
-            set
-            {
-                if (value < -1.0) value = -1.0;
-                if (value > 1.0) value = 1.0;
-                m_Balance.Value = value;
-                Volume = m_Volume.Value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the wave output is muted.
-        /// </summary>
-        public bool IsMuted
-        {
-            get => m_IsMuted.Value;
-            set => m_IsMuted.Value = value;
-        }
+        public WaveFormat WaveFormat => m_Format;
 
         /// <summary>
         /// Gets the realtime latency of the audio relative to the internal wall clock.
@@ -185,17 +131,6 @@
             }
         }
 
-        /// <summary>
-        /// Gets the desired latency odf the audio device.
-        /// Value is always positive and typically 200ms. This means audio gets rendered up to this late behind the wall clock.
-        /// </summary>
-        public TimeSpan DesiredLatency => TimeSpan.FromTicks((AudioDevice?.DesiredLatency ?? 1) * TimeSpan.TicksPerMillisecond);
-
-        /// <summary>
-        /// Gets the speed ratio.
-        /// </summary>
-        public double SpeedRatio { get; private set; }
-
         #endregion
 
         #region Public API
@@ -209,12 +144,9 @@
         {
             // We don't need to render anything while we are seeking. Simply drop the blocks.
             if (MediaElement.IsSeeking) return;
-
-            // Update the speedratio
-            SpeedRatio = MediaCore?.RealTimeClockSpeedRatio ?? 0d;
-
             if (AudioBuffer == null) return;
 
+            // Capture Media Block Reference
             var block = mediaBlock as AudioBlock;
             if (block == null) return;
 
@@ -335,9 +267,10 @@
                 try
                 {
                     WaitForReadyEvent.Set();
+                    var speedRatio = MediaCore?.SpeedRatio ?? 0;
 
-                    // Render silence if we don't need to output anything
-                    if (MediaElement.IsPlaying == false || SpeedRatio <= 0d || MediaElement.HasAudio == false || AudioBuffer.ReadableCount <= 0)
+                    // Render silence if we don't need to output samples
+                    if (MediaElement.IsPlaying == false || speedRatio <= 0d || MediaElement.HasAudio == false || AudioBuffer.ReadableCount <= 0)
                     {
                         Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
                         return requestedBytes;
@@ -347,24 +280,24 @@
                     if (ReadBuffer == null || ReadBuffer.Length < (int)(requestedBytes * Constants.Controller.MaxSpeedRatio))
                         ReadBuffer = new byte[(int)(requestedBytes * Constants.Controller.MaxSpeedRatio)];
 
-                    // Perform AV Synchronization if needed
-                    if (MediaElement.HasVideo && Synchronize(targetBuffer, targetBufferOffset, requestedBytes) == false)
+                    // First part of DSP: Perform AV Synchronization if needed
+                    if (MediaElement.HasVideo && Synchronize(targetBuffer, targetBufferOffset, requestedBytes, speedRatio) == false)
                         return requestedBytes;
 
                     // Perform DSP
-                    if (SpeedRatio < 1.0)
+                    if (speedRatio < 1.0)
                     {
                         if (AudioProcessor != null)
-                            ReadAndUseAudioProcessor(requestedBytes);
+                            ReadAndUseAudioProcessor(requestedBytes, speedRatio);
                         else
-                            ReadAndSlowDown(requestedBytes);
+                            ReadAndSlowDown(requestedBytes, speedRatio);
                     }
-                    else if (SpeedRatio > 1.0)
+                    else if (speedRatio > 1.0)
                     {
                         if (AudioProcessor != null)
-                            ReadAndUseAudioProcessor(requestedBytes);
+                            ReadAndUseAudioProcessor(requestedBytes, speedRatio);
                         else
-                            ReadAndSpeedUp(requestedBytes, true);
+                            ReadAndSpeedUp(requestedBytes, true, speedRatio);
                     }
                     else
                     {
@@ -479,7 +412,7 @@
 
         #endregion
 
-        #region DSP
+        #region DSP (All called inside the Read method)
 
         /// <summary>
         /// Synchronizes audio rendering to the wall clock.
@@ -489,9 +422,12 @@
         /// <param name="targetBuffer">The target buffer.</param>
         /// <param name="targetBufferOffset">The target buffer offset.</param>
         /// <param name="requestedBytes">The requested bytes.</param>
-        /// <returns>True to continue processing. False to write silence.</returns>
+        /// <param name="speedRatio">The speed ratio.</param>
+        /// <returns>
+        /// True to continue processing. False to write silence.
+        /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool Synchronize(byte[] targetBuffer, int targetBufferOffset, int requestedBytes)
+        private bool Synchronize(byte[] targetBuffer, int targetBufferOffset, int requestedBytes, double speedRatio)
         {
             /*
              * Wikipedia says:
@@ -523,7 +459,7 @@
 
                 // a positive audio latency means we are rendering audio behind (after) the clock (skip some samples)
                 // and therefore we need to advance the buffer before we read from it.
-                if (SpeedRatio == 1.0)
+                if (speedRatio == 1.0)
                 {
                     MediaCore.Log(MediaLogMessageType.Warning,
                         $"SYNC AUDIO: LATENCY: {Latency.Format()} | SKIP (samples being rendered too late)");
@@ -551,7 +487,7 @@
                 {
                     // a negative audio latency means we are rendering audio ahead (before) the clock
                     // and therefore we need to render some silence until the clock catches up
-                    if (SpeedRatio == 1.0)
+                    if (speedRatio == 1.0)
                     {
                         MediaCore.Log(MediaLogMessageType.Warning,
                             $"SYNC AUDIO: LATENCY: {Latency.Format()} | WAIT (samples being rendered too early)");
@@ -565,7 +501,7 @@
 
             // Perform minor adjustments until the delay is less than 10ms in either direction
             if (MediaCore.HasVideo &&
-                SpeedRatio == 1.0 &&
+                speedRatio == 1.0 &&
                 isBeyondThreshold == false &&
                 Math.Abs(audioLatencyMs) > SyncThresholdPerfect)
             {
@@ -588,12 +524,13 @@
         /// requested
         /// </summary>
         /// <param name="requestedBytes">The requested bytes.</param>
+        /// <param name="speedRatio">The speed ratio.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ReadAndSlowDown(int requestedBytes)
+        private void ReadAndSlowDown(int requestedBytes, double speedRatio)
         {
             var bytesToRead = Math.Min(
                 AudioBuffer.ReadableCount,
-                (int)(requestedBytes * SpeedRatio).ToMultipleOf(SampleBlockSize));
+                (int)(requestedBytes * speedRatio).ToMultipleOf(SampleBlockSize));
             var repeatFactor = (double)requestedBytes / bytesToRead;
 
             var sourceOffset = requestedBytes;
@@ -625,10 +562,11 @@
         /// </summary>
         /// <param name="requestedBytes">The requested number of bytes.</param>
         /// <param name="computeAverage">if set to <c>true</c> average samples per block. Otherwise, take the first sample per block only</param>
+        /// <param name="speedRatio">The speed ratio.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ReadAndSpeedUp(int requestedBytes, bool computeAverage)
+        private void ReadAndSpeedUp(int requestedBytes, bool computeAverage, double speedRatio)
         {
-            var bytesToRead = (int)(requestedBytes * SpeedRatio).ToMultipleOf(SampleBlockSize);
+            var bytesToRead = (int)(requestedBytes * speedRatio).ToMultipleOf(SampleBlockSize);
             var sourceOffset = 0;
 
             if (bytesToRead > AudioBuffer.ReadableCount)
@@ -708,13 +646,13 @@
         /// This feature is experimental
         /// </summary>
         /// <param name="requestedBytes">The requested bytes.</param>
+        /// <param name="speedRatio">The speed ratio.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ReadAndUseAudioProcessor(int requestedBytes)
+        private void ReadAndUseAudioProcessor(int requestedBytes, double speedRatio)
         {
             if (AudioProcessorBuffer == null || AudioProcessorBuffer.Length < (int)(requestedBytes * Constants.Controller.MaxSpeedRatio))
                 AudioProcessorBuffer = new short[(int)(requestedBytes * Constants.Controller.MaxSpeedRatio / BytesPerSample)];
 
-            var speedRatio = SpeedRatio;
             var bytesToRead = (int)(requestedBytes * speedRatio).ToMultipleOf(SampleBlockSize);
             var samplesToRead = bytesToRead / SampleBlockSize;
             var samplesToRequest = requestedBytes / SampleBlockSize;
@@ -750,11 +688,9 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ApplyVolumeAndBalance(byte[] targetBuffer, int targetBufferOffset, int requestedBytes)
         {
-            // Samples are interleaved (left and right in 16-bit signed integers each)
-            var isLeftSample = true;
-            short sample = 0;
-
-            if (IsMuted)
+            // Check if we are muted. We don't need process volume and balance
+            var isMuted = MediaCore?.IsMuted ?? true;
+            if (isMuted)
             {
                 for (var sourceBufferOffset = 0; sourceBufferOffset < requestedBytes; sourceBufferOffset++)
                     targetBuffer[targetBufferOffset + sourceBufferOffset] = 0;
@@ -762,28 +698,43 @@
                 return;
             }
 
+            // Capture and adjust volume and balance
+            var volume = MediaCore?.Volume ?? Constants.Controller.DefaultVolume;
+            var balance = MediaCore?.Balance ?? Constants.Controller.DefaultBalance;
+
+            volume = volume.Clamp(Constants.Controller.MinVolume, Constants.Controller.MaxVolume);
+            balance = balance.Clamp(Constants.Controller.MinBalance, Constants.Controller.MaxBalance);
+
+            var leftVolume = volume * (balance > 0 ? 1d - balance : 1d);
+            var rightVolume = volume * (balance < 0 ? 1d + balance : 1d);
+
+            // Initialize the samples counter
+            // Samples are interleaved (left and right in 16-bit signed integers each)
+            var isLeftSample = true;
+            short currentSample = 0;
+
             for (var sourceBufferOffset = 0; sourceBufferOffset < requestedBytes; sourceBufferOffset += BytesPerSample)
             {
                 // TODO: Make architecture-agnostic sound processing
                 // The sample has 2 bytes: at the base index is the LSB and at the baseIndex + 1 is the MSB
-                // this obviously only holds true for Little Endian architectures, and thus, the current code is not portable.
+                // this obviously only holds true for Little Endian architectures, and thus, the current code might not be portable.
                 // This replaces BitConverter.ToInt16(ReadBuffer, baseIndex); which is obviously much slower.
-                sample = (short)(ReadBuffer[sourceBufferOffset] | (ReadBuffer[sourceBufferOffset + 1] << 8));
+                currentSample = (short)(ReadBuffer[sourceBufferOffset] | (ReadBuffer[sourceBufferOffset + 1] << 8));
 
-                if (IsMuted)
+                if (isMuted)
                 {
-                    sample = 0;
+                    currentSample = 0;
                 }
                 else
                 {
-                    if (isLeftSample && LeftVolume != 1.0)
-                        sample = (short)(sample * LeftVolume);
-                    else if (isLeftSample == false && RightVolume != 1.0)
-                        sample = (short)(sample * RightVolume);
+                    if (isLeftSample && leftVolume != 1.0)
+                        currentSample = (short)(currentSample * leftVolume);
+                    else if (isLeftSample == false && rightVolume != 1.0)
+                        currentSample = (short)(currentSample * rightVolume);
                 }
 
-                targetBuffer[targetBufferOffset + sourceBufferOffset] = (byte)(sample & 0xff);
-                targetBuffer[targetBufferOffset + sourceBufferOffset + 1] = (byte)(sample >> 8);
+                targetBuffer[targetBufferOffset + sourceBufferOffset] = (byte)(currentSample & 0x00ff); // set the LSB
+                targetBuffer[targetBufferOffset + sourceBufferOffset + 1] = (byte)(currentSample >> 8); // set the MSB
                 isLeftSample = !isLeftSample;
             }
         }

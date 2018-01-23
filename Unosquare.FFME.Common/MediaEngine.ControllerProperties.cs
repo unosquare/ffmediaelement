@@ -42,22 +42,6 @@
         }
 
         /// <summary>
-        /// Gets or Sets the SpeedRatio property of the media.
-        /// </summary>
-        public double SpeedRatio
-        {
-            get => speedRatio;
-            set => SetProperty(ref speedRatio, value);
-        }
-
-        /// <summary>
-        /// Gets the internal real time clock speed ratio.
-        /// This is different from the regular property as this is the immediate value
-        /// (i.e. might not yet be applied)
-        /// </summary>
-        public double RealTimeClockSpeedRatio => Clock.SpeedRatio;
-
-        /// <summary>
         /// Specifies how the underlying media should behave when
         /// it has ended. The default behavior is to Close the media.
         /// </summary>
@@ -65,6 +49,15 @@
         {
             get => unloadedBehavior;
             set => SetProperty(ref unloadedBehavior, value);
+        }
+
+        /// <summary>
+        /// Gets or Sets the SpeedRatio property of the media.
+        /// </summary>
+        public double SpeedRatio
+        {
+            get => speedRatio;
+            set => SetProperty(ref speedRatio, value);
         }
 
         /// <summary>

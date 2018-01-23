@@ -116,7 +116,7 @@
         public void OnPropertyChanged(object sender, string propertyName)
         {
             // TODO: bug sometimes continuously resizing the window causes everything to freeze.
-            // This might be becaus of excessive property change notifications. It might be a good idea
+            // This might be because of excessive property change notifications. It might be a good idea
             // to notify everything at once every say, 25ms.
             // Either that or attach to the properties from the mediaelement via WPF binding.
             WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.DataBind, () =>
