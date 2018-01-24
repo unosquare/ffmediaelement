@@ -21,7 +21,6 @@
             HasBlockRenderingWorkerExited = new ManualResetEvent(false);
 
             // Synchronized access to parts of the run cycle
-            var isRunningPropertyUpdates = false;
             var isRunningRenderingCycle = false;
 
             // Holds the main media type
@@ -70,14 +69,20 @@
 
                 #region Run the property Updates
 
-                if (isRunningPropertyUpdates == false)
+                if (IsRunningPropertyUpdates == false)
                 {
-                    isRunningPropertyUpdates = true;
+                    IsRunningPropertyUpdates = true;
 
                     try
                     {
-                        UpdatePosition(IsOpen ? Clock?.Position ?? TimeSpan.Zero : TimeSpan.Zero);
+                        if (IsSeeking == false)
+                        {
+                            Position = IsOpen ? Clock?.Position ?? TimeSpan.Zero : TimeSpan.Zero;
+                            EnqueuePropertyChange(nameof(Position));
+                        }
+
                         UpdateBufferingProperties();
+                        NotifyEnqueuedPropertyChanges();
                     }
                     catch (Exception ex)
                     {
@@ -85,7 +90,7 @@
                     }
                     finally
                     {
-                        isRunningPropertyUpdates = false;
+                        IsRunningPropertyUpdates = false;
                     }
                 }
 

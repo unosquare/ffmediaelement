@@ -13,18 +13,18 @@
         private readonly ReadOnlyDictionary<string, string> EmptyDictionary
             = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
 
-        private ulong? m_GuessedByteRate = default(ulong?);
-        private bool m_HasMediaEnded = false;
-        private double m_BufferingProgress = 0;
-        private int m_BufferCacheLength = 0;
-        private double m_DownloadProgress = 0;
-        private int m_DownloadCacheLength = 0;
-        private string m_VideoSmtpeTimecode = string.Empty;
-        private string m_VideoHardwareDecoder = string.Empty;
-        private bool m_IsBuffering = false;
-        private MediaEngineState m_CoreMediaState = MediaEngineState.Close;
-        private bool m_IsOpening = false;
-        private AtomicBoolean m_IsSeeking = new AtomicBoolean(false);
+        private ulong? MediaGuessedByteRate = default(ulong?);
+        private bool MediaHasMediaEnded = false;
+        private double MediaBufferingProgress = 0;
+        private int MediaBufferCacheLength = 0;
+        private double MediaDownloadProgress = 0;
+        private int MediaDownloadCacheLength = 0;
+        private string MediaVideoSmtpeTimecode = string.Empty;
+        private string MediaVideoHardwareDecoder = string.Empty;
+        private bool MediaIsBuffering = false;
+        private MediaEngineState MediaCoreMediaState = MediaEngineState.Close;
+        private bool MediaIsOpening = false;
+        private AtomicBoolean MediaIsSeeking = new AtomicBoolean(false);
 
         #endregion
 
@@ -121,8 +121,8 @@
         /// </summary>
         public string VideoHardwareDecoder
         {
-            get => m_VideoHardwareDecoder;
-            internal set => SetProperty(ref m_VideoHardwareDecoder, value);
+            get => MediaVideoHardwareDecoder;
+            internal set => SetProperty(ref MediaVideoHardwareDecoder, value);
         }
 
         /// <summary>
@@ -175,17 +175,6 @@
         public bool IsLiveStream => IsOpen ? Container.IsLiveStream : false;
 
         /// <summary>
-        /// When position is being set from within this control, this field will
-        /// be set to true. This is useful to detect if the user is setting the position
-        /// or if the Position property is being driven from within
-        /// </summary>
-        public bool IsPositionUpdating
-        {
-            get => m_IsPositionUpdating.Value;
-            private set => m_IsPositionUpdating.Value = value;
-        }
-
-        /// <summary>
         /// Gets a value indicating whether the currently loaded media can be seeked.
         /// </summary>
         public bool IsSeekable => Container?.IsStreamSeekable ?? false;
@@ -200,8 +189,8 @@
         /// </summary>
         public bool HasMediaEnded
         {
-            get => m_HasMediaEnded;
-            internal set => SetProperty(ref m_HasMediaEnded, value);
+            get => MediaHasMediaEnded;
+            internal set => SetProperty(ref MediaHasMediaEnded, value);
         }
 
         /// <summary>
@@ -209,8 +198,8 @@
         /// </summary>
         public bool IsBuffering
         {
-            get => m_IsBuffering;
-            private set => SetProperty(ref m_IsBuffering, value);
+            get => MediaIsBuffering;
+            private set => SetProperty(ref MediaIsBuffering, value);
         }
 
         /// <summary>
@@ -218,14 +207,14 @@
         /// </summary>
         public bool IsSeeking
         {
-            get => m_IsSeeking.Value == true;
+            get => MediaIsSeeking.Value == true;
 
             internal set
             {
                 // Can't use SetProperty because the backing field is an AtomicBoolean
-                if (m_IsSeeking.Value == value) return;
-                m_IsSeeking.Value = value;
-                SendOnPropertyChanged(nameof(IsSeeking));
+                if (MediaIsSeeking.Value == value) return;
+                MediaIsSeeking.Value = value;
+                EnqueuePropertyChange(nameof(IsSeeking));
             }
         }
 
@@ -235,8 +224,8 @@
         /// </summary>
         public string VideoSmtpeTimecode
         {
-            get => m_VideoSmtpeTimecode;
-            internal set => SetProperty(ref m_VideoSmtpeTimecode, value);
+            get => MediaVideoSmtpeTimecode;
+            internal set => SetProperty(ref MediaVideoSmtpeTimecode, value);
         }
 
         /// <summary>
@@ -246,8 +235,8 @@
         /// </summary>
         public ulong? GuessedByteRate
         {
-            get => m_GuessedByteRate;
-            internal set => SetProperty(ref m_GuessedByteRate, value);
+            get => MediaGuessedByteRate;
+            internal set => SetProperty(ref MediaGuessedByteRate, value);
         }
 
         /// <summary>
@@ -256,8 +245,8 @@
         /// </summary>
         public double BufferingProgress
         {
-            get => m_BufferingProgress;
-            internal set => SetProperty(ref m_BufferingProgress, value);
+            get => MediaBufferingProgress;
+            internal set => SetProperty(ref MediaBufferingProgress, value);
         }
 
         /// <summary>
@@ -267,8 +256,8 @@
         /// </summary>
         public int BufferCacheLength
         {
-            get => m_BufferCacheLength;
-            internal set => SetProperty(ref m_BufferCacheLength, value);
+            get => MediaBufferCacheLength;
+            internal set => SetProperty(ref MediaBufferCacheLength, value);
         }
 
         /// <summary>
@@ -277,8 +266,8 @@
         /// </summary>
         public double DownloadProgress
         {
-            get => m_DownloadProgress;
-            internal set => SetProperty(ref m_DownloadProgress, value);
+            get => MediaDownloadProgress;
+            internal set => SetProperty(ref MediaDownloadProgress, value);
         }
 
         /// <summary>
@@ -288,8 +277,8 @@
         /// </summary>
         public int DownloadCacheLength
         {
-            get => m_DownloadCacheLength;
-            internal set => SetProperty(ref m_DownloadCacheLength, value);
+            get => MediaDownloadCacheLength;
+            internal set => SetProperty(ref MediaDownloadCacheLength, value);
         }
 
         /// <summary>
@@ -297,8 +286,8 @@
         /// </summary>
         public bool IsOpening
         {
-            get => m_IsOpening;
-            internal set => SetProperty(ref m_IsOpening, value);
+            get => MediaIsOpening;
+            internal set => SetProperty(ref MediaIsOpening, value);
         }
 
         /// <summary>
@@ -312,66 +301,13 @@
         /// </summary>
         public MediaEngineState MediaState
         {
-            get => m_CoreMediaState;
+            get => MediaCoreMediaState;
 
             internal set
             {
-                SetProperty(ref m_CoreMediaState, value);
-                SendOnPropertyChanged(nameof(IsPlaying));
+                SetProperty(ref MediaCoreMediaState, value);
+                EnqueuePropertyChange(nameof(IsPlaying));
             }
-        }
-
-        #endregion
-
-        #region Methods
-
-        /// <summary>
-        /// Updates the media properties notifying that there are new values to be read from all of them.
-        /// Call this method only when necessary because it creates a lot of events.
-        /// </summary>
-        internal void NotifyPropertyChanges()
-        {
-            SendOnPropertyChanged(nameof(IsOpen));
-            SendOnPropertyChanged(nameof(MediaFormat));
-            SendOnPropertyChanged(nameof(HasAudio));
-            SendOnPropertyChanged(nameof(HasVideo));
-            SendOnPropertyChanged(nameof(VideoCodec));
-            SendOnPropertyChanged(nameof(VideoBitrate));
-            SendOnPropertyChanged(nameof(NaturalVideoWidth));
-            SendOnPropertyChanged(nameof(NaturalVideoHeight));
-            SendOnPropertyChanged(nameof(VideoFrameRate));
-            SendOnPropertyChanged(nameof(VideoFrameLength));
-            SendOnPropertyChanged(nameof(VideoHardwareDecoder));
-            SendOnPropertyChanged(nameof(AudioCodec));
-            SendOnPropertyChanged(nameof(AudioBitrate));
-            SendOnPropertyChanged(nameof(AudioChannels));
-            SendOnPropertyChanged(nameof(AudioSampleRate));
-            SendOnPropertyChanged(nameof(AudioBitsPerSample));
-            SendOnPropertyChanged(nameof(NaturalDuration));
-            SendOnPropertyChanged(nameof(CanPause));
-            SendOnPropertyChanged(nameof(IsLiveStream));
-            SendOnPropertyChanged(nameof(IsSeekable));
-            SendOnPropertyChanged(nameof(GuessedByteRate));
-            SendOnPropertyChanged(nameof(BufferCacheLength));
-            SendOnPropertyChanged(nameof(DownloadCacheLength));
-            SendOnPropertyChanged(nameof(FrameStepDuration));
-            SendOnPropertyChanged(nameof(Metadata));
-        }
-
-        /// <summary>
-        /// Resets the controller properies.
-        /// </summary>
-        internal void ResetControllerProperties()
-        {
-            Volume = Constants.Controller.DefaultVolume;
-            Balance = Constants.Controller.DefaultBalance;
-            SpeedRatio = Constants.Controller.DefaultSpeedRatio;
-            IsMuted = false;
-            VideoSmtpeTimecode = string.Empty;
-            VideoHardwareDecoder = string.Empty;
-            IsMuted = false;
-            HasMediaEnded = false;
-            UpdatePosition(TimeSpan.Zero);
         }
 
         #endregion

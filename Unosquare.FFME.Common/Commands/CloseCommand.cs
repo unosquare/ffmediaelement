@@ -51,7 +51,7 @@
             // Update notification properties
             m.ResetControllerProperties();
             m.ResetBufferingProperties();
-            m.NotifyPropertyChanges();
+            m.EnqueueAllPropertiesChanged();
 
             if (MediaEngine.Platform.IsInDebugMode)
             {

@@ -91,7 +91,7 @@
             finally
             {
                 m.IsOpening = false;
-                m.NotifyPropertyChanges();
+                m.EnqueueAllPropertiesChanged();
                 m.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Completed");
             }
         }

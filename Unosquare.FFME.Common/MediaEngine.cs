@@ -23,13 +23,6 @@
         private bool m_IsDisposed = default(bool);
 
         /// <summary>
-        /// When position is being set from within this control, this field will
-        /// be set to true. This is useful to detect if the user is setting the position
-        /// or if the Position property is being driven from within
-        /// </summary>
-        private AtomicBoolean m_IsPositionUpdating = new AtomicBoolean(false);
-
-        /// <summary>
         /// Flag when disposing process start but not finished yet
         /// </summary>
         private AtomicBoolean m_IsDisposing = new AtomicBoolean(false);
@@ -52,7 +45,7 @@
             //     Console.WriteLine(p);
             // }
 
-            // Assiciate the parent as the media connector that implements the callbacks
+            // Associate the parent as the media connector that implements the callbacks
             Parent = parent;
             Connector = connector;
             Commands = new MediaCommandManager(this);
@@ -114,31 +107,6 @@
         {
             // TODO: Looks like MediaElement is not calling this when closing the container?
             Dispose(true);
-        }
-
-        /// <summary>
-        /// Updates the position property signaling the update is
-        /// coming internally. This is to distinguish between user/binding
-        /// written value to the Position Porperty and value set by this control's
-        /// internal clock.
-        /// </summary>
-        /// <param name="value">The current position.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdatePosition(TimeSpan value)
-        {
-            if (IsPositionUpdating || IsSeeking)
-                return;
-
-            try
-            {
-                IsPositionUpdating = true;
-                Position = value;
-            }
-            catch { }
-            finally
-            {
-                IsPositionUpdating = false;
-            }
         }
 
         /// <summary>
@@ -251,32 +219,6 @@
                 BufferCacheLength = Convert.ToInt32(GuessedByteRate);
                 DownloadCacheLength = BufferCacheLength * (IsLiveStream ? 30 : 4);
             }
-        }
-
-        #endregion
-
-        #region INotifyPropertyChanged Implementation
-
-        /// <summary>
-        /// Checks if a property already matches a desired value.  Sets the property and
-        /// notifies listeners only when necessary.
-        /// </summary>
-        /// <typeparam name="T">Type of the property.</typeparam>
-        /// <param name="storage">Reference to a property with both getter and setter.</param>
-        /// <param name="value">Desired value for the property.</param>
-        /// <param name="propertyName">Name of the property used to notify listeners.  This
-        /// value is optional and can be provided automatically when invoked from compilers that
-        /// support CallerMemberName.</param>
-        /// <returns>True if the value was changed, false if the existing value matched the
-        /// desired value.</returns>
-        private bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
-        {
-            if (Equals(storage, value))
-                return false;
-
-            storage = value;
-            SendOnPropertyChanged(propertyName);
-            return true;
         }
 
         #endregion

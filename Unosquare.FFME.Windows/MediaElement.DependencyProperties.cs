@@ -210,7 +210,7 @@ namespace Unosquare.FFME
         private static void OnPositionPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var element = d as MediaElement;
-            if (element == null || element.IsPositionUpdating || element.IsSeekable == false) return;
+            if (element == null || element.MediaCore.IsRunningPropertyUpdates || element.IsSeekable == false) return;
 
             element.MediaCore?.Seek((TimeSpan)e.NewValue);
         }

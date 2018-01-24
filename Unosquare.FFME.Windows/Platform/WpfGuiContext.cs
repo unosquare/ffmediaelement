@@ -11,6 +11,8 @@
     /// <seealso cref="IGuiContext" />
     internal class WpfGuiContext : IGuiContext
     {
+        private static readonly object SyncLock = new object();
+
         /// <summary>
         /// The WPF dispatcher
         /// </summary>
@@ -77,10 +79,13 @@
         /// <param name="action">The action.</param>
         public void Invoke(DispatcherPriority priority, Action action)
         {
-            if (Dispatcher.CurrentDispatcher?.Thread.ManagedThreadId == GuiDispatcher.Thread.ManagedThreadId)
-                action();
-            else
-                GuiDispatcher.Invoke(action, priority, null);
+            lock (SyncLock)
+            {
+                if (Dispatcher.CurrentDispatcher?.Thread.ManagedThreadId == GuiDispatcher.Thread.ManagedThreadId)
+                    action();
+                else
+                    GuiDispatcher.Invoke(action, priority, null);
+            }
         }
     }
 }

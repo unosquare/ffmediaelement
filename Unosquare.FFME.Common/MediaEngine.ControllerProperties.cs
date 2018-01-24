@@ -5,17 +5,17 @@
 
     public partial class MediaEngine
     {
-        private Uri source = null;
-        private MediaEngineState loadedBehavior = MediaEngineState.Play;
-        private double speedRatio = Constants.Controller.DefaultSpeedRatio;
-        private MediaEngineState unloadedBehavior = MediaEngineState.Close;
-        private double volume = Constants.Controller.DefaultVolume;
-        private double balance = Constants.Controller.DefaultBalance;
-        private bool isMuted = false;
-        private bool scrubbingEnabled = true;
-        private TimeSpan position = TimeSpan.Zero;
+        private Uri ControllerSource = null;
+        private MediaEngineState ControllerLoadedBehavior = MediaEngineState.Play;
+        private double ControllerSpeedRatio = Constants.Controller.DefaultSpeedRatio;
+        private MediaEngineState ControllerUnloadedBehavior = MediaEngineState.Close;
+        private double ControllerVolume = Constants.Controller.DefaultVolume;
+        private double ControllerBalance = Constants.Controller.DefaultBalance;
+        private bool ControllerIsMuted = false;
+        private bool ControllerScrubbingEnabled = true;
+        private TimeSpan ControllerPosition = TimeSpan.Zero;
 
-        #region Dependency Property CLR Accessors
+        #region Property CLR Accessors
 
         /// <summary>
         /// Gets or Sets the Source on this MediaElement.
@@ -23,8 +23,8 @@
         /// </summary>
         public Uri Source
         {
-            get => source;
-            set => SetProperty(ref source, value);
+            get => ControllerSource;
+            set => SetProperty(ref ControllerSource, value);
         }
 
         /// <summary>
@@ -37,8 +37,8 @@
         /// </summary>
         public MediaEngineState LoadedBehavior
         {
-            get => loadedBehavior;
-            set => SetProperty(ref loadedBehavior, value);
+            get => ControllerLoadedBehavior;
+            set => SetProperty(ref ControllerLoadedBehavior, value);
         }
 
         /// <summary>
@@ -47,8 +47,8 @@
         /// </summary>
         public MediaEngineState UnloadedBehavior
         {
-            get => unloadedBehavior;
-            set => SetProperty(ref unloadedBehavior, value);
+            get => ControllerUnloadedBehavior;
+            set => SetProperty(ref ControllerUnloadedBehavior, value);
         }
 
         /// <summary>
@@ -56,8 +56,8 @@
         /// </summary>
         public double SpeedRatio
         {
-            get => speedRatio;
-            set => SetProperty(ref speedRatio, value);
+            get => ControllerSpeedRatio;
+            set => SetProperty(ref ControllerSpeedRatio, value);
         }
 
         /// <summary>
@@ -66,8 +66,8 @@
         /// </summary>
         public double Volume
         {
-            get => volume;
-            set => SetProperty(ref volume, value);
+            get => ControllerVolume;
+            set => SetProperty(ref ControllerVolume, value);
         }
 
         /// <summary>
@@ -75,8 +75,8 @@
         /// </summary>
         public double Balance
         {
-            get => balance;
-            set => SetProperty(ref balance, value);
+            get => ControllerBalance;
+            set => SetProperty(ref ControllerBalance, value);
         }
 
         /// <summary>
@@ -84,8 +84,8 @@
         /// </summary>
         public bool IsMuted
         {
-            get => isMuted;
-            set => SetProperty(ref isMuted, value);
+            get => ControllerIsMuted;
+            set => SetProperty(ref ControllerIsMuted, value);
         }
 
         /// <summary>
@@ -94,8 +94,8 @@
         /// </summary>
         public bool ScrubbingEnabled
         {
-            get => scrubbingEnabled;
-            set => SetProperty(ref scrubbingEnabled, value);
+            get => ControllerScrubbingEnabled;
+            set => SetProperty(ref ControllerScrubbingEnabled, value);
         }
 
         /// <summary>
@@ -103,8 +103,8 @@
         /// </summary>
         public TimeSpan Position
         {
-            get => position;
-            set => SetProperty(ref position, value);
+            get => ControllerPosition;
+            set => SetProperty(ref ControllerPosition, value);
         }
 
         /// <summary>
