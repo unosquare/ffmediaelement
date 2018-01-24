@@ -8,7 +8,6 @@
     using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Windows;
-    using System.Windows.Threading;
 
     /// <summary>
     /// Provides Audio Output capabilities by writing samples to the default audio output device.
@@ -64,7 +63,7 @@
 
             if (Application.Current != null)
             {
-                WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.Normal, () =>
+                WindowsPlatform.Instance.Gui?.EnqueueInvoke(() =>
                 {
                     Application.Current.Exit += OnApplicationExit;
                 });
@@ -381,7 +380,7 @@
                 {
                     if (Application.Current != null)
                     {
-                        WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.Send, () =>
+                        WindowsPlatform.Instance.Gui?.Invoke(() =>
                         {
                             Application.Current.Exit -= OnApplicationExit;
                         });

@@ -2,7 +2,6 @@
 {
     using Shared;
     using System;
-    using System.Windows.Threading;
 
     /// <summary>
     /// The Media engine connector
@@ -121,7 +120,7 @@
             // Either that or attach to the properties from the mediaelement via WPF binding.
             if (propertyNames.Length == 0) return;
 
-            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.DataBind, () =>
+            WindowsPlatform.Instance.Gui?.Invoke(() =>
             {
                 foreach (var propertyName in propertyNames)
                 {

@@ -27,10 +27,8 @@
         {
             NativeMethods = WindowsNativeMethods.Instance;
 
-            if (WpfGuiContext.Current.IsValid)
-                Gui = WpfGuiContext.Current;
-            else if (WinFormsGuiContext.Current.IsValid)
-                Gui = WinFormsGuiContext.Current;
+            if (GuiContext.Current.IsValid)
+                Gui = GuiContext.Current;
             else
                 throw new InvalidOperationException("Unable to get a valid GUI context.");
 
@@ -53,7 +51,7 @@
         /// <summary>
         /// Gets the GUI contaxt implementation.
         /// </summary>
-        public IGuiContext Gui { get; }
+        public GuiContext Gui { get; }
 
         /// <summary>
         /// Gets a value indicating whether this instance is in debug mode.

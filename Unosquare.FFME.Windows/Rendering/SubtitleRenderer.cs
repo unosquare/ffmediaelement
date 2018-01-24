@@ -3,7 +3,6 @@
     using Platform;
     using Shared;
     using System;
-    using System.Windows.Threading;
 
     /// <summary>
     /// Subtitle Renderer - Does nothing at this point.
@@ -162,7 +161,6 @@
 
             // We fire-and-forget the update of the text
             WindowsPlatform.Instance.Gui?.EnqueueInvoke(
-                DispatcherPriority.DataBind,
                 new Action<string>((s) =>
                 {
                     lock (SyncLock)

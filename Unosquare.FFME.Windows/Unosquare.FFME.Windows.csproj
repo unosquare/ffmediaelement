@@ -66,15 +66,14 @@
     <Compile Include="Events\RenderingEventArgs.cs" />
     <Compile Include="Events\RenderingSubtitlesEventArgs.cs" />
     <Compile Include="Events\RenderingVideoEventArgs.cs" />
+    <Compile Include="Platform\GuiContextType.cs" />
     <Compile Include="Subtitles.cs" />
-    <Compile Include="Platform\IGuiContext.cs" />
     <Compile Include="Platform\WindowsMediaConnector.cs" />
     <Compile Include="Platform\WindowsNativeMethods.cs" />
     <Compile Include="Platform\WindowsPlatform.cs" />
     <Compile Include="MediaElement.RenderEvents.cs" />
     <Compile Include="Events\MediaLogMessageEventArgs.cs" />
-    <Compile Include="Platform\WinFormsGuiContext.cs" />
-    <Compile Include="Platform\WpfGuiContext.cs" />
+    <Compile Include="Platform\GuiContext.cs" />
     <Compile Include="Events\PositionChangedRoutedEventArgs.cs" />
     <Compile Include="Platform\SoundTouch.cs" />
     <Compile Include="Rendering\SubtitlesControl.cs" />
