@@ -991,18 +991,6 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.MediaClosedEvent
   fullName: Unosquare.FFME.MediaElement.MediaClosedEvent
   nameWithType: MediaElement.MediaClosedEvent
-- uid: Unosquare.FFME.MediaElement.MediaCore
-  name: MediaCore
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaCore
-  commentId: P:Unosquare.FFME.MediaElement.MediaCore
-  fullName: Unosquare.FFME.MediaElement.MediaCore
-  nameWithType: MediaElement.MediaCore
-- uid: Unosquare.FFME.MediaElement.MediaCore*
-  name: MediaCore
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaCore_
-  commentId: Overload:Unosquare.FFME.MediaElement.MediaCore
-  fullName: Unosquare.FFME.MediaElement.MediaCore
-  nameWithType: MediaElement.MediaCore
 - uid: Unosquare.FFME.MediaElement.MediaEnded
   name: MediaEnded
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaEnded
