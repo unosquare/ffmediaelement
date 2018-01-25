@@ -236,7 +236,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void RaiseFFmpegMessageLogged(object sender, MediaLogMessage e)
         {
-            WindowsPlatform.Instance.Gui?.InvokeAsync(() =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
                 FFmpegMessageLogged?.Invoke(sender, new MediaLogMessageEventArgs(e));
             });
@@ -249,7 +249,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseMessageLoggedEvent(MediaLogMessage e)
         {
-            WindowsPlatform.Instance.Gui?.InvokeAsync(() =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
                 MessageLogged?.Invoke(this, new MediaLogMessageEventArgs(e));
             });
@@ -264,7 +264,7 @@
         {
             LogEventStart(MediaFailedEvent);
             MediaCore?.Log(MediaLogMessageType.Error, $"Media Failure - {ex?.GetType()}: {ex?.Message}");
-            WindowsPlatform.Instance.Gui?.InvokeAsync(() =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(CreateExceptionRoutedEventArgs(MediaFailedEvent, this, ex));
                 LogEventDone(MediaFailedEvent);
@@ -278,7 +278,7 @@
         internal void RaiseMediaOpenedEvent()
         {
             LogEventStart(MediaOpenedEvent);
-            WindowsPlatform.Instance.Gui?.InvokeAsync(() =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new RoutedEventArgs(MediaOpenedEvent, this));
                 LogEventDone(MediaOpenedEvent);
@@ -292,7 +292,7 @@
         internal void RaiseMediaClosedEvent()
         {
             LogEventStart(MediaClosedEvent);
-            WindowsPlatform.Instance.Gui?.InvokeAsync(() =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new RoutedEventArgs(MediaClosedEvent, this));
                 LogEventDone(MediaClosedEvent);
@@ -308,7 +308,7 @@
         internal void RaiseMediaOpeningEvent(MediaOptions mediaOptions, MediaInfo mediaInfo)
         {
             LogEventStart(MediaOpeningEvent);
-            WindowsPlatform.Instance.Gui?.InvokeAsync(() =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new MediaOpeningRoutedEventArgs(
                     MediaOpeningEvent,
@@ -327,7 +327,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaisePositionChangedEvent(TimeSpan position)
         {
-            WindowsPlatform.Instance.Gui?.InvokeAsync(() =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new PositionChangedRoutedEventArgs(
                     PositionChangedEvent,
@@ -343,7 +343,7 @@
         internal void RaiseBufferingStartedEvent()
         {
             LogEventStart(BufferingStartedEvent);
-            WindowsPlatform.Instance.Gui?.InvokeAsync(() =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new RoutedEventArgs(BufferingStartedEvent, this));
                 LogEventDone(BufferingStartedEvent);
@@ -357,7 +357,7 @@
         internal void RaiseBufferingEndedEvent()
         {
             LogEventStart(BufferingEndedEvent);
-            WindowsPlatform.Instance.Gui?.InvokeAsync(() =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new RoutedEventArgs(BufferingEndedEvent, this));
                 LogEventDone(BufferingEndedEvent);
@@ -371,7 +371,7 @@
         internal void RaiseSeekingStartedEvent()
         {
             LogEventStart(SeekingStartedEvent);
-            WindowsPlatform.Instance.Gui?.InvokeAsync(() =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new RoutedEventArgs(SeekingStartedEvent, this));
                 LogEventDone(SeekingStartedEvent);
@@ -385,7 +385,7 @@
         internal void RaiseSeekingEndedEvent()
         {
             LogEventStart(SeekingEndedEvent);
-            WindowsPlatform.Instance.Gui?.InvokeAsync(() =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new RoutedEventArgs(SeekingEndedEvent, this));
                 LogEventDone(SeekingEndedEvent);
@@ -399,7 +399,7 @@
         internal void RaiseMediaEndedEvent()
         {
             LogEventStart(MediaEndedEvent);
-            WindowsPlatform.Instance.Gui?.InvokeAsync(() =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new RoutedEventArgs(MediaEndedEvent, this));
                 LogEventDone(MediaEndedEvent);

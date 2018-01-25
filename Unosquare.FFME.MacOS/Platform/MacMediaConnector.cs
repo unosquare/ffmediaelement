@@ -54,16 +54,6 @@
             Console.WriteLine($"{e.MessageType,10} - {e.Message}");
         }
 
-        public void OnPositionChanged(MediaEngine sender, TimeSpan position)
-        {
-            // placeholder
-        }
-
-        public void OnPropertiesChanged(MediaEngine sender, string[] propertyNames)
-        {
-            // placeholder
-        }
-
         public void OnSeekingEnded(MediaEngine sender)
         {
             // placeholder

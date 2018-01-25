@@ -3,7 +3,7 @@
     using System;
 
     /// <summary>
-    /// Connects handlers between the Media Engine and a platfrom-secific implementation
+    /// Connects handlers between the Media Engine event signals and a platfrom-secific implementation
     /// </summary>
     public interface IMediaConnector
     {
@@ -70,20 +70,5 @@
         /// <param name="sender">The sender.</param>
         /// <param name="e">The <see cref="MediaLogMessage"/> instance containing the event data.</param>
         void OnMessageLogged(MediaEngine sender, MediaLogMessage e);
-
-        /// <summary>
-        /// Called when [position changed].
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="position">The position.</param>
-        void OnPositionChanged(MediaEngine sender, TimeSpan position);
-
-        /// <summary>
-        /// Called when an underlying media engine property is changed.
-        /// This is used to handle property change notifications
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="propertyNames">Name of the properties with changes.</param>
-        void OnPropertiesChanged(MediaEngine sender, string[] propertyNames);
     }
 }

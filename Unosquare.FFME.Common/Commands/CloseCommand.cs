@@ -27,7 +27,7 @@
         {
             var m = Manager.MediaCore;
 
-            if (m.IsDisposed || m.Status.IsOpen == false || m.Status.IsOpening) return;
+            if (m.IsDisposed || m.Media.IsOpen == false || m.Media.IsOpening) return;
 
             m.Log(MediaLogMessageType.Debug, $"{nameof(CloseCommand)}: Entered");
             m.StopWorkers();
@@ -45,7 +45,7 @@
 
             // Clear the render times
             m.LastRenderTime.Clear();
-            m.Status.MediaState = MediaEngineState.Close;
+            m.Media.MediaState = MediaEngineState.Close;
             m.SendOnMediaClosed();
 
             // Update notification properties

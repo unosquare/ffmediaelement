@@ -9,9 +9,10 @@
     /// <summary>
     /// Contains all the status properties of the stream being handled by the media engine.
     /// </summary>
-    public class MediaStatus
+    public sealed class MediaStatus
     {
         #region Property Backing and Private State
+
         private static PropertyInfo[] Properties = null;
 
         private readonly MediaEngine Parent = null;
@@ -24,11 +25,18 @@
 
         #endregion
 
+        /// <summary>
+        /// Initializes static members of the <see cref="MediaStatus" /> class.
+        /// </summary>
         static MediaStatus()
         {
             Properties = typeof(MediaStatus).GetProperties(BindingFlags.Instance | BindingFlags.Public);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MediaStatus" /> class.
+        /// </summary>
+        /// <param name="parent">The parent.</param>
         internal MediaStatus(MediaEngine parent)
         {
             Parent = parent;
@@ -117,7 +125,7 @@
         /// Gets the duration in seconds of the video frame.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public double VideoFrameLength => 1d / (Parent.Container?.Components?.Video?.BaseFrameRate ?? 0);
+        public double VideoFrameLength => 1d / VideoFrameRate;
 
         /// <summary>
         /// Gets the name of the video hardware decoder in use.
@@ -280,9 +288,12 @@
         public void ContrastInto(Dictionary<string, object> target)
         {
             TakeSnapshotInto(CurrentState);
+            if (CurrentState.Count != target.Count)
+                throw new KeyNotFoundException($"{nameof(target)} must contain a complete set of keys.");
+
             foreach (var kvp in CurrentState)
             {
-                if (target[kvp.Key] == kvp.Value)
+                if (Equals(target[kvp.Key], kvp.Value))
                     target.Remove(kvp.Key);
             }
         }

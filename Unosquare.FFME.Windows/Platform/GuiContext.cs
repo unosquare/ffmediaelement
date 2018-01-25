@@ -132,5 +132,15 @@
         {
             InvokeAsync(DispatcherPriority.Normal, callback).GetAwaiter().GetResult();
         }
+
+        public Task EnqueueInvoke(Action callback)
+        {
+            return InvokeAsync(callback);
+        }
+
+        public Task EnqueueInvoke(DispatcherPriority priority, Action callback)
+        {
+            return InvokeAsync(priority, callback);
+        }
     }
 }

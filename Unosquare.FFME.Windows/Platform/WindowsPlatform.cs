@@ -26,13 +26,7 @@
         private WindowsPlatform()
         {
             NativeMethods = WindowsNativeMethods.Instance;
-
-            if (GuiContext.Current.IsValid)
-                Gui = GuiContext.Current;
-            else
-                throw new InvalidOperationException("Unable to get a valid GUI context.");
-
-            IsInDesignTime = Gui.IsInDesignTime;
+            IsInDesignTime = GuiContext.Current.IsInDesignTime;
         }
 
         /// <summary>
@@ -47,11 +41,6 @@
         /// Retrieves the platform-specific Native methods
         /// </summary>
         public INativeMethods NativeMethods { get; }
-
-        /// <summary>
-        /// Gets the GUI contaxt implementation.
-        /// </summary>
-        public GuiContext Gui { get; }
 
         /// <summary>
         /// Gets a value indicating whether this instance is in debug mode.

@@ -69,7 +69,7 @@
                 throw new NotSupportedException($"Unable to get equivalent pixel fromat from source: {Constants.Video.VideoPixelFormat}");
 
             // Set the DPI
-            WindowsPlatform.Instance.Gui?.Invoke(() =>
+            GuiContext.Current.Invoke(() =>
             {
                 var visual = PresentationSource.FromVisual(MediaElement);
                 DpiX = 96.0 * visual?.CompositionTarget?.TransformToDevice.M11 ?? 96.0;
@@ -197,7 +197,7 @@
                 MediaElement.RaiseRenderingVideoEvent(block, bitmapData, clockPosition);
 
             // Send to the rendering to the UI
-            WindowsPlatform.Instance.Gui?.InvokeAsync(DispatcherPriority.Render, () => { RenderTarget(block, bitmapData, clockPosition); });
+            GuiContext.Current.EnqueueInvoke(DispatcherPriority.Render, () => { RenderTarget(block, bitmapData, clockPosition); });
         }
 
         /// <summary>
@@ -205,7 +205,7 @@
         /// </summary>
         public void Close()
         {
-            WindowsPlatform.Instance.Gui?.Invoke(() =>
+            GuiContext.Current.Invoke(() =>
             {
                 TargetBitmap = null;
                 MediaElement.VideoView.Source = null;
@@ -250,7 +250,7 @@
             // Result will be set on the GUI thread
             BitmapDataBuffer result = null;
 
-            WindowsPlatform.Instance.Gui?.Invoke(() =>
+            GuiContext.Current.Invoke(() =>
             {
                 // Skip the locking if scrubbing is not enabled
                 if (MediaElement.ScrubbingEnabled == false && MediaElement.IsPlaying == false)

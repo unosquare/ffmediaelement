@@ -130,22 +130,22 @@
         }
 
         /// <summary>
-        /// Provides access to the underlying media engine driving this control.
-        /// This property is intender for advance usages only.
-        /// </summary>
-        public MediaEngine MediaCore
-        {
-            get { return m_MediaCore; }
-            private set { m_MediaCore = value; }
-        }
-
-        /// <summary>
         /// Gets or sets the base URI of the current application context.
         /// </summary>
         Uri IUriContext.BaseUri
         {
             get => m_BaseUri;
             set => m_BaseUri = value;
+        }
+
+        /// <summary>
+        /// Provides access to the underlying media engine driving this control.
+        /// This property is intender for advance usages only.
+        /// </summary>
+        internal MediaEngine MediaCore
+        {
+            get { return m_MediaCore; }
+            private set { m_MediaCore = value; }
         }
 
         /// <summary>

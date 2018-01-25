@@ -35,7 +35,7 @@
         {
             var m = Manager.MediaCore;
 
-            if (m.IsDisposed || m.Status.IsOpen || m.Status.IsOpening) return;
+            if (m.IsDisposed || m.Media.IsOpen || m.Media.IsOpening) return;
 
             try
             {
@@ -44,8 +44,8 @@
 
                 // Signal the initial state
                 m.ResetControllerProperties();
-                m.Status.IsOpening = true;
-                m.Status.MediaState = MediaEngineState.Manual;
+                m.Media.IsOpening = true;
+                m.Media.MediaState = MediaEngineState.Manual;
 
                 // Register FFmpeg libraries if not already done
                 if (FFInterop.Initialize(MediaEngine.FFmpegDirectory, MediaEngine.FFmpegLoadModeFlags))
@@ -71,11 +71,11 @@
                 m.ResetBufferingProperties();
 
                 // Set the state to stopped
-                m.Status.MediaState = MediaEngineState.Stop;
+                m.Media.MediaState = MediaEngineState.Stop;
 
                 // Signal we are no longer in the opening state
                 // so we can enqueue commands in the event handler
-                m.Status.IsOpening = false;
+                m.Media.IsOpening = false;
 
                 // Charge! Fire up the worker threads!
                 m.StartWorkers();
@@ -85,12 +85,12 @@
             }
             catch (Exception ex)
             {
-                m.Status.MediaState = MediaEngineState.Close;
+                m.Media.MediaState = MediaEngineState.Close;
                 m.SendOnMediaFailed(ex);
             }
             finally
             {
-                m.Status.IsOpening = false;
+                m.Media.IsOpening = false;
                 m.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Completed");
             }
         }

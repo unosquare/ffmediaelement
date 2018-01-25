@@ -9,7 +9,8 @@
 
     public partial class MediaElement
     {
-        private readonly Dictionary<string, object> MediaCoreStatus = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> MediaStatusCache = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> ControllerStatusCache = new Dictionary<string, object>();
 
         /// <summary>
         /// When position is being set from within this control, this field will
@@ -38,21 +39,32 @@
         private void StartPropertyUpdatesWorker()
         {
             // TODO: Maybe make the timer a DispatcherTimer otherwise a Windows Timer if available?
-            MediaCore.Status.TakeSnapshotInto(MediaCoreStatus);
+            MediaCore.Media.TakeSnapshotInto(MediaStatusCache);
+            MediaCore.Controller.TakeSnapshotInto(ControllerStatusCache);
 
             PropertyUpdatesWorker = new Timer((s) =>
             {
                 if (IsRunningPropertyUpdates) return;
 
                 IsRunningPropertyUpdates = true;
-                MediaCore.Status.ContrastInto(MediaCoreStatus);
+                MediaCore.Media.ContrastInto(MediaStatusCache);
+                MediaCore.Controller.ContrastInto(ControllerStatusCache);
 
                 try
                 {
                     GuiContext.Current.Invoke(() =>
                     {
-                        foreach (var p in MediaCoreStatus)
+                        // Notify Media Properties
+                        foreach (var p in MediaStatusCache)
                             RaisePropertyChangedEvent(p.Key);
+
+                        // Notify Controller Properties
+                        foreach (var p in ControllerStatusCache)
+                        {
+                            RaisePropertyChangedEvent(p.Key);
+                            if (p.Key.Equals(nameof(Position)))
+                                RaisePositionChangedEvent(MediaCore.Controller.Position);
+                        }
                     });
                 }
                 catch (Exception ex)
@@ -61,7 +73,8 @@
                 }
                 finally
                 {
-                    MediaCore.Status.TakeSnapshotInto(MediaCoreStatus);
+                    MediaCore.Media.TakeSnapshotInto(MediaStatusCache);
+                    MediaCore.Controller.TakeSnapshotInto(ControllerStatusCache);
                     IsRunningPropertyUpdates = false;
                 }
             },

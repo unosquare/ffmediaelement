@@ -47,7 +47,7 @@ namespace Unosquare.FFME
 
         private static void OnVolumePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            (d as MediaElement).MediaCore.Volume = (double)e.NewValue;
+            (d as MediaElement).MediaCore.Controller.Volume = (double)e.NewValue;
         }
 
         #endregion
@@ -87,7 +87,7 @@ namespace Unosquare.FFME
 
         private static void OnBalancePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            (d as MediaElement).MediaCore.Balance = (double)e.NewValue;
+            (d as MediaElement).MediaCore.Controller.Balance = (double)e.NewValue;
         }
 
         #endregion
@@ -127,7 +127,7 @@ namespace Unosquare.FFME
 
         private static void OnIsMutedPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            (d as MediaElement).MediaCore.IsMuted = (bool)e.NewValue;
+            (d as MediaElement).MediaCore.Controller.IsMuted = (bool)e.NewValue;
         }
 
         #endregion
@@ -160,7 +160,7 @@ namespace Unosquare.FFME
         {
             var element = d as MediaElement;
             if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return Constants.Controller.DefaultSpeedRatio;
-            if (element.MediaCore.Status.IsSeekable == false) return Constants.Controller.DefaultSpeedRatio;
+            if (element.MediaCore.Media.IsSeekable == false) return Constants.Controller.DefaultSpeedRatio;
 
             return ((double)value).Clamp(Constants.Controller.MinSpeedRatio, Constants.Controller.MaxSpeedRatio);
         }
@@ -200,10 +200,10 @@ namespace Unosquare.FFME
         {
             var element = d as MediaElement;
             if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return TimeSpan.Zero;
-            if (element.MediaCore.Status.IsSeekable == false) return element.MediaCore.Position;
+            if (element.MediaCore.Media.IsSeekable == false) return element.MediaCore.Controller.Position;
 
-            var minPosition = element.MediaCore?.Status.MediaInfo?.StartTime ?? TimeSpan.Zero;
-            var maxPosition = minPosition + (element.MediaCore?.Status.MediaInfo?.Duration ?? TimeSpan.Zero);
+            var minPosition = element.MediaCore?.Media.MediaInfo?.StartTime ?? TimeSpan.Zero;
+            var maxPosition = minPosition + (element.MediaCore?.Media.MediaInfo?.Duration ?? TimeSpan.Zero);
             return ((TimeSpan)value).Clamp(minPosition, maxPosition);
         }
 
@@ -338,7 +338,7 @@ namespace Unosquare.FFME
             var element = d as MediaElement;
             if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return;
 
-            element.MediaCore.ScrubbingEnabled = (bool)e.NewValue;
+            element.MediaCore.Controller.ScrubbingEnabled = (bool)e.NewValue;
         }
 
         #endregion
@@ -376,7 +376,7 @@ namespace Unosquare.FFME
             var element = d as MediaElement;
             if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return;
 
-            element.MediaCore.LoadedBehavior = (MediaEngineState)e.NewValue;
+            element.MediaCore.Controller.LoadedBehavior = (MediaEngineState)e.NewValue;
         }
 
         #endregion
@@ -408,7 +408,7 @@ namespace Unosquare.FFME
             var element = d as MediaElement;
             if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return;
 
-            element.MediaCore.UnloadedBehavior = (MediaEngineState)e.NewValue;
+            element.MediaCore.Controller.UnloadedBehavior = (MediaEngineState)e.NewValue;
         }
 
         #endregion

@@ -49,7 +49,8 @@
             Parent = parent;
             Connector = connector;
             Commands = new MediaCommandManager(this);
-            Status = new MediaStatus(this);
+            Media = new MediaStatus(this);
+            Controller = new ControllerStatus(this);
 
             // Don't start up timers or any other stuff if we are in design-time
             if (Platform.IsInDesignTime) return;
@@ -82,7 +83,12 @@
         /// <summary>
         /// Contains the Media Status
         /// </summary>
-        public MediaStatus Status { get; }
+        public MediaStatus Media { get; }
+
+        /// <summary>
+        /// Gets the controller status property store.
+        /// </summary>
+        public ControllerStatus Controller { get; }
 
         /// <summary>
         /// Gets a value indicating whether this instance is disposed.
@@ -134,32 +140,32 @@
             const int MinimumValidBitrate = 512 * 1024; // 524kbps
             const int StartingCacheLength = 512 * 1024; // Half a megabyte
 
-            Status.GuessedByteRate = default(ulong?);
+            Media.GuessedByteRate = default(ulong?);
 
             if (Container == null)
             {
-                Status.IsBuffering = false;
-                Status.BufferCacheLength = 0;
-                Status.DownloadCacheLength = 0;
-                Status.BufferingProgress = 0;
-                Status.DownloadProgress = 0;
+                Media.IsBuffering = false;
+                Media.BufferCacheLength = 0;
+                Media.DownloadCacheLength = 0;
+                Media.BufferingProgress = 0;
+                Media.DownloadProgress = 0;
                 return;
             }
 
             if (Container.MediaBitrate > MinimumValidBitrate)
             {
-                Status.BufferCacheLength = (int)Container.MediaBitrate / 8;
-                Status.GuessedByteRate = (ulong)Status.BufferCacheLength;
+                Media.BufferCacheLength = (int)Container.MediaBitrate / 8;
+                Media.GuessedByteRate = (ulong)Media.BufferCacheLength;
             }
             else
             {
-                Status.BufferCacheLength = StartingCacheLength;
+                Media.BufferCacheLength = StartingCacheLength;
             }
 
-            Status.DownloadCacheLength = Status.BufferCacheLength * (Status.IsLiveStream ? 30 : 4);
-            Status.IsBuffering = false;
-            Status.BufferingProgress = 0;
-            Status.DownloadProgress = 0;
+            Media.DownloadCacheLength = Media.BufferCacheLength * (Media.IsLiveStream ? 30 : 4);
+            Media.IsBuffering = false;
+            Media.BufferingProgress = 0;
+            Media.DownloadProgress = 0;
         }
 
         /// <summary>
@@ -172,20 +178,20 @@
 
             // Update the buffering progress
             var bufferingProgress = Math.Min(
-                1d, Math.Round(packetBufferLength / Status.BufferCacheLength, 3));
-            Status.BufferingProgress = double.IsNaN(bufferingProgress) ? 0 : bufferingProgress;
+                1d, Math.Round(packetBufferLength / Media.BufferCacheLength, 3));
+            Media.BufferingProgress = double.IsNaN(bufferingProgress) ? 0 : bufferingProgress;
 
             // Update the download progress
             var downloadProgress = Math.Min(
-                1d, Math.Round(packetBufferLength / Status.DownloadCacheLength, 3));
-            Status.DownloadProgress = double.IsNaN(downloadProgress) ? 0 : downloadProgress;
+                1d, Math.Round(packetBufferLength / Media.DownloadCacheLength, 3));
+            Media.DownloadProgress = double.IsNaN(downloadProgress) ? 0 : downloadProgress;
 
             // IsBuffering and BufferingProgress
-            if (Status.HasMediaEnded == false && CanReadMorePackets && (Status.IsOpening || Status.IsOpen))
+            if (Media.HasMediaEnded == false && CanReadMorePackets && (Media.IsOpening || Media.IsOpen))
             {
-                var wasBuffering = Status.IsBuffering;
-                var isNowBuffering = packetBufferLength < Status.BufferCacheLength;
-                Status.IsBuffering = isNowBuffering;
+                var wasBuffering = Media.IsBuffering;
+                var isNowBuffering = packetBufferLength < Media.BufferCacheLength;
+                Media.IsBuffering = isNowBuffering;
 
                 if (wasBuffering == false && isNowBuffering)
                     SendOnBufferingStarted();
@@ -194,7 +200,7 @@
             }
             else
             {
-                Status.IsBuffering = false;
+                Media.IsBuffering = false;
             }
         }
 
@@ -204,7 +210,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void GuessBufferingProperties()
         {
-            if (Status.GuessedByteRate != null || Container == null || Container.Components == null)
+            if (Media.GuessedByteRate != null || Container == null || Container.Components == null)
                 return;
 
             // Capture the read bytes of a 1-second buffer
@@ -231,9 +237,9 @@
 
             if (shortestDuration.TotalSeconds >= 1 && shortestDuration != TimeSpan.MaxValue)
             {
-                Status.GuessedByteRate = (ulong)(1.5 * bytesReadSoFar / shortestDuration.TotalSeconds);
-                Status.BufferCacheLength = Convert.ToInt32(Status.GuessedByteRate);
-                Status.DownloadCacheLength = Status.BufferCacheLength * (Status.IsLiveStream ? 30 : 4);
+                Media.GuessedByteRate = (ulong)(1.5 * bytesReadSoFar / shortestDuration.TotalSeconds);
+                Media.BufferCacheLength = Convert.ToInt32(Media.GuessedByteRate);
+                Media.DownloadCacheLength = Media.BufferCacheLength * (Media.IsLiveStream ? 30 : 4);
             }
         }
 
@@ -243,8 +249,8 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void UpdatePosiionProperty()
         {
-            if (Status.IsSeeking) return;
-            Position = Status.IsOpen ? Clock?.Position ?? TimeSpan.Zero : TimeSpan.Zero;
+            if (Media.IsSeeking) return;
+            Controller.Position = Media.IsOpen ? Clock?.Position ?? TimeSpan.Zero : TimeSpan.Zero;
         }
 
         #endregion

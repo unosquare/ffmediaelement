@@ -26,7 +26,7 @@
         {
             var m = Manager.MediaCore;
             m.Clock.Reset();
-            m.Status.MediaState = MediaEngineState.Stop;
+            m.Media.MediaState = MediaEngineState.Stop;
             var seek = new SeekCommand(Manager, TimeSpan.Zero);
             seek.ExecuteInternal();
 

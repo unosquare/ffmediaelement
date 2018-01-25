@@ -32,7 +32,7 @@
             if (Manager.MediaCore.Clock.SpeedRatio != SpeedRatio)
                 Manager.MediaCore.Clock.SpeedRatio = SpeedRatio;
 
-            Manager.MediaCore.SpeedRatio = Manager.MediaCore.Clock.SpeedRatio;
+            Manager.MediaCore.Controller.SpeedRatio = Manager.MediaCore.Clock.SpeedRatio;
         }
     }
 }

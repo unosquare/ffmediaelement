@@ -98,15 +98,5 @@
         {
             Connector?.OnMediaEnded(this);
         }
-
-        /// <summary>
-        /// Raises the Position Changed event
-        /// </summary>
-        /// <param name="position">The position.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void SendOnPositionChanged(TimeSpan position)
-        {
-            Connector?.OnPositionChanged(this, position);
-        }
     }
 }

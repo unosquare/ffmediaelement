@@ -161,7 +161,7 @@
                 return;
 
             // We fire-and-forget the update of the text
-            WindowsPlatform.Instance.Gui?.InvokeAsync(DispatcherPriority.Render, () =>
+            GuiContext.Current.EnqueueInvoke(DispatcherPriority.Render, () =>
             {
                 lock (SyncLock)
                 {

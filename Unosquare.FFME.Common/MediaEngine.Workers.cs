@@ -116,9 +116,9 @@
                     return false;
 
                 // If it's a live stream always continue reading regardless
-                if (Status.IsLiveStream) return true;
+                if (Media.IsLiveStream) return true;
 
-                return Container.Components.PacketBufferLength < Status.DownloadCacheLength;
+                return Container.Components.PacketBufferLength < Media.DownloadCacheLength;
             }
         }
 
@@ -253,9 +253,9 @@
 
                     // Singal a Seek starting operation
                     hasPendingSeeks = Commands.PendingCountOf(MediaCommandType.Seek) > 0;
-                    if (Status.IsSeeking == false && hasPendingSeeks)
+                    if (Media.IsSeeking == false && hasPendingSeeks)
                     {
-                        Status.IsSeeking = true;
+                        Media.IsSeeking = true;
                         SendOnSeekingStarted();
                     }
 
@@ -268,10 +268,10 @@
 
                     // Signal a Seek ending operation
                     hasPendingSeeks = Commands.PendingCountOf(MediaCommandType.Seek) > 0;
-                    if (Status.IsSeeking == true && hasPendingSeeks == false)
+                    if (Media.IsSeeking == true && hasPendingSeeks == false)
                     {
                         SnapVideoPosition(Clock.Position);
-                        Status.IsSeeking = false;
+                        Media.IsSeeking = false;
 
                         // Call the seek method on all renderers
                         foreach (var kvp in Renderers)
@@ -377,7 +377,7 @@
 
                     foreach (var t in auxs)
                     {
-                        if (Status.IsSeeking) continue;
+                        if (Media.IsSeeking) continue;
 
                         // Capture the current block buffer and component
                         // for easier readability
@@ -430,28 +430,28 @@
 
                     // Detect end of block rendering
                     if (isBuffering == false
-                        && Status.IsSeeking == false
+                        && Media.IsSeeking == false
                         && CanReadMoreFramesOf(main) == false
                         && Blocks[main].IndexOf(wallClock) == Blocks[main].Count - 1)
                     {
-                        if (Status.HasMediaEnded == false)
+                        if (Media.HasMediaEnded == false)
                         {
                             // Rendered all and nothing else to read
                             Clock.Pause();
-                            if (Status.NaturalDuration != null && Status.NaturalDuration != TimeSpan.MinValue)
-                                Clock.Position = Status.NaturalDuration.Value;
+                            if (Media.NaturalDuration != null && Media.NaturalDuration != TimeSpan.MinValue)
+                                Clock.Position = Media.NaturalDuration.Value;
                             else
                                 Clock.Position = Blocks[main].RangeEndTime;
 
                             wallClock = Clock.Position;
-                            Status.HasMediaEnded = true;
-                            Status.MediaState = MediaEngineState.Pause;
+                            Media.HasMediaEnded = true;
+                            Media.MediaState = MediaEngineState.Pause;
                             SendOnMediaEnded();
                         }
                     }
                     else
                     {
-                        Status.HasMediaEnded = false;
+                        Media.HasMediaEnded = false;
                     }
 
                     #endregion
@@ -595,7 +595,7 @@
                 && Blocks[MediaType.Video].IsInRange(position))
             {
                 var block = Blocks[MediaType.Video][position];
-                if (block != null && block.Duration.Ticks > 0 && Status.VideoFrameRate != 0d)
+                if (block != null && block.Duration.Ticks > 0 && Media.VideoFrameRate != 0d)
                     Clock.Position = block.SnapTime;
             }
         }
@@ -627,8 +627,8 @@
             {
                 if (block is VideoBlock videoBlock)
                 {
-                    Status.VideoSmtpeTimecode = videoBlock.SmtpeTimecode;
-                    Status.VideoHardwareDecoder = (Container?.Components?.Video?.IsUsingHardwareDecoding ?? false) ?
+                    Media.VideoSmtpeTimecode = videoBlock.SmtpeTimecode;
+                    Media.VideoHardwareDecoder = (Container?.Components?.Video?.IsUsingHardwareDecoding ?? false) ?
                         Container?.Components?.Video?.HardwareAccelerator?.Name ?? string.Empty : string.Empty;
                 }
             }
