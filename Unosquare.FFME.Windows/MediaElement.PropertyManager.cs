@@ -37,6 +37,7 @@
 
         private void StartPropertyUpdatesWorker()
         {
+            // TODO: Maybe make the timer a DispatcherTimer otherwise a Windows Timer if available?
             MediaCore.Status.TakeSnapshotInto(MediaCoreStatus);
 
             PropertyUpdatesWorker = new Timer((s) =>

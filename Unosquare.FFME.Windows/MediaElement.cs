@@ -75,7 +75,6 @@
             {
                 AllowContentChange = true;
                 InitializeComponent();
-                StartPropertyUpdatesWorker();
             }
             finally
             {
@@ -337,8 +336,9 @@
             }
             else
             {
-                // Setup the media engine
+                // Setup the media engine and associated property updates worker
                 MediaCore = new MediaEngine(this, new WindowsMediaConnector(this));
+                StartPropertyUpdatesWorker();
             }
         }
 
