@@ -39,18 +39,11 @@
         /// <exception cref="InvalidOperationException">Thrown when the static Initialize method has not been called.</exception>
         public MediaEngine(object parent, IMediaConnector connector)
         {
-            // var props = typeof(MediaEngine).GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
-            // foreach (var p in props)
-            // {
-            //     Console.WriteLine(p);
-            // }
-
             // Associate the parent as the media connector that implements the callbacks
             Parent = parent;
             Connector = connector;
             Commands = new MediaCommandManager(this);
-            Media = new MediaStatus(this);
-            Controller = new ControllerStatus(this);
+            State = new MediaEngineState(this);
 
             // Don't start up timers or any other stuff if we are in design-time
             if (Platform.IsInDesignTime) return;
@@ -71,24 +64,9 @@
         #region Properties
 
         /// <summary>
-        /// Gets the associated parent object.
-        /// </summary>
-        public object Parent { get; }
-
-        /// <summary>
-        /// Gets the event connector (platform specific).
-        /// </summary>
-        public IMediaConnector Connector { get; }
-
-        /// <summary>
         /// Contains the Media Status
         /// </summary>
-        public MediaStatus Media { get; }
-
-        /// <summary>
-        /// Gets the controller status property store.
-        /// </summary>
-        public ControllerStatus Controller { get; }
+        public MediaEngineState State { get; }
 
         /// <summary>
         /// Gets a value indicating whether this instance is disposed.
@@ -107,6 +85,16 @@
             get => m_IsDisposing.Value;
             private set => m_IsDisposing.Value = value;
         }
+
+        /// <summary>
+        /// Gets the associated parent object.
+        /// </summary>
+        public object Parent { get; }
+
+        /// <summary>
+        /// Gets the event connector (platform specific).
+        /// </summary>
+        internal IMediaConnector Connector { get; }
 
         #endregion
 
@@ -140,32 +128,32 @@
             const int MinimumValidBitrate = 512 * 1024; // 524kbps
             const int StartingCacheLength = 512 * 1024; // Half a megabyte
 
-            Media.GuessedByteRate = default(ulong?);
+            State.GuessedByteRate = default(ulong?);
 
             if (Container == null)
             {
-                Media.IsBuffering = false;
-                Media.BufferCacheLength = 0;
-                Media.DownloadCacheLength = 0;
-                Media.BufferingProgress = 0;
-                Media.DownloadProgress = 0;
+                State.IsBuffering = false;
+                State.BufferCacheLength = 0;
+                State.DownloadCacheLength = 0;
+                State.BufferingProgress = 0;
+                State.DownloadProgress = 0;
                 return;
             }
 
             if (Container.MediaBitrate > MinimumValidBitrate)
             {
-                Media.BufferCacheLength = (int)Container.MediaBitrate / 8;
-                Media.GuessedByteRate = (ulong)Media.BufferCacheLength;
+                State.BufferCacheLength = (int)Container.MediaBitrate / 8;
+                State.GuessedByteRate = (ulong)State.BufferCacheLength;
             }
             else
             {
-                Media.BufferCacheLength = StartingCacheLength;
+                State.BufferCacheLength = StartingCacheLength;
             }
 
-            Media.DownloadCacheLength = Media.BufferCacheLength * (Media.IsLiveStream ? 30 : 4);
-            Media.IsBuffering = false;
-            Media.BufferingProgress = 0;
-            Media.DownloadProgress = 0;
+            State.DownloadCacheLength = State.BufferCacheLength * (State.IsLiveStream ? 30 : 4);
+            State.IsBuffering = false;
+            State.BufferingProgress = 0;
+            State.DownloadProgress = 0;
         }
 
         /// <summary>
@@ -178,20 +166,20 @@
 
             // Update the buffering progress
             var bufferingProgress = Math.Min(
-                1d, Math.Round(packetBufferLength / Media.BufferCacheLength, 3));
-            Media.BufferingProgress = double.IsNaN(bufferingProgress) ? 0 : bufferingProgress;
+                1d, Math.Round(packetBufferLength / State.BufferCacheLength, 3));
+            State.BufferingProgress = double.IsNaN(bufferingProgress) ? 0 : bufferingProgress;
 
             // Update the download progress
             var downloadProgress = Math.Min(
-                1d, Math.Round(packetBufferLength / Media.DownloadCacheLength, 3));
-            Media.DownloadProgress = double.IsNaN(downloadProgress) ? 0 : downloadProgress;
+                1d, Math.Round(packetBufferLength / State.DownloadCacheLength, 3));
+            State.DownloadProgress = double.IsNaN(downloadProgress) ? 0 : downloadProgress;
 
             // IsBuffering and BufferingProgress
-            if (Media.HasMediaEnded == false && CanReadMorePackets && (Media.IsOpening || Media.IsOpen))
+            if (State.HasMediaEnded == false && CanReadMorePackets && (State.IsOpening || State.IsOpen))
             {
-                var wasBuffering = Media.IsBuffering;
-                var isNowBuffering = packetBufferLength < Media.BufferCacheLength;
-                Media.IsBuffering = isNowBuffering;
+                var wasBuffering = State.IsBuffering;
+                var isNowBuffering = packetBufferLength < State.BufferCacheLength;
+                State.IsBuffering = isNowBuffering;
 
                 if (wasBuffering == false && isNowBuffering)
                     SendOnBufferingStarted();
@@ -200,7 +188,7 @@
             }
             else
             {
-                Media.IsBuffering = false;
+                State.IsBuffering = false;
             }
         }
 
@@ -210,7 +198,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void GuessBufferingProperties()
         {
-            if (Media.GuessedByteRate != null || Container == null || Container.Components == null)
+            if (State.GuessedByteRate != null || Container == null || Container.Components == null)
                 return;
 
             // Capture the read bytes of a 1-second buffer
@@ -237,9 +225,9 @@
 
             if (shortestDuration.TotalSeconds >= 1 && shortestDuration != TimeSpan.MaxValue)
             {
-                Media.GuessedByteRate = (ulong)(1.5 * bytesReadSoFar / shortestDuration.TotalSeconds);
-                Media.BufferCacheLength = Convert.ToInt32(Media.GuessedByteRate);
-                Media.DownloadCacheLength = Media.BufferCacheLength * (Media.IsLiveStream ? 30 : 4);
+                State.GuessedByteRate = (ulong)(1.5 * bytesReadSoFar / shortestDuration.TotalSeconds);
+                State.BufferCacheLength = Convert.ToInt32(State.GuessedByteRate);
+                State.DownloadCacheLength = State.BufferCacheLength * (State.IsLiveStream ? 30 : 4);
             }
         }
 
@@ -249,8 +237,8 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void UpdatePosiionProperty()
         {
-            if (Media.IsSeeking) return;
-            Controller.Position = Media.IsOpen ? Clock?.Position ?? TimeSpan.Zero : TimeSpan.Zero;
+            if (State.IsSeeking) return;
+            State.Position = State.IsOpen ? Clock?.Position ?? TimeSpan.Zero : TimeSpan.Zero;
         }
 
         #endregion

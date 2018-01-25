@@ -67,6 +67,8 @@
     <Compile Include="Events\RenderingSubtitlesEventArgs.cs" />
     <Compile Include="Events\RenderingVideoEventArgs.cs" />
     <Compile Include="MediaElement.PropertyManager.cs" />
+    <Compile Include="Platform\IGuiTimer.cs" />
+    <Compile Include="Platform\TypeManager.cs" />
     <Compile Include="Platform\GuiContextType.cs" />
     <Compile Include="Subtitles.cs" />
     <Compile Include="Platform\WindowsMediaConnector.cs" />

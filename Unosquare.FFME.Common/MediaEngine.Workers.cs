@@ -44,7 +44,7 @@
         private AtomicBoolean m_HasDecoderSeeked = new AtomicBoolean(false);
 
         /// <summary>
-        /// Holds the blocks
+        /// Holds the materialized block cache for each media type.
         /// </summary>
         public MediaTypeDictionary<MediaBlockBuffer> Blocks { get; } = new MediaTypeDictionary<MediaBlockBuffer>();
 
@@ -116,9 +116,9 @@
                     return false;
 
                 // If it's a live stream always continue reading regardless
-                if (Media.IsLiveStream) return true;
+                if (State.IsLiveStream) return true;
 
-                return Container.Components.PacketBufferLength < Media.DownloadCacheLength;
+                return Container.Components.PacketBufferLength < State.DownloadCacheLength;
             }
         }
 
@@ -253,9 +253,9 @@
 
                     // Singal a Seek starting operation
                     hasPendingSeeks = Commands.PendingCountOf(MediaCommandType.Seek) > 0;
-                    if (Media.IsSeeking == false && hasPendingSeeks)
+                    if (State.IsSeeking == false && hasPendingSeeks)
                     {
-                        Media.IsSeeking = true;
+                        State.IsSeeking = true;
                         SendOnSeekingStarted();
                     }
 
@@ -268,10 +268,10 @@
 
                     // Signal a Seek ending operation
                     hasPendingSeeks = Commands.PendingCountOf(MediaCommandType.Seek) > 0;
-                    if (Media.IsSeeking == true && hasPendingSeeks == false)
+                    if (State.IsSeeking == true && hasPendingSeeks == false)
                     {
                         SnapVideoPosition(Clock.Position);
-                        Media.IsSeeking = false;
+                        State.IsSeeking = false;
 
                         // Call the seek method on all renderers
                         foreach (var kvp in Renderers)
@@ -377,7 +377,7 @@
 
                     foreach (var t in auxs)
                     {
-                        if (Media.IsSeeking) continue;
+                        if (State.IsSeeking) continue;
 
                         // Capture the current block buffer and component
                         // for easier readability
@@ -430,28 +430,28 @@
 
                     // Detect end of block rendering
                     if (isBuffering == false
-                        && Media.IsSeeking == false
+                        && State.IsSeeking == false
                         && CanReadMoreFramesOf(main) == false
                         && Blocks[main].IndexOf(wallClock) == Blocks[main].Count - 1)
                     {
-                        if (Media.HasMediaEnded == false)
+                        if (State.HasMediaEnded == false)
                         {
                             // Rendered all and nothing else to read
                             Clock.Pause();
-                            if (Media.NaturalDuration != null && Media.NaturalDuration != TimeSpan.MinValue)
-                                Clock.Position = Media.NaturalDuration.Value;
+                            if (State.NaturalDuration != null && State.NaturalDuration != TimeSpan.MinValue)
+                                Clock.Position = State.NaturalDuration.Value;
                             else
                                 Clock.Position = Blocks[main].RangeEndTime;
 
                             wallClock = Clock.Position;
-                            Media.HasMediaEnded = true;
-                            Media.MediaState = MediaEngineState.Pause;
+                            State.HasMediaEnded = true;
+                            State.MediaState = PlaybackStatus.Pause;
                             SendOnMediaEnded();
                         }
                     }
                     else
                     {
-                        Media.HasMediaEnded = false;
+                        State.HasMediaEnded = false;
                     }
 
                     #endregion
@@ -595,7 +595,7 @@
                 && Blocks[MediaType.Video].IsInRange(position))
             {
                 var block = Blocks[MediaType.Video][position];
-                if (block != null && block.Duration.Ticks > 0 && Media.VideoFrameRate != 0d)
+                if (block != null && block.Duration.Ticks > 0 && State.VideoFrameRate != 0d)
                     Clock.Position = block.SnapTime;
             }
         }
@@ -627,8 +627,8 @@
             {
                 if (block is VideoBlock videoBlock)
                 {
-                    Media.VideoSmtpeTimecode = videoBlock.SmtpeTimecode;
-                    Media.VideoHardwareDecoder = (Container?.Components?.Video?.IsUsingHardwareDecoding ?? false) ?
+                    State.VideoSmtpeTimecode = videoBlock.SmtpeTimecode;
+                    State.VideoHardwareDecoder = (Container?.Components?.Video?.IsUsingHardwareDecoding ?? false) ?
                         Container?.Components?.Video?.HardwareAccelerator?.Name ?? string.Empty : string.Empty;
                 }
             }

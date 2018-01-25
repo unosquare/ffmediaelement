@@ -35,7 +35,7 @@
         {
             var m = Manager.MediaCore;
 
-            if (m.IsDisposed || m.Media.IsOpen || m.Media.IsOpening) return;
+            if (m.IsDisposed || m.State.IsOpen || m.State.IsOpening) return;
 
             try
             {
@@ -43,9 +43,9 @@
                 // until the interrupt timeout occurs but and the Real-Time Clock continues. Strange behavior.
 
                 // Signal the initial state
-                m.ResetControllerProperties();
-                m.Media.IsOpening = true;
-                m.Media.MediaState = MediaEngineState.Manual;
+                m.State.ResetControllerProperties();
+                m.State.IsOpening = true;
+                m.State.MediaState = PlaybackStatus.Manual;
 
                 // Register FFmpeg libraries if not already done
                 if (FFInterop.Initialize(MediaEngine.FFmpegDirectory, MediaEngine.FFmpegLoadModeFlags))
@@ -71,11 +71,11 @@
                 m.ResetBufferingProperties();
 
                 // Set the state to stopped
-                m.Media.MediaState = MediaEngineState.Stop;
+                m.State.MediaState = PlaybackStatus.Stop;
 
                 // Signal we are no longer in the opening state
                 // so we can enqueue commands in the event handler
-                m.Media.IsOpening = false;
+                m.State.IsOpening = false;
 
                 // Charge! Fire up the worker threads!
                 m.StartWorkers();
@@ -85,12 +85,12 @@
             }
             catch (Exception ex)
             {
-                m.Media.MediaState = MediaEngineState.Close;
+                m.State.MediaState = PlaybackStatus.Close;
                 m.SendOnMediaFailed(ex);
             }
             finally
             {
-                m.Media.IsOpening = false;
+                m.State.IsOpening = false;
                 m.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Completed");
             }
         }

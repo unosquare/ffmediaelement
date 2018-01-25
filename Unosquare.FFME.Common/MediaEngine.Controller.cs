@@ -58,12 +58,12 @@
         /// <exception cref="InvalidOperationException">Source</exception>
         public async Task Open(Uri uri)
         {
-            Controller.Source = uri;
+            State.Source = uri;
 
             // TODO: Calling this multiple times while an operation is in progress breaks the control :(
             // for now let's throw an exception but ideally we want the user NOT to be able to change the value in the first place.
-            if (Media.IsOpening)
-                throw new InvalidOperationException($"Unable to change {nameof(Controller.Source)} to '{uri}' because {nameof(Media.IsOpening)} is currently set to true.");
+            if (State.IsOpening)
+                throw new InvalidOperationException($"Unable to change {nameof(State.Source)} to '{uri}' because {nameof(State.IsOpening)} is currently set to true.");
 
             if (uri != null)
             {
@@ -73,7 +73,7 @@
                         await Commands.OpenAsync(uri)
                             .ContinueWith(async p =>
                             {
-                                if (Controller.LoadedBehavior == MediaEngineState.Play || Media.CanPause == false)
+                                if (State.LoadedBehavior == PlaybackStatus.Play || State.CanPause == false)
                                     await Commands.PlayAsync();
                             });
                     });

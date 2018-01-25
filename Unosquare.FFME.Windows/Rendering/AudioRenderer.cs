@@ -101,7 +101,7 @@
             {
                 // The delay is the clock position minus the current position
                 lock (SyncLock)
-                    return TimeSpan.FromTicks(MediaCore.RealTimeClockPosition.Ticks - Position.Ticks);
+                    return TimeSpan.FromTicks(MediaCore.State.WallClock.Ticks - Position.Ticks);
             }
         }
 
@@ -267,7 +267,7 @@
                 try
                 {
                     WaitForReadyEvent.Set();
-                    var speedRatio = MediaCore?.Controller.SpeedRatio ?? 0;
+                    var speedRatio = MediaCore?.State.SpeedRatio ?? 0;
 
                     // Render silence if we don't need to output samples
                     if (MediaElement.IsPlaying == false || speedRatio <= 0d || MediaElement.HasAudio == false || AudioBuffer.ReadableCount <= 0)
@@ -494,7 +494,7 @@
             }
 
             // Perform minor adjustments until the delay is less than 10ms in either direction
-            if (MediaCore.Media.HasVideo &&
+            if (MediaCore.State.HasVideo &&
                 speedRatio == 1.0 &&
                 isBeyondThreshold == false &&
                 Math.Abs(audioLatencyMs) > SyncThresholdPerfect)
@@ -683,7 +683,7 @@
         private void ApplyVolumeAndBalance(byte[] targetBuffer, int targetBufferOffset, int requestedBytes)
         {
             // Check if we are muted. We don't need process volume and balance
-            var isMuted = MediaCore?.Controller.IsMuted ?? true;
+            var isMuted = MediaCore?.State.IsMuted ?? true;
             if (isMuted)
             {
                 for (var sourceBufferOffset = 0; sourceBufferOffset < requestedBytes; sourceBufferOffset++)
@@ -693,8 +693,8 @@
             }
 
             // Capture and adjust volume and balance
-            var volume = MediaCore?.Controller.Volume ?? Constants.Controller.DefaultVolume;
-            var balance = MediaCore?.Controller.Balance ?? Constants.Controller.DefaultBalance;
+            var volume = MediaCore?.State.Volume ?? Constants.Controller.DefaultVolume;
+            var balance = MediaCore?.State.Balance ?? Constants.Controller.DefaultBalance;
 
             volume = volume.Clamp(Constants.Controller.MinVolume, Constants.Controller.MaxVolume);
             balance = balance.Clamp(Constants.Controller.MinBalance, Constants.Controller.MaxBalance);

@@ -36,7 +36,7 @@
         internal override void ExecuteInternal()
         {
             var m = Manager.MediaCore;
-            WasPlaying = m.Media.IsPlaying;
+            WasPlaying = m.State.IsPlaying;
 
             m.Clock.Pause();
             var initialPosition = m.Clock.Position;
@@ -83,7 +83,7 @@
 
                 // Populate frame queues with after-seek operation
                 var frames = m.Container.Seek(adjustedSeekTarget);
-                m.Media.HasMediaEnded = false;
+                m.State.HasMediaEnded = false;
 
                 // Clear all the blocks. We don't need them
                 foreach (var kvp in m.Blocks)
