@@ -116,9 +116,9 @@
                     return false;
 
                 // If it's a live stream always continue reading regardless
-                if (IsLiveStream) return true;
+                if (Status.IsLiveStream) return true;
 
-                return Container.Components.PacketBufferLength < DownloadCacheLength;
+                return Container.Components.PacketBufferLength < Status.DownloadCacheLength;
             }
         }
 
@@ -203,13 +203,8 @@
                     }
                 }
             }
-            catch (ThreadAbortException)
-            {
-            }
-            catch
-            {
-                throw;
-            }
+            catch (ThreadAbortException) { /* swallow */ }
+            catch { if (!IsDisposing && !IsDisposed) throw; }
             finally
             {
                 // Always exit notifying the reading cycle is done.
@@ -258,9 +253,9 @@
 
                     // Singal a Seek starting operation
                     hasPendingSeeks = Commands.PendingCountOf(MediaCommandType.Seek) > 0;
-                    if (IsSeeking == false && hasPendingSeeks)
+                    if (Status.IsSeeking == false && hasPendingSeeks)
                     {
-                        IsSeeking = true;
+                        Status.IsSeeking = true;
                         SendOnSeekingStarted();
                     }
 
@@ -273,10 +268,10 @@
 
                     // Signal a Seek ending operation
                     hasPendingSeeks = Commands.PendingCountOf(MediaCommandType.Seek) > 0;
-                    if (IsSeeking == true && hasPendingSeeks == false)
+                    if (Status.IsSeeking == true && hasPendingSeeks == false)
                     {
                         SnapVideoPosition(Clock.Position);
-                        IsSeeking = false;
+                        Status.IsSeeking = false;
 
                         // Call the seek method on all renderers
                         foreach (var kvp in Renderers)
@@ -382,7 +377,7 @@
 
                     foreach (var t in auxs)
                     {
-                        if (IsSeeking) continue;
+                        if (Status.IsSeeking) continue;
 
                         // Capture the current block buffer and component
                         // for easier readability
@@ -435,28 +430,28 @@
 
                     // Detect end of block rendering
                     if (isBuffering == false
-                        && IsSeeking == false
+                        && Status.IsSeeking == false
                         && CanReadMoreFramesOf(main) == false
                         && Blocks[main].IndexOf(wallClock) == Blocks[main].Count - 1)
                     {
-                        if (HasMediaEnded == false)
+                        if (Status.HasMediaEnded == false)
                         {
                             // Rendered all and nothing else to read
                             Clock.Pause();
-                            if (NaturalDuration != null && NaturalDuration != TimeSpan.MinValue)
-                                Clock.Position = NaturalDuration.Value;
+                            if (Status.NaturalDuration != null && Status.NaturalDuration != TimeSpan.MinValue)
+                                Clock.Position = Status.NaturalDuration.Value;
                             else
                                 Clock.Position = Blocks[main].RangeEndTime;
 
                             wallClock = Clock.Position;
-                            HasMediaEnded = true;
-                            MediaState = MediaEngineState.Pause;
+                            Status.HasMediaEnded = true;
+                            Status.MediaState = MediaEngineState.Pause;
                             SendOnMediaEnded();
                         }
                     }
                     else
                     {
-                        HasMediaEnded = false;
+                        Status.HasMediaEnded = false;
                     }
 
                     #endregion
@@ -495,13 +490,8 @@
                     #endregion
                 }
             }
-            catch (ThreadAbortException)
-            {
-            }
-            catch
-            {
-                throw;
-            }
+            catch (ThreadAbortException) { /* swallow */ }
+            catch { if (!IsDisposing && !IsDisposed) throw; }
             finally
             {
                 // Always exit notifying the cycle is done.
@@ -605,7 +595,7 @@
                 && Blocks[MediaType.Video].IsInRange(position))
             {
                 var block = Blocks[MediaType.Video][position];
-                if (block != null && block.Duration.Ticks > 0 && VideoFrameRate != 0d)
+                if (block != null && block.Duration.Ticks > 0 && Status.VideoFrameRate != 0d)
                     Clock.Position = block.SnapTime;
             }
         }
@@ -637,8 +627,8 @@
             {
                 if (block is VideoBlock videoBlock)
                 {
-                    VideoSmtpeTimecode = videoBlock.SmtpeTimecode;
-                    VideoHardwareDecoder = (Container?.Components?.Video?.IsUsingHardwareDecoding ?? false) ?
+                    Status.VideoSmtpeTimecode = videoBlock.SmtpeTimecode;
+                    Status.VideoHardwareDecoder = (Container?.Components?.Video?.IsUsingHardwareDecoding ?? false) ?
                         Container?.Components?.Video?.HardwareAccelerator?.Name ?? string.Empty : string.Empty;
                 }
             }

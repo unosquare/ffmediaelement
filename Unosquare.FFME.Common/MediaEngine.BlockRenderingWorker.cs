@@ -59,7 +59,7 @@
             {
                 #region Detect a Timer Stop
 
-                if (IsTaskCancellationPending || HasBlockRenderingWorkerExited.IsSet() || m_IsDisposing.Value)
+                if (IsTaskCancellationPending || HasBlockRenderingWorkerExited.IsSet() || IsDisposing)
                 {
                     HasBlockRenderingWorkerExited.Set();
                     return;
@@ -67,36 +67,11 @@
 
                 #endregion
 
-                #region Run the property Updates
-
-                if (IsRunningPropertyUpdates == false)
-                {
-                    IsRunningPropertyUpdates = true;
-
-                    try
-                    {
-                        if (IsSeeking == false)
-                        {
-                            Position = IsOpen ? Clock?.Position ?? TimeSpan.Zero : TimeSpan.Zero;
-                            EnqueuePropertyChange(nameof(Position));
-                        }
-
-                        UpdateBufferingProperties();
-                        NotifyEnqueuedPropertyChanges();
-                    }
-                    catch (Exception ex)
-                    {
-                        Log(MediaLogMessageType.Error, $"{nameof(BlockRenderingWorker)} callabck failed. {ex.GetType()}: {ex.Message}");
-                    }
-                    finally
-                    {
-                        IsRunningPropertyUpdates = false;
-                    }
-                }
-
-                #endregion
-
                 #region Run the Rendering Cycle
+
+                // Updatete Status  Properties
+                UpdateBufferingProperties();
+                UpdatePosiionProperty();
 
                 // Don't run the cycle if it's already running
                 if (isRunningRenderingCycle)
@@ -167,8 +142,8 @@
                     #endregion
 
                 }
-                catch (ThreadAbortException) { }
-                catch { throw; }
+                catch (ThreadAbortException) { /* swallow */ }
+                catch { if (!IsDisposing && !IsDisposed) throw; }
                 finally
                 {
                     // Always exit notifying the cycle is done.

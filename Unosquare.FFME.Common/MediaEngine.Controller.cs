@@ -62,8 +62,8 @@
 
             // TODO: Calling this multiple times while an operation is in progress breaks the control :(
             // for now let's throw an exception but ideally we want the user NOT to be able to change the value in the first place.
-            if (IsOpening)
-                throw new InvalidOperationException($"Unable to change {nameof(Source)} to '{uri}' because {nameof(IsOpening)} is currently set to true.");
+            if (Status.IsOpening)
+                throw new InvalidOperationException($"Unable to change {nameof(Source)} to '{uri}' because {nameof(Status.IsOpening)} is currently set to true.");
 
             if (uri != null)
             {
@@ -73,7 +73,7 @@
                         await Commands.OpenAsync(uri)
                             .ContinueWith(async p =>
                             {
-                                if (LoadedBehavior == MediaEngineState.Play || CanPause == false)
+                                if (LoadedBehavior == MediaEngineState.Play || Status.CanPause == false)
                                     await Commands.PlayAsync();
                             });
                     });

@@ -12,6 +12,7 @@
     using System.Windows;
     using System.Windows.Media;
     using System.Windows.Media.Imaging;
+    using System.Windows.Threading;
 
     /// <summary>
     /// Provides Video Image Rendering via a WPF Writable Bitmap
@@ -196,8 +197,7 @@
                 MediaElement.RaiseRenderingVideoEvent(block, bitmapData, clockPosition);
 
             // Send to the rendering to the UI
-            WindowsPlatform.Instance.Gui?.EnqueueInvoke(
-                (Action<VideoBlock, BitmapDataBuffer, TimeSpan>)RenderTarget, block, bitmapData, clockPosition);
+            WindowsPlatform.Instance.Gui?.InvokeAsync(DispatcherPriority.Render, () => { RenderTarget(block, bitmapData, clockPosition); });
         }
 
         /// <summary>

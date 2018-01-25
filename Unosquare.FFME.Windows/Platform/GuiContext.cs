@@ -1,13 +1,11 @@
 ﻿namespace Unosquare.FFME.Platform
 {
-    using Shared;
     using System;
-    using System.Collections.Concurrent;
     using System.ComponentModel;
     using System.Threading;
+    using System.Threading.Tasks;
     using System.Windows;
     using System.Windows.Forms;
-    using System.Windows.Media;
     using System.Windows.Threading;
 
     /// <summary>
@@ -16,9 +14,7 @@
     internal class GuiContext
     {
         private SynchronizationContext Context = null;
-        private System.Windows.Forms.Timer WinFormsTimer = null;
-        private DispatcherTimer WpfTimer = null;
-        private ConcurrentQueue<GuiAction> ActionQueue = new ConcurrentQueue<GuiAction>();
+        private Dispatcher GuiDispatcher = null;
 
         /// <summary>
         /// Initializes static members of the <see cref="GuiContext"/> class.
@@ -35,32 +31,13 @@
         {
             Context = SynchronizationContext.Current;
             ContextType = GuiContextType.None;
-
             if (Context is DispatcherSynchronizationContext) ContextType = GuiContextType.WPF;
             else if (Context is WindowsFormsSynchronizationContext) ContextType = GuiContextType.WinForms;
 
             IsValid = Context != null && ContextType != GuiContextType.None;
 
-            if (ContextType == GuiContextType.WinForms)
-            {
-                WinFormsTimer = new System.Windows.Forms.Timer
-                {
-                    Interval = (int)Constants.Interval.HighPriority.TotalMilliseconds,
-                };
-
-                WinFormsTimer.Tick += (s, e) => { ProcessActionQueue(); };
-                WinFormsTimer.Start();
-            }
-            else if (ContextType == GuiContextType.WPF)
-            {
-                WpfTimer = new DispatcherTimer(DispatcherPriority.DataBind)
-                {
-                    Interval = Constants.Interval.HighPriority
-                };
-
-                WpfTimer.Tick += (s, e) => { ProcessActionQueue(); };
-                WpfTimer.Start();
-            }
+            if (ContextType == GuiContextType.WPF)
+                GuiDispatcher = System.Windows.Application.Current.Dispatcher;
 
             // Design-time detection
             try
@@ -72,8 +49,6 @@
             {
                 IsInDesignTime = false;
             }
-
-            // RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.SoftwareOnly;
         }
 
         /// <summary>
@@ -96,83 +71,66 @@
         /// </summary>
         public GuiContextType ContextType { get; }
 
-        /// <summary>
-        /// Enqueues a UI call
-        /// </summary>
-        /// <param name="callback">The callback.</param>
-        /// <param name="arguments">The arguments.</param>
-        /// <returns>The delegate arguments</returns>
-        public WaitHandle EnqueueInvoke(Delegate callback, params object[] arguments)
+        public async Task InvokeAsync(DispatcherPriority priority, Delegate callback, params object[] arguments)
         {
-            var action = new GuiAction(callback, arguments);
-            ActionQueue.Enqueue(action);
-            return action.IsDone.WaitHandle;
+            if (Context != null && Context == SynchronizationContext.Current)
+            {
+                callback.DynamicInvoke(arguments);
+                return;
+            }
+
+            switch (ContextType)
+            {
+                case GuiContextType.None:
+                    {
+                        await Task.Run(() => { callback.DynamicInvoke(arguments); });
+                        return;
+                    }
+
+                case GuiContextType.WPF:
+                    {
+                        await GuiDispatcher.InvokeAsync(() => { callback.DynamicInvoke(arguments); }, priority);
+                        return;
+                    }
+
+                case GuiContextType.WinForms:
+                    {
+                        // TODO: Testing required
+                        var doneEvent = new ManualResetEventSlim(false);
+                        Context.Post((args) =>
+                        {
+                            try
+                            {
+                                callback.DynamicInvoke(args);
+                            }
+                            catch { throw; }
+                            finally { doneEvent.Set(); }
+                        }, arguments);
+
+                        await Task.Run(() =>
+                        {
+                            doneEvent.Wait();
+                            doneEvent.Dispose();
+                        });
+
+                        return;
+                    }
+            }
         }
 
-        public WaitHandle EnqueueInvoke(Action callback)
+        public async Task InvokeAsync(DispatcherPriority priority, Action callback)
         {
-            return EnqueueInvoke(callback, null);
+            await InvokeAsync(priority, callback, null);
+        }
+
+        public async Task InvokeAsync(Action callback)
+        {
+            await InvokeAsync(DispatcherPriority.DataBind, callback, null);
         }
 
         public void Invoke(Action callback)
         {
-            EnqueueInvoke(callback).WaitOne(1000);
-        }
-
-        private void ProcessActionQueue()
-        {
-            while (ActionQueue.TryDequeue(out var current))
-            {
-                try { current.Execute(); }
-                catch { throw; }
-                finally { current.Dispose(); }
-            }
-        }
-
-        private sealed class GuiAction : IDisposable
-        {
-            private bool IsDisposed = false; // To detect redundant calls
-
-            public GuiAction(Delegate action, params object[] p)
-            {
-                Action = action;
-                Params = p;
-                IsDone = new ManualResetEventSlim(false);
-            }
-
-            public Delegate Action { get; }
-
-            public object[] Params { get; }
-
-            public ManualResetEventSlim IsDone { get; }
-
-            public void Execute()
-            {
-                Action.DynamicInvoke(Params);
-            }
-
-            #region IDisposable Support
-
-            public void Dispose()
-            {
-                Dispose(true);
-            }
-
-            private void Dispose(bool alsoManaged)
-            {
-                if (!IsDisposed)
-                {
-                    if (alsoManaged)
-                    {
-                        IsDone.Set();
-                        IsDone.Dispose();
-                    }
-
-                    IsDisposed = true;
-                }
-            }
-
-            #endregion
+            InvokeAsync(DispatcherPriority.Normal, callback).GetAwaiter().GetResult();
         }
     }
 }

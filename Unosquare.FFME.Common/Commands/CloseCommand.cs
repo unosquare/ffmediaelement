@@ -27,7 +27,7 @@
         {
             var m = Manager.MediaCore;
 
-            if (m.IsDisposed || m.IsOpen == false || m.IsOpening) return;
+            if (m.IsDisposed || m.Status.IsOpen == false || m.Status.IsOpening) return;
 
             m.Log(MediaLogMessageType.Debug, $"{nameof(CloseCommand)}: Entered");
             m.StopWorkers();
@@ -45,13 +45,12 @@
 
             // Clear the render times
             m.LastRenderTime.Clear();
-            m.MediaState = MediaEngineState.Close;
+            m.Status.MediaState = MediaEngineState.Close;
             m.SendOnMediaClosed();
 
             // Update notification properties
             m.ResetControllerProperties();
             m.ResetBufferingProperties();
-            m.EnqueueAllPropertiesChanged();
 
             if (MediaEngine.Platform.IsInDebugMode)
             {

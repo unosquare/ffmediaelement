@@ -75,6 +75,7 @@
             {
                 AllowContentChange = true;
                 InitializeComponent();
+                StartPropertyUpdatesWorker();
             }
             finally
             {

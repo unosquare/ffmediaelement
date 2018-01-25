@@ -8,6 +8,7 @@
     using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Windows;
+    using System.Windows.Threading;
 
     /// <summary>
     /// Provides Audio Output capabilities by writing samples to the default audio output device.
@@ -63,7 +64,7 @@
 
             if (Application.Current != null)
             {
-                WindowsPlatform.Instance.Gui?.EnqueueInvoke(() =>
+                WindowsPlatform.Instance.Gui?.InvokeAsync(DispatcherPriority.Render, () =>
                 {
                     Application.Current.Exit += OnApplicationExit;
                 });
@@ -334,6 +335,12 @@
         {
             try { Dispose(); }
             catch { }
+            finally
+            {
+                // Self-disconnect
+                if (Application.Current != null)
+                    Application.Current.Exit -= OnApplicationExit;
+            }
         }
 
         /// <summary>
@@ -376,21 +383,6 @@
         {
             lock (SyncLock)
             {
-                try
-                {
-                    if (Application.Current != null)
-                    {
-                        WindowsPlatform.Instance.Gui?.Invoke(() =>
-                        {
-                            Application.Current.Exit -= OnApplicationExit;
-                        });
-                    }
-                }
-                catch
-                {
-                    // ignored
-                }
-
                 if (AudioDevice != null)
                 {
                     AudioDevice.Pause();
@@ -502,7 +494,7 @@
             }
 
             // Perform minor adjustments until the delay is less than 10ms in either direction
-            if (MediaCore.HasVideo &&
+            if (MediaCore.Status.HasVideo &&
                 speedRatio == 1.0 &&
                 isBeyondThreshold == false &&
                 Math.Abs(audioLatencyMs) > SyncThresholdPerfect)

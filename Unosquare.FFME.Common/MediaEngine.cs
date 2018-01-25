@@ -49,6 +49,7 @@
             Parent = parent;
             Connector = connector;
             Commands = new MediaCommandManager(this);
+            Status = new MediaStatus(this);
 
             // Don't start up timers or any other stuff if we are in design-time
             if (Platform.IsInDesignTime) return;
@@ -79,12 +80,27 @@
         public IMediaConnector Connector { get; }
 
         /// <summary>
+        /// Contains the Media Status
+        /// </summary>
+        public MediaStatus Status { get; }
+
+        /// <summary>
         /// Gets a value indicating whether this instance is disposed.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if this instance is disposed; otherwise, <c>false</c>.
-        /// </value>
-        public bool IsDisposed => m_IsDisposed;
+        public bool IsDisposed
+        {
+            get => m_IsDisposed;
+            private set => m_IsDisposed = value;
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is disposing.
+        /// </summary>
+        public bool IsDisposing
+        {
+            get => m_IsDisposing.Value;
+            private set => m_IsDisposing.Value = value;
+        }
 
         #endregion
 
@@ -118,32 +134,32 @@
             const int MinimumValidBitrate = 512 * 1024; // 524kbps
             const int StartingCacheLength = 512 * 1024; // Half a megabyte
 
-            GuessedByteRate = default(ulong?);
+            Status.GuessedByteRate = default(ulong?);
 
             if (Container == null)
             {
-                IsBuffering = false;
-                BufferCacheLength = 0;
-                DownloadCacheLength = 0;
-                BufferingProgress = 0;
-                DownloadProgress = 0;
+                Status.IsBuffering = false;
+                Status.BufferCacheLength = 0;
+                Status.DownloadCacheLength = 0;
+                Status.BufferingProgress = 0;
+                Status.DownloadProgress = 0;
                 return;
             }
 
             if (Container.MediaBitrate > MinimumValidBitrate)
             {
-                BufferCacheLength = (int)Container.MediaBitrate / 8;
-                GuessedByteRate = (ulong)BufferCacheLength;
+                Status.BufferCacheLength = (int)Container.MediaBitrate / 8;
+                Status.GuessedByteRate = (ulong)Status.BufferCacheLength;
             }
             else
             {
-                BufferCacheLength = StartingCacheLength;
+                Status.BufferCacheLength = StartingCacheLength;
             }
 
-            DownloadCacheLength = BufferCacheLength * (IsLiveStream ? 30 : 4);
-            IsBuffering = false;
-            BufferingProgress = 0;
-            DownloadProgress = 0;
+            Status.DownloadCacheLength = Status.BufferCacheLength * (Status.IsLiveStream ? 30 : 4);
+            Status.IsBuffering = false;
+            Status.BufferingProgress = 0;
+            Status.DownloadProgress = 0;
         }
 
         /// <summary>
@@ -156,20 +172,20 @@
 
             // Update the buffering progress
             var bufferingProgress = Math.Min(
-                1d, Math.Round(packetBufferLength / BufferCacheLength, 3));
-            BufferingProgress = double.IsNaN(bufferingProgress) ? 0 : bufferingProgress;
+                1d, Math.Round(packetBufferLength / Status.BufferCacheLength, 3));
+            Status.BufferingProgress = double.IsNaN(bufferingProgress) ? 0 : bufferingProgress;
 
             // Update the download progress
             var downloadProgress = Math.Min(
-                1d, Math.Round(packetBufferLength / DownloadCacheLength, 3));
-            DownloadProgress = double.IsNaN(downloadProgress) ? 0 : downloadProgress;
+                1d, Math.Round(packetBufferLength / Status.DownloadCacheLength, 3));
+            Status.DownloadProgress = double.IsNaN(downloadProgress) ? 0 : downloadProgress;
 
             // IsBuffering and BufferingProgress
-            if (HasMediaEnded == false && CanReadMorePackets && (IsOpening || IsOpen))
+            if (Status.HasMediaEnded == false && CanReadMorePackets && (Status.IsOpening || Status.IsOpen))
             {
-                var wasBuffering = IsBuffering;
-                var isNowBuffering = packetBufferLength < BufferCacheLength;
-                IsBuffering = isNowBuffering;
+                var wasBuffering = Status.IsBuffering;
+                var isNowBuffering = packetBufferLength < Status.BufferCacheLength;
+                Status.IsBuffering = isNowBuffering;
 
                 if (wasBuffering == false && isNowBuffering)
                     SendOnBufferingStarted();
@@ -178,7 +194,7 @@
             }
             else
             {
-                IsBuffering = false;
+                Status.IsBuffering = false;
             }
         }
 
@@ -188,7 +204,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void GuessBufferingProperties()
         {
-            if (GuessedByteRate != null || Container == null || Container.Components == null)
+            if (Status.GuessedByteRate != null || Container == null || Container.Components == null)
                 return;
 
             // Capture the read bytes of a 1-second buffer
@@ -215,10 +231,20 @@
 
             if (shortestDuration.TotalSeconds >= 1 && shortestDuration != TimeSpan.MaxValue)
             {
-                GuessedByteRate = (ulong)(1.5 * bytesReadSoFar / shortestDuration.TotalSeconds);
-                BufferCacheLength = Convert.ToInt32(GuessedByteRate);
-                DownloadCacheLength = BufferCacheLength * (IsLiveStream ? 30 : 4);
+                Status.GuessedByteRate = (ulong)(1.5 * bytesReadSoFar / shortestDuration.TotalSeconds);
+                Status.BufferCacheLength = Convert.ToInt32(Status.GuessedByteRate);
+                Status.DownloadCacheLength = Status.BufferCacheLength * (Status.IsLiveStream ? 30 : 4);
             }
+        }
+
+        /// <summary>
+        /// Updates the posiion property if not seeking.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void UpdatePosiionProperty()
+        {
+            if (Status.IsSeeking) return;
+            Position = Status.IsOpen ? Clock?.Position ?? TimeSpan.Zero : TimeSpan.Zero;
         }
 
         #endregion
@@ -232,12 +258,11 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private async void Dispose(bool alsoManaged)
         {
-            if (m_IsDisposed) return;
+            if (IsDisposed) return;
 
+            IsDisposing = true;
             if (alsoManaged)
             {
-                m_IsDisposing.Value = true;
-
                 // free managed resources -- This is done asynchronously
                 await Commands.CloseAsync().ContinueWith(d =>
                 {
@@ -257,7 +282,7 @@
                 });
             }
 
-            m_IsDisposed = true;
+            IsDisposed = true;
         }
 
         #endregion

@@ -75,7 +75,7 @@
                     return false;
                 }
 
-                if (IsOpening.Value || IsOpening.Value || MediaCore.IsOpening)
+                if (IsOpening.Value || IsOpening.Value || MediaCore.Status.IsOpening)
                 {
                     MediaCore?.Log(
                         MediaLogMessageType.Warning,
@@ -357,7 +357,7 @@
         /// <param name="command">The command.</param>
         private void EnqueueCommand(MediaCommand command)
         {
-            if (MediaCore.IsOpen == false)
+            if (MediaCore.Status.IsOpen == false)
             {
                 command.Complete();
                 return;

@@ -160,7 +160,7 @@ namespace Unosquare.FFME
         {
             var element = d as MediaElement;
             if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return Constants.Controller.DefaultSpeedRatio;
-            if (element.MediaCore.IsSeekable == false) return Constants.Controller.DefaultSpeedRatio;
+            if (element.MediaCore.Status.IsSeekable == false) return Constants.Controller.DefaultSpeedRatio;
 
             return ((double)value).Clamp(Constants.Controller.MinSpeedRatio, Constants.Controller.MaxSpeedRatio);
         }
@@ -200,17 +200,17 @@ namespace Unosquare.FFME
         {
             var element = d as MediaElement;
             if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return TimeSpan.Zero;
-            if (element.MediaCore.IsSeekable == false) return element.MediaCore.Position;
+            if (element.MediaCore.Status.IsSeekable == false) return element.MediaCore.Position;
 
-            var minPosition = element.MediaCore?.MediaInfo?.StartTime ?? TimeSpan.Zero;
-            var maxPosition = minPosition + (element.MediaCore?.MediaInfo?.Duration ?? TimeSpan.Zero);
+            var minPosition = element.MediaCore?.Status.MediaInfo?.StartTime ?? TimeSpan.Zero;
+            var maxPosition = minPosition + (element.MediaCore?.Status.MediaInfo?.Duration ?? TimeSpan.Zero);
             return ((TimeSpan)value).Clamp(minPosition, maxPosition);
         }
 
         private static void OnPositionPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var element = d as MediaElement;
-            if (element == null || element.MediaCore.IsRunningPropertyUpdates || element.IsSeekable == false) return;
+            if (element == null || element.IsRunningPropertyUpdates || element.IsSeekable == false) return;
 
             element.MediaCore?.Seek((TimeSpan)e.NewValue);
         }

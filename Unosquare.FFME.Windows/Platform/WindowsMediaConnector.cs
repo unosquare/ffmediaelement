@@ -20,6 +20,8 @@
             Control = control;
         }
 
+        #region Event Signal Handling
+
         /// <summary>
         /// Called when [buffering ended].
         /// </summary>
@@ -107,6 +109,26 @@
         }
 
         /// <summary>
+        /// Called when [seeking ended].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        public void OnSeekingEnded(MediaEngine sender)
+        {
+            Control?.RaiseSeekingEndedEvent();
+        }
+
+        /// <summary>
+        /// Called when [seeking started].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        public void OnSeekingStarted(MediaEngine sender)
+        {
+            Control?.RaiseSeekingStartedEvent();
+        }
+
+        #endregion
+
+        /// <summary>
         /// Called when an underlying media engine property is changed.
         /// This is used to handle property change notifications
         /// </summary>
@@ -119,7 +141,7 @@
             // to notify everything at once every say, 25ms.
             // Either that or attach to the properties from the mediaelement via WPF binding.
             if (propertyNames.Length == 0) return;
-
+            return;
             WindowsPlatform.Instance.Gui?.Invoke(() =>
             {
                 foreach (var propertyName in propertyNames)
@@ -161,24 +183,6 @@
                     }
                 }
             });
-        }
-
-        /// <summary>
-        /// Called when [seeking ended].
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        public void OnSeekingEnded(MediaEngine sender)
-        {
-            Control?.RaiseSeekingEndedEvent();
-        }
-
-        /// <summary>
-        /// Called when [seeking started].
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        public void OnSeekingStarted(MediaEngine sender)
-        {
-            Control?.RaiseSeekingStartedEvent();
         }
     }
 }

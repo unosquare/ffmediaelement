@@ -24,8 +24,8 @@
         internal override void ExecuteInternal()
         {
             var m = Manager.MediaCore;
-            if (m.IsOpen == false) return;
-            if (m.CanPause == false) return;
+            if (m.Status.IsOpen == false) return;
+            if (m.Status.CanPause == false) return;
 
             m.Clock.Pause();
 
@@ -34,8 +34,8 @@
 
             m.SnapVideoPosition(m.Clock.Position);
 
-            if (m.MediaState != MediaEngineState.Stop)
-                m.MediaState = MediaEngineState.Pause;
+            if (m.Status.MediaState != MediaEngineState.Stop)
+                m.Status.MediaState = MediaEngineState.Pause;
         }
     }
 }

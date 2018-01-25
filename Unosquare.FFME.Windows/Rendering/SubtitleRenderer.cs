@@ -3,6 +3,7 @@
     using Platform;
     using Shared;
     using System;
+    using System.Windows.Threading;
 
     /// <summary>
     /// Subtitle Renderer - Does nothing at this point.
@@ -160,15 +161,14 @@
                 return;
 
             // We fire-and-forget the update of the text
-            WindowsPlatform.Instance.Gui?.EnqueueInvoke(
-                new Action<string>((s) =>
+            WindowsPlatform.Instance.Gui?.InvokeAsync(DispatcherPriority.Render, () =>
+            {
+                lock (SyncLock)
                 {
-                    lock (SyncLock)
-                    {
-                        MediaElement.SubtitlesView.Text = s;
-                        RenderedText = s;
-                    }
-                }), text);
+                    MediaElement.SubtitlesView.Text = text;
+                    RenderedText = text;
+                }
+            });
         }
     }
 }
