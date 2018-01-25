@@ -925,6 +925,18 @@ references:
   commentId: Overload:Unosquare.FFME.MediaElement.IsPlaying
   fullName: Unosquare.FFME.MediaElement.IsPlaying
   nameWithType: MediaElement.IsPlaying
+- uid: Unosquare.FFME.MediaElement.IsRunningPropertyUpdates
+  name: IsRunningPropertyUpdates
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsRunningPropertyUpdates
+  commentId: P:Unosquare.FFME.MediaElement.IsRunningPropertyUpdates
+  fullName: Unosquare.FFME.MediaElement.IsRunningPropertyUpdates
+  nameWithType: MediaElement.IsRunningPropertyUpdates
+- uid: Unosquare.FFME.MediaElement.IsRunningPropertyUpdates*
+  name: IsRunningPropertyUpdates
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsRunningPropertyUpdates_
+  commentId: Overload:Unosquare.FFME.MediaElement.IsRunningPropertyUpdates
+  fullName: Unosquare.FFME.MediaElement.IsRunningPropertyUpdates
+  nameWithType: MediaElement.IsRunningPropertyUpdates
 - uid: Unosquare.FFME.MediaElement.IsSeekable
   name: IsSeekable
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsSeekable
