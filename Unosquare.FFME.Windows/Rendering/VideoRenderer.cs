@@ -253,7 +253,7 @@
             GuiContext.Current.Invoke(() =>
             {
                 // Skip the locking if scrubbing is not enabled
-                if (MediaElement.ScrubbingEnabled == false && MediaElement.IsPlaying == false)
+                if (MediaElement.ScrubbingEnabled == false && (MediaElement.IsPlaying == false || MediaElement.IsSeeking))
                     return;
 
                 // Figure out what we need to do

@@ -372,7 +372,6 @@
             mouseMoveTimer.Start();
 
             #endregion
-
         }
 
         /// <summary>

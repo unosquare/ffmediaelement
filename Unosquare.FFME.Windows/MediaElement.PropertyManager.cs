@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME
 {
-    using Primitives;
     using Shared;
     using System;
     using System.Collections.Generic;
@@ -9,56 +8,76 @@
 
     public partial class MediaElement
     {
-        private readonly Dictionary<string, object> MediaStatusCache = new Dictionary<string, object>();
-
         /// <summary>
-        /// When position is being set from within this control, this field will
-        /// be set to true. This is useful to detect if the user is setting the position
-        /// or if the Position property is being driven from within
+        /// Holds the state of the notification properties
         /// </summary>
-        private AtomicBoolean m_IsRunningPropertyUdates = new AtomicBoolean(false);
+        private readonly Dictionary<string, object> NotificationPropertyCache
+            = new Dictionary<string, object>(PropertyMapper.PropertyMaxCount);
+
+        private ManualResetEvent PropertyUpdatesDone = new ManualResetEvent(true);
 
         /// <summary>
         /// The property updates worker timer
         /// </summary>
-        private Timer PropertyUpdatesWorker = null;
+        private GuiTimer PropertyUpdatesWorker = null;
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance is running property updates.
         /// </summary>
-        /// <value>
-        ///   <c>true</c> if this instance is running property updates; otherwise, <c>false</c>.
-        /// </value>
-        public bool IsRunningPropertyUpdates
+        internal bool IsRunningPropertyUpdates
         {
-            get { return m_IsRunningPropertyUdates.Value; }
-            set { m_IsRunningPropertyUdates.Value = value; }
+            get
+            {
+                return (PropertyUpdatesDone?.IsSet() ?? true) == false;
+            }
+            set
+            {
+                if (value)
+                    PropertyUpdatesDone?.Reset();
+                else
+                    PropertyUpdatesDone?.Set();
+            }
         }
 
         private void StartPropertyUpdatesWorker()
         {
-            // TODO: Maybe make the timer a DispatcherTimer otherwise a Windows Timer if available?
-            MediaCore.State.TakeSnapshotInto(MediaStatusCache);
-
-            PropertyUpdatesWorker = new Timer((s) =>
+            PropertyUpdatesWorker = new GuiTimer(() =>
             {
                 if (IsRunningPropertyUpdates) return;
 
                 IsRunningPropertyUpdates = true;
-                MediaCore.State.ContrastInto(MediaStatusCache);
+                var notificationProperties = this.DetectNotificationPropertyChanges(NotificationPropertyCache);
+                var dependencyProperties = this.DetectDependencyPropertyChanges();
 
                 try
                 {
-                    GuiContext.Current.Invoke(() =>
+                    // Handling of Notification Properties
+                    if (notificationProperties.Length > 0)
                     {
-                        // Notify Media Properties
-                        foreach (var p in MediaStatusCache)
+                        foreach (var p in notificationProperties)
                         {
-                            RaisePropertyChangedEvent(p.Key);
-                            if (p.Key.Equals(nameof(Position)))
-                                RaisePositionChangedEvent(MediaCore.State.Position);
+                            RaisePropertyChangedEvent(p);
                         }
-                    });
+                    }
+
+                    var isSeeking = IsSeeking;
+                    if (dependencyProperties.Count > 0)
+                    {
+                        // Write the media engine state property state to the dependency properties
+                        foreach (var kvp in dependencyProperties)
+                        {
+                            if (kvp.Key == PositionProperty && isSeeking)
+                                continue;
+
+                            SetValue(kvp.Key, kvp.Value);
+                        }
+
+                        // Raise PositionChanged event
+                        if (dependencyProperties.ContainsKey(PositionProperty) && isSeeking == false)
+                        {
+                            RaisePositionChangedEvent((TimeSpan)dependencyProperties[PositionProperty]);
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -66,13 +85,9 @@
                 }
                 finally
                 {
-                    MediaCore.State.TakeSnapshotInto(MediaStatusCache);
                     IsRunningPropertyUpdates = false;
                 }
-            },
-            null,
-            0,
-            (int)Constants.Interval.MediumPriority.TotalMilliseconds);
+            });
         }
     }
 }

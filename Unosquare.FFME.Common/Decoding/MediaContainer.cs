@@ -598,6 +598,10 @@
 
                 // If read_play is set, it is only relevant to network streams
                 IsNetworkStream = InputContext->iformat->read_play.Pointer != IntPtr.Zero;
+                if (IsNetworkStream == false && Uri.TryCreate(MediaUrl, UriKind.RelativeOrAbsolute, out var uri))
+                {
+                    IsNetworkStream = uri.IsFile == false || uri.IsUnc;
+                }
 
                 // Unsure how this works. Ported from ffplay
                 StateRequiresReadDelay = MediaFormatName.Equals("rstp") || MediaUrl.StartsWith("mmsh:");

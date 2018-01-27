@@ -101,7 +101,7 @@
             {
                 // The delay is the clock position minus the current position
                 lock (SyncLock)
-                    return TimeSpan.FromTicks(MediaCore.State.WallClock.Ticks - Position.Ticks);
+                    return TimeSpan.FromTicks(MediaCore.WallClock.Ticks - Position.Ticks);
             }
         }
 

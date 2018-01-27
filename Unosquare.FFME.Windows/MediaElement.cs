@@ -220,6 +220,14 @@
         /// </summary>
         public void Dispose()
         {
+            // TODO: Verify Dispose and nullables
+            PropertyUpdatesWorker.Dispose();
+            if (PropertyUpdatesDone == null)
+            {
+                PropertyUpdatesDone.Dispose();
+                PropertyUpdatesDone = null;
+            }
+
             m_MediaCore.Dispose();
         }
 
@@ -343,6 +351,5 @@
         }
 
         #endregion
-
     }
 }

@@ -33,7 +33,7 @@
             </Storyboard>
         </Grid.Resources>
 
-        <ffme:MediaElement Name="Media" Background="Black" Grid.Row="0" Grid.Column="0" />
+        <ffme:MediaElement Name="Media" Background="Black" LoadedBehavior="Play" Grid.Row="0" Grid.Column="0" />
 
         <Grid Name="Controls" Style="{DynamicResource ControlsGridStyle}" Visibility="Visible">
             <Grid.RowDefinitions>

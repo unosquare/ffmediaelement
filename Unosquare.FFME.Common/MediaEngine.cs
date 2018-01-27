@@ -69,6 +69,19 @@
         public MediaEngineState State { get; }
 
         /// <summary>
+        /// Gets the internal real time clock position.
+        /// This is different from the position property and it is useful
+        /// in computing the latency between position and the wall clock.
+        /// </summary>
+        public TimeSpan WallClock => Clock?.Position ?? TimeSpan.Zero;
+
+        /// <summary>
+        /// Provides stream, chapter and program info of the underlying media.
+        /// Returns null when no media is loaded.
+        /// </summary>
+        public MediaInfo MediaInfo => Container?.MediaInfo;
+
+        /// <summary>
         /// Gets a value indicating whether this instance is disposed.
         /// </summary>
         public bool IsDisposed
@@ -95,6 +108,13 @@
         /// Gets the event connector (platform specific).
         /// </summary>
         internal IMediaConnector Connector { get; }
+
+        /// <summary>
+        /// Gets the guessed buffered bytes in the packet queue per second.
+        /// If bitrate information is available, then it returns the bitrate converted to byte rate.
+        /// Returns null if it has not been guessed.
+        /// </summary>
+        internal ulong? GuessedByteRate { get; set; }
 
         #endregion
 
@@ -128,7 +148,7 @@
             const int MinimumValidBitrate = 512 * 1024; // 524kbps
             const int StartingCacheLength = 512 * 1024; // Half a megabyte
 
-            State.GuessedByteRate = default(ulong?);
+            GuessedByteRate = default(ulong?);
 
             if (Container == null)
             {
@@ -143,7 +163,7 @@
             if (Container.MediaBitrate > MinimumValidBitrate)
             {
                 State.BufferCacheLength = (int)Container.MediaBitrate / 8;
-                State.GuessedByteRate = (ulong)State.BufferCacheLength;
+                GuessedByteRate = (ulong)State.BufferCacheLength;
             }
             else
             {
@@ -198,7 +218,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void GuessBufferingProperties()
         {
-            if (State.GuessedByteRate != null || Container == null || Container.Components == null)
+            if (GuessedByteRate != null || Container == null || Container.Components == null)
                 return;
 
             // Capture the read bytes of a 1-second buffer
@@ -225,8 +245,8 @@
 
             if (shortestDuration.TotalSeconds >= 1 && shortestDuration != TimeSpan.MaxValue)
             {
-                State.GuessedByteRate = (ulong)(1.5 * bytesReadSoFar / shortestDuration.TotalSeconds);
-                State.BufferCacheLength = Convert.ToInt32(State.GuessedByteRate);
+                GuessedByteRate = (ulong)(1.2 * bytesReadSoFar / shortestDuration.TotalSeconds);
+                State.BufferCacheLength = Convert.ToInt32(GuessedByteRate);
                 State.DownloadCacheLength = State.BufferCacheLength * (State.IsLiveStream ? 30 : 4);
             }
         }

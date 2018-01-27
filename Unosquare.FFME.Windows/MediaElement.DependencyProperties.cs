@@ -40,6 +40,7 @@ namespace Unosquare.FFME
         {
             var element = d as MediaElement;
             if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return Constants.Controller.DefaultVolume;
+            if (element.IsRunningPropertyUpdates) return value;
             if (element.HasAudio == false) return Constants.Controller.DefaultVolume;
 
             return ((double)value).Clamp(Constants.Controller.MinVolume, Constants.Controller.MaxVolume);
@@ -47,7 +48,9 @@ namespace Unosquare.FFME
 
         private static void OnVolumePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            (d as MediaElement).MediaCore.State.Volume = (double)e.NewValue;
+            var element = d as MediaElement;
+            if (element.IsRunningPropertyUpdates) return;
+            element.MediaCore.State.Volume = (double)e.NewValue;
         }
 
         #endregion
@@ -80,6 +83,7 @@ namespace Unosquare.FFME
         {
             var element = d as MediaElement;
             if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return Constants.Controller.DefaultBalance;
+            if (element.IsRunningPropertyUpdates) return value;
             if (element.HasAudio == false) return Constants.Controller.DefaultBalance;
 
             return ((double)value).Clamp(Constants.Controller.MinBalance, Constants.Controller.MaxBalance);
@@ -120,6 +124,7 @@ namespace Unosquare.FFME
         {
             var element = d as MediaElement;
             if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return false;
+            if (element.IsRunningPropertyUpdates) return value;
             if (element.HasAudio == false) return false;
 
             return (bool)value;
@@ -200,10 +205,11 @@ namespace Unosquare.FFME
         {
             var element = d as MediaElement;
             if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return TimeSpan.Zero;
+            if (element.IsRunningPropertyUpdates) return value;
             if (element.MediaCore.State.IsSeekable == false) return element.MediaCore.State.Position;
 
-            var minPosition = element.MediaCore?.State.MediaInfo?.StartTime ?? TimeSpan.Zero;
-            var maxPosition = minPosition + (element.MediaCore?.State.MediaInfo?.Duration ?? TimeSpan.Zero);
+            var minPosition = element.MediaCore?.MediaInfo?.StartTime ?? TimeSpan.Zero;
+            var maxPosition = minPosition + (element.MediaCore?.MediaInfo?.Duration ?? TimeSpan.Zero);
             return ((TimeSpan)value).Clamp(minPosition, maxPosition);
         }
 
@@ -331,22 +337,14 @@ namespace Unosquare.FFME
         /// </summary>
         public static readonly DependencyProperty ScrubbingEnabledProperty = DependencyProperty.Register(
             nameof(ScrubbingEnabled), typeof(bool), typeof(MediaElement),
-            new FrameworkPropertyMetadata(true, FrameworkPropertyMetadataOptions.None, OnScrubbingEnabledPropertyChanged));
-
-        private static void OnScrubbingEnabledPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var element = d as MediaElement;
-            if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return;
-
-            element.MediaCore.State.ScrubbingEnabled = (bool)e.NewValue;
-        }
+            new FrameworkPropertyMetadata(true, FrameworkPropertyMetadataOptions.None));
 
         #endregion
 
         #region LoadedBahavior Dependency Property
 
         /// <summary>
-        /// Specifies the behavior that the media element should have when it
+        /// Specifies the action that the media element should execute when it
         /// is loaded. The default behavior is that it is under manual control
         /// (i.e. the caller should call methods such as Play in order to play
         /// the media). If a source is set, then the default behavior changes to
@@ -366,18 +364,7 @@ namespace Unosquare.FFME
         /// </summary>
         public static readonly DependencyProperty LoadedBehaviorProperty = DependencyProperty.Register(
             nameof(LoadedBehavior), typeof(MediaState), typeof(MediaElement),
-            new FrameworkPropertyMetadata(
-                MediaState.Play,
-                FrameworkPropertyMetadataOptions.None,
-                OnLoadedBehaviorPropertyChanged));
-
-        private static void OnLoadedBehaviorPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var element = d as MediaElement;
-            if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return;
-
-            element.MediaCore.State.LoadedBehavior = (PlaybackStatus)e.NewValue;
-        }
+            new FrameworkPropertyMetadata(MediaState.Manual, FrameworkPropertyMetadataOptions.None));
 
         #endregion
 
@@ -385,7 +372,7 @@ namespace Unosquare.FFME
 
         /// <summary>
         /// Specifies how the underlying media should behave when
-        /// it has ended. The default behavior is to Close the media.
+        /// it has ended. The default behavior is to Pause the media.
         /// </summary>
         [Category(nameof(MediaElement))]
         [Description("Specifies how the underlying media should behave when it has ended. The default behavior is to Close the media.")]
@@ -397,19 +384,10 @@ namespace Unosquare.FFME
 
         /// <summary>
         /// The DependencyProperty for the MediaElement.UnloadedBehavior property.
-        /// TODO: Currently this property has no effect. Needs implementation.
         /// </summary>
         public static readonly DependencyProperty UnloadedBehaviorProperty = DependencyProperty.Register(
             nameof(UnloadedBehavior), typeof(MediaState), typeof(MediaElement),
-            new FrameworkPropertyMetadata(MediaState.Close, FrameworkPropertyMetadataOptions.None, OnUnloadedBehaviorPropertyChanged));
-
-        private static void OnUnloadedBehaviorPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var element = d as MediaElement;
-            if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return;
-
-            element.MediaCore.State.UnloadedBehavior = (PlaybackStatus)e.NewValue;
-        }
+            new FrameworkPropertyMetadata(MediaState.Pause, FrameworkPropertyMetadataOptions.None));
 
         #endregion
     }

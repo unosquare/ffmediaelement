@@ -3,7 +3,6 @@
     using Commands;
     using Core;
     using Decoding;
-    using Shared;
     using System;
     using System.Threading.Tasks;
 
@@ -70,12 +69,7 @@
                 await Commands.CloseAsync()
                     .ContinueWith(async (c) =>
                     {
-                        await Commands.OpenAsync(uri)
-                            .ContinueWith(async p =>
-                            {
-                                if (State.LoadedBehavior == PlaybackStatus.Play || State.CanPause == false)
-                                    await Commands.PlayAsync();
-                            });
+                        await Commands.OpenAsync(uri);
                     });
             }
             else

@@ -9,6 +9,24 @@
     public partial class MediaElement
     {
         /// <summary>
+        /// Gets the Media's natural duration
+        /// Only valid after the MediaOpened event has fired.
+        /// </summary>
+        public Duration NaturalDuration
+        {
+            get
+            {
+                return MediaCore?.State.NaturalDuration == null
+                  ? Duration.Automatic
+                  : (MediaCore.State.NaturalDuration.Value == TimeSpan.MinValue
+                    ? Duration.Forever
+                    : (MediaCore.State.NaturalDuration.Value < TimeSpan.Zero
+                    ? default(Duration)
+                    : new Duration(MediaCore.State.NaturalDuration.Value)));
+            }
+        }
+
+        /// <summary>
         /// Provides key-value pairs of the metadata contained in the media.
         /// Returns null when media has not been loaded.
         /// </summary>
@@ -111,24 +129,6 @@
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
         public int AudioBitsPerSample => MediaCore?.State.AudioBitsPerSample ?? 0;
-
-        /// <summary>
-        /// Gets the Media's natural duration
-        /// Only valid after the MediaOpened event has fired.
-        /// </summary>
-        public Duration NaturalDuration
-        {
-            get
-            {
-                return MediaCore?.State.NaturalDuration == null
-                  ? Duration.Automatic
-                  : (MediaCore.State.NaturalDuration.Value == TimeSpan.MinValue
-                    ? Duration.Forever
-                    : (MediaCore.State.NaturalDuration.Value < TimeSpan.Zero
-                    ? default(Duration)
-                    : new Duration(MediaCore.State.NaturalDuration.Value)));
-            }
-        }
 
         /// <summary>
         /// Returns whether the currently loaded media can be paused.

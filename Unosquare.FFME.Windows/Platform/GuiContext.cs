@@ -11,11 +11,8 @@
     /// <summary>
     /// The WPF or WinForms graphical context
     /// </summary>
-    internal class GuiContext
+    internal sealed class GuiContext
     {
-        private SynchronizationContext Context = null;
-        private Dispatcher GuiDispatcher = null;
-
         /// <summary>
         /// Initializes static members of the <see cref="GuiContext"/> class.
         /// </summary>
@@ -55,6 +52,16 @@
         /// Gets the current instance.
         /// </summary>
         public static GuiContext Current { get; }
+
+        /// <summary>
+        /// Gets the synchronization context.
+        /// </summary>
+        public SynchronizationContext Context { get; }
+
+        /// <summary>
+        /// Gets the GUI dispatcher. Only valid for WPF contexts
+        /// </summary>
+        public Dispatcher GuiDispatcher { get; }
 
         /// <summary>
         /// Gets a value indicating whetherthe context is in design time

@@ -14,13 +14,9 @@
         #region Property Backing and Private State
 
         private static PropertyInfo[] Properties = null;
-
         private readonly MediaEngine Parent = null;
-        private readonly Dictionary<string, object> CurrentState = new Dictionary<string, object>(64);
-
         private readonly ReadOnlyDictionary<string, string> EmptyDictionary
             = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
-
         private AtomicBoolean m_IsSeeking = new AtomicBoolean(false);
 
         #endregion
@@ -51,22 +47,6 @@
         public Uri Source { get; internal set; }
 
         /// <summary>
-        /// Specifies the behavior that the media element should have when it
-        /// is loaded. The default behavior is that it is under manual control
-        /// (i.e. the caller should call methods such as Play in order to play
-        /// the media). If a source is set, then the default behavior changes to
-        /// to be playing the media. If a source is set and a loaded behavior is
-        /// also set, then the loaded behavior takes control.
-        /// </summary>
-        public PlaybackStatus LoadedBehavior { get; set; }
-
-        /// <summary>
-        /// Specifies how the underlying media should behave when
-        /// it has ended. The default behavior is to Close the media.
-        /// </summary>
-        public PlaybackStatus UnloadedBehavior { get; set; }
-
-        /// <summary>
         /// Gets or Sets the SpeedRatio property of the media.
         /// </summary>
         public double SpeedRatio { get; set; }
@@ -88,12 +68,6 @@
         public bool IsMuted { get; set; }
 
         /// <summary>
-        /// Gets or sets a value that indicates whether the MediaElement will update frames
-        /// for seek operations while paused. This is a dependency property.
-        /// </summary>
-        public bool ScrubbingEnabled { get; set; }
-
-        /// <summary>
         /// Gets or Sets the Position property on the MediaElement.
         /// </summary>
         public TimeSpan Position { get; internal set; }
@@ -101,13 +75,6 @@
         #endregion
 
         #region Media Properties
-
-        /// <summary>
-        /// Gets the internal real time clock position.
-        /// This is different from the regular property as this is the immediate value
-        /// (i.e. might not yet be applied)
-        /// </summary>
-        public TimeSpan WallClock => Parent.Clock.Position;
 
         /// <summary>
         /// Provides key-value pairs of the metadata contained in the media.
@@ -119,12 +86,6 @@
         /// Gets the media format. Returns null when media has not been loaded.
         /// </summary>
         public string MediaFormat => Parent.Container?.MediaFormatName;
-
-        /// <summary>
-        /// Provides stream, chapter and program info of the underlying media.
-        /// Returns null when no media is loaded.
-        /// </summary>
-        public MediaInfo MediaInfo => Parent.Container?.MediaInfo;
 
         /// <summary>
         /// Gets the duration of a single frame step.
@@ -285,13 +246,6 @@
         public string VideoSmtpeTimecode { get; internal set; }
 
         /// <summary>
-        /// Gets the guessed buffered bytes in the packet queue per second.
-        /// If bitrate information is available, then it returns the bitrate converted to byte rate.
-        /// Returns null if it has not been guessed.
-        /// </summary>
-        public ulong? GuessedByteRate { get; internal set; }
-
-        /// <summary>
         /// Gets a value that indicates the percentage of buffering progress made.
         /// Range is from 0 to 1
         /// </summary>
@@ -336,38 +290,11 @@
         #endregion
 
         /// <summary>
-        /// Compiles the state into the target dictionary of property names and property values
-        /// </summary>
-        /// <param name="target">The target.</param>
-        public void TakeSnapshotInto(Dictionary<string, object> target)
-        {
-            foreach (var p in Properties)
-                target[p.Name] = p.GetValue(this);
-        }
-
-        /// <summary>
-        /// Contrasts the specified target with the current state.
-        /// It leaves the target with only the properties that are different from the current state.
-        /// </summary>
-        /// <param name="target">The target.</param>
-        public void ContrastInto(Dictionary<string, object> target)
-        {
-            TakeSnapshotInto(CurrentState);
-            if (CurrentState.Count != target.Count)
-                throw new KeyNotFoundException($"{nameof(target)} must contain a complete set of keys.");
-
-            foreach (var kvp in CurrentState)
-            {
-                if (Equals(target[kvp.Key], kvp.Value))
-                    target.Remove(kvp.Key);
-            }
-        }
-
-        /// <summary>
         /// Resets the controller properies.
         /// </summary>
         internal void ResetControllerProperties()
         {
+            // TODO: Move this comewhere else and review!
             Volume = Constants.Controller.DefaultVolume;
             Balance = Constants.Controller.DefaultBalance;
             SpeedRatio = Constants.Controller.DefaultSpeedRatio;
