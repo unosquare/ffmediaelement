@@ -137,7 +137,7 @@
         /// Handles the MediaInitializing event of the Media control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="Events.MediaOpeningRoutedEventArgs"/> instance containing the event data.</param>
+        /// <param name="e">The <see cref="MediaOpeningRoutedEventArgs"/> instance containing the event data.</param>
         private void Media_MediaInitializing(object sender, MediaInitializingRoutedEventArgs e)
         {
             // An example of injecting input options for http/https streams

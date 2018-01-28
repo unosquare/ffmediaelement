@@ -154,6 +154,11 @@
         public bool IsPlaying => MediaCore?.State.IsPlaying ?? false;
 
         /// <summary>
+        /// Gets a value indicating whether the media is playing.
+        /// </summary>
+        public bool IsPaused => MediaCore?.State.IsPaused ?? false;
+
+        /// <summary>
         /// Gets a value indicating whether the media has reached its end.
         /// </summary>
         public bool HasMediaEnded => MediaCore?.State.HasMediaEnded ?? false;

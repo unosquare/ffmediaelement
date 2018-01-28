@@ -233,6 +233,11 @@
         public bool IsPlaying => MediaState == PlaybackStatus.Play;
 
         /// <summary>
+        /// Gets a value indicating whether the media is paused.
+        /// </summary>
+        public bool IsPaused => MediaState == PlaybackStatus.Pause;
+
+        /// <summary>
         /// Gets a value indicating whether this media element
         /// currently has an open media url.
         /// </summary>
