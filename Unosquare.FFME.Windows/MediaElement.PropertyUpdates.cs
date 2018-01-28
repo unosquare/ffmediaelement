@@ -79,6 +79,8 @@
                         foreach (var kvp in dependencyProperties)
                         {
                             // Do not set the position property if we are seeking
+                            // TODO: When media ends and a seek is performed, the position is not updated.
+                            // Re-check the below logic.
                             if (kvp.Key == PositionProperty
                                 && IsOpen && HasMediaEnded == false
                                 && MediaState != System.Windows.Controls.MediaState.Stop
