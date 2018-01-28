@@ -93,12 +93,10 @@
         /// Initializes a new instance of the <see cref="MediaContainer" /> class.
         /// </summary>
         /// <param name="mediaUrl">The media URL.</param>
+        /// <param name="streamOptions">The stream options.</param>
         /// <param name="parent">The logger.</param>
-        /// <param name="protocolPrefix">
-        /// The protocol prefix. See https://ffmpeg.org/ffmpeg-protocols.html
-        /// Leave null if setting it is not intended.</param>
         /// <exception cref="ArgumentNullException">mediaUrl</exception>
-        public MediaContainer(string mediaUrl, IMediaLogger parent, string protocolPrefix = null)
+        public MediaContainer(string mediaUrl, StreamOptions streamOptions, IMediaLogger parent)
         {
             // Argument Validation
             if (string.IsNullOrWhiteSpace(mediaUrl))
@@ -110,15 +108,17 @@
             // Create the options object
             Parent = parent;
             MediaUrl = mediaUrl;
+            StreamOptions = streamOptions ?? new StreamOptions();
 
             // drop the protocol prefix if it is redundant
+            var protocolPrefix = StreamOptions.ProtocolPrefix;
             if (string.IsNullOrWhiteSpace(MediaUrl) == false && string.IsNullOrWhiteSpace(protocolPrefix) == false
                 && MediaUrl.ToLowerInvariant().Trim().StartsWith(protocolPrefix.ToLowerInvariant() + ":"))
             {
                 protocolPrefix = null;
             }
 
-            ProtocolPrefix = protocolPrefix;
+            StreamOptions.ProtocolPrefix = protocolPrefix;
             StreamInitialize();
         }
 
@@ -138,15 +138,15 @@
         public string MediaUrl { get; }
 
         /// <summary>
-        /// Gets the protocol prefix.
-        /// Typically async for local files and empty for other types.
+        /// The stream initialization options.
+        /// Options are applied when creating the container.
+        /// After initialization, changing the options has no effect.
         /// </summary>
-        public string ProtocolPrefix { get; }
+        public StreamOptions StreamOptions { get; }
 
         /// <summary>
-        /// The media initialization options.
-        /// Options are applied when calling the Initialize method.
-        /// After initialization, changing the options has no effect.
+        /// Represetnts options that applied before initializing media components and their corresponding
+        /// codecs. Once the container has created the media components, changing these options will have no effect.
         /// </summary>
         public MediaOptions MediaOptions { get; } = new MediaOptions();
 
@@ -529,19 +529,20 @@
 
             // Retrieve the input format (null = auto for default)
             AVInputFormat* inputFormat = null;
-            if (string.IsNullOrWhiteSpace(MediaOptions.ForcedInputFormat) == false)
+            if (string.IsNullOrWhiteSpace(StreamOptions.Input.ForcedInputFormat) == false)
             {
-                inputFormat = ffmpeg.av_find_input_format(MediaOptions.ForcedInputFormat);
-                Parent?.Log(MediaLogMessageType.Warning, $"Format '{MediaOptions.ForcedInputFormat}' not found. Will use automatic format detection.");
+                inputFormat = ffmpeg.av_find_input_format(StreamOptions.Input.ForcedInputFormat);
+                Parent?.Log(MediaLogMessageType.Warning, 
+                    $"Format '{StreamOptions.Input.ForcedInputFormat}' not found. Will use automatic format detection.");
             }
 
             try
             {
                 // Create the input format context, and open the input based on the provided format options.
-                using (var inputOptions = new FFDictionary(MediaOptions.InputOptions))
+                using (var inputOptions = new FFDictionary(StreamOptions.Input))
                 {
-                    if (inputOptions.HasKey(MediaInputOptions.Names.ScanAllPmts) == false)
-                        inputOptions.Set(MediaInputOptions.Names.ScanAllPmts, "1", true);
+                    if (inputOptions.HasKey(StreamInputOptions.Names.ScanAllPmts) == false)
+                        inputOptions.Set(StreamInputOptions.Names.ScanAllPmts, "1", true);
 
                     // Create the input context
                     StreamInitializeInputContext();
@@ -556,7 +557,8 @@
                     StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
                     fixed (AVDictionary** inputOptionsRef = &inputOptions.Pointer)
                     {
-                        var prefix = string.IsNullOrWhiteSpace(ProtocolPrefix) ? string.Empty : $"{ProtocolPrefix.Trim()}:";
+                        var prefix = string.IsNullOrWhiteSpace(StreamOptions.ProtocolPrefix) ? 
+                            string.Empty : $"{StreamOptions.ProtocolPrefix.Trim()}:";
                         openResult = ffmpeg.avformat_open_input(&inputContextPtr, $"{prefix}{MediaUrl}", inputFormat, inputOptionsRef);
                         InputContext = inputContextPtr;
                     }
@@ -572,7 +574,7 @@
                     MediaFormatName = FFInterop.PtrToStringUTF8(InputContext->iformat->name);
 
                     // If there are any optins left in the dictionary, it means they did not get used (invalid options).
-                    inputOptions.Remove(MediaInputOptions.Names.ScanAllPmts);
+                    inputOptions.Remove(StreamInputOptions.Names.ScanAllPmts);
 
                     // Output the invalid options as warnings
                     var currentEntry = inputOptions.First();
@@ -668,12 +670,12 @@
             InputContext->interrupt_callback.opaque = InputContext;
 
             // Acquire the format options to be applied
-            var opts = MediaOptions.FormatOptions;
+            var opts = StreamOptions.Format;
 
             // Apply the options
             if (opts.EnableReducedBuffering) InputContext->avio_flags |= ffmpeg.AVIO_FLAG_DIRECT;
             if (opts.PacketSize != default(int)) InputContext->packet_size = (uint)opts.PacketSize;
-            if (opts.ProbeSize != default(int)) InputContext->probesize = MediaOptions.FormatOptions.ProbeSize <= 32 ? 32 : opts.ProbeSize;
+            if (opts.ProbeSize != default(int)) InputContext->probesize = StreamOptions.Format.ProbeSize <= 32 ? 32 : opts.ProbeSize;
 
             // Flags
             InputContext->flags |= opts.FlagDiscardCorrupt ? ffmpeg.AVFMT_FLAG_DISCARD_CORRUPT : InputContext->flags;
@@ -902,7 +904,7 @@
             var startTicks = StreamReadInterruptStartTime.Value;
             var timeDifference = TimeSpan.FromTicks(nowTicks - startTicks);
 
-            if (MediaOptions.ReadTimeout.Ticks >= 0 && timeDifference.Ticks > MediaOptions.ReadTimeout.Ticks)
+            if (StreamOptions.Input.ReadTimeout.Ticks >= 0 && timeDifference.Ticks > StreamOptions.Input.ReadTimeout.Ticks)
             {
                 Parent?.Log(MediaLogMessageType.Error, $"{nameof(OnStreamReadInterrupt)} timed out with  {timeDifference.Format()}");
                 return ErrorResult;

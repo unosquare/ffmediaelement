@@ -135,11 +135,22 @@
         /// Called when [media opening].
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <param name="mediaOptions">The media options.</param>
+        /// <param name="options">The media options.</param>
         /// <param name="mediaInfo">The media information.</param>
-        public void OnMediaOpening(MediaEngine sender, MediaOptions mediaOptions, MediaInfo mediaInfo)
+        public void OnMediaOpening(MediaEngine sender, MediaOptions options, MediaInfo mediaInfo)
         {
-            Parent?.RaiseMediaOpeningEvent(mediaOptions, mediaInfo);
+            Parent?.RaiseMediaOpeningEvent(options, mediaInfo);
+        }
+
+        /// <summary>
+        /// Called when [media initializing].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="url">The URL.</param>
+        public void OnMediaInitializing(MediaEngine sender, StreamOptions options, string url)
+        {
+            Parent?.RaiseMediaInitializingEvent(options, url);
         }
 
         /// <summary>

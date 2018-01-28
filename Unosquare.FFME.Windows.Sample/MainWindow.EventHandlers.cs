@@ -134,30 +134,37 @@
         }
 
         /// <summary>
+        /// Handles the MediaInitializing event of the Media control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="Events.MediaOpeningRoutedEventArgs"/> instance containing the event data.</param>
+        private void Media_MediaInitializing(object sender, MediaInitializingRoutedEventArgs e)
+        {
+            if (e.Url.StartsWith("udp://") || e.Url.StartsWith("rtsp://"))
+            {
+                e.Options.Input["buffer_size"] = "65536000";
+            }
+
+            // An example of injecting format options for http/https streams
+            if (e.Url.StartsWith("http://") || e.Url.StartsWith("https://"))
+            {
+                e.Options.Input["user_agent"] = $"{typeof(StreamOptions).Namespace}/{typeof(StreamOptions).Assembly.GetName().Version}";
+                e.Options.Input["headers"] = $"Referer:https://www.unosquare.com";
+                e.Options.Input["multiple_requests"] = "1";
+                e.Options.Input["reconnect"] = "1";
+                e.Options.Input["reconnect_at_eof"] = "1";
+                e.Options.Input["reconnect_streamed"] = "1";
+                e.Options.Input["reconnect_delay_max"] = "10"; // in seconds
+            }
+        }
+
+        /// <summary>
         /// Handles the MediaOpening event of the Media control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="MediaOpeningRoutedEventArgs"/> instance containing the event data.</param>
         private void Media_MediaOpening(object sender, MediaOpeningRoutedEventArgs e)
         {
-            if (e.Info.InputUrl.StartsWith("udp://") || e.Info.InputUrl.StartsWith("rtsp://"))
-            {
-                e.Options.CodecOptions.Add("buffer_size", "655360", 'v');
-            }
-
-            // An example of injecting format options for http/https streams
-            if (e.Info.InputUrl.StartsWith("http://") || e.Info.InputUrl.StartsWith("https://"))
-            {
-                e.Options.InputOptions["usetoc"] = "1";
-                e.Options.InputOptions["user_agent"] = $"{typeof(MediaOptions).Namespace}/{typeof(MediaOptions).Assembly.GetName().Version}";
-                e.Options.InputOptions["headers"] = $"Referer:https://www.unosquare.com";
-                e.Options.InputOptions["multiple_requests"] = "1";
-                e.Options.InputOptions["reconnect"] = "1";
-                e.Options.InputOptions["reconnect_at_eof"] = "1";
-                e.Options.InputOptions["reconnect_streamed"] = "1";
-                e.Options.InputOptions["reconnect_delay_max"] = "10"; // in seconds
-            }
-
             // An example of switching to a different stream
             if (e.Info.InputUrl.EndsWith("matroska.mkv"))
             {

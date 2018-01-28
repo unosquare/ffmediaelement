@@ -43,7 +43,12 @@
             // placeholder
         }
 
-        public void OnMediaOpening(MediaEngine sender, MediaOptions mediaOptions, MediaInfo mediaInfo)
+        public void OnMediaOpening(MediaEngine sender, MediaOptions options, MediaInfo mediaInfo)
+        {
+            // placeholder
+        }
+
+        public void OnMediaInitializing(MediaEngine sender, StreamOptions options, string url)
         {
             // placeholder
         }

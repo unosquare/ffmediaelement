@@ -115,6 +115,7 @@
             Media.PositionChanged += Media_PositionChanged;
             Media.MediaOpened += Media_MediaOpened;
             Media.MediaOpening += Media_MediaOpening;
+            Media.MediaInitializing += Media_MediaInitializing;
             Media.MediaFailed += Media_MediaFailed;
             Media.MessageLogged += Media_MessageLogged;
             Media.PropertyChanged += Media_PropertyChanged;

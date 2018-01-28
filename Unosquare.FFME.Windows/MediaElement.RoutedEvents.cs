@@ -87,6 +87,16 @@
         /// <summary>
         /// MediaOpeningEvent is a routed event.
         /// </summary>
+        public static readonly RoutedEvent MediaInitializingEvent =
+            EventManager.RegisterRoutedEvent(
+                            nameof(MediaInitializing),
+                            RoutingStrategy.Bubble,
+                            typeof(EventHandler<MediaInitializingRoutedEventArgs>),
+                            typeof(MediaElement));
+
+        /// <summary>
+        /// MediaOpeningEvent is a routed event.
+        /// </summary>
         public static readonly RoutedEvent MediaOpeningEvent =
             EventManager.RegisterRoutedEvent(
                             nameof(MediaOpening),
@@ -183,12 +193,22 @@
 
         /// <summary>
         /// Raised before the input stream of the media is opened.
-        /// Use this method to modify the input options.
+        /// Use this method to modify the media options.
         /// </summary>
         public event EventHandler<MediaOpeningRoutedEventArgs> MediaOpening
         {
             add { AddHandler(MediaOpeningEvent, value); }
             remove { RemoveHandler(MediaOpeningEvent, value); }
+        }
+
+        /// <summary>
+        /// Raised before the input stream of the media is initialized.
+        /// Use this method to modify the input options.
+        /// </summary>
+        public event EventHandler<MediaInitializingRoutedEventArgs> MediaInitializing
+        {
+            add { AddHandler(MediaInitializingEvent, value); }
+            remove { RemoveHandler(MediaInitializingEvent, value); }
         }
 
         /// <summary>
@@ -302,21 +322,42 @@
         /// <summary>
         /// Raises the media opening event.
         /// </summary>
-        /// <param name="mediaOptions">The media options.</param>
+        /// <param name="options">The options.</param>
         /// <param name="mediaInfo">The media information.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseMediaOpeningEvent(MediaOptions mediaOptions, MediaInfo mediaInfo)
+        internal void RaiseMediaOpeningEvent(MediaOptions options, MediaInfo mediaInfo)
         {
             LogEventStart(MediaOpeningEvent);
-            GuiContext.Current.EnqueueInvoke(() =>
+            GuiContext.Current.Invoke(() =>
             {
                 RaiseEvent(new MediaOpeningRoutedEventArgs(
                     MediaOpeningEvent,
                     this,
-                    mediaOptions,
+                    options,
                     mediaInfo));
 
                 LogEventDone(MediaOpeningEvent);
+            });
+        }
+
+        /// <summary>
+        /// Raises the media opening event.
+        /// </summary>
+        /// <param name="options">The options.</param>
+        /// <param name="url">The URL.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void RaiseMediaInitializingEvent(StreamOptions options, string url)
+        {
+            LogEventStart(MediaInitializingEvent);
+            GuiContext.Current.Invoke(() =>
+            {
+                RaiseEvent(new MediaInitializingRoutedEventArgs(
+                    MediaInitializingEvent,
+                    this,
+                    options,
+                    url));
+
+                LogEventDone(MediaInitializingEvent);
             });
         }
 

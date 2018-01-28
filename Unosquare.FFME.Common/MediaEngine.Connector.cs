@@ -46,6 +46,17 @@
         }
 
         /// <summary>
+        /// Raises the media initializing event.
+        /// </summary>
+        /// <param name="options">The options.</param>
+        /// <param name="url">The URL.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void SendOnMediaInitializing(StreamOptions options, string url)
+        {
+            Connector?.OnMediaInitializing(this, options, url);
+        }
+
+        /// <summary>
         /// Raises the media opening event.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

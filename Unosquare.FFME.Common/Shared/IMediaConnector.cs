@@ -8,6 +8,14 @@
     public interface IMediaConnector
     {
         /// <summary>
+        /// Called when [media initializing].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="streamOptions">The stream options.</param>
+        /// <param name="mediaUrl">The media URL.</param>
+        void OnMediaInitializing(MediaEngine sender, StreamOptions streamOptions, string mediaUrl);
+
+        /// <summary>
         /// Called when [media opening].
         /// </summary>
         /// <param name="sender">The sender.</param>
