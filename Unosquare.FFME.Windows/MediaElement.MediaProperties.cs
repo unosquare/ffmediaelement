@@ -144,6 +144,12 @@
         public bool IsLiveStream => MediaCore?.State.IsLiveStream ?? false;
 
         /// <summary>
+        /// Returns whether the currently loaded media is a network stream.
+        /// This is only valid after the MediaOpened event has fired.
+        /// </summary>
+        public bool IsNetowrkStream => MediaCore?.State.IsNetowrkStream ?? false;
+
+        /// <summary>
         /// Gets a value indicating whether the currently loaded media can be seeked.
         /// </summary>
         public bool IsSeekable => MediaCore?.State.IsSeekable ?? false;

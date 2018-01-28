@@ -14,6 +14,9 @@
     {
         #region Property Backing and Private State
 
+        private const int NetworkStreamCacheFactor = 30;
+        private const int StandardStreamCacheFactor = 4;
+
         private static PropertyInfo[] Properties = null;
         private readonly MediaEngine Parent = null;
         private readonly ReadOnlyDictionary<string, string> EmptyDictionary
@@ -217,10 +220,16 @@
         public bool CanPause => IsOpen ? !IsLiveStream : false;
 
         /// <summary>
-        /// Returns whether the currently loaded media is live or realtime and does not have a set duration
+        /// Returns whether the currently loaded media is live or real-time and does not have a set duration
         /// This is only valid after the MediaOpened event has fired.
         /// </summary>
         public bool IsLiveStream => IsOpen ? Parent.Container.IsLiveStream : false;
+
+        /// <summary>
+        /// Returns whether the currently loaded media is a network stream.
+        /// This is only valid after the MediaOpened event has fired.
+        /// </summary>
+        public bool IsNetowrkStream => IsOpen ? Parent.Container.IsNetworkStream : false;
 
         /// <summary>
         /// Gets a value indicating whether the currently loaded media can be seeked.
@@ -373,7 +382,7 @@
                 BufferCacheLength = StartingCacheLength;
             }
 
-            DownloadCacheLength = BufferCacheLength * (IsLiveStream ? 30 : 4);
+            DownloadCacheLength = BufferCacheLength * (IsNetowrkStream ? NetworkStreamCacheFactor : StandardStreamCacheFactor);
             IsBuffering = false;
             BufferingProgress = 0;
             DownloadProgress = 0;
@@ -450,7 +459,7 @@
             {
                 GuessedByteRate = (ulong)(1.2 * bytesReadSoFar / shortestDuration.TotalSeconds);
                 BufferCacheLength = Convert.ToInt32(GuessedByteRate);
-                DownloadCacheLength = BufferCacheLength * (IsLiveStream ? 30 : 4);
+                DownloadCacheLength = BufferCacheLength * (IsNetowrkStream ? NetworkStreamCacheFactor : StandardStreamCacheFactor);
             }
         }
     }

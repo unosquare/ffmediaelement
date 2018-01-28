@@ -45,13 +45,13 @@
         /// <summary>
         /// Starts the property updates worker.
         /// </summary>
-        /// <exception cref="KeyNotFoundException">MediaElement</exception>
+        /// <exception cref="KeyNotFoundException">MediaElement does not have minimum set of MediaProperties</exception>
         private void StartPropertyUpdatesWorker()
         {
             if (PropertyMapper.MissingPropertyMappings.Count > 0)
             {
                 throw new KeyNotFoundException($"{nameof(MediaElement)} is missing properties exposed by {nameof(MediaEngineState)}. " +
-                    $"Missing properties are: {string.Join(", ", PropertyMapper.MissingPropertyMappings)}");
+                    $"Missing properties are: {string.Join(", ", PropertyMapper.MissingPropertyMappings)}. Please add these properties to the {nameof(MediaElement)} class.");
             }
 
             PropertyUpdatesWorker = new GuiTimer(() =>
