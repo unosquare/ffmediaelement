@@ -103,9 +103,7 @@
                         Stopwatch?.Stop();
                     }
 
-                    // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
                     Stopwatch = null;
-
                     IsDisposed = true;
                 }
             }

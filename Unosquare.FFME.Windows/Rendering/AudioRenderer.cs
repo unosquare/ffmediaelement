@@ -592,7 +592,7 @@
                 {
                     for (var i = sourceOffset; i < sourceOffset + (currentGroupSizeW * SampleBlockSize); i += BytesPerSample)
                     {
-                        sample = (short)(ReadBuffer[i] | (ReadBuffer[i + 1] << 8));
+                        sample = ReadBuffer.GetAudioSample(i);
                         if (isLeftSample)
                         {
                             leftSamples += sample;
@@ -615,15 +615,13 @@
                     // If I set samples to average to 1 here, it does not change the pitch but
                     // audio gaps are noticeable
                     samplesToAverage = 1; //  currentGroupSizeW * SampleBlockSize / BytesPerSample / 2;
-                    leftSamples = (short)(ReadBuffer[sourceOffset] | (ReadBuffer[sourceOffset + 1] << 8));
-                    rightSamples = (short)(ReadBuffer[sourceOffset + 2] | (ReadBuffer[sourceOffset + 3] << 8));
+                    leftSamples = ReadBuffer.GetAudioSample(sourceOffset);
+                    rightSamples = ReadBuffer.GetAudioSample(sourceOffset + Constants.Audio.BytesPerSample);
                 }
 
                 // Write the samples
-                ReadBuffer[targetOffset + 0] = (byte)((short)leftSamples & 0xff);
-                ReadBuffer[targetOffset + 1] = (byte)((short)leftSamples >> 8);
-                ReadBuffer[targetOffset + 2] = (byte)((short)rightSamples & 0xff);
-                ReadBuffer[targetOffset + 3] = (byte)((short)rightSamples >> 8);
+                ReadBuffer.PutAudioSample(targetOffset, Convert.ToInt16(leftSamples));
+                ReadBuffer.PutAudioSample(targetOffset + Constants.Audio.BytesPerSample, Convert.ToInt16(rightSamples));
 
                 // advance the base source offset
                 currentGroupSizeW = (int)(groupSize + currentGroupSizeF);
@@ -709,11 +707,9 @@
 
             for (var sourceBufferOffset = 0; sourceBufferOffset < requestedBytes; sourceBufferOffset += BytesPerSample)
             {
-                // TODO: Make architecture-agnostic sound processing
-                // The sample has 2 bytes: at the base index is the LSB and at the baseIndex + 1 is the MSB
-                // this obviously only holds true for Little Endian architectures, and thus, the current code might not be portable.
-                // This replaces BitConverter.ToInt16(ReadBuffer, baseIndex); which is obviously much slower.
-                currentSample = (short)(ReadBuffer[sourceBufferOffset] | (ReadBuffer[sourceBufferOffset + 1] << 8));
+                // The sample has 2 bytes: at the base index is the LSB and at the baseIndex + 1 is the MSB.
+                // This holds true for little endian architecture
+                currentSample = ReadBuffer.GetAudioSample(sourceBufferOffset);
 
                 if (isMuted)
                 {
@@ -727,8 +723,7 @@
                         currentSample = (short)(currentSample * rightVolume);
                 }
 
-                targetBuffer[targetBufferOffset + sourceBufferOffset] = (byte)(currentSample & 0x00ff); // set the LSB
-                targetBuffer[targetBufferOffset + sourceBufferOffset + 1] = (byte)(currentSample >> 8); // set the MSB
+                targetBuffer.PutAudioSample(targetBufferOffset + sourceBufferOffset, currentSample);
                 isLeftSample = !isLeftSample;
             }
         }

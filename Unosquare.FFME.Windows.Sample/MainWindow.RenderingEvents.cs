@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
+    using Shared;
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -157,7 +158,7 @@
 
                 for (var i = 0; i < e.BufferLength; i += e.BitsPerSample / 8)
                 {
-                    samplePercent = 100d * Math.Abs((double)((short)(buffer[i] | (buffer[i + 1] << 8)))) / short.MaxValue;
+                    samplePercent = 100d * buffer.GetAudioSampleLevel(i);
 
                     if (isLeftSample)
                         leftSamples[sampleIndex] = samplePercent;

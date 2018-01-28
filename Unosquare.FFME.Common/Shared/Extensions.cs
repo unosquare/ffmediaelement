@@ -12,6 +12,71 @@
     /// </summary>
     public static class Extensions
     {
+        #region Audio Processing Extensions
+
+        /// <summary>
+        /// Puts a short value in the target buffer as bytes
+        /// </summary>
+        /// <param name="buffer">The target.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="value">The value.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void PutAudioSample(this byte[] buffer, int offset, short value)
+        {
+            if (BitConverter.IsLittleEndian)
+            {
+                buffer[offset] = (byte)(value & 0x00ff); // set the LSB
+                buffer[offset + 1] = (byte)(value >> 8); // set the MSB
+                return;
+            }
+
+            buffer[offset] = (byte)(value >> 8); // set the MSB
+            buffer[offset + 1] = (byte)(value & 0x00ff); // set the LSB
+        }
+
+        /// <summary>
+        /// Gets the a signed 16 bit integer at the guven offset.
+        /// </summary>
+        /// <param name="buffer">The buffer.</param>
+        /// <param name="offset">The offset.</param>
+        /// <returns>The signed integer.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static short GetAudioSample(this byte[] buffer, int offset)
+        {
+            // return (short)(buffer[offset] | (buffer[offset + 1] << 8));
+            return BitConverter.ToInt16(buffer, offset);
+        }
+
+        /// <summary>
+        /// Gets the audio sample amplitude (absolute value of the sample).
+        /// </summary>
+        /// <param name="buffer">The buffer.</param>
+        /// <param name="offset">The offset.</param>
+        /// <returns>The sample amplitude</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static short GetAudioSampleAmplitude(this byte[] buffer, int offset)
+        {
+            var value = buffer.GetAudioSample(offset);
+            if (value == short.MinValue)
+                return short.MaxValue;
+
+            return Math.Abs(value);
+        }
+
+        /// <summary>
+        /// Gets the audio sample level for 0 to 1.
+        /// </summary>
+        /// <param name="buffer">The buffer.</param>
+        /// <param name="offset">The offset.</param>
+        /// <returns>The amplitude level</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double GetAudioSampleLevel(this byte[] buffer, int offset)
+        {
+            return buffer.GetAudioSampleAmplitude(offset) / (double)short.MaxValue;
+        }
+
+        #endregion
+
         #region Output Debugging
 
         /// <summary>
@@ -23,9 +88,9 @@
         public static string Format(this TimeSpan ts)
         {
             if (ts == TimeSpan.MinValue)
-                return $"{"N/A", 10}";
+                return $"{"N/A",10}";
             else
-                return $"{ts.TotalSeconds, 10:0.000}";
+                return $"{ts.TotalSeconds,10:0.000}";
         }
 
         /// <summary>
@@ -37,7 +102,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string FormatElapsed(this DateTime dt)
         {
-            return $"{DateTime.UtcNow.Subtract(dt).TotalMilliseconds, 6:0}";
+            return $"{DateTime.UtcNow.Subtract(dt).TotalMilliseconds,6:0}";
         }
 
         /// <summary>
@@ -50,7 +115,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string Format(this long ts, double divideBy = 1)
         {
-            return divideBy == 1 ? $"{ts, 10:#,##0}" : $"{ts / divideBy, 10:#,##0.000}";
+            return divideBy == 1 ? $"{ts,10:#,##0}" : $"{ts / divideBy,10:#,##0.000}";
         }
 
         #endregion

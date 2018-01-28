@@ -72,7 +72,7 @@
                 // Don't run the cycle if it's already running
                 if (isRunningRenderingCycle)
                 {
-                    // TODO: Log a frame skip
+                    // TODO: Maybe Log a frame skip here?
                     return;
                 }
 

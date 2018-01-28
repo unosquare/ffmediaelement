@@ -21,7 +21,7 @@
         /// <summary>
         /// Gets or sets a value indicating whether [enable low resource].
         /// In theroy this should be 0,1,2,3 for 1, 1/2, 1,4 and 1/8 resolutions.
-        /// TODO: We are for now just supporting 1/2 rest (true value)
+        /// TODO: We are for now just supporting 1/2 resolution (true value)
         /// Port of lowres.
         /// </summary>
         public bool EnableLowRes { get; set; } = false;

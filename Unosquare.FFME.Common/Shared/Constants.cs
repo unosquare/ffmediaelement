@@ -91,6 +91,11 @@
             public const int BitsPerSample = 16;
 
             /// <summary>
+            /// The audio bytes per sample
+            /// </summary>
+            public const int BytesPerSample = BitsPerSample / 8;
+
+            /// <summary>
             /// The audio sample format
             /// </summary>
             public const AVSampleFormat SampleFormat = AVSampleFormat.AV_SAMPLE_FMT_S16;
