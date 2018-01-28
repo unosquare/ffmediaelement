@@ -931,6 +931,18 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.IsMutedProperty
   fullName: Unosquare.FFME.MediaElement.IsMutedProperty
   nameWithType: MediaElement.IsMutedProperty
+- uid: Unosquare.FFME.MediaElement.IsNetowrkStream
+  name: IsNetowrkStream
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsNetowrkStream
+  commentId: P:Unosquare.FFME.MediaElement.IsNetowrkStream
+  fullName: Unosquare.FFME.MediaElement.IsNetowrkStream
+  nameWithType: MediaElement.IsNetowrkStream
+- uid: Unosquare.FFME.MediaElement.IsNetowrkStream*
+  name: IsNetowrkStream
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsNetowrkStream_
+  commentId: Overload:Unosquare.FFME.MediaElement.IsNetowrkStream
+  fullName: Unosquare.FFME.MediaElement.IsNetowrkStream
+  nameWithType: MediaElement.IsNetowrkStream
 - uid: Unosquare.FFME.MediaElement.IsOpen
   name: IsOpen
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsOpen
