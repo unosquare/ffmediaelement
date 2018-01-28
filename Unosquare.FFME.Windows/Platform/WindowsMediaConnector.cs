@@ -57,9 +57,9 @@
         {
             if (Parent == null) return;
 
-            Parent.RaiseMediaEndedEvent();
             GuiContext.Current.Invoke(async () =>
             {
+                Parent.RaiseMediaEndedEvent();
                 switch (Parent.UnloadedBehavior)
                 {
                     case System.Windows.Controls.MediaState.Close:
@@ -106,9 +106,9 @@
         {
             if (Parent == null) return;
 
-            Parent.RaiseMediaOpenedEvent();
             GuiContext.Current.Invoke(async () =>
             {
+                Parent.RaiseMediaOpenedEvent();
                 if (sender.State.CanPause == false)
                 {
                     await sender.Play();

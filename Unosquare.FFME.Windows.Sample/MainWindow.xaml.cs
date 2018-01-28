@@ -168,7 +168,7 @@
         /// </summary>
         private void InitializeInputEvents()
         {
-            #region Allow Keyboard Control
+            #region Keyboard Controls
 
             var togglePlayPauseKeys = new[] { Key.Play, Key.MediaPlayPause, Key.Space };
 
@@ -205,14 +205,16 @@
                 if (e.Key == Key.Left)
                 {
                     if (Media.IsPlaying) await Media.Pause();
-                    Media.Position -= Media.FrameStepDuration;
+                    Media.Position -= TimeSpan.FromMilliseconds(
+                        Media.FrameStepDuration.TotalMilliseconds * (Media.SpeedRatio >= 1 ? Media.SpeedRatio : 1));
                 }
 
                 // Seek to right
                 if (e.Key == Key.Right)
                 {
                     if (Media.IsPlaying) await Media.Pause();
-                    Media.Position += Media.FrameStepDuration;
+                    Media.Position += TimeSpan.FromMilliseconds(
+                        Media.FrameStepDuration.TotalMilliseconds * (Media.SpeedRatio >= 1 ? Media.SpeedRatio : 1));
                 }
 
                 // Volume Up

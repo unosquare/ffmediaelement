@@ -12,7 +12,7 @@
     {
         private readonly Stopwatch Chrono = new Stopwatch();
         private ISyncLocker Locker = SyncLockerFactory.CreateSlim();
-        private double OffsetMilliseconds = 0;
+        private long OffsetTicks = 0;
         private double m_SpeedRatio = Constants.Controller.DefaultSpeedRatio;
         private bool IsDisposed = false;
 
@@ -34,8 +34,8 @@
             {
                 using (Locker.AcquireReaderLock())
                 {
-                    return TimeSpan.FromTicks((long)Math.Round(
-                        (OffsetMilliseconds + (Chrono.ElapsedMilliseconds * SpeedRatio)) * TimeSpan.TicksPerMillisecond, 0));
+                    return TimeSpan.FromTicks(
+                        OffsetTicks + (long)Math.Round(Chrono.Elapsed.Ticks * SpeedRatio, 0));
                 }
             }
             set
@@ -44,7 +44,7 @@
                 {
                     var resume = Chrono.IsRunning;
                     Chrono.Reset();
-                    OffsetMilliseconds = value.TotalMilliseconds;
+                    OffsetTicks = value.Ticks;
                     if (resume) Chrono.Start();
                 }
             }
@@ -122,7 +122,7 @@
         {
             using (Locker.AcquireWriterLock())
             {
-                OffsetMilliseconds = 0;
+                OffsetTicks = 0;
                 Chrono.Reset();
             }
         }

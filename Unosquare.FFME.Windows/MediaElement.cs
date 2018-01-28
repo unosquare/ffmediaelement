@@ -29,9 +29,15 @@
     {
         #region Fields and Property Backing
 
+        /// <summary>
+        /// The affects measure and render metadata options
+        /// </summary>
         internal const FrameworkPropertyMetadataOptions AffectsMeasureAndRender
             = FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender;
 
+        /// <summary>
+        /// The allow content change flag
+        /// </summary>
         private bool AllowContentChange = false;
 
         /// <summary>
@@ -43,6 +49,11 @@
         /// Holds the Media Engine
         /// </summary>
         private MediaEngine m_MediaCore;
+
+        /// <summary>
+        /// TO detect redundant calls
+        /// </summary>
+        private bool IsDisposed = false;
 
         #endregion
 
@@ -225,14 +236,18 @@
         public void Dispose()
         {
             // TODO: Verify Dispose and nullables
+            if (IsDisposed) return;
+            IsDisposed = true;
+            m_MediaCore.Dispose();
+
+            // TODO: Get a reset
+            PropertyUpdatesDone.Set();
             PropertyUpdatesWorker.Dispose();
-            if (PropertyUpdatesDone == null)
+            if (PropertyUpdatesDone != null)
             {
                 PropertyUpdatesDone.Dispose();
                 PropertyUpdatesDone = null;
             }
-
-            m_MediaCore.Dispose();
         }
 
         /// <summary>

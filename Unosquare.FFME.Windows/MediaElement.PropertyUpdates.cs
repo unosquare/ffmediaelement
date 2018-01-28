@@ -14,6 +14,9 @@
         private readonly Dictionary<string, object> NotificationPropertyCache
             = new Dictionary<string, object>(PropertyMapper.PropertyMaxCount);
 
+        /// <summary>
+        /// The property updates done event
+        /// </summary>
         private ManualResetEvent PropertyUpdatesDone = new ManualResetEvent(true);
 
         /// <summary>
@@ -39,6 +42,10 @@
             }
         }
 
+        /// <summary>
+        /// Starts the property updates worker.
+        /// </summary>
+        /// <exception cref="KeyNotFoundException">MediaElement</exception>
         private void StartPropertyUpdatesWorker()
         {
             if (PropertyMapper.MissingPropertyMappings.Count > 0)
@@ -73,7 +80,7 @@
                         {
                             // Do not set the position property if we are seeking
                             if (kvp.Key == PositionProperty
-                                && IsOpen
+                                && IsOpen && HasMediaEnded == false
                                 && MediaState != System.Windows.Controls.MediaState.Stop
                                 && (IsSeeking || IsPlaying == false))
                             {
@@ -84,8 +91,7 @@
                             if (kvp.Key == SourceProperty)
                                 continue;
 
-                            if (Equals(GetValue(kvp.Key), kvp.Value) == false)
-                                SetValue(kvp.Key, kvp.Value);
+                            SetValue(kvp.Key, kvp.Value);
                         }
 
                         // Raise PositionChanged event

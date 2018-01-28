@@ -23,7 +23,7 @@
         void CopyMemory(IntPtr targetAddress, IntPtr sourceAddress, uint copyLength);
 
         /// <summary>
-        /// Fills the memory with the specified value repeated.
+        /// Fills the memory with the specified value.
         /// </summary>
         /// <param name="startAddress">The start address.</param>
         /// <param name="length">The length.</param>

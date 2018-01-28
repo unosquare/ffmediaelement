@@ -69,7 +69,10 @@
 
                         // Call the seek method on all renderers
                         foreach (var kvp in Renderers)
+                        {
+                            LastRenderTime[kvp.Key] = TimeSpan.MinValue;
                             kvp.Value.Seek();
+                        }
 
                         SendOnSeekingEnded();
                     }
@@ -138,6 +141,7 @@
                                 Clock.Position = wallClock;
 
                                 // Call seek to invalidate renderer
+                                LastRenderTime[main] = TimeSpan.MinValue;
                                 Renderers[main].Seek();
 
                                 // Try to recover the regular loop
@@ -180,7 +184,11 @@
                         isInRange = blocks.IsInRange(wallClock);
 
                         // Invalidate the renderer if we don't have the block.
-                        if (isInRange == false) Renderers[t].Seek();
+                        if (isInRange == false)
+                        {
+                            LastRenderTime[t] = TimeSpan.MinValue;
+                            Renderers[t].Seek();
+                        }
 
                         // wait for component to get there if we only have furutre blocks
                         // in auxiliary component.
@@ -238,6 +246,7 @@
                                 Clock.Position = Blocks[main].RangeEndTime;
 
                             wallClock = Clock.Position;
+                            State.Position = wallClock;
                             State.HasMediaEnded = true;
                             State.MediaState = PlaybackStatus.Pause;
                             SendOnMediaEnded();

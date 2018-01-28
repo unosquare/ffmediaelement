@@ -2,6 +2,7 @@
 {
     using System;
     using System.ComponentModel;
+    using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Windows;
@@ -26,6 +27,7 @@
         /// </summary>
         private GuiContext()
         {
+            ContextThread = Thread.CurrentThread;
             Context = SynchronizationContext.Current;
             ContextType = GuiContextType.None;
             if (Context is DispatcherSynchronizationContext) ContextType = GuiContextType.WPF;
@@ -59,6 +61,11 @@
         public SynchronizationContext Context { get; }
 
         /// <summary>
+        /// Gets the thread on which this context was created
+        /// </summary>
+        public Thread ContextThread { get; }
+
+        /// <summary>
         /// Gets the GUI dispatcher. Only valid for WPF contexts
         /// </summary>
         public Dispatcher GuiDispatcher { get; }
@@ -78,9 +85,17 @@
         /// </summary>
         public GuiContextType ContextType { get; }
 
+        /// <summary>
+        /// Invokes a task on the GUI thread
+        /// </summary>
+        /// <param name="priority">The priority.</param>
+        /// <param name="callback">The callback.</param>
+        /// <param name="arguments">The arguments.</param>
+        /// <returns>The awaitable task.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public async Task InvokeAsync(DispatcherPriority priority, Delegate callback, params object[] arguments)
         {
-            if (Context != null && Context == SynchronizationContext.Current)
+            if (ContextThread == Thread.CurrentThread)
             {
                 callback.DynamicInvoke(arguments);
                 return;
@@ -125,26 +140,57 @@
             }
         }
 
+        /// <summary>
+        /// Invokes a task on the GUI thread
+        /// </summary>
+        /// <param name="priority">The priority.</param>
+        /// <param name="callback">The callback.</param>
+        /// <returns>The awaitable task</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public async Task InvokeAsync(DispatcherPriority priority, Action callback)
         {
             await InvokeAsync(priority, callback, null);
         }
 
+        /// <summary>
+        /// Invokes a task on the GUI thread
+        /// </summary>
+        /// <param name="callback">The callback.</param>
+        /// <returns>The awaitable task</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public async Task InvokeAsync(Action callback)
         {
             await InvokeAsync(DispatcherPriority.DataBind, callback, null);
         }
 
+        /// <summary>
+        /// Invokes a task on the GUI thread
+        /// </summary>
+        /// <param name="callback">The callback.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Invoke(Action callback)
         {
             InvokeAsync(DispatcherPriority.Normal, callback).GetAwaiter().GetResult();
         }
 
+        /// <summary>
+        /// Invokes a task on the GUI thread
+        /// </summary>
+        /// <param name="callback">The callback.</param>
+        /// <returns>The awaitable task</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Task EnqueueInvoke(Action callback)
         {
             return InvokeAsync(callback);
         }
 
+        /// <summary>
+        /// Invokes a task on the GUI thread
+        /// </summary>
+        /// <param name="priority">The priority.</param>
+        /// <param name="callback">The callback.</param>
+        /// <returns>The awaitable task</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Task EnqueueInvoke(DispatcherPriority priority, Action callback)
         {
             return InvokeAsync(priority, callback);

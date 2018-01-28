@@ -140,12 +140,7 @@
         /// <param name="e">The <see cref="Events.MediaOpeningRoutedEventArgs"/> instance containing the event data.</param>
         private void Media_MediaInitializing(object sender, MediaInitializingRoutedEventArgs e)
         {
-            if (e.Url.StartsWith("udp://") || e.Url.StartsWith("rtsp://"))
-            {
-                e.Options.Input["buffer_size"] = "65536000";
-            }
-
-            // An example of injecting format options for http/https streams
+            // An example of injecting input options for http/https streams
             if (e.Url.StartsWith("http://") || e.Url.StartsWith("https://"))
             {
                 e.Options.Input["user_agent"] = $"{typeof(StreamOptions).Namespace}/{typeof(StreamOptions).Assembly.GetName().Version}";
@@ -156,6 +151,15 @@
                 e.Options.Input["reconnect_streamed"] = "1";
                 e.Options.Input["reconnect_delay_max"] = "10"; // in seconds
             }
+
+            // In realtime streams probesize can be reduced to reduce latency
+            // e.Options.Format.ProbeSize = 1024 * 5; // 32 is the minimum
+
+            // In realtime strams analyze duration can be reduced to reduce latency
+            // e.Options.Format.MaxAnalyzeDuration = System.TimeSpan.FromSeconds(1);
+
+            // AVIO-Direct
+            // e.Options.Format.FlagSortDts = true;
         }
 
         /// <summary>
@@ -166,25 +170,10 @@
         private void Media_MediaOpening(object sender, MediaOpeningRoutedEventArgs e)
         {
             // An example of switching to a different stream
-            if (e.Info.InputUrl.EndsWith("matroska.mkv"))
-            {
                 var subtitleStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_SUBTITLE).Select(kvp => kvp.Value);
                 var englishSubtitleStream = subtitleStreams.FirstOrDefault(s => s.Language.StartsWith("en"));
                 if (englishSubtitleStream != null)
                     e.Options.SubtitleStream = englishSubtitleStream;
-
-                var audioStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_AUDIO)
-                    .Select(kvp => kvp.Value).ToArray();
-
-                // var commentaryStream = audioStreams.FirstOrDefault(s => s.StreamIndex != e.Options.AudioStream.StreamIndex);
-                // e.Options.AudioStream = commentaryStream;
-            }
-
-            // In realtime streams probesize can be reduced to reduce latency
-            // e.Options.ProbeSize = 32; // 32 is the minimum
-
-            // In realtime strams analyze duration can be reduced to reduce latency
-            // e.Options.MaxAnalyzeDuration = TimeSpan.Zero;
 
             // The yadif filter deinterlaces the video; we check the field order if we need
             // to deinterlace the video automatically
