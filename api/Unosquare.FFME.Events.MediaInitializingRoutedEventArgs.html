@@ -5,10 +5,10 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Namespace Unosquare.FFME.Events
+    <title>Class MediaInitializingRoutedEventArgs
    | FFME: WPF MediaElement replacement based on FFmpeg </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Namespace Unosquare.FFME.Events
+    <meta name="title" content="Class MediaInitializingRoutedEventArgs
    | FFME: WPF MediaElement replacement based on FFmpeg ">
     <meta name="generator" content="docfx 2.29.1.0">
     
@@ -77,43 +77,127 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="Unosquare.FFME.Events">
+            <article class="content wrap" id="_content" data-uid="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs">
   
-  <h1 id="Unosquare_FFME_Events" data-uid="Unosquare.FFME.Events" class="text-break">Namespace Unosquare.FFME.Events
+  
+  <h1 id="Unosquare_FFME_Events_MediaInitializingRoutedEventArgs" data-uid="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs" class="text-break">Class MediaInitializingRoutedEventArgs
   </h1>
-  <div class="markdown level0 summary"></div>
+  <div class="markdown level0 summary"><p>Represents the event arguments of the MediaInitializing routed event.</p>
+</div>
   <div class="markdown level0 conceptual"></div>
-  <div class="markdown level0 remarks"></div>
-    <h3 id="classes">Classes
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">MediaInitializingRoutedEventArgs</span></div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Unosquare.FFME.Events.html">Unosquare.FFME.Events</a></h6>
+  <h5 id="Unosquare_FFME_Events_MediaInitializingRoutedEventArgs_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class MediaInitializingRoutedEventArgs : RoutedEventArgs</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
   </h3>
-      <h4><a class="xref" href="Unosquare.FFME.Events.BitmapDataBuffer.html">BitmapDataBuffer</a></h4>
-      <section><p>Contains metadata about a raw bitmap back-buffer</p>
-</section>
-      <h4><a class="xref" href="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.html">MediaInitializingRoutedEventArgs</a></h4>
-      <section><p>Represents the event arguments of the MediaInitializing routed event.</p>
-</section>
-      <h4><a class="xref" href="Unosquare.FFME.Events.MediaLogMessageEventArgs.html">MediaLogMessageEventArgs</a></h4>
-      <section><p>Contains the Message Logged Event Arguments</p>
-</section>
-      <h4><a class="xref" href="Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.html">MediaOpeningRoutedEventArgs</a></h4>
-      <section><p>Represents the event arguments of the MediaOpening routed event.</p>
-</section>
-      <h4><a class="xref" href="Unosquare.FFME.Events.PositionChangedRoutedEventArgs.html">PositionChangedRoutedEventArgs</a></h4>
-      <section><p>Contains the position changed routed event args</p>
-</section>
-      <h4><a class="xref" href="Unosquare.FFME.Events.RenderingAudioEventArgs.html">RenderingAudioEventArgs</a></h4>
-      <section><p>Provides the audio samples rendering payload as event arguments.</p>
-</section>
-      <h4><a class="xref" href="Unosquare.FFME.Events.RenderingEventArgs.html">RenderingEventArgs</a></h4>
-      <section><p>A base class to represent media block
-rendering event arguments.</p>
-</section>
-      <h4><a class="xref" href="Unosquare.FFME.Events.RenderingSubtitlesEventArgs.html">RenderingSubtitlesEventArgs</a></h4>
-      <section><p>Provides the subtitles rendering payload as event arguments.</p>
-</section>
-      <h4><a class="xref" href="Unosquare.FFME.Events.RenderingVideoEventArgs.html">RenderingVideoEventArgs</a></h4>
-      <section><p>The video rendering event arguments</p>
-</section>
+  
+  
+  <a id="Unosquare_FFME_Events_MediaInitializingRoutedEventArgs__ctor_" data-uid="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.#ctor*"></a>
+  <h4 id="Unosquare_FFME_Events_MediaInitializingRoutedEventArgs__ctor_RoutedEvent_System_Object_StreamOptions_System_String_" data-uid="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.#ctor(RoutedEvent,System.Object,StreamOptions,System.String)">MediaInitializingRoutedEventArgs(RoutedEvent, Object, StreamOptions, String)</h4>
+  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.html">MediaInitializingRoutedEventArgs</a> class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MediaInitializingRoutedEventArgs(RoutedEvent routedEvent, object source, StreamOptions options, string url)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEvent</span></td>
+        <td><span class="parametername">routedEvent</span></td>
+        <td><p>The routed event.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Object</span></td>
+        <td><span class="parametername">source</span></td>
+        <td><p>The source.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">StreamOptions</span></td>
+        <td><span class="parametername">options</span></td>
+        <td><p>The options.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">url</span></td>
+        <td><p>The URL.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  
+  
+  <a id="Unosquare_FFME_Events_MediaInitializingRoutedEventArgs_Options_" data-uid="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.Options*"></a>
+  <h4 id="Unosquare_FFME_Events_MediaInitializingRoutedEventArgs_Options" data-uid="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.Options">Options</h4>
+  <div class="markdown level1 summary"><p>Set or change the options before the media is opened.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public StreamOptions Options { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">StreamOptions</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_Events_MediaInitializingRoutedEventArgs_Url_" data-uid="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.Url*"></a>
+  <h4 id="Unosquare_FFME_Events_MediaInitializingRoutedEventArgs_Url" data-uid="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.Url">Url</h4>
+  <div class="markdown level1 summary"><p>Gets the URL.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string Url { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
 <div id="disqus_thread"></div>
 <script>
 

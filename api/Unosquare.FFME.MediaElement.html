@@ -320,6 +320,31 @@ the FFmpeg library to perform reading and decoding of media streams.</p>
   </table>
   
   
+  <h4 id="Unosquare_FFME_MediaElement_MediaInitializingEvent" data-uid="Unosquare.FFME.MediaElement.MediaInitializingEvent">MediaInitializingEvent</h4>
+  <div class="markdown level1 summary"><p>MediaOpeningEvent is a routed event.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly RoutedEvent MediaInitializingEvent</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEvent</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <h4 id="Unosquare_FFME_MediaElement_MediaOpenedEvent" data-uid="Unosquare.FFME.MediaElement.MediaOpenedEvent">MediaOpenedEvent</h4>
   <div class="markdown level1 summary"><p>MediaOpened is a routed event.</p>
 </div>
@@ -2165,6 +2190,32 @@ This is shared across all instances of Media Elements</p>
   </table>
   
   
+  <h4 id="Unosquare_FFME_MediaElement_MediaInitializing" data-uid="Unosquare.FFME.MediaElement.MediaInitializing">MediaInitializing</h4>
+  <div class="markdown level1 summary"><p>Raised before the input stream of the media is initialized.
+Use this method to modify the input options.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event EventHandler&lt;MediaInitializingRoutedEventArgs&gt; MediaInitializing</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.EventHandler</span>&lt;<a class="xref" href="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.html">MediaInitializingRoutedEventArgs</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <h4 id="Unosquare_FFME_MediaElement_MediaOpened" data-uid="Unosquare.FFME.MediaElement.MediaOpened">MediaOpened</h4>
   <div class="markdown level1 summary"><p>Raised when the media is opened</p>
 </div>
@@ -2192,7 +2243,7 @@ This is shared across all instances of Media Elements</p>
   
   <h4 id="Unosquare_FFME_MediaElement_MediaOpening" data-uid="Unosquare.FFME.MediaElement.MediaOpening">MediaOpening</h4>
   <div class="markdown level1 summary"><p>Raised before the input stream of the media is opened.
-Use this method to modify the input options.</p>
+Use this method to modify the media options.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
