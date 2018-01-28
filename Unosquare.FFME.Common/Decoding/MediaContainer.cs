@@ -557,7 +557,7 @@
                     StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
                     fixed (AVDictionary** inputOptionsRef = &inputOptions.Pointer)
                     {
-                        var prefix = string.IsNullOrWhiteSpace(StreamOptions.ProtocolPrefix) ? 
+                        var prefix = string.IsNullOrWhiteSpace(StreamOptions.ProtocolPrefix) ?
                             string.Empty : $"{StreamOptions.ProtocolPrefix.Trim()}:";
                         openResult = ffmpeg.avformat_open_input(&inputContextPtr, $"{prefix}{MediaUrl}", inputFormat, inputOptionsRef);
                         InputContext = inputContextPtr;

@@ -106,11 +106,11 @@
                     MediaLogMessageType.Warning,
                     $"{nameof(MediaCommandManager)}.{nameof(OpenAsync)}: '{nameof(uri)}' cannot be null");
 
-                return; // Task.CompletedTask;
+                return;
             }
 
             if (CanExecuteCommands == false)
-                return; // Task.CompletedTask;
+                return;
             else
                 IsOpening.Value = true;
 
@@ -259,7 +259,7 @@
         /// This command is a queued command
         /// </summary>
         /// <param name="position">The position.</param>
-        public void Seek(TimeSpan position)
+        public void EnqueueSeek(TimeSpan position)
         {
             SeekCommand command = null;
             lock (SyncLock)
@@ -282,7 +282,7 @@
         /// This command is a queued command
         /// </summary>
         /// <param name="targetSpeedRatio">The target speed ratio.</param>
-        public void SetSpeedRatio(double targetSpeedRatio)
+        public void EnqueueSpeedRatio(double targetSpeedRatio)
         {
             SpeedRatioCommand command = null;
             lock (SyncLock)

@@ -171,7 +171,7 @@ namespace Unosquare.FFME
 
         private static void OnSpeedRatioPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            (d as MediaElement).MediaCore?.SetSpeedRatio((double)e.NewValue);
+            (d as MediaElement).MediaCore?.RequestSpeedRatio((double)e.NewValue);
         }
 
         #endregion
@@ -217,7 +217,7 @@ namespace Unosquare.FFME
             var element = d as MediaElement;
             if (element == null || element.IsRunningPropertyUpdates || element.IsSeekable == false) return;
 
-            element.MediaCore?.Seek((TimeSpan)e.NewValue);
+            element.MediaCore?.RequestSeek((TimeSpan)e.NewValue);
         }
 
         #endregion

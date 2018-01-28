@@ -32,24 +32,6 @@
         #region Public API
 
         /// <summary>
-        /// Begins or resumes playback of the currently loaded media.
-        /// </summary>
-        /// <returns>The awaitable command</returns>
-        public async Task Play() => await Commands.PlayAsync();
-
-        /// <summary>
-        /// Pauses playback of the currently loaded media.
-        /// </summary>
-        /// <returns>The awaitable command</returns>
-        public async Task Pause() => await Commands.PauseAsync();
-
-        /// <summary>
-        /// Pauses and rewinds the currently loaded media.
-        /// </summary>
-        /// <returns>The awaitable command</returns>
-        public async Task Stop() => await Commands.StopAsync();
-
-        /// <summary>
         /// Opens the specified URI.
         /// </summary>
         /// <param name="uri">The URI.</param>
@@ -64,7 +46,7 @@
 
             if (uri != null)
             {
-                await Commands.CloseAsync()
+                await Close()
                     .ContinueWith(async (c) =>
                     {
                         await Commands.OpenAsync(uri);
@@ -80,19 +62,57 @@
         /// Closes the currently loaded media.
         /// </summary>
         /// <returns>The awaitable task</returns>
-        public async Task Close() => await Commands.CloseAsync();
+        public async Task Close()
+        {
+            try { await Commands.CloseAsync(); }
+            catch (OperationCanceledException) { }
+            catch { throw; }
+        }
+
+        /// <summary>
+        /// Begins or resumes playback of the currently loaded media.
+        /// </summary>
+        /// <returns>The awaitable command</returns>
+        public async Task Play()
+        {
+            try { await Commands.PlayAsync(); }
+            catch (OperationCanceledException) { }
+            catch { throw; }
+        }
+
+        /// <summary>
+        /// Pauses playback of the currently loaded media.
+        /// </summary>
+        /// <returns>The awaitable command</returns>
+        public async Task Pause()
+        {
+            try { await Commands.PauseAsync(); }
+            catch (OperationCanceledException) { }
+            catch { throw; }
+        }
+
+        /// <summary>
+        /// Pauses and rewinds the currently loaded media.
+        /// </summary>
+        /// <returns>The awaitable command</returns>
+        public async Task Stop()
+        {
+            try { await Commands.StopAsync(); }
+            catch (OperationCanceledException) { }
+            catch { throw; }
+        }
 
         /// <summary>
         /// Seeks to the specified position.
         /// </summary>
         /// <param name="position">New position for the player.</param>
-        public void Seek(TimeSpan position) => Commands.Seek(position);
+        public void RequestSeek(TimeSpan position) => Commands.EnqueueSeek(position);
 
         /// <summary>
         /// Sets the specified playback speed ratio.
         /// </summary>
         /// <param name="targetSpeedRatio">New playback speed ratio.</param>
-        public void SetSpeedRatio(double targetSpeedRatio) => Commands.SetSpeedRatio(targetSpeedRatio);
+        public void RequestSpeedRatio(double targetSpeedRatio) => Commands.EnqueueSpeedRatio(targetSpeedRatio);
 
         #endregion
     }

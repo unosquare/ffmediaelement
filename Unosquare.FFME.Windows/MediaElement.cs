@@ -87,6 +87,7 @@
                 AllowContentChange = true;
                 InitializeComponent();
             }
+            catch { throw; }
             finally
             {
                 AllowContentChange = false;
@@ -185,7 +186,6 @@
         public async Task Play()
         {
             try { await MediaCore.Play(); }
-            catch (TaskCanceledException) { }
             catch (Exception ex) { RaiseMediaFailedEvent(ex); }
         }
 
@@ -196,7 +196,6 @@
         public async Task Pause()
         {
             try { await MediaCore.Pause(); }
-            catch (TaskCanceledException) { }
             catch (Exception ex) { RaiseMediaFailedEvent(ex); }
         }
 
@@ -207,7 +206,6 @@
         public async Task Stop()
         {
             try { await MediaCore.Stop(); }
-            catch (TaskCanceledException) { }
             catch (Exception ex) { RaiseMediaFailedEvent(ex); }
         }
 
@@ -222,7 +220,6 @@
                 await MediaCore.Close();
                 Source = null;
             }
-            catch (TaskCanceledException) { }
             catch (Exception ex) { RaiseMediaFailedEvent(ex); }
         }
 
