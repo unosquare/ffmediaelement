@@ -43,9 +43,9 @@
                 // until the interrupt timeout occurs but and the Real-Time Clock continues. Strange behavior.
 
                 // Signal the initial state
-                m.State.ResetControllerProperties();
+                m.State.ResetMediaProperties();
+                m.State.Source = Source;
                 m.State.IsOpening = true;
-                m.State.MediaState = PlaybackStatus.Manual;
 
                 // Register FFmpeg libraries if not already done
                 if (FFInterop.Initialize(MediaEngine.FFmpegDirectory, MediaEngine.FFmpegLoadModeFlags))
@@ -68,7 +68,7 @@
                 m.SendOnMediaOpening();
                 m.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Entered");
                 m.Container.Open();
-                m.ResetBufferingProperties();
+                m.State.InitializeBufferingProperties();
 
                 // Set the state to stopped
                 m.State.MediaState = PlaybackStatus.Stop;

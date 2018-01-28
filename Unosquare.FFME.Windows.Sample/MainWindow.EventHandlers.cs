@@ -140,6 +140,11 @@
         /// <param name="e">The <see cref="MediaOpeningRoutedEventArgs"/> instance containing the event data.</param>
         private void Media_MediaOpening(object sender, MediaOpeningRoutedEventArgs e)
         {
+            if (e.Info.InputUrl.StartsWith("udp://") || e.Info.InputUrl.StartsWith("rtsp://"))
+            {
+                e.Options.CodecOptions.Add("buffer_size", "655360", 'v');
+            }
+
             // An example of injecting format options for http/https streams
             if (e.Info.InputUrl.StartsWith("http://") || e.Info.InputUrl.StartsWith("https://"))
             {

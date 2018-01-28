@@ -7,9 +7,6 @@
 
     public partial class MediaEngine
     {
-        private Timer BlockRenderingWorker = null;
-        private ManualResetEvent HasBlockRenderingWorkerExited = null;
-
         /// <summary>
         /// Starts the block rendering worker.
         /// </summary>
@@ -70,8 +67,7 @@
                 #region Run the Rendering Cycle
 
                 // Updatete Status  Properties
-                UpdateBufferingProperties();
-                UpdatePosiionProperty();
+                State.UpdateBufferingProperties();
 
                 // Don't run the cycle if it's already running
                 if (isRunningRenderingCycle)
@@ -94,9 +90,6 @@
                     // Capture current clock position for the rest of this cycle
                     BlockRenderingCycle.Reset();
 
-                    // capture the wall clock for this cycle
-                    wallClock = Clock.Position;
-
                     #endregion
 
                     #region 2. Handle Block Rendering
@@ -104,6 +97,13 @@
                     // Wait for the seek op to finish before we capture blocks
                     if (HasDecoderSeeked)
                         SeekingDone.WaitOne();
+
+                    // capture the wall clock for this cycle
+                    wallClock = Clock.Position;
+
+                    // Update the position property after all seeking is done
+                    if (State.IsSeeking == false)
+                        State.Position = wallClock;
 
                     // Capture the blocks to render
                     foreach (var t in all)

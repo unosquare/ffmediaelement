@@ -206,7 +206,11 @@
         /// <returns>The awaitable command</returns>
         public async Task Close()
         {
-            try { await MediaCore.Close(); }
+            try
+            {
+                await MediaCore.Close();
+                Source = null;
+            }
             catch (TaskCanceledException) { }
             catch (Exception ex) { RaiseMediaFailedEvent(ex); }
         }

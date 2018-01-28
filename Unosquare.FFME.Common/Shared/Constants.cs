@@ -2,6 +2,7 @@
 {
     using FFmpeg.AutoGen;
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Reflection;
 
@@ -14,6 +15,14 @@
         /// Gets the assembly location.
         /// </summary>
         public static string FFmpegSearchPath { get; } = Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
+
+        // TODO: Make this configurable
+        internal static Dictionary<MediaType, int> MaxBlocks { get; } = new Dictionary<MediaType, int>
+        {
+            { MediaType.Video, 12 },
+            { MediaType.Audio, 120 },
+            { MediaType.Subtitle, 120 }
+        };
 
         /// <summary>
         /// Defines Controller Value Defaults

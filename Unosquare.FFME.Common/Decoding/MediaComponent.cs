@@ -145,8 +145,12 @@
             }
 
             // If there are any codec options left over from passing them, it means they were not consumed
-            if (codecOptions.First() != null)
-                Container.Parent?.Log(MediaLogMessageType.Warning, $"Codec Option '{codecOptions.First().Key}' not found.");
+            var currentEntry = codecOptions.First();
+            while (currentEntry != null && currentEntry?.Key != null)
+            {
+                Container.Parent?.Log(MediaLogMessageType.Warning, $"Invalid codec option: '{currentEntry.Key}'");
+                currentEntry = codecOptions.Next(currentEntry);
+            }
 
             // Startup done. Set some options.
             Stream->discard = AVDiscard.AVDISCARD_DEFAULT;

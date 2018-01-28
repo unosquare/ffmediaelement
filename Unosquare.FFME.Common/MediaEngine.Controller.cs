@@ -57,8 +57,6 @@
         /// <exception cref="InvalidOperationException">Source</exception>
         public async Task Open(Uri uri)
         {
-            State.Source = uri;
-
             // TODO: Calling this multiple times while an operation is in progress breaks the control :(
             // for now let's throw an exception but ideally we want the user NOT to be able to change the value in the first place.
             if (State.IsOpening)

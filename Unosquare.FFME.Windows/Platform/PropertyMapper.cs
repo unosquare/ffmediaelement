@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Platform
 {
+    using Shared;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -7,7 +8,6 @@
     using System.Reflection;
     using System.Runtime.CompilerServices;
     using System.Windows;
-    using Shared;
 
     /// <summary>
     /// A helper class to map and process synchronization
@@ -47,12 +47,13 @@
                 .Where(p => allMediaElementPropertyNames.Contains(p) == false)
                 .ToArray();
 
-            if (missingMediaElementPropertyNames.Length > 0)
-            {
-                throw new KeyNotFoundException($"{nameof(MediaElement)} is missing properties exposed by {nameof(MediaEngineState)}. " +
-                    $"Missing properties are: {string.Join(",", missingMediaElementPropertyNames)}");
-            }
+            MissingPropertyMappings = new ReadOnlyCollection<string>(missingMediaElementPropertyNames);
         }
+
+        /// <summary>
+        /// Contains the property names found in the Media Engine State type, but not found in the Media Element
+        /// </summary>
+        public static ReadOnlyCollection<string> MissingPropertyMappings { get; }
 
         /// <summary>
         /// Gets the media element dependency properties.

@@ -41,6 +41,12 @@
 
         private void StartPropertyUpdatesWorker()
         {
+            if (PropertyMapper.MissingPropertyMappings.Count > 0)
+            {
+                throw new KeyNotFoundException($"{nameof(MediaElement)} is missing properties exposed by {nameof(MediaEngineState)}. " +
+                    $"Missing properties are: {string.Join(", ", PropertyMapper.MissingPropertyMappings)}");
+            }
+
             PropertyUpdatesWorker = new GuiTimer(() =>
             {
                 if (IsRunningPropertyUpdates) return;
@@ -60,20 +66,30 @@
                         }
                     }
 
-                    var isSeeking = IsSeeking;
                     if (dependencyProperties.Count > 0)
                     {
                         // Write the media engine state property state to the dependency properties
                         foreach (var kvp in dependencyProperties)
                         {
-                            if (kvp.Key == PositionProperty && isSeeking)
+                            // Do not set the position property if we are seeking
+                            if (kvp.Key == PositionProperty
+                                && IsOpen
+                                && MediaState != System.Windows.Controls.MediaState.Stop
+                                && (IsSeeking || IsPlaying == false))
+                            {
+                                continue;
+                            }
+
+                            // Do not upstream the source porperty
+                            if (kvp.Key == SourceProperty)
                                 continue;
 
-                            SetValue(kvp.Key, kvp.Value);
+                            if (Equals(GetValue(kvp.Key), kvp.Value) == false)
+                                SetValue(kvp.Key, kvp.Value);
                         }
 
                         // Raise PositionChanged event
-                        if (dependencyProperties.ContainsKey(PositionProperty) && isSeeking == false)
+                        if (dependencyProperties.ContainsKey(PositionProperty) && IsSeeking == false)
                         {
                             RaisePositionChangedEvent((TimeSpan)dependencyProperties[PositionProperty]);
                         }

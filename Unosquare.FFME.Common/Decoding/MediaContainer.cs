@@ -578,7 +578,7 @@
                     var currentEntry = inputOptions.First();
                     while (currentEntry != null && currentEntry?.Key != null)
                     {
-                        Parent?.Log(MediaLogMessageType.Warning, $"Invalid format option: '{currentEntry.Key}'");
+                        Parent?.Log(MediaLogMessageType.Warning, $"Invalid input option: '{currentEntry.Key}'");
                         currentEntry = inputOptions.Next(currentEntry);
                     }
                 }

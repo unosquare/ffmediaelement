@@ -5,7 +5,6 @@
     using Primitives;
     using Shared;
     using System;
-    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// Represents a Media Engine that contains underlying streams of audio and/or video.
@@ -73,7 +72,7 @@
         /// This is different from the position property and it is useful
         /// in computing the latency between position and the wall clock.
         /// </summary>
-        public TimeSpan WallClock => Clock?.Position ?? TimeSpan.Zero;
+        public TimeSpan WallClock => State.IsOpen ? (Clock?.Position ?? TimeSpan.Zero) : TimeSpan.Zero;
 
         /// <summary>
         /// Provides stream, chapter and program info of the underlying media.
@@ -109,13 +108,6 @@
         /// </summary>
         internal IMediaConnector Connector { get; }
 
-        /// <summary>
-        /// Gets the guessed buffered bytes in the packet queue per second.
-        /// If bitrate information is available, then it returns the bitrate converted to byte rate.
-        /// Returns null if it has not been guessed.
-        /// </summary>
-        internal ulong? GuessedByteRate { get; set; }
-
         #endregion
 
         #region Methods
@@ -137,128 +129,6 @@
         {
             // TODO: Looks like MediaElement is not calling this when closing the container?
             Dispose(true);
-        }
-
-        /// <summary>
-        /// Resets all the buffering properties to their defaults.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void ResetBufferingProperties()
-        {
-            const int MinimumValidBitrate = 512 * 1024; // 524kbps
-            const int StartingCacheLength = 512 * 1024; // Half a megabyte
-
-            GuessedByteRate = default(ulong?);
-
-            if (Container == null)
-            {
-                State.IsBuffering = false;
-                State.BufferCacheLength = 0;
-                State.DownloadCacheLength = 0;
-                State.BufferingProgress = 0;
-                State.DownloadProgress = 0;
-                return;
-            }
-
-            if (Container.MediaBitrate > MinimumValidBitrate)
-            {
-                State.BufferCacheLength = (int)Container.MediaBitrate / 8;
-                GuessedByteRate = (ulong)State.BufferCacheLength;
-            }
-            else
-            {
-                State.BufferCacheLength = StartingCacheLength;
-            }
-
-            State.DownloadCacheLength = State.BufferCacheLength * (State.IsLiveStream ? 30 : 4);
-            State.IsBuffering = false;
-            State.BufferingProgress = 0;
-            State.DownloadProgress = 0;
-        }
-
-        /// <summary>
-        /// Updates the buffering properties: IsBuffering, BufferingProgress, DownloadProgress.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdateBufferingProperties()
-        {
-            var packetBufferLength = Container?.Components?.PacketBufferLength ?? 0d;
-
-            // Update the buffering progress
-            var bufferingProgress = Math.Min(
-                1d, Math.Round(packetBufferLength / State.BufferCacheLength, 3));
-            State.BufferingProgress = double.IsNaN(bufferingProgress) ? 0 : bufferingProgress;
-
-            // Update the download progress
-            var downloadProgress = Math.Min(
-                1d, Math.Round(packetBufferLength / State.DownloadCacheLength, 3));
-            State.DownloadProgress = double.IsNaN(downloadProgress) ? 0 : downloadProgress;
-
-            // IsBuffering and BufferingProgress
-            if (State.HasMediaEnded == false && CanReadMorePackets && (State.IsOpening || State.IsOpen))
-            {
-                var wasBuffering = State.IsBuffering;
-                var isNowBuffering = packetBufferLength < State.BufferCacheLength;
-                State.IsBuffering = isNowBuffering;
-
-                if (wasBuffering == false && isNowBuffering)
-                    SendOnBufferingStarted();
-                else if (wasBuffering && isNowBuffering == false)
-                    SendOnBufferingEnded();
-            }
-            else
-            {
-                State.IsBuffering = false;
-            }
-        }
-
-        /// <summary>
-        /// Guesses the bitrate of the input stream.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void GuessBufferingProperties()
-        {
-            if (GuessedByteRate != null || Container == null || Container.Components == null)
-                return;
-
-            // Capture the read bytes of a 1-second buffer
-            var bytesReadSoFar = Container.Components.LifetimeBytesRead;
-            var shortestDuration = TimeSpan.MaxValue;
-            var currentDuration = TimeSpan.Zero;
-
-            foreach (var t in Container.Components.MediaTypes)
-            {
-                if (t != MediaType.Audio && t != MediaType.Video)
-                    continue;
-
-                currentDuration = Blocks[t].LifetimeBlockDuration;
-
-                if (currentDuration.TotalSeconds < 1)
-                {
-                    shortestDuration = TimeSpan.Zero;
-                    break;
-                }
-
-                if (currentDuration < shortestDuration)
-                    shortestDuration = currentDuration;
-            }
-
-            if (shortestDuration.TotalSeconds >= 1 && shortestDuration != TimeSpan.MaxValue)
-            {
-                GuessedByteRate = (ulong)(1.2 * bytesReadSoFar / shortestDuration.TotalSeconds);
-                State.BufferCacheLength = Convert.ToInt32(GuessedByteRate);
-                State.DownloadCacheLength = State.BufferCacheLength * (State.IsLiveStream ? 30 : 4);
-            }
-        }
-
-        /// <summary>
-        /// Updates the posiion property if not seeking.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdatePosiionProperty()
-        {
-            if (State.IsSeeking) return;
-            State.Position = State.IsOpen ? Clock?.Position ?? TimeSpan.Zero : TimeSpan.Zero;
         }
 
         #endregion

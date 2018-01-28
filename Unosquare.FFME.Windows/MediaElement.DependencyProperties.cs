@@ -49,7 +49,6 @@ namespace Unosquare.FFME
         private static void OnVolumePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var element = d as MediaElement;
-            if (element.IsRunningPropertyUpdates) return;
             element.MediaCore.State.Volume = (double)e.NewValue;
         }
 
@@ -223,6 +222,45 @@ namespace Unosquare.FFME
 
         #endregion
 
+        #region Source Dependency Property
+
+        /// <summary>
+        /// Gets/Sets the Source on this MediaElement.
+        /// The Source property is the Uri of the media to be played.
+        /// </summary>
+        [Category(nameof(MediaElement))]
+        [Description("The URL to load the media from. Set it to null in order to close the currently open media.")]
+        public Uri Source
+        {
+            get { return GetValue(SourceProperty) as Uri; }
+            set { SetValue(SourceProperty, value); }
+        }
+
+        /// <summary>
+        /// DependencyProperty for FFmpegMediaElement Source property.
+        /// </summary>
+        public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
+            nameof(Source), typeof(Uri), typeof(MediaElement),
+            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.None, OnSourcePropertyChanged, OnSourcePropertyChanging));
+
+        private static object OnSourcePropertyChanging(DependencyObject d, object value)
+        {
+            var element = d as MediaElement;
+            if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return null;
+            return value;
+        }
+
+        private static async void OnSourcePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var element = d as MediaElement;
+            if (e.NewValue == null && e.OldValue != null && element.IsOpen)
+                await element.Close();
+            else if (e.NewValue != null && element.IsOpening == false && e.NewValue is Uri uri)
+                await element?.MediaCore?.Open(e.NewValue as Uri);
+        }
+
+        #endregion
+
         #region Stretch Dependency Property
 
         /// <summary>
@@ -279,41 +317,6 @@ namespace Unosquare.FFME
             if (element == null) return;
 
             element.VideoView.StretchDirection = (StretchDirection)e.NewValue;
-        }
-
-        #endregion
-
-        #region Source Dependency Property
-
-        /// <summary>
-        /// Gets/Sets the Source on this MediaElement.
-        /// The Source property is the Uri of the media to be played.
-        /// </summary>
-        [Category(nameof(MediaElement))]
-        [Description("The URL to load the media from. Set it to null in order to close the currently open media.")]
-        public Uri Source
-        {
-            get { return GetValue(SourceProperty) as Uri; }
-            set { SetValue(SourceProperty, value); }
-        }
-
-        /// <summary>
-        /// DependencyProperty for FFmpegMediaElement Source property.
-        /// </summary>
-        public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
-            nameof(Source), typeof(Uri), typeof(MediaElement),
-            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.None, OnSourcePropertyChanged, OnSourcePropertyChanging));
-
-        private static object OnSourcePropertyChanging(DependencyObject d, object value)
-        {
-            var element = d as MediaElement;
-            if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return null;
-            return value;
-        }
-
-        private static async void OnSourcePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            await (d as MediaElement)?.MediaCore?.Open(e.NewValue as Uri);
         }
 
         #endregion

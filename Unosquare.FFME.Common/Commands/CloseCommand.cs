@@ -45,12 +45,13 @@
 
             // Clear the render times
             m.LastRenderTime.Clear();
-            m.State.MediaState = PlaybackStatus.Close;
-            m.SendOnMediaClosed();
 
             // Update notification properties
-            m.State.ResetControllerProperties();
-            m.ResetBufferingProperties();
+            m.State.ResetMediaProperties();
+            m.State.InitializeBufferingProperties();
+            m.State.MediaState = PlaybackStatus.Close;
+            m.State.Source = null;
+            m.SendOnMediaClosed();
 
             if (MediaEngine.Platform.IsInDebugMode)
             {

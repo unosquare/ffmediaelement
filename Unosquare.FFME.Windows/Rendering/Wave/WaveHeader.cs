@@ -1,9 +1,8 @@
-﻿namespace Unosquare.FFME.Rendering.Wave
+﻿#pragma warning disable SA1401 // Fields must be private
+namespace Unosquare.FFME.Rendering.Wave
 {
     using System;
     using System.Runtime.InteropServices;
-
-#pragma warning disable SA1401 // Fields must be private
 
     /// <summary>
     /// WaveHeader interop structure (WAVEHDR)
@@ -36,6 +35,5 @@
         /// <summary>reserved for driver</summary>
         public IntPtr Reserved;
     }
-
-#pragma warning restore SA1401 // Fields must be private
 }
+#pragma warning restore SA1401 // Fields must be private

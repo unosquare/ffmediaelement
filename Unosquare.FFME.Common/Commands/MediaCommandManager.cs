@@ -75,7 +75,7 @@
                     return false;
                 }
 
-                if (IsOpening.Value || IsOpening.Value || MediaCore.State.IsOpening)
+                if (IsOpening.Value || IsClosing.Value || MediaCore.State.IsOpening)
                 {
                     MediaCore?.Log(
                         MediaLogMessageType.Warning,
