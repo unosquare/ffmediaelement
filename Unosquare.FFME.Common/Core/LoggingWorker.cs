@@ -32,6 +32,7 @@
                     { ffmpeg.AV_LOG_WARNING, MediaLogMessageType.Warning },
                 });
         private static Timer LogOutputter = null;
+        private static bool IsOutputingLog = false;
 
         #endregion
 
@@ -44,12 +45,25 @@
         {
             LogOutputter = new Timer((s) =>
                 {
-                    while (LogQueue.TryDequeue(out MediaLogMessage eventArgs))
+                    if (IsOutputingLog) return;
+                    IsOutputingLog = true;
+                    try
                     {
-                        if (eventArgs.Source != null)
-                            eventArgs.Source.SendOnMessageLogged(eventArgs);
-                        else
-                            MediaEngine.Platform?.HandleFFmpegLogMessage(eventArgs);
+                        while (LogQueue.TryDequeue(out MediaLogMessage eventArgs))
+                        {
+                            if (eventArgs.Source != null)
+                                eventArgs.Source.SendOnMessageLogged(eventArgs);
+                            else
+                                MediaEngine.Platform?.HandleFFmpegLogMessage(eventArgs);
+                        }
+                    }
+                    catch
+                    {
+                        throw;
+                    }
+                    finally
+                    {
+                        IsOutputingLog = false;
                     }
                 },
                 LogQueue, // the state argument passed on to the ticker

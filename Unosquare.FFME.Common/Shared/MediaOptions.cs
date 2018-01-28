@@ -1,25 +1,22 @@
 ﻿namespace Unosquare.FFME.Shared
 {
-    using System;
-
     /// <summary>
-    /// Represents a set of options that are used to initialize a media container.
+    /// Represetnts options that applied before initializing media components and their corresponding
+    /// codecs. Once the container has created the media components, changing these options will have no effect.
     /// </summary>
-    public class MediaOptions
+    public sealed class MediaOptions
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MediaOptions"/> class.
-        /// </summary>
-        public MediaOptions()
+        internal MediaOptions()
         {
             // placeholder
         }
 
         /// <summary>
-        /// Gets or sets the forced input format. If let null or empty,
-        /// the input format will be selected automatically.
+        /// Gets the codec options.
+        /// Codec options are documented here: https://www.ffmpeg.org/ffmpeg-codecs.html#Codec-Options
+        /// Port of codec_opts
         /// </summary>
-        public string ForcedInputFormat { get; set; }
+        public MediaCodecOptions CodecOptions { get; } = new MediaCodecOptions();
 
         /// <summary>
         /// Gets or sets a value indicating whether [enable low resource].
@@ -36,35 +33,10 @@
         public bool EnableFastDecoding { get; set; } = false;
 
         /// <summary>
-        /// A dictionary containing generic input options for both:
-        /// Global Codec Options: https://www.ffmpeg.org/ffmpeg-all.html#Codec-Options
-        /// Demuxer-Private Options: https://ffmpeg.org/ffmpeg-all.html#Demuxers
-        /// </summary>
-        public MediaInputOptions InputOptions { get; } = new MediaInputOptions();
-
-        /// <summary>
-        /// Gets the codec options.
-        /// Codec options are documented here: https://www.ffmpeg.org/ffmpeg-codecs.html#Codec-Options
-        /// Port of codec_opts
-        /// </summary>
-        public MediaCodecOptions CodecOptions { get; } = new MediaCodecOptions();
-
-        /// <summary>
-        /// Contains options for the format context as documented:
-        /// https://ffmpeg.org/ffmpeg-formats.html#Format-Options
-        /// </summary>
-        public MediaFormatOptions FormatOptions { get; } = new MediaFormatOptions();
-
-        /// <summary>
         /// Gets or sets a value indicating whether experimental hardware acceleration is enabled.
         /// Defaults to false. This feature is experimental.
         /// </summary>
         public bool EnableHardwareAcceleration { get; set; }
-
-        /// <summary>
-        /// Gets or sets the amount of time to wait for a an open or read operation to complete.
-        /// </summary>
-        public TimeSpan ReadTimeout { get; set; } = TimeSpan.FromSeconds(30);
 
         /// <summary>
         /// Prevent reading from audio stream components.

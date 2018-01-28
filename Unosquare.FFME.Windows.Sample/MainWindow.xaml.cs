@@ -115,6 +115,7 @@
             Media.PositionChanged += Media_PositionChanged;
             Media.MediaOpened += Media_MediaOpened;
             Media.MediaOpening += Media_MediaOpening;
+            Media.MediaInitializing += Media_MediaInitializing;
             Media.MediaFailed += Media_MediaFailed;
             Media.MessageLogged += Media_MessageLogged;
             Media.PropertyChanged += Media_PropertyChanged;
@@ -167,7 +168,7 @@
         /// </summary>
         private void InitializeInputEvents()
         {
-            #region Allow Keyboard Control
+            #region Keyboard Controls
 
             var togglePlayPauseKeys = new[] { Key.Play, Key.MediaPlayPause, Key.Space };
 
@@ -204,14 +205,16 @@
                 if (e.Key == Key.Left)
                 {
                     if (Media.IsPlaying) await Media.Pause();
-                    Media.Position -= Media.FrameStepDuration;
+                    Media.Position -= TimeSpan.FromMilliseconds(
+                        Media.FrameStepDuration.TotalMilliseconds * (Media.SpeedRatio >= 1 ? Media.SpeedRatio : 1));
                 }
 
                 // Seek to right
                 if (e.Key == Key.Right)
                 {
                     if (Media.IsPlaying) await Media.Pause();
-                    Media.Position += Media.FrameStepDuration;
+                    Media.Position += TimeSpan.FromMilliseconds(
+                        Media.FrameStepDuration.TotalMilliseconds * (Media.SpeedRatio >= 1 ? Media.SpeedRatio : 1));
                 }
 
                 // Volume Up
@@ -372,7 +375,6 @@
             mouseMoveTimer.Start();
 
             #endregion
-
         }
 
         /// <summary>

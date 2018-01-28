@@ -6,8 +6,6 @@
 
     public partial class MediaEngine
     {
-        #region Connector Signals
-
         /// <summary>
         /// Raises the MessageLogged event
         /// </summary>
@@ -45,6 +43,17 @@
         internal void SendOnMediaOpened()
         {
             Connector?.OnMediaOpened(this);
+        }
+
+        /// <summary>
+        /// Raises the media initializing event.
+        /// </summary>
+        /// <param name="options">The options.</param>
+        /// <param name="url">The URL.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void SendOnMediaInitializing(StreamOptions options, string url)
+        {
+            Connector?.OnMediaInitializing(this, options, url);
         }
 
         /// <summary>
@@ -100,28 +109,5 @@
         {
             Connector?.OnMediaEnded(this);
         }
-
-        /// <summary>
-        /// Raises the Position Changed event
-        /// </summary>
-        /// <param name="position">The position.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void SendOnPositionChanged(TimeSpan position)
-        {
-            Connector?.OnPositionChanged(this, position);
-        }
-
-        /// <summary>
-        /// Notifies the platform connector that a property value has changed.
-        /// </summary>
-        /// <param name="propertyName">Name of the property used to notify listeners.  This
-        /// value is optional and can be provided automatically when invoked from compilers
-        /// that support <see cref="CallerMemberNameAttribute"/>.</param>
-        private void SendOnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            Connector?.OnPropertyChanged(this, propertyName);
-        }
-
-        #endregion
     }
 }

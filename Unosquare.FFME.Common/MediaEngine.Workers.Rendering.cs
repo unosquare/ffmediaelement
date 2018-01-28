@@ -7,9 +7,6 @@
 
     public partial class MediaEngine
     {
-        private Timer BlockRenderingWorker = null;
-        private ManualResetEvent HasBlockRenderingWorkerExited = null;
-
         /// <summary>
         /// Starts the block rendering worker.
         /// </summary>
@@ -21,7 +18,6 @@
             HasBlockRenderingWorkerExited = new ManualResetEvent(false);
 
             // Synchronized access to parts of the run cycle
-            var isRunningPropertyUpdates = false;
             var isRunningRenderingCycle = false;
 
             // Holds the main media type
@@ -60,7 +56,7 @@
             {
                 #region Detect a Timer Stop
 
-                if (IsTaskCancellationPending || HasBlockRenderingWorkerExited.IsSet() || m_IsDisposing.Value)
+                if (IsTaskCancellationPending || HasBlockRenderingWorkerExited.IsSet() || IsDisposing)
                 {
                     HasBlockRenderingWorkerExited.Set();
                     return;
@@ -68,30 +64,10 @@
 
                 #endregion
 
-                #region Run the property Updates
-
-                if (isRunningPropertyUpdates == false)
-                {
-                    isRunningPropertyUpdates = true;
-
-                    try
-                    {
-                        UpdatePosition(IsOpen ? Clock?.Position ?? TimeSpan.Zero : TimeSpan.Zero);
-                        UpdateBufferingProperties();
-                    }
-                    catch (Exception ex)
-                    {
-                        Log(MediaLogMessageType.Error, $"{nameof(BlockRenderingWorker)} callabck failed. {ex.GetType()}: {ex.Message}");
-                    }
-                    finally
-                    {
-                        isRunningPropertyUpdates = false;
-                    }
-                }
-
-                #endregion
-
                 #region Run the Rendering Cycle
+
+                // Updatete Status  Properties
+                State.UpdateBufferingProperties();
 
                 // Don't run the cycle if it's already running
                 if (isRunningRenderingCycle)
@@ -114,9 +90,6 @@
                     // Capture current clock position for the rest of this cycle
                     BlockRenderingCycle.Reset();
 
-                    // capture the wall clock for this cycle
-                    wallClock = Clock.Position;
-
                     #endregion
 
                     #region 2. Handle Block Rendering
@@ -124,6 +97,13 @@
                     // Wait for the seek op to finish before we capture blocks
                     if (HasDecoderSeeked)
                         SeekingDone.WaitOne();
+
+                    // capture the wall clock for this cycle
+                    wallClock = Clock.Position;
+
+                    // Update the position property after all seeking is done
+                    if (State.IsSeeking == false)
+                        State.Position = wallClock;
 
                     // Capture the blocks to render
                     foreach (var t in all)
@@ -162,8 +142,8 @@
                     #endregion
 
                 }
-                catch (ThreadAbortException) { }
-                catch { throw; }
+                catch (ThreadAbortException) { /* swallow */ }
+                catch { if (!IsDisposing && !IsDisposed) throw; }
                 finally
                 {
                     // Always exit notifying the cycle is done.

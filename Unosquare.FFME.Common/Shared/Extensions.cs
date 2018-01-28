@@ -188,7 +188,7 @@
         /// <returns>
         ///   <c>true</c> if the specified m is set; otherwise, <c>false</c>.
         /// </returns>
-        internal static bool IsSet(this ManualResetEvent m)
+        public static bool IsSet(this ManualResetEvent m)
         {
             return m?.WaitOne(0) ?? true;
         }

@@ -64,7 +64,7 @@
 
             if (Application.Current != null)
             {
-                WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.Normal, () =>
+                GuiContext.Current.EnqueueInvoke(DispatcherPriority.Render, () =>
                 {
                     Application.Current.Exit += OnApplicationExit;
                 });
@@ -101,7 +101,7 @@
             {
                 // The delay is the clock position minus the current position
                 lock (SyncLock)
-                    return TimeSpan.FromTicks(MediaCore.RealTimeClockPosition.Ticks - Position.Ticks);
+                    return TimeSpan.FromTicks(MediaCore.WallClock.Ticks - Position.Ticks);
             }
         }
 
@@ -267,7 +267,7 @@
                 try
                 {
                     WaitForReadyEvent.Set();
-                    var speedRatio = MediaCore?.SpeedRatio ?? 0;
+                    var speedRatio = MediaCore?.State.SpeedRatio ?? 0;
 
                     // Render silence if we don't need to output samples
                     if (MediaElement.IsPlaying == false || speedRatio <= 0d || MediaElement.HasAudio == false || AudioBuffer.ReadableCount <= 0)
@@ -335,6 +335,12 @@
         {
             try { Dispose(); }
             catch { }
+            finally
+            {
+                // Self-disconnect
+                if (Application.Current != null)
+                    Application.Current.Exit -= OnApplicationExit;
+            }
         }
 
         /// <summary>
@@ -377,21 +383,6 @@
         {
             lock (SyncLock)
             {
-                try
-                {
-                    if (Application.Current != null)
-                    {
-                        WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.Send, () =>
-                        {
-                            Application.Current.Exit -= OnApplicationExit;
-                        });
-                    }
-                }
-                catch
-                {
-                    // ignored
-                }
-
                 if (AudioDevice != null)
                 {
                     AudioDevice.Pause();
@@ -503,7 +494,7 @@
             }
 
             // Perform minor adjustments until the delay is less than 10ms in either direction
-            if (MediaCore.HasVideo &&
+            if (MediaCore.State.HasVideo &&
                 speedRatio == 1.0 &&
                 isBeyondThreshold == false &&
                 Math.Abs(audioLatencyMs) > SyncThresholdPerfect)
@@ -692,7 +683,7 @@
         private void ApplyVolumeAndBalance(byte[] targetBuffer, int targetBufferOffset, int requestedBytes)
         {
             // Check if we are muted. We don't need process volume and balance
-            var isMuted = MediaCore?.IsMuted ?? true;
+            var isMuted = MediaCore?.State.IsMuted ?? true;
             if (isMuted)
             {
                 for (var sourceBufferOffset = 0; sourceBufferOffset < requestedBytes; sourceBufferOffset++)
@@ -702,8 +693,8 @@
             }
 
             // Capture and adjust volume and balance
-            var volume = MediaCore?.Volume ?? Constants.Controller.DefaultVolume;
-            var balance = MediaCore?.Balance ?? Constants.Controller.DefaultBalance;
+            var volume = MediaCore?.State.Volume ?? Constants.Controller.DefaultVolume;
+            var balance = MediaCore?.State.Balance ?? Constants.Controller.DefaultBalance;
 
             volume = volume.Clamp(Constants.Controller.MinVolume, Constants.Controller.MaxVolume);
             balance = balance.Clamp(Constants.Controller.MinBalance, Constants.Controller.MaxBalance);

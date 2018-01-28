@@ -376,7 +376,7 @@
             using (Locker.AcquireWriterLock())
             {
                 // Check if we already have a block at the given time
-                if (IsInRange(source.StartTime))
+                if (IsInRange(source.StartTime) && source.HasValidStartTime)
                 {
                     var reapeatedBlock = PlaybackBlocks.FirstOrDefault(f => f.StartTime.Ticks == source.StartTime.Ticks);
                     if (reapeatedBlock != null)

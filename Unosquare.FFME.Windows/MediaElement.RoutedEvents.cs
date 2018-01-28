@@ -9,7 +9,6 @@
     using System.Reflection;
     using System.Runtime.CompilerServices;
     using System.Windows;
-    using System.Windows.Threading;
 
     public partial class MediaElement
     {
@@ -83,6 +82,16 @@
                             nameof(MediaClosed),
                             RoutingStrategy.Bubble,
                             typeof(RoutedEventHandler),
+                            typeof(MediaElement));
+
+        /// <summary>
+        /// MediaOpeningEvent is a routed event.
+        /// </summary>
+        public static readonly RoutedEvent MediaInitializingEvent =
+            EventManager.RegisterRoutedEvent(
+                            nameof(MediaInitializing),
+                            RoutingStrategy.Bubble,
+                            typeof(EventHandler<MediaInitializingRoutedEventArgs>),
                             typeof(MediaElement));
 
         /// <summary>
@@ -184,12 +193,22 @@
 
         /// <summary>
         /// Raised before the input stream of the media is opened.
-        /// Use this method to modify the input options.
+        /// Use this method to modify the media options.
         /// </summary>
         public event EventHandler<MediaOpeningRoutedEventArgs> MediaOpening
         {
             add { AddHandler(MediaOpeningEvent, value); }
             remove { RemoveHandler(MediaOpeningEvent, value); }
+        }
+
+        /// <summary>
+        /// Raised before the input stream of the media is initialized.
+        /// Use this method to modify the input options.
+        /// </summary>
+        public event EventHandler<MediaInitializingRoutedEventArgs> MediaInitializing
+        {
+            add { AddHandler(MediaInitializingEvent, value); }
+            remove { RemoveHandler(MediaInitializingEvent, value); }
         }
 
         /// <summary>
@@ -237,12 +256,10 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void RaiseFFmpegMessageLogged(object sender, MediaLogMessage e)
         {
-            WindowsPlatform.Instance.Gui?.EnqueueInvoke(DispatcherPriority.Background,
-                new Action<MediaLogMessage>((eventArgs) =>
-                {
-                    FFmpegMessageLogged?.Invoke(sender, new MediaLogMessageEventArgs(e));
-                }),
-                e);
+            GuiContext.Current.EnqueueInvoke(() =>
+            {
+                FFmpegMessageLogged?.Invoke(sender, new MediaLogMessageEventArgs(e));
+            });
         }
 
         /// <summary>
@@ -252,12 +269,10 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseMessageLoggedEvent(MediaLogMessage e)
         {
-            WindowsPlatform.Instance.Gui?.EnqueueInvoke(DispatcherPriority.Background,
-                new Action<MediaLogMessage>((eventArgs) =>
-                {
-                    MessageLogged?.Invoke(this, new MediaLogMessageEventArgs(eventArgs));
-                }),
-                e);
+            GuiContext.Current.EnqueueInvoke(() =>
+            {
+                MessageLogged?.Invoke(this, new MediaLogMessageEventArgs(e));
+            });
         }
 
         /// <summary>
@@ -269,11 +284,11 @@
         {
             LogEventStart(MediaFailedEvent);
             MediaCore?.Log(MediaLogMessageType.Error, $"Media Failure - {ex?.GetType()}: {ex?.Message}");
-            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.DataBind, () =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(CreateExceptionRoutedEventArgs(MediaFailedEvent, this, ex));
+                LogEventDone(MediaFailedEvent);
             });
-            LogEventDone(MediaFailedEvent);
         }
 
         /// <summary>
@@ -283,11 +298,11 @@
         internal void RaiseMediaOpenedEvent()
         {
             LogEventStart(MediaOpenedEvent);
-            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.DataBind, () =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new RoutedEventArgs(MediaOpenedEvent, this));
+                LogEventDone(MediaOpenedEvent);
             });
-            LogEventDone(MediaOpenedEvent);
         }
 
         /// <summary>
@@ -297,32 +312,53 @@
         internal void RaiseMediaClosedEvent()
         {
             LogEventStart(MediaClosedEvent);
-            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.DataBind, () =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new RoutedEventArgs(MediaClosedEvent, this));
+                LogEventDone(MediaClosedEvent);
             });
-            LogEventDone(MediaClosedEvent);
         }
 
         /// <summary>
         /// Raises the media opening event.
         /// </summary>
-        /// <param name="mediaOptions">The media options.</param>
+        /// <param name="options">The options.</param>
         /// <param name="mediaInfo">The media information.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseMediaOpeningEvent(MediaOptions mediaOptions, MediaInfo mediaInfo)
+        internal void RaiseMediaOpeningEvent(MediaOptions options, MediaInfo mediaInfo)
         {
             LogEventStart(MediaOpeningEvent);
-            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.DataBind, () =>
+            GuiContext.Current.Invoke(() =>
             {
                 RaiseEvent(new MediaOpeningRoutedEventArgs(
                     MediaOpeningEvent,
                     this,
-                    mediaOptions,
+                    options,
                     mediaInfo));
-            });
 
-            LogEventDone(MediaOpeningEvent);
+                LogEventDone(MediaOpeningEvent);
+            });
+        }
+
+        /// <summary>
+        /// Raises the media opening event.
+        /// </summary>
+        /// <param name="options">The options.</param>
+        /// <param name="url">The URL.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void RaiseMediaInitializingEvent(StreamOptions options, string url)
+        {
+            LogEventStart(MediaInitializingEvent);
+            GuiContext.Current.Invoke(() =>
+            {
+                RaiseEvent(new MediaInitializingRoutedEventArgs(
+                    MediaInitializingEvent,
+                    this,
+                    options,
+                    url));
+
+                LogEventDone(MediaInitializingEvent);
+            });
         }
 
         /// <summary>
@@ -332,7 +368,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaisePositionChangedEvent(TimeSpan position)
         {
-            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.DataBind, () =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new PositionChangedRoutedEventArgs(
                     PositionChangedEvent,
@@ -348,11 +384,11 @@
         internal void RaiseBufferingStartedEvent()
         {
             LogEventStart(BufferingStartedEvent);
-            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.DataBind, () =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new RoutedEventArgs(BufferingStartedEvent, this));
+                LogEventDone(BufferingStartedEvent);
             });
-            LogEventDone(BufferingStartedEvent);
         }
 
         /// <summary>
@@ -362,11 +398,11 @@
         internal void RaiseBufferingEndedEvent()
         {
             LogEventStart(BufferingEndedEvent);
-            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.DataBind, () =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new RoutedEventArgs(BufferingEndedEvent, this));
+                LogEventDone(BufferingEndedEvent);
             });
-            LogEventDone(BufferingEndedEvent);
         }
 
         /// <summary>
@@ -376,11 +412,11 @@
         internal void RaiseSeekingStartedEvent()
         {
             LogEventStart(SeekingStartedEvent);
-            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.DataBind, () =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new RoutedEventArgs(SeekingStartedEvent, this));
+                LogEventDone(SeekingStartedEvent);
             });
-            LogEventDone(SeekingStartedEvent);
         }
 
         /// <summary>
@@ -390,11 +426,11 @@
         internal void RaiseSeekingEndedEvent()
         {
             LogEventStart(SeekingEndedEvent);
-            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.DataBind, () =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new RoutedEventArgs(SeekingEndedEvent, this));
+                LogEventDone(SeekingEndedEvent);
             });
-            LogEventDone(SeekingEndedEvent);
         }
 
         /// <summary>
@@ -404,11 +440,11 @@
         internal void RaiseMediaEndedEvent()
         {
             LogEventStart(MediaEndedEvent);
-            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.DataBind, () =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new RoutedEventArgs(MediaEndedEvent, this));
+                LogEventDone(MediaEndedEvent);
             });
-            LogEventDone(MediaEndedEvent);
         }
 
         /// <summary>

@@ -7,8 +7,16 @@
     /// https://ffmpeg.org/ffmpeg-formats.html#Format-Options
     /// TODO: There are still quite a bit of options that have not been implemented.
     /// </summary>
-    public class MediaFormatOptions
+    public sealed class StreamFormatOptions
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StreamFormatOptions"/> class.
+        /// </summary>
+        internal StreamFormatOptions()
+        {
+            // placeholder
+        }
+
         /// <summary>
         /// Port of avioflags direct
         /// </summary>

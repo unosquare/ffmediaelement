@@ -35,7 +35,7 @@
         {
             var m = Manager.MediaCore;
 
-            if (m.IsDisposed || m.IsOpen || m.IsOpening) return;
+            if (m.IsDisposed || m.State.IsOpen || m.State.IsOpening) return;
 
             try
             {
@@ -43,9 +43,9 @@
                 // until the interrupt timeout occurs but and the Real-Time Clock continues. Strange behavior.
 
                 // Signal the initial state
-                m.ResetControllerProperties();
-                m.IsOpening = true;
-                m.MediaState = MediaEngineState.Manual;
+                m.State.ResetMediaProperties();
+                m.State.Source = Source;
+                m.State.IsOpening = true;
 
                 // Register FFmpeg libraries if not already done
                 if (FFInterop.Initialize(MediaEngine.FFmpegDirectory, MediaEngine.FFmpegLoadModeFlags))
@@ -64,18 +64,22 @@
 
                 // Create the stream container
                 // the async protocol prefix allows for increased performance for local files.
-                m.Container = new MediaContainer(mediaUrl, m, Source.IsFile ? "async" : null);
+                var streamOptions = new StreamOptions();
+                streamOptions.ProtocolPrefix = Source.IsFile ? "async" : null;
+
+                m.SendOnMediaInitializing(streamOptions, mediaUrl);
+                m.Container = new MediaContainer(mediaUrl, streamOptions, m);
                 m.SendOnMediaOpening();
                 m.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Entered");
                 m.Container.Open();
-                m.ResetBufferingProperties();
+                m.State.InitializeBufferingProperties();
 
                 // Set the state to stopped
-                m.MediaState = MediaEngineState.Stop;
+                m.State.MediaState = PlaybackStatus.Stop;
 
                 // Signal we are no longer in the opening state
                 // so we can enqueue commands in the event handler
-                m.IsOpening = false;
+                m.State.IsOpening = false;
 
                 // Charge! Fire up the worker threads!
                 m.StartWorkers();
@@ -85,13 +89,12 @@
             }
             catch (Exception ex)
             {
-                m.MediaState = MediaEngineState.Close;
+                m.State.MediaState = PlaybackStatus.Close;
                 m.SendOnMediaFailed(ex);
             }
             finally
             {
-                m.IsOpening = false;
-                m.NotifyPropertyChanges();
+                m.State.IsOpening = false;
                 m.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Completed");
             }
         }

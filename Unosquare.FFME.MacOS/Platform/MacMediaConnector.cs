@@ -13,63 +13,58 @@
             Control = control;
         }
 
-        public void OnBufferingEnded(object sender)
+        public void OnBufferingEnded(MediaEngine sender)
         {
             // placeholder
         }
 
-        public void OnBufferingStarted(object sender)
+        public void OnBufferingStarted(MediaEngine sender)
         {
             // placeholder
         }
 
-        public void OnMediaClosed(object sender)
+        public void OnMediaClosed(MediaEngine sender)
         {
             // placeholder
         }
 
-        public void OnMediaEnded(object sender)
+        public void OnMediaEnded(MediaEngine sender)
         {
             // placeholder
         }
 
-        public void OnMediaFailed(object sender, Exception e)
+        public void OnMediaFailed(MediaEngine sender, Exception e)
         {
             // placeholder
         }
 
-        public void OnMediaOpened(object sender)
+        public void OnMediaOpened(MediaEngine sender)
         {
             // placeholder
         }
 
-        public void OnMediaOpening(object sender, MediaOptions mediaOptions, MediaInfo mediaInfo)
+        public void OnMediaOpening(MediaEngine sender, MediaOptions options, MediaInfo mediaInfo)
         {
             // placeholder
         }
 
-        public void OnMessageLogged(object sender, MediaLogMessage e)
+        public void OnMediaInitializing(MediaEngine sender, StreamOptions options, string url)
+        {
+            // placeholder
+        }
+
+        public void OnMessageLogged(MediaEngine sender, MediaLogMessage e)
         {
             if (e.MessageType == MediaLogMessageType.Trace) return;
             Console.WriteLine($"{e.MessageType,10} - {e.Message}");
         }
 
-        public void OnPositionChanged(object sender, TimeSpan position)
+        public void OnSeekingEnded(MediaEngine sender)
         {
             // placeholder
         }
 
-        public void OnPropertyChanged(object sender, string propertyName)
-        {
-            // placeholder
-        }
-
-        public void OnSeekingEnded(object sender)
-        {
-            // placeholder
-        }
-
-        public void OnSeekingStarted(object sender)
+        public void OnSeekingStarted(MediaEngine sender)
         {
             // placeholder
         }

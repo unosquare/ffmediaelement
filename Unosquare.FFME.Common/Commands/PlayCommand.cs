@@ -24,15 +24,19 @@
         internal override void ExecuteInternal()
         {
             var m = Manager.MediaCore;
-            if (m.IsOpen == false) return;
-            if (m.HasMediaEnded || (m.NaturalDuration.HasValue && m.NaturalDuration != TimeSpan.MinValue && m.Clock.Position >= m.NaturalDuration.Value))
+
+            if (m.State.IsOpen == false) return;
+            if (m.State.HasMediaEnded
+                || (m.State.NaturalDuration.HasValue
+                && m.State.NaturalDuration != TimeSpan.MinValue
+                && m.Clock.Position >= m.State.NaturalDuration.Value))
                 return;
 
             foreach (var renderer in m.Renderers.Values)
                 renderer.Play();
 
             m.Clock.Play();
-            m.MediaState = MediaEngineState.Play;
+            m.State.MediaState = PlaybackStatus.Play;
         }
     }
 }

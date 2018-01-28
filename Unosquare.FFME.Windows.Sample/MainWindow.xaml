@@ -33,7 +33,7 @@
             </Storyboard>
         </Grid.Resources>
 
-        <ffme:MediaElement Name="Media" Background="Black" Grid.Row="0" Grid.Column="0" />
+        <ffme:MediaElement Name="Media" Background="Black" LoadedBehavior="Play" Grid.Row="0" Grid.Column="0" />
 
         <Grid Name="Controls" Style="{DynamicResource ControlsGridStyle}" Visibility="Visible">
             <Grid.RowDefinitions>
@@ -82,7 +82,7 @@
                         <Path Stretch="Uniform" Data="{Binding Source={StaticResource AudioMenuIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}}}" />
                     </ToggleButton>
                     <Popup IsOpen="{Binding IsChecked, ElementName=SoundMenuButton, Mode=TwoWay}" StaysOpen="False" Name="SoundMenuPopup"
-                           PopupAnimation="Fade" AllowsTransparency="True" Placement="Top" PlacementTarget="{Binding ElementName=SoundMenuButton}"
+                           PopupAnimation="Fade" Placement="Top" PlacementTarget="{Binding ElementName=SoundMenuButton}"
                            VerticalOffset="2" HorizontalOffset="-18">
                         <Popup.Resources>
                             <Style TargetType="TextBlock">
@@ -146,7 +146,7 @@
                     </ToggleButton>
 
                     <Popup Name="OpenMediaPopup" IsOpen="{Binding IsChecked, ElementName=OpenMenuButton, Mode=TwoWay}" StaysOpen="False" 
-                           PopupAnimation="Fade" AllowsTransparency="True" Placement="Top" PlacementTarget="{Binding ElementName=OpenMenuButton}"
+                           PopupAnimation="Fade" Placement="Top" PlacementTarget="{Binding ElementName=OpenMenuButton}"
                            VerticalOffset="2" HorizontalOffset="-840">
                         <Popup.Resources>
                             <Style TargetType="TextBlock">
@@ -187,7 +187,7 @@
             </Grid>
         </Grid>
 
-        <Popup Name="DebugWindowPopup" MouseDown="DebugWindowPopup_MouseDown" IsOpen="{Binding ElementName=OpenDebugButton, Path=IsChecked}" AllowsTransparency="True"
+        <Popup Name="DebugWindowPopup" MouseDown="DebugWindowPopup_MouseDown" IsOpen="{Binding ElementName=OpenDebugButton, Path=IsChecked}"
                PlacementTarget="{Binding ElementName=window}" Placement="Right" HorizontalOffset="-10" VerticalOffset="-20">
             <Border BorderBrush="#FF767676" BorderThickness="1" Background="#ee1f1f1f">
                 <StackPanel Name="Properties" VerticalAlignment="Top" HorizontalAlignment="Right" Orientation="Vertical" 

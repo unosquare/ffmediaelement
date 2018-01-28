@@ -2,7 +2,6 @@
 {
     using Shared;
     using System;
-    using System.Windows.Threading;
 
     /// <summary>
     /// The Media engine connector
@@ -10,51 +9,83 @@
     /// <seealso cref="IMediaConnector" />
     internal class WindowsMediaConnector : IMediaConnector
     {
-        private MediaElement Control = null;
+        private MediaElement Parent = null;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WindowsMediaConnector"/> class.
         /// </summary>
-        /// <param name="control">The control.</param>
-        public WindowsMediaConnector(MediaElement control)
+        /// <param name="parent">The control.</param>
+        public WindowsMediaConnector(MediaElement parent)
         {
-            Control = control;
+            Parent = parent;
         }
+
+        #region Event Signal Handling
 
         /// <summary>
         /// Called when [buffering ended].
         /// </summary>
         /// <param name="sender">The sender.</param>
-        public void OnBufferingEnded(object sender)
+        public void OnBufferingEnded(MediaEngine sender)
         {
-            Control?.RaiseBufferingEndedEvent();
+            Parent?.RaiseBufferingEndedEvent();
         }
 
         /// <summary>
         /// Called when [buffering started].
         /// </summary>
         /// <param name="sender">The sender.</param>
-        public void OnBufferingStarted(object sender)
+        public void OnBufferingStarted(MediaEngine sender)
         {
-            Control?.RaiseBufferingStartedEvent();
+            Parent?.RaiseBufferingStartedEvent();
         }
 
         /// <summary>
         /// Called when [media closed].
         /// </summary>
         /// <param name="sender">The sender.</param>
-        public void OnMediaClosed(object sender)
+        public void OnMediaClosed(MediaEngine sender)
         {
-            Control?.RaiseMediaClosedEvent();
+            Parent?.RaiseMediaClosedEvent();
         }
 
         /// <summary>
         /// Called when [media ended].
         /// </summary>
         /// <param name="sender">The sender.</param>
-        public void OnMediaEnded(object sender)
+        public void OnMediaEnded(MediaEngine sender)
         {
-            Control?.RaiseMediaEndedEvent();
+            if (Parent == null) return;
+
+            GuiContext.Current.Invoke(async () =>
+            {
+                Parent.RaiseMediaEndedEvent();
+                switch (Parent.UnloadedBehavior)
+                {
+                    case System.Windows.Controls.MediaState.Close:
+                        {
+                            await sender.Close();
+                            break;
+                        }
+
+                    case System.Windows.Controls.MediaState.Play:
+                        {
+                            await sender.Stop().ContinueWith(async (t) => await sender.Play());
+                            break;
+                        }
+
+                    case System.Windows.Controls.MediaState.Stop:
+                        {
+                            await sender.Stop();
+                            break;
+                        }
+
+                    default:
+                        {
+                            break;
+                        }
+                }
+            });
         }
 
         /// <summary>
@@ -62,29 +93,64 @@
         /// </summary>
         /// <param name="sender">The sender.</param>
         /// <param name="e">The e.</param>
-        public void OnMediaFailed(object sender, Exception e)
+        public void OnMediaFailed(MediaEngine sender, Exception e)
         {
-            Control?.RaiseMediaFailedEvent(e);
+            Parent?.RaiseMediaFailedEvent(e);
         }
 
         /// <summary>
         /// Called when [media opened].
         /// </summary>
         /// <param name="sender">The sender.</param>
-        public void OnMediaOpened(object sender)
+        public void OnMediaOpened(MediaEngine sender)
         {
-            Control?.RaiseMediaOpenedEvent();
+            if (Parent == null) return;
+
+            GuiContext.Current.Invoke(async () =>
+            {
+                Parent.RaiseMediaOpenedEvent();
+                if (sender.State.CanPause == false)
+                {
+                    await sender.Play();
+                    return;
+                }
+
+                switch (Parent.LoadedBehavior)
+                {
+                    case System.Windows.Controls.MediaState.Play:
+                        {
+                            await sender.Play();
+                            break;
+                        }
+
+                    default:
+                        {
+                            break;
+                        }
+                }
+            });
         }
 
         /// <summary>
         /// Called when [media opening].
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <param name="mediaOptions">The media options.</param>
+        /// <param name="options">The media options.</param>
         /// <param name="mediaInfo">The media information.</param>
-        public void OnMediaOpening(object sender, MediaOptions mediaOptions, MediaInfo mediaInfo)
+        public void OnMediaOpening(MediaEngine sender, MediaOptions options, MediaInfo mediaInfo)
         {
-            Control?.RaiseMediaOpeningEvent(mediaOptions, mediaInfo);
+            Parent?.RaiseMediaOpeningEvent(options, mediaInfo);
+        }
+
+        /// <summary>
+        /// Called when [media initializing].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="url">The URL.</param>
+        public void OnMediaInitializing(MediaEngine sender, StreamOptions options, string url)
+        {
+            Parent?.RaiseMediaInitializingEvent(options, url);
         }
 
         /// <summary>
@@ -92,89 +158,29 @@
         /// </summary>
         /// <param name="sender">The sender.</param>
         /// <param name="e">The <see cref="T:Unosquare.FFME.Shared.MediaLogMessage" /> instance containing the event data.</param>
-        public void OnMessageLogged(object sender, MediaLogMessage e)
+        public void OnMessageLogged(MediaEngine sender, MediaLogMessage e)
         {
-            Control?.RaiseMessageLoggedEvent(e);
-        }
-
-        /// <summary>
-        /// Called when [position changed].
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="position">The position.</param>
-        public void OnPositionChanged(object sender, TimeSpan position)
-        {
-            Control?.RaisePositionChangedEvent(position);
-        }
-
-        /// <summary>
-        /// Called when an underlying media engine property is changed.
-        /// This is used to handle property change notifications
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="propertyName">Name of the property.</param>
-        public void OnPropertyChanged(object sender, string propertyName)
-        {
-            // TODO: bug sometimes continuously resizing the window causes everything to freeze.
-            // This might be because of excessive property change notifications. It might be a good idea
-            // to notify everything at once every say, 25ms.
-            // Either that or attach to the properties from the mediaelement via WPF binding.
-            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.DataBind, () =>
-            {
-                switch (propertyName)
-                {
-                    // forward internal changes to the MediaElement dependency Properties
-                    case nameof(MediaEngine.Source):
-                        Control.Source = Control.MediaCore.Source;
-                        break;
-                    case nameof(MediaEngine.LoadedBehavior):
-                        Control.LoadedBehavior = (System.Windows.Controls.MediaState)Control.MediaCore.LoadedBehavior;
-                        break;
-                    case nameof(MediaEngine.SpeedRatio):
-                        Control.SpeedRatio = Control.MediaCore.SpeedRatio;
-                        break;
-                    case nameof(MediaEngine.UnloadedBehavior):
-                        Control.UnloadedBehavior = (System.Windows.Controls.MediaState)Control.MediaCore.UnloadedBehavior;
-                        break;
-                    case nameof(MediaEngine.Volume):
-                        Control.Volume = Control.MediaCore.Volume;
-                        break;
-                    case nameof(MediaEngine.Balance):
-                        Control.Balance = Control.MediaCore.Balance;
-                        break;
-                    case nameof(MediaEngine.IsMuted):
-                        Control.IsMuted = Control.MediaCore.IsMuted;
-                        break;
-                    case nameof(MediaEngine.ScrubbingEnabled):
-                        Control.ScrubbingEnabled = Control.MediaCore.ScrubbingEnabled;
-                        break;
-                    case nameof(MediaEngine.Position):
-                        Control.Position = Control.MediaCore.Position;
-                        break;
-                    default:
-                        // Simply forward notification of same-named properties
-                        Control?.RaisePropertyChangedEvent(propertyName);
-                        break;
-                }
-            });
+            Parent?.RaiseMessageLoggedEvent(e);
         }
 
         /// <summary>
         /// Called when [seeking ended].
         /// </summary>
         /// <param name="sender">The sender.</param>
-        public void OnSeekingEnded(object sender)
+        public void OnSeekingEnded(MediaEngine sender)
         {
-            Control?.RaiseSeekingEndedEvent();
+            Parent?.RaiseSeekingEndedEvent();
         }
 
         /// <summary>
         /// Called when [seeking started].
         /// </summary>
         /// <param name="sender">The sender.</param>
-        public void OnSeekingStarted(object sender)
+        public void OnSeekingStarted(MediaEngine sender)
         {
-            Control?.RaiseSeekingStartedEvent();
+            Parent?.RaiseSeekingStartedEvent();
         }
+
+        #endregion
     }
 }

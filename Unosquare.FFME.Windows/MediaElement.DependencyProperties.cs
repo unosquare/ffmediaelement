@@ -40,6 +40,7 @@ namespace Unosquare.FFME
         {
             var element = d as MediaElement;
             if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return Constants.Controller.DefaultVolume;
+            if (element.IsRunningPropertyUpdates) return value;
             if (element.HasAudio == false) return Constants.Controller.DefaultVolume;
 
             return ((double)value).Clamp(Constants.Controller.MinVolume, Constants.Controller.MaxVolume);
@@ -47,7 +48,8 @@ namespace Unosquare.FFME
 
         private static void OnVolumePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            (d as MediaElement).MediaCore.Volume = (double)e.NewValue;
+            var element = d as MediaElement;
+            element.MediaCore.State.Volume = (double)e.NewValue;
         }
 
         #endregion
@@ -80,6 +82,7 @@ namespace Unosquare.FFME
         {
             var element = d as MediaElement;
             if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return Constants.Controller.DefaultBalance;
+            if (element.IsRunningPropertyUpdates) return value;
             if (element.HasAudio == false) return Constants.Controller.DefaultBalance;
 
             return ((double)value).Clamp(Constants.Controller.MinBalance, Constants.Controller.MaxBalance);
@@ -87,7 +90,7 @@ namespace Unosquare.FFME
 
         private static void OnBalancePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            (d as MediaElement).MediaCore.Balance = (double)e.NewValue;
+            (d as MediaElement).MediaCore.State.Balance = (double)e.NewValue;
         }
 
         #endregion
@@ -120,6 +123,7 @@ namespace Unosquare.FFME
         {
             var element = d as MediaElement;
             if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return false;
+            if (element.IsRunningPropertyUpdates) return value;
             if (element.HasAudio == false) return false;
 
             return (bool)value;
@@ -127,7 +131,7 @@ namespace Unosquare.FFME
 
         private static void OnIsMutedPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            (d as MediaElement).MediaCore.IsMuted = (bool)e.NewValue;
+            (d as MediaElement).MediaCore.State.IsMuted = (bool)e.NewValue;
         }
 
         #endregion
@@ -160,14 +164,14 @@ namespace Unosquare.FFME
         {
             var element = d as MediaElement;
             if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return Constants.Controller.DefaultSpeedRatio;
-            if (element.MediaCore.IsSeekable == false) return Constants.Controller.DefaultSpeedRatio;
+            if (element.MediaCore.State.IsSeekable == false) return Constants.Controller.DefaultSpeedRatio;
 
             return ((double)value).Clamp(Constants.Controller.MinSpeedRatio, Constants.Controller.MaxSpeedRatio);
         }
 
         private static void OnSpeedRatioPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            (d as MediaElement).MediaCore?.SetSpeedRatio((double)e.NewValue);
+            (d as MediaElement).MediaCore?.RequestSpeedRatio((double)e.NewValue);
         }
 
         #endregion
@@ -200,7 +204,8 @@ namespace Unosquare.FFME
         {
             var element = d as MediaElement;
             if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return TimeSpan.Zero;
-            if (element.MediaCore.IsSeekable == false) return element.MediaCore.Position;
+            if (element.IsRunningPropertyUpdates) return value;
+            if (element.MediaCore.State.IsSeekable == false) return element.MediaCore.State.Position;
 
             var minPosition = element.MediaCore?.MediaInfo?.StartTime ?? TimeSpan.Zero;
             var maxPosition = minPosition + (element.MediaCore?.MediaInfo?.Duration ?? TimeSpan.Zero);
@@ -210,9 +215,48 @@ namespace Unosquare.FFME
         private static void OnPositionPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var element = d as MediaElement;
-            if (element == null || element.IsPositionUpdating || element.IsSeekable == false) return;
+            if (element == null || element.IsRunningPropertyUpdates || element.IsSeekable == false) return;
 
-            element.MediaCore?.Seek((TimeSpan)e.NewValue);
+            element.MediaCore?.RequestSeek((TimeSpan)e.NewValue);
+        }
+
+        #endregion
+
+        #region Source Dependency Property
+
+        /// <summary>
+        /// Gets/Sets the Source on this MediaElement.
+        /// The Source property is the Uri of the media to be played.
+        /// </summary>
+        [Category(nameof(MediaElement))]
+        [Description("The URL to load the media from. Set it to null in order to close the currently open media.")]
+        public Uri Source
+        {
+            get { return GetValue(SourceProperty) as Uri; }
+            set { SetValue(SourceProperty, value); }
+        }
+
+        /// <summary>
+        /// DependencyProperty for FFmpegMediaElement Source property.
+        /// </summary>
+        public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
+            nameof(Source), typeof(Uri), typeof(MediaElement),
+            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.None, OnSourcePropertyChanged, OnSourcePropertyChanging));
+
+        private static object OnSourcePropertyChanging(DependencyObject d, object value)
+        {
+            var element = d as MediaElement;
+            if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return null;
+            return value;
+        }
+
+        private static async void OnSourcePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var element = d as MediaElement;
+            if (e.NewValue == null && e.OldValue != null && element.IsOpen)
+                await element.Close();
+            else if (e.NewValue != null && element.IsOpening == false && e.NewValue is Uri uri)
+                await element?.MediaCore?.Open(e.NewValue as Uri);
         }
 
         #endregion
@@ -277,41 +321,6 @@ namespace Unosquare.FFME
 
         #endregion
 
-        #region Source Dependency Property
-
-        /// <summary>
-        /// Gets/Sets the Source on this MediaElement.
-        /// The Source property is the Uri of the media to be played.
-        /// </summary>
-        [Category(nameof(MediaElement))]
-        [Description("The URL to load the media from. Set it to null in order to close the currently open media.")]
-        public Uri Source
-        {
-            get { return GetValue(SourceProperty) as Uri; }
-            set { SetValue(SourceProperty, value); }
-        }
-
-        /// <summary>
-        /// DependencyProperty for FFmpegMediaElement Source property.
-        /// </summary>
-        public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
-            nameof(Source), typeof(Uri), typeof(MediaElement),
-            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.None, OnSourcePropertyChanged, OnSourcePropertyChanging));
-
-        private static object OnSourcePropertyChanging(DependencyObject d, object value)
-        {
-            var element = d as MediaElement;
-            if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return null;
-            return value;
-        }
-
-        private static async void OnSourcePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            await (d as MediaElement)?.MediaCore?.Open(e.NewValue as Uri);
-        }
-
-        #endregion
-
         #region ScrubbingEnabled Dependency Property
 
         /// <summary>
@@ -331,22 +340,14 @@ namespace Unosquare.FFME
         /// </summary>
         public static readonly DependencyProperty ScrubbingEnabledProperty = DependencyProperty.Register(
             nameof(ScrubbingEnabled), typeof(bool), typeof(MediaElement),
-            new FrameworkPropertyMetadata(true, FrameworkPropertyMetadataOptions.None, OnScrubbingEnabledPropertyChanged));
-
-        private static void OnScrubbingEnabledPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var element = d as MediaElement;
-            if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return;
-
-            element.MediaCore.ScrubbingEnabled = (bool)e.NewValue;
-        }
+            new FrameworkPropertyMetadata(true, FrameworkPropertyMetadataOptions.None));
 
         #endregion
 
         #region LoadedBahavior Dependency Property
 
         /// <summary>
-        /// Specifies the behavior that the media element should have when it
+        /// Specifies the action that the media element should execute when it
         /// is loaded. The default behavior is that it is under manual control
         /// (i.e. the caller should call methods such as Play in order to play
         /// the media). If a source is set, then the default behavior changes to
@@ -366,18 +367,7 @@ namespace Unosquare.FFME
         /// </summary>
         public static readonly DependencyProperty LoadedBehaviorProperty = DependencyProperty.Register(
             nameof(LoadedBehavior), typeof(MediaState), typeof(MediaElement),
-            new FrameworkPropertyMetadata(
-                MediaState.Play,
-                FrameworkPropertyMetadataOptions.None,
-                OnLoadedBehaviorPropertyChanged));
-
-        private static void OnLoadedBehaviorPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var element = d as MediaElement;
-            if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return;
-
-            element.MediaCore.LoadedBehavior = (MediaEngineState)e.NewValue;
-        }
+            new FrameworkPropertyMetadata(MediaState.Manual, FrameworkPropertyMetadataOptions.None));
 
         #endregion
 
@@ -385,7 +375,7 @@ namespace Unosquare.FFME
 
         /// <summary>
         /// Specifies how the underlying media should behave when
-        /// it has ended. The default behavior is to Close the media.
+        /// it has ended. The default behavior is to Pause the media.
         /// </summary>
         [Category(nameof(MediaElement))]
         [Description("Specifies how the underlying media should behave when it has ended. The default behavior is to Close the media.")]
@@ -397,19 +387,10 @@ namespace Unosquare.FFME
 
         /// <summary>
         /// The DependencyProperty for the MediaElement.UnloadedBehavior property.
-        /// TODO: Currently this property has no effect. Needs implementation.
         /// </summary>
         public static readonly DependencyProperty UnloadedBehaviorProperty = DependencyProperty.Register(
             nameof(UnloadedBehavior), typeof(MediaState), typeof(MediaElement),
-            new FrameworkPropertyMetadata(MediaState.Close, FrameworkPropertyMetadataOptions.None, OnUnloadedBehaviorPropertyChanged));
-
-        private static void OnUnloadedBehaviorPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var element = d as MediaElement;
-            if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return;
-
-            element.MediaCore.UnloadedBehavior = (MediaEngineState)e.NewValue;
-        }
+            new FrameworkPropertyMetadata(MediaState.Pause, FrameworkPropertyMetadataOptions.None));
 
         #endregion
     }

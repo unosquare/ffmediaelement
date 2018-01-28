@@ -23,7 +23,6 @@
         #region Private State
 
         private const double DefaultDpi = 96.0;
-        private const DispatcherPriority BlockRenderPriority = DispatcherPriority.Render;
 
         /// <summary>
         /// Contains an equivalence lookup of FFmpeg pixel fromat and WPF pixel formats.
@@ -32,11 +31,6 @@
         {
             { AVPixelFormat.AV_PIX_FMT_BGR0, PixelFormats.Bgr32 }
         };
-
-        /// <summary>
-        /// The action to perform when a render is enqueued on the UI thread.
-        /// </summary>
-        private readonly Action<VideoBlock, BitmapDataBuffer, TimeSpan> RenderTargetDelegate;
 
         /// <summary>
         /// The bitmap that is presented to the user.
@@ -75,15 +69,12 @@
                 throw new NotSupportedException($"Unable to get equivalent pixel fromat from source: {Constants.Video.VideoPixelFormat}");
 
             // Set the DPI
-            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.Normal, () =>
+            GuiContext.Current.Invoke(() =>
             {
                 var visual = PresentationSource.FromVisual(MediaElement);
                 DpiX = 96.0 * visual?.CompositionTarget?.TransformToDevice.M11 ?? 96.0;
                 DpiY = 96.0 * visual?.CompositionTarget?.TransformToDevice.M22 ?? 96.0;
             });
-
-            // Set the render target delegate
-            RenderTargetDelegate = RenderTarget;
         }
 
         /// <summary>
@@ -188,7 +179,7 @@
             IsRenderingInProgress.Value = true;
 
             // Ensure the target bitmap can be loaded
-            var bitmapData = LockTarget(block, BlockRenderPriority);
+            var bitmapData = LockTarget(block);
 
             // Check if we have a valid pointer to the back-buffer
             if (bitmapData == null)
@@ -206,8 +197,7 @@
                 MediaElement.RaiseRenderingVideoEvent(block, bitmapData, clockPosition);
 
             // Send to the rendering to the UI
-            WindowsPlatform.Instance.Gui?.EnqueueInvoke(
-                BlockRenderPriority, RenderTargetDelegate, block, bitmapData, clockPosition);
+            GuiContext.Current.EnqueueInvoke(DispatcherPriority.Render, () => { RenderTarget(block, bitmapData, clockPosition); });
         }
 
         /// <summary>
@@ -215,7 +205,7 @@
         /// </summary>
         public void Close()
         {
-            WindowsPlatform.Instance.Gui?.Invoke(DispatcherPriority.Render, () =>
+            GuiContext.Current.Invoke(() =>
             {
                 TargetBitmap = null;
                 MediaElement.VideoView.Source = null;
@@ -252,19 +242,18 @@
         /// Initializes the target bitmap if not available and locks it for loading the back-buffer.
         /// </summary>
         /// <param name="block">The block.</param>
-        /// <param name="priority">The priority.</param>
         /// <returns>
         /// The locking result. Returns a null pointer on back buffer for invalid.
         /// </returns>
-        private BitmapDataBuffer LockTarget(VideoBlock block, DispatcherPriority priority)
+        private BitmapDataBuffer LockTarget(VideoBlock block)
         {
             // Result will be set on the GUI thread
             BitmapDataBuffer result = null;
 
-            WindowsPlatform.Instance.Gui?.Invoke(priority, () =>
+            GuiContext.Current.Invoke(() =>
             {
                 // Skip the locking if scrubbing is not enabled
-                if (MediaElement.ScrubbingEnabled == false && MediaElement.IsPlaying == false)
+                if (MediaElement.ScrubbingEnabled == false && (MediaElement.IsPlaying == false || MediaElement.IsSeeking))
                     return;
 
                 // Figure out what we need to do
