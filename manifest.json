@@ -107,6 +107,18 @@
     },
     {
       "type": "ManagedReference",
+      "source_relative_path": "obj/api/Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.html",
+          "hash": "xkTjDLOSxF/xPoMBNw6msA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
       "source_relative_path": "obj/api/Unosquare.FFME.Events.PositionChangedRoutedEventArgs.yml",
       "output": {
         ".html": {
@@ -171,7 +183,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Events.html",
-          "hash": "PKJyL9DdKNlypuqc6uJNjQ=="
+          "hash": "NnMfgSarXu1OtzFhAFJOTg=="
         }
       },
       "is_incremental": false,
@@ -183,7 +195,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.MediaElement.html",
-          "hash": "7bBtUcXJ9dfYg0tRqqe00w=="
+          "hash": "3JGBqQW+INTSUH211/Z1XA=="
         }
       },
       "is_incremental": false,
@@ -219,7 +231,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "/XbGVP05JSoDGIghEiFzEQ=="
+          "hash": "uJd4qDaALUmYMLXCV9QoyA=="
         }
       },
       "is_incremental": false,

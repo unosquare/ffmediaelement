@@ -313,6 +313,48 @@ references:
   commentId: Overload:Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.Options
   fullName: Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.Options
   nameWithType: MediaOpeningRoutedEventArgs.Options
+- uid: Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs
+  name: MediaStateChangedRoutedEventArgs
+  href: api/Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.html
+  commentId: T:Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs
+  fullName: Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs
+  nameWithType: MediaStateChangedRoutedEventArgs
+- uid: Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.#ctor(RoutedEvent,System.Object,MediaState,MediaState)
+  name: MediaStateChangedRoutedEventArgs(RoutedEvent, Object, MediaState, MediaState)
+  href: api/Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.html#Unosquare_FFME_Events_MediaStateChangedRoutedEventArgs__ctor_RoutedEvent_System_Object_MediaState_MediaState_
+  commentId: M:Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.#ctor(RoutedEvent,System.Object,MediaState,MediaState)
+  fullName: Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.MediaStateChangedRoutedEventArgs(RoutedEvent, System.Object, MediaState, MediaState)
+  nameWithType: MediaStateChangedRoutedEventArgs.MediaStateChangedRoutedEventArgs(RoutedEvent, Object, MediaState, MediaState)
+- uid: Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.#ctor*
+  name: MediaStateChangedRoutedEventArgs
+  href: api/Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.html#Unosquare_FFME_Events_MediaStateChangedRoutedEventArgs__ctor_
+  commentId: Overload:Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.#ctor
+  fullName: Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.MediaStateChangedRoutedEventArgs
+  nameWithType: MediaStateChangedRoutedEventArgs.MediaStateChangedRoutedEventArgs
+- uid: Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.NewState
+  name: NewState
+  href: api/Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.html#Unosquare_FFME_Events_MediaStateChangedRoutedEventArgs_NewState
+  commentId: P:Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.NewState
+  fullName: Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.NewState
+  nameWithType: MediaStateChangedRoutedEventArgs.NewState
+- uid: Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.NewState*
+  name: NewState
+  href: api/Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.html#Unosquare_FFME_Events_MediaStateChangedRoutedEventArgs_NewState_
+  commentId: Overload:Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.NewState
+  fullName: Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.NewState
+  nameWithType: MediaStateChangedRoutedEventArgs.NewState
+- uid: Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.PreviousState
+  name: PreviousState
+  href: api/Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.html#Unosquare_FFME_Events_MediaStateChangedRoutedEventArgs_PreviousState
+  commentId: P:Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.PreviousState
+  fullName: Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.PreviousState
+  nameWithType: MediaStateChangedRoutedEventArgs.PreviousState
+- uid: Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.PreviousState*
+  name: PreviousState
+  href: api/Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.html#Unosquare_FFME_Events_MediaStateChangedRoutedEventArgs_PreviousState_
+  commentId: Overload:Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.PreviousState
+  fullName: Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.PreviousState
+  nameWithType: MediaStateChangedRoutedEventArgs.PreviousState
 - uid: Unosquare.FFME.Events.PositionChangedRoutedEventArgs
   name: PositionChangedRoutedEventArgs
   href: api/Unosquare.FFME.Events.PositionChangedRoutedEventArgs.html
@@ -1129,6 +1171,18 @@ references:
   commentId: Overload:Unosquare.FFME.MediaElement.MediaState
   fullName: Unosquare.FFME.MediaElement.MediaState
   nameWithType: MediaElement.MediaState
+- uid: Unosquare.FFME.MediaElement.MediaStateChanged
+  name: MediaStateChanged
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaStateChanged
+  commentId: E:Unosquare.FFME.MediaElement.MediaStateChanged
+  fullName: Unosquare.FFME.MediaElement.MediaStateChanged
+  nameWithType: MediaElement.MediaStateChanged
+- uid: Unosquare.FFME.MediaElement.MediaStateChangedEvent
+  name: MediaStateChangedEvent
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaStateChangedEvent
+  commentId: F:Unosquare.FFME.MediaElement.MediaStateChangedEvent
+  fullName: Unosquare.FFME.MediaElement.MediaStateChangedEvent
+  nameWithType: MediaElement.MediaStateChangedEvent
 - uid: Unosquare.FFME.MediaElement.MessageLogged
   name: MessageLogged
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MessageLogged
