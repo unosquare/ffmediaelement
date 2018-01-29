@@ -62,9 +62,9 @@
 
                     // Signal a Seek ending operation
                     hasPendingSeeks = Commands.PendingCountOf(MediaCommandType.Seek) > 0;
-                    if (State.IsSeeking == true && hasPendingSeeks == false)
+                    if (State.IsSeeking && hasPendingSeeks == false)
                     {
-                        Clock.Position = SnapToFramePosition(Clock.Position);
+                        Clock.Update(SnapToFramePosition(WallClock));
                         State.IsSeeking = false;
 
                         // Call the seek method on all renderers
@@ -81,7 +81,7 @@
                     FrameDecodingCycle.Reset();
 
                     // Set initial state
-                    wallClock = Clock.Position;
+                    wallClock = WallClock;
                     decodedFrameCount = 0;
 
                     #endregion
@@ -138,7 +138,7 @@
                                     resumeClock = false; // Hard stop the clock.
 
                                 // Update the clock to what the main component range mandates
-                                Clock.Position = wallClock;
+                                Clock.Update(wallClock);
 
                                 // Call seek to invalidate renderer
                                 LastRenderTime[main] = TimeSpan.MinValue;
@@ -240,13 +240,14 @@
                         {
                             // Rendered all and nothing else to read
                             Clock.Pause();
-                            if (State.NaturalDuration != null && State.NaturalDuration != TimeSpan.MinValue)
-                                Clock.Position = State.NaturalDuration.Value;
-                            else
-                                Clock.Position = Blocks[main].RangeEndTime;
 
-                            wallClock = Clock.Position;
-                            State.Position = wallClock;
+                            if (State.NaturalDuration != null && State.NaturalDuration != TimeSpan.MinValue)
+                                wallClock = State.NaturalDuration.Value;
+                            else
+                                wallClock = Blocks[main].RangeEndTime;
+
+                            Clock.Update(wallClock);
+                            State.Position = wallClock.Normalize();
                             State.HasMediaEnded = true;
                             State.MediaState = PlaybackStatus.Pause;
                             SendOnMediaEnded();

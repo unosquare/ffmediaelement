@@ -70,7 +70,7 @@
         /// <summary>
         /// Gets the internal real time clock position.
         /// This is different from the position property and it is useful
-        /// in computing the latency between position and the wall clock.
+        /// in computing things like real-time latency in a render cycle.
         /// </summary>
         public TimeSpan WallClock => State.IsOpen ? (Clock?.Position ?? TimeSpan.Zero) : TimeSpan.Zero;
 

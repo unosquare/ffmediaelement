@@ -9,6 +9,7 @@
     using System.Reflection;
     using System.Runtime.CompilerServices;
     using System.Windows;
+    using System.Windows.Controls;
 
     public partial class MediaElement
     {
@@ -112,6 +113,16 @@
                             nameof(PositionChanged),
                             RoutingStrategy.Bubble,
                             typeof(EventHandler<PositionChangedRoutedEventArgs>),
+                            typeof(MediaElement));
+
+        /// <summary>
+        /// MediaStateChanged is a routed event
+        /// </summary>
+        public static readonly RoutedEvent MediaStateChangedEvent =
+            EventManager.RegisterRoutedEvent(
+                            nameof(MediaStateChanged),
+                            RoutingStrategy.Bubble,
+                            typeof(EventHandler<MediaStateChangedRoutedEventArgs>),
                             typeof(MediaElement));
 
         /// <summary>
@@ -227,6 +238,15 @@
         {
             add { AddHandler(PositionChangedEvent, value); }
             remove { RemoveHandler(PositionChangedEvent, value); }
+        }
+
+        /// <summary>
+        /// Occurs when media state is changed
+        /// </summary>
+        public event EventHandler<MediaStateChangedRoutedEventArgs> MediaStateChanged
+        {
+            add { AddHandler(MediaStateChangedEvent, value); }
+            remove { RemoveHandler(MediaStateChangedEvent, value); }
         }
 
         #endregion
@@ -370,10 +390,22 @@
         {
             GuiContext.Current.EnqueueInvoke(() =>
             {
-                RaiseEvent(new PositionChangedRoutedEventArgs(
-                    PositionChangedEvent,
-                    this,
-                    position));
+                RaiseEvent(new PositionChangedRoutedEventArgs(PositionChangedEvent, this, position));
+            });
+        }
+
+        /// <summary>
+        /// Raises the media state changed event.
+        /// </summary>
+        /// <param name="previousState">State of the previous.</param>
+        /// <param name="newState">The new state.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void RaiseMediaStateChangedEvent(MediaState previousState, MediaState newState)
+        {
+            GuiContext.Current.EnqueueInvoke(() =>
+            {
+                RaiseEvent(new MediaStateChangedRoutedEventArgs(
+                    MediaStateChangedEvent, this, previousState, newState));
             });
         }
 

@@ -122,7 +122,7 @@
                 if (IsOpen == false) { return TimeSpan.Zero; }
 
                 if (HasVideo && VideoFrameLength > 0)
-                    return TimeSpan.FromMilliseconds(VideoFrameLength * 1000);
+                    return TimeSpan.FromSeconds(VideoFrameLength);
 
                 return TimeSpan.FromSeconds(0.1d);
             }

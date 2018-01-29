@@ -32,7 +32,7 @@
             foreach (var renderer in m.Renderers.Values)
                 renderer.Pause();
 
-            m.Clock.Position = m.SnapToFramePosition(m.Clock.Position);
+            m.Clock.Update(m.SnapToFramePosition(m.WallClock));
 
             if (m.State.MediaState != PlaybackStatus.Stop)
                 m.State.MediaState = PlaybackStatus.Pause;

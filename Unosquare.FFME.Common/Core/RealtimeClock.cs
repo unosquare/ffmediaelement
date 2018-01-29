@@ -38,16 +38,6 @@
                         OffsetTicks + (long)Math.Round(Chrono.Elapsed.Ticks * SpeedRatio, 0));
                 }
             }
-            set
-            {
-                using (Locker.AcquireWriterLock())
-                {
-                    var resume = Chrono.IsRunning;
-                    Chrono.Reset();
-                    OffsetTicks = value.Ticks;
-                    if (resume) Chrono.Start();
-                }
-            }
         }
 
         /// <summary>
@@ -86,8 +76,23 @@
                     // this ensures a smooth position transition
                     var initialPosition = Position;
                     m_SpeedRatio = value;
-                    Position = initialPosition;
+                    Update(initialPosition);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Sets a new position value atomically
+        /// </summary>
+        /// <param name="value">The new value that the position porperty will hold.</param>
+        public void Update(TimeSpan value)
+        {
+            using (Locker.AcquireWriterLock())
+            {
+                var resume = Chrono.IsRunning;
+                Chrono.Reset();
+                OffsetTicks = value.Ticks;
+                if (resume) Chrono.Start();
             }
         }
 

@@ -185,6 +185,11 @@
                 target.StartTime = lastSibling.EndTime;
                 target.Duration = source.Duration.Ticks > 0 ? source.Duration : lastSibling.Duration;
                 target.EndTime = TimeSpan.FromTicks(target.StartTime.Ticks + target.Duration.Ticks);
+
+                // Guess picture number and SMTPE
+                var timeBase = ffmpeg.av_guess_frame_rate(Container.InputContext, Stream, source.Pointer);
+                target.DisplayPictureNumber = Extensions.ComputePictureNumber(target.StartTime, target.Duration, 1);
+                target.SmtpeTimecode = Extensions.ComputeSmtpeTimeCode(StartTimeOffset, target.Duration, timeBase, target.DisplayPictureNumber);
             }
             else
             {
@@ -192,12 +197,14 @@
                 target.StartTime = source.StartTime;
                 target.Duration = source.Duration;
                 target.EndTime = source.EndTime;
+
+                // Copy picture number and SMTPE
+                target.DisplayPictureNumber = source.DisplayPictureNumber;
+                target.SmtpeTimecode = source.SmtpeTimecode;
             }
 
+            target.CodedPictureNumber = source.CodedPictureNumber;
             target.StreamIndex = input.StreamIndex;
-            target.SmtpeTimecode = source.SmtpeTimecode;
-            target.DisplayPictureNumber = source.DisplayPictureNumber;
-            target.CodedPictureNumber = source.DisplayPictureNumber;
             target.ClosedCaptions = new ClosedCaptions.ClosedCaptionCollection(source.ClosedCaptions);
             target.BufferStride = targetStride[0];
 

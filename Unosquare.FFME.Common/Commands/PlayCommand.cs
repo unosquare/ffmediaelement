@@ -29,7 +29,7 @@
             if (m.State.HasMediaEnded
                 || (m.State.NaturalDuration.HasValue
                 && m.State.NaturalDuration != TimeSpan.MinValue
-                && m.Clock.Position >= m.State.NaturalDuration.Value))
+                && m.WallClock >= m.State.NaturalDuration.Value))
                 return;
 
             foreach (var renderer in m.Renderers.Values)

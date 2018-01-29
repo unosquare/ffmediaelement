@@ -6,7 +6,6 @@
     using Shared;
     using System;
     using System.Collections.Generic;
-    using System.Runtime.InteropServices;
 
     /// <summary>
     /// Represents a wrapper for an unmanaged ffmpeg video frame.
@@ -31,8 +30,6 @@
         internal VideoFrame(AVFrame* frame, MediaComponent component)
             : base(frame, component)
         {
-            const int AV_TIMECODE_STR_SIZE = 16 + 1;
-
             m_Pointer = (AVFrame*)InternalPointer;
 
             var repeatFactor = 1d + (0.5d * frame->repeat_pict);
@@ -50,29 +47,13 @@
 
             EndTime = TimeSpan.FromTicks(StartTime.Ticks + Duration.Ticks);
 
+            // Picture Number and SMTPE TimeCode
             DisplayPictureNumber = frame->display_picture_number == 0 ?
-                1 + (int)Math.Round((double)StartTime.Ticks / Duration.Ticks, 0) :
+                Extensions.ComputePictureNumber(StartTime, Duration, 1) :
                 frame->display_picture_number;
 
             CodedPictureNumber = frame->coded_picture_number;
-
-            // SMTPE timecode calculation
-            var timeCodeInfo = (AVTimecode*)ffmpeg.av_malloc((ulong)Marshal.SizeOf(typeof(AVTimecode)));
-            var startFrameNumber = (int)Math.Round((double)component.StartTimeOffset.Ticks / Duration.Ticks, 0);
-            ffmpeg.av_timecode_init(timeCodeInfo, timeBase, 0, startFrameNumber, null);
-            var isNtsc = timeBase.num == 30000 && timeBase.den == 1001;
-            var frameNumber = isNtsc ?
-                ffmpeg.av_timecode_adjust_ntsc_framenum2(DisplayPictureNumber, (int)timeCodeInfo->fps) :
-                DisplayPictureNumber;
-
-            var timeCode = ffmpeg.av_timecode_get_smpte_from_framenum(timeCodeInfo, DisplayPictureNumber);
-            var timeCodeBuffer = (byte*)ffmpeg.av_malloc(AV_TIMECODE_STR_SIZE);
-
-            ffmpeg.av_timecode_make_smpte_tc_string(timeCodeBuffer, timeCode, 1);
-            SmtpeTimecode = Marshal.PtrToStringAnsi(new IntPtr(timeCodeBuffer));
-
-            ffmpeg.av_free(timeCodeInfo);
-            ffmpeg.av_free(timeCodeBuffer);
+            SmtpeTimecode = Extensions.ComputeSmtpeTimeCode(component.StartTimeOffset, Duration, timeBase, DisplayPictureNumber);
 
             // Process side data such as CC packets
             for (var i = 0; i < frame->nb_side_data; i++)

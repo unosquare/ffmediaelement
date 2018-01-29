@@ -215,10 +215,10 @@
             {
                 var block = Blocks[MediaType.Video][position];
                 if (block != null && block.Duration.Ticks > 0 && State.VideoFrameRate != 0d)
-                    return block.SnapTime;
+                    return block.SnapTime.Normalize();
             }
 
-            return position;
+            return position.Normalize();
         }
 
         /// <summary>

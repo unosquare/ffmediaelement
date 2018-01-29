@@ -19,7 +19,7 @@
         public SeekCommand(MediaCommandManager manager, TimeSpan targetPosition)
             : base(manager, MediaCommandType.Seek)
         {
-            TargetPosition = targetPosition;
+            TargetPosition = targetPosition.Normalize();
         }
 
         /// <summary>
@@ -39,7 +39,7 @@
             WasPlaying = m.State.IsPlaying;
 
             m.Clock.Pause();
-            var initialPosition = m.Clock.Position;
+            var initialPosition = m.WallClock;
             m.SeekingDone.Reset();
             var startTime = DateTime.UtcNow;
 
@@ -52,7 +52,7 @@
                 // we don't need anything else.
                 if (m.Blocks[main].IsInRange(TargetPosition))
                 {
-                    m.Clock.Position = TargetPosition;
+                    m.Clock.Update(TargetPosition);
                     return;
                 }
 
@@ -117,33 +117,27 @@
                 }
 
                 // Handle out-of sync scenarios
+                var resultPosition = TargetPosition;
                 if (m.Blocks[main].IsInRange(TargetPosition) == false)
                 {
-                    var minStartTime = m.Blocks[main].RangeStartTime.Ticks;
-                    var maxStartTime = m.Blocks[main].RangeEndTime.Ticks;
+                    var minStartTimeTicks = m.Blocks[main].RangeStartTime.Ticks;
+                    var maxStartTimeTicks = m.Blocks[main].RangeEndTime.Ticks;
 
                     m.Log(MediaLogMessageType.Warning,
-                        $"SEEK TP: Target Pos {TargetPosition.Format()} not between {m.Blocks[main].RangeStartTime.TotalSeconds:0.000} and {m.Blocks[main].RangeEndTime.TotalSeconds:0.000}");
+                        $"SEEK TP: Target Pos {TargetPosition.Format()} not between {m.Blocks[main].RangeStartTime.TotalSeconds:0.000} " +
+                        $"and {m.Blocks[main].RangeEndTime.TotalSeconds:0.000}");
 
-                    if (adjustedSeekTarget.Ticks < minStartTime)
-                        m.Clock.Position = TimeSpan.FromTicks(minStartTime);
-                    else if (adjustedSeekTarget.Ticks > maxStartTime)
-                        m.Clock.Position = TimeSpan.FromTicks(maxStartTime);
-                    else
-                        m.Clock.Position = TargetPosition;
+                    resultPosition = TimeSpan.FromTicks(TargetPosition.Ticks.Clamp(minStartTimeTicks, maxStartTimeTicks));
                 }
                 else
                 {
                     // TODO: handle this case correctly. The way this is handled currently sucks.
-                    if (m.Blocks[main].Count == 0 && TargetPosition != TimeSpan.Zero)
-                    {
-                        m.Clock.Position = initialPosition;
-                    }
-                    else
-                    {
-                        m.Clock.Position = TargetPosition;
-                    }
+                    resultPosition = (m.Blocks[main].Count == 0 && TargetPosition != TimeSpan.Zero) ?
+                        initialPosition : TargetPosition;
                 }
+
+                // Write a new Real-time clock position now.
+                m.Clock.Update(resultPosition);
             }
             catch (Exception ex)
             {
