@@ -106,7 +106,7 @@
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MediaStateChangedRoutedEventArgs(RoutedEvent routedEvent, object source, MediaState previousState, MediaState newState)</code></pre>
+    <pre><code class="lang-csharp hljs">public MediaStateChangedRoutedEventArgs(RoutedEvent routedEvent, object source, MediaState oldState, MediaState newState)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -132,7 +132,7 @@
       </tr>
       <tr>
         <td><span class="xref">MediaState</span></td>
-        <td><span class="parametername">previousState</span></td>
+        <td><span class="parametername">oldState</span></td>
         <td><p>State of the previous.</p>
 </td>
       </tr>
@@ -148,14 +148,14 @@
   </h3>
   
   
-  <a id="Unosquare_FFME_Events_MediaStateChangedRoutedEventArgs_NewState_" data-uid="Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.NewState*"></a>
-  <h4 id="Unosquare_FFME_Events_MediaStateChangedRoutedEventArgs_NewState" data-uid="Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.NewState">NewState</h4>
-  <div class="markdown level1 summary"><p>Gets the new state.</p>
+  <a id="Unosquare_FFME_Events_MediaStateChangedRoutedEventArgs_MediaState_" data-uid="Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.MediaState*"></a>
+  <h4 id="Unosquare_FFME_Events_MediaStateChangedRoutedEventArgs_MediaState" data-uid="Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.MediaState">MediaState</h4>
+  <div class="markdown level1 summary"><p>Gets the current media state.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MediaState NewState { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public MediaState MediaState { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -174,14 +174,14 @@
   </table>
   
   
-  <a id="Unosquare_FFME_Events_MediaStateChangedRoutedEventArgs_PreviousState_" data-uid="Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.PreviousState*"></a>
-  <h4 id="Unosquare_FFME_Events_MediaStateChangedRoutedEventArgs_PreviousState" data-uid="Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.PreviousState">PreviousState</h4>
+  <a id="Unosquare_FFME_Events_MediaStateChangedRoutedEventArgs_OldMediaState_" data-uid="Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.OldMediaState*"></a>
+  <h4 id="Unosquare_FFME_Events_MediaStateChangedRoutedEventArgs_OldMediaState" data-uid="Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.OldMediaState">OldMediaState</h4>
   <div class="markdown level1 summary"><p>Gets the position.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MediaState PreviousState { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public MediaState OldMediaState { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
