@@ -78,5 +78,21 @@
         /// <param name="sender">The sender.</param>
         /// <param name="e">The <see cref="MediaLogMessage"/> instance containing the event data.</param>
         void OnMessageLogged(MediaEngine sender, MediaLogMessage e);
+
+        /// <summary>
+        /// Called when [position changed].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="oldValue">The old value.</param>
+        /// <param name="newValue">The new value.</param>
+        void OnPositionChanged(MediaEngine sender, TimeSpan oldValue, TimeSpan newValue);
+
+        /// <summary>
+        /// Called when [media state changed].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="oldValue">The old value.</param>
+        /// <param name="newValue">The new value.</param>
+        void OnMediaStateChanged(MediaEngine sender, PlaybackStatus oldValue, PlaybackStatus newValue);
     }
 }

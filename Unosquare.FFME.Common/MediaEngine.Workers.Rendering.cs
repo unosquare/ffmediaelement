@@ -52,7 +52,7 @@
 
             // Capture the wall clock and set the initial position
             var wallClock = WallClock;
-            State.Position = wallClock.Normalize();
+            State.UpdatePosition(wallClock);
 
             // Wait for renderers to be ready
             foreach (var t in all)
@@ -110,7 +110,7 @@
 
                     // Update the position property after all seeking is done
                     if (State.IsSeeking == false)
-                        State.Position = wallClock.Normalize();
+                        State.UpdatePosition(wallClock);
 
                     // Capture the blocks to render
                     foreach (var t in all)

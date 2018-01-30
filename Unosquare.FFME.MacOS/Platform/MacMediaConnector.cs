@@ -68,5 +68,15 @@
         {
             // placeholder
         }
+
+        public void OnPositionChanged(MediaEngine sender, TimeSpan oldValue, TimeSpan newValue)
+        {
+            // placeholder
+        }
+
+        public void OnMediaStateChanged(MediaEngine sender, PlaybackStatus oldValue, PlaybackStatus newValue)
+        {
+            // placeholder
+        }
     }
 }

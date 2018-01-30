@@ -10,20 +10,27 @@
     public class PositionChangedRoutedEventArgs : RoutedEventArgs
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="PositionChangedRoutedEventArgs"/> class.
+        /// Initializes a new instance of the <see cref="PositionChangedRoutedEventArgs" /> class.
         /// </summary>
         /// <param name="routedEvent">The routed event.</param>
         /// <param name="source">The source.</param>
-        /// <param name="position">The position.</param>
-        public PositionChangedRoutedEventArgs(RoutedEvent routedEvent, object source, TimeSpan position)
+        /// <param name="oldPosition">The old position.</param>
+        /// <param name="newPosition">The new position.</param>
+        public PositionChangedRoutedEventArgs(RoutedEvent routedEvent, object source, TimeSpan oldPosition, TimeSpan newPosition)
             : base(routedEvent, source)
         {
-            Position = position;
+            Position = newPosition;
+            OldPosition = oldPosition;
         }
 
         /// <summary>
-        /// Gets the position.
+        /// Gets the current position.
         /// </summary>
         public TimeSpan Position { get; }
+
+        /// <summary>
+        /// Gets the old position.
+        /// </summary>
+        public TimeSpan OldPosition { get; }
     }
 }

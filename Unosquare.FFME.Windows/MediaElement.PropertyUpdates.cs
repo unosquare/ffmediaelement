@@ -21,6 +21,11 @@
             = new Dictionary<string, object>(PropertyMapper.PropertyMaxCount);
 
         /// <summary>
+        /// The reportable position synchronization lock
+        /// </summary>
+        private readonly object ReportablePositionLock = new object();
+
+        /// <summary>
         /// The property updates done event
         /// </summary>
         private ManualResetEvent PropertyUpdatesDone = new ManualResetEvent(true);
@@ -29,6 +34,11 @@
         /// The property updates worker timer
         /// </summary>
         private GuiTimer PropertyUpdatesWorker = null;
+
+        /// <summary>
+        /// The backing member of the Reportable position
+        /// </summary>
+        private TimeSpan? m_ReportablePosition = default(TimeSpan?);
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance is running property updates.
@@ -46,6 +56,14 @@
                 else
                     PropertyUpdatesDone?.Set();
             }
+        }
+
+        /// <summary>
+        /// The media engine position to report.
+        /// </summary>
+        internal TimeSpan? ReportablePosition
+        {
+            set { lock (ReportablePositionLock) m_ReportablePosition = value; }
         }
 
         /// <summary>
@@ -80,17 +98,7 @@
                 // Signal a begining of property updates
                 IsRunningPropertyUpdates = true;
 
-                // TODO: Maybe direct calls and detection of mediastechanges and position changes
-                // must be more immediate and implement them in the Connector as a message
-
-                // Capture the previous MediaStateChanged Event Control
-                var raiseMediaStateChanged = false;
-                var previousMediaState = default(System.Windows.Controls.MediaState);
-                if (NotificationPropertyCache.ContainsKey(nameof(MediaState)))
-                    previousMediaState = (System.Windows.Controls.MediaState)NotificationPropertyCache[nameof(MediaState)];
-
                 // Detect Notification and Dependency property changes
-                var raisePositionChanged = false;
                 var notificationProperties = this.DetectNotificationPropertyChanges(NotificationPropertyCache);
                 var dependencyProperties = this.DetectDependencyPropertyChanges();
 
@@ -101,12 +109,8 @@
                 // Handling of Notification Properties
                 foreach (var p in notificationProperties)
                 {
-                    // Notify the changed property
+                    // Notify the changed properties
                     RaisePropertyChangedEvent(p);
-
-                    // Determine if we need to raise the MediaStateChangedEvent
-                    if (raiseMediaStateChanged == false && p.Equals(nameof(MediaState)))
-                        raiseMediaStateChanged = true;
                 }
 
                 #endregion
@@ -121,56 +125,30 @@
                     if (kvp.Key == SourceProperty)
                         continue;
 
-                    // Process the Position property
+                    // Do not upstream the Source porperty
+                    // This causes unintended Seek commands to be run
                     if (kvp.Key == PositionProperty)
-                    {
-                        // Check if we need to raise the position changed event (i.e. when we are not seeking)
-                        raisePositionChanged = IsSeeking == false;
-
-                        // Check if we need to skip the writing of the Position Dependency Property
-                        // Remember writing when not running property updates runs a seek
-                        // Also we don't want to skip the updates when we have a change in media state.
-                        if (raiseMediaStateChanged == false && (IsSeeking || IsPlaying == false))
-                        {
-                            continue;
-                        }
-                    }
+                        continue;
 
                     SetValue(kvp.Key, kvp.Value);
                 }
 
-                // Force a position writeback if we did not notifiy it but the media state has changed.
-                if (raiseMediaStateChanged)
-                {
-                    Position = MediaCore.State.Position;
-                }
-
                 #endregion
 
-                #region 4. Raise Events and Finish the cycle
-
-                try
+                // Check if we need to report a new position as commanded byt the MEdiaEngine
+                // After we update the position dependency property, clear the reportable position
+                // to make way for new updates.
+                lock (ReportablePositionLock)
                 {
-                    // Raise PositionChanged event
-                    if (raisePositionChanged)
-                        RaisePositionChangedEvent(MediaCore.State.Position);
-
-                    // Raise MediaStateChanged Event
-                    if (raiseMediaStateChanged)
-                        RaiseMediaStateChangedEvent(previousMediaState, MediaState);
-                }
-                catch (Exception ex)
-                {
-                    // Log an exception. This should never really happen.
-                    MediaCore.Log(MediaLogMessageType.Error, $"{nameof(PropertyUpdatesWorker)} callabck failed. {ex.GetType()}: {ex.Message}");
-                }
-                finally
-                {
-                    // Always signal that we are no longer running updates
-                    IsRunningPropertyUpdates = false;
+                    if (m_ReportablePosition != null)
+                    {
+                        Position = m_ReportablePosition.Value;
+                        m_ReportablePosition = default(TimeSpan?);
+                    }
                 }
 
-                #endregion
+                // Always signal that we are no longer running updates
+                IsRunningPropertyUpdates = false;
             });
         }
     }

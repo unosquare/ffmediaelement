@@ -109,5 +109,27 @@
         {
             Connector?.OnMediaEnded(this);
         }
+
+        /// <summary>
+        /// Sends the on position changed.
+        /// </summary>
+        /// <param name="oldValue">The old value.</param>
+        /// <param name="newValue">The new value.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void SendOnPositionChanged(TimeSpan oldValue, TimeSpan newValue)
+        {
+            Connector?.OnPositionChanged(this, oldValue, newValue);
+        }
+
+        /// <summary>
+        /// Sends the on media state changed.
+        /// </summary>
+        /// <param name="oldValue">The old value.</param>
+        /// <param name="newValue">The new value.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void SendOnMediaStateChanged(PlaybackStatus oldValue, PlaybackStatus newValue)
+        {
+            Connector?.OnMediaStateChanged(this, oldValue, newValue);
+        }
     }
 }

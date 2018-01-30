@@ -231,6 +231,7 @@
                     #region 4. Detect End of Media
 
                     // Detect end of block rendering
+                    // TODO: Maybe this detection should be performed on the BlockRendering worker?
                     if (isBuffering == false
                         && State.IsSeeking == false
                         && CanReadMoreFramesOf(main) == false
@@ -247,9 +248,8 @@
                                 wallClock = Blocks[main].RangeEndTime;
 
                             Clock.Update(wallClock);
-                            State.Position = wallClock.Normalize();
                             State.HasMediaEnded = true;
-                            State.MediaState = PlaybackStatus.Pause;
+                            State.UpdateMediaState(PlaybackStatus.Pause, wallClock);
                             SendOnMediaEnded();
                         }
                     }

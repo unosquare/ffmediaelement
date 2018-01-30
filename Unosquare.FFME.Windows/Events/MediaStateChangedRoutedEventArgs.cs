@@ -14,23 +14,23 @@
         /// </summary>
         /// <param name="routedEvent">The routed event.</param>
         /// <param name="source">The source.</param>
-        /// <param name="previousState">State of the previous.</param>
+        /// <param name="oldState">State of the previous.</param>
         /// <param name="newState">The new state.</param>
-        public MediaStateChangedRoutedEventArgs(RoutedEvent routedEvent, object source, MediaState previousState, MediaState newState)
+        public MediaStateChangedRoutedEventArgs(RoutedEvent routedEvent, object source, MediaState oldState, MediaState newState)
             : base(routedEvent, source)
         {
-            PreviousState = previousState;
-            NewState = newState;
+            OldMediaState = oldState;
+            MediaState = newState;
         }
+
+        /// <summary>
+        /// Gets the current media state.
+        /// </summary>
+        public MediaState MediaState { get; }
 
         /// <summary>
         /// Gets the position.
         /// </summary>
-        public MediaState PreviousState { get; }
-
-        /// <summary>
-        /// Gets the new state.
-        /// </summary>
-        public MediaState NewState { get; }
+        public MediaState OldMediaState { get; }
     }
 }

@@ -26,10 +26,10 @@
         {
             var m = Manager.MediaCore;
             m.Clock.Reset();
-            m.State.MediaState = PlaybackStatus.Manual;
+            m.State.UpdateMediaState(PlaybackStatus.Manual, m.WallClock);
             var seek = new SeekCommand(Manager, TimeSpan.Zero);
             seek.ExecuteInternal();
-            m.State.MediaState = PlaybackStatus.Stop;
+            m.State.UpdateMediaState(PlaybackStatus.Stop, m.WallClock);
 
             foreach (var renderer in m.Renderers.Values)
                 renderer.Stop();

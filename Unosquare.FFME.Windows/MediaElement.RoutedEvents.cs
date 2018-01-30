@@ -384,28 +384,29 @@
         /// <summary>
         /// Raises the position changed event.
         /// </summary>
-        /// <param name="position">The position.</param>
+        /// <param name="oldValue">The old value.</param>
+        /// <param name="newValue">The new value.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaisePositionChangedEvent(TimeSpan position)
+        internal void RaisePositionChangedEvent(TimeSpan oldValue, TimeSpan newValue)
         {
             GuiContext.Current.EnqueueInvoke(() =>
             {
-                RaiseEvent(new PositionChangedRoutedEventArgs(PositionChangedEvent, this, position));
+                RaiseEvent(new PositionChangedRoutedEventArgs(PositionChangedEvent, this, oldValue, newValue));
             });
         }
 
         /// <summary>
         /// Raises the media state changed event.
         /// </summary>
-        /// <param name="previousState">State of the previous.</param>
-        /// <param name="newState">The new state.</param>
+        /// <param name="oldValue">The old value.</param>
+        /// <param name="newValue">The new value.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseMediaStateChangedEvent(MediaState previousState, MediaState newState)
+        internal void RaiseMediaStateChangedEvent(MediaState oldValue, MediaState newValue)
         {
             GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new MediaStateChangedRoutedEventArgs(
-                    MediaStateChangedEvent, this, previousState, newState));
+                    MediaStateChangedEvent, this, oldValue, newValue));
             });
         }
 

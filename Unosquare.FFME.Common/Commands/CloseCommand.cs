@@ -1,8 +1,9 @@
 ﻿namespace Unosquare.FFME.Commands
 {
     using Core;
-    using System.Text;
     using Shared;
+    using System;
+    using System.Text;
 
     /// <summary>
     /// Implements the logic to close a media stream.
@@ -49,7 +50,7 @@
             // Update notification properties
             m.State.ResetMediaProperties();
             m.State.InitializeBufferingProperties();
-            m.State.MediaState = PlaybackStatus.Close;
+            m.State.UpdateMediaState(PlaybackStatus.Close, TimeSpan.Zero);
             m.State.Source = null;
             m.SendOnMediaClosed();
 

@@ -66,7 +66,7 @@
         public TimeSpan Position
         {
             get;
-            internal set;
+            private set;
         }
 
         #endregion
@@ -259,7 +259,7 @@
         /// <summary>
         /// Gets the current playback state.
         /// </summary>
-        public PlaybackStatus MediaState { get; internal set; } = PlaybackStatus.Manual;
+        public PlaybackStatus MediaState { get; private set; } = PlaybackStatus.Manual;
 
         /// <summary>
         /// Gets a value indicating whether the media has reached its end.
@@ -328,13 +328,45 @@
         #endregion
 
         /// <summary>
+        /// Updates the position.
+        /// </summary>
+        /// <param name="position">The position.</param>
+        internal void UpdatePosition(TimeSpan position)
+        {
+            var oldValue = Position;
+            var newValue = position.Normalize();
+            if (oldValue.Ticks == newValue.Ticks)
+                return;
+
+            Position = newValue;
+            Parent.SendOnPositionChanged(oldValue, newValue);
+        }
+
+        /// <summary>
+        /// Updates the MediaState property.
+        /// </summary>
+        /// <param name="mediaState">State of the media.</param>
+        /// <param name="position">The new position value for this state.</param>
+        internal void UpdateMediaState(PlaybackStatus mediaState, TimeSpan position)
+        {
+            UpdatePosition(position);
+            var oldValue = MediaState;
+            var newValue = mediaState;
+            if (oldValue != newValue)
+            {
+                MediaState = newValue;
+                Parent.SendOnMediaStateChanged(oldValue, newValue);
+            }
+        }
+
+        /// <summary>
         /// Resets the controller properies.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void ResetMediaProperties()
         {
             // Reset Media Settable Properties
-            MediaState = default(PlaybackStatus);
+            UpdateMediaState(default(PlaybackStatus), TimeSpan.Zero);
             HasMediaEnded = default(bool);
             IsBuffering = default(bool);
             IsSeeking = default(bool);
@@ -348,7 +380,6 @@
 
             // Reset volatile controller poperties
             SpeedRatio = Constants.Controller.DefaultSpeedRatio;
-            Position = TimeSpan.Zero;
         }
 
         /// <summary>

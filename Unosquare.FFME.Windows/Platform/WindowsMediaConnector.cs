@@ -181,6 +181,40 @@
             Parent?.RaiseSeekingStartedEvent();
         }
 
+        /// <summary>
+        /// Called when [position changed].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="oldValue">The old value.</param>
+        /// <param name="newValue">The new value.</param>
+        public void OnPositionChanged(MediaEngine sender, TimeSpan oldValue, TimeSpan newValue)
+        {
+            if (Parent == null) return;
+
+            // Only set a reportable position if we are playing
+            if (sender.State.IsPlaying && sender.State.IsSeeking == false)
+                Parent.ReportablePosition = newValue;
+
+            Parent.RaisePositionChangedEvent(oldValue, newValue);
+        }
+
+        /// <summary>
+        /// Called when [media state changed].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="oldValue">The old value.</param>
+        /// <param name="newValue">The new value.</param>
+        public void OnMediaStateChanged(MediaEngine sender, PlaybackStatus oldValue, PlaybackStatus newValue)
+        {
+            if (Parent == null) return;
+
+            // Force a reportable position when the media state changes
+            Parent.ReportablePosition = sender.State.Position;
+            Parent.RaiseMediaStateChangedEvent(
+                (System.Windows.Controls.MediaState)oldValue,
+                (System.Windows.Controls.MediaState)newValue);
+        }
+
         #endregion
     }
 }

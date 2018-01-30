@@ -75,7 +75,7 @@
                 m.State.InitializeBufferingProperties();
 
                 // Set the state to stopped
-                m.State.MediaState = PlaybackStatus.Stop;
+                m.State.UpdateMediaState(PlaybackStatus.Stop, TimeSpan.Zero);
 
                 // Signal we are no longer in the opening state
                 // so we can enqueue commands in the event handler
@@ -89,7 +89,7 @@
             }
             catch (Exception ex)
             {
-                m.State.MediaState = PlaybackStatus.Close;
+                m.State.UpdateMediaState(PlaybackStatus.Close, TimeSpan.Zero);
                 m.SendOnMediaFailed(ex);
             }
             finally

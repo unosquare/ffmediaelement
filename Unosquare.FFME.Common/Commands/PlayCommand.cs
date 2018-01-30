@@ -36,7 +36,7 @@
                 renderer.Play();
 
             m.Clock.Play();
-            m.State.MediaState = PlaybackStatus.Play;
+            m.State.UpdateMediaState(PlaybackStatus.Play, m.WallClock);
         }
     }
 }
