@@ -32,10 +32,11 @@
             foreach (var renderer in m.Renderers.Values)
                 renderer.Pause();
 
-            m.Clock.Update(m.SnapToFramePosition(m.WallClock));
+            var wallClock = m.SnapToFramePosition(m.WallClock);
+            m.Clock.Update(wallClock);
 
             if (m.State.MediaState != PlaybackStatus.Stop)
-                m.State.UpdateMediaState(PlaybackStatus.Pause, m.WallClock);
+                m.State.UpdateMediaState(PlaybackStatus.Pause);
         }
     }
 }

@@ -76,26 +76,24 @@
                 m.Container.Open();
                 m.State.InitializeBufferingProperties();
 
-                // Set the state to stopped
-                m.State.UpdateMediaState(PlaybackStatus.Stop, TimeSpan.Zero);
-
-                // Signal we are no longer in the opening state
-                // so we can enqueue commands in the event handler
-                m.State.IsOpening = false;
-
                 // Charge! Fire up the worker threads!
                 m.StartWorkers();
+
+                // Set the state to stopped
+                m.State.UpdateMediaState(PlaybackStatus.Stop);
 
                 // Raise the opened event
                 m.SendOnMediaOpened();
             }
             catch (Exception ex)
             {
-                m.State.UpdateMediaState(PlaybackStatus.Close, TimeSpan.Zero);
+                m.State.UpdateMediaState(PlaybackStatus.Close);
                 m.SendOnMediaFailed(ex);
             }
             finally
             {
+                // Signal we are no longer in the opening state
+                // so we can enqueue commands in the command handler
                 m.State.IsOpening = false;
                 m.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Completed");
             }

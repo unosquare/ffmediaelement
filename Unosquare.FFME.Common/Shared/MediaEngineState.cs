@@ -259,7 +259,7 @@
         /// <summary>
         /// Gets the current playback state.
         /// </summary>
-        public PlaybackStatus MediaState { get; private set; } = PlaybackStatus.Manual;
+        public PlaybackStatus MediaState { get; private set; } = PlaybackStatus.Close;
 
         /// <summary>
         /// Gets a value indicating whether the media has reached its end.
@@ -347,9 +347,11 @@
         /// </summary>
         /// <param name="mediaState">State of the media.</param>
         /// <param name="position">The new position value for this state.</param>
-        internal void UpdateMediaState(PlaybackStatus mediaState, TimeSpan position)
+        internal void UpdateMediaState(PlaybackStatus mediaState, TimeSpan? position = null)
         {
-            UpdatePosition(position);
+            if (position != null)
+                UpdatePosition(position.Value);
+
             var oldValue = MediaState;
             var newValue = mediaState;
             if (oldValue != newValue)
@@ -366,7 +368,7 @@
         internal void ResetMediaProperties()
         {
             // Reset Media Settable Properties
-            UpdateMediaState(default(PlaybackStatus), TimeSpan.Zero);
+            UpdateMediaState(PlaybackStatus.Close, TimeSpan.Zero);
             HasMediaEnded = default(bool);
             IsBuffering = default(bool);
             IsSeeking = default(bool);

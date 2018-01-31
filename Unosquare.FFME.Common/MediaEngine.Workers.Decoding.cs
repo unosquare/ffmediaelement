@@ -24,6 +24,7 @@
                 var wallClock = TimeSpan.Zero;
                 var rangePercent = 0d;
                 var isInRange = false;
+                var playAfterSeek = false;
 
                 // Holds the main media type
                 var main = Container.Components.Main.MediaType;
@@ -49,6 +50,7 @@
                     hasPendingSeeks = Commands.PendingCountOf(MediaCommandType.Seek) > 0;
                     if (State.IsSeeking == false && hasPendingSeeks)
                     {
+                        playAfterSeek = State.IsPlaying;
                         State.IsSeeking = true;
                         SendOnSeekingStarted();
                     }
@@ -69,9 +71,9 @@
                     hasPendingSeeks = Commands.PendingCountOf(MediaCommandType.Seek) > 0;
                     if (State.IsSeeking && hasPendingSeeks == false)
                     {
-                        // Detect a end of seek cycle
-                        wallClock = WallClock;
-                        Clock.Update(SnapToFramePosition(wallClock));
+                        // Detect a end of seek cycle and update to the final position
+                        wallClock = SnapToFramePosition(WallClock);
+                        Clock.Update(wallClock);
                         State.UpdatePosition(wallClock);
 
                         // Call the seek method on all renderers
@@ -83,9 +85,19 @@
 
                         SendOnSeekingEnded();
                         State.IsSeeking = false;
+                        if (playAfterSeek)
+                        {
+                            Clock.Play();
+                            State.UpdateMediaState(PlaybackStatus.Play);
+                        }
+                        else
+                        {
+                            State.UpdateMediaState(PlaybackStatus.Pause);
+                        }
                     }
                     else if (State.IsSeeking == false)
                     {
+                        // Notify position changes
                         State.UpdatePosition(wallClock);
                     }
 

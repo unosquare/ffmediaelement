@@ -9,8 +9,6 @@
     /// <seealso cref="MediaCommand" />
     internal sealed class SeekCommand : MediaCommand
     {
-        private bool WasPlaying = false;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="SeekCommand" /> class.
         /// </summary>
@@ -36,10 +34,9 @@
         internal override void ExecuteInternal()
         {
             var m = Manager.MediaCore;
-            WasPlaying = m.State.IsPlaying;
-
             m.Clock.Pause();
             var initialPosition = m.WallClock;
+            m.State.UpdateMediaState(PlaybackStatus.Manual);
             m.SeekingDone.Reset();
             var startTime = DateTime.UtcNow;
 
@@ -154,11 +151,6 @@
                 }
 
                 m.SeekingDone.Set();
-
-                if (WasPlaying)
-                {
-                    var playTask = m.Commands.PlayAsync();
-                }
             }
         }
     }

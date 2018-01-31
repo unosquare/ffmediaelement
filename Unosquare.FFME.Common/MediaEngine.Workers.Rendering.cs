@@ -49,10 +49,7 @@
             // Set the initial clock position
             // TODO: maybe update media start time offset to this Minimum, initial Start Time intead of relying on contained meta?
             Clock.Update(Blocks[main].RangeStartTime); // .GetMinStartTime()
-
-            // Capture the wall clock and set the initial position
             var wallClock = WallClock;
-            State.UpdatePosition(wallClock);
 
             // Wait for renderers to be ready
             foreach (var t in all)
