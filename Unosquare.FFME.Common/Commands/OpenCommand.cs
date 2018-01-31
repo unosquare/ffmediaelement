@@ -79,7 +79,8 @@
                 // Charge! Fire up the worker threads!
                 m.StartWorkers();
 
-                // Set the state to stopped
+                // Set the state to stopped and exit the IsOpening state
+                m.State.IsOpening = false;
                 m.State.UpdateMediaState(PlaybackStatus.Stop);
 
                 // Raise the opened event
