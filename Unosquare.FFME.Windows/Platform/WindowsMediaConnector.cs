@@ -191,7 +191,7 @@
         {
             if (Parent == null) return;
 
-            // Only set a reportable position if we are playing
+            // Only set a reportable position if we are playing and not seeking
             if (sender.State.IsPlaying && sender.State.IsSeeking == false)
                 Parent.ReportablePosition = newValue;
 

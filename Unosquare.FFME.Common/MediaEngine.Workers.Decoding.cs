@@ -60,12 +60,19 @@
                     // and initiate a frame decoding cycle.
                     SeekingDone.WaitOne();
 
+                    // Set initial state
+                    wallClock = WallClock;
+                    decodedFrameCount = 0;
+
                     // Signal a Seek ending operation
+                    // TOD: Maybe this should go on the block rendering worker?
                     hasPendingSeeks = Commands.PendingCountOf(MediaCommandType.Seek) > 0;
                     if (State.IsSeeking && hasPendingSeeks == false)
                     {
-                        Clock.Update(SnapToFramePosition(WallClock));
-                        State.IsSeeking = false;
+                        // Detect a end of seek cycle
+                        wallClock = WallClock;
+                        Clock.Update(SnapToFramePosition(wallClock));
+                        State.UpdatePosition(wallClock);
 
                         // Call the seek method on all renderers
                         foreach (var kvp in Renderers)
@@ -75,14 +82,15 @@
                         }
 
                         SendOnSeekingEnded();
+                        State.IsSeeking = false;
+                    }
+                    else if (State.IsSeeking == false)
+                    {
+                        State.UpdatePosition(wallClock);
                     }
 
                     // Initiate the frame docding cycle
                     FrameDecodingCycle.Reset();
-
-                    // Set initial state
-                    wallClock = WallClock;
-                    decodedFrameCount = 0;
 
                     #endregion
 

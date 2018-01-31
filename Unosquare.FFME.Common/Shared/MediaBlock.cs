@@ -51,7 +51,7 @@
             get
             {
                 if (Duration.Ticks <= 0) return StartTime;
-                return TimeSpan.FromTicks(StartTime.Ticks + (TimeSpan.TicksPerMillisecond / 10));
+                return TimeSpan.FromTicks(StartTime.Ticks + TimeSpan.TicksPerMillisecond);
             }
         }
 

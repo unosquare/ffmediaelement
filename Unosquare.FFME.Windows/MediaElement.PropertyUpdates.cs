@@ -8,7 +8,7 @@
 
     /*
      * This file contains the Property Updates Worker.
-     * It is a Dispatcher Timer that fires every few milliseconds and copies the 
+     * It is a Dispatcher Timer that fires every few milliseconds and copies the
      * MediaEngine State properties into the MediaElement's properties.
      */
 

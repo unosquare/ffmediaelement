@@ -64,8 +64,10 @@
 
                 // Create the stream container
                 // the async protocol prefix allows for increased performance for local files.
-                var streamOptions = new StreamOptions();
-                streamOptions.ProtocolPrefix = Source.IsFile ? "async" : null;
+                var streamOptions = new StreamOptions
+                {
+                    ProtocolPrefix = Source.IsFile ? "async" : null
+                };
 
                 m.SendOnMediaInitializing(streamOptions, mediaUrl);
                 m.Container = new MediaContainer(mediaUrl, streamOptions, m);

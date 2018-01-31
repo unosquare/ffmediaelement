@@ -206,28 +206,30 @@ namespace Unosquare.FFME
             if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return TimeSpan.Zero;
             if (element.MediaCore.State.IsSeekable == false) return element.MediaCore.State.Position;
 
+            if (element.IsRunningPropertyUpdates)
+            {
+                lock (element.ReportablePositionLock)
+                {
+                    if (element.m_ReportablePosition != null)
+                    {
+                        // coming from underlying engine
+                        return element.m_ReportablePosition.Value;
+                    }
+                }
+            }
+
             var minPosition = element.MediaCore?.MediaInfo?.StartTime ?? TimeSpan.Zero;
             var maxPosition = minPosition + (element.MediaCore?.MediaInfo?.Duration ?? TimeSpan.Zero);
-            return ((TimeSpan)value).Clamp(minPosition, maxPosition);
+            var targetSeek = ((TimeSpan)value).Clamp(minPosition, maxPosition);
+
+            // coming in as a seek from user
+            element.MediaCore?.RequestSeek(targetSeek);
+            return targetSeek;
         }
 
         private static void OnPositionPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var element = d as MediaElement;
-            if (element == null || element.IsSeekable == false) return;
-
-            lock (element.ReportablePositionLock)
-            {
-                if (element.m_ReportablePosition != null)
-                {
-                    // coming from underlying engine
-                }
-                else
-                {
-                    // coming in as a seek from user
-                    element.MediaCore?.RequestSeek((TimeSpan)e.NewValue);
-                }
-            }
+            // placeholder: nothing to do one we have changed the position.
         }
 
         #endregion

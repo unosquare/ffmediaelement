@@ -108,10 +108,6 @@
                     // capture the wall clock for this cycle
                     wallClock = WallClock;
 
-                    // Update the position property after all seeking is done
-                    if (State.IsSeeking == false)
-                        State.UpdatePosition(wallClock);
-
                     // Capture the blocks to render
                     foreach (var t in all)
                         currentBlock[t] = Blocks[t][wallClock];
