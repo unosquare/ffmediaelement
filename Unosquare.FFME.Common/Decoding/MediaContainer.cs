@@ -532,7 +532,7 @@
             if (string.IsNullOrWhiteSpace(StreamOptions.Input.ForcedInputFormat) == false)
             {
                 inputFormat = ffmpeg.av_find_input_format(StreamOptions.Input.ForcedInputFormat);
-                Parent?.Log(MediaLogMessageType.Warning, 
+                Parent?.Log(MediaLogMessageType.Warning,
                     $"Format '{StreamOptions.Input.ForcedInputFormat}' not found. Will use automatic format detection.");
             }
 
