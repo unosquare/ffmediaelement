@@ -3,6 +3,7 @@
     using Shared;
     using System;
     using System.Collections.Generic;
+    using System.Runtime.CompilerServices;
     using System.Threading;
     using Unosquare.FFME.Platform;
 
@@ -90,66 +91,67 @@
             // Properties Worker Logic
             PropertyUpdatesWorker = new GuiTimer(() =>
             {
-                #region 1. Cycle Setup
-
-                // If there is overlapping (this code is already running), skip this cycle
                 if (IsRunningPropertyUpdates) return;
-
-                // Signal a begining of property updates
                 IsRunningPropertyUpdates = true;
-
-                // Detect Notification and Dependency property changes
-                var notificationProperties = this.DetectNotificationPropertyChanges(NotificationPropertyCache);
-                var dependencyProperties = this.DetectDependencyPropertyChanges();
-
-                #endregion
-
-                #region 2. Change Notification Triggers
-
-                // Handling of Notification Properties
-                foreach (var p in notificationProperties)
-                {
-                    // Notify the changed properties
-                    RaisePropertyChangedEvent(p);
-                }
-
-                #endregion
-
-                #region 3. Upstream (Write) Dependency Properties
-
-                // Write the media engine state property state to the dependency properties
-                foreach (var kvp in dependencyProperties)
-                {
-                    // Do not upstream the Source porperty
-                    // This causes unintended Open/Close commands to be run
-                    if (kvp.Key == SourceProperty)
-                        continue;
-
-                    // Do not upstream the Source porperty
-                    // This causes unintended Seek commands to be run
-                    if (kvp.Key == PositionProperty)
-                        continue;
-
-                    SetValue(kvp.Key, kvp.Value);
-                }
-
-                #endregion
-
-                // Check if we need to report a new position as commanded byt the MEdiaEngine
-                // After we update the position dependency property, clear the reportable position
-                // to make way for new updates.
-                lock (ReportablePositionLock)
-                {
-                    if (m_ReportablePosition != null)
-                    {
-                        Position = m_ReportablePosition.Value;
-                        m_ReportablePosition = default(TimeSpan?);
-                    }
-                }
-
-                // Always signal that we are no longer running updates
+                UpdateNotificationProperties();
+                UpdateDependencyProperties();
                 IsRunningPropertyUpdates = false;
             });
+        }
+
+        /// <summary>
+        /// Updates the notification properties.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void UpdateNotificationProperties()
+        {
+            // Detect changes
+            var notificationProperties = this.DetectNotificationPropertyChanges(NotificationPropertyCache);
+
+            // Handling of Notification Properties
+            foreach (var p in notificationProperties)
+            {
+                // Notify the changed properties
+                RaisePropertyChangedEvent(p);
+            }
+        }
+
+        /// <summary>
+        /// Updates the dependency properties.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void UpdateDependencyProperties()
+        {
+            // Detect Notification and Dependency property changes
+            var dependencyProperties = this.DetectDependencyPropertyChanges();
+
+            // Write the media engine state property state to the dependency properties
+            foreach (var kvp in dependencyProperties)
+            {
+                // Do not upstream the Source porperty
+                // This causes unintended Open/Close commands to be run
+                if (kvp.Key == SourceProperty)
+                    continue;
+
+                // Do not upstream the Source porperty
+                // This causes unintended Seek commands to be run
+                if (kvp.Key == PositionProperty)
+                    continue;
+
+                SetValue(kvp.Key, kvp.Value);
+            }
+
+            // Check if we need to report a new position as commanded byt the MEdiaEngine
+            // After we update the position dependency property, clear the reportable position
+            // to make way for new updates.
+            lock (ReportablePositionLock)
+            {
+                if (m_ReportablePosition != null)
+                {
+                    Position = m_ReportablePosition.Value;
+                    m_ReportablePosition = default(TimeSpan?);
+                }
+            }
         }
     }
 }

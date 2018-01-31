@@ -142,31 +142,34 @@
         public void Render(MediaBlock mediaBlock, TimeSpan clockPosition)
         {
             // We don't need to render anything while we are seeking. Simply drop the blocks.
-            if (MediaCore.State.IsSeeking) return;
-            if (AudioBuffer == null) return;
-
-            // Capture Media Block Reference
-            var block = mediaBlock as AudioBlock;
-            if (block == null) return;
-
-            var audioBlocks = MediaCore.Blocks[MediaType.Audio];
-            var audioBlock = mediaBlock as AudioBlock;
-
-            while (audioBlock != null)
+            lock (SyncLock)
             {
-                // Write the block if we have to, avoiding repeated blocks.
-                if (AudioBuffer.WriteTag < audioBlock.StartTime)
+                if (MediaCore.State.IsSeeking) return;
+                if (AudioBuffer == null) return;
+
+                // Capture Media Block Reference
+                var block = mediaBlock as AudioBlock;
+                if (block == null) return;
+
+                var audioBlocks = MediaCore.Blocks[MediaType.Audio];
+                var audioBlock = mediaBlock as AudioBlock;
+
+                while (audioBlock != null)
                 {
-                    MediaElement.RaiseRenderingAudioEvent(audioBlock, clockPosition);
-                    AudioBuffer.Write(audioBlock.Buffer, audioBlock.BufferLength, audioBlock.StartTime, true);
+                    // Write the block if we have to, avoiding repeated blocks.
+                    if (AudioBuffer.WriteTag < audioBlock.StartTime)
+                    {
+                        MediaElement.RaiseRenderingAudioEvent(audioBlock, clockPosition);
+                        AudioBuffer.Write(audioBlock.Buffer, audioBlock.BufferLength, audioBlock.StartTime, true);
+                    }
+
+                    // Stop adding if we have too much in there.
+                    if (AudioBuffer.CapacityPercent >= 0.8)
+                        break;
+
+                    // Retrieve the following block
+                    audioBlock = audioBlocks.Next(audioBlock) as AudioBlock;
                 }
-
-                // Stop adding if we have too much in there.
-                if (AudioBuffer.CapacityPercent >= 0.8)
-                    break;
-
-                // Retrieve the following block
-                audioBlock = audioBlocks.Next(audioBlock) as AudioBlock;
             }
         }
 
@@ -261,6 +264,7 @@
         /// <returns>The number of bytes that were read.</returns>
         public int Read(byte[] targetBuffer, int targetBufferOffset, int requestedBytes)
         {
+            // We sync-lock the reads to avoid null reference exceptions as detaroy might have been called
             lock (SyncLock)
             {
                 try

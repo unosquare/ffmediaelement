@@ -206,7 +206,7 @@
         /// </summary>
         public void Close()
         {
-            GuiContext.Current.Invoke(() =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
                 TargetBitmap = null;
                 MediaElement.VideoView.Source = null;

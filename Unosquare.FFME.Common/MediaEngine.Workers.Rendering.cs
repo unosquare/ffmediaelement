@@ -60,7 +60,7 @@
             {
                 #region Detect a Timer Stop
 
-                if (IsTaskCancellationPending || HasBlockRenderingWorkerExited.IsSet() || IsDisposing)
+                if (IsTaskCancellationPending || HasBlockRenderingWorkerExited.IsSet() || IsDisposed)
                 {
                     HasBlockRenderingWorkerExited.Set();
                     return;
@@ -143,7 +143,7 @@
 
                 }
                 catch (ThreadAbortException) { /* swallow */ }
-                catch { if (!IsDisposing && !IsDisposed) throw; }
+                catch { if (!IsDisposed) throw; }
                 finally
                 {
                     // Always exit notifying the cycle is done.
@@ -168,8 +168,7 @@
                 return;
 
             HasBlockRenderingWorkerExited.WaitOne();
-            BlockRenderingCycle.WaitOne();
-            BlockRenderingWorker.Dispose();
+            BlockRenderingWorker?.Dispose();
             BlockRenderingWorker = null;
             HasBlockRenderingWorkerExited.Dispose();
             HasBlockRenderingWorkerExited = null;

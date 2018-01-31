@@ -71,7 +71,7 @@
         /// </summary>
         public void Complete()
         {
-            if (IsDisposed) return;
+            if (HasCompleted) return;
 
             // Signal the cancellation
             CancelTokenSource.Cancel();
@@ -94,7 +94,7 @@
             {
                 IsRunning = true;
                 TaskContext.Start();
-                await TaskContext.ContinueWith(a => { Dispose(); });
+                await TaskContext;
             }
             catch
             {
@@ -103,6 +103,7 @@
             finally
             {
                 IsRunning = false;
+                Dispose();
             }
         }
 
@@ -111,7 +112,27 @@
         /// </summary>
         public void RunSynchronously()
         {
-            StartAsync().GetAwaiter().GetResult();
+            var m = Manager.MediaCore;
+
+            // Avoid processing the command if the element is disposed.
+            if (IsDisposed || m.IsDisposed)
+                return;
+
+            // Start and await the task
+            try
+            {
+                IsRunning = true;
+                ExecuteInternal();
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                IsRunning = false;
+                Dispose();
+            }
         }
 
         /// <summary>
@@ -147,7 +168,9 @@
 
                 if (alsoManaged)
                 {
-                    TaskContext?.Dispose();
+                    if (TaskContext != null && TaskContext.IsCompleted)
+                        TaskContext.Dispose();
+
                     CancelTokenSource?.Dispose();
                 }
 

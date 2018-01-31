@@ -44,31 +44,31 @@
         static LoggingWorker()
         {
             LogOutputter = new Timer((s) =>
+            {
+                if (IsOutputingLog) return;
+                IsOutputingLog = true;
+                try
                 {
-                    if (IsOutputingLog) return;
-                    IsOutputingLog = true;
-                    try
+                    while (LogQueue.TryDequeue(out MediaLogMessage eventArgs))
                     {
-                        while (LogQueue.TryDequeue(out MediaLogMessage eventArgs))
-                        {
-                            if (eventArgs.Source != null)
-                                eventArgs.Source.SendOnMessageLogged(eventArgs);
-                            else
-                                MediaEngine.Platform?.HandleFFmpegLogMessage(eventArgs);
-                        }
+                        if (eventArgs.Source != null)
+                            eventArgs.Source.SendOnMessageLogged(eventArgs);
+                        else
+                            MediaEngine.Platform?.HandleFFmpegLogMessage(eventArgs);
                     }
-                    catch
-                    {
-                        throw;
-                    }
-                    finally
-                    {
-                        IsOutputingLog = false;
-                    }
-                },
-                LogQueue, // the state argument passed on to the ticker
-                (int)Constants.Interval.LowPriority.TotalMilliseconds,
-                (int)Constants.Interval.LowPriority.TotalMilliseconds);
+                }
+                catch
+                {
+                    throw;
+                }
+                finally
+                {
+                    IsOutputingLog = false;
+                }
+            },
+            LogQueue, // the state argument passed on to the ticker
+            (int)Constants.Interval.LowPriority.TotalMilliseconds,
+            (int)Constants.Interval.LowPriority.TotalMilliseconds);
         }
 
         #endregion
@@ -130,10 +130,10 @@
                 $"{block.MediaType.ToString().Substring(0, 1)} "
                     + $"BLK: {block.StartTime.Format()} | "
                     + $"CLK: {clockPosition.Format()} | "
-                    + $"DFT: {drift.TotalMilliseconds, 4:0} | "
-                    + $"IX: {renderIndex, 3} | "
-                    + $"PQ: {mediaCore.Container?.Components[block.MediaType]?.PacketBufferLength / 1024d, 7:0.0}k | "
-                    + $"TQ: {mediaCore.Container?.Components.PacketBufferLength / 1024d, 7:0.0}k");
+                    + $"DFT: {drift.TotalMilliseconds,4:0} | "
+                    + $"IX: {renderIndex,3} | "
+                    + $"PQ: {mediaCore.Container?.Components[block.MediaType]?.PacketBufferLength / 1024d,7:0.0}k | "
+                    + $"TQ: {mediaCore.Container?.Components.PacketBufferLength / 1024d,7:0.0}k");
             }
             catch
             {

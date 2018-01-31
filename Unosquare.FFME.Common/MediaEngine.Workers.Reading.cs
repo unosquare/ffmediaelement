@@ -79,7 +79,7 @@
                 }
             }
             catch (ThreadAbortException) { /* swallow */ }
-            catch { if (!IsDisposing && !IsDisposed) throw; }
+            catch { if (!IsDisposed) throw; }
             finally
             {
                 // Always exit notifying the reading cycle is done.

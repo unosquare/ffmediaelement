@@ -3,6 +3,7 @@
     using System;
     using System.Diagnostics;
     using System.Threading;
+    using System.Threading.Tasks;
     using System.Windows;
     using System.Windows.Input;
     using System.Windows.Threading;
@@ -79,6 +80,16 @@
         /// </summary>
         /// <param name="parameter">Data used by the command.  If the command does not require data to be passed, this object can be set to null.</param>
         public async void Execute(object parameter = null)
+        {
+            await ExecuteAsync(parameter);
+        }
+
+        /// <summary>
+        /// Defines the method to be called when the command is invoked.
+        /// </summary>
+        /// <param name="parameter">Data used by the command.  If the command does not require data to be passed, this object can be set to null.</param>
+        /// <returns>The awaitable task</returns>
+        public async Task ExecuteAsync(object parameter = null)
         {
             if (Volatile.Read(ref IsExecuting) == 1) return;
 

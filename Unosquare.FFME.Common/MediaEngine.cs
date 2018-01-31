@@ -2,7 +2,6 @@
 {
     using Commands;
     using Core;
-    using Primitives;
     using Shared;
     using System;
 
@@ -20,11 +19,6 @@
         /// To detect redundant calls
         /// </summary>
         private bool m_IsDisposed = default(bool);
-
-        /// <summary>
-        /// Flag when disposing process start but not finished yet
-        /// </summary>
-        private AtomicBoolean m_IsDisposing = new AtomicBoolean(false);
 
         #endregion
 
@@ -90,15 +84,6 @@
         }
 
         /// <summary>
-        /// Gets a value indicating whether this instance is disposing.
-        /// </summary>
-        public bool IsDisposing
-        {
-            get => m_IsDisposing.Value;
-            private set => m_IsDisposing.Value = value;
-        }
-
-        /// <summary>
         /// Gets the associated parent object.
         /// </summary>
         public object Parent { get; }
@@ -125,11 +110,7 @@
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose()
-        {
-            // TODO: Looks like MediaElement is not calling this when closing the container?
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         #endregion
 
@@ -140,30 +121,28 @@
         /// Please not that this call is non-blocking/asynchronous.
         /// </summary>
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private async void Dispose(bool alsoManaged)
+        private void Dispose(bool alsoManaged)
         {
             if (IsDisposed) return;
 
-            IsDisposing = true;
             if (alsoManaged)
             {
-                // free managed resources -- This is done asynchronously
-                await Commands.CloseAsync().ContinueWith(d =>
-                {
-                    // Dispose the container
-                    Container?.Dispose();
-                    Container = null;
+                var closeCommand = new CloseCommand(Commands);
+                closeCommand.RunSynchronously();
 
-                    // Dispose the RTC
-                    Clock?.Dispose();
+                // Dispose the container
+                Container?.Dispose();
+                Container = null;
 
-                    // Dispose the ManualResetEvent objects as they are
-                    // backed by unmanaged code
-                    m_PacketReadingCycle.Dispose();
-                    m_FrameDecodingCycle.Dispose();
-                    m_BlockRenderingCycle.Dispose();
-                    m_SeekingDone.Dispose();
-                });
+                // Dispose the RTC
+                Clock?.Dispose();
+
+                // Dispose the ManualResetEvent objects as they are
+                // backed by unmanaged code
+                m_PacketReadingCycle.Dispose();
+                m_FrameDecodingCycle.Dispose();
+                m_BlockRenderingCycle.Dispose();
+                m_SeekingDone.Dispose();
             }
 
             IsDisposed = true;

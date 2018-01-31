@@ -130,18 +130,6 @@
             Loaded += MainWindow_Loaded;
             UrlTextBox.Text = HistoryItems.Count > 0 ? HistoryItems.First() : string.Empty;
 
-            // If you don't want to show the first frame upon loading.
-            // Media.ScrubbingEnabled = false;
-            // Media.LoadedBehavior = MediaState.Pause;
-
-            // Open a file if it is specified in the arguments
-            var args = Environment.GetCommandLineArgs();
-            if (args != null && args.Length > 1)
-            {
-                UrlTextBox.Text = args[1].Trim();
-                OpenCommand.Execute();
-            }
-
             OpenMediaPopup.Opened += (s, e) =>
             {
                 if (UrlTextBox.ItemsSource == null)
@@ -153,14 +141,22 @@
                 UrlTextBox.Focus();
             };
 
-            UrlTextBox.KeyDown += (s, e) =>
+            UrlTextBox.KeyDown += async (s, e) =>
             {
                 if (e.Key == Key.Enter)
                 {
-                    OpenCommand.Execute();
+                    await OpenCommand.ExecuteAsync();
                     e.Handled = true;
                 }
             };
+
+            // Open a file if it is specified in the arguments
+            var args = Environment.GetCommandLineArgs();
+            if (args != null && args.Length > 1)
+            {
+                UrlTextBox.Text = args[1].Trim();
+                OpenCommand.Execute();
+            }
         }
 
         /// <summary>
@@ -190,14 +186,14 @@
                 // Pause
                 if (togglePlayPauseKeys.Contains(e.Key) && Media.IsPlaying)
                 {
-                    PauseCommand.Execute();
+                    await PauseCommand.ExecuteAsync();
                     return;
                 }
 
                 // Play
                 if (togglePlayPauseKeys.Contains(e.Key) && Media.IsPlaying == false)
                 {
-                    PlayCommand.Execute();
+                    await PlayCommand.ExecuteAsync();
                     return;
                 }
 
@@ -266,23 +262,23 @@
 
             #region Toggle Fullscreen with Double Click
 
-            Media.PreviewMouseDoubleClick += (s, e) =>
+            Media.PreviewMouseDoubleClick += async (s, e) =>
             {
                 if (s != Media) return;
                 e.Handled = true;
-                ToggleFullscreenCommand.Execute();
+                await ToggleFullscreenCommand.ExecuteAsync();
             };
 
             #endregion
 
             #region Exit fullscreen with Escape key
 
-            PreviewKeyDown += (s, e) =>
+            PreviewKeyDown += async (s, e) =>
             {
                 if (e.Key == Key.Escape && WindowStyle == WindowStyle.None)
                 {
                     e.Handled = true;
-                    ToggleFullscreenCommand.Execute();
+                    await ToggleFullscreenCommand.ExecuteAsync();
                 }
             };
 
