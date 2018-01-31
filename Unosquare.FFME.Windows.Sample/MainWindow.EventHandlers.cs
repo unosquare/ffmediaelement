@@ -152,14 +152,10 @@
                 e.Options.Input["reconnect_delay_max"] = "10"; // in seconds
             }
 
-            // In realtime streams probesize can be reduced to reduce latency
-            // e.Options.Format.ProbeSize = 1024 * 5; // 32 is the minimum
-
-            // In realtime strams analyze duration can be reduced to reduce latency
+            // In realtime streams these settings can be used to reduce latency (see example from issue #152)
+            // e.Options.Format.FlagNoBuffer = true;
+            // e.Options.Format.ProbeSize = 8192;
             // e.Options.Format.MaxAnalyzeDuration = System.TimeSpan.FromSeconds(1);
-
-            // AVIO-Direct
-            // e.Options.Format.FlagSortDts = true;
         }
 
         /// <summary>

@@ -179,7 +179,7 @@
             IsRenderingInProgress.Value = true;
 
             // Ensure the target bitmap can be loaded
-            var bitmapData = LockTarget(block);
+            var bitmapData = LockTargetBitmap(block);
 
             // Check if we have a valid pointer to the back-buffer
             if (bitmapData == null)
@@ -197,7 +197,8 @@
                 MediaElement.RaiseRenderingVideoEvent(block, bitmapData, clockPosition);
 
             // Send to the rendering to the UI
-            GuiContext.Current.EnqueueInvoke(DispatcherPriority.Render, () => { RenderTarget(block, bitmapData, clockPosition); });
+            GuiContext.Current.EnqueueInvoke(DispatcherPriority.Render,
+                () => { RenderTargetBitmap(block, bitmapData, clockPosition); });
         }
 
         /// <summary>
@@ -214,7 +215,13 @@
 
         #endregion
 
-        private void RenderTarget(VideoBlock block, BitmapDataBuffer bitmapData, TimeSpan clockPosition)
+        /// <summary>
+        /// Renders the target bitmap.
+        /// </summary>
+        /// <param name="block">The block.</param>
+        /// <param name="bitmapData">The bitmap data.</param>
+        /// <param name="clockPosition">The clock position.</param>
+        private void RenderTargetBitmap(VideoBlock block, BitmapDataBuffer bitmapData, TimeSpan clockPosition)
         {
             try
             {
@@ -222,8 +229,8 @@
                     MediaElement.RaiseRenderingVideoEvent(block, bitmapData, clockPosition);
 
                 // Signal an update on the rendering surface
-                TargetBitmap.AddDirtyRect(bitmapData.UpdateRect);
-                TargetBitmap.Unlock();
+                TargetBitmap?.AddDirtyRect(bitmapData.UpdateRect);
+                TargetBitmap?.Unlock();
                 ApplyScaleTransform(block);
             }
             catch (Exception ex)
@@ -245,7 +252,7 @@
         /// <returns>
         /// The locking result. Returns a null pointer on back buffer for invalid.
         /// </returns>
-        private BitmapDataBuffer LockTarget(VideoBlock block)
+        private BitmapDataBuffer LockTargetBitmap(VideoBlock block)
         {
             // Result will be set on the GUI thread
             BitmapDataBuffer result = null;
