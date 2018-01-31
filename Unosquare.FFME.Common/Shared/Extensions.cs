@@ -268,6 +268,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsSet(this ManualResetEvent m)
         {
+            if (m?.SafeWaitHandle.IsClosed ?? true) return true;
             return m?.WaitOne(0) ?? true;
         }
 

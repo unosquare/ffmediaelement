@@ -40,7 +40,7 @@ namespace Unosquare.FFME
         {
             var element = d as MediaElement;
             if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return Constants.Controller.DefaultVolume;
-            if (element.IsRunningPropertyUpdates) return value;
+            if (element.PropertyUpdatesWorker.IsExecutingCycle) return value;
             if (element.HasAudio == false) return Constants.Controller.DefaultVolume;
 
             return ((double)value).Clamp(Constants.Controller.MinVolume, Constants.Controller.MaxVolume);
@@ -82,7 +82,7 @@ namespace Unosquare.FFME
         {
             var element = d as MediaElement;
             if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return Constants.Controller.DefaultBalance;
-            if (element.IsRunningPropertyUpdates) return value;
+            if (element.PropertyUpdatesWorker.IsExecutingCycle) return value;
             if (element.HasAudio == false) return Constants.Controller.DefaultBalance;
 
             return ((double)value).Clamp(Constants.Controller.MinBalance, Constants.Controller.MaxBalance);
@@ -123,7 +123,7 @@ namespace Unosquare.FFME
         {
             var element = d as MediaElement;
             if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return false;
-            if (element.IsRunningPropertyUpdates) return value;
+            if (element.PropertyUpdatesWorker.IsExecutingCycle) return value;
             if (element.HasAudio == false) return false;
 
             return (bool)value;
@@ -206,7 +206,7 @@ namespace Unosquare.FFME
             if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return TimeSpan.Zero;
             if (element.MediaCore.State.IsSeekable == false) return element.MediaCore.State.Position;
 
-            if (element.IsRunningPropertyUpdates)
+            if (element.PropertyUpdatesWorker.IsExecutingCycle)
             {
                 lock (element.ReportablePositionLock)
                 {

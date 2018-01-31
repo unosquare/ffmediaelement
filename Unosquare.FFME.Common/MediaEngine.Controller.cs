@@ -4,11 +4,18 @@
     using Core;
     using Decoding;
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
 
     public partial class MediaEngine
     {
         #region Internal Members
+
+        /// <summary>
+        /// The open or close command done signalling object.
+        /// Open and close are synchronous commands.
+        /// </summary>
+        private readonly ManualResetEvent OpenOrCloseCommandDone = new ManualResetEvent(true);
 
         /// <summary>
         /// The command queue to be executed in the order they were sent.
@@ -39,22 +46,28 @@
         /// <exception cref="InvalidOperationException">Source</exception>
         public async Task Open(Uri uri)
         {
-            // TODO: Calling this multiple times while an operation is in progress breaks the control :(
-            // for now let's throw an exception but ideally we want the user NOT to be able to change the value in the first place.
-            if (State.IsOpening)
-                throw new InvalidOperationException($"Unable to change {nameof(State.Source)} to '{uri}' because {nameof(State.IsOpening)} is currently set to true.");
+            OpenOrCloseCommandDone.WaitOne();
+            OpenOrCloseCommandDone.Reset();
 
-            if (uri != null)
+            try
             {
-                await Close()
-                    .ContinueWith(async (c) =>
-                    {
-                        await Commands.OpenAsync(uri);
-                    });
+                if (uri != null)
+                {
+                    await Commands.CloseAsync();
+                    await Commands.OpenAsync(uri);
+                }
+                else
+                {
+                    await Commands.CloseAsync();
+                }
             }
-            else
+            catch
             {
-                await Commands.CloseAsync();
+                throw;
+            }
+            finally
+            {
+                OpenOrCloseCommandDone.Set();
             }
         }
 
@@ -64,9 +77,17 @@
         /// <returns>The awaitable task</returns>
         public async Task Close()
         {
-            try { await Commands.CloseAsync(); }
+            OpenOrCloseCommandDone.WaitOne();
+            OpenOrCloseCommandDone.Reset();
+
+            try
+            { await Commands.CloseAsync(); }
             catch (OperationCanceledException) { }
             catch { throw; }
+            finally
+            {
+                OpenOrCloseCommandDone.Set();
+            }
         }
 
         /// <summary>

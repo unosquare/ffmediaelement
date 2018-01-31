@@ -265,7 +265,10 @@
 
                 // Figure out what we need to do
                 var needsCreation = TargetBitmap == null && MediaElement.HasVideo;
-                var needsModification = needsCreation == false && (TargetBitmap.PixelWidth != block.PixelWidth || TargetBitmap.PixelHeight != block.PixelHeight);
+                var needsModification = TargetBitmap != null
+                    && needsCreation == false
+                    && (TargetBitmap.PixelWidth != block.PixelWidth || TargetBitmap.PixelHeight != block.PixelHeight);
+
                 var hasValidDimensions = block.PixelWidth > 0 && block.PixelHeight > 0;
 
                 // Instantiate or update the target bitmap

@@ -125,27 +125,35 @@
         {
             if (IsDisposed) return;
 
-            if (alsoManaged)
+            // Run the close command immediately
+            OpenOrCloseCommandDone.WaitOne();
+            OpenOrCloseCommandDone.Reset();
+            try
             {
                 var closeCommand = new CloseCommand(Commands);
                 closeCommand.RunSynchronously();
-
-                // Dispose the container
-                Container?.Dispose();
-                Container = null;
-
-                // Dispose the RTC
-                Clock?.Dispose();
-
-                // Dispose the ManualResetEvent objects as they are
-                // backed by unmanaged code
-                m_PacketReadingCycle.Dispose();
-                m_FrameDecodingCycle.Dispose();
-                m_BlockRenderingCycle.Dispose();
-                m_SeekingDone.Dispose();
+            }
+            catch { throw; }
+            finally
+            {
+                IsDisposed = true;
+                OpenOrCloseCommandDone.Set();
             }
 
-            IsDisposed = true;
+            // Dispose the container
+            Container?.Dispose();
+            Container = null;
+
+            // Dispose the RTC
+            Clock?.Dispose();
+
+            // Dispose the ManualResetEvent objects as they are
+            // backed by unmanaged code
+            m_PacketReadingCycle.Dispose();
+            m_FrameDecodingCycle.Dispose();
+            m_BlockRenderingCycle.Dispose();
+            m_SeekingDone.Dispose();
+            OpenOrCloseCommandDone.Dispose();
         }
 
         #endregion

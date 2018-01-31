@@ -234,20 +234,7 @@
         {
             if (IsDisposed) return;
             IsDisposed = true;
-            m_MediaCore.Dispose();
-
-            PropertyUpdatesDone.WaitOne();
             PropertyUpdatesWorker.Dispose();
-            if (PropertyUpdatesDone != null)
-            {
-                PropertyUpdatesDone.Dispose();
-                PropertyUpdatesDone = null;
-            }
-
-            // Notify the last state before dispose completes.
-            m_ReportablePosition = TimeSpan.Zero;
-            UpdateNotificationProperties();
-            UpdateDependencyProperties();
         }
 
         /// <summary>

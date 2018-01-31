@@ -27,11 +27,6 @@
         private readonly object ReportablePositionLock = new object();
 
         /// <summary>
-        /// The property updates done event
-        /// </summary>
-        private ManualResetEvent PropertyUpdatesDone = new ManualResetEvent(true);
-
-        /// <summary>
         /// The property updates worker timer
         /// </summary>
         private GuiTimer PropertyUpdatesWorker = null;
@@ -40,24 +35,6 @@
         /// The backing member of the Reportable position
         /// </summary>
         private TimeSpan? m_ReportablePosition = default(TimeSpan?);
-
-        /// <summary>
-        /// Gets or sets a value indicating whether this instance is running property updates.
-        /// </summary>
-        internal bool IsRunningPropertyUpdates
-        {
-            get
-            {
-                return (PropertyUpdatesDone?.IsSet() ?? true) == false;
-            }
-            set
-            {
-                if (value)
-                    PropertyUpdatesDone?.Reset();
-                else
-                    PropertyUpdatesDone?.Set();
-            }
-        }
 
         /// <summary>
         /// The media engine position to report.
@@ -91,11 +68,28 @@
             // Properties Worker Logic
             PropertyUpdatesWorker = new GuiTimer(() =>
             {
-                if (IsRunningPropertyUpdates) return;
-                IsRunningPropertyUpdates = true;
                 UpdateNotificationProperties();
                 UpdateDependencyProperties();
-                IsRunningPropertyUpdates = false;
+            }, HandledAsynchronousDispose);
+        }
+
+        /// <summary>
+        /// Handles the asynchronous dispose of the underlying Media Engine.
+        /// </summary>
+        private void HandledAsynchronousDispose()
+        {
+            // Dispose outside of the current thread to avoid deadlocks
+            ThreadPool.QueueUserWorkItem((s) =>
+            {
+                m_MediaCore.Dispose();
+
+                // Notify the one last state
+                GuiContext.Current.EnqueueInvoke(() =>
+                {
+                    m_ReportablePosition = TimeSpan.Zero;
+                    UpdateNotificationProperties();
+                    UpdateDependencyProperties();
+                });
             });
         }
 

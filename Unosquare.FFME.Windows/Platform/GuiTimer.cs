@@ -18,19 +18,22 @@
         private System.Windows.Forms.Timer FormsTimer = null;
         private ManualResetEvent IsCycleDone = new ManualResetEvent(true);
         private Action TimerCallback = null;
+        private Action DisposeCallback = null;
         private bool IsDisposing = false;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GuiTimer"/> class.
+        /// Initializes a new instance of the <see cref="GuiTimer" /> class.
         /// </summary>
         /// <param name="contextType">Type of the context.</param>
         /// <param name="interval">The interval.</param>
         /// <param name="callback">The callback.</param>
-        public GuiTimer(GuiContextType contextType, TimeSpan interval, Action callback)
+        /// <param name="disposeCallback">The dispose callback.</param>
+        public GuiTimer(GuiContextType contextType, TimeSpan interval, Action callback, Action disposeCallback)
         {
             ContextType = contextType;
             Interval = interval;
             TimerCallback = callback;
+            DisposeCallback = disposeCallback;
 
             switch (contextType)
             {
@@ -55,7 +58,7 @@
         }
 
         public GuiTimer(TimeSpan interval, Action callback)
-            : this(GuiContext.Current.ContextType, interval, callback)
+            : this(GuiContext.Current.ContextType, interval, callback, null)
         {
             // placeholder
         }
@@ -65,7 +68,13 @@
         /// </summary>
         /// <param name="callback">The callback.</param>
         public GuiTimer(Action callback)
-            : this(GuiContext.Current.ContextType, Constants.Interval.MediumPriority, callback)
+            : this(GuiContext.Current.ContextType, Constants.Interval.MediumPriority, callback, null)
+        {
+            // placeholder
+        }
+
+        public GuiTimer(Action callback, Action disposeCallback)
+            : this(GuiContext.Current.ContextType, Constants.Interval.MediumPriority, callback, disposeCallback)
         {
             // placeholder
         }
@@ -81,32 +90,33 @@
         public TimeSpan Interval { get; }
 
         /// <summary>
+        /// Gets a value indicating whether this instance is executing a cycle.
+        /// </summary>
+        public bool IsExecutingCycle
+        {
+            get
+            {
+                return (IsCycleDone?.IsSet() ?? true) == false;
+            }
+        }
+
+        /// <summary>
+        /// Waits for one cycle to be completed.
+        /// </summary>
+        public void WaitOne()
+        {
+            if (IsDisposing) return;
+            IsCycleDone.WaitOne();
+        }
+
+        /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
             if (IsDisposing) return;
             IsDisposing = true;
-
             IsCycleDone.WaitOne();
-            if (ThreadingTimer != null)
-            {
-                ThreadingTimer.Dispose();
-                ThreadingTimer = null;
-            }
-
-            if (FormsTimer != null)
-            {
-                FormsTimer.Dispose();
-                FormsTimer = null;
-            }
-
-            if (DispatcherTimer != null)
-            {
-                DispatcherTimer.Stop();
-                DispatcherTimer = null;
-            }
-
             IsCycleDone.Dispose();
         }
 
@@ -116,12 +126,41 @@
         /// <param name="state">The state.</param>
         private void RunTimerCycle(object state)
         {
-            if (IsDisposing || IsCycleDone.IsSet() == false)
+            // Handle the dispose process.
+            if (IsDisposing)
+            {
+                if (ThreadingTimer != null)
+                {
+                    ThreadingTimer.Dispose();
+                    ThreadingTimer = null;
+                }
+
+                if (FormsTimer != null)
+                {
+                    FormsTimer.Dispose();
+                    FormsTimer = null;
+                }
+
+                if (DispatcherTimer != null)
+                {
+                    DispatcherTimer.Stop();
+                    DispatcherTimer = null;
+                }
+
+                DisposeCallback?.Invoke();
                 return;
+            }
+
+            // Skip running this cycle if we are already in the middle of one
+            if (IsCycleDone.IsSet() == false)
+                return;
+
+            // Start a cycle by signaling it
+            IsCycleDone.Reset();
 
             try
             {
-                IsCycleDone.Reset();
+                // Call the configured timer callback
                 TimerCallback();
             }
             catch
@@ -130,6 +169,7 @@
             }
             finally
             {
+                // Finalize the cycle
                 IsCycleDone.Set();
             }
         }
