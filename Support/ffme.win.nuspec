@@ -25,7 +25,7 @@
     <tags>hls wpf ffmpeg mediaelement ffme h264 h265 hevc audio video processing decoding playback frame</tags>
     <dependencies>
       <group targetFramework=".NETFramework4.6.2">
-        <dependency id="FFmpeg.AutoGen" version="3.4.0.1" />
+        <dependency id="FFmpeg.AutoGen" version="3.4.0.2" />
       </group>
     </dependencies>
   </metadata>
