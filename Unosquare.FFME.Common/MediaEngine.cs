@@ -66,7 +66,7 @@
         /// This is different from the position property and it is useful
         /// in computing things like real-time latency in a render cycle.
         /// </summary>
-        public TimeSpan WallClock => State.IsOpen ? (Clock?.Position ?? TimeSpan.Zero) : TimeSpan.Zero;
+        public TimeSpan WallClock => State.IsOpen ? Clock.Position : TimeSpan.Zero;
 
         /// <summary>
         /// Provides stream, chapter and program info of the underlying media.
@@ -126,8 +126,11 @@
             if (IsDisposed) return;
 
             // Run the close command immediately
-            OpenOrCloseCommandDone.WaitOne();
-            OpenOrCloseCommandDone.Reset();
+            if (BeginSynchronousCommand() == false) return;
+
+            // Dispose the wait handle: No more command accepted from this point forward.
+            SynchronousCommandDone.Dispose();
+
             try
             {
                 var closeCommand = new CloseCommand(Commands);
@@ -137,15 +140,13 @@
             finally
             {
                 IsDisposed = true;
-                OpenOrCloseCommandDone.Set();
             }
 
             // Dispose the container
-            Container?.Dispose();
-            Container = null;
+            Container.Dispose();
 
             // Dispose the RTC
-            Clock?.Dispose();
+            Clock.Dispose();
 
             // Dispose the ManualResetEvent objects as they are
             // backed by unmanaged code
@@ -153,7 +154,6 @@
             m_FrameDecodingCycle.Dispose();
             m_BlockRenderingCycle.Dispose();
             m_SeekingDone.Dispose();
-            OpenOrCloseCommandDone.Dispose();
         }
 
         #endregion

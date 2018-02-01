@@ -34,11 +34,7 @@
             m.StopWorkers();
 
             // Dispose the container
-            if (m.Container != null)
-            {
-                m.Container.Dispose();
-                m.Container = null;
-            }
+            m.Container?.Dispose();
 
             // Dispose the Blocks for all components
             foreach (var kvp in m.Blocks) kvp.Value.Dispose();
@@ -61,7 +57,7 @@
                     var builder = new StringBuilder();
                     builder.AppendLine("Unmanaged references were left alive. This is an indication that there is a memory leak.");
                     foreach (var kvp in RC.Current.InstancesByLocation)
-                        builder.AppendLine($"    {kvp.Key, 30}: {kvp.Value}");
+                        builder.AppendLine($"    {kvp.Key,30}: {kvp.Value}");
 
                     m.Log(MediaLogMessageType.Error, builder.ToString());
                 }

@@ -15,7 +15,7 @@
         /// The open or close command done signalling object.
         /// Open and close are synchronous commands.
         /// </summary>
-        private readonly ManualResetEvent OpenOrCloseCommandDone = new ManualResetEvent(true);
+        private readonly ManualResetEvent SynchronousCommandDone = new ManualResetEvent(true);
 
         /// <summary>
         /// The command queue to be executed in the order they were sent.
@@ -46,8 +46,7 @@
         /// <exception cref="InvalidOperationException">Source</exception>
         public async Task Open(Uri uri)
         {
-            OpenOrCloseCommandDone.WaitOne();
-            OpenOrCloseCommandDone.Reset();
+            if (BeginSynchronousCommand() == false) return;
 
             try
             {
@@ -67,7 +66,7 @@
             }
             finally
             {
-                OpenOrCloseCommandDone.Set();
+                EndSynchronousCommand();
             }
         }
 
@@ -77,8 +76,7 @@
         /// <returns>The awaitable task</returns>
         public async Task Close()
         {
-            OpenOrCloseCommandDone.WaitOne();
-            OpenOrCloseCommandDone.Reset();
+            if (BeginSynchronousCommand() == false) return;
 
             try
             { await Commands.CloseAsync(); }
@@ -86,7 +84,7 @@
             catch { throw; }
             finally
             {
-                OpenOrCloseCommandDone.Set();
+                EndSynchronousCommand();
             }
         }
 
@@ -134,6 +132,52 @@
         /// </summary>
         /// <param name="targetSpeedRatio">New playback speed ratio.</param>
         public void RequestSpeedRatio(double targetSpeedRatio) => Commands.EnqueueSpeedRatio(targetSpeedRatio);
+
+        #endregion
+
+        #region Synchronous Command Management
+
+        /// <summary>
+        /// Begins a synchronous command by locking the internal wait handle.
+        /// </summary>
+        /// <returns>True if successful, false if unsuccessful</returns>
+        private bool BeginSynchronousCommand()
+        {
+            if (IsDisposed) return false;
+
+            var waitHandle = SynchronousCommandDone;
+            if (waitHandle == null) return false;
+            if (waitHandle.SafeWaitHandle == null) return false;
+            if (waitHandle.SafeWaitHandle.IsClosed) return false;
+            if (waitHandle.SafeWaitHandle.IsInvalid) return false;
+
+            try
+            {
+                waitHandle.WaitOne();
+                waitHandle.Reset();
+                return true;
+            }
+            catch { }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Ends a synchronous command by releasing the internal wait handle.
+        /// </summary>
+        private void EndSynchronousCommand()
+        {
+            if (IsDisposed) return;
+
+            var waitHandle = SynchronousCommandDone;
+            if (waitHandle == null) return;
+            if (waitHandle.SafeWaitHandle == null) return;
+            if (waitHandle.SafeWaitHandle.IsClosed) return;
+            if (waitHandle.SafeWaitHandle.IsInvalid) return;
+
+            try { waitHandle.Set(); }
+            catch { }
+        }
 
         #endregion
     }

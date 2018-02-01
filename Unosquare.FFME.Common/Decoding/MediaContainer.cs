@@ -46,11 +46,6 @@
         private readonly object ConvertSyncRoot = new object();
 
         /// <summary>
-        /// To detect redundat Dispose calls
-        /// </summary>
-        private bool IsDisposed = false;
-
-        /// <summary>
         /// Determines if the stream seeks by bytes always
         /// </summary>
         private bool MediaSeeksByBytes = false;
@@ -125,6 +120,11 @@
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// To detect redundat Dispose calls
+        /// </summary>
+        public bool IsDisposed { get; private set; } = false;
 
         /// <summary>
         /// Logging Messages will be sent to this parent object.
