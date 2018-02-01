@@ -176,6 +176,17 @@
         /// <summary>
         /// Invokes a task on the GUI thread
         /// </summary>
+        /// <param name="priority">The priority.</param>
+        /// <param name="callback">The callback.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Invoke(DispatcherPriority priority, Action callback)
+        {
+            InvokeAsync(priority, callback).GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// Invokes a task on the GUI thread
+        /// </summary>
         /// <param name="callback">The callback.</param>
         /// <returns>The awaitable task</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

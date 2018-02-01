@@ -42,16 +42,6 @@
         /// </summary>
         private AtomicBoolean IsRenderingInProgress = new AtomicBoolean(false);
 
-        /// <summary>
-        /// The load block buffer on locking
-        /// </summary>
-        private bool LoadBlockBufferOnGui = true;
-
-        /// <summary>
-        /// The raise video event on GUI
-        /// </summary>
-        private bool RaiseVideoEventOnGui = true;
-
         #endregion
 
         #region Constructors
@@ -179,26 +169,24 @@
             IsRenderingInProgress.Value = true;
 
             // Ensure the target bitmap can be loaded
-            var bitmapData = LockTargetBitmap(block);
-
-            // Check if we have a valid pointer to the back-buffer
-            if (bitmapData == null)
+            GuiContext.Current.EnqueueInvoke(DispatcherPriority.Render, () =>
             {
-                IsRenderingInProgress.Value = false;
-                return;
-            }
-
-            // Write the pixels on a non-UI thread
-            if (LoadBlockBufferOnGui == false)
-                LoadTarget(bitmapData, block);
-
-            // Fire the rendering event o a non-UI thread
-            if (RaiseVideoEventOnGui == false)
-                MediaElement.RaiseRenderingVideoEvent(block, bitmapData, clockPosition);
-
-            // Send to the rendering to the UI
-            GuiContext.Current.EnqueueInvoke(DispatcherPriority.Render,
-                () => { RenderTargetBitmap(block, bitmapData, clockPosition); });
+                try
+                {
+                    var bitmapData = LockTargetBitmap(block);
+                    if (bitmapData != null)
+                    {
+                        LoadTargetBitmapBuffer(bitmapData, block);
+                        MediaElement.RaiseRenderingVideoEvent(block, bitmapData, clockPosition);
+                        RenderTargetBitmap(block, bitmapData, clockPosition);
+                    }
+                }
+                catch { /* swallow */ }
+                finally
+                {
+                    IsRenderingInProgress.Value = false;
+                }
+            });
         }
 
         /// <summary>
@@ -225,9 +213,6 @@
         {
             try
             {
-                if (RaiseVideoEventOnGui)
-                    MediaElement.RaiseRenderingVideoEvent(block, bitmapData, clockPosition);
-
                 // Signal an update on the rendering surface
                 TargetBitmap?.AddDirtyRect(bitmapData.UpdateRect);
                 TargetBitmap?.Unlock();
@@ -239,14 +224,11 @@
                     MediaLogMessageType.Error,
                     $"{nameof(VideoRenderer)} {ex.GetType()}: {ex.Message}. Stack Trace:\r\n{ex.StackTrace}");
             }
-            finally
-            {
-                IsRenderingInProgress.Value = false;
-            }
         }
 
         /// <summary>
         /// Initializes the target bitmap if not available and locks it for loading the back-buffer.
+        /// This method needs to be called from the GUI thread.
         /// </summary>
         /// <param name="block">The block.</param>
         /// <returns>
@@ -257,45 +239,39 @@
             // Result will be set on the GUI thread
             BitmapDataBuffer result = null;
 
-            GuiContext.Current.Invoke(() =>
+            // Skip the locking if scrubbing is not enabled
+            if (MediaElement.ScrubbingEnabled == false && (MediaElement.IsPlaying == false || MediaElement.IsSeeking))
+                return result;
+
+            // Figure out what we need to do
+            var needsCreation = TargetBitmap == null && MediaElement.HasVideo;
+            var needsModification = TargetBitmap != null
+                && needsCreation == false
+                && (TargetBitmap.PixelWidth != block.PixelWidth || TargetBitmap.PixelHeight != block.PixelHeight);
+
+            var hasValidDimensions = block.PixelWidth > 0 && block.PixelHeight > 0;
+
+            // Instantiate or update the target bitmap
+            if ((needsCreation || needsModification) && hasValidDimensions)
             {
-                // Skip the locking if scrubbing is not enabled
-                if (MediaElement.ScrubbingEnabled == false && (MediaElement.IsPlaying == false || MediaElement.IsSeeking))
-                    return;
+                TargetBitmap = new WriteableBitmap(
+                    block.PixelWidth, block.PixelHeight, DpiX, DpiY, MediaPixelFormats[Constants.Video.VideoPixelFormat], null);
+            }
+            else if (hasValidDimensions == false)
+            {
+                TargetBitmap = null;
+            }
 
-                // Figure out what we need to do
-                var needsCreation = TargetBitmap == null && MediaElement.HasVideo;
-                var needsModification = TargetBitmap != null
-                    && needsCreation == false
-                    && (TargetBitmap.PixelWidth != block.PixelWidth || TargetBitmap.PixelHeight != block.PixelHeight);
+            // Update the target ViewBox image if not already set
+            if (MediaElement.VideoView.Source != TargetBitmap)
+                MediaElement.VideoView.Source = TargetBitmap;
 
-                var hasValidDimensions = block.PixelWidth > 0 && block.PixelHeight > 0;
+            // Don't set the result
+            if (TargetBitmap == null) return result;
 
-                // Instantiate or update the target bitmap
-                if ((needsCreation || needsModification) && hasValidDimensions)
-                {
-                    TargetBitmap = new WriteableBitmap(
-                        block.PixelWidth, block.PixelHeight, DpiX, DpiY, MediaPixelFormats[Constants.Video.VideoPixelFormat], null);
-                }
-                else if (hasValidDimensions == false)
-                {
-                    TargetBitmap = null;
-                }
-
-                // Update the target ViewBox image if not already set
-                if (MediaElement.VideoView.Source != TargetBitmap)
-                    MediaElement.VideoView.Source = TargetBitmap;
-
-                // Don't set the result
-                if (TargetBitmap == null) return;
-
-                // Lock the back-buffer and create a pointer to it
-                TargetBitmap.Lock();
-                result = BitmapDataBuffer.FromWriteableBitmap(TargetBitmap);
-
-                if (LoadBlockBufferOnGui)
-                    LoadTarget(result, block);
-            });
+            // Lock the back-buffer and create a pointer to it
+            TargetBitmap.Lock();
+            result = BitmapDataBuffer.FromWriteableBitmap(TargetBitmap);
 
             return result;
         }
@@ -305,7 +281,7 @@
         /// </summary>
         /// <param name="target">The target.</param>
         /// <param name="source">The source.</param>
-        private void LoadTarget(BitmapDataBuffer target, VideoBlock source)
+        private void LoadTargetBitmapBuffer(BitmapDataBuffer target, VideoBlock source)
         {
             // Copy the block data into the back buffer of the target bitmap.
             if (target.Stride == source.BufferStride)
