@@ -8,10 +8,28 @@
 
 ![ffmeplay](https://github.com/unosquare/ffmediaelement/raw/master/Support/ffmeplay.png)
 
+## Announcements
 - Current Status: (2018-01-31) - 2.0, codenamed Michelob is now in RC1 (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
+- RC1's NuGet package is unusable in Windows Forms apps. This has been fixed. Please wait for the next release.
 - NuGet Package available here: https://www.nuget.org/packages/FFME.Windows/
 - FFmpeg Version: <a href="http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip">3.4.0 (32-bit)</a>
 - For a history of old commits see the repo: https://github.com/unosquare/ffplaydotnet
+
+## Quick Usage Guide for WPF Apps
+
+Here is a quick guide on how to get started.
+1. Open Visual Studio (v2017 recommended), and create a new WPF Application. Target Framework must be 4.6.2 or above.
+2. Install the NuGet Package from your Package Manager Console: `PM> Install-Package FFME.Windows`
+3. You need FFmpeg binaries now. Build your own or download a compatible build from [Zeranoe FFmpeg Builds site](http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip).
+4. Your FFmpeg build should have a `bin` folder with 3 exe files and 8 dll files. Copy all 11 files to a folder such as `c:\ffmpeg`
+5. Within you application's startup code (`Main` method), set `Unosquare.FFME.MediaElement.FFmpegDirectory = @"c:\ffmpeg";`.
+6. Use the FFME `MediaElement` control as any other WPF control.
+For example: In your `MainForm.xaml`, add the namespace: `xmlns:ffme="clr-namespace:Unosquare.FFME;assembly=ffme.win"` and then add the FFME control your window's XAML: `<ffme:MediaElement x:Name="Media" Background="Gray" LoadedBehavior="Play" UnloadedBehavior="Manual" />` 
+7. To play files or streams, simply set the `Source` property: `Media.Source = new Uri(@"c:\your-file-here");`
+
+### Additional Usage Notes
+- Remember: The `Unosquare.FFME.Windows.Sample` provides plenty of usage examples
+- The generated API documentation is available [here](http://unosquare.github.io/ffmediaelement/api/Unosquare.FFME.html)
 
 ## Features Overview
 FFME is a close (and I'd like to think better) drop-in replacement for <a href="https://msdn.microsoft.com/en-us/library/system.windows.controls.mediaelement(v=vs.110).aspx">Microsoft's WPF MediaElement Control</a>. While the standard MediaElement uses DirectX (DirectShow) for media playback, FFME uses <a href="http://ffmpeg.org/">FFmpeg</a> to read and decode audio and video. This means that for those of you who want to support stuff like HLS playback, or just don't want to go through the hassle of installing codecs on client machines, using FFME *might* just be the answer. 
@@ -53,20 +71,7 @@ A high-level diagram is provided as additional reference below.
 - Working on Hardware acceleration. Maybe CUDA for highest compatibility.
 - There currently is no support for opening capture devices such as webcams or TV cards. While this is not too hard to do, it is not (yet) implemented in this library. See issue #48
 
-## Windows: Using FFME in your WPF Project
-*Remember: The Unosquare.FFME.Windows.Sample provides a reference implementation of usage*
-
-1. Create a new WPF application
-2. Add a reference to <code>ffme.win.dll</code> or install `FFME.Windows` via NuGet
-3. In your <code>MainForm.xaml</code>, add the namespace: <code>xmlns:ffme="clr-namespace:Unosquare.FFME;assembly=ffme.win"</code>
-4. Finally, create an instance of the FFME control in your <code>MainForm.xaml</code> as follows: `<ffme:MediaElement x:Name="MediaEl" Background="Gray" LoadedBehavior="Play" UnloadedBehavior="Manual" />`
-
-### Windows: NuGet Installation
-```
-PM> Install-Package FFME.Windows
-```
-
-### Windows: Compiling, Running and Testing
+## Windows: Compiling, Running and Testing
 
 *Please note that I am unable to distribute FFmpeg's binaries because I don't know if I am allowed to do so. Follow the instructions below to compile, run and test FFME.*
 
@@ -88,7 +93,7 @@ If you get the following error when compiling:
 
 Simply download and install [.NET Core SDK v2](https://www.microsoft.com/net/download/windows) or later.
 
-## MacOS: Sample Player (in preview)
+## MacOS: Sample Player (in preview, WIP)
 Compile FFmpeg for Mac (instructions can be found on [FFmpeg.AutoGen](https://github.com/Ruslan-B/FFmpeg.AutoGen)) and copy the following libraries from `/opt/local/lib` 's to `/Users/{USER}/ffmpeg` (`~/ffmpeg`):
  - avcodec.57.dylib
  - avdevice.57.dylib
