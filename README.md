@@ -10,7 +10,8 @@
 
 ## Announcements
 - Current Status: (2018-01-31) - 2.0, codenamed Michelob is now in RC1 (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
-- RC1's NuGet package is unusable in Windows Forms apps. This has been fixed. Please wait for the next release.
+- RC1 NuGet package is unusable in Windows Forms apps. This has been fixed. Please wait for the next release.
+- RC1 NuGet package incorrectly targets Framework version 4.6.2. It will be retargeted to 4.6.1
 - NuGet Package available here: https://www.nuget.org/packages/FFME.Windows/
 - FFmpeg Version: <a href="http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip">3.4.0 (32-bit)</a>
 - For a history of old commits see the repo: https://github.com/unosquare/ffplaydotnet
@@ -18,7 +19,7 @@
 ## Quick Usage Guide for WPF Apps
 
 Here is a quick guide on how to get started.
-1. Open Visual Studio (v2017 recommended), and create a new WPF Application. Target Framework must be 4.6.2 or above.
+1. Open Visual Studio (v2017 recommended), and create a new WPF Application. Target Framework must be 4.6.2 or above. (This will change to 4.6.1 in the final release)
 2. Install the NuGet Package from your Package Manager Console: `PM> Install-Package FFME.Windows`
 3. You need FFmpeg binaries now. Build your own or download a compatible build from [Zeranoe FFmpeg Builds site](http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip).
 4. Your FFmpeg build should have a `bin` folder with 3 exe files and 8 dll files. Copy all 11 files to a folder such as `c:\ffmpeg`

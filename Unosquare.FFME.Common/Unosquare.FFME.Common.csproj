@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <RootNamespace>Unosquare.FFME</RootNamespace>
     <Version>3.4.0.2</Version>
     <Authors>Mario Di Vece and Contributors to the FFME project</Authors>
@@ -32,16 +32,16 @@
     <DocumentationFile>bin\Release\netstandard2.0\ffme.common.xml</DocumentationFile>
   </PropertyGroup>
   
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net462'">
-    <DocumentationFile>bin\Release\net462\ffme.common.xml</DocumentationFile>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net461'">
+    <DocumentationFile>bin\Release\net461\ffme.common.xml</DocumentationFile>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug|netstandard2.0'">
     <DocumentationFile>bin\Debug\netstandard2.0\ffme.common.xml</DocumentationFile>
   </PropertyGroup>
   
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug|net462'">
-    <DocumentationFile>bin\Debug\net462\ffme.common.xml</DocumentationFile>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug|net461'">
+    <DocumentationFile>bin\Debug\net461\ffme.common.xml</DocumentationFile>
   </PropertyGroup>
   
   <ItemGroup>
