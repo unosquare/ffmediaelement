@@ -117,13 +117,12 @@
 
                 case GuiContextType.WinForms:
                     {
-                        // TODO: Testing required
                         var doneEvent = new ManualResetEventSlim(false);
                         Context.Post((args) =>
                         {
                             try
                             {
-                                callback.DynamicInvoke(args);
+                                callback.DynamicInvoke(args as object[]);
                             }
                             catch { throw; }
                             finally { doneEvent.Set(); }
