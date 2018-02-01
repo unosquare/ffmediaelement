@@ -148,7 +148,8 @@
                     continue;
                 }
 
-                builder.Append(currentChar);
+                if (isInStyle == false)
+                    builder.Append(currentChar);
             }
 
             return builder.ToString().Trim();
