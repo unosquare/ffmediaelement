@@ -35,7 +35,7 @@
             // We don't use for Audio frames: frame->pts = ffmpeg.av_frame_get_best_effort_timestamp(frame);
             HasValidStartTime = frame->pts != ffmpeg.AV_NOPTS_VALUE;
             StartTime = frame->pts == ffmpeg.AV_NOPTS_VALUE ?
-                TimeSpan.FromTicks(component.Container.MediaStartTimeOffset.Ticks) :
+                TimeSpan.FromTicks(0) :
                 TimeSpan.FromTicks(frame->pts.ToTimeSpan(StreamTimeBase).Ticks - component.Container.MediaStartTimeOffset.Ticks);
 
             // Compute the audio frame duration

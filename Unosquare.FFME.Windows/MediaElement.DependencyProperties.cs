@@ -218,9 +218,10 @@ namespace Unosquare.FFME
                 }
             }
 
-            var minPosition = element.MediaCore?.MediaInfo?.StartTime ?? TimeSpan.Zero;
-            var maxPosition = minPosition + (element.MediaCore?.MediaInfo?.Duration ?? TimeSpan.Zero);
-            var targetSeek = ((TimeSpan)value).Clamp(minPosition, maxPosition);
+            // Clamp from 0 to duration
+            var targetSeek = (TimeSpan)value;
+            if ((element.MediaCore?.MediaInfo?.Duration ?? TimeSpan.Zero) != TimeSpan.Zero)
+                targetSeek = ((TimeSpan)value).Clamp(TimeSpan.Zero, element.MediaCore.MediaInfo.Duration);
 
             // coming in as a seek from user
             element.MediaCore?.RequestSeek(targetSeek);

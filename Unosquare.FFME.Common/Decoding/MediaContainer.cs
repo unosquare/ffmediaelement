@@ -46,11 +46,6 @@
         private readonly object ConvertSyncRoot = new object();
 
         /// <summary>
-        /// Determines if the stream seeks by bytes always
-        /// </summary>
-        private bool MediaSeeksByBytes = false;
-
-        /// <summary>
         /// Hold the value for the internal property with the same name.
         /// Picture attachments are required when video streams support them
         /// and these attached packets must be read before reading the first frame
@@ -257,17 +252,19 @@
         #region Private State Management
 
         /// <summary>
-        /// Gets the seek start timestamp.
+        /// Gets the seek start timestamp of the main component.
         /// </summary>
-        private long StateStartTimestamp
-        {
-            get
-            {
-                var startSeekTime = (long)Math.Round(MediaStartTimeOffset.TotalSeconds * ffmpeg.AV_TIME_BASE, 0);
-                if (MediaSeeksByBytes) startSeekTime = 0;
-                return startSeekTime;
-            }
-        }
+        private long StartSeekTimestamp => Components.Main.FirstPacketDts ?? Components.Main.StartTimeOffset.ToLong(Components.Main.Stream->time_base);
+
+        /// <summary>
+        /// Gets the index of the seek stream to seek on for the BOF.
+        /// </summary>
+        private int StartSeekStreamIndex => Components.Main.StreamIndex;
+
+        /// <summary>
+        /// Gets the start seek byte position.
+        /// </summary>
+        private long StartSeekPosition => Components.FirstPacketPosition ?? 0;
 
         /// <summary>
         /// Gets the time the last packet was read from the input
@@ -608,10 +605,15 @@
                 // Unsure how this works. Ported from ffplay
                 StateRequiresReadDelay = MediaFormatName.Equals("rstp") || MediaUrl.StartsWith("mmsh:");
 
+                // Extract the Media Info
+                MediaInfo = new MediaInfo(this);
+
                 // Determine the seek mode of the input format
+                /*
                 var inputAllowsDiscontinuities = (InputContext->iformat->flags & ffmpeg.AVFMT_TS_DISCONT) != 0;
                 MediaSeeksByBytes = inputAllowsDiscontinuities && (MediaFormatName.Equals("ogg") == false);
                 MediaSeeksByBytes = MediaSeeksByBytes && MediaBitrate > 0;
+                */
 
                 // Compute start time and duration (if possible)
                 MediaStartTimeOffset = InputContext->start_time.ToTimeSpan();
@@ -625,7 +627,6 @@
 
                 // Extract detailed media information and set the default streams to the
                 // best available ones.
-                MediaInfo = new MediaInfo(this);
                 foreach (var s in MediaInfo.BestStreams)
                 {
                     if (s.Key == AVMediaType.AVMEDIA_TYPE_VIDEO)
@@ -915,9 +916,9 @@
 
         /// <summary>
         /// Seeks to the exact or prior frame of the main stream.
-        /// Supports byte seeking.
+        /// Supports byte seeking. Target time is in absolute, zero-based time.
         /// </summary>
-        /// <param name="targetTime">The target time.</param>
+        /// <param name="targetTime">The target time in absolute, 0-based time.</param>
         /// <returns>
         /// The list of media frames
         /// </returns>
@@ -947,11 +948,11 @@
             var main = Components.Main;
             if (main == null) return result;
 
-            // clamp the target time to the component's bounds
-            // TODO: Check bounds of byte-based seeking and bounds of end time
+            // clamp the minimum time to zero (can't be less than 0)
             if (targetTime.Ticks + main.StartTimeOffset.Ticks < main.StartTimeOffset.Ticks)
-                targetTime = TimeSpan.FromTicks(main.StartTimeOffset.Ticks);
+                targetTime = TimeSpan.Zero;
 
+            // Clamp the maximum seek value to main component's duration (can't be more than duration)
             if (targetTime.Ticks > main.Duration.Ticks)
                 targetTime = TimeSpan.FromTicks(main.Duration.Ticks);
 
@@ -960,13 +961,6 @@
             var seekFlags = ffmpeg.AVSEEK_FLAG_BACKWARD;
             var streamIndex = main.StreamIndex;
             var timeBase = main.Stream->time_base;
-
-            // The seek target is computed by using the absolute, 0-based target time and adding the component stream's start time
-            if (MediaSeeksByBytes)
-            {
-                seekFlags = ffmpeg.AVSEEK_FLAG_BYTE;
-                streamIndex = -1;
-            }
 
             // Perform the stream seek
             var seekResult = 0;
@@ -980,9 +974,7 @@
             // if the seeking is not successful we decrement this time and try the seek
             // again by subtracting 1 second from it.
             var startTime = DateTime.UtcNow;
-            var relativeTargetTime = MediaSeeksByBytes ?
-                targetTime :
-                TimeSpan.FromTicks(targetTime.Ticks + main.StartTimeOffset.Ticks); // TODO: check this calculation
+            var streamSeekRelativeTime = TimeSpan.FromTicks(targetTime.Ticks + main.StartTimeOffset.Ticks); // Offset by start time
 
             // Perform long seeks until we end up with a relative target time where decoding
             // of frames before or on target time is possible.
@@ -990,9 +982,7 @@
             while (isAtStartOfStream == false)
             {
                 // Compute the seek target, mostly based on the relative Target Time
-                var seekTarget = MediaSeeksByBytes ?
-                    (long)Math.Round(MediaBitrate * relativeTargetTime.TotalSeconds / 8d, 0) :
-                    (long)Math.Round(relativeTargetTime.TotalSeconds * timeBase.den / timeBase.num, 0);
+                var seekTarget = streamSeekRelativeTime.ToLong(timeBase);
 
                 // Perform the seek. There is also avformat_seek_file which is the older version of av_seek_frame
                 // Check if we are seeking before the start of the stream in this cyle. If so, simply seek to the
@@ -1004,19 +994,20 @@
                 else
                 {
                     StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
-                    if (relativeTargetTime.Ticks <= main.StartTimeOffset.Ticks)
+                    if (streamSeekRelativeTime.Ticks <= main.StartTimeOffset.Ticks)
                     {
-                        seekResult = ffmpeg.av_seek_frame(InputContext, -1, StateStartTimestamp, seekFlags);
+                        seekTarget = StartSeekTimestamp;
+                        streamIndex = StartSeekStreamIndex;
                         isAtStartOfStream = true;
                     }
                     else
                     {
-                        seekResult = ffmpeg.av_seek_frame(InputContext, streamIndex, seekTarget, seekFlags);
                         isAtStartOfStream = false;
                     }
 
+                    seekResult = ffmpeg.av_seek_frame(InputContext, streamIndex, seekTarget, seekFlags);
                     Parent?.Log(MediaLogMessageType.Trace,
-                        $"SEEK L: Elapsed: {startTime.FormatElapsed()} | Target: {relativeTargetTime.Format()} | Seek: {seekTarget.Format()} | P0: {startPos.Format(1024)} | P1: {StreamPosition.Format(1024)} ");
+                        $"SEEK L: Elapsed: {startTime.FormatElapsed()} | Target: {streamSeekRelativeTime.Format()} | Seek: {seekTarget.Format()} | P0: {startPos.Format(1024)} | P1: {StreamPosition.Format(1024)} ");
                 }
 
                 // Flush the buffered packets and codec on every seek.
@@ -1059,11 +1050,11 @@
 
                 // Subtract 1 second from the relative target time.
                 // a new seek target will be computed and we will do a av_seek_frame again.
-                relativeTargetTime = relativeTargetTime.Subtract(TimeSpan.FromSeconds(1));
+                streamSeekRelativeTime = streamSeekRelativeTime.Subtract(TimeSpan.FromSeconds(1));
             }
 
             Parent?.Log(MediaLogMessageType.Trace,
-                $"SEEK R: Elapsed: {startTime.FormatElapsed()} | Target: {relativeTargetTime.Format()} | Seek: {default(long).Format()} | P0: {startPos.Format(1024)} | P1: {StreamPosition.Format(1024)} ");
+                $"SEEK R: Elapsed: {startTime.FormatElapsed()} | Target: {streamSeekRelativeTime.Format()} | Seek: {default(long).Format()} | P0: {startPos.Format(1024)} | P1: {StreamPosition.Format(1024)} ");
             return result;
 
             #endregion
@@ -1080,28 +1071,18 @@
             StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
 
             var seekResult = ffmpeg.av_seek_frame(
-                InputContext,
-                -1,
-                StateStartTimestamp,
-                MediaSeeksByBytes ? ffmpeg.AVSEEK_FLAG_BYTE : ffmpeg.AVSEEK_FLAG_BACKWARD);
+                InputContext, StartSeekStreamIndex, StartSeekTimestamp, ffmpeg.AVSEEK_FLAG_BACKWARD);
 
-            /*
-            var seekResult = ffmpeg.av_seek_frame(
-                InputContext,
-                -1, // Components.Main.StreamIndex,
-                long.MinValue,
-                ffmpeg.AVSEEK_FLAG_BACKWARD | ffmpeg.AVSEEK_FLAG_ANY);
-            */
+            // Flush packets, state, and codec buffers
+            Components.ClearPacketQueues();
+            StateRequiresPictureAttachments = true;
+            IsAtEndOfStream = false;
 
             if (seekResult < 0)
             {
                 Parent?.Log(MediaLogMessageType.Warning,
                     $"SEEK 0: {nameof(StreamSeekToStart)} operation failed. Error code {seekResult}, {FFInterop.DecodeMessage(seekResult)}");
             }
-
-            Components.ClearPacketQueues();
-            StateRequiresPictureAttachments = true;
-            IsAtEndOfStream = false;
         }
 
         /// <summary>

@@ -143,7 +143,8 @@
             }
 
             // Dispose the container
-            Container.Dispose();
+            Container?.Dispose();
+            Container = null;
 
             // Dispose the RTC
             Clock.Dispose();

@@ -209,6 +209,11 @@
         public TimeSpan StartTimeOffset { get; }
 
         /// <summary>
+        /// Gets the first packet DTS.
+        /// </summary>
+        public long? FirstPacketDts { get; private set; } = default(long?);
+
+        /// <summary>
         /// Gets the duration of this stream component.
         /// If there is no such information it will return TimeSpan.MinValue
         /// </summary>
@@ -297,9 +302,15 @@
         public void SendPacket(AVPacket* packet)
         {
             if (packet == null) return;
-            Packets.Push(packet);
+
             if (packet->size > 0)
+            {
                 LifetimeBytesRead += (ulong)packet->size;
+                if (FirstPacketDts == null && packet->dts != ffmpeg.AV_NOPTS_VALUE)
+                    FirstPacketDts = packet->dts;
+            }
+
+            Packets.Push(packet);
         }
 
         /// <summary>

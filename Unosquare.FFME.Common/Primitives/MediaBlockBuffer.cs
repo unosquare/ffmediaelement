@@ -128,13 +128,11 @@
             {
                 using (Locker.AcquireReaderLock())
                 {
-                    if (PlaybackBlocks.Count > 1)
-                    {
-                        var firstBlockDuration = PlaybackBlocks[0].Duration;
-                        return PlaybackBlocks.All(b => b.Duration == firstBlockDuration);
-                    }
+                    if (PlaybackBlocks.Count <= 0)
+                        return false;
 
-                    return false;
+                    var firstBlockDuration = PlaybackBlocks[0].Duration;
+                    return PlaybackBlocks.All(b => b.Duration == firstBlockDuration);
                 }
             }
         }
@@ -442,8 +440,8 @@
         {
             using (Locker.AcquireReaderLock())
             {
-                return $"{MediaType, -12} - CAP: {Capacity, 10} | FRE: {PoolBlocks.Count, 7} | " +
-                    $"USD: {PlaybackBlocks.Count, 4} |  RNG: {RangeStartTime.Format(), 8} to {RangeEndTime.Format().Trim()}";
+                return $"{MediaType,-12} - CAP: {Capacity,10} | FRE: {PoolBlocks.Count,7} | " +
+                    $"USD: {PlaybackBlocks.Count,4} |  RNG: {RangeStartTime.Format(),8} to {RangeEndTime.Format().Trim()}";
             }
         }
 

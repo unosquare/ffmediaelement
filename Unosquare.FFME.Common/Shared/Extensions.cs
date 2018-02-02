@@ -155,6 +155,20 @@
         }
 
         /// <summary>
+        /// Converts a timespan to an AV_TIME_BASE compatible timestamp
+        /// </summary>
+        /// <param name="ts">The ts.</param>
+        /// <param name="timeBase">The time base.</param>
+        /// <returns>
+        /// A long, ffmpeg compatible timestamp
+        /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static long ToLong(this TimeSpan ts, AVRational timeBase)
+        {
+            return (long)Math.Round(ts.TotalSeconds * timeBase.den / timeBase.num, 0); // (secs) * (units) / (secs) = (units)
+        }
+
+        /// <summary>
         /// Gets a timespan given a timestamp and a timebase.
         /// </summary>
         /// <param name="pts">The PTS.</param>

@@ -43,9 +43,10 @@
             try
             {
                 var main = m.Container.Components.Main.MediaType;
+                var all = m.Container.Components.MediaTypes;
                 var t = MediaType.None;
 
-                // 1. Check if we already have the block. If we do, simply set the clock position to the target position
+                // Check if we already have the block. If we do, simply set the clock position to the target position
                 // we don't need anything else.
                 if (m.Blocks[main].IsInRange(TargetPosition))
                 {
@@ -72,7 +73,7 @@
                 }
 
                 // Clear Blocks and frames, reset the render times
-                foreach (var mt in m.Container.Components.MediaTypes)
+                foreach (var mt in all)
                 {
                     m.Blocks[mt].Clear();
                     m.LastRenderTime[mt] = TimeSpan.MinValue;
@@ -113,10 +114,11 @@
                         m.Blocks[t].Add(frame, m.Container);
                 }
 
-                // Handle out-of sync scenarios
+                // Find out what the final, best-effort position was
                 var resultPosition = TargetPosition;
                 if (m.Blocks[main].IsInRange(TargetPosition) == false)
                 {
+                    // We don't have a a valid main range
                     var minStartTimeTicks = m.Blocks[main].RangeStartTime.Ticks;
                     var maxStartTimeTicks = m.Blocks[main].RangeEndTime.Ticks;
 
@@ -128,9 +130,9 @@
                 }
                 else
                 {
-                    // TODO: handle this case correctly. The way this is handled currently sucks.
                     resultPosition = (m.Blocks[main].Count == 0 && TargetPosition != TimeSpan.Zero) ?
-                        initialPosition : TargetPosition;
+                        initialPosition : // Unsuccessful. This initial position is simply
+                        TargetPosition; // Successful seek with main blocks in range
                 }
 
                 // Write a new Real-time clock position now.

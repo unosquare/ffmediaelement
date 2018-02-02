@@ -112,6 +112,21 @@
         }
 
         /// <summary>
+        /// Gets the first packet DTS.
+        /// </summary>
+        public long? FirstPacketDts { get; private set; } = default(long?);
+
+        /// <summary>
+        /// Gets the stream index of the first packet received.
+        /// </summary>
+        public int? FisrtPacketStreamIndex { get; private set; } = default(int?);
+
+        /// <summary>
+        /// Gets the first packet byte position.
+        /// </summary>
+        public long? FirstPacketPosition { get; private set; } = default(long?);
+
+        /// <summary>
         /// Gets the current length in bytes of the packet buffer.
         /// These packets are the ones that have not been yet deecoded.
         /// </summary>
@@ -231,6 +246,13 @@
             {
                 if (packet == null)
                     return MediaType.None;
+
+                if (FirstPacketDts == null && packet->dts != ffmpeg.AV_NOPTS_VALUE)
+                {
+                    FirstPacketDts = packet->dts;
+                    FisrtPacketStreamIndex = packet->stream_index;
+                    FirstPacketPosition = packet->pos;
+                }
 
                 foreach (var component in All)
                 {
