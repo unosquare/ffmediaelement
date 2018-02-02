@@ -18,7 +18,7 @@
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RealTimeClock"/> class.
-        /// The clock starts poaused and at the 0 position.
+        /// The clock starts paused and at the 0 position.
         /// </summary>
         public RealTimeClock()
         {
@@ -146,16 +146,15 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
-            if (!IsDisposed)
-            {
-                if (alsoManaged)
-                {
-                    Locker?.Dispose();
-                }
+            if (IsDisposed) return;
 
-                Locker = null;
-                IsDisposed = true;
+            if (alsoManaged)
+            {
+                Locker?.Dispose();
             }
+
+            Locker = null;
+            IsDisposed = true;
         }
     }
 }

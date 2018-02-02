@@ -144,19 +144,19 @@
         /// Gets the video codec.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public string VideoCodec => Parent.Container?.Components?.Video?.CodecName;
+        public string VideoCodec => Parent.Container?.Components.Video?.CodecName;
 
         /// <summary>
         /// Gets the video bitrate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int VideoBitrate => Parent.Container?.Components?.Video?.Bitrate ?? 0;
+        public int VideoBitrate => Parent.Container?.Components.Video?.Bitrate ?? 0;
 
         /// <summary>
         /// Returns the natural width of the media in the video.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int NaturalVideoWidth => Parent.Container?.Components?.Video?.FrameWidth ?? 0;
+        public int NaturalVideoWidth => Parent.Container?.Components.Video?.FrameWidth ?? 0;
 
         /// <summary>
         /// Returns the natural height of the media in the video.
@@ -180,31 +180,31 @@
         /// Gets the audio codec.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public string AudioCodec => Parent.Container?.Components?.Audio?.CodecName;
+        public string AudioCodec => Parent.Container?.Components.Audio?.CodecName;
 
         /// <summary>
         /// Gets the audio bitrate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int AudioBitrate => Parent.Container?.Components?.Audio?.Bitrate ?? 0;
+        public int AudioBitrate => Parent.Container?.Components.Audio?.Bitrate ?? 0;
 
         /// <summary>
         /// Gets the audio channels count.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int AudioChannels => Parent.Container?.Components?.Audio?.Channels ?? 0;
+        public int AudioChannels => Parent.Container?.Components.Audio?.Channels ?? 0;
 
         /// <summary>
         /// Gets the audio sample rate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int AudioSampleRate => Parent.Container?.Components?.Audio?.SampleRate ?? 0;
+        public int AudioSampleRate => Parent.Container?.Components.Audio?.SampleRate ?? 0;
 
         /// <summary>
         /// Gets the audio bits per sample.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int AudioBitsPerSample => Parent.Container?.Components?.Audio?.BitsPerSample ?? 0;
+        public int AudioBitsPerSample => Parent.Container?.Components.Audio?.BitsPerSample ?? 0;
 
         /// <summary>
         /// Gets the Media's natural duration
@@ -217,19 +217,19 @@
         /// This is only valid after the MediaOpened event has fired.
         /// Note that this property is computed based on wether the stream is detected to be a live stream.
         /// </summary>
-        public bool CanPause => IsOpen ? !IsLiveStream : false;
+        public bool CanPause => IsOpen ? (IsLiveStream == false) : false;
 
         /// <summary>
         /// Returns whether the currently loaded media is live or real-time and does not have a set duration
         /// This is only valid after the MediaOpened event has fired.
         /// </summary>
-        public bool IsLiveStream => IsOpen ? Parent.Container.IsLiveStream : false;
+        public bool IsLiveStream => Parent.Container?.IsLiveStream ?? false;
 
         /// <summary>
         /// Returns whether the currently loaded media is a network stream.
         /// This is only valid after the MediaOpened event has fired.
         /// </summary>
-        public bool IsNetowrkStream => IsOpen ? Parent.Container.IsNetworkStream : false;
+        public bool IsNetowrkStream => Parent.Container?.IsNetworkStream ?? false;
 
         /// <summary>
         /// Gets a value indicating whether the currently loaded media can be seeked.
@@ -427,7 +427,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void UpdateBufferingProperties()
         {
-            var packetBufferLength = Parent.Container?.Components?.PacketBufferLength ?? 0d;
+            var packetBufferLength = Parent.Container?.Components.PacketBufferLength ?? 0d;
 
             // Update the buffering progress
             var bufferingProgress = Math.Min(
