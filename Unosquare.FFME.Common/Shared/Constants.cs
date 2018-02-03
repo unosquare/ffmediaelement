@@ -16,7 +16,7 @@
         /// </summary>
         public static string FFmpegSearchPath { get; } = Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
 
-        // TODO: Make this configurable
+        // TODO: (Floyd) Make this configurable. Maybe part of Media Options? See frame cahing policy issue #139.
         internal static Dictionary<MediaType, int> MaxBlocks { get; } = new Dictionary<MediaType, int>
         {
             { MediaType.Video, 12 },

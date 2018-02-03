@@ -12,6 +12,12 @@
         /// <summary>
         /// The foreground text property
         /// </summary>
+        public static readonly DependencyProperty TextProperty = DependencyProperty.RegisterAttached(
+            "Text", typeof(string), typeof(Subtitles));
+
+        /// <summary>
+        /// The foreground text property
+        /// </summary>
         public static readonly DependencyProperty ForegroundProperty = DependencyProperty.RegisterAttached(
             "Foreground", typeof(Brush), typeof(Subtitles));
 
@@ -50,6 +56,13 @@
         /// </summary>
         public static readonly DependencyProperty FontFamilyProperty = DependencyProperty.RegisterAttached(
             "FontFamily", typeof(FontFamily), typeof(Subtitles));
+
+        /// <summary>
+        /// Gets the text.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <returns>The value</returns>
+        public static string GetText(MediaElement obj) { return obj.GetValue(TextProperty) as string; }
 
         /// <summary>
         /// Gets the size of the font.
@@ -99,6 +112,13 @@
         /// <param name="obj">The object.</param>
         /// <returns>The value.</returns>
         public static Brush GetOutlineBrush(MediaElement obj) { return obj.GetValue(OutlineBrushProperty) as Brush; }
+
+        /// <summary>
+        /// Sets the text.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <param name="value">The value.</param>
+        public static void SetText(MediaElement obj, string value) { obj.SetValue(TextProperty, value); }
 
         /// <summary>
         /// Sets the size of the font.

@@ -241,7 +241,7 @@
 
             AVFrame* outputFrame;
 
-            // TODO: Support real-time changes in Video Filtergraph by checking if MediaOptions.VideoFilterGraph has changed
+            // TODO: (Floyd) Support real-time changes in Video Filtergraph by checking if MediaOptions.VideoFilterGraph has changed
             // Maybe expose the VideoFilterGraph string as a MediaElement Control Property
             if (FilterGraph != null)
             {

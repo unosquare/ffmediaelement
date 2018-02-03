@@ -114,7 +114,7 @@
         /// <param name="component">The component.</param>
         public void DetachDevice(VideoComponent component)
         {
-            // TODO: Check the blow code in the future because I am not sure
+            // TODO: (Floyd) Check the below code in the future because I am not sure
             // how to uninitialize the hardware device context
             if (component.CodecContext != null)
             {

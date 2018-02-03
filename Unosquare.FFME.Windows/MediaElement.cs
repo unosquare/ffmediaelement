@@ -296,8 +296,9 @@
             // Setup the Subtitle View
             SubtitlesView.Padding = new Thickness(5, 0, 5, 0);
             SubtitlesView.FontSize = 48;
-            SubtitlesView.FontFamily = new FontFamily("Arial Rounded MT Bold");
-            SubtitlesView.FontWeight = FontWeights.Normal;
+            SubtitlesView.FontFamily = new FontFamily("Calibri");
+            SubtitlesView.FontStretch = FontStretches.Condensed;
+            SubtitlesView.FontWeight = FontWeights.SemiBold;
             SubtitlesView.TextOutlineWidth = new Thickness(4);
             SubtitlesView.TextForeground = Brushes.LightYellow;
 
@@ -311,6 +312,7 @@
             BindProperty(this, Subtitles.FontSizeProperty, SubtitlesView, nameof(SubtitlesView.FontSize), BindingMode.TwoWay);
             BindProperty(this, Subtitles.FontWeightProperty, SubtitlesView, nameof(SubtitlesView.FontWeight), BindingMode.TwoWay);
             BindProperty(this, Subtitles.FontFamilyProperty, SubtitlesView, nameof(SubtitlesView.FontFamily), BindingMode.TwoWay);
+            BindProperty(this, Subtitles.TextProperty, SubtitlesView, nameof(SubtitlesView.Text), BindingMode.TwoWay);
 
             // Update as the VideoView updates but check if there are valid dimensions and it actually has video
             VideoView.LayoutUpdated += (s, e) =>

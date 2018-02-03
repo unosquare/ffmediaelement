@@ -40,7 +40,7 @@
             try
             {
                 // TODO: Sometimes when the stream can't be read, the sample player stays as if it were trying to open
-                // until the interrupt timeout occurs but and the Real-Time Clock continues. Strange behavior.
+                // until the interrupt timeout occurs but and the Real-Time Clock continues. Strange behavior. Investigate more.
 
                 // Signal the initial state
                 m.State.ResetMediaProperties();

@@ -47,8 +47,7 @@
                 FrameDecodingCycle.Wait();
 
             // Set the initial clock position
-            // TODO: maybe update media start time offset to this Minimum, initial Start Time intead of relying on contained meta?
-            Clock.Update(Blocks[main].RangeStartTime); // .GetMinStartTime()
+            Clock.Update(Blocks[main].RangeStartTime);
             var wallClock = WallClock;
 
             // Wait for renderers to be ready
