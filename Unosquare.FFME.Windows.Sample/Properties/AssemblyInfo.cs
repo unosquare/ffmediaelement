@@ -41,4 +41,4 @@ using System.Windows;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("2018.2.3.*")]
-[assembly: AssemblyFileVersion("2.2018.2.3")]
+[assembly: AssemblyFileVersion("3.4.200")]
