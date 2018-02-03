@@ -75,7 +75,7 @@
                 // Don't run the cycle if it's already running
                 if (isRunningRenderingCycle)
                 {
-                    // TODO: Maybe Log a frame skip here?
+                    Log(MediaLogMessageType.Trace, $"SKIP: {nameof(BlockRenderingWorker)} alredy in a cycle. {WallClock}");
                     return;
                 }
 

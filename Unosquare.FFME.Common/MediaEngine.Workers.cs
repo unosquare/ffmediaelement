@@ -18,9 +18,9 @@
 
         #region State Management
 
-        private readonly IWaitEvent m_PacketReadingCycle = WaitEventFactory.Create(isCompleted: false, useSlim: true);
-        private readonly IWaitEvent m_FrameDecodingCycle = WaitEventFactory.Create(isCompleted: false, useSlim: true);
-        private readonly IWaitEvent m_BlockRenderingCycle = WaitEventFactory.Create(isCompleted: false, useSlim: true);
+        private readonly IWaitEvent m_PacketReadingCycle = WaitEventFactory.Create(isCompleted: false, useSlim: false);
+        private readonly IWaitEvent m_FrameDecodingCycle = WaitEventFactory.Create(isCompleted: false, useSlim: false);
+        private readonly IWaitEvent m_BlockRenderingCycle = WaitEventFactory.Create(isCompleted: false, useSlim: false);
         private readonly IWaitEvent m_SeekingDone = WaitEventFactory.Create(isCompleted: true, useSlim: true);
 
         private Thread PacketReadingTask = null;

@@ -9,12 +9,9 @@
 ![ffmeplay](https://github.com/unosquare/ffmediaelement/raw/master/Support/ffmeplay.png)
 
 ## Announcements
-- Current Status: (2018-01-31) - 2.0, codenamed Michelob is now in RC1 (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
-- RC1 NuGet package is unusable in Windows Forms apps. This has been fixed. Please wait for the next release.
-- RC1 NuGet package incorrectly targets Framework version 4.6.2. It will be retargeted to 4.6.1
+- Current Status: (2018-02-03) - 2.0, codenamed Michelob is now in Release 1 (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
 - NuGet Package available here: https://www.nuget.org/packages/FFME.Windows/
 - FFmpeg Version: <a href="http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip">3.4.0 (32-bit)</a>
-- For a history of old commits see the repo: https://github.com/unosquare/ffplaydotnet
 
 ## Quick Usage Guide for WPF Apps
 

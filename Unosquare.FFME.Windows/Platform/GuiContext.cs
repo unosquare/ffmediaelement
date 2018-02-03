@@ -118,7 +118,7 @@
 
                 case GuiContextType.WinForms:
                     {
-                        var doneEvent = WaitEventFactory.CreateSlim(false);
+                        var doneEvent = WaitEventFactory.Create(isCompleted: false, useSlim: true);
                         Context.Post((args) =>
                         {
                             try
