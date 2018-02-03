@@ -37,7 +37,7 @@
             m.Clock.Pause();
             var initialPosition = m.WallClock;
             m.State.UpdateMediaState(PlaybackStatus.Manual);
-            m.SeekingDone.Reset();
+            m.SeekingDone.Begin();
             var startTime = DateTime.UtcNow;
 
             try
@@ -61,7 +61,7 @@
                 // wait for the current reading and decoding cycles
                 // to finish. We don't want to interfere with reading in progress
                 // or decoding in progress
-                m.PacketReadingCycle.WaitOne();
+                m.PacketReadingCycle.Wait();
 
                 // Capture seek target adjustment
                 var adjustedSeekTarget = TargetPosition;
@@ -152,7 +152,7 @@
                         $"SEEK D: Elapsed: {startTime.FormatElapsed()} | Target: {TargetPosition.Format()}");
                 }
 
-                m.SeekingDone.Set();
+                m.SeekingDone.Complete();
             }
         }
     }

@@ -12,10 +12,10 @@
         /// </summary>
         private void StartBlockRenderingWorker()
         {
-            if (HasBlockRenderingWorkerExited != null)
+            if (BlockRenderingWorkerExit != null)
                 return;
 
-            HasBlockRenderingWorkerExited = new ManualResetEvent(false);
+            BlockRenderingWorkerExit = WaitEventFactory.Create(isCompleted: false, useSlim: true);
 
             // Synchronized access to parts of the run cycle
             var isRunningRenderingCycle = false;
@@ -40,11 +40,11 @@
                 LastRenderTime[t] = TimeSpan.MinValue;
 
             // Ensure packet reading is running
-            PacketReadingCycle.WaitOne();
+            PacketReadingCycle.Wait();
 
             // wait for main component blocks or EOF or cancellation pending
             while (CanReadMoreFramesOf(main) && Blocks[main].Count <= 0)
-                FrameDecodingCycle.WaitOne();
+                FrameDecodingCycle.Wait();
 
             // Set the initial clock position
             // TODO: maybe update media start time offset to this Minimum, initial Start Time intead of relying on contained meta?
@@ -60,9 +60,9 @@
             {
                 #region Detect a Timer Stop
 
-                if (IsTaskCancellationPending || HasBlockRenderingWorkerExited.IsSet() || IsDisposed)
+                if (IsTaskCancellationPending || BlockRenderingWorkerExit.IsCompleted || IsDisposed)
                 {
-                    HasBlockRenderingWorkerExited.Set();
+                    BlockRenderingWorkerExit.Complete();
                     return;
                 }
 
@@ -92,7 +92,7 @@
                         renderedBlockCount[t] = 0;
 
                     // Capture current clock position for the rest of this cycle
-                    BlockRenderingCycle.Reset();
+                    BlockRenderingCycle.Begin();
 
                     #endregion
 
@@ -100,7 +100,7 @@
 
                     // Wait for the seek op to finish before we capture blocks
                     if (HasDecoderSeeked)
-                        SeekingDone.WaitOne();
+                        SeekingDone.Wait();
 
                     // capture the wall clock for this cycle
                     wallClock = WallClock;
@@ -147,7 +147,7 @@
                 finally
                 {
                     // Always exit notifying the cycle is done.
-                    BlockRenderingCycle.Set();
+                    BlockRenderingCycle.Complete();
                     isRunningRenderingCycle = false;
                 }
 
@@ -164,14 +164,14 @@
         /// </summary>
         private void StopBlockRenderingWorker()
         {
-            if (HasBlockRenderingWorkerExited == null)
+            if (BlockRenderingWorkerExit == null)
                 return;
 
-            HasBlockRenderingWorkerExited.WaitOne();
+            BlockRenderingWorkerExit.Wait();
             BlockRenderingWorker?.Dispose();
             BlockRenderingWorker = null;
-            HasBlockRenderingWorkerExited.Dispose();
-            HasBlockRenderingWorkerExited = null;
+            BlockRenderingWorkerExit.Dispose();
+            BlockRenderingWorkerExit = null;
         }
     }
 }

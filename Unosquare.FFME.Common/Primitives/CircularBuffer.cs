@@ -16,7 +16,7 @@
         /// <summary>
         /// The locking object to perform synchronization.
         /// </summary>
-        private ISyncLocker Locker = SyncLockerFactory.CreateSlim();
+        private ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
 
         /// <summary>
         /// To detect redundant calls

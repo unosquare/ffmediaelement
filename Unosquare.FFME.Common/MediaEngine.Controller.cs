@@ -3,8 +3,8 @@
     using Commands;
     using Core;
     using Decoding;
+    using Primitives;
     using System;
-    using System.Threading;
     using System.Threading.Tasks;
 
     public partial class MediaEngine
@@ -15,7 +15,7 @@
         /// The open or close command done signalling object.
         /// Open and close are synchronous commands.
         /// </summary>
-        private readonly ManualResetEvent SynchronousCommandDone = new ManualResetEvent(true);
+        private readonly IWaitEvent SynchronousCommandDone = WaitEventFactory.Create(isCompleted: true, useSlim: true);
 
         /// <summary>
         /// The command queue to be executed in the order they were sent.
@@ -146,15 +146,12 @@
             if (IsDisposed) return false;
 
             var waitHandle = SynchronousCommandDone;
-            if (waitHandle == null) return false;
-            if (waitHandle.SafeWaitHandle == null) return false;
-            if (waitHandle.SafeWaitHandle.IsClosed) return false;
-            if (waitHandle.SafeWaitHandle.IsInvalid) return false;
+            if (waitHandle == null || waitHandle.IsValid == false) return false;
 
             try
             {
-                waitHandle.WaitOne();
-                waitHandle.Reset();
+                waitHandle.Wait();
+                waitHandle.Begin();
                 return true;
             }
             catch { }
@@ -170,12 +167,9 @@
             if (IsDisposed) return;
 
             var waitHandle = SynchronousCommandDone;
-            if (waitHandle == null) return;
-            if (waitHandle.SafeWaitHandle == null) return;
-            if (waitHandle.SafeWaitHandle.IsClosed) return;
-            if (waitHandle.SafeWaitHandle.IsInvalid) return;
+            if (waitHandle == null || waitHandle.IsValid == false) return;
 
-            try { waitHandle.Set(); }
+            try { waitHandle.Complete(); }
             catch { }
         }
 

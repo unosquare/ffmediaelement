@@ -1,9 +1,10 @@
 ﻿namespace Unosquare.FFME.Platform
 {
+    using Primitives;
+    using Shared;
     using System;
     using System.Threading;
     using System.Windows.Threading;
-    using Shared;
 
     /// <summary>
     /// Encapsulates different types of timers for different GUI context types
@@ -16,7 +17,7 @@
         private Timer ThreadingTimer = null;
         private DispatcherTimer DispatcherTimer = null;
         private System.Windows.Forms.Timer FormsTimer = null;
-        private ManualResetEvent IsCycleDone = new ManualResetEvent(true);
+        private IWaitEvent IsCycleDone = WaitEventFactory.Create(isCompleted: true, useSlim: true);
         private Action TimerCallback = null;
         private Action DisposeCallback = null;
         private bool IsDisposing = false;
@@ -96,7 +97,7 @@
         {
             get
             {
-                return (IsCycleDone?.IsSet() ?? true) == false;
+                return (IsCycleDone?.IsCompleted ?? true) == false;
             }
         }
 
@@ -106,7 +107,7 @@
         public void WaitOne()
         {
             if (IsDisposing) return;
-            IsCycleDone.WaitOne();
+            IsCycleDone.Wait();
         }
 
         /// <summary>
@@ -116,7 +117,7 @@
         {
             if (IsDisposing) return;
             IsDisposing = true;
-            IsCycleDone.WaitOne();
+            IsCycleDone.Wait();
             IsCycleDone.Dispose();
         }
 
@@ -152,11 +153,11 @@
             }
 
             // Skip running this cycle if we are already in the middle of one
-            if (IsCycleDone.IsSet() == false)
+            if (IsCycleDone.IsInProgress)
                 return;
 
             // Start a cycle by signaling it
-            IsCycleDone.Reset();
+            IsCycleDone.Begin();
 
             try
             {
@@ -170,7 +171,7 @@
             finally
             {
                 // Finalize the cycle
-                IsCycleDone.Set();
+                IsCycleDone.Complete();
             }
         }
 

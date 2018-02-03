@@ -6,7 +6,6 @@
     using Shared;
     using System;
     using System.Runtime.CompilerServices;
-    using System.Threading;
     using System.Windows;
     using System.Windows.Threading;
 
@@ -25,7 +24,7 @@
         private const double SyncThresholdLeading = -25;
         private const int SyncThresholdMaxStep = 25;
 
-        private readonly ManualResetEvent WaitForReadyEvent = new ManualResetEvent(false);
+        private readonly IWaitEvent WaitForReadyEvent = WaitEventFactory.Create(isCompleted: false, useSlim: true);
         private readonly object SyncLock = new object();
 
         private WavePlayer AudioDevice = null;
@@ -237,10 +236,7 @@
         /// <summary>
         /// Waits for the renderer to be ready to render.
         /// </summary>
-        public void WaitForReadyState()
-        {
-            WaitForReadyEvent?.WaitOne();
-        }
+        public void WaitForReadyState() => WaitForReadyEvent?.Wait();
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -269,7 +265,7 @@
             {
                 try
                 {
-                    WaitForReadyEvent.Set();
+                    WaitForReadyEvent.Complete();
                     var speedRatio = MediaCore?.State.SpeedRatio ?? 0;
 
                     // Render silence if we don't need to output samples

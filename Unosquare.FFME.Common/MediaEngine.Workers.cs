@@ -18,10 +18,10 @@
 
         #region State Management
 
-        private readonly ManualResetEvent m_PacketReadingCycle = new ManualResetEvent(false);
-        private readonly ManualResetEvent m_FrameDecodingCycle = new ManualResetEvent(false);
-        private readonly ManualResetEvent m_BlockRenderingCycle = new ManualResetEvent(false);
-        private readonly ManualResetEvent m_SeekingDone = new ManualResetEvent(true);
+        private readonly IWaitEvent m_PacketReadingCycle = WaitEventFactory.Create(isCompleted: false, useSlim: true);
+        private readonly IWaitEvent m_FrameDecodingCycle = WaitEventFactory.Create(isCompleted: false, useSlim: true);
+        private readonly IWaitEvent m_BlockRenderingCycle = WaitEventFactory.Create(isCompleted: false, useSlim: true);
+        private readonly IWaitEvent m_SeekingDone = WaitEventFactory.Create(isCompleted: true, useSlim: true);
 
         private Thread PacketReadingTask = null;
         private Thread FrameDecodingTask = null;
@@ -29,7 +29,7 @@
 
         private AtomicBoolean m_IsTaskCancellationPending = new AtomicBoolean(false);
         private AtomicBoolean m_HasDecoderSeeked = new AtomicBoolean(false);
-        private ManualResetEvent HasBlockRenderingWorkerExited = null;
+        private IWaitEvent BlockRenderingWorkerExit = null;
 
         /// <summary>
         /// Holds the materialized block cache for each media type.
@@ -39,22 +39,22 @@
         /// <summary>
         /// Gets the packet reading cycle control evenet.
         /// </summary>
-        internal ManualResetEvent PacketReadingCycle => m_PacketReadingCycle;
+        internal IWaitEvent PacketReadingCycle => m_PacketReadingCycle;
 
         /// <summary>
         /// Gets the frame decoding cycle control event.
         /// </summary>
-        internal ManualResetEvent FrameDecodingCycle => m_FrameDecodingCycle;
+        internal IWaitEvent FrameDecodingCycle => m_FrameDecodingCycle;
 
         /// <summary>
         /// Gets the block rendering cycle control event.
         /// </summary>
-        internal ManualResetEvent BlockRenderingCycle => m_BlockRenderingCycle;
+        internal IWaitEvent BlockRenderingCycle => m_BlockRenderingCycle;
 
         /// <summary>
         /// Gets the seeking done control event.
         /// </summary>
-        internal ManualResetEvent SeekingDone => m_SeekingDone;
+        internal IWaitEvent SeekingDone => m_SeekingDone;
 
         /// <summary>
         /// Gets or sets a value indicating whether the workedrs have been requested
@@ -138,10 +138,10 @@
             IsTaskCancellationPending = false;
 
             // Set the initial state of the task cycles.
-            SeekingDone.Set();
-            BlockRenderingCycle.Reset();
-            FrameDecodingCycle.Reset();
-            PacketReadingCycle.Reset();
+            SeekingDone.Complete();
+            BlockRenderingCycle.Begin();
+            FrameDecodingCycle.Begin();
+            PacketReadingCycle.Begin();
 
             // Create the thread runners
             PacketReadingTask = new Thread(RunPacketReadingWorker)

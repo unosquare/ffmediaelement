@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Platform
 {
+    using Primitives;
     using System;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
@@ -117,7 +118,7 @@
 
                 case GuiContextType.WinForms:
                     {
-                        var doneEvent = new ManualResetEventSlim(false);
+                        var doneEvent = WaitEventFactory.CreateSlim(false);
                         Context.Post((args) =>
                         {
                             try
@@ -125,7 +126,7 @@
                                 callback.DynamicInvoke(args as object[]);
                             }
                             catch { throw; }
-                            finally { doneEvent.Set(); }
+                            finally { doneEvent.Complete(); }
                         }, arguments);
 
                         await Task.Run(() =>

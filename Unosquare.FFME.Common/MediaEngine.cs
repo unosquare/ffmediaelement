@@ -149,7 +149,7 @@
             // Dispose the RTC
             Clock.Dispose();
 
-            // Dispose the ManualResetEvent objects as they are
+            // Dispose the Wait Event objects as they are
             // backed by unmanaged code
             m_PacketReadingCycle.Dispose();
             m_FrameDecodingCycle.Dispose();

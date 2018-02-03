@@ -3,7 +3,6 @@
     using Primitives;
     using Shared;
     using System.Threading;
-    using System.Threading.Tasks;
 
     public partial class MediaEngine
     {
@@ -14,6 +13,11 @@
         /// </summary>
         internal void RunPacketReadingWorker()
         {
+            #region Worker State Setup
+
+            // The delay provider prevents 100% core usage
+            var delay = new DelayProvider();
+
             // Holds the packet count for each read cycle
             var packetsRead = new MediaTypeDictionary<int>();
 
@@ -28,16 +32,20 @@
             var auxs = mediaContainer.Components.MediaTypes.FundamentalAuxsFor(main);
             var all = main.JoinMediaTypes(auxs);
 
+            #endregion
+
+            #region Worker Loop
+
             try
             {
                 // Worker logic begins here
                 while (IsTaskCancellationPending == false)
                 {
                     // Wait for seeking to be done.
-                    SeekingDone.WaitOne();
+                    SeekingDone.Wait();
 
                     // Enter a packet reading cycle
-                    PacketReadingCycle.Reset();
+                    PacketReadingCycle.Begin();
 
                     // Initialize Packets read to 0 for each component and state variables
                     foreach (var k in mediaContainer.Components.MediaTypes)
@@ -63,10 +71,10 @@
                     }
 
                     // finish the reading cycle.
-                    PacketReadingCycle.Set();
+                    PacketReadingCycle.Complete();
 
                     // Don't evaluate a pause condition if we are seeking
-                    if (SeekingDone.IsSet() == false)
+                    if (SeekingDone.IsInProgress)
                         continue;
 
                     // Wait some if we have a full packet buffer or we are unable to read more packets (i.e. EOF).
@@ -74,7 +82,7 @@
                         || CanReadMorePackets == false
                         || packetsRead.GetSum() <= 0)
                     {
-                        Task.Delay(1).GetAwaiter().GetResult();
+                        delay.WaitOne();
                     }
                 }
             }
@@ -83,8 +91,11 @@
             finally
             {
                 // Always exit notifying the reading cycle is done.
-                PacketReadingCycle.Set();
+                PacketReadingCycle.Complete();
+                delay.Dispose();
             }
+
+            #endregion
         }
     }
 }

@@ -113,7 +113,13 @@
             get
             {
                 if (m_CloseCommand == null)
-                    m_CloseCommand = new DelegateCommand(async (o) => { await Media.Close(); });
+                {
+                    m_CloseCommand = new DelegateCommand(async (o) =>
+                    {
+                        // Media.Dispose(); // Test the Dispose method uncommenting this line
+                        await Media.Close();
+                    });
+                }
 
                 return m_CloseCommand;
             }

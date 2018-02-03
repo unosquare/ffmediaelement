@@ -2,7 +2,6 @@
 {
     using System;
     using System.Threading;
-    using System.Threading.Tasks;
     using Unosquare.FFME.Commands;
     using Unosquare.FFME.Decoding;
     using Unosquare.FFME.Primitives;
@@ -17,31 +16,40 @@
         /// </summary>
         internal void RunFrameDecodingWorker()
         {
+            #region Worker State Setup
+
+            // The delay provider prevents 100% core usage
+            var delay = new DelayProvider();
+
+            // State variables
+            var decodedFrameCount = 0;
+            var wallClock = TimeSpan.Zero;
+            var rangePercent = 0d;
+            var isInRange = false;
+            var playAfterSeek = false;
+
+            // Holds the main media type
+            var main = Container.Components.Main.MediaType;
+
+            // Holds the auxiliary media types
+            var auxs = Container.Components.MediaTypes.ExcludeMediaType(main);
+
+            // Holds all components
+            var all = Container.Components.MediaTypes.DeepCopy();
+
+            var isBuffering = false;
+            var resumeClock = false;
+            var hasPendingSeeks = false;
+
+            MediaComponent comp = null;
+            MediaBlockBuffer blocks = null;
+
+            #endregion
+
+            #region Worker Loop
+
             try
             {
-                // State variables
-                var decodedFrameCount = 0;
-                var wallClock = TimeSpan.Zero;
-                var rangePercent = 0d;
-                var isInRange = false;
-                var playAfterSeek = false;
-
-                // Holds the main media type
-                var main = Container.Components.Main.MediaType;
-
-                // Holds the auxiliary media types
-                var auxs = Container.Components.MediaTypes.ExcludeMediaType(main);
-
-                // Holds all components
-                var all = Container.Components.MediaTypes.DeepCopy();
-
-                var isBuffering = false;
-                var resumeClock = false;
-                var hasPendingSeeks = false;
-
-                MediaComponent comp = null;
-                MediaBlockBuffer blocks = null;
-
                 while (IsTaskCancellationPending == false)
                 {
                     #region 1. Setup the Decoding Cycle
@@ -60,7 +68,7 @@
 
                     // Wait for a seek operation to complete (if any)
                     // and initiate a frame decoding cycle.
-                    SeekingDone.WaitOne();
+                    SeekingDone.Wait();
 
                     // Set initial state
                     wallClock = WallClock;
@@ -102,7 +110,7 @@
                     }
 
                     // Initiate the frame docding cycle
-                    FrameDecodingCycle.Reset();
+                    FrameDecodingCycle.Begin();
 
                     #endregion
 
@@ -114,7 +122,7 @@
 
                     // Handle the main component decoding; Start by checking we have some packets
                     while (comp.PacketBufferCount <= 0 && CanReadMorePackets)
-                        PacketReadingCycle.WaitOne(Constants.Interval.LowPriority);
+                        PacketReadingCycle.Wait(Constants.Interval.LowPriority);
 
                     if (comp.PacketBufferCount > 0)
                     {
@@ -135,7 +143,7 @@
                             {
                                 // Try to get more packets by waiting for read cycles.
                                 if (CanReadMorePackets && comp.PacketBufferCount <= 0)
-                                    PacketReadingCycle.WaitOne();
+                                    PacketReadingCycle.Wait();
 
                                 // Decode some frames and check if we are in reange now
                                 decodedFrameCount += AddBlocks(main);
@@ -167,7 +175,7 @@
                                 // Try to recover the regular loop
                                 isInRange = true;
                                 while (CanReadMorePackets && comp.PacketBufferCount <= 0)
-                                    PacketReadingCycle.WaitOne();
+                                    PacketReadingCycle.Wait();
                             }
                         }
 
@@ -220,7 +228,7 @@
                         {
                             // Wait for packets if we don't have enough packets
                             if (CanReadMorePackets && comp.PacketBufferCount <= 0)
-                                PacketReadingCycle.WaitOne();
+                                PacketReadingCycle.Wait();
 
                             if (comp.PacketBufferCount <= 0)
                                 break;
@@ -298,7 +306,7 @@
                     }
 
                     // Complete the frame decoding cycle
-                    FrameDecodingCycle.Set();
+                    FrameDecodingCycle.Complete();
 
                     // After a seek operation, always reset the has seeked flag.
                     HasDecoderSeeked = false;
@@ -309,7 +317,7 @@
                     // Give it a break if there was nothing to decode.
                     // We probably need to wait for some more input
                     if (decodedFrameCount <= 0 && Commands.PendingCount <= 0)
-                        Task.Delay(1).GetAwaiter().GetResult();
+                        delay.WaitOne();
 
                     #endregion
                 }
@@ -319,8 +327,11 @@
             finally
             {
                 // Always exit notifying the cycle is done.
-                FrameDecodingCycle.Set();
+                FrameDecodingCycle.Complete();
+                delay.Dispose();
             }
+
+            #endregion
         }
     }
 }

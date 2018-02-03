@@ -6,7 +6,6 @@
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
-    using System.Threading;
 
     /// <summary>
     /// Provides various helpers and extension methods.
@@ -271,20 +270,6 @@
         #endregion
 
         #region Faster-than-Linq replacements
-
-        /// <summary>
-        /// Determines whether the event is in its set state.
-        /// </summary>
-        /// <param name="m">The event.</param>
-        /// <returns>
-        ///   <c>true</c> if the specified m is set; otherwise, <c>false</c>.
-        /// </returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsSet(this ManualResetEvent m)
-        {
-            if (m?.SafeWaitHandle.IsClosed ?? true) return true;
-            return m?.WaitOne(0) ?? true;
-        }
 
         /// <summary>
         /// Gets the fundamental (audio or video only) auxiliary media types.

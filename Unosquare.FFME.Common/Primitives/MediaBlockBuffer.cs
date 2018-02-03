@@ -30,7 +30,7 @@
         /// <summary>
         /// Controls multiple reads and exclusive writes
         /// </summary>
-        private ISyncLocker Locker = SyncLockerFactory.CreateSlim();
+        private ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
 
         #endregion
 

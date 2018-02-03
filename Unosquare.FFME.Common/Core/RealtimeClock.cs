@@ -11,7 +11,7 @@
     internal sealed class RealTimeClock : IDisposable
     {
         private readonly Stopwatch Chrono = new Stopwatch();
-        private ISyncLocker Locker = SyncLockerFactory.CreateSlim();
+        private ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
         private long OffsetTicks = 0;
         private double m_SpeedRatio = Constants.Controller.DefaultSpeedRatio;
         private bool IsDisposed = false;
@@ -135,10 +135,7 @@
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
@@ -147,14 +144,9 @@
         private void Dispose(bool alsoManaged)
         {
             if (IsDisposed) return;
-
-            if (alsoManaged)
-            {
-                Locker?.Dispose();
-            }
-
-            Locker = null;
             IsDisposed = true;
+            Locker?.Dispose();
+            Locker = null;
         }
     }
 }

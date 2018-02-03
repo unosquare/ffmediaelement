@@ -17,7 +17,7 @@
         #region Private Declarations
 
         private readonly List<IntPtr> PacketPointers = new List<IntPtr>();
-        private ISyncLocker Locker = SyncLockerFactory.CreateSlim();
+        private ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
         private bool IsDisposed = false; // To detect redundant calls
         private int m_BufferLength = default(int);
         private long m_Duration = default(long);
