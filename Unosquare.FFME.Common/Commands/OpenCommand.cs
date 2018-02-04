@@ -64,16 +64,42 @@
 
                 // Create the stream container
                 // the async protocol prefix allows for increased performance for local files.
-                var streamOptions = new StreamOptions
-                {
-                    ProtocolPrefix = Source.IsFile ? "async" : null
-                };
+                var streamOptions = new StreamOptions();
 
+                // Set the default protocol Prefix
+                try { streamOptions.ProtocolPrefix = Source.IsFile ? "async" : null; }
+                catch { }
+
+                // GDIGRAB: Example URI: format://gdigrab?desktop
+                if (string.IsNullOrWhiteSpace(Source.Scheme) == false
+                    && (Source.Scheme.Equals("format") || Source.Scheme.Equals("device"))
+                    && string.IsNullOrWhiteSpace(Source.Host) == false
+                    && string.IsNullOrWhiteSpace(streamOptions.Input.ForcedInputFormat)
+                    && string.IsNullOrWhiteSpace(Source.Query) == false)
+                {
+                    // Update the Input format and container input URL
+                    // It is also possible to set some input options as follows:
+                    // streamOptions.Input.Add(StreamInputOptions.Names.FrameRate, "20");
+                    streamOptions.Input.ForcedInputFormat = Source.Host;
+                    mediaUrl = Uri.UnescapeDataString(Source.Query).TrimStart('?');
+                    m.Log(MediaLogMessageType.Info, $"Media URI will be updated. Input Format: {Source.Host}, Input Argument: {mediaUrl}");
+                }
+
+                // Allow the stream input options to be changed
                 m.SendOnMediaInitializing(streamOptions, mediaUrl);
+
+                // Instantiate the internal container
                 m.Container = new MediaContainer(mediaUrl, streamOptions, m);
+
+                // Notify the user media is opening and allow for media options to be modified
+                // Stuff like audio and video filters and stream selection can be performed here.
                 m.SendOnMediaOpening();
+
+                // Notify Media will start opening
                 m.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Entered");
                 m.Container.Open();
+
+                // Reset buffering properties
                 m.State.InitializeBufferingProperties();
 
                 // Charge! Fire up the worker threads!

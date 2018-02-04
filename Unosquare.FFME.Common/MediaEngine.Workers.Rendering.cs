@@ -155,7 +155,7 @@
             },
             this, // the state argument passed on to the ticker
             0,
-            (int)Constants.Interval.HighPriority.TotalMilliseconds);
+            Convert.ToInt32(Constants.Interval.HighPriority.TotalMilliseconds));
         }
 
         /// <summary>

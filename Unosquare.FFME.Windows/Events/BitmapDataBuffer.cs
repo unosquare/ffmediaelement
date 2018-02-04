@@ -45,7 +45,7 @@
             DpiY = dpiY;
 
             UpdateRect = new Int32Rect(0, 0, pixelWidth, pixelHeight);
-            BufferLength = (uint)(Stride * PixelHeight);
+            BufferLength = Convert.ToUInt32(Stride * PixelHeight);
             Palette = palette;
             PixelFormat = pixelFormat;
         }

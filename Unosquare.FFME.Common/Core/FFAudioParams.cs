@@ -131,7 +131,7 @@
             };
 
             // The target transform is just a ratio of the source frame's sample. This is how many samples we desire
-            spec.SamplesPerChannel = (int)Math.Round((double)frame->nb_samples * spec.SampleRate / frame->sample_rate, 0);
+            spec.SamplesPerChannel = Convert.ToInt32(Convert.ToDouble(frame->nb_samples) * spec.SampleRate / frame->sample_rate);
             spec.BufferLength = ffmpeg.av_samples_get_buffer_size(
                 null, spec.ChannelCount, spec.SamplesPerChannel + Constants.Audio.BufferPadding, spec.Format, 1);
             return spec;

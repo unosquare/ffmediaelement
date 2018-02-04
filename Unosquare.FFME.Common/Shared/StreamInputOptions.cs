@@ -40,6 +40,11 @@
             /// mpegts
             /// </summary>
             public const string ScanAllPmts = "scan_all_pmts";
+
+            /// <summary>
+            /// The frame rate input setting
+            /// </summary>
+            public const string FrameRate = "framerate";
         }
     }
 }

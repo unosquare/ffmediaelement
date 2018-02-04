@@ -129,19 +129,19 @@
                 return;
             }
 
-            var chunkSize = (int)copyLength / 4; // optimalBlockSize;
-            var blockCount = (int)(copyLength / chunkSize);
+            var chunkSize = Convert.ToInt32(copyLength) / 4; // optimalBlockSize;
+            var blockCount = Convert.ToInt32(copyLength) / chunkSize;
 
             Parallel.For(0, blockCount, (blockIndex) =>
             {
                 var offset = blockIndex * chunkSize;
-                NativeMethods.CopyMemory(targetAddress + offset, sourceAddress + offset, (uint)chunkSize);
+                NativeMethods.CopyMemory(targetAddress + offset, sourceAddress + offset, Convert.ToUInt32(chunkSize));
             });
 
             var lastOffset = blockCount * chunkSize;
             if (lastOffset < copyLength)
             {
-                NativeMethods.CopyMemory(targetAddress + lastOffset, sourceAddress + lastOffset, copyLength - (uint)lastOffset);
+                NativeMethods.CopyMemory(targetAddress + lastOffset, sourceAddress + lastOffset, copyLength - Convert.ToUInt32(lastOffset));
             }
         }
 

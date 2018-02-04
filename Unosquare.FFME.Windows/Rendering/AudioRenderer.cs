@@ -115,13 +115,13 @@
                     // if we don't have a valid write tag it's just wahtever has been read from the audio buffer
                     if (AudioBuffer.WriteTag == TimeSpan.MinValue)
                     {
-                        return TimeSpan.FromMilliseconds((long)Math.Round(
-                            TimeSpan.TicksPerMillisecond * 1000d * (AudioBuffer.Length - AudioBuffer.ReadableCount) / WaveFormat.AverageBytesPerSecond, 0));
+                        return TimeSpan.FromMilliseconds(Convert.ToDouble(
+                            TimeSpan.TicksPerMillisecond * 1000d * (AudioBuffer.Length - AudioBuffer.ReadableCount) / WaveFormat.AverageBytesPerSecond));
                     }
 
                     // the pending audio length is the amount of audio samples time that has not been yet read by the audio device.
-                    var pendingAudioLength = TimeSpan.FromTicks(
-                        (long)Math.Round(TimeSpan.TicksPerMillisecond * 1000d * AudioBuffer.ReadableCount / WaveFormat.AverageBytesPerSecond, 0));
+                    var pendingAudioLength = TimeSpan.FromTicks(Convert.ToInt64(
+                        TimeSpan.TicksPerMillisecond * 1000d * AudioBuffer.ReadableCount / WaveFormat.AverageBytesPerSecond));
 
                     // the current position is the Write tag minus the pending length
                     return TimeSpan.FromTicks(AudioBuffer.WriteTag.Ticks - pendingAudioLength.Ticks);
@@ -276,8 +276,8 @@
                     }
 
                     // Ensure a preallocated ReadBuffer
-                    if (ReadBuffer == null || ReadBuffer.Length < (int)(requestedBytes * Constants.Controller.MaxSpeedRatio))
-                        ReadBuffer = new byte[(int)(requestedBytes * Constants.Controller.MaxSpeedRatio)];
+                    if (ReadBuffer == null || ReadBuffer.Length < Convert.ToInt32(requestedBytes * Constants.Controller.MaxSpeedRatio))
+                        ReadBuffer = new byte[Convert.ToInt32(requestedBytes * Constants.Controller.MaxSpeedRatio)];
 
                     // First part of DSP: Perform AV Synchronization if needed
                     if (MediaCore.State.HasVideo && Synchronize(targetBuffer, targetBufferOffset, requestedBytes, speedRatio) == false)
@@ -354,8 +354,8 @@
             {
                 AudioProcessor = new SoundTouch
                 {
-                    Channels = (uint)WaveFormat.Channels,
-                    SampleRate = (uint)WaveFormat.SampleRate
+                    Channels = Convert.ToUInt32(WaveFormat.Channels),
+                    SampleRate = Convert.ToUInt32(WaveFormat.SampleRate)
                 };
             }
 
@@ -457,7 +457,7 @@
                 }
 
                 // skip some samples from the buffer.
-                var audioLatencyBytes = WaveFormat.ConvertLatencyToByteSize((int)Math.Ceiling(audioLatencyMs));
+                var audioLatencyBytes = WaveFormat.ConvertLatencyToByteSize(Convert.ToInt32(Math.Ceiling(audioLatencyMs)));
                 AudioBuffer.Skip(Math.Min(audioLatencyBytes, readableCount));
             }
             else if (audioLatencyMs < SyncThresholdLeading)
@@ -465,7 +465,7 @@
                 isBeyondThreshold = true;
 
                 // Compute the latency in bytes
-                var audioLatencyBytes = WaveFormat.ConvertLatencyToByteSize((int)Math.Ceiling(Math.Abs(audioLatencyMs)));
+                var audioLatencyBytes = WaveFormat.ConvertLatencyToByteSize(Convert.ToInt32(Math.Ceiling(Math.Abs(audioLatencyMs))));
 
                 // audioLatencyBytes = requestedBytes; // uncomment this line to enable rewinding.
                 if (audioLatencyBytes > requestedBytes && audioLatencyBytes < rewindableCount)
@@ -496,7 +496,7 @@
                 isBeyondThreshold == false &&
                 Math.Abs(audioLatencyMs) > SyncThresholdPerfect)
             {
-                var stepDurationMillis = (int)Math.Min(SyncThresholdMaxStep, Math.Abs(audioLatencyMs));
+                var stepDurationMillis = Convert.ToInt32(Math.Min(SyncThresholdMaxStep, Math.Abs(audioLatencyMs)));
                 var stepDurationBytes = WaveFormat.ConvertLatencyToByteSize(stepDurationMillis);
 
                 if (audioLatencyMs > SyncThresholdPerfect)
@@ -521,8 +521,8 @@
         {
             var bytesToRead = Math.Min(
                 AudioBuffer.ReadableCount,
-                (int)(requestedBytes * speedRatio).ToMultipleOf(SampleBlockSize));
-            var repeatFactor = (double)requestedBytes / bytesToRead;
+                Convert.ToInt32((requestedBytes * speedRatio).ToMultipleOf(SampleBlockSize)));
+            var repeatFactor = Convert.ToDouble(requestedBytes) / bytesToRead;
 
             var sourceOffset = requestedBytes;
             AudioBuffer.Read(bytesToRead, ReadBuffer, sourceOffset);
@@ -557,7 +557,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ReadAndSpeedUp(int requestedBytes, bool computeAverage, double speedRatio)
         {
-            var bytesToRead = (int)(requestedBytes * speedRatio).ToMultipleOf(SampleBlockSize);
+            var bytesToRead = Convert.ToInt32((requestedBytes * speedRatio).ToMultipleOf(SampleBlockSize));
             var sourceOffset = 0;
 
             if (bytesToRead > AudioBuffer.ReadableCount)
@@ -568,9 +568,9 @@
 
             AudioBuffer.Read(bytesToRead, ReadBuffer, sourceOffset);
 
-            var groupSize = (double)bytesToRead / requestedBytes;
+            var groupSize = Convert.ToDouble(bytesToRead) / requestedBytes;
             var targetOffset = 0;
-            var currentGroupSizeW = (int)groupSize;
+            var currentGroupSizeW = Convert.ToInt32(groupSize);
             var currentGroupSizeF = groupSize - currentGroupSizeW;
             var leftSamples = 0d;
             var rightSamples = 0d;
@@ -606,8 +606,8 @@
                     }
 
                     // compute an average of the samples
-                    leftSamples = Math.Round(leftSamples / samplesToAverage, 0);
-                    rightSamples = Math.Round(rightSamples / samplesToAverage, 0);
+                    leftSamples = leftSamples / samplesToAverage;
+                    rightSamples = rightSamples / samplesToAverage;
                 }
                 else
                 {
@@ -623,7 +623,7 @@
                 ReadBuffer.PutAudioSample(targetOffset + Constants.Audio.BytesPerSample, Convert.ToInt16(rightSamples));
 
                 // advance the base source offset
-                currentGroupSizeW = (int)(groupSize + currentGroupSizeF);
+                currentGroupSizeW = Convert.ToInt32(groupSize + currentGroupSizeF);
                 currentGroupSizeF = (groupSize + currentGroupSizeF) - currentGroupSizeW;
 
                 sourceOffset += samplesToAverage * SampleBlockSize;
@@ -641,10 +641,10 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ReadAndUseAudioProcessor(int requestedBytes, double speedRatio)
         {
-            if (AudioProcessorBuffer == null || AudioProcessorBuffer.Length < (int)(requestedBytes * Constants.Controller.MaxSpeedRatio))
-                AudioProcessorBuffer = new short[(int)(requestedBytes * Constants.Controller.MaxSpeedRatio / Constants.Audio.BytesPerSample)];
+            if (AudioProcessorBuffer == null || AudioProcessorBuffer.Length < Convert.ToInt32(requestedBytes * Constants.Controller.MaxSpeedRatio))
+                AudioProcessorBuffer = new short[Convert.ToInt32(requestedBytes * Constants.Controller.MaxSpeedRatio / Constants.Audio.BytesPerSample)];
 
-            var bytesToRead = (int)(requestedBytes * speedRatio).ToMultipleOf(SampleBlockSize);
+            var bytesToRead = Convert.ToInt32((requestedBytes * speedRatio).ToMultipleOf(SampleBlockSize));
             var samplesToRead = bytesToRead / SampleBlockSize;
             var samplesToRequest = requestedBytes / SampleBlockSize;
 
@@ -657,16 +657,16 @@
                 var realBytesToRead = Math.Min(AudioBuffer.ReadableCount, bytesToRead);
                 if (realBytesToRead == 0) break;
 
-                realBytesToRead = (int)(realBytesToRead * 1.0).ToMultipleOf(SampleBlockSize);
+                realBytesToRead = Convert.ToInt32((realBytesToRead * 1.0).ToMultipleOf(SampleBlockSize));
                 AudioBuffer.Read(realBytesToRead, ReadBuffer, 0);
                 Buffer.BlockCopy(ReadBuffer, 0, AudioProcessorBuffer, 0, realBytesToRead);
-                AudioProcessor.PutSamplesI16(AudioProcessorBuffer, (uint)(realBytesToRead / SampleBlockSize));
+                AudioProcessor.PutSamplesI16(AudioProcessorBuffer, Convert.ToUInt32(realBytesToRead / SampleBlockSize));
             }
 
             // Receiving samples from the processor
-            uint numSamples = AudioProcessor.ReceiveSamplesI16(AudioProcessorBuffer, (uint)samplesToRequest);
+            uint numSamples = AudioProcessor.ReceiveSamplesI16(AudioProcessorBuffer, Convert.ToUInt32(samplesToRequest));
             Array.Clear(ReadBuffer, 0, ReadBuffer.Length);
-            Buffer.BlockCopy(AudioProcessorBuffer, 0, ReadBuffer, 0, (int)(numSamples * SampleBlockSize));
+            Buffer.BlockCopy(AudioProcessorBuffer, 0, ReadBuffer, 0, Convert.ToInt32(numSamples * SampleBlockSize));
         }
 
         /// <summary>
@@ -719,9 +719,9 @@
                 else
                 {
                     if (isLeftSample && leftVolume != 1.0)
-                        currentSample = (short)(currentSample * leftVolume);
+                        currentSample = Convert.ToInt16(currentSample * leftVolume);
                     else if (isLeftSample == false && rightVolume != 1.0)
-                        currentSample = (short)(currentSample * rightVolume);
+                        currentSample = Convert.ToInt16(currentSample * rightVolume);
                 }
 
                 targetBuffer.PutAudioSample(targetBufferOffset + sourceBufferOffset, currentSample);

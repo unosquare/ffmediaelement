@@ -529,8 +529,11 @@
             if (string.IsNullOrWhiteSpace(StreamOptions.Input.ForcedInputFormat) == false)
             {
                 inputFormat = ffmpeg.av_find_input_format(StreamOptions.Input.ForcedInputFormat);
-                Parent?.Log(MediaLogMessageType.Warning,
-                    $"Format '{StreamOptions.Input.ForcedInputFormat}' not found. Will use automatic format detection.");
+                if (inputFormat == null)
+                {
+                    Parent?.Log(MediaLogMessageType.Warning,
+                        $"Format '{StreamOptions.Input.ForcedInputFormat}' not found. Will use automatic format detection.");
+                }
             }
 
             try
@@ -599,7 +602,8 @@
                 IsNetworkStream = InputContext->iformat->read_play.Pointer != IntPtr.Zero;
                 if (IsNetworkStream == false && Uri.TryCreate(MediaUrl, UriKind.RelativeOrAbsolute, out var uri))
                 {
-                    IsNetworkStream = uri.IsFile == false || uri.IsUnc;
+                    try { IsNetworkStream = uri.IsFile == false || uri.IsUnc; }
+                    catch { }
                 }
 
                 // Unsure how this works. Ported from ffplay
@@ -675,7 +679,7 @@
 
             // Apply the options
             if (opts.EnableReducedBuffering) InputContext->avio_flags |= ffmpeg.AVIO_FLAG_DIRECT;
-            if (opts.PacketSize != default(int)) InputContext->packet_size = (uint)opts.PacketSize;
+            if (opts.PacketSize != default(int)) InputContext->packet_size = System.Convert.ToUInt32(opts.PacketSize);
             if (opts.ProbeSize != default(int)) InputContext->probesize = StreamOptions.Format.ProbeSize <= 32 ? 32 : opts.ProbeSize;
 
             // Flags
@@ -697,7 +701,7 @@
             if (opts.MaxAnalyzeDuration != default(TimeSpan))
             {
                 InputContext->max_analyze_duration = opts.MaxAnalyzeDuration <= TimeSpan.Zero ? 0 :
-                    (int)Math.Round(opts.MaxAnalyzeDuration.TotalSeconds * ffmpeg.AV_TIME_BASE, 0);
+                    System.Convert.ToInt64(opts.MaxAnalyzeDuration.TotalSeconds * ffmpeg.AV_TIME_BASE);
             }
 
             if (string.IsNullOrEmpty(opts.CryptoKey) == false)
@@ -805,7 +809,7 @@
             if (RequiresReadDelay)
             {
                 // in ffplay.c this is referenced via CONFIG_RTSP_DEMUXER || CONFIG_MMSH_PROTOCOL
-                var millisecondsDifference = (int)Math.Round(DateTime.UtcNow.Subtract(StreamLastReadTimeUtc).TotalMilliseconds, 2);
+                var millisecondsDifference = System.Convert.ToInt32(DateTime.UtcNow.Subtract(StreamLastReadTimeUtc).TotalMilliseconds);
                 var sleepMilliseconds = 10 - millisecondsDifference;
 
                 // wait at least 10 ms to avoid trying to get another packet

@@ -106,12 +106,12 @@
         /// If not set by the decoder, this attempts to obtain it by dividing the start time by the
         /// frame duration
         /// </summary>
-        public int DisplayPictureNumber { get; }
+        public long DisplayPictureNumber { get; }
 
         /// <summary>
         /// Gets the coded picture number set by the decoder.
         /// </summary>
-        public int CodedPictureNumber { get; }
+        public long CodedPictureNumber { get; }
 
         /// <summary>
         /// Gets the SMTPE time code.

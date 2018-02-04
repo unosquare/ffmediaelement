@@ -379,7 +379,7 @@
         }
 
         /// <summary>
-        /// int16 version of putSamples(): This accept int16 (short) sample data
+        /// int16 version of putSamples(): This accept int16 (i.e. short) sample data
         /// and internally converts it to float format before processing
         /// </summary>
         /// <param name="samples">Sample input buffer.</param>
@@ -404,7 +404,7 @@
 
         /// <summary>
         /// int16 version of receiveSamples(): This converts internal float samples
-        /// into int16 (short) return data type
+        /// into int16 (i.e. short) return data type
         /// </summary>
         /// <param name="outBuffer">Buffer where to copy output samples.</param>
         /// <param name="maxSamples">How many samples to receive at max.</param>

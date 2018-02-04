@@ -305,7 +305,7 @@
                 var associatedStreams = new List<StreamInfo>();
                 for (var s = 0; s < p->nb_stream_indexes; s++)
                 {
-                    var streamIndex = (int)p->stream_index[s];
+                    var streamIndex = Convert.ToInt32(p->stream_index[s]);
                     if (streams.ContainsKey(streamIndex))
                         associatedStreams.Add(streams[streamIndex]);
                 }

@@ -121,7 +121,7 @@
                     blocks = Blocks[main];
 
                     // Handle the main component decoding; Start by checking we have some packets
-                    while (comp.PacketBufferCount <= 0 && CanReadMorePackets)
+                    while (comp.PacketBufferCount <= 0 && CanReadMorePackets && ShouldReadMorePackets)
                         PacketReadingCycle.Wait(Constants.Interval.LowPriority);
 
                     if (comp.PacketBufferCount > 0)
