@@ -67,7 +67,12 @@ A high-level diagram is provided as additional reference below.
 
 - I am planning the next version of this control, `Floyd`. See the **Issues** section.
 - Working on Hardware acceleration. Maybe CUDA for highest compatibility.
-- There currently is no support for opening capture devices such as webcams or TV cards. While this is not too hard to do, it is not (yet) implemented in this library. See issue #48
+- Release 3.4.200 does not support opening capture devices such as webcams or TV cards. Release 3.4.210 will. See [issue #48](https://github.com/unosquare/ffmediaelement/issues/48)
+```
+device://dshow/?audio=Microphone (Vengeance 2100)
+device://gdigrab?title=Command Prompt
+device://gdigrab?desktop
+```
 
 ## Windows: Compiling, Running and Testing
 
