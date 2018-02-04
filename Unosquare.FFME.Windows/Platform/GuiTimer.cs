@@ -182,7 +182,11 @@
         private Timer CreateThreadingTimer()
         {
             var timer = new Timer(
-                new TimerCallback(RunTimerCycle), this, (int)Interval.TotalMilliseconds, (int)Interval.TotalMilliseconds);
+                new TimerCallback(RunTimerCycle), 
+                this, 
+                Convert.ToInt32(Interval.TotalMilliseconds),
+                Convert.ToInt32(Interval.TotalMilliseconds));
+
             return timer;
         }
 
@@ -211,7 +215,7 @@
         {
             var timer = new System.Windows.Forms.Timer
             {
-                Interval = (int)Interval.TotalMilliseconds,
+                Interval = Convert.ToInt32(Interval.TotalMilliseconds),
                 Enabled = true
             };
 

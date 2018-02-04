@@ -51,7 +51,7 @@ namespace Unosquare.FFME.Windows.Sample.Kernel
             object parameter,
             CultureInfo culture)
         {
-            var result = TimeSpan.FromTicks((long)Math.Round(TimeSpan.TicksPerSecond * (double)value, 0));
+            var result = TimeSpan.FromTicks(System.Convert.ToInt64(TimeSpan.TicksPerSecond * (double)value));
 
             // Do the conversion from visibility to bool
             if (targetType == typeof(TimeSpan)) return result;

@@ -70,6 +70,10 @@
                 };
 
                 m.SendOnMediaInitializing(streamOptions, mediaUrl);
+
+                // TODO: Example of supporting GDIGrab
+                // mediaUrl = "desktop";
+                // streamOptions.Input.ForcedInputFormat = "gdigrab";
                 m.Container = new MediaContainer(mediaUrl, streamOptions, m);
                 m.SendOnMediaOpening();
                 m.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Entered");

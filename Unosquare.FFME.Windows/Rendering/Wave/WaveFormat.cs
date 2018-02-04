@@ -64,12 +64,12 @@
                 throw new ArgumentOutOfRangeException(nameof(channels), $"{nameof(channels)} must be greater than or equal to 1");
 
             // minimum 16 bytes, sometimes 18 for PCM
-            this.channels = (short)channels;
+            this.channels = Convert.ToInt16(channels);
             sampleRate = rate;
-            bitsPerSample = (short)bits;
+            bitsPerSample = Convert.ToInt16(bits);
             extraSize = 0;
 
-            blockAlign = (short)(channels * (bits / 8));
+            blockAlign = Convert.ToInt16(channels * (bits / 8));
             averageBytesPerSecond = sampleRate * blockAlign;
         }
 
@@ -116,14 +116,14 @@
         /// <returns>The size</returns>
         public int ConvertLatencyToByteSize(int milliseconds)
         {
-            int bytes = (int)((AverageBytesPerSecond / 1000.0) * milliseconds);
-            if ((bytes % BlockAlign) != 0)
+            var byteCount = Convert.ToInt32((AverageBytesPerSecond / 1000.0d) * milliseconds);
+            if ((byteCount % BlockAlign) != 0)
             {
                 // Return the upper BlockAligned
-                bytes = bytes + BlockAlign - (bytes % BlockAlign);
+                byteCount = byteCount + BlockAlign - (byteCount % BlockAlign);
             }
 
-            return bytes;
+            return byteCount;
         }
 
         /// <summary>

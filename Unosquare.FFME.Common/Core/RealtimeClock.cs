@@ -35,7 +35,7 @@
                 using (Locker.AcquireReaderLock())
                 {
                     return TimeSpan.FromTicks(
-                        OffsetTicks + (long)Math.Round(Chrono.Elapsed.Ticks * SpeedRatio, 0));
+                        OffsetTicks + Convert.ToInt64(Chrono.Elapsed.Ticks * SpeedRatio));
                 }
             }
         }

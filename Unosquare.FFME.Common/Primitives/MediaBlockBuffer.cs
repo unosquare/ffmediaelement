@@ -114,7 +114,7 @@
                 using (Locker.AcquireReaderLock())
                 {
                     if (PlaybackBlocks.Count <= 0) return TimeSpan.Zero;
-                    return TimeSpan.FromTicks((long)PlaybackBlocks.Average(b => Convert.ToDouble(b.Duration.Ticks)));
+                    return TimeSpan.FromTicks(Convert.ToInt64(PlaybackBlocks.Average(b => Convert.ToDouble(b.Duration.Ticks))));
                 }
             }
         }
@@ -165,7 +165,7 @@
             {
                 using (Locker.AcquireReaderLock())
                 {
-                    return (double)Count / Capacity;
+                    return Convert.ToDouble(Count) / Capacity;
                 }
             }
         }
@@ -242,7 +242,7 @@
             using (Locker.AcquireReaderLock())
             {
                 return RangeDuration.Ticks != 0 ?
-                    ((double)position.Ticks - RangeStartTime.Ticks) / RangeDuration.Ticks : 0d;
+                    Convert.ToDouble(position.Ticks - RangeStartTime.Ticks) / RangeDuration.Ticks : 0d;
             }
         }
 

@@ -42,7 +42,7 @@
             if (frame->pkt_duration != 0)
                 Duration = frame->pkt_duration.ToTimeSpan(StreamTimeBase);
             else
-                Duration = TimeSpan.FromTicks((long)Math.Round(TimeSpan.TicksPerMillisecond * 1000d * frame->nb_samples / frame->sample_rate, 0));
+                Duration = TimeSpan.FromTicks(Convert.ToInt64(TimeSpan.TicksPerMillisecond * 1000d * frame->nb_samples / frame->sample_rate));
 
             EndTime = TimeSpan.FromTicks(StartTime.Ticks + Duration.Ticks);
         }

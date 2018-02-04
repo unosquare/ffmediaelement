@@ -407,8 +407,8 @@
 
             if (Parent.Container.MediaBitrate > MinimumValidBitrate)
             {
-                BufferCacheLength = (int)Parent.Container.MediaBitrate / 8;
-                GuessedByteRate = (ulong)BufferCacheLength;
+                BufferCacheLength = Convert.ToInt32(Convert.ToDouble(Parent.Container.MediaBitrate) / 8d);
+                GuessedByteRate = Convert.ToUInt64(BufferCacheLength);
             }
             else
             {

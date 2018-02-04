@@ -286,13 +286,13 @@
             // Copy the block data into the back buffer of the target bitmap.
             if (target.Stride == source.BufferStride)
             {
-                WindowsNativeMethods.Instance.CopyMemory(target.Scan0, source.Buffer, (uint)source.BufferLength);
+                WindowsNativeMethods.Instance.CopyMemory(target.Scan0, source.Buffer, Convert.ToUInt32(source.BufferLength));
             }
             else
             {
                 var format = MediaPixelFormats[Constants.Video.VideoPixelFormat];
                 var bytesPerPixel = format.BitsPerPixel / 8;
-                var copyLength = (uint)Math.Min(target.Stride, source.BufferStride);
+                var copyLength = Convert.ToUInt32(Math.Min(target.Stride, source.BufferStride));
                 Parallel.For(0, source.PixelHeight, (i) =>
                 {
                     var sourceOffset = source.Buffer + (i * source.BufferStride);
@@ -314,8 +314,8 @@
             // Process Aspect Ratio according to block.
             if (b.AspectWidth != b.AspectHeight)
             {
-                var scaleX = b.AspectWidth > b.AspectHeight ? (double)b.AspectWidth / b.AspectHeight : 1d;
-                var scaleY = b.AspectHeight > b.AspectWidth ? (double)b.AspectHeight / b.AspectWidth : 1d;
+                var scaleX = b.AspectWidth > b.AspectHeight ? Convert.ToDouble(b.AspectWidth) / Convert.ToDouble(b.AspectHeight) : 1d;
+                var scaleY = b.AspectHeight > b.AspectWidth ? Convert.ToDouble(b.AspectHeight) / Convert.ToDouble(b.AspectWidth) : 1d;
 
                 if (scaleTransform == null)
                 {
