@@ -444,9 +444,9 @@
         /// The serial picture number
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static int ComputePictureNumber(TimeSpan startTime, TimeSpan duration, int startNumber)
+        internal static long ComputePictureNumber(TimeSpan startTime, TimeSpan duration, long startNumber)
         {
-            return startNumber + Convert.ToInt32(Convert.ToDouble(startTime.Ticks) / duration.Ticks);
+            return startNumber + Convert.ToInt64(Convert.ToDouble(startTime.Ticks) / duration.Ticks);
         }
 
         /// <summary>
@@ -458,16 +458,29 @@
         /// <param name="frameNumber">The display picture number.</param>
         /// <returns>The FFmpeg computed SMTPE Timecode</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static unsafe string ComputeSmtpeTimeCode(TimeSpan streamStartTime, TimeSpan frameDuration, AVRational frameTimeBase, int frameNumber)
+        internal static unsafe string ComputeSmtpeTimeCode(TimeSpan streamStartTime, TimeSpan frameDuration, AVRational frameTimeBase, long frameNumber)
         {
+            // Drop the days in the stream start time
+            if (streamStartTime.Days > 0)
+                streamStartTime = streamStartTime.Subtract(TimeSpan.FromDays(streamStartTime.Days));
+
+            // Adjust to int value
+            if (frameNumber > int.MaxValue)
+                frameNumber = frameNumber % int.MaxValue;
+
             frameNumber--; // tun picture number into picture index.
             var timeCodeInfo = (AVTimecode*)ffmpeg.av_malloc((ulong)Marshal.SizeOf(typeof(AVTimecode)));
             var startFrameNumber = ComputePictureNumber(streamStartTime, frameDuration, 0);
-            ffmpeg.av_timecode_init(timeCodeInfo, frameTimeBase, 0, startFrameNumber, null);
+
+            // Adjust to int value
+            if (startFrameNumber > int.MaxValue)
+                startFrameNumber = startFrameNumber % int.MaxValue;
+
+            ffmpeg.av_timecode_init(timeCodeInfo, frameTimeBase, 0, Convert.ToInt32(startFrameNumber), null);
             var isNtsc = frameTimeBase.num == 30000 && frameTimeBase.den == 1001;
             var adjustedFrameNumber = isNtsc ?
-                ffmpeg.av_timecode_adjust_ntsc_framenum2(frameNumber, Convert.ToInt32(timeCodeInfo->fps)) :
-                frameNumber;
+                ffmpeg.av_timecode_adjust_ntsc_framenum2(Convert.ToInt32(frameNumber), Convert.ToInt32(timeCodeInfo->fps)) :
+                Convert.ToInt32(frameNumber);
 
             var timeCode = ffmpeg.av_timecode_get_smpte_from_framenum(timeCodeInfo, adjustedFrameNumber);
             var timeCodeBuffer = (byte*)ffmpeg.av_malloc(ffmpeg.AV_TIMECODE_STR_SIZE);

@@ -21,7 +21,15 @@
         /// <param name="startTime">The start time.</param>
         /// <param name="duration">The duration.</param>
         /// <param name="clock">The clock.</param>
-        internal RenderingVideoEventArgs(BitmapDataBuffer bitmap, StreamInfo stream, ClosedCaptionCollection closedCaptions, string smtpeTimecode, int pictureNumber, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
+        internal RenderingVideoEventArgs(
+            BitmapDataBuffer bitmap,
+            StreamInfo stream,
+            ClosedCaptionCollection closedCaptions,
+            string smtpeTimecode,
+            long pictureNumber,
+            TimeSpan startTime,
+            TimeSpan duration,
+            TimeSpan clock)
             : base(stream, startTime, duration, clock)
         {
             PictureNumber = pictureNumber;
@@ -46,7 +54,7 @@
         /// If not set by the decoder, this attempts to obtain it by dividing the start time by the
         /// frame duration
         /// </summary>
-        public int PictureNumber { get; }
+        public long PictureNumber { get; }
 
         /// <summary>
         /// Gets the SMTPE time code.

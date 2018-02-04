@@ -150,7 +150,7 @@
         /// Gets the video bitrate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int VideoBitrate => Parent.Container?.Components.Video?.Bitrate ?? 0;
+        public long VideoBitrate => Parent.Container?.Components.Video?.Bitrate ?? 0;
 
         /// <summary>
         /// Returns the natural width of the media in the video.
@@ -186,7 +186,7 @@
         /// Gets the audio bitrate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int AudioBitrate => Parent.Container?.Components.Audio?.Bitrate ?? 0;
+        public long AudioBitrate => Parent.Container?.Components.Audio?.Bitrate ?? 0;
 
         /// <summary>
         /// Gets the audio channels count.

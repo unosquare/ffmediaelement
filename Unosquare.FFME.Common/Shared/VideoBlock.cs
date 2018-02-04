@@ -81,12 +81,12 @@
         /// If not set by the decoder, this attempts to obtain it by dividing the start time by the
         /// frame duration
         /// </summary>
-        public int DisplayPictureNumber { get; internal set; }
+        public long DisplayPictureNumber { get; internal set; }
 
         /// <summary>
         /// Gets the coded picture number set by the decoder.
         /// </summary>
-        public int CodedPictureNumber { get; internal set; }
+        public long CodedPictureNumber { get; internal set; }
 
         /// <summary>
         /// Gets the closed caption packets for this video block.
