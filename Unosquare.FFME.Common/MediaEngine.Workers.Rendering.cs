@@ -3,6 +3,7 @@
     using Primitives;
     using Shared;
     using System;
+    using System.Linq;
     using System.Threading;
 
     public partial class MediaEngine
@@ -23,11 +24,8 @@
             // Holds the main media type
             var main = Container.Components.Main.MediaType;
 
-            // Holds the auxiliary media types
-            var auxs = Container.Components.MediaTypes.ExcludeMediaType(main);
-
             // Holds all components
-            var all = Container.Components.MediaTypes.DeepCopy();
+            var all = Renderers.Keys.ToArray();
 
             // Holds a snapshot of the current block to render
             var currentBlock = new MediaTypeDictionary<MediaBlock>();
@@ -106,7 +104,18 @@
 
                     // Capture the blocks to render
                     foreach (var t in all)
-                        currentBlock[t] = Blocks[t][wallClock];
+                    {
+                        if (t == MediaType.Subtitle && PreloadedSubtitles != null)
+                        {
+                            // Get the preloaded, cached subtitle block
+                            currentBlock[t] = PreloadedSubtitles[wallClock];
+                        }
+                        else
+                        {
+                            // Get the regular audio, video, or sub block
+                            currentBlock[t] = Blocks[t][wallClock];
+                        }
+                    }
 
                     // Render each of the Media Types if it is time to do so.
                     foreach (var t in all)
@@ -115,15 +124,8 @@
                         if (currentBlock[t] == null)
                             continue;
 
-                        // Render by forced signal (TimeSpan.MinValue)
-                        if (LastRenderTime[t] == TimeSpan.MinValue)
-                        {
-                            renderedBlockCount[t] += SendBlockToRenderer(currentBlock[t], wallClock);
-                            continue;
-                        }
-
-                        // Render because we simply have not rendered
-                        if (currentBlock[t].StartTime != LastRenderTime[t])
+                        // Render by forced signal (TimeSpan.MinValue) or because simply it is time to do so
+                        if (LastRenderTime[t] == TimeSpan.MinValue || currentBlock[t].StartTime != LastRenderTime[t])
                         {
                             renderedBlockCount[t] += SendBlockToRenderer(currentBlock[t], wallClock);
                             continue;

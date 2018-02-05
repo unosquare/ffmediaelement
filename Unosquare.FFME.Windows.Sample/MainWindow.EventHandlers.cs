@@ -3,6 +3,7 @@
     using Events;
     using FFmpeg.AutoGen;
     using Shared;
+    using System;
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Linq;
@@ -165,6 +166,20 @@
         /// <param name="e">The <see cref="MediaOpeningRoutedEventArgs"/> instance containing the event data.</param>
         private void Media_MediaOpening(object sender, MediaOpeningRoutedEventArgs e)
         {
+            // Example of automatically side-loading SRT subs
+            try
+            {
+                var inputUrl = e.Info.InputUrl;
+                var url = new Uri(inputUrl);
+                if (url.IsFile || url.IsUnc)
+                {
+                    inputUrl = System.IO.Path.ChangeExtension(url.LocalPath, "srt");
+                    if (System.IO.File.Exists(inputUrl))
+                        e.Options.SubtitlesUrl = inputUrl;
+                }
+            }
+            catch { }
+
             // An example of switching to a different stream
             var subtitleStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_SUBTITLE).Select(kvp => kvp.Value);
             var englishSubtitleStream = subtitleStreams.FirstOrDefault(s => s.Language.StartsWith("en"));

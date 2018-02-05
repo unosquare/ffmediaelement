@@ -87,5 +87,12 @@
         /// Can be changed to a different stream reference.
         /// </summary>
         public StreamInfo SubtitleStream { get; set; } = null;
+
+        /// <summary>
+        /// Gets or sets the subtitles URL.
+        /// If set, the subtitles will be side-loaded and the loaded media
+        /// subtitles (if any) will be ignored.
+        /// </summary>
+        public string SubtitlesUrl { get; set; } = null;
     }
 }

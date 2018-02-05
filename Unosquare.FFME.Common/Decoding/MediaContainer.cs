@@ -780,9 +780,9 @@
                 Parent?.Log(MediaLogMessageType.Error, $"Unable to initialize {MediaType.Subtitle} component. {ex.Message}");
             }
 
-            // Verify we have at least 1 valid stream component to work with.
-            if (Components.HasVideo == false && Components.HasAudio == false)
-                throw new MediaContainerException($"{MediaUrl}: No audio or video streams found to decode.");
+            // Verify we have at least 1 stream component to work with.
+            if (Components.HasVideo == false && Components.HasAudio == false && Components.HasSubtitles == false)
+                throw new MediaContainerException($"{MediaUrl}: No audio, video, or subtitle streams found to decode.");
         }
 
         /// <summary>

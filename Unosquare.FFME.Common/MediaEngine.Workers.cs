@@ -29,12 +29,18 @@
 
         private AtomicBoolean m_IsTaskCancellationPending = new AtomicBoolean(false);
         private AtomicBoolean m_HasDecoderSeeked = new AtomicBoolean(false);
+        private MediaBlockBuffer m_PreloadedSubtitles = null;
         private IWaitEvent BlockRenderingWorkerExit = null;
 
         /// <summary>
         /// Holds the materialized block cache for each media type.
         /// </summary>
         public MediaTypeDictionary<MediaBlockBuffer> Blocks { get; } = new MediaTypeDictionary<MediaBlockBuffer>();
+
+        /// <summary>
+        /// Gets the preloaded subtitle blocks.
+        /// </summary>
+        public MediaBlockBuffer PreloadedSubtitles => m_PreloadedSubtitles;
 
         /// <summary>
         /// Gets the packet reading cycle control evenet.
@@ -134,6 +140,13 @@
                 Renderers[t] = Platform.CreateRenderer(t, this);
             }
 
+            // Create the renderer for the preloaded subs
+            if (PreloadedSubtitles != null)
+            {
+                LastRenderTime[PreloadedSubtitles.MediaType] = TimeSpan.MinValue;
+                Renderers[PreloadedSubtitles.MediaType] = Platform.CreateRenderer(PreloadedSubtitles.MediaType, this);
+            }
+
             Clock.SpeedRatio = Constants.Controller.DefaultSpeedRatio;
             IsTaskCancellationPending = false;
 
@@ -199,6 +212,29 @@
         }
 
         /// <summary>
+        /// Preloads the subtitles from the MediaOptions.SubtitlesUrl.
+        /// </summary>
+        internal void PreloadSubtitles()
+        {
+            DisposePreloadedSubtitles();
+            var subtitlesUrl = Container.MediaOptions.SubtitlesUrl;
+            if (string.IsNullOrWhiteSpace(subtitlesUrl) == false)
+            {
+                try
+                {
+                    m_PreloadedSubtitles = LoadBlocks(subtitlesUrl, MediaType.Subtitle, this);
+                    Container.MediaOptions.IsSubtitleDisabled = true;
+                }
+                catch (MediaContainerException mex)
+                {
+                    DisposePreloadedSubtitles();
+                    Log(MediaLogMessageType.Warning,
+                        $"No subtitles to side-load found in media '{subtitlesUrl}'. {mex.Message}");
+                }
+            }
+        }
+
+        /// <summary>
         /// Returns the value of a discrete video position if possible
         /// </summary>
         /// <param name="position">The position.</param>
@@ -259,7 +295,8 @@
             Renderers[block.MediaType]?.Render(block, clockPosition);
 
             // Extension method for logging
-            this.LogRenderBlock(block, clockPosition, Blocks[block.MediaType].IndexOf(clockPosition));
+            var blockIndex = Blocks.ContainsKey(block.MediaType) ? Blocks[block.MediaType].IndexOf(clockPosition) : 0;
+            this.LogRenderBlock(block, clockPosition, blockIndex);
             LastRenderTime[block.MediaType] = block.StartTime;
             return 1;
         }

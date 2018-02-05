@@ -43,6 +43,7 @@
             // Dispose the Blocks for all components
             foreach (var kvp in m.Blocks) kvp.Value.Dispose();
             m.Blocks.Clear();
+            m.DisposePreloadedSubtitles();
 
             // Clear the render times
             m.LastRenderTime.Clear();

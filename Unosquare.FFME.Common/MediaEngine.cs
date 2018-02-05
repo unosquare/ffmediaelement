@@ -117,6 +117,15 @@
         #region IDisposable Implementation
 
         /// <summary>
+        /// Disposes the preloaded subtitles.
+        /// </summary>
+        internal void DisposePreloadedSubtitles()
+        {
+            m_PreloadedSubtitles?.Dispose();
+            m_PreloadedSubtitles = null;
+        }
+
+        /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// Please not that this call is non-blocking/asynchronous.
         /// </summary>

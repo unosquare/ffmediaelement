@@ -1,7 +1,10 @@
 ﻿namespace Unosquare.FFME
 {
     using Core;
+    using Decoding;
+    using Primitives;
     using Shared;
+    using System.Collections.Generic;
 
     public partial class MediaEngine
     {
@@ -79,6 +82,54 @@
 
                 Platform = platform;
                 IsIntialized = true;
+            }
+        }
+
+        /// <summary>
+        /// Reads all the blocks of the specified media type from the source url.
+        /// </summary>
+        /// <param name="sourceUrl">The subtitles URL.</param>
+        /// <param name="sourceType">Type of the source.</param>
+        /// <param name="parent">The parent.</param>
+        /// <returns>A buffer containing all the blocks</returns>
+        internal static MediaBlockBuffer LoadBlocks(string sourceUrl, MediaType sourceType, IMediaLogger parent)
+        {
+            using (var tempContainer = new MediaContainer(sourceUrl, null, parent))
+            {
+                // Skip reading and decoding unused blocks
+                tempContainer.MediaOptions.IsAudioDisabled = sourceType != MediaType.Audio;
+                tempContainer.MediaOptions.IsVideoDisabled = sourceType != MediaType.Video;
+                tempContainer.MediaOptions.IsSubtitleDisabled = sourceType != MediaType.Subtitle;
+
+                // Open the container
+                tempContainer.Open();
+                if (tempContainer.Components.Main == null || tempContainer.Components.Main.MediaType != sourceType)
+                    throw new MediaContainerException($"Could not find a stream of type '{sourceType}' to load blocks from");
+
+                // read all the packets and decode them
+                var outputFrames = new List<MediaFrame>(1024 * 8);
+                while (tempContainer.IsAtEndOfStream == false)
+                {
+                    tempContainer.Read();
+                    var frames = tempContainer.Decode();
+                    foreach (var frame in frames)
+                    {
+                        if (frame.MediaType != sourceType)
+                            continue;
+
+                        outputFrames.Add(frame);
+                    }
+                }
+
+                // Build the result
+                var result = new MediaBlockBuffer(outputFrames.Count, sourceType);
+                foreach (var frame in outputFrames)
+                {
+                    result.Add(frame, tempContainer);
+                }
+
+                tempContainer.Close();
+                return result;
             }
         }
     }

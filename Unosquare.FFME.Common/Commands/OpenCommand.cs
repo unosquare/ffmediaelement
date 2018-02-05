@@ -59,18 +59,24 @@
                         $"{nameof(FFInterop)}.{nameof(FFInterop.Initialize)}: FFmpeg v{ffmpeg.av_version_info()}");
                 }
 
-                // Convert the URI object to something the Media Container understands
-                var mediaUrl = Source.IsFile ? Source.LocalPath : Source.ToString();
-
                 // Create the stream container
                 // the async protocol prefix allows for increased performance for local files.
                 var streamOptions = new StreamOptions();
 
-                // Set the default protocol Prefix
-                try { streamOptions.ProtocolPrefix = Source.IsFile ? "async" : null; }
+                // Convert the URI object to something the Media Container understands
+                var mediaUrl = Source.ToString();
+                try
+                {
+                    if (Source.IsFile || Source.IsUnc)
+                    {
+                        // Set the default protocol Prefix
+                        mediaUrl = Source.LocalPath;
+                        streamOptions.ProtocolPrefix = "async";
+                    }
+                }
                 catch { }
 
-                // GDIGRAB: Example URI: format://gdigrab?desktop
+                // GDIGRAB: Example URI: device://gdigrab?desktop
                 if (string.IsNullOrWhiteSpace(Source.Scheme) == false
                     && (Source.Scheme.Equals("format") || Source.Scheme.Equals("device"))
                     && string.IsNullOrWhiteSpace(Source.Host) == false
@@ -91,18 +97,27 @@
                 // Instantiate the internal container
                 m.Container = new MediaContainer(mediaUrl, streamOptions, m);
 
+                // Reset buffering properties
+                m.State.InitializeBufferingProperties();
+
                 // Notify the user media is opening and allow for media options to be modified
                 // Stuff like audio and video filters and stream selection can be performed here.
                 m.SendOnMediaOpening();
 
                 // Notify Media will start opening
                 m.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Entered");
+
+                // Side-load subtitles if requested
+                m.PreloadSubtitles();
+
+                // Get the main container open
                 m.Container.Open();
 
-                // Reset buffering properties
-                m.State.InitializeBufferingProperties();
+                // Check if we have at least audio or video here
+                if (m.Container.Components.HasAudio == false && m.Container.Components.HasVideo == false)
+                    throw new MediaContainerException($"Unable to initialize at least one audio or video component fron the input stream.");
 
-                // Charge! Fire up the worker threads!
+                // Charge! We are good to go, fire up the worker threads!
                 m.StartWorkers();
 
                 // Set the state to stopped and exit the IsOpening state
@@ -114,6 +129,9 @@
             }
             catch (Exception ex)
             {
+                try { m.Container.Dispose(); } catch { }
+                m.DisposePreloadedSubtitles();
+                m.Container = null;
                 m.State.UpdateMediaState(PlaybackStatus.Close);
                 m.SendOnMediaFailed(ex);
             }

@@ -57,6 +57,12 @@
         public bool HasVideo => MediaCore?.State.HasVideo ?? false;
 
         /// <summary>
+        /// Returns whether the given media has subtitles. Only valid after the
+        /// MediaOpened event has fired.
+        /// </summary>
+        public bool HasSubtitles => MediaCore?.State.HasSubtitles ?? false;
+
+        /// <summary>
         /// Gets the video codec.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>

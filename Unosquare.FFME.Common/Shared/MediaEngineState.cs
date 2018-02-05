@@ -141,6 +141,14 @@
         public bool HasVideo => Parent.Container?.Components.HasVideo ?? false;
 
         /// <summary>
+        /// Returns whether the given media has subtitles (in stream or preloaded). Only valid after the
+        /// MediaOpened event has fired.
+        /// </summary>
+        public bool HasSubtitles =>
+            (Parent.PreloadedSubtitles != null && Parent.PreloadedSubtitles.Count > 0) ||
+            (Parent.Container?.Components.HasVideo ?? false);
+
+        /// <summary>
         /// Gets the video codec.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
