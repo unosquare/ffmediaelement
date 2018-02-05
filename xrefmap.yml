@@ -931,6 +931,18 @@ references:
   commentId: Overload:Unosquare.FFME.MediaElement.HasMediaEnded
   fullName: Unosquare.FFME.MediaElement.HasMediaEnded
   nameWithType: MediaElement.HasMediaEnded
+- uid: Unosquare.FFME.MediaElement.HasSubtitles
+  name: HasSubtitles
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_HasSubtitles
+  commentId: P:Unosquare.FFME.MediaElement.HasSubtitles
+  fullName: Unosquare.FFME.MediaElement.HasSubtitles
+  nameWithType: MediaElement.HasSubtitles
+- uid: Unosquare.FFME.MediaElement.HasSubtitles*
+  name: HasSubtitles
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_HasSubtitles_
+  commentId: Overload:Unosquare.FFME.MediaElement.HasSubtitles
+  fullName: Unosquare.FFME.MediaElement.HasSubtitles
+  nameWithType: MediaElement.HasSubtitles
 - uid: Unosquare.FFME.MediaElement.HasVideo
   name: HasVideo
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_HasVideo
