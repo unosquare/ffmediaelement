@@ -276,10 +276,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void RaiseFFmpegMessageLogged(object sender, MediaLogMessage e)
         {
-            GuiContext.Current.EnqueueInvoke(() =>
-            {
-                FFmpegMessageLogged?.Invoke(sender, new MediaLogMessageEventArgs(e));
-            });
+            FFmpegMessageLogged?.Invoke(sender, new MediaLogMessageEventArgs(e));
         }
 
         /// <summary>
@@ -289,10 +286,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseMessageLoggedEvent(MediaLogMessage e)
         {
-            GuiContext.Current.EnqueueInvoke(() =>
-            {
-                MessageLogged?.Invoke(this, new MediaLogMessageEventArgs(e));
-            });
+            MessageLogged?.Invoke(this, new MediaLogMessageEventArgs(e));
         }
 
         /// <summary>

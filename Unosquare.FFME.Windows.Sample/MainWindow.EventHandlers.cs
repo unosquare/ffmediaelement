@@ -3,12 +3,14 @@
     using Events;
     using FFmpeg.AutoGen;
     using Shared;
+    using System;
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Linq;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Media;
+    using System.Windows.Threading;
 
     public partial class MainWindow
     {
@@ -72,7 +74,7 @@
             if (e.MessageType == MediaLogMessageType.Trace)
                 return;
 
-            Debug.WriteLine($"{e.MessageType, 10} - {e.Message}");
+            Debug.WriteLine($"{e.MessageType,10} - {e.Message}");
         }
 
         /// <summary>
@@ -88,7 +90,7 @@
                 return;
             }
 
-            Debug.WriteLine($"{e.MessageType, 10} - {e.Message}");
+            Debug.WriteLine($"{e.MessageType,10} - {e.Message}");
         }
 
         /// <summary>
@@ -166,10 +168,10 @@
         private void Media_MediaOpening(object sender, MediaOpeningRoutedEventArgs e)
         {
             // An example of switching to a different stream
-                var subtitleStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_SUBTITLE).Select(kvp => kvp.Value);
-                var englishSubtitleStream = subtitleStreams.FirstOrDefault(s => s.Language.StartsWith("en"));
-                if (englishSubtitleStream != null)
-                    e.Options.SubtitleStream = englishSubtitleStream;
+            var subtitleStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_SUBTITLE).Select(kvp => kvp.Value);
+            var englishSubtitleStream = subtitleStreams.FirstOrDefault(s => s.Language.StartsWith("en"));
+            if (englishSubtitleStream != null)
+                e.Options.SubtitleStream = englishSubtitleStream;
 
             // The yadif filter deinterlaces the video; we check the field order if we need
             // to deinterlace the video automatically

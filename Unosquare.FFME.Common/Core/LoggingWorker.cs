@@ -49,12 +49,16 @@
                 IsOutputingLog = true;
                 try
                 {
-                    while (LogQueue.TryDequeue(out MediaLogMessage eventArgs))
+                    const int MaxMessagesPerCycle = 10;
+                    var messageCount = 0;
+                    while (messageCount <= MaxMessagesPerCycle && LogQueue.TryDequeue(out MediaLogMessage message))
                     {
-                        if (eventArgs.Source != null)
-                            eventArgs.Source.SendOnMessageLogged(eventArgs);
+                        if (message.Source != null)
+                            message.Source.SendOnMessageLogged(message);
                         else
-                            MediaEngine.Platform?.HandleFFmpegLogMessage(eventArgs);
+                            MediaEngine.Platform?.HandleFFmpegLogMessage(message);
+
+                        messageCount += 1;
                     }
                 }
                 catch

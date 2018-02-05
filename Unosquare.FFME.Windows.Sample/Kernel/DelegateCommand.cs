@@ -27,7 +27,7 @@
         /// </summary>
         /// <param name="execute">The execute.</param>
         /// <param name="canExecute">The can execute.</param>
-        /// <exception cref="System.ArgumentNullException">execute</exception>
+        /// <exception cref="ArgumentNullException">execute</exception>
         public DelegateCommand(Action<object> execute, Func<object, bool> canExecute = null)
         {
             m_Execute = execute ?? throw new ArgumentNullException(nameof(execute));
