@@ -55,6 +55,18 @@ references:
   commentId: Overload:Unosquare.FFME.Events.BitmapDataBuffer.BytesPerPixel
   fullName: Unosquare.FFME.Events.BitmapDataBuffer.BytesPerPixel
   nameWithType: BitmapDataBuffer.BytesPerPixel
+- uid: Unosquare.FFME.Events.BitmapDataBuffer.CreateDrawingBitmap
+  name: CreateDrawingBitmap()
+  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_CreateDrawingBitmap
+  commentId: M:Unosquare.FFME.Events.BitmapDataBuffer.CreateDrawingBitmap
+  fullName: Unosquare.FFME.Events.BitmapDataBuffer.CreateDrawingBitmap()
+  nameWithType: BitmapDataBuffer.CreateDrawingBitmap()
+- uid: Unosquare.FFME.Events.BitmapDataBuffer.CreateDrawingBitmap*
+  name: CreateDrawingBitmap
+  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_CreateDrawingBitmap_
+  commentId: Overload:Unosquare.FFME.Events.BitmapDataBuffer.CreateDrawingBitmap
+  fullName: Unosquare.FFME.Events.BitmapDataBuffer.CreateDrawingBitmap
+  nameWithType: BitmapDataBuffer.CreateDrawingBitmap
 - uid: Unosquare.FFME.Events.BitmapDataBuffer.DpiX
   name: DpiX
   href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_DpiX
