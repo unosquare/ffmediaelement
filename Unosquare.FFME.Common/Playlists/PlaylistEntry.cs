@@ -56,7 +56,7 @@
         /// <summary>
         /// Gets the extended attributes.
         /// </summary>
-        public PlaylistEntryAttributeSet Attributes { get; } = new PlaylistEntryAttributeSet();
+        public PlaylistAttributeSet Attributes { get; } = new PlaylistAttributeSet();
 
         /// <summary>
         /// Checks if a property already matches a desired value.  Sets the property and

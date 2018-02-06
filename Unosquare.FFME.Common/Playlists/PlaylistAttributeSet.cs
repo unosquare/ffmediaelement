@@ -5,12 +5,13 @@
     using System.Collections.Specialized;
     using System.ComponentModel;
     using System.Diagnostics;
+    using System.Linq;
 
     /// <summary>
     /// Represents an observable dictionary of key-value pairs
     /// </summary>
     [DebuggerDisplay("Count={Count}")]
-    public class PlaylistEntryAttributeSet :
+    public class PlaylistAttributeSet :
         ICollection<KeyValuePair<string, string>>, IDictionary<string, string>,
         INotifyCollectionChanged, INotifyPropertyChanged
     {
@@ -19,18 +20,18 @@
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PlaylistEntryAttributeSet"/> class.
+        /// Initializes a new instance of the <see cref="PlaylistAttributeSet"/> class.
         /// </summary>
-        public PlaylistEntryAttributeSet()
+        public PlaylistAttributeSet()
             : this(new Dictionary<string, string>())
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PlaylistEntryAttributeSet"/> class.
+        /// Initializes a new instance of the <see cref="PlaylistAttributeSet"/> class.
         /// </summary>
         /// <param name="dictionary">The dictionary.</param>
-        public PlaylistEntryAttributeSet(IDictionary<string, string> dictionary)
+        public PlaylistAttributeSet(IDictionary<string, string> dictionary)
         {
             this.dictionary = dictionary;
         }
@@ -216,6 +217,17 @@
             return dictionary.GetEnumerator();
         }
 
+        /// <summary>
+        /// Returns a <see cref="string" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="string" /> that represents this instance.
+        /// </returns>
+        public override string ToString()
+        {
+            return string.Join(" ", dictionary.Select(kvp => EntryToString(kvp)).ToArray());
+        }
+
         #endregion
 
         #region Protected Methods
@@ -232,6 +244,11 @@
         #endregion
 
         #region Private Methods
+
+        private static string EntryToString(KeyValuePair<string, string> kvp)
+        {
+            return $"{kvp.Key?.Trim().Replace(" ", "-")}=\"{kvp.Value?.Trim().Replace("\"", "\"\"")}\"";
+        }
 
         private void AddWithNotification(KeyValuePair<string, string> item)
         {

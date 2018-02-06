@@ -73,11 +73,38 @@
         /// </summary>
         public void Save()
         {
+            // TestPlaylists();
             var serializer = new XmlSerializer(typeof(ConfigRoot));
-            using (var readStream = File.Open(SavePath, FileMode.Create, FileAccess.Write))
+            using (var writeStream = File.Open(SavePath, FileMode.Create, FileAccess.Write))
             {
-                serializer.Serialize(readStream, this);
+                serializer.Serialize(writeStream, this);
             }
+        }
+
+        private void TestPlaylists()
+        {
+            var pl = new Playlists.Playlist("FFME History");
+            pl.Attributes.Add("x-compat", "ffme200");
+            pl.Attributes.Add("x-ffmpgdir", FFmpegPath);
+            pl.Attributes.Add("x-projecturl", "https://github.com/unosquare/ffmediaelement");
+
+            foreach (var entry in HistoryEntries)
+            {
+                var entryUri = new Uri(entry);
+                pl.Add(Path.GetFileNameWithoutExtension(
+                    entryUri.AbsolutePath),
+                    TimeSpan.FromSeconds(-1),
+                    entry,
+                    new Dictionary<string, string>() { { "x-isfile", $"{entryUri.IsFile}" } });
+            }
+
+            var outputFile = Path.ChangeExtension(SavePath, "m3u8");
+            using (var writeStream = File.Open(outputFile, FileMode.Create, FileAccess.Write))
+            {
+                pl.Save(writeStream);
+            }
+
+            var newPl = Playlists.Playlist.Load(outputFile, System.Text.Encoding.UTF8);
         }
     }
 }

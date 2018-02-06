@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME.Playlists
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.IO;
@@ -13,8 +14,8 @@
     /// <seealso cref="ObservableCollection{PlaylistEntry}" />
     public class Playlist : ObservableCollection<PlaylistEntry>
     {
-        private const string HeaderPrefix = "#EXTM3U";
-        private const string EntryPrefix = "#EXTINF";
+        internal const string HeaderPrefix = "#EXTM3U";
+        internal const string EntryPrefix = "#EXTINF";
 
         private string m_Name = null;
 
@@ -24,6 +25,16 @@
         public Playlist()
         {
             // placeholder
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Playlist"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        public Playlist(string name)
+            : this()
+        {
+            Name = name;
         }
 
         /// <summary>
@@ -45,7 +56,7 @@
         /// <summary>
         /// Gets the extended attributes key-value pairs.
         /// </summary>
-        public PlaylistEntryAttributeSet Attributes { get; } = new PlaylistEntryAttributeSet();
+        public PlaylistAttributeSet Attributes { get; } = new PlaylistAttributeSet();
 
         /// <summary>
         /// Loads the playlist from the specified text.
@@ -95,17 +106,48 @@
         /// <returns>The loaded playlist.</returns>
         public static Playlist Load(Stream stream, Encoding encoding)
         {
-            throw new NotImplementedException();
+            var result = new Playlist();
+            var currentEntry = default(PlaylistEntry);
+            using (var reader = new StreamReader(stream, encoding))
+            {
+                while (reader.EndOfStream == false)
+                {
+                    var line = reader.ReadLine();
 
-            // using (var reader = new StreamReader(stream, encoding))
-            // {
-            //    while (reader.EndOfStream == false)
-            //    {
-            //        var line = reader.ReadLine();
-            //        if (string.IsNullOrWhiteSpace(line))
-            //            continue;
-            //    }
-            // }
+                    // skip blank lines
+                    if (string.IsNullOrWhiteSpace(line))
+                        continue;
+
+                    if (line.ToUpperInvariant().StartsWith($"{HeaderPrefix} "))
+                    {
+                        result.ParseHeaderLine(line);
+                    }
+                    else if (line.ToUpperInvariant().StartsWith($"{EntryPrefix}:"))
+                    {
+                        currentEntry = new PlaylistEntry();
+                        currentEntry.BeginExtendedInfoLine(line);
+                    }
+                    else if (line.StartsWith("#"))
+                    {
+                        // Nothing
+                    }
+                    else
+                    {
+                        if (currentEntry != null)
+                        {
+                            currentEntry.MediaUrl = line.Trim();
+                            result.Add(currentEntry);
+                            currentEntry = null;
+                        }
+                        else
+                        {
+                            result.Add(string.Empty, TimeSpan.Zero, line.Trim(), null);
+                        }
+                    }
+                }
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -115,11 +157,54 @@
         /// <param name="encoding">The encoding.</param>
         public void Save(Stream stream, Encoding encoding)
         {
-            throw new NotImplementedException();
+            using (var writer = new StreamWriter(stream, encoding))
+            {
+                writer.WriteLine($"{HeaderPrefix} {Name} {Attributes}".Trim());
+                writer.WriteLine();
 
-            // using (var writer = new StreamWriter(stream, encoding))
-            // {
-            // }
+                foreach (var entry in this)
+                {
+                    writer.WriteLine();
+                    writer.WriteLine($"{EntryPrefix}:{Convert.ToInt64(entry.Duration.TotalSeconds)} {entry.Attributes}, {entry.Title}".Trim());
+                    writer.WriteLine(entry.MediaUrl?.Trim());
+                }
+            }
+        }
+
+        /// <summary>
+        /// Saves the playlist to the specified stream with UTF8 encoding.
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        public void Save(Stream stream)
+        {
+            Save(stream, Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// Adds an entry to the playlist.
+        /// </summary>
+        /// <param name="title">The title.</param>
+        /// <param name="duration">The duration.</param>
+        /// <param name="url">The URL.</param>
+        /// <param name="attributes">The attributes.</param>
+        public void Add(string title, TimeSpan duration, string url, Dictionary<string, string> attributes = null)
+        {
+            var entry = new PlaylistEntry
+            {
+                Duration = duration,
+                MediaUrl = url,
+                Title = title
+            };
+
+            if (attributes != null)
+            {
+                foreach (var kvp in attributes)
+                {
+                    entry.Attributes[kvp.Key] = kvp.Value;
+                }
+            }
+
+            Add(entry);
         }
     }
 }
