@@ -10,6 +10,7 @@
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Media;
+    using Unosquare.FFME.Windows.Sample.Kernel;
 
     public partial class MainWindow
     {
@@ -43,6 +44,8 @@
             }
 
             Loaded -= MainWindow_Loaded;
+
+            PlaylistManager.LoadEntries();
         }
 
         /// <summary>
@@ -60,6 +63,21 @@
 
                 PropertyUpdaters[propertyName]?.Invoke();
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        /// <summary>
+        /// Handles the HandleThumbnail event of the Media_RenderingVideo control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="RenderingVideoEventArgs"/> instance containing the event data.</param>
+        private void Media_RenderingVideo_HandleThumbnail(object sender, RenderingVideoEventArgs e)
+        {
+            if (e.StartTime >= TimeSpan.FromSeconds(3))
+            {
+                Media.RenderingVideo -= Media_RenderingVideo_HandleThumbnail;
+                PlaylistManager.AddOrUpdateEntryThumbnail(Media.Source.ToString(), e.Bitmap);
+                PlaylistManager.SaveEntries();
             }
         }
 
@@ -138,7 +156,7 @@
         /// Handles the MediaInitializing event of the Media control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="MediaOpeningRoutedEventArgs"/> instance containing the event data.</param>
+        /// <param name="e">The <see cref="MediaInitializingRoutedEventArgs"/> instance containing the event data.</param>
         private void Media_MediaInitializing(object sender, MediaInitializingRoutedEventArgs e)
         {
             // An example of injecting input options for http/https streams
@@ -201,6 +219,12 @@
             // Experimetal HW acceleration support. Remove if not needed.
             e.Options.EnableHardwareAcceleration = false;
 
+            PlaylistManager.AddOrUpdateEntry(Media.Source?.ToString() ?? e.Info.InputUrl, e.Info);
+            PlaylistManager.SaveEntries();
+
+            // For thumbnail generation
+            Media.RenderingVideo -= Media_RenderingVideo_HandleThumbnail;
+            Media.RenderingVideo += Media_RenderingVideo_HandleThumbnail;
 #if APPLY_AUDIO_FILTER
 
             // e.Options.AudioFilter = "aecho=0.8:0.9:1000:0.3";

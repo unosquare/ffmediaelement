@@ -77,12 +77,7 @@
                     if (overlayGraphics != null) overlayGraphics.Dispose();
                     if (overlayBitmap != null) overlayBitmap.Dispose();
 
-                    overlayBitmap = new System.Drawing.Bitmap(
-                        e.Bitmap.PixelWidth,
-                        e.Bitmap.PixelHeight,
-                        e.Bitmap.Stride,
-                        System.Drawing.Imaging.PixelFormat.Format32bppRgb,
-                        e.Bitmap.Scan0);
+                    overlayBitmap = e.Bitmap.CreateDrawingBitmap();
 
                     overlayBackBuffer = e.Bitmap.Scan0;
                     overlayGraphics = System.Drawing.Graphics.FromImage(overlayBitmap);

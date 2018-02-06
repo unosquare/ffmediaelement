@@ -84,6 +84,7 @@
     <Compile Include="Kernel\ConfigRoot.cs" />
     <Compile Include="Kernel\DelegateCommand.cs" />
     <Compile Include="Kernel\ConsoleManager.cs" />
+    <Compile Include="Kernel\PlaylistManager.cs" />
     <Compile Include="Kernel\ValueConverters.cs" />
     <Compile Include="Kernel\WindowStatus.cs" />
     <Page Include="Icons.xaml">

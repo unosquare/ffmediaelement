@@ -116,6 +116,22 @@
 
         #endregion
 
+        /// <summary>
+        /// Creates a Drawing Bitmap from this data buffer.
+        /// </summary>
+        /// <returns>The bitmap</returns>
+        public System.Drawing.Bitmap CreateDrawingBitmap()
+        {
+            var result = new System.Drawing.Bitmap(
+                PixelWidth,
+                PixelHeight,
+                Stride,
+                System.Drawing.Imaging.PixelFormat.Format32bppRgb,
+                Scan0);
+
+            return result;
+        }
+
         #region Factory Methods
 
         /// <summary>
