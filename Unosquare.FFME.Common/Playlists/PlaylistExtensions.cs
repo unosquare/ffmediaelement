@@ -6,7 +6,7 @@
     /// <summary>
     /// Heklper methods for parsing m3u8 playlists
     /// </summary>
-    internal static class ParseExtensions
+    internal static class PlaylistExtensions
     {
         /// <summary>
         /// Gets all index positions of the given substring
@@ -33,11 +33,13 @@
         /// <summary>
         /// Parses the header line.
         /// </summary>
+        /// <typeparam name="T">The type of playlist items</typeparam>
         /// <param name="target">The target.</param>
         /// <param name="line">The line.</param>
-        public static void ParseHeaderLine(this Playlist target, string line)
+        public static void ParseHeaderLine<T>(this Playlist<T> target, string line)
+            where T : PlaylistEntry, new()
         {
-            var headerData = line.Substring($"{Playlist.HeaderPrefix} ".Length).Trim();
+            var headerData = line.Substring($"{Playlist<T>.HeaderPrefix} ".Length).Trim();
             var attributes = headerData.ParseAttributes();
 
             foreach (var attribute in attributes)

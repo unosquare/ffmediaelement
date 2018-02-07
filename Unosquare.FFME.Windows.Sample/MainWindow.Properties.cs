@@ -1,13 +1,21 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
-    using Kernel;
-    using Playlists;
     using System.Windows;
     using System.Windows.Media;
+    using Kernel;
 
     public partial class MainWindow
     {
         #region Properties: Notification
+
+        /// <summary>
+        /// Gets or sets the playlist search string.
+        /// </summary>
+        public string PlaylistSearchString
+        {
+            get => PlaylistManager.SearchString;
+            set => PlaylistManager.SearchString = value;
+        }
 
         /// <summary>
         /// Gets or sets the window title.
@@ -16,11 +24,6 @@
         /// The window title.
         /// </value>
         public string WindowTitle { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Gets the player's playlist.
-        /// </summary>
-        public Playlist Playlist => PlaylistManager.Entries;
 
         /// <summary>
         /// Gets or sets the is media open visibility.

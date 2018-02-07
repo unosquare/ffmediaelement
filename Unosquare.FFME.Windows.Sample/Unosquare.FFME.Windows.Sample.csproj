@@ -82,6 +82,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Kernel\ConfigRoot.cs" />
+    <Compile Include="Kernel\CustomPlaylist.cs" />
+    <Compile Include="Kernel\CustomPlaylistEntry.cs" />
     <Compile Include="Kernel\DelegateCommand.cs" />
     <Compile Include="Kernel\ConsoleManager.cs" />
     <Compile Include="Kernel\PlaylistManager.cs" />

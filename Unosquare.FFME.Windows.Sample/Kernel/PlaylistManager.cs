@@ -1,13 +1,14 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.Kernel
 {
-    using Playlists;
     using Shared;
     using System;
+    using System.ComponentModel;
     using System.Drawing;
     using System.Drawing.Drawing2D;
     using System.Drawing.Imaging;
     using System.IO;
     using System.Text;
+    using System.Windows.Data;
     using Unosquare.FFME.Events;
 
     /// <summary>
@@ -16,6 +17,7 @@
     public static class PlaylistManager
     {
         private static readonly object SyncRoot = new object();
+        private static string m_SearchString = string.Empty;
 
         /// <summary>
         /// Initializes static members of the <see cref="PlaylistManager"/> class.
@@ -41,11 +43,11 @@
             // Create a default playlist.
             if (File.Exists(PlaylistFilePath))
             {
-                Entries = Playlist.Open(PlaylistFilePath);
+                Entries = CustomPlaylist.Open(PlaylistFilePath);
             }
             else
             {
-                Entries = new Playlist(ProductName);
+                Entries = new CustomPlaylist() { Name = ProductName };
                 Entries.Attributes["x-projecturl"] = "https://github.com/unosquare/ffmediaelement";
                 Entries.Attributes["u-ffmpeg-path"] = DefaultFFmpegPath;
                 SaveEntries();
@@ -53,6 +55,21 @@
 
             // Update the version
             Entries.Attributes["x-version"] = Version;
+
+            EntriesView = CollectionViewSource.GetDefaultView(Entries) as ICollectionView;
+            EntriesView.Filter = (item) =>
+            {
+                var entry = item as CustomPlaylistEntry;
+                if (entry == null) return false;
+                if (string.IsNullOrWhiteSpace(SearchString))
+                    return true;
+
+                if ((entry.Title?.ToLowerInvariant().Contains(SearchString) ?? false) ||
+                    (entry.MediaUrl?.ToLowerInvariant().Contains(SearchString) ?? false))
+                    return true;
+
+                return false;
+            };
         }
 
         #region Public Use Properties
@@ -60,7 +77,28 @@
         /// <summary>
         /// Contains a list of playlist entries
         /// </summary>
-        public static Playlist Entries { get; }
+        public static CustomPlaylist Entries { get; }
+
+        /// <summary>
+        /// Gets the entries view.
+        /// </summary>
+        public static ICollectionView EntriesView { get; }
+
+        /// <summary>
+        /// Gets or sets the entry search string.
+        /// </summary>
+        public static string SearchString
+        {
+            get
+            {
+                return m_SearchString;
+            }
+            set
+            {
+                m_SearchString = value;
+                EntriesView.Refresh();
+            }
+        }
 
         /// <summary>
         /// Gets or sets the FFmpeg path.
@@ -97,7 +135,7 @@
         /// </summary>
         /// <param name="mediaUrl">The media URL.</param>
         /// <returns>The playlist entry or null if not found</returns>
-        public static PlaylistEntry FindEntry(string mediaUrl)
+        public static CustomPlaylistEntry FindEntry(string mediaUrl)
         {
             lock (SyncRoot)
             {
@@ -125,7 +163,7 @@
                 if (entry == null)
                 {
                     // Create a new entry with default values
-                    entry = new PlaylistEntry { MediaUrl = mediaUrl };
+                    entry = new CustomPlaylistEntry { MediaUrl = mediaUrl };
                     if (Uri.TryCreate(mediaUrl, UriKind.RelativeOrAbsolute, out Uri entryUri))
                         entry.Title = Path.GetFileNameWithoutExtension(Uri.UnescapeDataString(entryUri.AbsolutePath));
                     else
@@ -153,10 +191,11 @@
                 // Set as the first entry by inserting it in the zeroth position
                 Entries.Insert(0, entry);
 
-                // Try to get the duration
+                // Try to get the duration and other properties
                 entry.Duration = info.Duration == TimeSpan.MinValue ? TimeSpan.FromSeconds(-1) : info.Duration;
+                entry.LastOpenedUtc = DateTime.UtcNow;
+                entry.Format = info.Format;
 
-                entry.Attributes["info-format"] = info.Format;
                 foreach (var meta in info.Metadata)
                 {
                     // Get a safe meta-key
@@ -184,25 +223,23 @@
         /// <param name="bitmap">The bitmap.</param>
         public static void AddOrUpdateEntryThumbnail(string mediaUrl, BitmapDataBuffer bitmap)
         {
-            const string ThumbAttrib = "ffme-thumbnail";
-
             lock (SyncRoot)
             {
                 var entry = FindEntry(mediaUrl);
                 if (entry == null) return;
 
-                if (entry.Attributes.ContainsKey(ThumbAttrib))
+                if (entry.Thumbnail != null)
                 {
-                    var existingThumbnailFilePath = Path.Combine(ThumbsDirectory, entry.Attributes[ThumbAttrib]);
+                    var existingThumbnailFilePath = Path.Combine(ThumbsDirectory, entry.Thumbnail);
                     if (File.Exists(existingThumbnailFilePath))
                         File.Delete(existingThumbnailFilePath);
 
-                    entry.Attributes.Remove(ThumbAttrib);
+                    entry.Thumbnail = null;
                 }
 
                 using (var bmp = bitmap.CreateDrawingBitmap())
                 {
-                    entry.Attributes[ThumbAttrib] = ThumbnailGenerator.SnapThumbnail(bmp);
+                    entry.Thumbnail = ThumbnailGenerator.SnapThumbnail(bmp);
                 }
             }
         }
@@ -246,11 +283,13 @@
         /// <summary>
         /// Gets the thumbnail.
         /// </summary>
-        /// <param name="attributes">The entry.</param>
-        /// <returns>An image Source</returns>
-        public static System.Windows.Media.ImageSource GetThumbnail(this PlaylistAttributeSet attributes)
+        /// <param name="thumbnailFilename">The thumnail filename.</param>
+        /// <returns>
+        /// An image Source
+        /// </returns>
+        public static System.Windows.Media.ImageSource GetThumbnail(string thumbnailFilename)
         {
-            if (attributes == null || attributes.ContainsKey("ffme-thumbnail") == false)
+            if (string.IsNullOrWhiteSpace(thumbnailFilename))
                 return default(System.Windows.Media.ImageSource);
 
             try
@@ -258,7 +297,7 @@
                 var thumbnail = new System.Windows.Media.Imaging.BitmapImage();
                 thumbnail.BeginInit();
                 thumbnail.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
-                thumbnail.UriSource = new Uri($"{Path.Combine(ThumbsDirectory, attributes["ffme-thumbnail"])}");
+                thumbnail.UriSource = new Uri($"{Path.Combine(ThumbsDirectory, thumbnailFilename)}");
                 thumbnail.EndInit();
                 thumbnail.Freeze();
                 return thumbnail;

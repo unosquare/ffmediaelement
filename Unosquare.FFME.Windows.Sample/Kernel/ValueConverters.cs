@@ -1,7 +1,6 @@
 ﻿#pragma warning disable SA1649 // File name must match first type name
 namespace Unosquare.FFME.Windows.Sample.Kernel
 {
-    using Playlists;
     using System;
     using System.Globalization;
     using System.Windows;
@@ -235,15 +234,42 @@ namespace Unosquare.FFME.Windows.Sample.Kernel
     {
         public object Convert(object value, Type targetType, object format, CultureInfo culture)
         {
-            var attributes = value as PlaylistAttributeSet;
-            if (attributes == null) return default(ImageSource);
+            var thumbnailFilename = value as string;
+            if (thumbnailFilename == null) return default(ImageSource);
 
-            return attributes.GetThumbnail();
+            return PlaylistManager.GetThumbnail(thumbnailFilename);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// UI-friendly duration formatter.
+    /// </summary>
+    /// <seealso cref="IValueConverter" />
+    internal class PlaylistDurationFormatter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var duration = value is TimeSpan ? (TimeSpan)value : TimeSpan.FromSeconds(-1);
+
+            if (duration.TotalSeconds <= 0)
+                return "N/A";
+
+            if (duration.TotalMinutes >= 100)
+            {
+                return $"{System.Convert.ToInt64(duration.TotalHours)}h {System.Convert.ToInt64(duration.Minutes)}m";
+            }
+
+            return $"{System.Convert.ToInt64(duration.Minutes):00}:{System.Convert.ToInt64(duration.Seconds):00}";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotSupportedException();
         }
     }
 }

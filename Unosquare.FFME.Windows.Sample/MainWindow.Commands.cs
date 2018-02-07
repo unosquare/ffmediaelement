@@ -32,7 +32,12 @@
                         try
                         {
                             OpenMediaPopup.IsOpen = false;
-                            var target = new Uri(UrlTextBox.Text);
+                            var target = default(Uri);
+                            if (a is string && a != null)
+                                target = new Uri(a as string);
+                            else
+                                target = new Uri(UrlTextBox.Text);
+
                             Media.Source = target;
                         }
                         catch (Exception ex)

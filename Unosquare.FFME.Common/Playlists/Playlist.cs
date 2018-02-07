@@ -12,8 +12,11 @@
     /// Represents an observable collection of playlist entries.
     /// General guidelines taken from http://xmtvplayer.com/build-m3u-file
     /// </summary>
+    /// <typeparam name="T">The type of playlist items</typeparam>
+    /// <seealso cref="System.Collections.ObjectModel.ObservableCollection{T}" />
     /// <seealso cref="ObservableCollection{PlaylistEntry}" />
-    public class Playlist : ObservableCollection<PlaylistEntry>
+    public class Playlist<T> : ObservableCollection<T>, IAttributeContainer
+        where T : PlaylistEntry, new()
     {
         #region Private state
 
@@ -27,18 +30,15 @@
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Playlist"/> class.
+        /// Initializes a new instance of the <see cref="Playlist{T}"/> class.
         /// </summary>
         public Playlist()
         {
-            Attributes.CollectionChanged += (s, e) =>
-            {
-                OnPropertyChanged(new PropertyChangedEventArgs(nameof(Attributes)));
-            };
+            // Placeholder
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Playlist"/> class.
+        /// Initializes a new instance of the <see cref="Playlist{T}"/> class.
         /// </summary>
         /// <param name="name">The name.</param>
         public Playlist(string name)
@@ -81,7 +81,7 @@
         /// </summary>
         /// <param name="filePath">The text.</param>
         /// <returns>The loaded playlist</returns>
-        public static Playlist Open(string filePath)
+        public static Playlist<T> Open(string filePath)
         {
             return Open(filePath, Encoding.UTF8);
         }
@@ -91,7 +91,7 @@
         /// </summary>
         /// <param name="stream">The stream.</param>
         /// <returns>The loaded playlist</returns>
-        public static Playlist Open(Stream stream)
+        public static Playlist<T> Open(Stream stream)
         {
             return Open(stream, Encoding.UTF8);
         }
@@ -104,7 +104,7 @@
         /// <returns>
         /// The loaded playlist
         /// </returns>
-        public static Playlist Open(string path, Encoding encoding)
+        public static Playlist<T> Open(string path, Encoding encoding)
         {
             using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
@@ -118,10 +118,10 @@
         /// <param name="stream">The stream.</param>
         /// <param name="encoding">The encoding.</param>
         /// <returns>The loaded playlist.</returns>
-        public static Playlist Open(Stream stream, Encoding encoding)
+        public static Playlist<T> Open(Stream stream, Encoding encoding)
         {
-            var result = new Playlist();
-            var currentEntry = default(PlaylistEntry);
+            var result = new Playlist<T>();
+            var currentEntry = default(T);
             using (var reader = new StreamReader(stream, encoding))
             {
                 while (reader.EndOfStream == false)
@@ -138,7 +138,7 @@
                     }
                     else if (line.ToUpperInvariant().StartsWith($"{EntryPrefix}:"))
                     {
-                        currentEntry = new PlaylistEntry();
+                        currentEntry = new T();
                         currentEntry.BeginExtendedInfoLine(line);
                     }
                     else if (line.StartsWith("#"))
@@ -261,6 +261,15 @@
         #region Other Methods
 
         /// <summary>
+        /// Called when [property changed].
+        /// </summary>
+        /// <param name="propertyName">Name of the property.</param>
+        public void NotifyAttributeChangedFor(string propertyName)
+        {
+            OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
+        }
+
+        /// <summary>
         /// Adds an entry to the playlist.
         /// </summary>
         /// <param name="title">The title.</param>
@@ -269,7 +278,7 @@
         /// <param name="attributes">The attributes.</param>
         public void Add(string title, TimeSpan duration, string url, Dictionary<string, string> attributes = null)
         {
-            var entry = new PlaylistEntry
+            var entry = new T()
             {
                 Duration = duration,
                 MediaUrl = url,
@@ -289,4 +298,10 @@
 
         #endregion
     }
+
+    /// <summary>
+    /// A standard Playlist class with regular PlaylistEntry items
+    /// </summary>
+    /// <seealso cref="System.Collections.ObjectModel.ObservableCollection{T}" />
+    public class Playlist : Playlist<PlaylistEntry> { }
 }

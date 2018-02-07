@@ -7,7 +7,7 @@
     /// <summary>
     /// Represents a generic playlist entry
     /// </summary>
-    public class PlaylistEntry : INotifyPropertyChanged
+    public class PlaylistEntry : INotifyPropertyChanged, IAttributeContainer
     {
         private string m_MediaUrl;
         private string m_Title;
@@ -18,10 +18,7 @@
         /// </summary>
         public PlaylistEntry()
         {
-            Attributes.CollectionChanged += (s, e) =>
-            {
-                OnPropertyChanged(nameof(Attributes));
-            };
+            // placeholder
         }
 
         /// <summary>
@@ -60,6 +57,15 @@
         /// Gets the extended attributes.
         /// </summary>
         public PlaylistAttributeSet Attributes { get; } = new PlaylistAttributeSet();
+
+        /// <summary>
+        /// Called when [property changed].
+        /// </summary>
+        /// <param name="propertyName">Name of the property.</param>
+        public void NotifyAttributeChangedFor(string propertyName)
+        {
+            OnPropertyChanged(propertyName);
+        }
 
         /// <summary>
         /// Checks if a property already matches a desired value.  Sets the property and

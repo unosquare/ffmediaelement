@@ -18,6 +18,7 @@
                     <local:PercentageFormatter x:Key="PercentageFormatter" />
                     <local:ByteFormatter x:Key="ByteFormatter" />
                     <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+                    <local:PlaylistDurationFormatter x:Key="PlaylistDurationFormatter" />
                     <local:PlaylistEntryThumbnailConverter x:Key="PlaylistEntryThumbnailConverter" />
                 </ResourceDictionary>
                 <ResourceDictionary Source="Icons.xaml" />
@@ -58,7 +59,7 @@
                     <Setter Property="FontWeight" Value="Bold" />
                 </Style>
             </DockPanel.Resources>
-            
+
             <Grid Name="Controls" Style="{DynamicResource ControlsGridStyle}" Visibility="Visible" DockPanel.Dock="Bottom">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"></RowDefinition>
@@ -406,31 +407,42 @@
                     <Border x:Name="PlaylistPanelTitle" Style="{StaticResource SidePanelTitle}">
                         <TextBlock Style="{StaticResource SidePanelTitleText}">PLAYLIST MANAGER</TextBlock>
                     </Border>
+                    <Border DockPanel.Dock="Top" CornerRadius="15" BorderThickness="1" Padding="10,2,10,2" Background="#ccfcfcfc">
+                        <TextBox Background="Transparent" BorderThickness="0" Foreground="#6f6f6f" FontSize="18" Padding="2"  FontWeight="Bold"
+                            Text="{Binding ElementName=window, Path=PlaylistSearchString, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                    </Border>
 
                     <!-- The Content -->
                     <Grid x:Name="PlaylistPanelContentList">
                         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
                             Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UIElement}}">
-                            <ItemsControl ItemsSource="{Binding ElementName=window, Path=Playlist}">
+                            <ItemsControl ItemsSource="{Binding Source={x:Static local:PlaylistManager.EntriesView}}"
+                                Width="{Binding Path=ActualWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UIElement}}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="{x:Type ffmepl:PlaylistEntry}">
-                                        <Border BorderBrush="White" Padding="4" BorderThickness="0,0,0,2">
+                                        <Border BorderBrush="#555" BorderThickness="0,0,0,1">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="256" />
+                                                    <ColumnDefinition Width="Auto" />
                                                     <ColumnDefinition Width="*" />
                                                 </Grid.ColumnDefinitions>
                                                 <Grid.RowDefinitions>
-                                                    <RowDefinition Height="144" />
+                                                    <RowDefinition Height="80" />
                                                 </Grid.RowDefinitions>
-                                                
-                                                <Border Padding="3,0,3,0" BorderThickness="0,0,1,0" BorderBrush="Blue">
-                                                    <Image Grid.Column="0" Source="{Binding Path=Attributes, Converter={StaticResource PlaylistEntryThumbnailConverter}}"></Image>
+
+                                                <Border BorderThickness="0,0,0,0" BorderBrush="#555">
+                                                    <Image Width="128" Height="72" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                           Source="{Binding Path=Thumbnail, Converter={StaticResource PlaylistEntryThumbnailConverter}}"></Image>
                                                 </Border>
-                                                
-                                                <DockPanel Grid.Column="1" LastChildFill="False">
+
+                                                <DockPanel Grid.Column="1" LastChildFill="False" Margin="4">
                                                     <TextBlock DockPanel.Dock="Top" Text="{Binding Title}" Foreground="White" />
-                                                    <TextBlock DockPanel.Dock="Top" Tag="{Binding Duration}" Foreground="White" />
+                                                    <TextBlock DockPanel.Dock="Top" Text="{Binding Duration, Converter={StaticResource PlaylistDurationFormatter}}" Foreground="White" />
+                                                    <TextBlock DockPanel.Dock="Top">
+                                                        <Hyperlink Command="{Binding ElementName=window, Path=OpenCommand}" CommandParameter="{Binding MediaUrl}">
+                                                            <TextBlock Foreground="White" Text="{Binding MediaUrl}" TextTrimming="CharacterEllipsis"></TextBlock>
+                                                        </Hyperlink>
+                                                    </TextBlock>
                                                 </DockPanel>
                                             </Grid>
                                         </Border>

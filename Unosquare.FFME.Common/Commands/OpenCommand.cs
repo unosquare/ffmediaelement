@@ -129,7 +129,7 @@
             }
             catch (Exception ex)
             {
-                try { m.Container.Dispose(); } catch { }
+                try { m.Container?.Dispose(); } catch { }
                 m.DisposePreloadedSubtitles();
                 m.Container = null;
                 m.State.UpdateMediaState(PlaybackStatus.Close);

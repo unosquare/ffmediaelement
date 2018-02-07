@@ -1,16 +1,15 @@
 ﻿namespace Unosquare.FFME.Playlists
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.ComponentModel;
-    using System.Diagnostics;
     using System.Linq;
 
     /// <summary>
     /// Represents an observable dictionary of key-value pairs
     /// </summary>
-    [DebuggerDisplay("Count={Count}")]
     public class PlaylistAttributeSet :
         ICollection<KeyValuePair<string, string>>, IDictionary<string, string>,
         INotifyCollectionChanged, INotifyPropertyChanged
@@ -225,6 +224,7 @@
         /// </returns>
         public override string ToString()
         {
+            // return the space separated attributes attr1="hello" attr2="world" ... etc.
             return string.Join(" ", dictionary.Select(kvp => EntryToString(kvp)).ToArray());
         }
 
@@ -257,6 +257,20 @@
 
         private void AddWithNotification(string key, string value)
         {
+            // validate the key
+            foreach (var c in key)
+            {
+                if (char.IsWhiteSpace(c))
+                    throw new ArgumentException($"{nameof(key)} cannot have whitespace.");
+            }
+
+            // validate the value
+            foreach (var c in value)
+            {
+                if (char.IsControl(c))
+                    throw new ArgumentException($"{nameof(key)} cannot have control characters.");
+            }
+
             dictionary.Add(key, value);
 
             CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add,
