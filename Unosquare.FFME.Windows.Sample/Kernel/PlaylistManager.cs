@@ -13,7 +13,7 @@
     /// <summary>
     /// Rperesents a holder for playlist and configuration manager
     /// </summary>
-    public class PlaylistManager
+    public static class PlaylistManager
     {
         private static readonly object SyncRoot = new object();
 
@@ -243,11 +243,36 @@
             }
         }
 
+        /// <summary>
+        /// Gets the thumbnail.
+        /// </summary>
+        /// <param name="attributes">The entry.</param>
+        /// <returns>An image Source</returns>
+        public static System.Windows.Media.ImageSource GetThumbnail(this PlaylistAttributeSet attributes)
+        {
+            if (attributes == null || attributes.ContainsKey("ffme-thumbnail") == false)
+                return default(System.Windows.Media.ImageSource);
+
+            try
+            {
+                var thumbnail = new System.Windows.Media.Imaging.BitmapImage();
+                thumbnail.BeginInit();
+                thumbnail.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+                thumbnail.UriSource = new Uri($"{Path.Combine(ThumbsDirectory, attributes["ffme-thumbnail"])}");
+                thumbnail.EndInit();
+                thumbnail.Freeze();
+                return thumbnail;
+            }
+            catch { }
+
+            return null;
+        }
+
         private class ThumbnailGenerator
         {
             public static string SnapThumbnail(Image sourceImage)
             {
-                using (var thumb = CreateThumbnail(sourceImage, Color.Black, 256, 256))
+                using (var thumb = CreateThumbnail(sourceImage, Color.Black, 256, 144)) // 16:9 (in general)
                 {
                     return SaveThumbnail(thumb, ThumbsDirectory);
                 }

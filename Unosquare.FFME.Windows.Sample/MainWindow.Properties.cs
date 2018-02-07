@@ -1,5 +1,7 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
+    using Kernel;
+    using Playlists;
     using System.Windows;
     using System.Windows.Media;
 
@@ -14,6 +16,11 @@
         /// The window title.
         /// </value>
         public string WindowTitle { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets the player's playlist.
+        /// </summary>
+        public Playlist Playlist => PlaylistManager.Entries;
 
         /// <summary>
         /// Gets or sets the is media open visibility.

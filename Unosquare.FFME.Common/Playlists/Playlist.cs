@@ -31,7 +31,10 @@
         /// </summary>
         public Playlist()
         {
-            // placeholder
+            Attributes.CollectionChanged += (s, e) =>
+            {
+                OnPropertyChanged(new PropertyChangedEventArgs(nameof(Attributes)));
+            };
         }
 
         /// <summary>

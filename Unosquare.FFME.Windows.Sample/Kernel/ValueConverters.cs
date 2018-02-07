@@ -1,10 +1,12 @@
 ﻿#pragma warning disable SA1649 // File name must match first type name
 namespace Unosquare.FFME.Windows.Sample.Kernel
 {
+    using Playlists;
     using System;
     using System.Globalization;
     using System.Windows;
     using System.Windows.Data;
+    using System.Windows.Media;
 
     /// <summary>
     /// Converts between TimeSpans and double-precision Seconds time measures
@@ -219,6 +221,26 @@ namespace Unosquare.FFME.Windows.Sample.Kernel
         /// <returns>
         /// A converted value. If the method returns null, the valid null value is used.
         /// </returns>
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Formsts timespan time measures as string with 3-decimal milliseconds
+    /// </summary>
+    /// <seealso cref="IValueConverter" />
+    internal class PlaylistEntryThumbnailConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object format, CultureInfo culture)
+        {
+            var attributes = value as PlaylistAttributeSet;
+            if (attributes == null) return default(ImageSource);
+
+            return attributes.GetThumbnail();
+        }
+
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();

@@ -232,27 +232,6 @@
 #endif
         }
 
-        /// <summary>
-        /// Handles the DragDelta event of the DebugWindowThumb control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="System.Windows.Controls.Primitives.DragDeltaEventArgs"/> instance containing the event data.</param>
-        private void DebugWindowThumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
-        {
-            DebugWindowPopup.HorizontalOffset += e.HorizontalChange;
-            DebugWindowPopup.VerticalOffset += e.VerticalChange;
-        }
-
-        /// <summary>
-        /// Handles the MouseDown event of the DebugWindowPopup control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="System.Windows.Input.MouseButtonEventArgs"/> instance containing the event data.</param>
-        private void DebugWindowPopup_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            DebugWindowThumb.RaiseEvent(e);
-        }
-
         #endregion
     }
 }

@@ -255,6 +255,7 @@
                     Media.Volume = 1.0;
                     Media.Balance = 0;
                     Media.IsMuted = false;
+                    MediaZoom = 1.0;
                 }
             };
 
@@ -346,7 +347,7 @@
             {
                 var elapsedSinceMouseMove = DateTime.UtcNow.Subtract(LastMouseMoveTime);
                 if (elapsedSinceMouseMove.TotalMilliseconds >= 3000 && Media.IsOpen && Controls.IsMouseOver == false
-                    && OpenMediaPopup.IsOpen == false && DebugWindowPopup.IsOpen == false && SoundMenuPopup.IsOpen == false)
+                    && OpenMediaPopup.IsOpen == false && PropertyExplorerPanel.Visibility != Visibility.Visible && SoundMenuPopup.IsOpen == false)
                 {
                     if (Controls.Opacity != 0d)
                     {

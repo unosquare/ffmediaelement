@@ -286,6 +286,9 @@
         {
             if (dictionary.TryGetValue(key, out string existing))
             {
+                if (Equals(existing, value))
+                    return;
+
                 dictionary[key] = value;
 
                 CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace,
