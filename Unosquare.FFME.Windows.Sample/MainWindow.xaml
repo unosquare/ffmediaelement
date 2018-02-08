@@ -402,11 +402,18 @@
                 </DockPanel>
             </Border>
 
-            <Border Name="PlaylistPanel" Width="560" Style="{StaticResource SidePanelBorder}" Visibility="Visible" 
-                IsEnabled="{Binding ElementName=window, Path=IsPlaylistEnabled}" Margin="0,20,80,-90" Opacity="0.9">
+            <Border Name="PlaylistPanel" Width="560" Style="{StaticResource SidePanelBorder}" Visibility="Visible" BorderThickness="1"
+                IsEnabled="{Binding ElementName=window, Path=IsPlaylistEnabled}" Margin="0,20,80,-90" BorderBrush="#66444444" Padding="16,10,6,16">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#aa222222" Offset="0" />
+                        <GradientStop Color="#99444444" Offset="0.6" />
+                        <GradientStop Color="#88222222" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
                 <DockPanel LastChildFill="True">
                     <!-- The Title -->
-                    <Border x:Name="PlaylistPanelTitle" Style="{StaticResource SidePanelTitle}">
+                    <Border x:Name="PlaylistPanelTitle" Style="{StaticResource SidePanelTitle}" Visibility="Collapsed">
                         <TextBlock Style="{StaticResource SidePanelTitleText}">PLAYLIST MANAGER</TextBlock>
                     </Border>
 
@@ -422,20 +429,34 @@
                                     <ColumnDefinition />
                                     <ColumnDefinition Width="20" />
                                 </Grid.ColumnDefinitions>
-                                <TextBox Grid.Column="0" Background="Transparent" BorderThickness="0" Foreground="#484848" FontSize="16" Padding="2"  FontWeight="Bold"
-                                Text="{Binding ElementName=window, Path=PlaylistSearchString, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Text="Quick Search . . ." FontWeight="Bold" Padding="4,0,0,0"
+                                    VerticalAlignment="Center" IsHitTestVisible="False">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="Transparent"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ElementName=SearchTextBox, Path=Text, UpdateSourceTrigger=PropertyChanged}" Value="">
+                                                    <Setter Property="Foreground" Value="#777" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <TextBox x:Name="SearchTextBox" Grid.Column="0" Background="Transparent" BorderThickness="0" Foreground="#484848" FontSize="16" Padding="2"  FontWeight="Bold"
+                                    Text="{Binding ElementName=window, Path=PlaylistSearchString, UpdateSourceTrigger=PropertyChanged}" />
                                 <Viewbox HorizontalAlignment="Right" Grid.Column="1">
                                     <Path Stretch="Uniform" Data="{Binding Source={StaticResource SearchIcon}, Path=Data}" Fill="#666" />
                                 </Viewbox>
                             </Grid>
                         </Border>
                         <Grid Grid.Column="1">
-                            <ToggleButton DockPanel.Dock="Top" Style="{DynamicResource ModernToggleButtonStyle}" x:Name="AddToggleButton" IsChecked="True">
+                            <ToggleButton DockPanel.Dock="Top" Style="{DynamicResource ModernToggleButtonStyle}" x:Name="AddToggleButton" ToolTip="Open ...">
                                 <Path Stretch="Uniform" Data="{Binding Source={StaticResource AddIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}}}" />
                             </ToggleButton>
                         </Grid>
                     </Grid>
 
+                    <!-- The Add to Playlist Controls -->
                     <Grid DockPanel.Dock="Top">
                         <Grid.Style>
                             <Style TargetType="Grid">
@@ -445,7 +466,7 @@
                                         <DataTrigger.EnterActions>
                                             <BeginStoryboard>
                                                 <Storyboard>
-                                                    <DoubleAnimation Duration="0:0:0.25" To="40"
+                                                    <DoubleAnimation Duration="0:0:0.25" To="44"
                                                         Storyboard.TargetProperty="Height" />
                                                 </Storyboard>
                                             </BeginStoryboard>
@@ -463,7 +484,26 @@
                                 </Style.Triggers>
                             </Style>
                         </Grid.Style>
-                        <TextBox />
+                        <Border CornerRadius="8" BorderThickness="1" Padding="10,2,10,2" Background="#ddffffff" Margin="6">
+                            <Grid>
+                                <TextBlock Text="Full path to file or URL (Press Enter to open)" FontWeight="Bold" Padding="4,0,0,0"
+                                    VerticalAlignment="Center" IsHitTestVisible="False">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="Transparent"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ElementName=OpenFileTextBox, Path=Text, UpdateSourceTrigger=PropertyChanged}" Value="">
+                                                    <Setter Property="Foreground" Value="#777" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <TextBox x:Name="OpenFileTextBox" Grid.Column="0" Background="Transparent" BorderThickness="0" 
+                                    Foreground="#484848" FontSize="16" Padding="2"  FontWeight="Bold" />
+                            </Grid>
+                            
+                        </Border>
                     </Grid>
 
                     <!-- The Content -->
@@ -491,7 +531,7 @@
                                                 </Style.Triggers>
                                             </Style>
                                         </DataTemplate.Resources>
-                                        <Border BorderBrush="#ee000000" BorderThickness="0,0,0,1" x:Name="PlaylistEntryBackgroundBorder">
+                                        <Border Margin="0,4,0,0" x:Name="PlaylistEntryBackgroundBorder">
                                             <Border.Style>
                                                 <Style TargetType="Border">
                                                     <Setter Property="Background">
@@ -534,6 +574,9 @@
                                                         <Button.Template>
                                                             <ControlTemplate>
                                                                 <Grid Background="Transparent">
+                                                                    <Viewbox Margin="14">
+                                                                        <Path Stretch="Uniform" Data="{Binding Source={StaticResource MediaIcon}, Path=Data}" Fill="#444444" />
+                                                                    </Viewbox>
                                                                     <Image Stretch="Uniform" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                                                                         Source="{Binding Path=Thumbnail, Converter={StaticResource PlaylistEntryThumbnailConverter}}"></Image>
                                                                 </Grid>
