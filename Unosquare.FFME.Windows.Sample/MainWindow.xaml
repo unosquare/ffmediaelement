@@ -21,6 +21,7 @@
                     <local:PlaylistDurationFormatter x:Key="PlaylistDurationFormatter" />
                     <local:PlaylistEntryThumbnailConverter x:Key="PlaylistEntryThumbnailConverter" />
                     <local:UtcDateToLocalTimeString x:Key="UtcDateToLocalTimeString" />
+                    <local:InverseBooleanConverter x:Key="InverseBooleanConverter" />
                 </ResourceDictionary>
                 <ResourceDictionary Source="Icons.xaml" />
                 <ResourceDictionary Source="Styles.xaml" />
@@ -423,7 +424,9 @@
                             <ColumnDefinition />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <Border CornerRadius="8" BorderThickness="1" Padding="10,2,10,2" Background="#ddffffff" Margin="6">
+                        <Border 
+                            IsEnabled="{Binding ElementName=AddToggleButton, Path=IsChecked, Converter={StaticResource InverseBooleanConverter}}"
+                            CornerRadius="8" BorderThickness="1" Padding="10,2,10,2" Background="#ddffffff" Margin="6">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition />

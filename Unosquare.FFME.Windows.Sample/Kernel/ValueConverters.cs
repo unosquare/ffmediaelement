@@ -205,9 +205,9 @@ namespace Unosquare.FFME.Windows.Sample.Kernel
             percentage = Math.Round(percentage * 100d, 0);
 
             if (format == null || percentage == 0d)
-                return $"{percentage, 3:0}%";
+                return $"{percentage,3:0}%";
 
-            return $"{((percentage > 0d) ? "R " : "L ")} {Math.Abs(percentage), 3:0}%";
+            return $"{((percentage > 0d) ? "R " : "L ")} {Math.Abs(percentage),3:0}%";
         }
 
         /// <summary>
@@ -277,8 +277,26 @@ namespace Unosquare.FFME.Windows.Sample.Kernel
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            if (value == null) return "unknown";
             var utcDate = (DateTime)value;
             return utcDate.ToLocalTime().ToString("f");
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotSupportedException();
+        }
+    }
+
+    [ValueConversion(typeof(bool), typeof(bool))]
+    internal class InverseBooleanConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (targetType != typeof(bool))
+                throw new InvalidOperationException("The target must be a boolean");
+
+            return !(bool)value;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
