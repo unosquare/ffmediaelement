@@ -25,7 +25,7 @@
         static PlaylistManager()
         {
             // Set the version according to the assembly
-            Version = typeof(ConfigRoot).Assembly.GetName().Version.ToString();
+            Version = typeof(PlaylistManager).Assembly.GetName().Version.ToString();
 
             // Set and create an app data directory
             AppDataDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ProductName);
@@ -49,7 +49,7 @@
             {
                 Entries = new CustomPlaylist() { Name = ProductName };
                 Entries.Attributes["x-projecturl"] = "https://github.com/unosquare/ffmediaelement";
-                Entries.Attributes["u-ffmpeg-path"] = DefaultFFmpegPath;
+                FFmpegPath = DefaultFFmpegPath;
                 SaveEntries();
             }
 
@@ -330,7 +330,7 @@
                 using (var g = Graphics.FromImage(outputImage))
                 {
                     g.Clear(background);
-                    g.InterpolationMode = InterpolationMode.Default;
+                    g.InterpolationMode = InterpolationMode.Bilinear;
                     g.DrawImage(
                         sourceImage,
                         new Rectangle(destinationPoint, proportionalSize),

@@ -12,6 +12,7 @@
         private DelegateCommand m_StopCommand = null;
         private DelegateCommand m_CloseCommand = null;
         private DelegateCommand m_ToggleFullscreenCommand = null;
+        private DelegateCommand m_RemovePlaylistItemCommand = null;
 
         #region Properties: Commands
 
@@ -31,12 +32,11 @@
                     {
                         try
                         {
-                            OpenMediaPopup.IsOpen = false;
                             var target = default(Uri);
                             if (a is string && a != null)
                                 target = new Uri(a as string);
                             else
-                                target = new Uri(UrlTextBox.Text);
+                                target = new Uri(OpenFileTextBox.Text);
 
                             Media.Source = target;
                         }
@@ -162,6 +162,32 @@
                 }
 
                 return m_ToggleFullscreenCommand;
+            }
+        }
+
+        /// <summary>
+        /// Gets the remove playlist item command.
+        /// </summary>
+        /// <value>
+        /// The remove playlist item command.
+        /// </value>
+        public DelegateCommand RemovePlaylistItemCommand
+        {
+            get
+            {
+                if (m_RemovePlaylistItemCommand == null)
+                {
+                    m_RemovePlaylistItemCommand = new DelegateCommand((arg) =>
+                    {
+                        var entry = arg as CustomPlaylistEntry;
+                        if (entry == null) return;
+
+                        PlaylistManager.RemoveEntry(entry.MediaUrl);
+                        PlaylistManager.SaveEntries();
+                    });
+                }
+
+                return m_RemovePlaylistItemCommand;
             }
         }
 

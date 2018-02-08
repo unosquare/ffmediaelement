@@ -16,6 +16,23 @@
     {
         #region Methods: Event Handlers
 
+        /// <summary>
+        /// Handles the RenderingVideo event of the Media control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="RenderingVideoEventArgs"/> instance containing the event data.</param>
+        private void Media_RenderingVideo(object sender, RenderingVideoEventArgs e)
+        {
+            if (HasTakenThumbnail) return;
+
+            if (Media.HasMediaEnded || Media.Position.TotalSeconds >= 3 || (Media.NaturalDuration.HasTimeSpan && Media.NaturalDuration.TimeSpan.TotalSeconds <= 3))
+            {
+                HasTakenThumbnail = true;
+                PlaylistManager.AddOrUpdateEntryThumbnail(Media.Source.ToString(), e.Bitmap);
+                PlaylistManager.SaveEntries();
+            }
+        }
+
         private void Media_PositionChanged(object sender, PositionChangedRoutedEventArgs e)
         {
             // Debug.WriteLine($"{nameof(Media.Position)} = {e.Position}");
@@ -63,21 +80,6 @@
 
                 PropertyUpdaters[propertyName]?.Invoke();
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-
-        /// <summary>
-        /// Handles the HandleThumbnail event of the Media_RenderingVideo control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="RenderingVideoEventArgs"/> instance containing the event data.</param>
-        private void Media_RenderingVideo_HandleThumbnail(object sender, RenderingVideoEventArgs e)
-        {
-            if (e.StartTime >= TimeSpan.FromSeconds(3))
-            {
-                Media.RenderingVideo -= Media_RenderingVideo_HandleThumbnail;
-                PlaylistManager.AddOrUpdateEntryThumbnail(Media.Source.ToString(), e.Bitmap);
-                PlaylistManager.SaveEntries();
             }
         }
 
@@ -133,23 +135,19 @@
         private void Media_MediaOpened(object sender, RoutedEventArgs e)
         {
             // Set a start position (see issue #66)
-            /*
-            Media.Position = TimeSpan.FromSeconds(5);
-            Media.Play();
-            */
+            // Media.Position = TimeSpan.FromSeconds(5);
+            // var playTask = Media.Play(); // fire up the play task asynchronously
 
+            // Reset the Zoom
             MediaZoom = 1d;
+
+            // Update the COntrols
             var source = Media.Source.ToString();
-
-            if (Config.HistoryEntries.Contains(source))
-            {
-                var oldIndex = Config.HistoryEntries.IndexOf(source);
-                Config.HistoryEntries.RemoveAt(oldIndex);
-            }
-
-            Config.HistoryEntries.Add(Media.Source.ToString());
-            Config.Save();
-            RefreshHistoryItems();
+            AddToggleButton.IsChecked = false;
+            OpenMenuButton.IsChecked = false;
+            OpenFileTextBox.Text = source;
+            OpenFileTextBox.SelectAll();
+            HasTakenThumbnail = false;
         }
 
         /// <summary>
@@ -222,11 +220,7 @@
             PlaylistManager.AddOrUpdateEntry(Media.Source?.ToString() ?? e.Info.InputUrl, e.Info);
             PlaylistManager.SaveEntries();
 
-            // For thumbnail generation
-            Media.RenderingVideo -= Media_RenderingVideo_HandleThumbnail;
-            Media.RenderingVideo += Media_RenderingVideo_HandleThumbnail;
 #if APPLY_AUDIO_FILTER
-
             // e.Options.AudioFilter = "aecho=0.8:0.9:1000:0.3";
             e.Options.AudioFilter = "chorus=0.5:0.9:50|60|40:0.4|0.32|0.3:0.25|0.4|0.3:2|2.3|1.3";
 #endif

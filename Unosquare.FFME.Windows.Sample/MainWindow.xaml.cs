@@ -4,7 +4,6 @@
     using Shared;
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Linq;
     using System.Windows;
@@ -22,10 +21,8 @@
 
         private readonly Dictionary<string, Action> PropertyUpdaters;
         private readonly Dictionary<string, string[]> PropertyTriggers;
-        private readonly ObservableCollection<string> HistoryItems = new ObservableCollection<string>();
         private readonly WindowStatus PreviousWindowStatus = new WindowStatus();
 
-        private ConfigRoot Config;
         private DateTime LastMouseMoveTime;
         private Point LastMousePosition;
 
@@ -71,13 +68,9 @@
             // Load up WPF resources
             InitializeComponent();
 
-            // Load simple config.
-            Config = ConfigRoot.Load();
-            RefreshHistoryItems();
-
             // Change the default location of the ffmpeg binaries
             // You can get the binaries here: http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip
-            FFME.MediaElement.FFmpegDirectory = Config.FFmpegPath;
+            FFME.MediaElement.FFmpegDirectory = PlaylistManager.FFmpegPath;
 
             // You can pick which FFmpeg binaries are loaded. See issue #28
             // Full Features is already the default.
@@ -120,6 +113,7 @@
             Media.MediaFailed += Media_MediaFailed;
             Media.MessageLogged += Media_MessageLogged;
             Media.PropertyChanged += Media_PropertyChanged;
+            Media.RenderingVideo += Media_RenderingVideo;
             BindRenderingEvents();
         }
 
@@ -129,20 +123,8 @@
         private void InitializeMainWindow()
         {
             Loaded += MainWindow_Loaded;
-            UrlTextBox.Text = HistoryItems.Count > 0 ? HistoryItems.First() : string.Empty;
 
-            OpenMediaPopup.Opened += (s, e) =>
-            {
-                if (UrlTextBox.ItemsSource == null)
-                    UrlTextBox.ItemsSource = HistoryItems;
-
-                if (HistoryItems.Count > 0)
-                    UrlTextBox.Text = HistoryItems.First();
-
-                UrlTextBox.Focus();
-            };
-
-            UrlTextBox.KeyDown += async (s, e) =>
+            OpenFileTextBox.KeyDown += async (s, e) =>
             {
                 if (e.Key == Key.Enter)
                 {
@@ -155,7 +137,7 @@
             var args = Environment.GetCommandLineArgs();
             if (args != null && args.Length > 1)
             {
-                UrlTextBox.Text = args[1].Trim();
+                OpenFileTextBox.Text = args[1].Trim();
                 OpenCommand.Execute();
             }
         }
@@ -297,11 +279,6 @@
                 MediaZoom = Math.Round(MediaZoom + delta, 2);
             };
 
-            UrlTextBox.PreviewMouseWheel += (s, e) =>
-            {
-                e.Handled = true;
-            };
-
             #endregion
 
             #region Handle Play Pause with Mouse Clicks
@@ -348,7 +325,7 @@
             {
                 var elapsedSinceMouseMove = DateTime.UtcNow.Subtract(LastMouseMoveTime);
                 if (elapsedSinceMouseMove.TotalMilliseconds >= 3000 && Media.IsOpen && Controls.IsMouseOver == false
-                    && OpenMediaPopup.IsOpen == false && PropertyExplorerPanel.Visibility != Visibility.Visible && SoundMenuPopup.IsOpen == false)
+                    && PropertyExplorerPanel.Visibility != Visibility.Visible && SoundMenuPopup.IsOpen == false)
                 {
                     if (Controls.Opacity != 0d)
                     {
@@ -373,16 +350,6 @@
             mouseMoveTimer.Start();
 
             #endregion
-        }
-
-        /// <summary>
-        /// Refreshes the history items.
-        /// </summary>
-        private void RefreshHistoryItems()
-        {
-            HistoryItems.Clear();
-            for (var entryIndex = Config.HistoryEntries.Count - 1; entryIndex >= 0; entryIndex--)
-                HistoryItems.Add(Config.HistoryEntries[entryIndex]);
         }
 
         /// <summary>

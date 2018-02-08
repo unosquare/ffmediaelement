@@ -164,6 +164,9 @@ namespace Unosquare.FFME.Windows.Sample.Kernel
                 output = Math.Round(byteCount / minGigaByte, 2);
             }
 
+            if (suffix == "b")
+                return $"{output:0} {suffix}";
+
             return $"{output:0.00} {suffix}";
         }
 
@@ -205,9 +208,9 @@ namespace Unosquare.FFME.Windows.Sample.Kernel
             percentage = Math.Round(percentage * 100d, 0);
 
             if (format == null || percentage == 0d)
-                return $"{percentage,3:0}%";
+                return $"{percentage,3:0} %".Trim();
 
-            return $"{((percentage > 0d) ? "R " : "L ")} {Math.Abs(percentage),3:0}%";
+            return $"{((percentage > 0d) ? "R " : "L ")} {Math.Abs(percentage),3:0} %".Trim();
         }
 
         /// <summary>

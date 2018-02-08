@@ -106,6 +106,14 @@
         public bool IsPlaylistEnabled { get; set; } = true;
 
         /// <summary>
+        /// Gets or sets a value indicating whether this instance has taken thumbnail.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance has taken thumbnail; otherwise, <c>false</c>.
+        /// </value>
+        public bool HasTakenThumbnail { get; set; } = false;
+
+        /// <summary>
         /// Gets or sets the seek bar visibility.
         /// </summary>
         /// <value>
