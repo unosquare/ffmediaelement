@@ -257,7 +257,7 @@ namespace Unosquare.FFME.Windows.Sample.Kernel
             var duration = value is TimeSpan ? (TimeSpan)value : TimeSpan.FromSeconds(-1);
 
             if (duration.TotalSeconds <= 0)
-                return "N/A";
+                return "∞";
 
             if (duration.TotalMinutes >= 100)
             {
@@ -265,6 +265,20 @@ namespace Unosquare.FFME.Windows.Sample.Kernel
             }
 
             return $"{System.Convert.ToInt64(duration.Minutes):00}:{System.Convert.ToInt64(duration.Seconds):00}";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotSupportedException();
+        }
+    }
+
+    internal class UtcDateToLocalTimeString : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var utcDate = (DateTime)value;
+            return utcDate.ToLocalTime().ToString("f");
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

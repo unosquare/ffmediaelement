@@ -311,7 +311,7 @@
             }
             finally
             {
-                CallbackEvent?.Set();
+                try { CallbackEvent?.Set(); } catch { }
                 m_PlaybackState = PlaybackState.Stopped;
             }
         }

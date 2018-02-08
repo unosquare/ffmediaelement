@@ -98,6 +98,14 @@
         public Visibility OpenButtonVisibility { get; set; } = Visibility.Visible;
 
         /// <summary>
+        /// Gets or sets a value indicating whether this instance is playlist enabled.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is playlist enabled; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsPlaylistEnabled { get; set; } = true;
+
+        /// <summary>
         /// Gets or sets the seek bar visibility.
         /// </summary>
         /// <value>
