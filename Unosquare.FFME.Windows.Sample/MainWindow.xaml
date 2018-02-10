@@ -6,9 +6,9 @@
         xmlns:local="clr-namespace:Unosquare.FFME.Windows.Sample.Kernel"
         xmlns:ffme="clr-namespace:Unosquare.FFME;assembly=ffme.win"
         xmlns:ffmepl="clr-namespace:Unosquare.FFME.Playlists;assembly=ffme.common"
-        mc:Ignorable="d"
+        mc:Ignorable="d" DataContext="{StaticResource RootViewModel}"
         WindowStartupLocation="CenterScreen" MinHeight="720" Height="0" MinWidth="1280" Width="0"
-        Title="{Binding ElementName=window, Path=WindowTitle}" Background="Black">
+        Title="{Binding WindowTitle}" Background="Black">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

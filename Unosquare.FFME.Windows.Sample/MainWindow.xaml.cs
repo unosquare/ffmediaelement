@@ -51,7 +51,6 @@
                 { nameof(OpenButtonVisibility), () => { OpenButtonVisibility = Media.IsOpening == false ? Visibility.Visible : Visibility.Hidden; } },
                 { nameof(IsPlaylistEnabled), () => { IsPlaylistEnabled = Media.IsOpening == false; } },
                 { nameof(IsSpeedRatioEnabled), () => { IsSpeedRatioEnabled = Media.IsOpen && Media.IsSeekable; } },
-                { nameof(WindowTitle), () => { UpdateWindowTitle(); } }
             };
 
             // Define triggering properties for the updaters above.
@@ -68,6 +67,9 @@
             // Load up WPF resources
             InitializeComponent();
 
+            // Bind the RootViewModel to the MediaElement Instance
+            App.Current.ViewModel.BindToMediaElement(Media);
+
             // Change the default location of the ffmpeg binaries
             // You can get the binaries here: http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip
             FFME.MediaElement.FFmpegDirectory = PlaylistManager.FFmpegPath;
@@ -81,7 +83,6 @@
             InitializeMediaEvents();
             InitializeInputEvents();
             InitializeMainWindow();
-            UpdateWindowTitle();
         }
 
         #endregion
@@ -350,39 +351,6 @@
             mouseMoveTimer.Start();
 
             #endregion
-        }
-
-        /// <summary>
-        /// Updates the window title according to the current state.
-        /// </summary>
-        private void UpdateWindowTitle()
-        {
-            var v = typeof(MainWindow).Assembly.GetName().Version;
-            var title = Media.Source?.ToString() ?? "(No media loaded)";
-            var state = Media?.MediaState.ToString();
-
-            if (Media.IsOpen)
-            {
-                foreach (var kvp in Media.Metadata)
-                {
-                    if (kvp.Key.ToLowerInvariant().Equals("title"))
-                    {
-                        title = kvp.Value;
-                        break;
-                    }
-                }
-            }
-            else if (Media.IsOpening)
-            {
-                state = "Opening . . .";
-            }
-            else
-            {
-                title = "(No media loaded)";
-                state = "Ready";
-            }
-
-            window.Title = $"{title} - {state} - Unosquare FFME Play v{v.Major}.{v.Minor}.{v.Build}.{v.Revision}";
         }
 
         #endregion

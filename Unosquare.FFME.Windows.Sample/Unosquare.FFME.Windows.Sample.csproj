@@ -81,13 +81,24 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\MessageConsole.LocalController.cs" />
+    <Compile Include="Controls\MessageConsole.LocalViewModel.cs" />
+    <Compile Include="Controls\MessageConsole.xaml.cs">
+      <DependentUpon>MessageConsole.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Foundation\IPatternUserControl.cs" />
+    <Compile Include="Foundation\ReactiveExtensions.cs" />
+    <Compile Include="Foundation\ViewModelBase.cs" />
     <Compile Include="Kernel\CustomPlaylist.cs" />
     <Compile Include="Kernel\CustomPlaylistEntry.cs" />
     <Compile Include="Kernel\DelegateCommand.cs" />
-    <Compile Include="Kernel\ConsoleManager.cs" />
     <Compile Include="Kernel\PlaylistManager.cs" />
     <Compile Include="Kernel\ValueConverters.cs" />
-    <Compile Include="Kernel\WindowStatus.cs" />
+    <Compile Include="RootViewModel.cs" />
+    <Page Include="Controls\MessageConsole.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Icons.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -100,6 +111,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Kernel\WindowStatus.cs" />
     <Compile Include="MainWindow.Commands.cs" />
     <Compile Include="MainWindow.EventHandlers.cs" />
     <Compile Include="MainWindow.Properties.cs" />
@@ -172,6 +184,7 @@
       <Name>Unosquare.FFME.Windows</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
