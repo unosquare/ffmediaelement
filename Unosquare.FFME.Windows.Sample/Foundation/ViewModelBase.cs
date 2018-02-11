@@ -16,9 +16,9 @@
         /// </summary>
         public ViewModelBase()
         {
-            this.StartWatching(this, "XXX")
-                .ThenWhenChanged((s, e) => { })
-                .AndFinallyNotify();
+            this.Watch(this, "XXX")
+                .OnChange((s, e) => { })
+                .Notify();
         }
 
         /// <summary>

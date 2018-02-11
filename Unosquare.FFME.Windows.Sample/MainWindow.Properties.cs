@@ -2,20 +2,10 @@
 {
     using System.Windows;
     using System.Windows.Media;
-    using Kernel;
 
     public partial class MainWindow
     {
         #region Properties: Notification
-
-        /// <summary>
-        /// Gets or sets the playlist search string.
-        /// </summary>
-        public string PlaylistSearchString
-        {
-            get => PlaylistManager.SearchString;
-            set => PlaylistManager.SearchString = value;
-        }
 
         /// <summary>
         /// Gets or sets the is media open visibility.

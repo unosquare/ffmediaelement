@@ -61,7 +61,7 @@
             {
                 var entry = item as CustomPlaylistEntry;
                 if (entry == null) return false;
-                if (string.IsNullOrWhiteSpace(SearchString))
+                if (string.IsNullOrWhiteSpace(SearchString) || SearchString.Trim().Length <= 2)
                     return true;
 
                 if ((entry.Title?.ToLowerInvariant().Contains(SearchString) ?? false) ||

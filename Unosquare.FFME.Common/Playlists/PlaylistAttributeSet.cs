@@ -1,14 +1,15 @@
 ﻿namespace Unosquare.FFME.Playlists
 {
-    using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.ComponentModel;
     using System.Linq;
+    using System.Text;
 
     /// <summary>
     /// Represents an observable dictionary of key-value pairs
+    /// TODO: Escape and unescape on Serialize/deserialize
     /// </summary>
     public class PlaylistAttributeSet :
         ICollection<KeyValuePair<string, string>>, IDictionary<string, string>,
@@ -258,18 +259,28 @@
         private void AddWithNotification(string key, string value)
         {
             // validate the key
+            var newKey = new StringBuilder();
             foreach (var c in key)
             {
-                if (char.IsWhiteSpace(c))
-                    throw new ArgumentException($"{nameof(key)} cannot have whitespace.");
+                if (char.IsWhiteSpace(c) || char.IsControl(c))
+                    newKey.Append("-");
+                else
+                    newKey.Append(c);
             }
 
+            key = newKey.ToString();
+
             // validate the value
+            var newValue = new StringBuilder();
             foreach (var c in value)
             {
                 if (char.IsControl(c))
-                    throw new ArgumentException($"{nameof(key)} cannot have control characters.");
+                    newValue.Append(" ");
+                else
+                    newValue.Append(c);
             }
+
+            value = newValue.ToString();
 
             dictionary.Add(key, value);
 

@@ -1,10 +1,10 @@
-﻿namespace Unosquare.FFME.Windows.Sample
+﻿namespace Unosquare.FFME.Windows.Sample.ViewModels
 {
     using Foundation;
     using System;
     using System.Windows;
     using System.Windows.Media;
-    using Unosquare.FFME.Windows.Sample.Kernel;
+    using Kernel;
 
     /// <summary>
     /// Represents the application-wide view model
@@ -48,51 +48,6 @@
         public string WindowTitle { get; set; } = string.Empty;
 
         /// <summary>
-        /// Gets or sets the is media open visibility.
-        /// </summary>
-        public Visibility IsMediaOpenVisibility { get; set; } = Visibility.Visible;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether this instance is audio control enabled.
-        /// </summary>
-        public bool IsAudioControlEnabled { get; set; } = true;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether this instance is speed ratio enabled.
-        /// </summary>
-        public bool IsSpeedRatioEnabled { get; set; } = true;
-
-        /// <summary>
-        /// Gets or sets the audio control visibility.
-        /// </summary>
-        public Visibility AudioControlVisibility { get; set; } = Visibility.Visible;
-
-        /// <summary>
-        /// Gets or sets the pause button visibility.
-        /// </summary>
-        public Visibility PauseButtonVisibility { get; set; } = Visibility.Visible;
-
-        /// <summary>
-        /// Gets or sets the play button visibility.
-        /// </summary>
-        public Visibility PlayButtonVisibility { get; set; } = Visibility.Visible;
-
-        /// <summary>
-        /// Gets or sets the stop button visibility.
-        /// </summary>
-        public Visibility StopButtonVisibility { get; set; } = Visibility.Visible;
-
-        /// <summary>
-        /// Gets or sets the close button visibility.
-        /// </summary>
-        public Visibility CloseButtonVisibility { get; set; } = Visibility.Visible;
-
-        /// <summary>
-        /// Gets or sets the open button visibility.
-        /// </summary>
-        public Visibility OpenButtonVisibility { get; set; } = Visibility.Visible;
-
-        /// <summary>
         /// Gets or sets a value indicating whether this instance is playlist enabled.
         /// </summary>
         public bool IsPlaylistEnabled { get; set; } = true;
@@ -101,21 +56,6 @@
         /// Gets or sets a value indicating whether this instance has taken thumbnail.
         /// </summary>
         public bool HasTakenThumbnail { get; set; } = false;
-
-        /// <summary>
-        /// Gets or sets the seek bar visibility.
-        /// </summary>
-        public Visibility SeekBarVisibility { get; set; } = Visibility.Visible;
-
-        /// <summary>
-        /// Gets or sets the buffering progress visibility.
-        /// </summary>
-        public Visibility BufferingProgressVisibility { get; set; } = Visibility.Visible;
-
-        /// <summary>
-        /// Gets or sets the download progress visibility.
-        /// </summary>
-        public Visibility DownloadProgressVisibility { get; set; } = Visibility.Visible;
 
         /// <summary>
         /// Gets or sets the media zoom.
@@ -168,9 +108,9 @@
 
             Media = media;
 
-            this.StartWatching(Media, nameof(Media.MediaState))
-                .ThenWhenChanged((s, e) => UpdateWindowTitle())
-                .AndFinallyNotify(nameof(WindowTitle));
+            this.Watch(Media, nameof(Media.MediaState))
+                .OnChange((s, e) => UpdateWindowTitle())
+                .Notify(nameof(WindowTitle));
         }
 
         /// <summary>

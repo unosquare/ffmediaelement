@@ -6,17 +6,17 @@
 
     internal static class ReactiveExtensions
     {
-        public static SubscribeTarget StartWatching(this ViewModelBase subsriber, INotifyPropertyChanged publisher, string propertyName)
+        public static SubscribeTarget Watch(this ViewModelBase subsriber, INotifyPropertyChanged publisher, string propertyName)
         {
             return new SubscribeTarget(subsriber, publisher, propertyName);
         }
 
-        public static ReactTarget ThenWhenChanged(this SubscribeTarget subscriberTarget, Action<object, string> callback)
+        public static ReactTarget OnChange(this SubscribeTarget subscriberTarget, Action<object, string> callback)
         {
             return new ReactTarget(subscriberTarget, callback);
         }
 
-        public static NotifyTarget AndFinallyNotify(this ReactTarget reaction, params string[] propertyNames)
+        public static NotifyTarget Notify(this ReactTarget reaction, params string[] propertyNames)
         {
             var subscriber = reaction.Subscription.Subscriber;
             var publisher = reaction.Subscription.Publisher;
