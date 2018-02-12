@@ -1,7 +1,6 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
     using System.Windows;
-    using System.Windows.Media;
 
     public partial class MainWindow
     {
@@ -118,42 +117,6 @@
         /// The download progress visibility.
         /// </value>
         public Visibility DownloadProgressVisibility { get; set; } = Visibility.Visible;
-
-        /// <summary>
-        /// Gets or sets the media zoom.
-        /// </summary>
-        private double MediaZoom
-        {
-            get
-            {
-                var transform = Media.RenderTransform as ScaleTransform;
-                return transform?.ScaleX ?? 1d;
-            }
-            set
-            {
-                var transform = Media.RenderTransform as ScaleTransform;
-                if (transform == null)
-                {
-                    transform = new ScaleTransform(1, 1);
-                    Media.RenderTransformOrigin = new Point(0.5, 0.5);
-                    Media.RenderTransform = transform;
-                }
-
-                transform.ScaleX = value;
-                transform.ScaleY = value;
-
-                if (transform.ScaleX < 0.1d || transform.ScaleY < 0.1)
-                {
-                    transform.ScaleX = 0.1d;
-                    transform.ScaleY = 0.1d;
-                }
-                else if (transform.ScaleX > 5d || transform.ScaleY > 5)
-                {
-                    transform.ScaleX = 5;
-                    transform.ScaleY = 5;
-                }
-            }
-        }
 
         #endregion
     }

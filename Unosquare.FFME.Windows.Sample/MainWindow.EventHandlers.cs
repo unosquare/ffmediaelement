@@ -2,6 +2,7 @@
 {
     using Events;
     using FFmpeg.AutoGen;
+    using Foundation;
     using Shared;
     using System;
     using System.ComponentModel;
@@ -10,7 +11,6 @@
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Media;
-    using Unosquare.FFME.Windows.Sample.Kernel;
 
     public partial class MainWindow
     {
@@ -139,14 +139,13 @@
             // var playTask = Media.Play(); // fire up the play task asynchronously
 
             // Reset the Zoom
-            MediaZoom = 1d;
+            MediaElementZoom = 1d;
 
             // Update the COntrols
             var source = Media.Source.ToString();
-            AddToggleButton.IsChecked = false;
-            OpenMenuButton.IsChecked = false;
-            OpenFileTextBox.Text = source;
-            OpenFileTextBox.SelectAll();
+            App.Current.ViewModel.Playlist.IsInOpenMode = false;
+            ControllerPanel.OpenMenuButton.IsChecked = false;
+            App.Current.ViewModel.Playlist.OpenModelUrl = source;
             HasTakenThumbnail = false;
         }
 

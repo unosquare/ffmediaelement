@@ -16,9 +16,7 @@
         /// </summary>
         public ViewModelBase()
         {
-            this.Watch(this, "XXX")
-                .OnChange((s, e) => { })
-                .Notify();
+            // placeholder
         }
 
         /// <summary>
@@ -26,6 +24,9 @@
         /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        /// Gets the registered Reactive Extensions
+        /// </summary>
         internal Dictionary<INotifyPropertyChanged, Dictionary<string, List<NotifyTarget>>> Reactions { get; }
             = new Dictionary<INotifyPropertyChanged, Dictionary<string, List<NotifyTarget>>>();
 

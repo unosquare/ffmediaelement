@@ -9,7 +9,8 @@
     {
         /// <summary>
         /// Gets the view model.
+        /// This should be a proxy, strongly-typed accessor to the DataContext
         /// </summary>
-        T ViewModel { get; set; }
+        T ViewModel { get; }
     }
 }

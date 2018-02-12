@@ -1,5 +1,6 @@
-﻿namespace Unosquare.FFME.Windows.Sample.Kernel
+﻿namespace Unosquare.FFME.Windows.Sample.Foundation
 {
+    using Events;
     using Shared;
     using System;
     using System.ComponentModel;
@@ -9,7 +10,6 @@
     using System.IO;
     using System.Text;
     using System.Windows.Data;
-    using Unosquare.FFME.Events;
 
     /// <summary>
     /// Rperesents a holder for playlist and configuration manager
@@ -99,6 +99,11 @@
                 EntriesView.Refresh();
             }
         }
+
+        /// <summary>
+        /// Gets or sets the open URL.
+        /// </summary>
+        public static string OpenUrl { get; set; }
 
         /// <summary>
         /// Gets or sets the FFmpeg path.

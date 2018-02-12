@@ -1,11 +1,11 @@
-﻿namespace Unosquare.FFME.Windows.Sample.Kernel
+﻿namespace Unosquare.FFME.Windows.Sample.Foundation
 {
     using System.Windows;
 
     /// <summary>
     /// Represents the general state of a Window
     /// </summary>
-    internal class WindowStatus
+    public sealed class WindowStatus
     {
         /// <summary>
         /// Gets or sets the state of the window.

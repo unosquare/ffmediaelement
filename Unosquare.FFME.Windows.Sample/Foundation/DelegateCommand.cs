@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.Windows.Sample.Kernel
+﻿namespace Unosquare.FFME.Windows.Sample.Foundation
 {
     using System;
     using System.Diagnostics;

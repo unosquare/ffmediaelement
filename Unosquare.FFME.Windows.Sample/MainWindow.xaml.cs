@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
-    using Kernel;
+    using Foundation;
     using Shared;
     using System;
     using System.Collections.Generic;
@@ -9,6 +9,7 @@
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Input;
+    using System.Windows.Media;
     using System.Windows.Media.Animation;
     using System.Windows.Threading;
 
@@ -21,7 +22,6 @@
 
         private readonly Dictionary<string, Action> PropertyUpdaters;
         private readonly Dictionary<string, string[]> PropertyTriggers;
-        private readonly WindowStatus PreviousWindowStatus = new WindowStatus();
 
         private DateTime LastMouseMoveTime;
         private Point LastMousePosition;
@@ -67,9 +67,6 @@
             // Load up WPF resources
             InitializeComponent();
 
-            // Bind the RootViewModel to the MediaElement Instance
-            App.Current.ViewModel.BindToMediaElement(Media);
-
             // Change the default location of the ffmpeg binaries
             // You can get the binaries here: http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip
             FFME.MediaElement.FFmpegDirectory = PlaylistManager.FFmpegPath;
@@ -93,6 +90,46 @@
         /// Occurs when a property changes its value.
         /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Gets or sets the media zoom.
+        /// </summary>
+        public double MediaElementZoom
+        {
+            get
+            {
+                var transform = Media.RenderTransform as ScaleTransform;
+                return transform?.ScaleX ?? 1d;
+            }
+            set
+            {
+                var transform = Media.RenderTransform as ScaleTransform;
+                if (transform == null)
+                {
+                    transform = new ScaleTransform(1, 1);
+                    Media.RenderTransformOrigin = new Point(0.5, 0.5);
+                    Media.RenderTransform = transform;
+                }
+
+                transform.ScaleX = value;
+                transform.ScaleY = value;
+
+                if (transform.ScaleX < 0.1d || transform.ScaleY < 0.1)
+                {
+                    transform.ScaleX = 0.1d;
+                    transform.ScaleY = 0.1d;
+                }
+                else if (transform.ScaleX > 5d || transform.ScaleY > 5)
+                {
+                    transform.ScaleX = 5;
+                    transform.ScaleY = 5;
+                }
+            }
+        }
 
         #endregion
 
@@ -125,21 +162,12 @@
         {
             Loaded += MainWindow_Loaded;
 
-            OpenFileTextBox.KeyDown += async (s, e) =>
-            {
-                if (e.Key == Key.Enter)
-                {
-                    await OpenCommand.ExecuteAsync();
-                    e.Handled = true;
-                }
-            };
-
             // Open a file if it is specified in the arguments
             var args = Environment.GetCommandLineArgs();
             if (args != null && args.Length > 1)
             {
-                OpenFileTextBox.Text = args[1].Trim();
-                OpenCommand.Execute();
+                App.Current.ViewModel.Playlist.OpenModelUrl = args[1].Trim();
+                App.Current.Commands.OpenCommand.Execute();
             }
         }
 
@@ -164,20 +192,20 @@
 
                 if (e.Key == Key.G)
                 {
-                    Subtitles.SetForeground(Media, System.Windows.Media.Brushes.Yellow);
+                    Subtitles.SetForeground(Media, Brushes.Yellow);
                 }
 
                 // Pause
                 if (togglePlayPauseKeys.Contains(e.Key) && Media.IsPlaying)
                 {
-                    await PauseCommand.ExecuteAsync();
+                    await App.Current.Commands.PauseCommand.ExecuteAsync();
                     return;
                 }
 
                 // Play
                 if (togglePlayPauseKeys.Contains(e.Key) && Media.IsPlaying == false)
                 {
-                    await PlayCommand.ExecuteAsync();
+                    await App.Current.Commands.PlayCommand.ExecuteAsync();
                     return;
                 }
 
@@ -239,7 +267,7 @@
                     Media.Volume = 1.0;
                     Media.Balance = 0;
                     Media.IsMuted = false;
-                    MediaZoom = 1.0;
+                    MediaElementZoom = 1.0;
                 }
             };
 
@@ -251,7 +279,7 @@
             {
                 if (s != Media) return;
                 e.Handled = true;
-                await ToggleFullscreenCommand.ExecuteAsync();
+                await App.Current.Commands.ToggleFullscreenCommand.ExecuteAsync();
             };
 
             #endregion
@@ -263,7 +291,7 @@
                 if (e.Key == Key.Escape && WindowStyle == WindowStyle.None)
                 {
                     e.Handled = true;
-                    await ToggleFullscreenCommand.ExecuteAsync();
+                    await App.Current.Commands.ToggleFullscreenCommand.ExecuteAsync();
                 }
             };
 
@@ -277,7 +305,7 @@
                     return;
 
                 var delta = (e.Delta / 2000d).ToMultipleOf(0.05d);
-                MediaZoom = Math.Round(MediaZoom + delta, 2);
+                MediaElementZoom = Math.Round(MediaElementZoom + delta, 2);
             };
 
             #endregion
@@ -325,25 +353,23 @@
             mouseMoveTimer.Tick += (s, e) =>
             {
                 var elapsedSinceMouseMove = DateTime.UtcNow.Subtract(LastMouseMoveTime);
-                if (elapsedSinceMouseMove.TotalMilliseconds >= 3000 && Media.IsOpen && Controls.IsMouseOver == false
-                    && PropertyExplorerPanel.Visibility != Visibility.Visible && SoundMenuPopup.IsOpen == false)
+                if (elapsedSinceMouseMove.TotalMilliseconds >= 3000 && Media.IsOpen && ControllerPanel.IsMouseOver == false
+                    && PropertiesPanel.Visibility != Visibility.Visible && ControllerPanel.SoundMenuPopup.IsOpen == false)
                 {
-                    if (Controls.Opacity != 0d)
+                    if (ControllerPanel.Opacity != 0d)
                     {
                         Cursor = Cursors.None;
-                        var sb = Player.FindResource("HideControlOpacity") as Storyboard;
-                        Storyboard.SetTarget(sb, Controls);
-                        sb.Begin();
+                        Storyboard.SetTarget(App.Current.Resources.HideControlOpacity, ControllerPanel);
+                        App.Current.Resources.HideControlOpacity.Begin();
                     }
                 }
                 else
                 {
-                    if (Controls.Opacity != 1d)
+                    if (ControllerPanel.Opacity != 1d)
                     {
                         Cursor = Cursors.Arrow;
-                        var sb = Player.FindResource("ShowControlOpacity") as Storyboard;
-                        Storyboard.SetTarget(sb, Controls);
-                        sb.Begin();
+                        Storyboard.SetTarget(App.Current.Resources.ShowControlOpacity, ControllerPanel);
+                        App.Current.Resources.ShowControlOpacity.Begin();
                     }
                 }
             };

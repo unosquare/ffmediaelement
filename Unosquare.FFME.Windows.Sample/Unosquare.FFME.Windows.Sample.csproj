@@ -81,28 +81,42 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Controls\MediaPropertyPanelControl.xaml.cs">
-      <DependentUpon>MediaPropertyPanelControl.xaml</DependentUpon>
+    <Compile Include="App.Commands.cs" />
+    <Compile Include="Controls\ControllerPanelControl.xaml.cs">
+      <DependentUpon>ControllerPanelControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\PropertiesPanelControl.xaml.cs">
+      <DependentUpon>PropertiesPanelControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\PlaylistPanelControl.xaml.cs">
+      <DependentUpon>PlaylistPanelControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Foundation\DeferredAction.cs" />
     <Compile Include="Foundation\IViewModelUserControl.cs" />
     <Compile Include="Foundation\ReactiveExtensions.cs" />
     <Compile Include="Foundation\ViewModelBase.cs" />
-    <Compile Include="Kernel\CustomPlaylist.cs" />
-    <Compile Include="Kernel\CustomPlaylistEntry.cs" />
-    <Compile Include="Kernel\DelegateCommand.cs" />
-    <Compile Include="Kernel\PlaylistManager.cs" />
-    <Compile Include="Kernel\ValueConverters.cs" />
+    <Compile Include="Foundation\CustomPlaylist.cs" />
+    <Compile Include="Foundation\CustomPlaylistEntry.cs" />
+    <Compile Include="Foundation\DelegateCommand.cs" />
+    <Compile Include="Foundation\PlaylistManager.cs" />
+    <Compile Include="Foundation\ValueConverters.cs" />
     <Compile Include="ViewModels\AttachedViewModel.cs" />
     <Compile Include="ViewModels\ControllerViewModel.cs" />
     <Compile Include="ViewModels\PlaylistViewModel.cs" />
     <Compile Include="ViewModels\RootViewModel.cs" />
-    <Compile Include="ViewModels\CommandsViewModel.cs" />
-    <Page Include="Controls\MediaPropertyPanelControl.xaml">
+    <Page Include="Controls\ControllerPanelControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Icons.xaml">
+    <Page Include="Controls\PropertiesPanelControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\PlaylistPanelControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="App.Icons.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -114,15 +128,14 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Kernel\WindowStatus.cs" />
-    <Compile Include="MainWindow.Commands.cs" />
+    <Compile Include="Foundation\WindowStatus.cs" />
     <Compile Include="MainWindow.EventHandlers.cs" />
     <Compile Include="MainWindow.Properties.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Styles.xaml">
+    <Page Include="App.Styles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

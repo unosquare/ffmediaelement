@@ -1,14 +1,15 @@
-﻿<UserControl x:Class="Unosquare.FFME.Windows.Sample.Controls.MediaPropertyPanelControl"
+﻿<UserControl x:Class="Unosquare.FFME.Windows.Sample.Controls.PropertiesPanelControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Unosquare.FFME.Windows.Sample"
+             xmlns:vm="clr-namespace:Unosquare.FFME.Windows.Sample.ViewModels"
              xmlns:ffme="clr-namespace:Unosquare.FFME;assembly=ffme.win"
-             mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance ffme:MediaElement, IsDesignTimeCreatable=False}"
-             d:DesignHeight="300">
-    <Border Name="PropertyExplorerPanel" Width="280" Style="{StaticResource SidePanelContainerBorderStyle}">
+             mc:Ignorable="d" d:DesignHeight="500"
+             d:DataContext="{d:DesignInstance vm:RootViewModel, IsDesignTimeCreatable=True}">
+    <Border Name="PropertyExplorerPanel" Width="280" Style="{StaticResource SidePanelContainerBorderStyle}" 
+            d:DataContext="{d:DesignInstance ffme:MediaElement, IsDesignTimeCreatable=True}"
+            DataContext="{Binding Path=App.MediaElement}">
         <DockPanel LastChildFill="True">
             <!-- The Content -->
             <Grid x:Name="PropertyExplorerPanelContent">
