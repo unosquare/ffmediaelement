@@ -1333,6 +1333,18 @@ references:
   commentId: E:Unosquare.FFME.MediaElement.PropertyChanged
   fullName: Unosquare.FFME.MediaElement.PropertyChanged
   nameWithType: MediaElement.PropertyChanged
+- uid: Unosquare.FFME.MediaElement.RemainingDuration
+  name: RemainingDuration
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_RemainingDuration
+  commentId: P:Unosquare.FFME.MediaElement.RemainingDuration
+  fullName: Unosquare.FFME.MediaElement.RemainingDuration
+  nameWithType: MediaElement.RemainingDuration
+- uid: Unosquare.FFME.MediaElement.RemainingDuration*
+  name: RemainingDuration
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_RemainingDuration_
+  commentId: Overload:Unosquare.FFME.MediaElement.RemainingDuration
+  fullName: Unosquare.FFME.MediaElement.RemainingDuration
+  nameWithType: MediaElement.RemainingDuration
 - uid: Unosquare.FFME.MediaElement.RenderingAudio
   name: RenderingAudio
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_RenderingAudio
