@@ -1,9 +1,7 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.Foundation
 {
-    using System.Collections.Generic;
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
-    using static Foundation.ReactiveExtensions;
 
     /// <summary>
     /// Represets a base class for notification-enabled view-models
@@ -23,12 +21,6 @@
         /// Occurs when a property value changes.
         /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
-
-        /// <summary>
-        /// Gets the registered Reactive Extensions
-        /// </summary>
-        internal Dictionary<INotifyPropertyChanged, Dictionary<string, List<NotifyTarget>>> Reactions { get; }
-            = new Dictionary<INotifyPropertyChanged, Dictionary<string, List<NotifyTarget>>>();
 
         /// <summary>
         /// Notifies listeners that a property value has changed.

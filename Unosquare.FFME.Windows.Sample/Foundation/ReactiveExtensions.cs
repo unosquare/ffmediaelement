@@ -3,95 +3,86 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using Primitives;
 
     internal static class ReactiveExtensions
     {
-        public static SubscribeTarget Watch(this ViewModelBase subsriber, INotifyPropertyChanged publisher, string propertyName)
-        {
-            return new SubscribeTarget(subsriber, publisher, propertyName);
-        }
+        /// <summary>
+        /// Contains a list of subscriptions Subscriptions[Publisher][PropertyName].List of subscriber-action pairs
+        /// </summary>
+        private static readonly Dictionary<INotifyPropertyChanged, SubscriptionSet> Subscriptions
+            = new Dictionary<INotifyPropertyChanged, SubscriptionSet>();
 
-        public static ReactTarget OnChange(this SubscribeTarget subscriberTarget, Action<object, string> callback)
-        {
-            return new ReactTarget(subscriberTarget, callback);
-        }
+        private static readonly ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
 
-        public static NotifyTarget Notify(this ReactTarget reaction, params string[] propertyNames)
+        internal static void OnChange(this object subscriber, INotifyPropertyChanged publisher, string propertyName, Action callback)
         {
-            var subscriber = reaction.Subscription.Subscriber;
-            var publisher = reaction.Subscription.Publisher;
-            var publisherProperty = reaction.Subscription.PropertyName;
-            var registrations = subscriber.Reactions;
+            var bindPropertyChanged = false;
 
-            if (registrations.ContainsKey(publisher) == false)
+            using (Locker.AcquireWriterLock())
             {
-                registrations[publisher] = new Dictionary<string, List<NotifyTarget>>();
-
-                // Bind to the property changed event
-                publisher.PropertyChanged += (s, e) =>
+                if (Subscriptions.ContainsKey(publisher) == false)
                 {
-                    if (registrations[publisher].ContainsKey(e.PropertyName) == false)
-                        return;
+                    Subscriptions[publisher] = new SubscriptionSet();
+                    bindPropertyChanged = true;
+                }
 
-                    var notifyTargets = registrations[publisher][e.PropertyName];
-                    var notifyPropertyNames = new Dictionary<string, bool>();
-                    foreach (var notifyTarget in notifyTargets)
+                if (Subscriptions[publisher].ContainsKey(propertyName) == false)
+                    Subscriptions[publisher][propertyName] = new List<SubscriberCallback>();
+
+                Subscriptions[publisher][propertyName].Add(new SubscriberCallback(subscriber, callback));
+            }
+
+            if (bindPropertyChanged == false) return;
+
+            // Finally, bind to proety changed
+            publisher.PropertyChanged += (s, e) =>
+            {
+                if (Subscriptions[publisher].ContainsKey(e.PropertyName) == false)
+                    return;
+
+                var deadSubscriptions = new List<SubscriberCallback>();
+                var aliveSubscriptions = new List<SubscriberCallback>();
+
+                using (Locker.AcquireReaderLock())
+                {
+                    aliveSubscriptions.AddRange(Subscriptions[publisher][e.PropertyName]);
+                }
+
+                foreach (var aliveSubscription in aliveSubscriptions)
+                {
+                    if (aliveSubscription.Subscriber.IsAlive == false)
                     {
-                        notifyTarget.Reaction.Callback?.Invoke(s, e.PropertyName);
-                        foreach (var notifyPropertyName in notifyTarget.PropertyNames)
-                            notifyPropertyNames[notifyPropertyName] = true;
+                        deadSubscriptions.Add(aliveSubscription);
+                        continue;
                     }
 
-                    foreach (var notifyPropertyName in notifyPropertyNames.Keys)
-                        subscriber.NotifyPropertyChanged(notifyPropertyName);
-                };
-            }
+                    aliveSubscription.Callback?.Invoke();
+                }
 
-            if (registrations[publisher].ContainsKey(publisherProperty) == false)
-                registrations[publisher][publisherProperty] = new List<NotifyTarget>();
+                if (deadSubscriptions.Count == 0) return;
 
-            var notification = new NotifyTarget(reaction, propertyNames ?? new string[] { });
-            registrations[publisher][publisherProperty].Add(notification);
-
-            return notification;
+                using (Locker.AcquireWriterLock())
+                {
+                    foreach (var deadSubscriber in deadSubscriptions)
+                        Subscriptions[publisher][e.PropertyName].Remove(deadSubscriber);
+                }
+            };
         }
 
-        public sealed class SubscribeTarget
-        {
-            public SubscribeTarget(ViewModelBase subscriber, INotifyPropertyChanged publisher, string propertyName)
-            {
-                Subscriber = subscriber;
-                Publisher = publisher;
-                PropertyName = propertyName;
-            }
+        internal class SubscriptionSet : Dictionary<string, List<SubscriberCallback>> { }
 
-            public ViewModelBase Subscriber { get; }
-            public INotifyPropertyChanged Publisher { get; }
-            public string PropertyName { get; }
-        }
-
-        public sealed class ReactTarget
+        internal class SubscriberCallback
         {
-            public ReactTarget(SubscribeTarget subscription, Action<object, string> callback)
+            internal SubscriberCallback(object subscriber, Action callback)
             {
-                Subscription = subscription;
                 Callback = callback;
+                Subscriber = new WeakReference(subscriber, false);
             }
 
-            public SubscribeTarget Subscription { get; }
-            public Action<object, string> Callback { get; }
-        }
+            public Action Callback { get; }
 
-        public sealed class NotifyTarget
-        {
-            public NotifyTarget(ReactTarget reaction, string[] propertyNames)
-            {
-                Reaction = reaction;
-                PropertyNames = propertyNames;
-            }
-
-            public ReactTarget Reaction { get; }
-            public string[] PropertyNames { get; }
+            public WeakReference Subscriber { get; }
         }
     }
 }

@@ -4,8 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:Unosquare.FFME.Windows.Sample.ViewModels"
-             d:DataContext="{d:DesignInstance vm:RootViewModel, IsDesignTimeCreatable=True}"
-             mc:Ignorable="d" d:DesignWidth="720">
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance vm:RootViewModel, IsDesignTimeCreatable=True}">
     <Grid Name="Controls" Style="{DynamicResource ControlsGridStyle}" Visibility="Visible">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>

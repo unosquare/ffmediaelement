@@ -92,7 +92,6 @@
       <DependentUpon>PlaylistPanelControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Foundation\DeferredAction.cs" />
-    <Compile Include="Foundation\IViewModelUserControl.cs" />
     <Compile Include="Foundation\ReactiveExtensions.cs" />
     <Compile Include="Foundation\ViewModelBase.cs" />
     <Compile Include="Foundation\CustomPlaylist.cs" />

@@ -6,11 +6,13 @@
              xmlns:local="clr-namespace:Unosquare.FFME.Windows.Sample.Foundation"
              xmlns:ffmepl="clr-namespace:Unosquare.FFME.Playlists;assembly=ffme.common"
              xmlns:vm="clr-namespace:Unosquare.FFME.Windows.Sample.ViewModels"
-             mc:Ignorable="d" Width="580"
+             mc:Ignorable="d" Width="580" d:DesignHeight="300" d:DesignWidth="580"
              d:DataContext="{d:DesignInstance vm:RootViewModel, IsDesignTimeCreatable=False}"
-             d:DesignHeight="300" d:DesignWidth="580">
-    <Border Name="PlaylistPanel" Style="{StaticResource SidePanelContainerBorderStyle}" DataContext="{Binding Length}"
-        IsEnabled="{Binding Playlist.IsPlaylistEnabled}">
+             x:Name="LayoutRoot">
+    
+    <!-- The Glass Background Border -->
+    <Border Style="{StaticResource SidePanelContainerBorderStyle}"
+            IsEnabled="{Binding Playlist.IsPlaylistEnabled}">
         <DockPanel LastChildFill="True">
 
             <!-- The Toolbox -->
@@ -20,14 +22,15 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Border IsEnabled="{Binding ElementName=AddToggleButton, Path=IsChecked, Converter={StaticResource InverseBooleanConverter}}"
-                    CornerRadius="8" BorderThickness="1" Padding="10,2,10,2" Background="#ddffffff" Margin="6">
+                        CornerRadius="8" BorderThickness="1" Padding="10,2,10,2" 
+                        Background="#ddffffff" Margin="6">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition />
                             <ColumnDefinition Width="20" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="Quick Search . . ." FontWeight="Bold" Padding="4,0,0,0"
-                                    VerticalAlignment="Center" IsHitTestVisible="False">
+                                   VerticalAlignment="Center" IsHitTestVisible="False">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Foreground" Value="Transparent"/>
@@ -40,7 +43,7 @@
                             </TextBlock.Style>
                         </TextBlock>
                         <TextBox x:Name="SearchTextBox" Grid.Column="0" Background="Transparent" BorderThickness="0" Foreground="#484848" FontSize="16" Padding="2"  FontWeight="Bold"
-                                    Text="{Binding Path=PlaylistSearchString, UpdateSourceTrigger=PropertyChanged}" />
+                                 Text="{Binding Path=PlaylistSearchString, UpdateSourceTrigger=PropertyChanged}" />
                         <Viewbox HorizontalAlignment="Right" Grid.Column="1">
                             <Path Stretch="Uniform" Data="{Binding Source={StaticResource SearchIcon}, Path=Data}" Fill="#666" />
                         </Viewbox>
@@ -63,16 +66,14 @@
                                 <DataTrigger.EnterActions>
                                     <BeginStoryboard>
                                         <Storyboard>
-                                            <DoubleAnimation Duration="0:0:0.25" To="44"
-                                                        Storyboard.TargetProperty="Height" />
+                                            <DoubleAnimation Duration="0:0:0.25" To="44" Storyboard.TargetProperty="Height" />
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </DataTrigger.EnterActions>
                                 <DataTrigger.ExitActions>
                                     <BeginStoryboard>
                                         <Storyboard>
-                                            <DoubleAnimation Duration="0:0:0.25" To="0"
-                                                        Storyboard.TargetProperty="Height" />
+                                            <DoubleAnimation Duration="0:0:0.25" To="0" Storyboard.TargetProperty="Height" />
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </DataTrigger.ExitActions>
@@ -83,8 +84,9 @@
                 </Grid.Style>
                 <Border CornerRadius="8" BorderThickness="1" Padding="10,2,10,2" Background="#ddffffff" Margin="6">
                     <Grid>
-                        <TextBlock Text="Full path to file or URL (Press Enter to open)" FontWeight="Bold" Padding="4,0,0,0"
-                                    VerticalAlignment="Center" IsHitTestVisible="False">
+                        <TextBlock Text="Full path to file or URL (Press Enter to open)" 
+                                   FontWeight="Bold" Padding="4,0,0,0"
+                                   VerticalAlignment="Center" IsHitTestVisible="False">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Foreground" Value="Transparent"/>
@@ -97,7 +99,7 @@
                             </TextBlock.Style>
                         </TextBlock>
                         <TextBox x:Name="OpenFileTextBox" Grid.Column="0" Background="Transparent" BorderThickness="0" 
-                                    Foreground="#484848" FontSize="16" Padding="2"  FontWeight="Bold" />
+                                 Foreground="#484848" FontSize="16" Padding="2"  FontWeight="Bold" />
                     </Grid>
 
                 </Border>
@@ -106,9 +108,9 @@
             <!-- The Content -->
             <Grid x:Name="PlaylistPanelContentList">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
-                            Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UIElement}}">
+                              Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UIElement}}">
                     <ItemsControl ItemsSource="{Binding Source={x:Static local:PlaylistManager.EntriesView}}"
-                                Width="{Binding Path=ActualWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UIElement}}">
+                                  Width="{Binding Path=ActualWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UIElement}}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="{x:Type ffmepl:PlaylistEntry}">
                                 <DataTemplate.Resources>
@@ -128,7 +130,7 @@
                                         </Style.Triggers>
                                     </Style>
                                 </DataTemplate.Resources>
-                                <Border Margin="0,4,0,0" x:Name="PlaylistEntryBackgroundBorder">
+                                <Border Margin="0,4,0,0">
                                     <Border.Style>
                                         <Style TargetType="Border">
                                             <Setter Property="Background">
@@ -140,16 +142,18 @@
                                                 <EventTrigger RoutedEvent="Border.MouseEnter">
                                                     <BeginStoryboard>
                                                         <Storyboard>
-                                                            <ColorAnimation Duration="0:0:0.25" To="#ee000000"
-                                                                        Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" />
+                                                            <ColorAnimation 
+                                                                Duration="0:0:0.25" To="#ee000000"
+                                                                Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" />
                                                         </Storyboard>
                                                     </BeginStoryboard>
                                                 </EventTrigger>
                                                 <EventTrigger RoutedEvent="Border.MouseLeave">
                                                     <BeginStoryboard>
                                                         <Storyboard>
-                                                            <ColorAnimation Duration="0:0:0.10" To="#ee1f1f1f"
-                                                                        Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" />
+                                                            <ColorAnimation 
+                                                                Duration="0:0:0.10" To="#ee1f1f1f"
+                                                                Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" />
                                                         </Storyboard>
                                                     </BeginStoryboard>
                                                 </EventTrigger>
@@ -167,7 +171,10 @@
                                         </Grid.RowDefinitions>
 
                                         <Border>
-                                            <Button Cursor="Hand" Width="128" Command="{Binding Source={StaticResource ViewModel}, Path=App.Commands.OpenCommand}" CommandParameter="{Binding MediaUrl}">
+                                            <Button 
+                                                Cursor="Hand" Width="128" 
+                                                Command="{Binding Source={StaticResource ViewModel}, Path=App.Commands.OpenCommand}" 
+                                                CommandParameter="{Binding MediaUrl}">
                                                 <Button.Template>
                                                     <ControlTemplate>
                                                         <Grid Background="Transparent">
@@ -184,7 +191,11 @@
 
                                         <DockPanel Grid.Column="1" Margin="4">
                                             <DockPanel DockPanel.Dock="Right" Width="80" LastChildFill="False">
-                                                <Button DockPanel.Dock="Top" Style="{DynamicResource ModernButtonStyle}" Command="{Binding ElementName=window, Path=OpenCommand}" CommandParameter="{Binding MediaUrl}">
+                                                <Button 
+                                                    DockPanel.Dock="Top"
+                                                    Style="{DynamicResource ModernButtonStyle}" 
+                                                    Command="{Binding Source={StaticResource ViewModel}, Path=App.Commands.OpenCommand}" 
+                                                    CommandParameter="{Binding MediaUrl}">
                                                     <Path Stretch="Uniform" Data="{Binding Source={StaticResource PlayIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
                                                 </Button>
                                                 <TextBlock DockPanel.Dock="Bottom" Text="{Binding Duration, Converter={StaticResource PlaylistDurationFormatter}}" 
@@ -205,7 +216,9 @@
                                                         <TextBlock>Viewed on </TextBlock>
                                                         <TextBlock FontWeight="Bold" Text="{Binding LastOpenedUtc, Converter={StaticResource UtcDateToLocalTimeString}}" />
                                                         <TextBlock> - </TextBlock>
-                                                        <Hyperlink Command="{Binding ElementName=window, Path=RemovePlaylistItemCommand}" CommandParameter="{Binding}">REMOVE</Hyperlink>
+                                                        <Hyperlink 
+                                                            Command="{Binding Source={StaticResource ViewModel}, Path=App.Commands.RemovePlaylistItemCommand}"
+                                                            CommandParameter="{Binding}">REMOVE</Hyperlink>
                                                     </TextBlock>
                                         </DockPanel>
                                     </Grid>

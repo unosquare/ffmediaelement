@@ -57,6 +57,7 @@
             base.OnStartup(e);
             Application.Current.MainWindow = new MainWindow();
             Application.Current.MainWindow.Show();
+            ViewModel.OnApplicationLoaded();
         }
 
         /// <summary>

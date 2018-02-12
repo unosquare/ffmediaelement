@@ -41,6 +41,17 @@
         public string WindowTitle { get; set; } = string.Empty;
 
         /// <summary>
+        /// Called when application has finished loading
+        /// </summary>
+        internal void OnApplicationLoaded()
+        {
+            App.Current.ViewModel.OnChange(
+                App.Current.MediaElement,
+                nameof(MediaElement.IsOpen),
+                () => { App.Current.MainWindow.Title = App.Current.MediaElement.IsOpen ? "NOW OPEN" : "CLOSED"; });
+        }
+
+        /// <summary>
         /// Updates the window title according to the current state.
         /// </summary>
         private void UpdateWindowTitle()
