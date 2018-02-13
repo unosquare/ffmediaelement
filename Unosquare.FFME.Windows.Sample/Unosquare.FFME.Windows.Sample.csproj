@@ -129,7 +129,6 @@
     </Compile>
     <Compile Include="Foundation\WindowStatus.cs" />
     <Compile Include="MainWindow.EventHandlers.cs" />
-    <Compile Include="MainWindow.Properties.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

@@ -21,5 +21,13 @@
         /// Gets the root VM this object belongs to.
         /// </summary>
         public RootViewModel Root { get; }
+
+        /// <summary>
+        /// Called by the root ViewModel when the application is loaded and fully available
+        /// </summary>
+        internal virtual void OnApplicationLoaded()
+        {
+            // placeholder
+        }
     }
 }

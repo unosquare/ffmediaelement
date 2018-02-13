@@ -25,7 +25,7 @@
 
         <DockPanel Name="ProgressPanel" Grid.Row="2" LastChildFill="True" Margin="20,0">
             <TextBlock Width="100" Visibility="{Binding Controller.IsMediaOpenVisibility}" VerticalAlignment="Center" DockPanel.Dock="Left" Foreground="{StaticResource CustomSliderHighlightBrush}" Text="{Binding App.MediaElement.Position, Converter={StaticResource TimeSpanFormatter}, Mode=OneWay}" />
-            <TextBlock Width="100" Visibility="{Binding Controller.IsMediaOpenVisibility}" VerticalAlignment="Center" TextAlignment="Right" DockPanel.Dock="Right" Foreground="{StaticResource CustomSliderHighlightBrush}" Text="{Binding App.MediaElement.RemainingDuration, Converter={StaticResource TimeSpanFormatter}, Mode=OneWay}" />
+            <TextBlock Width="100" Visibility="{Binding Controller.SeekBarVisibility}" VerticalAlignment="Center" TextAlignment="Right" DockPanel.Dock="Right" Foreground="{StaticResource CustomSliderHighlightBrush}" Text="{Binding App.MediaElement.RemainingDuration, Converter={StaticResource TimeSpanFormatter}, Mode=OneWay}" />
             <Grid Width="500">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="100" />
@@ -108,11 +108,11 @@
                     <Path Stretch="Uniform" Data="{Binding Source={StaticResource ToggleFullscreenIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
                 </Button>
 
-                <ToggleButton IsChecked="False" Name="OpenDebugButton" Style="{DynamicResource ModernToggleButtonStyle}">
+                <ToggleButton IsChecked="{Binding IsPropertiesPanelOpen}" Name="OpenDebugButton" Style="{DynamicResource ModernToggleButtonStyle}">
                     <Path Stretch="Uniform" Data="{Binding Source={StaticResource OpenDebugIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}}}" />
                 </ToggleButton>
 
-                <ToggleButton IsChecked="True" Name="OpenMenuButton" Style="{DynamicResource ModernToggleButtonStyle}" Visibility="{Binding Controller.OpenButtonVisibility}">
+                <ToggleButton IsChecked="{Binding IsPlaylistPanelOpen}" Name="OpenMenuButton" Style="{DynamicResource ModernToggleButtonStyle}" Visibility="{Binding Controller.OpenButtonVisibility}">
                     <Path Stretch="Uniform" Data="{Binding Source={StaticResource OpenMenuIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}}}" />
                 </ToggleButton>
 

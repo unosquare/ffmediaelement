@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.ViewModels
 {
     using Foundation;
+    using System;
 
     /// <summary>
     /// Represents the application-wide view model
@@ -9,6 +10,10 @@
     public class RootViewModel : ViewModelBase
     {
         private readonly string AssemblyVersion = typeof(RootViewModel).Assembly.GetName().Version.ToString();
+        private string m_WindowTitle = string.Empty;
+        private bool m_IsPlaylistPanelOpen = false;
+        private bool m_IsPropertiesPanelOpen = false;
+        private bool m_IsApplicationLoaded = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RootViewModel"/> class.
@@ -18,6 +23,7 @@
             // Attached ViewModel Inistialization
             Playlist = new PlaylistViewModel(this);
             Controller = new ControllerViewModel(this);
+            WindowTitle = "Application Loading . . .";
         }
 
         /// <summary>
@@ -36,19 +42,58 @@
         public ControllerViewModel Controller { get; }
 
         /// <summary>
-        /// Gets or sets the window title.
-        /// </summary>>
-        public string WindowTitle { get; set; } = string.Empty;
+        /// Gets the window title.
+        /// </summary>
+        public string WindowTitle
+        {
+            get => m_WindowTitle;
+            private set => SetProperty(ref m_WindowTitle, value);
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance is playlist panel open.
+        /// </summary>
+        public bool IsPlaylistPanelOpen
+        {
+            get => m_IsPlaylistPanelOpen;
+            set => SetProperty(ref m_IsPlaylistPanelOpen, value);
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance is properties panel open.
+        /// </summary>
+        public bool IsPropertiesPanelOpen
+        {
+            get => m_IsPropertiesPanelOpen;
+            set => SetProperty(ref m_IsPropertiesPanelOpen, value);
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance is application loaded.
+        /// </summary>
+        public bool IsApplicationLoaded
+        {
+            get => m_IsApplicationLoaded;
+            set => SetProperty(ref m_IsApplicationLoaded, value);
+        }
 
         /// <summary>
         /// Called when application has finished loading
         /// </summary>
         internal void OnApplicationLoaded()
         {
-            App.Current.ViewModel.OnChange(
-                App.Current.MediaElement,
-                nameof(MediaElement.IsOpen),
-                () => { App.Current.MainWindow.Title = App.Current.MediaElement.IsOpen ? "NOW OPEN" : "CLOSED"; });
+            Playlist.OnApplicationLoaded();
+            Controller.OnApplicationLoaded();
+
+            var m = App.MediaElement;
+            new Action(UpdateWindowTitle).WhenChanged(m,
+                nameof(m.IsOpen),
+                nameof(m.IsOpening),
+                nameof(m.MediaState),
+                nameof(m.Source));
+
+            IsPlaylistPanelOpen = true;
+            IsApplicationLoaded = true;
         }
 
         /// <summary>
@@ -56,10 +101,10 @@
         /// </summary>
         private void UpdateWindowTitle()
         {
-            var title = App.Current.MediaElement.Source?.ToString() ?? "(No media loaded)";
-            var state = App.Current.MediaElement?.MediaState.ToString();
+            var title = App.MediaElement?.Source?.ToString() ?? "(No media loaded)";
+            var state = App.MediaElement?.MediaState.ToString();
 
-            if (App.Current.MediaElement.IsOpen)
+            if (App.MediaElement?.IsOpen ?? false)
             {
                 foreach (var kvp in App.Current.MediaElement.Metadata)
                 {
@@ -70,7 +115,7 @@
                     }
                 }
             }
-            else if (App.Current.MediaElement.IsOpening)
+            else if (App.MediaElement?.IsOpening ?? false)
             {
                 state = "Opening . . .";
             }

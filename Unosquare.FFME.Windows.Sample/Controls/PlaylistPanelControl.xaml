@@ -6,12 +6,12 @@
              xmlns:local="clr-namespace:Unosquare.FFME.Windows.Sample.Foundation"
              xmlns:ffmepl="clr-namespace:Unosquare.FFME.Playlists;assembly=ffme.common"
              xmlns:vm="clr-namespace:Unosquare.FFME.Windows.Sample.ViewModels"
-             mc:Ignorable="d" Width="580" d:DesignHeight="300" d:DesignWidth="580"
-             d:DataContext="{d:DesignInstance vm:RootViewModel, IsDesignTimeCreatable=False}"
+             mc:Ignorable="d" d:DataContext="{d:DesignInstance vm:RootViewModel, IsDesignTimeCreatable=False}"
              x:Name="LayoutRoot">
     
     <!-- The Glass Background Border -->
-    <Border Style="{StaticResource SidePanelContainerBorderStyle}"
+    <Border  
+            Style="{StaticResource SidePanelContainerBorderStyle}"
             IsEnabled="{Binding Playlist.IsPlaylistEnabled}">
         <DockPanel LastChildFill="True">
 
@@ -107,10 +107,15 @@
 
             <!-- The Content -->
             <Grid x:Name="PlaylistPanelContentList">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden"
+                              MaxHeight="1080"
                               Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UIElement}}">
-                    <ItemsControl ItemsSource="{Binding Source={x:Static local:PlaylistManager.EntriesView}}"
-                                  Width="{Binding Path=ActualWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UIElement}}">
+                    <ItemsControl ItemsSource="{Binding Source={x:Static local:PlaylistManager.EntriesView}}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <VirtualizingStackPanel Width="570" VirtualizingPanel.VirtualizationMode="Recycling" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="{x:Type ffmepl:PlaylistEntry}">
                                 <DataTemplate.Resources>

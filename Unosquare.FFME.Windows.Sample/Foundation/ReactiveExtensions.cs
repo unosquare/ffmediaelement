@@ -15,7 +15,14 @@
 
         private static readonly ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
 
-        internal static void OnChange(this object subscriber, INotifyPropertyChanged publisher, string propertyName, Action callback)
+        private static readonly Dictionary<Action, bool> PinnedActions = new Dictionary<Action, bool>();
+
+        internal static void WhenChanged(this Action callback, INotifyPropertyChanged publisher, params string[] propertyNames)
+        {
+            callback.WhenChanged(true, publisher, propertyNames);
+        }
+
+        internal static void WhenChanged(this Action callback, bool pinned, INotifyPropertyChanged publisher, params string[] propertyNames)
         {
             var bindPropertyChanged = false;
 
@@ -27,10 +34,16 @@
                     bindPropertyChanged = true;
                 }
 
-                if (Subscriptions[publisher].ContainsKey(propertyName) == false)
-                    Subscriptions[publisher][propertyName] = new List<SubscriberCallback>();
+                // Save the Action reference so that the weak reference is not lost
+                if (pinned) PinnedActions[callback] = true;
 
-                Subscriptions[publisher][propertyName].Add(new SubscriberCallback(subscriber, callback));
+                foreach (var propertyName in propertyNames)
+                {
+                    if (Subscriptions[publisher].ContainsKey(propertyName) == false)
+                        Subscriptions[publisher][propertyName] = new CallbackReferenceSet();
+
+                    Subscriptions[publisher][propertyName].Add(new CallbackReference(callback));
+                }
             }
 
             if (bindPropertyChanged == false) return;
@@ -41,48 +54,55 @@
                 if (Subscriptions[publisher].ContainsKey(e.PropertyName) == false)
                     return;
 
-                var deadSubscriptions = new List<SubscriberCallback>();
-                var aliveSubscriptions = new List<SubscriberCallback>();
+                var deadCallbacks = new CallbackReferenceSet();
+                var aliveCallbacks = new CallbackReferenceSet();
 
                 using (Locker.AcquireReaderLock())
                 {
-                    aliveSubscriptions.AddRange(Subscriptions[publisher][e.PropertyName]);
+                    aliveCallbacks.AddRange(Subscriptions[publisher][e.PropertyName]);
                 }
 
-                foreach (var aliveSubscription in aliveSubscriptions)
+                foreach (var aliveSubscription in aliveCallbacks)
                 {
-                    if (aliveSubscription.Subscriber.IsAlive == false)
+                    if (aliveSubscription.IsAlive == false)
                     {
-                        deadSubscriptions.Add(aliveSubscription);
+                        deadCallbacks.Add(aliveSubscription);
                         continue;
                     }
 
-                    aliveSubscription.Callback?.Invoke();
+                    aliveSubscription.Target?.Invoke();
                 }
 
-                if (deadSubscriptions.Count == 0) return;
+                if (deadCallbacks.Count == 0) return;
 
                 using (Locker.AcquireWriterLock())
                 {
-                    foreach (var deadSubscriber in deadSubscriptions)
+                    foreach (var deadSubscriber in deadCallbacks)
                         Subscriptions[publisher][e.PropertyName].Remove(deadSubscriber);
                 }
             };
         }
 
-        internal class SubscriptionSet : Dictionary<string, List<SubscriberCallback>> { }
+        internal sealed class SubscriptionSet : Dictionary<string, CallbackReferenceSet> { }
 
-        internal class SubscriberCallback
+        internal sealed class CallbackReferenceSet : List<CallbackReference>
         {
-            internal SubscriberCallback(object subscriber, Action callback)
+            public CallbackReferenceSet()
+                : base(32)
             {
-                Callback = callback;
-                Subscriber = new WeakReference(subscriber, false);
+                // placeholder
+            }
+        }
+
+        internal sealed class CallbackReference : WeakReference
+        {
+            public CallbackReference(Action action)
+                : base(action, false)
+            {
+                // placeholder
             }
 
-            public Action Callback { get; }
-
-            public WeakReference Subscriber { get; }
+            public new Action Target => IsAlive ? base.Target as Action : null;
         }
     }
 }

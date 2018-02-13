@@ -8,6 +8,14 @@
         mc:Ignorable="d" DataContext="{StaticResource ViewModel}"
         WindowStartupLocation="CenterScreen" MinHeight="720" Height="0" MinWidth="1280" Width="0"
         Title="{Binding WindowTitle}" Background="Black">
+    <Window.Resources>
+        <Storyboard x:Key="ShowControlOpacity" Storyboard.TargetProperty="(UIElement.Opacity)">
+            <DoubleAnimation To="1" Duration="0:0:0.100" FillBehavior="HoldEnd" />
+        </Storyboard>
+        <Storyboard x:Key="HideControlOpacity" Storyboard.TargetProperty="(UIElement.Opacity)">
+            <DoubleAnimation To="0" Duration="0:0:0.300" FillBehavior="HoldEnd" />
+        </Storyboard>
+    </Window.Resources>
     <Grid Name="Player">
         <ffme:MediaElement Name="Media" Background="Black" LoadedBehavior="Play" />
 
@@ -15,17 +23,18 @@
 
             <controls:ControllerPanelControl
                 x:Name="ControllerPanel"
-                DockPanel.Dock="Bottom" />
+                DockPanel.Dock="Bottom"
+                Visibility="{Binding IsApplicationLoaded, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             
             <controls:PlaylistPanelControl 
                 x:Name="PlaylistPanel"
                 DockPanel.Dock="Right"
-                Visibility="{Binding ElementName=OpenMenuButton, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                Visibility="{Binding IsPlaylistPanelOpen, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
             <controls:PropertiesPanelControl 
                 x:Name="PropertiesPanel"
                 DockPanel.Dock="Right" 
-                Visibility="{Binding ElementName=OpenDebugButton, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                Visibility="{Binding IsPropertiesPanelOpen, Converter={StaticResource BooleanToVisibilityConverter}}"/>
         </DockPanel>
 
     </Grid>

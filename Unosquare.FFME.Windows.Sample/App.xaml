@@ -31,16 +31,6 @@
                     </Style>
                 </ResourceDictionary>
 
-                <!-- Storyboards -->
-                <ResourceDictionary>
-                    <Storyboard x:Key="ShowControlOpacity" Storyboard.TargetProperty="(Grid.Opacity)">
-                        <DoubleAnimation To="1" Duration="0:0:0.100" FillBehavior="HoldEnd" />
-                    </Storyboard>
-                    <Storyboard x:Key="HideControlOpacity" Storyboard.TargetProperty="(Grid.Opacity)">
-                        <DoubleAnimation To="0" Duration="0:0:0.300" FillBehavior="HoldEnd" />
-                    </Storyboard>
-                </ResourceDictionary>
-                
                 <!-- Converters -->
                 <ResourceDictionary>
                     <local:TimeSpanToSecondsConverter x:Key="TimeSpanToSecondsConverter" />

@@ -1,10 +1,6 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
-    using Foundation;
-    using Shared;
     using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
     using System.Linq;
     using System.Windows;
     using System.Windows.Controls;
@@ -12,16 +8,16 @@
     using System.Windows.Media;
     using System.Windows.Media.Animation;
     using System.Windows.Threading;
+    using Foundation;
+    using Shared;
+    using ViewModels;
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window, INotifyPropertyChanged
+    public partial class MainWindow : Window
     {
         #region Fields
-
-        private readonly Dictionary<string, Action> PropertyUpdaters;
-        private readonly Dictionary<string, string[]> PropertyTriggers;
 
         private DateTime LastMouseMoveTime;
         private Point LastMousePosition;
@@ -35,35 +31,6 @@
         /// </summary>
         public MainWindow()
         {
-            // Define conditions for visibility properties
-            PropertyUpdaters = new Dictionary<string, Action>
-            {
-                { nameof(IsMediaOpenVisibility), () => { IsMediaOpenVisibility = Media.IsOpen ? Visibility.Visible : Visibility.Hidden; } },
-                { nameof(AudioControlVisibility), () => { AudioControlVisibility = Media.HasAudio ? Visibility.Visible : Visibility.Hidden; } },
-                { nameof(IsAudioControlEnabled), () => { IsAudioControlEnabled = Media.HasAudio; } },
-                { nameof(PauseButtonVisibility), () => { PauseButtonVisibility = Media.CanPause && Media.IsPlaying ? Visibility.Visible : Visibility.Collapsed; } },
-                { nameof(PlayButtonVisibility), () => { PlayButtonVisibility = Media.IsOpen && Media.IsPlaying == false && Media.HasMediaEnded == false ? Visibility.Visible : Visibility.Collapsed; } },
-                { nameof(StopButtonVisibility), () => { StopButtonVisibility = Media.IsOpen && (Media.HasMediaEnded || (Media.IsSeekable && Media.MediaState != MediaState.Stop)) ? Visibility.Visible : Visibility.Hidden; } },
-                { nameof(CloseButtonVisibility), () => { CloseButtonVisibility = Media.IsOpen ? Visibility.Visible : Visibility.Hidden; } },
-                { nameof(SeekBarVisibility), () => { SeekBarVisibility = Media.IsSeekable ? Visibility.Visible : Visibility.Hidden; } },
-                { nameof(BufferingProgressVisibility), () => { BufferingProgressVisibility = Media.IsBuffering ? Visibility.Visible : Visibility.Hidden; } },
-                { nameof(DownloadProgressVisibility), () => { DownloadProgressVisibility = Media.IsOpen && Media.HasMediaEnded == false && ((Media.DownloadProgress > 0d && Media.DownloadProgress < 0.95) || Media.IsLiveStream) ? Visibility.Visible : Visibility.Hidden; } },
-                { nameof(OpenButtonVisibility), () => { OpenButtonVisibility = Media.IsOpening == false ? Visibility.Visible : Visibility.Hidden; } },
-                { nameof(IsPlaylistEnabled), () => { IsPlaylistEnabled = Media.IsOpening == false; } },
-                { nameof(IsSpeedRatioEnabled), () => { IsSpeedRatioEnabled = Media.IsOpen && Media.IsSeekable; } },
-            };
-
-            // Define triggering properties for the updaters above.
-            PropertyTriggers = new Dictionary<string, string[]>
-            {
-                { nameof(Media.IsOpen), PropertyUpdaters.Keys.ToArray() },
-                { nameof(Media.IsOpening), PropertyUpdaters.Keys.ToArray() },
-                { nameof(Media.MediaState), PropertyUpdaters.Keys.ToArray() },
-                { nameof(Media.HasMediaEnded), PropertyUpdaters.Keys.ToArray() },
-                { nameof(Media.DownloadProgress), new[] { nameof(DownloadProgressVisibility) } },
-                { nameof(Media.IsBuffering), new[] { nameof(BufferingProgressVisibility) } },
-            };
-
             // Load up WPF resources
             InitializeComponent();
 
@@ -84,52 +51,12 @@
 
         #endregion
 
-        #region Events
-
-        /// <summary>
-        /// Occurs when a property changes its value.
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        #endregion
-
         #region Properties
 
         /// <summary>
-        /// Gets or sets the media zoom.
+        /// A proxy, strongly-typed property to the underlying DataContext
         /// </summary>
-        public double MediaElementZoom
-        {
-            get
-            {
-                var transform = Media.RenderTransform as ScaleTransform;
-                return transform?.ScaleX ?? 1d;
-            }
-            set
-            {
-                var transform = Media.RenderTransform as ScaleTransform;
-                if (transform == null)
-                {
-                    transform = new ScaleTransform(1, 1);
-                    Media.RenderTransformOrigin = new Point(0.5, 0.5);
-                    Media.RenderTransform = transform;
-                }
-
-                transform.ScaleX = value;
-                transform.ScaleY = value;
-
-                if (transform.ScaleX < 0.1d || transform.ScaleY < 0.1)
-                {
-                    transform.ScaleX = 0.1d;
-                    transform.ScaleY = 0.1d;
-                }
-                else if (transform.ScaleX > 5d || transform.ScaleY > 5)
-                {
-                    transform.ScaleX = 5;
-                    transform.ScaleY = 5;
-                }
-            }
-        }
+        public RootViewModel ViewModel => DataContext as RootViewModel;
 
         #endregion
 
@@ -144,14 +71,12 @@
             FFME.MediaElement.FFmpegMessageLogged += MediaElement_FFmpegMessageLogged;
 
             // MediaElement event bindings
-            Media.PositionChanged += Media_PositionChanged;
-            Media.MediaOpened += Media_MediaOpened;
-            Media.MediaOpening += Media_MediaOpening;
             Media.MediaInitializing += Media_MediaInitializing;
+            Media.MediaOpening += Media_MediaOpening;
+            Media.MediaOpened += Media_MediaOpened;
+            Media.PositionChanged += Media_PositionChanged;
             Media.MediaFailed += Media_MediaFailed;
             Media.MessageLogged += Media_MessageLogged;
-            Media.PropertyChanged += Media_PropertyChanged;
-            Media.RenderingVideo += Media_RenderingVideo;
             BindRenderingEvents();
         }
 
@@ -166,8 +91,7 @@
             var args = Environment.GetCommandLineArgs();
             if (args != null && args.Length > 1)
             {
-                App.Current.ViewModel.Playlist.OpenModelUrl = args[1].Trim();
-                App.Current.Commands.OpenCommand.Execute();
+                App.Current.Commands.OpenCommand.Execute(args[1].Trim());
             }
         }
 
@@ -267,7 +191,7 @@
                     Media.Volume = 1.0;
                     Media.Balance = 0;
                     Media.IsMuted = false;
-                    MediaElementZoom = 1.0;
+                    ViewModel.Controller.MediaElementZoom = 1.0;
                 }
             };
 
@@ -305,7 +229,7 @@
                     return;
 
                 var delta = (e.Delta / 2000d).ToMultipleOf(0.05d);
-                MediaElementZoom = Math.Round(MediaElementZoom + delta, 2);
+                ViewModel.Controller.MediaElementZoom = Math.Round(App.Current.ViewModel.Controller.MediaElementZoom + delta, 2);
             };
 
             #endregion
@@ -359,8 +283,9 @@
                     if (ControllerPanel.Opacity != 0d)
                     {
                         Cursor = Cursors.None;
-                        Storyboard.SetTarget(App.Current.Resources.HideControlOpacity, ControllerPanel);
-                        App.Current.Resources.HideControlOpacity.Begin();
+                        var sb = FindResource("HideControlOpacity") as Storyboard;
+                        Storyboard.SetTarget(sb, ControllerPanel);
+                        sb.Begin();
                     }
                 }
                 else
@@ -368,8 +293,9 @@
                     if (ControllerPanel.Opacity != 1d)
                     {
                         Cursor = Cursors.Arrow;
-                        Storyboard.SetTarget(App.Current.Resources.ShowControlOpacity, ControllerPanel);
-                        App.Current.Resources.ShowControlOpacity.Begin();
+                        var sb = FindResource("ShowControlOpacity") as Storyboard;
+                        Storyboard.SetTarget(sb, ControllerPanel);
+                        sb.Begin();
                     }
                 }
             };

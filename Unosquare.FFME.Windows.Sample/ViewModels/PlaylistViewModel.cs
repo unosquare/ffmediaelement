@@ -1,6 +1,8 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.ViewModels
 {
+    using Events;
     using Foundation;
+    using System;
 
     /// <summary>
     /// Represents the Playlist
@@ -56,6 +58,49 @@
         {
             get => m_OpenModeUrl;
             set => SetProperty(ref m_OpenModeUrl, value);
+        }
+
+        /// <summary>
+        /// Called by the root ViewModel when the application is loaded and fully available
+        /// </summary>
+        internal override void OnApplicationLoaded()
+        {
+            base.OnApplicationLoaded();
+            var m = Root.App.MediaElement;
+
+            new Action(() => { IsPlaylistEnabled = m.IsOpening == false; })
+                .WhenChanged(m, nameof(m.IsOpening));
+
+            m.MediaOpened += MediaOpened;
+            m.RenderingVideo += RenderingVideo;
+        }
+
+        /// <summary>
+        /// Called when Media is opened
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="System.Windows.RoutedEventArgs"/> instance containing the event data.</param>
+        private void MediaOpened(object sender, System.Windows.RoutedEventArgs e)
+        {
+            HasTakenThumbnail = false;
+        }
+
+        /// <summary>
+        /// Handles the RenderingVideo event of the Media control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="RenderingVideoEventArgs"/> instance containing the event data.</param>
+        private void RenderingVideo(object sender, RenderingVideoEventArgs e)
+        {
+            if (HasTakenThumbnail) return;
+            var m = Root.App.MediaElement;
+
+            if (m.HasMediaEnded || m.Position.TotalSeconds >= 3 || (m.NaturalDuration.HasTimeSpan && m.NaturalDuration.TimeSpan.TotalSeconds <= 3))
+            {
+                HasTakenThumbnail = true;
+                PlaylistManager.AddOrUpdateEntryThumbnail(m.Source.ToString(), e.Bitmap);
+                PlaylistManager.SaveEntries();
+            }
         }
     }
 }

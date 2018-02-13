@@ -5,7 +5,6 @@
     using Foundation;
     using Shared;
     using System;
-    using System.ComponentModel;
     using System.Diagnostics;
     using System.Linq;
     using System.Windows;
@@ -15,23 +14,6 @@
     public partial class MainWindow
     {
         #region Methods: Event Handlers
-
-        /// <summary>
-        /// Handles the RenderingVideo event of the Media control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="RenderingVideoEventArgs"/> instance containing the event data.</param>
-        private void Media_RenderingVideo(object sender, RenderingVideoEventArgs e)
-        {
-            if (HasTakenThumbnail) return;
-
-            if (Media.HasMediaEnded || Media.Position.TotalSeconds >= 3 || (Media.NaturalDuration.HasTimeSpan && Media.NaturalDuration.TimeSpan.TotalSeconds <= 3))
-            {
-                HasTakenThumbnail = true;
-                PlaylistManager.AddOrUpdateEntryThumbnail(Media.Source.ToString(), e.Bitmap);
-                PlaylistManager.SaveEntries();
-            }
-        }
 
         private void Media_PositionChanged(object sender, PositionChangedRoutedEventArgs e)
         {
@@ -53,34 +35,9 @@
             MinWidth = ActualWidth;
             MinHeight = ActualHeight;
             SizeToContent = SizeToContent.Manual;
-
-            foreach (var kvp in PropertyUpdaters)
-            {
-                kvp.Value.Invoke();
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(kvp.Key));
-            }
-
             Loaded -= MainWindow_Loaded;
 
             PlaylistManager.LoadEntries();
-        }
-
-        /// <summary>
-        /// Handles the PropertyChanged event of the Media control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
-        private void Media_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (PropertyTriggers.ContainsKey(e.PropertyName) == false) return;
-            foreach (var propertyName in PropertyTriggers[e.PropertyName])
-            {
-                if (PropertyUpdaters.ContainsKey(propertyName) == false)
-                    continue;
-
-                PropertyUpdaters[propertyName]?.Invoke();
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            }
         }
 
         /// <summary>
@@ -139,14 +96,13 @@
             // var playTask = Media.Play(); // fire up the play task asynchronously
 
             // Reset the Zoom
-            MediaElementZoom = 1d;
+            ViewModel.Controller.MediaElementZoom = 1d;
 
             // Update the COntrols
             var source = Media.Source.ToString();
-            App.Current.ViewModel.Playlist.IsInOpenMode = false;
+            ViewModel.Playlist.IsInOpenMode = false;
             ControllerPanel.OpenMenuButton.IsChecked = false;
-            App.Current.ViewModel.Playlist.OpenModelUrl = source;
-            HasTakenThumbnail = false;
+            ViewModel.Playlist.OpenModelUrl = source;
         }
 
         /// <summary>

@@ -1,7 +1,6 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
     using System.Windows;
-    using System.Windows.Media.Animation;
     using ViewModels;
 
     /// <summary>
@@ -44,11 +43,6 @@
         public AppCommands Commands { get; } = new AppCommands();
 
         /// <summary>
-        /// Gets or sets a collection of application-scope resources, such as styles and brushes.
-        /// </summary>
-        public new TypedResources Resources { get; } = new TypedResources();
-
-        /// <summary>
         /// Raises the <see cref="E:System.Windows.Application.Startup" /> event.
         /// </summary>
         /// <param name="e">A <see cref="T:System.Windows.StartupEventArgs" /> that contains the event data.</param>
@@ -58,22 +52,6 @@
             Application.Current.MainWindow = new MainWindow();
             Application.Current.MainWindow.Show();
             ViewModel.OnApplicationLoaded();
-        }
-
-        /// <summary>
-        /// Provides access to stongly-typed resources
-        /// </summary>
-        public class TypedResources
-        {
-            /// <summary>
-            /// Gets the show control opacity.
-            /// </summary>
-            public Storyboard ShowControlOpacity => Application.Current.Resources[nameof(ShowControlOpacity)] as Storyboard;
-
-            /// <summary>
-            /// Gets the hide control opacity.
-            /// </summary>
-            public Storyboard HideControlOpacity => Application.Current.Resources[nameof(HideControlOpacity)] as Storyboard;
         }
     }
 }
