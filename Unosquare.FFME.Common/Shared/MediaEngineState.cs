@@ -245,14 +245,14 @@
         public bool IsSeekable => Parent.Container?.IsStreamSeekable ?? false;
 
         /// <summary>
-        /// Gets a value indicating whether the media is playing.
+        /// Gets a value indicating whether the media clock is playing.
         /// </summary>
-        public bool IsPlaying => MediaState == PlaybackStatus.Play;
+        public bool IsPlaying => Parent?.Clock?.IsRunning ?? false;
 
         /// <summary>
-        /// Gets a value indicating whether the media is paused.
+        /// Gets a value indicating whether the media clock is paused.
         /// </summary>
-        public bool IsPaused => MediaState == PlaybackStatus.Pause;
+        public bool IsPaused => (Parent?.Clock?.IsRunning ?? true) == false;
 
         /// <summary>
         /// Gets a value indicating whether this media element
