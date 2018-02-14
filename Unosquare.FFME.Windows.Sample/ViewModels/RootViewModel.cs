@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.ViewModels
 {
     using Foundation;
+    using Platform;
     using System;
 
     /// <summary>
@@ -11,9 +12,9 @@
     {
         private readonly string AssemblyVersion = typeof(RootViewModel).Assembly.GetName().Version.ToString();
         private string m_WindowTitle = string.Empty;
-        private bool m_IsPlaylistPanelOpen = false;
-        private bool m_IsPropertiesPanelOpen = false;
-        private bool m_IsApplicationLoaded = false;
+        private bool m_IsPlaylistPanelOpen = GuiContext.Current.IsInDesignTime;
+        private bool m_IsPropertiesPanelOpen = GuiContext.Current.IsInDesignTime;
+        private bool m_IsApplicationLoaded = GuiContext.Current.IsInDesignTime;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RootViewModel"/> class.

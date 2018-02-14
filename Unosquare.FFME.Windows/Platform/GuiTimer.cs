@@ -59,7 +59,7 @@
         }
 
         public GuiTimer(TimeSpan interval, Action callback)
-            : this(GuiContext.Current.ContextType, interval, callback, null)
+            : this(GuiContext.Current.Type, interval, callback, null)
         {
             // placeholder
         }
@@ -69,13 +69,13 @@
         /// </summary>
         /// <param name="callback">The callback.</param>
         public GuiTimer(Action callback)
-            : this(GuiContext.Current.ContextType, Constants.Interval.MediumPriority, callback, null)
+            : this(GuiContext.Current.Type, Constants.Interval.MediumPriority, callback, null)
         {
             // placeholder
         }
 
         public GuiTimer(Action callback, Action disposeCallback)
-            : this(GuiContext.Current.ContextType, Constants.Interval.MediumPriority, callback, disposeCallback)
+            : this(GuiContext.Current.Type, Constants.Interval.MediumPriority, callback, disposeCallback)
         {
             // placeholder
         }
@@ -182,8 +182,8 @@
         private Timer CreateThreadingTimer()
         {
             var timer = new Timer(
-                new TimerCallback(RunTimerCycle), 
-                this, 
+                new TimerCallback(RunTimerCycle),
+                this,
                 Convert.ToInt32(Interval.TotalMilliseconds),
                 Convert.ToInt32(Interval.TotalMilliseconds));
 
