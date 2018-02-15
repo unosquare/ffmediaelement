@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.Foundation
 {
+    using Primitives;
     using System;
     using System.Diagnostics;
     using System.Threading;
@@ -18,7 +19,7 @@
         private readonly Action<object> m_Execute;
         private readonly Func<object, bool> m_CanExecute;
         private readonly Action<object> ExecuteAction;
-        private int IsExecuting = 0;
+        private AtomicBoolean IsExecuting = new AtomicBoolean(false);
 
         #region Constructors
 
@@ -71,7 +72,7 @@
         [DebuggerStepThrough]
         public bool CanExecute(object parameter = null)
         {
-            if (IsExecuting == 1) return false;
+            if (IsExecuting.Value) return false;
             return m_CanExecute == null || m_CanExecute(parameter);
         }
 
@@ -91,11 +92,11 @@
         /// <returns>The awaitable task</returns>
         public async Task ExecuteAsync(object parameter = null)
         {
-            if (Volatile.Read(ref IsExecuting) == 1) return;
+            if (IsExecuting.Value) return;
 
             try
             {
-                Interlocked.Exchange(ref IsExecuting, 1);
+                IsExecuting.Value = true;
                 await Application.Current.Dispatcher.BeginInvoke(ExecuteAction, DispatcherPriority.Normal, parameter);
             }
             catch (Exception ex)
@@ -105,7 +106,7 @@
             }
             finally
             {
-                Interlocked.Exchange(ref IsExecuting, 0);
+                IsExecuting.Value = false;
                 RaiseCanExecuteChanged();
             }
         }

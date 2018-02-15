@@ -9,7 +9,7 @@
     /// </summary>
     public sealed class AtomicBoolean
     {
-        private int m_Value = 0;
+        private long m_Value = 0;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AtomicBoolean"/> class.
@@ -34,7 +34,7 @@
         /// </summary>
         public bool Value
         {
-            get => Volatile.Read(ref m_Value) != 0;
+            get => Interlocked.Read(ref m_Value) != 0;
             set => Interlocked.Exchange(ref m_Value, value ? 1 : 0);
         }
     }

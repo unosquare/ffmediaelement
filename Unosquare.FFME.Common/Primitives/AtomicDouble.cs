@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Primitives
 {
+    using System;
     using System.Threading;
 
     /// <summary>
@@ -9,7 +10,7 @@
     /// </summary>
     public sealed class AtomicDouble
     {
-        private double m_Value = default(double);
+        private long m_Value = default(long);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AtomicDouble"/> class.
@@ -33,8 +34,14 @@
         /// </summary>
         public double Value
         {
-            get => Volatile.Read(ref m_Value);
-            set => Interlocked.Exchange(ref m_Value, value);
+            get
+            {
+                return BitConverter.Int64BitsToDouble(Interlocked.Read(ref m_Value));
+            }
+            set
+            {
+                Interlocked.Exchange(ref m_Value, BitConverter.DoubleToInt64Bits(value));
+            }
         }
     }
 }
