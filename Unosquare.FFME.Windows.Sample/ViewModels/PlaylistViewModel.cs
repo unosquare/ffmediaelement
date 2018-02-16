@@ -2,6 +2,7 @@
 {
     using Events;
     using Foundation;
+    using Platform;
     using System;
 
     /// <summary>
@@ -10,8 +11,8 @@
     /// <seealso cref="AttachedViewModel" />
     public class PlaylistViewModel : AttachedViewModel
     {
-        private bool m_IsInOpenMode = false;
-        private string m_OpenModeUrl = string.Empty;
+        private bool m_IsInOpenMode = GuiContext.Current.IsInDesignTime;
+        private string m_OpenTargetUrl = string.Empty;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PlaylistViewModel"/> class.
@@ -54,10 +55,10 @@
         /// <summary>
         /// Gets or sets the open model URL.
         /// </summary>
-        public string OpenModelUrl
+        public string OpenTargetUrl
         {
-            get => m_OpenModeUrl;
-            set => SetProperty(ref m_OpenModeUrl, value);
+            get => m_OpenTargetUrl;
+            set => SetProperty(ref m_OpenTargetUrl, value);
         }
 
         /// <summary>
@@ -71,8 +72,8 @@
             new Action(() => { IsPlaylistEnabled = m.IsOpening == false; })
                 .WhenChanged(m, nameof(m.IsOpening));
 
-            m.MediaOpened += MediaOpened;
-            m.RenderingVideo += RenderingVideo;
+            m.MediaOpened += OnMediaOpened;
+            m.RenderingVideo += OnRenderingVideo;
         }
 
         /// <summary>
@@ -80,7 +81,7 @@
         /// </summary>
         /// <param name="sender">The sender.</param>
         /// <param name="e">The <see cref="System.Windows.RoutedEventArgs"/> instance containing the event data.</param>
-        private void MediaOpened(object sender, System.Windows.RoutedEventArgs e)
+        private void OnMediaOpened(object sender, System.Windows.RoutedEventArgs e)
         {
             HasTakenThumbnail = false;
         }
@@ -90,7 +91,7 @@
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="RenderingVideoEventArgs"/> instance containing the event data.</param>
-        private void RenderingVideo(object sender, RenderingVideoEventArgs e)
+        private void OnRenderingVideo(object sender, RenderingVideoEventArgs e)
         {
             if (HasTakenThumbnail) return;
             var m = Root.App.MediaElement;

@@ -98,11 +98,11 @@
             // Reset the Zoom
             ViewModel.Controller.MediaElementZoom = 1d;
 
-            // Update the COntrols
+            // Update the Controls
             var source = Media.Source.ToString();
             ViewModel.Playlist.IsInOpenMode = false;
-            ControllerPanel.OpenMenuButton.IsChecked = false;
-            ViewModel.Playlist.OpenModelUrl = source;
+            ViewModel.IsPlaylistPanelOpen = false;
+            ViewModel.Playlist.OpenTargetUrl = source;
         }
 
         /// <summary>

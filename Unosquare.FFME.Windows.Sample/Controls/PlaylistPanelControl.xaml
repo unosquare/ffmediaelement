@@ -6,8 +6,9 @@
              xmlns:local="clr-namespace:Unosquare.FFME.Windows.Sample.Foundation"
              xmlns:ffmepl="clr-namespace:Unosquare.FFME.Playlists;assembly=ffme.common"
              xmlns:vm="clr-namespace:Unosquare.FFME.Windows.Sample.ViewModels"
-             mc:Ignorable="d" d:DataContext="{d:DesignInstance vm:RootViewModel, IsDesignTimeCreatable=False}"
-             x:Name="LayoutRoot">
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance vm:RootViewModel, IsDesignTimeCreatable=True}"
+             d:DesignHeight="320"  Name="LayoutRoot">
     
     <!-- The Glass Background Border -->
     <Border  
@@ -50,7 +51,7 @@
                     </Grid>
                 </Border>
                 <Grid Grid.Column="1">
-                    <ToggleButton DockPanel.Dock="Top" Style="{DynamicResource ModernToggleButtonStyle}" x:Name="AddToggleButton" ToolTip="Open ...">
+                    <ToggleButton IsChecked="{Binding Playlist.IsInOpenMode}" DockPanel.Dock="Top" Style="{DynamicResource ModernToggleButtonStyle}" x:Name="AddToggleButton" ToolTip="Open ...">
                         <Path Stretch="Uniform" Data="{Binding Source={StaticResource AddIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}}}" />
                     </ToggleButton>
                 </Grid>
@@ -60,20 +61,20 @@
             <Grid DockPanel.Dock="Top">
                 <Grid.Style>
                     <Style TargetType="Grid">
-                        <Setter Property="Height" Value="0" />
+                        <Setter Property="Height" Value="44" />
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding ElementName=AddToggleButton, Path=IsChecked}" Value="True">
+                            <DataTrigger Binding="{Binding Playlist.IsInOpenMode}" Value="False">
                                 <DataTrigger.EnterActions>
                                     <BeginStoryboard>
                                         <Storyboard>
-                                            <DoubleAnimation Duration="0:0:0.25" To="44" Storyboard.TargetProperty="Height" />
+                                            <DoubleAnimation Duration="0:0:0.25" To="0" Storyboard.TargetProperty="Height" />
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </DataTrigger.EnterActions>
                                 <DataTrigger.ExitActions>
                                     <BeginStoryboard>
                                         <Storyboard>
-                                            <DoubleAnimation Duration="0:0:0.25" To="0" Storyboard.TargetProperty="Height" />
+                                            <DoubleAnimation Duration="0:0:0.25" To="44" Storyboard.TargetProperty="Height" />
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </DataTrigger.ExitActions>
