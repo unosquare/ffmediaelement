@@ -1159,6 +1159,18 @@ references:
   commentId: Overload:Unosquare.FFME.MediaElement.MediaFormat
   fullName: Unosquare.FFME.MediaElement.MediaFormat
   nameWithType: MediaElement.MediaFormat
+- uid: Unosquare.FFME.MediaElement.MediaInfo
+  name: MediaInfo
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaInfo
+  commentId: P:Unosquare.FFME.MediaElement.MediaInfo
+  fullName: Unosquare.FFME.MediaElement.MediaInfo
+  nameWithType: MediaElement.MediaInfo
+- uid: Unosquare.FFME.MediaElement.MediaInfo*
+  name: MediaInfo
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaInfo_
+  commentId: Overload:Unosquare.FFME.MediaElement.MediaInfo
+  fullName: Unosquare.FFME.MediaElement.MediaInfo
+  nameWithType: MediaElement.MediaInfo
 - uid: Unosquare.FFME.MediaElement.MediaInitializing
   name: MediaInitializing
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaInitializing
