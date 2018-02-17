@@ -159,6 +159,7 @@
                             if (Current.MainWindow.WindowStyle == WindowStyle.None)
                             {
                                 PreviousWindowStatus.Apply(Current.MainWindow);
+                                WindowStatus.EnableDisplayTimeout();
                             }
                             else
                             {
@@ -168,6 +169,7 @@
                                 Current.MainWindow.Topmost = true;
                                 Current.MainWindow.WindowState = WindowState.Normal;
                                 Current.MainWindow.WindowState = WindowState.Maximized;
+                                WindowStatus.DisableDisplayTimeout();
                             }
                         });
                     }

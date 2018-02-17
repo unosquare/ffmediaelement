@@ -338,11 +338,11 @@
         /// <summary>
         /// Updates the position.
         /// </summary>
-        /// <param name="position">The position.</param>
-        internal void UpdatePosition(TimeSpan position)
+        /// <param name="newPosition">The position.</param>
+        internal void UpdatePosition(TimeSpan newPosition)
         {
             var oldValue = Position;
-            var newValue = position.Normalize();
+            var newValue = newPosition;
             if (oldValue.Ticks == newValue.Ticks)
                 return;
 
