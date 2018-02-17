@@ -7,15 +7,15 @@
              xmlns:vm="clr-namespace:Unosquare.FFME.Windows.Sample.ViewModels"
              mc:Ignorable="d" d:DesignHeight="320"  Name="LayoutRoot"
              d:DataContext="{d:DesignInstance vm:RootViewModel, IsDesignTimeCreatable=True}">
-    
+
     <!-- The Glass Background Border -->
-    <Border Width="570" 
+    <Border
             Style="{StaticResource SidePanelContainerBorderStyle}"
             IsEnabled="{Binding Playlist.IsPlaylistEnabled}">
         <DockPanel LastChildFill="True">
 
             <!-- The Toolbox -->
-            <Grid DockPanel.Dock="Top">
+            <Grid DockPanel.Dock="Top" Width="{Binding Path=ActualWidth, ElementName=PlaylistItemsControl}" HorizontalAlignment="Left">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
                     <ColumnDefinition Width="Auto" />
@@ -56,7 +56,8 @@
             </Grid>
 
             <!-- The Add to Playlist Controls -->
-            <Grid DockPanel.Dock="Top">
+            <Grid DockPanel.Dock="Top" HorizontalAlignment="Left"
+                  Width="{Binding Path=ActualWidth, ElementName=PlaylistItemsControl}">
                 <Grid.Style>
                     <Style TargetType="Grid">
                         <Setter Property="Height" Value="44" />
@@ -106,116 +107,129 @@
 
             <!-- The Content -->
             <Grid x:Name="PlaylistPanelContentList">
-                <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Hidden"
-                              MaxHeight="1080"
-                              Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UIElement}}">
-                    <ItemsControl ItemsSource="{Binding Playlist.EntriesView}"
-                                  Width="{Binding Path=ActualWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UIElement}}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <VirtualizingStackPanel VirtualizingPanel.VirtualizationMode="Recycling" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate DataType="{x:Type ffmepl:PlaylistEntry}">
-                                <DataTemplate.Resources>
-                                    <Style TargetType="Hyperlink">
-                                        <Setter Property="Foreground" Value="Orange"/>
-                                        <Setter Property="TextDecorations" Value="Underline"/>
+                <ItemsControl x:Name="PlaylistItemsControl"
+                                  MaxHeight="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UIElement}}"
+                                  ItemsSource="{Binding Playlist.EntriesView}" 
+                                  HorizontalAlignment="Left"
+                                  VirtualizingStackPanel.IsVirtualizing="true"
+                                  VirtualizingStackPanel.VirtualizationMode="Standard">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel 
+                                Width="570"
+                                Orientation="Vertical" 
+                                IsItemsHost="True" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.Template>
+                        <ControlTemplate TargetType="ItemsControl">
+                            <ScrollViewer CanContentScroll="true"
+                                          VerticalScrollBarVisibility="Visible" 
+                                          HorizontalScrollBarVisibility="Hidden">
+                                <ItemsPresenter/>
+                            </ScrollViewer>
+                        </ControlTemplate>
+                    </ItemsControl.Template>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type ffmepl:PlaylistEntry}">
+                            <DataTemplate.Resources>
+                                <Style TargetType="Hyperlink">
+                                    <Setter Property="Foreground" Value="Orange"/>
+                                    <Setter Property="TextDecorations" Value="Underline"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Foreground" Value="OrangeRed"/>
+                                        </Trigger>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsEnabled" Value="True">
+                                            <Setter Property="Cursor" Value="Hand"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataTemplate.Resources>
+                            <Border Margin="0,4,0,0" HorizontalAlignment="Left" Width="570">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <SolidColorBrush Color="#ee1f1f1f"/>
+                                            </Setter.Value>
+                                        </Setter>
                                         <Style.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Foreground" Value="OrangeRed"/>
-                                            </Trigger>
-                                            <Trigger Property="IsEnabled" Value="False">
-                                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
-                                            </Trigger>
-                                            <Trigger Property="IsEnabled" Value="True">
-                                                <Setter Property="Cursor" Value="Hand"/>
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </DataTemplate.Resources>
-                                <Border Margin="0,4,0,0">
-                                    <Border.Style>
-                                        <Style TargetType="Border">
-                                            <Setter Property="Background">
-                                                <Setter.Value>
-                                                    <SolidColorBrush Color="#ee1f1f1f"/>
-                                                </Setter.Value>
-                                            </Setter>
-                                            <Style.Triggers>
-                                                <EventTrigger RoutedEvent="Border.MouseEnter">
-                                                    <BeginStoryboard>
-                                                        <Storyboard>
-                                                            <ColorAnimation 
+                                            <EventTrigger RoutedEvent="Border.MouseEnter">
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <ColorAnimation 
                                                                 Duration="0:0:0.25" To="#ee000000"
                                                                 Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" />
-                                                        </Storyboard>
-                                                    </BeginStoryboard>
-                                                </EventTrigger>
-                                                <EventTrigger RoutedEvent="Border.MouseLeave">
-                                                    <BeginStoryboard>
-                                                        <Storyboard>
-                                                            <ColorAnimation 
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </EventTrigger>
+                                            <EventTrigger RoutedEvent="Border.MouseLeave">
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <ColorAnimation 
                                                                 Duration="0:0:0.10" To="#ee1f1f1f"
                                                                 Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" />
-                                                        </Storyboard>
-                                                    </BeginStoryboard>
-                                                </EventTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </EventTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
 
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="72" />
-                                        </Grid.RowDefinitions>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="72" />
+                                    </Grid.RowDefinitions>
 
-                                        <Border>
-                                            <Button 
+                                    <Border>
+                                        <Button 
                                                 Cursor="Hand" Width="128" 
                                                 Command="{Binding Source={StaticResource ViewModel}, Path=App.Commands.OpenCommand}" 
                                                 CommandParameter="{Binding MediaUrl}">
-                                                <Button.Template>
-                                                    <ControlTemplate>
-                                                        <Grid Background="Transparent">
-                                                            <Viewbox Margin="14">
-                                                                <Path Stretch="Uniform" Data="{Binding Source={StaticResource MediaIcon}, Path=Data}" Fill="#444444" />
-                                                            </Viewbox>
-                                                            <Image Stretch="Uniform" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                                            <Button.Template>
+                                                <ControlTemplate>
+                                                    <Grid Background="Transparent">
+                                                        <Viewbox Margin="14">
+                                                            <Path Stretch="Uniform" Data="{Binding Source={StaticResource MediaIcon}, Path=Data}" Fill="#444444" />
+                                                        </Viewbox>
+                                                        <Image Stretch="Uniform" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                                                                         Source="{Binding Path=Thumbnail, IsAsync=True, Converter={StaticResource PlaylistEntryThumbnailConverter}}"></Image>
-                                                        </Grid>
-                                                    </ControlTemplate>
-                                                </Button.Template>
-                                            </Button>
-                                        </Border>
+                                                    </Grid>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+                                    </Border>
 
-                                        <DockPanel Grid.Column="1" Margin="4">
-                                            <DockPanel DockPanel.Dock="Right" Width="80" LastChildFill="False">
-                                                <Button 
+                                    <DockPanel Grid.Column="1" Margin="4">
+                                        <DockPanel DockPanel.Dock="Right" Width="80" LastChildFill="False">
+                                            <Button 
                                                     DockPanel.Dock="Top"
                                                     Style="{DynamicResource ModernButtonStyle}" 
                                                     Command="{Binding Source={StaticResource ViewModel}, Path=App.Commands.OpenCommand}" 
                                                     CommandParameter="{Binding MediaUrl}">
-                                                    <Path Stretch="Uniform" Data="{Binding Source={StaticResource PlayIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
-                                                </Button>
-                                                <TextBlock DockPanel.Dock="Bottom" Text="{Binding Duration, Converter={StaticResource PlaylistDurationFormatter}}" 
+                                                <Path Stretch="Uniform" Data="{Binding Source={StaticResource PlayIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
+                                            </Button>
+                                            <TextBlock DockPanel.Dock="Bottom" Text="{Binding Duration, Converter={StaticResource PlaylistDurationFormatter}}" 
                                                             Foreground="WhiteSmoke" TextAlignment="Center" TextTrimming="CharacterEllipsis" FontSize="10"
                                                             FontWeight="Bold" Padding="0,0,0,4" />
-                                            </DockPanel>
+                                        </DockPanel>
 
-                                            <TextBox DockPanel.Dock="Top" Text="{Binding Title}" BorderBrush="Transparent"
+                                        <TextBox DockPanel.Dock="Top" Text="{Binding Title}" BorderBrush="Transparent"
                                                         Background="#00000000" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="12">
-                                            </TextBox>
+                                        </TextBox>
 
-                                            <TextBlock DockPanel.Dock="Top" Text="{Binding MediaUrl}" 
+                                        <TextBlock DockPanel.Dock="Top" Text="{Binding MediaUrl}" 
                                                         FontSize="9" ToolTip="{Binding MediaUrl}" Foreground="#666" TextTrimming="CharacterEllipsis"
                                                         Margin="4,4,4,0"/>
-                                            <TextBlock DockPanel.Dock="Top" 
+                                        <TextBlock DockPanel.Dock="Top" 
                                                         FontSize="9" Foreground="#666" TextTrimming="CharacterEllipsis"
                                                         Margin="4,4,4,0">
                                                         <TextBlock>Viewed on </TextBlock>
@@ -225,13 +239,12 @@
                                                             Command="{Binding Source={StaticResource ViewModel}, Path=App.Commands.RemovePlaylistItemCommand}"
                                                             CommandParameter="{Binding}">REMOVE</Hyperlink>
                                                     </TextBlock>
-                                        </DockPanel>
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
+                                    </DockPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </Grid>
         </DockPanel>
     </Border>

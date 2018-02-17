@@ -38,20 +38,29 @@
             PlaylistFilePath = Path.Combine(root.AppDataDirectory, "ffme.m3u8");
 
             Entries = new CustomPlaylist(this);
-            EntriesView = CollectionViewSource.GetDefaultView(Entries) as ICollectionView;
-            EntriesView.Filter = (item) =>
+            DeferredAction loadPlaylistAction = null;
+            loadPlaylistAction = DeferredAction.Create(() =>
             {
-                var entry = item as CustomPlaylistEntry;
-                if (entry == null) return false;
-                if (string.IsNullOrWhiteSpace(PlaylistSearchString) || PlaylistSearchString.Trim().Length < MinimumSearchLength)
-                    return true;
+                EntriesView = CollectionViewSource.GetDefaultView(Entries) as ICollectionView;
+                EntriesView.Filter = (item) =>
+                {
+                    var entry = item as CustomPlaylistEntry;
+                    if (entry == null) return false;
+                    if (string.IsNullOrWhiteSpace(PlaylistSearchString) || PlaylistSearchString.Trim().Length < MinimumSearchLength)
+                        return true;
 
-                if ((entry.Title?.ToLowerInvariant().Contains(PlaylistSearchString) ?? false) ||
-                    (entry.MediaUrl?.ToLowerInvariant().Contains(PlaylistSearchString) ?? false))
-                    return true;
+                    if ((entry.Title?.ToLowerInvariant().Contains(PlaylistSearchString) ?? false) ||
+                        (entry.MediaUrl?.ToLowerInvariant().Contains(PlaylistSearchString) ?? false))
+                        return true;
 
-                return false;
-            };
+                    return false;
+                };
+
+                NotifyPropertyChanged(nameof(EntriesView));
+                loadPlaylistAction.Dispose();
+            });
+
+            loadPlaylistAction.Defer(TimeSpan.FromSeconds(0.5));
         }
 
         /// <summary>
@@ -62,7 +71,7 @@
         /// <summary>
         /// Gets the custom playlist entries as a view that can be uased in data binding scenarios.
         /// </summary>
-        public ICollectionView EntriesView { get; }
+        public ICollectionView EntriesView { get; private set; }
 
         /// <summary>
         /// Gets the full path wehre thumbnails are stored.
