@@ -6,8 +6,17 @@
     using System.Drawing.Imaging;
     using System.IO;
 
+    /// <summary>
+    /// A class for creating, saving, and loading thumbnails.
+    /// </summary>
     internal class ThumbnailGenerator
     {
+        /// <summary>
+        /// Snaps the thumbnail.
+        /// </summary>
+        /// <param name="sourceImage">The source image.</param>
+        /// <param name="targetPath">The target path.</param>
+        /// <returns>The file name guid.</returns>
         public static string SnapThumbnail(Image sourceImage, string targetPath)
         {
             using (var thumb = CreateThumbnail(sourceImage, Color.Black, 256, 144)) // 16:9 (in general)
@@ -45,6 +54,14 @@
             return null;
         }
 
+        /// <summary>
+        /// Creates the thumbnail.
+        /// </summary>
+        /// <param name="sourceImage">The source image.</param>
+        /// <param name="background">The background.</param>
+        /// <param name="width">The width.</param>
+        /// <param name="height">The height.</param>
+        /// <returns>The thumbnail image</returns>
         public static Image CreateThumbnail(Image sourceImage, Color background, int width, int height)
         {
             var outputSize = new Size(width, height);
@@ -71,6 +88,12 @@
             return outputImage;
         }
 
+        /// <summary>
+        /// Saves the thumbnail.
+        /// </summary>
+        /// <param name="thumbnail">The thumbnail.</param>
+        /// <param name="baseDirectory">The base directory.</param>
+        /// <returns>The filename with extension</returns>
         public static string SaveThumbnail(Image thumbnail, string baseDirectory)
         {
             var guid = Guid.NewGuid();
@@ -79,6 +102,12 @@
             return Path.GetFileName(targetFilename);
         }
 
+        /// <summary>
+        /// Computes the size of the proportional.
+        /// </summary>
+        /// <param name="maxSize">The maximum size.</param>
+        /// <param name="currentSize">Size of the current.</param>
+        /// <returns>A propertional size structure</returns>
         private static Size ComputeProportionalSize(Size maxSize, Size currentSize)
         {
             var maxScaleRatio = 0d;

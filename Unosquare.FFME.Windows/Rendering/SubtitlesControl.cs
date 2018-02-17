@@ -69,7 +69,7 @@
         /// <summary>
         /// The default font size
         /// </summary>
-        private const double DefaultFontSize = 48;
+        private const double DefaultFontSize = 58;
 
         private const FrameworkPropertyMetadataOptions AffectsMeasureAndRender
             = FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender;
@@ -99,7 +99,7 @@
             Direction = 315,
             Opacity = 0.75,
             RenderingBias = RenderingBias.Performance,
-            ShadowDepth = 4
+            ShadowDepth = 6
         };
 
         /// <summary>

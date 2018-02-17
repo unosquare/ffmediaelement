@@ -18,8 +18,10 @@
     {
         #region Fields
 
+        private static readonly Key[] TogglePlayPauseKeys = new[] { Key.Play, Key.MediaPlayPause, Key.Space };
         private DateTime LastMouseMoveTime;
         private Point LastMousePosition;
+        private DispatcherTimer MouseMoveTimer = null;
 
         #endregion
 
@@ -34,9 +36,8 @@
             InitializeComponent();
 
             // Setup the UI
-            InitializeMediaEvents();
-            InitializeInputEvents();
             InitializeMainWindow();
+            InitializeMediaEvents();
         }
 
         #endregion
@@ -50,197 +51,18 @@
 
         #endregion
 
-        #region Methods
-
-        /// <summary>
-        /// Initializes the media events.
-        /// </summary>
-        private void InitializeMediaEvents()
-        {
-            // Global FFmpeg message handler
-            FFME.MediaElement.FFmpegMessageLogged += MediaElement_FFmpegMessageLogged;
-
-            // MediaElement event bindings
-            Media.MediaInitializing += Media_MediaInitializing;
-            Media.MediaOpening += Media_MediaOpening;
-            Media.MediaOpened += Media_MediaOpened;
-            Media.PositionChanged += Media_PositionChanged;
-            Media.MediaFailed += Media_MediaFailed;
-            Media.MessageLogged += Media_MessageLogged;
-            BindRenderingEvents();
-        }
+        #region Initialization Methods
 
         /// <summary>
         /// Initializes the main window.
         /// </summary>
         private void InitializeMainWindow()
         {
-            Loaded += MainWindow_Loaded;
+            Loaded += OnWindowLoaded;
+            PreviewKeyDown += OnWindowKeyDown;
+            MouseWheel += OnMouseWheelChange;
 
-            // Open a file if it is specified in the arguments
-            var args = Environment.GetCommandLineArgs();
-            if (args != null && args.Length > 1)
-            {
-                App.Current.Commands.OpenCommand.Execute(args[1].Trim());
-            }
-        }
-
-        /// <summary>
-        /// Initializes the mouse events for the window.
-        /// </summary>
-        private void InitializeInputEvents()
-        {
-            #region Keyboard Controls
-
-            var togglePlayPauseKeys = new[] { Key.Play, Key.MediaPlayPause, Key.Space };
-
-            window.PreviewKeyDown += async (s, e) =>
-            {
-                // Console.WriteLine($"KEY: {e.Key}, SRC: {e.OriginalSource?.GetType().Name}");
-                if (e.OriginalSource is TextBox)
-                    return;
-
-                // Keep the key focus on the main window
-                FocusManager.SetIsFocusScope(this, true);
-                FocusManager.SetFocusedElement(this, this);
-
-                if (e.Key == Key.G)
-                {
-                    Subtitles.SetForeground(Media, Brushes.Yellow);
-                }
-
-                // Pause
-                if (togglePlayPauseKeys.Contains(e.Key) && Media.IsPlaying)
-                {
-                    await App.Current.Commands.PauseCommand.ExecuteAsync();
-                    return;
-                }
-
-                // Play
-                if (togglePlayPauseKeys.Contains(e.Key) && Media.IsPlaying == false)
-                {
-                    await App.Current.Commands.PlayCommand.ExecuteAsync();
-                    return;
-                }
-
-                // Seek to left
-                if (e.Key == Key.Left)
-                {
-                    if (Media.IsPlaying) await Media.Pause();
-                    Media.Position -= TimeSpan.FromMilliseconds(
-                        Media.FrameStepDuration.TotalMilliseconds * (Media.SpeedRatio >= 1 ? Media.SpeedRatio : 1));
-                }
-
-                // Seek to right
-                if (e.Key == Key.Right)
-                {
-                    if (Media.IsPlaying) await Media.Pause();
-                    Media.Position += TimeSpan.FromMilliseconds(
-                        Media.FrameStepDuration.TotalMilliseconds * (Media.SpeedRatio >= 1 ? Media.SpeedRatio : 1));
-                }
-
-                // Volume Up
-                if (e.Key == Key.Add || e.Key == Key.VolumeUp)
-                {
-                    Media.Volume += 0.05;
-                    return;
-                }
-
-                // Volume Down
-                if (e.Key == Key.Subtract || e.Key == Key.VolumeDown)
-                {
-                    Media.Volume -= 0.05;
-                    return;
-                }
-
-                // Mute/Unmute
-                if (e.Key == Key.M || e.Key == Key.VolumeMute)
-                {
-                    Media.IsMuted = !Media.IsMuted;
-                    return;
-                }
-
-                // Increase speed
-                if (e.Key == Key.Up)
-                {
-                    Media.SpeedRatio += 0.05;
-                    return;
-                }
-
-                // Decrease speed
-                if (e.Key == Key.Down)
-                {
-                    Media.SpeedRatio -= 0.05;
-                    return;
-                }
-
-                // Reset changes
-                if (e.Key == Key.R)
-                {
-                    Media.SpeedRatio = 1.0;
-                    Media.Volume = 1.0;
-                    Media.Balance = 0;
-                    Media.IsMuted = false;
-                    ViewModel.Controller.MediaElementZoom = 1.0;
-                }
-            };
-
-            #endregion
-
-            #region Toggle Fullscreen with Double Click
-
-            Media.PreviewMouseDoubleClick += async (s, e) =>
-            {
-                if (s != Media) return;
-                e.Handled = true;
-                await App.Current.Commands.ToggleFullscreenCommand.ExecuteAsync();
-            };
-
-            #endregion
-
-            #region Exit fullscreen with Escape key
-
-            PreviewKeyDown += async (s, e) =>
-            {
-                if (e.Key == Key.Escape && WindowStyle == WindowStyle.None)
-                {
-                    e.Handled = true;
-                    await App.Current.Commands.ToggleFullscreenCommand.ExecuteAsync();
-                }
-            };
-
-            #endregion
-
-            #region Handle Zooming with Mouse Wheel
-
-            MouseWheel += (s, e) =>
-            {
-                if (Media.IsOpen == false || Media.IsOpening)
-                    return;
-
-                var delta = (e.Delta / 2000d).ToMultipleOf(0.05d);
-                ViewModel.Controller.MediaElementZoom = Math.Round(App.Current.ViewModel.Controller.MediaElementZoom + delta, 2);
-            };
-
-            #endregion
-
-            #region Handle Play Pause with Mouse Clicks
-
-            /*
-            Media.PreviewMouseDown += (s, e) =>
-            {
-                if (s != Media) return;
-                if (Media.IsOpen == false || Media.CanPause == false) return;
-                if (Media.IsPlaying)
-                    PauseCommand.Execute();
-                else
-                    PlayCommand.Execute();
-            };
-            */
-
-            #endregion
-
-            #region Mouse Move Handling (Hide and Show Controls)
+            #region Mouse Move Detection for Hiding the Controller Panel
 
             LastMouseMoveTime = DateTime.UtcNow;
 
@@ -258,13 +80,13 @@
                 LastMouseMoveTime = DateTime.UtcNow.Subtract(TimeSpan.FromSeconds(10));
             };
 
-            var mouseMoveTimer = new DispatcherTimer(DispatcherPriority.Background)
+            MouseMoveTimer = new DispatcherTimer(DispatcherPriority.Background)
             {
                 Interval = TimeSpan.FromMilliseconds(150),
                 IsEnabled = true
             };
 
-            mouseMoveTimer.Tick += (s, e) =>
+            MouseMoveTimer.Tick += (s, e) =>
             {
                 var elapsedSinceMouseMove = DateTime.UtcNow.Subtract(LastMouseMoveTime);
                 if (elapsedSinceMouseMove.TotalMilliseconds >= 3000 && Media.IsOpen && ControllerPanel.IsMouseOver == false
@@ -290,9 +112,202 @@
                 }
             };
 
-            mouseMoveTimer.Start();
+            MouseMoveTimer.Start();
 
             #endregion
+        }
+
+        /// <summary>
+        /// Initializes the media events.
+        /// </summary>
+        private void InitializeMediaEvents()
+        {
+            // Global FFmpeg message handler
+            FFME.MediaElement.FFmpegMessageLogged += OnMediaFFmpegMessageLogged;
+
+            // MediaElement event bindings
+            Media.PreviewMouseDoubleClick += OnMediaDoubleClick;
+            Media.MediaInitializing += OnMediaInitializing;
+            Media.MediaOpening += OnMediaOpening;
+            Media.MediaOpened += OnMediaOpened;
+            Media.PositionChanged += OnMediaPositionChanged;
+            Media.MediaFailed += OnMediaFailed;
+            Media.MessageLogged += OnMediaMessageLogged;
+
+            // Complex examples of MEdia Rendering Events
+            BindMediaRenderingEvents();
+        }
+
+        #endregion
+
+        #region Window Control and Input Event Handlers
+
+        /// <summary>
+        /// Handles the Loaded event of the MainWindow control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
+        private void OnWindowLoaded(object sender, RoutedEventArgs e)
+        {
+            // Remove the event handler reference
+            Loaded -= OnWindowLoaded;
+
+            // Compute and Apply Sizing Properties
+            var presenter = VisualTreeHelper.GetParent(Content as UIElement) as ContentPresenter;
+            presenter.MinWidth = MinWidth;
+            presenter.MinHeight = MinHeight;
+
+            SizeToContent = SizeToContent.WidthAndHeight;
+            MinWidth = ActualWidth;
+            MinHeight = ActualHeight;
+            SizeToContent = SizeToContent.Manual;
+
+            // Open a file if it is specified in the arguments
+            var args = Environment.GetCommandLineArgs();
+            if (args != null && args.Length > 1)
+            {
+                App.Current.Commands.OpenCommand.Execute(args[1].Trim());
+            }
+        }
+
+        /// <summary>
+        /// Handles the PreviewKeyDown event of the MainWindow control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="KeyEventArgs"/> instance containing the event data.</param>
+        private async void OnWindowKeyDown(object sender, KeyEventArgs e)
+        {
+            // Console.WriteLine($"KEY: {e.Key}, SRC: {e.OriginalSource?.GetType().Name}");
+            if (e.OriginalSource is TextBox)
+                return;
+
+            // Keep the key focus on the main window
+            FocusManager.SetIsFocusScope(this, true);
+            FocusManager.SetFocusedElement(this, this);
+
+            if (e.Key == Key.G)
+            {
+                // Example of toggling subtitle color
+                if (Subtitles.GetForeground(Media) == Brushes.LightYellow)
+                    Subtitles.SetForeground(Media, Brushes.Yellow);
+                else
+                    Subtitles.SetForeground(Media, Brushes.LightYellow);
+
+                return;
+            }
+
+            // Pause
+            if (TogglePlayPauseKeys.Contains(e.Key) && Media.IsPlaying)
+            {
+                await App.Current.Commands.PauseCommand.ExecuteAsync();
+                return;
+            }
+
+            // Play
+            if (TogglePlayPauseKeys.Contains(e.Key) && Media.IsPlaying == false)
+            {
+                await App.Current.Commands.PlayCommand.ExecuteAsync();
+                return;
+            }
+
+            // Seek to left
+            if (e.Key == Key.Left)
+            {
+                if (Media.IsPlaying) await Media.Pause();
+                Media.Position -= TimeSpan.FromMilliseconds(
+                    Media.FrameStepDuration.TotalMilliseconds * (Media.SpeedRatio >= 1 ? Media.SpeedRatio : 1));
+
+                return;
+            }
+
+            // Seek to right
+            if (e.Key == Key.Right)
+            {
+                if (Media.IsPlaying) await Media.Pause();
+                Media.Position += TimeSpan.FromMilliseconds(
+                    Media.FrameStepDuration.TotalMilliseconds * (Media.SpeedRatio >= 1 ? Media.SpeedRatio : 1));
+
+                return;
+            }
+
+            // Volume Up
+            if (e.Key == Key.Add || e.Key == Key.VolumeUp)
+            {
+                Media.Volume += 0.05;
+                return;
+            }
+
+            // Volume Down
+            if (e.Key == Key.Subtract || e.Key == Key.VolumeDown)
+            {
+                Media.Volume -= 0.05;
+                return;
+            }
+
+            // Mute/Unmute
+            if (e.Key == Key.M || e.Key == Key.VolumeMute)
+            {
+                Media.IsMuted = !Media.IsMuted;
+                return;
+            }
+
+            // Increase speed
+            if (e.Key == Key.Up)
+            {
+                Media.SpeedRatio += 0.05;
+                return;
+            }
+
+            // Decrease speed
+            if (e.Key == Key.Down)
+            {
+                Media.SpeedRatio -= 0.05;
+                return;
+            }
+
+            // Reset changes
+            if (e.Key == Key.R)
+            {
+                Media.SpeedRatio = 1.0;
+                Media.Volume = 1.0;
+                Media.Balance = 0;
+                Media.IsMuted = false;
+                ViewModel.Controller.MediaElementZoom = 1.0;
+                return;
+            }
+
+            // Exit fullscreen
+            if (e.Key == Key.Escape && WindowStyle == WindowStyle.None)
+            {
+                await App.Current.Commands.ToggleFullscreenCommand.ExecuteAsync();
+                return;
+            }
+        }
+
+        /// <summary>
+        /// Handles the PreviewMouseDoubleClick event of the Media control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="MouseButtonEventArgs"/> instance containing the event data.</param>
+        private async void OnMediaDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (sender != Media) return;
+            e.Handled = true;
+            await App.Current.Commands.ToggleFullscreenCommand.ExecuteAsync();
+        }
+
+        /// <summary>
+        /// Handles the MouseWheel event of the MainWindow control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="MouseWheelEventArgs"/> instance containing the event data.</param>
+        private void OnMouseWheelChange(object sender, MouseWheelEventArgs e)
+        {
+            if (Media.IsOpen == false || Media.IsOpening)
+                return;
+
+            var delta = (e.Delta / 2000d).ToMultipleOf(0.05d);
+            ViewModel.Controller.MediaElementZoom = Math.Round(App.Current.ViewModel.Controller.MediaElementZoom + delta, 2);
         }
 
         #endregion

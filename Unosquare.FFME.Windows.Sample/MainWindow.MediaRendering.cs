@@ -12,13 +12,12 @@
         /// <summary>
         /// Provides examples for rendering events
         /// </summary>
-        private void BindRenderingEvents()
+        private void BindMediaRenderingEvents()
         {
-            #region Audio and Video Frame Rendering Variables
+            if (System.Diagnostics.Debugger.IsAttached == false)
+                return;
 
-#if !HANDLE_RENDERING_EVENTS
-            return;
-#endif
+            #region Audio and Video Frame Rendering Variables
 
             // We can extract the closed caption data into a file if we need to.
             var closedCaptionsFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "608.bin");

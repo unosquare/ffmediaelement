@@ -128,7 +128,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Foundation\WindowStatus.cs" />
-    <Compile Include="MainWindow.EventHandlers.cs" />
+    <Compile Include="MainWindow.MediaEvents.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -139,7 +139,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MainWindow.RenderingEvents.cs" />
+    <Compile Include="MainWindow.MediaRendering.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

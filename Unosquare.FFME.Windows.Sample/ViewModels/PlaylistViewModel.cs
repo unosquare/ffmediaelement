@@ -17,6 +17,7 @@
         private const int MinimumSearchLength = 3;
         private readonly TimeSpan SearchActionDelay = TimeSpan.FromSeconds(0.25);
         private bool m_IsInOpenMode = GuiContext.Current.IsInDesignTime;
+        private bool m_IsPlaylistEnabled = true;
         private string m_OpenTargetUrl = string.Empty;
         private string m_PlaylistSearchString = string.Empty;
         private DeferredAction SearchAction = null;
@@ -106,7 +107,11 @@
         /// <summary>
         /// Gets or sets a value indicating whether this instance is playlist enabled.
         /// </summary>
-        public bool IsPlaylistEnabled { get; set; } = true;
+        public bool IsPlaylistEnabled
+        {
+            get => m_IsPlaylistEnabled;
+            set => SetProperty(ref m_IsPlaylistEnabled, value);
+        }
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance has taken thumbnail.
@@ -139,8 +144,10 @@
             base.OnApplicationLoaded();
             var m = Root.App.MediaElement;
 
-            new Action(() => { IsPlaylistEnabled = m.IsOpening == false; })
-                .WhenChanged(m, nameof(m.IsOpening));
+            new Action(() =>
+            {
+                IsPlaylistEnabled = m.IsOpening == false;
+            }).WhenChanged(m, nameof(m.IsOpening));
 
             m.MediaOpened += OnMediaOpened;
             m.RenderingVideo += OnRenderingVideo;

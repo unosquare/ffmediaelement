@@ -9,7 +9,7 @@
              d:DataContext="{d:DesignInstance vm:RootViewModel, IsDesignTimeCreatable=True}">
     
     <!-- The Glass Background Border -->
-    <Border  
+    <Border Width="570" 
             Style="{StaticResource SidePanelContainerBorderStyle}"
             IsEnabled="{Binding Playlist.IsPlaylistEnabled}">
         <DockPanel LastChildFill="True">
@@ -109,10 +109,11 @@
                 <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Hidden"
                               MaxHeight="1080"
                               Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UIElement}}">
-                    <ItemsControl ItemsSource="{Binding Playlist.EntriesView}">
+                    <ItemsControl ItemsSource="{Binding Playlist.EntriesView}"
+                                  Width="{Binding Path=ActualWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UIElement}}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <VirtualizingStackPanel Width="570" VirtualizingPanel.VirtualizationMode="Recycling" />
+                                <VirtualizingStackPanel VirtualizingPanel.VirtualizationMode="Recycling" />
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>

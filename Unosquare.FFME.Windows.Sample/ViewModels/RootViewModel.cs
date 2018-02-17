@@ -114,6 +114,17 @@
                 nameof(m.MediaState),
                 nameof(m.Source));
 
+            m.MediaOpened += (s, e) =>
+            {
+                // Reset the Zoom
+                Controller.MediaElementZoom = 1d;
+
+                // Update the Controls
+                Playlist.IsInOpenMode = false;
+                IsPlaylistPanelOpen = false;
+                Playlist.OpenTargetUrl = m.Source.ToString();
+            };
+
             IsPlaylistPanelOpen = true;
             IsApplicationLoaded = true;
         }
