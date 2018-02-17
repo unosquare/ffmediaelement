@@ -14,14 +14,24 @@
     /// <seealso cref="AttachedViewModel" />
     public class PlaylistViewModel : AttachedViewModel
     {
+        #region Private State
+
+        // Constants
         private const int MinimumSearchLength = 3;
+
+        // Private state management
         private readonly TimeSpan SearchActionDelay = TimeSpan.FromSeconds(0.25);
+        private bool HasTakenThumbnail = false;
+        private DeferredAction SearchAction = null;
+        private string FilterString = string.Empty;
+
+        // Property Backing
         private bool m_IsInOpenMode = GuiContext.Current.IsInDesignTime;
         private bool m_IsPlaylistEnabled = true;
         private string m_OpenTargetUrl = string.Empty;
         private string m_PlaylistSearchString = string.Empty;
-        private DeferredAction SearchAction = null;
-        private string FilterString = string.Empty;
+
+        #endregion
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PlaylistViewModel"/> class.
@@ -38,29 +48,22 @@
             PlaylistFilePath = Path.Combine(root.AppDataDirectory, "ffme.m3u8");
 
             Entries = new CustomPlaylist(this);
-            DeferredAction loadPlaylistAction = null;
-            loadPlaylistAction = DeferredAction.Create(() =>
+            EntriesView = CollectionViewSource.GetDefaultView(Entries) as ICollectionView;
+            EntriesView.Filter = (item) =>
             {
-                EntriesView = CollectionViewSource.GetDefaultView(Entries) as ICollectionView;
-                EntriesView.Filter = (item) =>
-                {
-                    var entry = item as CustomPlaylistEntry;
-                    if (entry == null) return false;
-                    if (string.IsNullOrWhiteSpace(PlaylistSearchString) || PlaylistSearchString.Trim().Length < MinimumSearchLength)
-                        return true;
+                var entry = item as CustomPlaylistEntry;
+                if (entry == null) return false;
+                if (string.IsNullOrWhiteSpace(PlaylistSearchString) || PlaylistSearchString.Trim().Length < MinimumSearchLength)
+                    return true;
 
-                    if ((entry.Title?.ToLowerInvariant().Contains(PlaylistSearchString) ?? false) ||
-                        (entry.MediaUrl?.ToLowerInvariant().Contains(PlaylistSearchString) ?? false))
-                        return true;
+                if ((entry.Title?.ToLowerInvariant().Contains(PlaylistSearchString) ?? false) ||
+                    (entry.MediaUrl?.ToLowerInvariant().Contains(PlaylistSearchString) ?? false))
+                    return true;
 
-                    return false;
-                };
+                return false;
+            };
 
-                NotifyPropertyChanged(nameof(EntriesView));
-                loadPlaylistAction.Dispose();
-            });
-
-            loadPlaylistAction.Defer(TimeSpan.FromSeconds(0.5));
+            NotifyPropertyChanged(nameof(EntriesView));
         }
 
         /// <summary>
@@ -121,11 +124,6 @@
             get => m_IsPlaylistEnabled;
             set => SetProperty(ref m_IsPlaylistEnabled, value);
         }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether this instance has taken thumbnail.
-        /// </summary>
-        public bool HasTakenThumbnail { get; set; } = false;
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance is in open mode.
