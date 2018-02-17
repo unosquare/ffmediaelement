@@ -18,7 +18,7 @@
         /// </summary>
         /// <param name="action">The action.</param>
         private DeferredAction(Action action) => DeferTimer = new Timer(
-            new TimerCallback(s => Application.Current.Dispatcher.Invoke(action)));
+            new TimerCallback(s => Application.Current?.Dispatcher?.Invoke(action)));
 
         /// <summary>
         /// Creates a new DeferredAction.
