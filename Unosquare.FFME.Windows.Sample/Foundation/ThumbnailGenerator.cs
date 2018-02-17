@@ -26,7 +26,8 @@
         /// </returns>
         public static System.Windows.Media.ImageSource GetThumbnail(string targetPath, string thumbnailFilename)
         {
-            if (string.IsNullOrWhiteSpace(thumbnailFilename))
+            var sourcePath = Path.Combine(targetPath, thumbnailFilename);
+            if (string.IsNullOrWhiteSpace(thumbnailFilename) || File.Exists(sourcePath) == false)
                 return default(System.Windows.Media.ImageSource);
 
             try
@@ -34,7 +35,7 @@
                 var thumbnail = new System.Windows.Media.Imaging.BitmapImage();
                 thumbnail.BeginInit();
                 thumbnail.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
-                thumbnail.UriSource = new Uri($"{Path.Combine(targetPath, thumbnailFilename)}");
+                thumbnail.UriSource = new Uri(sourcePath);
                 thumbnail.EndInit();
                 thumbnail.Freeze();
                 return thumbnail;

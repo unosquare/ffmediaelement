@@ -48,5 +48,9 @@
     <PackageReference Include="FFmpeg.AutoGen" Version="3.4.0.3" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
   </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)'=='net461'">
+    <Reference Include="System.Web" />
+  </ItemGroup>
 
 </Project>

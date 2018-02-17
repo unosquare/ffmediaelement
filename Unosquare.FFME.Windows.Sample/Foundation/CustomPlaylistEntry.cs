@@ -2,7 +2,9 @@
 {
     using Playlists;
     using System;
+    using System.Collections.Generic;
     using System.Globalization;
+    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// A custom playlist entry with notification properties backed by Attributes
@@ -10,18 +12,12 @@
     /// <seealso cref="PlaylistEntry" />
     public class CustomPlaylistEntry : PlaylistEntry
     {
-        /// <summary>
-        /// Initializes static members of the <see cref="CustomPlaylistEntry"/> class.
-        /// </summary>
-        static CustomPlaylistEntry()
+        private static readonly Dictionary<string, string> PropertyMap = new Dictionary<string, string>()
         {
-            IAttributeContainerExtensions.RegisterPropertyMapping(
-                typeof(CustomPlaylistEntry), nameof(Thumbnail), "ffme-thumbnail");
-            IAttributeContainerExtensions.RegisterPropertyMapping(
-                typeof(CustomPlaylistEntry), nameof(Format), "info-format");
-            IAttributeContainerExtensions.RegisterPropertyMapping(
-                typeof(CustomPlaylistEntry), nameof(LastOpenedUtc), "ffme-lastopened");
-        }
+            { nameof(Thumbnail), "ffme-thumbnail" },
+            { nameof(Format), "info-format" },
+            { nameof(LastOpenedUtc), "ffme-lastopened" },
+        };
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CustomPlaylistEntry"/> class.
@@ -37,8 +33,8 @@
         /// </summary>
         public string Thumbnail
         {
-            get => this.GetAttributeValue();
-            set => this.SetAttributeValue(value);
+            get => GetMappedAttibuteValue();
+            set => SetMappedAttibuteValue(value);
         }
 
         /// <summary>
@@ -46,8 +42,8 @@
         /// </summary>
         public string Format
         {
-            get => this.GetAttributeValue();
-            set => this.SetAttributeValue(value);
+            get => GetMappedAttibuteValue();
+            set => SetMappedAttibuteValue(value);
         }
 
         /// <summary>
@@ -57,10 +53,11 @@
         {
             get
             {
-                if (this.ContainsAttributeFor() == false)
+                var currentValue = GetMappedAttibuteValue();
+                if (string.IsNullOrWhiteSpace(currentValue))
                     return default(DateTime?);
 
-                if (long.TryParse(this.GetAttributeValue(), out long binaryValue))
+                if (long.TryParse(currentValue, out long binaryValue))
                     return DateTime.FromBinary(binaryValue);
 
                 return default(DateTime?);
@@ -69,13 +66,24 @@
             {
                 if (value == null)
                 {
-                    this.SetAttributeValue(null);
+                    SetMappedAttibuteValue(null);
                     return;
                 }
 
                 var binaryValue = value.Value.ToBinary().ToString(CultureInfo.InvariantCulture);
-                this.SetAttributeValue(binaryValue);
+                SetMappedAttibuteValue(binaryValue);
             }
+        }
+
+        private string GetMappedAttibuteValue([CallerMemberName] string propertyName = null)
+        {
+            return Attributes.GetEntryValue(PropertyMap[propertyName]);
+        }
+
+        private void SetMappedAttibuteValue(string value, [CallerMemberName] string propertyName = null)
+        {
+            if (Attributes.SetEntryValue(PropertyMap[propertyName], value))
+                OnPropertyChanged(propertyName);
         }
     }
 }

@@ -15,7 +15,7 @@
     /// <typeparam name="T">The type of playlist items</typeparam>
     /// <seealso cref="System.Collections.ObjectModel.ObservableCollection{T}" />
     /// <seealso cref="ObservableCollection{PlaylistEntry}" />
-    public class Playlist<T> : ObservableCollection<T>, IAttributeContainer
+    public class Playlist<T> : ObservableCollection<T>
         where T : PlaylistEntry, new()
     {
         #region Private state
@@ -70,7 +70,7 @@
         /// <summary>
         /// Gets the extended attributes key-value pairs.
         /// </summary>
-        public PlaylistAttributeSet Attributes { get; } = new PlaylistAttributeSet();
+        public AttributeSet Attributes { get; } = new AttributeSet();
 
         #endregion
 
