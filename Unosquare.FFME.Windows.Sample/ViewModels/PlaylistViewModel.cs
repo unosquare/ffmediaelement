@@ -4,6 +4,9 @@
     using Foundation;
     using Platform;
     using System;
+    using System.ComponentModel;
+    using System.IO;
+    using System.Windows.Data;
 
     /// <summary>
     /// Represents the Playlist
@@ -11,8 +14,13 @@
     /// <seealso cref="AttachedViewModel" />
     public class PlaylistViewModel : AttachedViewModel
     {
+        private const int MinimumSearchLength = 3;
+        private readonly TimeSpan SearchActionDelay = TimeSpan.FromSeconds(0.25);
         private bool m_IsInOpenMode = GuiContext.Current.IsInDesignTime;
         private string m_OpenTargetUrl = string.Empty;
+        private string m_PlaylistSearchString = string.Empty;
+        private DeferredAction SearchAction = null;
+        private string FilterString = string.Empty;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PlaylistViewModel"/> class.
@@ -21,16 +29,78 @@
         public PlaylistViewModel(RootViewModel root)
             : base(root)
         {
-            // placeholder
+            // Set and create a thumbnails directory
+            ThumbsDirectory = Path.Combine(root.AppDataDirectory, "Thumbnails");
+            if (Directory.Exists(ThumbsDirectory) == false)
+                Directory.CreateDirectory(ThumbsDirectory);
+
+            PlaylistFilePath = Path.Combine(root.AppDataDirectory, "ffme.m3u8");
+
+            Entries = new CustomPlaylist(this);
+            EntriesView = CollectionViewSource.GetDefaultView(Entries) as ICollectionView;
+            EntriesView.Filter = (item) =>
+            {
+                var entry = item as CustomPlaylistEntry;
+                if (entry == null) return false;
+                if (string.IsNullOrWhiteSpace(PlaylistSearchString) || PlaylistSearchString.Trim().Length < MinimumSearchLength)
+                    return true;
+
+                if ((entry.Title?.ToLowerInvariant().Contains(PlaylistSearchString) ?? false) ||
+                    (entry.MediaUrl?.ToLowerInvariant().Contains(PlaylistSearchString) ?? false))
+                    return true;
+
+                return false;
+            };
         }
+
+        /// <summary>
+        /// Gets the custom playlist. Do not use for data-binding
+        /// </summary>
+        public CustomPlaylist Entries { get; }
+
+        /// <summary>
+        /// Gets the custom playlist entries as a view that can be uased in data binding scenarios.
+        /// </summary>
+        public ICollectionView EntriesView { get; }
+
+        /// <summary>
+        /// Gets the full path wehre thumbnails are stored.
+        /// </summary>
+        public string ThumbsDirectory { get; }
+
+        /// <summary>
+        /// Gets the playlist file path.
+        /// </summary>
+        public string PlaylistFilePath { get; }
 
         /// <summary>
         /// Gets or sets the playlist search string.
         /// </summary>
         public string PlaylistSearchString
         {
-            get => PlaylistManager.SearchString;
-            set => PlaylistManager.SearchString = value;
+            get => m_PlaylistSearchString;
+            set
+            {
+                if (!SetProperty(ref m_PlaylistSearchString, value))
+                    return;
+
+                if (SearchAction == null)
+                {
+                    SearchAction = DeferredAction.Create(() =>
+                    {
+                        var futureSearch = PlaylistSearchString ?? string.Empty;
+                        var currentSearch = FilterString ?? string.Empty;
+
+                        if (currentSearch == futureSearch) return;
+                        if (futureSearch.Length < MinimumSearchLength && currentSearch.Length < MinimumSearchLength) return;
+
+                        EntriesView.Refresh();
+                        FilterString = string.Copy(m_PlaylistSearchString) ?? string.Empty;
+                    });
+                }
+
+                SearchAction.Defer(SearchActionDelay);
+            }
         }
 
         /// <summary>
@@ -84,6 +154,10 @@
         private void OnMediaOpened(object sender, System.Windows.RoutedEventArgs e)
         {
             HasTakenThumbnail = false;
+            Entries.AddOrUpdateEntry(
+                Root.App.MediaElement.Source?.ToString() ?? Root.App.MediaElement.MediaInfo.InputUrl,
+                Root.App.MediaElement.MediaInfo);
+            Entries.SaveEntries();
         }
 
         /// <summary>
@@ -99,8 +173,8 @@
             if (m.HasMediaEnded || m.Position.TotalSeconds >= 3 || (m.NaturalDuration.HasTimeSpan && m.NaturalDuration.TimeSpan.TotalSeconds <= 3))
             {
                 HasTakenThumbnail = true;
-                PlaylistManager.AddOrUpdateEntryThumbnail(m.Source.ToString(), e.Bitmap);
-                PlaylistManager.SaveEntries();
+                Entries.AddOrUpdateEntryThumbnail(m.Source.ToString(), e.Bitmap);
+                Entries.SaveEntries();
             }
         }
     }

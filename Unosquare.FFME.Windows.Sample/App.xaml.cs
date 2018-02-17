@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
+    using Shared;
     using System.Windows;
     using ViewModels;
 
@@ -14,7 +15,13 @@
         public App()
             : base()
         {
-            // placeholder
+            // Change the default location of the ffmpeg binaries
+            // You can get the binaries here: http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip
+            MediaElement.FFmpegDirectory = @"c:\ffmpeg";
+
+            // You can pick which FFmpeg binaries are loaded. See issue #28
+            // Full Features is already the default.
+            MediaElement.FFmpegLoadModeFlags = FFmpegLoadMode.FullFeatures;
         }
 
         /// <summary>

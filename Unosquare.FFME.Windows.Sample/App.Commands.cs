@@ -193,8 +193,8 @@
                             var entry = arg as CustomPlaylistEntry;
                             if (entry == null) return;
 
-                            PlaylistManager.RemoveEntry(entry.MediaUrl);
-                            PlaylistManager.SaveEntries();
+                            Current.ViewModel.Playlist.Entries.RemoveEntryByMediaUrl(entry.MediaUrl);
+                            Current.ViewModel.Playlist.Entries.SaveEntries();
                         });
                     }
 

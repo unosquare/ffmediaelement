@@ -3,12 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Unosquare.FFME.Windows.Sample.Foundation"
              xmlns:ffmepl="clr-namespace:Unosquare.FFME.Playlists;assembly=ffme.common"
              xmlns:vm="clr-namespace:Unosquare.FFME.Windows.Sample.ViewModels"
-             mc:Ignorable="d"
-             d:DataContext="{d:DesignInstance vm:RootViewModel, IsDesignTimeCreatable=True}"
-             d:DesignHeight="320"  Name="LayoutRoot">
+             mc:Ignorable="d" d:DesignHeight="320"  Name="LayoutRoot"
+             d:DataContext="{d:DesignInstance vm:RootViewModel, IsDesignTimeCreatable=True}">
     
     <!-- The Glass Background Border -->
     <Border  
@@ -44,7 +42,7 @@
                             </TextBlock.Style>
                         </TextBlock>
                         <TextBox x:Name="SearchTextBox" Grid.Column="0" Background="Transparent" BorderThickness="0" Foreground="#484848" FontSize="16" Padding="2"  FontWeight="Bold"
-                                 Text="{Binding Path=PlaylistSearchString, UpdateSourceTrigger=PropertyChanged}" />
+                                 Text="{Binding Playlist.PlaylistSearchString, UpdateSourceTrigger=PropertyChanged}" />
                         <Viewbox HorizontalAlignment="Right" Grid.Column="1">
                             <Path Stretch="Uniform" Data="{Binding Source={StaticResource SearchIcon}, Path=Data}" Fill="#666" />
                         </Viewbox>
@@ -108,10 +106,10 @@
 
             <!-- The Content -->
             <Grid x:Name="PlaylistPanelContentList">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden"
+                <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Hidden"
                               MaxHeight="1080"
                               Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UIElement}}">
-                    <ItemsControl ItemsSource="{Binding Source={x:Static local:PlaylistManager.EntriesView}}">
+                    <ItemsControl ItemsSource="{Binding Playlist.EntriesView}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <VirtualizingStackPanel Width="570" VirtualizingPanel.VirtualizationMode="Recycling" />

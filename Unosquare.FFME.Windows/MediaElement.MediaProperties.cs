@@ -45,6 +45,12 @@
         public ReadOnlyDictionary<string, string> Metadata => MediaCore?.State.Metadata;
 
         /// <summary>
+        /// Provides stream, chapter and program info of the underlying media.
+        /// Returns null when no media is loaded.
+        /// </summary>
+        public MediaInfo MediaInfo => MediaCore?.MediaInfo;
+
+        /// <summary>
         /// Gets the media format. Returns null when media has not been loaded.
         /// </summary>
         public string MediaFormat => MediaCore?.State.MediaFormat;

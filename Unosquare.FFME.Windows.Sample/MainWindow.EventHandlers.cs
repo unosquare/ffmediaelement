@@ -2,7 +2,6 @@
 {
     using Events;
     using FFmpeg.AutoGen;
-    using Foundation;
     using Shared;
     using System;
     using System.Diagnostics;
@@ -36,8 +35,6 @@
             MinHeight = ActualHeight;
             SizeToContent = SizeToContent.Manual;
             Loaded -= MainWindow_Loaded;
-
-            PlaylistManager.LoadEntries();
         }
 
         /// <summary>
@@ -171,9 +168,6 @@
 
             // Experimetal HW acceleration support. Remove if not needed.
             e.Options.EnableHardwareAcceleration = false;
-
-            PlaylistManager.AddOrUpdateEntry(Media.Source?.ToString() ?? e.Info.InputUrl, e.Info);
-            PlaylistManager.SaveEntries();
 
 #if APPLY_AUDIO_FILTER
             // e.Options.AudioFilter = "aecho=0.8:0.9:1000:0.3";

@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
+    using Shared;
     using System;
     using System.Linq;
     using System.Windows;
@@ -8,8 +9,6 @@
     using System.Windows.Media;
     using System.Windows.Media.Animation;
     using System.Windows.Threading;
-    using Foundation;
-    using Shared;
     using ViewModels;
 
     /// <summary>
@@ -34,16 +33,7 @@
             // Load up WPF resources
             InitializeComponent();
 
-            // Change the default location of the ffmpeg binaries
-            // You can get the binaries here: http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip
-            FFME.MediaElement.FFmpegDirectory = PlaylistManager.FFmpegPath;
-
-            // You can pick which FFmpeg binaries are loaded. See issue #28
-            // Full Features is already the default.
-            FFME.MediaElement.FFmpegLoadModeFlags = FFmpegLoadMode.FullFeatures;
-
             // Setup the UI
-            // ConsoleManager.ShowConsole();
             InitializeMediaEvents();
             InitializeInputEvents();
             InitializeMainWindow();

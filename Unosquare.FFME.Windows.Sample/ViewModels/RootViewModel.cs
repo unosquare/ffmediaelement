@@ -3,6 +3,7 @@
     using Foundation;
     using Platform;
     using System;
+    using System.IO;
 
     /// <summary>
     /// Represents the application-wide view model
@@ -10,7 +11,11 @@
     /// <seealso cref="ViewModelBase" />
     public class RootViewModel : ViewModelBase
     {
-        private readonly string AssemblyVersion = typeof(RootViewModel).Assembly.GetName().Version.ToString();
+        /// <summary>
+        /// The product name
+        /// </summary>
+        public const string ProductName = "Unosquare FFME-Play";
+
         private string m_WindowTitle = string.Empty;
         private bool m_IsPlaylistPanelOpen = GuiContext.Current.IsInDesignTime;
         private bool m_IsPropertiesPanelOpen = GuiContext.Current.IsInDesignTime;
@@ -21,10 +26,16 @@
         /// </summary>
         public RootViewModel()
         {
+            // Set and create an app data directory
+            WindowTitle = "Application Loading . . .";
+            AppVersion = typeof(RootViewModel).Assembly.GetName().Version.ToString();
+            AppDataDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ProductName);
+            if (Directory.Exists(AppDataDirectory) == false)
+                Directory.CreateDirectory(AppDataDirectory);
+
             // Attached ViewModel Inistialization
             Playlist = new PlaylistViewModel(this);
             Controller = new ControllerViewModel(this);
-            WindowTitle = "Application Loading . . .";
         }
 
         /// <summary>
@@ -41,6 +52,16 @@
         /// Gets the controller.
         /// </summary>
         public ControllerViewModel Controller { get; }
+
+        /// <summary>
+        /// Gets the application version.
+        /// </summary>
+        public string AppVersion { get; }
+
+        /// <summary>
+        /// Gets the application data directory.
+        /// </summary>
+        public string AppDataDirectory { get; }
 
         /// <summary>
         /// Gets the window title.
@@ -126,7 +147,7 @@
                 state = "Ready";
             }
 
-            WindowTitle = $"{title} - {state} - Unosquare FFME Play v{AssemblyVersion}";
+            WindowTitle = $"{title} - {state} - Unosquare FFME Play v{AppVersion}";
         }
     }
 }

@@ -235,8 +235,9 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
         {
             var thumbnailFilename = value as string;
             if (thumbnailFilename == null) return default(ImageSource);
+            if (Platform.GuiContext.Current.IsInDesignTime) return default(ImageSource);
 
-            return PlaylistManager.GetThumbnail(thumbnailFilename);
+            return ThumbnailGenerator.GetThumbnail(App.Current.ViewModel.Playlist.ThumbsDirectory, thumbnailFilename);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

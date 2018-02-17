@@ -93,11 +93,11 @@
     </Compile>
     <Compile Include="Foundation\DeferredAction.cs" />
     <Compile Include="Foundation\ReactiveExtensions.cs" />
+    <Compile Include="Foundation\ThumbnailGenerator.cs" />
     <Compile Include="Foundation\ViewModelBase.cs" />
     <Compile Include="Foundation\CustomPlaylist.cs" />
     <Compile Include="Foundation\CustomPlaylistEntry.cs" />
     <Compile Include="Foundation\DelegateCommand.cs" />
-    <Compile Include="Foundation\PlaylistManager.cs" />
     <Compile Include="Foundation\ValueConverters.cs" />
     <Compile Include="ViewModels\AttachedViewModel.cs" />
     <Compile Include="ViewModels\ControllerViewModel.cs" />
