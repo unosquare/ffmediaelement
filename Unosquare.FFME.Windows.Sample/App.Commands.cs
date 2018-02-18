@@ -25,12 +25,19 @@
 
             #endregion
 
+            #region Constructors
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="AppCommands"/> class.
+            /// </summary>
             internal AppCommands()
             {
                 // placeholder
             }
 
-            #region Properties: Commands
+            #endregion
+
+            #region Properties (Commands)
 
             /// <summary>
             /// Gets the open command.

@@ -112,7 +112,7 @@
                                   ItemsSource="{Binding Playlist.EntriesView}" 
                                   HorizontalAlignment="Left"
                                   VirtualizingStackPanel.IsVirtualizing="true"
-                                  VirtualizingStackPanel.VirtualizationMode="Standard">
+                                  VirtualizingStackPanel.VirtualizationMode="Recycling">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <VirtualizingStackPanel 
