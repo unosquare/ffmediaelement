@@ -1159,6 +1159,18 @@ references:
   commentId: Overload:Unosquare.FFME.MediaElement.MediaFormat
   fullName: Unosquare.FFME.MediaElement.MediaFormat
   nameWithType: MediaElement.MediaFormat
+- uid: Unosquare.FFME.MediaElement.MediaInfo
+  name: MediaInfo
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaInfo
+  commentId: P:Unosquare.FFME.MediaElement.MediaInfo
+  fullName: Unosquare.FFME.MediaElement.MediaInfo
+  nameWithType: MediaElement.MediaInfo
+- uid: Unosquare.FFME.MediaElement.MediaInfo*
+  name: MediaInfo
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaInfo_
+  commentId: Overload:Unosquare.FFME.MediaElement.MediaInfo
+  fullName: Unosquare.FFME.MediaElement.MediaInfo
+  nameWithType: MediaElement.MediaInfo
 - uid: Unosquare.FFME.MediaElement.MediaInitializing
   name: MediaInitializing
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaInitializing
@@ -1333,6 +1345,18 @@ references:
   commentId: E:Unosquare.FFME.MediaElement.PropertyChanged
   fullName: Unosquare.FFME.MediaElement.PropertyChanged
   nameWithType: MediaElement.PropertyChanged
+- uid: Unosquare.FFME.MediaElement.RemainingDuration
+  name: RemainingDuration
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_RemainingDuration
+  commentId: P:Unosquare.FFME.MediaElement.RemainingDuration
+  fullName: Unosquare.FFME.MediaElement.RemainingDuration
+  nameWithType: MediaElement.RemainingDuration
+- uid: Unosquare.FFME.MediaElement.RemainingDuration*
+  name: RemainingDuration
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_RemainingDuration_
+  commentId: Overload:Unosquare.FFME.MediaElement.RemainingDuration
+  fullName: Unosquare.FFME.MediaElement.RemainingDuration
+  nameWithType: MediaElement.RemainingDuration
 - uid: Unosquare.FFME.MediaElement.RenderingAudio
   name: RenderingAudio
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_RenderingAudio
@@ -1585,6 +1609,165 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.VolumeProperty
   fullName: Unosquare.FFME.MediaElement.VolumeProperty
   nameWithType: MediaElement.VolumeProperty
+- uid: Unosquare.FFME.Platform
+  name: Unosquare.FFME.Platform
+  href: api/Unosquare.FFME.Platform.html
+  commentId: N:Unosquare.FFME.Platform
+  fullName: Unosquare.FFME.Platform
+  nameWithType: Unosquare.FFME.Platform
+- uid: Unosquare.FFME.Platform.GuiContext
+  name: GuiContext
+  href: api/Unosquare.FFME.Platform.GuiContext.html
+  commentId: T:Unosquare.FFME.Platform.GuiContext
+  fullName: Unosquare.FFME.Platform.GuiContext
+  nameWithType: GuiContext
+- uid: Unosquare.FFME.Platform.GuiContext.Current
+  name: Current
+  href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_Current
+  commentId: P:Unosquare.FFME.Platform.GuiContext.Current
+  fullName: Unosquare.FFME.Platform.GuiContext.Current
+  nameWithType: GuiContext.Current
+- uid: Unosquare.FFME.Platform.GuiContext.Current*
+  name: Current
+  href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_Current_
+  commentId: Overload:Unosquare.FFME.Platform.GuiContext.Current
+  fullName: Unosquare.FFME.Platform.GuiContext.Current
+  nameWithType: GuiContext.Current
+- uid: Unosquare.FFME.Platform.GuiContext.EnqueueInvoke(DispatcherPriority,System.Action)
+  name: EnqueueInvoke(DispatcherPriority, Action)
+  href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_EnqueueInvoke_DispatcherPriority_System_Action_
+  commentId: M:Unosquare.FFME.Platform.GuiContext.EnqueueInvoke(DispatcherPriority,System.Action)
+  fullName: Unosquare.FFME.Platform.GuiContext.EnqueueInvoke(DispatcherPriority, System.Action)
+  nameWithType: GuiContext.EnqueueInvoke(DispatcherPriority, Action)
+- uid: Unosquare.FFME.Platform.GuiContext.EnqueueInvoke(System.Action)
+  name: EnqueueInvoke(Action)
+  href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_EnqueueInvoke_System_Action_
+  commentId: M:Unosquare.FFME.Platform.GuiContext.EnqueueInvoke(System.Action)
+  fullName: Unosquare.FFME.Platform.GuiContext.EnqueueInvoke(System.Action)
+  nameWithType: GuiContext.EnqueueInvoke(Action)
+- uid: Unosquare.FFME.Platform.GuiContext.EnqueueInvoke*
+  name: EnqueueInvoke
+  href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_EnqueueInvoke_
+  commentId: Overload:Unosquare.FFME.Platform.GuiContext.EnqueueInvoke
+  fullName: Unosquare.FFME.Platform.GuiContext.EnqueueInvoke
+  nameWithType: GuiContext.EnqueueInvoke
+- uid: Unosquare.FFME.Platform.GuiContext.Invoke(DispatcherPriority,System.Action)
+  name: Invoke(DispatcherPriority, Action)
+  href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_Invoke_DispatcherPriority_System_Action_
+  commentId: M:Unosquare.FFME.Platform.GuiContext.Invoke(DispatcherPriority,System.Action)
+  fullName: Unosquare.FFME.Platform.GuiContext.Invoke(DispatcherPriority, System.Action)
+  nameWithType: GuiContext.Invoke(DispatcherPriority, Action)
+- uid: Unosquare.FFME.Platform.GuiContext.Invoke(System.Action)
+  name: Invoke(Action)
+  href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_Invoke_System_Action_
+  commentId: M:Unosquare.FFME.Platform.GuiContext.Invoke(System.Action)
+  fullName: Unosquare.FFME.Platform.GuiContext.Invoke(System.Action)
+  nameWithType: GuiContext.Invoke(Action)
+- uid: Unosquare.FFME.Platform.GuiContext.Invoke*
+  name: Invoke
+  href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_Invoke_
+  commentId: Overload:Unosquare.FFME.Platform.GuiContext.Invoke
+  fullName: Unosquare.FFME.Platform.GuiContext.Invoke
+  nameWithType: GuiContext.Invoke
+- uid: Unosquare.FFME.Platform.GuiContext.InvokeAsync(DispatcherPriority,System.Action)
+  name: InvokeAsync(DispatcherPriority, Action)
+  href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_InvokeAsync_DispatcherPriority_System_Action_
+  commentId: M:Unosquare.FFME.Platform.GuiContext.InvokeAsync(DispatcherPriority,System.Action)
+  fullName: Unosquare.FFME.Platform.GuiContext.InvokeAsync(DispatcherPriority, System.Action)
+  nameWithType: GuiContext.InvokeAsync(DispatcherPriority, Action)
+- uid: Unosquare.FFME.Platform.GuiContext.InvokeAsync(DispatcherPriority,System.Delegate,System.Object[])
+  name: InvokeAsync(DispatcherPriority, Delegate, Object[])
+  href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_InvokeAsync_DispatcherPriority_System_Delegate_System_Object___
+  commentId: M:Unosquare.FFME.Platform.GuiContext.InvokeAsync(DispatcherPriority,System.Delegate,System.Object[])
+  name.vb: InvokeAsync(DispatcherPriority, Delegate, Object())
+  fullName: Unosquare.FFME.Platform.GuiContext.InvokeAsync(DispatcherPriority, System.Delegate, System.Object[])
+  fullName.vb: Unosquare.FFME.Platform.GuiContext.InvokeAsync(DispatcherPriority, System.Delegate, System.Object())
+  nameWithType: GuiContext.InvokeAsync(DispatcherPriority, Delegate, Object[])
+  nameWithType.vb: GuiContext.InvokeAsync(DispatcherPriority, Delegate, Object())
+- uid: Unosquare.FFME.Platform.GuiContext.InvokeAsync(System.Action)
+  name: InvokeAsync(Action)
+  href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_InvokeAsync_System_Action_
+  commentId: M:Unosquare.FFME.Platform.GuiContext.InvokeAsync(System.Action)
+  fullName: Unosquare.FFME.Platform.GuiContext.InvokeAsync(System.Action)
+  nameWithType: GuiContext.InvokeAsync(Action)
+- uid: Unosquare.FFME.Platform.GuiContext.InvokeAsync*
+  name: InvokeAsync
+  href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_InvokeAsync_
+  commentId: Overload:Unosquare.FFME.Platform.GuiContext.InvokeAsync
+  fullName: Unosquare.FFME.Platform.GuiContext.InvokeAsync
+  nameWithType: GuiContext.InvokeAsync
+- uid: Unosquare.FFME.Platform.GuiContext.IsInDebugMode
+  name: IsInDebugMode
+  href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_IsInDebugMode
+  commentId: P:Unosquare.FFME.Platform.GuiContext.IsInDebugMode
+  fullName: Unosquare.FFME.Platform.GuiContext.IsInDebugMode
+  nameWithType: GuiContext.IsInDebugMode
+- uid: Unosquare.FFME.Platform.GuiContext.IsInDebugMode*
+  name: IsInDebugMode
+  href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_IsInDebugMode_
+  commentId: Overload:Unosquare.FFME.Platform.GuiContext.IsInDebugMode
+  fullName: Unosquare.FFME.Platform.GuiContext.IsInDebugMode
+  nameWithType: GuiContext.IsInDebugMode
+- uid: Unosquare.FFME.Platform.GuiContext.IsInDesignTime
+  name: IsInDesignTime
+  href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_IsInDesignTime
+  commentId: P:Unosquare.FFME.Platform.GuiContext.IsInDesignTime
+  fullName: Unosquare.FFME.Platform.GuiContext.IsInDesignTime
+  nameWithType: GuiContext.IsInDesignTime
+- uid: Unosquare.FFME.Platform.GuiContext.IsInDesignTime*
+  name: IsInDesignTime
+  href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_IsInDesignTime_
+  commentId: Overload:Unosquare.FFME.Platform.GuiContext.IsInDesignTime
+  fullName: Unosquare.FFME.Platform.GuiContext.IsInDesignTime
+  nameWithType: GuiContext.IsInDesignTime
+- uid: Unosquare.FFME.Platform.GuiContext.Thread
+  name: Thread
+  href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_Thread
+  commentId: P:Unosquare.FFME.Platform.GuiContext.Thread
+  fullName: Unosquare.FFME.Platform.GuiContext.Thread
+  nameWithType: GuiContext.Thread
+- uid: Unosquare.FFME.Platform.GuiContext.Thread*
+  name: Thread
+  href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_Thread_
+  commentId: Overload:Unosquare.FFME.Platform.GuiContext.Thread
+  fullName: Unosquare.FFME.Platform.GuiContext.Thread
+  nameWithType: GuiContext.Thread
+- uid: Unosquare.FFME.Platform.GuiContext.Type
+  name: Type
+  href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_Type
+  commentId: P:Unosquare.FFME.Platform.GuiContext.Type
+  fullName: Unosquare.FFME.Platform.GuiContext.Type
+  nameWithType: GuiContext.Type
+- uid: Unosquare.FFME.Platform.GuiContext.Type*
+  name: Type
+  href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_Type_
+  commentId: Overload:Unosquare.FFME.Platform.GuiContext.Type
+  fullName: Unosquare.FFME.Platform.GuiContext.Type
+  nameWithType: GuiContext.Type
+- uid: Unosquare.FFME.Platform.GuiContextType
+  name: GuiContextType
+  href: api/Unosquare.FFME.Platform.GuiContextType.html
+  commentId: T:Unosquare.FFME.Platform.GuiContextType
+  fullName: Unosquare.FFME.Platform.GuiContextType
+  nameWithType: GuiContextType
+- uid: Unosquare.FFME.Platform.GuiContextType.None
+  name: None
+  href: api/Unosquare.FFME.Platform.GuiContextType.html#Unosquare_FFME_Platform_GuiContextType_None
+  commentId: F:Unosquare.FFME.Platform.GuiContextType.None
+  fullName: Unosquare.FFME.Platform.GuiContextType.None
+  nameWithType: GuiContextType.None
+- uid: Unosquare.FFME.Platform.GuiContextType.WinForms
+  name: WinForms
+  href: api/Unosquare.FFME.Platform.GuiContextType.html#Unosquare_FFME_Platform_GuiContextType_WinForms
+  commentId: F:Unosquare.FFME.Platform.GuiContextType.WinForms
+  fullName: Unosquare.FFME.Platform.GuiContextType.WinForms
+  nameWithType: GuiContextType.WinForms
+- uid: Unosquare.FFME.Platform.GuiContextType.WPF
+  name: WPF
+  href: api/Unosquare.FFME.Platform.GuiContextType.html#Unosquare_FFME_Platform_GuiContextType_WPF
+  commentId: F:Unosquare.FFME.Platform.GuiContextType.WPF
+  fullName: Unosquare.FFME.Platform.GuiContextType.WPF
+  nameWithType: GuiContextType.WPF
 - uid: Unosquare.FFME.Subtitles
   name: Subtitles
   href: api/Unosquare.FFME.Subtitles.html
