@@ -36,6 +36,9 @@
             if (e.MessageType != MediaLogMessageType.Warning && e.MessageType != MediaLogMessageType.Error)
                 return;
 
+            if (string.IsNullOrWhiteSpace(e.Message) == false && e.Message.Contains("Using non-standard frame rate"))
+                return;
+
             Debug.WriteLine($"{e.MessageType,10} - {e.Message}");
         }
 
@@ -75,6 +78,16 @@
                 e.Options.Input["reconnect_at_eof"] = "1";
                 e.Options.Input["reconnect_streamed"] = "1";
                 e.Options.Input["reconnect_delay_max"] = "10"; // in seconds
+            }
+
+            // Example of forcing tcp transport on rtsp feeds
+            // RTSP is similar to HTTP but it only provides metadata about the underlying stream
+            // Most RTSP compatible streams expose RTP data over both UDP and TCP.
+            // TCP provides reliable communication while UDP does not
+            if (e.Url.StartsWith("rtsp://"))
+            {
+                e.Options.Input["rtsp_transport"] = "tcp";
+                e.Options.Format.FlagNoBuffer = true;
             }
 
             // In realtime streams these settings can be used to reduce latency (see example from issue #152)
