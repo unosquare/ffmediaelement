@@ -9,10 +9,10 @@
 ![ffmeplay](https://github.com/unosquare/ffmediaelement/raw/master/Support/ffmeplay.png)
 
 ## Announcements
-- Current Status: (2018-02-03) - 2.0, codenamed Michelob is now in Release 1 (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
+- If you would like to support this project, you can show your appreciation via [PayPal.Me](https://www.paypal.me/mariodivece/50usd)
+- Current Status: (2018-02-19) - Release 3.4.210 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
 - NuGet Package available here: https://www.nuget.org/packages/FFME.Windows/
 - FFmpeg Version: <a href="http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4.1-win32-shared.zip">3.4.1 (32-bit)</a>
-- If you would like to support this project, you can show your appreciation via [PayPal.Me](https://www.paypal.me/mariodivece/50usd)
 
 ## Quick Usage Guide for WPF Apps
 
