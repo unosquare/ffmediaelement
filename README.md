@@ -9,9 +9,10 @@
 ![ffmeplay](https://github.com/unosquare/ffmediaelement/raw/master/Support/ffmeplay.png)
 
 ## Announcements
-- Current Status: (2018-02-03) - 2.0, codenamed Michelob is now in Release 1 (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
+- If you would like to support this project, you can show your appreciation via [PayPal.Me](https://www.paypal.me/mariodivece/50usd)
+- Current Status: (2018-02-19) - Release 3.4.210 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
 - NuGet Package available here: https://www.nuget.org/packages/FFME.Windows/
-- FFmpeg Version: <a href="http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip">3.4.0 (32-bit)</a>
+- FFmpeg Version: <a href="http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4.1-win32-shared.zip">3.4.1 (32-bit)</a>
 
 ## Quick Usage Guide for WPF Apps
 
@@ -45,7 +46,7 @@ FFME provides multiple improvements over the standard MediaElement such as:
 
 ### About how it works
 
-First off, let's review a few concepts. A `packet` is a group of bytes read from the input. All `packets` are of a specific `MediaType` (Audio, Video, Subtitle, Data), and contain some timing information and most importantly compressed data. Packets are sent to a `Codec` and in turn, the codec produces `Frames`. Please note that producing 1 `frome` does not always take exactly 1 `packet`. A `packet` may contain many `frames` but also a `frame` may require several `packets` for the decoder to build it. `Frames` will contain timing informattion and the raw, uncompressed data. Now, you may think you can use `frames` and show pixels on the screen or send samples to the sound card. We are close, but we still need to do some additional processing. Turns out different `Codecs` will produce different uncompressed data formats. For example, some video codecs will output pixel data in ARGB, some others in RGB, and some other in YUV420. Therefore, we will need to `Convert` these `frames` into something all hardware can use natively. I call these converted frames, `MediaBlocks`. These `MediaBlocks` will contain uncompressed data in standard Audio and Video formats that all hardware is able to receive.
+First off, let's review a few concepts. A `packet` is a group of bytes read from the input. All `packets` are of a specific `MediaType` (Audio, Video, Subtitle, Data), and contain some timing information and most importantly compressed data. Packets are sent to a `Codec` and in turn, the codec produces `Frames`. Please note that producing 1 `frame` does not always take exactly 1 `packet`. A `packet` may contain many `frames` but also a `frame` may require several `packets` for the decoder to build it. `Frames` will contain timing informattion and the raw, uncompressed data. Now, you may think you can use `frames` and show pixels on the screen or send samples to the sound card. We are close, but we still need to do some additional processing. Turns out different `Codecs` will produce different uncompressed data formats. For example, some video codecs will output pixel data in ARGB, some others in RGB, and some other in YUV420. Therefore, we will need to `Convert` these `frames` into something all hardware can use natively. I call these converted frames, `MediaBlocks`. These `MediaBlocks` will contain uncompressed data in standard Audio and Video formats that all hardware is able to receive.
 
 The process described above is implemented in 3 different layers:
 - The `MediaContainer` wraps an input stream. This layer keeps track of a `MediaComponentSet` which is nothing more than a collecttion of `MediaComponent` objects. Each `MediaComponent` holds `packet` **caching**, `frame` **decoding**, and `block` **conversion** logic. It provides the following important functionality:
@@ -67,7 +68,7 @@ A high-level diagram is provided as additional reference below.
 
 - I am planning the next version of this control, `Floyd`. See the **Issues** section.
 - Working on Hardware acceleration. Maybe CUDA for highest compatibility.
-- Release 3.4.200 does not support opening capture devices such as webcams or TV cards. Release 3.4.210 will. See [issue #48](https://github.com/unosquare/ffmediaelement/issues/48)
+- Starting version 3.4.210 FFME supports opening capture devices. See examples below and [issue #48](https://github.com/unosquare/ffmediaelement/issues/48)
 ```
 device://dshow/?audio=Microphone (Vengeance 2100)
 device://gdigrab?title=Command Prompt
@@ -97,16 +98,16 @@ If you get the following error when compiling:
 Simply download and install [.NET Core SDK v2](https://www.microsoft.com/net/download/windows) or later.
 
 ## MacOS: Sample Player (in preview, WIP)
-Compile FFmpeg for Mac (instructions can be found on [FFmpeg.AutoGen](https://github.com/Ruslan-B/FFmpeg.AutoGen)) and copy the following libraries from `/opt/local/lib` 's to `/Users/{USER}/ffmpeg` (`~/ffmpeg`):
- - avcodec.57.dylib
- - avdevice.57.dylib
- - avfilter.6.dylib
- - avformat.57.dylib
- - avutil.55.dylib
- - swresample.2.dylib
- - swscale.4.dylib
+Compile FFmpeg for Mac (instructions can be found on [FFmpeg.AutoGen](https://github.com/Ruslan-B/FFmpeg.AutoGen)) and copy the following libraries from `/opt/local/lib` 's to `/Users/{USER}/ffmpeg` (equivalent to `~/ffmpeg`):
+ - `libavcodec.57.dylib`
+ - `libavdevice.57.dylib`
+ - `libavfilter.6.dylib`
+ - `libavformat.57.dylib`
+ - `libavutil.55.dylib`
+ - `libswresample.2.dylib`
+ - `libswscale.4.dylib`
 
-*Note: when building FFmpeg locally, compiled libraries are named differently than in the list above. E.g. `avcodec.57.dylib` is actually named `libavcodec.57.89.100.dylib`. To properly load libraries, copy and rename each library to match the format in the list above.*
+*Note: when building FFmpeg locally, compiled libraries are named differently than in the list above. E.g. `libavcodec.57.dylib` is actually named `libavcodec.57.89.100.dylib`. To properly load libraries, copy and rename each library to match the format in the list above.*
 
 In the sample MacOS player, the FFmpeg folder is configured to point to `~/ffmpeg` in the following line of code:
 

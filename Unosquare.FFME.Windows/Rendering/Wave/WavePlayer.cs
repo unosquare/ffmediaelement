@@ -305,6 +305,11 @@
             {
                 PerformContinuousPlayback();
             }
+            catch (MmException mex) when (mex.Result == MmResult.WaveHeaderUnprepared)
+            {
+                Renderer?.MediaCore?.Log(MediaLogMessageType.Debug, $"{nameof(AudioPlaybackTask)} forced exit requested. {mex.Message}.");
+                return;
+            }
             catch (Exception e)
             {
                 Renderer?.MediaCore?.Log(MediaLogMessageType.Error, $"{nameof(AudioPlaybackTask)} exiting. {e.Message}. Stack Trace:\r\n{e.StackTrace}");

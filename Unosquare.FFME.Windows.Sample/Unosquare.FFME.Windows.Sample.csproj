@@ -58,8 +58,8 @@
     <ApplicationIcon>ffmpeg.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FFmpeg.AutoGen, Version=3.4.0.3, Culture=neutral, PublicKeyToken=9b7632533a381715, processorArchitecture=MSIL">
-      <HintPath>..\packages\FFmpeg.AutoGen.3.4.0.3\lib\net45\FFmpeg.AutoGen.dll</HintPath>
+    <Reference Include="FFmpeg.AutoGen, Version=3.4.0.5, Culture=neutral, PublicKeyToken=9b7632533a381715, processorArchitecture=MSIL">
+      <HintPath>..\packages\FFmpeg.AutoGen.3.4.0.5\lib\net45\FFmpeg.AutoGen.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -81,14 +81,41 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Kernel\CustomPlaylist.cs" />
-    <Compile Include="Kernel\CustomPlaylistEntry.cs" />
-    <Compile Include="Kernel\DelegateCommand.cs" />
-    <Compile Include="Kernel\ConsoleManager.cs" />
-    <Compile Include="Kernel\PlaylistManager.cs" />
-    <Compile Include="Kernel\ValueConverters.cs" />
-    <Compile Include="Kernel\WindowStatus.cs" />
-    <Page Include="Icons.xaml">
+    <Compile Include="App.Commands.cs" />
+    <Compile Include="Controls\ControllerPanelControl.xaml.cs">
+      <DependentUpon>ControllerPanelControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\PropertiesPanelControl.xaml.cs">
+      <DependentUpon>PropertiesPanelControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\PlaylistPanelControl.xaml.cs">
+      <DependentUpon>PlaylistPanelControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Foundation\DeferredAction.cs" />
+    <Compile Include="Foundation\ReactiveExtensions.cs" />
+    <Compile Include="Foundation\ThumbnailGenerator.cs" />
+    <Compile Include="Foundation\ViewModelBase.cs" />
+    <Compile Include="Foundation\CustomPlaylist.cs" />
+    <Compile Include="Foundation\CustomPlaylistEntry.cs" />
+    <Compile Include="Foundation\DelegateCommand.cs" />
+    <Compile Include="Foundation\ValueConverters.cs" />
+    <Compile Include="ViewModels\AttachedViewModel.cs" />
+    <Compile Include="ViewModels\ControllerViewModel.cs" />
+    <Compile Include="ViewModels\PlaylistViewModel.cs" />
+    <Compile Include="ViewModels\RootViewModel.cs" />
+    <Page Include="Controls\ControllerPanelControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\PropertiesPanelControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\PlaylistPanelControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="App.Icons.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -100,20 +127,19 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.Commands.cs" />
-    <Compile Include="MainWindow.EventHandlers.cs" />
-    <Compile Include="MainWindow.Properties.cs" />
+    <Compile Include="Foundation\WindowStatus.cs" />
+    <Compile Include="MainWindow.MediaEvents.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Styles.xaml">
+    <Page Include="App.Styles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MainWindow.RenderingEvents.cs" />
+    <Compile Include="MainWindow.MediaRendering.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -172,6 +198,7 @@
       <Name>Unosquare.FFME.Windows</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -1,8 +1,53 @@
 ﻿<Application x:Class="Unosquare.FFME.Windows.Sample.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             StartupUri="MainWindow.xaml">
+             xmlns:local="clr-namespace:Unosquare.FFME.Windows.Sample.Foundation"
+             xmlns:vm="clr-namespace:Unosquare.FFME.Windows.Sample.ViewModels">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+
+                <ResourceDictionary>
+                    <vm:RootViewModel x:Key="ViewModel" />
+                </ResourceDictionary>
+                
+                <!-- Global Styles -->
+                <ResourceDictionary>
+                    <Style TargetType="Border" x:Key="SidePanelContainerBorderStyle">
+                        <Setter Property="Margin" Value="0,16,20,-106" />
+                        <Setter Property="Padding" Value="16,10,6,16" />
+                        <Setter Property="Background">
+                            <Setter.Value>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#bb222222" Offset="0" />
+                                    <GradientStop Color="#aa444444" Offset="0.6" />
+                                    <GradientStop Color="#99222222" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="BorderBrush" Value="#66444444" />
+                        <Setter Property="BorderThickness" Value="1" />
+                        <Setter Property="DockPanel.Dock" Value="Right" />
+                    </Style>
+                </ResourceDictionary>
+
+                <!-- Converters -->
+                <ResourceDictionary>
+                    <local:TimeSpanToSecondsConverter x:Key="TimeSpanToSecondsConverter" />
+                    <local:TimeSpanFormatter x:Key="TimeSpanFormatter" />
+                    <local:PercentageFormatter x:Key="PercentageFormatter" />
+                    <local:ByteFormatter x:Key="ByteFormatter" />
+                    <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+                    <local:PlaylistDurationFormatter x:Key="PlaylistDurationFormatter" />
+                    <local:PlaylistEntryThumbnailConverter x:Key="PlaylistEntryThumbnailConverter" />
+                    <local:UtcDateToLocalTimeString x:Key="UtcDateToLocalTimeString" />
+                    <local:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+                </ResourceDictionary>
+                
+                <!-- Resource Dictionaries -->
+                <ResourceDictionary Source="App.Icons.xaml" />
+                <ResourceDictionary Source="App.Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

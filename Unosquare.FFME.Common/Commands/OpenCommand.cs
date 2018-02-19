@@ -97,9 +97,6 @@
                 // Instantiate the internal container
                 m.Container = new MediaContainer(mediaUrl, streamOptions, m);
 
-                // Reset buffering properties
-                m.State.InitializeBufferingProperties();
-
                 // Notify the user media is opening and allow for media options to be modified
                 // Stuff like audio and video filters and stream selection can be performed here.
                 m.SendOnMediaOpening();
@@ -112,6 +109,9 @@
 
                 // Get the main container open
                 m.Container.Open();
+
+                // Reset buffering properties
+                m.State.InitializeBufferingProperties();
 
                 // Check if we have at least audio or video here
                 if (m.Container.Components.HasAudio == false && m.Container.Components.HasVideo == false)

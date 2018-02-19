@@ -27,10 +27,29 @@
         }
 
         /// <summary>
+        /// Gets the remaining playback duration. Returns Forever for indeterminate values.
+        /// </summary>
+        public Duration RemainingDuration
+        {
+            get
+            {
+                if (NaturalDuration.HasTimeSpan == false) return Duration.Forever;
+                if (NaturalDuration.TimeSpan.Ticks < Position.Ticks) return new Duration(NaturalDuration.TimeSpan);
+                return new Duration(TimeSpan.FromTicks(NaturalDuration.TimeSpan.Ticks - Position.Ticks));
+            }
+        }
+
+        /// <summary>
         /// Provides key-value pairs of the metadata contained in the media.
         /// Returns null when media has not been loaded.
         /// </summary>
         public ReadOnlyDictionary<string, string> Metadata => MediaCore?.State.Metadata;
+
+        /// <summary>
+        /// Provides stream, chapter and program info of the underlying media.
+        /// Returns null when no media is loaded.
+        /// </summary>
+        public MediaInfo MediaInfo => MediaCore?.MediaInfo;
 
         /// <summary>
         /// Gets the media format. Returns null when media has not been loaded.

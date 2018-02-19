@@ -245,14 +245,14 @@
         public bool IsSeekable => Parent.Container?.IsStreamSeekable ?? false;
 
         /// <summary>
-        /// Gets a value indicating whether the media is playing.
+        /// Gets a value indicating whether the media clock is playing.
         /// </summary>
-        public bool IsPlaying => MediaState == PlaybackStatus.Play;
+        public bool IsPlaying => Parent?.Clock?.IsRunning ?? false;
 
         /// <summary>
-        /// Gets a value indicating whether the media is paused.
+        /// Gets a value indicating whether the media clock is paused.
         /// </summary>
-        public bool IsPaused => MediaState == PlaybackStatus.Pause;
+        public bool IsPaused => (Parent?.Clock?.IsRunning ?? true) == false;
 
         /// <summary>
         /// Gets a value indicating whether this media element
@@ -338,11 +338,11 @@
         /// <summary>
         /// Updates the position.
         /// </summary>
-        /// <param name="position">The position.</param>
-        internal void UpdatePosition(TimeSpan position)
+        /// <param name="newPosition">The position.</param>
+        internal void UpdatePosition(TimeSpan newPosition)
         {
             var oldValue = Position;
-            var newValue = position.Normalize();
+            var newValue = newPosition;
             if (oldValue.Ticks == newValue.Ticks)
                 return;
 
@@ -398,7 +398,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void InitializeBufferingProperties()
         {
-            const int MinimumValidBitrate = 512 * 1024; // 524kbps
+            const int MinimumValidBitrate = 96 * 1000; // 96kbps
             const int StartingCacheLength = 512 * 1024; // Half a megabyte
 
             GuessedByteRate = default(ulong?);
@@ -413,9 +413,23 @@
                 return;
             }
 
-            if (Parent.Container.MediaBitrate > MinimumValidBitrate)
+            var allComponentsHaveBitrate = true;
+
+            if (HasAudio && AudioBitrate <= 0)
+                allComponentsHaveBitrate = false;
+
+            if (HasVideo && VideoBitrate <= 0)
+                allComponentsHaveBitrate = false;
+
+            if (HasAudio == false && HasVideo == false)
+                allComponentsHaveBitrate = false;
+
+            var mediaBitrate = Math.Max(Parent.Container.MediaBitrate,
+                allComponentsHaveBitrate ? AudioBitrate + VideoBitrate : 0);
+
+            if (mediaBitrate > MinimumValidBitrate)
             {
-                BufferCacheLength = Convert.ToInt32(Convert.ToDouble(Parent.Container.MediaBitrate) / 8d);
+                BufferCacheLength = Convert.ToInt32(Convert.ToDouble(mediaBitrate) / 8d);
                 GuessedByteRate = Convert.ToUInt64(BufferCacheLength);
             }
             else

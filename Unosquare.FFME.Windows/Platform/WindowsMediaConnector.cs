@@ -122,7 +122,11 @@
                             await sender.Play();
                             break;
                         }
-
+                    case System.Windows.Controls.MediaState.Pause:
+                        {
+                            await sender.Pause();
+                            break;
+                        }
                     default:
                         {
                             break;
