@@ -79,7 +79,8 @@
 <p><img src="https://github.com/unosquare/ffmediaelement/raw/master/Support/ffmeplay.png" alt="ffmeplay"></p>
 <h2 id="announcements">Announcements</h2>
 <ul>
-<li>Current Status: (2018-02-03) - 2.0, codenamed Michelob is now in Release 1 (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)</li>
+<li>If you would like to support this project, you can show your appreciation via <a href="https://www.paypal.me/mariodivece/50usd">PayPal.Me</a></li>
+<li>Current Status: (2018-02-19) - Release 3.4.210 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)</li>
 <li>NuGet Package available here: <a href="https://www.nuget.org/packages/FFME.Windows/">https://www.nuget.org/packages/FFME.Windows/</a></li>
 <li>FFmpeg Version: <a href="http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4.1-win32-shared.zip">3.4.1 (32-bit)</a></li>
 </ul>
@@ -114,7 +115,7 @@ For example: In your <code>MainForm.xaml</code>, add the namespace: <code>xmlns:
 </ul>
 <p><em>... all in a single MediaElement control</em></p>
 <h3 id="about-how-it-works">About how it works</h3>
-<p>First off, let&#39;s review a few concepts. A <code>packet</code> is a group of bytes read from the input. All <code>packets</code> are of a specific <code>MediaType</code> (Audio, Video, Subtitle, Data), and contain some timing information and most importantly compressed data. Packets are sent to a <code>Codec</code> and in turn, the codec produces <code>Frames</code>. Please note that producing 1 <code>frome</code> does not always take exactly 1 <code>packet</code>. A <code>packet</code> may contain many <code>frames</code> but also a <code>frame</code> may require several <code>packets</code> for the decoder to build it. <code>Frames</code> will contain timing informattion and the raw, uncompressed data. Now, you may think you can use <code>frames</code> and show pixels on the screen or send samples to the sound card. We are close, but we still need to do some additional processing. Turns out different <code>Codecs</code> will produce different uncompressed data formats. For example, some video codecs will output pixel data in ARGB, some others in RGB, and some other in YUV420. Therefore, we will need to <code>Convert</code> these <code>frames</code> into something all hardware can use natively. I call these converted frames, <code>MediaBlocks</code>. These <code>MediaBlocks</code> will contain uncompressed data in standard Audio and Video formats that all hardware is able to receive.</p>
+<p>First off, let&#39;s review a few concepts. A <code>packet</code> is a group of bytes read from the input. All <code>packets</code> are of a specific <code>MediaType</code> (Audio, Video, Subtitle, Data), and contain some timing information and most importantly compressed data. Packets are sent to a <code>Codec</code> and in turn, the codec produces <code>Frames</code>. Please note that producing 1 <code>frame</code> does not always take exactly 1 <code>packet</code>. A <code>packet</code> may contain many <code>frames</code> but also a <code>frame</code> may require several <code>packets</code> for the decoder to build it. <code>Frames</code> will contain timing informattion and the raw, uncompressed data. Now, you may think you can use <code>frames</code> and show pixels on the screen or send samples to the sound card. We are close, but we still need to do some additional processing. Turns out different <code>Codecs</code> will produce different uncompressed data formats. For example, some video codecs will output pixel data in ARGB, some others in RGB, and some other in YUV420. Therefore, we will need to <code>Convert</code> these <code>frames</code> into something all hardware can use natively. I call these converted frames, <code>MediaBlocks</code>. These <code>MediaBlocks</code> will contain uncompressed data in standard Audio and Video formats that all hardware is able to receive.</p>
 <p>The process described above is implemented in 3 different layers:</p>
 <ul>
 <li>The <code>MediaContainer</code> wraps an input stream. This layer keeps track of a <code>MediaComponentSet</code> which is nothing more than a collecttion of <code>MediaComponent</code> objects. Each <code>MediaComponent</code> holds <code>packet</code> <strong>caching</strong>, <code>frame</code> <strong>decoding</strong>, and <code>block</code> <strong>conversion</strong> logic. It provides the following important functionality:<ul>
@@ -163,17 +164,17 @@ device://gdigrab?desktop</code></li>
 <em>The current .NET SDK does not support targeting .NET Standard 2.0. Either target .NET Standard 1.6 or lower, or use a version of the .NET SDK that supports .NET Standard 2.0.</em></p>
 <p>Simply download and install <a href="https://www.microsoft.com/net/download/windows">.NET Core SDK v2</a> or later.</p>
 <h2 id="macos-sample-player-in-preview-wip">MacOS: Sample Player (in preview, WIP)</h2>
-<p>Compile FFmpeg for Mac (instructions can be found on <a href="https://github.com/Ruslan-B/FFmpeg.AutoGen">FFmpeg.AutoGen</a>) and copy the following libraries from <code>/opt/local/lib</code> &#39;s to <code>/Users/{USER}/ffmpeg</code> (<code>~/ffmpeg</code>):</p>
+<p>Compile FFmpeg for Mac (instructions can be found on <a href="https://github.com/Ruslan-B/FFmpeg.AutoGen">FFmpeg.AutoGen</a>) and copy the following libraries from <code>/opt/local/lib</code> &#39;s to <code>/Users/{USER}/ffmpeg</code> (equivalent to <code>~/ffmpeg</code>):</p>
 <ul>
-<li>avcodec.57.dylib</li>
-<li>avdevice.57.dylib</li>
-<li>avfilter.6.dylib</li>
-<li>avformat.57.dylib</li>
-<li>avutil.55.dylib</li>
-<li>swresample.2.dylib</li>
-<li>swscale.4.dylib</li>
+<li><code>libavcodec.57.dylib</code></li>
+<li><code>libavdevice.57.dylib</code></li>
+<li><code>libavfilter.6.dylib</code></li>
+<li><code>libavformat.57.dylib</code></li>
+<li><code>libavutil.55.dylib</code></li>
+<li><code>libswresample.2.dylib</code></li>
+<li><code>libswscale.4.dylib</code></li>
 </ul>
-<p><em>Note: when building FFmpeg locally, compiled libraries are named differently than in the list above. E.g. <code>avcodec.57.dylib</code> is actually named <code>libavcodec.57.89.100.dylib</code>. To properly load libraries, copy and rename each library to match the format in the list above.</em></p>
+<p><em>Note: when building FFmpeg locally, compiled libraries are named differently than in the list above. E.g. <code>libavcodec.57.dylib</code> is actually named <code>libavcodec.57.89.100.dylib</code>. To properly load libraries, copy and rename each library to match the format in the list above.</em></p>
 <p>In the sample MacOS player, the FFmpeg folder is configured to point to <code>~/ffmpeg</code> in the following line of code:</p>
 <pre><code class="lang-csharp">Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), &quot;ffmpeg&quot;);
 </code></pre><p>Note that this can be customized to point to any other folder.</p>
@@ -215,7 +216,7 @@ device://gdigrab?desktop</code></li>
               <div class="contribution">
                 <ul class="nav">
                   <li class="top-sep">
-                    <a href="https://github.com/unosquare/ffmediaelement/blob/rootvm/README.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/unosquare/ffmediaelement/blob/master/README.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>
