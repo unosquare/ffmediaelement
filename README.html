@@ -164,17 +164,17 @@ device://gdigrab?desktop</code></li>
 <em>The current .NET SDK does not support targeting .NET Standard 2.0. Either target .NET Standard 1.6 or lower, or use a version of the .NET SDK that supports .NET Standard 2.0.</em></p>
 <p>Simply download and install <a href="https://www.microsoft.com/net/download/windows">.NET Core SDK v2</a> or later.</p>
 <h2 id="macos-sample-player-in-preview-wip">MacOS: Sample Player (in preview, WIP)</h2>
-<p>Compile FFmpeg for Mac (instructions can be found on <a href="https://github.com/Ruslan-B/FFmpeg.AutoGen">FFmpeg.AutoGen</a>) and copy the following libraries from <code>/opt/local/lib</code> &#39;s to <code>/Users/{USER}/ffmpeg</code> (<code>~/ffmpeg</code>):</p>
+<p>Compile FFmpeg for Mac (instructions can be found on <a href="https://github.com/Ruslan-B/FFmpeg.AutoGen">FFmpeg.AutoGen</a>) and copy the following libraries from <code>/opt/local/lib</code> &#39;s to <code>/Users/{USER}/ffmpeg</code> (equivalent to <code>~/ffmpeg</code>):</p>
 <ul>
-<li>avcodec.57.dylib</li>
-<li>avdevice.57.dylib</li>
-<li>avfilter.6.dylib</li>
-<li>avformat.57.dylib</li>
-<li>avutil.55.dylib</li>
-<li>swresample.2.dylib</li>
-<li>swscale.4.dylib</li>
+<li><code>libavcodec.57.dylib</code></li>
+<li><code>libavdevice.57.dylib</code></li>
+<li><code>libavfilter.6.dylib</code></li>
+<li><code>libavformat.57.dylib</code></li>
+<li><code>libavutil.55.dylib</code></li>
+<li><code>libswresample.2.dylib</code></li>
+<li><code>libswscale.4.dylib</code></li>
 </ul>
-<p><em>Note: when building FFmpeg locally, compiled libraries are named differently than in the list above. E.g. <code>avcodec.57.dylib</code> is actually named <code>libavcodec.57.89.100.dylib</code>. To properly load libraries, copy and rename each library to match the format in the list above.</em></p>
+<p><em>Note: when building FFmpeg locally, compiled libraries are named differently than in the list above. E.g. <code>libavcodec.57.dylib</code> is actually named <code>libavcodec.57.89.100.dylib</code>. To properly load libraries, copy and rename each library to match the format in the list above.</em></p>
 <p>In the sample MacOS player, the FFmpeg folder is configured to point to <code>~/ffmpeg</code> in the following line of code:</p>
 <pre><code class="lang-csharp">Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), &quot;ffmpeg&quot;);
 </code></pre><p>Note that this can be customized to point to any other folder.</p>
