@@ -3,20 +3,20 @@
     /// <summary>
     /// Enumerates GUI Context Types
     /// </summary>
-    internal enum GuiContextType
+    public enum GuiContextType
     {
         /// <summary>
-        /// The none
+        /// An invalid GUI context (console applications)
         /// </summary>
         None,
 
         /// <summary>
-        /// The WPF
+        /// A WPF GUI context (i.e. has dispatcher and is not Windows Forms)
         /// </summary>
         WPF,
 
         /// <summary>
-        /// The win forms
+        /// A Windows Forms GUI Context
         /// </summary>
         WinForms
     }

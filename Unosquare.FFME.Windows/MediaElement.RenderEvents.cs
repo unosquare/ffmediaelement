@@ -82,6 +82,7 @@
 
         /// <summary>
         /// Raises the rendering subtitles event.
+        /// Returning true cancels the rendering of subtitles.
         /// </summary>
         /// <param name="block">The block.</param>
         /// <param name="clock">The clock.</param>

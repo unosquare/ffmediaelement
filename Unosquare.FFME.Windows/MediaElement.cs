@@ -295,7 +295,7 @@
 
             // Setup the Subtitle View
             SubtitlesView.Padding = new Thickness(5, 0, 5, 0);
-            SubtitlesView.FontSize = 48;
+            SubtitlesView.FontSize = 58;
             SubtitlesView.FontFamily = new FontFamily("Calibri");
             SubtitlesView.FontStretch = FontStretches.Condensed;
             SubtitlesView.FontWeight = FontWeights.SemiBold;
@@ -323,7 +323,7 @@
 
                 // Position the Subtitles
                 var videoViewPosition = VideoView.TransformToAncestor(ContentGrid).Transform(new Point(0, 0));
-                var targetHeight = VideoView.ActualHeight / 5d;
+                var targetHeight = VideoView.ActualHeight / 4d;
                 var targetWidth = VideoView.ActualWidth;
 
                 if (SubtitlesView.Height != targetHeight)

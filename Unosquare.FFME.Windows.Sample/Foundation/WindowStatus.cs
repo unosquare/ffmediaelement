@@ -1,11 +1,13 @@
-﻿namespace Unosquare.FFME.Windows.Sample.Kernel
+﻿namespace Unosquare.FFME.Windows.Sample.Foundation
 {
+    using System;
+    using System.Runtime.InteropServices;
     using System.Windows;
 
     /// <summary>
     /// Represents the general state of a Window
     /// </summary>
-    internal class WindowStatus
+    public sealed class WindowStatus
     {
         /// <summary>
         /// Gets or sets the state of the window.
@@ -56,6 +58,24 @@
         public ResizeMode ResizeMode { get; set; }
 
         /// <summary>
+        /// Disables the display timeout.
+        /// </summary>
+        public static void DisableDisplayTimeout()
+        {
+            NativeMethods.SetThreadExecutionState(
+                NativeMethods.EXECUTION_STATE.ES_DISPLAY_REQUIRED | NativeMethods.EXECUTION_STATE.ES_CONTINUOUS);
+        }
+
+        /// <summary>
+        /// Allows the display timeout.
+        /// </summary>
+        public static void EnableDisplayTimeout()
+        {
+            NativeMethods.SetThreadExecutionState(
+                NativeMethods.EXECUTION_STATE.ES_CONTINUOUS);
+        }
+
+        /// <summary>
         /// Captures the specified window state.
         /// </summary>
         /// <param name="w">The w.</param>
@@ -81,6 +101,25 @@
             w.WindowStyle = WindowStyle;
             w.Topmost = Topmost;
             w.ResizeMode = ResizeMode;
+        }
+
+        /// <summary>
+        /// Provides access to disable or enable screen tiemput. Original idea taken from:
+        /// http://www.blackwasp.co.uk/DisableScreensaver.aspx
+        /// </summary>
+        private static class NativeMethods
+        {
+            [Flags]
+            public enum EXECUTION_STATE : uint
+            {
+                ES_AWAYMODE_REQUIRED = 0x00000040,
+                ES_CONTINUOUS = 0x80000000,
+                ES_DISPLAY_REQUIRED = 0x00000002,
+                ES_SYSTEM_REQUIRED = 0x00000001
+            }
+
+            [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+            public static extern EXECUTION_STATE SetThreadExecutionState(EXECUTION_STATE esFlags);
         }
     }
 }

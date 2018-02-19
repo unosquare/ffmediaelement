@@ -127,10 +127,14 @@
                 if (kvp.Key == SourceProperty)
                     continue;
 
-                // Do not upstream the Source porperty
+                // Do not upstream the Position porperty
                 // This causes unintended Seek commands to be run
                 if (kvp.Key == PositionProperty)
+                {
+                    // Do notify the ramianing duration has changed
+                    RaisePropertyChangedEvent(nameof(RemainingDuration));
                     continue;
+                }
 
                 SetValue(kvp.Key, kvp.Value);
             }

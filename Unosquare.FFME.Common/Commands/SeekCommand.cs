@@ -17,7 +17,7 @@
         public SeekCommand(MediaCommandManager manager, TimeSpan targetPosition)
             : base(manager, MediaCommandType.Seek)
         {
-            TargetPosition = targetPosition.Normalize();
+            TargetPosition = targetPosition;
         }
 
         /// <summary>

@@ -34,9 +34,7 @@
 
             var wallClock = m.SnapToFramePosition(m.WallClock);
             m.Clock.Update(wallClock);
-
-            if (m.State.MediaState != PlaybackStatus.Stop)
-                m.State.UpdateMediaState(PlaybackStatus.Pause);
+            m.State.UpdateMediaState(PlaybackStatus.Pause);
         }
     }
 }

@@ -47,10 +47,8 @@
         {
             get
             {
-                using (Locker.AcquireReaderLock())
-                {
-                    return Chrono.IsRunning;
-                }
+                if (IsDisposed) return false;
+                return Chrono?.IsRunning ?? false;
             }
         }
 

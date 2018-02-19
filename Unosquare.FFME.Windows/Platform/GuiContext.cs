@@ -3,6 +3,7 @@
     using Primitives;
     using System;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
@@ -11,9 +12,10 @@
     using System.Windows.Threading;
 
     /// <summary>
-    /// The WPF or WinForms graphical context
+    /// Provides properties and methods for the
+    /// WPF or Windows Forms GUI Threading context
     /// </summary>
-    internal sealed class GuiContext
+    public sealed class GuiContext
     {
         /// <summary>
         /// Initializes static members of the <see cref="GuiContext"/> class.
@@ -28,16 +30,16 @@
         /// </summary>
         private GuiContext()
         {
-            ContextThread = Thread.CurrentThread;
-            Context = SynchronizationContext.Current;
-            ContextType = GuiContextType.None;
-            if (Context is DispatcherSynchronizationContext) ContextType = GuiContextType.WPF;
-            else if (Context is WindowsFormsSynchronizationContext) ContextType = GuiContextType.WinForms;
+            Thread = Thread.CurrentThread;
+            ThreadContext = SynchronizationContext.Current;
+            try { GuiDispatcher = System.Windows.Application.Current.Dispatcher; }
+            catch { }
 
-            IsValid = Context != null && ContextType != GuiContextType.None;
+            Type = GuiContextType.None;
+            if (GuiDispatcher != null) Type = GuiContextType.WPF;
+            else if (ThreadContext is WindowsFormsSynchronizationContext) Type = GuiContextType.WinForms;
 
-            if (ContextType == GuiContextType.WPF)
-                GuiDispatcher = System.Windows.Application.Current.Dispatcher;
+            IsValid = Type != GuiContextType.None;
 
             // Design-time detection
             try
@@ -49,6 +51,8 @@
             {
                 IsInDesignTime = false;
             }
+
+            IsInDebugMode = Debugger.IsAttached;
         }
 
         /// <summary>
@@ -57,19 +61,14 @@
         public static GuiContext Current { get; }
 
         /// <summary>
-        /// Gets the synchronization context.
+        /// Gets the type of the context.
         /// </summary>
-        public SynchronizationContext Context { get; }
+        public GuiContextType Type { get; }
 
         /// <summary>
         /// Gets the thread on which this context was created
         /// </summary>
-        public Thread ContextThread { get; }
-
-        /// <summary>
-        /// Gets the GUI dispatcher. Only valid for WPF contexts
-        /// </summary>
-        public Dispatcher GuiDispatcher { get; }
+        public Thread Thread { get; }
 
         /// <summary>
         /// Gets a value indicating whetherthe context is in design time
@@ -77,14 +76,24 @@
         public bool IsInDesignTime { get; }
 
         /// <summary>
-        /// Returns true if this context is valid.
+        /// Gets a value indicating whether a debugger was attached when the context initialized.
         /// </summary>
-        public bool IsValid { get; }
+        public bool IsInDebugMode { get; }
 
         /// <summary>
-        /// Gets the type of the context.
+        /// Returns true if this context is valid.
         /// </summary>
-        public GuiContextType ContextType { get; }
+        internal bool IsValid { get; }
+
+        /// <summary>
+        /// Gets the synchronization context.
+        /// </summary>
+        internal SynchronizationContext ThreadContext { get; }
+
+        /// <summary>
+        /// Gets the GUI dispatcher. Only valid for WPF contexts
+        /// </summary>
+        internal Dispatcher GuiDispatcher { get; }
 
         /// <summary>
         /// Invokes a task on the GUI thread
@@ -96,13 +105,13 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public async Task InvokeAsync(DispatcherPriority priority, Delegate callback, params object[] arguments)
         {
-            if (ContextThread == Thread.CurrentThread)
+            if (Thread == Thread.CurrentThread)
             {
                 callback.DynamicInvoke(arguments);
                 return;
             }
 
-            switch (ContextType)
+            switch (Type)
             {
                 case GuiContextType.None:
                     {
@@ -119,7 +128,7 @@
                 case GuiContextType.WinForms:
                     {
                         var doneEvent = WaitEventFactory.Create(isCompleted: false, useSlim: true);
-                        Context.Post((args) =>
+                        ThreadContext.Post((args) =>
                         {
                             try
                             {

@@ -9,7 +9,7 @@
     /// </summary>
     public sealed class AtomicLong
     {
-        private long m_Value = 0;
+        private long m_Value = default(long);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AtomicLong"/> class.
@@ -24,7 +24,7 @@
         /// </summary>
         public long Value
         {
-            get => Volatile.Read(ref m_Value);
+            get => Interlocked.Read(ref m_Value);
             set => Interlocked.Exchange(ref m_Value, value);
         }
     }

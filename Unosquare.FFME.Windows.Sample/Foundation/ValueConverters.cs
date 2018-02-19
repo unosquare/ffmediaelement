@@ -1,5 +1,5 @@
 ﻿#pragma warning disable SA1649 // File name must match first type name
-namespace Unosquare.FFME.Windows.Sample.Kernel
+namespace Unosquare.FFME.Windows.Sample.Foundation
 {
     using System;
     using System.Globalization;
@@ -46,11 +46,7 @@ namespace Unosquare.FFME.Windows.Sample.Kernel
         /// <returns>
         /// A converted value. If the method returns null, the valid null value is used.
         /// </returns>
-        public object ConvertBack(
-            object value,
-            Type targetType,
-            object parameter,
-            CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var result = TimeSpan.FromTicks(System.Convert.ToInt64(TimeSpan.TicksPerSecond * (double)value));
 
@@ -71,31 +67,31 @@ namespace Unosquare.FFME.Windows.Sample.Kernel
         /// <summary>
         /// Converts the specified position.
         /// </summary>
-        /// <param name="position">The position.</param>
+        /// <param name="value">The position.</param>
         /// <param name="targetType">Type of the target.</param>
-        /// <param name="duration">The duration.</param>
+        /// <param name="parameter">The duration.</param>
         /// <param name="culture">The culture.</param>
         /// <returns>The object converted</returns>
-        public object Convert(object position, Type targetType, object duration, CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (duration != null)
+            if (parameter != null)
             {
-                var media = duration as MediaElement;
-                duration = media?.NaturalDuration ?? TimeSpan.Zero;
+                var media = parameter as MediaElement;
+                parameter = media?.NaturalDuration ?? TimeSpan.Zero;
             }
 
             var p = TimeSpan.Zero;
             var d = TimeSpan.Zero;
 
-            if (position is TimeSpan span) p = span;
-            if (position is Duration duration1)
+            if (value is TimeSpan span) p = span;
+            if (value is Duration duration1)
                 p = duration1.HasTimeSpan ? duration1.TimeSpan : TimeSpan.Zero;
 
-            if (duration != null)
+            if (parameter != null)
             {
-                if (duration is TimeSpan) d = (TimeSpan)duration;
-                if (duration is Duration)
-                    d = ((Duration)duration).HasTimeSpan ? ((Duration)duration).TimeSpan : TimeSpan.Zero;
+                if (parameter is TimeSpan) d = (TimeSpan)parameter;
+                if (parameter is Duration)
+                    d = ((Duration)parameter).HasTimeSpan ? ((Duration)parameter).TimeSpan : TimeSpan.Zero;
 
                 if (d == TimeSpan.Zero) return string.Empty;
                 p = TimeSpan.FromTicks(d.Ticks - p.Ticks);
@@ -239,8 +235,9 @@ namespace Unosquare.FFME.Windows.Sample.Kernel
         {
             var thumbnailFilename = value as string;
             if (thumbnailFilename == null) return default(ImageSource);
+            if (Platform.GuiContext.Current.IsInDesignTime) return default(ImageSource);
 
-            return PlaylistManager.GetThumbnail(thumbnailFilename);
+            return ThumbnailGenerator.GetThumbnail(App.Current.ViewModel.Playlist.ThumbsDirectory, thumbnailFilename);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -11,7 +11,7 @@
 ## Announcements
 - Current Status: (2018-02-03) - 2.0, codenamed Michelob is now in Release 1 (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
 - NuGet Package available here: https://www.nuget.org/packages/FFME.Windows/
-- FFmpeg Version: <a href="http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip">3.4.0 (32-bit)</a>
+- FFmpeg Version: <a href="http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4.1-win32-shared.zip">3.4.1 (32-bit)</a>
 
 ## Quick Usage Guide for WPF Apps
 
@@ -67,7 +67,7 @@ A high-level diagram is provided as additional reference below.
 
 - I am planning the next version of this control, `Floyd`. See the **Issues** section.
 - Working on Hardware acceleration. Maybe CUDA for highest compatibility.
-- Release 3.4.200 does not support opening capture devices such as webcams or TV cards. Release 3.4.210 will. See [issue #48](https://github.com/unosquare/ffmediaelement/issues/48)
+- Starting version 3.4.210 FFME supports opening capture devices. See examples below and [issue #48](https://github.com/unosquare/ffmediaelement/issues/48)
 ```
 device://dshow/?audio=Microphone (Vengeance 2100)
 device://gdigrab?title=Command Prompt
