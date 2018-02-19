@@ -98,16 +98,16 @@ If you get the following error when compiling:
 Simply download and install [.NET Core SDK v2](https://www.microsoft.com/net/download/windows) or later.
 
 ## MacOS: Sample Player (in preview, WIP)
-Compile FFmpeg for Mac (instructions can be found on [FFmpeg.AutoGen](https://github.com/Ruslan-B/FFmpeg.AutoGen)) and copy the following libraries from `/opt/local/lib` 's to `/Users/{USER}/ffmpeg` (`~/ffmpeg`):
- - avcodec.57.dylib
- - avdevice.57.dylib
- - avfilter.6.dylib
- - avformat.57.dylib
- - avutil.55.dylib
- - swresample.2.dylib
- - swscale.4.dylib
+Compile FFmpeg for Mac (instructions can be found on [FFmpeg.AutoGen](https://github.com/Ruslan-B/FFmpeg.AutoGen)) and copy the following libraries from `/opt/local/lib` 's to `/Users/{USER}/ffmpeg` (equivalent to `~/ffmpeg`):
+ - `libavcodec.57.dylib`
+ - `libavdevice.57.dylib`
+ - `libavfilter.6.dylib`
+ - `libavformat.57.dylib`
+ - `libavutil.55.dylib`
+ - `libswresample.2.dylib`
+ - `libswscale.4.dylib`
 
-*Note: when building FFmpeg locally, compiled libraries are named differently than in the list above. E.g. `avcodec.57.dylib` is actually named `libavcodec.57.89.100.dylib`. To properly load libraries, copy and rename each library to match the format in the list above.*
+*Note: when building FFmpeg locally, compiled libraries are named differently than in the list above. E.g. `libavcodec.57.dylib` is actually named `libavcodec.57.89.100.dylib`. To properly load libraries, copy and rename each library to match the format in the list above.*
 
 In the sample MacOS player, the FFmpeg folder is configured to point to `~/ffmpeg` in the following line of code:
 
