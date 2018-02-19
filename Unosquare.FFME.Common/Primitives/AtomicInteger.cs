@@ -3,27 +3,25 @@
     using System;
 
     /// <summary>
-    /// Fast, atomioc double combining interlocked to write value and volatile to read values
-    /// Idea taken from Memory model and .NET operations in article:
-    /// http://igoro.com/archive/volatile-keyword-in-c-memory-model-explained/
+    /// Represents an atomically readabl;e or writable integer.
     /// </summary>
-    public sealed class AtomicDouble : AtomicTypeBase<double>
+    public class AtomicInteger : AtomicTypeBase<int>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="AtomicDouble"/> class.
+        /// Initializes a new instance of the <see cref="AtomicInteger"/> class.
         /// </summary>
         /// <param name="initialValue">if set to <c>true</c> [initial value].</param>
-        public AtomicDouble(double initialValue)
-            : base(BitConverter.DoubleToInt64Bits(initialValue))
+        public AtomicInteger(int initialValue)
+            : base(Convert.ToInt64(initialValue))
         {
             // placeholder
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AtomicDouble"/> class.
+        /// Initializes a new instance of the <see cref="AtomicInteger"/> class.
         /// </summary>
-        public AtomicDouble()
-            : base(BitConverter.DoubleToInt64Bits(0))
+        public AtomicInteger()
+            : base(0)
         {
             // placeholder
         }
@@ -35,9 +33,9 @@
         /// <returns>
         /// The value converted form a long value
         /// </returns>
-        protected override double FromLong(long backingValue)
+        protected override int FromLong(long backingValue)
         {
-            return BitConverter.Int64BitsToDouble(backingValue);
+            return Convert.ToInt32(backingValue);
         }
 
         /// <summary>
@@ -47,9 +45,9 @@
         /// <returns>
         /// The value converted to a long value
         /// </returns>
-        protected override long ToLong(double value)
+        protected override long ToLong(int value)
         {
-            return BitConverter.DoubleToInt64Bits(value);
+            return Convert.ToInt64(value);
         }
     }
 }
