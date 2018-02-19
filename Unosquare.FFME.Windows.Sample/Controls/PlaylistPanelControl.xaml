@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" d:DesignHeight="320"  Name="LayoutRoot"
+             xmlns:ffmepl="clr-namespace:Unosquare.FFME.Windows.Sample.Foundation"
              d:DataContext="{d:DesignInstance vm:RootViewModel, IsDesignTimeCreatable=True}">
 
     <!-- The Glass Background Border -->
@@ -134,8 +135,7 @@
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <!-- DataType="{x:Type ffmepl:CustomPlaylistEntry}" -->
+                        <DataTemplate DataType="{x:Type ffmepl:CustomPlaylistEntry}">
                             <DataTemplate.Resources>
                                 <Style TargetType="Hyperlink">
                                     <Setter Property="Foreground" Value="Orange"/>
