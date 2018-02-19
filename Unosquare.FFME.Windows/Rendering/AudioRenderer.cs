@@ -37,6 +37,11 @@
         private WaveFormat m_WaveFormat = null;
         private int SampleBlockSize = 0;
 
+        private object PlaySyncLock = new object();
+        private DateTime? PlaySyncStartTime = default(DateTime?);
+        private int PlaySyncCount = 0;
+        private AtomicBoolean PlaySyncGaveUp = new AtomicBoolean(false);
+
         #endregion
 
         #region Constructors
@@ -179,7 +184,29 @@
         /// <param name="clockPosition">The clock position.</param>
         public void Update(TimeSpan clockPosition)
         {
-            // placeholder
+            // We don't need to keep track of syncs for seekable media
+            if (MediaCore?.State?.IsSeekable ?? true)
+                return;
+
+            // Detect state changes to reset give up sync conditions.
+            lock (PlaySyncLock)
+            {
+                if (MediaCore.State.IsPlaying && PlaySyncStartTime == null)
+                {
+                    PlaySyncStartTime = DateTime.UtcNow;
+                    PlaySyncCount = 0;
+                    PlaySyncGaveUp.Value = false;
+                    return;
+                }
+
+                if (MediaCore.State.IsPaused && PlaySyncStartTime != null)
+                {
+                    PlaySyncStartTime = null;
+                    PlaySyncCount = 0;
+                    PlaySyncGaveUp.Value = false;
+                    return;
+                }
+            }
         }
 
         /// <summary>
@@ -420,6 +447,8 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool Synchronize(byte[] targetBuffer, int targetBufferOffset, int requestedBytes, double speedRatio)
         {
+            #region Documentation
+
             /*
              * Wikipedia says:
              * For television applications, audio should lead video by no more than 15 milliseconds and audio should
@@ -439,10 +468,57 @@
              * NOTE: (- Sound delayed, + Sound advanced)
              */
 
+            #endregion
+
+            #region Private State
+
             var audioLatencyMs = Latency.TotalMilliseconds;
             var isBeyondThreshold = false;
             var readableCount = AudioBuffer.ReadableCount;
             var rewindableCount = AudioBuffer.RewindableCount;
+
+            #endregion
+
+            #region Sync Give-up Conditions
+
+            // Determine if we should continue to perform syncs.
+            // Some live, non-seekable streams will send out-of-sync audio packets
+            // and after trying too many times we simply give up.
+            // The Sync conditions are reset in the Update method.
+            if ((MediaCore?.State?.IsSeekable ?? true) == false && PlaySyncGaveUp.Value == false)
+            {
+                lock (PlaySyncLock)
+                {
+                    // 1. Determine if a sync is required
+                    if (audioLatencyMs > SyncThresholdLagging ||
+                        audioLatencyMs < SyncThresholdLeading ||
+                        Math.Abs(audioLatencyMs) > SyncThresholdPerfect)
+                    {
+                        PlaySyncCount++;
+                    }
+
+                    // 2. Compute the variables to determine give-up conditions
+                    var playbackElapsedSeconds = PlaySyncStartTime.HasValue == false ?
+                        0 : DateTime.UtcNow.Subtract(PlaySyncStartTime.Value).TotalSeconds;
+                    var syncsPerSecond = PlaySyncCount / playbackElapsedSeconds;
+
+                    // 3. Determine if we need to give up
+                    if (playbackElapsedSeconds >= 3 && syncsPerSecond >= 3)
+                    {
+                        MediaCore.Log(MediaLogMessageType.Warning,
+                            $"SYNC AUDIO: GIVE UP | SECS: {playbackElapsedSeconds:0.00}; SYN: {PlaySyncCount}; RATE: {syncsPerSecond:0.00} SYN/s; LAT: {audioLatencyMs} ms.");
+                        PlaySyncGaveUp.Value = true;
+                    }
+                }
+            }
+
+            // Detect if we have given up
+            if (PlaySyncGaveUp.Value == true)
+                return true;
+
+            #endregion
+
+            #region Large Latency Handling
 
             if (audioLatencyMs > SyncThresholdLagging)
             {
@@ -453,7 +529,7 @@
                 if (speedRatio == 1.0)
                 {
                     MediaCore.Log(MediaLogMessageType.Warning,
-                        $"SYNC AUDIO: LATENCY: {Latency.Format()} | SKIP (samples being rendered too late)");
+                        $"SYNC AUDIO: LATENCY: {audioLatencyMs} ms. | SKIP (samples being rendered too late)");
                 }
 
                 // skip some samples from the buffer.
@@ -481,7 +557,7 @@
                     if (speedRatio == 1.0)
                     {
                         MediaCore.Log(MediaLogMessageType.Warning,
-                            $"SYNC AUDIO: LATENCY: {Latency.Format()} | WAIT (samples being rendered too early)");
+                            $"SYNC AUDIO: LATENCY: {audioLatencyMs} ms. | WAIT (samples being rendered too early)");
                     }
 
                     // render silence for the wait time and return
@@ -489,6 +565,10 @@
                     return false;
                 }
             }
+
+            #endregion
+
+            #region Small Latency Handling
 
             // Perform minor adjustments until the delay is less than 10ms in either direction
             if (MediaCore.State.HasVideo &&
@@ -504,6 +584,8 @@
                 else if (audioLatencyMs < -SyncThresholdPerfect)
                     AudioBuffer.Rewind(Math.Min(stepDurationBytes, rewindableCount));
             }
+
+            #endregion
 
             return true;
         }
@@ -742,13 +824,13 @@
         {
             if (!IsDisposed)
             {
+                IsDisposed = true;
+
                 if (alsoManaged)
                 {
                     Destroy();
                     WaitForReadyEvent.Dispose();
                 }
-
-                IsDisposed = true;
             }
         }
 
