@@ -13,4 +13,6 @@ copy "%ReleasePath%ffme.win.xml" "%PackagePath%lib\net461\"
 copy "%ProjectPath%Support\readme.txt" "%PackagePath%"
 copy "%ProjectPath%Support\ffme.win.nuspec" "%PackagePath%"
 
+cd "%PackagePath%"
+echo choco install nuget.commandline
 nuget pack ffme.win.nuspec
