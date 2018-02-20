@@ -4,7 +4,7 @@
 [![NuGet](https://img.shields.io/nuget/dt/FFME.Windows.svg)](https://www.nuget.org/packages/FFME.Windows)
 [![Build status](https://ci.appveyor.com/api/projects/status/ppqeayanucj1hadj?svg=true)](https://ci.appveyor.com/project/geoperez/ffmediaelement)
 
-*:star:Please star this project if you like it and show your appreciation via* **[PayPal.Me](https://www.paypal.me/mariodivece/50usd)**
+:star: *Please star this project if you like it and show your appreciation via* **[PayPal.Me](https://www.paypal.me/mariodivece/50usd)**
 
 ![ffmeplay](https://github.com/unosquare/ffmediaelement/raw/master/Support/ffmeplay.png)
 
