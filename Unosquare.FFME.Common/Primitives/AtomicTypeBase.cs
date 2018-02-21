@@ -10,7 +10,7 @@
     public abstract class AtomicTypeBase<T> : IComparable, IComparable<T>, IComparable<AtomicTypeBase<T>>, IEquatable<T>, IEquatable<AtomicTypeBase<T>>
         where T : struct, IComparable, IComparable<T>, IEquatable<T>
     {
-        private long backingValue = default(long);
+        private long backingValue = default;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AtomicTypeBase{T}"/> class.
@@ -47,10 +47,7 @@
         /// <returns>
         /// The result of the operator.
         /// </returns>
-        public static bool operator ==(AtomicTypeBase<T> a, T b)
-        {
-            return a.Equals(b);
-        }
+        public static bool operator ==(AtomicTypeBase<T> a, T b) => a.Equals(b);
 
         /// <summary>
         /// Implements the operator !=.
@@ -60,10 +57,7 @@
         /// <returns>
         /// The result of the operator.
         /// </returns>
-        public static bool operator !=(AtomicTypeBase<T> a, T b)
-        {
-            return a.Equals(b) == false;
-        }
+        public static bool operator !=(AtomicTypeBase<T> a, T b) => a.Equals(b) == false;
 
         /// <summary>
         /// Implements the operator &gt;.
@@ -73,10 +67,7 @@
         /// <returns>
         /// The result of the operator.
         /// </returns>
-        public static bool operator >(AtomicTypeBase<T> a, T b)
-        {
-            return a.CompareTo(b) > 0;
-        }
+        public static bool operator >(AtomicTypeBase<T> a, T b) => a.CompareTo(b) > 0;
 
         /// <summary>
         /// Implements the operator &lt;.
@@ -86,10 +77,7 @@
         /// <returns>
         /// The result of the operator.
         /// </returns>
-        public static bool operator <(AtomicTypeBase<T> a, T b)
-        {
-            return a.CompareTo(b) < 0;
-        }
+        public static bool operator <(AtomicTypeBase<T> a, T b) => a.CompareTo(b) < 0;
 
         /// <summary>
         /// Implements the operator &gt;=.
@@ -99,10 +87,7 @@
         /// <returns>
         /// The result of the operator.
         /// </returns>
-        public static bool operator >=(AtomicTypeBase<T> a, T b)
-        {
-            return a.CompareTo(b) >= 0;
-        }
+        public static bool operator >=(AtomicTypeBase<T> a, T b) => a.CompareTo(b) >= 0;
 
         /// <summary>
         /// Implements the operator &lt;=.
@@ -112,10 +97,7 @@
         /// <returns>
         /// The result of the operator.
         /// </returns>
-        public static bool operator <=(AtomicTypeBase<T> a, T b)
-        {
-            return a.CompareTo(b) <= 0;
-        }
+        public static bool operator <=(AtomicTypeBase<T> a, T b) => a.CompareTo(b) <= 0;
 
         /// <summary>
         /// Implements the operator ++.
@@ -126,7 +108,7 @@
         /// </returns>
         public static AtomicTypeBase<T> operator ++(AtomicTypeBase<T> instance)
         {
-            instance.BackingValue = instance.BackingValue + 1;
+            Interlocked.Increment(ref instance.backingValue);
             return instance;
         }
 
@@ -139,7 +121,7 @@
         /// </returns>
         public static AtomicTypeBase<T> operator --(AtomicTypeBase<T> instance)
         {
-            instance.BackingValue = instance.BackingValue - 1;
+            Interlocked.Decrement(ref instance.backingValue);
             return instance;
         }
 
@@ -196,20 +178,15 @@
         /// </summary>
         /// <param name="other">The other instance.</param>
         /// <returns>0 if equal, 1 if this instance is greater, -1 if this instance is less than</returns>
-        public int CompareTo(T other)
-        {
-            return Value.CompareTo(other);
-        }
+        public int CompareTo(T other) => Value.CompareTo(other);
 
         /// <summary>
         /// Compares the value to the other instance
         /// </summary>
         /// <param name="other">The other instance.</param>
         /// <returns>0 if equal, 1 if this instance is greater, -1 if this instance is less than</returns>
-        public int CompareTo(AtomicTypeBase<T> other)
-        {
-            return BackingValue.CompareTo(other?.BackingValue ?? default(long));
-        }
+        public int CompareTo(AtomicTypeBase<T> other) =>
+            BackingValue.CompareTo(other?.BackingValue ?? default);
 
         /// <summary>
         /// Determines whether the specified <see cref="object" />, is equal to this instance.
@@ -232,10 +209,7 @@
         /// <returns>
         /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
         /// </returns>
-        public override int GetHashCode()
-        {
-            return BackingValue.GetHashCode();
-        }
+        public override int GetHashCode() => BackingValue.GetHashCode();
 
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
@@ -244,10 +218,8 @@
         /// <returns>
         /// true if the current object is equal to the <paramref name="other">other</paramref> parameter; otherwise, false.
         /// </returns>
-        public bool Equals(AtomicTypeBase<T> other)
-        {
-            return BackingValue == (other?.BackingValue ?? default(long));
-        }
+        public bool Equals(AtomicTypeBase<T> other) =>
+            BackingValue == (other?.BackingValue ?? default);
 
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
@@ -256,13 +228,10 @@
         /// <returns>
         /// true if the current object is equal to the <paramref name="other">other</paramref> parameter; otherwise, false.
         /// </returns>
-        public bool Equals(T other)
-        {
-            return Equals(Value, other);
-        }
+        public bool Equals(T other) => Equals(Value, other);
 
         /// <summary>
-        /// COnverts froma long value to the target type.
+        /// Converts froma long value to the target type.
         /// </summary>
         /// <param name="backingValue">The backing value.</param>
         /// <returns>The value converted form a long value</returns>

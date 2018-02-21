@@ -198,7 +198,7 @@
         /// </summary>
         public class ReferenceEntry
         {
-            public UnmanagedType Type { get; set; } = default(UnmanagedType);
+            public UnmanagedType Type { get; set; } = default;
             public string Location { get; set; } = null;
             public IntPtr Instance { get; set; } = IntPtr.Zero;
         }

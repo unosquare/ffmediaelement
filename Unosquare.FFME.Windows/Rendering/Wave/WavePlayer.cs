@@ -218,7 +218,7 @@
             m_PlaybackState = PlaybackState.Stopped; // set this here to avoid a problem with some drivers whereby
             CallbackEvent?.WaitOne(DesiredLatency);
 
-            MmResult result = default(MmResult);
+            MmResult result = default;
             lock (WaveOutLock)
                 result = WaveInterop.NativeMethods.waveOutReset(DeviceHandle);
 

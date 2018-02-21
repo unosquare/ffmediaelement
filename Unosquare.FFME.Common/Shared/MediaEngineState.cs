@@ -272,12 +272,12 @@
         /// <summary>
         /// Gets a value indicating whether the media has reached its end.
         /// </summary>
-        public bool HasMediaEnded { get; internal set; } = default(bool);
+        public bool HasMediaEnded { get; internal set; } = default;
 
         /// <summary>
         /// Get a value indicating whether the media is buffering.
         /// </summary>
-        public bool IsBuffering { get; internal set; } = default(bool);
+        public bool IsBuffering { get; internal set; } = default;
 
         /// <summary>
         /// Gets a value indicating whether the media seeking is in progress.
@@ -306,32 +306,32 @@
         /// Gets a value that indicates the percentage of buffering progress made.
         /// Range is from 0 to 1
         /// </summary>
-        public double BufferingProgress { get; internal set; } = default(double);
+        public double BufferingProgress { get; internal set; } = default;
 
         /// <summary>
         /// The packet buffer length.
         /// It is adjusted to 1 second if bitrate information is available.
         /// Otherwise, it's simply 512KB and it is guessed later on.
         /// </summary>
-        public int BufferCacheLength { get; internal set; } = default(int);
+        public int BufferCacheLength { get; internal set; } = default;
 
         /// <summary>
         /// Gets a value that indicates the percentage of download progress made.
         /// Range is from 0 to 1
         /// </summary>
-        public double DownloadProgress { get; internal set; } = default(double);
+        public double DownloadProgress { get; internal set; } = default;
 
         /// <summary>
         /// Gets the maximum packet buffer length, according to the bitrate (if available).
         /// If it's a realtime stream it will return 30 times the buffer cache length.
         /// Otherwise, it will return  4 times of the buffer cache length.
         /// </summary>
-        public int DownloadCacheLength { get; internal set; } = default(int);
+        public int DownloadCacheLength { get; internal set; } = default;
 
         /// <summary>
         /// Gets a value indicating whether the media is in the process of opening.
         /// </summary>
-        public bool IsOpening { get; internal set; } = default(bool);
+        public bool IsOpening { get; internal set; } = default;
 
         #endregion
 
@@ -377,16 +377,16 @@
         {
             // Reset Media Settable Properties
             UpdateMediaState(PlaybackStatus.Close, TimeSpan.Zero);
-            HasMediaEnded = default(bool);
-            IsBuffering = default(bool);
-            IsSeeking = default(bool);
+            HasMediaEnded = default;
+            IsBuffering = default;
+            IsSeeking = default;
             VideoSmtpeTimecode = string.Empty;
             VideoHardwareDecoder = string.Empty;
-            BufferingProgress = default(double);
-            BufferCacheLength = default(int);
-            DownloadProgress = default(double);
-            DownloadCacheLength = default(int);
-            IsOpening = default(bool);
+            BufferingProgress = default;
+            BufferCacheLength = default;
+            DownloadProgress = default;
+            DownloadCacheLength = default;
+            IsOpening = default;
 
             // Reset volatile controller poperties
             SpeedRatio = Constants.Controller.DefaultSpeedRatio;
@@ -401,7 +401,7 @@
             const int MinimumValidBitrate = 96 * 1000; // 96kbps
             const int StartingCacheLength = 512 * 1024; // Half a megabyte
 
-            GuessedByteRate = default(ulong?);
+            GuessedByteRate = default;
 
             if (Parent.Container == null)
             {

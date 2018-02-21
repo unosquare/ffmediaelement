@@ -18,7 +18,7 @@
         /// <summary>
         /// To detect redundant calls
         /// </summary>
-        private bool m_IsDisposed = default(bool);
+        private bool m_IsDisposed = default;
 
         #endregion
 

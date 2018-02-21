@@ -211,7 +211,7 @@
         /// <summary>
         /// Gets the first packet DTS.
         /// </summary>
-        public long? FirstPacketDts { get; private set; } = default(long?);
+        public long? FirstPacketDts { get; private set; } = default;
 
         /// <summary>
         /// Gets the duration of this stream component.

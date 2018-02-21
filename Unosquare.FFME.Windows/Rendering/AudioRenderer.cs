@@ -38,7 +38,7 @@
         private int SampleBlockSize = 0;
 
         private object PlaySyncLock = new object();
-        private DateTime? PlaySyncStartTime = default(DateTime?);
+        private DateTime? PlaySyncStartTime = default;
         private int PlaySyncCount = 0;
         private AtomicBoolean PlaySyncGaveUp = new AtomicBoolean(false);
 

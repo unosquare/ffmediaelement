@@ -37,7 +37,7 @@
         {
             var sourcePath = Path.Combine(targetPath, thumbnailFilename);
             if (string.IsNullOrWhiteSpace(thumbnailFilename) || File.Exists(sourcePath) == false)
-                return default(System.Windows.Media.ImageSource);
+                return default;
 
             try
             {

@@ -21,7 +21,7 @@
                   : (MediaCore.State.NaturalDuration.Value == TimeSpan.MinValue
                     ? Duration.Forever
                     : (MediaCore.State.NaturalDuration.Value < TimeSpan.Zero
-                    ? default(Duration)
+                    ? default
                     : new Duration(MediaCore.State.NaturalDuration.Value)));
             }
         }

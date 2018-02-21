@@ -114,17 +114,17 @@
         /// <summary>
         /// Gets the first packet DTS.
         /// </summary>
-        public long? FirstPacketDts { get; private set; } = default(long?);
+        public long? FirstPacketDts { get; private set; } = default;
 
         /// <summary>
         /// Gets the stream index of the first packet received.
         /// </summary>
-        public int? FisrtPacketStreamIndex { get; private set; } = default(int?);
+        public int? FisrtPacketStreamIndex { get; private set; } = default;
 
         /// <summary>
         /// Gets the first packet byte position.
         /// </summary>
-        public long? FirstPacketPosition { get; private set; } = default(long?);
+        public long? FirstPacketPosition { get; private set; } = default;
 
         /// <summary>
         /// Gets the current length in bytes of the packet buffer.

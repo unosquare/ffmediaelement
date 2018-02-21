@@ -16,7 +16,7 @@
         /// <summary>
         /// The has intialized flag
         /// </summary>
-        private static bool IsIntialized = default(bool);
+        private static bool IsIntialized = default;
 
         /// <summary>
         /// The ffmpeg directory

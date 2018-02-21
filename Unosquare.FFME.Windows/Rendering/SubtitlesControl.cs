@@ -281,7 +281,7 @@
         /// <returns>A thickness depending on the block type</returns>
         private static Thickness ComputeMargin(Block blockType, Thickness outlineWidth)
         {
-            if (blockType == Block.Foreground) return default(Thickness);
+            if (blockType == Block.Foreground) return default;
 
             var topMargin = 0d;
             var leftMargin = 0d;

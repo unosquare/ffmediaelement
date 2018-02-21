@@ -679,8 +679,8 @@
 
             // Apply the options
             if (opts.EnableReducedBuffering) InputContext->avio_flags |= ffmpeg.AVIO_FLAG_DIRECT;
-            if (opts.PacketSize != default(int)) InputContext->packet_size = System.Convert.ToUInt32(opts.PacketSize);
-            if (opts.ProbeSize != default(int)) InputContext->probesize = StreamOptions.Format.ProbeSize <= 32 ? 32 : opts.ProbeSize;
+            if (opts.PacketSize != default) InputContext->packet_size = System.Convert.ToUInt32(opts.PacketSize);
+            if (opts.ProbeSize != default) InputContext->probesize = StreamOptions.Format.ProbeSize <= 32 ? 32 : opts.ProbeSize;
 
             // Flags
             InputContext->flags |= opts.FlagDiscardCorrupt ? ffmpeg.AVFMT_FLAG_DISCARD_CORRUPT : InputContext->flags;
@@ -698,7 +698,7 @@
             InputContext->seek2any = opts.SeekToAny ? 1 : 0;
 
             // Handle analyze duration overrides
-            if (opts.MaxAnalyzeDuration != default(TimeSpan))
+            if (opts.MaxAnalyzeDuration != default)
             {
                 InputContext->max_analyze_duration = opts.MaxAnalyzeDuration <= TimeSpan.Zero ? 0 :
                     System.Convert.ToInt64(opts.MaxAnalyzeDuration.TotalSeconds * ffmpeg.AV_TIME_BASE);

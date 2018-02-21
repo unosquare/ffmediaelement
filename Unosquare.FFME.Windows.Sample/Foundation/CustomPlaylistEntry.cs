@@ -55,12 +55,12 @@
             {
                 var currentValue = GetMappedAttibuteValue();
                 if (string.IsNullOrWhiteSpace(currentValue))
-                    return default(DateTime?);
+                    return default;
 
                 if (long.TryParse(currentValue, out long binaryValue))
                     return DateTime.FromBinary(binaryValue);
 
-                return default(DateTime?);
+                return default;
             }
             set
             {

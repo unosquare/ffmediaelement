@@ -34,7 +34,7 @@
         /// <summary>
         /// The backing member of the Reportable position
         /// </summary>
-        private TimeSpan? m_ReportablePosition = default(TimeSpan?);
+        private TimeSpan? m_ReportablePosition = default;
 
         /// <summary>
         /// The media engine position to report.
@@ -147,7 +147,7 @@
                 if (m_ReportablePosition != null)
                 {
                     Position = m_ReportablePosition.Value;
-                    m_ReportablePosition = default(TimeSpan?);
+                    m_ReportablePosition = default;
                 }
             }
         }

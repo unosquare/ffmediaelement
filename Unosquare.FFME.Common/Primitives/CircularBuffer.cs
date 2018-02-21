@@ -29,11 +29,11 @@
         private IntPtr Buffer = IntPtr.Zero;
 
         // Property backing
-        private int m_ReadableCount = default(int);
+        private int m_ReadableCount = default;
         private TimeSpan m_WriteTag = TimeSpan.MinValue;
-        private int m_WriteIndex = default(int);
-        private int m_ReadIndex = default(int);
-        private int m_Length = default(int);
+        private int m_WriteIndex = default;
+        private int m_ReadIndex = default;
+        private int m_Length = default;
 
         #endregion
 
