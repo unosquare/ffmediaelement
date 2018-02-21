@@ -247,12 +247,12 @@
         /// <summary>
         /// Gets a value indicating whether the media clock is playing.
         /// </summary>
-        public bool IsPlaying => Parent?.Clock?.IsRunning ?? false;
+        public bool IsPlaying => IsOpen && (Parent?.Clock?.IsRunning ?? false);
 
         /// <summary>
         /// Gets a value indicating whether the media clock is paused.
         /// </summary>
-        public bool IsPaused => (Parent?.Clock?.IsRunning ?? true) == false;
+        public bool IsPaused => IsOpen && (Parent?.Clock?.IsRunning ?? true) == false;
 
         /// <summary>
         /// Gets a value indicating whether this media element
