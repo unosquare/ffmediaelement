@@ -112,27 +112,7 @@
         /// </summary>
         public void RunSynchronously()
         {
-            var m = Manager.MediaCore;
-
-            // Avoid processing the command if the element is disposed.
-            if (IsDisposed || m.IsDisposed)
-                return;
-
-            // Start and await the task
-            try
-            {
-                IsRunning = true;
-                ExecuteInternal();
-            }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                IsRunning = false;
-                Dispose();
-            }
+            StartAsync().GetAwaiter().GetResult();
         }
 
         /// <summary>
