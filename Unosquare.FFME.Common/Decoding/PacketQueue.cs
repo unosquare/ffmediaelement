@@ -19,7 +19,7 @@
         private readonly List<IntPtr> PacketPointers = new List<IntPtr>();
         private ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
         private bool IsDisposed = false; // To detect redundant calls
-        private int m_BufferLength = default;
+        private ulong m_BufferLength = default;
         private long m_Duration = default;
 
         #endregion
@@ -44,7 +44,7 @@
         /// Gets the sum of all the packet sizes contained
         /// by this queue.
         /// </summary>
-        public int BufferLength
+        public ulong BufferLength
         {
             get
             {
@@ -126,7 +126,7 @@
             using (Locker.AcquireWriterLock())
             {
                 PacketPointers.Add((IntPtr)packet);
-                m_BufferLength += packet->size;
+                m_BufferLength += Convert.ToUInt64(packet->size < 0 ? default : packet->size);
                 m_Duration += packet->duration;
             }
         }
@@ -144,7 +144,7 @@
                 PacketPointers.RemoveAt(0);
 
                 var packet = (AVPacket*)result;
-                m_BufferLength -= packet->size;
+                m_BufferLength -= Convert.ToUInt64(packet->size < 0 ? default : packet->size);
                 m_Duration -= packet->duration;
                 return packet;
             }

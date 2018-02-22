@@ -67,13 +67,13 @@
         /// Returns whether the given media has audio.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public bool HasAudio => MediaCore?.State.HasAudio ?? false;
+        public bool HasAudio => MediaCore?.State.HasAudio ?? default;
 
         /// <summary>
         /// Returns whether the given media has video. Only valid after the
         /// MediaOpened event has fired.
         /// </summary>
-        public bool HasVideo => MediaCore?.State.HasVideo ?? false;
+        public bool HasVideo => MediaCore?.State.HasVideo ?? default;
 
         /// <summary>
         /// Returns whether the given media has subtitles. Only valid after the
@@ -91,31 +91,31 @@
         /// Gets the video bitrate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public long VideoBitrate => MediaCore?.State.VideoBitrate ?? 0;
+        public ulong VideoBitrate => MediaCore?.State.VideoBitrate ?? default;
 
         /// <summary>
         /// Returns the natural width of the media in the video.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int NaturalVideoWidth => MediaCore?.State.NaturalVideoWidth ?? 0;
+        public int NaturalVideoWidth => MediaCore?.State.NaturalVideoWidth ?? default;
 
         /// <summary>
         /// Returns the natural height of the media in the video.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int NaturalVideoHeight => MediaCore?.State.NaturalVideoHeight ?? 0;
+        public int NaturalVideoHeight => MediaCore?.State.NaturalVideoHeight ?? default;
 
         /// <summary>
         /// Gets the video frame rate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public double VideoFrameRate => MediaCore?.State.VideoFrameRate ?? 0;
+        public double VideoFrameRate => MediaCore?.State.VideoFrameRate ?? default;
 
         /// <summary>
         /// Gets the duration in seconds of the video frame.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public double VideoFrameLength => MediaCore?.State.VideoFrameLength ?? 0;
+        public double VideoFrameLength => MediaCore?.State.VideoFrameLength ?? default;
 
         /// <summary>
         /// Gets the name of the video hardware decoder in use.
@@ -135,74 +135,74 @@
         /// Gets the audio bitrate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public long AudioBitrate => MediaCore?.State.AudioBitrate ?? 0;
+        public ulong AudioBitrate => MediaCore?.State.AudioBitrate ?? default;
 
         /// <summary>
         /// Gets the audio channels count.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int AudioChannels => MediaCore?.State.AudioChannels ?? 0;
+        public int AudioChannels => MediaCore?.State.AudioChannels ?? default;
 
         /// <summary>
         /// Gets the audio sample rate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int AudioSampleRate => MediaCore?.State.AudioSampleRate ?? 0;
+        public int AudioSampleRate => MediaCore?.State.AudioSampleRate ?? default;
 
         /// <summary>
         /// Gets the audio bits per sample.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int AudioBitsPerSample => MediaCore?.State.AudioBitsPerSample ?? 0;
+        public int AudioBitsPerSample => MediaCore?.State.AudioBitsPerSample ?? default;
 
         /// <summary>
         /// Returns whether the currently loaded media can be paused.
         /// This is only valid after the MediaOpened event has fired.
         /// Note that this property is computed based on wether the stream is detected to be a live stream.
         /// </summary>
-        public bool CanPause => MediaCore?.State.CanPause ?? false;
+        public bool CanPause => MediaCore?.State.CanPause ?? default;
 
         /// <summary>
         /// Returns whether the currently loaded media is live or realtime
         /// This is only valid after the MediaOpened event has fired.
         /// </summary>
-        public bool IsLiveStream => MediaCore?.State.IsLiveStream ?? false;
+        public bool IsLiveStream => MediaCore?.State.IsLiveStream ?? default;
 
         /// <summary>
         /// Returns whether the currently loaded media is a network stream.
         /// This is only valid after the MediaOpened event has fired.
         /// </summary>
-        public bool IsNetowrkStream => MediaCore?.State.IsNetowrkStream ?? false;
+        public bool IsNetowrkStream => MediaCore?.State.IsNetowrkStream ?? default;
 
         /// <summary>
         /// Gets a value indicating whether the currently loaded media can be seeked.
         /// </summary>
-        public bool IsSeekable => MediaCore?.State.IsSeekable ?? false;
+        public bool IsSeekable => MediaCore?.State.IsSeekable ?? default;
 
         /// <summary>
         /// Gets a value indicating whether the media is playing.
         /// </summary>
-        public bool IsPlaying => MediaCore?.State.IsPlaying ?? false;
+        public bool IsPlaying => MediaCore?.State.IsPlaying ?? default;
 
         /// <summary>
         /// Gets a value indicating whether the media is playing.
         /// </summary>
-        public bool IsPaused => MediaCore?.State.IsPaused ?? false;
+        public bool IsPaused => MediaCore?.State.IsPaused ?? default;
 
         /// <summary>
         /// Gets a value indicating whether the media has reached its end.
         /// </summary>
-        public bool HasMediaEnded => MediaCore?.State.HasMediaEnded ?? false;
+        public bool HasMediaEnded => MediaCore?.State.HasMediaEnded ?? default;
 
         /// <summary>
         /// Get a value indicating whether the media is buffering.
         /// </summary>
-        public bool IsBuffering => MediaCore?.State.IsBuffering ?? false;
+        public bool IsBuffering => MediaCore?.State.IsBuffering ?? default;
 
         /// <summary>
         /// Gets a value indicating whether the media seeking is in progress.
         /// </summary>
-        public bool IsSeeking => MediaCore?.State.IsSeeking ?? false;
+        public bool IsSeeking => MediaCore?.State.IsSeeking ?? default;
 
         /// <summary>
         /// Returns the current video SMTPE timecode if available.
@@ -214,38 +214,38 @@
         /// Gets a value that indicates the percentage of buffering progress made.
         /// Range is from 0 to 1
         /// </summary>
-        public double BufferingProgress => MediaCore?.State.BufferingProgress ?? 0;
+        public double BufferingProgress => MediaCore?.State.BufferingProgress ?? default;
 
         /// <summary>
         /// The wait packet buffer length.
         /// It is adjusted to 1 second if bitrate information is available.
         /// Otherwise, it's simply 512KB
         /// </summary>
-        public int BufferCacheLength => MediaCore?.State.BufferCacheLength ?? 0;
+        public ulong BufferCacheLength => MediaCore?.State.BufferCacheLength ?? default;
 
         /// <summary>
         /// Gets a value that indicates the percentage of download progress made.
         /// Range is from 0 to 1
         /// </summary>
-        public double DownloadProgress => MediaCore?.State.DownloadProgress ?? 0;
+        public double DownloadProgress => MediaCore?.State.DownloadProgress ?? default;
 
         /// <summary>
         /// Gets the maximum packet buffer length, according to the bitrate (if available).
         /// If it's a realtime stream it will return 30 times the buffer cache length.
         /// Otherwise, it will return  4 times of the buffer cache length.
         /// </summary>
-        public int DownloadCacheLength => MediaCore?.State.DownloadCacheLength ?? 0;
+        public ulong DownloadCacheLength => MediaCore?.State.DownloadCacheLength ?? default;
 
         /// <summary>
         /// Gets a value indicating whether the media is in the process of opening.
         /// </summary>
-        public bool IsOpening => MediaCore?.State.IsOpening ?? false;
+        public bool IsOpening => MediaCore?.State.IsOpening ?? default;
 
         /// <summary>
         /// Gets a value indicating whether this media element
         /// currently has an open media url.
         /// </summary>
-        public bool IsOpen => MediaCore?.State.IsOpen ?? false;
+        public bool IsOpen => MediaCore?.State.IsOpen ?? default;
 
         /// <summary>
         /// Gets the current playback state.

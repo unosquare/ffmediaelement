@@ -159,7 +159,7 @@
         /// <summary>
         /// Gets the media bitrate (bits per second). Returns 0 if not available.
         /// </summary>
-        public long MediaBitrate => MediaInfo?.BitRate ?? 0;
+        public ulong MediaBitrate => MediaInfo?.BitRate ?? 0;
 
         /// <summary>
         /// Holds the metadata of the media file when the stream is initialized.

@@ -130,9 +130,19 @@
         /// Gets the current length in bytes of the packet buffer.
         /// These packets are the ones that have not been yet deecoded.
         /// </summary>
-        public int PacketBufferLength
+        public ulong PacketBufferLength
         {
-            get { lock (SyncLock) return All.Sum(c => c.PacketBufferLength); }
+            get
+            {
+                lock (SyncLock)
+                {
+                    var result = default(ulong);
+                    foreach (var c in All)
+                        result += c.PacketBufferLength;
+
+                    return result;
+                }
+            }
         }
 
         /// <summary>

@@ -39,7 +39,7 @@
         /// <summary>
         /// Defines a WaitEvent backed by a ManualResetEvent
         /// </summary>
-        /// <seealso cref="Unosquare.FFME.Primitives.IWaitEvent" />
+        /// <seealso cref="IWaitEvent" />
         private class WaitEvent : IWaitEvent
         {
             private ManualResetEvent Event = null;
@@ -140,7 +140,7 @@
         /// <summary>
         /// Defines a WaitEvent backed by a ManualResetEventSlim
         /// </summary>
-        /// <seealso cref="Unosquare.FFME.Primitives.IWaitEvent" />
+        /// <seealso cref="IWaitEvent" />
         private class WaitEventSlim : IWaitEvent
         {
             private ManualResetEventSlim Event = null;

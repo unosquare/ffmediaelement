@@ -170,7 +170,7 @@
 
             CodecId = Stream->codec->codec_id;
             CodecName = ffmpeg.avcodec_get_name(CodecId);
-            Bitrate = Stream->codec->bit_rate;
+            Bitrate = Stream->codec->bit_rate < 0 ? 0 : Convert.ToUInt64(Stream->codec->bit_rate);
             Container.Parent?.Log(MediaLogMessageType.Debug,
                 $"COMP {MediaType.ToString().ToUpperInvariant()}: Start Offset: {StartTimeOffset.Format()}; Duration: {Duration.Format()}");
         }
@@ -224,7 +224,7 @@
         /// packet buffer. Limit your Reads to something reasonable before
         /// this becomes too large.
         /// </summary>
-        public int PacketBufferLength => Packets.BufferLength;
+        public ulong PacketBufferLength => Packets.BufferLength;
 
         /// <summary>
         /// Gets the number of packets in the queue.
@@ -255,7 +255,7 @@
         /// Gets the bitrate of this component as reported by the codec context.
         /// Returns 0 for unknown.
         /// </summary>
-        public long Bitrate { get; }
+        public ulong Bitrate { get; }
 
         /// <summary>
         /// Gets the stream information.
