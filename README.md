@@ -1,4 +1,6 @@
 # FFME: *WPF MediaElement Alternative*
+
+[![Join the chat at https://gitter.im/ffmediaelement/Lobby](https://badges.gitter.im/ffmediaelement/Lobby.svg)](https://gitter.im/ffmediaelement/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Analytics](https://ga-beacon.appspot.com/UA-8535255-2/unosquare/ffmediaelement/)](https://github.com/igrigorik/ga-beacon)
 [![NuGet version](https://badge.fury.io/nu/FFME.Windows.svg)](https://badge.fury.io/nu/FFME.Windows)
 [![NuGet](https://img.shields.io/nuget/dt/FFME.Windows.svg)](https://www.nuget.org/packages/FFME.Windows)
