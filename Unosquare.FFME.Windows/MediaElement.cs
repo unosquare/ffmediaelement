@@ -4,7 +4,6 @@
     using Platform;
     using Rendering;
     using System;
-    using System.Collections.Generic;
     using System.ComponentModel;
     using System.Threading.Tasks;
     using System.Windows;
@@ -167,6 +166,11 @@
         internal Image VideoView { get; } = new Image { Name = nameof(VideoView) };
 
         /// <summary>
+        /// Gets the closed captions view control.
+        /// </summary>
+        internal ClosedCaptionsControl CaptionsView { get; } = new ClosedCaptionsControl { Name = nameof(CaptionsView) };
+
+        /// <summary>
         /// A viewbox holding the subtitle text blocks
         /// </summary>
         internal SubtitlesControl SubtitlesView { get; } = new SubtitlesControl { Name = nameof(SubtitlesView) };
@@ -290,7 +294,6 @@
             StretchDirection = VideoView.StretchDirection;
 
             // Add the child video view and bind the alignment properties
-            ContentGrid.Children.Add(VideoView);
             BindProperty(VideoView, HorizontalAlignmentProperty, this, nameof(HorizontalAlignment), BindingMode.OneWay);
             BindProperty(VideoView, VerticalAlignmentProperty, this, nameof(VerticalAlignment), BindingMode.OneWay);
 
@@ -304,7 +307,6 @@
             SubtitlesView.TextForeground = Brushes.LightYellow;
 
             // Add the subtitles control and bind the attached properties
-            ContentGrid.Children.Add(SubtitlesView);
             Subtitles.SetForeground(this, SubtitlesView.TextForeground);
             BindProperty(this, Subtitles.ForegroundProperty, SubtitlesView, nameof(SubtitlesView.TextForeground), BindingMode.TwoWay);
             BindProperty(this, Subtitles.OutlineBrushProperty, SubtitlesView, nameof(SubtitlesView.TextOutline), BindingMode.TwoWay);
@@ -315,99 +317,6 @@
             BindProperty(this, Subtitles.FontFamilyProperty, SubtitlesView, nameof(SubtitlesView.FontFamily), BindingMode.TwoWay);
             BindProperty(this, Subtitles.TextProperty, SubtitlesView, nameof(SubtitlesView.Text), BindingMode.TwoWay);
 
-            var captionsViewBox = new Viewbox
-            {
-                Width = 0,
-                Height = 0,
-                Visibility = Visibility.Collapsed, // Set visibility to Visible to test closed captions
-                Focusable = false,
-                IsHitTestVisible = false,
-            };
-
-            // TODO: Finish implementing Closed Caption Rendering!
-            {
-                const int columnCount = 32;
-                const int rowCount = 15;
-
-                var characterLookup = new Dictionary<int, Dictionary<int, TextBlock>>(rowCount);
-                var captionsGrid = new Grid { UseLayoutRounding = true, SnapsToDevicePixels = true, Focusable = false };
-                captionsViewBox.Child = captionsGrid;
-
-                for (var columnIndex = 0; columnIndex < columnCount; columnIndex++)
-                    captionsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(32, GridUnitType.Star) });
-
-                for (var columnIndex = 0; columnIndex < rowCount; columnIndex++)
-                    captionsGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(15, GridUnitType.Star) });
-
-                var captionsFontFamily = new FontFamily("Courier New");
-                var textProperty = DependencyPropertyDescriptor.FromProperty(TextBlock.TextProperty, typeof(TextBlock));
-                for (var rowIndex = 0; rowIndex < rowCount; rowIndex++)
-                {
-                    for (var columnIndex = 0; columnIndex < columnCount; columnIndex++)
-                    {
-                        var letterBorder = new Border
-                        {
-                            Focusable = false,
-                            IsHitTestVisible = false,
-                            Background = Brushes.Black,
-                            Opacity = 0.80,
-                            BorderThickness = new Thickness(0),
-                            HorizontalAlignment = HorizontalAlignment.Stretch,
-                            VerticalAlignment = VerticalAlignment.Stretch,
-                            Visibility = Visibility.Hidden,
-                            Width = 45,
-                            Height = 80
-                        };
-
-                        var letterText = new TextBlock
-                        {
-                            Focusable = false,
-                            IsHitTestVisible = false,
-                            Text = string.Empty,
-                            FontFamily = captionsFontFamily,
-                            TextAlignment = TextAlignment.Center,
-                            Foreground = Brushes.WhiteSmoke,
-                            HorizontalAlignment = HorizontalAlignment.Stretch,
-                            VerticalAlignment = VerticalAlignment.Center,
-                            FontSize = 65,
-                            FontWeight = FontWeights.Medium,
-                            MaxWidth = letterBorder.Width,
-                            MaxHeight = letterBorder.Height
-                        };
-
-                        letterBorder.Child = letterText;
-                        captionsGrid.Children.Add(letterBorder);
-                        Grid.SetRow(letterBorder, rowIndex);
-                        Grid.SetColumn(letterBorder, columnIndex);
-                        if (characterLookup.ContainsKey(rowIndex) == false)
-                            characterLookup[rowIndex] = new Dictionary<int, TextBlock>(columnCount);
-
-                        characterLookup[rowIndex][columnIndex] = letterText;
-                        textProperty.AddValueChanged(letterText, (s, e) =>
-                        {
-                            var border = letterText.Parent as Border;
-                            border.Visibility = string.IsNullOrEmpty(letterText.Text) ?
-                                Visibility.Hidden : Visibility.Visible;
-                        });
-                    }
-                }
-
-                ContentGrid.Children.Add(captionsViewBox);
-                var sampleText = "Hey there, how are you?";
-                for (var charIndex = 0; charIndex < sampleText.Length; charIndex++)
-                {
-                    var textBlock = characterLookup[12][charIndex];
-                    textBlock.Text = sampleText.Substring(charIndex, 1);
-                }
-
-                sampleText = "This is a second line of text";
-                for (var charIndex = 0; charIndex < sampleText.Length; charIndex++)
-                {
-                    var textBlock = characterLookup[13][charIndex];
-                    textBlock.Text = sampleText.Substring(charIndex, 1);
-                }
-            }
-
             // Update as the VideoView updates but check if there are valid dimensions and it actually has video
             VideoView.LayoutUpdated += (s, e) =>
             {
@@ -415,8 +324,18 @@
                 if (VideoView.ActualWidth <= 0 || VideoView.ActualHeight <= 0)
                     return;
 
-                captionsViewBox.Width = VideoView.ActualWidth;
-                captionsViewBox.Height = VideoView.ActualHeight;
+                if (HasVideo)
+                {
+                    CaptionsView.Width = VideoView.ActualWidth;
+                    CaptionsView.Height = VideoView.ActualHeight;
+                    CaptionsView.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    CaptionsView.Width = 0;
+                    CaptionsView.Height = 0;
+                    CaptionsView.Visibility = Visibility.Collapsed;
+                }
 
                 // Position the Subtitles
                 var videoViewPosition = VideoView.TransformToAncestor(ContentGrid).Transform(new Point(0, 0));
@@ -436,6 +355,11 @@
                 if (SubtitlesView.Margin.Bottom != marginBottom)
                     SubtitlesView.Margin = new Thickness(0, 0, 0, marginBottom);
             };
+
+            // Compose the control by adding overlapping children
+            ContentGrid.Children.Add(VideoView);
+            ContentGrid.Children.Add(SubtitlesView);
+            ContentGrid.Children.Add(CaptionsView);
 
             // Display the control (or not)
             if (WindowsPlatform.Instance.IsInDesignTime)

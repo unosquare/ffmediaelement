@@ -173,6 +173,8 @@
             {
                 try
                 {
+                    MediaElement.CaptionsView.RenderPackets(block.ClosedCaptions);
+
                     var bitmapData = LockTargetBitmap(block);
                     if (bitmapData != null)
                     {
