@@ -71,36 +71,16 @@
             <article class="content wrap" id="_content" data-uid="">
 <h1 id="ffme-wpf-mediaelement-alternative">FFME: <em>WPF MediaElement Alternative</em></h1>
 
-<p><a href="https://gitter.im/ffmediaelement/Lobby?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge"><img src="https://badges.gitter.im/ffmediaelement/Lobby.svg" alt="Join the chat at https://gitter.im/ffmediaelement/Lobby"></a>
-<a href="https://github.com/igrigorik/ga-beacon"><img src="https://ga-beacon.appspot.com/UA-8535255-2/unosquare/ffmediaelement/" alt="Analytics"></a>
+<p><a href="https://github.com/igrigorik/ga-beacon"><img src="https://ga-beacon.appspot.com/UA-8535255-2/unosquare/ffmediaelement/" alt="Analytics"></a>
 <a href="https://badge.fury.io/nu/FFME.Windows"><img src="https://badge.fury.io/nu/FFME.Windows.svg" alt="NuGet version"></a>
-<a href="https://www.nuget.org/packages/FFME.Windows"><img src="https://img.shields.io/nuget/dt/FFME.Windows.svg" alt="NuGet"></a>
 <a href="https://ci.appveyor.com/project/geoperez/ffmediaelement"><img src="https://ci.appveyor.com/api/projects/status/ppqeayanucj1hadj?svg=true" alt="Build status"></a></p>
-<p><span class="emoji" shortcode="star">⭐</span> <em>Please star this project if you like it and show your appreciation via</em> <strong><a href="https://www.paypal.me/mariodivece/50usd">PayPal.Me</a></strong></p>
+<p><em><span class="emoji" shortcode="star">⭐</span>Please star this project if you find it useful!</em></p>
 <p><img src="https://github.com/unosquare/ffmediaelement/raw/master/Support/ffmeplay.png" alt="ffmeplay"></p>
-<h2 id="announcements">Announcements</h2>
 <ul>
-<li>If you would like to support this project, you can show your appreciation via <a href="https://www.paypal.me/mariodivece/50usd">PayPal.Me</a></li>
-<li>Current Status: (2018-02-19) - Release 3.4.210 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)</li>
-<li>NuGet Package available here: <a href="https://www.nuget.org/packages/FFME.Windows/">https://www.nuget.org/packages/FFME.Windows/</a></li>
-<li>FFmpeg Version: <a href="http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4.1-win32-shared.zip">3.4.1 (32-bit)</a></li>
-</ul>
-<h2 id="quick-usage-guide-for-wpf-apps">Quick Usage Guide for WPF Apps</h2>
-<p>Here is a quick guide on how to get started.</p>
-<ol>
-<li>Open Visual Studio (v2017 recommended), and create a new WPF Application. Target Framework must be 4.6.2 or above. (This will change to 4.6.1 in the final release)</li>
-<li>Install the NuGet Package from your Package Manager Console: <code>PM&gt; Install-Package FFME.Windows</code></li>
-<li>You need FFmpeg binaries now. Build your own or download a compatible build from <a href="http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip">Zeranoe FFmpeg Builds site</a>.</li>
-<li>Your FFmpeg build should have a <code>bin</code> folder with 3 exe files and 8 dll files. Copy all 11 files to a folder such as <code>c:\ffmpeg</code></li>
-<li>Within you application&#39;s startup code (<code>Main</code> method), set <code>Unosquare.FFME.MediaElement.FFmpegDirectory = @&quot;c:\ffmpeg&quot;;</code>.</li>
-<li>Use the FFME <code>MediaElement</code> control as any other WPF control.
-For example: In your <code>MainForm.xaml</code>, add the namespace: <code>xmlns:ffme=&quot;clr-namespace:Unosquare.FFME;assembly=ffme.win&quot;</code> and then add the FFME control your window&#39;s XAML: <code>&lt;ffme:MediaElement x:Name=&quot;Media&quot; Background=&quot;Gray&quot; LoadedBehavior=&quot;Play&quot; UnloadedBehavior=&quot;Manual&quot; /&gt;</code> </li>
-<li>To play files or streams, simply set the <code>Source</code> property: <code>Media.Source = new Uri(@&quot;c:\your-file-here&quot;);</code></li>
-</ol>
-<h3 id="additional-usage-notes">Additional Usage Notes</h3>
-<ul>
-<li>Remember: The <code>Unosquare.FFME.Windows.Sample</code> provides plenty of usage examples</li>
-<li>The generated API documentation is available <a href="http://unosquare.github.io/ffmediaelement/api/Unosquare.FFME.html">here</a></li>
+<li>Current Status: (2018-01-06) - 2.0, codenamed Michelob is now in beta 7 (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)</li>
+<li>NuGet Package now available: <a href="https://www.nuget.org/packages/FFME.Windows/">https://www.nuget.org/packages/FFME.Windows/</a></li>
+<li>FFmpeg Version: <a href="http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip">3.4.0 (32-bit)</a></li>
+<li>For a history of commits see the repo: <a href="https://github.com/unosquare/ffplaydotnet">https://github.com/unosquare/ffplaydotnet</a></li>
 </ul>
 <h2 id="features-overview">Features Overview</h2>
 <p>FFME is a close (and I&#39;d like to think better) drop-in replacement for <a href="https://msdn.microsoft.com/en-us/library/system.windows.controls.mediaelement(v=vs.110).aspx">Microsoft&#39;s WPF MediaElement Control</a>. While the standard MediaElement uses DirectX (DirectShow) for media playback, FFME uses <a href="http://ffmpeg.org/">FFmpeg</a> to read and decode audio and video. This means that for those of you who want to support stuff like HLS playback, or just don&#39;t want to go through the hassle of installing codecs on client machines, using FFME <em>might</em> just be the answer. </p>
@@ -112,42 +92,17 @@ For example: In your <code>MainForm.xaml</code>, add the namespace: <code>xmlns:
 <li>Ability to easily apply FFmpeg video and audio filtergraphs.</li>
 <li>Ability to extract media metadata and tech specs of a media stream (title, album, bitrate, codecs, FPS, etc).</li>
 <li>Ability to apply volume, balance and speed ratio to media playback.</li>
-<li>MediaState actually works on this control. The standard WPF MediaElement severely lacks in this area.</li>
 </ul>
 <p><em>... all in a single MediaElement control</em></p>
-<h3 id="about-how-it-works">About how it works</h3>
-<p>First off, let&#39;s review a few concepts. A <code>packet</code> is a group of bytes read from the input. All <code>packets</code> are of a specific <code>MediaType</code> (Audio, Video, Subtitle, Data), and contain some timing information and most importantly compressed data. Packets are sent to a <code>Codec</code> and in turn, the codec produces <code>Frames</code>. Please note that producing 1 <code>frame</code> does not always take exactly 1 <code>packet</code>. A <code>packet</code> may contain many <code>frames</code> but also a <code>frame</code> may require several <code>packets</code> for the decoder to build it. <code>Frames</code> will contain timing informattion and the raw, uncompressed data. Now, you may think you can use <code>frames</code> and show pixels on the screen or send samples to the sound card. We are close, but we still need to do some additional processing. Turns out different <code>Codecs</code> will produce different uncompressed data formats. For example, some video codecs will output pixel data in ARGB, some others in RGB, and some other in YUV420. Therefore, we will need to <code>Convert</code> these <code>frames</code> into something all hardware can use natively. I call these converted frames, <code>MediaBlocks</code>. These <code>MediaBlocks</code> will contain uncompressed data in standard Audio and Video formats that all hardware is able to receive.</p>
-<p>The process described above is implemented in 3 different layers:</p>
-<ul>
-<li>The <code>MediaContainer</code> wraps an input stream. This layer keeps track of a <code>MediaComponentSet</code> which is nothing more than a collecttion of <code>MediaComponent</code> objects. Each <code>MediaComponent</code> holds <code>packet</code> <strong>caching</strong>, <code>frame</code> <strong>decoding</strong>, and <code>block</code> <strong>conversion</strong> logic. It provides the following important functionality:<ul>
-<li>We call <code>Open</code> to open the input stream and detect the different stream components. This also determines the codecs to use.</li>
-<li>We call <code>Read</code> to read the next available packet and store it in its corresponding component (audio, video, subtitle, data, etc)</li>
-<li>We call <code>Decode</code> to read the following packet from the queue that each of the components hold, and return a set of frames.</li>
-<li>Finally, we call <code>Convert</code> to turn a given <code>frame</code> into a <code>MediaBlock</code>.</li>
-</ul>
-</li>
-<li>The <code>MediaEngine</code> wraps a <code>MediaContainer</code> and it is responsible for executing commands to control the input stream (Play, Pause, Stop, Seek, etc.) while keeping keeping 3 background workers.<ul>
-<li>The <code>PacketReadingWroker</code> is designed to continuously read packets from the <code>MediaContainer</code>. It will read packets when it needs them and it will pause if it does not need them. This is determined by how much data is in the cache. It will try to keep approximately 1 second of media packets at all times.</li>
-<li>The <code>FrameDecodingWroker</code> gets the packets that the <code>PacketReadingWorker</code> writes and decodes them into frames. It then converts those frames into <code>blocks</code> and writes them to a <code>MediaBlockBuffer</code>. This block buffer can then be read by something else (the following worker described here) so its contents can be rendered.</li>
-<li>Finally, the <code>BlockRenderingWorker</code> reads blocks form the <code>MediaBlockBuffer</code>s and sends those blocks to a plat-from specific <code>IMediaRenderer</code>.</li>
-</ul>
-</li>
-<li>At the highest level, we have a <code>MediaElement</code>. It wraps a <code>MediaEngine</code> and it contains platform-specific implementation of methods to perform stuff like audio rendering, video rendering, subtitle rendering, and property synchronization between the <code>MediaEngine</code> and itself.</li>
-</ul>
-<p>A high-level diagram is provided as additional reference below.
-<img src="https://github.com/unosquare/ffmediaelement/raw/master/Support/arch-michelob-2.0.png" alt="arch-michelob-2.0"></p>
 <h3 id="known-limitations">Known Limitations</h3>
 <p><em>Your help is welcome!</em></p>
 <ul>
-<li>I am planning the next version of this control, <code>Floyd</code>. See the <strong>Issues</strong> section.</li>
-<li>Working on Hardware acceleration. Maybe CUDA for highest compatibility.</li>
-<li>Starting version 3.4.210 FFME supports opening capture devices. See examples below and <a href="https://github.com/unosquare/ffmediaelement/issues/48">issue #48</a>
-<code>device://dshow/?audio=Microphone (Vengeance 2100)
-device://gdigrab?title=Command Prompt
-device://gdigrab?desktop</code></li>
+<li>I still have some items I need to address. See the issues section.</li>
+<li>Working on Hardware acceleration D3D 9 and D3D 11</li>
+<li>There currently is no support for opening capture devices such as webcams or TV cards. While this is not too hard to do, it is not (yet) implemented in this library. See issue #48</li>
 </ul>
 <h2 id="windows-compiling-running-and-testing">Windows: Compiling, Running and Testing</h2>
-<p><em>Please note that I am unable to distribute FFmpeg&#39;s binaries because I don&#39;t know if I am allowed to do so. Follow the instructions below to compile, run and test FFME.</em></p>
+<p><em>Please note that I am unable to distribute FFmpeg&#39;s binaries because I don&#39;t know if I am allowed to do so. Follow the instructions below to compile, run and test FFME. I will look into releasing a NuGet package. See issue #1</em></p>
 <ol>
 <li>Clone this repository.</li>
 <li>Download the FFmpeg win32-shared binaries from <a href="http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip">Zeranoe FFmpeg Builds</a>.</li>
@@ -160,28 +115,38 @@ device://gdigrab?desktop</code></li>
 <li>The file or URL should play immediately, and all the properties should display to the right of the media display by clicking on the <code>Info</code> icon.</li>
 <li>You can use the resulting compiled assemblies in your project without further dependencies. Look for both <code>ffme.common.dll</code> and <code>ffme.win.dll</code>.</li>
 </ol>
-<h3 id="windows-troubleshooting">Windows: Troubleshooting</h3>
-<p>If you get the following error when compiling:
+<h3 id="windows-nuget-installation">Windows: NuGet Installation</h3>
+<pre><code>PM&gt; Install-Package FFME.Windows
+</code></pre><h3 id="windows-troubleshooting">Windows: Troubleshooting</h3>
+<p>If you get the following error:
 <em>The current .NET SDK does not support targeting .NET Standard 2.0. Either target .NET Standard 1.6 or lower, or use a version of the .NET SDK that supports .NET Standard 2.0.</em></p>
 <p>Simply download and install <a href="https://www.microsoft.com/net/download/windows">.NET Core SDK v2</a> or later.</p>
-<h2 id="macos-sample-player-in-preview-wip">MacOS: Sample Player (in preview, WIP)</h2>
-<p>Compile FFmpeg for Mac (instructions can be found on <a href="https://github.com/Ruslan-B/FFmpeg.AutoGen">FFmpeg.AutoGen</a>) and copy the following libraries from <code>/opt/local/lib</code> &#39;s to <code>/Users/{USER}/ffmpeg</code> (equivalent to <code>~/ffmpeg</code>):</p>
+<h3 id="macos-sample-player-in-preview">MacOS: Sample Player (in preview)</h3>
+<p>Compile FFmpeg for Mac (instructions can be found on <a href="https://github.com/Ruslan-B/FFmpeg.AutoGen">FFmpeg.AutoGen</a>) and copy the following libraries from <code>/opt/local/lib</code> &#39;s to <code>/Users/{USER}/ffmpeg</code> (<code>~/ffmpeg</code>):</p>
 <ul>
-<li><code>libavcodec.57.dylib</code></li>
-<li><code>libavdevice.57.dylib</code></li>
-<li><code>libavfilter.6.dylib</code></li>
-<li><code>libavformat.57.dylib</code></li>
-<li><code>libavutil.55.dylib</code></li>
-<li><code>libswresample.2.dylib</code></li>
-<li><code>libswscale.4.dylib</code></li>
+<li>avcodec.57.dylib</li>
+<li>avdevice.57.dylib</li>
+<li>avfilter.6.dylib</li>
+<li>avformat.57.dylib</li>
+<li>avutil.55.dylib</li>
+<li>swresample.2.dylib</li>
+<li>swscale.4.dylib</li>
 </ul>
-<p><em>Note: when building FFmpeg locally, compiled libraries are named differently than in the list above. E.g. <code>libavcodec.57.dylib</code> is actually named <code>libavcodec.57.89.100.dylib</code>. To properly load libraries, copy and rename each library to match the format in the list above.</em></p>
+<p><em>Note: when building FFmpeg locally, compiled libraries are named differently than in the list above. E.g. <code>avcodec.57.dylib</code> is actually named <code>libavcodec.57.89.100.dylib</code>. To properly load libraries, copy and rename each library to match the format in the list above.</em></p>
 <p>In the sample MacOS player, the FFmpeg folder is configured to point to <code>~/ffmpeg</code> in the following line of code:</p>
 <pre><code class="lang-csharp">Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), &quot;ffmpeg&quot;);
 </code></pre><p>Note that this can be customized to point to any other folder.</p>
 <p>When distributing the player and the associated libraries with your application, dll files should be added to the project as <code>BundleResource</code> items. Also, each library should be copied to the output directory on build. Afterwards, change the above configuration to use <code>Environment.CurrentDirectory</code> to search for FFmpeg libraries.</p>
 <h3 id="macos-troubleshooting">MacOS: Troubleshooting</h3>
 <p>Make sure you have Xamarin for Visual Studio 2017 installed if you want to open the MacOS projects.</p>
+<h2 id="windows-using-ffme-in-your-wpf-project">Windows: Using FFME in your WPF Project</h2>
+<p><em>Remember: The Unosquare.FFME.Windows.Sample provides a reference implementation of usage</em></p>
+<ol>
+<li>Create a new WPF application</li>
+<li>Add a reference to <code>ffme.win.dll</code> or install <code>FFME.Windows</code> via NuGet</li>
+<li>In your <code>MainForm.xaml</code>, add the namespace: <code>xmlns:ffme=&quot;clr-namespace:Unosquare.FFME;assembly=ffme.win&quot;</code></li>
+<li>Finally, create an instance of the FFME control in your <code>MainForm.xaml</code> as follows: <code>&lt;ffme:MediaElement x:Name=&quot;MediaEl&quot; Background=&quot;Gray&quot; LoadedBehavior=&quot;Play&quot; UnloadedBehavior=&quot;Manual&quot; /&gt;</code></li>
+</ol>
 <h2 id="thanks">Thanks</h2>
 <p><em>In no particular order</em></p>
 <ul>
@@ -217,7 +182,7 @@ device://gdigrab?desktop</code></li>
               <div class="contribution">
                 <ul class="nav">
                   <li class="top-sep">
-                    <a href="https://github.com/unosquare/ffmediaelement/blob/ccrender/README.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/unosquare/ffmediaelement/blob/InteropBitmap/README.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>
