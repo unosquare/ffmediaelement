@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME
 {
+    using ClosedCaptions;
     using Core;
     using Primitives;
     using Shared;
@@ -36,6 +37,11 @@
         /// Holds the materialized block cache for each media type.
         /// </summary>
         public MediaTypeDictionary<MediaBlockBuffer> Blocks { get; } = new MediaTypeDictionary<MediaBlockBuffer>();
+
+        /// <summary>
+        /// Gets the closed captions buffer that live in the video blocks.
+        /// </summary>
+        public ClosedCaptionBuffer ClosedCaptions { get; } = new ClosedCaptionBuffer();
 
         /// <summary>
         /// Gets the preloaded subtitle blocks.
@@ -319,7 +325,12 @@
             {
                 // Add each decoded frame as a playback block
                 if (frame == null) continue;
-                Blocks[t].Add(frame, Container);
+                var block = Blocks[t].Add(frame, Container);
+
+                // TODO: Still missing the CC packet clear calls
+                if (block is VideoBlock videoBlock)
+                    ClosedCaptions.Add(videoBlock.ClosedCaptions);
+
                 decodedFrameCount += 1;
             }
 

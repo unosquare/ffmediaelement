@@ -3,6 +3,7 @@
     using ClosedCaptions;
     using Shared;
     using System;
+    using System.Collections.ObjectModel;
 
     /// <summary>
     /// The video rendering event arguments
@@ -24,7 +25,7 @@
         internal RenderingVideoEventArgs(
             BitmapDataBuffer bitmap,
             StreamInfo stream,
-            ClosedCaptionCollection closedCaptions,
+            ReadOnlyCollection<ClosedCaptionPacket> closedCaptions,
             string smtpeTimecode,
             long pictureNumber,
             TimeSpan startTime,
@@ -47,7 +48,7 @@
         /// <summary>
         /// Gets the closed caption decoded packets.
         /// </summary>
-        public ClosedCaptionCollection ClosedCaptions { get; }
+        public ReadOnlyCollection<ClosedCaptionPacket> ClosedCaptions { get; }
 
         /// <summary>
         /// Gets the display picture number (frame number).

@@ -5,6 +5,7 @@
     using Shared;
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Runtime.InteropServices;
 
     /// <summary>
@@ -207,7 +208,7 @@
 
             target.CodedPictureNumber = source.CodedPictureNumber;
             target.StreamIndex = input.StreamIndex;
-            target.ClosedCaptions = new ClosedCaptions.ClosedCaptionCollection(source.ClosedCaptions);
+            target.ClosedCaptions = new ReadOnlyCollection<ClosedCaptions.ClosedCaptionPacket>(source.ClosedCaptions);
             target.BufferStride = targetStride[0];
 
             target.PixelHeight = source.Pointer->height;

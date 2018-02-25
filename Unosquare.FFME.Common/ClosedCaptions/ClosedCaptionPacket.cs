@@ -7,7 +7,7 @@
     /// Represents a 3-byte packet of closed-captioning data in EIA-608 format.
     /// See: http://jackyjung.tistory.com/attachment/499e14e28c347DB.pdf
     /// </summary>
-    public class ClosedCaptionPacket : IComparable
+    public sealed class ClosedCaptionPacket : IComparable
     {
         #region Dictionaries
 
@@ -159,7 +159,7 @@
         /// <param name="timestamp">The timestamp.</param>
         /// <param name="source">The source.</param>
         /// <param name="offset">The offset.</param>
-        public ClosedCaptionPacket(TimeSpan timestamp, byte[] source, int offset)
+        internal ClosedCaptionPacket(TimeSpan timestamp, byte[] source, int offset)
             : this(timestamp, source[offset + 0], source[offset + 1], source[offset + 2])
         {
             // placeholder
@@ -172,22 +172,22 @@
         /// <param name="header">The header.</param>
         /// <param name="d0">The d0.</param>
         /// <param name="d1">The d1.</param>
-        public ClosedCaptionPacket(TimeSpan timestamp, byte header, byte d0, byte d1)
+        internal ClosedCaptionPacket(TimeSpan timestamp, byte header, byte d0, byte d1)
         {
             Data = new byte[] { header, d0, d1 };
 
             D0 = DropParityBit(d0);
             D1 = DropParityBit(d1);
 
-            NtscField = GetHeaderFieldType(header);
-            Channel = 0;
+            FieldParity = GetHeaderFieldType(header);
+            FieldChannel = 0;
             Timestamp = timestamp;
 
             #region Header Checking
 
             if (HeaderHasMarkers(header) == false
                 || IsHeaderValidFalgSet(header) == false
-                || (NtscField == 0)
+                || (FieldParity == 0)
                 || (D0 == 0x00 && D1 == 0x00))
             {
                 PacketType = CCPacketType.NullPad;
@@ -214,7 +214,7 @@
 
             if ((D0 == 0x10 || D0 == 0x18) && (D1 >= 0x20 && D1 <= 0x2F))
             {
-                Channel = (D0 == 0x10) ? 1 : 2;
+                FieldChannel = (D0 == 0x10) ? 1 : 2;
                 PacketType = CCPacketType.Color;
                 Color = (CCColorType)D1;
                 return;
@@ -222,7 +222,7 @@
 
             if ((D0 == 0x17 || D0 == 0x1F) && (D1 >= 0x2D && D1 <= 0x2F))
             {
-                Channel = (D0 == 0x17) ? 1 : 2;
+                FieldChannel = (D0 == 0x17) ? 1 : 2;
                 PacketType = CCPacketType.Color;
                 var colorValue = D1 << 16;
                 Color = (CCColorType)colorValue;
@@ -236,7 +236,7 @@
 
             if ((D0 == 0x17 || D0 == 0x1F) && (D1 >= 0x24 && D1 <= 0x2A))
             {
-                Channel = (D0 == 0x17) ? 1 : 2;
+                FieldChannel = (D0 == 0x17) ? 1 : 2;
                 PacketType = CCPacketType.Charset;
                 return;
             }
@@ -249,7 +249,7 @@
             if ((D0 == 0x11 || D0 == 0x19) && (D1 >= 0x20 && D1 <= 0x2F))
             {
                 PacketType = CCPacketType.MidRow;
-                Channel = D0 == 0x11 ? 1 : 2;
+                FieldChannel = D0 == 0x11 ? 1 : 2;
                 MidRowStyle = (CCStyleType)D1;
                 return;
             }
@@ -263,7 +263,7 @@
             {
                 PacketType = CCPacketType.MiscCommand;
                 MiscCommand = (CCMiscCommandType)D1;
-                Channel = (D0 == 0x14 || D0 == 0x1C) ? 1 : 2;
+                FieldChannel = (D0 == 0x14 || D0 == 0x1C) ? 1 : 2;
                 return;
             }
 
@@ -272,7 +272,7 @@
             {
                 PacketType = CCPacketType.Tabs;
                 Tabs = D1 & 0x03;
-                Channel = D0 == 0x17 ? 1 : 2;
+                FieldChannel = D0 == 0x17 ? 1 : 2;
                 return;
             }
 
@@ -287,7 +287,7 @@
                 if (D0 == 0x10 || D0 == 0x18)
                 {
                     PacketType = CCPacketType.Preamble;
-                    Channel = D0 == 0x10 ? 1 : 2;
+                    FieldChannel = D0 == 0x10 ? 1 : 2;
                     PreambleRow = 11;
                     PreambleStyle = (CCStyleType)(D1 - 0x20);
                     return;
@@ -297,14 +297,14 @@
                 if (D0 >= 0x11 && D0 <= 0x17)
                 {
                     PacketType = CCPacketType.Preamble;
-                    Channel = 1;
+                    FieldChannel = 1;
                     wasSet = true;
                 }
 
                 if (D0 >= 0x19 && D0 <= 0x1F)
                 {
                     PacketType = CCPacketType.Preamble;
-                    Channel = 2;
+                    FieldChannel = 2;
                     wasSet = true;
                 }
 
@@ -336,7 +336,7 @@
             {
                 if (SpecialNorthAmerican.ContainsKey(D1))
                 {
-                    Channel = (D0 == 0x11) ? 1 : 2;
+                    FieldChannel = (D0 == 0x11) ? 1 : 2;
                     Text = SpecialNorthAmerican[D1];
                     return;
                 }
@@ -346,14 +346,14 @@
             {
                 if (Spanish.ContainsKey(D1))
                 {
-                    Channel = 1;
+                    FieldChannel = 1;
                     Text = Spanish[D1];
                     return;
                 }
 
                 if (French.ContainsKey(D1))
                 {
-                    Channel = 2;
+                    FieldChannel = 2;
                     Text = French[D1];
                     return;
                 }
@@ -363,14 +363,14 @@
             {
                 if (Portuguese.ContainsKey(D1))
                 {
-                    Channel = 1;
+                    FieldChannel = 1;
                     Text = Portuguese[D1];
                     return;
                 }
 
                 if (German.ContainsKey(D1))
                 {
-                    Channel = 2;
+                    FieldChannel = 2;
                     Text = German[D1];
                     return;
                 }
@@ -379,7 +379,7 @@
             // Basic North American character set (2 chars)
             if (D0 >= 0x20 && D0 <= 0x7F && (D1 == 0x00 || (D1 >= 0x20 && D1 <= 0x7F)))
             {
-                Channel = 0;
+                FieldChannel = 0;
                 Text = D1 == 0x00 ? $"{ToEia608Char(D0)}" : $"{ToEia608Char(D0)}{ToEia608Char(D1)}";
                 return;
             }
@@ -387,7 +387,7 @@
             #endregion
 
             PacketType = CCPacketType.Unrecognized;
-            Channel = 0;
+            FieldChannel = 0;
         }
 
         #endregion
@@ -426,13 +426,19 @@
         /// Gets the NTSC field (1 or 2).
         /// 0 for unknown/null packet
         /// </summary>
-        public int NtscField { get; }
+        public int FieldParity { get; }
 
         /// <summary>
         /// Gets the channel. 0 for any, 1 or 2 for specific channel toggle.
         /// 0 just means to use what a prior packet had specified.
         /// </summary>
-        public int Channel { get; }
+        public int FieldChannel { get; }
+
+        /// <summary>
+        /// Gets the channel CC1, CC2, CC3, or CC4.
+        /// Returns None when not yet computed
+        /// </summary>
+        public ClosedCaptionChannel Channel { get; internal set; }
 
         /// <summary>
         /// Gets the type of the packet.
@@ -496,26 +502,26 @@
             switch (PacketType)
             {
                 case CCPacketType.Charset:
-                    output = $"{ts} CHR F{NtscField} C{Channel} - 0x{D1:X}"; break;
+                    output = $"{ts} CHR F{FieldParity} C{FieldChannel} - 0x{D1:X}"; break;
                 case CCPacketType.Color:
-                    output = $"{ts} CLR F{NtscField} C{Channel} - {nameof(Color)}: {Color}"; break;
+                    output = $"{ts} CLR F{FieldParity} C{FieldChannel} - {nameof(Color)}: {Color}"; break;
                 case CCPacketType.MiscCommand:
-                    output = $"{ts} CMD F{NtscField} C{Channel} - {nameof(MiscCommand)}: {MiscCommand}"; break;
+                    output = $"{ts} CMD F{FieldParity} C{FieldChannel} - {nameof(MiscCommand)}: {MiscCommand}"; break;
                 case CCPacketType.MidRow:
-                    output = $"{ts} MDR F{NtscField} C{Channel} - {nameof(MidRowStyle)}: {MidRowStyle}"; break;
+                    output = $"{ts} MDR F{FieldParity} C{FieldChannel} - {nameof(MidRowStyle)}: {MidRowStyle}"; break;
                 case CCPacketType.NullPad:
-                    output = $"{ts} NUL F{NtscField} C{Channel} - (NULL)"; break;
+                    output = $"{ts} NUL F{FieldParity} C{FieldChannel} - (NULL)"; break;
                 case CCPacketType.Preamble:
-                    output = $"{ts} PRE F{NtscField} C{Channel} - Row: {PreambleRow}, Style: {PreambleStyle}"; break;
+                    output = $"{ts} PRE F{FieldParity} C{FieldChannel} - Row: {PreambleRow}, Style: {PreambleStyle}"; break;
                 case CCPacketType.Tabs:
-                    output = $"{ts} TAB F{NtscField} C{Channel} - {nameof(Tabs)}: {Tabs}"; break;
+                    output = $"{ts} TAB F{FieldParity} C{FieldChannel} - {nameof(Tabs)}: {Tabs}"; break;
                 case CCPacketType.Text:
-                    output = $"{ts} TXT F{NtscField} C{(Channel == 0 ? "A" : Channel.ToString())} - '{Text}'"; break;
+                    output = $"{ts} TXT F{FieldParity} C{(FieldChannel == 0 ? "A" : FieldChannel.ToString())} - '{Text}'"; break;
                 case CCPacketType.XdsClass:
-                    output = $"{ts} XDS F{NtscField} C{Channel} - {nameof(XdsClass)}: {XdsClass}"; break;
+                    output = $"{ts} XDS F{FieldParity} C{FieldChannel} - {nameof(XdsClass)}: {XdsClass}"; break;
                 case CCPacketType.Unrecognized:
                 default:
-                    output = $"{ts} UNR F{NtscField} C{Channel} - 0x{D0:X} 0x{D1:X}"; break;
+                    output = $"{ts} UNR F{FieldParity} C{FieldChannel} - 0x{D0:X} 0x{D1:X}"; break;
             }
 
             return output;
