@@ -1,0 +1,2734 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class MediaElement
+   | FFME: WPF MediaElement replacement based on FFmpeg </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class MediaElement
+   | FFME: WPF MediaElement replacement based on FFmpeg ">
+    <meta name="generator" content="docfx 2.31.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/bootstrap.min.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    <meta property="docfx:rel" content="../">
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix">
+    <div id="wrapper">
+      <header>
+        
+        <nav class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="logo" src="../best-practices/resources/images/logo.png" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div class="container body-content">
+        
+        <div id="search-results">
+          <div class="search-list"></div>
+          <div class="sr-items"></div>
+          <ul id="pagination"></ul>
+        </div>
+      </div>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Unosquare.FFME.MediaElement">
+  
+  
+  <h1 id="Unosquare_FFME_MediaElement" data-uid="Unosquare.FFME.MediaElement" class="text-break">Class MediaElement
+  </h1>
+  <div class="markdown level0 summary"><p>Represents a control that contains audio and/or video.
+In contrast with System.Windows.Controls.MediaElement, this version uses
+the FFmpeg library to perform reading and decoding of media streams.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">MediaElement</span></div>
+  </div>
+  <div classs="implements">
+    <h5>Implements</h5>
+    <div><span class="xref">System.IDisposable</span></div>
+    <div><span class="xref">INotifyPropertyChanged</span></div>
+    <div><span class="xref">IUriContext</span></div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Unosquare.FFME.html">Unosquare.FFME</a></h6>
+  <h5 id="Unosquare_FFME_MediaElement_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public sealed class MediaElement : UserControl, IDisposable, INotifyPropertyChanged, IUriContext</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  
+  
+  <a id="Unosquare_FFME_MediaElement__ctor_" data-uid="Unosquare.FFME.MediaElement.#ctor*"></a>
+  <h4 id="Unosquare_FFME_MediaElement__ctor" data-uid="Unosquare.FFME.MediaElement.#ctor">MediaElement()</h4>
+  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="Unosquare.FFME.MediaElement.html">MediaElement</a> class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MediaElement()</code></pre>
+  </div>
+  <h3 id="fields">Fields
+  </h3>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_BalanceProperty" data-uid="Unosquare.FFME.MediaElement.BalanceProperty">BalanceProperty</h4>
+  <div class="markdown level1 summary"><p>The DependencyProperty for the MediaElement.Balance property.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly DependencyProperty BalanceProperty</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">DependencyProperty</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_BufferingEndedEvent" data-uid="Unosquare.FFME.MediaElement.BufferingEndedEvent">BufferingEndedEvent</h4>
+  <div class="markdown level1 summary"><p>BufferingEnded is a routed event</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly RoutedEvent BufferingEndedEvent</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEvent</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_BufferingStartedEvent" data-uid="Unosquare.FFME.MediaElement.BufferingStartedEvent">BufferingStartedEvent</h4>
+  <div class="markdown level1 summary"><p>BufferingStarted is a routed event</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly RoutedEvent BufferingStartedEvent</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEvent</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_IsMutedProperty" data-uid="Unosquare.FFME.MediaElement.IsMutedProperty">IsMutedProperty</h4>
+  <div class="markdown level1 summary"><p>The DependencyProperty for the MediaElement.IsMuted property.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly DependencyProperty IsMutedProperty</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">DependencyProperty</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_LoadedBehaviorProperty" data-uid="Unosquare.FFME.MediaElement.LoadedBehaviorProperty">LoadedBehaviorProperty</h4>
+  <div class="markdown level1 summary"><p>The DependencyProperty for the MediaElement.LoadedBehavior property.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly DependencyProperty LoadedBehaviorProperty</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">DependencyProperty</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_MediaClosedEvent" data-uid="Unosquare.FFME.MediaElement.MediaClosedEvent">MediaClosedEvent</h4>
+  <div class="markdown level1 summary"><p>MediaClosed is a routed event.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly RoutedEvent MediaClosedEvent</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEvent</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_MediaEndedEvent" data-uid="Unosquare.FFME.MediaElement.MediaEndedEvent">MediaEndedEvent</h4>
+  <div class="markdown level1 summary"><p>MediaEnded is a routed event</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly RoutedEvent MediaEndedEvent</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEvent</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_MediaFailedEvent" data-uid="Unosquare.FFME.MediaElement.MediaFailedEvent">MediaFailedEvent</h4>
+  <div class="markdown level1 summary"><p>MediaFailedEvent is a routed event.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly RoutedEvent MediaFailedEvent</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEvent</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_MediaInitializingEvent" data-uid="Unosquare.FFME.MediaElement.MediaInitializingEvent">MediaInitializingEvent</h4>
+  <div class="markdown level1 summary"><p>MediaOpeningEvent is a routed event.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly RoutedEvent MediaInitializingEvent</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEvent</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_MediaOpenedEvent" data-uid="Unosquare.FFME.MediaElement.MediaOpenedEvent">MediaOpenedEvent</h4>
+  <div class="markdown level1 summary"><p>MediaOpened is a routed event.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly RoutedEvent MediaOpenedEvent</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEvent</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_MediaOpeningEvent" data-uid="Unosquare.FFME.MediaElement.MediaOpeningEvent">MediaOpeningEvent</h4>
+  <div class="markdown level1 summary"><p>MediaOpeningEvent is a routed event.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly RoutedEvent MediaOpeningEvent</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEvent</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_MediaStateChangedEvent" data-uid="Unosquare.FFME.MediaElement.MediaStateChangedEvent">MediaStateChangedEvent</h4>
+  <div class="markdown level1 summary"><p>MediaStateChanged is a routed event</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly RoutedEvent MediaStateChangedEvent</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEvent</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_PositionChangedEvent" data-uid="Unosquare.FFME.MediaElement.PositionChangedEvent">PositionChangedEvent</h4>
+  <div class="markdown level1 summary"><p>PositionChanged is a routed event</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly RoutedEvent PositionChangedEvent</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEvent</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_PositionProperty" data-uid="Unosquare.FFME.MediaElement.PositionProperty">PositionProperty</h4>
+  <div class="markdown level1 summary"><p>The DependencyProperty for the MediaElement.Position property.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly DependencyProperty PositionProperty</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">DependencyProperty</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_ScrubbingEnabledProperty" data-uid="Unosquare.FFME.MediaElement.ScrubbingEnabledProperty">ScrubbingEnabledProperty</h4>
+  <div class="markdown level1 summary"><p>The DependencyProperty for the MediaElement.ScrubbingEnabled property.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly DependencyProperty ScrubbingEnabledProperty</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">DependencyProperty</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_SeekingEndedEvent" data-uid="Unosquare.FFME.MediaElement.SeekingEndedEvent">SeekingEndedEvent</h4>
+  <div class="markdown level1 summary"><p>SeekingEnded is a routed event</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly RoutedEvent SeekingEndedEvent</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEvent</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_SeekingStartedEvent" data-uid="Unosquare.FFME.MediaElement.SeekingStartedEvent">SeekingStartedEvent</h4>
+  <div class="markdown level1 summary"><p>SeekingStarted is a routed event</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly RoutedEvent SeekingStartedEvent</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEvent</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_SourceProperty" data-uid="Unosquare.FFME.MediaElement.SourceProperty">SourceProperty</h4>
+  <div class="markdown level1 summary"><p>DependencyProperty for FFmpegMediaElement Source property.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly DependencyProperty SourceProperty</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">DependencyProperty</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_SpeedRatioProperty" data-uid="Unosquare.FFME.MediaElement.SpeedRatioProperty">SpeedRatioProperty</h4>
+  <div class="markdown level1 summary"><p>The DependencyProperty for the MediaElement.SpeedRatio property.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly DependencyProperty SpeedRatioProperty</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">DependencyProperty</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_StretchDirectionProperty" data-uid="Unosquare.FFME.MediaElement.StretchDirectionProperty">StretchDirectionProperty</h4>
+  <div class="markdown level1 summary"><p>DependencyProperty for StretchDirection property.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly DependencyProperty StretchDirectionProperty</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">DependencyProperty</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_StretchProperty" data-uid="Unosquare.FFME.MediaElement.StretchProperty">StretchProperty</h4>
+  <div class="markdown level1 summary"><p>DependencyProperty for Stretch property.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly DependencyProperty StretchProperty</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">DependencyProperty</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_UnloadedBehaviorProperty" data-uid="Unosquare.FFME.MediaElement.UnloadedBehaviorProperty">UnloadedBehaviorProperty</h4>
+  <div class="markdown level1 summary"><p>The DependencyProperty for the MediaElement.UnloadedBehavior property.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly DependencyProperty UnloadedBehaviorProperty</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">DependencyProperty</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_VolumeProperty" data-uid="Unosquare.FFME.MediaElement.VolumeProperty">VolumeProperty</h4>
+  <div class="markdown level1 summary"><p>The DependencyProperty for the MediaElement.Volume property.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly DependencyProperty VolumeProperty</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">DependencyProperty</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_AudioBitrate_" data-uid="Unosquare.FFME.MediaElement.AudioBitrate*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_AudioBitrate" data-uid="Unosquare.FFME.MediaElement.AudioBitrate">AudioBitrate</h4>
+  <div class="markdown level1 summary"><p>Gets the audio bitrate.
+Only valid after the MediaOpened event has fired.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ulong AudioBitrate { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.UInt64</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_AudioBitsPerSample_" data-uid="Unosquare.FFME.MediaElement.AudioBitsPerSample*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_AudioBitsPerSample" data-uid="Unosquare.FFME.MediaElement.AudioBitsPerSample">AudioBitsPerSample</h4>
+  <div class="markdown level1 summary"><p>Gets the audio bits per sample.
+Only valid after the MediaOpened event has fired.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int AudioBitsPerSample { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_AudioChannels_" data-uid="Unosquare.FFME.MediaElement.AudioChannels*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_AudioChannels" data-uid="Unosquare.FFME.MediaElement.AudioChannels">AudioChannels</h4>
+  <div class="markdown level1 summary"><p>Gets the audio channels count.
+Only valid after the MediaOpened event has fired.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int AudioChannels { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_AudioCodec_" data-uid="Unosquare.FFME.MediaElement.AudioCodec*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_AudioCodec" data-uid="Unosquare.FFME.MediaElement.AudioCodec">AudioCodec</h4>
+  <div class="markdown level1 summary"><p>Gets the audio codec.
+Only valid after the MediaOpened event has fired.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string AudioCodec { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_AudioSampleRate_" data-uid="Unosquare.FFME.MediaElement.AudioSampleRate*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_AudioSampleRate" data-uid="Unosquare.FFME.MediaElement.AudioSampleRate">AudioSampleRate</h4>
+  <div class="markdown level1 summary"><p>Gets the audio sample rate.
+Only valid after the MediaOpened event has fired.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int AudioSampleRate { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_Balance_" data-uid="Unosquare.FFME.MediaElement.Balance*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_Balance" data-uid="Unosquare.FFME.MediaElement.Balance">Balance</h4>
+  <div class="markdown level1 summary"><p>Gets/Sets the Balance property on the MediaElement.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public double Balance { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Double</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_BufferCacheLength_" data-uid="Unosquare.FFME.MediaElement.BufferCacheLength*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_BufferCacheLength" data-uid="Unosquare.FFME.MediaElement.BufferCacheLength">BufferCacheLength</h4>
+  <div class="markdown level1 summary"><p>The wait packet buffer length.
+It is adjusted to 1 second if bitrate information is available.
+Otherwise, it&apos;s simply 512KB</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ulong BufferCacheLength { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.UInt64</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_BufferingProgress_" data-uid="Unosquare.FFME.MediaElement.BufferingProgress*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_BufferingProgress" data-uid="Unosquare.FFME.MediaElement.BufferingProgress">BufferingProgress</h4>
+  <div class="markdown level1 summary"><p>Gets a value that indicates the percentage of buffering progress made.
+Range is from 0 to 1</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public double BufferingProgress { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Double</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_CanPause_" data-uid="Unosquare.FFME.MediaElement.CanPause*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_CanPause" data-uid="Unosquare.FFME.MediaElement.CanPause">CanPause</h4>
+  <div class="markdown level1 summary"><p>Returns whether the currently loaded media can be paused.
+This is only valid after the MediaOpened event has fired.
+Note that this property is computed based on wether the stream is detected to be a live stream.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool CanPause { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_DownloadCacheLength_" data-uid="Unosquare.FFME.MediaElement.DownloadCacheLength*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_DownloadCacheLength" data-uid="Unosquare.FFME.MediaElement.DownloadCacheLength">DownloadCacheLength</h4>
+  <div class="markdown level1 summary"><p>Gets the maximum packet buffer length, according to the bitrate (if available).
+If it&apos;s a realtime stream it will return 30 times the buffer cache length.
+Otherwise, it will return  4 times of the buffer cache length.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ulong DownloadCacheLength { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.UInt64</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_DownloadProgress_" data-uid="Unosquare.FFME.MediaElement.DownloadProgress*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_DownloadProgress" data-uid="Unosquare.FFME.MediaElement.DownloadProgress">DownloadProgress</h4>
+  <div class="markdown level1 summary"><p>Gets a value that indicates the percentage of download progress made.
+Range is from 0 to 1</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public double DownloadProgress { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Double</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_FFmpegDirectory_" data-uid="Unosquare.FFME.MediaElement.FFmpegDirectory*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_FFmpegDirectory" data-uid="Unosquare.FFME.MediaElement.FFmpegDirectory">FFmpegDirectory</h4>
+  <div class="markdown level1 summary"><p>Gets or sets the FFmpeg path from which to load the FFmpeg binaries.
+You must set this path before setting the Source property for the first time on any instance of this control.
+Settng this property when FFmpeg binaries have been registered will throw an exception.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static string FFmpegDirectory { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_FFmpegLoadModeFlags_" data-uid="Unosquare.FFME.MediaElement.FFmpegLoadModeFlags*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_FFmpegLoadModeFlags" data-uid="Unosquare.FFME.MediaElement.FFmpegLoadModeFlags">FFmpegLoadModeFlags</h4>
+  <div class="markdown level1 summary"><p>Specifies the bitwise flags that correspond to FFmpeg library identifiers.
+Please use the <see cref="!:Shared.FFmpegLoadMode"></see> class for valid combinations.
+If FFmpeg is already loaded, the value cannot be changed.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static int FFmpegLoadModeFlags { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_FrameStepDuration_" data-uid="Unosquare.FFME.MediaElement.FrameStepDuration*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_FrameStepDuration" data-uid="Unosquare.FFME.MediaElement.FrameStepDuration">FrameStepDuration</h4>
+  <div class="markdown level1 summary"><p>Gets the duration of a single frame step.
+If there is a video component with a framerate, this propery returns the length of a frame.
+If there is no video component it simply returns a tenth of a second.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TimeSpan FrameStepDuration { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.TimeSpan</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_HasAudio_" data-uid="Unosquare.FFME.MediaElement.HasAudio*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_HasAudio" data-uid="Unosquare.FFME.MediaElement.HasAudio">HasAudio</h4>
+  <div class="markdown level1 summary"><p>Returns whether the given media has audio.
+Only valid after the MediaOpened event has fired.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool HasAudio { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_HasMediaEnded_" data-uid="Unosquare.FFME.MediaElement.HasMediaEnded*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_HasMediaEnded" data-uid="Unosquare.FFME.MediaElement.HasMediaEnded">HasMediaEnded</h4>
+  <div class="markdown level1 summary"><p>Gets a value indicating whether the media has reached its end.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool HasMediaEnded { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_HasSubtitles_" data-uid="Unosquare.FFME.MediaElement.HasSubtitles*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_HasSubtitles" data-uid="Unosquare.FFME.MediaElement.HasSubtitles">HasSubtitles</h4>
+  <div class="markdown level1 summary"><p>Returns whether the given media has subtitles. Only valid after the
+MediaOpened event has fired.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool HasSubtitles { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_HasVideo_" data-uid="Unosquare.FFME.MediaElement.HasVideo*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_HasVideo" data-uid="Unosquare.FFME.MediaElement.HasVideo">HasVideo</h4>
+  <div class="markdown level1 summary"><p>Returns whether the given media has video. Only valid after the
+MediaOpened event has fired.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool HasVideo { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_IsBuffering_" data-uid="Unosquare.FFME.MediaElement.IsBuffering*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_IsBuffering" data-uid="Unosquare.FFME.MediaElement.IsBuffering">IsBuffering</h4>
+  <div class="markdown level1 summary"><p>Get a value indicating whether the media is buffering.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsBuffering { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_IsLiveStream_" data-uid="Unosquare.FFME.MediaElement.IsLiveStream*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_IsLiveStream" data-uid="Unosquare.FFME.MediaElement.IsLiveStream">IsLiveStream</h4>
+  <div class="markdown level1 summary"><p>Returns whether the currently loaded media is live or realtime
+This is only valid after the MediaOpened event has fired.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsLiveStream { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_IsMuted_" data-uid="Unosquare.FFME.MediaElement.IsMuted*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_IsMuted" data-uid="Unosquare.FFME.MediaElement.IsMuted">IsMuted</h4>
+  <div class="markdown level1 summary"><p>Gets/Sets the IsMuted property on the MediaElement.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsMuted { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_IsNetowrkStream_" data-uid="Unosquare.FFME.MediaElement.IsNetowrkStream*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_IsNetowrkStream" data-uid="Unosquare.FFME.MediaElement.IsNetowrkStream">IsNetowrkStream</h4>
+  <div class="markdown level1 summary"><p>Returns whether the currently loaded media is a network stream.
+This is only valid after the MediaOpened event has fired.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsNetowrkStream { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_IsOpen_" data-uid="Unosquare.FFME.MediaElement.IsOpen*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_IsOpen" data-uid="Unosquare.FFME.MediaElement.IsOpen">IsOpen</h4>
+  <div class="markdown level1 summary"><p>Gets a value indicating whether this media element
+currently has an open media url.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsOpen { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_IsOpening_" data-uid="Unosquare.FFME.MediaElement.IsOpening*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_IsOpening" data-uid="Unosquare.FFME.MediaElement.IsOpening">IsOpening</h4>
+  <div class="markdown level1 summary"><p>Gets a value indicating whether the media is in the process of opening.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsOpening { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_IsPaused_" data-uid="Unosquare.FFME.MediaElement.IsPaused*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_IsPaused" data-uid="Unosquare.FFME.MediaElement.IsPaused">IsPaused</h4>
+  <div class="markdown level1 summary"><p>Gets a value indicating whether the media is playing.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsPaused { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_IsPlaying_" data-uid="Unosquare.FFME.MediaElement.IsPlaying*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_IsPlaying" data-uid="Unosquare.FFME.MediaElement.IsPlaying">IsPlaying</h4>
+  <div class="markdown level1 summary"><p>Gets a value indicating whether the media is playing.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsPlaying { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_IsSeekable_" data-uid="Unosquare.FFME.MediaElement.IsSeekable*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_IsSeekable" data-uid="Unosquare.FFME.MediaElement.IsSeekable">IsSeekable</h4>
+  <div class="markdown level1 summary"><p>Gets a value indicating whether the currently loaded media can be seeked.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsSeekable { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_IsSeeking_" data-uid="Unosquare.FFME.MediaElement.IsSeeking*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_IsSeeking" data-uid="Unosquare.FFME.MediaElement.IsSeeking">IsSeeking</h4>
+  <div class="markdown level1 summary"><p>Gets a value indicating whether the media seeking is in progress.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsSeeking { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_LoadedBehavior_" data-uid="Unosquare.FFME.MediaElement.LoadedBehavior*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_LoadedBehavior" data-uid="Unosquare.FFME.MediaElement.LoadedBehavior">LoadedBehavior</h4>
+  <div class="markdown level1 summary"><p>Specifies the action that the media element should execute when it
+is loaded. The default behavior is that it is under manual control
+(i.e. the caller should call methods such as Play in order to play
+the media). If a source is set, then the default behavior changes to
+to be playing the media. If a source is set and a loaded behavior is
+also set, then the loaded behavior takes control.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MediaState LoadedBehavior { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">MediaState</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_MediaFormat_" data-uid="Unosquare.FFME.MediaElement.MediaFormat*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_MediaFormat" data-uid="Unosquare.FFME.MediaElement.MediaFormat">MediaFormat</h4>
+  <div class="markdown level1 summary"><p>Gets the media format. Returns null when media has not been loaded.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string MediaFormat { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_MediaInfo_" data-uid="Unosquare.FFME.MediaElement.MediaInfo*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_MediaInfo" data-uid="Unosquare.FFME.MediaElement.MediaInfo">MediaInfo</h4>
+  <div class="markdown level1 summary"><p>Provides stream, chapter and program info of the underlying media.
+Returns null when no media is loaded.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MediaInfo MediaInfo { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">MediaInfo</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_MediaState_" data-uid="Unosquare.FFME.MediaElement.MediaState*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_MediaState" data-uid="Unosquare.FFME.MediaElement.MediaState">MediaState</h4>
+  <div class="markdown level1 summary"><p>Gets the current playback state.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MediaState MediaState { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">MediaState</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_Metadata_" data-uid="Unosquare.FFME.MediaElement.Metadata*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_Metadata" data-uid="Unosquare.FFME.MediaElement.Metadata">Metadata</h4>
+  <div class="markdown level1 summary"><p>Provides key-value pairs of the metadata contained in the media.
+Returns null when media has not been loaded.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ReadOnlyDictionary&lt;string, string&gt; Metadata { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.ObjectModel.ReadOnlyDictionary</span>&lt;<span class="xref">System.String</span>, <span class="xref">System.String</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_NaturalDuration_" data-uid="Unosquare.FFME.MediaElement.NaturalDuration*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_NaturalDuration" data-uid="Unosquare.FFME.MediaElement.NaturalDuration">NaturalDuration</h4>
+  <div class="markdown level1 summary"><p>Gets the Media&apos;s natural duration
+Only valid after the MediaOpened event has fired.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Duration NaturalDuration { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Duration</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_NaturalVideoHeight_" data-uid="Unosquare.FFME.MediaElement.NaturalVideoHeight*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_NaturalVideoHeight" data-uid="Unosquare.FFME.MediaElement.NaturalVideoHeight">NaturalVideoHeight</h4>
+  <div class="markdown level1 summary"><p>Returns the natural height of the media in the video.
+Only valid after the MediaOpened event has fired.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int NaturalVideoHeight { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_NaturalVideoWidth_" data-uid="Unosquare.FFME.MediaElement.NaturalVideoWidth*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_NaturalVideoWidth" data-uid="Unosquare.FFME.MediaElement.NaturalVideoWidth">NaturalVideoWidth</h4>
+  <div class="markdown level1 summary"><p>Returns the natural width of the media in the video.
+Only valid after the MediaOpened event has fired.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int NaturalVideoWidth { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_Position_" data-uid="Unosquare.FFME.MediaElement.Position*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_Position" data-uid="Unosquare.FFME.MediaElement.Position">Position</h4>
+  <div class="markdown level1 summary"><p>Gets/Sets the Position property on the MediaElement.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TimeSpan Position { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.TimeSpan</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_RemainingDuration_" data-uid="Unosquare.FFME.MediaElement.RemainingDuration*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_RemainingDuration" data-uid="Unosquare.FFME.MediaElement.RemainingDuration">RemainingDuration</h4>
+  <div class="markdown level1 summary"><p>Gets the remaining playback duration. Returns Forever for indeterminate values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Duration RemainingDuration { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Duration</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_ScrubbingEnabled_" data-uid="Unosquare.FFME.MediaElement.ScrubbingEnabled*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_ScrubbingEnabled" data-uid="Unosquare.FFME.MediaElement.ScrubbingEnabled">ScrubbingEnabled</h4>
+  <div class="markdown level1 summary"><p>Gets or sets a value that indicates whether the MediaElement will update frames
+for seek operations while paused. This is a dependency property.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool ScrubbingEnabled { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_Source_" data-uid="Unosquare.FFME.MediaElement.Source*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_Source" data-uid="Unosquare.FFME.MediaElement.Source">Source</h4>
+  <div class="markdown level1 summary"><p>Gets/Sets the Source on this MediaElement.
+The Source property is the Uri of the media to be played.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Uri Source { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Uri</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_SpeedRatio_" data-uid="Unosquare.FFME.MediaElement.SpeedRatio*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_SpeedRatio" data-uid="Unosquare.FFME.MediaElement.SpeedRatio">SpeedRatio</h4>
+  <div class="markdown level1 summary"><p>Gets/Sets the SpeedRatio property on the MediaElement.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public double SpeedRatio { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Double</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_Stretch_" data-uid="Unosquare.FFME.MediaElement.Stretch*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_Stretch" data-uid="Unosquare.FFME.MediaElement.Stretch">Stretch</h4>
+  <div class="markdown level1 summary"><p>Gets/Sets the Stretch on this MediaElement.
+The Stretch property determines how large the MediaElement will be drawn.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Stretch Stretch { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Stretch</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_StretchDirection_" data-uid="Unosquare.FFME.MediaElement.StretchDirection*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_StretchDirection" data-uid="Unosquare.FFME.MediaElement.StretchDirection">StretchDirection</h4>
+  <div class="markdown level1 summary"><p>Gets/Sets the stretch direction of the Viewbox, which determines the restrictions on
+scaling that are applied to the content inside the Viewbox.  For instance, this property
+can be used to prevent the content from being smaller than its native size or larger than
+its native size.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public StretchDirection StretchDirection { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">StretchDirection</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_UnloadedBehavior_" data-uid="Unosquare.FFME.MediaElement.UnloadedBehavior*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_UnloadedBehavior" data-uid="Unosquare.FFME.MediaElement.UnloadedBehavior">UnloadedBehavior</h4>
+  <div class="markdown level1 summary"><p>Specifies how the underlying media should behave when
+it has ended. The default behavior is to Pause the media.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MediaState UnloadedBehavior { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">MediaState</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_VideoBitrate_" data-uid="Unosquare.FFME.MediaElement.VideoBitrate*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_VideoBitrate" data-uid="Unosquare.FFME.MediaElement.VideoBitrate">VideoBitrate</h4>
+  <div class="markdown level1 summary"><p>Gets the video bitrate.
+Only valid after the MediaOpened event has fired.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ulong VideoBitrate { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.UInt64</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_VideoCodec_" data-uid="Unosquare.FFME.MediaElement.VideoCodec*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_VideoCodec" data-uid="Unosquare.FFME.MediaElement.VideoCodec">VideoCodec</h4>
+  <div class="markdown level1 summary"><p>Gets the video codec.
+Only valid after the MediaOpened event has fired.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string VideoCodec { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_VideoFrameLength_" data-uid="Unosquare.FFME.MediaElement.VideoFrameLength*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_VideoFrameLength" data-uid="Unosquare.FFME.MediaElement.VideoFrameLength">VideoFrameLength</h4>
+  <div class="markdown level1 summary"><p>Gets the duration in seconds of the video frame.
+Only valid after the MediaOpened event has fired.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public double VideoFrameLength { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Double</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_VideoFrameRate_" data-uid="Unosquare.FFME.MediaElement.VideoFrameRate*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_VideoFrameRate" data-uid="Unosquare.FFME.MediaElement.VideoFrameRate">VideoFrameRate</h4>
+  <div class="markdown level1 summary"><p>Gets the video frame rate.
+Only valid after the MediaOpened event has fired.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public double VideoFrameRate { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Double</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_VideoHardwareDecoder_" data-uid="Unosquare.FFME.MediaElement.VideoHardwareDecoder*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_VideoHardwareDecoder" data-uid="Unosquare.FFME.MediaElement.VideoHardwareDecoder">VideoHardwareDecoder</h4>
+  <div class="markdown level1 summary"><p>Gets the name of the video hardware decoder in use.
+Enabling hardware acceleration does not guarantee decoding will be performed in hardware.
+When hardware decoding of frames is in use this will return the name of the HW accelerator.
+Otherwise it will return an empty string.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string VideoHardwareDecoder { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_VideoSmtpeTimecode_" data-uid="Unosquare.FFME.MediaElement.VideoSmtpeTimecode*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_VideoSmtpeTimecode" data-uid="Unosquare.FFME.MediaElement.VideoSmtpeTimecode">VideoSmtpeTimecode</h4>
+  <div class="markdown level1 summary"><p>Returns the current video SMTPE timecode if available.
+If not available, this property returns an empty string.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string VideoSmtpeTimecode { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_Volume_" data-uid="Unosquare.FFME.MediaElement.Volume*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_Volume" data-uid="Unosquare.FFME.MediaElement.Volume">Volume</h4>
+  <div class="markdown level1 summary"><p>Gets/Sets the Volume property on the MediaElement.
+Note: Valid values are from 0 to 1</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public double Volume { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Double</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_Close_" data-uid="Unosquare.FFME.MediaElement.Close*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_Close" data-uid="Unosquare.FFME.MediaElement.Close">Close()</h4>
+  <div class="markdown level1 summary"><p>Closes the currently loaded media.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Task Close()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Threading.Tasks.Task</span></td>
+        <td><p>The awaitable command</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_Dispose_" data-uid="Unosquare.FFME.MediaElement.Dispose*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_Dispose" data-uid="Unosquare.FFME.MediaElement.Dispose">Dispose()</h4>
+  <div class="markdown level1 summary"><p>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Dispose()</code></pre>
+  </div>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_Pause_" data-uid="Unosquare.FFME.MediaElement.Pause*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_Pause" data-uid="Unosquare.FFME.MediaElement.Pause">Pause()</h4>
+  <div class="markdown level1 summary"><p>Pauses playback of the currently loaded media.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Task Pause()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Threading.Tasks.Task</span></td>
+        <td><p>The awaitable command</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_Play_" data-uid="Unosquare.FFME.MediaElement.Play*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_Play" data-uid="Unosquare.FFME.MediaElement.Play">Play()</h4>
+  <div class="markdown level1 summary"><p>Begins or resumes playback of the currently loaded media.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Task Play()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Threading.Tasks.Task</span></td>
+        <td><p>The awaitable command</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_Stop_" data-uid="Unosquare.FFME.MediaElement.Stop*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_Stop" data-uid="Unosquare.FFME.MediaElement.Stop">Stop()</h4>
+  <div class="markdown level1 summary"><p>Pauses and rewinds the currently loaded media.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Task Stop()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Threading.Tasks.Task</span></td>
+        <td><p>The awaitable command</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="events">Events
+  </h3>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_BufferingEnded" data-uid="Unosquare.FFME.MediaElement.BufferingEnded">BufferingEnded</h4>
+  <div class="markdown level1 summary"><p>Occurs when buffering of packets was Ended</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event RoutedEventHandler BufferingEnded</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEventHandler</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_BufferingStarted" data-uid="Unosquare.FFME.MediaElement.BufferingStarted">BufferingStarted</h4>
+  <div class="markdown level1 summary"><p>Occurs when buffering of packets was started</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event RoutedEventHandler BufferingStarted</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEventHandler</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_FFmpegMessageLogged" data-uid="Unosquare.FFME.MediaElement.FFmpegMessageLogged">FFmpegMessageLogged</h4>
+  <div class="markdown level1 summary"><p>Occurs when a logging message from the FFmpeg library has been received.
+This is shared across all instances of Media Elements</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static event EventHandler&lt;MediaLogMessageEventArgs&gt; FFmpegMessageLogged</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.EventHandler</span>&lt;<a class="xref" href="Unosquare.FFME.Events.MediaLogMessageEventArgs.html">MediaLogMessageEventArgs</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_MediaClosed" data-uid="Unosquare.FFME.MediaElement.MediaClosed">MediaClosed</h4>
+  <div class="markdown level1 summary"><p>Raised when the media is closed</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event RoutedEventHandler MediaClosed</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEventHandler</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_MediaEnded" data-uid="Unosquare.FFME.MediaElement.MediaEnded">MediaEnded</h4>
+  <div class="markdown level1 summary"><p>Raised when the corresponding media ends.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event RoutedEventHandler MediaEnded</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEventHandler</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_MediaFailed" data-uid="Unosquare.FFME.MediaElement.MediaFailed">MediaFailed</h4>
+  <div class="markdown level1 summary"><p>Raised when the media fails to load or a fatal error has occurred which prevents playback.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event EventHandler&lt;ExceptionRoutedEventArgs&gt; MediaFailed</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.EventHandler</span>&lt;<span class="xref">ExceptionRoutedEventArgs</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_MediaInitializing" data-uid="Unosquare.FFME.MediaElement.MediaInitializing">MediaInitializing</h4>
+  <div class="markdown level1 summary"><p>Raised before the input stream of the media is initialized.
+Use this method to modify the input options.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event EventHandler&lt;MediaInitializingRoutedEventArgs&gt; MediaInitializing</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.EventHandler</span>&lt;<a class="xref" href="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.html">MediaInitializingRoutedEventArgs</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_MediaOpened" data-uid="Unosquare.FFME.MediaElement.MediaOpened">MediaOpened</h4>
+  <div class="markdown level1 summary"><p>Raised when the media is opened</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event RoutedEventHandler MediaOpened</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEventHandler</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_MediaOpening" data-uid="Unosquare.FFME.MediaElement.MediaOpening">MediaOpening</h4>
+  <div class="markdown level1 summary"><p>Raised before the input stream of the media is opened.
+Use this method to modify the media options.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event EventHandler&lt;MediaOpeningRoutedEventArgs&gt; MediaOpening</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.EventHandler</span>&lt;<a class="xref" href="Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.html">MediaOpeningRoutedEventArgs</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_MediaStateChanged" data-uid="Unosquare.FFME.MediaElement.MediaStateChanged">MediaStateChanged</h4>
+  <div class="markdown level1 summary"><p>Occurs when media state is changed</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event EventHandler&lt;MediaStateChangedRoutedEventArgs&gt; MediaStateChanged</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.EventHandler</span>&lt;<a class="xref" href="Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.html">MediaStateChangedRoutedEventArgs</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_MessageLogged" data-uid="Unosquare.FFME.MediaElement.MessageLogged">MessageLogged</h4>
+  <div class="markdown level1 summary"><p>Occurs when a logging message has been logged.
+This does not include FFmpeg messages.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event EventHandler&lt;MediaLogMessageEventArgs&gt; MessageLogged</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.EventHandler</span>&lt;<a class="xref" href="Unosquare.FFME.Events.MediaLogMessageEventArgs.html">MediaLogMessageEventArgs</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_PositionChanged" data-uid="Unosquare.FFME.MediaElement.PositionChanged">PositionChanged</h4>
+  <div class="markdown level1 summary"><p>Occurs when media position is changed</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event EventHandler&lt;PositionChangedRoutedEventArgs&gt; PositionChanged</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.EventHandler</span>&lt;<a class="xref" href="Unosquare.FFME.Events.PositionChangedRoutedEventArgs.html">PositionChangedRoutedEventArgs</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_PropertyChanged" data-uid="Unosquare.FFME.MediaElement.PropertyChanged">PropertyChanged</h4>
+  <div class="markdown level1 summary"><p>Multicast event for property change notifications.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event PropertyChangedEventHandler PropertyChanged</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">PropertyChangedEventHandler</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_RenderingAudio" data-uid="Unosquare.FFME.MediaElement.RenderingAudio">RenderingAudio</h4>
+  <div class="markdown level1 summary"><p>Occurs right before the audio is added to the audio buffer.
+You can update the bytes before they are enqueued.
+Ensure you handle this quickly before you get choppy audio.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event EventHandler&lt;RenderingAudioEventArgs&gt; RenderingAudio</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.EventHandler</span>&lt;<a class="xref" href="Unosquare.FFME.Events.RenderingAudioEventArgs.html">RenderingAudioEventArgs</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_RenderingSubtitles" data-uid="Unosquare.FFME.MediaElement.RenderingSubtitles">RenderingSubtitles</h4>
+  <div class="markdown level1 summary"><p>Occurs right before the subtitles are rendered.
+You can update the text.
+Ensure you handle this quickly before you get choppy subtitles.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event EventHandler&lt;RenderingSubtitlesEventArgs&gt; RenderingSubtitles</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.EventHandler</span>&lt;<a class="xref" href="Unosquare.FFME.Events.RenderingSubtitlesEventArgs.html">RenderingSubtitlesEventArgs</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_RenderingVideo" data-uid="Unosquare.FFME.MediaElement.RenderingVideo">RenderingVideo</h4>
+  <div class="markdown level1 summary"><p>Occurs right before the video is presented on the screen.
+You can update the pizels on the bitmap before it is rendered on the screen.
+Or you could take a screenshot.
+Ensure you handle this very quickly as it runs on the UI thread.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event EventHandler&lt;RenderingVideoEventArgs&gt; RenderingVideo</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.EventHandler</span>&lt;<a class="xref" href="Unosquare.FFME.Events.RenderingVideoEventArgs.html">RenderingVideoEventArgs</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_SeekingEnded" data-uid="Unosquare.FFME.MediaElement.SeekingEnded">SeekingEnded</h4>
+  <div class="markdown level1 summary"><p>Occurs when Seeking of packets was Ended</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event RoutedEventHandler SeekingEnded</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEventHandler</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_SeekingStarted" data-uid="Unosquare.FFME.MediaElement.SeekingStarted">SeekingStarted</h4>
+  <div class="markdown level1 summary"><p>Occurs when Seeking of packets was started</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event RoutedEventHandler SeekingStarted</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEventHandler</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <span class="xref">System.IDisposable</span>
+  </div>
+  <div>
+      <span class="xref">INotifyPropertyChanged</span>
+  </div>
+  <div>
+      <span class="xref">IUriContext</span>
+  </div>
+  <h3 id="seealso">See Also</h3>
+  <div class="seealso">
+      <div><span class="xref">System.IDisposable</span></div>
+  </div>
+<div id="disqus_thread"></div>
+<script>
+
+<h3>Comments</h3>
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://unolabs.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="doc" align="center">
+              <span class="small mobile-hide">
+                <img id="logo" class="doc-logo" src="../ffme.png" alt="">
+              </span>
+            </div>
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Copyright © 2017-2018 <a href="https://www.unosquare.com">Unosquare</a></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>
