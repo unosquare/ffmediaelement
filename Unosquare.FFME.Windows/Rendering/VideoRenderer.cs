@@ -116,7 +116,11 @@
         /// </summary>
         public void Stop()
         {
-            // placeholder
+            GuiContext.Current.EnqueueInvoke(() =>
+            {
+                // TODO: Formalize this
+                MediaElement.CaptionsView.ResetState();
+            });
         }
 
         /// <summary>
@@ -124,7 +128,11 @@
         /// </summary>
         public void Seek()
         {
-            // placeholder
+            GuiContext.Current.EnqueueInvoke(() =>
+            {
+                // TODO: Formalize this
+                MediaElement.CaptionsView.ResetState();
+            });
         }
 
         /// <summary>
@@ -200,6 +208,9 @@
             {
                 TargetBitmap = null;
                 MediaElement.VideoView.Source = null;
+
+                // TODO: Formalize this
+                MediaElement.CaptionsView.ResetState();
             });
         }
 

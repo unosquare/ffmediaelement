@@ -327,7 +327,7 @@
                 if (HasVideo)
                 {
                     CaptionsView.Width = VideoView.ActualWidth;
-                    CaptionsView.Height = VideoView.ActualHeight;
+                    CaptionsView.Height = VideoView.ActualHeight * .80; // FCC Safe Caption Area Dimensions
                     CaptionsView.Visibility = Visibility.Visible;
                 }
                 else

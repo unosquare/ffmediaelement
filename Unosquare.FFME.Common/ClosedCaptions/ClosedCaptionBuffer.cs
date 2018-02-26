@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME.ClosedCaptions
 {
-    using Shared;
     using System;
     using System.Collections.Generic;
 
@@ -10,8 +9,11 @@
     public sealed class ClosedCaptionBuffer
     {
         // TODO: Most likely we'll need to make this  thread-safe
+        // TODO: Sample videos with CCs: http://www.pixeltools.com/tech-tip-closed-captioning-existing.html
         private const int MaxCapaciity = 1024;
         private readonly List<ClosedCaptionPacket> Buffer = new List<ClosedCaptionPacket>(MaxCapaciity);
+
+        // private readonly SortedDictionary<long, ClosedCaptionPacket>
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClosedCaptionBuffer"/> class.
@@ -20,6 +22,11 @@
         {
             Clear();
         }
+
+        /// <summary>
+        /// Gets the log.
+        /// </summary>
+        public List<string> Log { get; } = new List<string>(2048);
 
         #region Properties
 
@@ -56,6 +63,11 @@
         /// <param name="packets">The packets.</param>
         public void Add(ICollection<ClosedCaptionPacket> packets)
         {
+            foreach (var packet in packets)
+            {
+                Log.Add(packet.ToString());
+            }
+
             if (packets == null || packets.Count <= 0) return;
             while (Buffer.Count + packets.Count > MaxCapaciity)
                 Buffer.RemoveAt(0);
@@ -67,7 +79,7 @@
             {
                 if (packet.FieldChannel > 0)
                 {
-                    packet.Channel = ComputeChannel(packet.FieldParity, packet.FieldChannel);
+                    packet.Channel = ClosedCaptionPacket.ComputeChannel(packet.FieldParity, packet.FieldChannel);
                     continue;
                 }
 
@@ -84,7 +96,7 @@
                     previousPacketIndex -= 1;
                 }
 
-                packet.Channel = ComputeChannel(packet.FieldParity, previousPacket.FieldChannel);
+                packet.Channel = ClosedCaptionPacket.ComputeChannel(packet.FieldParity, previousPacket.FieldChannel);
             }
         }
 
@@ -101,7 +113,7 @@
                 var currentPacket = Buffer[packetIndex];
                 if (currentPacket.Timestamp <= upTo)
                 {
-                    result.Add(currentPacket);
+                    result.Insert(0, currentPacket);
                     Buffer.RemoveAt(packetIndex);
                 }
             }
@@ -129,23 +141,6 @@
             }
 
             return channelPackets;
-        }
-
-        /// <summary>
-        /// Computes the CC channel.
-        /// </summary>
-        /// <param name="fieldPartity">The field partity.</param>
-        /// <param name="fieldChannel">The field channel.</param>
-        /// <returns>The CC channel according to the parity and channel</returns>
-        private static ClosedCaptionChannel ComputeChannel(int fieldPartity, int fieldChannel)
-        {
-            fieldPartity = fieldPartity.Clamp(1, 2);
-            fieldChannel = fieldPartity.Clamp(1, 2);
-
-            if (fieldPartity == 1)
-                return fieldChannel == 1 ? ClosedCaptionChannel.CC1 : ClosedCaptionChannel.CC2;
-            else
-                return fieldChannel == 1 ? ClosedCaptionChannel.CC3 : ClosedCaptionChannel.CC4;
         }
 
         #endregion

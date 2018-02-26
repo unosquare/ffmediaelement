@@ -8,7 +8,7 @@
         /// <summary>
         /// No channel specified -- use previous
         /// </summary>
-        None = 0,
+        CCP = 0,
 
         /// <summary>
         /// Field 1, Channel 1

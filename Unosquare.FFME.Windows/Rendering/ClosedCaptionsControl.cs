@@ -34,6 +34,9 @@
         private ClosedCaptionChannel m_Channel = ClosedCaptionChannel.CC1; // TODO: maybe change channel to a dependency property in the MediaElement?
         private ClosedCaptionPacket LastRenderedPacket = null;
 
+        // TODO: Remove -- this is for debugging only
+        private List<string> Log = new List<string>(4096);
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ClosedCaptionsControl"/> class.
         /// </summary>
@@ -133,7 +136,6 @@
 
             LastRenderedPacket = null;
             Visibility = Visibility.Collapsed;
-
         }
 
         /// <summary>
@@ -157,6 +159,7 @@
                     {
                         // According to section D.2 Transmission of control code pairs, control codes are transmitted twice
                         // but we don't need to run them twice.
+                        // TODO: This ia kind of a bad place for this code we might need to implement this in the CC buffer itself.
                         if (cc.D0 == LastRenderedPacket.D0 && cc.D0 >= 0x10 && cc.D0 <= 0x1F)
                             continue;
                     }
@@ -172,6 +175,7 @@
                         case CCPacketType.Preamble:
                             {
                                 RowIndex = cc.PreambleRow - 1;
+                                ClearLine(RowIndex);
                                 ColumnIndex = 0;
                                 break;
                             }
@@ -195,11 +199,13 @@
 
                         default:
                             {
+                                System.Diagnostics.Debug.WriteLine($"CC Packet not rendered: {cc}");
                                 break;
                             }
                     }
 
                     LastRenderedPacket = cc;
+                    Log.Add(cc.ToString());
                 }
             }
         }
@@ -301,18 +307,38 @@
             switch (c.MiscCommand)
             {
                 case CCMiscCommandType.RollUp2:
+                    {
+                        // TODO: B.5 Base Row Implementation
+                        ShiftTextUp(RowIndex - 2);
+                        ColumnIndex = 0;
+                        RowIndex = 14;
+                        break;
+                    }
+
                 case CCMiscCommandType.RollUp3:
+                    {
+                        // TODO: B.5 Base Row Implementation
+                        ShiftTextUp(10);
+                        ColumnIndex = 0;
+                        RowIndex = 14;
+                        break;
+                    }
+
                 case CCMiscCommandType.RollUp4:
                     {
-                        ShiftTextUp();
-                        RowIndex -= 1;
+                        // TODO: B.5 Base Row Implementation
+                        ShiftTextUp(9);
+                        ColumnIndex = 0;
+                        RowIndex = 14;
                         break;
                     }
 
                 case CCMiscCommandType.NewLine:
                     {
                         ColumnIndex = 0;
+                        ShiftTextUp(RowIndex - 1);
                         RowIndex += 1;
+                        ClearLine(RowIndex);
                         break;
                     }
 
@@ -325,9 +351,7 @@
 
                 case CCMiscCommandType.ClearLine:
                     {
-                        for (ColumnIndex = 0; ColumnIndex < ColumnCount; ColumnIndex++)
-                            ClearCurrentChar();
-
+                        ClearLine(RowIndex);
                         ColumnIndex = 0;
                         break;
                     }
@@ -335,25 +359,27 @@
                 case CCMiscCommandType.ClearBuffer:
                 case CCMiscCommandType.ClearScreen:
                     {
-                        for (var ri = 0; ri < RowCount; ri++)
-                        {
-                            for (var ci = 0; ci < ColumnCount; ci++)
-                            {
-                                SetChar(ri, ci, string.Empty);
-                            }
-                        }
-
+                        ClearScreen();
+                        RowIndex = 0;
+                        ColumnIndex = 0;
                         break;
                     }
 
+                case CCMiscCommandType.Resume:
+                    {
+                        ClearLine(RowIndex);
+                        ColumnIndex = 0;
+                        break;
+                    }
                 default:
                     {
+                        System.Diagnostics.Debug.WriteLine($"CC Packet not rendered: {c}");
                         break;
                     }
             }
         }
 
-        private void ShiftTextUp()
+        private void ShiftTextUp(int deleteStartRowIndex)
         {
             var firstRowTextBlocks = CharacterLookup[0].Values.ToArray();
 
@@ -374,10 +400,27 @@
                 firstRowTextBlocks[columnIndex].Text = string.Empty;
             }
 
-            // Simultating Rollup2 style (rollup 2 means 2 rows of text will be active)
-            for (var columnIndex = 0; columnIndex < ColumnCount; columnIndex++)
+            // TODO: Simultating Rollup2 style (rollup 2 means 2 rows of text will be active)
+            for (var rowIndex = deleteStartRowIndex; rowIndex >= 0; rowIndex--)
             {
-                CharacterLookup[RowIndex - 2][columnIndex].Text = string.Empty;
+                for (var columnIndex = 0; columnIndex < ColumnCount; columnIndex++)
+                {
+                    CharacterLookup[rowIndex][columnIndex].Text = string.Empty;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Clears the screen.
+        /// </summary>
+        private void ClearScreen()
+        {
+            for (var ri = 0; ri < RowCount; ri++)
+            {
+                for (var ci = 0; ci < ColumnCount; ci++)
+                {
+                    SetChar(ri, ci, string.Empty);
+                }
             }
         }
 
@@ -398,6 +441,17 @@
             var textChar = string.IsNullOrEmpty(text) ? string.Empty : text;
             textChar = text.Length > 1 ? text.Substring(0, 1) : text;
             CharacterLookup[rowIndex][columnIndex].Text = textChar;
+        }
+
+        private void ClearLine(int rowIndex)
+        {
+            for (var colIndex = 0; colIndex < ColumnCount; colIndex++)
+                ClearChar(rowIndex, colIndex);
+        }
+
+        private void ClearChar(int rowIndex, int columnIndex)
+        {
+            CharacterLookup[rowIndex][columnIndex].Text = string.Empty;
         }
 
         private void SetCurrentChar(string text)
