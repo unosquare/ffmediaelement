@@ -49,12 +49,12 @@
 
             Media.RenderingVideo += (s, e) =>
             {
-                if (saveClosedCaptions && e.ClosedCaptions.All.Count > 0)
+                if (saveClosedCaptions && e.ClosedCaptions.Count > 0)
                 {
                     var byteList = new List<byte>(4096);
                     byteList.AddRange(BitConverter.GetBytes(e.StartTime.Ticks));
-                    byteList.AddRange(BitConverter.GetBytes(e.ClosedCaptions.All.Count * 3));
-                    foreach (var cc in e.ClosedCaptions.All)
+                    byteList.AddRange(BitConverter.GetBytes(e.ClosedCaptions.Count * 3));
+                    foreach (var cc in e.ClosedCaptions)
                         byteList.AddRange(cc.Data);
 
                     using (var stream = new FileStream(closedCaptionsFile, FileMode.Append))

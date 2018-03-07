@@ -2,6 +2,7 @@
 {
     using ClosedCaptions;
     using System;
+    using System.Collections.ObjectModel;
     using System.Runtime.InteropServices;
 
     /// <summary>
@@ -91,7 +92,7 @@
         /// <summary>
         /// Gets the closed caption packets for this video block.
         /// </summary>
-        public ClosedCaptionCollection ClosedCaptions { get; internal set; }
+        public ReadOnlyCollection<ClosedCaptionPacket> ClosedCaptions { get; internal set; }
 
         /// <summary>
         /// The picture buffer length of the last allocated buffer

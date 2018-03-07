@@ -72,6 +72,7 @@
     <Compile Include="Platform\GuiTimer.cs" />
     <Compile Include="Platform\PropertyMapper.cs" />
     <Compile Include="Platform\GuiContextType.cs" />
+    <Compile Include="Rendering\ClosedCaptionsControl.cs" />
     <Compile Include="Subtitles.cs" />
     <Compile Include="Platform\WindowsMediaConnector.cs" />
     <Compile Include="Platform\WindowsNativeMethods.cs" />
