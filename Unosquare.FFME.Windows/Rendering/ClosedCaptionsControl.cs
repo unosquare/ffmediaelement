@@ -2,7 +2,6 @@
 {
     using ClosedCaptions;
     using Platform;
-    using Primitives;
     using Shared;
     using System.Collections.Generic;
     using System.ComponentModel;
@@ -12,7 +11,8 @@
     using System.Windows.Media;
 
     /// <summary>
-    /// A control that renders Closed Captions
+    /// A control that renders Closed Captions.
+    /// This is still WIP
     /// </summary>
     /// <seealso cref="Viewbox" />
     internal class ClosedCaptionsControl : Viewbox
@@ -26,16 +26,12 @@
 
         private readonly Dictionary<int, Dictionary<int, TextBlock>> CharacterLookup = new Dictionary<int, Dictionary<int, TextBlock>>(RowCount);
         private readonly FontFamily FontFamily = new FontFamily("Lucida Console");
-        private ISyncLocker StateLock = SyncLockerFactory.Create(useSlim: true);
         private Grid CaptionsGrid = null;
 
         private int m_RowIndex = 0;
         private int m_ColumnIndex = 0;
         private ClosedCaptionChannel m_Channel = ClosedCaptionChannel.CC1; // TODO: maybe change channel to a dependency property in the MediaElement?
-        private ClosedCaptionPacket LastRenderedPacket = null;
-
-        // TODO: Remove -- this is for debugging only
-        private List<string> Log = new List<string>(4096);
+        private SortedDictionary<long, string> WriteTags = new SortedDictionary<long, string>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClosedCaptionsControl"/> class.
@@ -51,7 +47,9 @@
             UseLayoutRounding = true;
             SnapsToDevicePixels = true;
             Channel = ClosedCaptionChannel.CC1;
-            Loaded += (s, e) => InitializeComponent();
+
+            // TODO: Re-enable when implementation continues.
+            // Loaded += (s, e) => InitializeComponent();
         }
 
         /// <summary>
@@ -61,17 +59,14 @@
         {
             get
             {
-                using (StateLock.AcquireReaderLock()) { return m_RowIndex; }
+                return m_RowIndex;
             }
 
             private set
             {
-                using (StateLock.AcquireWriterLock())
-                {
-                    if (value >= RowCount) value = RowCount - 1;
-                    if (value < 0) value = 0;
-                    m_RowIndex = value;
-                }
+                if (value >= RowCount) value = RowCount - 1;
+                if (value < 0) value = 0;
+                m_RowIndex = value;
             }
         }
 
@@ -82,17 +77,14 @@
         {
             get
             {
-                using (StateLock.AcquireReaderLock()) { return m_ColumnIndex; }
+                return m_ColumnIndex;
             }
 
             private set
             {
-                using (StateLock.AcquireWriterLock())
-                {
-                    if (value >= ColumnCount) value = ColumnCount - 1;
-                    if (value < 0) value = 0;
-                    m_ColumnIndex = value;
-                }
+                if (value >= ColumnCount) value = ColumnCount - 1;
+                if (value < 0) value = 0;
+                m_ColumnIndex = value;
             }
         }
 
@@ -103,19 +95,12 @@
         {
             get
             {
-                using (StateLock.AcquireReaderLock())
-                {
-                    return m_Channel;
-                }
+                return m_Channel;
             }
 
             set
             {
-                using (StateLock.AcquireWriterLock())
-                {
-                    m_Channel = value;
-                    LastRenderedPacket = null;
-                }
+                m_Channel = value;
             }
         }
 
@@ -124,18 +109,17 @@
         /// </summary>
         public void ResetState()
         {
-            RowIndex = 0;
-            ColumnIndex = 0;
-            for (var r = 0; r < RowCount; r++)
-            {
-                for (var c = 0; c < ColumnCount; c++)
-                {
-                    SetChar(r, c, string.Empty);
-                }
-            }
-
-            LastRenderedPacket = null;
-            Visibility = Visibility.Collapsed;
+            // RowIndex = 0;
+            // ColumnIndex = 0;
+            // for (var r = 0; r < RowCount; r++)
+            // {
+            //    for (var c = 0; c < ColumnCount; c++)
+            //    {
+            //        SetChar(r, c, string.Empty);
+            //    }
+            // }
+            //
+            // Visibility = Visibility.Collapsed;
         }
 
         /// <summary>
@@ -145,69 +129,30 @@
         /// <param name="mediaCore">The media core.</param>
         public void RenderPacket(VideoBlock currentBlock, MediaEngine mediaCore)
         {
-            var channelPackets = mediaCore.ClosedCaptions.Dequeue(currentBlock.StartTime, Channel);
-
-            if (channelPackets.Count > 0 && Visibility != Visibility.Visible)
-                Visibility = Visibility.Visible;
-
-            using (StateLock.AcquireWriterLock())
-            {
-                // TODO: complete implementation
-                foreach (var cc in channelPackets)
-                {
-                    if (LastRenderedPacket != null)
-                    {
-                        // According to section D.2 Transmission of control code pairs, control codes are transmitted twice
-                        // but we don't need to run them twice.
-                        // TODO: This ia kind of a bad place for this code we might need to implement this in the CC buffer itself.
-                        if (cc.D0 == LastRenderedPacket.D0 && cc.D0 >= 0x10 && cc.D0 <= 0x1F)
-                            continue;
-                    }
-
-                    switch (cc.PacketType)
-                    {
-                        case CCPacketType.Text:
-                            {
-                                RenderTextPacket(cc);
-                                break;
-                            }
-
-                        case CCPacketType.Preamble:
-                            {
-                                RowIndex = cc.PreambleRow - 1;
-                                ClearLine(RowIndex);
-                                ColumnIndex = 0;
-                                break;
-                            }
-
-                        case CCPacketType.Tabs:
-                            {
-                                for (var t = 1; t <= cc.Tabs; t++)
-                                {
-                                    SetCurrentChar(" ");
-                                    ColumnIndex++;
-                                }
-
-                                break;
-                            }
-
-                        case CCPacketType.MiscCommand:
-                            {
-                                RenderMiscCommandPacket(cc);
-                                break;
-                            }
-
-                        default:
-                            {
-                                System.Diagnostics.Debug.WriteLine($"CC Packet not rendered: {cc}");
-                                break;
-                            }
-                    }
-
-                    LastRenderedPacket = cc;
-                    Log.Add(cc.ToString());
-                }
-            }
+            // var captionsPackets = new List<ClosedCaptionPacket>(1024);
+            // var block = currentBlock;
+            // while (block != null)
+            // {
+            //    captionsPackets.AddRange(block.ClosedCaptions);
+            //    block = mediaCore.Blocks[currentBlock.MediaType].Next(block) as VideoBlock;
+            // }
+            // foreach (var packet in captionsPackets)
+            // {
+            //    if (WriteTags.ContainsKey(packet.Timestamp.Ticks))
+            //    {
+            //        if (WriteTags[packet.Timestamp.Ticks] != packet.ToString())
+            //        {
+            //            // packet collision
+            //        }
+            //    }
+            //    if (WriteTags.ContainsKey(packet.Timestamp.Ticks))
+            //        continue;
+            //    WriteTags[packet.Timestamp.Ticks] = packet.ToString();
+            // }
+            // if (WriteTags.Count >= 250)
+            // {
+            //     var output = string.Join("\r\n", WriteTags.Values);
+            // }
         }
 
         /// <summary>
@@ -371,6 +316,7 @@
                         ColumnIndex = 0;
                         break;
                     }
+
                 default:
                     {
                         System.Diagnostics.Debug.WriteLine($"CC Packet not rendered: {c}");

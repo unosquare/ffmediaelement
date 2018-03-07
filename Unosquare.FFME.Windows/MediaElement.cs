@@ -250,7 +250,7 @@
         /// <param name="source">The source.</param>
         /// <param name="sourcePath">The source path.</param>
         /// <param name="mode">The mode.</param>
-        private static void BindProperty(
+        internal static void BindProperty(
             DependencyObject target, DependencyProperty targetProperty, DependencyObject source, string sourcePath, BindingMode mode)
         {
             var binding = new Binding
@@ -298,11 +298,11 @@
             BindProperty(VideoView, VerticalAlignmentProperty, this, nameof(VerticalAlignment), BindingMode.OneWay);
 
             // Setup the Subtitle View
-            SubtitlesView.Padding = new Thickness(5, 0, 5, 0);
-            SubtitlesView.FontSize = 58;
-            SubtitlesView.FontFamily = new FontFamily("Calibri");
+            SubtitlesView.FontSize = 98;
+            SubtitlesView.Padding = new Thickness(0);
+            SubtitlesView.FontFamily = new FontFamily("Microsoft Sans Serif, Lucida Console, Calibri");
             SubtitlesView.FontStretch = FontStretches.Condensed;
-            SubtitlesView.FontWeight = FontWeights.SemiBold;
+            SubtitlesView.FontWeight = FontWeights.Bold;
             SubtitlesView.TextOutlineWidth = new Thickness(4);
             SubtitlesView.TextForeground = Brushes.LightYellow;
 
@@ -337,10 +337,10 @@
                     CaptionsView.Visibility = Visibility.Collapsed;
                 }
 
-                // Position the Subtitles
+                // Compute the position of the subtitles view based on the Video View
                 var videoViewPosition = VideoView.TransformToAncestor(ContentGrid).Transform(new Point(0, 0));
-                var targetHeight = VideoView.ActualHeight / 4d;
-                var targetWidth = VideoView.ActualWidth;
+                var targetHeight = VideoView.ActualHeight / 9d;
+                var targetWidth = VideoView.ActualWidth * 0.90;
 
                 if (SubtitlesView.Height != targetHeight)
                     SubtitlesView.Height = targetHeight;
@@ -349,7 +349,7 @@
                     SubtitlesView.Width = targetWidth;
 
                 var verticalOffset = ContentGrid.ActualHeight - (videoViewPosition.Y + VideoView.ActualHeight);
-                var verticalOffsetPadding = VideoView.ActualHeight / 20;
+                var verticalOffsetPadding = targetHeight * 0.75d;
                 var marginBottom = verticalOffset + verticalOffsetPadding;
 
                 if (SubtitlesView.Margin.Bottom != marginBottom)

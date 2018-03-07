@@ -69,7 +69,7 @@
         /// <summary>
         /// The default font size
         /// </summary>
-        private const double DefaultFontSize = 58;
+        private const double DefaultFontSize = 56;
 
         private const FrameworkPropertyMetadataOptions AffectsMeasureAndRender
             = FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender;
@@ -110,7 +110,7 @@
         /// <summary>
         /// The container for the outlined text blocks
         /// </summary>
-        private readonly Viewbox Container = new Viewbox();
+        private readonly Viewbox Container = new Viewbox { Name = nameof(Container) };
 
         /// <summary>
         /// A Layout transform to condense text.
@@ -125,7 +125,11 @@
         public SubtitlesControl()
             : base()
         {
-            var layoutElement = new Grid();
+            var layoutElement = new Grid
+            {
+                Name = $"{nameof(SubtitlesControl)}TextGrid"
+            };
+
             Container.Child = layoutElement;
 
             for (var i = (int)Block.Bottom; i >= (int)Block.Foreground; i--)
@@ -136,7 +140,7 @@
                     TextWrapping = TextWrapping.NoWrap,
                     TextAlignment = TextAlignment.Center,
                     HorizontalAlignment = HorizontalAlignment.Stretch,
-                    VerticalAlignment = VerticalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Stretch,
                     LayoutTransform = CondenseTransform
                 };
 
@@ -161,6 +165,8 @@
             // Add the container as the content of the control.
             Container.Stretch = Stretch.Uniform;
             Container.StretchDirection = StretchDirection.DownOnly;
+            Container.VerticalAlignment = VerticalAlignment.Stretch;
+            Container.HorizontalAlignment = HorizontalAlignment.Stretch;
             Content = Container;
             Height = 0;
 
