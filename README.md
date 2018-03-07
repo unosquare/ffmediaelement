@@ -12,7 +12,7 @@
 
 ## Announcements
 - If you would like to support this project, you can show your appreciation via [PayPal.Me](https://www.paypal.me/mariodivece/50usd)
-- Current Status: (2018-02-19) - Release 3.4.210 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
+- Current Status: (2018-03-07) - Release 3.4.220 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
 - NuGet Package available here: https://www.nuget.org/packages/FFME.Windows/
 - FFmpeg Version: <a href="http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4.1-win32-shared.zip">3.4.1 (32-bit)</a>
 
@@ -70,7 +70,7 @@ A high-level diagram is provided as additional reference below.
 
 - I am planning the next version of this control, `Floyd`. See the **Issues** section.
 - Working on Hardware acceleration. Maybe CUDA for highest compatibility.
-- Starting version 3.4.210 FFME supports opening capture devices. See examples below and [issue #48](https://github.com/unosquare/ffmediaelement/issues/48)
+- FFME supports opening capture devices. See examples below and [issue #48](https://github.com/unosquare/ffmediaelement/issues/48)
 ```
 device://dshow/?audio=Microphone (Vengeance 2100)
 device://gdigrab?title=Command Prompt
