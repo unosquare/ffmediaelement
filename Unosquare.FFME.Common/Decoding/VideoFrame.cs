@@ -125,7 +125,7 @@
 
         #endregion
 
-        #region IDisposable Support
+        #region Methods
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
@@ -160,6 +160,5 @@
         }
 
         #endregion
-
     }
 }

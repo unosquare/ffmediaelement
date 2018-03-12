@@ -61,6 +61,10 @@
 
             FrameWidth = Stream->codec->width;
             FrameHeight = Stream->codec->height;
+
+            // Retrieve Matrix Rotation
+            var displayMatrixRef = ffmpeg.av_stream_get_side_data(Stream, AVPacketSideDataType.AV_PKT_DATA_DISPLAYMATRIX, null);
+            DisplayRotation = ComputeRotation(displayMatrixRef);
         }
 
         #endregion
@@ -95,6 +99,11 @@
         /// Gets the height of the picture frame.
         /// </summary>
         public int FrameHeight { get; }
+
+        /// <summary>
+        /// Gets the display rotation.
+        /// </summary>
+        public double DisplayRotation { get; }
 
         #endregion
 
@@ -323,6 +332,65 @@
                 case AVPixelFormat.AV_PIX_FMT_YUVJ444P: return AVPixelFormat.AV_PIX_FMT_YUV444P;
                 default: return currentFormat;
             }
+        }
+
+        /// <summary>
+        /// Computes the Frame rotation property from side data.
+        /// </summary>
+        /// <param name="matrixArrayRef">The matrix array reference.</param>
+        /// <returns>The angle to rotate</returns>
+        private static double ComputeRotation(byte* matrixArrayRef)
+        {
+            const int displayMatrixLength = 9;
+
+            if (matrixArrayRef == null) return 0;
+
+            var matrix = new List<int>(displayMatrixLength);
+
+            var rotation = default(double);
+            var scale = new double[2];
+
+            for (var i = 0; i < displayMatrixLength * sizeof(int); i += sizeof(int))
+            {
+                matrix.Add(BitConverter.ToInt32(new byte[]
+                {
+                    matrixArrayRef[i + 0],
+                    matrixArrayRef[i + 1],
+                    matrixArrayRef[i + 2],
+                    matrixArrayRef[i + 3]
+                }, 0));
+            }
+
+            // port of av_display_rotation_get
+            {
+                scale[0] = ComputeHypotenuse(Convert.ToDouble(matrix[0]), Convert.ToDouble(matrix[3]));
+                scale[1] = ComputeHypotenuse(Convert.ToDouble(matrix[1]), Convert.ToDouble(matrix[4]));
+
+                scale[0] = scale[0] == 0 ? 1 : scale[0];
+                scale[1] = scale[1] == 0 ? 1 : scale[1];
+
+                rotation = Math.Atan2(
+                    Convert.ToDouble(matrix[1]) / scale[1],
+                    Convert.ToDouble(matrix[0]) / scale[0]) * 180 / Math.PI;
+            }
+
+            // port of double get_rotation(AVStream *st)
+            {
+                rotation -= 360 * Math.Floor((rotation / 360) + (0.9 / 360));
+            }
+
+            return rotation;
+        }
+
+        /// <summary>
+        /// Computes the hypotenuse (right-angle triangles only).
+        /// </summary>
+        /// <param name="a">a.</param>
+        /// <param name="b">The b.</param>
+        /// <returns>The length of the hypotenuse</returns>
+        private static double ComputeHypotenuse(double a, double b)
+        {
+            return Math.Sqrt((a * a) + (b * b));
         }
 
         /// <summary>

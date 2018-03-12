@@ -229,7 +229,7 @@
                 // Signal an update on the rendering surface
                 TargetBitmap?.AddDirtyRect(bitmapData.UpdateRect);
                 TargetBitmap?.Unlock();
-                ApplyScaleTransform(block);
+                ApplyLayoutTransforms(block);
             }
             catch (Exception ex)
             {
@@ -320,21 +320,33 @@
         /// </summary>
         /// <param name="b">The b.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ApplyScaleTransform(VideoBlock b)
+        private void ApplyLayoutTransforms(VideoBlock b)
         {
-            var scaleTransform = MediaElement.VideoView.LayoutTransform as ScaleTransform;
+            var layoutTransforms = MediaElement.VideoView.LayoutTransform as TransformGroup;
+            ScaleTransform scaleTransform = null;
+            RotateTransform rotateTransform = null;
+
+            if (layoutTransforms == null)
+            {
+                layoutTransforms = new TransformGroup();
+                scaleTransform = new ScaleTransform(1, 1);
+                rotateTransform = new RotateTransform(0, 0.5, 0.5);
+                layoutTransforms.Children.Add(scaleTransform);
+                layoutTransforms.Children.Add(rotateTransform);
+
+                MediaElement.VideoView.LayoutTransform = layoutTransforms;
+            }
+            else
+            {
+                scaleTransform = layoutTransforms.Children[0] as ScaleTransform;
+                rotateTransform = layoutTransforms.Children[1] as RotateTransform;
+            }
 
             // Process Aspect Ratio according to block.
             if (b.AspectWidth != b.AspectHeight)
             {
                 var scaleX = b.AspectWidth > b.AspectHeight ? Convert.ToDouble(b.AspectWidth) / Convert.ToDouble(b.AspectHeight) : 1d;
                 var scaleY = b.AspectHeight > b.AspectWidth ? Convert.ToDouble(b.AspectHeight) / Convert.ToDouble(b.AspectWidth) : 1d;
-
-                if (scaleTransform == null)
-                {
-                    scaleTransform = new ScaleTransform(scaleX, scaleY);
-                    MediaElement.VideoView.LayoutTransform = scaleTransform;
-                }
 
                 if (scaleTransform.ScaleX != scaleX || scaleTransform.ScaleY != scaleY)
                 {
@@ -344,12 +356,16 @@
             }
             else
             {
-                if (scaleTransform != null && (scaleTransform.ScaleX != 1d || scaleTransform.ScaleY != 1d))
+                if (scaleTransform.ScaleX != 1d || scaleTransform.ScaleY != 1d)
                 {
                     scaleTransform.ScaleX = 1d;
                     scaleTransform.ScaleY = 1d;
                 }
             }
+
+            // Process Rotation
+            if (MediaCore.State.VideoRotation != rotateTransform.Angle)
+                rotateTransform.Angle = MediaCore.State.VideoRotation;
         }
     }
 }

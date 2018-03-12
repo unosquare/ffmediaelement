@@ -161,6 +161,11 @@
         public ulong VideoBitrate => Parent.Container?.Components.Video?.Bitrate ?? default;
 
         /// <summary>
+        /// Gets the video display rotation.
+        /// </summary>
+        public double VideoRotation => Parent.Container?.Components.Video?.DisplayRotation ?? default;
+
+        /// <summary>
         /// Returns the natural width of the media in the video.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
