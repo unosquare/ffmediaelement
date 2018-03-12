@@ -1579,6 +1579,18 @@ references:
   commentId: Overload:Unosquare.FFME.MediaElement.VideoHardwareDecoder
   fullName: Unosquare.FFME.MediaElement.VideoHardwareDecoder
   nameWithType: MediaElement.VideoHardwareDecoder
+- uid: Unosquare.FFME.MediaElement.VideoRotation
+  name: VideoRotation
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoRotation
+  commentId: P:Unosquare.FFME.MediaElement.VideoRotation
+  fullName: Unosquare.FFME.MediaElement.VideoRotation
+  nameWithType: MediaElement.VideoRotation
+- uid: Unosquare.FFME.MediaElement.VideoRotation*
+  name: VideoRotation
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoRotation_
+  commentId: Overload:Unosquare.FFME.MediaElement.VideoRotation
+  fullName: Unosquare.FFME.MediaElement.VideoRotation
+  nameWithType: MediaElement.VideoRotation
 - uid: Unosquare.FFME.MediaElement.VideoSmtpeTimecode
   name: VideoSmtpeTimecode
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoSmtpeTimecode
