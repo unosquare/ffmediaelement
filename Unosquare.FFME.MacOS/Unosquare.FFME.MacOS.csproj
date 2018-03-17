@@ -73,13 +73,13 @@
     <Reference Include="netstandard" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Unosquare.FFME.Common\Unosquare.FFME.Common.csproj">
       <Project>{76b2db70-c8ab-4517-8afb-051383e496b7}</Project>
       <Name>Unosquare.FFME.Common</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
 </Project>

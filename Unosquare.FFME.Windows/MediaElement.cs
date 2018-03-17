@@ -46,11 +46,6 @@
         private Uri m_BaseUri = null;
 
         /// <summary>
-        /// Holds the Media Engine
-        /// </summary>
-        private MediaEngine m_MediaCore;
-
-        /// <summary>
         /// TO detect redundant calls
         /// </summary>
         private bool IsDisposed = false;
@@ -154,11 +149,7 @@
         /// Provides access to the underlying media engine driving this control.
         /// This property is intender for advance usages only.
         /// </summary>
-        internal MediaEngine MediaCore
-        {
-            get { return m_MediaCore; }
-            private set { m_MediaCore = value; }
-        }
+        internal MediaEngine MediaCore { get; private set; } = null;
 
         /// <summary>
         /// This is the image that holds video bitmaps
