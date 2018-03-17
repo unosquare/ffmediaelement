@@ -112,7 +112,13 @@
         /// </summary>
         public void RunSynchronously()
         {
-            StartAsync().GetAwaiter().GetResult();
+            try
+            {
+                StartAsync().GetAwaiter().GetResult();
+            }
+            catch (TaskCanceledException)
+            {
+            }
         }
 
         /// <summary>
