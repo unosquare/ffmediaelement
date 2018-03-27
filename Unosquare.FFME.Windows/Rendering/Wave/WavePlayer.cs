@@ -271,7 +271,16 @@
         /// <param name="alsoManaged">True if called from <see>Dispose</see></param>
         protected void Dispose(bool alsoManaged)
         {
-            Stop();
+            try
+            {
+                Stop();
+            }
+            catch (Exception e)
+            {
+                // Dispose() and Finalize() methods should not throw exception
+                // WaveInterop.NativeMethods.waveOutReset(DeviceHandle) throws MmException if DeviceHandle is invalid
+                Renderer?.MediaCore?.Log(MediaLogMessageType.Error, $"{nameof(WavePlayer)} disposing. {e.Message}. Stack Trace:\r\n{e.StackTrace}");
+            }
 
             if (alsoManaged)
                 DisposeBuffers();
