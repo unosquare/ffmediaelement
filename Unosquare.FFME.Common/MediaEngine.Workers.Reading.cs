@@ -56,7 +56,14 @@
                     while (CanReadMorePackets && ShouldReadMorePackets && IsTaskCancellationPending == false)
                     {
                         // Perform a packet read. t will hold the packet type.
-                        t = mediaContainer.Read();
+                        try
+                        {
+                           t = mediaContainer.Read();
+                        } 
+                        catch (MediaContainerException)
+                        {
+                           continue;
+                        }
 
                         // Discard packets that we don't need (i.e. MediaType == None)
                         if (mediaContainer.Components.MediaTypes.HasMediaType(t) == false)
