@@ -51,12 +51,14 @@
                 {
                     if (m_OpenCommand == null)
                     {
-                        m_OpenCommand = new DelegateCommand(a =>
+                        m_OpenCommand = new DelegateCommand(async a =>
                         {
                             try
                             {
                                 var target = new Uri(a as string);
-                                Current.MediaElement.Source = target;
+
+                                // Current.MediaElement.Source = target; // you can also set the source to the Uri to open
+                                await Current.MediaElement.Open(target);
                             }
                             catch (Exception ex)
                             {
@@ -71,6 +73,30 @@
                     }
 
                     return m_OpenCommand;
+                }
+            }
+
+            /// <summary>
+            /// Gets the close command.
+            /// </summary>
+            /// <value>
+            /// The close command.
+            /// </value>
+            public DelegateCommand CloseCommand
+            {
+                get
+                {
+                    if (m_CloseCommand == null)
+                    {
+                        m_CloseCommand = new DelegateCommand(async (o) =>
+                        {
+                            // Media.Dispose(); // Test the Dispose method uncommenting this line
+                            // Current.MediaElement.Source = null; // You can also set the source to null to close.
+                            await Current.MediaElement.Close();
+                        });
+                    }
+
+                    return m_CloseCommand;
                 }
             }
 
@@ -122,29 +148,6 @@
                         m_StopCommand = new DelegateCommand(async o => { await Current.MediaElement.Stop(); });
 
                     return m_StopCommand;
-                }
-            }
-
-            /// <summary>
-            /// Gets the close command.
-            /// </summary>
-            /// <value>
-            /// The close command.
-            /// </value>
-            public DelegateCommand CloseCommand
-            {
-                get
-                {
-                    if (m_CloseCommand == null)
-                    {
-                        m_CloseCommand = new DelegateCommand(async (o) =>
-                        {
-                            // Media.Dispose(); // Test the Dispose method uncommenting this line
-                            await Current.MediaElement.Close();
-                        });
-                    }
-
-                    return m_CloseCommand;
                 }
             }
 

@@ -266,10 +266,20 @@ namespace Unosquare.FFME
         private static async void OnSourcePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var element = d as MediaElement;
+
             if (e.NewValue == null && e.OldValue != null && element.IsOpen)
+            {
                 await element.Close();
+            }
             else if (e.NewValue != null && element.IsOpening == false && e.NewValue is Uri uri)
-                await element?.MediaCore?.Open(e.NewValue as Uri);
+            {
+                // Skip change actions if we are currently opening via the Open command
+                if (element.IsOpeningViaCommand.Value == false)
+                    await element?.MediaCore?.Open(e.NewValue as Uri);
+
+                // Reset the opening via command.
+                element.IsOpeningViaCommand.Value = false;
+            }
         }
 
         #endregion

@@ -3,6 +3,7 @@
     using Events;
     using Platform;
     using Rendering;
+    using Primitives;
     using System;
     using System.ComponentModel;
     using System.Threading.Tasks;
@@ -36,6 +37,12 @@
             = FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender;
 
         /// <summary>
+        /// Signals whether the open task was called via the open command
+        /// so that the source property changing handler does not re-run the open command.
+        /// </summary>
+        private AtomicBoolean IsOpeningViaCommand = new AtomicBoolean(false);
+
+        /// <summary>
         /// The allow content change flag
         /// </summary>
         private bool AllowContentChange = false;
@@ -48,7 +55,7 @@
         /// <summary>
         /// TO detect redundant calls
         /// </summary>
-        private bool IsDisposed = false;
+        private volatile bool IsDisposed = false;
 
         #endregion
 
@@ -217,6 +224,30 @@
                 Source = null;
             }
             catch (Exception ex) { RaiseMediaFailedEvent(ex); }
+        }
+
+        /// <summary>
+        /// Opens the specified URI.
+        /// This is an alternative method of opening media vs using the
+        /// <see cref="Source"/> Dependency Property.
+        /// </summary>
+        /// <param name="uri">The URI.</param>
+        /// <returns>The awaitable task.</returns>
+        public async Task Open(Uri uri)
+        {
+            try
+            {
+                IsOpeningViaCommand.Value = true;
+                Source = uri;
+                await MediaCore.Open(uri);
+
+            }
+            catch (Exception ex)
+            {
+                Source = null;
+                RaiseMediaFailedEvent(ex);
+                IsOpeningViaCommand.Value = false;
+            }
         }
 
         #endregion
