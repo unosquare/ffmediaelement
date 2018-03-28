@@ -277,7 +277,7 @@
 
                             Clock.Update(wallClock);
                             State.HasMediaEnded = true;
-                            State.UpdateMediaState(PlaybackStatus.Pause, wallClock);
+                            State.UpdateMediaState(PlaybackStatus.Stop, wallClock);
                             SendOnMediaEnded();
                         }
                     }
