@@ -144,6 +144,11 @@
                         </DockPanel>
 
                         <DockPanel>
+                            <TextBlock Style="{StaticResource Key}">Video Rotation</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding VideoRotation, Mode=OneWay}" />
+                        </DockPanel>
+
+                        <DockPanel>
                             <TextBlock Style="{StaticResource Key}">Video Width</TextBlock>
                             <TextBlock Style="{StaticResource Value}" Text="{Binding NaturalVideoWidth, Mode=OneWay}" />
                         </DockPanel>

@@ -81,7 +81,7 @@
             // Dispose outside of the current thread to avoid deadlocks
             ThreadPool.QueueUserWorkItem((s) =>
             {
-                m_MediaCore.Dispose();
+                MediaCore.Dispose();
 
                 // Notify the one last state
                 GuiContext.Current.EnqueueInvoke(() =>

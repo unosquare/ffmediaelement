@@ -1,9 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
     <RootNamespace>Unosquare.FFME</RootNamespace>
-    <Version>3.4.1.210</Version>
+    <Version>3.4.1.230</Version>
     <Authors>Mario Di Vece and Contributors to the FFME project</Authors>
     <Company>Unosquare SA de CV</Company>
     <Product>FFME Cross-Platform Media Engine</Product>
@@ -23,28 +24,13 @@
     <AssemblyVersion>3.4.1.210</AssemblyVersion>
     <FileVersion>3.4.1.210</FileVersion>
     <LangVersion>latest</LangVersion>
+	<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <NoWarn />
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|netstandard2.0'">
-    <DocumentationFile>bin\Release\netstandard2.0\ffme.common.xml</DocumentationFile>
-  </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net461'">
-    <DocumentationFile>bin\Release\net461\ffme.common.xml</DocumentationFile>
-  </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug|netstandard2.0'">
-    <DocumentationFile>bin\Debug\netstandard2.0\ffme.common.xml</DocumentationFile>
-  </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Debug|net461'">
-    <DocumentationFile>bin\Debug\net461\ffme.common.xml</DocumentationFile>
   </PropertyGroup>
   
   <ItemGroup>

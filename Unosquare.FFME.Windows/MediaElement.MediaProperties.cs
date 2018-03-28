@@ -94,6 +94,12 @@
         public ulong VideoBitrate => MediaCore?.State.VideoBitrate ?? default;
 
         /// <summary>
+        /// Returns the clockwise angle that needs to be applied to the video for it to be displayed
+        /// Only valid after the MediaOpened event has fired.
+        /// </summary>
+        public double VideoRotation => MediaCore?.State.VideoRotation ?? default;
+
+        /// <summary>
         /// Returns the natural width of the media in the video.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>

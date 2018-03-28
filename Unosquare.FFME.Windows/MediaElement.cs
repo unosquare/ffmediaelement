@@ -46,11 +46,6 @@
         private Uri m_BaseUri = null;
 
         /// <summary>
-        /// Holds the Media Engine
-        /// </summary>
-        private MediaEngine m_MediaCore;
-
-        /// <summary>
         /// TO detect redundant calls
         /// </summary>
         private bool IsDisposed = false;
@@ -154,16 +149,17 @@
         /// Provides access to the underlying media engine driving this control.
         /// This property is intender for advance usages only.
         /// </summary>
-        internal MediaEngine MediaCore
-        {
-            get { return m_MediaCore; }
-            private set { m_MediaCore = value; }
-        }
+        internal MediaEngine MediaCore { get; private set; } = null;
 
         /// <summary>
         /// This is the image that holds video bitmaps
         /// </summary>
         internal Image VideoView { get; } = new Image { Name = nameof(VideoView) };
+
+        /// <summary>
+        /// Gets the closed captions view control.
+        /// </summary>
+        internal ClosedCaptionsControl CaptionsView { get; } = new ClosedCaptionsControl { Name = nameof(CaptionsView) };
 
         /// <summary>
         /// A viewbox holding the subtitle text blocks
@@ -245,7 +241,7 @@
         /// <param name="source">The source.</param>
         /// <param name="sourcePath">The source path.</param>
         /// <param name="mode">The mode.</param>
-        private static void BindProperty(
+        internal static void BindProperty(
             DependencyObject target, DependencyProperty targetProperty, DependencyObject source, string sourcePath, BindingMode mode)
         {
             var binding = new Binding
@@ -289,21 +285,19 @@
             StretchDirection = VideoView.StretchDirection;
 
             // Add the child video view and bind the alignment properties
-            ContentGrid.Children.Add(VideoView);
             BindProperty(VideoView, HorizontalAlignmentProperty, this, nameof(HorizontalAlignment), BindingMode.OneWay);
             BindProperty(VideoView, VerticalAlignmentProperty, this, nameof(VerticalAlignment), BindingMode.OneWay);
 
             // Setup the Subtitle View
-            SubtitlesView.Padding = new Thickness(5, 0, 5, 0);
-            SubtitlesView.FontSize = 58;
-            SubtitlesView.FontFamily = new FontFamily("Calibri");
+            SubtitlesView.FontSize = 98;
+            SubtitlesView.Padding = new Thickness(0);
+            SubtitlesView.FontFamily = new FontFamily("Microsoft Sans Serif, Lucida Console, Calibri");
             SubtitlesView.FontStretch = FontStretches.Condensed;
-            SubtitlesView.FontWeight = FontWeights.SemiBold;
+            SubtitlesView.FontWeight = FontWeights.Bold;
             SubtitlesView.TextOutlineWidth = new Thickness(4);
             SubtitlesView.TextForeground = Brushes.LightYellow;
 
             // Add the subtitles control and bind the attached properties
-            ContentGrid.Children.Add(SubtitlesView);
             Subtitles.SetForeground(this, SubtitlesView.TextForeground);
             BindProperty(this, Subtitles.ForegroundProperty, SubtitlesView, nameof(SubtitlesView.TextForeground), BindingMode.TwoWay);
             BindProperty(this, Subtitles.OutlineBrushProperty, SubtitlesView, nameof(SubtitlesView.TextOutline), BindingMode.TwoWay);
@@ -321,10 +315,23 @@
                 if (VideoView.ActualWidth <= 0 || VideoView.ActualHeight <= 0)
                     return;
 
-                // Position the Subtitles
+                if (HasVideo)
+                {
+                    CaptionsView.Width = VideoView.ActualWidth;
+                    CaptionsView.Height = VideoView.ActualHeight * .80; // FCC Safe Caption Area Dimensions
+                    CaptionsView.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    CaptionsView.Width = 0;
+                    CaptionsView.Height = 0;
+                    CaptionsView.Visibility = Visibility.Collapsed;
+                }
+
+                // Compute the position of the subtitles view based on the Video View
                 var videoViewPosition = VideoView.TransformToAncestor(ContentGrid).Transform(new Point(0, 0));
-                var targetHeight = VideoView.ActualHeight / 4d;
-                var targetWidth = VideoView.ActualWidth;
+                var targetHeight = VideoView.ActualHeight / 9d;
+                var targetWidth = VideoView.ActualWidth * 0.90;
 
                 if (SubtitlesView.Height != targetHeight)
                     SubtitlesView.Height = targetHeight;
@@ -333,12 +340,17 @@
                     SubtitlesView.Width = targetWidth;
 
                 var verticalOffset = ContentGrid.ActualHeight - (videoViewPosition.Y + VideoView.ActualHeight);
-                var verticalOffsetPadding = VideoView.ActualHeight / 20;
+                var verticalOffsetPadding = targetHeight * 0.75d;
                 var marginBottom = verticalOffset + verticalOffsetPadding;
 
                 if (SubtitlesView.Margin.Bottom != marginBottom)
                     SubtitlesView.Margin = new Thickness(0, 0, 0, marginBottom);
             };
+
+            // Compose the control by adding overlapping children
+            ContentGrid.Children.Add(VideoView);
+            ContentGrid.Children.Add(SubtitlesView);
+            ContentGrid.Children.Add(CaptionsView);
 
             // Display the control (or not)
             if (WindowsPlatform.Instance.IsInDesignTime)

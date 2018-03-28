@@ -66,7 +66,7 @@
                     // Parse 3 bytes at a time
                     for (var p = 0; p < sideData->size; p += 3)
                     {
-                        var packet = new ClosedCaptionPacket(StartTime, sideData->data[p + 0], sideData->data[p + 1], sideData->data[p + 2]);
+                        var packet = new ClosedCaptionPacket(TimeSpan.FromTicks(StartTime.Ticks + p), sideData->data, p);
                         if (packet.PacketType == CCPacketType.NullPad || packet.PacketType == CCPacketType.Unrecognized)
                             continue;
 
@@ -125,7 +125,7 @@
 
         #endregion
 
-        #region IDisposable Support
+        #region Methods
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
@@ -160,6 +160,5 @@
         }
 
         #endregion
-
     }
 }
