@@ -2,8 +2,8 @@
 {
     using Events;
     using Platform;
-    using Rendering;
     using Primitives;
+    using Rendering;
     using System;
     using System.ComponentModel;
     using System.Threading.Tasks;
@@ -240,7 +240,6 @@
                 IsOpeningViaCommand.Value = true;
                 Source = uri;
                 await MediaCore.Open(uri);
-
             }
             catch (Exception ex)
             {
