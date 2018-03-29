@@ -12,16 +12,16 @@
 
 ## Announcements
 - If you would like to support this project, you can show your appreciation via [PayPal.Me](https://www.paypal.me/mariodivece/50usd)
-- Current Status: (2018-03-07) - Release 3.4.220 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
+- Current Status: (2018-03-29) - Release 3.4.230 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
 - NuGet Package available here: https://www.nuget.org/packages/FFME.Windows/
-- FFmpeg Version: <a href="http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4.1-win32-shared.zip">3.4.1 (32-bit)</a>
+- FFmpeg Version: <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4.2-win32-shared.zip">3.4.2 (32-bit)</a>
 
 ## Quick Usage Guide for WPF Apps
 
 Here is a quick guide on how to get started.
 1. Open Visual Studio (v2017 recommended), and create a new WPF Application. Target Framework must be 4.6.2 or above. (This will change to 4.6.1 in the final release)
 2. Install the NuGet Package from your Package Manager Console: `PM> Install-Package FFME.Windows`
-3. You need FFmpeg binaries now. Build your own or download a compatible build from [Zeranoe FFmpeg Builds site](http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip).
+3. You need FFmpeg binaries now. Build your own or download a compatible build from [Zeranoe FFmpeg Builds site](https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4.2-win32-shared.zip).
 4. Your FFmpeg build should have a `bin` folder with 3 exe files and 8 dll files. Copy all 11 files to a folder such as `c:\ffmpeg`
 5. Within you application's startup code (`Main` method), set `Unosquare.FFME.MediaElement.FFmpegDirectory = @"c:\ffmpeg";`.
 6. Use the FFME `MediaElement` control as any other WPF control.
@@ -82,7 +82,7 @@ device://gdigrab?desktop
 *Please note that I am unable to distribute FFmpeg's binaries because I don't know if I am allowed to do so. Follow the instructions below to compile, run and test FFME.*
 
 1. Clone this repository.
-2. Download the FFmpeg win32-shared binaries from <a href="http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip">Zeranoe FFmpeg Builds</a>.
+2. Download the FFmpeg win32-shared binaries from <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4.2-win32-shared.zip">Zeranoe FFmpeg Builds</a>.
 3. Extract the contents of the <code>zip</code> file you just downloaded and go to the <code>bin</code> folder that got extracted. You should see 3 <code>exe</code> files and 8 <code>dll</code> files. Select and copy all of them.
 4. Now paste all 11 files from the prior step onto a well-known folder. Take note of the full path. (I used c:\ffmpeg\)
 5. Open the solution and set the <code>Unosquare.FFME.Windows.Sample</code> project as the startup project. You can do this by right clicking on the project and selecting <code>Set as startup project</code>

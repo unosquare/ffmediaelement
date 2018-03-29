@@ -16,7 +16,7 @@
             : base()
         {
             // Change the default location of the ffmpeg binaries
-            // You can get the binaries here: http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip
+            // You can get the binaries here: https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4.2-win32-shared.zip
             MediaElement.FFmpegDirectory = @"c:\ffmpeg";
 
             // You can pick which FFmpeg binaries are loaded. See issue #28

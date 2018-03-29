@@ -14,7 +14,7 @@
     <description>FFME is a close (and I'd like to think better) drop-in replacement for Microsoft's WPF MediaElement Control. While the standard MediaElement uses DirectX (DirectShow) for media playback, FFME uses FFmpeg to read and decode audio and video. This means that for those of you who want to support stuff like HLS playback, or just don't want to go through the hassle of installing codecs on client machines, using FFME might just be the answer.</description>
     <summary>FFmpeg MediaElement Control (FFME)</summary>
     <releaseNotes>
-      This is a release package of the Michelob build referencing bindings to FFmpeg version 3.4.1
+      This is a release package of the Michelob build referencing bindings to FFmpeg version 3.4.2
       This package does not contain the required FFmpeg binaries. Please refer to the following URL for instructions on how to obtain the binaries: https://github.com/unosquare/ffmediaelement
       Release details: https://github.com/unosquare/ffmediaelement/milestone/5?closed=1
     </releaseNotes>
