@@ -18,7 +18,7 @@ environment:
   access_token:
        secure: HzWdswNyfQbQ0vLk9IQyO+Ei9mxoPYp9rvv6HPhtC9J/Fm7EHRzyV953pbPRXI9I
 before_build:
-- nuget restore --verbosity m
+- nuget restore -verbosity quiet
 - ps: |
         if(-Not $env:APPVEYOR_PULL_REQUEST_TITLE)
         {
