@@ -23,7 +23,7 @@ before_build:
         if(-Not $env:APPVEYOR_PULL_REQUEST_TITLE)
         {
             git checkout $env:APPVEYOR_REPO_BRANCH -q
-            cinst docfx -y -r
+            cinst docfx -y --no-progress
         }
         
 after_build:
