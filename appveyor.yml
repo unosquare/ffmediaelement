@@ -17,15 +17,13 @@ environment:
   op_build_user_email: "geovanni.perez@gmail.com"
   access_token:
        secure: HzWdswNyfQbQ0vLk9IQyO+Ei9mxoPYp9rvv6HPhtC9J/Fm7EHRzyV953pbPRXI9I
-init:
-- ps: $Env:LABEL = "CI" + $Env:APPVEYOR_BUILD_NUMBER.PadLeft(5, "0")
 before_build:
-- nuget restore
+- nuget restore --verbosity m
 - ps: |
         if(-Not $env:APPVEYOR_PULL_REQUEST_TITLE)
         {
             git checkout $env:APPVEYOR_REPO_BRANCH -q
-            cinst docfx -y
+            cinst docfx -y -r
         }
         
 after_build:
