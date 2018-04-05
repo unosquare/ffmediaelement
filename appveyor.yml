@@ -17,8 +17,6 @@ environment:
   op_build_user_email: "geovanni.perez@gmail.com"
   access_token:
        secure: HzWdswNyfQbQ0vLk9IQyO+Ei9mxoPYp9rvv6HPhtC9J/Fm7EHRzyV953pbPRXI9I
-init:
-  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 before_build:
 - nuget restore -verbosity quiet
 - ps: |
@@ -28,9 +26,7 @@ before_build:
             cinst docfx -y --no-progress
         }
 build_script:
-- cd Unosquare.FFME.MacOS.Sample
-- msbuild /p:Configuration=Release /verbosity:quiet
-- cd ..
+- cd Unosquare.FFME.Windows.Sample
 - msbuild /p:Configuration=Release /verbosity:quiet
 after_build:
 - ps: |
@@ -52,5 +48,3 @@ after_build:
             git push origin gh-pages -q
             CD ..
         }
-on_finish:
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
