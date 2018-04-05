@@ -29,7 +29,7 @@ build_script:
 - cd Unosquare.FFME.Windows.Sample
 - msbuild /p:Configuration=Release /verbosity:quiet
 - cd ..
-- cd Unosquare.FFME.MacOS.Sample
+- cd Unosquare.FFME.MacOS
 - msbuild /p:Configuration=Release /verbosity:quiet
 - cd ..
 after_build:
