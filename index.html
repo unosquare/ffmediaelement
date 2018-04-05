@@ -8,7 +8,7 @@
     <title>FFME: WPF MediaElement Alternative | FFME: WPF MediaElement replacement based on FFmpeg </title>
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="FFME: WPF MediaElement Alternative | FFME: WPF MediaElement replacement based on FFmpeg ">
-    <meta name="generator" content="docfx 2.32.2.0">
+    <meta name="generator" content="docfx 2.34.0.0">
     
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="stylesheet" href="styles/docfx.vendor.css">
@@ -81,16 +81,16 @@
 <h2 id="announcements">Announcements</h2>
 <ul>
 <li>If you would like to support this project, you can show your appreciation via <a href="https://www.paypal.me/mariodivece/50usd">PayPal.Me</a></li>
-<li>Current Status: (2018-03-07) - Release 3.4.220 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)</li>
+<li>Current Status: (2018-03-29) - Release 3.4.230 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)</li>
 <li>NuGet Package available here: <a href="https://www.nuget.org/packages/FFME.Windows/">https://www.nuget.org/packages/FFME.Windows/</a></li>
-<li>FFmpeg Version: <a href="http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4.1-win32-shared.zip">3.4.1 (32-bit)</a></li>
+<li>FFmpeg Version: <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4.2-win32-shared.zip">3.4.2 (32-bit)</a></li>
 </ul>
 <h2 id="quick-usage-guide-for-wpf-apps">Quick Usage Guide for WPF Apps</h2>
 <p>Here is a quick guide on how to get started.</p>
 <ol>
 <li>Open Visual Studio (v2017 recommended), and create a new WPF Application. Target Framework must be 4.6.2 or above. (This will change to 4.6.1 in the final release)</li>
 <li>Install the NuGet Package from your Package Manager Console: <code>PM&gt; Install-Package FFME.Windows</code></li>
-<li>You need FFmpeg binaries now. Build your own or download a compatible build from <a href="http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip">Zeranoe FFmpeg Builds site</a>.</li>
+<li>You need FFmpeg binaries now. Build your own or download a compatible build from <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4.2-win32-shared.zip">Zeranoe FFmpeg Builds site</a>.</li>
 <li>Your FFmpeg build should have a <code>bin</code> folder with 3 exe files and 8 dll files. Copy all 11 files to a folder such as <code>c:\ffmpeg</code></li>
 <li>Within you application&#39;s startup code (<code>Main</code> method), set <code>Unosquare.FFME.MediaElement.FFmpegDirectory = @&quot;c:\ffmpeg&quot;;</code>.</li>
 <li>Use the FFME <code>MediaElement</code> control as any other WPF control.
@@ -150,7 +150,7 @@ device://gdigrab?desktop</code></li>
 <p><em>Please note that I am unable to distribute FFmpeg&#39;s binaries because I don&#39;t know if I am allowed to do so. Follow the instructions below to compile, run and test FFME.</em></p>
 <ol>
 <li>Clone this repository.</li>
-<li>Download the FFmpeg win32-shared binaries from <a href="http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4-win32-shared.zip">Zeranoe FFmpeg Builds</a>.</li>
+<li>Download the FFmpeg win32-shared binaries from <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4.2-win32-shared.zip">Zeranoe FFmpeg Builds</a>.</li>
 <li>Extract the contents of the <code>zip</code> file you just downloaded and go to the <code>bin</code> folder that got extracted. You should see 3 <code>exe</code> files and 8 <code>dll</code> files. Select and copy all of them.</li>
 <li>Now paste all 11 files from the prior step onto a well-known folder. Take note of the full path. (I used c:\ffmpeg)</li>
 <li>Open the solution and set the <code>Unosquare.FFME.Windows.Sample</code> project as the startup project. You can do this by right clicking on the project and selecting <code>Set as startup project</code></li>
@@ -217,7 +217,7 @@ device://gdigrab?desktop</code></li>
               <div class="contribution">
                 <ul class="nav">
                   <li class="top-sep">
-                    <a href="https://github.com/unosquare/ffmediaelement/blob/master/README.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/unosquare/ffmediaelement/blob/Issue201-FixAppVeyor/README.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>
