@@ -26,7 +26,7 @@ before_build:
             cinst docfx -y --no-progress
         }
 build_script:
-- cd Unosquare.FFME.Windows.Sample
+- cd Unosquare.FFME.Common
 - msbuild /p:Configuration=Release /verbosity:quiet
 - cd ..
 - cd Unosquare.FFME.MacOS
