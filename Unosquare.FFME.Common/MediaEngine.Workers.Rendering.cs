@@ -59,7 +59,7 @@
 
                 if (IsTaskCancellationPending || BlockRenderingWorkerExit.IsCompleted || IsDisposed)
                 {
-                    BlockRenderingWorkerExit.Complete();
+                    BlockRenderingWorkerExit?.Complete();
                     return;
                 }
 
@@ -121,15 +121,12 @@
                     foreach (var t in all)
                     {
                         // Skip rendering for nulls
-                        if (currentBlock[t] == null)
+                        if (currentBlock[t] == null || currentBlock[t].IsDisposed)
                             continue;
 
                         // Render by forced signal (TimeSpan.MinValue) or because simply it is time to do so
                         if (LastRenderTime[t] == TimeSpan.MinValue || currentBlock[t].StartTime != LastRenderTime[t])
-                        {
                             renderedBlockCount[t] += SendBlockToRenderer(currentBlock[t], wallClock);
-                            continue;
-                        }
                     }
 
                     #endregion

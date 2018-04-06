@@ -56,6 +56,11 @@
         }
 
         /// <summary>
+        /// Gets a value indicating whether this block is disposed
+        /// </summary>
+        public bool IsDisposed { get; protected set; }
+
+        /// <summary>
         /// Determines whether this media block holds the specified position.
         /// Returns false if it does not have a valid duration.
         /// </summary>
