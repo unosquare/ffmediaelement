@@ -10,12 +10,6 @@
     /// </summary>
     public sealed class VideoBlock : MediaBlock, IDisposable
     {
-        #region Private Members
-
-        private bool IsDisposed = false; // To detect redundant calls
-
-        #endregion
-
         #region Constructors and Descrutors
 
         /// <summary>
