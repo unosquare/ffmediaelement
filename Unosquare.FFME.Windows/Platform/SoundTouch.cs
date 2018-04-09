@@ -25,6 +25,7 @@
     {
         #region Private Members
 
+        private static readonly bool m_IsAvailable;
         private const string SoundTouchLibrary = "SoundTouch.dll";
         private readonly object SyncRoot = new object();
         private bool IsDisposed = false;
@@ -33,6 +34,26 @@
         #endregion
 
         #region Constructor
+
+        static SoundTouch()
+        {
+            try
+            {
+                // Include the ffmpeg directory in the search path
+                WindowsNativeMethods.Instance.SetDllDirectory(MediaElement.FFmpegDirectory);
+                var versionId = NativeMethods.GetVersionId();
+                m_IsAvailable = versionId != 0;
+            }
+            catch
+            {
+                m_IsAvailable = false;
+            }
+            finally
+            {
+                // Reset the search path
+                WindowsNativeMethods.Instance.SetDllDirectory(null);
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SoundTouch"/> class.
@@ -177,25 +198,7 @@
         /// </summary>
         public static bool IsAvailable
         {
-            get
-            {
-                try
-                {
-                    // Include the ffmpeg directory in the search path
-                    WindowsNativeMethods.Instance.SetDllDirectory(MediaElement.FFmpegDirectory);
-                    var versionId = NativeMethods.GetVersionId();
-                    return versionId != 0;
-                }
-                catch
-                {
-                    return false;
-                }
-                finally
-                {
-                    // Reset the search path
-                    WindowsNativeMethods.Instance.SetDllDirectory(null);
-                }
-            }
+            get { return m_IsAvailable; }
         }
 
         /// <summary>
