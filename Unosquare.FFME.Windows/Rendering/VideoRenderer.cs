@@ -59,7 +59,7 @@
                 throw new NotSupportedException($"Unable to get equivalent pixel fromat from source: {Constants.Video.VideoPixelFormat}");
 
             // Set the DPI
-            GuiContext.Current.Invoke(() =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
                 var visual = PresentationSource.FromVisual(MediaElement);
                 DpiX = 96.0 * visual?.CompositionTarget?.TransformToDevice.M11 ?? 96.0;
@@ -179,6 +179,12 @@
             // Ensure the target bitmap can be loaded
             GuiContext.Current.EnqueueInvoke(DispatcherPriority.Render, () =>
             {
+                if (block.IsDisposed)
+                {
+                    IsRenderingInProgress.Value = false;
+                    return;
+                }
+
                 try
                 {
                     MediaElement.CaptionsView.RenderPacket(block, MediaCore);
