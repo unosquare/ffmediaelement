@@ -122,7 +122,14 @@
                 if (IsOpen == false) { return TimeSpan.Zero; }
 
                 if (HasVideo && VideoFrameLength > 0 && !double.IsInfinity(VideoFrameLength))
-                    return TimeSpan.FromSeconds(VideoFrameLength);
+                {
+                    try
+                    {
+                        return TimeSpan.FromSeconds(VideoFrameLength);
+                    }
+                    catch(OverflowException)
+                    { }
+                }
 
                 return TimeSpan.FromSeconds(0.1d);
             }
