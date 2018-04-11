@@ -86,7 +86,7 @@
             var m = Manager.MediaCore;
 
             // Avoid processing the command if the element is disposed.
-            if (IsDisposed || m.IsDisposed || TaskContext.IsCanceled)
+            if (IsDisposed || m.IsDisposed || TaskContext.IsCanceled || IsRunning)
                 return;
 
             // Start and await the task
@@ -132,7 +132,7 @@
         /// <returns>
         /// A <see cref="string" /> that represents this instance.
         /// </returns>
-        public override string ToString() => $"{CommandType} - " +
+        public override string ToString() => IsDisposed ? default : $"{CommandType} - " +
             $"ID: {TaskContext.Id} Canceled: {TaskContext.IsCanceled}; " +
             $"Completed: {TaskContext.IsCompleted}; Status: {TaskContext.Status}; State: {TaskContext.AsyncState}";
 
