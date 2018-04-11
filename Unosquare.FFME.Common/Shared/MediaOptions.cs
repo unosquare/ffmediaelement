@@ -33,6 +33,11 @@
         public bool EnableFastDecoding { get; set; } = false;
 
         /// <summary>
+        /// Enables low_delay flag for low latency streaming.
+        /// </summary>
+        public bool EnableLowDelay { get; set; } = false;
+
+        /// <summary>
         /// Gets or sets a value indicating whether experimental hardware acceleration is enabled.
         /// Defaults to false. This feature is experimental.
         /// </summary>

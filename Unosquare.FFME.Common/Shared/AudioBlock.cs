@@ -9,12 +9,6 @@
     /// </summary>
     public sealed class AudioBlock : MediaBlock
     {
-        #region Private Members
-
-        private bool IsDisposed = false; // To detect redundant calls
-
-        #endregion
-
         #region Constructors and Destructors
 
         /// <summary>

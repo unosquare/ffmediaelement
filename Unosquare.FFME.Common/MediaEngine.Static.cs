@@ -86,6 +86,19 @@
         }
 
         /// <summary>
+        /// Retrieves the media information including all streams, chapters and programs.
+        /// </summary>
+        /// <param name="sourceUrl">The source URL.</param>
+        /// <returns>The contants of the media information.</returns>
+        public static MediaInfo RetrieveMediaInfo(string sourceUrl)
+        {
+            using (var container = new MediaContainer(sourceUrl, null, null))
+            {
+                return container.MediaInfo;
+            }
+        }
+
+        /// <summary>
         /// Reads all the blocks of the specified media type from the source url.
         /// </summary>
         /// <param name="sourceUrl">The subtitles URL.</param>

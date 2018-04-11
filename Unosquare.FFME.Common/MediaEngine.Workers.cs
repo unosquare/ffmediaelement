@@ -281,7 +281,7 @@
         private int SendBlockToRenderer(MediaBlock block, TimeSpan clockPosition)
         {
             // Process property changes coming from video blocks
-            if (block != null && block.MediaType == MediaType.Video)
+            if (block.MediaType == MediaType.Video)
             {
                 if (block is VideoBlock videoBlock)
                 {

@@ -4,7 +4,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <RootNamespace>Unosquare.FFME</RootNamespace>
-    <Version>3.4.1.230</Version>
+    <Version>3.4.2.240</Version>
     <Authors>Mario Di Vece and Contributors to the FFME project</Authors>
     <Company>Unosquare SA de CV</Company>
     <Product>FFME Cross-Platform Media Engine</Product>
@@ -21,8 +21,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CodeAnalysisRuleSet>..\StyleCop.Analyzers.ruleset</CodeAnalysisRuleSet>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>3.4.1.210</AssemblyVersion>
-    <FileVersion>3.4.1.210</FileVersion>
+    <AssemblyVersion>3.4.2.240</AssemblyVersion>
+    <FileVersion>3.4.2.240</FileVersion>
     <LangVersion>latest</LangVersion>
 	<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>

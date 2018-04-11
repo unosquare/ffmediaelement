@@ -2,8 +2,8 @@
 {
     using Events;
     using Platform;
-    using Rendering;
     using Primitives;
+    using Rendering;
     using System;
     using System.ComponentModel;
     using System.Threading.Tasks;
@@ -238,13 +238,12 @@
             try
             {
                 IsOpeningViaCommand.Value = true;
-                Source = uri;
+                GuiContext.Current.Invoke(() => Source = uri);
                 await MediaCore.Open(uri);
-
             }
             catch (Exception ex)
             {
-                Source = null;
+                GuiContext.Current.Invoke(() => Source = null);
                 RaiseMediaFailedEvent(ex);
                 IsOpeningViaCommand.Value = false;
             }

@@ -29,7 +29,7 @@
         public MediaOptions Options { get; }
 
         /// <summary>
-        /// Provides internal details of the media, inclusing its component streams.
+        /// Provides internal details of the media, including its component streams.
         /// Typically, options are set based on what this information contains.
         /// </summary>
         public MediaInfo Info { get; }
