@@ -342,7 +342,7 @@
         internal void RaiseMediaOpeningEvent(MediaOptions options, MediaInfo mediaInfo)
         {
             LogEventStart(MediaOpeningEvent);
-            GuiContext.Current.Invoke(() =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new MediaOpeningRoutedEventArgs(
                     MediaOpeningEvent,
@@ -363,7 +363,7 @@
         internal void RaiseMediaInitializingEvent(StreamOptions options, string url)
         {
             LogEventStart(MediaInitializingEvent);
-            GuiContext.Current.Invoke(() =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new MediaInitializingRoutedEventArgs(
                     MediaInitializingEvent,

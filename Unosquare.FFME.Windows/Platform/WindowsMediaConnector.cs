@@ -57,7 +57,7 @@
         {
             if (Parent == null) return;
 
-            GuiContext.Current.Invoke(async () =>
+            GuiContext.Current.EnqueueInvoke(async () =>
             {
                 Parent.RaiseMediaEndedEvent();
                 switch (Parent.UnloadedBehavior)
@@ -106,7 +106,7 @@
         {
             if (Parent == null) return;
 
-            GuiContext.Current.Invoke(async () =>
+            GuiContext.Current.EnqueueInvoke(async () =>
             {
                 Parent.RaiseMediaOpenedEvent();
                 if (sender.State.CanPause == false)
