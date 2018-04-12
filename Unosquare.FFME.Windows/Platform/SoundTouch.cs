@@ -1,5 +1,7 @@
 ﻿namespace Unosquare.FFME.Platform
 {
+#pragma warning disable SA1311
+
     using System;
     using System.Runtime.InteropServices;
 
@@ -25,8 +27,8 @@
     {
         #region Private Members
 
-        private static readonly bool m_IsAvailable;
         private const string SoundTouchLibrary = "SoundTouch.dll";
+        private static readonly bool m_IsAvailable;
         private readonly object SyncRoot = new object();
         private bool IsDisposed = false;
         private IntPtr handle;
@@ -535,4 +537,6 @@
 
         #endregion
     }
+
+#pragma warning restore SA1311
 }
