@@ -189,7 +189,7 @@
         public async Task Play()
         {
             try { await MediaCore.Play(); }
-            catch (Exception ex) { RaiseMediaFailedEvent(ex); }
+            catch (Exception ex) { var t = RaiseMediaFailedEvent(ex); }
         }
 
         /// <summary>
@@ -199,7 +199,7 @@
         public async Task Pause()
         {
             try { await MediaCore.Pause(); }
-            catch (Exception ex) { RaiseMediaFailedEvent(ex); }
+            catch (Exception ex) { var t = RaiseMediaFailedEvent(ex); }
         }
 
         /// <summary>
@@ -209,7 +209,7 @@
         public async Task Stop()
         {
             try { await MediaCore.Stop(); }
-            catch (Exception ex) { RaiseMediaFailedEvent(ex); }
+            catch (Exception ex) { var t = RaiseMediaFailedEvent(ex); }
         }
 
         /// <summary>
@@ -223,7 +223,7 @@
                 await MediaCore.Close();
                 Source = null;
             }
-            catch (Exception ex) { RaiseMediaFailedEvent(ex); }
+            catch (Exception ex) { var t = RaiseMediaFailedEvent(ex); }
         }
 
         /// <summary>
@@ -244,7 +244,7 @@
             catch (Exception ex)
             {
                 GuiContext.Current.Invoke(() => Source = null);
-                RaiseMediaFailedEvent(ex);
+                var t = RaiseMediaFailedEvent(ex);
                 IsOpeningViaCommand.Value = false;
             }
         }
