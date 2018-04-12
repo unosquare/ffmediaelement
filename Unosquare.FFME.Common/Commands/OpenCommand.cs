@@ -31,11 +31,14 @@
         /// <summary>
         /// Performs the actions that this command implements.
         /// </summary>
-        internal override void ExecuteInternal()
+        internal override async void ExecuteInternal()
         {
             var m = Manager.MediaCore;
 
             if (m.IsDisposed || m.State.IsOpen || m.State.IsOpening) return;
+
+            // Notify Media will start opening
+            m.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Entered");
 
             try
             {
@@ -92,17 +95,14 @@
                 }
 
                 // Allow the stream input options to be changed
-                m.SendOnMediaInitializing(streamOptions, mediaUrl);
+                await m.SendOnMediaInitializing(streamOptions, mediaUrl);
 
                 // Instantiate the internal container
                 m.Container = new MediaContainer(mediaUrl, streamOptions, m);
 
                 // Notify the user media is opening and allow for media options to be modified
                 // Stuff like audio and video filters and stream selection can be performed here.
-                m.SendOnMediaOpening();
-
-                // Notify Media will start opening
-                m.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Entered");
+                await m.SendOnMediaOpening();
 
                 // Side-load subtitles if requested
                 m.PreloadSubtitles();
@@ -125,7 +125,7 @@
                 m.State.UpdateMediaState(PlaybackStatus.Stop);
 
                 // Raise the opened event
-                m.SendOnMediaOpened();
+                await m.SendOnMediaOpened();
             }
             catch (Exception ex)
             {
@@ -133,7 +133,7 @@
                 m.DisposePreloadedSubtitles();
                 m.Container = null;
                 m.State.UpdateMediaState(PlaybackStatus.Close);
-                m.SendOnMediaFailed(ex);
+                await m.SendOnMediaFailed(ex);
             }
             finally
             {

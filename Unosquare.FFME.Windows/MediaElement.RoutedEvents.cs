@@ -8,6 +8,7 @@
     using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
+    using System.Threading.Tasks;
     using System.Windows;
     using System.Windows.Controls;
 
@@ -293,12 +294,13 @@
         /// Raises the media failed event.
         /// </summary>
         /// <param name="ex">The ex.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseMediaFailedEvent(Exception ex)
+        internal Task RaiseMediaFailedEvent(Exception ex)
         {
             LogEventStart(MediaFailedEvent);
             MediaCore?.Log(MediaLogMessageType.Error, $"Media Failure - {ex?.GetType()}: {ex?.Message}");
-            GuiContext.Current.EnqueueInvoke(() =>
+            return GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(CreateExceptionRoutedEventArgs(MediaFailedEvent, this, ex));
                 LogEventDone(MediaFailedEvent);
@@ -308,11 +310,12 @@
         /// <summary>
         /// Raises the media opened event.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseMediaOpenedEvent()
+        internal Task RaiseMediaOpenedEvent()
         {
             LogEventStart(MediaOpenedEvent);
-            GuiContext.Current.EnqueueInvoke(() =>
+            return GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new RoutedEventArgs(MediaOpenedEvent, this));
                 LogEventDone(MediaOpenedEvent);
@@ -322,11 +325,12 @@
         /// <summary>
         /// Raises the media closed event.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseMediaClosedEvent()
+        internal Task RaiseMediaClosedEvent()
         {
             LogEventStart(MediaClosedEvent);
-            GuiContext.Current.EnqueueInvoke(() =>
+            return GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new RoutedEventArgs(MediaClosedEvent, this));
                 LogEventDone(MediaClosedEvent);
@@ -338,11 +342,12 @@
         /// </summary>
         /// <param name="options">The options.</param>
         /// <param name="mediaInfo">The media information.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseMediaOpeningEvent(MediaOptions options, MediaInfo mediaInfo)
+        internal Task RaiseMediaOpeningEvent(MediaOptions options, MediaInfo mediaInfo)
         {
             LogEventStart(MediaOpeningEvent);
-            GuiContext.Current.EnqueueInvoke(() =>
+            return GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new MediaOpeningRoutedEventArgs(
                     MediaOpeningEvent,
@@ -359,11 +364,12 @@
         /// </summary>
         /// <param name="options">The options.</param>
         /// <param name="url">The URL.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseMediaInitializingEvent(StreamOptions options, string url)
+        internal Task RaiseMediaInitializingEvent(StreamOptions options, string url)
         {
             LogEventStart(MediaInitializingEvent);
-            GuiContext.Current.EnqueueInvoke(() =>
+            return GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new MediaInitializingRoutedEventArgs(
                     MediaInitializingEvent,
@@ -394,10 +400,11 @@
         /// </summary>
         /// <param name="oldValue">The old value.</param>
         /// <param name="newValue">The new value.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseMediaStateChangedEvent(MediaState oldValue, MediaState newValue)
+        internal Task RaiseMediaStateChangedEvent(MediaState oldValue, MediaState newValue)
         {
-            GuiContext.Current.EnqueueInvoke(() =>
+            return GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new MediaStateChangedRoutedEventArgs(
                     MediaStateChangedEvent, this, oldValue, newValue));
@@ -407,11 +414,12 @@
         /// <summary>
         /// Raises the buffering started event.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseBufferingStartedEvent()
+        internal Task RaiseBufferingStartedEvent()
         {
             LogEventStart(BufferingStartedEvent);
-            GuiContext.Current.EnqueueInvoke(() =>
+            return GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new RoutedEventArgs(BufferingStartedEvent, this));
                 LogEventDone(BufferingStartedEvent);
@@ -421,11 +429,12 @@
         /// <summary>
         /// Raises the buffering ended event.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseBufferingEndedEvent()
+        internal Task RaiseBufferingEndedEvent()
         {
             LogEventStart(BufferingEndedEvent);
-            GuiContext.Current.EnqueueInvoke(() =>
+            return GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new RoutedEventArgs(BufferingEndedEvent, this));
                 LogEventDone(BufferingEndedEvent);
@@ -435,11 +444,12 @@
         /// <summary>
         /// Raises the Seeking started event.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseSeekingStartedEvent()
+        internal Task RaiseSeekingStartedEvent()
         {
             LogEventStart(SeekingStartedEvent);
-            GuiContext.Current.EnqueueInvoke(() =>
+            return GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new RoutedEventArgs(SeekingStartedEvent, this));
                 LogEventDone(SeekingStartedEvent);
@@ -449,11 +459,12 @@
         /// <summary>
         /// Raises the Seeking ended event.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseSeekingEndedEvent()
+        internal Task RaiseSeekingEndedEvent()
         {
             LogEventStart(SeekingEndedEvent);
-            GuiContext.Current.EnqueueInvoke(() =>
+            return GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new RoutedEventArgs(SeekingEndedEvent, this));
                 LogEventDone(SeekingEndedEvent);
@@ -463,11 +474,12 @@
         /// <summary>
         /// Raises the media ended event.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseMediaEndedEvent()
+        internal Task RaiseMediaEndedEvent()
         {
             LogEventStart(MediaEndedEvent);
-            GuiContext.Current.EnqueueInvoke(() =>
+            return GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(new RoutedEventArgs(MediaEndedEvent, this));
                 LogEventDone(MediaEndedEvent);
