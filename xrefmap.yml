@@ -1786,25 +1786,6 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.Platform.GuiContext.EnqueueInvoke
   nameWithType: GuiContext.EnqueueInvoke
-- uid: Unosquare.FFME.Platform.GuiContext.Invoke(DispatcherPriority,System.Action)
-  name: Invoke(DispatcherPriority, Action)
-  href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_Invoke_DispatcherPriority_System_Action_
-  commentId: M:Unosquare.FFME.Platform.GuiContext.Invoke(DispatcherPriority,System.Action)
-  fullName: Unosquare.FFME.Platform.GuiContext.Invoke(DispatcherPriority, System.Action)
-  nameWithType: GuiContext.Invoke(DispatcherPriority, Action)
-- uid: Unosquare.FFME.Platform.GuiContext.Invoke(System.Action)
-  name: Invoke(Action)
-  href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_Invoke_System_Action_
-  commentId: M:Unosquare.FFME.Platform.GuiContext.Invoke(System.Action)
-  fullName: Unosquare.FFME.Platform.GuiContext.Invoke(System.Action)
-  nameWithType: GuiContext.Invoke(Action)
-- uid: Unosquare.FFME.Platform.GuiContext.Invoke*
-  name: Invoke
-  href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_Invoke_
-  commentId: Overload:Unosquare.FFME.Platform.GuiContext.Invoke
-  isSpec: "True"
-  fullName: Unosquare.FFME.Platform.GuiContext.Invoke
-  nameWithType: GuiContext.Invoke
 - uid: Unosquare.FFME.Platform.GuiContext.InvokeAsync(DispatcherPriority,System.Action)
   name: InvokeAsync(DispatcherPriority, Action)
   href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_InvokeAsync_DispatcherPriority_System_Action_
