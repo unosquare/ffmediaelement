@@ -5,6 +5,7 @@
     using FFmpeg.AutoGen;
     using Shared;
     using System;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Implements the logic to open a media stream.
@@ -31,7 +32,8 @@
         /// <summary>
         /// Performs the actions that this command implements.
         /// </summary>
-        internal override async void ExecuteInternal()
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        internal override async Task ExecuteInternal()
         {
             var m = Manager.MediaCore;
 

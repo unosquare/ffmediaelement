@@ -27,7 +27,9 @@
         {
             Manager = manager;
             CommandType = commandType;
-            TaskContext = new Task(ExecuteInternal, CancelTokenSource.Token);
+
+            CancellableTask = new Task<Task>(ExecuteInternal, CancelTokenSource.Token);
+            TaskContext = CancellableTask.Unwrap();
         }
 
         #endregion
@@ -62,6 +64,11 @@
         /// </value>
         public bool IsRunning { get; private set; }
 
+        /// <summary>
+        /// The outer task backed by a cancellation token
+        /// </summary>
+        private Task<Task> CancellableTask { get; set; }
+
         #endregion
 
         #region Methods
@@ -93,7 +100,7 @@
             try
             {
                 IsRunning = true;
-                TaskContext.Start();
+                CancellableTask.Start();
                 await TaskContext;
             }
             catch
@@ -139,7 +146,8 @@
         /// <summary>
         /// Performs the actions that this command implements.
         /// </summary>
-        internal abstract void ExecuteInternal();
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        internal abstract Task ExecuteInternal();
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.

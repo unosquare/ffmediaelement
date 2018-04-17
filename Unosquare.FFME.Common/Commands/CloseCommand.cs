@@ -4,6 +4,7 @@
     using Shared;
     using System;
     using System.Text;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Implements the logic to close a media stream.
@@ -24,11 +25,12 @@
         /// <summary>
         /// Executes this command.
         /// </summary>
-        internal override void ExecuteInternal()
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        internal override Task ExecuteInternal()
         {
             var m = Manager.MediaCore;
 
-            if (m.IsDisposed || m.State.IsOpen == false || m.State.IsOpening) return;
+            if (m.IsDisposed || m.State.IsOpen == false || m.State.IsOpening) return Task.CompletedTask;
 
             m.Log(MediaLogMessageType.Debug, $"{nameof(CloseCommand)}: Entered");
             m.StopWorkers();
@@ -69,6 +71,8 @@
             }
 
             m.Log(MediaLogMessageType.Debug, $"{nameof(CloseCommand)}: Completed");
+
+            return Task.CompletedTask;
         }
     }
 }

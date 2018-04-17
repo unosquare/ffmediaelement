@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME.Commands
 {
     using Shared;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Implements the logic to pause the media stream
@@ -21,11 +22,11 @@
         /// <summary>
         /// Performs the actions that this command implements.
         /// </summary>
-        internal override void ExecuteInternal()
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        internal override Task ExecuteInternal()
         {
             var m = Manager.MediaCore;
-            if (m.State.IsOpen == false) return;
-            if (m.State.CanPause == false) return;
+            if (m.State.IsOpen == false || m.State.CanPause == false) return Task.CompletedTask;
 
             m.Clock.Pause();
 
@@ -35,6 +36,8 @@
             var wallClock = m.SnapToFramePosition(m.WallClock);
             m.Clock.Update(wallClock);
             m.State.UpdateMediaState(PlaybackStatus.Pause);
+
+            return Task.CompletedTask;
         }
     }
 }
