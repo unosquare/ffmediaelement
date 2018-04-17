@@ -238,12 +238,12 @@
             try
             {
                 IsOpeningViaCommand.Value = true;
-                GuiContext.Current.Invoke(() => Source = uri);
+                await GuiContext.Current.EnqueueInvoke(() => Source = uri);
                 await MediaCore.Open(uri);
             }
             catch (Exception ex)
             {
-                GuiContext.Current.Invoke(() => Source = null);
+                await GuiContext.Current.EnqueueInvoke(() => Source = null);
                 var t = RaiseMediaFailedEvent(ex);
                 IsOpeningViaCommand.Value = false;
             }

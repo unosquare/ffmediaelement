@@ -103,26 +103,24 @@
         /// <param name="arguments">The arguments.</param>
         /// <returns>The awaitable task.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async Task InvokeAsync(DispatcherPriority priority, Delegate callback, params object[] arguments)
+        public Task InvokeAsync(DispatcherPriority priority, Delegate callback, params object[] arguments)
         {
             if (Thread == Thread.CurrentThread)
             {
                 callback.DynamicInvoke(arguments);
-                return;
+                return Task.CompletedTask;
             }
 
             switch (Type)
             {
                 case GuiContextType.None:
                     {
-                        await Task.Run(() => { callback.DynamicInvoke(arguments); });
-                        return;
+                        return Task.Run(() => { callback.DynamicInvoke(arguments); });
                     }
 
                 case GuiContextType.WPF:
                     {
-                        await GuiDispatcher.InvokeAsync(() => { callback.DynamicInvoke(arguments); }, priority);
-                        return;
+                        return GuiDispatcher.InvokeAsync(() => { callback.DynamicInvoke(arguments); }, priority).Task;
                     }
 
                 case GuiContextType.WinForms:
@@ -138,15 +136,15 @@
                             finally { doneEvent.Complete(); }
                         }, arguments);
 
-                        await Task.Run(() =>
+                        return Task.Run(() =>
                         {
                             doneEvent.Wait();
                             doneEvent.Dispose();
                         });
-
-                        return;
                     }
             }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -156,9 +154,9 @@
         /// <param name="callback">The callback.</param>
         /// <returns>The awaitable task</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async Task InvokeAsync(DispatcherPriority priority, Action callback)
+        public Task InvokeAsync(DispatcherPriority priority, Action callback)
         {
-            await InvokeAsync(priority, callback, null);
+            return InvokeAsync(priority, callback, null);
         }
 
         /// <summary>
@@ -167,30 +165,9 @@
         /// <param name="callback">The callback.</param>
         /// <returns>The awaitable task</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async Task InvokeAsync(Action callback)
+        public Task InvokeAsync(Action callback)
         {
-            await InvokeAsync(DispatcherPriority.DataBind, callback, null);
-        }
-
-        /// <summary>
-        /// Invokes a task on the GUI thread
-        /// </summary>
-        /// <param name="callback">The callback.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Invoke(Action callback)
-        {
-            InvokeAsync(DispatcherPriority.Normal, callback).GetAwaiter().GetResult();
-        }
-
-        /// <summary>
-        /// Invokes a task on the GUI thread
-        /// </summary>
-        /// <param name="priority">The priority.</param>
-        /// <param name="callback">The callback.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Invoke(DispatcherPriority priority, Action callback)
-        {
-            InvokeAsync(priority, callback).GetAwaiter().GetResult();
+            return InvokeAsync(DispatcherPriority.DataBind, callback, null);
         }
 
         /// <summary>
