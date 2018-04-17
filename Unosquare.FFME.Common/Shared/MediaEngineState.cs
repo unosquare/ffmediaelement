@@ -464,14 +464,12 @@
             var packetBufferLength = Parent.Container?.Components.PacketBufferLength ?? 0d;
 
             // Update the buffering progress
-            var bufferingProgress = Math.Min(
-                1d, Math.Round(packetBufferLength / BufferCacheLength, 3));
-            BufferingProgress = double.IsNaN(bufferingProgress) ? 0 : bufferingProgress;
+            BufferingProgress = BufferCacheLength != 0 ? Math.Min(
+                1d, Math.Round(packetBufferLength / BufferCacheLength, 3)) : 0;
 
             // Update the download progress
-            var downloadProgress = Math.Min(
-                1d, Math.Round(packetBufferLength / DownloadCacheLength, 3));
-            DownloadProgress = double.IsNaN(downloadProgress) ? 0 : downloadProgress;
+            DownloadProgress = DownloadCacheLength != 0 ? Math.Min(
+                1d, Math.Round(packetBufferLength / DownloadCacheLength, 3)) : 0;
 
             // IsBuffering and BufferingProgress
             if (HasMediaEnded == false && Parent.CanReadMorePackets && (IsOpening || IsOpen))
