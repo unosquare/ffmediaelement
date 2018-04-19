@@ -126,7 +126,7 @@
                 PixelWidth,
                 PixelHeight,
                 Stride,
-                System.Drawing.Imaging.PixelFormat.Format32bppRgb,
+                System.Drawing.Imaging.PixelFormat.Format32bppArgb,
                 Scan0);
 
             return result;

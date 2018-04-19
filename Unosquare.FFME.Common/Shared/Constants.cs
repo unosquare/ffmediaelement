@@ -132,9 +132,9 @@
             public const int BytesPerPixel = 4;
 
             /// <summary>
-            /// The video pixel format. BGRX, 32bit
+            /// The video pixel format. BGRA, 32bit
             /// </summary>
-            public const AVPixelFormat VideoPixelFormat = AVPixelFormat.AV_PIX_FMT_BGR0;
+            public const AVPixelFormat VideoPixelFormat = AVPixelFormat.AV_PIX_FMT_BGRA;
         }
 
         /// <summary>
