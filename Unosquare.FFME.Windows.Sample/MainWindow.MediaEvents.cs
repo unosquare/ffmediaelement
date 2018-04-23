@@ -117,6 +117,10 @@
             }
             catch { }
 
+            // You can force video FPS if necessary
+            // see: https://github.com/unosquare/ffmediaelement/issues/212
+            // e.Options.VideoForcedFps = new AVRational { num = 25, den = 1 };
+
             // An example of switching to a different stream
             var subtitleStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_SUBTITLE).Select(kvp => kvp.Value);
             var englishSubtitleStream = subtitleStreams.FirstOrDefault(s => s.Language.StartsWith("en"));
