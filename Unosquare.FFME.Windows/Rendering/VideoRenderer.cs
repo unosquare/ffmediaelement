@@ -29,7 +29,8 @@
         /// </summary>
         private static readonly Dictionary<AVPixelFormat, PixelFormat> MediaPixelFormats = new Dictionary<AVPixelFormat, PixelFormat>
         {
-            { AVPixelFormat.AV_PIX_FMT_BGR0, PixelFormats.Bgr32 }
+            { AVPixelFormat.AV_PIX_FMT_BGR0, PixelFormats.Bgr32 },
+            { AVPixelFormat.AV_PIX_FMT_BGRA, PixelFormats.Bgra32 }
         };
 
         /// <summary>

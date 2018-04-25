@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME.Commands
 {
     using Shared;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// A command to change speed ratio asynchronously
@@ -27,12 +28,15 @@
         /// <summary>
         /// Performs the actions that this command implements.
         /// </summary>
-        internal override void ExecuteInternal()
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        internal override Task ExecuteInternal()
         {
             if (Manager.MediaCore.Clock.SpeedRatio != SpeedRatio)
                 Manager.MediaCore.Clock.SpeedRatio = SpeedRatio;
 
             Manager.MediaCore.State.SpeedRatio = Manager.MediaCore.Clock.SpeedRatio;
+
+            return Task.CompletedTask;
         }
     }
 }

@@ -27,7 +27,9 @@
         {
             Manager = manager;
             CommandType = commandType;
-            TaskContext = new Task(ExecuteInternal, CancelTokenSource.Token);
+
+            CancellableTask = new Task<Task>(ExecuteInternal, CancelTokenSource.Token);
+            TaskContext = CancellableTask.Unwrap();
         }
 
         #endregion
@@ -62,6 +64,11 @@
         /// </value>
         public bool IsRunning { get; private set; }
 
+        /// <summary>
+        /// The outer task backed by a cancellation token
+        /// </summary>
+        private Task<Task> CancellableTask { get; set; }
+
         #endregion
 
         #region Methods
@@ -86,14 +93,14 @@
             var m = Manager.MediaCore;
 
             // Avoid processing the command if the element is disposed.
-            if (IsDisposed || m.IsDisposed || TaskContext.IsCanceled)
+            if (IsDisposed || m.IsDisposed || TaskContext.IsCanceled || IsRunning)
                 return;
 
             // Start and await the task
             try
             {
                 IsRunning = true;
-                TaskContext.Start();
+                CancellableTask.Start();
                 await TaskContext;
             }
             catch
@@ -132,14 +139,15 @@
         /// <returns>
         /// A <see cref="string" /> that represents this instance.
         /// </returns>
-        public override string ToString() => $"{CommandType} - " +
+        public override string ToString() => IsDisposed ? default : $"{CommandType} - " +
             $"ID: {TaskContext.Id} Canceled: {TaskContext.IsCanceled}; " +
             $"Completed: {TaskContext.IsCompleted}; Status: {TaskContext.Status}; State: {TaskContext.AsyncState}";
 
         /// <summary>
         /// Performs the actions that this command implements.
         /// </summary>
-        internal abstract void ExecuteInternal();
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        internal abstract Task ExecuteInternal();
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.

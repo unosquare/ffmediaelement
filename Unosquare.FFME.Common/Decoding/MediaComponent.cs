@@ -84,7 +84,15 @@
                 Container.Parent?.Log(MediaLogMessageType.Warning, $"Could not set codec parameters. Error code: {setCodecParamsResult}");
 
             // We set the packet timebase in the same timebase as the stream as opposed to the tpyical AV_TIME_BASE
-            ffmpeg.av_codec_set_pkt_timebase(CodecContext, Stream->time_base);
+            if (this is VideoComponent && Container.MediaOptions.VideoForcedFps != null)
+            {
+                ffmpeg.av_codec_set_pkt_timebase(CodecContext, Container.MediaOptions.VideoForcedFps.Value);
+                ffmpeg.av_stream_set_r_frame_rate(Stream, Container.MediaOptions.VideoForcedFps.Value);
+            }
+            else
+            {
+                ffmpeg.av_codec_set_pkt_timebase(CodecContext, Stream->time_base);
+            }
 
             // Find the codec and set it.
             var codec = ffmpeg.avcodec_find_decoder(Stream->codec->codec_id);

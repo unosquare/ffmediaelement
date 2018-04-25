@@ -2,6 +2,7 @@
 {
     using Shared;
     using System;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Implements the logic to seek on the media stream
@@ -31,7 +32,8 @@
         /// <summary>
         /// Performs the actions that this command implements.
         /// </summary>
-        internal override void ExecuteInternal()
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        internal override Task ExecuteInternal()
         {
             var m = Manager.MediaCore;
             m.Clock.Pause();
@@ -51,7 +53,7 @@
                 if (m.Blocks[main].IsInRange(TargetPosition))
                 {
                     m.Clock.Update(TargetPosition);
-                    return;
+                    return Task.CompletedTask;
                 }
 
                 // Signal to wait one more frame decoding cycle before
@@ -154,6 +156,8 @@
 
                 m.SeekingDone.Complete();
             }
+
+            return Task.CompletedTask;
         }
     }
 }

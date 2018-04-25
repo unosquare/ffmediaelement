@@ -2,6 +2,7 @@
 {
     using Shared;
     using System;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Implements the logic to pause and rewind the media stream
@@ -22,13 +23,14 @@
         /// <summary>
         /// Performs the actions that this command implements.
         /// </summary>
-        internal override void ExecuteInternal()
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        internal override async Task ExecuteInternal()
         {
             var m = Manager.MediaCore;
             m.Clock.Reset();
             m.State.UpdateMediaState(PlaybackStatus.Manual);
             var seek = new SeekCommand(Manager, TimeSpan.Zero);
-            seek.ExecuteInternal();
+            await seek.ExecuteInternal();
             m.State.UpdateMediaState(PlaybackStatus.Stop, m.WallClock);
 
             foreach (var renderer in m.Renderers.Values)

@@ -1,5 +1,7 @@
 ﻿namespace Unosquare.FFME.Shared
 {
+    using FFmpeg.AutoGen;
+
     /// <summary>
     /// Represetnts options that applied before initializing media components and their corresponding
     /// codecs. Once the container has created the media components, changing these options will have no effect.
@@ -68,6 +70,11 @@
         /// Please see: https://ffmpeg.org/ffmpeg-filters.html#Video-Filters
         /// </summary>
         public string VideoFilter { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Specifies a forced FPS value for the input video stream.
+        /// </summary>
+        public AVRational? VideoForcedFps { get; set; } = null;
 
         /// <summary>
         /// Initially contains the best suitable video stream.

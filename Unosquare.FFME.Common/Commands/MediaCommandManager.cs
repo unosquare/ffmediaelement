@@ -118,28 +118,24 @@
             ExecutingCommand = command;
             ClearCommandQueue();
 
-            var action = new Action(() =>
+            try
             {
-                try
-                {
-                    if (command.HasCompleted) return;
-                    command.RunSynchronously();
-                }
-                catch (Exception ex)
-                {
-                    MediaCore?.Log(
-                        MediaLogMessageType.Error,
-                        $"{nameof(MediaCommandManager)}.{nameof(OpenAsync)}: {ex.GetType()} - {ex.Message}");
-                }
-                finally
-                {
-                    ExecutingCommand?.Complete();
-                    ExecutingCommand = null;
-                    IsOpening.Value = false;
-                }
-            });
+                if (command.HasCompleted) return;
 
-            await Task.Run(action);
+                await command.StartAsync();
+            }
+            catch (Exception ex)
+            {
+                MediaCore?.Log(
+                    MediaLogMessageType.Error,
+                    $"{nameof(MediaCommandManager)}.{nameof(OpenAsync)}: {ex.GetType()} - {ex.Message}");
+            }
+            finally
+            {
+                ExecutingCommand?.Complete();
+                ExecutingCommand = null;
+                IsOpening.Value = false;
+            }
         }
 
         /// <summary>
@@ -158,28 +154,23 @@
             ExecutingCommand = command;
             ClearCommandQueue();
 
-            var action = new Action(() =>
+            try
             {
-                try
-                {
-                    if (command.HasCompleted) return;
-                    command.RunSynchronously();
-                }
-                catch (Exception ex)
-                {
-                    MediaCore?.Log(
-                        MediaLogMessageType.Error,
-                        $"{nameof(MediaCommandManager)}.{nameof(CloseAsync)}: {ex.GetType()} - {ex.Message}");
-                }
-                finally
-                {
-                    ExecutingCommand?.Complete();
-                    ExecutingCommand = null;
-                    IsClosing.Value = false;
-                }
-            });
-
-            await Task.Run(action);
+                if (command.HasCompleted) return;
+                await command.StartAsync();
+            }
+            catch (Exception ex)
+            {
+                MediaCore?.Log(
+                    MediaLogMessageType.Error,
+                    $"{nameof(MediaCommandManager)}.{nameof(CloseAsync)}: {ex.GetType()} - {ex.Message}");
+            }
+            finally
+            {
+                ExecutingCommand?.Complete();
+                ExecutingCommand = null;
+                IsClosing.Value = false;
+            }
         }
 
         #endregion

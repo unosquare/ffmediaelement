@@ -16,14 +16,14 @@
     <releaseNotes>
       This is a release package of the Michelob build referencing bindings to FFmpeg version 3.4.2
       This package does not contain the required FFmpeg binaries. Please refer to the following URL for instructions on how to obtain the binaries: https://github.com/unosquare/ffmediaelement
-      Release details: https://github.com/unosquare/ffmediaelement/milestone/5?closed=1
+      Release details: https://github.com/unosquare/ffmediaelement/milestone/6?closed=1
     </releaseNotes>
     <copyright>Copyright © 2015-2018 Mario Di Vece, Unosquare SA de CV</copyright>
     <language>en-US</language>
     <tags>hls wpf ffmpeg mediaelement ffme h264 h265 hevc audio video processing decoding playback frame</tags>
     <dependencies>
       <group targetFramework=".NETFramework4.6.1">
-        <dependency id="FFmpeg.AutoGen" version="3.4.0.5" />
+        <dependency id="FFmpeg.AutoGen" version="3.4.0.6" />
       </group>
     </dependencies>
   </metadata>

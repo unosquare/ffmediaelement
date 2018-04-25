@@ -16,13 +16,15 @@
         {
             get
             {
-                return MediaCore?.State.NaturalDuration == null
+                var duration = MediaCore?.State.NaturalDuration;
+
+                return !duration.HasValue
                   ? Duration.Automatic
-                  : (MediaCore.State.NaturalDuration.Value == TimeSpan.MinValue
+                  : (duration.Value == TimeSpan.MinValue
                     ? Duration.Forever
-                    : (MediaCore.State.NaturalDuration.Value < TimeSpan.Zero
+                    : (duration.Value < TimeSpan.Zero
                     ? default
-                    : new Duration(MediaCore.State.NaturalDuration.Value)));
+                    : new Duration(duration.Value)));
             }
         }
 

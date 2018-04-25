@@ -2,6 +2,7 @@
 {
     using Shared;
     using System;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Implements the logic to start or resume media playback
@@ -21,22 +22,25 @@
         /// <summary>
         /// Performs the actions that this command implements.
         /// </summary>
-        internal override void ExecuteInternal()
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        internal override Task ExecuteInternal()
         {
             var m = Manager.MediaCore;
 
-            if (m.State.IsOpen == false) return;
+            if (m.State.IsOpen == false) return Task.CompletedTask;
             if (m.State.HasMediaEnded
                 || (m.State.NaturalDuration.HasValue
                 && m.State.NaturalDuration != TimeSpan.MinValue
                 && m.WallClock >= m.State.NaturalDuration.Value))
-                return;
+                return Task.CompletedTask;
 
             foreach (var renderer in m.Renderers.Values)
                 renderer.Play();
 
             m.Clock.Play();
             m.State.UpdateMediaState(PlaybackStatus.Play, m.WallClock);
+
+            return Task.CompletedTask;
         }
     }
 }

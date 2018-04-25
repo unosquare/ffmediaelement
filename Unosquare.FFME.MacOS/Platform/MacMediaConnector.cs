@@ -3,6 +3,7 @@
     using System;
     using System.ComponentModel;
     using Unosquare.FFME.Shared;
+    using System.Threading.Tasks;
 
     internal class MacMediaConnector : IMediaConnector
     {
@@ -13,44 +14,44 @@
             Control = control;
         }
 
-        public void OnBufferingEnded(MediaEngine sender)
+        public Task OnBufferingEnded(MediaEngine sender)
         {
-            // placeholder
+            return Task.CompletedTask;
         }
 
-        public void OnBufferingStarted(MediaEngine sender)
+        public Task OnBufferingStarted(MediaEngine sender)
         {
-            // placeholder
+            return Task.CompletedTask;
         }
 
-        public void OnMediaClosed(MediaEngine sender)
+        public Task OnMediaClosed(MediaEngine sender)
         {
-            // placeholder
+            return Task.CompletedTask;
         }
 
-        public void OnMediaEnded(MediaEngine sender)
+        public Task OnMediaEnded(MediaEngine sender)
         {
-            // placeholder
+            return Task.CompletedTask;
         }
 
-        public void OnMediaFailed(MediaEngine sender, Exception e)
+        public Task OnMediaFailed(MediaEngine sender, Exception e)
         {
-            // placeholder
+            return Task.CompletedTask;
         }
 
-        public void OnMediaOpened(MediaEngine sender)
+        public Task OnMediaOpened(MediaEngine sender)
         {
-            // placeholder
+            return Task.CompletedTask;
         }
 
-        public void OnMediaOpening(MediaEngine sender, MediaOptions options, MediaInfo mediaInfo)
+        public Task OnMediaOpening(MediaEngine sender, MediaOptions options, MediaInfo mediaInfo)
         {
-            // placeholder
+            return Task.CompletedTask;
         }
 
-        public void OnMediaInitializing(MediaEngine sender, StreamOptions options, string url)
+        public Task OnMediaInitializing(MediaEngine sender, StreamOptions options, string url)
         {
-            // placeholder
+            return Task.CompletedTask;
         }
 
         public void OnMessageLogged(MediaEngine sender, MediaLogMessage e)
@@ -59,14 +60,14 @@
             Console.WriteLine($"{e.MessageType,10} - {e.Message}");
         }
 
-        public void OnSeekingEnded(MediaEngine sender)
+        public Task OnSeekingEnded(MediaEngine sender)
         {
-            // placeholder
+            return Task.CompletedTask;
         }
 
-        public void OnSeekingStarted(MediaEngine sender)
+        public Task OnSeekingStarted(MediaEngine sender)
         {
-            // placeholder
+            return Task.CompletedTask;
         }
 
         public void OnPositionChanged(MediaEngine sender, TimeSpan oldValue, TimeSpan newValue)
@@ -74,9 +75,9 @@
             // placeholder
         }
 
-        public void OnMediaStateChanged(MediaEngine sender, PlaybackStatus oldValue, PlaybackStatus newValue)
+        public Task OnMediaStateChanged(MediaEngine sender, PlaybackStatus oldValue, PlaybackStatus newValue)
         {
-            // placeholder
+            return Task.CompletedTask;
         }
     }
 }
