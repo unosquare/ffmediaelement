@@ -64,37 +64,37 @@
         /// <summary>
         /// Gets the AVCodec library.
         /// </summary>
-        public static FFLibrary LibAVCodec { get; } = new FFLibrary(Names.AVCodec, 57, 1);
+        public static FFLibrary LibAVCodec { get; } = new FFLibrary(Names.AVCodec, 58, 1);
 
         /// <summary>
         /// Gets the AVFormat library.
         /// </summary>
-        public static FFLibrary LibAVFormat { get; } = new FFLibrary(Names.AVFormat, 57, 2);
+        public static FFLibrary LibAVFormat { get; } = new FFLibrary(Names.AVFormat, 58, 2);
 
         /// <summary>
         /// Gets the AVUtil library.
         /// </summary>
-        public static FFLibrary LibAVUtil { get; } = new FFLibrary(Names.AVUtil, 55, 4);
+        public static FFLibrary LibAVUtil { get; } = new FFLibrary(Names.AVUtil, 56, 4);
 
         /// <summary>
         /// Gets the SWResample library.
         /// </summary>
-        public static FFLibrary LibSWResample { get; } = new FFLibrary(Names.SWResample, 2, 8);
+        public static FFLibrary LibSWResample { get; } = new FFLibrary(Names.SWResample, 3, 8);
 
         /// <summary>
         /// Gets the SWScale library.
         /// </summary>
-        public static FFLibrary LibSWScale { get; } = new FFLibrary(Names.SWScale, 4, 16);
+        public static FFLibrary LibSWScale { get; } = new FFLibrary(Names.SWScale, 5, 16);
 
         /// <summary>
         /// Gets the AVDevice library.
         /// </summary>
-        public static FFLibrary LibAVDevice { get; } = new FFLibrary(Names.AVDevice, 57, 32);
+        public static FFLibrary LibAVDevice { get; } = new FFLibrary(Names.AVDevice, 58, 32);
 
         /// <summary>
         /// Gets the AVFilter library.
         /// </summary>
-        public static FFLibrary LibAVFilter { get; } = new FFLibrary(Names.AVFilter, 6, 64);
+        public static FFLibrary LibAVFilter { get; } = new FFLibrary(Names.AVFilter, 7, 64);
 
         #endregion
 

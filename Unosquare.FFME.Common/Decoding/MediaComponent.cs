@@ -86,12 +86,12 @@
             // We set the packet timebase in the same timebase as the stream as opposed to the tpyical AV_TIME_BASE
             if (this is VideoComponent && Container.MediaOptions.VideoForcedFps != null)
             {
-                ffmpeg.av_codec_set_pkt_timebase(CodecContext, Container.MediaOptions.VideoForcedFps.Value);
-                ffmpeg.av_stream_set_r_frame_rate(Stream, Container.MediaOptions.VideoForcedFps.Value);
+                CodecContext->pkt_timebase = Container.MediaOptions.VideoForcedFps.Value;
+                Stream->r_frame_rate = Container.MediaOptions.VideoForcedFps.Value;
             }
             else
             {
-                ffmpeg.av_codec_set_pkt_timebase(CodecContext, Stream->time_base);
+                CodecContext->pkt_timebase = Stream->time_base;
             }
 
             // Find the codec and set it.
@@ -106,23 +106,17 @@
             CodecContext->codec_id = codec->id;
 
             // Process the low res index option
-            var lowResIndex = ffmpeg.av_codec_get_max_lowres(codec);
+            var lowResIndex = codec->max_lowres;
             if (Container.MediaOptions.EnableLowRes)
-            {
-                ffmpeg.av_codec_set_lowres(CodecContext, lowResIndex);
-                CodecContext->flags |= ffmpeg.CODEC_FLAG_EMU_EDGE;
-            }
+                CodecContext->lowres = lowResIndex;
             else
-            {
                 lowResIndex = 0;
-            }
 
             // Configure the codec context flags
             if (Container.MediaOptions.EnableFastDecoding) CodecContext->flags2 |= ffmpeg.AV_CODEC_FLAG2_FAST;
             if (Container.MediaOptions.EnableLowDelay) CodecContext->flags |= ffmpeg.AV_CODEC_FLAG_LOW_DELAY;
-            if ((codec->capabilities & ffmpeg.AV_CODEC_CAP_DR1) != 0) CodecContext->flags |= ffmpeg.CODEC_FLAG_EMU_EDGE;
-            if ((codec->capabilities & ffmpeg.AV_CODEC_CAP_TRUNCATED) != 0) CodecContext->flags |= ffmpeg.AV_CODEC_CAP_TRUNCATED;
-            if ((codec->capabilities & ffmpeg.CODEC_FLAG2_CHUNKS) != 0) CodecContext->flags |= ffmpeg.CODEC_FLAG2_CHUNKS;
+            if ((codec->capabilities & ffmpeg.AV_CODEC_CAP_TRUNCATED) != 0) CodecContext->flags |= ffmpeg.AV_CODEC_FLAG_TRUNCATED;
+            if ((codec->capabilities & ffmpeg.AV_CODEC_FLAG2_CHUNKS) != 0) CodecContext->flags |= ffmpeg.AV_CODEC_FLAG2_CHUNKS;
 
             // Setup additional settings. The most important one is Threads -- Setting it to 1 decoding is very slow. Setting it to auto
             // decoding is very fast in most scenarios.

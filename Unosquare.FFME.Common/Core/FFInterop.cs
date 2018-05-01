@@ -104,16 +104,15 @@
 
                     // Additional library initialization
                     if (FFLibrary.LibAVDevice.IsLoaded) ffmpeg.avdevice_register_all();
-                    if (FFLibrary.LibAVFilter.IsLoaded) ffmpeg.avfilter_register_all();
 
-                    // Standard set initialization
-                    ffmpeg.av_register_all();
-                    ffmpeg.avcodec_register_all();
-                    ffmpeg.avformat_network_init();
+                    // Standard set initialization -- not needed anymore starting FFmpeg 4
+                    // if (FFLibrary.LibAVFilter.IsLoaded) ffmpeg.avfilter_register_all();
+                    // ffmpeg.av_register_all();
+                    // ffmpeg.avcodec_register_all();
+                    // ffmpeg.avformat_network_init();
 
                     // Logging and locking
                     LoggingWorker.ConnectToFFmpeg();
-                    FFLockManager.Register();
 
                     // set the static environment properties
                     m_LibrariesPath = ffmpegPath;
