@@ -18,7 +18,7 @@
       "output": {
         ".html": {
           "relative_path": "README.html",
-          "hash": "SL9vvjdp36X/57AvqGPPkQ=="
+          "hash": "wdv4EiizHAReZoR2+jC4Lg=="
         }
       },
       "is_incremental": false,
@@ -63,7 +63,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Events.BitmapDataBuffer.html",
-          "hash": "dFlPEHWcb7S4pz3mbEBMlQ=="
+          "hash": "2x0HRN6bAuCp26D9FXUpbQ=="
         }
       },
       "is_incremental": false,
@@ -75,7 +75,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.html",
-          "hash": "ttyUO5jeIeq/VBKYPka7tg=="
+          "hash": "PANfI/sEN49veFCRsk9UNg=="
         }
       },
       "is_incremental": false,
@@ -87,7 +87,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Events.MediaLogMessageEventArgs.html",
-          "hash": "PVuCVRfUFUWd4+DrylCtdQ=="
+          "hash": "4GCRzOrnSA7MzwV8Vc6g3A=="
         }
       },
       "is_incremental": false,
@@ -99,7 +99,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.html",
-          "hash": "C34ACtfpkk/HyP1gcJGJRw=="
+          "hash": "Vcl5pF/TVKHzVhlyUU4T4g=="
         }
       },
       "is_incremental": false,
@@ -111,7 +111,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.html",
-          "hash": "MSYQ7NalyxfOsi+kPn3n3Q=="
+          "hash": "p9KokUj37gx0IAPK0kAr5A=="
         }
       },
       "is_incremental": false,
@@ -123,7 +123,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Events.PositionChangedRoutedEventArgs.html",
-          "hash": "iJCuxdtomSKueqoodMRUqw=="
+          "hash": "hrBVooFg1FjUlA3RmdceYw=="
         }
       },
       "is_incremental": false,
@@ -135,7 +135,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Events.RenderingAudioEventArgs.html",
-          "hash": "gy3hHdC/eJkfJ4+edp19ng=="
+          "hash": "ddg5soNoS3nPtSt4Yw16xw=="
         }
       },
       "is_incremental": false,
@@ -147,7 +147,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Events.RenderingEventArgs.html",
-          "hash": "sJ5p+AbAL2zd+YE2s5tV/w=="
+          "hash": "nlxTJ1OmzYLAcZiRXaoVvQ=="
         }
       },
       "is_incremental": false,
@@ -159,7 +159,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Events.RenderingSubtitlesEventArgs.html",
-          "hash": "XPWSupFdzp8jlfN1uUU7kA=="
+          "hash": "dCeenmx+AIh5f7c+vnRFzQ=="
         }
       },
       "is_incremental": false,
@@ -171,7 +171,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Events.RenderingVideoEventArgs.html",
-          "hash": "Q7C6CFBQcYEf0b5hNdLExg=="
+          "hash": "ZIts8/yWlM66hBEP7W1I+w=="
         }
       },
       "is_incremental": false,
@@ -183,7 +183,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Events.html",
-          "hash": "rZl163A/Bz3s3GFfLKwPag=="
+          "hash": "hrS4Iq5a1vzXapSG7c2krQ=="
         }
       },
       "is_incremental": false,
@@ -195,7 +195,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.MediaElement.html",
-          "hash": "TnxH5HXqDRU8Fg2u3cy2zQ=="
+          "hash": "8T39htK/RiB1vVQjn3odTA=="
         }
       },
       "is_incremental": false,
@@ -207,7 +207,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Platform.GuiContext.html",
-          "hash": "awXGUh300ox2qfPdH3Jqeg=="
+          "hash": "1LOBlujP9hr8+jIbMSHF8g=="
         }
       },
       "is_incremental": false,
@@ -219,7 +219,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Platform.GuiContextType.html",
-          "hash": "2IGaZVlkQxXZDcvMfILlbA=="
+          "hash": "gUzjsNLSOK3lcM1Ryjv8Tw=="
         }
       },
       "is_incremental": false,
@@ -231,7 +231,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Platform.html",
-          "hash": "wEpuaMvAnebFPuq/HIdAyA=="
+          "hash": "LH23thx0VAJvyFPit4u5vw=="
         }
       },
       "is_incremental": false,
@@ -243,7 +243,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Subtitles.html",
-          "hash": "ZMfwRWXukrAqBgKHsIdOUg=="
+          "hash": "dypUKAQMN1cb4tV8d/4Tyg=="
         }
       },
       "is_incremental": false,
@@ -255,7 +255,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.html",
-          "hash": "XvgP0uxfPUde/4NQlm2HGQ=="
+          "hash": "TK/LZBrHt10B7zwY9Vn9MQ=="
         }
       },
       "is_incremental": false,
@@ -294,8 +294,9 @@
         "incrementalPhase": "build"
       },
       "processors": {
-        "ManagedReferenceDocumentProcessor": {
+        "TocDocumentProcessor": {
           "can_incremental": false,
+          "details": "Processor TocDocumentProcessor cannot suppport incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
           "incrementalPhase": "build"
         },
         "ConceptualDocumentProcessor": {
@@ -307,9 +308,8 @@
           "details": "Processor ResourceDocumentProcessor cannot suppport incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
           "incrementalPhase": "build"
         },
-        "TocDocumentProcessor": {
+        "ManagedReferenceDocumentProcessor": {
           "can_incremental": false,
-          "details": "Processor TocDocumentProcessor cannot suppport incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
           "incrementalPhase": "build"
         }
       }
