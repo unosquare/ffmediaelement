@@ -135,12 +135,20 @@
             {
                 e.Options.VideoFilter = "yadif";
 
-                // When enabling HW acceleration, the filtering does not seem to get applied for some reason.
-                e.Options.EnableHardwareAcceleration = true;
+                // When enabling HW acceleration, the filtering does not work.
+                e.Options.VideoHardwareDecoder = null;
             }
+            else
+            {
+                // Experimetal HW acceleration support. Remove if not needed.
+                var accelerator = e.Options.VideoStream.HardwareDevices
+                    .FirstOrDefault(d => d.DeviceType == AVHWDeviceType.AV_HWDEVICE_TYPE_CUDA);
 
-            // Experimetal HW acceleration support. Remove if not needed.
-            e.Options.EnableHardwareAcceleration = true;
+                if (accelerator != null)
+                {
+                    e.Options.VideoHardwareDecoder = accelerator;
+                }
+            }
 
             // e.Options.AudioFilter = "aecho=0.8:0.9:1000:0.3";
             // e.Options.AudioFilter = "chorus=0.5:0.9:50|60|40:0.4|0.32|0.3:0.25|0.4|0.3:2|2.3|1.3";

@@ -2,11 +2,11 @@
 {
     using Core;
     using FFmpeg.AutoGen;
+    using Shared;
     using System;
     using System.Collections.Generic;
-    using System.Linq;
 
-    internal unsafe class HardwareAccelerator
+    internal unsafe class HardwareAcceleration
     {
         /// <summary>
         /// The get format callback
@@ -16,9 +16,9 @@
         private VideoComponent Component;
 
         /// <summary>
-        /// Prevents a default instance of the <see cref="HardwareAccelerator"/> class from being created.
+        /// Prevents a default instance of the <see cref="HardwareAcceleration"/> class from being created.
         /// </summary>
-        private HardwareAccelerator()
+        private HardwareAcceleration()
         {
             // prevent instantiation outside this class
             GetFormatCallback = new AVCodecContext_get_format(GetPixelFormat);
@@ -43,43 +43,57 @@
         /// Attaches a hardware accelerator to the specified component.
         /// </summary>
         /// <param name="component">The component.</param>
-        /// <returns>Whether or not the hardware accelerator was attached</returns>
-        public static bool Attach(VideoComponent component)
+        /// <param name="selectedConfig">The selected configuration.</param>
+        /// <returns>
+        /// Whether or not the hardware accelerator was attached
+        /// </returns>
+        public static bool Attach(VideoComponent component, HardwareDeviceInfo selectedConfig)
         {
-            var configs = GetCompatibleConfigs(component);
-            if (configs.Count <= 0) return false;
-
-            var selectedConfig = default(AVCodecHWConfig?);
-            var deviceTypePriority = new AVHWDeviceType[]
-            {
-                AVHWDeviceType.AV_HWDEVICE_TYPE_CUDA,
-                AVHWDeviceType.AV_HWDEVICE_TYPE_D3D11VA,
-                AVHWDeviceType.AV_HWDEVICE_TYPE_DXVA2
-            };
-
-            foreach (var deviceType in deviceTypePriority)
-            {
-                var entry = configs.FirstOrDefault(c => c.device_type == deviceType);
-                if (entry.device_type != AVHWDeviceType.AV_HWDEVICE_TYPE_NONE)
-                {
-                    selectedConfig = entry;
-                    break;
-                }
-            }
-
-            if (selectedConfig == null)
-                selectedConfig = configs[0];
-
-            var result = new HardwareAccelerator
+            var result = new HardwareAcceleration
             {
                 Component = component,
-                Name = ffmpeg.av_hwdevice_get_type_name(selectedConfig.Value.device_type),
-                DeviceType = selectedConfig.Value.device_type,
-                PixelFormat = selectedConfig.Value.pix_fmt
+                Name = ffmpeg.av_hwdevice_get_type_name(selectedConfig.DeviceType),
+                DeviceType = selectedConfig.DeviceType,
+                PixelFormat = selectedConfig.PixelFormat,
             };
 
             result.InitializeHardwareContext();
             return true;
+        }
+
+        /// <summary>
+        /// Gets the supported hardware decoder device types for the given codec.
+        /// </summary>
+        /// <param name="codecId">The codec identifier.</param>
+        /// <returns>
+        /// A list of hardware device decoders compatible with the codec
+        /// </returns>
+        public static List<HardwareDeviceInfo> GetCompatibleDevices(AVCodecID codecId)
+        {
+            const int AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX = 0x01;
+            var codec = ffmpeg.avcodec_find_decoder(codecId);
+            var result = new List<HardwareDeviceInfo>(64);
+            var configIndex = 0;
+
+            // skip unsupported configs
+            if (codec == null || codecId == AVCodecID.AV_CODEC_ID_NONE)
+                return result;
+
+            while (true)
+            {
+                var config = ffmpeg.avcodec_get_hw_config(codec, configIndex);
+                if (config == null) break;
+
+                if ((config->methods & AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX) != 0
+                    && config->device_type != AVHWDeviceType.AV_HWDEVICE_TYPE_NONE)
+                {
+                    result.Add(new HardwareDeviceInfo(config));
+                }
+
+                configIndex++;
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -133,44 +147,9 @@
 
             ffmpeg.av_frame_free(&input);
             RC.Current.Remove((IntPtr)input);
-            RC.Current.Add(output, $"86: {nameof(HardwareAccelerator)}[{PixelFormat}].{nameof(ExchangeFrame)}()");
+            RC.Current.Add(output, $"86: {nameof(HardwareAcceleration)}[{PixelFormat}].{nameof(ExchangeFrame)}()");
 
             return output;
-        }
-
-        /// <summary>
-        /// Gets the supported hardware decoder device types.
-        /// </summary>
-        /// <param name="component">The component.</param>
-        /// <returns>A list of hardware device decoders compatible with the codec</returns>
-        private static List<AVCodecHWConfig> GetCompatibleConfigs(VideoComponent component)
-        {
-            const int AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX = 0x01;
-            var codec = ffmpeg.avcodec_find_decoder(component.CodecContext->codec_id);
-            var result = new List<AVCodecHWConfig>(64);
-            var configIndex = 0;
-            while (true)
-            {
-                var config = ffmpeg.avcodec_get_hw_config(codec, configIndex);
-                if (config == null) break;
-
-                if ((config->methods & AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX) != 0
-                    && config->device_type != AVHWDeviceType.AV_HWDEVICE_TYPE_NONE)
-                {
-                    var configCopy = new AVCodecHWConfig
-                    {
-                        device_type = config->device_type,
-                        methods = config->methods,
-                        pix_fmt = config->pix_fmt
-                    };
-
-                    result.Add(configCopy);
-                }
-
-                configIndex++;
-            }
-
-            return result;
         }
 
         /// <summary>

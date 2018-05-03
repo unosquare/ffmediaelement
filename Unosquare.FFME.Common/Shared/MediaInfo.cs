@@ -183,6 +183,10 @@
                     TBC = 1d / s->codec->time_base.ToDouble(),
                 };
 
+                // Extract valid hardwar configurations
+                stream.HardwareDevices = new ReadOnlyCollection<HardwareDeviceInfo>(
+                    HardwareAcceleration.GetCompatibleDevices(stream.Codec));
+
                 // TODO: I chose not to include Side data but I could easily do so
                 // https://ffmpeg.org/doxygen/3.2/dump_8c_source.html
                 // See function: dump_sidedata
@@ -492,6 +496,11 @@
         /// Gets the stream's metadata.
         /// </summary>
         public ReadOnlyDictionary<string, string> Metadata { get; internal set; }
+
+        /// <summary>
+        /// Gets the compatible hardware device configurations for the stream's codec.
+        /// </summary>
+        public ReadOnlyCollection<HardwareDeviceInfo> HardwareDevices { get; internal set; }
 
         /// <summary>
         /// Gets the language string from the stream's metadata.

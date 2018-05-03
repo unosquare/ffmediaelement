@@ -129,9 +129,9 @@
                 codecOptions[MediaCodecOptions.Names.RefCountedFrames] = 1.ToString(CultureInfo.InvariantCulture);
 
             // Enable Hardware acceleration if requested
-            if (this is VideoComponent && container.MediaOptions.EnableHardwareAcceleration)
+            if (this is VideoComponent && container.MediaOptions.VideoHardwareDecoder != null)
             {
-                var attachedHardware = HardwareAccelerator.Attach(this as VideoComponent);
+                HardwareAcceleration.Attach(this as VideoComponent, container.MediaOptions.VideoHardwareDecoder);
             }
 
             // Open the CodecContext. This requires exclusive FFmpeg access

@@ -40,10 +40,10 @@
         public bool EnableLowDelay { get; set; } = false;
 
         /// <summary>
-        /// Gets or sets a value indicating whether experimental hardware acceleration is enabled.
-        /// Defaults to false. This feature is experimental.
+        /// Use Stream's HardwareDevices property to get a list of
+        /// compatible hardware accelerators
         /// </summary>
-        public bool EnableHardwareAcceleration { get; set; }
+        public HardwareDeviceInfo VideoHardwareDecoder { get; set; }
 
         /// <summary>
         /// Prevent reading from audio stream components.
