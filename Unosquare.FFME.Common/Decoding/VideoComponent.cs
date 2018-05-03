@@ -310,7 +310,7 @@
             }
 
             DestroyFiltergraph();
-            HardwareAccelerator?.DetachDevice(this);
+            HardwareAccelerator?.Release();
             base.Dispose(alsoManaged);
         }
 
