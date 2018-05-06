@@ -54,7 +54,7 @@
                 var result = new HardwareAcceleration
                 {
                     Component = component,
-                    Name = ffmpeg.av_hwdevice_get_type_name(selectedConfig.DeviceType),
+                    Name = selectedConfig.DeviceTypeName,
                     DeviceType = selectedConfig.DeviceType,
                     PixelFormat = selectedConfig.PixelFormat,
                 };
