@@ -49,16 +49,24 @@
         /// </returns>
         public static bool Attach(VideoComponent component, HardwareDeviceInfo selectedConfig)
         {
-            var result = new HardwareAcceleration
+            try
             {
-                Component = component,
-                Name = ffmpeg.av_hwdevice_get_type_name(selectedConfig.DeviceType),
-                DeviceType = selectedConfig.DeviceType,
-                PixelFormat = selectedConfig.PixelFormat,
-            };
+                var result = new HardwareAcceleration
+                {
+                    Component = component,
+                    Name = ffmpeg.av_hwdevice_get_type_name(selectedConfig.DeviceType),
+                    DeviceType = selectedConfig.DeviceType,
+                    PixelFormat = selectedConfig.PixelFormat,
+                };
 
-            result.InitializeHardwareContext();
-            return true;
+                result.InitializeHardwareContext();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                component.Container.Parent?.Log(MediaLogMessageType.Error, $"Could not attach hardware decoder. {ex.Message}");
+                return false;
+            }
         }
 
         /// <summary>
