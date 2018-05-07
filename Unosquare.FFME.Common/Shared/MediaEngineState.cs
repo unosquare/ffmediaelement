@@ -121,7 +121,7 @@
             {
                 if (IsOpen == false) { return TimeSpan.Zero; }
 
-                if (HasVideo && VideoFrameLength > 0 && !double.IsInfinity(VideoFrameLength))
+                if (HasVideo && VideoFrameLength > 0 && !double.IsInfinity(VideoFrameLength) && VideoFrameLength < TimeSpan.MaxValue.TotalSeconds)
                 {
                     try
                     {
