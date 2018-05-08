@@ -293,11 +293,11 @@
 
             // Send the block to its corresponding renderer
             Renderers[block.MediaType]?.Render(block, clockPosition);
+            LastRenderTime[block.MediaType] = block.StartTime;
 
             // Extension method for logging
             var blockIndex = Blocks.ContainsKey(block.MediaType) ? Blocks[block.MediaType].IndexOf(clockPosition) : 0;
             this.LogRenderBlock(block, clockPosition, blockIndex);
-            LastRenderTime[block.MediaType] = block.StartTime;
             return 1;
         }
 

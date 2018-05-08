@@ -211,17 +211,17 @@
                         blocks = Blocks[t];
                         isInRange = blocks.IsInRange(wallClock);
 
+                        // wait for component to get there if we only have furutre blocks
+                        // in auxiliary component.
+                        if (blocks.Count > 0 && blocks.RangeStartTime > wallClock)
+                            continue;
+
                         // Invalidate the renderer if we don't have the block.
                         if (isInRange == false)
                         {
                             LastRenderTime[t] = TimeSpan.MinValue;
                             Renderers[t].Seek();
                         }
-
-                        // wait for component to get there if we only have furutre blocks
-                        // in auxiliary component.
-                        if (blocks.Count > 0 && blocks.RangeStartTime > wallClock)
-                            continue;
 
                         // Try to catch up with the wall clock
                         while (blocks.Count == 0 || blocks.RangeEndTime <= wallClock)

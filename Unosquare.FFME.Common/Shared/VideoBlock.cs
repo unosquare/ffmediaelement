@@ -1,9 +1,10 @@
 ﻿namespace Unosquare.FFME.Shared
 {
     using ClosedCaptions;
+    using Decoding;
+    using FFmpeg.AutoGen;
     using System;
     using System.Collections.ObjectModel;
-    using System.Runtime.InteropServices;
 
     /// <summary>
     /// A pre-allocated, scaled video block. The buffer is in BGR, 24-bit format
@@ -44,17 +45,17 @@
         /// The picture buffer stride.
         /// Pixel Width * 32-bit color (4 byes) + alignment (typically 0 for modern hw).
         /// </summary>
-        public int BufferStride { get; internal set; }
+        public int BufferStride => PictureBufferStride;
 
         /// <summary>
         /// Gets the number of horizontal pixels in the image.
         /// </summary>
-        public int PixelWidth { get; internal set; }
+        public int PixelWidth { get; private set; }
 
         /// <summary>
         /// Gets the number of vertical pixels in the image.
         /// </summary>
-        public int PixelHeight { get; internal set; }
+        public int PixelHeight { get; private set; }
 
         /// <summary>
         /// Gets the width of the aspect ratio.
@@ -91,12 +92,17 @@
         /// <summary>
         /// The picture buffer length of the last allocated buffer
         /// </summary>
-        internal int PictureBufferLength { get; set; }
+        internal int PictureBufferLength { get; private set; }
 
         /// <summary>
         /// Holds a reference to the last allocated buffer
         /// </summary>
-        internal IntPtr PictureBuffer { get; set; }
+        internal IntPtr PictureBuffer { get; private set; }
+
+        /// <summary>
+        /// Gets the picture buffer stride.
+        /// </summary>
+        internal int PictureBufferStride { get; private set; }
 
         #endregion
 
@@ -112,6 +118,46 @@
         }
 
         /// <summary>
+        /// Allocates a block of memory suitable for a picture buffer
+        /// and sets the corresponding properties.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <param name="pixelFormat">The pixel format.</param>
+        internal unsafe void EnsureAllocated(VideoFrame source, AVPixelFormat pixelFormat)
+        {
+            // Ensure proper allocation of the buffer
+            // If there is a size mismatch between the wanted buffer length and the existing one,
+            // then let's reallocate the buffer and set the new size (dispose of the existing one if any)
+            var targetLength = ffmpeg.av_image_get_buffer_size(pixelFormat, source.Pointer->width, source.Pointer->height, 1);
+            if (PictureBufferLength != targetLength)
+            {
+                Deallocate();
+                PictureBuffer = new IntPtr(ffmpeg.av_malloc((uint)targetLength));
+                PictureBufferLength = targetLength;
+            }
+
+            // Update related properties
+            PictureBufferStride = ffmpeg.av_image_get_linesize(pixelFormat, source.Pointer->width, 0);
+            PixelWidth = source.Pointer->width;
+            PixelHeight = source.Pointer->height;
+        }
+
+        /// <summary>
+        /// Deallocates the picture buffer and resets the related buffer properties
+        /// </summary>
+        private unsafe void Deallocate()
+        {
+            if (PictureBuffer == IntPtr.Zero) return;
+
+            ffmpeg.av_free(PictureBuffer.ToPointer());
+            PictureBuffer = IntPtr.Zero;
+            PictureBufferLength = 0;
+            PictureBufferStride = 0;
+            PixelWidth = 0;
+            PixelHeight = 0;
+        }
+
+        /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
@@ -124,13 +170,7 @@
                     // no code for managed dispose
                 }
 
-                if (PictureBuffer != IntPtr.Zero)
-                {
-                    Marshal.FreeHGlobal(PictureBuffer);
-                    PictureBuffer = IntPtr.Zero;
-                    PictureBufferLength = 0;
-                }
-
+                Deallocate();
                 IsDisposed = true;
             }
         }

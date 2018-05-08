@@ -142,7 +142,7 @@
             {
                 // Experimetal HW acceleration support. Remove if not needed.
                 var accelerator = e.Options.VideoStream.HardwareDevices
-                    .FirstOrDefault(d => d.DeviceType == AVHWDeviceType.AV_HWDEVICE_TYPE_CUDA);
+                    .FirstOrDefault(d => d.DeviceType == AVHWDeviceType.AV_HWDEVICE_TYPE_DXVA2);
 
                 if (accelerator != null)
                 {
