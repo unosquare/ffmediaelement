@@ -127,27 +127,27 @@
             if (englishSubtitleStream != null)
                 e.Options.SubtitleStream = englishSubtitleStream;
 
+            // Experimetal HW acceleration support. Set to AV_HWDEVICE_TYPE_NONE if not needed
+            var accelerator = e.Options.VideoStream.HardwareDevices
+                .FirstOrDefault(d => d.DeviceType == AVHWDeviceType.AV_HWDEVICE_TYPE_CUDA);
+
+            // Set to either null or the found HW decoder
+            e.Options.VideoHardwareDecoder = accelerator;
+
             // The yadif filter deinterlaces the video; we check the field order if we need
             // to deinterlace the video automatically
-            if (e.Options.VideoStream != null
+            var requiresDeinterlace = e.Options.VideoStream != null
                 && e.Options.VideoStream.FieldOrder != AVFieldOrder.AV_FIELD_PROGRESSIVE
-                && e.Options.VideoStream.FieldOrder != AVFieldOrder.AV_FIELD_UNKNOWN)
-            {
-                e.Options.VideoFilter = "yadif";
+                && e.Options.VideoStream.FieldOrder != AVFieldOrder.AV_FIELD_UNKNOWN;
 
-                // When enabling HW acceleration, the filtering does not work.
-                e.Options.VideoHardwareDecoder = null;
-            }
-            else
+            // If we are using the HW decoder, we deinterlace via a codec option.
+            // Otherwise, we deinterlace using the yadif sftware-based filter
+            if (requiresDeinterlace || true)
             {
-                // Experimetal HW acceleration support. Remove if not needed.
-                var accelerator = e.Options.VideoStream.HardwareDevices
-                    .FirstOrDefault(d => d.DeviceType == AVHWDeviceType.AV_HWDEVICE_TYPE_DXVA2);
-
                 if (accelerator != null)
-                {
-                    e.Options.VideoHardwareDecoder = accelerator;
-                }
+                    e.Options.CodecOptions.Add("deint", "2", 'v', e.Options.VideoStream.StreamIndex);
+                else
+                    e.Options.VideoFilter = "yadif";
             }
 
             // e.Options.AudioFilter = "aecho=0.8:0.9:1000:0.3";

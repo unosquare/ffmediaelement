@@ -93,7 +93,7 @@
             var m = Manager.MediaCore;
 
             // Avoid processing the command if the element is disposed.
-            if (IsDisposed || m.IsDisposed || TaskContext.IsCanceled || IsRunning)
+            if (IsDisposed || m.IsDisposed || TaskContext.IsCanceled || IsRunning || TaskContext.IsCompleted)
                 return;
 
             // Start and await the task
