@@ -52,11 +52,6 @@
         /// </summary>
         private bool IsDisposed = false;
 
-        /// <summary>
-        /// Holds total bytes read in the lifetime of this object
-        /// </summary>
-        private ulong m_LifetimeBytesRead = 0;
-
         #endregion
 
         #region Constructor
@@ -240,11 +235,7 @@
         /// <summary>
         /// Gets the total amount of bytes read by this component in the lifetime of this component.
         /// </summary>
-        public ulong LifetimeBytesRead
-        {
-            get => m_LifetimeBytesRead;
-            private set => m_LifetimeBytesRead = value;
-        }
+        public ulong LifetimeBytesRead { get; private set; } = 0;
 
         /// <summary>
         /// Gets the ID of the codec for this component.

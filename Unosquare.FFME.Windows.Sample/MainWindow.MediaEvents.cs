@@ -59,7 +59,7 @@
 
         #endregion
 
-        #region Media Stream Events
+        #region Media Stream Opening Event Handlers
 
         /// <summary>
         /// Handles the MediaInitializing event of the Media control.
@@ -121,7 +121,7 @@
             // see: https://github.com/unosquare/ffmediaelement/issues/212
             // e.Options.VideoForcedFps = new AVRational { num = 25, den = 1 };
 
-            // An example of switching to a different stream
+            // An example of specifcally selecting a playback stream
             var subtitleStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_SUBTITLE).Select(kvp => kvp.Value);
             var englishSubtitleStream = subtitleStreams.FirstOrDefault(s => s.Language.StartsWith("en"));
             if (englishSubtitleStream != null)
@@ -168,7 +168,7 @@
 
         #endregion
 
-        #region Methods: Event Handlers
+        #region Other Media Event Handlers
 
         /// <summary>
         /// Handles the PositionChanged event of the Media control.

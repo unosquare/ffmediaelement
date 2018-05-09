@@ -224,6 +224,65 @@
             return result;
         }
 
+        public static unsafe AVCodec*[] RetriveCodecs()
+        {
+            var result = new List<IntPtr>(1024);
+            void* iterator;
+            AVCodec* item;
+            while ((item = ffmpeg.av_codec_iterate(&iterator)) != null)
+            {
+                result.Add(new IntPtr(item));
+            }
+
+            var collection = new AVCodec*[result.Count];
+            for (var i = 0; i < result.Count; i++)
+            {
+                collection[i] = (AVCodec*)result[i].ToPointer();
+            }
+
+            return collection;
+        }
+
+        public static unsafe AVCodec* FindDecoder(string codecName)
+        {
+            codecName = codecName.ToLowerInvariant().Trim();
+            var allCodecs = RetriveCodecs();
+            foreach (var c in allCodecs)
+            {
+                if (c->decode.Pointer == IntPtr.Zero)
+                    continue;
+
+                var currentCodecName = PtrToStringUTF8(c->name).ToLowerInvariant().Trim();
+                if (codecName.Equals(currentCodecName))
+                    return c;
+            }
+
+            return null;
+        }
+
+        public static unsafe List<OptionInfo> RetrieveDecoderOptions(string codecName)
+        {
+            var codec = FindDecoder(codecName);
+            if (codec == null) return new List<OptionInfo>(0);
+
+            return RetrieveOptions(codec->priv_class);
+        }
+
+        public static unsafe List<string> RetrieveDecoderNames()
+        {
+            var allCodecs = RetriveCodecs();
+            var codecNames = new List<string>(allCodecs.Length);
+            foreach (var c in allCodecs)
+            {
+                if (c->decode.Pointer == IntPtr.Zero)
+                    continue;
+
+                codecNames.Add(PtrToStringUTF8(c->name));
+            }
+
+            return codecNames;
+        }
+
         public static unsafe List<OptionInfo> RetrieveGlobalFormatOptions() =>
             RetrieveOptions(ffmpeg.avformat_get_class());
 
@@ -238,18 +297,8 @@
             return RetrieveOptions(item->priv_class);
         }
 
-        public static unsafe List<OptionInfo> RetrieveCodecOptions(AVCodecID codecId)
-        {
-            void* iterator;
-            AVCodec* item;
-            while ((item = ffmpeg.av_codec_iterate(&iterator)) != null)
-            {
-                if (item->id == codecId)
-                    return RetrieveOptions(item->priv_class);
-            }
-
-            return new List<OptionInfo>(0);
-        }
+        public static unsafe List<OptionInfo> RetrieveCodecOptions(AVCodec* codec) =>
+            RetrieveOptions(codec->priv_class);
 
         #endregion
     }
