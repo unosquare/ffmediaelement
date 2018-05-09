@@ -573,7 +573,7 @@
                     // Set some general properties
                     MediaFormatName = FFInterop.PtrToStringUTF8(InputContext->iformat->name);
 
-                    // If there are any optins left in the dictionary, it means they did not get used (invalid options).
+                    // If there are any options left in the dictionary, it means they did not get used (invalid options).
                     inputOptions.Remove(StreamInputOptions.Names.ScanAllPmts);
 
                     // Output the invalid options as warnings
