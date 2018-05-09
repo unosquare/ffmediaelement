@@ -3,6 +3,7 @@
     using FFmpeg.AutoGen;
     using Shared;
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Runtime.InteropServices;
@@ -184,6 +185,70 @@
                 Marshal.Copy(stringPointer, TempStringBuffer, 0, TempByteLength);
                 return Encoding.UTF8.GetString(TempStringBuffer, 0, TempByteLength);
             }
+        }
+
+        /// <summary>
+        /// Retrieves the options information associated with the given AVClass.
+        /// </summary>
+        /// <param name="avClass">The av class.</param>
+        /// <returns>A list of option metadata</returns>
+        public static unsafe List<OptionInfo> RetrieveOptions(AVClass* avClass)
+        {
+            // see: https://github.com/FFmpeg/FFmpeg/blob/e0f32286861ddf7666ba92297686fa216d65968e/tools/enum_options.c
+            var result = new List<OptionInfo>(128);
+            if (avClass == null) return result;
+
+            AVOption* option = avClass->option;
+
+            while (option != null)
+            {
+                if (option->type != AVOptionType.AV_OPT_TYPE_CONST)
+                    result.Add(new OptionInfo(option));
+
+                option = ffmpeg.av_opt_next(avClass, option);
+            }
+
+            return result;
+        }
+
+        public static unsafe List<string> RetrieveInputFormatNames()
+        {
+            var result = new List<string>(128);
+            void* iterator;
+            AVInputFormat* item;
+            while ((item = ffmpeg.av_demuxer_iterate(&iterator)) != null)
+            {
+                result.Add(PtrToStringUTF8(item->name));
+            }
+
+            return result;
+        }
+
+        public static unsafe List<OptionInfo> RetrieveGlobalFormatOptions() =>
+            RetrieveOptions(ffmpeg.avformat_get_class());
+
+        public static unsafe List<OptionInfo> RetrieveGlobalCodecOptions() =>
+            RetrieveOptions(ffmpeg.avcodec_get_class());
+
+        public static unsafe List<OptionInfo> RetrieveFormatOptions(string formatName)
+        {
+            var item = ffmpeg.av_find_input_format(formatName);
+            if (item == null) return new List<OptionInfo>(0);
+
+            return RetrieveOptions(item->priv_class);
+        }
+
+        public static unsafe List<OptionInfo> RetrieveCodecOptions(AVCodecID codecId)
+        {
+            void* iterator;
+            AVCodec* item;
+            while ((item = ffmpeg.av_codec_iterate(&iterator)) != null)
+            {
+                if (item->id == codecId)
+                    return RetrieveOptions(item->priv_class);
+            }
+
+            return new List<OptionInfo>(0);
         }
 
         #endregion
