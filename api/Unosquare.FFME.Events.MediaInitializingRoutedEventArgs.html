@@ -100,13 +100,13 @@
   
   
   <a id="Unosquare_FFME_Events_MediaInitializingRoutedEventArgs__ctor_" data-uid="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.#ctor*"></a>
-  <h4 id="Unosquare_FFME_Events_MediaInitializingRoutedEventArgs__ctor_RoutedEvent_System_Object_StreamOptions_System_String_" data-uid="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.#ctor(RoutedEvent,System.Object,StreamOptions,System.String)">MediaInitializingRoutedEventArgs(RoutedEvent, Object, StreamOptions, String)</h4>
+  <h4 id="Unosquare_FFME_Events_MediaInitializingRoutedEventArgs__ctor_RoutedEvent_System_Object_ContainerConfiguration_System_String_" data-uid="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.#ctor(RoutedEvent,System.Object,ContainerConfiguration,System.String)">MediaInitializingRoutedEventArgs(RoutedEvent, Object, ContainerConfiguration, String)</h4>
   <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.html">MediaInitializingRoutedEventArgs</a> class.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MediaInitializingRoutedEventArgs(RoutedEvent routedEvent, object source, StreamOptions options, string url)</code></pre>
+    <pre><code class="lang-csharp hljs">public MediaInitializingRoutedEventArgs(RoutedEvent routedEvent, object source, ContainerConfiguration config, string url)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -131,9 +131,9 @@
 </td>
       </tr>
       <tr>
-        <td><span class="xref">StreamOptions</span></td>
-        <td><span class="parametername">options</span></td>
-        <td><p>The options.</p>
+        <td><span class="xref">ContainerConfiguration</span></td>
+        <td><span class="parametername">config</span></td>
+        <td><p>The container configuration options.</p>
 </td>
       </tr>
       <tr>
@@ -148,14 +148,14 @@
   </h3>
   
   
-  <a id="Unosquare_FFME_Events_MediaInitializingRoutedEventArgs_Options_" data-uid="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.Options*"></a>
-  <h4 id="Unosquare_FFME_Events_MediaInitializingRoutedEventArgs_Options" data-uid="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.Options">Options</h4>
-  <div class="markdown level1 summary"><p>Set or change the options before the media is opened.</p>
+  <a id="Unosquare_FFME_Events_MediaInitializingRoutedEventArgs_Configuration_" data-uid="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.Configuration*"></a>
+  <h4 id="Unosquare_FFME_Events_MediaInitializingRoutedEventArgs_Configuration" data-uid="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.Configuration">Configuration</h4>
+  <div class="markdown level1 summary"><p>Set or change the container configuration options before the media is opened.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public StreamOptions Options { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public ContainerConfiguration Configuration { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -167,7 +167,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">StreamOptions</span></td>
+        <td><span class="xref">ContainerConfiguration</span></td>
         <td></td>
       </tr>
     </tbody>
