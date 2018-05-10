@@ -362,11 +362,11 @@
         /// <summary>
         /// Raises the media opening event.
         /// </summary>
-        /// <param name="options">The options.</param>
+        /// <param name="config">The container configuration options.</param>
         /// <param name="url">The URL.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Task RaiseMediaInitializingEvent(StreamOptions options, string url)
+        internal Task RaiseMediaInitializingEvent(ContainerConfiguration config, string url)
         {
             LogEventStart(MediaInitializingEvent);
             return GuiContext.Current.EnqueueInvoke(() =>
@@ -374,7 +374,7 @@
                 RaiseEvent(new MediaInitializingRoutedEventArgs(
                     MediaInitializingEvent,
                     this,
-                    options,
+                    config,
                     url));
 
                 LogEventDone(MediaInitializingEvent);

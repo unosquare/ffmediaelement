@@ -52,13 +52,13 @@
         /// <summary>
         /// Raises the media initializing event.
         /// </summary>
-        /// <param name="options">The options.</param>
+        /// <param name="config">The container configuration options.</param>
         /// <param name="url">The URL.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Task SendOnMediaInitializing(StreamOptions options, string url)
+        internal Task SendOnMediaInitializing(ContainerConfiguration config, string url)
         {
-            return Connector != null ? Connector.OnMediaInitializing(this, options, url) : Task.CompletedTask;
+            return Connector != null ? Connector.OnMediaInitializing(this, config, url) : Task.CompletedTask;
         }
 
         /// <summary>

@@ -12,10 +12,10 @@
         /// Called when [media initializing].
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <param name="streamOptions">The stream options.</param>
+        /// <param name="config">The container configuration options.</param>
         /// <param name="mediaUrl">The media URL.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        Task OnMediaInitializing(MediaEngine sender, StreamOptions streamOptions, string mediaUrl);
+        Task OnMediaInitializing(MediaEngine sender, ContainerConfiguration config, string mediaUrl);
 
         /// <summary>
         /// Called when [media opening].

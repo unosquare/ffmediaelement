@@ -3,8 +3,8 @@
     using FFmpeg.AutoGen;
 
     /// <summary>
-    /// Represetnts options that applied before initializing media components and their corresponding
-    /// codecs. Once the container has created the media components, changing these options will have no effect.
+    /// Represetnts options that applied creating the individual media stream components.
+    /// Once the container has created the media components, changing these options will have no effect.
     /// </summary>
     public sealed class MediaOptions
     {

@@ -192,10 +192,10 @@
         /// </summary>
         /// <param name="avClass">The av class.</param>
         /// <returns>A list of option metadata</returns>
-        public static unsafe List<OptionInfo> RetrieveOptions(AVClass* avClass)
+        public static unsafe List<OptionMeta> RetrieveOptions(AVClass* avClass)
         {
             // see: https://github.com/FFmpeg/FFmpeg/blob/e0f32286861ddf7666ba92297686fa216d65968e/tools/enum_options.c
-            var result = new List<OptionInfo>(128);
+            var result = new List<OptionMeta>(128);
             if (avClass == null) return result;
 
             AVOption* option = avClass->option;
@@ -203,7 +203,7 @@
             while (option != null)
             {
                 if (option->type != AVOptionType.AV_OPT_TYPE_CONST)
-                    result.Add(new OptionInfo(option));
+                    result.Add(new OptionMeta(option));
 
                 option = ffmpeg.av_opt_next(avClass, option);
             }
@@ -274,14 +274,14 @@
         /// Retrieves the global format options.
         /// </summary>
         /// <returns>The collection of option infos</returns>
-        public static unsafe List<OptionInfo> RetrieveGlobalFormatOptions() =>
+        public static unsafe List<OptionMeta> RetrieveGlobalFormatOptions() =>
             RetrieveOptions(ffmpeg.avformat_get_class());
 
         /// <summary>
         /// Retrieves the global codec options.
         /// </summary>
         /// <returns>The collection of option infos</returns>
-        public static unsafe List<OptionInfo> RetrieveGlobalCodecOptions() =>
+        public static unsafe List<OptionMeta> RetrieveGlobalCodecOptions() =>
             RetrieveOptions(ffmpeg.avcodec_get_class());
 
         /// <summary>
@@ -289,10 +289,10 @@
         /// </summary>
         /// <param name="formatName">Name of the format.</param>
         /// <returns>The collection of option infos</returns>
-        public static unsafe List<OptionInfo> RetrieveInputFormatOptions(string formatName)
+        public static unsafe List<OptionMeta> RetrieveInputFormatOptions(string formatName)
         {
             var item = ffmpeg.av_find_input_format(formatName);
-            if (item == null) return new List<OptionInfo>(0);
+            if (item == null) return new List<OptionMeta>(0);
 
             return RetrieveOptions(item->priv_class);
         }
@@ -302,7 +302,7 @@
         /// </summary>
         /// <param name="codec">The codec.</param>
         /// <returns>The collection of option infos</returns>
-        public static unsafe List<OptionInfo> RetrieveCodecOptions(AVCodec* codec) =>
+        public static unsafe List<OptionMeta> RetrieveCodecOptions(AVCodec* codec) =>
             RetrieveOptions(codec->priv_class);
 
         #endregion

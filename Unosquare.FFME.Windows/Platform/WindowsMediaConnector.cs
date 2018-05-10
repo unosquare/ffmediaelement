@@ -158,12 +158,12 @@
         /// Called when [media initializing].
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <param name="options">The options.</param>
+        /// <param name="config">The container configuration options.</param>
         /// <param name="url">The URL.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public Task OnMediaInitializing(MediaEngine sender, StreamOptions options, string url)
+        public Task OnMediaInitializing(MediaEngine sender, ContainerConfiguration config, string url)
         {
-            return Parent != null ? Parent.RaiseMediaInitializingEvent(options, url) : Task.CompletedTask;
+            return Parent != null ? Parent.RaiseMediaInitializingEvent(config, url) : Task.CompletedTask;
         }
 
         /// <summary>

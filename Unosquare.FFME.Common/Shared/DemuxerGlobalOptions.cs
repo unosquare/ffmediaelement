@@ -3,16 +3,15 @@
     using System;
 
     /// <summary>
-    /// Contains options for the format context as documented:
-    /// https://ffmpeg.org/ffmpeg-formats.html#Format-Options
-    /// TODO: (Floyd) There are still quite a bit of options that have not been implemented.
+    /// The libavformat library provides some generic global options, which can be set on all the muxers and demuxers.
+    /// For additional information, please see: https://ffmpeg.org/ffmpeg-formats.html#Format-Options
     /// </summary>
-    public sealed class StreamFormatOptions
+    public sealed class DemuxerGlobalOptions
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="StreamFormatOptions"/> class.
+        /// Initializes a new instance of the <see cref="DemuxerGlobalOptions"/> class.
         /// </summary>
-        internal StreamFormatOptions()
+        internal DemuxerGlobalOptions()
         {
             // placeholder
         }

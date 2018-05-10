@@ -4,15 +4,15 @@
     using FFmpeg.AutoGen;
 
     /// <summary>
-    /// Provides information about a named format or codec option
+    /// Provides information about a named option for a demuxer or a codec.
     /// </summary>
-    public sealed class OptionInfo
+    public sealed class OptionMeta
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="OptionInfo"/> class.
+        /// Initializes a new instance of the <see cref="OptionMeta"/> class.
         /// </summary>
         /// <param name="option">The option.</param>
-        internal unsafe OptionInfo(AVOption* option)
+        internal unsafe OptionMeta(AVOption* option)
         {
             OptionType = option->type;
             Flags = option->flags;

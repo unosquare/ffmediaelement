@@ -71,13 +71,13 @@
             // An example of injecting input options for http/https streams
             if (e.Url.StartsWith("http://") || e.Url.StartsWith("https://"))
             {
-                e.Options.Input["user_agent"] = $"{typeof(StreamOptions).Namespace}/{typeof(StreamOptions).Assembly.GetName().Version}";
-                e.Options.Input["headers"] = $"Referer:https://www.unosquare.com";
-                e.Options.Input["multiple_requests"] = "1";
-                e.Options.Input["reconnect"] = "1";
-                e.Options.Input["reconnect_at_eof"] = "1";
-                e.Options.Input["reconnect_streamed"] = "1";
-                e.Options.Input["reconnect_delay_max"] = "10"; // in seconds
+                e.Configuration.PrivateOptions["user_agent"] = $"{typeof(ContainerConfiguration).Namespace}/{typeof(ContainerConfiguration).Assembly.GetName().Version}";
+                e.Configuration.PrivateOptions["headers"] = $"Referer:https://www.unosquare.com";
+                e.Configuration.PrivateOptions["multiple_requests"] = "1";
+                e.Configuration.PrivateOptions["reconnect"] = "1";
+                e.Configuration.PrivateOptions["reconnect_at_eof"] = "1";
+                e.Configuration.PrivateOptions["reconnect_streamed"] = "1";
+                e.Configuration.PrivateOptions["reconnect_delay_max"] = "10"; // in seconds
             }
 
             // Example of forcing tcp transport on rtsp feeds
@@ -86,14 +86,14 @@
             // TCP provides reliable communication while UDP does not
             if (e.Url.StartsWith("rtsp://"))
             {
-                e.Options.Input["rtsp_transport"] = "tcp";
-                e.Options.Format.FlagNoBuffer = true;
+                e.Configuration.PrivateOptions["rtsp_transport"] = "tcp";
+                e.Configuration.GlobalOptions.FlagNoBuffer = true;
             }
 
             // In realtime streams these settings can be used to reduce latency (see example from issue #152)
-            // e.Options.Format.FlagNoBuffer = true;
-            // e.Options.Format.ProbeSize = 8192;
-            // e.Options.Format.MaxAnalyzeDuration = System.TimeSpan.FromSeconds(1);
+            // e.Options.GlobalOptions.FlagNoBuffer = true;
+            // e.Options.GlobalOptions.ProbeSize = 8192;
+            // e.Options.GlobalOptions.MaxAnalyzeDuration = System.TimeSpan.FromSeconds(1);
         }
 
         /// <summary>
