@@ -2,12 +2,20 @@
 {
     using Core;
     using Decoding;
+    using FFmpeg.AutoGen;
     using Primitives;
     using Shared;
+    using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Linq;
 
     public partial class MediaEngine
     {
+        #region Private Fields
+
+        private static readonly string NotInitializedErrorMessage = $"{nameof(MediaEngine)} not initialized";
+
         /// <summary>
         /// The initialize lock
         /// </summary>
@@ -27,6 +35,24 @@
         /// Stores the load mode flags
         /// </summary>
         private static int m_FFmpegLoadModeFlags = FFmpegLoadMode.FullFeatures;
+
+        private static ReadOnlyCollection<string> m_InputFormatNames;
+
+        private static ReadOnlyCollection<OptionInfo> m_GlobalInputFormatOptions;
+
+        private static ReadOnlyDictionary<string, ReadOnlyCollection<OptionInfo>> m_InputFormatOptions;
+
+        private static ReadOnlyCollection<string> m_DecoderNames;
+
+        private static ReadOnlyCollection<OptionInfo> m_GlobalDecoderOptions;
+
+        private static ReadOnlyDictionary<string, ReadOnlyCollection<OptionInfo>> m_DecoderOptions;
+
+        private static unsafe AVCodec*[] m_AllCodecs;
+
+        #endregion
+
+        #region Properties
 
         /// <summary>
         /// Gets the platform-specific implementation requirements.
@@ -68,6 +94,184 @@
                 m_FFmpegLoadModeFlags = value;
             }
         }
+
+        /// <summary>
+        /// Gets the registered FFmpeg input format names.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized</exception>
+        public static ReadOnlyCollection<string> InputFormatNames
+        {
+            get
+            {
+                lock (InitLock)
+                {
+                    if (IsIntialized == false)
+                        throw new InvalidOperationException(NotInitializedErrorMessage);
+
+                    if (m_InputFormatNames == null)
+                        m_InputFormatNames = new ReadOnlyCollection<string>(FFInterop.RetrieveInputFormatNames());
+
+                    return m_InputFormatNames;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the global input format options information.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized</exception>
+        public static ReadOnlyCollection<OptionInfo> InputFormatOptionsGlobal
+        {
+            get
+            {
+                lock (InitLock)
+                {
+                    if (IsIntialized == false)
+                        throw new InvalidOperationException(NotInitializedErrorMessage);
+
+                    if (m_GlobalInputFormatOptions == null)
+                    {
+                        m_GlobalInputFormatOptions = new ReadOnlyCollection<OptionInfo>(
+                            FFInterop.RetrieveGlobalFormatOptions().ToArray());
+                    }
+
+                    return m_GlobalInputFormatOptions;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the input format options.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized</exception>
+        public static ReadOnlyDictionary<string, ReadOnlyCollection<OptionInfo>> InputFormatOptions
+        {
+            get
+            {
+                lock (InitLock)
+                {
+                    if (IsIntialized == false)
+                        throw new InvalidOperationException(NotInitializedErrorMessage);
+
+                    if (m_InputFormatOptions == null)
+                    {
+                        var result = new Dictionary<string, ReadOnlyCollection<OptionInfo>>(InputFormatNames.Count);
+                        foreach (var formatName in InputFormatNames)
+                        {
+                            var optionsInfo = FFInterop.RetrieveInputFormatOptions(formatName);
+                            result[formatName] = new ReadOnlyCollection<OptionInfo>(optionsInfo);
+                        }
+
+                        m_InputFormatOptions = new ReadOnlyDictionary<string, ReadOnlyCollection<OptionInfo>>(result);
+                    }
+
+                    return m_InputFormatOptions;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the registered FFmpeg decoder codec names.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized</exception>
+        public static unsafe ReadOnlyCollection<string> DecoderNames
+        {
+            get
+            {
+                lock (InitLock)
+                {
+                    if (IsIntialized == false)
+                        throw new InvalidOperationException(NotInitializedErrorMessage);
+
+                    if (m_DecoderNames == null)
+                        m_DecoderNames = new ReadOnlyCollection<string>(FFInterop.RetrieveDecoderNames(AllCodecs));
+
+                    return m_DecoderNames;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the global options that apply to all decoders
+        /// </summary>
+        /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized</exception>
+        public static ReadOnlyCollection<OptionInfo> DecoderOptionsGlobal
+        {
+            get
+            {
+                lock (InitLock)
+                {
+                    if (IsIntialized == false)
+                        throw new InvalidOperationException(NotInitializedErrorMessage);
+
+                    if (m_GlobalDecoderOptions == null)
+                    {
+                        m_GlobalDecoderOptions = new ReadOnlyCollection<OptionInfo>(
+                            FFInterop.RetrieveGlobalCodecOptions().Where(o => o.IsDecodingOption).ToArray());
+                    }
+
+                    return m_GlobalDecoderOptions;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the decoder specific options.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized</exception>
+        public static unsafe ReadOnlyDictionary<string, ReadOnlyCollection<OptionInfo>> DecoderOptions
+        {
+            get
+            {
+                lock (InitLock)
+                {
+                    if (IsIntialized == false)
+                        throw new InvalidOperationException(NotInitializedErrorMessage);
+
+                    if (m_DecoderOptions == null)
+                    {
+                        var result = new Dictionary<string, ReadOnlyCollection<OptionInfo>>(DecoderNames.Count);
+                        foreach (var c in AllCodecs)
+                        {
+                            if (c->decode.Pointer == IntPtr.Zero)
+                                continue;
+
+                            result[FFInterop.PtrToStringUTF8(c->name)] =
+                                new ReadOnlyCollection<OptionInfo>(FFInterop.RetrieveCodecOptions(c));
+                        }
+
+                        m_DecoderOptions = new ReadOnlyDictionary<string, ReadOnlyCollection<OptionInfo>>(result);
+                    }
+
+                    return m_DecoderOptions;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets all registered encoder and decoder codecs.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized</exception>
+        private static unsafe AVCodec*[] AllCodecs
+        {
+            get
+            {
+                lock (InitLock)
+                {
+                    if (IsIntialized == false)
+                        throw new InvalidOperationException(NotInitializedErrorMessage);
+
+                    if (m_AllCodecs == null)
+                        m_AllCodecs = FFInterop.RetriveCodecs();
+
+                    return m_AllCodecs;
+                }
+            }
+        }
+
+        #endregion
+
+        #region Methods
 
         /// <summary>
         /// Initializes the MedieElementCore.
@@ -145,5 +349,7 @@
                 return result;
             }
         }
+
+        #endregion
     }
 }

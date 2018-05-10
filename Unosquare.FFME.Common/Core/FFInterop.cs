@@ -211,19 +211,10 @@
             return result;
         }
 
-        public static unsafe List<string> RetrieveInputFormatNames()
-        {
-            var result = new List<string>(128);
-            void* iterator;
-            AVInputFormat* item;
-            while ((item = ffmpeg.av_demuxer_iterate(&iterator)) != null)
-            {
-                result.Add(PtrToStringUTF8(item->name));
-            }
-
-            return result;
-        }
-
+        /// <summary>
+        /// Retrives the codecs.
+        /// </summary>
+        /// <returns>The codecs</returns>
         public static unsafe AVCodec*[] RetriveCodecs()
         {
             var result = new List<IntPtr>(1024);
@@ -243,34 +234,30 @@
             return collection;
         }
 
-        public static unsafe AVCodec* FindDecoder(string codecName)
+        /// <summary>
+        /// Retrieves the input format names.
+        /// </summary>
+        /// <returns>The collection of names</returns>
+        public static unsafe List<string> RetrieveInputFormatNames()
         {
-            codecName = codecName.ToLowerInvariant().Trim();
-            var allCodecs = RetriveCodecs();
-            foreach (var c in allCodecs)
+            var result = new List<string>(128);
+            void* iterator;
+            AVInputFormat* item;
+            while ((item = ffmpeg.av_demuxer_iterate(&iterator)) != null)
             {
-                if (c->decode.Pointer == IntPtr.Zero)
-                    continue;
-
-                var currentCodecName = PtrToStringUTF8(c->name).ToLowerInvariant().Trim();
-                if (codecName.Equals(currentCodecName))
-                    return c;
+                result.Add(PtrToStringUTF8(item->name));
             }
 
-            return null;
+            return result;
         }
 
-        public static unsafe List<OptionInfo> RetrieveDecoderOptions(string codecName)
+        /// <summary>
+        /// Retrieves the decoder names.
+        /// </summary>
+        /// <param name="allCodecs">All codecs.</param>
+        /// <returns>The collection of names</returns>
+        public static unsafe List<string> RetrieveDecoderNames(AVCodec*[] allCodecs)
         {
-            var codec = FindDecoder(codecName);
-            if (codec == null) return new List<OptionInfo>(0);
-
-            return RetrieveOptions(codec->priv_class);
-        }
-
-        public static unsafe List<string> RetrieveDecoderNames()
-        {
-            var allCodecs = RetriveCodecs();
             var codecNames = new List<string>(allCodecs.Length);
             foreach (var c in allCodecs)
             {
@@ -283,13 +270,26 @@
             return codecNames;
         }
 
+        /// <summary>
+        /// Retrieves the global format options.
+        /// </summary>
+        /// <returns>The collection of option infos</returns>
         public static unsafe List<OptionInfo> RetrieveGlobalFormatOptions() =>
             RetrieveOptions(ffmpeg.avformat_get_class());
 
+        /// <summary>
+        /// Retrieves the global codec options.
+        /// </summary>
+        /// <returns>The collection of option infos</returns>
         public static unsafe List<OptionInfo> RetrieveGlobalCodecOptions() =>
             RetrieveOptions(ffmpeg.avcodec_get_class());
 
-        public static unsafe List<OptionInfo> RetrieveFormatOptions(string formatName)
+        /// <summary>
+        /// Retrieves the input format options.
+        /// </summary>
+        /// <param name="formatName">Name of the format.</param>
+        /// <returns>The collection of option infos</returns>
+        public static unsafe List<OptionInfo> RetrieveInputFormatOptions(string formatName)
         {
             var item = ffmpeg.av_find_input_format(formatName);
             if (item == null) return new List<OptionInfo>(0);
@@ -297,6 +297,11 @@
             return RetrieveOptions(item->priv_class);
         }
 
+        /// <summary>
+        /// Retrieves the codec options.
+        /// </summary>
+        /// <param name="codec">The codec.</param>
+        /// <returns>The collection of option infos</returns>
         public static unsafe List<OptionInfo> RetrieveCodecOptions(AVCodec* codec) =>
             RetrieveOptions(codec->priv_class);
 
