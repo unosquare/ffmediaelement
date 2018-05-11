@@ -261,10 +261,8 @@
             var codecNames = new List<string>(allCodecs.Length);
             foreach (var c in allCodecs)
             {
-                if (c->decode.Pointer == IntPtr.Zero)
-                    continue;
-
-                codecNames.Add(PtrToStringUTF8(c->name));
+                if (ffmpeg.av_codec_is_decoder(c) != 0)
+                    codecNames.Add(PtrToStringUTF8(c->name));
             }
 
             return codecNames;

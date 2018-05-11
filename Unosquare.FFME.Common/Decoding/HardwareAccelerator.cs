@@ -6,7 +6,7 @@
     using System;
     using System.Collections.Generic;
 
-    internal unsafe class HardwareAcceleration
+    internal unsafe class HardwareAccelerator
     {
         /// <summary>
         /// The get format callback
@@ -16,9 +16,9 @@
         private VideoComponent Component;
 
         /// <summary>
-        /// Prevents a default instance of the <see cref="HardwareAcceleration"/> class from being created.
+        /// Prevents a default instance of the <see cref="HardwareAccelerator"/> class from being created.
         /// </summary>
-        private HardwareAcceleration()
+        private HardwareAccelerator()
         {
             // prevent instantiation outside this class
             GetFormatCallback = new AVCodecContext_get_format(GetPixelFormat);
@@ -51,7 +51,7 @@
         {
             try
             {
-                var result = new HardwareAcceleration
+                var result = new HardwareAccelerator
                 {
                     Component = component,
                     Name = selectedConfig.DeviceTypeName,
@@ -155,7 +155,7 @@
 
             ffmpeg.av_frame_free(&input);
             RC.Current.Remove((IntPtr)input);
-            RC.Current.Add(output, $"86: {nameof(HardwareAcceleration)}[{PixelFormat}].{nameof(ExchangeFrame)}()");
+            RC.Current.Add(output, $"86: {nameof(HardwareAccelerator)}[{PixelFormat}].{nameof(ExchangeFrame)}()");
 
             return output;
         }

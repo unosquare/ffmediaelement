@@ -185,7 +185,7 @@
 
                 // Extract valid hardwar configurations
                 stream.HardwareDevices = new ReadOnlyCollection<HardwareDeviceInfo>(
-                    HardwareAcceleration.GetCompatibleDevices(stream.Codec));
+                    HardwareAccelerator.GetCompatibleDevices(stream.Codec));
 
                 // TODO: I chose not to include Side data but I could easily do so
                 // https://ffmpeg.org/doxygen/3.2/dump_8c_source.html

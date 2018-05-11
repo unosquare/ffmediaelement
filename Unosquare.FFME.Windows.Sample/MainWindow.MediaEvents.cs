@@ -127,27 +127,27 @@
             if (englishSubtitleStream != null)
                 e.Options.SubtitleStream = englishSubtitleStream;
 
-            // Experimetal HW acceleration support. Set to AV_HWDEVICE_TYPE_NONE if not needed
-            var accelerator = e.Options.VideoStream.HardwareDevices
-                .FirstOrDefault(d => d.DeviceType == AVHWDeviceType.AV_HWDEVICE_TYPE_CUDA);
-
-            // Set to either null or the found HW decoder
-            e.Options.VideoHardwareDecoder = accelerator;
-
             // The yadif filter deinterlaces the video; we check the field order if we need
             // to deinterlace the video automatically
             var requiresDeinterlace = e.Options.VideoStream != null
                 && e.Options.VideoStream.FieldOrder != AVFieldOrder.AV_FIELD_PROGRESSIVE
                 && e.Options.VideoStream.FieldOrder != AVFieldOrder.AV_FIELD_UNKNOWN;
 
-            // If we are using the HW decoder, we deinterlace via a codec option.
-            // Otherwise, we deinterlace using the yadif sftware-based filter
-            if (requiresDeinterlace || true)
+            // Prevent hardware decoding because video filters are not available
+            // when doing hardware decoding
+            // TODO: support filters on HW frames.
+            if (requiresDeinterlace)
             {
-                if (accelerator != null)
-                    e.Options.Decoder[e.Options.VideoStream.StreamIndex, "deint"] = "2";
-                else
                     e.Options.VideoFilter = "yadif";
+            }
+            else
+            {
+                // Experimetal HW acceleration support. Set to AV_HWDEVICE_TYPE_NONE if not needed
+                var accelerator = e.Options.VideoStream.HardwareDevices
+                    .FirstOrDefault(d => d.DeviceType == AVHWDeviceType.AV_HWDEVICE_TYPE_CUDA);
+
+                // Set to either null or the found HW decoder
+                e.Options.VideoHardwareDecoder = accelerator;
             }
 
             // e.Options.AudioFilter = "aecho=0.8:0.9:1000:0.3";

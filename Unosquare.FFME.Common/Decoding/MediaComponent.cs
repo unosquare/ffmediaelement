@@ -91,8 +91,9 @@
                 CodecContext->pkt_timebase = Stream->time_base;
             }
 
-            // Find the codec and set it.
+            // Find the decoder codec from the stream and set it.
             var codec = ffmpeg.avcodec_find_decoder(Stream->codec->codec_id);
+
             if (codec == null)
             {
                 var errorMessage = $"Fatal error. Unable to find suitable decoder for {Stream->codec->codec_id.ToString()}";
@@ -128,7 +129,7 @@
 
             // Enable Hardware acceleration if requested
             if (this is VideoComponent && container.MediaOptions.VideoHardwareDecoder != null)
-                HardwareAcceleration.Attach(this as VideoComponent, container.MediaOptions.VideoHardwareDecoder);
+                HardwareAccelerator.Attach(this as VideoComponent, container.MediaOptions.VideoHardwareDecoder);
 
             // Open the CodecContext. This requires exclusive FFmpeg access
             var codecOpenResult = 0;
