@@ -17,13 +17,19 @@
         /// Provides access to the global and per-stream decoder options
         /// See https://www.ffmpeg.org/ffmpeg-codecs.html#Codec-Options
         /// </summary>
-        public DecoderOptions Decoder { get; } = new DecoderOptions();
+        public DecoderOptions DecoderParams { get; } = new DecoderOptions();
 
         /// <summary>
         /// Use Stream's HardwareDevices property to get a list of
-        /// compatible hardware accelerators
+        /// compatible hardware accelerators.
         /// </summary>
-        public HardwareDeviceInfo VideoHardwareDecoder { get; set; }
+        public HardwareDeviceInfo VideoHardwareDevice { get; set; }
+
+        /// <summary>
+        /// Use Stream's HardwareDecoder property to get a list of
+        /// compatible hardware decoder codecs.
+        /// </summary>
+        public string VideoHardwareDecoder { get; set; }
 
         /// <summary>
         /// Prevent reading from audio stream components.

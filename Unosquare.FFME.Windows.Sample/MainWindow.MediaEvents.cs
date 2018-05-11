@@ -127,28 +127,33 @@
             if (englishSubtitleStream != null)
                 e.Options.SubtitleStream = englishSubtitleStream;
 
-            // The yadif filter deinterlaces the video; we check the field order if we need
-            // to deinterlace the video automatically
+            // Check if we have a compatible CUDA decoder. There may be others like QSV.
+            var hardwareCodec = e.Options.VideoStream.HardwareDecoders.FirstOrDefault(c => c.EndsWith("_cuvid"));
+            if (string.IsNullOrWhiteSpace(hardwareCodec) == false)
+                e.Options.VideoHardwareDecoder = hardwareCodec;
+
+            // Check if the video requires deinterlacing
             var requiresDeinterlace = e.Options.VideoStream != null
                 && e.Options.VideoStream.FieldOrder != AVFieldOrder.AV_FIELD_PROGRESSIVE
                 && e.Options.VideoStream.FieldOrder != AVFieldOrder.AV_FIELD_UNKNOWN;
 
-            // Prevent hardware decoding because video filters are not available
-            // when doing hardware decoding
-            // TODO: support filters on HW frames.
             if (requiresDeinterlace)
             {
-                    e.Options.VideoFilter = "yadif";
+                // The yadif filter deinterlaces the video; we check the field order if we need
+                // to deinterlace the video automatically
+                e.Options.VideoFilter = "yadif";
             }
-            else
-            {
-                // Experimetal HW acceleration support. Set to AV_HWDEVICE_TYPE_NONE if not needed
-                var accelerator = e.Options.VideoStream.HardwareDevices
-                    .FirstOrDefault(d => d.DeviceType == AVHWDeviceType.AV_HWDEVICE_TYPE_CUDA);
 
-                // Set to either null or the found HW decoder
-                e.Options.VideoHardwareDecoder = accelerator;
+            /*
+            if (hardwareCodec != null && MediaEngine.DecoderOptions[hardwareCodec].Any(o => o.Name.Equals("crop")))
+            {
+                // Instead of using a filter, do the deinterlacing in hardware :)
+                e.Options.DecoderParams[e.Options.VideoStream.StreamIndex, "crop"] = "500x500x500x500";
+
+                // Clear the filter because we will deinterlace with a hardware codec!
+                e.Options.VideoFilter = null;
             }
+            */
 
             // e.Options.AudioFilter = "aecho=0.8:0.9:1000:0.3";
             // e.Options.AudioFilter = "chorus=0.5:0.9:50|60|40:0.4|0.32|0.3:0.25|0.4|0.3:2|2.3|1.3";

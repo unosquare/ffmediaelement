@@ -94,6 +94,21 @@
             // Find the decoder codec from the stream and set it.
             var codec = ffmpeg.avcodec_find_decoder(Stream->codec->codec_id);
 
+            // If specified, try to switch the default codec to a hardware codec
+            if (codec != null && this is VideoComponent && string.IsNullOrWhiteSpace(Container.MediaOptions.VideoHardwareDecoder) == false)
+            {
+                var hardwareCodec = ffmpeg.avcodec_find_decoder_by_name(Container.MediaOptions.VideoHardwareDecoder);
+                if (hardwareCodec != null && hardwareCodec->id == codec->id)
+                {
+                    codec = hardwareCodec;
+                }
+                else
+                {
+                    Container.Parent?.Log(MediaLogMessageType.Warning,
+                       $"COMP {MediaType.ToString().ToUpperInvariant()}: Unable to set hardware decoder codec to '{Container.MediaOptions.VideoHardwareDecoder}'");
+                }
+            }
+
             if (codec == null)
             {
                 var errorMessage = $"Fatal error. Unable to find suitable decoder for {Stream->codec->codec_id.ToString()}";
@@ -108,7 +123,7 @@
 
             // Process the decoder options
             {
-                var decoderOptions = Container.MediaOptions.Decoder;
+                var decoderOptions = Container.MediaOptions.DecoderParams;
 
                 // Configure the codec context flags
                 if (decoderOptions.EnableFastDecoding) CodecContext->flags2 |= ffmpeg.AV_CODEC_FLAG2_FAST;
@@ -125,11 +140,11 @@
 
             // Setup additional settings. The most important one is Threads -- Setting it to 1 decoding is very slow. Setting it to auto
             // decoding is very fast in most scenarios.
-            var codecOptions = Container.MediaOptions.Decoder.GetStreamCodecOptions(Stream->index);
+            var codecOptions = Container.MediaOptions.DecoderParams.GetStreamCodecOptions(Stream->index);
 
             // Enable Hardware acceleration if requested
-            if (this is VideoComponent && container.MediaOptions.VideoHardwareDecoder != null)
-                HardwareAccelerator.Attach(this as VideoComponent, container.MediaOptions.VideoHardwareDecoder);
+            if (this is VideoComponent && container.MediaOptions.VideoHardwareDevice != null)
+                HardwareAccelerator.Attach(this as VideoComponent, container.MediaOptions.VideoHardwareDevice);
 
             // Open the CodecContext. This requires exclusive FFmpeg access
             var codecOpenResult = 0;
@@ -171,7 +186,7 @@
                 Duration = Stream->duration.ToTimeSpan(Stream->time_base);
 
             CodecId = Stream->codec->codec_id;
-            CodecName = ffmpeg.avcodec_get_name(CodecId);
+            CodecName = FFInterop.PtrToStringUTF8(codec->name);
             Bitrate = Stream->codec->bit_rate < 0 ? 0 : Convert.ToUInt64(Stream->codec->bit_rate);
             Container.Parent?.Log(MediaLogMessageType.Debug,
                 $"COMP {MediaType.ToString().ToUpperInvariant()}: Start Offset: {StartTimeOffset.Format()}; Duration: {Duration.Format()}");
