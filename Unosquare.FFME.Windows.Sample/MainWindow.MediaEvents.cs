@@ -145,7 +145,7 @@
             if (requiresDeinterlace || true)
             {
                 if (accelerator != null)
-                    e.Options.CodecOptions.Add("deint", "2", 'v', e.Options.VideoStream.StreamIndex);
+                    e.Options.Decoder[e.Options.VideoStream.StreamIndex, "deint"] = "2";
                 else
                     e.Options.VideoFilter = "yadif";
             }

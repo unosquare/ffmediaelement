@@ -74,7 +74,7 @@
             Stream = container.InputContext->streams[StreamIndex];
             StreamInfo = container.MediaInfo.Streams[StreamIndex];
 
-            // Set codec options
+            // Set default codec context options from probed stream
             var setCodecParamsResult = ffmpeg.avcodec_parameters_to_context(CodecContext, Stream->codecpar);
 
             if (setCodecParamsResult < 0)
@@ -100,43 +100,42 @@
                 throw new MediaContainerException(errorMessage);
             }
 
+            // Pass default codec stuff to the codec contect
             CodecContext->codec_id = codec->id;
-
-            // Process the low res index option
-            var lowResIndex = codec->max_lowres;
-            if (Container.MediaOptions.EnableLowRes)
-                CodecContext->lowres = lowResIndex;
-            else
-                lowResIndex = 0;
-
-            // Configure the codec context flags
-            if (Container.MediaOptions.EnableFastDecoding) CodecContext->flags2 |= ffmpeg.AV_CODEC_FLAG2_FAST;
-            if (Container.MediaOptions.EnableLowDelay) CodecContext->flags |= ffmpeg.AV_CODEC_FLAG_LOW_DELAY;
             if ((codec->capabilities & ffmpeg.AV_CODEC_CAP_TRUNCATED) != 0) CodecContext->flags |= ffmpeg.AV_CODEC_FLAG_TRUNCATED;
             if ((codec->capabilities & ffmpeg.AV_CODEC_FLAG2_CHUNKS) != 0) CodecContext->flags |= ffmpeg.AV_CODEC_FLAG2_CHUNKS;
 
+            // Process the decoder options
+            {
+                var decoderOptions = Container.MediaOptions.Decoder;
+
+                // Configure the codec context flags
+                if (decoderOptions.EnableFastDecoding) CodecContext->flags2 |= ffmpeg.AV_CODEC_FLAG2_FAST;
+                if (decoderOptions.EnableLowDelay) CodecContext->flags |= ffmpeg.AV_CODEC_FLAG_LOW_DELAY;
+
+                // process the low res option
+                if (decoderOptions.EnableLowRes && codec->max_lowres > 0)
+                    decoderOptions.LowResIndex = codec->max_lowres.ToString(CultureInfo.InvariantCulture);
+
+                // Ensure ref counted frames for audio and video decoding
+                if (CodecContext->codec_type == AVMediaType.AVMEDIA_TYPE_VIDEO || CodecContext->codec_type == AVMediaType.AVMEDIA_TYPE_AUDIO)
+                    decoderOptions.RefCountedFrames = "1";
+            }
+
             // Setup additional settings. The most important one is Threads -- Setting it to 1 decoding is very slow. Setting it to auto
             // decoding is very fast in most scenarios.
-            var codecOptions = Container.MediaOptions.CodecOptions.FilterOptions(CodecContext->codec_id, Container.InputContext, Stream, codec);
-            if (codecOptions.HasKey(MediaCodecOptions.Names.Threads) == false)
-                codecOptions[MediaCodecOptions.Names.Threads] = "auto";
-
-            if (lowResIndex != 0) codecOptions[MediaCodecOptions.Names.LowRes] = lowResIndex.ToString(CultureInfo.InvariantCulture);
-            if (CodecContext->codec_type == AVMediaType.AVMEDIA_TYPE_VIDEO || CodecContext->codec_type == AVMediaType.AVMEDIA_TYPE_AUDIO)
-                codecOptions[MediaCodecOptions.Names.RefCountedFrames] = 1.ToString(CultureInfo.InvariantCulture);
+            var codecOptions = Container.MediaOptions.Decoder.GetStreamCodecOptions(Stream->index);
 
             // Enable Hardware acceleration if requested
             if (this is VideoComponent && container.MediaOptions.VideoHardwareDecoder != null)
-            {
                 HardwareAcceleration.Attach(this as VideoComponent, container.MediaOptions.VideoHardwareDecoder);
-            }
 
             // Open the CodecContext. This requires exclusive FFmpeg access
             var codecOpenResult = 0;
             lock (CodecOpenLock)
             {
-                fixed (AVDictionary** reference = &codecOptions.Pointer)
-                    codecOpenResult = ffmpeg.avcodec_open2(CodecContext, codec, reference);
+                fixed (AVDictionary** codecOptionsRef = &codecOptions.Pointer)
+                    codecOpenResult = ffmpeg.avcodec_open2(CodecContext, codec, codecOptionsRef);
             }
 
             // Check if the codec opened successfully

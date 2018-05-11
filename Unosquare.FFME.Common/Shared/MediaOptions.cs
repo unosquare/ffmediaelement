@@ -14,30 +14,10 @@
         }
 
         /// <summary>
-        /// Gets the codec options.
-        /// Codec options are documented here: https://www.ffmpeg.org/ffmpeg-codecs.html#Codec-Options
-        /// Port of codec_opts
+        /// Provides access to the global and per-stream decoder options
+        /// See https://www.ffmpeg.org/ffmpeg-codecs.html#Codec-Options
         /// </summary>
-        public MediaCodecOptions CodecOptions { get; } = new MediaCodecOptions();
-
-        /// <summary>
-        /// Gets or sets a value indicating whether [enable low resource].
-        /// In theroy this should be 0,1,2,3 for 1, 1/2, 1,4 and 1/8 resolutions.
-        /// TODO: We are for now just supporting 1/2 resolution (true value)
-        /// Port of lowres.
-        /// </summary>
-        public bool EnableLowRes { get; set; } = false;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether [enable fast decoding].
-        /// Port of fast
-        /// </summary>
-        public bool EnableFastDecoding { get; set; } = false;
-
-        /// <summary>
-        /// Enables low_delay flag for low latency streaming.
-        /// </summary>
-        public bool EnableLowDelay { get; set; } = false;
+        public DecoderOptions Decoder { get; } = new DecoderOptions();
 
         /// <summary>
         /// Use Stream's HardwareDevices property to get a list of
