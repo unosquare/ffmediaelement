@@ -6,6 +6,7 @@
     using System;
     using System.Diagnostics;
     using System.Linq;
+    using System.Text;
     using System.Windows;
     using System.Windows.Controls;
 
@@ -156,14 +157,18 @@
                     }
                 }
 
+                var videoFilter = new StringBuilder();
+
                 // The yadif filter deinterlaces the video; we check the field order if we need
                 // to deinterlace the video automatically
                 if (requiresDeinterlace)
-                    e.Options.VideoFilter = "yadif";
+                    videoFilter.Append("yadif;");
 
                 // Scale down to maximum 1080p screen resolution.
                 if (videoStream.PixelHeight > 1080)
-                    e.Options.VideoFilter = $"{e.Options.VideoFilter};scale=-1:1080".TrimStart(';');
+                    videoFilter.Append($"scale=-1:1080;");
+
+                e.Options.VideoFilter = videoFilter.ToString().TrimEnd(';');
             }
 
             // e.Options.AudioFilter = "aecho=0.8:0.9:1000:0.3";
