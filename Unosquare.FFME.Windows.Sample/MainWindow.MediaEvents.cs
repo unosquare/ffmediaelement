@@ -130,40 +130,40 @@
             var videoStream = e.Options.VideoStream;
             if (videoStream != null)
             {
-                // Check if the stream is seekable
-                var isSeekable = (e.Source as FFME.MediaElement).IsSeekable;
-
                 // Check if the video requires deinterlacing
                 var requiresDeinterlace = videoStream.FieldOrder != AVFieldOrder.AV_FIELD_PROGRESSIVE
                     && videoStream.FieldOrder != AVFieldOrder.AV_FIELD_UNKNOWN;
 
-                if (requiresDeinterlace)
+                // Hardwrae device priorities
+                var deviceCandidates = new AVHWDeviceType[]
                 {
-                    // The yadif filter deinterlaces the video; we check the field order if we need
-                    // to deinterlace the video automatically
+                    AVHWDeviceType.AV_HWDEVICE_TYPE_CUDA,
+                    AVHWDeviceType.AV_HWDEVICE_TYPE_D3D11VA,
+                    AVHWDeviceType.AV_HWDEVICE_TYPE_DXVA2
+                };
+
+                // Hardware device selection
+                if (videoStream.FPS <= 30)
+                {
+                    foreach (var deviceType in deviceCandidates)
+                    {
+                        var accelerator = videoStream.HardwareDevices.FirstOrDefault(d => d.DeviceType == deviceType);
+                        if (accelerator != null)
+                        {
+                            e.Options.VideoHardwareDevice = accelerator;
+                            break;
+                        }
+                    }
+                }
+
+                // The yadif filter deinterlaces the video; we check the field order if we need
+                // to deinterlace the video automatically
+                if (requiresDeinterlace)
                     e.Options.VideoFilter = "yadif";
 
-                    if (isSeekable == false && e.Info.InputUrl.StartsWith("udp://") == false)
-                    {
-                        // Check if we have a compatible CUDA decoder. There may be others like QSV.
-                        var hardwareCodec = videoStream.HardwareDecoders.FirstOrDefault(c => c.EndsWith("_cuvid"));
-                        if (string.IsNullOrWhiteSpace(hardwareCodec) == false && videoStream.FPS <= 30)
-                            e.Options.DecoderCodec[videoStream.StreamIndex] = hardwareCodec;
-                    }
-                }
-                else
-                {
-                    var accelerator = videoStream.HardwareDevices.FirstOrDefault(d => d.DeviceType == AVHWDeviceType.AV_HWDEVICE_TYPE_CUDA);
-                    if (accelerator != null && videoStream.FPS <= 30 && videoStream.PixelHeight <= 1080)
-                    {
-                        e.Options.VideoHardwareDevice = accelerator;
-                    }
-                }
-
+                // Scale down to maximum 1080p screen resolution.
                 if (videoStream.PixelHeight > 1080)
-                {
                     e.Options.VideoFilter = $"{e.Options.VideoFilter};scale=-1:1080".TrimStart(';');
-                }
             }
 
             // e.Options.AudioFilter = "aecho=0.8:0.9:1000:0.3";

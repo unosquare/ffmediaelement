@@ -232,11 +232,13 @@
         /// <returns>Create a managed fraome from an unmanaged one.</returns>
         protected override unsafe MediaFrame CreateFrameSource(ref AVFrame* frame)
         {
-            if (string.IsNullOrWhiteSpace(FilterString) == false)
-                InitializeFilterGraph(frame);
-
+            // Move the frame from hardware (GPU) memory to RAM (CPU)
             if (HardwareAccelerator != null)
                 frame = HardwareAccelerator.ExchangeFrame(CodecContext, frame, out IsUsingHardwareDecoding);
+
+            // Init the filtergraph for the frame
+            if (string.IsNullOrWhiteSpace(FilterString) == false)
+                InitializeFilterGraph(frame);
 
             AVFrame* outputFrame;
 
