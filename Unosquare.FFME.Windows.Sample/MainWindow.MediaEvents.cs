@@ -119,7 +119,7 @@
 
             // You can force video FPS if necessary
             // see: https://github.com/unosquare/ffmediaelement/issues/212
-            // e.Options.VideoForcedFps = new AVRational { num = 25, den = 1 };
+            // e.Options.VideoForcedFps = 25;
 
             // An example of specifcally selecting a playback stream
             var subtitleStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_SUBTITLE).Select(kvp => kvp.Value);
@@ -127,33 +127,44 @@
             if (englishSubtitleStream != null)
                 e.Options.SubtitleStream = englishSubtitleStream;
 
-            // Check if we have a compatible CUDA decoder. There may be others like QSV.
-            var hardwareCodec = e.Options.VideoStream.HardwareDecoders.FirstOrDefault(c => c.EndsWith("_cuvid"));
-            if (string.IsNullOrWhiteSpace(hardwareCodec) == false)
-                e.Options.VideoHardwareDecoder = hardwareCodec;
-
-            // Check if the video requires deinterlacing
-            var requiresDeinterlace = e.Options.VideoStream != null
-                && e.Options.VideoStream.FieldOrder != AVFieldOrder.AV_FIELD_PROGRESSIVE
-                && e.Options.VideoStream.FieldOrder != AVFieldOrder.AV_FIELD_UNKNOWN;
-
-            if (requiresDeinterlace)
+            var videoStream = e.Options.VideoStream;
+            if (videoStream != null)
             {
-                // The yadif filter deinterlaces the video; we check the field order if we need
-                // to deinterlace the video automatically
-                e.Options.VideoFilter = "yadif";
-            }
+                // Check if the stream is seekable
+                var isSeekable = (e.Source as FFME.MediaElement).IsSeekable;
 
-            /*
-            if (hardwareCodec != null && MediaEngine.DecoderOptions[hardwareCodec].Any(o => o.Name.Equals("crop")))
-            {
-                // Instead of using a filter, do the deinterlacing in hardware :)
-                e.Options.DecoderParams[e.Options.VideoStream.StreamIndex, "crop"] = "500x500x500x500";
+                // Check if the video requires deinterlacing
+                var requiresDeinterlace = videoStream.FieldOrder != AVFieldOrder.AV_FIELD_PROGRESSIVE
+                    && videoStream.FieldOrder != AVFieldOrder.AV_FIELD_UNKNOWN;
 
-                // Clear the filter because we will deinterlace with a hardware codec!
-                e.Options.VideoFilter = null;
+                if (requiresDeinterlace)
+                {
+                    // The yadif filter deinterlaces the video; we check the field order if we need
+                    // to deinterlace the video automatically
+                    e.Options.VideoFilter = "yadif";
+
+                    if (isSeekable == false && e.Info.InputUrl.StartsWith("udp://") == false)
+                    {
+                        // Check if we have a compatible CUDA decoder. There may be others like QSV.
+                        var hardwareCodec = videoStream.HardwareDecoders.FirstOrDefault(c => c.EndsWith("_cuvid"));
+                        if (string.IsNullOrWhiteSpace(hardwareCodec) == false && videoStream.FPS <= 30)
+                            e.Options.DecoderCodec[videoStream.StreamIndex] = hardwareCodec;
+                    }
+                }
+                else
+                {
+                    var accelerator = videoStream.HardwareDevices.FirstOrDefault(d => d.DeviceType == AVHWDeviceType.AV_HWDEVICE_TYPE_CUDA);
+                    if (accelerator != null && videoStream.FPS <= 30 && videoStream.PixelHeight <= 1080)
+                    {
+                        e.Options.VideoHardwareDevice = accelerator;
+                    }
+                }
+
+                if (videoStream.PixelHeight > 1080)
+                {
+                    e.Options.VideoFilter = $"{e.Options.VideoFilter};scale=-1:1080".TrimStart(';');
+                }
             }
-            */
 
             // e.Options.AudioFilter = "aecho=0.8:0.9:1000:0.3";
             // e.Options.AudioFilter = "chorus=0.5:0.9:50|60|40:0.4|0.32|0.3:0.25|0.4|0.3:2|2.3|1.3";

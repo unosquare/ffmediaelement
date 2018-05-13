@@ -1,10 +1,12 @@
 ﻿namespace Unosquare.FFME.Shared
 {
-    using FFmpeg.AutoGen;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Represetnts options that applied creating the individual media stream components.
     /// Once the container has created the media components, changing these options will have no effect.
+    /// See: https://www.ffmpeg.org/ffmpeg-all.html#Main-options
+    /// Partly a port of https://github.com/FFmpeg/FFmpeg/blob/master/fftools/ffmpeg_opt.c
     /// </summary>
     public sealed class MediaOptions
     {
@@ -20,16 +22,17 @@
         public DecoderOptions DecoderParams { get; } = new DecoderOptions();
 
         /// <summary>
+        /// A dictionary of stream indexes and force decoder codec names.
+        /// This is equivalent to the -codec Main option.
+        /// See: https://www.ffmpeg.org/ffmpeg-all.html#Main-options (-codec option)
+        /// </summary>
+        public Dictionary<int, string> DecoderCodec { get; } = new Dictionary<int, string>();
+
+        /// <summary>
         /// Use Stream's HardwareDevices property to get a list of
         /// compatible hardware accelerators.
         /// </summary>
         public HardwareDeviceInfo VideoHardwareDevice { get; set; }
-
-        /// <summary>
-        /// Use Stream's HardwareDecoder property to get a list of
-        /// compatible hardware decoder codecs.
-        /// </summary>
-        public string VideoHardwareDecoder { get; set; }
 
         /// <summary>
         /// Prevent reading from audio stream components.
@@ -60,7 +63,7 @@
         /// <summary>
         /// Specifies a forced FPS value for the input video stream.
         /// </summary>
-        public AVRational? VideoForcedFps { get; set; } = null;
+        public double VideoForcedFps { get; set; } = default;
 
         /// <summary>
         /// Initially contains the best suitable video stream.

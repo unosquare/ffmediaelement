@@ -5,6 +5,7 @@
 
     /// <summary>
     /// Represents decoder global and private options for all streams
+    /// See https://www.ffmpeg.org/ffmpeg-codecs.html#Codec-Options
     /// </summary>
     public sealed class DecoderOptions
     {

@@ -342,7 +342,8 @@
                 if (c->id != codecFamily)
                     continue;
 
-                if ((c->capabilities & ffmpeg.AV_CODEC_CAP_HARDWARE) != 0)
+                if ((c->capabilities & ffmpeg.AV_CODEC_CAP_HARDWARE) != 0
+                    || (c->capabilities & ffmpeg.AV_CODEC_CAP_HYBRID) != 0)
                 {
                     result.Add(FFInterop.PtrToStringUTF8(c->name));
                 }
