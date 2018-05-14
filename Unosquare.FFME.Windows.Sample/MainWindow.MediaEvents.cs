@@ -162,13 +162,13 @@
                 // The yadif filter deinterlaces the video; we check the field order if we need
                 // to deinterlace the video automatically
                 if (requiresDeinterlace)
-                    videoFilter.Append("yadif;");
+                    videoFilter.Append("yadif,");
 
                 // Scale down to maximum 1080p screen resolution.
                 if (videoStream.PixelHeight > 1080)
-                    videoFilter.Append($"scale=-1:1080;");
+                    videoFilter.Append($"scale=-1:1080,");
 
-                e.Options.VideoFilter = videoFilter.ToString().TrimEnd(';');
+                e.Options.VideoFilter = videoFilter.ToString().TrimEnd(',');
             }
 
             // e.Options.AudioFilter = "aecho=0.8:0.9:1000:0.3";
