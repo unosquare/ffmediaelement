@@ -255,8 +255,11 @@
         {
             using (Locker.AcquireReaderLock())
             {
-                var currentIndex = PlaybackBlocks.IndexOf(current);
-                if (currentIndex < 0) return null;
+                var currentIndex = current == null && PlaybackBlocks.Count > 0 ?
+                    0 : PlaybackBlocks.IndexOf(current);
+
+                if (currentIndex < 0)
+                    return null;
 
                 if (currentIndex + 1 < PlaybackBlocks.Count)
                     return PlaybackBlocks[currentIndex + 1];

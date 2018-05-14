@@ -206,10 +206,12 @@
                 target.SmtpeTimecode = source.SmtpeTimecode;
             }
 
+            // Fill out other properties
             target.CodedPictureNumber = source.CodedPictureNumber;
             target.StreamIndex = source.StreamIndex;
             target.ClosedCaptions = new ReadOnlyCollection<ClosedCaptions.ClosedCaptionPacket>(source.ClosedCaptions);
 
+            // Process the aspect ratio
             var aspectRatio = source.Pointer->sample_aspect_ratio;
             if (aspectRatio.num == 0 || aspectRatio.den == 0)
             {

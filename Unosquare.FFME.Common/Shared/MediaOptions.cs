@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Shared
 {
+    using System;
     using System.Collections.Generic;
 
     /// <summary>
@@ -26,7 +27,13 @@
         /// This is equivalent to the -codec Main option.
         /// See: https://www.ffmpeg.org/ffmpeg-all.html#Main-options (-codec option)
         /// </summary>
-        public Dictionary<int, string> DecoderCodec { get; } = new Dictionary<int, string>();
+        public Dictionary<int, string> DecoderCodec { get; } = new Dictionary<int, string>(32);
+
+        /// <summary>
+        /// Gets or sets the amount of time to offset the subtitles by
+        /// This is an FFME-only property -- Not a port of ffmpeg.
+        /// </summary>
+        public TimeSpan SubtitlesDelay { get; set; } = TimeSpan.Zero;
 
         /// <summary>
         /// Use Stream's HardwareDevices property to get a list of

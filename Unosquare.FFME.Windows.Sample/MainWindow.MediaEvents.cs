@@ -104,6 +104,9 @@
         /// <param name="e">The <see cref="MediaOpeningRoutedEventArgs"/> instance containing the event data.</param>
         private void OnMediaOpening(object sender, MediaOpeningRoutedEventArgs e)
         {
+            // You can start off by adjusting subtitles delay
+            // e.Options.SubtitlesDelay = TimeSpan.FromSeconds(7); // See issue #216
+
             // Example of automatically side-loading SRT subs
             try
             {
@@ -126,7 +129,9 @@
             var subtitleStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_SUBTITLE).Select(kvp => kvp.Value);
             var englishSubtitleStream = subtitleStreams.FirstOrDefault(s => s.Language.StartsWith("en"));
             if (englishSubtitleStream != null)
+            {
                 e.Options.SubtitleStream = englishSubtitleStream;
+            }
 
             var videoStream = e.Options.VideoStream;
             if (videoStream != null)

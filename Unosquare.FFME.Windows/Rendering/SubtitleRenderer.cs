@@ -109,15 +109,25 @@
                 var subtitleBlock = mediaBlock as SubtitleBlock;
                 if (subtitleBlock == null) return;
 
-                // Save the start and end times. We will need
-                // them in order to make the subtitles disappear
-                StartTime = subtitleBlock.StartTime;
-                EndTime = subtitleBlock.EndTime;
-
                 // Raise the subtitles event and keep track of the text.
-                BlockText = MediaElement.RaiseRenderingSubtitlesEvent(subtitleBlock, clockPosition)
-                    ? string.Empty
-                    : string.Join("\r\n", subtitleBlock.Text);
+                var cancelRender = MediaElement.RaiseRenderingSubtitlesEvent(subtitleBlock, clockPosition);
+
+                if (cancelRender)
+                {
+                    BlockText = string.Empty;
+                    StartTime = null;
+                    EndTime = null;
+                }
+                else
+                {
+                    // Save the block text lines to display
+                    BlockText = string.Join("\r\n", subtitleBlock.Text);
+
+                    // Save the start and end times. We will need
+                    // them in order to make the subtitles disappear
+                    StartTime = subtitleBlock.StartTime;
+                    EndTime = subtitleBlock.EndTime;
+                }
 
                 // Call the selective update method
                 Update(clockPosition);
