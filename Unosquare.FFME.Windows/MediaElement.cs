@@ -161,7 +161,7 @@
         /// <summary>
         /// This is the image that holds video bitmaps
         /// </summary>
-        internal Image VideoView { get; } = new Image { Name = nameof(VideoView) };
+        internal ThreadSeparatedImage VideoView { get; } = new ThreadSeparatedImage { Name = nameof(VideoView) };
 
         /// <summary>
         /// Gets the closed captions view control.

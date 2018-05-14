@@ -178,7 +178,8 @@
             IsRenderingInProgress.Value = true;
 
             // Ensure the target bitmap can be loaded
-            GuiContext.Current.EnqueueInvoke(DispatcherPriority.Render, () =>
+            // GuiContext.Current.EnqueueInvoke(DispatcherPriority.Render, () =>
+            ThreadSeparatedImage.CommonDispatcher.InvokeAsync(() =>
             {
                 if (block.IsDisposed)
                 {
@@ -188,7 +189,7 @@
 
                 try
                 {
-                    MediaElement.CaptionsView.RenderPacket(block, MediaCore);
+                    // MediaElement.CaptionsView.RenderPacket(block, MediaCore);
 
                     var bitmapData = LockTargetBitmap(block);
                     if (bitmapData != null)
@@ -198,12 +199,18 @@
                         RenderTargetBitmap(block, bitmapData, clockPosition);
                     }
                 }
-                catch { /* swallow */ }
+                catch (Exception ex)
+                {
+                    MediaElement?.MediaCore?.Log(
+                        MediaLogMessageType.Error,
+                        $"{nameof(VideoRenderer)} {ex.GetType()}: {nameof(Render)} failed. {ex.Message}.");
+                }
                 finally
                 {
                     IsRenderingInProgress.Value = false;
                 }
-            });
+            },
+            DispatcherPriority.Render);
         }
 
         /// <summary>
@@ -236,7 +243,7 @@
                 // Signal an update on the rendering surface
                 TargetBitmap?.AddDirtyRect(bitmapData.UpdateRect);
                 TargetBitmap?.Unlock();
-                ApplyLayoutTransforms(block);
+                // ApplyLayoutTransforms(block);
             }
             catch (Exception ex)
             {
@@ -260,8 +267,8 @@
             BitmapDataBuffer result = null;
 
             // Skip the locking if scrubbing is not enabled
-            if (MediaElement.ScrubbingEnabled == false && (MediaElement.IsPlaying == false || MediaElement.IsSeeking))
-                return result;
+            // if (MediaElement.ScrubbingEnabled == false && (MediaElement.IsPlaying == false || MediaElement.IsSeeking))
+            //     return result;
 
             // Figure out what we need to do
             var needsCreation = TargetBitmap == null && MediaElement.HasVideo;
