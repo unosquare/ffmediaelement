@@ -66,9 +66,6 @@
     <Compile Include="Platform\PropertyMapper.cs" />
     <Compile Include="Platform\GuiContextType.cs" />
     <Compile Include="Rendering\ClosedCaptionsControl.cs" />
-    <Compile Include="Rendering\DispatcherHostedElement.cs" />
-    <Compile Include="Rendering\DispatcherHostedImage.cs" />
-    <Compile Include="Rendering\DispatcherPresentationSource.cs" />
     <Compile Include="Rendering\HostedImage.cs" />
     <Compile Include="Rendering\HostedVisualElement.cs" />
     <Compile Include="Subtitles.cs" />

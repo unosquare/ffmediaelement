@@ -386,11 +386,14 @@
             if (WindowsPlatform.Instance.IsInDesignTime)
             {
                 // Shows an FFmpeg image if we are in design-time
-                var bitmap = Properties.Resources.FFmpegMediaElementBackground;
-                var bitmapSource = Imaging.CreateBitmapSourceFromHBitmap(
-                    bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-                var controlBitmap = new WriteableBitmap(bitmapSource);
-                VideoView.Source = controlBitmap;
+                VideoView.Invoke(() =>
+                {
+                    var bitmap = Properties.Resources.FFmpegMediaElementBackground;
+                    var bitmapSource = Imaging.CreateBitmapSourceFromHBitmap(
+                        bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                    var controlBitmap = new WriteableBitmap(bitmapSource);
+                    VideoView.Source = controlBitmap;
+                });
             }
             else
             {

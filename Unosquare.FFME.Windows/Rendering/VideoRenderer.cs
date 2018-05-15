@@ -179,7 +179,7 @@
 
             // Ensure the target bitmap can be loaded
             // GuiContext.Current.EnqueueInvoke(DispatcherPriority.Render, () =>
-            MediaElement.VideoView.HostDispatcher.InvokeAsync(() =>
+            MediaElement.VideoView.Invoke(DispatcherPriority.Render, () =>
             {
                 if (block.IsDisposed)
                 {
@@ -208,8 +208,7 @@
                 {
                     IsRenderingInProgress.Value = false;
                 }
-            },
-            DispatcherPriority.Render);
+            });
         }
 
         /// <summary>
@@ -242,9 +241,7 @@
                 // Signal an update on the rendering surface
                 TargetBitmap?.AddDirtyRect(bitmapData.UpdateRect);
                 TargetBitmap?.Unlock();
-
-                GuiContext.Current.InvokeAsync(() => { ApplyLayoutTransforms(block); }).Wait();
-                // ApplyLayoutTransforms(block);
+                ApplyLayoutTransforms(block);
             }
             catch (Exception ex)
             {

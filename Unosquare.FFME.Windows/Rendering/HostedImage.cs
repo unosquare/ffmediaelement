@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME.Rendering
 {
-    using System;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Media;
@@ -12,6 +11,7 @@
         public static readonly DependencyProperty StretchDirectionProperty = Image.StretchDirectionProperty.AddOwner(typeof(HostedImage));
         public static new readonly DependencyProperty HorizontalAlignmentProperty = FrameworkElement.HorizontalAlignmentProperty.AddOwner(typeof(HostedImage));
         public static new readonly DependencyProperty VerticalAlignmentProperty = FrameworkElement.VerticalAlignmentProperty.AddOwner(typeof(HostedImage));
+        public static new readonly DependencyProperty LayoutTransformProperty = FrameworkElement.LayoutTransformProperty.AddOwner(typeof(HostedImage));
 
         public HostedImage()
             : base()
@@ -21,32 +21,38 @@
 
         public ImageSource Source
         {
-            get => GetPropertyValue<ImageSource>(SourceProperty);
-            set => SetPropertyValue(SourceProperty, value);
+            get => GetElementProperty<ImageSource>(SourceProperty);
+            set => SetElementProperty(SourceProperty, value);
         }
 
         public Stretch Stretch
         {
-            get => GetPropertyValue<Stretch>(StretchProperty);
-            set => SetPropertyValue(StretchProperty, value);
+            get => GetElementProperty<Stretch>(StretchProperty);
+            set => SetElementProperty(StretchProperty, value);
         }
 
         public StretchDirection StretchDirection
         {
-            get => GetPropertyValue<StretchDirection>(StretchDirectionProperty);
-            set => SetPropertyValue(StretchDirectionProperty, value);
+            get => GetElementProperty<StretchDirection>(StretchDirectionProperty);
+            set => SetElementProperty(StretchDirectionProperty, value);
         }
 
         public new HorizontalAlignment HorizontalAlignment
         {
-            get => GetPropertyValue<HorizontalAlignment>(HorizontalAlignmentProperty);
-            set => SetPropertyValue(HorizontalAlignmentProperty, value);
+            get => GetElementProperty<HorizontalAlignment>(HorizontalAlignmentProperty);
+            set => SetElementProperty(HorizontalAlignmentProperty, value);
         }
 
         public new VerticalAlignment VerticalAlignment
         {
-            get => GetPropertyValue<VerticalAlignment>(VerticalAlignmentProperty);
-            set => SetPropertyValue(VerticalAlignmentProperty, value);
+            get => GetElementProperty<VerticalAlignment>(VerticalAlignmentProperty);
+            set => SetElementProperty(VerticalAlignmentProperty, value);
+        }
+
+        public new Transform LayoutTransform
+        {
+            get => GetElementProperty<Transform>(LayoutTransformProperty);
+            set => SetElementProperty(LayoutTransformProperty, value);
         }
 
         protected override Image CreateHostedElement()
@@ -56,24 +62,6 @@
             control.HorizontalAlignment = HorizontalAlignment.Stretch;
             control.EndInit();
             return control;
-        }
-
-        private T GetPropertyValue<T>(DependencyProperty property)
-        {
-            var result = default(T);
-            HostDispatcher.BeginInvoke(new Action(() =>
-            {
-                result = (T)Element.GetValue(property);
-            })).Wait();
-            return result;
-        }
-
-        private void SetPropertyValue<T>(DependencyProperty property, T value)
-        {
-            HostDispatcher.BeginInvoke(new Action(() =>
-            {
-                Element.SetValue(property, value);
-            }));
         }
     }
 }
