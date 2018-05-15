@@ -69,6 +69,8 @@
     <Compile Include="Rendering\DispatcherHostedElement.cs" />
     <Compile Include="Rendering\DispatcherHostedImage.cs" />
     <Compile Include="Rendering\DispatcherPresentationSource.cs" />
+    <Compile Include="Rendering\HostedImage.cs" />
+    <Compile Include="Rendering\HostedVisualElement.cs" />
     <Compile Include="Subtitles.cs" />
     <Compile Include="Platform\WindowsMediaConnector.cs" />
     <Compile Include="Platform\WindowsNativeMethods.cs" />

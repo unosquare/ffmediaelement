@@ -161,7 +161,7 @@
         /// <summary>
         /// This is the image that holds video bitmaps
         /// </summary>
-        internal DispatcherHostedImage VideoView { get; } = new DispatcherHostedImage { Name = nameof(VideoView) };
+        internal HostedImage VideoView { get; } = new HostedImage { Name = nameof(VideoView) };
 
         /// <summary>
         /// Gets the closed captions view control.
@@ -311,8 +311,8 @@
             ContentGrid.VerticalAlignment = VerticalAlignment.Stretch;
 
             // Initialize dependency properties to those of the Video view
-            Stretch = VideoView.Stretch;
-            StretchDirection = VideoView.StretchDirection;
+            // Stretch = VideoView.Stretch;
+            // StretchDirection = VideoView.StretchDirection;
 
             // Add the child video view and bind the alignment properties
             BindProperty(VideoView, HorizontalAlignmentProperty, this, nameof(HorizontalAlignment), BindingMode.OneWay);
