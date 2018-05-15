@@ -378,24 +378,26 @@
             };
 
             // Compose the control by adding overlapping children
-            ContentGrid.Children.Add(VideoView);
+            if (WindowsPlatform.Instance.IsInDesignTime)
+            {
+                var preview = new Image();
+                ContentGrid.Children.Add(preview);
+                var bitmap = Properties.Resources.FFmpegMediaElementBackground;
+                var bitmapSource = Imaging.CreateBitmapSourceFromHBitmap(
+                    bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                var controlBitmap = new WriteableBitmap(bitmapSource);
+                preview.Source = controlBitmap;
+            }
+            else
+            {
+                ContentGrid.Children.Add(VideoView);
+            }
+
             ContentGrid.Children.Add(SubtitlesView);
             ContentGrid.Children.Add(CaptionsView);
 
             // Display the control (or not)
-            if (WindowsPlatform.Instance.IsInDesignTime)
-            {
-                // Shows an FFmpeg image if we are in design-time
-                VideoView.Invoke(() =>
-                {
-                    var bitmap = Properties.Resources.FFmpegMediaElementBackground;
-                    var bitmapSource = Imaging.CreateBitmapSourceFromHBitmap(
-                        bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-                    var controlBitmap = new WriteableBitmap(bitmapSource);
-                    VideoView.Source = controlBitmap;
-                });
-            }
-            else
+            if (WindowsPlatform.Instance.IsInDesignTime == false)
             {
                 // Setup the media engine and associated property updates worker
                 MediaCore = new MediaEngine(this, new WindowsMediaConnector(this));
