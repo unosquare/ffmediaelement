@@ -179,7 +179,7 @@
 
             // Ensure the target bitmap can be loaded
             // GuiContext.Current.EnqueueInvoke(DispatcherPriority.Render, () =>
-            ThreadSeparatedImage.CommonDispatcher.InvokeAsync(() =>
+            MediaElement.VideoView.HostedDispatcher.InvokeAsync(() =>
             {
                 if (block.IsDisposed)
                 {

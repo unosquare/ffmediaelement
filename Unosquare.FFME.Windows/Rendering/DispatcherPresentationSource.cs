@@ -9,19 +9,19 @@
     /// </summary>
     /// <seealso cref="PresentationSource" />
     /// <seealso cref="IDisposable" />
-    internal class VisualTargetPresentationSource
+    internal sealed class DispatcherPresentationSource
         : PresentationSource, IDisposable
     {
-        private readonly VisualTarget _visualTarget = null;
-        private bool _isDisposed = false;
+        private readonly VisualTarget m_VisualTreeConnector = null;
+        private bool m_IsDisposed = false;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="VisualTargetPresentationSource"/> class.
+        /// Initializes a new instance of the <see cref="DispatcherPresentationSource"/> class.
         /// </summary>
         /// <param name="hostVisual">The host visual.</param>
-        public VisualTargetPresentationSource(HostVisual hostVisual)
+        public DispatcherPresentationSource(HostVisual hostVisual)
         {
-            _visualTarget = new VisualTarget(hostVisual);
+            m_VisualTreeConnector = new VisualTarget(hostVisual);
             AddSource();
         }
 
@@ -32,7 +32,7 @@
             {
                 try
                 {
-                    return _visualTarget.RootVisual;
+                    return m_VisualTreeConnector.RootVisual;
                 }
                 catch (Exception)
                 {
@@ -42,14 +42,13 @@
 
             set
             {
-                Visual oldRoot = _visualTarget.RootVisual;
-                _visualTarget.RootVisual = value;
+                var oldRoot = m_VisualTreeConnector.RootVisual;
+                m_VisualTreeConnector.RootVisual = value;
                 RootChanged(oldRoot, value);
 
-                UIElement rootElement = value as UIElement;
-                if (rootElement != null)
+                if (value is UIElement rootElement)
                 {
-                    rootElement.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
+                    rootElement.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
                     rootElement.Arrange(new Rect(rootElement.DesiredSize));
                 }
             }
@@ -58,17 +57,18 @@
         /// <inheritdoc/>
         public override bool IsDisposed
         {
-            get { return _isDisposed; }
+            get { return m_IsDisposed; }
         }
 
         /// <inheritdoc/>
         public void Dispose()
         {
             RemoveSource();
-            _isDisposed = true;
+            m_VisualTreeConnector.Dispose();
+            m_IsDisposed = true;
         }
 
         /// <inheritdoc/>
-        protected override CompositionTarget GetCompositionTargetCore() => _visualTarget;
+        protected override CompositionTarget GetCompositionTargetCore() => m_VisualTreeConnector;
     }
 }

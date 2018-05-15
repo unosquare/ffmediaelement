@@ -66,9 +66,9 @@
     <Compile Include="Platform\PropertyMapper.cs" />
     <Compile Include="Platform\GuiContextType.cs" />
     <Compile Include="Rendering\ClosedCaptionsControl.cs" />
-    <Compile Include="Rendering\ThreadSeparatedControlHost.cs" />
-    <Compile Include="Rendering\ThreadSeparatedImage.cs" />
-    <Compile Include="Rendering\VisualTargetPresentationSource.cs" />
+    <Compile Include="Rendering\DispatcherHostedElement.cs" />
+    <Compile Include="Rendering\DispatcherHostedImage.cs" />
+    <Compile Include="Rendering\DispatcherPresentationSource.cs" />
     <Compile Include="Subtitles.cs" />
     <Compile Include="Platform\WindowsMediaConnector.cs" />
     <Compile Include="Platform\WindowsNativeMethods.cs" />
