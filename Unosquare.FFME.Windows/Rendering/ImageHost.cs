@@ -53,6 +53,12 @@
             // placeholder
         }
 
+        public ImageHost(bool hasOwnDispatcher)
+            : base(hasOwnDispatcher)
+        {
+            // placeholder
+        }
+
         /// <summary>
         /// Gets or sets the source.
         /// </summary>

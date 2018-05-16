@@ -36,9 +36,6 @@
         {
             var isInDesignMode = DesignerProperties.GetIsInDesignMode(this);
             HasOwnDispatcher = isInDesignMode ? false : hasOwnDispatcher;
-
-            if (HasOwnDispatcher)
-                Host = new HostVisual();
         }
 
         /// <summary>
@@ -70,7 +67,7 @@
         /// that glues the presentation source running on a different dispatcher
         /// to the main UI dispatcher.
         /// </summary>
-        protected HostVisual Host { get; }
+        protected HostVisual Host { get; private set; }
 
         /// <summary>
         /// Gets the number of visual child elements within this element.
@@ -91,7 +88,19 @@
         /// </summary>
         protected override IEnumerator LogicalChildren
         {
-            get { if (Host != null) yield return Host; }
+            get
+            {
+                if (HasOwnDispatcher)
+                {
+                    if (Host != null)
+                        yield return Host;
+                }
+                else
+                {
+                    if (Element != null)
+                        yield return Element;
+                }
+            }
         }
 
         /// <summary>
@@ -137,8 +146,9 @@
         {
             if (HasOwnDispatcher)
             {
-                AddLogicalChild(Host);
+                Host = new HostVisual();
                 AddVisualChild(Host);
+                AddLogicalChild(Host);
                 Loaded += HandleLoadedEvent;
                 Unloaded += HandleUnloadedEvent;
                 LayoutUpdated += HandleLayoutUpdatedEvent;
@@ -147,7 +157,12 @@
             {
                 ElementDispatcher = Dispatcher.CurrentDispatcher;
                 Element = CreateHostedElement();
-                Element.Loaded += (sender, args) => { RaiseEvent(new RoutedEventArgs(ElementLoadedEvent, this)); };
+                Element.Loaded += (sender, args) =>
+                {
+                    InvalidateMeasure();
+                    RaiseEvent(new RoutedEventArgs(ElementLoadedEvent, this));
+                };
+
                 AddVisualChild(Element);
                 AddLogicalChild(Element);
             }
@@ -165,9 +180,9 @@
         protected override Visual GetVisualChild(int index)
         {
             if (HasOwnDispatcher)
-                return index == 0 ? Host : null;
-
-            return Element;
+                return Host;
+            else
+                return Element;
         }
 
         /// <summary>
@@ -192,7 +207,26 @@
                 return finalSize;
             }
 
-            return base.ArrangeOverride(finalSize);
+            Element?.Arrange(new Rect(finalSize));
+            return finalSize;
+        }
+
+        /// <summary>
+        /// When overridden in a derived class, measures the size in layout required for child elements and determines a size for the <see cref="T:System.Windows.FrameworkElement" />-derived class.
+        /// </summary>
+        /// <param name="availableSize">The available size that this element can give to child elements. Infinity can be specified as a value to indicate that the element will size to whatever content is available.</param>
+        /// <returns>
+        /// The size that this element determines it needs during layout, based on its calculations of child element sizes.
+        /// </returns>
+        protected override Size MeasureOverride(Size availableSize)
+        {
+            if (HasOwnDispatcher)
+            {
+                return default;
+            }
+
+            Element.Measure(availableSize);
+            return Element.DesiredSize;
         }
 
         /// <summary>
