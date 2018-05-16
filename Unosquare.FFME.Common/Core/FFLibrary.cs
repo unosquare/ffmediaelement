@@ -153,7 +153,7 @@
                 if (Reference != IntPtr.Zero)
                     throw new InvalidOperationException($"Library {Name} was already loaded.");
 
-                var result = LibraryLoader.LoadNativeLibraryUsingPlatformNamingConvention(basePath, Name, Version);
+                var result = LibraryLoader.LoadNativeLibrary(basePath, Name, Version);
 
                 if (result != IntPtr.Zero)
                 {

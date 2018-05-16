@@ -1,8 +1,8 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
+    using Platform;
     using Shared;
     using System;
-    using System.ComponentModel;
     using System.Linq;
     using System.Windows;
     using System.Windows.Controls;
@@ -35,7 +35,7 @@
         {
             // During runtime, let's hide the window. The loaded event handler will
             // compute the final placement of our window.
-            if (DesignerProperties.GetIsInDesignMode(this) == false)
+            if (GuiContext.Current.IsInDesignTime == false)
             {
                 Left = int.MinValue;
                 Top = int.MinValue;

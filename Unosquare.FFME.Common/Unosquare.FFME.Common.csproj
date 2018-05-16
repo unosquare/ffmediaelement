@@ -34,7 +34,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="FFmpeg.AutoGen" Version="4.0.0" />
+    <PackageReference Include="FFmpeg.AutoGen" Version="4.0.0.2" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
   </ItemGroup>
   

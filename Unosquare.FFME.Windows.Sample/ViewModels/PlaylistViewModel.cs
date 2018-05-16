@@ -182,10 +182,9 @@
         private void OnRenderingVideo(object sender, RenderingVideoEventArgs e)
         {
             if (HasTakenThumbnail) return;
-
-            App.Current?.Dispatcher?.Invoke(() =>
+            GuiContext.Current.InvokeAsync(() =>
             {
-                var m = Root.App.MediaElement;
+                var m = Root.App?.MediaElement;
                 if (m == null) return;
 
                 if (m.HasMediaEnded || m.Position.TotalSeconds >= 3 || (m.NaturalDuration.HasTimeSpan && m.NaturalDuration.TimeSpan.TotalSeconds <= 3))
