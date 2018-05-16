@@ -177,6 +177,10 @@
             // Flag the start of a rendering cycle
             IsRenderingInProgress.Value = true;
 
+            // Send the block to the captions renderer
+            if (block.ClosedCaptions.Count > 0)
+                GuiContext.Current.EnqueueInvoke(() => MediaElement.CaptionsView.RenderPacket(block, MediaCore));
+
             // Ensure the target bitmap can be loaded
             // GuiContext.Current.EnqueueInvoke(DispatcherPriority.Render, () =>
             MediaElement.VideoView.Invoke(DispatcherPriority.Render, () =>
@@ -189,13 +193,13 @@
 
                 try
                 {
-                    // MediaElement.CaptionsView.RenderPacket(block, MediaCore);
                     var bitmapData = LockTargetBitmap(block);
                     if (bitmapData != null)
                     {
                         LoadTargetBitmapBuffer(bitmapData, block);
                         MediaElement.RaiseRenderingVideoEvent(block, bitmapData, clockPosition);
                         RenderTargetBitmap(block, bitmapData, clockPosition);
+                        ApplyLayoutTransforms(block);
                     }
                 }
                 catch (Exception ex)
@@ -241,7 +245,6 @@
                 // Signal an update on the rendering surface
                 TargetBitmap?.AddDirtyRect(bitmapData.UpdateRect);
                 TargetBitmap?.Unlock();
-                ApplyLayoutTransforms(block);
             }
             catch (Exception ex)
             {

@@ -183,7 +183,7 @@
         {
             if (HasTakenThumbnail) return;
 
-            App.Current.Dispatcher.Invoke(() =>
+            App.Current?.Dispatcher?.Invoke(() =>
             {
                 var m = Root.App.MediaElement;
                 if (m == null) return;
