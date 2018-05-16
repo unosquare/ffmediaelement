@@ -3,6 +3,7 @@
     using FFmpeg.AutoGen;
     using Shared;
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Runtime.InteropServices;
@@ -104,16 +105,15 @@
 
                     // Additional library initialization
                     if (FFLibrary.LibAVDevice.IsLoaded) ffmpeg.avdevice_register_all();
-                    if (FFLibrary.LibAVFilter.IsLoaded) ffmpeg.avfilter_register_all();
 
-                    // Standard set initialization
-                    ffmpeg.av_register_all();
-                    ffmpeg.avcodec_register_all();
-                    ffmpeg.avformat_network_init();
+                    // Standard set initialization -- not needed anymore starting FFmpeg 4
+                    // if (FFLibrary.LibAVFilter.IsLoaded) ffmpeg.avfilter_register_all();
+                    // ffmpeg.av_register_all();
+                    // ffmpeg.avcodec_register_all();
+                    // ffmpeg.avformat_network_init();
 
                     // Logging and locking
                     LoggingWorker.ConnectToFFmpeg();
-                    FFLockManager.Register();
 
                     // set the static environment properties
                     m_LibrariesPath = ffmpegPath;
@@ -186,6 +186,122 @@
                 return Encoding.UTF8.GetString(TempStringBuffer, 0, TempByteLength);
             }
         }
+
+        /// <summary>
+        /// Retrieves the options information associated with the given AVClass.
+        /// </summary>
+        /// <param name="avClass">The av class.</param>
+        /// <returns>A list of option metadata</returns>
+        public static unsafe List<OptionMeta> RetrieveOptions(AVClass* avClass)
+        {
+            // see: https://github.com/FFmpeg/FFmpeg/blob/e0f32286861ddf7666ba92297686fa216d65968e/tools/enum_options.c
+            var result = new List<OptionMeta>(128);
+            if (avClass == null) return result;
+
+            AVOption* option = avClass->option;
+
+            while (option != null)
+            {
+                if (option->type != AVOptionType.AV_OPT_TYPE_CONST)
+                    result.Add(new OptionMeta(option));
+
+                option = ffmpeg.av_opt_next(avClass, option);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Retrives the codecs.
+        /// </summary>
+        /// <returns>The codecs</returns>
+        public static unsafe AVCodec*[] RetriveCodecs()
+        {
+            var result = new List<IntPtr>(1024);
+            void* iterator;
+            AVCodec* item;
+            while ((item = ffmpeg.av_codec_iterate(&iterator)) != null)
+            {
+                result.Add(new IntPtr(item));
+            }
+
+            var collection = new AVCodec*[result.Count];
+            for (var i = 0; i < result.Count; i++)
+            {
+                collection[i] = (AVCodec*)result[i].ToPointer();
+            }
+
+            return collection;
+        }
+
+        /// <summary>
+        /// Retrieves the input format names.
+        /// </summary>
+        /// <returns>The collection of names</returns>
+        public static unsafe List<string> RetrieveInputFormatNames()
+        {
+            var result = new List<string>(128);
+            void* iterator;
+            AVInputFormat* item;
+            while ((item = ffmpeg.av_demuxer_iterate(&iterator)) != null)
+            {
+                result.Add(PtrToStringUTF8(item->name));
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Retrieves the decoder names.
+        /// </summary>
+        /// <param name="allCodecs">All codecs.</param>
+        /// <returns>The collection of names</returns>
+        public static unsafe List<string> RetrieveDecoderNames(AVCodec*[] allCodecs)
+        {
+            var codecNames = new List<string>(allCodecs.Length);
+            foreach (var c in allCodecs)
+            {
+                if (ffmpeg.av_codec_is_decoder(c) != 0)
+                    codecNames.Add(PtrToStringUTF8(c->name));
+            }
+
+            return codecNames;
+        }
+
+        /// <summary>
+        /// Retrieves the global format options.
+        /// </summary>
+        /// <returns>The collection of option infos</returns>
+        public static unsafe List<OptionMeta> RetrieveGlobalFormatOptions() =>
+            RetrieveOptions(ffmpeg.avformat_get_class());
+
+        /// <summary>
+        /// Retrieves the global codec options.
+        /// </summary>
+        /// <returns>The collection of option infos</returns>
+        public static unsafe List<OptionMeta> RetrieveGlobalCodecOptions() =>
+            RetrieveOptions(ffmpeg.avcodec_get_class());
+
+        /// <summary>
+        /// Retrieves the input format options.
+        /// </summary>
+        /// <param name="formatName">Name of the format.</param>
+        /// <returns>The collection of option infos</returns>
+        public static unsafe List<OptionMeta> RetrieveInputFormatOptions(string formatName)
+        {
+            var item = ffmpeg.av_find_input_format(formatName);
+            if (item == null) return new List<OptionMeta>(0);
+
+            return RetrieveOptions(item->priv_class);
+        }
+
+        /// <summary>
+        /// Retrieves the codec options.
+        /// </summary>
+        /// <param name="codec">The codec.</param>
+        /// <returns>The collection of option infos</returns>
+        public static unsafe List<OptionMeta> RetrieveCodecOptions(AVCodec* codec) =>
+            RetrieveOptions(codec->priv_class);
 
         #endregion
     }

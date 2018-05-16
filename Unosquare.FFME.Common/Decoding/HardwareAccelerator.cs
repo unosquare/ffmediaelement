@@ -2,9 +2,9 @@
 {
     using Core;
     using FFmpeg.AutoGen;
+    using Shared;
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
 
     internal unsafe class HardwareAccelerator
     {
@@ -13,34 +13,7 @@
         /// </summary>
         private readonly AVCodecContext_get_format GetFormatCallback;
 
-        /// <summary>
-        /// Initializes static members of the <see cref="HardwareAccelerator"/> class.
-        /// </summary>
-        static HardwareAccelerator()
-        {
-            Dxva2 = new HardwareAccelerator
-            {
-                Name = "DXVA2",
-                DeviceType = AVHWDeviceType.AV_HWDEVICE_TYPE_DXVA2,
-                PixelFormat = AVPixelFormat.AV_PIX_FMT_DXVA2_VLD,
-                RequiresTransfer = true,
-            };
-
-            Cuda = new HardwareAccelerator
-            {
-                Name = "CUVID",
-                DeviceType = AVHWDeviceType.AV_HWDEVICE_TYPE_CUDA,
-                PixelFormat = AVPixelFormat.AV_PIX_FMT_CUDA,
-                RequiresTransfer = false,
-            };
-
-            All = new ReadOnlyDictionary<AVPixelFormat, HardwareAccelerator>(
-                new Dictionary<AVPixelFormat, HardwareAccelerator>()
-                {
-                    { Dxva2.PixelFormat, Dxva2 },
-                    { Cuda.PixelFormat, Cuda }
-                });
-        }
+        private VideoComponent Component;
 
         /// <summary>
         /// Prevents a default instance of the <see cref="HardwareAccelerator"/> class from being created.
@@ -52,30 +25,9 @@
         }
 
         /// <summary>
-        /// A dicitionary containing all Accelerators by pixel format
-        /// </summary>
-        public static ReadOnlyDictionary<AVPixelFormat, HardwareAccelerator> All { get; }
-
-        /// <summary>
-        /// Gets the dxva2 accelerator.
-        /// </summary>
-        public static HardwareAccelerator Dxva2 { get; }
-
-        /// <summary>
-        /// Gets the CUDA video accelerator.
-        /// </summary>
-        public static HardwareAccelerator Cuda { get; }
-
-        /// <summary>
         /// Gets the name of the HW accelerator.
         /// </summary>
         public string Name { get; private set; }
-
-        /// <summary>
-        /// Gets a value indicating whether the frame requires the transfer from
-        /// the hardware to RAM
-        /// </summary>
-        public bool RequiresTransfer { get; private set; }
 
         /// <summary>
         /// Gets the hardware output pixel format.
@@ -88,47 +40,82 @@
         public AVHWDeviceType DeviceType { get; private set; }
 
         /// <summary>
-        /// Attaches a hardware device context to the specified video component.
+        /// Attaches a hardware accelerator to the specified component.
         /// </summary>
         /// <param name="component">The component.</param>
-        /// <exception cref="Exception">Throws when unable to initialize the hardware device</exception>
-        public void AttachDevice(VideoComponent component)
+        /// <param name="selectedConfig">The selected configuration.</param>
+        /// <returns>
+        /// Whether or not the hardware accelerator was attached
+        /// </returns>
+        public static bool Attach(VideoComponent component, HardwareDeviceInfo selectedConfig)
         {
-            var result = 0;
-
-            fixed (AVBufferRef** devContextRef = &component.HardwareDeviceContext)
+            try
             {
-                result = ffmpeg.av_hwdevice_ctx_create(devContextRef, DeviceType, null, null, 0);
-                if (result < 0)
-                    throw new Exception($"Unable to initialize hardware context for device {Name}");
+                var result = new HardwareAccelerator
+                {
+                    Component = component,
+                    Name = selectedConfig.DeviceTypeName,
+                    DeviceType = selectedConfig.DeviceType,
+                    PixelFormat = selectedConfig.PixelFormat,
+                };
+
+                result.InitializeHardwareContext();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                component.Container.Parent?.Log(MediaLogMessageType.Error, $"Could not attach hardware decoder. {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Gets the supported hardware decoder device types for the given codec.
+        /// </summary>
+        /// <param name="codecId">The codec identifier.</param>
+        /// <returns>
+        /// A list of hardware device decoders compatible with the codec
+        /// </returns>
+        public static List<HardwareDeviceInfo> GetCompatibleDevices(AVCodecID codecId)
+        {
+            const int AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX = 0x01;
+            var codec = ffmpeg.avcodec_find_decoder(codecId);
+            var result = new List<HardwareDeviceInfo>(64);
+            var configIndex = 0;
+
+            // skip unsupported configs
+            if (codec == null || codecId == AVCodecID.AV_CODEC_ID_NONE)
+                return result;
+
+            while (true)
+            {
+                var config = ffmpeg.avcodec_get_hw_config(codec, configIndex);
+                if (config == null) break;
+
+                if ((config->methods & AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX) != 0
+                    && config->device_type != AVHWDeviceType.AV_HWDEVICE_TYPE_NONE)
+                {
+                    result.Add(new HardwareDeviceInfo(config));
+                }
+
+                configIndex++;
             }
 
-            component.HardwareAccelerator = this;
-            component.CodecContext->hw_device_ctx = ffmpeg.av_buffer_ref(component.HardwareDeviceContext);
-            component.CodecContext->get_format = GetFormatCallback;
+            return result;
         }
 
         /// <summary>
         /// Detaches and disposes the hardware device context from the specified video component
         /// </summary>
-        /// <param name="component">The component.</param>
-        public void DetachDevice(VideoComponent component)
+        public void Release()
         {
-            // TODO: (Floyd) Check the below code in the future because I am not sure
-            // how to uninitialize the hardware device context
-            if (component.CodecContext != null)
+            if (Component.HardwareDeviceContext != null)
             {
-                ffmpeg.av_buffer_unref(&component.CodecContext->hw_device_ctx);
-                component.CodecContext->hw_device_ctx = null;
-            }
-
-            if (component.HardwareDeviceContext != null)
-            {
-                fixed (AVBufferRef** hwdc = &component.HardwareDeviceContext)
+                fixed (AVBufferRef** hwdc = &Component.HardwareDeviceContext)
                 {
                     ffmpeg.av_buffer_unref(hwdc);
-                    component.HardwareDeviceContext = null;
-                    component.HardwareAccelerator = null;
+                    Component.HardwareDeviceContext = null;
+                    Component.HardwareAccelerator = null;
                 }
             }
         }
@@ -138,7 +125,7 @@
         /// The input hardware frame gets freed and the return value will point to the new software frame
         /// </summary>
         /// <param name="codecContext">The codec context.</param>
-        /// <param name="input">The input.</param>
+        /// <param name="input">The input frame coming from the decoder (may or may not be hardware).</param>
         /// <param name="comesFromHardware">if set to <c>true</c> [comes from hardware] otherwise, hardware decoding was not perfomred.</param>
         /// <returns>
         /// The frame downloaded from the device into RAM
@@ -156,9 +143,6 @@
             if (input->format != (int)PixelFormat)
                 return input;
 
-            if (RequiresTransfer == false)
-                return input;
-
             var output = ffmpeg.av_frame_alloc();
 
             var result = ffmpeg.av_hwframe_transfer_data(output, input, 0);
@@ -174,6 +158,25 @@
             RC.Current.Add(output, $"86: {nameof(HardwareAccelerator)}[{PixelFormat}].{nameof(ExchangeFrame)}()");
 
             return output;
+        }
+
+        /// <summary>
+        /// Attaches a hardware device context to the specified video component.
+        /// </summary>
+        /// <exception cref="Exception">Throws when unable to initialize the hardware device</exception>
+        private void InitializeHardwareContext()
+        {
+            fixed (AVBufferRef** devContextRef = &Component.HardwareDeviceContext)
+            {
+                var initResultCode = 0;
+                initResultCode = ffmpeg.av_hwdevice_ctx_create(devContextRef, DeviceType, null, null, 0);
+                if (initResultCode < 0)
+                    throw new Exception($"Unable to initialize hardware context for device {Name}");
+            }
+
+            Component.HardwareAccelerator = this;
+            Component.CodecContext->hw_device_ctx = ffmpeg.av_buffer_ref(Component.HardwareDeviceContext);
+            Component.CodecContext->get_format = GetFormatCallback;
         }
 
         /// <summary>

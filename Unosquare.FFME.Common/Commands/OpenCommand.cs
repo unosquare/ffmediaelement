@@ -66,7 +66,7 @@
 
                 // Create the stream container
                 // the async protocol prefix allows for increased performance for local files.
-                var streamOptions = new StreamOptions();
+                var containerConfig = new ContainerConfiguration();
 
                 // Convert the URI object to something the Media Container understands
                 var mediaUrl = Source.ToString();
@@ -76,7 +76,7 @@
                     {
                         // Set the default protocol Prefix
                         mediaUrl = Source.LocalPath;
-                        streamOptions.ProtocolPrefix = "async";
+                        containerConfig.ProtocolPrefix = "async";
                     }
                 }
                 catch { }
@@ -85,22 +85,22 @@
                 if (string.IsNullOrWhiteSpace(Source.Scheme) == false
                     && (Source.Scheme.Equals("format") || Source.Scheme.Equals("device"))
                     && string.IsNullOrWhiteSpace(Source.Host) == false
-                    && string.IsNullOrWhiteSpace(streamOptions.Input.ForcedInputFormat)
+                    && string.IsNullOrWhiteSpace(containerConfig.ForcedInputFormat)
                     && string.IsNullOrWhiteSpace(Source.Query) == false)
                 {
                     // Update the Input format and container input URL
                     // It is also possible to set some input options as follows:
-                    // streamOptions.Input.Add(StreamInputOptions.Names.FrameRate, "20");
-                    streamOptions.Input.ForcedInputFormat = Source.Host;
+                    // streamOptions.PrivateOptions["framerate"] = "20";
+                    containerConfig.ForcedInputFormat = Source.Host;
                     mediaUrl = Uri.UnescapeDataString(Source.Query).TrimStart('?');
                     m.Log(MediaLogMessageType.Info, $"Media URI will be updated. Input Format: {Source.Host}, Input Argument: {mediaUrl}");
                 }
 
                 // Allow the stream input options to be changed
-                await m.SendOnMediaInitializing(streamOptions, mediaUrl);
+                await m.SendOnMediaInitializing(containerConfig, mediaUrl);
 
                 // Instantiate the internal container
-                m.Container = new MediaContainer(mediaUrl, streamOptions, m);
+                m.Container = new MediaContainer(mediaUrl, containerConfig, m);
 
                 // Notify the user media is opening and allow for media options to be modified
                 // Stuff like audio and video filters and stream selection can be performed here.

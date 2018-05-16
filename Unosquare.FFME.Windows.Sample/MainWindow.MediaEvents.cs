@@ -6,6 +6,7 @@
     using System;
     using System.Diagnostics;
     using System.Linq;
+    using System.Text;
     using System.Windows;
     using System.Windows.Controls;
 
@@ -59,7 +60,7 @@
 
         #endregion
 
-        #region Media Stream Events
+        #region Media Stream Opening Event Handlers
 
         /// <summary>
         /// Handles the MediaInitializing event of the Media control.
@@ -71,13 +72,13 @@
             // An example of injecting input options for http/https streams
             if (e.Url.StartsWith("http://") || e.Url.StartsWith("https://"))
             {
-                e.Options.Input["user_agent"] = $"{typeof(StreamOptions).Namespace}/{typeof(StreamOptions).Assembly.GetName().Version}";
-                e.Options.Input["headers"] = $"Referer:https://www.unosquare.com";
-                e.Options.Input["multiple_requests"] = "1";
-                e.Options.Input["reconnect"] = "1";
-                e.Options.Input["reconnect_at_eof"] = "1";
-                e.Options.Input["reconnect_streamed"] = "1";
-                e.Options.Input["reconnect_delay_max"] = "10"; // in seconds
+                e.Configuration.PrivateOptions["user_agent"] = $"{typeof(ContainerConfiguration).Namespace}/{typeof(ContainerConfiguration).Assembly.GetName().Version}";
+                e.Configuration.PrivateOptions["headers"] = $"Referer:https://www.unosquare.com";
+                e.Configuration.PrivateOptions["multiple_requests"] = "1";
+                e.Configuration.PrivateOptions["reconnect"] = "1";
+                e.Configuration.PrivateOptions["reconnect_at_eof"] = "1";
+                e.Configuration.PrivateOptions["reconnect_streamed"] = "1";
+                e.Configuration.PrivateOptions["reconnect_delay_max"] = "10"; // in seconds
             }
 
             // Example of forcing tcp transport on rtsp feeds
@@ -86,14 +87,14 @@
             // TCP provides reliable communication while UDP does not
             if (e.Url.StartsWith("rtsp://"))
             {
-                e.Options.Input["rtsp_transport"] = "tcp";
-                e.Options.Format.FlagNoBuffer = true;
+                e.Configuration.PrivateOptions["rtsp_transport"] = "tcp";
+                e.Configuration.GlobalOptions.FlagNoBuffer = true;
             }
 
             // In realtime streams these settings can be used to reduce latency (see example from issue #152)
-            // e.Options.Format.FlagNoBuffer = true;
-            // e.Options.Format.ProbeSize = 8192;
-            // e.Options.Format.MaxAnalyzeDuration = System.TimeSpan.FromSeconds(1);
+            // e.Options.GlobalOptions.FlagNoBuffer = true;
+            // e.Options.GlobalOptions.ProbeSize = 8192;
+            // e.Options.GlobalOptions.MaxAnalyzeDuration = System.TimeSpan.FromSeconds(1);
         }
 
         /// <summary>
@@ -103,6 +104,9 @@
         /// <param name="e">The <see cref="MediaOpeningRoutedEventArgs"/> instance containing the event data.</param>
         private void OnMediaOpening(object sender, MediaOpeningRoutedEventArgs e)
         {
+            // You can start off by adjusting subtitles delay
+            // e.Options.SubtitlesDelay = TimeSpan.FromSeconds(7); // See issue #216
+
             // Example of automatically side-loading SRT subs
             try
             {
@@ -119,28 +123,61 @@
 
             // You can force video FPS if necessary
             // see: https://github.com/unosquare/ffmediaelement/issues/212
-            // e.Options.VideoForcedFps = new AVRational { num = 25, den = 1 };
+            // e.Options.VideoForcedFps = 25;
 
-            // An example of switching to a different stream
+            // An example of specifcally selecting a playback stream
             var subtitleStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_SUBTITLE).Select(kvp => kvp.Value);
             var englishSubtitleStream = subtitleStreams.FirstOrDefault(s => s.Language.StartsWith("en"));
             if (englishSubtitleStream != null)
-                e.Options.SubtitleStream = englishSubtitleStream;
-
-            // The yadif filter deinterlaces the video; we check the field order if we need
-            // to deinterlace the video automatically
-            if (e.Options.VideoStream != null
-                && e.Options.VideoStream.FieldOrder != AVFieldOrder.AV_FIELD_PROGRESSIVE
-                && e.Options.VideoStream.FieldOrder != AVFieldOrder.AV_FIELD_UNKNOWN)
             {
-                e.Options.VideoFilter = "yadif";
-
-                // When enabling HW acceleration, the filtering does not seem to get applied for some reason.
-                e.Options.EnableHardwareAcceleration = false;
+                e.Options.SubtitleStream = englishSubtitleStream;
             }
 
-            // Experimetal HW acceleration support. Remove if not needed.
-            e.Options.EnableHardwareAcceleration = false;
+            var videoStream = e.Options.VideoStream;
+            if (videoStream != null)
+            {
+                // Check if the video requires deinterlacing
+                var requiresDeinterlace = videoStream.FieldOrder != AVFieldOrder.AV_FIELD_PROGRESSIVE
+                    && videoStream.FieldOrder != AVFieldOrder.AV_FIELD_UNKNOWN;
+
+                // Hardwrae device priorities
+                var deviceCandidates = new AVHWDeviceType[]
+                {
+                    AVHWDeviceType.AV_HWDEVICE_TYPE_CUDA,
+                    AVHWDeviceType.AV_HWDEVICE_TYPE_D3D11VA,
+                    AVHWDeviceType.AV_HWDEVICE_TYPE_DXVA2
+                };
+
+                // Hardware device selection
+                if (videoStream.FPS <= 30)
+                {
+                    foreach (var deviceType in deviceCandidates)
+                    {
+                        var accelerator = videoStream.HardwareDevices.FirstOrDefault(d => d.DeviceType == deviceType);
+                        if (accelerator != null)
+                        {
+                            e.Options.VideoHardwareDevice = accelerator;
+                            break;
+                        }
+                    }
+                }
+
+                var videoFilter = new StringBuilder();
+
+                // The yadif filter deinterlaces the video; we check the field order if we need
+                // to deinterlace the video automatically
+                if (requiresDeinterlace)
+                    videoFilter.Append("yadif,");
+
+                // Scale down to maximum 1080p screen resolution.
+                if (videoStream.PixelHeight > 1080)
+                {
+                    // e.Options.VideoHardwareDevice = null;
+                    videoFilter.Append($"scale=-1:1080,");
+                }
+
+                e.Options.VideoFilter = videoFilter.ToString().TrimEnd(',');
+            }
 
             // e.Options.AudioFilter = "aecho=0.8:0.9:1000:0.3";
             // e.Options.AudioFilter = "chorus=0.5:0.9:50|60|40:0.4|0.32|0.3:0.25|0.4|0.3:2|2.3|1.3";
@@ -160,7 +197,7 @@
 
         #endregion
 
-        #region Methods: Event Handlers
+        #region Other Media Event Handlers
 
         /// <summary>
         /// Handles the PositionChanged event of the Media control.

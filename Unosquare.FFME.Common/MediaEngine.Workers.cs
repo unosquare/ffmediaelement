@@ -223,6 +223,20 @@
                 try
                 {
                     m_PreloadedSubtitles = LoadBlocks(subtitlesUrl, MediaType.Subtitle, this);
+
+                    // Process and adjust subtitle delays if necessary
+                    if (Container.MediaOptions.SubtitlesDelay != TimeSpan.Zero)
+                    {
+                        var delay = Container.MediaOptions.SubtitlesDelay;
+                        for (var i = 0; i < m_PreloadedSubtitles.Count; i++)
+                        {
+                            var target = m_PreloadedSubtitles[i];
+                            target.StartTime = TimeSpan.FromTicks(target.StartTime.Ticks + delay.Ticks);
+                            target.EndTime = TimeSpan.FromTicks(target.EndTime.Ticks + delay.Ticks);
+                            target.Duration = TimeSpan.FromTicks(target.EndTime.Ticks - target.StartTime.Ticks);
+                        }
+                    }
+
                     Container.MediaOptions.IsSubtitleDisabled = true;
                 }
                 catch (MediaContainerException mex)
@@ -293,11 +307,11 @@
 
             // Send the block to its corresponding renderer
             Renderers[block.MediaType]?.Render(block, clockPosition);
+            LastRenderTime[block.MediaType] = block.StartTime;
 
             // Extension method for logging
             var blockIndex = Blocks.ContainsKey(block.MediaType) ? Blocks[block.MediaType].IndexOf(clockPosition) : 0;
             this.LogRenderBlock(block, clockPosition, blockIndex);
-            LastRenderTime[block.MediaType] = block.StartTime;
             return 1;
         }
 

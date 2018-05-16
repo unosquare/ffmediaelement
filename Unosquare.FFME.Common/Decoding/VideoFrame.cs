@@ -38,7 +38,7 @@
 
             // for video frames, we always get the best effort timestamp as dts and pts might
             // contain different times.
-            frame->pts = ffmpeg.av_frame_get_best_effort_timestamp(frame);
+            frame->pts = frame->best_effort_timestamp;
 
             HasValidStartTime = frame->pts != ffmpeg.AV_NOPTS_VALUE;
             StartTime = frame->pts == ffmpeg.AV_NOPTS_VALUE ?

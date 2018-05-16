@@ -83,10 +83,10 @@
         /// Initializes a new instance of the <see cref="MediaContainer" /> class.
         /// </summary>
         /// <param name="mediaUrl">The media URL.</param>
-        /// <param name="streamOptions">The stream options.</param>
+        /// <param name="config">The container configuration options.</param>
         /// <param name="parent">The logger.</param>
         /// <exception cref="ArgumentNullException">mediaUrl</exception>
-        public MediaContainer(string mediaUrl, StreamOptions streamOptions, IMediaLogger parent)
+        public MediaContainer(string mediaUrl, ContainerConfiguration config, IMediaLogger parent)
         {
             // Argument Validation
             if (string.IsNullOrWhiteSpace(mediaUrl))
@@ -98,17 +98,17 @@
             // Create the options object
             Parent = parent;
             MediaUrl = mediaUrl;
-            StreamOptions = streamOptions ?? new StreamOptions();
+            Configuration = config ?? new ContainerConfiguration();
 
             // drop the protocol prefix if it is redundant
-            var protocolPrefix = StreamOptions.ProtocolPrefix;
+            var protocolPrefix = Configuration.ProtocolPrefix;
             if (string.IsNullOrWhiteSpace(MediaUrl) == false && string.IsNullOrWhiteSpace(protocolPrefix) == false
                 && MediaUrl.ToLowerInvariant().Trim().StartsWith(protocolPrefix.ToLowerInvariant() + ":"))
             {
                 protocolPrefix = null;
             }
 
-            StreamOptions.ProtocolPrefix = protocolPrefix;
+            Configuration.ProtocolPrefix = protocolPrefix;
             StreamInitialize();
         }
 
@@ -133,11 +133,12 @@
         public string MediaUrl { get; }
 
         /// <summary>
-        /// The stream initialization options.
-        /// Options are applied when creating the container.
-        /// After initialization, changing the options has no effect.
+        /// The container and demuxer initialization and configuration options.
+        /// Options are applied when creating an instance of the container.
+        /// After container creation, changing the configuration options passed in
+        /// the constructor has no effect.
         /// </summary>
-        public StreamOptions StreamOptions { get; }
+        public ContainerConfiguration Configuration { get; }
 
         /// <summary>
         /// Represetnts options that applied before initializing media components and their corresponding
@@ -526,23 +527,23 @@
 
             // Retrieve the input format (null = auto for default)
             AVInputFormat* inputFormat = null;
-            if (string.IsNullOrWhiteSpace(StreamOptions.Input.ForcedInputFormat) == false)
+            if (string.IsNullOrWhiteSpace(Configuration.ForcedInputFormat) == false)
             {
-                inputFormat = ffmpeg.av_find_input_format(StreamOptions.Input.ForcedInputFormat);
+                inputFormat = ffmpeg.av_find_input_format(Configuration.ForcedInputFormat);
                 if (inputFormat == null)
                 {
                     Parent?.Log(MediaLogMessageType.Warning,
-                        $"Format '{StreamOptions.Input.ForcedInputFormat}' not found. Will use automatic format detection.");
+                        $"Format '{Configuration.ForcedInputFormat}' not found. Will use automatic format detection.");
                 }
             }
 
             try
             {
                 // Create the input format context, and open the input based on the provided format options.
-                using (var inputOptions = new FFDictionary(StreamOptions.Input))
+                using (var privateOptions = new FFDictionary(Configuration.PrivateOptions))
                 {
-                    if (inputOptions.HasKey(StreamInputOptions.Names.ScanAllPmts) == false)
-                        inputOptions.Set(StreamInputOptions.Names.ScanAllPmts, "1", true);
+                    if (privateOptions.HasKey(ContainerConfiguration.ScanAllPmts) == false)
+                        privateOptions.Set(ContainerConfiguration.ScanAllPmts, "1", true);
 
                     // Create the input context
                     StreamInitializeInputContext();
@@ -554,12 +555,15 @@
                     var openResult = 0;
 
                     // We set the start of the read operation time so tiomeouts can be detected
+                    // and we open the URL so the input context can be initialized.
                     StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
-                    fixed (AVDictionary** inputOptionsRef = &inputOptions.Pointer)
+                    fixed (AVDictionary** privateOptionsRef = &privateOptions.Pointer)
                     {
-                        var prefix = string.IsNullOrWhiteSpace(StreamOptions.ProtocolPrefix) ?
-                            string.Empty : $"{StreamOptions.ProtocolPrefix.Trim()}:";
-                        openResult = ffmpeg.avformat_open_input(&inputContextPtr, $"{prefix}{MediaUrl}", inputFormat, inputOptionsRef);
+                        var prefix = string.IsNullOrWhiteSpace(Configuration.ProtocolPrefix) ?
+                            string.Empty : $"{Configuration.ProtocolPrefix.Trim()}:";
+
+                        // Pass the private options dictionary
+                        openResult = ffmpeg.avformat_open_input(&inputContextPtr, $"{prefix}{MediaUrl}", inputFormat, privateOptionsRef);
                         InputContext = inputContextPtr;
                     }
 
@@ -573,15 +577,14 @@
                     // Set some general properties
                     MediaFormatName = FFInterop.PtrToStringUTF8(InputContext->iformat->name);
 
-                    // If there are any optins left in the dictionary, it means they did not get used (invalid options).
-                    inputOptions.Remove(StreamInputOptions.Names.ScanAllPmts);
-
+                    // If there are any options left in the dictionary, it means they did not get used (invalid options).
                     // Output the invalid options as warnings
-                    var currentEntry = inputOptions.First();
+                    privateOptions.Remove(ContainerConfiguration.ScanAllPmts);
+                    var currentEntry = privateOptions.First();
                     while (currentEntry != null && currentEntry?.Key != null)
                     {
                         Parent?.Log(MediaLogMessageType.Warning, $"Invalid input option: '{currentEntry.Key}'");
-                        currentEntry = inputOptions.Next(currentEntry);
+                        currentEntry = privateOptions.Next(currentEntry);
                     }
                 }
 
@@ -675,12 +678,12 @@
             InputContext->interrupt_callback.opaque = InputContext;
 
             // Acquire the format options to be applied
-            var opts = StreamOptions.Format;
+            var opts = Configuration.GlobalOptions;
 
             // Apply the options
             if (opts.EnableReducedBuffering) InputContext->avio_flags |= ffmpeg.AVIO_FLAG_DIRECT;
             if (opts.PacketSize != default) InputContext->packet_size = System.Convert.ToUInt32(opts.PacketSize);
-            if (opts.ProbeSize != default) InputContext->probesize = StreamOptions.Format.ProbeSize <= 32 ? 32 : opts.ProbeSize;
+            if (opts.ProbeSize != default) InputContext->probesize = Configuration.GlobalOptions.ProbeSize <= 32 ? 32 : opts.ProbeSize;
 
             // Flags
             InputContext->flags |= opts.FlagDiscardCorrupt ? ffmpeg.AVFMT_FLAG_DISCARD_CORRUPT : InputContext->flags;
@@ -909,7 +912,7 @@
             var startTicks = StreamReadInterruptStartTime.Value;
             var timeDifference = TimeSpan.FromTicks(nowTicks - startTicks);
 
-            if (StreamOptions.Input.ReadTimeout.Ticks >= 0 && timeDifference.Ticks > StreamOptions.Input.ReadTimeout.Ticks)
+            if (Configuration.ReadTimeout.Ticks >= 0 && timeDifference.Ticks > Configuration.ReadTimeout.Ticks)
             {
                 Parent?.Log(MediaLogMessageType.Error, $"{nameof(OnStreamReadInterrupt)} timed out with  {timeDifference.Format()}");
                 return ErrorResult;

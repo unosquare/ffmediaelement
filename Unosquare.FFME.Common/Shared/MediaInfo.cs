@@ -183,6 +183,13 @@
                     TBC = 1d / s->codec->time_base.ToDouble(),
                 };
 
+                // Extract valid hardwar configurations
+                stream.HardwareDevices = new ReadOnlyCollection<HardwareDeviceInfo>(
+                    HardwareAccelerator.GetCompatibleDevices(stream.Codec));
+
+                stream.HardwareDecoders = new ReadOnlyCollection<string>(
+                    GetHardwareDecoders(stream.Codec));
+
                 // TODO: I chose not to include Side data but I could easily do so
                 // https://ffmpeg.org/doxygen/3.2/dump_8c_source.html
                 // See function: dump_sidedata
@@ -313,6 +320,33 @@
                 program.Streams = new ReadOnlyCollection<StreamInfo>(associatedStreams);
 
                 result.Add(program);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Gets the available hardware decoder codecs for the given codec id (codec family).
+        /// </summary>
+        /// <param name="codecFamily">The codec family.</param>
+        /// <returns>A list of hardware-enabled decoder codec names</returns>
+        private static List<string> GetHardwareDecoders(AVCodecID codecFamily)
+        {
+            var result = new List<string>();
+
+            foreach (var c in MediaEngine.AllCodecs)
+            {
+                if (ffmpeg.av_codec_is_decoder(c) == 0)
+                    continue;
+
+                if (c->id != codecFamily)
+                    continue;
+
+                if ((c->capabilities & ffmpeg.AV_CODEC_CAP_HARDWARE) != 0
+                    || (c->capabilities & ffmpeg.AV_CODEC_CAP_HYBRID) != 0)
+                {
+                    result.Add(FFInterop.PtrToStringUTF8(c->name));
+                }
             }
 
             return result;
@@ -492,6 +526,16 @@
         /// Gets the stream's metadata.
         /// </summary>
         public ReadOnlyDictionary<string, string> Metadata { get; internal set; }
+
+        /// <summary>
+        /// Gets the compatible hardware device configurations for the stream's codec.
+        /// </summary>
+        public ReadOnlyCollection<HardwareDeviceInfo> HardwareDevices { get; internal set; }
+
+        /// <summary>
+        /// Gets a list of compatible hardware decoder names.
+        /// </summary>
+        public ReadOnlyCollection<string> HardwareDecoders { get; internal set; }
 
         /// <summary>
         /// Gets the language string from the stream's metadata.

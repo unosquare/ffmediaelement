@@ -177,8 +177,13 @@
             // Flag the start of a rendering cycle
             IsRenderingInProgress.Value = true;
 
+            // Send the block to the captions renderer
+            if (block.ClosedCaptions.Count > 0)
+                GuiContext.Current.EnqueueInvoke(() => MediaElement.CaptionsView.RenderPacket(block, MediaCore));
+
             // Ensure the target bitmap can be loaded
-            GuiContext.Current.EnqueueInvoke(DispatcherPriority.Render, () =>
+            // GuiContext.Current.EnqueueInvoke(DispatcherPriority.Render, () =>
+            MediaElement.VideoView.Invoke(DispatcherPriority.Render, () =>
             {
                 if (block.IsDisposed)
                 {
@@ -188,17 +193,21 @@
 
                 try
                 {
-                    MediaElement.CaptionsView.RenderPacket(block, MediaCore);
-
                     var bitmapData = LockTargetBitmap(block);
                     if (bitmapData != null)
                     {
                         LoadTargetBitmapBuffer(bitmapData, block);
                         MediaElement.RaiseRenderingVideoEvent(block, bitmapData, clockPosition);
                         RenderTargetBitmap(block, bitmapData, clockPosition);
+                        ApplyLayoutTransforms(block);
                     }
                 }
-                catch { /* swallow */ }
+                catch (Exception ex)
+                {
+                    MediaElement?.MediaCore?.Log(
+                        MediaLogMessageType.Error,
+                        $"{nameof(VideoRenderer)} {ex.GetType()}: {nameof(Render)} failed. {ex.Message}.");
+                }
                 finally
                 {
                     IsRenderingInProgress.Value = false;
@@ -236,7 +245,6 @@
                 // Signal an update on the rendering surface
                 TargetBitmap?.AddDirtyRect(bitmapData.UpdateRect);
                 TargetBitmap?.Unlock();
-                ApplyLayoutTransforms(block);
             }
             catch (Exception ex)
             {
@@ -260,8 +268,8 @@
             BitmapDataBuffer result = null;
 
             // Skip the locking if scrubbing is not enabled
-            if (MediaElement.ScrubbingEnabled == false && (MediaElement.IsPlaying == false || MediaElement.IsSeeking))
-                return result;
+            // if (MediaElement.ScrubbingEnabled == false && (MediaElement.IsPlaying == false || MediaElement.IsSeeking))
+            //     return result;
 
             // Figure out what we need to do
             var needsCreation = TargetBitmap == null && MediaElement.HasVideo;

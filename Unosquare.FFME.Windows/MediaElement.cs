@@ -161,7 +161,7 @@
         /// <summary>
         /// This is the image that holds video bitmaps
         /// </summary>
-        internal Image VideoView { get; } = new Image { Name = nameof(VideoView) };
+        internal ImageHost VideoView { get; } = new ImageHost { Name = nameof(VideoView) };
 
         /// <summary>
         /// Gets the closed captions view control.
@@ -311,8 +311,8 @@
             ContentGrid.VerticalAlignment = VerticalAlignment.Stretch;
 
             // Initialize dependency properties to those of the Video view
-            Stretch = VideoView.Stretch;
-            StretchDirection = VideoView.StretchDirection;
+            // Stretch = VideoView.Stretch;
+            // StretchDirection = VideoView.StretchDirection;
 
             // Add the child video view and bind the alignment properties
             BindProperty(VideoView, HorizontalAlignmentProperty, this, nameof(HorizontalAlignment), BindingMode.OneWay);
@@ -383,20 +383,19 @@
             ContentGrid.Children.Add(CaptionsView);
 
             // Display the control (or not)
-            if (WindowsPlatform.Instance.IsInDesignTime)
+            if (WindowsPlatform.Instance.IsInDesignTime == false)
             {
-                // Shows an FFmpeg image if we are in design-time
+                // Setup the media engine and associated property updates worker
+                MediaCore = new MediaEngine(this, new WindowsMediaConnector(this));
+                StartPropertyUpdatesWorker();
+            }
+            else
+            {
                 var bitmap = Properties.Resources.FFmpegMediaElementBackground;
                 var bitmapSource = Imaging.CreateBitmapSourceFromHBitmap(
                     bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
                 var controlBitmap = new WriteableBitmap(bitmapSource);
                 VideoView.Source = controlBitmap;
-            }
-            else
-            {
-                // Setup the media engine and associated property updates worker
-                MediaCore = new MediaEngine(this, new WindowsMediaConnector(this));
-                StartPropertyUpdatesWorker();
             }
         }
 

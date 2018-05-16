@@ -52,11 +52,6 @@
         /// </summary>
         private bool IsDisposed = false;
 
-        /// <summary>
-        /// Holds total bytes read in the lifetime of this object
-        /// </summary>
-        private ulong m_LifetimeBytesRead = 0;
-
         #endregion
 
         #region Constructor
@@ -70,6 +65,8 @@
         /// <exception cref="MediaContainerException">The container exception.</exception>
         protected MediaComponent(MediaContainer container, int streamIndex)
         {
+            // Parted from: https://github.com/FFmpeg/FFmpeg/blob/master/fftools/ffplay.c#L2559
+            // avctx = avcodec_alloc_context3(NULL);
             Container = container ?? throw new ArgumentNullException(nameof(container));
             CodecContext = ffmpeg.avcodec_alloc_context3(null);
             RC.Current.Add(CodecContext, $"134: {nameof(MediaComponent)}[{MediaType}].ctor()");
@@ -77,88 +74,121 @@
             Stream = container.InputContext->streams[StreamIndex];
             StreamInfo = container.MediaInfo.Streams[StreamIndex];
 
-            // Set codec options
+            // Set default codec context options from probed stream
             var setCodecParamsResult = ffmpeg.avcodec_parameters_to_context(CodecContext, Stream->codecpar);
 
             if (setCodecParamsResult < 0)
                 Container.Parent?.Log(MediaLogMessageType.Warning, $"Could not set codec parameters. Error code: {setCodecParamsResult}");
 
             // We set the packet timebase in the same timebase as the stream as opposed to the tpyical AV_TIME_BASE
-            if (this is VideoComponent && Container.MediaOptions.VideoForcedFps != null)
+            if (this is VideoComponent && Container.MediaOptions.VideoForcedFps > 0)
             {
-                ffmpeg.av_codec_set_pkt_timebase(CodecContext, Container.MediaOptions.VideoForcedFps.Value);
-                ffmpeg.av_stream_set_r_frame_rate(Stream, Container.MediaOptions.VideoForcedFps.Value);
+                var fpsRational = ffmpeg.av_d2q(Container.MediaOptions.VideoForcedFps, 1000000);
+                Stream->r_frame_rate = fpsRational;
+                CodecContext->pkt_timebase = new AVRational { num = fpsRational.den, den = fpsRational.num };
             }
             else
             {
-                ffmpeg.av_codec_set_pkt_timebase(CodecContext, Stream->time_base);
+                CodecContext->pkt_timebase = Stream->time_base;
             }
 
-            // Find the codec and set it.
-            var codec = ffmpeg.avcodec_find_decoder(Stream->codec->codec_id);
-            if (codec == null)
+            // Find the default decoder codec from the stream and set it.
+            var defaultCodec = ffmpeg.avcodec_find_decoder(Stream->codec->codec_id);
+            AVCodec* forcedCodec = null;
+
+            // If set, change the codec to the forced codec.
+            if (Container.MediaOptions.DecoderCodec.ContainsKey(StreamIndex) &&
+                string.IsNullOrWhiteSpace(Container.MediaOptions.DecoderCodec[StreamIndex]) == false)
+            {
+                var forcedCodecName = Container.MediaOptions.DecoderCodec[StreamIndex];
+                forcedCodec = ffmpeg.avcodec_find_decoder_by_name(forcedCodecName);
+                if (forcedCodec == null)
+                {
+                    Container.Parent?.Log(MediaLogMessageType.Warning,
+                        $"COMP {MediaType.ToString().ToUpperInvariant()}: Unable to set decoder codec to '{forcedCodecName}' on stream index {StreamIndex}");
+                }
+            }
+
+            // Check we have a valid codec to open and process the stream.
+            if (defaultCodec == null && forcedCodec == null)
             {
                 var errorMessage = $"Fatal error. Unable to find suitable decoder for {Stream->codec->codec_id.ToString()}";
                 CloseComponent();
                 throw new MediaContainerException(errorMessage);
             }
 
-            CodecContext->codec_id = codec->id;
-
-            // Process the low res index option
-            var lowResIndex = ffmpeg.av_codec_get_max_lowres(codec);
-            if (Container.MediaOptions.EnableLowRes)
-            {
-                ffmpeg.av_codec_set_lowres(CodecContext, lowResIndex);
-                CodecContext->flags |= ffmpeg.CODEC_FLAG_EMU_EDGE;
-            }
-            else
-            {
-                lowResIndex = 0;
-            }
-
-            // Configure the codec context flags
-            if (Container.MediaOptions.EnableFastDecoding) CodecContext->flags2 |= ffmpeg.AV_CODEC_FLAG2_FAST;
-            if (Container.MediaOptions.EnableLowDelay) CodecContext->flags |= ffmpeg.AV_CODEC_FLAG_LOW_DELAY;
-            if ((codec->capabilities & ffmpeg.AV_CODEC_CAP_DR1) != 0) CodecContext->flags |= ffmpeg.CODEC_FLAG_EMU_EDGE;
-            if ((codec->capabilities & ffmpeg.AV_CODEC_CAP_TRUNCATED) != 0) CodecContext->flags |= ffmpeg.AV_CODEC_CAP_TRUNCATED;
-            if ((codec->capabilities & ffmpeg.CODEC_FLAG2_CHUNKS) != 0) CodecContext->flags |= ffmpeg.CODEC_FLAG2_CHUNKS;
-
-            // Setup additional settings. The most important one is Threads -- Setting it to 1 decoding is very slow. Setting it to auto
-            // decoding is very fast in most scenarios.
-            var codecOptions = Container.MediaOptions.CodecOptions.FilterOptions(CodecContext->codec_id, Container.InputContext, Stream, codec);
-            if (codecOptions.HasKey(MediaCodecOptions.Names.Threads) == false)
-                codecOptions[MediaCodecOptions.Names.Threads] = "auto";
-
-            if (lowResIndex != 0) codecOptions[MediaCodecOptions.Names.LowRes] = lowResIndex.ToString(CultureInfo.InvariantCulture);
-            if (CodecContext->codec_type == AVMediaType.AVMEDIA_TYPE_VIDEO || CodecContext->codec_type == AVMediaType.AVMEDIA_TYPE_AUDIO)
-                codecOptions[MediaCodecOptions.Names.RefCountedFrames] = 1.ToString(CultureInfo.InvariantCulture);
-
-            // Enable Hardware acceleration if requested
-            if (this is VideoComponent && container.MediaOptions.EnableHardwareAcceleration)
-                HardwareAccelerator.Cuda.AttachDevice(this as VideoComponent);
-
-            // Open the CodecContext. This requires exclusive FFmpeg access
+            var codecCandidates = new AVCodec*[] { forcedCodec, defaultCodec };
+            AVCodec* selectedCodec = null;
             var codecOpenResult = 0;
-            lock (CodecOpenLock)
+
+            foreach (var codec in codecCandidates)
             {
-                fixed (AVDictionary** reference = &codecOptions.Pointer)
-                    codecOpenResult = ffmpeg.avcodec_open2(CodecContext, codec, reference);
+                if (codec == null)
+                    continue;
+
+                // Pass default codec stuff to the codec contect
+                CodecContext->codec_id = codec->id;
+                if ((codec->capabilities & ffmpeg.AV_CODEC_CAP_TRUNCATED) != 0) CodecContext->flags |= ffmpeg.AV_CODEC_FLAG_TRUNCATED;
+                if ((codec->capabilities & ffmpeg.AV_CODEC_FLAG2_CHUNKS) != 0) CodecContext->flags |= ffmpeg.AV_CODEC_FLAG2_CHUNKS;
+
+                // Process the decoder options
+                {
+                    var decoderOptions = Container.MediaOptions.DecoderParams;
+
+                    // Configure the codec context flags
+                    if (decoderOptions.EnableFastDecoding) CodecContext->flags2 |= ffmpeg.AV_CODEC_FLAG2_FAST;
+                    if (decoderOptions.EnableLowDelay) CodecContext->flags |= ffmpeg.AV_CODEC_FLAG_LOW_DELAY;
+
+                    // process the low res option
+                    if (decoderOptions.EnableLowRes && codec->max_lowres > 0)
+                        decoderOptions.LowResIndex = codec->max_lowres.ToString(CultureInfo.InvariantCulture);
+
+                    // Ensure ref counted frames for audio and video decoding
+                    if (CodecContext->codec_type == AVMediaType.AVMEDIA_TYPE_VIDEO || CodecContext->codec_type == AVMediaType.AVMEDIA_TYPE_AUDIO)
+                        decoderOptions.RefCountedFrames = "1";
+                }
+
+                // Setup additional settings. The most important one is Threads -- Setting it to 1 decoding is very slow. Setting it to auto
+                // decoding is very fast in most scenarios.
+                var codecOptions = Container.MediaOptions.DecoderParams.GetStreamCodecOptions(Stream->index);
+
+                // Enable Hardware acceleration if requested
+                if (this is VideoComponent && container.MediaOptions.VideoHardwareDevice != null)
+                    HardwareAccelerator.Attach(this as VideoComponent, container.MediaOptions.VideoHardwareDevice);
+
+                // Open the CodecContext. This requires exclusive FFmpeg access
+                lock (CodecOpenLock)
+                {
+                    fixed (AVDictionary** codecOptionsRef = &codecOptions.Pointer)
+                        codecOpenResult = ffmpeg.avcodec_open2(CodecContext, codec, codecOptionsRef);
+                }
+
+                // Check if the codec opened successfully
+                if (codecOpenResult < 0)
+                {
+                    Container.Parent?.Log(MediaLogMessageType.Warning,
+                        $"Unable to open codec '{FFInterop.PtrToStringUTF8(codec->name)}' on stream {streamIndex}");
+
+                    continue;
+                }
+
+                // If there are any codec options left over from passing them, it means they were not consumed
+                var currentEntry = codecOptions.First();
+                while (currentEntry != null && currentEntry?.Key != null)
+                {
+                    Container.Parent?.Log(MediaLogMessageType.Warning,
+                        $"Invalid codec option: '{currentEntry.Key}' for codec '{FFInterop.PtrToStringUTF8(codec->name)}', stream {streamIndex}");
+                    currentEntry = codecOptions.Next(currentEntry);
+                }
+
+                selectedCodec = codec;
+                break;
             }
 
-            // Check if the codec opened successfully
-            if (codecOpenResult < 0)
+            if (selectedCodec == null)
             {
                 CloseComponent();
-                throw new MediaContainerException($"Unable to open codec. Error code {codecOpenResult}");
-            }
-
-            // If there are any codec options left over from passing them, it means they were not consumed
-            var currentEntry = codecOptions.First();
-            while (currentEntry != null && currentEntry?.Key != null)
-            {
-                Container.Parent?.Log(MediaLogMessageType.Warning, $"Invalid codec option: '{currentEntry.Key}'");
-                currentEntry = codecOptions.Next(currentEntry);
+                throw new MediaContainerException($"Unable to find suitable decoder codec for stream {streamIndex}. Error code {codecOpenResult}");
             }
 
             // Startup done. Set some options.
@@ -178,7 +208,7 @@
                 Duration = Stream->duration.ToTimeSpan(Stream->time_base);
 
             CodecId = Stream->codec->codec_id;
-            CodecName = ffmpeg.avcodec_get_name(CodecId);
+            CodecName = FFInterop.PtrToStringUTF8(selectedCodec->name);
             Bitrate = Stream->codec->bit_rate < 0 ? 0 : Convert.ToUInt64(Stream->codec->bit_rate);
             Container.Parent?.Log(MediaLogMessageType.Debug,
                 $"COMP {MediaType.ToString().ToUpperInvariant()}: Start Offset: {StartTimeOffset.Format()}; Duration: {Duration.Format()}");
@@ -244,11 +274,7 @@
         /// <summary>
         /// Gets the total amount of bytes read by this component in the lifetime of this component.
         /// </summary>
-        public ulong LifetimeBytesRead
-        {
-            get => m_LifetimeBytesRead;
-            private set => m_LifetimeBytesRead = value;
-        }
+        public ulong LifetimeBytesRead { get; private set; } = 0;
 
         /// <summary>
         /// Gets the ID of the codec for this component.
@@ -454,7 +480,9 @@
             if (MediaType == MediaType.Audio || MediaType == MediaType.Video)
             {
                 // If it's audio or video, we use the new API and the decoded frames are stored in AVFrame
-                // Let us send the packet to the codec for decoding a frame of uncompressed data later
+                // Let us send the packet to the codec for decoding a frame of uncompressed data later.
+                // TODO: sendPacketResult is never checked for errors... We requires ome error handling.
+                // for example when using h264_qsv codec, this returns -40 (Function not implemented)
                 var sendPacketResult = ffmpeg.avcodec_send_packet(CodecContext, IsEmptyPacket(packet) ? null : packet);
 
                 // Let's check and see if we can get 1 or more frames from the packet we just sent to the decoder.

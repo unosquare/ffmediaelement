@@ -20,8 +20,14 @@
         internal SubtitleComponent(MediaContainer container, int streamIndex)
             : base(container, streamIndex)
         {
-            // placeholder. Nothing else to change here.
+            // Adjust the offset according to options
+            Delay = container.MediaOptions.SubtitlesDelay;
         }
+
+        /// <summary>
+        /// Gets the amount of time to offset the subtitles by for this component
+        /// </summary>
+        public TimeSpan Delay { get; } = TimeSpan.Zero;
 
         /// <summary>
         /// Converts decoded, raw frame data in the frame source into a a usable frame. <br />
@@ -49,6 +55,14 @@
             target.StartTime = source.StartTime;
             target.Duration = source.Duration;
             target.StreamIndex = input.StreamIndex;
+
+            // Process time offsets
+            if (Delay != TimeSpan.Zero)
+            {
+                target.StartTime = TimeSpan.FromTicks(target.StartTime.Ticks + Delay.Ticks);
+                target.EndTime = TimeSpan.FromTicks(target.EndTime.Ticks + Delay.Ticks);
+                target.Duration = TimeSpan.FromTicks(target.EndTime.Ticks - target.StartTime.Ticks);
+            }
 
             target.OriginalText.Clear();
             if (source.Text.Count > 0)

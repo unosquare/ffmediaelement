@@ -49,7 +49,7 @@
             return Task.CompletedTask;
         }
 
-        public Task OnMediaInitializing(MediaEngine sender, StreamOptions options, string url)
+        public Task OnMediaInitializing(MediaEngine sender, ContainerConfiguration config, string url)
         {
             return Task.CompletedTask;
         }

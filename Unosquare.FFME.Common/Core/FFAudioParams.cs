@@ -53,8 +53,8 @@
         /// <param name="frame">The frame.</param>
         private FFAudioParams(AVFrame* frame)
         {
-            ChannelCount = ffmpeg.av_frame_get_channels(frame);
-            ChannelLayout = ffmpeg.av_frame_get_channel_layout(frame);
+            ChannelCount = frame->channels;
+            ChannelLayout = unchecked((long)frame->channel_layout);
             Format = (AVSampleFormat)frame->format;
             SamplesPerChannel = frame->nb_samples;
             BufferLength = ffmpeg.av_samples_get_buffer_size(null, ChannelCount, SamplesPerChannel, Format, 1);

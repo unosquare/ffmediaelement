@@ -14,19 +14,19 @@
         /// </summary>
         /// <param name="routedEvent">The routed event.</param>
         /// <param name="source">The source.</param>
-        /// <param name="options">The options.</param>
+        /// <param name="config">The container configuration options.</param>
         /// <param name="url">The URL.</param>
-        public MediaInitializingRoutedEventArgs(RoutedEvent routedEvent, object source, StreamOptions options, string url)
+        public MediaInitializingRoutedEventArgs(RoutedEvent routedEvent, object source, ContainerConfiguration config, string url)
             : base(routedEvent, source)
         {
-            Options = options;
+            Configuration = config;
             Url = url;
         }
 
         /// <summary>
-        /// Set or change the options before the media is opened.
+        /// Set or change the container configuration options before the media is opened.
         /// </summary>
-        public StreamOptions Options { get; }
+        public ContainerConfiguration Configuration { get; }
 
         /// <summary>
         /// Gets the URL.

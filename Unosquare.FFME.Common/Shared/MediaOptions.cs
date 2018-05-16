@@ -1,10 +1,13 @@
 ﻿namespace Unosquare.FFME.Shared
 {
-    using FFmpeg.AutoGen;
+    using System;
+    using System.Collections.Generic;
 
     /// <summary>
-    /// Represetnts options that applied before initializing media components and their corresponding
-    /// codecs. Once the container has created the media components, changing these options will have no effect.
+    /// Represetnts options that applied creating the individual media stream components.
+    /// Once the container has created the media components, changing these options will have no effect.
+    /// See: https://www.ffmpeg.org/ffmpeg-all.html#Main-options
+    /// Partly a port of https://github.com/FFmpeg/FFmpeg/blob/master/fftools/ffmpeg_opt.c
     /// </summary>
     public sealed class MediaOptions
     {
@@ -14,36 +17,29 @@
         }
 
         /// <summary>
-        /// Gets the codec options.
-        /// Codec options are documented here: https://www.ffmpeg.org/ffmpeg-codecs.html#Codec-Options
-        /// Port of codec_opts
+        /// Provides access to the global and per-stream decoder options
+        /// See https://www.ffmpeg.org/ffmpeg-codecs.html#Codec-Options
         /// </summary>
-        public MediaCodecOptions CodecOptions { get; } = new MediaCodecOptions();
+        public DecoderOptions DecoderParams { get; } = new DecoderOptions();
 
         /// <summary>
-        /// Gets or sets a value indicating whether [enable low resource].
-        /// In theroy this should be 0,1,2,3 for 1, 1/2, 1,4 and 1/8 resolutions.
-        /// TODO: We are for now just supporting 1/2 resolution (true value)
-        /// Port of lowres.
+        /// A dictionary of stream indexes and force decoder codec names.
+        /// This is equivalent to the -codec Main option.
+        /// See: https://www.ffmpeg.org/ffmpeg-all.html#Main-options (-codec option)
         /// </summary>
-        public bool EnableLowRes { get; set; } = false;
+        public Dictionary<int, string> DecoderCodec { get; } = new Dictionary<int, string>(32);
 
         /// <summary>
-        /// Gets or sets a value indicating whether [enable fast decoding].
-        /// Port of fast
+        /// Gets or sets the amount of time to offset the subtitles by
+        /// This is an FFME-only property -- Not a port of ffmpeg.
         /// </summary>
-        public bool EnableFastDecoding { get; set; } = false;
+        public TimeSpan SubtitlesDelay { get; set; } = TimeSpan.Zero;
 
         /// <summary>
-        /// Enables low_delay flag for low latency streaming.
+        /// Use Stream's HardwareDevices property to get a list of
+        /// compatible hardware accelerators.
         /// </summary>
-        public bool EnableLowDelay { get; set; } = false;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether experimental hardware acceleration is enabled.
-        /// Defaults to false. This feature is experimental.
-        /// </summary>
-        public bool EnableHardwareAcceleration { get; set; }
+        public HardwareDeviceInfo VideoHardwareDevice { get; set; }
 
         /// <summary>
         /// Prevent reading from audio stream components.
@@ -74,7 +70,7 @@
         /// <summary>
         /// Specifies a forced FPS value for the input video stream.
         /// </summary>
-        public AVRational? VideoForcedFps { get; set; } = null;
+        public double VideoForcedFps { get; set; } = default;
 
         /// <summary>
         /// Initially contains the best suitable video stream.

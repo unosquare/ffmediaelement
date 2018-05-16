@@ -49,7 +49,7 @@
         /// <summary>
         /// Gets a value indicating whether this command is marked as completed.
         /// </summary>
-        public bool HasCompleted => IsDisposed || TaskContext.IsCompleted;
+        public bool HasCompleted => IsDisposed || TaskContext == null || TaskContext.IsCompleted;
 
         /// <summary>
         /// Gets the task that this command will run.
@@ -93,7 +93,7 @@
             var m = Manager.MediaCore;
 
             // Avoid processing the command if the element is disposed.
-            if (IsDisposed || m.IsDisposed || TaskContext.IsCanceled || IsRunning)
+            if (IsDisposed || m.IsDisposed || TaskContext.IsCanceled || IsRunning || TaskContext.IsCompleted)
                 return;
 
             // Start and await the task

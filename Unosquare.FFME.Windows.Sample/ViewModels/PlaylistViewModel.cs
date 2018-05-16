@@ -182,14 +182,18 @@
         private void OnRenderingVideo(object sender, RenderingVideoEventArgs e)
         {
             if (HasTakenThumbnail) return;
-            var m = Root.App.MediaElement;
-
-            if (m.HasMediaEnded || m.Position.TotalSeconds >= 3 || (m.NaturalDuration.HasTimeSpan && m.NaturalDuration.TimeSpan.TotalSeconds <= 3))
+            GuiContext.Current.InvokeAsync(() =>
             {
-                HasTakenThumbnail = true;
-                Entries.AddOrUpdateEntryThumbnail(m.Source.ToString(), e.Bitmap);
-                Entries.SaveEntries();
-            }
+                var m = Root.App?.MediaElement;
+                if (m == null) return;
+
+                if (m.HasMediaEnded || m.Position.TotalSeconds >= 3 || (m.NaturalDuration.HasTimeSpan && m.NaturalDuration.TimeSpan.TotalSeconds <= 3))
+                {
+                    HasTakenThumbnail = true;
+                    Entries.AddOrUpdateEntryThumbnail(m.Source.ToString(), e.Bitmap);
+                    Entries.SaveEntries();
+                }
+            });
         }
     }
 }
