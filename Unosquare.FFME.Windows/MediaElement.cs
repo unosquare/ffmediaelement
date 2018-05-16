@@ -161,7 +161,7 @@
         /// <summary>
         /// This is the image that holds video bitmaps
         /// </summary>
-        internal HostedImage VideoView { get; } = new HostedImage { Name = nameof(VideoView) };
+        internal ImageHost VideoView { get; } = new ImageHost { Name = nameof(VideoView) };
 
         /// <summary>
         /// Gets the closed captions view control.
@@ -378,21 +378,7 @@
             };
 
             // Compose the control by adding overlapping children
-            if (WindowsPlatform.Instance.IsInDesignTime)
-            {
-                var preview = new Image();
-                ContentGrid.Children.Add(preview);
-                var bitmap = Properties.Resources.FFmpegMediaElementBackground;
-                var bitmapSource = Imaging.CreateBitmapSourceFromHBitmap(
-                    bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-                var controlBitmap = new WriteableBitmap(bitmapSource);
-                preview.Source = controlBitmap;
-            }
-            else
-            {
-                ContentGrid.Children.Add(VideoView);
-            }
-
+            ContentGrid.Children.Add(VideoView);
             ContentGrid.Children.Add(SubtitlesView);
             ContentGrid.Children.Add(CaptionsView);
 
@@ -402,6 +388,14 @@
                 // Setup the media engine and associated property updates worker
                 MediaCore = new MediaEngine(this, new WindowsMediaConnector(this));
                 StartPropertyUpdatesWorker();
+            }
+            else
+            {
+                var bitmap = Properties.Resources.FFmpegMediaElementBackground;
+                var bitmapSource = Imaging.CreateBitmapSourceFromHBitmap(
+                    bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                var controlBitmap = new WriteableBitmap(bitmapSource);
+                VideoView.Source = controlBitmap;
             }
         }
 

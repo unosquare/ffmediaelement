@@ -6,7 +6,7 @@
         xmlns:ffme="clr-namespace:Unosquare.FFME;assembly=ffme.win"
         xmlns:controls="clr-namespace:Unosquare.FFME.Windows.Sample.Controls"
         mc:Ignorable="d" DataContext="{StaticResource ViewModel}"
-        WindowStartupLocation="CenterScreen" MinHeight="720" Height="0" MinWidth="1280" Width="0"
+        WindowStartupLocation="Manual" MinHeight="720" Height="0" MinWidth="1280" Width="0"
         Title="{Binding WindowTitle}" Background="Black">
     <Window.Resources>
         <Storyboard x:Key="ShowControlOpacity" Storyboard.TargetProperty="(UIElement.Opacity)">

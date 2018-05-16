@@ -2,6 +2,7 @@
 {
     using Shared;
     using System;
+    using System.ComponentModel;
     using System.Linq;
     using System.Windows;
     using System.Windows.Controls;
@@ -32,6 +33,14 @@
         /// </summary>
         public MainWindow()
         {
+            // During runtime, let's hide the window. The loaded event handler will
+            // compute the final placement of our window.
+            if (DesignerProperties.GetIsInDesignMode(this) == false)
+            {
+                Left = int.MinValue;
+                Top = int.MinValue;
+            }
+
             // Load up WPF resources
             InitializeComponent();
 
@@ -153,14 +162,32 @@
             Loaded -= OnWindowLoaded;
 
             // Compute and Apply Sizing Properties
-            var presenter = VisualTreeHelper.GetParent(Content as UIElement) as ContentPresenter;
-            presenter.MinWidth = MinWidth;
-            presenter.MinHeight = MinHeight;
+            {
+                var presenter = VisualTreeHelper.GetParent(Content as UIElement) as ContentPresenter;
+                presenter.MinWidth = MinWidth;
+                presenter.MinHeight = MinHeight;
 
-            SizeToContent = SizeToContent.WidthAndHeight;
-            MinWidth = ActualWidth;
-            MinHeight = ActualHeight;
-            SizeToContent = SizeToContent.Manual;
+                SizeToContent = SizeToContent.WidthAndHeight;
+                MinWidth = ActualWidth;
+                MinHeight = ActualHeight;
+                SizeToContent = SizeToContent.Manual;
+            }
+
+            // Place on secondary screen by default if there is one
+            {
+                var screenOffsetX = 0d;
+                var screenWidth = SystemParameters.PrimaryScreenWidth;
+                var screenHeight = SystemParameters.PrimaryScreenHeight;
+
+                if (SystemParameters.VirtualScreenWidth != SystemParameters.FullPrimaryScreenWidth)
+                {
+                    screenOffsetX = SystemParameters.PrimaryScreenWidth;
+                    screenWidth = SystemParameters.VirtualScreenWidth - SystemParameters.PrimaryScreenWidth;
+                }
+
+                Left = screenOffsetX + ((screenWidth - ActualWidth) / 2d);
+                Top = (SystemParameters.PrimaryScreenHeight - ActualHeight) / 2d;
+            }
 
             // Open a file if it is specified in the arguments
             var args = Environment.GetCommandLineArgs();
