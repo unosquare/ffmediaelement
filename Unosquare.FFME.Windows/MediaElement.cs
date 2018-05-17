@@ -161,7 +161,7 @@
         /// <summary>
         /// This is the image that holds video bitmaps
         /// </summary>
-        internal ImageHost VideoView { get; } = new ImageHost { Name = nameof(VideoView) };
+        internal ImageHost VideoView { get; } = new ImageHost(GuiContext.Current.Type == GuiContextType.WPF) { Name = nameof(VideoView) };
 
         /// <summary>
         /// Gets the closed captions view control.
@@ -309,14 +309,6 @@
             Content = ContentGrid;
             ContentGrid.HorizontalAlignment = HorizontalAlignment.Stretch;
             ContentGrid.VerticalAlignment = VerticalAlignment.Stretch;
-
-            // Initialize dependency properties to those of the Video view
-            // Stretch = VideoView.Stretch;
-            // StretchDirection = VideoView.StretchDirection;
-
-            // Add the child video view and bind the alignment properties
-            BindProperty(VideoView, HorizontalAlignmentProperty, this, nameof(HorizontalAlignment), BindingMode.OneWay);
-            BindProperty(VideoView, VerticalAlignmentProperty, this, nameof(VerticalAlignment), BindingMode.OneWay);
 
             // Setup the Subtitle View
             SubtitlesView.FontSize = 98;

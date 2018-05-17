@@ -177,9 +177,12 @@
             // Flag the start of a rendering cycle
             IsRenderingInProgress.Value = true;
 
-            // Send the block to the captions renderer
-            if (block.ClosedCaptions.Count > 0)
-                GuiContext.Current.EnqueueInvoke(() => MediaElement.CaptionsView.RenderPacket(block, MediaCore));
+            // Send the block to the captions renderer and apply the layout transforms
+            var guiTask = GuiContext.Current.InvokeAsync(DispatcherPriority.DataBind, () =>
+            {
+                MediaElement.CaptionsView.RenderPacket(block, MediaCore);
+                ApplyLayoutTransforms(block);
+            });
 
             // Ensure the target bitmap can be loaded
             // GuiContext.Current.EnqueueInvoke(DispatcherPriority.Render, () =>
@@ -199,7 +202,6 @@
                         LoadTargetBitmapBuffer(bitmapData, block);
                         MediaElement.RaiseRenderingVideoEvent(block, bitmapData, clockPosition);
                         RenderTargetBitmap(block, bitmapData, clockPosition);
-                        ApplyLayoutTransforms(block);
                     }
                 }
                 catch (Exception ex)
@@ -210,6 +212,7 @@
                 }
                 finally
                 {
+                    guiTask.Wait();
                     IsRenderingInProgress.Value = false;
                 }
             });
@@ -225,8 +228,8 @@
                 TargetBitmap = null;
                 MediaElement.VideoView.Source = null;
 
-                // TODO: Formalize this
-                MediaElement.CaptionsView.ResetState();
+        // TODO: Formalize this
+        MediaElement.CaptionsView.ResetState();
             });
         }
 
