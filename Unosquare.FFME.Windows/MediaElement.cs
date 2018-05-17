@@ -305,6 +305,19 @@
         /// </summary>
         private void InitializeComponent()
         {
+            // Synchronize initial property values to the MediaElement properties.
+            // This is because the hosted element gets greated after the MEdiaElement properties
+            // might have been set.
+            VideoView.ElementLoaded += (vs, ve) =>
+            {
+                VideoView.Stretch = Stretch;
+                VideoView.StretchDirection = StretchDirection;
+            };
+
+            // Set some default properties. Centering the content allows for video-aligned subtitles
+            VerticalContentAlignment = VerticalAlignment.Center;
+            HorizontalContentAlignment = HorizontalAlignment.Center;
+
             // Setup the content grid and add it as part of the user control
             Content = ContentGrid;
             ContentGrid.HorizontalAlignment = HorizontalAlignment.Stretch;

@@ -48,6 +48,11 @@
         }
 
         /// <summary>
+        /// Gets the available render area
+        /// </summary>
+        public Size AvailableSize { get; private set; }
+
+        /// <summary>
         /// Gets a value indicating whether this instance is running on its own dispatcher.
         /// </summary>
         public bool HasOwnDispatcher { get; }
@@ -151,7 +156,6 @@
                 AddLogicalChild(Host);
                 Loaded += HandleLoadedEvent;
                 Unloaded += HandleUnloadedEvent;
-                LayoutUpdated += HandleLayoutUpdatedEvent;
             }
             else
             {
@@ -203,7 +207,7 @@
         {
             if (HasOwnDispatcher)
             {
-                Invoke(() => { Element?.Arrange(new Rect(finalSize)); });
+                Invoke(() => Element?.Arrange(new Rect(finalSize)));
                 return finalSize;
             }
 
@@ -220,13 +224,25 @@
         /// </returns>
         protected override Size MeasureOverride(Size availableSize)
         {
-            if (HasOwnDispatcher)
+            var availableSizeChanged = AvailableSize != availableSize;
+            AvailableSize = availableSize;
+            if (HasOwnDispatcher == false)
             {
-                return default;
+                Element?.Measure(availableSize);
+            }
+            else
+            {
+                Invoke(() =>
+                {
+                    var previousDesiredSize = Element?.DesiredSize ?? default;
+                    Element?.Measure(AvailableSize);
+
+                    if (availableSizeChanged || previousDesiredSize != (Element?.DesiredSize ?? default))
+                        Dispatcher.Invoke(() => InvalidateMeasure());
+                });
             }
 
-            Element.Measure(availableSize);
-            return Element.DesiredSize;
+            return Element?.DesiredSize ?? default;
         }
 
         /// <summary>
@@ -257,7 +273,9 @@
             if (HasOwnDispatcher)
             {
                 var result = default(V);
-                Invoke(() => { result = (V)Element.GetValue(property); }).Wait();
+                if (Element != null)
+                    Invoke(() => { result = (V)Element.GetValue(property); })?.Wait();
+
                 return result;
             }
 
@@ -272,23 +290,13 @@
         /// <param name="value">The value.</param>
         protected void SetElementProperty<V>(DependencyProperty property, V value)
         {
-            if (HasOwnDispatcher)
+            if (HasOwnDispatcher && Element != null)
             {
-                Invoke(() => { Element.SetValue(property, value); });
+                Invoke(() => { Element?.SetValue(property, value); });
                 return;
             }
 
-            Element.SetValue(property, value);
-        }
-
-        /// <summary>
-        /// Handles the layout updated event.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        private void HandleLayoutUpdatedEvent(object sender, EventArgs e)
-        {
-            Invoke(() => { Element?.Measure(DesiredSize); });
+            Element?.SetValue(property, value);
         }
 
         /// <summary>
@@ -307,6 +315,12 @@
                 doneCreating.Set();
                 Element = CreateHostedElement();
                 PresentationSource.RootVisual = Element;
+                Element.SizeChanged += (snd, eva) =>
+                {
+                    if (eva.PreviousSize == default || eva.NewSize == default)
+                        Dispatcher.Invoke(() => InvalidateMeasure());
+                };
+
                 Dispatcher.Run();
                 PresentationSource.Dispose();
             });
@@ -319,9 +333,7 @@
             doneCreating.Dispose();
 
             while (Dispatcher.FromThread(thread) == null)
-            {
                 Thread.Sleep(50);
-            }
 
             ElementDispatcher = Dispatcher.FromThread(thread);
             Dispatcher.BeginInvoke(new Action(() => { InvalidateMeasure(); }));
