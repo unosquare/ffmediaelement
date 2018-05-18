@@ -159,7 +159,8 @@
         internal MediaEngine MediaCore { get; private set; } = null;
 
         /// <summary>
-        /// This is the image that holds video bitmaps
+        /// This is the image that holds video bitmaps. It is a Hosted Image which means that in a WPF
+        /// GUI context, it runs on its own dispatcher (multhreaded UI)
         /// </summary>
         internal ImageHost VideoView { get; } = new ImageHost(GuiContext.Current.Type == GuiContextType.WPF) { Name = nameof(VideoView) };
 

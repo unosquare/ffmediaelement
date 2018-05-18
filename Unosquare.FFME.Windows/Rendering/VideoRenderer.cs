@@ -184,13 +184,12 @@
                 ApplyLayoutTransforms(block);
             });
 
-            var canStartForegroundAction = MediaElement.VideoView.ElementDispatcher != MediaElement.Dispatcher;
-            var foregroundTask = canStartForegroundAction ? 
+            var canStartForegroundTask = MediaElement.VideoView.ElementDispatcher != MediaElement.Dispatcher;
+            var foregroundTask = canStartForegroundTask ?
                 MediaElement.Dispatcher.InvokeAsync(foregroundAction) : null;
 
             // Ensure the target bitmap can be loaded
-            // GuiContext.Current.EnqueueInvoke(DispatcherPriority.Render, () =>
-            MediaElement.VideoView.Invoke(DispatcherPriority.Render, () =>
+            MediaElement.VideoView.InvokeAsync(DispatcherPriority.Render, () =>
             {
                 if (block.IsDisposed)
                 {

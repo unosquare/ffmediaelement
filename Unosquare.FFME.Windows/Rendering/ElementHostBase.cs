@@ -5,6 +5,7 @@
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
     using System.Threading;
+    using System.Threading.Tasks;
     using System.Windows;
     using System.Windows.Media;
     using System.Windows.Threading;
@@ -48,11 +49,6 @@
         }
 
         /// <summary>
-        /// Gets the available render area
-        /// </summary>
-        public Size AvailableSize { get; private set; }
-
-        /// <summary>
         /// Gets a value indicating whether this instance is running on its own dispatcher.
         /// </summary>
         public bool HasOwnDispatcher { get; }
@@ -66,6 +62,11 @@
         /// PRovides access to the framework element hosted within this element
         /// </summary>
         public T Element { get; private set; }
+
+        /// <summary>
+        /// Gets the available render area
+        /// </summary>
+        protected Size AvailableSize { get; private set; }
 
         /// <summary>
         /// Gets the host visual. This becomes the root element of this control
@@ -120,9 +121,9 @@
         /// <param name="action">The action.</param>
         /// <returns>The awaitable operation</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public DispatcherOperation Invoke(Action action)
+        public Task InvokeAsync(Action action)
         {
-            return Invoke(DispatcherPriority.Normal, action);
+            return InvokeAsync(DispatcherPriority.Normal, action);
         }
 
         /// <summary>
@@ -132,19 +133,24 @@
         /// <param name="action">The action.</param>
         /// <returns>The awaitable operation</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public DispatcherOperation Invoke(DispatcherPriority priority, Action action)
+        public Task InvokeAsync(DispatcherPriority priority, Action action)
         {
-            if (ElementDispatcher == null || ElementDispatcher.HasShutdownStarted || ElementDispatcher.HasShutdownFinished)
-                return null;
-
             if (action == null)
-                return null;
+                return Task.CompletedTask;
 
-            return ElementDispatcher?.BeginInvoke(action, priority);
+            if (ElementDispatcher == null || ElementDispatcher.HasShutdownStarted || ElementDispatcher.HasShutdownFinished)
+                return Task.CompletedTask;
+
+            if (Thread.CurrentThread != ElementDispatcher?.Thread)
+                return ElementDispatcher?.BeginInvoke(action, priority).Task;
+
+            action?.Invoke();
+            return Task.CompletedTask;
         }
 
         /// <summary>
-        /// Raises the <see cref="E:System.Windows.FrameworkElement.Initialized" /> event. This method is invoked whenever <see cref="P:System.Windows.FrameworkElement.IsInitialized" /> is set to true internally.
+        /// Raises the <see cref="E:System.Windows.FrameworkElement.Initialized" /> event.
+        /// This method is invoked whenever <see cref="P:System.Windows.FrameworkElement.IsInitialized" /> is set to true internally.
         /// </summary>
         /// <param name="e">The <see cref="T:System.Windows.RoutedEventArgs" /> that contains the event data.</param>
         protected override void OnInitialized(EventArgs e)
@@ -207,7 +213,7 @@
         {
             if (HasOwnDispatcher)
             {
-                Invoke(() => Element?.Arrange(new Rect(finalSize)));
+                InvokeAsync(DispatcherPriority.DataBind, () => Element?.Arrange(new Rect(finalSize)));
                 return finalSize;
             }
 
@@ -218,28 +224,34 @@
         /// <summary>
         /// When overridden in a derived class, measures the size in layout required for child elements and determines a size for the <see cref="T:System.Windows.FrameworkElement" />-derived class.
         /// </summary>
-        /// <param name="availableSize">The available size that this element can give to child elements. Infinity can be specified as a value to indicate that the element will size to whatever content is available.</param>
+        /// <param name="newAvailableSize">The available size that this element can give to child elements. Infinity can be specified as a value to indicate that the element will size to whatever content is available.</param>
         /// <returns>
         /// The size that this element determines it needs during layout, based on its calculations of child element sizes.
         /// </returns>
-        protected override Size MeasureOverride(Size availableSize)
+        protected override Size MeasureOverride(Size newAvailableSize)
         {
-            var availableSizeChanged = AvailableSize != availableSize;
-            AvailableSize = availableSize;
+            var previousAvailableSize = AvailableSize;
+            var previousDesiredSize = Element?.DesiredSize ?? default;
+            var availableSizeChanged = previousAvailableSize != newAvailableSize;
+
+            AvailableSize = newAvailableSize;
             if (HasOwnDispatcher == false)
             {
-                Element?.Measure(availableSize);
+                Element?.Measure(newAvailableSize);
             }
             else
             {
-                Invoke(() =>
+                InvokeAsync(DispatcherPriority.DataBind, () =>
                 {
-                    var previousDesiredSize = Element?.DesiredSize ?? default;
-                    Element?.Measure(AvailableSize);
+                    Element?.Measure(newAvailableSize);
+                    var desiredSizeChanged = previousDesiredSize != (Element?.DesiredSize ?? default);
 
-                    if (availableSizeChanged || previousDesiredSize != (Element?.DesiredSize ?? default))
-                        Dispatcher.Invoke(() => InvalidateMeasure());
+                    if (availableSizeChanged || desiredSizeChanged)
+                        Dispatcher.InvokeAsync(() => InvalidateMeasure(), DispatcherPriority.Render);
                 });
+
+                if (availableSizeChanged)
+                    return previousDesiredSize;
             }
 
             return Element?.DesiredSize ?? default;
@@ -274,7 +286,12 @@
             {
                 var result = default(V);
                 if (Element != null)
-                    Invoke(() => { result = (V)Element.GetValue(property); })?.Wait();
+                {
+                    InvokeAsync(DispatcherPriority.DataBind, () =>
+                    {
+                        result = (V)Element.GetValue(property);
+                    })?.Wait();
+                }
 
                 return result;
             }
@@ -292,7 +309,11 @@
         {
             if (HasOwnDispatcher && Element != null)
             {
-                Invoke(() => { Element?.SetValue(property, value); });
+                InvokeAsync(DispatcherPriority.DataBind, () =>
+                {
+                    Element?.SetValue(property, value);
+                });
+
                 return;
             }
 
