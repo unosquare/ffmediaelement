@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unosquare.FFME.Windows.Samp
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Support", "Support", "{8BF26916-5094-4A04-B148-C19DCCC53A95}"
 	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
 		appveyor.yml = appveyor.yml
 		Support\build-nuget-package.bat = Support\build-nuget-package.bat
 		docfx.json = docfx.json
