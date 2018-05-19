@@ -10,19 +10,21 @@
 
 ![ffmeplay](https://github.com/unosquare/ffmediaelement/raw/master/Support/ffmeplay.png)
 
-## Current Release Status
+## Current NuGet Release Status
 - If you would like to support this project, you can show your appreciation via [PayPal.Me](https://www.paypal.me/mariodivece/50usd)
 - Current Status: (2018-04-25) - Release 3.4.240 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
 - NuGet Package available here: https://www.nuget.org/packages/FFME.Windows/
 - FFmpeg Version: <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.4.2-win32-shared.zip">3.4.2 (32-bit)</a>
 
+*Please note the current NuGet realease might require a different version of the FFmpeg binaries than the ones of the current state of the source code.*
+
 ## Quick Usage Guide for WPF Apps
 
 Here is a quick guide on how to get started.
-1. Open Visual Studio (v2017 recommended), and create a new WPF Application. Target Framework must be 4.6.2 or above. (This will change to 4.6.1 in the final release)
+1. Open Visual Studio (v2017 recommended), and create a new WPF Application. Target Framework must be 4.6.1 or above.
 2. Install the NuGet Package from your Package Manager Console: `PM> Install-Package FFME.Windows`
-3. You need FFmpeg binaries now. Build your own or download a compatible build from [Zeranoe FFmpeg Builds site](https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.0-win32-shared.zip).
-4. Your FFmpeg build should have a `bin` folder with 3 exe files and 8 dll files. Copy all 11 files to a folder such as `c:\ffmpeg`
+3. You need FFmpeg binaries now. Build your own or download a compatible build from [Zeranoe FFmpeg Builds site](https://ffmpeg.zeranoe.com/builds/).
+4. Your FFmpeg build should have a `bin` folder with 3 exe files and some dll files. Copy all those files to a folder such as `c:\ffmpeg`
 5. Within you application's startup code (`Main` method), set `Unosquare.FFME.MediaElement.FFmpegDirectory = @"c:\ffmpeg";`.
 6. Use the FFME `MediaElement` control as any other WPF control.
 For example: In your `MainForm.xaml`, add the namespace: `xmlns:ffme="clr-namespace:Unosquare.FFME;assembly=ffme.win"` and then add the FFME control your window's XAML: `<ffme:MediaElement x:Name="Media" Background="Gray" LoadedBehavior="Play" UnloadedBehavior="Manual" />` 
@@ -37,14 +39,26 @@ FFME is a close (and I'd like to think better) drop-in replacement for <a href="
 
 FFME provides multiple improvements over the standard MediaElement such as:
 - Fast media seeking and frame-by-frame seeking
-- Properties such as Position, NaturalDuration, SpeedRatio, and Volume are all Dependency Properties!
+- Properties such as Position, Balance, SpeedRatio, IsMuted, and Volume are all Dependency Properties!
 - Additional and extended media events. Extracting (and modifying) video, audio and subtitle frames is very easy.
 - Ability to easily apply FFmpeg video and audio filtergraphs.
 - Ability to extract media metadata and tech specs of a media stream (title, album, bitrate, codecs, FPS, etc).
 - Ability to apply volume, balance and speed ratio to media playback.
 - MediaState actually works on this control. The standard WPF MediaElement severely lacks in this area.
+- Ability to pick media streams contained in a file or a URL.
+- Ability to pass input and codec parameters.
+- Ability to introduce hardware decoding acceleration via devices or via codecs.
 
 *... all in a single MediaElement control*
+
+FFME also supports opening capture devices. See example Source URLs below and [issue #48](https://github.com/unosquare/ffmediaelement/issues/48)
+```
+device://dshow/?audio=Microphone (Vengeance 2100)
+device://gdigrab?title=Command Prompt
+device://gdigrab?desktop
+```
+
+If you'd like audio to not change pitch while changing the SpeedRatio property, you'll need the `SoundTouch.dll` library available on the same directory as your application. You can get the [SoundTouch library here](https://www.surina.net/soundtouch/).
 
 ### About how it works
 
@@ -65,17 +79,10 @@ The process described above is implemented in 3 different layers:
 A high-level diagram is provided as additional reference below.
 ![arch-michelob-2.0](https://github.com/unosquare/ffmediaelement/raw/master/Support/arch-michelob-2.0.png)
 
-### Known Limitations
+### Some Work In Progress
 *Your help is welcome!*
 
 - I am planning the next version of this control, `Floyd`. See the **Issues** section.
-- Working on Hardware acceleration. Maybe CUDA for highest compatibility.
-- FFME supports opening capture devices. See examples below and [issue #48](https://github.com/unosquare/ffmediaelement/issues/48)
-```
-device://dshow/?audio=Microphone (Vengeance 2100)
-device://gdigrab?title=Command Prompt
-device://gdigrab?desktop
-```
 
 ## Windows: Compiling, Running and Testing
 
