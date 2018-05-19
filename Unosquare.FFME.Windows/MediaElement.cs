@@ -261,7 +261,17 @@
         {
             if (IsDisposed) return;
             IsDisposed = true;
+
+            // Stop the property updates worker
             PropertyUpdatesWorker.Dispose();
+
+            // Remove ebent handlers
+            VideoView.LayoutUpdated -= HandleVideoViewLayoutUpdates;
+
+            // Remove all the controls
+            ContentGrid.Children.Remove(VideoView);
+            ContentGrid.Children.Remove(SubtitlesView);
+            ContentGrid.Children.Remove(CaptionsView);
         }
 
         /// <summary>
@@ -344,45 +354,6 @@
             BindProperty(this, Subtitles.FontFamilyProperty, SubtitlesView, nameof(SubtitlesView.FontFamily), BindingMode.TwoWay);
             BindProperty(this, Subtitles.TextProperty, SubtitlesView, nameof(SubtitlesView.Text), BindingMode.TwoWay);
 
-            // Update as the VideoView updates but check if there are valid dimensions and it actually has video
-            VideoView.LayoutUpdated += (s, e) =>
-            {
-                // When video dimensions are invalid, let's not do any layout.
-                if (VideoView.ActualWidth <= 0 || VideoView.ActualHeight <= 0)
-                    return;
-
-                if (HasVideo)
-                {
-                    CaptionsView.Width = VideoView.ActualWidth;
-                    CaptionsView.Height = VideoView.ActualHeight * .80; // FCC Safe Caption Area Dimensions
-                    CaptionsView.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    CaptionsView.Width = 0;
-                    CaptionsView.Height = 0;
-                    CaptionsView.Visibility = Visibility.Collapsed;
-                }
-
-                // Compute the position of the subtitles view based on the Video View
-                var videoViewPosition = VideoView.TransformToAncestor(ContentGrid).Transform(new Point(0, 0));
-                var targetHeight = VideoView.ActualHeight / 9d;
-                var targetWidth = VideoView.ActualWidth * 0.90;
-
-                if (SubtitlesView.Height != targetHeight)
-                    SubtitlesView.Height = targetHeight;
-
-                if (SubtitlesView.Width != targetWidth)
-                    SubtitlesView.Width = targetWidth;
-
-                var verticalOffset = ContentGrid.ActualHeight - (videoViewPosition.Y + VideoView.ActualHeight);
-                var verticalOffsetPadding = targetHeight * 0.75d;
-                var marginBottom = verticalOffset + verticalOffsetPadding;
-
-                if (SubtitlesView.Margin.Bottom != marginBottom)
-                    SubtitlesView.Margin = new Thickness(0, 0, 0, marginBottom);
-            };
-
             // Compose the control by adding overlapping children
             ContentGrid.Children.Add(VideoView);
             ContentGrid.Children.Add(SubtitlesView);
@@ -403,6 +374,56 @@
                 var controlBitmap = new WriteableBitmap(bitmapSource);
                 VideoView.Source = controlBitmap;
             }
+
+            // Update as the VideoView updates but check if there are valid dimensions and it actually has video
+            VideoView.LayoutUpdated += HandleVideoViewLayoutUpdates;
+        }
+
+        /// <summary>
+        /// Handles the video view layout updates.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void HandleVideoViewLayoutUpdates(object sender, EventArgs e)
+        {
+            // Prevent running the code
+            if (IsDisposed || ContentGrid.Children.IndexOf(VideoView) < 0)
+                return;
+
+            // When video dimensions are invalid, let's not do any layout.
+            if (VideoView.ActualWidth <= 0 || VideoView.ActualHeight <= 0)
+                return;
+
+            if (HasVideo)
+            {
+                CaptionsView.Width = VideoView.ActualWidth;
+                CaptionsView.Height = VideoView.ActualHeight * .80; // FCC Safe Caption Area Dimensions
+                CaptionsView.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                CaptionsView.Width = 0;
+                CaptionsView.Height = 0;
+                CaptionsView.Visibility = Visibility.Collapsed;
+            }
+
+            // Compute the position of the subtitles view based on the Video View
+            var videoViewPosition = VideoView.TransformToAncestor(ContentGrid).Transform(new Point(0, 0));
+            var targetHeight = VideoView.ActualHeight / 9d;
+            var targetWidth = VideoView.ActualWidth * 0.90;
+
+            if (SubtitlesView.Height != targetHeight)
+                SubtitlesView.Height = targetHeight;
+
+            if (SubtitlesView.Width != targetWidth)
+                SubtitlesView.Width = targetWidth;
+
+            var verticalOffset = ContentGrid.ActualHeight - (videoViewPosition.Y + VideoView.ActualHeight);
+            var verticalOffsetPadding = targetHeight * 0.75d;
+            var marginBottom = verticalOffset + verticalOffsetPadding;
+
+            if (SubtitlesView.Margin.Bottom != marginBottom)
+                SubtitlesView.Margin = new Thickness(0, 0, 0, marginBottom);
         }
 
         #endregion

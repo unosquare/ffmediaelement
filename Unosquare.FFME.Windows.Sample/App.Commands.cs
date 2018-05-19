@@ -90,7 +90,7 @@
                     {
                         m_CloseCommand = new DelegateCommand(async (o) =>
                         {
-                            // Media.Dispose(); // Test the Dispose method uncommenting this line
+                            // Current.MediaElement.Dispose(); // Test the Dispose method uncommenting this line
                             // Current.MediaElement.Source = null; // You can also set the source to null to close.
                             await Current.MediaElement.Close();
                         });

@@ -153,8 +153,8 @@
                 throw new Exception("Failed to transfer data to output frame");
             }
 
-            ffmpeg.av_frame_free(&input);
             RC.Current.Remove((IntPtr)input);
+            ffmpeg.av_frame_free(&input);
             RC.Current.Add(output, $"86: {nameof(HardwareAccelerator)}[{PixelFormat}].{nameof(ExchangeFrame)}()");
 
             return output;

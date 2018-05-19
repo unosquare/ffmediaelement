@@ -481,7 +481,7 @@
             {
                 // If it's audio or video, we use the new API and the decoded frames are stored in AVFrame
                 // Let us send the packet to the codec for decoding a frame of uncompressed data later.
-                // TODO: sendPacketResult is never checked for errors... We requires ome error handling.
+                // TODO: sendPacketResult is never checked for errors... We require some error handling.
                 // for example when using h264_qsv codec, this returns -40 (Function not implemented)
                 var sendPacketResult = ffmpeg.avcodec_send_packet(CodecContext, IsEmptyPacket(packet) ? null : packet);
 

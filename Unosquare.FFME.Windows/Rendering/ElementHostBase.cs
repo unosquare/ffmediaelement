@@ -438,7 +438,7 @@
                 if (alsoManaged)
                 {
                     m_IsDisposed = true;
-                    HostConnector.Dispose();
+                    HostConnector?.Dispose();
                 }
             }
         }
