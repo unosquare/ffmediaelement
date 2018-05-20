@@ -63,6 +63,7 @@
                             catch (Exception ex)
                             {
                                 MessageBox.Show(
+                                    Current.MainWindow,
                                     $"Media Failed: {ex.GetType()}\r\n{ex.Message}",
                                     $"{nameof(MediaElement)} Error",
                                     MessageBoxButton.OK,

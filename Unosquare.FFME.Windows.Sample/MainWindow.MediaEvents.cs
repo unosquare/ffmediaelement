@@ -51,6 +51,7 @@
         private void OnMediaFailed(object sender, ExceptionRoutedEventArgs e)
         {
             MessageBox.Show(
+                App.Current.MainWindow,
                 $"Media Failed: {e.ErrorException.GetType()}\r\n{e.ErrorException.Message}",
                 $"{nameof(MediaElement)} Error",
                 MessageBoxButton.OK,
