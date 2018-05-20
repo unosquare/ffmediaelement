@@ -542,12 +542,12 @@ references:
   commentId: T:Unosquare.FFME.Events.RenderingEventArgs
   fullName: Unosquare.FFME.Events.RenderingEventArgs
   nameWithType: RenderingEventArgs
-- uid: Unosquare.FFME.Events.RenderingEventArgs.#ctor(StreamInfo,System.TimeSpan,System.TimeSpan,System.TimeSpan)
-  name: RenderingEventArgs(StreamInfo, TimeSpan, TimeSpan, TimeSpan)
-  href: api/Unosquare.FFME.Events.RenderingEventArgs.html#Unosquare_FFME_Events_RenderingEventArgs__ctor_StreamInfo_System_TimeSpan_System_TimeSpan_System_TimeSpan_
-  commentId: M:Unosquare.FFME.Events.RenderingEventArgs.#ctor(StreamInfo,System.TimeSpan,System.TimeSpan,System.TimeSpan)
-  fullName: Unosquare.FFME.Events.RenderingEventArgs.RenderingEventArgs(StreamInfo, System.TimeSpan, System.TimeSpan, System.TimeSpan)
-  nameWithType: RenderingEventArgs.RenderingEventArgs(StreamInfo, TimeSpan, TimeSpan, TimeSpan)
+- uid: Unosquare.FFME.Events.RenderingEventArgs.#ctor(MediaEngineState,StreamInfo,System.TimeSpan,System.TimeSpan,System.TimeSpan)
+  name: RenderingEventArgs(MediaEngineState, StreamInfo, TimeSpan, TimeSpan, TimeSpan)
+  href: api/Unosquare.FFME.Events.RenderingEventArgs.html#Unosquare_FFME_Events_RenderingEventArgs__ctor_MediaEngineState_StreamInfo_System_TimeSpan_System_TimeSpan_System_TimeSpan_
+  commentId: M:Unosquare.FFME.Events.RenderingEventArgs.#ctor(MediaEngineState,StreamInfo,System.TimeSpan,System.TimeSpan,System.TimeSpan)
+  fullName: Unosquare.FFME.Events.RenderingEventArgs.RenderingEventArgs(MediaEngineState, StreamInfo, System.TimeSpan, System.TimeSpan, System.TimeSpan)
+  nameWithType: RenderingEventArgs.RenderingEventArgs(MediaEngineState, StreamInfo, TimeSpan, TimeSpan, TimeSpan)
 - uid: Unosquare.FFME.Events.RenderingEventArgs.#ctor*
   name: RenderingEventArgs
   href: api/Unosquare.FFME.Events.RenderingEventArgs.html#Unosquare_FFME_Events_RenderingEventArgs__ctor_
@@ -581,6 +581,19 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.Events.RenderingEventArgs.Duration
   nameWithType: RenderingEventArgs.Duration
+- uid: Unosquare.FFME.Events.RenderingEventArgs.EngineState
+  name: EngineState
+  href: api/Unosquare.FFME.Events.RenderingEventArgs.html#Unosquare_FFME_Events_RenderingEventArgs_EngineState
+  commentId: P:Unosquare.FFME.Events.RenderingEventArgs.EngineState
+  fullName: Unosquare.FFME.Events.RenderingEventArgs.EngineState
+  nameWithType: RenderingEventArgs.EngineState
+- uid: Unosquare.FFME.Events.RenderingEventArgs.EngineState*
+  name: EngineState
+  href: api/Unosquare.FFME.Events.RenderingEventArgs.html#Unosquare_FFME_Events_RenderingEventArgs_EngineState_
+  commentId: Overload:Unosquare.FFME.Events.RenderingEventArgs.EngineState
+  isSpec: "True"
+  fullName: Unosquare.FFME.Events.RenderingEventArgs.EngineState
+  nameWithType: RenderingEventArgs.EngineState
 - uid: Unosquare.FFME.Events.RenderingEventArgs.StartTime
   name: StartTime
   href: api/Unosquare.FFME.Events.RenderingEventArgs.html#Unosquare_FFME_Events_RenderingEventArgs_StartTime
