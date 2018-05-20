@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
   <metadata>
     <id>FFME.Windows</id>
-    <version>4.0.250</version>
+    <version>4.0.260</version>
     <title>FFME: WPF MediaElement Control Alternative</title>
     <authors>Mario Di Vece and the FFME contributors</authors>
     <owners>MarioDiVece,Unosquare</owners>
@@ -16,14 +16,14 @@
     <releaseNotes>
       This is a release package of the Michelob build referencing bindings to FFmpeg version 4.0
       This package does not contain the required FFmpeg binaries. Please refer to the following URL for instructions on how to obtain the binaries: https://github.com/unosquare/ffmediaelement
-      Release details: https://github.com/unosquare/ffmediaelement/milestone/7?closed=1
+      Release details: https://github.com/unosquare/ffmediaelement/milestone/8?closed=1
     </releaseNotes>
     <copyright>Copyright © 2015-2018 Mario Di Vece, Unosquare SA de CV</copyright>
     <language>en-US</language>
     <tags>hls wpf ffmpeg mediaelement ffme h264 h265 hevc audio video processing decoding playback frame</tags>
     <dependencies>
       <group targetFramework=".NETFramework4.6.1">
-        <dependency id="FFmpeg.AutoGen" version="4.0.0" />
+        <dependency id="FFmpeg.AutoGen" version="4.0.0.2" />
       </group>
     </dependencies>
   </metadata>

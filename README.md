@@ -12,9 +12,9 @@
 
 ## Current NuGet Release Status
 - If you would like to support this project, you can show your appreciation via [PayPal.Me](https://www.paypal.me/mariodivece/50usd)
-- Current Status: (2018-05-20) - Release 3.4.250 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
+- Current Status: (2018-05-20) - Release 4.0.250 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
 - NuGet Package available here: https://www.nuget.org/packages/FFME.Windows/
-- FFmpeg Version: <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.0-win32-shared.zip">3.4.2 (32-bit)</a>
+- FFmpeg Version: <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.0-win32-shared.zip">4.0.0 (32-bit)</a>
 
 *Please note the current NuGet realease might require a different version of the FFmpeg binaries than the ones of the current state of the source code.*
 
