@@ -119,7 +119,8 @@
 
         private void DelayTask()
         {
-            Task.Delay(1).Wait();
+            Task.Delay(1).ConfigureAwait(continueOnCapturedContext: false)
+                .GetAwaiter().GetResult();
         }
 
         private void DelayThreadPool()

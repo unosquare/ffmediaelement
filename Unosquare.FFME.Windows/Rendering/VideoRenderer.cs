@@ -197,12 +197,24 @@
                     return;
                 }
 
-                // Run the foreground action if we could not start it.
+                // Run the foreground action if we could not start it in parallel.
                 if (foregroundTask == null)
-                    foregroundAction();
+                {
+                    try
+                    {
+                        foregroundAction();
+                    }
+                    catch (Exception ex)
+                    {
+                        MediaElement?.MediaCore?.Log(
+                            MediaLogMessageType.Error,
+                            $"{nameof(VideoRenderer)} {ex.GetType()}: {nameof(Render)} layout/CC failed. {ex.Message}.");
+                    }
+                }
 
                 try
                 {
+                    // Render the bitmap data
                     var bitmapData = LockTargetBitmap(block);
                     if (bitmapData != null)
                     {
@@ -215,11 +227,25 @@
                 {
                     MediaElement?.MediaCore?.Log(
                         MediaLogMessageType.Error,
-                        $"{nameof(VideoRenderer)} {ex.GetType()}: {nameof(Render)} failed. {ex.Message}.");
+                        $"{nameof(VideoRenderer)} {ex.GetType()}: {nameof(Render)} bitmap failed. {ex.Message}.");
                 }
                 finally
                 {
-                    foregroundTask?.Wait();
+                    if (foregroundTask != null)
+                    {
+                        try
+                        {
+                            foregroundTask?.Wait();
+                        }
+                        catch (Exception ex)
+                        {
+                            MediaElement?.MediaCore?.Log(
+                                MediaLogMessageType.Error,
+                                $"{nameof(VideoRenderer)} {ex.GetType()}: {nameof(Render)} layout/CC failed. {ex.Message}.");
+                        }
+                    }
+
+                    // Always reset the rendering state
                     IsRenderingInProgress.Value = false;
                 }
             });
@@ -235,7 +261,7 @@
                 TargetBitmap = null;
                 MediaElement.VideoView.Source = null;
 
-                // TODO: Formalize this
+                // TODO: This still needs work!
                 MediaElement.CaptionsView.ResetState();
             });
         }
