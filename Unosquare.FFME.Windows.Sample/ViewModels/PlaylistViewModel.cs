@@ -181,19 +181,22 @@
         /// <param name="e">The <see cref="RenderingVideoEventArgs"/> instance containing the event data.</param>
         private void OnRenderingVideo(object sender, RenderingVideoEventArgs e)
         {
-            if (HasTakenThumbnail) return;
-            GuiContext.Current.InvokeAsync(() =>
-            {
-                var m = Root.App?.MediaElement;
-                if (m == null) return;
+            var state = e.EngineState;
+            if (HasTakenThumbnail || state.Source == null)
+                return;
 
-                if (m.HasMediaEnded || m.Position.TotalSeconds >= 3 || (m.NaturalDuration.HasTimeSpan && m.NaturalDuration.TimeSpan.TotalSeconds <= 3))
-                {
-                    HasTakenThumbnail = true;
-                    Entries.AddOrUpdateEntryThumbnail(m.Source.ToString(), e.Bitmap);
-                    Entries.SaveEntries();
-                }
-            });
+            var sourceUrl = state.Source.ToString();
+            if (string.IsNullOrWhiteSpace(sourceUrl))
+                return;
+
+            if (state.HasMediaEnded
+                || state.Position.TotalSeconds >= 3
+                || (state.NaturalDuration.HasValue && state.NaturalDuration.Value.TotalSeconds <= 3))
+            {
+                HasTakenThumbnail = true;
+                Entries.AddOrUpdateEntryThumbnail(sourceUrl, e.Bitmap);
+                Entries.SaveEntries();
+            }
         }
     }
 }

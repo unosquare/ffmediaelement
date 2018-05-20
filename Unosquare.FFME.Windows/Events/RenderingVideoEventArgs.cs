@@ -15,23 +15,25 @@
         /// Initializes a new instance of the <see cref="RenderingVideoEventArgs" /> class.
         /// </summary>
         /// <param name="bitmap">The bitmap.</param>
-        /// <param name="stream">The stream.</param>
         /// <param name="closedCaptions">The closed captions.</param>
         /// <param name="smtpeTimecode">The smtpe timecode.</param>
         /// <param name="pictureNumber">The picture number.</param>
+        /// <param name="engineState">The engine.</param>
+        /// <param name="stream">The stream.</param>
         /// <param name="startTime">The start time.</param>
         /// <param name="duration">The duration.</param>
         /// <param name="clock">The clock.</param>
         internal RenderingVideoEventArgs(
             BitmapDataBuffer bitmap,
-            StreamInfo stream,
             ReadOnlyCollection<ClosedCaptionPacket> closedCaptions,
             string smtpeTimecode,
             long pictureNumber,
+            MediaEngineState engineState,
+            StreamInfo stream,
             TimeSpan startTime,
             TimeSpan duration,
             TimeSpan clock)
-            : base(stream, startTime, duration, clock)
+            : base(engineState, stream, startTime, duration, clock)
         {
             PictureNumber = pictureNumber;
             Bitmap = bitmap;

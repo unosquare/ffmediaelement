@@ -13,17 +13,24 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="RenderingEventArgs" /> class.
         /// </summary>
+        /// <param name="engineState">The media engine state.</param>
         /// <param name="stream">The stream.</param>
         /// <param name="startTime">The position.</param>
         /// <param name="duration">The duration.</param>
         /// <param name="clock">The clock.</param>
-        protected RenderingEventArgs(StreamInfo stream, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
+        protected RenderingEventArgs(MediaEngineState engineState, StreamInfo stream, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
         {
+            EngineState = engineState;
             StartTime = startTime;
             Duration = duration;
             Clock = clock;
             Stream = stream;
         }
+
+        /// <summary>
+        /// Provides access to the underlying media engine state
+        /// </summary>
+        public MediaEngineState EngineState { get; }
 
         /// <summary>
         /// Provides Stream Information coming from the media container.

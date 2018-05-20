@@ -14,12 +14,14 @@
         /// </summary>
         /// <param name="buffer">The buffer.</param>
         /// <param name="length">The length.</param>
+        /// <param name="engineState">The engine.</param>
         /// <param name="stream">The stream.</param>
         /// <param name="startTime">The start time.</param>
         /// <param name="duration">The duration.</param>
         /// <param name="clock">The clock.</param>
-        internal RenderingAudioEventArgs(IntPtr buffer, int length, StreamInfo stream, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
-            : base(stream, startTime, duration, clock)
+        internal RenderingAudioEventArgs(
+            IntPtr buffer, int length, MediaEngineState engineState, StreamInfo stream, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
+            : base(engineState, stream, startTime, duration, clock)
         {
             Buffer = buffer;
             BufferLength = length;

@@ -48,10 +48,11 @@
 
             var e = new RenderingVideoEventArgs(
                 bitmap,
-                MediaCore.MediaInfo.Streams[videoBlock.StreamIndex],
                 videoBlock.ClosedCaptions,
                 videoBlock.SmtpeTimecode,
                 videoBlock.DisplayPictureNumber,
+                MediaCore.State,
+                MediaCore.MediaInfo.Streams[videoBlock.StreamIndex],
                 videoBlock.StartTime,
                 videoBlock.Duration,
                 clock);
@@ -72,6 +73,7 @@
             var e = new RenderingAudioEventArgs(
                     audioBlock.Buffer,
                     audioBlock.BufferLength,
+                    MediaCore.State,
                     MediaCore.MediaInfo.Streams[audioBlock.StreamIndex],
                     audioBlock.StartTime,
                     audioBlock.Duration,
@@ -96,6 +98,7 @@
                     block.Text,
                     block.OriginalText,
                     block.OriginalTextType,
+                    MediaCore.State,
                     MediaCore.MediaInfo.Streams[block.StreamIndex],
                     block.StartTime,
                     block.Duration,
