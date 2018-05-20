@@ -18,7 +18,7 @@
         /// <param name="startTime">The position.</param>
         /// <param name="duration">The duration.</param>
         /// <param name="clock">The clock.</param>
-        protected RenderingEventArgs(MediaEngineState engineState, StreamInfo stream, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
+        protected RenderingEventArgs(IMediaEngineState engineState, StreamInfo stream, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
         {
             EngineState = engineState;
             StartTime = startTime;
@@ -30,7 +30,7 @@
         /// <summary>
         /// Provides access to the underlying media engine state
         /// </summary>
-        public MediaEngineState EngineState { get; }
+        public IMediaEngineState EngineState { get; }
 
         /// <summary>
         /// Provides Stream Information coming from the media container.

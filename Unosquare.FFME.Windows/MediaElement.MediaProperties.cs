@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME
 {
+    using Rendering;
     using Shared;
     using System;
     using System.Collections.ObjectModel;
@@ -8,6 +9,14 @@
 
     public partial class MediaElement
     {
+        /// <summary>
+        /// Provides access to various internal media renderer options.
+        /// The default options are optimal to work for most media streams.
+        /// This is an advanced feature and it is not recommended to change these
+        /// options without careful consideration.
+        /// </summary>
+        public RendererOptions RendererOptions { get; } = new RendererOptions();
+
         /// <summary>
         /// Gets the Media's natural duration
         /// Only valid after the MediaOpened event has fired.

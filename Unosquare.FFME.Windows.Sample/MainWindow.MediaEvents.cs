@@ -92,6 +92,8 @@
                 e.Configuration.GlobalOptions.FlagNoBuffer = true;
             }
 
+            // Media.RendererOptions.AudioDisableSync = true;
+
             // In realtime streams these settings can be used to reduce latency (see example from issue #152)
             // e.Options.GlobalOptions.FlagNoBuffer = true;
             // e.Options.GlobalOptions.ProbeSize = 8192;

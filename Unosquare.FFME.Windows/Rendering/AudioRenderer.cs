@@ -26,6 +26,7 @@
 
         private readonly IWaitEvent WaitForReadyEvent = WaitEventFactory.Create(isCompleted: false, useSlim: true);
         private readonly object SyncLock = new object();
+        private readonly object PlaySyncLock = new object();
 
         private WavePlayer AudioDevice = null;
         private SoundTouch AudioProcessor = null;
@@ -34,10 +35,8 @@
         private bool IsDisposed = false;
 
         private byte[] ReadBuffer = null;
-        private WaveFormat m_WaveFormat = null;
         private int SampleBlockSize = 0;
 
-        private object PlaySyncLock = new object();
         private DateTime? PlaySyncStartTime = default;
         private int PlaySyncCount = 0;
         private AtomicBoolean PlaySyncGaveUp = new AtomicBoolean(false);
@@ -54,7 +53,7 @@
         {
             MediaCore = mediaEngine;
 
-            m_WaveFormat = new WaveFormat(
+            WaveFormat = new WaveFormat(
                 Constants.Audio.SampleRate,
                 Constants.Audio.BitsPerSample,
                 Constants.Audio.ChannelCount);
@@ -91,7 +90,7 @@
         /// <summary>
         /// Gets the output format of the audio
         /// </summary>
-        public WaveFormat WaveFormat => m_WaveFormat;
+        public WaveFormat WaveFormat { get; } = null;
 
         /// <summary>
         /// Gets the realtime latency of the audio relative to the internal wall clock.
@@ -152,11 +151,9 @@
                 if (AudioBuffer == null) return;
 
                 // Capture Media Block Reference
-                var block = mediaBlock as AudioBlock;
-                if (block == null) return;
-
-                var audioBlocks = MediaCore.Blocks[MediaType.Audio];
                 var audioBlock = mediaBlock as AudioBlock;
+                if (audioBlock == null) return;
+                var audioBlocks = MediaCore.Blocks[MediaType.Audio];
 
                 while (audioBlock != null)
                 {
@@ -480,6 +477,9 @@
             #endregion
 
             #region Sync Give-up Conditions
+
+            if (MediaElement.RendererOptions.AudioDisableSync)
+                return true;
 
             // Determine if we should continue to perform syncs.
             // Some live, non-seekable streams will send out-of-sync audio packets

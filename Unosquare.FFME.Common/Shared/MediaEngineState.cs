@@ -10,7 +10,7 @@
     /// <summary>
     /// Contains all the status properties of the stream being handled by the media engine.
     /// </summary>
-    public sealed class MediaEngineState
+    public sealed class MediaEngineState : IMediaEngineState
     {
         #region Property Backing and Private State
 

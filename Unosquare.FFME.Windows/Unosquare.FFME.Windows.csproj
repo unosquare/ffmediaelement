@@ -68,6 +68,7 @@
     <Compile Include="Rendering\ClosedCaptionsControl.cs" />
     <Compile Include="Rendering\ImageHost.cs" />
     <Compile Include="Rendering\ElementHostBase.cs" />
+    <Compile Include="Rendering\RendererOptions.cs" />
     <Compile Include="Subtitles.cs" />
     <Compile Include="Platform\WindowsMediaConnector.cs" />
     <Compile Include="Platform\WindowsNativeMethods.cs" />
