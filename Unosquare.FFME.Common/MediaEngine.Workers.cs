@@ -136,15 +136,15 @@
             foreach (var t in Container.Components.MediaTypes)
             {
                 Blocks[t] = new MediaBlockBuffer(Constants.MaxBlocks[t], t);
-                LastRenderTime[t] = TimeSpan.MinValue;
                 Renderers[t] = Platform.CreateRenderer(t, this);
+                InvalidateRenderer(t);
             }
 
             // Create the renderer for the preloaded subs
             if (PreloadedSubtitles != null)
             {
-                LastRenderTime[PreloadedSubtitles.MediaType] = TimeSpan.MinValue;
                 Renderers[PreloadedSubtitles.MediaType] = Platform.CreateRenderer(PreloadedSubtitles.MediaType, this);
+                InvalidateRenderer(PreloadedSubtitles.MediaType);
             }
 
             Clock.SpeedRatio = Constants.Controller.DefaultSpeedRatio;

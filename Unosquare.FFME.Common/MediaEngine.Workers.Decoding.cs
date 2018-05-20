@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME
 {
     using System;
+    using System.Runtime.CompilerServices;
     using System.Threading;
     using Unosquare.FFME.Commands;
     using Unosquare.FFME.Decoding;
@@ -86,10 +87,7 @@
 
                         // Call the seek method on all renderers
                         foreach (var kvp in Renderers)
-                        {
-                            LastRenderTime[kvp.Key] = TimeSpan.MinValue;
-                            kvp.Value.Seek();
-                        }
+                            InvalidateRenderer(kvp.Key);
 
                         SendOnSeekingEnded();
                         State.IsSeeking = false;
@@ -117,12 +115,12 @@
                     #region 2. Main Component Decoding
 
                     // Capture component and blocks for easier readability
+                    // comp is current component, blocks is the block collection for the component
                     comp = Container.Components[main];
                     blocks = Blocks[main];
 
                     // Handle the main component decoding; Start by checking we have some packets
-                    while (comp.PacketBufferCount <= 0 && CanReadMorePackets && ShouldReadMorePackets)
-                        PacketReadingCycle.Wait(Constants.Interval.LowPriority);
+                    WaitForPackets(comp);
 
                     if (comp.PacketBufferCount > 0)
                     {
@@ -142,15 +140,15 @@
                             do
                             {
                                 // Try to get more packets by waiting for read cycles.
-                                if (CanReadMorePackets && comp.PacketBufferCount <= 0)
-                                    PacketReadingCycle.Wait();
+                                WaitForPackets(comp, 1);
 
                                 // Decode some frames and check if we are in reange now
                                 decodedFrameCount += AddBlocks(main);
                                 isInRange = blocks.IsInRange(wallClock);
 
                                 // Break the cycle if we are in range
-                                if (isInRange || CanReadMorePackets == false) { break; }
+                                if (isInRange || CanReadMorePackets == false || ShouldReadMorePackets == false)
+                                    break;
                             }
                             while (decodedFrameCount <= 0 && blocks.IsFull == false);
 
@@ -168,14 +166,12 @@
                                 // Update the clock to what the main component range mandates
                                 Clock.Update(wallClock);
 
-                                // Call seek to invalidate renderer
-                                LastRenderTime[main] = TimeSpan.MinValue;
-                                Renderers[main].Seek();
+                                // Force renderer invalidation
+                                InvalidateRenderer(main);
 
                                 // Try to recover the regular loop
                                 isInRange = true;
-                                while (CanReadMorePackets && comp.PacketBufferCount <= 0)
-                                    PacketReadingCycle.Wait();
+                                WaitForPackets(comp);
                             }
                         }
 
@@ -216,27 +212,26 @@
                         if (blocks.Count > 0 && blocks.RangeStartTime > wallClock)
                             continue;
 
-                        // Invalidate the renderer if we don't have the block.
-                        if (isInRange == false)
-                        {
-                            LastRenderTime[t] = TimeSpan.MinValue;
-                            Renderers[t].Seek();
-                        }
-
                         // Try to catch up with the wall clock
                         while (blocks.Count == 0 || blocks.RangeEndTime <= wallClock)
                         {
                             // Wait for packets if we don't have enough packets
-                            if (CanReadMorePackets && comp.PacketBufferCount <= 0)
-                                PacketReadingCycle.Wait();
+                            // When we wait for audio packets we need to wait until we get some
+                            // Otherwise, we'll get audio skipping!
+                            WaitForPackets(comp, t == MediaType.Audio ? -1 : 1);
 
                             if (comp.PacketBufferCount <= 0)
-                                break;
+                                break; // give up; we never received packets for the expected component
                             else
                                 decodedFrameCount += AddBlocks(t);
                         }
 
+                        // Chek if we are finally within range
                         isInRange = blocks.IsInRange(wallClock);
+
+                        // Invalidate the renderer if we don't have the block.
+                        if (isInRange == false)
+                            InvalidateRenderer(t);
 
                         // Move to the next component if we don't meet a regular conditions
                         if (isInRange == false || isBuffering || comp.PacketBufferCount <= 0)
@@ -293,16 +288,14 @@
                     // complete buffering notifications
                     if (isBuffering)
                     {
-                        // Reset the buffering flag
+                        // Always reset the buffering flag
                         isBuffering = false;
 
                         // Resume the clock if it was playing
                         if (resumeClock) Clock.Play();
 
                         // log some message
-                        Log(
-                            MediaLogMessageType.Debug,
-                            $"SYNC-BUFFER: Finished. Clock set to {wallClock.Format()}");
+                        Log(MediaLogMessageType.Debug, $"SYNC-BUFFER: Finished. Clock set to {wallClock.Format()}");
                     }
 
                     // Complete the frame decoding cycle
@@ -332,6 +325,47 @@
             }
 
             #endregion
+        }
+
+        /// <summary>
+        /// Invalidates the last render time for the given component.
+        /// Additionally, it calls Seek on the renderer to remove any caches
+        /// </summary>
+        /// <param name="t">The t.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void InvalidateRenderer(MediaType t)
+        {
+            if (State.HasMediaEnded)
+                return;
+
+            // This forces the rendering worker to send the
+            // corresponding block to its renderer
+            LastRenderTime[t] = TimeSpan.MinValue;
+            Renderers[t]?.Seek();
+        }
+
+        /// <summary>
+        /// Waits for at least 1 packet on the given media component.
+        /// </summary>
+        /// <param name="mediaComponent">The component.</param>
+        /// <param name="cycleCount">The maximum cycles.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void WaitForPackets(MediaComponent mediaComponent, int cycleCount = -1)
+        {
+            var cycleIndex = 0;
+            while (IsTaskCancellationPending == false
+                && mediaComponent.PacketBufferCount <= 0
+                && CanReadMorePackets
+                && ShouldReadMorePackets)
+            {
+                PacketReadingCycle.Wait(Constants.Interval.LowPriority);
+                if (cycleCount <= 0)
+                    continue;
+
+                cycleIndex++;
+                if (cycleCount >= cycleIndex)
+                    break;
+            }
         }
     }
 }

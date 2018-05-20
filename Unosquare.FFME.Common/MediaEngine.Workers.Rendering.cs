@@ -35,7 +35,7 @@
 
             // reset render times for all components
             foreach (var t in all)
-                LastRenderTime[t] = TimeSpan.MinValue;
+                InvalidateRenderer(t);
 
             // Ensure packet reading is running
             PacketReadingCycle.Wait();

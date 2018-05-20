@@ -28,7 +28,7 @@
         /// Initializes a new instance of the <see cref="DelayProvider"/> class.
         /// </summary>
         public DelayProvider()
-            : this(DelayStrategy.TaskDelay)
+            : this(DelayStrategy.ThreadSleep)
         {
             // placeholder
         }

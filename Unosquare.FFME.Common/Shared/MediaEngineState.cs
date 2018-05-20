@@ -436,12 +436,15 @@
             if (HasAudio == false && HasVideo == false)
                 allComponentsHaveBitrate = false;
 
-            var mediaBitrate = Math.Max(Parent.Container.MediaBitrate,
+            // The metadata states that we have bitrates for the components
+            // but sometimes (like in certain WMV files) we have slightly incorrect information
+            // and therefore, we multiply times 2 just to be safe
+            var mediaBitrate = 2d * Math.Max(Parent.Container.MediaBitrate,
                 allComponentsHaveBitrate ? AudioBitrate + VideoBitrate : 0);
 
             if (mediaBitrate > MinimumValidBitrate)
             {
-                BufferCacheLength = Convert.ToUInt64(Convert.ToDouble(mediaBitrate) / 8d);
+                BufferCacheLength = Convert.ToUInt64(mediaBitrate / 8d);
                 GuessedByteRate = Convert.ToUInt64(BufferCacheLength);
             }
             else
@@ -522,6 +525,7 @@
 
             if (shortestDuration.TotalSeconds >= 1 && shortestDuration != TimeSpan.MaxValue)
             {
+                // We make the byterate 20% larget than what we have received, just to be safe.
                 GuessedByteRate = (ulong)(1.2 * bytesReadSoFar / shortestDuration.TotalSeconds);
                 BufferCacheLength = Convert.ToUInt64(GuessedByteRate);
                 DownloadCacheLength = BufferCacheLength * (IsNetowrkStream ? NetworkStreamCacheFactor : StandardStreamCacheFactor);

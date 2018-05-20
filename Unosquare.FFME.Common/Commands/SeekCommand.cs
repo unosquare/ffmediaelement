@@ -78,7 +78,7 @@
                 foreach (var mt in all)
                 {
                     m.Blocks[mt].Clear();
-                    m.LastRenderTime[mt] = TimeSpan.MinValue;
+                    m.InvalidateRenderer(mt);
                 }
 
                 // Populate frame queues with after-seek operation

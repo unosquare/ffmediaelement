@@ -92,7 +92,9 @@
                 e.Configuration.GlobalOptions.FlagNoBuffer = true;
             }
 
-            // Media.RendererOptions.AudioDisableSync = true;
+            // A few WMV files I have tested don't have continuous enough audio packets to support
+            // perfect synchronization between audio and video
+            Media.RendererOptions.AudioDisableSync = e.Url.EndsWith(".wmv");
 
             // In realtime streams these settings can be used to reduce latency (see example from issue #152)
             // e.Options.GlobalOptions.FlagNoBuffer = true;
