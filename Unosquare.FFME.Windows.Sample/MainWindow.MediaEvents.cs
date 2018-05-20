@@ -77,9 +77,10 @@
                 e.Configuration.PrivateOptions["headers"] = $"Referer:https://www.unosquare.com";
                 e.Configuration.PrivateOptions["multiple_requests"] = "1";
                 e.Configuration.PrivateOptions["reconnect"] = "1";
-                e.Configuration.PrivateOptions["reconnect_at_eof"] = "1";
                 e.Configuration.PrivateOptions["reconnect_streamed"] = "1";
                 e.Configuration.PrivateOptions["reconnect_delay_max"] = "10"; // in seconds
+
+                // e.Configuration.PrivateOptions["reconnect_at_eof"] = "1"; // This prevents some HLS stresm from opening properly
             }
 
             // Example of forcing tcp transport on rtsp feeds
