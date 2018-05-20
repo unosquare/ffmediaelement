@@ -542,12 +542,12 @@ references:
   commentId: T:Unosquare.FFME.Events.RenderingEventArgs
   fullName: Unosquare.FFME.Events.RenderingEventArgs
   nameWithType: RenderingEventArgs
-- uid: Unosquare.FFME.Events.RenderingEventArgs.#ctor(MediaEngineState,StreamInfo,System.TimeSpan,System.TimeSpan,System.TimeSpan)
-  name: RenderingEventArgs(MediaEngineState, StreamInfo, TimeSpan, TimeSpan, TimeSpan)
-  href: api/Unosquare.FFME.Events.RenderingEventArgs.html#Unosquare_FFME_Events_RenderingEventArgs__ctor_MediaEngineState_StreamInfo_System_TimeSpan_System_TimeSpan_System_TimeSpan_
-  commentId: M:Unosquare.FFME.Events.RenderingEventArgs.#ctor(MediaEngineState,StreamInfo,System.TimeSpan,System.TimeSpan,System.TimeSpan)
-  fullName: Unosquare.FFME.Events.RenderingEventArgs.RenderingEventArgs(MediaEngineState, StreamInfo, System.TimeSpan, System.TimeSpan, System.TimeSpan)
-  nameWithType: RenderingEventArgs.RenderingEventArgs(MediaEngineState, StreamInfo, TimeSpan, TimeSpan, TimeSpan)
+- uid: Unosquare.FFME.Events.RenderingEventArgs.#ctor(IMediaEngineState,StreamInfo,System.TimeSpan,System.TimeSpan,System.TimeSpan)
+  name: RenderingEventArgs(IMediaEngineState, StreamInfo, TimeSpan, TimeSpan, TimeSpan)
+  href: api/Unosquare.FFME.Events.RenderingEventArgs.html#Unosquare_FFME_Events_RenderingEventArgs__ctor_IMediaEngineState_StreamInfo_System_TimeSpan_System_TimeSpan_System_TimeSpan_
+  commentId: M:Unosquare.FFME.Events.RenderingEventArgs.#ctor(IMediaEngineState,StreamInfo,System.TimeSpan,System.TimeSpan,System.TimeSpan)
+  fullName: Unosquare.FFME.Events.RenderingEventArgs.RenderingEventArgs(IMediaEngineState, StreamInfo, System.TimeSpan, System.TimeSpan, System.TimeSpan)
+  nameWithType: RenderingEventArgs.RenderingEventArgs(IMediaEngineState, StreamInfo, TimeSpan, TimeSpan, TimeSpan)
 - uid: Unosquare.FFME.Events.RenderingEventArgs.#ctor*
   name: RenderingEventArgs
   href: api/Unosquare.FFME.Events.RenderingEventArgs.html#Unosquare_FFME_Events_RenderingEventArgs__ctor_
@@ -1476,6 +1476,19 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.RemainingDuration
   nameWithType: MediaElement.RemainingDuration
+- uid: Unosquare.FFME.MediaElement.RendererOptions
+  name: RendererOptions
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_RendererOptions
+  commentId: P:Unosquare.FFME.MediaElement.RendererOptions
+  fullName: Unosquare.FFME.MediaElement.RendererOptions
+  nameWithType: MediaElement.RendererOptions
+- uid: Unosquare.FFME.MediaElement.RendererOptions*
+  name: RendererOptions
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_RendererOptions_
+  commentId: Overload:Unosquare.FFME.MediaElement.RendererOptions
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.RendererOptions
+  nameWithType: MediaElement.RendererOptions
 - uid: Unosquare.FFME.MediaElement.RenderingAudio
   name: RenderingAudio
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_RenderingAudio
@@ -1903,6 +1916,31 @@ references:
   commentId: F:Unosquare.FFME.Platform.GuiContextType.WPF
   fullName: Unosquare.FFME.Platform.GuiContextType.WPF
   nameWithType: GuiContextType.WPF
+- uid: Unosquare.FFME.Rendering
+  name: Unosquare.FFME.Rendering
+  href: api/Unosquare.FFME.Rendering.html
+  commentId: N:Unosquare.FFME.Rendering
+  fullName: Unosquare.FFME.Rendering
+  nameWithType: Unosquare.FFME.Rendering
+- uid: Unosquare.FFME.Rendering.RendererOptions
+  name: RendererOptions
+  href: api/Unosquare.FFME.Rendering.RendererOptions.html
+  commentId: T:Unosquare.FFME.Rendering.RendererOptions
+  fullName: Unosquare.FFME.Rendering.RendererOptions
+  nameWithType: RendererOptions
+- uid: Unosquare.FFME.Rendering.RendererOptions.AudioDisableSync
+  name: AudioDisableSync
+  href: api/Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_AudioDisableSync
+  commentId: P:Unosquare.FFME.Rendering.RendererOptions.AudioDisableSync
+  fullName: Unosquare.FFME.Rendering.RendererOptions.AudioDisableSync
+  nameWithType: RendererOptions.AudioDisableSync
+- uid: Unosquare.FFME.Rendering.RendererOptions.AudioDisableSync*
+  name: AudioDisableSync
+  href: api/Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_AudioDisableSync_
+  commentId: Overload:Unosquare.FFME.Rendering.RendererOptions.AudioDisableSync
+  isSpec: "True"
+  fullName: Unosquare.FFME.Rendering.RendererOptions.AudioDisableSync
+  nameWithType: RendererOptions.AudioDisableSync
 - uid: Unosquare.FFME.Subtitles
   name: Subtitles
   href: api/Unosquare.FFME.Subtitles.html
