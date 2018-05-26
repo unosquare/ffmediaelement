@@ -118,6 +118,8 @@
         {
             // Detect Notification and Dependency property changes
             var dependencyProperties = this.DetectDependencyPropertyChanges();
+            var isSeeking = MediaCore?.State?.IsSeeking ?? false;
+            var isBuffering = MediaCore?.State?.IsBuffering ?? false;
 
             // Write the media engine state property state to the dependency properties
             foreach (var kvp in dependencyProperties)
@@ -130,24 +132,35 @@
                 // Do not upstream the Position porperty
                 // This causes unintended Seek commands to be run
                 if (kvp.Key == PositionProperty)
-                {
-                    // Do notify the ramianing duration has changed
-                    RaisePropertyChangedEvent(nameof(RemainingDuration));
                     continue;
-                }
 
                 SetValue(kvp.Key, kvp.Value);
             }
 
-            // Check if we need to report a new position as commanded byt the MEdiaEngine
+            // Check if we need to report a new position as commanded by the MediaEngine
             // After we update the position dependency property, clear the reportable position
             // to make way for new updates.
-            lock (ReportablePositionLock)
+            var notifiedPositionChanged = false;
+            if (isSeeking == false && isBuffering == false)
             {
-                if (m_ReportablePosition != null)
+                lock (ReportablePositionLock)
                 {
-                    Position = m_ReportablePosition.Value;
-                    m_ReportablePosition = default;
+                    if (m_ReportablePosition != null)
+                    {
+                        // Upstream the final state
+                        Position = m_ReportablePosition.Value;
+
+                        // reset the reportable position to null it picks up the next change
+                        m_ReportablePosition = default;
+
+                        notifiedPositionChanged = true;
+                    }
+                }
+
+                if (notifiedPositionChanged)
+                {
+                    // Do notify the ramianing duration has changed
+                    RaisePropertyChangedEvent(nameof(RemainingDuration));
                 }
             }
         }

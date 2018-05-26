@@ -391,7 +391,7 @@
         {
             GuiContext.Current.EnqueueInvoke(() =>
             {
-                RaiseEvent(new PositionChangedRoutedEventArgs(PositionChangedEvent, this, oldValue, newValue));
+                RaiseEvent(new PositionChangedRoutedEventArgs(PositionChangedEvent, this, MediaCore.State, oldValue, newValue));
             });
         }
 

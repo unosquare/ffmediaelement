@@ -2,6 +2,7 @@
 {
     using System;
     using System.Windows;
+    using Shared;
 
     /// <summary>
     /// Contains the position changed routed event args
@@ -14,13 +15,15 @@
         /// </summary>
         /// <param name="routedEvent">The routed event.</param>
         /// <param name="source">The source.</param>
+        /// <param name="engineState">State of the engine.</param>
         /// <param name="oldPosition">The old position.</param>
         /// <param name="newPosition">The new position.</param>
-        public PositionChangedRoutedEventArgs(RoutedEvent routedEvent, object source, TimeSpan oldPosition, TimeSpan newPosition)
+        public PositionChangedRoutedEventArgs(RoutedEvent routedEvent, object source, IMediaEngineState engineState, TimeSpan oldPosition, TimeSpan newPosition)
             : base(routedEvent, source)
         {
             Position = newPosition;
             OldPosition = oldPosition;
+            EngineState = engineState;
         }
 
         /// <summary>
@@ -32,5 +35,10 @@
         /// Gets the old position.
         /// </summary>
         public TimeSpan OldPosition { get; }
+
+        /// <summary>
+        /// Provides access to the underlying media engine state
+        /// </summary>
+        public IMediaEngineState EngineState { get; }
     }
 }
