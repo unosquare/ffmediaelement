@@ -954,6 +954,19 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.DownloadProgress
   nameWithType: MediaElement.DownloadProgress
+- uid: Unosquare.FFME.MediaElement.EnableWpfMultithreadedVideo
+  name: EnableWpfMultithreadedVideo
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_EnableWpfMultithreadedVideo
+  commentId: P:Unosquare.FFME.MediaElement.EnableWpfMultithreadedVideo
+  fullName: Unosquare.FFME.MediaElement.EnableWpfMultithreadedVideo
+  nameWithType: MediaElement.EnableWpfMultithreadedVideo
+- uid: Unosquare.FFME.MediaElement.EnableWpfMultithreadedVideo*
+  name: EnableWpfMultithreadedVideo
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_EnableWpfMultithreadedVideo_
+  commentId: Overload:Unosquare.FFME.MediaElement.EnableWpfMultithreadedVideo
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.EnableWpfMultithreadedVideo
+  nameWithType: MediaElement.EnableWpfMultithreadedVideo
 - uid: Unosquare.FFME.MediaElement.FFmpegDirectory
   name: FFmpegDirectory
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_FFmpegDirectory
