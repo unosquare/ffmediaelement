@@ -10,7 +10,7 @@
     public partial class App : Application
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="App"/> class.
+        /// Initializes a new instance of the <see cref="App" /> class.
         /// </summary>
         public App()
             : base()
@@ -22,6 +22,10 @@
             // You can pick which FFmpeg binaries are loaded. See issue #28
             // Full Features is already the default.
             MediaElement.FFmpegLoadModeFlags = FFmpegLoadMode.FullFeatures;
+
+            // Multithreaded video enables the creation of independent
+            // dispatcher threads to render video frames.
+            MediaElement.EnableWpfMultithreadedVideo = true;
         }
 
         /// <summary>

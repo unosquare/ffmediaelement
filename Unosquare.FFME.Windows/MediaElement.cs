@@ -144,6 +144,16 @@
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the video visualization control
+        /// creates its own dispatcher thread to hanlde rendering of video frames.
+        /// This is an experimental feature and it is useful when creating video walls.
+        /// For example if you want to display multiple videos at a time and don't want to
+        /// use time from the main UI thread. This feature is only valid if we are in
+        /// a WPF context.
+        /// </summary>
+        public static bool EnableWpfMultithreadedVideo { get; set; } = false;
+
+        /// <summary>
         /// Gets or sets the base URI of the current application context.
         /// </summary>
         Uri IUriContext.BaseUri
@@ -162,7 +172,8 @@
         /// This is the image that holds video bitmaps. It is a Hosted Image which means that in a WPF
         /// GUI context, it runs on its own dispatcher (multhreaded UI)
         /// </summary>
-        internal ImageHost VideoView { get; } = new ImageHost(GuiContext.Current.Type == GuiContextType.WPF) { Name = nameof(VideoView) };
+        internal ImageHost VideoView { get; } = new ImageHost(
+            GuiContext.Current.Type == GuiContextType.WPF && EnableWpfMultithreadedVideo) { Name = nameof(VideoView) };
 
         /// <summary>
         /// Gets the closed captions view control.
