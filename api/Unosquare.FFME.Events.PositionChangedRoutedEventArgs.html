@@ -100,13 +100,13 @@
   
   
   <a id="Unosquare_FFME_Events_PositionChangedRoutedEventArgs__ctor_" data-uid="Unosquare.FFME.Events.PositionChangedRoutedEventArgs.#ctor*"></a>
-  <h4 id="Unosquare_FFME_Events_PositionChangedRoutedEventArgs__ctor_RoutedEvent_System_Object_System_TimeSpan_System_TimeSpan_" data-uid="Unosquare.FFME.Events.PositionChangedRoutedEventArgs.#ctor(RoutedEvent,System.Object,System.TimeSpan,System.TimeSpan)">PositionChangedRoutedEventArgs(RoutedEvent, Object, TimeSpan, TimeSpan)</h4>
+  <h4 id="Unosquare_FFME_Events_PositionChangedRoutedEventArgs__ctor_RoutedEvent_System_Object_IMediaEngineState_System_TimeSpan_System_TimeSpan_" data-uid="Unosquare.FFME.Events.PositionChangedRoutedEventArgs.#ctor(RoutedEvent,System.Object,IMediaEngineState,System.TimeSpan,System.TimeSpan)">PositionChangedRoutedEventArgs(RoutedEvent, Object, IMediaEngineState, TimeSpan, TimeSpan)</h4>
   <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="Unosquare.FFME.Events.PositionChangedRoutedEventArgs.html">PositionChangedRoutedEventArgs</a> class.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public PositionChangedRoutedEventArgs(RoutedEvent routedEvent, object source, TimeSpan oldPosition, TimeSpan newPosition)</code></pre>
+    <pre><code class="lang-csharp hljs">public PositionChangedRoutedEventArgs(RoutedEvent routedEvent, object source, IMediaEngineState engineState, TimeSpan oldPosition, TimeSpan newPosition)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -131,6 +131,12 @@
 </td>
       </tr>
       <tr>
+        <td><span class="xref">IMediaEngineState</span></td>
+        <td><span class="parametername">engineState</span></td>
+        <td><p>State of the engine.</p>
+</td>
+      </tr>
+      <tr>
         <td><span class="xref">System.TimeSpan</span></td>
         <td><span class="parametername">oldPosition</span></td>
         <td><p>The old position.</p>
@@ -146,6 +152,32 @@
   </table>
   <h3 id="properties">Properties
   </h3>
+  
+  
+  <a id="Unosquare_FFME_Events_PositionChangedRoutedEventArgs_EngineState_" data-uid="Unosquare.FFME.Events.PositionChangedRoutedEventArgs.EngineState*"></a>
+  <h4 id="Unosquare_FFME_Events_PositionChangedRoutedEventArgs_EngineState" data-uid="Unosquare.FFME.Events.PositionChangedRoutedEventArgs.EngineState">EngineState</h4>
+  <div class="markdown level1 summary"><p>Provides access to the underlying media engine state</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IMediaEngineState EngineState { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IMediaEngineState</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
   
   
   <a id="Unosquare_FFME_Events_PositionChangedRoutedEventArgs_OldPosition_" data-uid="Unosquare.FFME.Events.PositionChangedRoutedEventArgs.OldPosition*"></a>

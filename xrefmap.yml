@@ -400,12 +400,12 @@ references:
   commentId: T:Unosquare.FFME.Events.PositionChangedRoutedEventArgs
   fullName: Unosquare.FFME.Events.PositionChangedRoutedEventArgs
   nameWithType: PositionChangedRoutedEventArgs
-- uid: Unosquare.FFME.Events.PositionChangedRoutedEventArgs.#ctor(RoutedEvent,System.Object,System.TimeSpan,System.TimeSpan)
-  name: PositionChangedRoutedEventArgs(RoutedEvent, Object, TimeSpan, TimeSpan)
-  href: api/Unosquare.FFME.Events.PositionChangedRoutedEventArgs.html#Unosquare_FFME_Events_PositionChangedRoutedEventArgs__ctor_RoutedEvent_System_Object_System_TimeSpan_System_TimeSpan_
-  commentId: M:Unosquare.FFME.Events.PositionChangedRoutedEventArgs.#ctor(RoutedEvent,System.Object,System.TimeSpan,System.TimeSpan)
-  fullName: Unosquare.FFME.Events.PositionChangedRoutedEventArgs.PositionChangedRoutedEventArgs(RoutedEvent, System.Object, System.TimeSpan, System.TimeSpan)
-  nameWithType: PositionChangedRoutedEventArgs.PositionChangedRoutedEventArgs(RoutedEvent, Object, TimeSpan, TimeSpan)
+- uid: Unosquare.FFME.Events.PositionChangedRoutedEventArgs.#ctor(RoutedEvent,System.Object,IMediaEngineState,System.TimeSpan,System.TimeSpan)
+  name: PositionChangedRoutedEventArgs(RoutedEvent, Object, IMediaEngineState, TimeSpan, TimeSpan)
+  href: api/Unosquare.FFME.Events.PositionChangedRoutedEventArgs.html#Unosquare_FFME_Events_PositionChangedRoutedEventArgs__ctor_RoutedEvent_System_Object_IMediaEngineState_System_TimeSpan_System_TimeSpan_
+  commentId: M:Unosquare.FFME.Events.PositionChangedRoutedEventArgs.#ctor(RoutedEvent,System.Object,IMediaEngineState,System.TimeSpan,System.TimeSpan)
+  fullName: Unosquare.FFME.Events.PositionChangedRoutedEventArgs.PositionChangedRoutedEventArgs(RoutedEvent, System.Object, IMediaEngineState, System.TimeSpan, System.TimeSpan)
+  nameWithType: PositionChangedRoutedEventArgs.PositionChangedRoutedEventArgs(RoutedEvent, Object, IMediaEngineState, TimeSpan, TimeSpan)
 - uid: Unosquare.FFME.Events.PositionChangedRoutedEventArgs.#ctor*
   name: PositionChangedRoutedEventArgs
   href: api/Unosquare.FFME.Events.PositionChangedRoutedEventArgs.html#Unosquare_FFME_Events_PositionChangedRoutedEventArgs__ctor_
@@ -413,6 +413,19 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.Events.PositionChangedRoutedEventArgs.PositionChangedRoutedEventArgs
   nameWithType: PositionChangedRoutedEventArgs.PositionChangedRoutedEventArgs
+- uid: Unosquare.FFME.Events.PositionChangedRoutedEventArgs.EngineState
+  name: EngineState
+  href: api/Unosquare.FFME.Events.PositionChangedRoutedEventArgs.html#Unosquare_FFME_Events_PositionChangedRoutedEventArgs_EngineState
+  commentId: P:Unosquare.FFME.Events.PositionChangedRoutedEventArgs.EngineState
+  fullName: Unosquare.FFME.Events.PositionChangedRoutedEventArgs.EngineState
+  nameWithType: PositionChangedRoutedEventArgs.EngineState
+- uid: Unosquare.FFME.Events.PositionChangedRoutedEventArgs.EngineState*
+  name: EngineState
+  href: api/Unosquare.FFME.Events.PositionChangedRoutedEventArgs.html#Unosquare_FFME_Events_PositionChangedRoutedEventArgs_EngineState_
+  commentId: Overload:Unosquare.FFME.Events.PositionChangedRoutedEventArgs.EngineState
+  isSpec: "True"
+  fullName: Unosquare.FFME.Events.PositionChangedRoutedEventArgs.EngineState
+  nameWithType: PositionChangedRoutedEventArgs.EngineState
 - uid: Unosquare.FFME.Events.PositionChangedRoutedEventArgs.OldPosition
   name: OldPosition
   href: api/Unosquare.FFME.Events.PositionChangedRoutedEventArgs.html#Unosquare_FFME_Events_PositionChangedRoutedEventArgs_OldPosition
