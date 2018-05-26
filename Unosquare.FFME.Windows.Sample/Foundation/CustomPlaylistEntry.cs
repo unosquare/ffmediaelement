@@ -10,7 +10,7 @@
     /// A custom playlist entry with notification properties backed by Attributes
     /// </summary>
     /// <seealso cref="PlaylistEntry" />
-    public class CustomPlaylistEntry : PlaylistEntry
+    public sealed class CustomPlaylistEntry : PlaylistEntry
     {
         private static readonly Dictionary<string, string> PropertyMap = new Dictionary<string, string>()
         {

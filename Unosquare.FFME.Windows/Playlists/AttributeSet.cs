@@ -1,11 +1,14 @@
 ﻿namespace Unosquare.FFME.Playlists
 {
+    using System;
     using System.Collections.Generic;
+    using System.Runtime.Serialization;
     using System.Web;
 
     /// <summary>
     /// Represents a dictionary of attributes (key-value pairs)
     /// </summary>
+    [Serializable]
     public class AttributeSet : Dictionary<string, string>
     {
         /// <summary>
@@ -13,6 +16,17 @@
         /// </summary>
         public AttributeSet()
             : base(16)
+        {
+            // placeholder
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AttributeSet"/> class.
+        /// </summary>
+        /// <param name="info">A <see cref="T:System.Runtime.Serialization.SerializationInfo" /> object containing the information required to serialize the <see cref="T:System.Collections.Generic.Dictionary`2" />.</param>
+        /// <param name="context">A <see cref="T:System.Runtime.Serialization.StreamingContext" /> structure containing the source and destination of the serialized stream associated with the <see cref="T:System.Collections.Generic.Dictionary`2" />.</param>
+        protected AttributeSet(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
             // placeholder
         }

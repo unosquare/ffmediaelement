@@ -44,7 +44,7 @@
         public Playlist(string name)
             : this()
         {
-            Name = name;
+            m_Name = name;
         }
 
         #endregion

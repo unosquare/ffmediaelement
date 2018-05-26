@@ -48,6 +48,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Windows" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
@@ -65,6 +66,10 @@
     <Compile Include="Platform\GuiTimer.cs" />
     <Compile Include="Platform\PropertyMapper.cs" />
     <Compile Include="Platform\GuiContextType.cs" />
+    <Compile Include="Playlists\AttributeSet.cs" />
+    <Compile Include="Playlists\Playlist.cs" />
+    <Compile Include="Playlists\PlaylistEntry.cs" />
+    <Compile Include="Playlists\PlaylistExtensions.cs" />
     <Compile Include="Rendering\ClosedCaptionsControl.cs" />
     <Compile Include="Rendering\ImageHost.cs" />
     <Compile Include="Rendering\ElementHostBase.cs" />
