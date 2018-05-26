@@ -2,6 +2,7 @@
 {
     using Events;
     using FFmpeg.AutoGen;
+    using Platform;
     using Shared;
     using System;
     using System.Diagnostics;
@@ -162,7 +163,9 @@
                         var accelerator = videoStream.HardwareDevices.FirstOrDefault(d => d.DeviceType == deviceType);
                         if (accelerator != null)
                         {
-                            e.Options.VideoHardwareDevice = accelerator;
+                            if (GuiContext.Current.IsInDebugMode)
+                                e.Options.VideoHardwareDevice = accelerator;
+
                             break;
                         }
                     }

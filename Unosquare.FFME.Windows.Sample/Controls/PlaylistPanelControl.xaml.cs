@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.Controls
 {
     using Foundation;
+    using Platform;
     using System;
     using System.Windows.Controls;
     using System.Windows.Input;
@@ -17,6 +18,10 @@
         public PlaylistPanelControl()
         {
             InitializeComponent();
+
+            // Prevent binding to the events
+            if (GuiContext.Current.IsInDesignTime)
+                return;
 
             // Bind the Enter key to the command
             OpenFileTextBox.KeyDown += async (s, e) =>

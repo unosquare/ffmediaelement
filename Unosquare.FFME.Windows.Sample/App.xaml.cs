@@ -3,6 +3,7 @@
     using Shared;
     using System.Windows;
     using ViewModels;
+    using Platform;
 
     /// <summary>
     /// Interaction logic for App.xaml
@@ -25,7 +26,7 @@
 
             // Multithreaded video enables the creation of independent
             // dispatcher threads to render video frames.
-            MediaElement.EnableWpfMultithreadedVideo = true;
+            MediaElement.EnableWpfMultithreadedVideo = GuiContext.Current.IsInDebugMode == false;
         }
 
         /// <summary>
@@ -61,8 +62,8 @@
         {
             base.OnStartup(e);
             Application.Current.MainWindow = new MainWindow();
+            Application.Current.MainWindow.Loaded += (snd, eva) => ViewModel.OnApplicationLoaded();
             Application.Current.MainWindow.Show();
-            ViewModel.OnApplicationLoaded();
         }
     }
 }

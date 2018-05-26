@@ -104,6 +104,9 @@
         /// </summary>
         internal void OnApplicationLoaded()
         {
+            if (IsApplicationLoaded)
+                return;
+
             Playlist.OnApplicationLoaded();
             Controller.OnApplicationLoaded();
 
