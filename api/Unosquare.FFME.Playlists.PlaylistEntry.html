@@ -5,10 +5,10 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Class RenderingAudioEventArgs
+    <title>Class PlaylistEntry
    | FFME: WPF MediaElement replacement based on FFmpeg </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Class RenderingAudioEventArgs
+    <meta name="title" content="Class PlaylistEntry
    | FFME: WPF MediaElement replacement based on FFmpeg ">
     <meta name="generator" content="docfx 2.36.1.0">
     
@@ -77,80 +77,49 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="Unosquare.FFME.Events.RenderingAudioEventArgs">
+            <article class="content wrap" id="_content" data-uid="Unosquare.FFME.Playlists.PlaylistEntry">
   
   
-  <h1 id="Unosquare_FFME_Events_RenderingAudioEventArgs" data-uid="Unosquare.FFME.Events.RenderingAudioEventArgs" class="text-break">Class RenderingAudioEventArgs
+  <h1 id="Unosquare_FFME_Playlists_PlaylistEntry" data-uid="Unosquare.FFME.Playlists.PlaylistEntry" class="text-break">Class PlaylistEntry
   </h1>
-  <div class="markdown level0 summary"><p>Provides the audio samples rendering payload as event arguments.</p>
+  <div class="markdown level0 summary"><p>Represents a generic playlist entry</p>
 </div>
   <div class="markdown level0 conceptual"></div>
   <div class="inheritance">
     <h5>Inheritance</h5>
     <div class="level0"><span class="xref">System.Object</span></div>
-    <div class="level1"><span class="xref">System.EventArgs</span></div>
-    <div class="level2"><a class="xref" href="Unosquare.FFME.Events.RenderingEventArgs.html">RenderingEventArgs</a></div>
-    <div class="level3"><span class="xref">RenderingAudioEventArgs</span></div>
+    <div class="level1"><span class="xref">PlaylistEntry</span></div>
   </div>
-  <div class="inheritedMembers">
-    <h5>Inherited Members</h5>
-    <div>
-      <a class="xref" href="Unosquare.FFME.Events.RenderingEventArgs.html#Unosquare_FFME_Events_RenderingEventArgs_EngineState">RenderingEventArgs.EngineState</a>
-    </div>
-    <div>
-      <a class="xref" href="Unosquare.FFME.Events.RenderingEventArgs.html#Unosquare_FFME_Events_RenderingEventArgs_Stream">RenderingEventArgs.Stream</a>
-    </div>
-    <div>
-      <a class="xref" href="Unosquare.FFME.Events.RenderingEventArgs.html#Unosquare_FFME_Events_RenderingEventArgs_Clock">RenderingEventArgs.Clock</a>
-    </div>
-    <div>
-      <a class="xref" href="Unosquare.FFME.Events.RenderingEventArgs.html#Unosquare_FFME_Events_RenderingEventArgs_StartTime">RenderingEventArgs.StartTime</a>
-    </div>
-    <div>
-      <a class="xref" href="Unosquare.FFME.Events.RenderingEventArgs.html#Unosquare_FFME_Events_RenderingEventArgs_Duration">RenderingEventArgs.Duration</a>
-    </div>
-    <div>
-      <span class="xref">System.EventArgs.Empty</span>
-    </div>
-    <div>
-      <span class="xref">System.Object.ToString()</span>
-    </div>
-    <div>
-      <span class="xref">System.Object.Equals(System.Object)</span>
-    </div>
-    <div>
-      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
-    </div>
-    <div>
-      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
-    </div>
-    <div>
-      <span class="xref">System.Object.GetHashCode()</span>
-    </div>
-    <div>
-      <span class="xref">System.Object.GetType()</span>
-    </div>
-    <div>
-      <span class="xref">System.Object.MemberwiseClone()</span>
-    </div>
-  </div>
-  <h6><strong>Namespace</strong>: <a class="xref" href="Unosquare.FFME.Events.html">Unosquare.FFME.Events</a></h6>
-  <h5 id="Unosquare_FFME_Events_RenderingAudioEventArgs_syntax">Syntax</h5>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Unosquare.FFME.Playlists.html">Unosquare.FFME.Playlists</a></h6>
+  <h5 id="Unosquare_FFME_Playlists_PlaylistEntry_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public sealed class RenderingAudioEventArgs : RenderingEventArgs</code></pre>
+    <pre><code class="lang-csharp hljs">public class PlaylistEntry : INotifyPropertyChanged</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  
+  
+  <a id="Unosquare_FFME_Playlists_PlaylistEntry__ctor_" data-uid="Unosquare.FFME.Playlists.PlaylistEntry.#ctor*"></a>
+  <h4 id="Unosquare_FFME_Playlists_PlaylistEntry__ctor" data-uid="Unosquare.FFME.Playlists.PlaylistEntry.#ctor">PlaylistEntry()</h4>
+  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="Unosquare.FFME.Playlists.PlaylistEntry.html">PlaylistEntry</a> class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public PlaylistEntry()</code></pre>
   </div>
   <h3 id="properties">Properties
   </h3>
   
   
-  <a id="Unosquare_FFME_Events_RenderingAudioEventArgs_BitsPerSample_" data-uid="Unosquare.FFME.Events.RenderingAudioEventArgs.BitsPerSample*"></a>
-  <h4 id="Unosquare_FFME_Events_RenderingAudioEventArgs_BitsPerSample" data-uid="Unosquare.FFME.Events.RenderingAudioEventArgs.BitsPerSample">BitsPerSample</h4>
-  <div class="markdown level1 summary"><p>Gets the number of bits per sample.</p>
+  <a id="Unosquare_FFME_Playlists_PlaylistEntry_Attributes_" data-uid="Unosquare.FFME.Playlists.PlaylistEntry.Attributes*"></a>
+  <h4 id="Unosquare_FFME_Playlists_PlaylistEntry_Attributes" data-uid="Unosquare.FFME.Playlists.PlaylistEntry.Attributes">Attributes</h4>
+  <div class="markdown level1 summary"><p>Gets the extended attributes.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int BitsPerSample { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public AttributeSet Attributes { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -162,22 +131,21 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.Int32</span></td>
+        <td><a class="xref" href="Unosquare.FFME.Playlists.AttributeSet.html">AttributeSet</a></td>
         <td></td>
       </tr>
     </tbody>
   </table>
   
   
-  <a id="Unosquare_FFME_Events_RenderingAudioEventArgs_Buffer_" data-uid="Unosquare.FFME.Events.RenderingAudioEventArgs.Buffer*"></a>
-  <h4 id="Unosquare_FFME_Events_RenderingAudioEventArgs_Buffer" data-uid="Unosquare.FFME.Events.RenderingAudioEventArgs.Buffer">Buffer</h4>
-  <div class="markdown level1 summary"><p>Gets a pointer to the samples buffer.
-Samples are provided in PCM 16-bit signed, interleaved stereo.</p>
+  <a id="Unosquare_FFME_Playlists_PlaylistEntry_Duration_" data-uid="Unosquare.FFME.Playlists.PlaylistEntry.Duration*"></a>
+  <h4 id="Unosquare_FFME_Playlists_PlaylistEntry_Duration" data-uid="Unosquare.FFME.Playlists.PlaylistEntry.Duration">Duration</h4>
+  <div class="markdown level1 summary"><p>Gets or sets the duration.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IntPtr Buffer { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public TimeSpan Duration { get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -189,21 +157,21 @@ Samples are provided in PCM 16-bit signed, interleaved stereo.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.IntPtr</span></td>
+        <td><span class="xref">System.TimeSpan</span></td>
         <td></td>
       </tr>
     </tbody>
   </table>
   
   
-  <a id="Unosquare_FFME_Events_RenderingAudioEventArgs_BufferLength_" data-uid="Unosquare.FFME.Events.RenderingAudioEventArgs.BufferLength*"></a>
-  <h4 id="Unosquare_FFME_Events_RenderingAudioEventArgs_BufferLength" data-uid="Unosquare.FFME.Events.RenderingAudioEventArgs.BufferLength">BufferLength</h4>
-  <div class="markdown level1 summary"><p>Gets the length in bytes of the samples buffer.</p>
+  <a id="Unosquare_FFME_Playlists_PlaylistEntry_MediaUrl_" data-uid="Unosquare.FFME.Playlists.PlaylistEntry.MediaUrl*"></a>
+  <h4 id="Unosquare_FFME_Playlists_PlaylistEntry_MediaUrl" data-uid="Unosquare.FFME.Playlists.PlaylistEntry.MediaUrl">MediaUrl</h4>
+  <div class="markdown level1 summary"><p>Gets or sets the media URL.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int BufferLength { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public string MediaUrl { get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -215,21 +183,21 @@ Samples are provided in PCM 16-bit signed, interleaved stereo.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.Int32</span></td>
+        <td><span class="xref">System.String</span></td>
         <td></td>
       </tr>
     </tbody>
   </table>
   
   
-  <a id="Unosquare_FFME_Events_RenderingAudioEventArgs_ChannelCount_" data-uid="Unosquare.FFME.Events.RenderingAudioEventArgs.ChannelCount*"></a>
-  <h4 id="Unosquare_FFME_Events_RenderingAudioEventArgs_ChannelCount" data-uid="Unosquare.FFME.Events.RenderingAudioEventArgs.ChannelCount">ChannelCount</h4>
-  <div class="markdown level1 summary"><p>Gets the number of channels.</p>
+  <a id="Unosquare_FFME_Playlists_PlaylistEntry_Title_" data-uid="Unosquare.FFME.Playlists.PlaylistEntry.Title*"></a>
+  <h4 id="Unosquare_FFME_Playlists_PlaylistEntry_Title" data-uid="Unosquare.FFME.Playlists.PlaylistEntry.Title">Title</h4>
+  <div class="markdown level1 summary"><p>Gets or sets the title.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int ChannelCount { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public string Title { get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -241,23 +209,89 @@ Samples are provided in PCM 16-bit signed, interleaved stereo.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.Int32</span></td>
+        <td><span class="xref">System.String</span></td>
         <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  
+  
+  <a id="Unosquare_FFME_Playlists_PlaylistEntry_OnPropertyChanged_" data-uid="Unosquare.FFME.Playlists.PlaylistEntry.OnPropertyChanged*"></a>
+  <h4 id="Unosquare_FFME_Playlists_PlaylistEntry_OnPropertyChanged_System_String_" data-uid="Unosquare.FFME.Playlists.PlaylistEntry.OnPropertyChanged(System.String)">OnPropertyChanged(String)</h4>
+  <div class="markdown level1 summary"><p>Notifies listeners that a property value has changed.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected virtual void OnPropertyChanged(string propertyName = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">propertyName</span></td>
+        <td><p>Name of the property used to notify listeners.  This
+value is optional and can be provided automatically when invoked from compilers
+that support <span class="xref">System.Runtime.CompilerServices.CallerMemberNameAttribute</span>.</p>
+</td>
       </tr>
     </tbody>
   </table>
   
   
-  <a id="Unosquare_FFME_Events_RenderingAudioEventArgs_SampleRate_" data-uid="Unosquare.FFME.Events.RenderingAudioEventArgs.SampleRate*"></a>
-  <h4 id="Unosquare_FFME_Events_RenderingAudioEventArgs_SampleRate" data-uid="Unosquare.FFME.Events.RenderingAudioEventArgs.SampleRate">SampleRate</h4>
-  <div class="markdown level1 summary"><p>Gets the number of samples in 1 second.</p>
+  <a id="Unosquare_FFME_Playlists_PlaylistEntry_SetProperty_" data-uid="Unosquare.FFME.Playlists.PlaylistEntry.SetProperty*"></a>
+  <h4 id="Unosquare_FFME_Playlists_PlaylistEntry_SetProperty__1___0____0_System_String_" data-uid="Unosquare.FFME.Playlists.PlaylistEntry.SetProperty``1(``0@,``0,System.String)">SetProperty&lt;T&gt;(ref T, T, String)</h4>
+  <div class="markdown level1 summary"><p>Checks if a property already matches a desired value.  Sets the property and
+notifies listeners only when necessary.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int SampleRate { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">protected virtual bool SetProperty&lt;T&gt;(ref T storage, T value, string propertyName = null)</code></pre>
   </div>
-  <h5 class="propertyValue">Property Value</h5>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">T</span></td>
+        <td><span class="parametername">storage</span></td>
+        <td><p>Reference to a property with both getter and setter.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">T</span></td>
+        <td><span class="parametername">value</span></td>
+        <td><p>Desired value for the property.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">propertyName</span></td>
+        <td><p>Name of the property used to notify listeners.  This
+value is optional and can be provided automatically when invoked from compilers that
+support CallerMemberName.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">
     <thead>
       <tr>
@@ -267,23 +301,42 @@ Samples are provided in PCM 16-bit signed, interleaved stereo.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.Int32</span></td>
-        <td></td>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if the value was changed, false if the existing value matched the
+desired value.</p>
+</td>
       </tr>
     </tbody>
   </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td><p>Type of the property.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="events">Events
+  </h3>
   
   
-  <a id="Unosquare_FFME_Events_RenderingAudioEventArgs_Samples_" data-uid="Unosquare.FFME.Events.RenderingAudioEventArgs.Samples*"></a>
-  <h4 id="Unosquare_FFME_Events_RenderingAudioEventArgs_Samples" data-uid="Unosquare.FFME.Events.RenderingAudioEventArgs.Samples">Samples</h4>
-  <div class="markdown level1 summary"><p>Gets the number of samples in the buffer for all channels.</p>
+  <h4 id="Unosquare_FFME_Playlists_PlaylistEntry_PropertyChanged" data-uid="Unosquare.FFME.Playlists.PlaylistEntry.PropertyChanged">PropertyChanged</h4>
+  <div class="markdown level1 summary"><p>Occurs when a property value changes.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int Samples { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public event PropertyChangedEventHandler PropertyChanged</code></pre>
   </div>
-  <h5 class="propertyValue">Property Value</h5>
+  <h5 class="eventType">Event Type</h5>
   <table class="table table-bordered table-striped table-condensed">
     <thead>
       <tr>
@@ -293,41 +346,11 @@ Samples are provided in PCM 16-bit signed, interleaved stereo.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.Int32</span></td>
+        <td><span class="xref">PropertyChangedEventHandler</span></td>
         <td></td>
       </tr>
     </tbody>
   </table>
-  
-  
-  <a id="Unosquare_FFME_Events_RenderingAudioEventArgs_SamplesPerChannel_" data-uid="Unosquare.FFME.Events.RenderingAudioEventArgs.SamplesPerChannel*"></a>
-  <h4 id="Unosquare_FFME_Events_RenderingAudioEventArgs_SamplesPerChannel" data-uid="Unosquare.FFME.Events.RenderingAudioEventArgs.SamplesPerChannel">SamplesPerChannel</h4>
-  <div class="markdown level1 summary"><p>Gets the number of samples in the buffer per channel.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int SamplesPerChannel { get; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.Int32</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <h3 id="seealso">See Also</h3>
-  <div class="seealso">
-      <div><span class="xref">System.EventArgs</span></div>
-  </div>
 
 <h3>Comments</h3>
 <div id="disqus_thread"></div>
