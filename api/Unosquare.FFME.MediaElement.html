@@ -1058,7 +1058,7 @@ Settng this property when FFmpeg binaries have been registered will throw an exc
   <a id="Unosquare_FFME_MediaElement_FFmpegLoadModeFlags_" data-uid="Unosquare.FFME.MediaElement.FFmpegLoadModeFlags*"></a>
   <h4 id="Unosquare_FFME_MediaElement_FFmpegLoadModeFlags" data-uid="Unosquare.FFME.MediaElement.FFmpegLoadModeFlags">FFmpegLoadModeFlags</h4>
   <div class="markdown level1 summary"><p>Specifies the bitwise flags that correspond to FFmpeg library identifiers.
-Please use the <see cref="!:Shared.FFmpegLoadMode"></see> class for valid combinations.
+Please use the <see cref="!:FFmpegLoadMode"></see> class for valid combinations.
 If FFmpeg is already loaded, the value cannot be changed.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
@@ -2199,6 +2199,51 @@ Note: Valid values are from 0 to 1</p>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public void Dispose()</code></pre>
   </div>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_Open_" data-uid="Unosquare.FFME.MediaElement.Open*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_Open_IMediaInputStream_" data-uid="Unosquare.FFME.MediaElement.Open(IMediaInputStream)">Open(IMediaInputStream)</h4>
+  <div class="markdown level1 summary"><p>Opens the specified custom input stream.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Task Open(IMediaInputStream stream)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IMediaInputStream</span></td>
+        <td><span class="parametername">stream</span></td>
+        <td><p>The stream.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Threading.Tasks.Task</span></td>
+        <td><p>The awaitable task</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
   
   
   <a id="Unosquare_FFME_MediaElement_Open_" data-uid="Unosquare.FFME.MediaElement.Open*"></a>

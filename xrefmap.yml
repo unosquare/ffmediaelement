@@ -1413,6 +1413,12 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.NaturalVideoWidth
   nameWithType: MediaElement.NaturalVideoWidth
+- uid: Unosquare.FFME.MediaElement.Open(IMediaInputStream)
+  name: Open(IMediaInputStream)
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Open_IMediaInputStream_
+  commentId: M:Unosquare.FFME.MediaElement.Open(IMediaInputStream)
+  fullName: Unosquare.FFME.MediaElement.Open(IMediaInputStream)
+  nameWithType: MediaElement.Open(IMediaInputStream)
 - uid: Unosquare.FFME.MediaElement.Open(Uri)
   name: Open(Uri)
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Open_Uri_
