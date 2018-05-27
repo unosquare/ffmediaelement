@@ -1,9 +1,9 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
+    using Platform;
     using Shared;
     using System.Windows;
     using ViewModels;
-    using Platform;
 
     /// <summary>
     /// Interaction logic for App.xaml

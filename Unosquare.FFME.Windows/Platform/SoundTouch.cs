@@ -28,7 +28,6 @@
         #region Private Members
 
         private const string SoundTouchLibrary = "SoundTouch.dll";
-        private static readonly bool m_IsAvailable;
         private readonly object SyncRoot = new object();
         private bool IsDisposed = false;
         private IntPtr handle;
@@ -44,11 +43,11 @@
                 // Include the ffmpeg directory in the search path
                 WindowsNativeMethods.Instance.SetDllDirectory(MediaElement.FFmpegDirectory);
                 var versionId = NativeMethods.GetVersionId();
-                m_IsAvailable = versionId != 0;
+                IsAvailable = versionId != 0;
             }
             catch
             {
-                m_IsAvailable = false;
+                IsAvailable = false;
             }
             finally
             {
@@ -198,10 +197,7 @@
         /// <summary>
         /// Gets a value indicating whether the SoundTouch Library (dll) is available
         /// </summary>
-        public static bool IsAvailable
-        {
-            get { return m_IsAvailable; }
-        }
+        public static bool IsAvailable { get; private set; }
 
         /// <summary>
         /// Returns number of processed samples currently available in SoundTouch for immediate output.

@@ -4,6 +4,7 @@
     using Platform;
     using Primitives;
     using Rendering;
+    using Shared;
     using System;
     using System.ComponentModel;
     using System.Threading.Tasks;
@@ -134,7 +135,7 @@
 
         /// <summary>
         /// Specifies the bitwise flags that correspond to FFmpeg library identifiers.
-        /// Please use the <see cref="Shared.FFmpegLoadMode"/> class for valid combinations.
+        /// Please use the <see cref="FFmpegLoadMode"/> class for valid combinations.
         /// If FFmpeg is already loaded, the value cannot be changed.
         /// </summary>
         public static int FFmpegLoadModeFlags
@@ -252,6 +253,27 @@
                 IsOpeningViaCommand.Value = true;
                 await GuiContext.Current.EnqueueInvoke(() => Source = uri);
                 await MediaCore.Open(uri);
+            }
+            catch (Exception ex)
+            {
+                await GuiContext.Current.EnqueueInvoke(() => Source = null);
+                var t = RaiseMediaFailedEvent(ex);
+                IsOpeningViaCommand.Value = false;
+            }
+        }
+
+        /// <summary>
+        /// Opens the specified custom input stream.
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        /// <returns>The awaitable task</returns>
+        public async Task Open(IMediaInputStream stream)
+        {
+            try
+            {
+                IsOpeningViaCommand.Value = true;
+                await GuiContext.Current.EnqueueInvoke(() => Source = stream.StreamUri);
+                await MediaCore.Open(stream);
             }
             catch (Exception ex)
             {

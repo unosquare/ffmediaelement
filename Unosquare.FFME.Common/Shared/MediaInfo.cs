@@ -106,16 +106,16 @@
         /// <summary>
         /// Extracts the stream infos from the input.
         /// </summary>
-        /// <param name="ic">The ic.</param>
+        /// <param name="inputContext">The input context.</param>
         /// <returns>The list of stream infos</returns>
-        private static List<StreamInfo> ExtractStreams(AVFormatContext* ic)
+        private static List<StreamInfo> ExtractStreams(AVFormatContext* inputContext)
         {
             var result = new List<StreamInfo>();
-            if (ic->streams == null) return result;
+            if (inputContext->streams == null) return result;
 
-            for (var i = 0; i < ic->nb_streams; i++)
+            for (var i = 0; i < inputContext->nb_streams; i++)
             {
-                var s = ic->streams[i];
+                var s = inputContext->streams[i];
 
                 var codecContext = ffmpeg.avcodec_alloc_context3(null);
                 ffmpeg.avcodec_parameters_to_context(codecContext, s->codecpar);

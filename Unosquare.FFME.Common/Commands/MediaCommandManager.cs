@@ -18,7 +18,6 @@
         private readonly AtomicBoolean IsClosing = new AtomicBoolean(false);
         private readonly object SyncLock = new object();
         private readonly List<MediaCommand> Commands = new List<MediaCommand>();
-        private readonly MediaEngine m_MediaCore;
         private MediaCommand ExecutingCommand = null;
 
         #endregion
@@ -31,7 +30,7 @@
         /// <param name="mediaEngine">The media element.</param>
         public MediaCommandManager(MediaEngine mediaEngine)
         {
-            m_MediaCore = mediaEngine;
+            MediaCore = mediaEngine;
         }
 
         #endregion
@@ -49,7 +48,7 @@
         /// <summary>
         /// Gets the core platform independent player component.
         /// </summary>
-        public MediaEngine MediaCore => m_MediaCore;
+        public MediaEngine MediaCore { get; private set; }
 
         #endregion
 
@@ -115,6 +114,55 @@
                 IsOpening.Value = true;
 
             var command = new OpenCommand(this, uri);
+            ExecutingCommand = command;
+            ClearCommandQueue();
+
+            try
+            {
+                if (command.HasCompleted) return;
+
+                await command.StartAsync();
+            }
+            catch (Exception ex)
+            {
+                MediaCore?.Log(
+                    MediaLogMessageType.Error,
+                    $"{nameof(MediaCommandManager)}.{nameof(OpenAsync)}: {ex.GetType()} - {ex.Message}");
+            }
+            finally
+            {
+                ExecutingCommand?.Complete();
+                ExecutingCommand = null;
+                IsOpening.Value = false;
+            }
+        }
+
+        /// <summary>
+        /// Opens the specified custom input stream.
+        /// This command gets processed in a threadpool thread asynchronously.
+        /// </summary>
+        /// <param name="stream">The custom input stream.</param>
+        /// <returns>
+        /// The asynchronous task
+        /// </returns>
+        public async Task OpenAsync(IMediaInputStream stream)
+        {
+            // Check Uri Argument
+            if (stream == null)
+            {
+                MediaCore?.Log(
+                    MediaLogMessageType.Warning,
+                    $"{nameof(MediaCommandManager)}.{nameof(OpenAsync)}: '{nameof(stream)}' cannot be null");
+
+                return;
+            }
+
+            if (CanExecuteCommands == false)
+                return;
+            else
+                IsOpening.Value = true;
+
+            var command = new OpenCommand(this, stream);
             ExecutingCommand = command;
             ClearCommandQueue();
 

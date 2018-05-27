@@ -151,8 +151,8 @@
                 if (AudioBuffer == null) return;
 
                 // Capture Media Block Reference
+                if (mediaBlock is AudioBlock == false) return;
                 var audioBlock = mediaBlock as AudioBlock;
-                if (audioBlock == null) return;
                 var audioBlocks = MediaCore.Blocks[MediaType.Audio];
 
                 while (audioBlock != null)

@@ -4,6 +4,7 @@
     using Core;
     using Decoding;
     using Primitives;
+    using Shared;
     using System;
     using System.Threading.Tasks;
 
@@ -39,7 +40,7 @@
         #region Public API
 
         /// <summary>
-        /// Opens the specified URI.
+        /// Opens the media using the specified URI.
         /// </summary>
         /// <param name="uri">The URI.</param>
         /// <returns>The awaitable task</returns>
@@ -54,6 +55,38 @@
                 {
                     await Commands.CloseAsync();
                     await Commands.OpenAsync(uri);
+                }
+                else
+                {
+                    await Commands.CloseAsync();
+                }
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                EndSynchronousCommand();
+            }
+        }
+
+        /// <summary>
+        /// Opens the media using a custom media input stream.
+        /// </summary>
+        /// <param name="stream">The URI.</param>
+        /// <returns>The awaitable task</returns>
+        /// <exception cref="InvalidOperationException">Source</exception>
+        public async Task Open(IMediaInputStream stream)
+        {
+            if (BeginSynchronousCommand() == false) return;
+
+            try
+            {
+                if (stream != null)
+                {
+                    await Commands.CloseAsync();
+                    await Commands.OpenAsync(stream);
                 }
                 else
                 {

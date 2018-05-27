@@ -13,15 +13,6 @@
     /// <seealso cref="IDisposable" />
     public partial class MediaEngine : IDisposable, IMediaLogger
     {
-        #region Fields and Property Backing
-
-        /// <summary>
-        /// To detect redundant calls
-        /// </summary>
-        private bool m_IsDisposed = default;
-
-        #endregion
-
         #region Constructors
 
         /// <summary>
@@ -77,11 +68,7 @@
         /// <summary>
         /// Gets a value indicating whether this instance is disposed.
         /// </summary>
-        public bool IsDisposed
-        {
-            get => m_IsDisposed;
-            private set => m_IsDisposed = value;
-        }
+        public bool IsDisposed { get; private set; } = default;
 
         /// <summary>
         /// Gets the associated parent object.

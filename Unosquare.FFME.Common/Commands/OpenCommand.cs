@@ -25,9 +25,27 @@
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="OpenCommand"/> class.
+        /// </summary>
+        /// <param name="manager">The manager.</param>
+        /// <param name="inputStream">The custom implementation of an input stream.</param>
+        public OpenCommand(MediaCommandManager manager, IMediaInputStream inputStream)
+            : base(manager, MediaCommandType.Open)
+        {
+            InputStream = inputStream;
+            Source = inputStream.StreamUri;
+        }
+
+        /// <summary>
         /// Gets the source uri of the media stream.
         /// </summary>
         public Uri Source { get; }
+
+        /// <summary>
+        /// Gets the custom input stream object when the open command
+        /// was instantiated using a stream and not a URI.
+        /// </summary>
+        public IMediaInputStream InputStream { get; }
 
         /// <summary>
         /// Performs the actions that this command implements.
@@ -64,43 +82,53 @@
                         $"{nameof(FFInterop)}.{nameof(FFInterop.Initialize)}: FFmpeg v{ffmpeg.av_version_info()}");
                 }
 
-                // Create the stream container
-                // the async protocol prefix allows for increased performance for local files.
+                // Create a default stream container configuration object
                 var containerConfig = new ContainerConfiguration();
 
-                // Convert the URI object to something the Media Container understands
+                // Convert the URI object to something the Media Container understands (Uri to String)
                 var mediaUrl = Source.ToString();
-                try
-                {
-                    if (Source.IsFile || Source.IsUnc)
-                    {
-                        // Set the default protocol Prefix
-                        mediaUrl = Source.LocalPath;
-                        containerConfig.ProtocolPrefix = "async";
-                    }
-                }
-                catch { }
 
-                // GDIGRAB: Example URI: device://gdigrab?desktop
-                if (string.IsNullOrWhiteSpace(Source.Scheme) == false
-                    && (Source.Scheme.Equals("format") || Source.Scheme.Equals("device"))
-                    && string.IsNullOrWhiteSpace(Source.Host) == false
-                    && string.IsNullOrWhiteSpace(containerConfig.ForcedInputFormat)
-                    && string.IsNullOrWhiteSpace(Source.Query) == false)
+                // When opening via URL (and not via custom input stream), fixup the protocols and stuff
+                if (InputStream == null)
                 {
-                    // Update the Input format and container input URL
-                    // It is also possible to set some input options as follows:
-                    // streamOptions.PrivateOptions["framerate"] = "20";
-                    containerConfig.ForcedInputFormat = Source.Host;
-                    mediaUrl = Uri.UnescapeDataString(Source.Query).TrimStart('?');
-                    m.Log(MediaLogMessageType.Info, $"Media URI will be updated. Input Format: {Source.Host}, Input Argument: {mediaUrl}");
+                    try
+                    {
+                        // the async protocol prefix allows for increased performance for local files.
+                        // or anything that is file-system related
+                        if (Source.IsFile || Source.IsUnc)
+                        {
+                            // Set the default protocol Prefix
+                            mediaUrl = Source.LocalPath;
+                            containerConfig.ProtocolPrefix = "async";
+                        }
+                    }
+                    catch { }
+
+                    // Support device URLs
+                    // GDIGRAB: Example URI: device://gdigrab?desktop
+                    if (string.IsNullOrWhiteSpace(Source.Scheme) == false
+                        && (Source.Scheme.Equals("format") || Source.Scheme.Equals("device"))
+                        && string.IsNullOrWhiteSpace(Source.Host) == false
+                        && string.IsNullOrWhiteSpace(containerConfig.ForcedInputFormat)
+                        && string.IsNullOrWhiteSpace(Source.Query) == false)
+                    {
+                        // Update the Input format and container input URL
+                        // It is also possible to set some input options as follows:
+                        // streamOptions.PrivateOptions["framerate"] = "20";
+                        containerConfig.ForcedInputFormat = Source.Host;
+                        mediaUrl = Uri.UnescapeDataString(Source.Query).TrimStart('?');
+                        m.Log(MediaLogMessageType.Info, $"Media URI will be updated. Input Format: {Source.Host}, Input Argument: {mediaUrl}");
+                    }
                 }
 
                 // Allow the stream input options to be changed
                 await m.SendOnMediaInitializing(containerConfig, mediaUrl);
 
-                // Instantiate the internal container
-                m.Container = new MediaContainer(mediaUrl, containerConfig, m);
+                // Instantiate the internal container using either a URL (default) or a custom input stream.
+                if (InputStream == null)
+                    m.Container = new MediaContainer(mediaUrl, containerConfig, m);
+                else
+                    m.Container = new MediaContainer(InputStream, containerConfig, m);
 
                 // Notify the user media is opening and allow for media options to be modified
                 // Stuff like audio and video filters and stream selection can be performed here.

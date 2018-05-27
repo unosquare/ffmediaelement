@@ -51,8 +51,9 @@
             EntriesView = CollectionViewSource.GetDefaultView(Entries) as ICollectionView;
             EntriesView.Filter = (item) =>
             {
+                if (item is CustomPlaylistEntry == false) return false;
                 var entry = item as CustomPlaylistEntry;
-                if (entry == null) return false;
+
                 if (string.IsNullOrWhiteSpace(PlaylistSearchString) || PlaylistSearchString.Trim().Length < MinimumSearchLength)
                     return true;
 

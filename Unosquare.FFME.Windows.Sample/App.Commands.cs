@@ -55,10 +55,20 @@
                         {
                             try
                             {
-                                var target = new Uri(a as string);
+                                var uriString = a as string;
+                                if (string.IsNullOrWhiteSpace(uriString))
+                                    return;
 
-                                // Current.MediaElement.Source = target; // you can also set the source to the Uri to open
-                                await Current.MediaElement.Open(target);
+                                // Current.MediaElement.Source = new Uri(uriString); // you can also set the source to the Uri to open
+                                var target = new Uri(uriString);
+                                if (target.ToString().StartsWith(FileInputStream.Scheme))
+                                {
+                                    await Current.MediaElement.Open(new FileInputStream(target.LocalPath));
+                                }
+                                else
+                                {
+                                    await Current.MediaElement.Open(target);
+                                }
                             }
                             catch (Exception ex)
                             {
@@ -203,8 +213,8 @@
                     {
                         m_RemovePlaylistItemCommand = new DelegateCommand((arg) =>
                         {
+                            if (arg is CustomPlaylistEntry == false) return;
                             var entry = arg as CustomPlaylistEntry;
-                            if (entry == null) return;
 
                             Current.ViewModel.Playlist.Entries.RemoveEntryByMediaUrl(entry.MediaUrl);
                             Current.ViewModel.Playlist.Entries.SaveEntries();

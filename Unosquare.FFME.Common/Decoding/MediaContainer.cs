@@ -46,6 +46,26 @@
         private readonly object ConvertSyncRoot = new object();
 
         /// <summary>
+        /// The custom media input stream
+        /// </summary>
+        private IMediaInputStream CustomInputStream = null;
+
+        /// <summary>
+        /// The custom input stream read callback
+        /// </summary>
+        private avio_alloc_context_read_packet CustomInputStreamRead = null;
+
+        /// <summary>
+        /// The custom input stream seek callback
+        /// </summary>
+        private avio_alloc_context_seek CustomInputStreamSeek = null;
+
+        /// <summary>
+        /// The custom input stream context
+        /// </summary>
+        private AVIOContext* CustomInputStreamContext = null;
+
+        /// <summary>
         /// Hold the value for the internal property with the same name.
         /// Picture attachments are required when video streams support them
         /// and these attached packets must be read before reading the first frame
@@ -80,7 +100,7 @@
         #region Constructor
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MediaContainer" /> class.
+        /// Initializes a new instance of the <see cref="MediaContainer" /> class using a media URL.
         /// </summary>
         /// <param name="mediaUrl">The media URL.</param>
         /// <param name="config">The container configuration options.</param>
@@ -109,6 +129,36 @@
             }
 
             Configuration.ProtocolPrefix = protocolPrefix;
+            StreamInitialize();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MediaContainer"/> class using a custom input stream implementation.
+        /// </summary>
+        /// <param name="inputStream">The input stream.</param>
+        /// <param name="config">The configuration.</param>
+        /// <param name="parent">The parent.</param>
+        public MediaContainer(IMediaInputStream inputStream, ContainerConfiguration config, IMediaLogger parent)
+        {
+            // Argument Validation
+            if (inputStream == null)
+                throw new ArgumentNullException($"{nameof(inputStream)}");
+
+            // Validate the stream pseudo Url
+            var mediaUrl = inputStream.StreamUri?.ToString();
+            if (string.IsNullOrWhiteSpace(mediaUrl))
+                throw new ArgumentNullException($"{nameof(inputStream)}.{nameof(inputStream.StreamUri)}");
+
+            // Initialize the library (if not already done)
+            FFInterop.Initialize(null, FFmpegLoadMode.FullFeatures);
+
+            // Create the options object
+            Parent = parent;
+            MediaUrl = mediaUrl;
+            CustomInputStream = inputStream;
+            Configuration = config ?? new ContainerConfiguration();
+
+            // Initialize the Input Format Context and Input Stream Context
             StreamInitialize();
         }
 
@@ -554,16 +604,41 @@
                     // Open the input file
                     var openResult = 0;
 
+                    // Prepare the open Url
+                    var prefix = string.IsNullOrWhiteSpace(Configuration.ProtocolPrefix) ?
+                        string.Empty : $"{Configuration.ProtocolPrefix.Trim()}:";
+
+                    var openUrl = $"{prefix}{MediaUrl}";
+
+                    // If there is a custom input stream, set it up.
+                    if (CustomInputStream != null)
+                    {
+                        // we don't want to pass a Url because it will be a custom stream
+                        openUrl = string.Empty;
+
+                        // Setup the necessary context callbacks
+                        CustomInputStreamRead = CustomInputStream.Read;
+                        CustomInputStreamSeek = CustomInputStream.Seek;
+
+                        // Allocate the read buffer
+                        var inputBuffer = (byte*)ffmpeg.av_malloc((ulong)CustomInputStream.ReadBufferLength);
+                        CustomInputStreamContext = ffmpeg.avio_alloc_context(
+                            inputBuffer, CustomInputStream.ReadBufferLength, 0, null, CustomInputStreamRead, null, CustomInputStreamSeek);
+
+                        // Set the seekable flag based on the custom input stream implementation
+                        CustomInputStreamContext->seekable = CustomInputStream.CanSeek ? 1 : 0;
+
+                        // Assign the AVIOContext to the input context
+                        inputContextPtr->pb = CustomInputStreamContext;
+                    }
+
                     // We set the start of the read operation time so tiomeouts can be detected
                     // and we open the URL so the input context can be initialized.
                     StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
                     fixed (AVDictionary** privateOptionsRef = &privateOptions.Pointer)
                     {
-                        var prefix = string.IsNullOrWhiteSpace(Configuration.ProtocolPrefix) ?
-                            string.Empty : $"{Configuration.ProtocolPrefix.Trim()}:";
-
-                        // Pass the private options dictionary
-                        openResult = ffmpeg.avformat_open_input(&inputContextPtr, $"{prefix}{MediaUrl}", inputFormat, privateOptionsRef);
+                        // Open the input and pass the private options dictionary
+                        openResult = ffmpeg.avformat_open_input(&inputContextPtr, openUrl, inputFormat, privateOptionsRef);
                         InputContext = inputContextPtr;
                     }
 
@@ -683,7 +758,7 @@
             // Apply the options
             if (opts.EnableReducedBuffering) InputContext->avio_flags |= ffmpeg.AVIO_FLAG_DIRECT;
             if (opts.PacketSize != default) InputContext->packet_size = System.Convert.ToUInt32(opts.PacketSize);
-            if (opts.ProbeSize != default) InputContext->probesize = Configuration.GlobalOptions.ProbeSize <= 32 ? 32 : opts.ProbeSize;
+            if (opts.ProbeSize != default) InputContext->probesize = opts.ProbeSize <= 32 ? 32 : opts.ProbeSize;
 
             // Flags
             InputContext->flags |= opts.FlagDiscardCorrupt ? ffmpeg.AVFMT_FLAG_DISCARD_CORRUPT : InputContext->flags;
@@ -1231,6 +1306,29 @@
                             SignalAbortReads(false);
                             var inputContextPtr = InputContext;
                             ffmpeg.avformat_close_input(&inputContextPtr);
+
+                            // Handle freeing of Custom Stream Context
+                            if (CustomInputStreamContext != null)
+                            {
+                                // free the allocated buffer
+                                ffmpeg.av_freep(&CustomInputStreamContext->buffer);
+
+                                // free the stream context
+                                fixed (AVIOContext** contextRef = &CustomInputStreamContext)
+                                {
+                                    ffmpeg.av_freep(contextRef);
+                                }
+
+                                CustomInputStreamContext = null;
+                            }
+
+                            // Clear Custom Input fields
+                            CustomInputStreamRead = null;
+                            CustomInputStreamSeek = null;
+                            CustomInputStream?.Dispose();
+                            CustomInputStream = null;
+
+                            // Clear the input context
                             InputContext = null;
                         }
 

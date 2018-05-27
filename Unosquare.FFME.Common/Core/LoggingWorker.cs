@@ -31,7 +31,8 @@
                     { ffmpeg.AV_LOG_TRACE, MediaLogMessageType.Trace },
                     { ffmpeg.AV_LOG_WARNING, MediaLogMessageType.Warning },
                 });
-        private static Timer LogOutputter = null;
+
+        private static readonly Timer LogOutputter = null;
         private static bool IsOutputingLog = false;
 
         #endregion

@@ -218,33 +218,35 @@
         {
             DisposePreloadedSubtitles();
             var subtitlesUrl = Container.MediaOptions.SubtitlesUrl;
-            if (string.IsNullOrWhiteSpace(subtitlesUrl) == false)
+
+            // Don't load a thing if we don't have to
+            if (string.IsNullOrWhiteSpace(subtitlesUrl))
+                return;
+
+            try
             {
-                try
-                {
-                    m_PreloadedSubtitles = LoadBlocks(subtitlesUrl, MediaType.Subtitle, this);
+                m_PreloadedSubtitles = LoadBlocks(subtitlesUrl, MediaType.Subtitle, this);
 
-                    // Process and adjust subtitle delays if necessary
-                    if (Container.MediaOptions.SubtitlesDelay != TimeSpan.Zero)
+                // Process and adjust subtitle delays if necessary
+                if (Container.MediaOptions.SubtitlesDelay != TimeSpan.Zero)
+                {
+                    var delay = Container.MediaOptions.SubtitlesDelay;
+                    for (var i = 0; i < m_PreloadedSubtitles.Count; i++)
                     {
-                        var delay = Container.MediaOptions.SubtitlesDelay;
-                        for (var i = 0; i < m_PreloadedSubtitles.Count; i++)
-                        {
-                            var target = m_PreloadedSubtitles[i];
-                            target.StartTime = TimeSpan.FromTicks(target.StartTime.Ticks + delay.Ticks);
-                            target.EndTime = TimeSpan.FromTicks(target.EndTime.Ticks + delay.Ticks);
-                            target.Duration = TimeSpan.FromTicks(target.EndTime.Ticks - target.StartTime.Ticks);
-                        }
+                        var target = m_PreloadedSubtitles[i];
+                        target.StartTime = TimeSpan.FromTicks(target.StartTime.Ticks + delay.Ticks);
+                        target.EndTime = TimeSpan.FromTicks(target.EndTime.Ticks + delay.Ticks);
+                        target.Duration = TimeSpan.FromTicks(target.EndTime.Ticks - target.StartTime.Ticks);
                     }
+                }
 
-                    Container.MediaOptions.IsSubtitleDisabled = true;
-                }
-                catch (MediaContainerException mex)
-                {
-                    DisposePreloadedSubtitles();
-                    Log(MediaLogMessageType.Warning,
-                        $"No subtitles to side-load found in media '{subtitlesUrl}'. {mex.Message}");
-                }
+                Container.MediaOptions.IsSubtitleDisabled = true;
+            }
+            catch (MediaContainerException mex)
+            {
+                DisposePreloadedSubtitles();
+                Log(MediaLogMessageType.Warning,
+                    $"No subtitles to side-load found in media '{subtitlesUrl}'. {mex.Message}");
             }
         }
 

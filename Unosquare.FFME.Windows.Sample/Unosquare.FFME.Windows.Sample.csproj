@@ -44,11 +44,13 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <DefineConstants>TRACE;DEBUG;HANDLE_RENDERING_EVENTS</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <DefineConstants>TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FFmpeg.AutoGen, Version=4.0.0.2, Culture=neutral, PublicKeyToken=9b7632533a381715, processorArchitecture=MSIL">
@@ -85,6 +87,7 @@
       <DependentUpon>PlaylistPanelControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Foundation\DeferredAction.cs" />
+    <Compile Include="Foundation\FileInputStream.cs" />
     <Compile Include="Foundation\ReactiveExtensions.cs" />
     <Compile Include="Foundation\ThumbnailGenerator.cs" />
     <Compile Include="Foundation\ViewModelBase.cs" />
