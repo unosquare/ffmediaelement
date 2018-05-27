@@ -49,7 +49,7 @@
         /// Gets the length in bytes of the read buffer that will be allocated.
         /// Something like 4096 is recommended
         /// </summary>
-        public int ReadBufferLength => 1024 * 256; // 256kB
+        public int ReadBufferLength => 1024 * 16;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
