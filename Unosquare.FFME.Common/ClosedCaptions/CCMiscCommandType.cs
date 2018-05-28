@@ -56,7 +56,7 @@
         StartCaption = 0x29,
 
         /// <summary>
-        /// The star non caption command
+        /// The start non caption command
         /// </summary>
         StartNonCaption = 0x2A,
 

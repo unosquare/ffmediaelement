@@ -427,7 +427,7 @@
             if (VideoView.ActualWidth <= 0 || VideoView.ActualHeight <= 0)
                 return;
 
-            if (HasVideo)
+            if (HasVideo || GuiContext.Current.IsInDesignTime)
             {
                 CaptionsView.Width = VideoView.ActualWidth;
                 CaptionsView.Height = VideoView.ActualHeight * .80; // FCC Safe Caption Area Dimensions

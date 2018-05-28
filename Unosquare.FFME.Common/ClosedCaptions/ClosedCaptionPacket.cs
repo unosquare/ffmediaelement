@@ -437,7 +437,7 @@
         public int FieldParity { get; }
 
         /// <summary>
-        /// Gets the channel. 0 for any, 1 or 2 for specific channel toggle.
+        /// Gets the channel. 0 for use previous packet, 1 or 2 for specific channel.
         /// 0 just means to use what a prior packet had specified.
         /// </summary>
         public int FieldChannel { get; }
@@ -505,6 +505,10 @@
         /// <returns>The CC channel according to the parity and channel</returns>
         public static ClosedCaptionChannel ComputeChannel(int fieldPartity, int fieldChannel)
         {
+            // packets with 0 field partiy are null or unkown
+            if (fieldPartity <= 0)
+                return ClosedCaptionChannel.CCP;
+
             fieldPartity = fieldPartity.Clamp(1, 2);
             fieldChannel = fieldChannel.Clamp(1, 2);
 

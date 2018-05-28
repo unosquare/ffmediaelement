@@ -3,6 +3,7 @@
     using ClosedCaptions;
     using Platform;
     using Shared;
+    using System;
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Linq;
@@ -15,8 +16,9 @@
     /// This is still WIP
     /// </summary>
     /// <seealso cref="Viewbox" />
-    internal class ClosedCaptionsControl : Viewbox
+    internal sealed class ClosedCaptionsControl : Viewbox
     {
+        private const int PacketBufferLength = 2048;
         private const int ColumnCount = 32;
         private const int RowCount = 15;
         private const double BackgroundWidth = 45;
@@ -24,6 +26,7 @@
         private const double DefaultOpacity = 0.80d;
         private const double DefaultFontSize = 65;
 
+        private readonly SortedDictionary<long, ClosedCaptionPacket> PacketBuffer = new SortedDictionary<long, ClosedCaptionPacket>();
         private readonly Dictionary<int, Dictionary<int, TextBlock>> CharacterLookup = new Dictionary<int, Dictionary<int, TextBlock>>(RowCount);
         private readonly FontFamily FontFamily = new FontFamily("Lucida Console");
         private Grid CaptionsGrid = null;
@@ -31,7 +34,6 @@
         private int m_RowIndex = 0;
         private int m_ColumnIndex = 0;
         private ClosedCaptionChannel m_Channel = ClosedCaptionChannel.CC1; // TODO: maybe change channel to a dependency property in the MediaElement?
-        private SortedDictionary<long, string> WriteTags = new SortedDictionary<long, string>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClosedCaptionsControl"/> class.
@@ -47,9 +49,7 @@
             UseLayoutRounding = true;
             SnapsToDevicePixels = true;
             Channel = ClosedCaptionChannel.CC1;
-
-            // TODO: Re-enable when implementation continues.
-            // Loaded += (s, e) => InitializeComponent();
+            InitializeComponent();
         }
 
         /// <summary>
@@ -127,32 +127,35 @@
         /// </summary>
         /// <param name="currentBlock">The current block.</param>
         /// <param name="mediaCore">The media core.</param>
-        public void RenderPacket(VideoBlock currentBlock, MediaEngine mediaCore)
+        /// <param name="clockPosition">The clock position.</param>
+        public void RenderPacket(VideoBlock currentBlock, MediaEngine mediaCore, TimeSpan clockPosition)
         {
-            // var captionsPackets = new List<ClosedCaptionPacket>(1024);
-            // var block = currentBlock;
-            // while (block != null)
-            // {
-            //    captionsPackets.AddRange(block.ClosedCaptions);
-            //    block = mediaCore.Blocks[currentBlock.MediaType].Next(block) as VideoBlock;
-            // }
-            // foreach (var packet in captionsPackets)
-            // {
-            //    if (WriteTags.ContainsKey(packet.Timestamp.Ticks))
-            //    {
-            //        if (WriteTags[packet.Timestamp.Ticks] != packet.ToString())
-            //        {
-            //            // packet collision
-            //        }
-            //    }
-            //    if (WriteTags.ContainsKey(packet.Timestamp.Ticks))
-            //        continue;
-            //    WriteTags[packet.Timestamp.Ticks] = packet.ToString();
-            // }
-            // if (WriteTags.Count >= 250)
-            // {
-            //     var output = string.Join("\r\n", WriteTags.Values);
-            // }
+            // Feed the available closed captions into the packet buffer
+            var block = currentBlock;
+            while (block != null)
+            {
+                foreach (var cc in block.ClosedCaptions)
+                {
+                    if (PacketBuffer.ContainsKey(cc.Timestamp.Ticks) == false)
+                        PacketBuffer[cc.Timestamp.Ticks] = cc;
+                }
+
+                block = mediaCore.Blocks[currentBlock.MediaType].Next(block) as VideoBlock;
+            }
+
+            // Trim the packet buffer if necessary
+            var itemRemovalCount = PacketBuffer.Count - PacketBufferLength;
+            if (itemRemovalCount > 0)
+            {
+                var keys = PacketBuffer.Keys.Skip(0).Take(itemRemovalCount);
+                foreach (var key in keys)
+                    PacketBuffer.Remove(key);
+            }
+
+            if (itemRemovalCount >= 1)
+            {
+                // var output = string.Join("\r\n", PacketBuffer.Values.Select(v => v.ToString()));
+            }
         }
 
         /// <summary>
@@ -224,16 +227,18 @@
 
             if (GuiContext.Current.IsInDesignTime)
             {
-                var sampleText = "Hey there, how are you?";
+                // Line 11 (index 10) preview
+                var sampleText = "L11: Closed Captions (preview)";
                 for (var charIndex = 0; charIndex < sampleText.Length; charIndex++)
                 {
-                    SetChar(12, charIndex, sampleText.Substring(charIndex, 1));
+                    SetChar(10, charIndex, sampleText.Substring(charIndex, 1));
                 }
 
-                sampleText = "This is a second line of text";
+                // Line 12 (index 11) preview
+                sampleText = "L12: Closed Captions (preview)";
                 for (var charIndex = 0; charIndex < sampleText.Length; charIndex++)
                 {
-                    SetChar(13, charIndex, sampleText.Substring(charIndex, 1));
+                    SetChar(11, charIndex, sampleText.Substring(charIndex, 1));
                 }
             }
         }

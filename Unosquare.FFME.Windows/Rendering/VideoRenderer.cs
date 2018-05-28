@@ -8,7 +8,6 @@
     using System;
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
-    using System.Threading.Tasks;
     using System.Windows;
     using System.Windows.Media;
     using System.Windows.Media.Imaging;
@@ -180,7 +179,7 @@
             // Create an action that holds GUI thread actions
             var foregroundAction = new Action(() =>
             {
-                MediaElement.CaptionsView.RenderPacket(block, MediaCore);
+                MediaElement.CaptionsView.RenderPacket(block, MediaCore, clockPosition);
                 ApplyLayoutTransforms(block);
             });
 
