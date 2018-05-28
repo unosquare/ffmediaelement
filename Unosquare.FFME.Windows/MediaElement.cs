@@ -296,15 +296,19 @@
             IsDisposed = true;
 
             // Stop the property updates worker
-            PropertyUpdatesWorker.Dispose();
+            PropertyUpdatesWorker.Dispose(); 
+            
+            // Skips WPF controls clean up if we are not in the UI thread (eg. in the GC Finalizer thread)
+            if (Dispatcher.CheckAccess())
+            {
+                // Remove event handlers
+                VideoView.LayoutUpdated -= HandleVideoViewLayoutUpdates;
 
-            // Remove ebent handlers
-            VideoView.LayoutUpdated -= HandleVideoViewLayoutUpdates;
-
-            // Remove all the controls
-            ContentGrid.Children.Remove(VideoView);
-            ContentGrid.Children.Remove(SubtitlesView);
-            ContentGrid.Children.Remove(CaptionsView);
+                // Remove all the controls
+                ContentGrid.Children.Remove(VideoView);
+                ContentGrid.Children.Remove(SubtitlesView);
+                ContentGrid.Children.Remove(CaptionsView);
+            }
         }
 
         /// <summary>
