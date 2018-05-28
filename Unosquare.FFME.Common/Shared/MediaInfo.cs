@@ -183,7 +183,7 @@
                     TBC = 1d / s->codec->time_base.ToDouble(),
                 };
 
-                // Extract valid hardwar configurations
+                // Extract valid hardware configurations
                 stream.HardwareDevices = new ReadOnlyCollection<HardwareDeviceInfo>(
                     HardwareAccelerator.GetCompatibleDevices(stream.Codec));
 

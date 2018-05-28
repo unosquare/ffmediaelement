@@ -161,7 +161,7 @@
                 state = "Ready";
             }
 
-            WindowTitle = $"{title} - {state} - Unosquare FFME Play v{AppVersion}";
+            WindowTitle = $"{title} - {state} - Unosquare FFME Play v{AppVersion} ({(GuiContext.Current.IsInDebugMode ? "Debug" : "Release")})";
         }
     }
 }

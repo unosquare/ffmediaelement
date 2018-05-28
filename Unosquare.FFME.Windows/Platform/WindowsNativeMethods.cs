@@ -10,11 +10,14 @@
     /// </summary>
     internal class WindowsNativeMethods : INativeMethods
     {
+        private static readonly int Parallelism = 1;
+
         /// <summary>
         /// Initializes static members of the <see cref="WindowsNativeMethods"/> class.
         /// </summary>
         static WindowsNativeMethods()
         {
+            Parallelism = (int)Math.Max(1, Environment.ProcessorCount * 0.8);
             Instance = new WindowsNativeMethods();
         }
 
@@ -44,7 +47,7 @@
             /// <summary>
             /// The buffer
             /// </summary>
-            Buffer
+            Buffer,
         }
 
         /// <summary>
@@ -58,7 +61,7 @@
         /// <summary>
         /// Gets or sets a value indicating whether Parallel Copy is enabled.
         /// </summary>
-        private MemoryCopyStartegy CopyStrategy { get; set; } = MemoryCopyStartegy.Native;
+        private MemoryCopyStartegy CopyStrategy { get; set; } = MemoryCopyStartegy.ParallelNative;
 
         /// <summary>
         /// Fills the memory with the specified value repeated.
@@ -122,27 +125,36 @@
         /// <param name="copyLength">Length of the copy.</param>
         private unsafe void CopyMemoryParallel(IntPtr targetAddress, IntPtr sourceAddress, uint copyLength)
         {
-            const int optimalBlockSize = 2048;
+            const int optimalBlockSize = 1024 * 1024 * 2; // 2MB per thread;
+            const int maxParallelism = 4;
+
+            // Don't run parallelism for smaller chunks -- it's not worth it
             if (copyLength <= optimalBlockSize)
             {
                 NativeMethods.CopyMemory(targetAddress, sourceAddress, copyLength);
                 return;
             }
 
-            var chunkSize = Convert.ToInt32(copyLength) / 4; // optimalBlockSize;
-            var blockCount = Convert.ToInt32(copyLength) / chunkSize;
+            var blockCount = (int)Math.Max(1, Math.Min(Parallelism, copyLength / optimalBlockSize));
+            if (blockCount > maxParallelism) blockCount = maxParallelism;
+            var lastBlockIndex = blockCount - 1;
+            var blockSize = Convert.ToUInt32(copyLength / blockCount);
+            var lastBlockSize = blockSize + (copyLength % blockSize);
 
+            // No need to run in parallel if we have only 1 block.
+            if (blockCount <= 1)
+            {
+                NativeMethods.CopyMemory(targetAddress, sourceAddress, copyLength);
+                return;
+            }
+
+            // Start the copy operation in the threadpool
             Parallel.For(0, blockCount, (blockIndex) =>
             {
-                var offset = blockIndex * chunkSize;
-                NativeMethods.CopyMemory(targetAddress + offset, sourceAddress + offset, Convert.ToUInt32(chunkSize));
+                var offset = blockIndex * (int)blockSize;
+                var chunkSize = (blockIndex == lastBlockIndex) ? lastBlockSize : blockSize;
+                NativeMethods.CopyMemory(targetAddress + offset, sourceAddress + offset, chunkSize);
             });
-
-            var lastOffset = blockCount * chunkSize;
-            if (lastOffset < copyLength)
-            {
-                NativeMethods.CopyMemory(targetAddress + lastOffset, sourceAddress + lastOffset, copyLength - Convert.ToUInt32(lastOffset));
-            }
         }
 
         /// <summary>
