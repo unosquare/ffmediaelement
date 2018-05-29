@@ -519,6 +519,19 @@
         }
 
         /// <summary>
+        /// Determines whether a previous packet is a repeated control code.
+        /// This is according to CEA-608 Section D.2 Transmission of Control Code Pairs
+        /// </summary>
+        /// <param name="previousPacket">The previous packet.</param>
+        /// <returns>
+        ///   <c>true</c> it is a repeated control code packet.
+        /// </returns>
+        public bool IsRepeatedControlCode(ClosedCaptionPacket previousPacket)
+        {
+            return D0 >= 0x10 && D0 <= 0x1F && previousPacket.D0 == D0 && previousPacket.D1 == D1;
+        }
+
+        /// <summary>
         /// Returns a <see cref="string" /> that represents this instance.
         /// </summary>
         /// <returns>

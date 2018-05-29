@@ -179,7 +179,7 @@
             // Create an action that holds GUI thread actions
             var foregroundAction = new Action(() =>
             {
-                MediaElement.CaptionsView.RenderPacket(block, MediaCore, clockPosition);
+                MediaElement.CaptionsView.FeedPackets(block, MediaCore, clockPosition);
                 ApplyLayoutTransforms(block);
             });
 

@@ -26,7 +26,11 @@
         private const double DefaultOpacity = 0.80d;
         private const double DefaultFontSize = 65;
 
-        private readonly SortedDictionary<long, ClosedCaptionPacket> PacketBuffer = new SortedDictionary<long, ClosedCaptionPacket>();
+        private readonly SortedDictionary<long, ClosedCaptionPacket> PacketBuffer
+            = new SortedDictionary<long, ClosedCaptionPacket>();
+        private readonly Dictionary<ClosedCaptionChannel, SortedDictionary<long, ClosedCaptionPacket>> ChannelPacketBuffer
+            = new Dictionary<ClosedCaptionChannel, SortedDictionary<long, ClosedCaptionPacket>>();
+
         private readonly Dictionary<int, Dictionary<int, TextBlock>> CharacterLookup = new Dictionary<int, Dictionary<int, TextBlock>>(RowCount);
         private readonly FontFamily FontFamily = new FontFamily("Lucida Console");
         private Grid CaptionsGrid = null;
@@ -49,6 +53,12 @@
             UseLayoutRounding = true;
             SnapsToDevicePixels = true;
             Channel = ClosedCaptionChannel.CC1;
+
+            ChannelPacketBuffer[ClosedCaptionChannel.CC1] = new SortedDictionary<long, ClosedCaptionPacket>();
+            ChannelPacketBuffer[ClosedCaptionChannel.CC2] = new SortedDictionary<long, ClosedCaptionPacket>();
+            ChannelPacketBuffer[ClosedCaptionChannel.CC3] = new SortedDictionary<long, ClosedCaptionPacket>();
+            ChannelPacketBuffer[ClosedCaptionChannel.CC4] = new SortedDictionary<long, ClosedCaptionPacket>();
+
             InitializeComponent();
         }
 
@@ -128,7 +138,7 @@
         /// <param name="currentBlock">The current block.</param>
         /// <param name="mediaCore">The media core.</param>
         /// <param name="clockPosition">The clock position.</param>
-        public void RenderPacket(VideoBlock currentBlock, MediaEngine mediaCore, TimeSpan clockPosition)
+        public void FeedPackets(VideoBlock currentBlock, MediaEngine mediaCore, TimeSpan clockPosition)
         {
             // Feed the available closed captions into the packet buffer
             var block = currentBlock;
@@ -143,18 +153,47 @@
                 block = mediaCore.Blocks[currentBlock.MediaType].Next(block) as VideoBlock;
             }
 
-            // Trim the packet buffer if necessary
-            var itemRemovalCount = PacketBuffer.Count - PacketBufferLength;
-            if (itemRemovalCount > 0)
+            var maxPosition = clockPosition.Ticks + currentBlock.Duration.Ticks;
+            var maxKey = long.MinValue;
+            var parity1LastChannel = 1;
+            var parity2LastChannel = 1;
+            foreach (var kvp in PacketBuffer)
             {
-                var keys = PacketBuffer.Keys.Skip(0).Take(itemRemovalCount);
-                foreach (var key in keys)
-                    PacketBuffer.Remove(key);
+                var position = kvp.Key;
+                var packet = kvp.Value;
+
+                if (position >= maxPosition) break;
+
+                maxKey = position;
+                if (packet.FieldParity != 1 && packet.FieldParity != 2) continue;
+                if (packet.PacketType == CCPacketType.NullPad || packet.PacketType == CCPacketType.Unrecognized) continue;
+
+                if (packet.FieldChannel == 1 || packet.FieldChannel == 2)
+                {
+                    if (packet.FieldParity == 1)
+                        parity1LastChannel = packet.FieldChannel;
+                    else
+                        parity2LastChannel = packet.FieldChannel;
+                }
+
+                var channel = ClosedCaptionPacket.ComputeChannel(
+                    packet.FieldParity, (packet.FieldParity == 1) ? parity1LastChannel : parity2LastChannel);
+
+                var previousPacket = ChannelPacketBuffer[channel].Count == 0 ?
+                    null : ChannelPacketBuffer[channel][ChannelPacketBuffer[channel].Keys.Last()];
+
+                if (previousPacket != null && packet.IsRepeatedControlCode(previousPacket))
+                    continue;
+
+                ChannelPacketBuffer[channel][position] = packet;
             }
 
-            if (itemRemovalCount >= 1)
+            // Trim the packet buffer if necessary
+            var keys = PacketBuffer.Keys.ToArray();
+            foreach (var key in keys)
             {
-                // var output = string.Join("\r\n", PacketBuffer.Values.Select(v => v.ToString()));
+                if (key > maxKey) break;
+                PacketBuffer.Remove(key);
             }
         }
 
