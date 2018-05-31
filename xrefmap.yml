@@ -928,6 +928,25 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.Close
   nameWithType: MediaElement.Close
+- uid: Unosquare.FFME.MediaElement.ClosedCaptionsChannel
+  name: ClosedCaptionsChannel
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_ClosedCaptionsChannel
+  commentId: P:Unosquare.FFME.MediaElement.ClosedCaptionsChannel
+  fullName: Unosquare.FFME.MediaElement.ClosedCaptionsChannel
+  nameWithType: MediaElement.ClosedCaptionsChannel
+- uid: Unosquare.FFME.MediaElement.ClosedCaptionsChannel*
+  name: ClosedCaptionsChannel
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_ClosedCaptionsChannel_
+  commentId: Overload:Unosquare.FFME.MediaElement.ClosedCaptionsChannel
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.ClosedCaptionsChannel
+  nameWithType: MediaElement.ClosedCaptionsChannel
+- uid: Unosquare.FFME.MediaElement.ClosedCaptionsChannelProperty
+  name: ClosedCaptionsChannelProperty
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_ClosedCaptionsChannelProperty
+  commentId: F:Unosquare.FFME.MediaElement.ClosedCaptionsChannelProperty
+  fullName: Unosquare.FFME.MediaElement.ClosedCaptionsChannelProperty
+  nameWithType: MediaElement.ClosedCaptionsChannelProperty
 - uid: Unosquare.FFME.MediaElement.Dispose
   name: Dispose()
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Dispose
