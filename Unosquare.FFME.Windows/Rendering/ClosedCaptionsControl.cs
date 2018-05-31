@@ -45,11 +45,6 @@
         }
 
         /// <summary>
-        /// Gets a value indicating whether CC packets have been received
-        /// </summary>
-        public bool HasClosedCaptions => Buffer.HasClosedCaptions;
-
-        /// <summary>
         /// Sends the packets to the CC packet buffer for state management.
         /// </summary>
         /// <param name="currentBlock">The current block.</param>

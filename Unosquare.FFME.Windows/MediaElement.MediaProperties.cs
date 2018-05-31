@@ -268,5 +268,10 @@
         /// Gets the current playback state.
         /// </summary>
         public MediaState MediaState => (MediaState)(MediaCore?.State.MediaState ?? PlaybackStatus.Close);
+
+        /// <summary>
+        /// Gets a value indicating whether the video stream contains closed captions
+        /// </summary>
+        public bool HasClosedCaptions => MediaCore?.State.HasClosedCaptions ?? default;
     }
 }

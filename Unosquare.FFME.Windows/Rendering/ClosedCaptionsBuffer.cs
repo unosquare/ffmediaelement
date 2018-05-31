@@ -150,11 +150,6 @@
         /// </summary>
         public ClosedCaptionPacket CurrentPacket { get; private set; } = default;
 
-        /// <summary>
-        /// Gets a value indicating whether CC packets have been received
-        /// </summary>
-        public bool HasClosedCaptions { get; private set; } = default;
-
         #endregion
 
         #region Helper Properties
@@ -228,7 +223,6 @@
 
                     // Update the Write Tag and move on to the next block
                     WriteTag = block.StartTime;
-                    HasClosedCaptions = true;
                 }
 
                 block = mediaCore.Blocks[currentBlock.MediaType].Next(block) as VideoBlock;
@@ -293,7 +287,6 @@
         public void Reset()
         {
             // Clear the packet buffers
-            HasClosedCaptions = false;
             CurrentPacket = default;
             PacketBuffer.Clear();
             for (var channel = 1; channel <= 4; channel++)

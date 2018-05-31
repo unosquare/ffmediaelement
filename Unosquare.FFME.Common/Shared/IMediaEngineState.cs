@@ -89,6 +89,11 @@
         bool HasVideo { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the current video stream has closed captions
+        /// </summary>
+        bool HasClosedCaptions { get; }
+
+        /// <summary>
         /// Gets a value indicating whether the media is buffering.
         /// </summary>
         bool IsBuffering { get; }

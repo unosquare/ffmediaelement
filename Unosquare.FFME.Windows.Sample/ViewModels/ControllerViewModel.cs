@@ -15,6 +15,7 @@
         private Visibility m_IsMediaOpenVisibility = Visibility.Visible;
         private bool m_IsAudioControlEnabled = true;
         private bool m_IsSpeedRatioEnabled = true;
+        private bool m_IsClosedCaptionsEnabled = false;
         private Visibility m_AudioControlVisibility = Visibility.Visible;
         private Visibility m_PauseButtonVisibility = Visibility.Visible;
         private Visibility m_PlayButtonVisibility = Visibility.Visible;
@@ -51,6 +52,15 @@
         {
             get => m_IsAudioControlEnabled;
             set => SetProperty(ref m_IsAudioControlEnabled, value);
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance is closed captions enabled.
+        /// </summary>
+        public bool IsClosedCaptionsEnabled
+        {
+            get => m_IsClosedCaptionsEnabled;
+            set => SetProperty(ref m_IsClosedCaptionsEnabled, value);
         }
 
         /// <summary>
@@ -197,6 +207,9 @@
 
             new Action(() => { IsMediaOpenVisibility = m.IsOpen ? Visibility.Visible : Visibility.Hidden; })
                 .WhenChanged(m, nameof(m.IsOpen));
+
+            new Action(() => { IsClosedCaptionsEnabled = m.HasClosedCaptions; })
+                .WhenChanged(m, nameof(m.HasClosedCaptions));
 
             new Action(() =>
             {

@@ -42,6 +42,7 @@
                     <local:PlaylistEntryThumbnailConverter x:Key="PlaylistEntryThumbnailConverter" />
                     <local:UtcDateToLocalTimeString x:Key="UtcDateToLocalTimeString" />
                     <local:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+                    <local:ClosedCaptionsChannelConverter x:Key="ClosedCaptionsChannelConverter" />
                 </ResourceDictionary>
                 
                 <!-- Resource Dictionaries -->

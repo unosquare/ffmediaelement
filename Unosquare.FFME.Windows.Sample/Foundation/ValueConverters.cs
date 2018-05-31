@@ -1,6 +1,7 @@
 ﻿#pragma warning disable SA1649 // File name must match first type name
 namespace Unosquare.FFME.Windows.Sample.Foundation
 {
+    using ClosedCaptions;
     using System;
     using System.Globalization;
     using System.Windows;
@@ -302,6 +303,20 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotSupportedException();
+        }
+    }
+
+    [ValueConversion(typeof(bool), typeof(bool))]
+    internal class ClosedCaptionsChannelConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return (ClosedCaptionChannel)value != ClosedCaptionChannel.CCP;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return (bool)value ? ClosedCaptionChannel.CC1 : ClosedCaptionChannel.CCP;
         }
     }
 }
