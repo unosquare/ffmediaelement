@@ -62,7 +62,7 @@
         public void Render(ClosedCaptionChannel channel, TimeSpan clockPosition)
         {
             Buffer.UpdateState(channel, clockPosition);
-            ProjectBuffer();
+            PaintBuffer();
         }
 
         /// <summary>
@@ -71,14 +71,14 @@
         public void Reset()
         {
             Buffer.Reset();
-            ProjectBuffer();
+            PaintBuffer();
         }
 
         /// <summary>
         /// Takes the current state of the CC packet buffer and projects the visual properties
         /// on to the CC visual grid of characters
         /// </summary>
-        private void ProjectBuffer()
+        private void PaintBuffer()
         {
             for (var r = 0; r < ClosedCaptionsBuffer.RowCount; r++)
             {

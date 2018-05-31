@@ -5,6 +5,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// Provides a Closed Captions packet buffer and state manager
@@ -34,7 +35,7 @@
 
         private const int DefaultScrollSize = 2;
 
-        private const ParserStateMode DefaultStateMode = ParserStateMode.Scrolling;
+        private const ParserStateMode DefaultStateMode = ParserStateMode.None;
 
         #endregion
 
@@ -87,6 +88,11 @@
         /// </summary>
         public enum ParserStateMode
         {
+            /// <summary>
+            /// When no state has been detected yet
+            /// </summary>
+            None,
+
             /// <summary>
             /// The direct CC display mode
             /// </summary>
@@ -315,7 +321,8 @@
         }
 
         /// <summary>
-        /// Updates the state using the packets that were demuxed into the specified channel
+        /// Updates the state using the packets that were demuxed into the specified channel.
+        /// This can be called outside the GUI thread.
         /// </summary>
         /// <param name="channel">The channel.</param>
         /// <param name="clockPosition">The clock position.</param>
@@ -341,7 +348,11 @@
                     packets = dequeuedPackets;
             }
 
-            if (packets == null) return;
+            // Check if we have at least 1 dequeued packet
+            if (packets == null || packets.Count <= 0)
+                return;
+
+            // Start processing the dequeued packets for the given channel
             foreach (var packet in packets)
             {
                 // Skip duplicated control codes
@@ -353,12 +364,92 @@
 
                 // Update the current packet (we need this to detect duplicated control codes)
                 CurrentPacket = packet;
-                if (packet.PacketType == CCPacketType.MiscCommand)
+
+                // Now, go ahead and process the packet updating the state
+                switch (packet.PacketType)
                 {
-                    if (packet.MiscCommand == CCMiscCommandType.RollUp2)
+                    case CCPacketType.Charset:
+                        {
+                            // TODO: Keep a charset state variable
+                            break;
+                        }
+
+                    case CCPacketType.Color:
+                        {
+                            // TODO: Keep a color state variable
+                            break;
+                        }
+
+                    case CCPacketType.MidRow:
+                        {
+                            // TODO: Keep a midrow style state
+                            break;
+                        }
+
+                    case CCPacketType.MiscCommand:
+                        {
+                            ProcessMiscCommandPacket(packet);
+                            break;
+                        }
+
+                    case CCPacketType.Preamble:
+                        {
+                            ProcessPreamblePacket(packet);
+                            break;
+                        }
+
+                    case CCPacketType.Tabs:
+                        {
+                            // TODO: Process tab spacing (use " " and not string.empty)
+                            break;
+                        }
+
+                    case CCPacketType.Text:
+                        {
+                            ProcessTextPacket(packet);
+                            break;
+                        }
+
+                    case CCPacketType.XdsClass:
+                        {
+                            // Change state back and forth
+                            StateMode = packet.XdsClass == CCXdsClassType.EndAll ?
+                                ParserStateMode.None : ParserStateMode.XDS;
+                            break;
+                        }
+
+                    case CCPacketType.Unrecognized:
+                    case CCPacketType.NullPad:
+                    default:
+                        {
+                            break;
+                        }
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ProcessMiscCommandPacket(ClosedCaptionPacket packet)
+        {
+            var command = packet.MiscCommand;
+
+            // Set the scroll size if we have a rollup command
+            switch (command)
+            {
+                case CCMiscCommandType.RollUp2: ScrollSize = 2; break;
+                case CCMiscCommandType.RollUp3: ScrollSize = 3; break;
+                case CCMiscCommandType.RollUp4: ScrollSize = 4; break;
+                default: break;
+            }
+
+            switch (command)
+            {
+                case CCMiscCommandType.RollUp2:
+                case CCMiscCommandType.RollUp3:
+                case CCMiscCommandType.RollUp4:
                     {
+                        // Update the state to scrolling
                         StateMode = ParserStateMode.Scrolling;
-                        ScrollSize = 2;
 
                         // Clear rows outside of the scrolling area
                         for (var r = 0; r < RowCount; r++)
@@ -369,8 +460,11 @@
                             for (var c = 0; c < ColumnCount; c++)
                                 State[r][c].Clear();
                         }
+
+                        break;
                     }
-                    else if (packet.MiscCommand == CCMiscCommandType.NewLine)
+
+                case CCMiscCommandType.NewLine:
                     {
                         if (StateMode == ParserStateMode.Scrolling)
                         {
@@ -384,32 +478,45 @@
                             CursorRowIndex = ScrollBaseRowIndex;
                             CursorColumnIndex = default;
                         }
-                    }
-                }
-                else if (packet.PacketType == CCPacketType.Preamble)
-                {
-                    if (StateMode == ParserStateMode.Scrolling)
-                    {
-                        ScrollBaseRowIndex = packet.PreambleRow - 1;
-                        CursorRowIndex = ScrollBaseRowIndex;
-                        CursorColumnIndex = default;
-                    }
-                }
-                else if (packet.PacketType == CCPacketType.Text)
-                {
-                    if (StateMode == ParserStateMode.Scrolling)
-                    {
-                        var offset = 0;
-                        for (var c = CursorColumnIndex; c < ColumnCount; c++)
-                        {
-                            if (offset > packet.Text.Length - 1) break;
-                            State[CursorRowIndex][c].Character = packet.Text.Substring(offset, 1);
-                            offset++;
-                        }
 
-                        CursorColumnIndex += offset;
+                        break;
                     }
+
+                case CCMiscCommandType.AlarmOff:
+                case CCMiscCommandType.AlarmOn:
+                case CCMiscCommandType.None:
+                default:
+                    {
+                        break;
+                    }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ProcessPreamblePacket(ClosedCaptionPacket packet)
+        {
+            if (StateMode == ParserStateMode.Scrolling)
+            {
+                ScrollBaseRowIndex = packet.PreambleRow - 1;
+                CursorRowIndex = ScrollBaseRowIndex;
+                CursorColumnIndex = default;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ProcessTextPacket(ClosedCaptionPacket packet)
+        {
+            if (StateMode == ParserStateMode.Scrolling)
+            {
+                var offset = 0;
+                for (var c = CursorColumnIndex; c < ColumnCount; c++)
+                {
+                    if (offset > packet.Text.Length - 1) break;
+                    State[CursorRowIndex][c].Character = packet.Text.Substring(offset, 1);
+                    offset++;
                 }
+
+                CursorColumnIndex += offset;
             }
         }
 
@@ -474,25 +581,45 @@
         /// <summary>
         /// Represents a grid cell state containing a signle character of text
         /// </summary>
-        public class CellState
+        public sealed class CellState
         {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="CellState" /> class.
+            /// </summary>
+            /// <param name="rowIndex">Index of the row.</param>
+            /// <param name="columnIndex">Index of the column.</param>
             public CellState(int rowIndex, int columnIndex)
             {
                 RowIndex = rowIndex;
                 ColumnIndex = columnIndex;
             }
 
+            /// <summary>
+            /// Gets the index of the row this cell belongs to.
+            /// </summary>
             public int RowIndex { get; }
 
+            /// <summary>
+            /// Gets the index of the column this cell belongs to.
+            /// </summary>
             public int ColumnIndex { get; }
 
+            /// <summary>
+            /// Gets or sets the character.
+            /// </summary>
             public string Character { get; set; }
 
+            /// <summary>
+            /// Resets the entire state and contents of this cell
+            /// </summary>
             public void Reset()
             {
                 Character = null;
             }
 
+            /// <summary>
+            /// Clears the character contents of this cell
+            /// </summary>
             public void Clear()
             {
                 Character = null;
