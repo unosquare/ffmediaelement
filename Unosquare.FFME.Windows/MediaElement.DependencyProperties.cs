@@ -2,6 +2,7 @@
 #pragma warning disable SA1117 // Parameters must be on same line or separate lines
 namespace Unosquare.FFME
 {
+    using ClosedCaptions;
     using Shared;
     using System;
     using System.ComponentModel;
@@ -51,6 +52,31 @@ namespace Unosquare.FFME
             var element = d as MediaElement;
             element.MediaCore.State.Volume = (double)e.NewValue;
         }
+
+        #endregion
+
+        #region ClosedCaptionsChannel Dependency Property
+
+        /// <summary>
+        /// Gets/Sets the ClosedCaptionsChannel property on the MediaElement.
+        /// Note: Valid values are from 0 to 1
+        /// </summary>
+        [Category(nameof(MediaElement))]
+        [Description("The video CC Channel to render. Ranges from 0 to 4")]
+        public ClosedCaptionChannel ClosedCaptionsChannel
+        {
+            get { return (ClosedCaptionChannel)GetValue(ClosedCaptionsChannelProperty); }
+            set { SetValue(ClosedCaptionsChannelProperty, value); }
+        }
+
+        /// <summary>
+        /// The DependencyProperty for the MediaElement.ClosedCaptionsChannel property.
+        /// </summary>
+        public static readonly DependencyProperty ClosedCaptionsChannelProperty = DependencyProperty.Register(
+            nameof(ClosedCaptionsChannel), typeof(ClosedCaptionChannel), typeof(MediaElement),
+            new FrameworkPropertyMetadata(
+                Constants.Controller.DefaultClosedCaptionsChannel,
+                FrameworkPropertyMetadataOptions.None));
 
         #endregion
 

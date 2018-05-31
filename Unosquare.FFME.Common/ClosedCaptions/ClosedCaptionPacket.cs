@@ -493,6 +493,14 @@
         /// </summary>
         public string Text { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether this is a control packet.
+        /// </summary>
+        public bool IsControlPacket
+        {
+            get => D0 >= 0x10 && D0 <= 0x1F;
+        }
+
         #endregion
 
         #region Methods
@@ -528,7 +536,7 @@
         /// </returns>
         public bool IsRepeatedControlCode(ClosedCaptionPacket previousPacket)
         {
-            return D0 >= 0x10 && D0 <= 0x1F && previousPacket.D0 == D0 && previousPacket.D1 == D1;
+            return IsControlPacket && previousPacket.D0 == D0 && previousPacket.D1 == D1;
         }
 
         /// <summary>

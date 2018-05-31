@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Shared
 {
+    using ClosedCaptions;
     using FFmpeg.AutoGen;
     using System;
     using System.Collections.Generic;
@@ -43,6 +44,11 @@
             /// The default volume
             /// </summary>
             public const double DefaultVolume = 1.0d;
+
+            /// <summary>
+            /// The default closed captions channel
+            /// </summary>
+            public const ClosedCaptionChannel DefaultClosedCaptionsChannel = ClosedCaptionChannel.CCP;
 
             /// <summary>
             /// The minimum speed ratio

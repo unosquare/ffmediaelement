@@ -98,6 +98,9 @@
                     <ToggleButton Visibility="{Binding Controller.AudioControlVisibility}" Name="MuteUnmuteButton" Style="{DynamicResource ModernToggleButtonStyle}" IsChecked="{Binding App.MediaElement.IsMuted, Mode=TwoWay}">
                         <Path Stretch="Uniform" Data="{Binding Source={StaticResource UnmuteIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}}}" />
                     </ToggleButton>
+                    <ToggleButton Name="ClosedCapttionsButton" Style="{DynamicResource ModernToggleButtonStyle}">
+                        <Path Stretch="Uniform" Data="{Binding Source={StaticResource ClosedCaptions}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}}}" />
+                    </ToggleButton>
                 </DockPanel>
 
                 <DockPanel Name="RightControls" HorizontalAlignment="Right" Grid.Column="2">

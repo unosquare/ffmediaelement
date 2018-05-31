@@ -6,27 +6,55 @@
     using System.Collections.Generic;
     using System.Linq;
 
+    /// <summary>
+    /// Provides a Closed Captions packet buffer and state manager
+    /// </summary>
     internal sealed class ClosedCaptionsBuffer
     {
-        private const int MaxBufferLength = 512;
-        private const int ColumnCount = 32;
-        private const int RowCount = 15;
+        #region Constants
 
+        /// <summary>
+        /// The column count of the character grid
+        /// </summary>
+        public const int ColumnCount = 32;
+
+        /// <summary>
+        /// The row count of the character grid
+        /// </summary>
+        public const int RowCount = 15;
+
+        /// <summary>
+        /// The maximum length of the individual packet buffers
+        /// </summary>
+        private const int MaxBufferLength = 512;
+
+        private const int DefaultBaseRowIndex = 10;
+
+        private const int DefaultFieldChannel = 1;
+
+        private const int DefaultScrollSize = 2;
+
+        private const ParserStateMode DefaultStateMode = ParserStateMode.Scrolling;
+
+        #endregion
+
+        #region Internal Buffers
+
+        /// <summary>
+        /// The linear, non-demuxed packet buffer
+        /// </summary>
         private readonly SortedDictionary<long, ClosedCaptionPacket> PacketBuffer
             = new SortedDictionary<long, ClosedCaptionPacket>();
 
+        /// <summary>
+        /// The independent channel packet buffers
+        /// </summary>
         private readonly Dictionary<ClosedCaptionChannel, SortedDictionary<long, ClosedCaptionPacket>> ChannelPacketBuffer
             = new Dictionary<ClosedCaptionChannel, SortedDictionary<long, ClosedCaptionPacket>>();
 
-        // Packet State Variables
-        private readonly Dictionary<int, Dictionary<int, CellState>> State;
-        private ClosedCaptionChannel Channel = ClosedCaptionChannel.CC1;
-        private int Parity1LastChannel = 1;
-        private int Parity2LastChannel = 1;
-        private TimeSpan WriteTag = TimeSpan.MinValue;
-        private int CurrentRowIndex = 10; // Default Row Number = 11
-        private int CurrentColumnIndex = 0;
-        private int ScrollSize = 2; // default is 2
+        #endregion
+
+        #region Constructors
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClosedCaptionsBuffer"/> class.
@@ -37,7 +65,6 @@
                 ChannelPacketBuffer[(ClosedCaptionChannel)channel] = new SortedDictionary<long, ClosedCaptionPacket>();
 
             // Instantiate the state buffer
-            State = new Dictionary<int, Dictionary<int, CellState>>(RowCount);
             for (var rowIndex = 0; rowIndex < RowCount; rowIndex++)
             {
                 State[rowIndex] = new Dictionary<int, CellState>(ColumnCount);
@@ -51,8 +78,136 @@
             Reset();
         }
 
+        #endregion
+
+        #region Enumerations
+
         /// <summary>
-        /// Renders the packets.
+        /// Defines the different state parsing modes
+        /// </summary>
+        public enum ParserStateMode
+        {
+            /// <summary>
+            /// The direct CC display mode
+            /// </summary>
+            Scrolling,
+
+            /// <summary>
+            /// The buffered text display mode
+            /// </summary>
+            Buffered,
+
+            /// <summary>
+            /// The non-display data mode
+            /// </summary>
+            Data,
+
+            /// <summary>
+            /// The XDS, non-display mode
+            /// </summary>
+            XDS
+        }
+
+        #endregion
+
+        #region State Properties
+
+        /// <summary>
+        /// Provides access to the state of each of the character cells in the grid
+        /// </summary>
+        public Dictionary<int, Dictionary<int, CellState>> State { get; } = new Dictionary<int, Dictionary<int, CellState>>(RowCount);
+
+        /// <summary>
+        /// Gets the index of the scroll base row.
+        /// </summary>
+        public int ScrollBaseRowIndex { get; private set; } = DefaultBaseRowIndex;
+
+        /// <summary>
+        /// Gets the size of the scroll.
+        /// </summary>
+        public int ScrollSize { get; private set; } = DefaultScrollSize;
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is in buffered mode.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is in buffered mode; otherwise, <c>false</c>.
+        /// </value>
+        public ParserStateMode StateMode { get; private set; } = DefaultStateMode;
+
+        /// <summary>
+        /// Gets the current row index position of the cursor
+        /// </summary>
+        public int CursorRowIndex { get; private set; } = DefaultBaseRowIndex;
+
+        /// <summary>
+        /// Gets the current column index position of the cursor
+        /// </summary>
+        public int CursorColumnIndex { get; private set; } = default;
+
+        /// <summary>
+        /// Gets the currently active packet.
+        /// </summary>
+        public ClosedCaptionPacket CurrentPacket { get; private set; } = default;
+
+        /// <summary>
+        /// Gets a value indicating whether CC packets have been received
+        /// </summary>
+        public bool HasClosedCaptions { get; private set; } = default;
+
+        #endregion
+
+        #region Helper Properties
+
+        /// <summary>
+        /// Gets the current row number position of the cursor
+        /// </summary>
+        public int CurrentRowNumber
+        {
+            get => CursorRowIndex + 1;
+            private set => CursorRowIndex = value - 1;
+        }
+
+        /// <summary>
+        /// Gets the current column number position of the cursor
+        /// </summary>
+        public int CurrentColumnNumber
+        {
+            get => CursorColumnIndex + 1;
+            private set => CursorColumnIndex = value - 1;
+        }
+
+        #endregion
+
+        #region Write State Properties
+
+        /// <summary>
+        /// Gets the last start time position of the video block cntaining the CC packets.
+        /// </summary>
+        public TimeSpan WriteTag { get; private set; } = TimeSpan.MinValue;
+
+        /// <summary>
+        /// Gets currently active CC channel.
+        /// Changing the channel resets the entire state
+        /// </summary>
+        public ClosedCaptionChannel Channel { get; private set; } = ClosedCaptionChannel.CC1;
+
+        /// <summary>
+        /// Gets the last channel specified by Field with parity 1.
+        /// </summary>
+        public int Field1LastChannel { get; private set; } = DefaultFieldChannel;
+
+        /// <summary>
+        /// Gets the last channel specified by Field with parity 2.
+        /// </summary>
+        public int Field2LastChannel { get; private set; } = DefaultFieldChannel;
+
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        /// Writes the packets and demuxes them into its independent channel buffers
         /// </summary>
         /// <param name="currentBlock">The current block.</param>
         /// <param name="mediaCore">The media core.</param>
@@ -65,15 +220,17 @@
             while (block != null)
             {
                 // Skip the block if we already wrote its CC packets
-                if (block.StartTime.Ticks <= WriteTag.Ticks)
-                    continue;
+                if (block.ClosedCaptions.Count > 0 && block.StartTime.Ticks > WriteTag.Ticks)
+                {
+                    // Add the CC packets to the general packet buffer
+                    foreach (var cc in block.ClosedCaptions)
+                        PacketBuffer[cc.Timestamp.Ticks] = cc;
 
-                // Add the CC packets to the general packet buffer
-                foreach (var cc in block.ClosedCaptions)
-                    PacketBuffer[cc.Timestamp.Ticks] = cc;
+                    // Update the Write Tag and move on to the next block
+                    WriteTag = block.StartTime;
+                    HasClosedCaptions = true;
+                }
 
-                // Update the Write Tag and move on to the next block
-                WriteTag = block.StartTime;
                 block = mediaCore.Blocks[currentBlock.MediaType].Next(block) as VideoBlock;
             }
 
@@ -98,32 +255,25 @@
                 if (packet.FieldParity != 1 && packet.FieldParity != 2) continue;
                 if (packet.PacketType == CCPacketType.NullPad || packet.PacketType == CCPacketType.Unrecognized) continue;
 
-                // Update the last channel state if we have all available info
+                // Update the last channel state if we have all available info (both parity and channel)
+                // This is because some packets will arrive with Field data but not with channel data which means just use the prior channel from the same field.
                 if (packet.FieldChannel == 1 || packet.FieldChannel == 2)
                 {
                     if (packet.FieldParity == 1)
-                        Parity1LastChannel = packet.FieldChannel;
+                        Field1LastChannel = packet.FieldChannel;
                     else
-                        Parity2LastChannel = packet.FieldChannel;
+                        Field2LastChannel = packet.FieldChannel;
                 }
 
                 // Compute the channel using the packet's field parity and the last available channel state
                 var channel = ClosedCaptionPacket.ComputeChannel(
-                    packet.FieldParity, (packet.FieldParity == 1) ? Parity1LastChannel : Parity2LastChannel);
+                    packet.FieldParity, (packet.FieldParity == 1) ? Field1LastChannel : Field2LastChannel);
 
-                // Get a reference to the previous packet
-                var previousPacket = ChannelPacketBuffer[channel].Count == 0 ?
-                    null : ChannelPacketBuffer[channel][ChannelPacketBuffer[channel].Last().Key];
-
-                // Check if the previous packet is just a repeated control code packet; skip it if it is
-                if (previousPacket != null && packet.IsRepeatedControlCode(previousPacket))
-                    continue;
-
-                // Assign the packet to the correspnding channel buffer
+                // Demux the packet to the correspnding channel buffer so the channels are independent
                 ChannelPacketBuffer[channel][position] = packet;
             }
 
-            // Remove the demuxed packets from the packet buffer
+            // Remove the demuxed packets from the general (linear) packet buffer
             foreach (var bufferKey in linearBufferKeys)
             {
                 if (bufferKey > lastDemuxedKey)
@@ -143,17 +293,23 @@
         public void Reset()
         {
             // Clear the packet buffers
+            HasClosedCaptions = false;
+            CurrentPacket = default;
             PacketBuffer.Clear();
             for (var channel = 1; channel <= 4; channel++)
                 ChannelPacketBuffer[(ClosedCaptionChannel)channel].Clear();
 
-            // Clear the state
-            Parity1LastChannel = 1;
-            Parity2LastChannel = 1;
+            // Reset the writer state
+            Field1LastChannel = DefaultFieldChannel;
+            Field2LastChannel = DefaultFieldChannel;
             WriteTag = TimeSpan.MinValue;
-            CurrentRowIndex = 10; // Default Row Number = 11
-            CurrentColumnIndex = 0;
-            ScrollSize = 2;
+
+            // Reset the parser state
+            CursorRowIndex = DefaultBaseRowIndex;
+            CursorColumnIndex = default;
+            ScrollBaseRowIndex = DefaultBaseRowIndex;
+            ScrollSize = DefaultScrollSize;
+            StateMode = DefaultStateMode;
 
             // Clear the state buffer
             for (var rowIndex = 0; rowIndex < RowCount; rowIndex++)
@@ -165,7 +321,12 @@
             }
         }
 
-        public void Update(ClosedCaptionChannel channel, TimeSpan clockPosition)
+        /// <summary>
+        /// Updates the state using the packets that were demuxed into the specified channel
+        /// </summary>
+        /// <param name="channel">The channel.</param>
+        /// <param name="clockPosition">The clock position.</param>
+        public void UpdateState(ClosedCaptionChannel channel, TimeSpan clockPosition)
         {
             // Reset the buffer state if the channels don't match
             if (channel != Channel)
@@ -173,6 +334,9 @@
                 Reset();
                 Channel = channel;
             }
+
+            if (channel == ClosedCaptionChannel.CCP)
+                return;
 
             // Dequeue packets for all channels but only process the current channel packets
             List<ClosedCaptionPacket> packets = null;
@@ -187,20 +351,71 @@
             if (packets == null) return;
             foreach (var packet in packets)
             {
+                // Skip duplicated control codes
+                if (CurrentPacket != null && CurrentPacket.IsRepeatedControlCode(packet))
+                {
+                    CurrentPacket = packet;
+                    continue;
+                }
+
+                // Update the current packet (we need this to detect duplicated control codes)
+                CurrentPacket = packet;
                 if (packet.PacketType == CCPacketType.MiscCommand)
                 {
                     if (packet.MiscCommand == CCMiscCommandType.RollUp2)
                     {
-                        // TODO
+                        StateMode = ParserStateMode.Scrolling;
+                        ScrollSize = 2;
+
+                        // Clear rows outside of the scrolling area
+                        for (var r = 0; r < RowCount; r++)
+                        {
+                            if (r > ScrollBaseRowIndex - ScrollSize && r <= ScrollBaseRowIndex)
+                                continue;
+
+                            for (var c = 0; c < ColumnCount; c++)
+                                State[r][c].Clear();
+                        }
+                    }
+                    else if (packet.MiscCommand == CCMiscCommandType.NewLine)
+                    {
+                        if (StateMode == ParserStateMode.Scrolling)
+                        {
+                            var targetRowIndex = CursorRowIndex - 1;
+                            for (var c = 0; c < ColumnCount; c++)
+                            {
+                                State[targetRowIndex][c].Character = State[CursorRowIndex][c].Character;
+                                State[CursorRowIndex][c].Clear();
+                            }
+
+                            CursorRowIndex = ScrollBaseRowIndex;
+                            CursorColumnIndex = default;
+                        }
                     }
                 }
                 else if (packet.PacketType == CCPacketType.Preamble)
                 {
-                    // TODO
+                    if (StateMode == ParserStateMode.Scrolling)
+                    {
+                        ScrollBaseRowIndex = packet.PreambleRow - 1;
+                        CursorRowIndex = ScrollBaseRowIndex;
+                        CursorColumnIndex = default;
+                    }
                 }
                 else if (packet.PacketType == CCPacketType.Text)
                 {
-                    // TODO
+                    if (StateMode == ParserStateMode.Scrolling)
+                    {
+                        var offset = 0;
+                        for (var c = CursorColumnIndex; c < ColumnCount; c++)
+                        {
+                            if (offset > packet.Text.Length - 1) break;
+                            State[CursorRowIndex][c].Character = packet.Text.Substring(offset, 1);
+                            offset++;
+                        }
+
+                        CursorColumnIndex += offset;
+                    }
                 }
             }
         }
@@ -259,6 +474,13 @@
             return result;
         }
 
+        #endregion
+
+        #region Supporting Classes
+
+        /// <summary>
+        /// Represents a grid cell state containing a signle character of text
+        /// </summary>
         public class CellState
         {
             public CellState(int rowIndex, int columnIndex)
@@ -277,6 +499,13 @@
             {
                 Character = null;
             }
+
+            public void Clear()
+            {
+                Character = null;
+            }
         }
+
+        #endregion
     }
 }
