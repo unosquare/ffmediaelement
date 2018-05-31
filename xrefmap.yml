@@ -1057,6 +1057,19 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.HasAudio
   nameWithType: MediaElement.HasAudio
+- uid: Unosquare.FFME.MediaElement.HasClosedCaptions
+  name: HasClosedCaptions
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_HasClosedCaptions
+  commentId: P:Unosquare.FFME.MediaElement.HasClosedCaptions
+  fullName: Unosquare.FFME.MediaElement.HasClosedCaptions
+  nameWithType: MediaElement.HasClosedCaptions
+- uid: Unosquare.FFME.MediaElement.HasClosedCaptions*
+  name: HasClosedCaptions
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_HasClosedCaptions_
+  commentId: Overload:Unosquare.FFME.MediaElement.HasClosedCaptions
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.HasClosedCaptions
+  nameWithType: MediaElement.HasClosedCaptions
 - uid: Unosquare.FFME.MediaElement.HasMediaEnded
   name: HasMediaEnded
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_HasMediaEnded
