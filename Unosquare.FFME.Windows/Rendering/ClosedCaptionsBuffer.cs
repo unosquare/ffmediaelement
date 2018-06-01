@@ -160,28 +160,6 @@
 
         #endregion
 
-        #region Helper Properties
-
-        /// <summary>
-        /// Gets the current row number position of the cursor
-        /// </summary>
-        public int CurrentRowNumber
-        {
-            get => CursorRowIndex + 1;
-            private set => CursorRowIndex = value - 1;
-        }
-
-        /// <summary>
-        /// Gets the current column number position of the cursor
-        /// </summary>
-        public int CurrentColumnNumber
-        {
-            get => CursorColumnIndex + 1;
-            private set => CursorColumnIndex = value - 1;
-        }
-
-        #endregion
-
         #region Write State Properties
 
         /// <summary>
@@ -541,7 +519,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessPreamblePacket(ClosedCaptionPacket packet)
         {
-            if (StateMode == ParserStateMode.Scrolling)
+            if (StateMode == ParserStateMode.Scrolling || StateMode == ParserStateMode.Buffered)
             {
                 ScrollBaseRowIndex = packet.PreambleRow - 1;
                 CursorRowIndex = ScrollBaseRowIndex;
