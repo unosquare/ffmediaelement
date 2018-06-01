@@ -3,7 +3,7 @@
     /// <summary>
     /// Enumerates the differen Closed-Captioning Colors
     /// </summary>
-    public enum CCColorType
+    public enum CaptionsColor
     {
         /// <summary>
         /// No color

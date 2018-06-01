@@ -3,7 +3,7 @@
     /// <summary>
     /// Enumerates the differen Closed-Captioning Styles
     /// </summary>
-    public enum CCStyleType
+    public enum CaptionsStyle
     {
         /// <summary>
         /// The none style

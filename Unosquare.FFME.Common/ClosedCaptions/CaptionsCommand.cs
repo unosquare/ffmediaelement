@@ -3,7 +3,7 @@
     /// <summary>
     /// Enumerates the Closed-Captioning misc commands
     /// </summary>
-    public enum CCMiscCommandType
+    public enum CaptionsCommand
     {
         /// <summary>
         /// No command
@@ -32,21 +32,22 @@
 
         /// <summary>
         /// The clear line command
+        /// Delete to end of Row (DER)
         /// </summary>
         ClearLine = 0x24,
 
         /// <summary>
-        /// The roll up2 command
+        /// The roll up 2 command
         /// </summary>
         RollUp2 = 0x25,
 
         /// <summary>
-        /// The roll up3 command
+        /// The roll up 3 command
         /// </summary>
         RollUp3 = 0x26,
 
         /// <summary>
-        /// The roll up4 command
+        /// The roll up 4 command
         /// </summary>
         RollUp4 = 0x27,
 

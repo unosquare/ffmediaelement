@@ -3,7 +3,7 @@
     /// <summary>
     /// Defines Closed-Captioning Packet types
     /// </summary>
-    public enum CCPacketType
+    public enum CaptionsPacketType
     {
         /// <summary>
         /// The unrecognized packet type
@@ -23,7 +23,7 @@
         /// <summary>
         /// The misc command packet type
         /// </summary>
-        MiscCommand,
+        Command,
 
         /// <summary>
         /// The text packet type
@@ -52,6 +52,7 @@
 
         /// <summary>
         /// The tabs packet type
+        /// Section B.4 Tab Offsets
         /// </summary>
         Tabs,
     }

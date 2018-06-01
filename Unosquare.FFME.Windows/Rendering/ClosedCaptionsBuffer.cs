@@ -50,8 +50,8 @@
         /// <summary>
         /// The independent channel packet buffers
         /// </summary>
-        private readonly Dictionary<ClosedCaptionChannel, SortedDictionary<long, ClosedCaptionPacket>> ChannelPacketBuffer
-            = new Dictionary<ClosedCaptionChannel, SortedDictionary<long, ClosedCaptionPacket>>();
+        private readonly Dictionary<CaptionsChannel, SortedDictionary<long, ClosedCaptionPacket>> ChannelPacketBuffer
+            = new Dictionary<CaptionsChannel, SortedDictionary<long, ClosedCaptionPacket>>();
 
         private readonly List<string> DebugData = new List<string>();
 
@@ -65,7 +65,7 @@
         public ClosedCaptionsBuffer()
         {
             for (var channel = 1; channel <= 4; channel++)
-                ChannelPacketBuffer[(ClosedCaptionChannel)channel] = new SortedDictionary<long, ClosedCaptionPacket>();
+                ChannelPacketBuffer[(CaptionsChannel)channel] = new SortedDictionary<long, ClosedCaptionPacket>();
 
             // Instantiate the state buffer
             for (var rowIndex = 0; rowIndex < RowCount; rowIndex++)
@@ -171,7 +171,7 @@
         /// Gets currently active CC channel.
         /// Changing the channel resets the entire state
         /// </summary>
-        public ClosedCaptionChannel Channel { get; private set; } = ClosedCaptionChannel.CC1;
+        public CaptionsChannel Channel { get; private set; } = CaptionsChannel.CC1;
 
         /// <summary>
         /// Gets the last channel specified by Field with parity 1.
@@ -233,7 +233,7 @@
 
                 // Skip packets that don't have a valid field parity or that are null
                 if (packet.FieldParity != 1 && packet.FieldParity != 2) continue;
-                if (packet.PacketType == CCPacketType.NullPad || packet.PacketType == CCPacketType.Unrecognized) continue;
+                if (packet.PacketType == CaptionsPacketType.NullPad || packet.PacketType == CaptionsPacketType.Unrecognized) continue;
 
                 // Update the last channel state if we have all available info (both parity and channel)
                 // This is because some packets will arrive with Field data but not with channel data which means just use the prior channel from the same field.
@@ -276,7 +276,7 @@
             CurrentPacket = default;
             PacketBuffer.Clear();
             for (var channel = 1; channel <= 4; channel++)
-                ChannelPacketBuffer[(ClosedCaptionChannel)channel].Clear();
+                ChannelPacketBuffer[(CaptionsChannel)channel].Clear();
 
             // Reset the writer state
             Field1LastChannel = DefaultFieldChannel;
@@ -306,7 +306,7 @@
         /// </summary>
         /// <param name="channel">The channel.</param>
         /// <param name="clockPosition">The clock position.</param>
-        public void UpdateState(ClosedCaptionChannel channel, TimeSpan clockPosition)
+        public void UpdateState(CaptionsChannel channel, TimeSpan clockPosition)
         {
             // Reset the buffer state if the channels don't match
             if (channel != Channel)
@@ -315,14 +315,14 @@
                 Channel = channel;
             }
 
-            if (channel == ClosedCaptionChannel.CCP)
+            if (channel == CaptionsChannel.CCP)
                 return;
 
             // Dequeue packets for all channels but only process the current channel packets
             List<ClosedCaptionPacket> packets = null;
             for (var c = 1; c <= 4; c++)
             {
-                var currentChannel = (ClosedCaptionChannel)c;
+                var currentChannel = (CaptionsChannel)c;
                 var dequeuedPackets = DequeuePackets(ChannelPacketBuffer[currentChannel], clockPosition.Ticks);
                 if (currentChannel == Channel)
                     packets = dequeuedPackets;
@@ -349,37 +349,37 @@
                 // Now, go ahead and process the packet updating the state
                 switch (packet.PacketType)
                 {
-                    case CCPacketType.Charset:
+                    case CaptionsPacketType.Charset:
                         {
                             // TODO: Keep a charset state variable
                             break;
                         }
 
-                    case CCPacketType.Color:
+                    case CaptionsPacketType.Color:
                         {
                             // TODO: Keep a color state variable
                             break;
                         }
 
-                    case CCPacketType.MidRow:
+                    case CaptionsPacketType.MidRow:
                         {
                             // TODO: Keep a midrow style state
                             break;
                         }
 
-                    case CCPacketType.MiscCommand:
+                    case CaptionsPacketType.Command:
                         {
-                            ProcessMiscCommandPacket(packet);
+                            ProcessCommandPacket(packet);
                             break;
                         }
 
-                    case CCPacketType.Preamble:
+                    case CaptionsPacketType.Preamble:
                         {
                             ProcessPreamblePacket(packet);
                             break;
                         }
 
-                    case CCPacketType.Tabs:
+                    case CaptionsPacketType.Tabs:
                         {
                             if (StateMode == ParserStateMode.Scrolling || StateMode == ParserStateMode.Buffered)
                             {
@@ -390,22 +390,22 @@
                             break;
                         }
 
-                    case CCPacketType.Text:
+                    case CaptionsPacketType.Text:
                         {
                             ProcessTextPacket(packet);
                             break;
                         }
 
-                    case CCPacketType.XdsClass:
+                    case CaptionsPacketType.XdsClass:
                         {
                             // Change state back and forth
-                            StateMode = packet.XdsClass == CCXdsClassType.EndAll ?
+                            StateMode = packet.XdsClass == CaptionsXdsClass.EndAll ?
                                 ParserStateMode.None : ParserStateMode.XDS;
                             break;
                         }
 
-                    case CCPacketType.Unrecognized:
-                    case CCPacketType.NullPad:
+                    case CaptionsPacketType.Unrecognized:
+                    case CaptionsPacketType.NullPad:
                     default:
                         {
                             break;
@@ -415,24 +415,24 @@
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ProcessMiscCommandPacket(ClosedCaptionPacket packet)
+        private void ProcessCommandPacket(ClosedCaptionPacket packet)
         {
-            var command = packet.MiscCommand;
+            var command = packet.Command;
 
             // Set the scroll size if we have a rollup command
             switch (command)
             {
-                case CCMiscCommandType.RollUp2: ScrollSize = 2; break;
-                case CCMiscCommandType.RollUp3: ScrollSize = 3; break;
-                case CCMiscCommandType.RollUp4: ScrollSize = 4; break;
+                case CaptionsCommand.RollUp2: ScrollSize = 2; break;
+                case CaptionsCommand.RollUp3: ScrollSize = 3; break;
+                case CaptionsCommand.RollUp4: ScrollSize = 4; break;
                 default: break;
             }
 
             switch (command)
             {
-                case CCMiscCommandType.RollUp2:
-                case CCMiscCommandType.RollUp3:
-                case CCMiscCommandType.RollUp4:
+                case CaptionsCommand.RollUp2:
+                case CaptionsCommand.RollUp3:
+                case CaptionsCommand.RollUp4:
                     {
                         // Update the state to scrolling
                         StateMode = ParserStateMode.Scrolling;
@@ -450,7 +450,7 @@
                         break;
                     }
 
-                case CCMiscCommandType.NewLine:
+                case CaptionsCommand.NewLine:
                     {
                         if (StateMode == ParserStateMode.Scrolling)
                         {
@@ -468,7 +468,7 @@
                         break;
                     }
 
-                case CCMiscCommandType.Resume:
+                case CaptionsCommand.Resume:
                     {
                         StateMode = ParserStateMode.Buffered;
                         CursorRowIndex = 0;
@@ -476,7 +476,7 @@
                         break;
                     }
 
-                case CCMiscCommandType.ClearScreen:
+                case CaptionsCommand.ClearScreen:
                     {
                         for (var r = 0; r < RowCount; r++)
                         {
@@ -489,7 +489,7 @@
                         break;
                     }
 
-                case CCMiscCommandType.EndCaption:
+                case CaptionsCommand.EndCaption:
                     {
                         StateMode = ParserStateMode.None;
                         CursorRowIndex = 0;
@@ -506,9 +506,9 @@
                         break;
                     }
 
-                case CCMiscCommandType.AlarmOff:
-                case CCMiscCommandType.AlarmOn:
-                case CCMiscCommandType.None:
+                case CaptionsCommand.AlarmOff:
+                case CaptionsCommand.AlarmOn:
+                case CaptionsCommand.None:
                 default:
                     {
                         break;
@@ -558,7 +558,7 @@
 
             // Trim the packet buffer
             for (var channel = 1; channel <= 4; channel++)
-                TrimBuffer(ChannelPacketBuffer[(ClosedCaptionChannel)channel]);
+                TrimBuffer(ChannelPacketBuffer[(CaptionsChannel)channel]);
         }
 
         /// <summary>

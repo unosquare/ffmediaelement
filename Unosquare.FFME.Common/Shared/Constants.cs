@@ -48,7 +48,7 @@
             /// <summary>
             /// The default closed captions channel
             /// </summary>
-            public const ClosedCaptionChannel DefaultClosedCaptionsChannel = ClosedCaptionChannel.CCP;
+            public const CaptionsChannel DefaultClosedCaptionsChannel = CaptionsChannel.CCP;
 
             /// <summary>
             /// The minimum speed ratio

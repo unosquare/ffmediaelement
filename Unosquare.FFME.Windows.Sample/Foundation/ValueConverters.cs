@@ -311,12 +311,12 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return (ClosedCaptionChannel)value != ClosedCaptionChannel.CCP;
+            return (CaptionsChannel)value != CaptionsChannel.CCP;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return (bool)value ? ClosedCaptionChannel.CC1 : ClosedCaptionChannel.CCP;
+            return (bool)value ? CaptionsChannel.CC1 : CaptionsChannel.CCP;
         }
     }
 }

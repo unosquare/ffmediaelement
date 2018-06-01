@@ -426,9 +426,9 @@ namespace Unosquare.FFME
         /// </summary>
         [Category(nameof(MediaElement))]
         [Description("The video CC Channel to render. Ranges from 0 to 4")]
-        public ClosedCaptionChannel ClosedCaptionsChannel
+        public CaptionsChannel ClosedCaptionsChannel
         {
-            get { return (ClosedCaptionChannel)GetValue(ClosedCaptionsChannelProperty); }
+            get { return (CaptionsChannel)GetValue(ClosedCaptionsChannelProperty); }
             set { SetValue(ClosedCaptionsChannelProperty, value); }
         }
 
@@ -436,7 +436,7 @@ namespace Unosquare.FFME
         /// The DependencyProperty for the MediaElement.ClosedCaptionsChannel property.
         /// </summary>
         public static readonly DependencyProperty ClosedCaptionsChannelProperty = DependencyProperty.Register(
-            nameof(ClosedCaptionsChannel), typeof(ClosedCaptionChannel), typeof(MediaElement),
+            nameof(ClosedCaptionsChannel), typeof(CaptionsChannel), typeof(MediaElement),
             new FrameworkPropertyMetadata(
                 Constants.Controller.DefaultClosedCaptionsChannel,
                 FrameworkPropertyMetadataOptions.None,

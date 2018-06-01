@@ -59,7 +59,7 @@
         /// </summary>
         /// <param name="channel">The channel.</param>
         /// <param name="clockPosition">The clock position.</param>
-        public void Render(ClosedCaptionChannel channel, TimeSpan clockPosition)
+        public void Render(CaptionsChannel channel, TimeSpan clockPosition)
         {
             Buffer.UpdateState(channel, clockPosition);
             PaintBuffer();
