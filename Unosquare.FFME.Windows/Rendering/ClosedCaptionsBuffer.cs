@@ -53,6 +53,8 @@
         private readonly Dictionary<ClosedCaptionChannel, SortedDictionary<long, ClosedCaptionPacket>> ChannelPacketBuffer
             = new Dictionary<ClosedCaptionChannel, SortedDictionary<long, ClosedCaptionPacket>>();
 
+        private readonly List<string> DebugData = new List<string>();
+
         #endregion
 
         #region Constructors
@@ -364,6 +366,7 @@
 
                 // Update the current packet (we need this to detect duplicated control codes)
                 CurrentPacket = packet;
+                DebugData.Add(packet.ToString());
 
                 // Now, go ahead and process the packet updating the state
                 switch (packet.PacketType)
@@ -400,7 +403,12 @@
 
                     case CCPacketType.Tabs:
                         {
-                            // TODO: Process tab spacing (use " " and not string.empty)
+                            if (StateMode == ParserStateMode.Scrolling || StateMode == ParserStateMode.Buffered)
+                            {
+                                CursorColumnIndex += packet.Tabs;
+                                CursorColumnIndex = Math.Min(CursorColumnIndex, ColumnCount - 1);
+                            }
+
                             break;
                         }
 
@@ -458,7 +466,7 @@
                                 continue;
 
                             for (var c = 0; c < ColumnCount; c++)
-                                State[r][c].Clear();
+                                State[r][c].ClearDisplay();
                         }
 
                         break;
@@ -471,12 +479,50 @@
                             var targetRowIndex = CursorRowIndex - 1;
                             for (var c = 0; c < ColumnCount; c++)
                             {
-                                State[targetRowIndex][c].Character = State[CursorRowIndex][c].Character;
-                                State[CursorRowIndex][c].Clear();
+                                State[targetRowIndex][c].Display = State[CursorRowIndex][c].Display;
+                                State[CursorRowIndex][c].ClearDisplay();
                             }
 
                             CursorRowIndex = ScrollBaseRowIndex;
                             CursorColumnIndex = default;
+                        }
+
+                        break;
+                    }
+
+                case CCMiscCommandType.Resume:
+                    {
+                        StateMode = ParserStateMode.Buffered;
+                        CursorRowIndex = 0;
+                        CursorColumnIndex = 0;
+                        break;
+                    }
+
+                case CCMiscCommandType.ClearScreen:
+                    {
+                        for (var r = 0; r < RowCount; r++)
+                        {
+                            for (var c = 0; c < ColumnCount; c++)
+                            {
+                                State[r][c].ClearDisplay();
+                            }
+                        }
+
+                        break;
+                    }
+
+                case CCMiscCommandType.EndCaption:
+                    {
+                        StateMode = ParserStateMode.None;
+                        CursorRowIndex = 0;
+                        CursorColumnIndex = 0;
+
+                        for (var r = 0; r < RowCount; r++)
+                        {
+                            for (var c = 0; c < ColumnCount; c++)
+                            {
+                                State[r][c].DisplayBuffer();
+                            }
                         }
 
                         break;
@@ -506,13 +552,17 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessTextPacket(ClosedCaptionPacket packet)
         {
-            if (StateMode == ParserStateMode.Scrolling)
+            if (StateMode == ParserStateMode.Scrolling || StateMode == ParserStateMode.Buffered)
             {
                 var offset = 0;
                 for (var c = CursorColumnIndex; c < ColumnCount; c++)
                 {
                     if (offset > packet.Text.Length - 1) break;
-                    State[CursorRowIndex][c].Character = packet.Text.Substring(offset, 1);
+                    if (StateMode == ParserStateMode.Scrolling)
+                        State[CursorRowIndex][c].Display = packet.Text[offset];
+                    else
+                        State[CursorRowIndex][c].Buffer = packet.Text[offset];
+
                     offset++;
                 }
 
@@ -605,24 +655,46 @@
             public int ColumnIndex { get; }
 
             /// <summary>
+            /// Gets the display character as a string
+            /// </summary>
+            public string Text => Display == default ? string.Empty : Display.ToString();
+
+            /// <summary>
             /// Gets or sets the character.
             /// </summary>
-            public string Character { get; set; }
+            public char Display { get; set; }
+
+            /// <summary>
+            /// Gets or sets the buffered character.
+            /// </summary>
+            public char Buffer { get; set; }
+
+            public void DisplayBuffer()
+            {
+                Display = Buffer;
+                Buffer = default;
+            }
 
             /// <summary>
             /// Resets the entire state and contents of this cell
             /// </summary>
             public void Reset()
             {
-                Character = null;
+                ClearDisplay();
+                ClearBuffer();
             }
 
             /// <summary>
             /// Clears the character contents of this cell
             /// </summary>
-            public void Clear()
+            public void ClearDisplay()
             {
-                Character = null;
+                Display = default;
+            }
+
+            public void ClearBuffer()
+            {
+                Buffer = default;
             }
         }
 

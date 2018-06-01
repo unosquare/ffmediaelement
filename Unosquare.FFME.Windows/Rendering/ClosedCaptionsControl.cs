@@ -84,7 +84,7 @@
             {
                 for (var c = 0; c < ClosedCaptionsBuffer.ColumnCount; c++)
                 {
-                    CharacterLookup[r][c].Text = Buffer.State[r][c].Character;
+                    CharacterLookup[r][c].Text = Buffer.State[r][c].Text;
                 }
             }
         }
