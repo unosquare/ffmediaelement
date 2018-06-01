@@ -524,6 +524,66 @@
                 ScrollBaseRowIndex = packet.PreambleRow - 1;
                 CursorRowIndex = ScrollBaseRowIndex;
                 CursorColumnIndex = default;
+
+                // Apply indenting if needed
+                switch (packet.PreambleStyle)
+                {
+                    case CaptionsStyle.WhiteIndent0:
+                    case CaptionsStyle.WhiteIndent0Underline:
+                        {
+                            CursorColumnIndex = 0;
+                            break;
+                        }
+
+                    case CaptionsStyle.WhiteIndent4:
+                    case CaptionsStyle.WhiteIndent4Underline:
+                        {
+                            CursorColumnIndex = 3;
+                            break;
+                        }
+
+                    case CaptionsStyle.WhiteIndent8:
+                    case CaptionsStyle.WhiteIndent8Underline:
+                        {
+                            CursorColumnIndex = 7;
+                            break;
+                        }
+
+                    case CaptionsStyle.WhiteIndent12:
+                    case CaptionsStyle.WhiteIndent12Underline:
+                        {
+                            CursorColumnIndex = 11;
+                            break;
+                        }
+
+                    case CaptionsStyle.WhiteIndent16:
+                    case CaptionsStyle.WhiteIndent16Underline:
+                        {
+                            CursorColumnIndex = 15;
+                            break;
+                        }
+
+                    case CaptionsStyle.WhiteIndent20:
+                    case CaptionsStyle.WhiteIndent20Underline:
+                        {
+                            CursorColumnIndex = 19;
+                            break;
+                        }
+
+                    case CaptionsStyle.WhiteIndent24:
+                    case CaptionsStyle.WhiteIndent24Underline:
+                        {
+                            CursorColumnIndex = 23;
+                            break;
+                        }
+
+                    case CaptionsStyle.WhiteIndent28:
+                    case CaptionsStyle.WhiteIndent28Underline:
+                        {
+                            CursorColumnIndex = 27;
+                            break;
+                        }
+                }
             }
         }
 
