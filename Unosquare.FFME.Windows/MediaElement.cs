@@ -303,17 +303,21 @@
                 if (IsDisposed) return;
                 IsDisposed = true;
 
-                // Remove ebent handlers
-                try { VideoView.LayoutUpdated -= HandleVideoViewLayoutUpdates; }
-                catch { }
-
                 // Stop the property updates worker
                 PropertyUpdatesWorker.Dispose();
 
-                // Remove all the controls
-                ContentGrid.Children.Remove(VideoView);
-                ContentGrid.Children.Remove(SubtitlesView);
-                ContentGrid.Children.Remove(CaptionsView);
+                // Make sure we perform GUI operations on the GUI thread.
+                GuiContext.Current?.EnqueueInvoke(() =>
+                {
+                    // Remove ebent handlers
+                    try { VideoView.LayoutUpdated -= HandleVideoViewLayoutUpdates; }
+                    catch { }
+
+                    // Remove all the controls
+                    ContentGrid.Children.Remove(VideoView);
+                    ContentGrid.Children.Remove(SubtitlesView);
+                    ContentGrid.Children.Remove(CaptionsView);
+                });
             }
         }
 
