@@ -133,14 +133,23 @@
             // see: https://github.com/unosquare/ffmediaelement/issues/212
             // e.Options.VideoForcedFps = 25;
 
-            // An example of specifcally selecting a playback stream
+            // An example of specifcally selecting a subtitle stream
             var subtitleStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_SUBTITLE).Select(kvp => kvp.Value);
-            var englishSubtitleStream = subtitleStreams.FirstOrDefault(s => s.Language.StartsWith("en"));
+            var englishSubtitleStream = subtitleStreams.FirstOrDefault(s => s.Language != null && s.Language.ToLowerInvariant().StartsWith("en"));
             if (englishSubtitleStream != null)
             {
                 e.Options.SubtitleStream = englishSubtitleStream;
             }
 
+            // An example of specifcally selecting an audio stream
+            var audioStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_AUDIO).Select(kvp => kvp.Value);
+            var englishAudioStream = audioStreams.FirstOrDefault(s => s.Language != null && s.Language.ToLowerInvariant().StartsWith("en"));
+            if (englishAudioStream != null)
+            {
+                e.Options.AudioStream = englishAudioStream;
+            }
+
+            // Setting Advanced Video Stream Options is also possible
             var videoStream = e.Options.VideoStream;
             if (videoStream != null)
             {
@@ -172,6 +181,7 @@
                     }
                 }
 
+                // Start building a video filter
                 var videoFilter = new StringBuilder();
 
                 // The yadif filter deinterlaces the video; we check the field order if we need
