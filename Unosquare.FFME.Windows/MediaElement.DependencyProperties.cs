@@ -226,6 +226,10 @@ namespace Unosquare.FFME
 
             // coming in as a seek from user
             element.MediaCore?.RequestSeek(targetSeek);
+
+            // Prevent updates from the mediacore into the position dependency property.
+            element.m_ReportablePosition = null;
+
             return targetSeek;
         }
 
