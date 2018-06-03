@@ -161,7 +161,8 @@
                 state = "Ready";
             }
 
-            WindowTitle = $"{title} - {state} - Unosquare FFME Play v{AppVersion} ({(GuiContext.Current.IsInDebugMode ? "Debug" : "Release")})";
+            WindowTitle = $"{title} - {state} - Unosquare FFME Play v{AppVersion} " 
+                + $"FFmpeg {MediaElement.FFmpegVersionInfo} ({(GuiContext.Current.IsInDebugMode ? "Debug" : "Release")})";
         }
     }
 }

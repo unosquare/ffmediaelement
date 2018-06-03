@@ -150,6 +150,15 @@
         }
 
         /// <summary>
+        /// Gets the FFmpeg version information. Returns null
+        /// when the libraries have not been loaded.
+        /// </summary>
+        public static string FFmpegVersionInfo
+        {
+            get => MediaEngine.FFmpegVersionInfo;
+        }
+
+        /// <summary>
         /// Gets or sets a value indicating whether the video visualization control
         /// creates its own dispatcher thread to hanlde rendering of video frames.
         /// This is an experimental feature and it is useful when creating video walls.
@@ -200,6 +209,15 @@
         #endregion
 
         #region Public API
+
+        /// <summary>
+        /// Forces the preloading of the FFmpeg libraries according to the values of the
+        /// <see cref="FFmpegDirectory"/> and <see cref="FFmpegLoadModeFlags"/>
+        /// Also, sets the <see cref="FFmpegVersionInfo"/> property. Thorws an exception
+        /// if the libraries cannot be loaded.
+        /// </summary>
+        /// <returns>true if libraries were loaded, false if libraries were already loaded.</returns>
+        public static bool LoadFFmpeg() => MediaEngine.LoadFFmpeg();
 
         /// <summary>
         /// Begins or resumes playback of the currently loaded media.

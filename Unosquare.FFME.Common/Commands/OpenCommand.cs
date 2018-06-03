@@ -2,7 +2,6 @@
 {
     using Core;
     using Decoding;
-    using FFmpeg.AutoGen;
     using Shared;
     using System;
     using System.Threading.Tasks;
@@ -71,15 +70,11 @@
                 m.State.IsOpening = true;
 
                 // Register FFmpeg libraries if not already done
-                if (FFInterop.Initialize(MediaEngine.FFmpegDirectory, MediaEngine.FFmpegLoadModeFlags))
+                if (MediaEngine.LoadFFmpeg())
                 {
-                    // Set the folders and lib identifiers
-                    MediaEngine.FFmpegDirectory = FFInterop.LibrariesPath;
-                    MediaEngine.FFmpegLoadModeFlags = FFInterop.LibraryIdentifiers;
-
                     // Log an init message
                     m.Log(MediaLogMessageType.Info,
-                        $"{nameof(FFInterop)}.{nameof(FFInterop.Initialize)}: FFmpeg v{ffmpeg.av_version_info()}");
+                        $"{nameof(FFInterop)}.{nameof(FFInterop.Initialize)}: FFmpeg v{MediaEngine.FFmpegVersionInfo}");
                 }
 
                 // Create a default stream container configuration object

@@ -2,6 +2,8 @@
 {
     using Platform;
     using Shared;
+    using System;
+    using System.Threading;
     using System.Windows;
     using ViewModels;
 
@@ -64,6 +66,32 @@
             Application.Current.MainWindow = new MainWindow();
             Application.Current.MainWindow.Loaded += (snd, eva) => ViewModel.OnApplicationLoaded();
             Application.Current.MainWindow.Show();
+
+            // Preload FFmpeg libraries in the background. This is optional.
+            // FFmpeg will be automatically loaded if not already loaded when you try to open
+            // a new stream or file. See issue #242
+            ThreadPool.QueueUserWorkItem((s) =>
+            {
+                try
+                {
+                    // Force loading
+                    MediaElement.LoadFFmpeg();
+                }
+                catch(Exception ex)
+                {
+                    GuiContext.Current?.EnqueueInvoke(() =>
+                    {
+                        MessageBox.Show(MainWindow,
+                            $"Unable to Load FFmpeg Libraries from path:\r\n    {MediaElement.FFmpegDirectory}" +
+                            $"\r\n{ex.GetType().Name}: {ex.Message}\r\n\r\nApplication will exit.",
+                            "FFmpeg Error",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error);
+
+                        Application.Current?.Shutdown();
+                    });
+                }
+            });
         }
     }
 }

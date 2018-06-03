@@ -77,6 +77,16 @@
         }
 
         /// <summary>
+        /// Gets the FFmpeg version information. Returns null
+        /// when the libraries have not been loaded.
+        /// </summary>
+        public static string FFmpegVersionInfo
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// Gets or sets the bitwise library identifiers to load.
         /// If FFmpeg is already loaded, the value cannot be changed.
         /// </summary>
@@ -287,6 +297,27 @@
                 Platform = platform;
                 IsIntialized = true;
             }
+        }
+
+        /// <summary>
+        /// Forces the preloading of the FFmpeg libraries according to the values of the
+        /// <see cref="FFmpegDirectory"/> and <see cref="FFmpegLoadModeFlags"/>
+        /// Also, sets the <see cref="FFmpegVersionInfo"/> property. Thorws an exception
+        /// if the libraries cannot be loaded.
+        /// </summary>
+        /// <returns>true if libraries were loaded, false if libraries were already loaded.</returns>
+        public static bool LoadFFmpeg()
+        {
+            if (FFInterop.Initialize(FFmpegDirectory, FFmpegLoadModeFlags))
+            {
+                // Set the folders and lib identifiers
+                FFmpegDirectory = FFInterop.LibrariesPath;
+                FFmpegLoadModeFlags = FFInterop.LibraryIdentifiers;
+                FFmpegVersionInfo = ffmpeg.av_version_info();
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
