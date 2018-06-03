@@ -335,7 +335,7 @@
         /// It calls the dispose method of the media component too.
         /// </summary>
         /// <param name="mediaType">Type of the media.</param>
-        private void RemoveComponent(MediaType mediaType)
+        internal void RemoveComponent(MediaType mediaType)
         {
             lock (SyncLock)
             {

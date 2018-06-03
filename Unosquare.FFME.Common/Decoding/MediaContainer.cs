@@ -368,6 +368,7 @@
             {
                 if (IsDisposed) throw new ObjectDisposedException(nameof(MediaContainer));
                 if (InputContext == null) throw new InvalidOperationException(ExceptionMessageNoInputContext);
+                if (IsOpen) throw new InvalidOperationException("The stream components are already open.");
 
                 StreamOpen();
             }
@@ -540,6 +541,27 @@
 
             SignalAbortReadsRequested.Value = false;
             SignalAbortReadsAutoReset.Value = true;
+        }
+
+        /// <summary>
+        /// Updates the selected components using the selected streams in <see cref="MediaOptions"/>.
+        /// If the newly set streams are null or have different stream indexes, these components
+        /// are removed, disposed, and recreated accordingly.
+        /// </summary>
+        public void UpdateComponents()
+        {
+            if (IsDisposed) return;
+
+            lock (ReadSyncRoot)
+            {
+                lock (DecodeSyncRoot)
+                {
+                    lock (ConvertSyncRoot)
+                    {
+                        StreamOpen();
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -793,11 +815,8 @@
         /// </summary>
         private void StreamOpen()
         {
-            // Check no double calls to this method.
-            if (IsOpen) throw new InvalidOperationException("The stream components are already open.");
-
             // Open the best suitable streams. Throw if no audio and/or video streams are found
-            StreamOpenCreateComponents();
+            StreamCreateComponents();
 
             // Verify the stream input start offset. This is the zero measure for all sub-streams.
             var minOffset = Components.All.Count > 0 ? Components.All.Min(c => c.StartTimeOffset) : MediaStartTimeOffset;
@@ -813,50 +832,65 @@
         }
 
         /// <summary>
-        /// Creates the stream components by first finding the best available streams.
+        /// Creates and assigns a component of the given type using the specified stream information.
+        /// If stream information is null, or the component is disabled, then the component is removed
+        /// </summary>
+        /// <param name="t">The Media Type.</param>
+        /// <param name="stream">The stream information. Set to null to remove.</param>
+        private void StreamCreateComponent(MediaType t, StreamInfo stream)
+        {
+            // Check if the component should be disabled (removed)
+            var isDisabled = true;
+            if (t == MediaType.Audio)
+                isDisabled = MediaOptions.IsAudioDisabled;
+            else if (t == MediaType.Video)
+                isDisabled = MediaOptions.IsVideoDisabled;
+            else if (t == MediaType.Subtitle)
+                isDisabled = MediaOptions.IsSubtitleDisabled;
+            else
+                return;
+
+            try
+            {
+                // Remove the component if the stream info passed is null or if the component is now disabled
+                if (Components[t] != null &&
+                   (stream == null || isDisabled || stream.StreamIndex != Components[t].StreamIndex))
+                {
+                    Components.RemoveComponent(t);
+                }
+
+                // Do not recreate the component if we already have a component using the same stream index
+                if (Components[t] != null && stream != null && Components[t].StreamIndex == stream.StreamIndex)
+                    return;
+
+                // Instantiate component
+                if (stream != null && stream.CodecType == (AVMediaType)t && isDisabled == false)
+                {
+                    if (t == MediaType.Audio)
+                        Components[t] = new AudioComponent(this, stream.StreamIndex);
+                    else if (t == MediaType.Video)
+                        Components[t] = new VideoComponent(this, stream.StreamIndex);
+                    else if (t == MediaType.Subtitle)
+                        Components[t] = new SubtitleComponent(this, stream.StreamIndex);
+                }
+            }
+            catch (Exception ex)
+            {
+                Parent?.Log(MediaLogMessageType.Error, $"Unable to initialize {t} component. {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Creates the stream components according to the specified streams in the current media options.
         /// Then it initializes the components of the correct type each.
         /// </summary>
         /// <exception cref="MediaContainerException">The exception ifnromation</exception>
-        private void StreamOpenCreateComponents()
+        private void StreamCreateComponents()
         {
-            // Create the audio component
-            try
-            {
-                if (MediaOptions.AudioStream != null
-                    && MediaOptions.AudioStream.CodecType == AVMediaType.AVMEDIA_TYPE_AUDIO
-                    && MediaOptions.IsAudioDisabled == false)
-                    Components[MediaType.Audio] = new AudioComponent(this, MediaOptions.AudioStream.StreamIndex);
-            }
-            catch (Exception ex)
-            {
-                Parent?.Log(MediaLogMessageType.Error, $"Unable to initialize {MediaType.Audio} component. {ex.Message}");
-            }
-
-            // Create the video component
-            try
-            {
-                if (MediaOptions.VideoStream != null
-                    && MediaOptions.VideoStream.CodecType == AVMediaType.AVMEDIA_TYPE_VIDEO
-                    && MediaOptions.IsVideoDisabled == false)
-                    Components[MediaType.Video] = new VideoComponent(this, MediaOptions.VideoStream.StreamIndex);
-            }
-            catch (Exception ex)
-            {
-                Parent?.Log(MediaLogMessageType.Error, $"Unable to initialize {MediaType.Video} component. {ex.Message}");
-            }
-
-            // Create the subtitle component
-            try
-            {
-                if (MediaOptions.SubtitleStream != null
-                    && MediaOptions.SubtitleStream.CodecType == AVMediaType.AVMEDIA_TYPE_SUBTITLE
-                    && MediaOptions.IsSubtitleDisabled == false)
-                    Components[MediaType.Subtitle] = new SubtitleComponent(this, MediaOptions.SubtitleStream.StreamIndex);
-            }
-            catch (Exception ex)
-            {
-                Parent?.Log(MediaLogMessageType.Error, $"Unable to initialize {MediaType.Subtitle} component. {ex.Message}");
-            }
+            // Apply Media Options by selecting the desired components
+            StreamCreateComponent(MediaType.Audio, MediaOptions.AudioStream);
+            StreamCreateComponent(MediaType.Video, MediaOptions.VideoStream);
+            StreamCreateComponent(MediaType.Subtitle, MediaOptions.SubtitleStream);
 
             // Verify we have at least 1 stream component to work with.
             if (Components.HasVideo == false && Components.HasAudio == false && Components.HasSubtitles == false)
