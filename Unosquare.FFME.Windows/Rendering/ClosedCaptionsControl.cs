@@ -61,8 +61,8 @@
         /// <param name="clockPosition">The clock position.</param>
         public void Render(CaptionsChannel channel, TimeSpan clockPosition)
         {
-            Buffer.UpdateState(channel, clockPosition);
-            PaintBuffer();
+            if (Buffer.UpdateState(channel, clockPosition))
+                PaintBuffer();
         }
 
         /// <summary>
@@ -155,7 +155,8 @@
         private void PaintBuffer()
         {
             TextBlock block = null;
-            ClosedCaptionsBuffer.CellStateContent cell = null;
+            ClosedCaptionsCellState cell = null;
+            Border border = null;
 
             for (var r = 0; r < ClosedCaptionsBuffer.RowCount; r++)
             {
@@ -164,16 +165,17 @@
                     block = CharacterLookup[r][c];
                     cell = Buffer.State[r][c].Display;
 
-                    block.Text = cell.Text;
-                    block.FontStyle = cell.IsItalics ? FontStyles.Italic : FontStyles.Normal;
-                    block.HorizontalAlignment = cell.IsItalics ? HorizontalAlignment.Left : HorizontalAlignment.Center;
-
-                    block.Foreground = cell.Foreground;
-
-                    var border = block.Parent as Border;
+                    border = block.Parent as Border;
                     border.Visibility = string.IsNullOrEmpty(cell.Text) ?
                         Visibility.Hidden : Visibility.Visible;
 
+                    if (border.Visibility != Visibility.Visible)
+                        continue;
+
+                    block.Text = cell.Text;
+                    block.FontStyle = cell.IsItalics ? FontStyles.Italic : FontStyles.Normal;
+                    block.HorizontalAlignment = cell.IsItalics ? HorizontalAlignment.Left : HorizontalAlignment.Center;
+                    block.Foreground = cell.Foreground;
                     border.Background = cell.Background;
                     border.Opacity = cell.Opacity;
 

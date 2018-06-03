@@ -38,6 +38,11 @@
             = FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender;
 
         /// <summary>
+        /// The dispose lock -- Prevents running actions while disposing.
+        /// </summary>
+        private readonly object DisposeLock = new object();
+
+        /// <summary>
         /// Signals whether the open task was called via the open command
         /// so that the source property changing handler does not re-run the open command.
         /// </summary>
@@ -174,7 +179,8 @@
         /// GUI context, it runs on its own dispatcher (multhreaded UI)
         /// </summary>
         internal ImageHost VideoView { get; } = new ImageHost(
-            GuiContext.Current.Type == GuiContextType.WPF && EnableWpfMultithreadedVideo) { Name = nameof(VideoView) };
+            GuiContext.Current.Type == GuiContextType.WPF && EnableWpfMultithreadedVideo)
+        { Name = nameof(VideoView) };
 
         /// <summary>
         /// Gets the closed captions view control.
@@ -292,19 +298,23 @@
         /// </summary>
         public void Dispose()
         {
-            if (IsDisposed) return;
-            IsDisposed = true;
+            lock (DisposeLock)
+            {
+                if (IsDisposed) return;
+                IsDisposed = true;
 
-            // Stop the property updates worker
-            PropertyUpdatesWorker.Dispose();
+                // Remove ebent handlers
+                try { VideoView.LayoutUpdated -= HandleVideoViewLayoutUpdates; }
+                catch { }
 
-            // Remove ebent handlers
-            VideoView.LayoutUpdated -= HandleVideoViewLayoutUpdates;
+                // Stop the property updates worker
+                PropertyUpdatesWorker.Dispose();
 
-            // Remove all the controls
-            ContentGrid.Children.Remove(VideoView);
-            ContentGrid.Children.Remove(SubtitlesView);
-            ContentGrid.Children.Remove(CaptionsView);
+                // Remove all the controls
+                ContentGrid.Children.Remove(VideoView);
+                ContentGrid.Children.Remove(SubtitlesView);
+                ContentGrid.Children.Remove(CaptionsView);
+            }
         }
 
         /// <summary>
@@ -356,16 +366,25 @@
             {
                 VideoView.Stretch = Stretch;
                 VideoView.StretchDirection = StretchDirection;
+                VideoView.UseLayoutRounding = true;
+                VideoView.SnapsToDevicePixels = true;
+                VideoView.Focusable = false;
+                VideoView.IsHitTestVisible = false;
             };
 
             // Set some default properties. Centering the content allows for video-aligned subtitles
             VerticalContentAlignment = VerticalAlignment.Center;
             HorizontalContentAlignment = HorizontalAlignment.Center;
+            UseLayoutRounding = true;
+            SnapsToDevicePixels = true;
 
             // Setup the content grid and add it as part of the user control
             Content = ContentGrid;
             ContentGrid.HorizontalAlignment = HorizontalAlignment.Stretch;
             ContentGrid.VerticalAlignment = VerticalAlignment.Stretch;
+            ContentGrid.UseLayoutRounding = true;
+            ContentGrid.SnapsToDevicePixels = true;
+            ContentGrid.IsHitTestVisible = false;
 
             // Setup the Subtitle View
             SubtitlesView.FontSize = 98;
@@ -375,6 +394,10 @@
             SubtitlesView.FontWeight = FontWeights.Bold;
             SubtitlesView.TextOutlineWidth = new Thickness(4);
             SubtitlesView.TextForeground = Brushes.LightYellow;
+            SubtitlesView.UseLayoutRounding = true;
+            SubtitlesView.SnapsToDevicePixels = true;
+            SubtitlesView.IsHitTestVisible = false;
+            SubtitlesView.Focusable = false;
 
             // Add the subtitles control and bind the attached properties
             Subtitles.SetForeground(this, SubtitlesView.TextForeground);
@@ -420,43 +443,46 @@
         private void HandleVideoViewLayoutUpdates(object sender, EventArgs e)
         {
             // Prevent running the code
-            if (IsDisposed || ContentGrid.Children.IndexOf(VideoView) < 0)
-                return;
-
-            // When video dimensions are invalid, let's not do any layout.
-            if (VideoView.ActualWidth <= 0 || VideoView.ActualHeight <= 0)
-                return;
-
-            if (HasVideo || GuiContext.Current.IsInDesignTime)
+            lock (DisposeLock)
             {
-                CaptionsView.Width = VideoView.ActualWidth;
-                CaptionsView.Height = VideoView.ActualHeight * .80; // FCC Safe Caption Area Dimensions
-                CaptionsView.Visibility = Visibility.Visible;
+                if (IsDisposed || ContentGrid.Children.IndexOf(VideoView) < 0)
+                    return;
+
+                // When video dimensions are invalid, let's not do any layout.
+                if (VideoView.ActualWidth <= 0 || VideoView.ActualHeight <= 0)
+                    return;
+
+                if (HasVideo || GuiContext.Current.IsInDesignTime)
+                {
+                    CaptionsView.Width = VideoView.ActualWidth;
+                    CaptionsView.Height = VideoView.ActualHeight * .80; // FCC Safe Caption Area Dimensions
+                    CaptionsView.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    CaptionsView.Width = 0;
+                    CaptionsView.Height = 0;
+                    CaptionsView.Visibility = Visibility.Collapsed;
+                }
+
+                // Compute the position of the subtitles view based on the Video View
+                var videoViewPosition = VideoView.TransformToAncestor(ContentGrid).Transform(new Point(0, 0));
+                var targetHeight = VideoView.ActualHeight / 9d;
+                var targetWidth = VideoView.ActualWidth * 0.90;
+
+                if (SubtitlesView.Height != targetHeight)
+                    SubtitlesView.Height = targetHeight;
+
+                if (SubtitlesView.Width != targetWidth)
+                    SubtitlesView.Width = targetWidth;
+
+                var verticalOffset = ContentGrid.ActualHeight - (videoViewPosition.Y + VideoView.ActualHeight);
+                var verticalOffsetPadding = targetHeight * 0.75d;
+                var marginBottom = verticalOffset + verticalOffsetPadding;
+
+                if (SubtitlesView.Margin.Bottom != marginBottom)
+                    SubtitlesView.Margin = new Thickness(0, 0, 0, marginBottom);
             }
-            else
-            {
-                CaptionsView.Width = 0;
-                CaptionsView.Height = 0;
-                CaptionsView.Visibility = Visibility.Collapsed;
-            }
-
-            // Compute the position of the subtitles view based on the Video View
-            var videoViewPosition = VideoView.TransformToAncestor(ContentGrid).Transform(new Point(0, 0));
-            var targetHeight = VideoView.ActualHeight / 9d;
-            var targetWidth = VideoView.ActualWidth * 0.90;
-
-            if (SubtitlesView.Height != targetHeight)
-                SubtitlesView.Height = targetHeight;
-
-            if (SubtitlesView.Width != targetWidth)
-                SubtitlesView.Width = targetWidth;
-
-            var verticalOffset = ContentGrid.ActualHeight - (videoViewPosition.Y + VideoView.ActualHeight);
-            var verticalOffsetPadding = targetHeight * 0.75d;
-            var marginBottom = verticalOffset + verticalOffsetPadding;
-
-            if (SubtitlesView.Margin.Bottom != marginBottom)
-                SubtitlesView.Margin = new Thickness(0, 0, 0, marginBottom);
         }
 
         #endregion

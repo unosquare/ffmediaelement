@@ -71,6 +71,8 @@
     <Compile Include="Playlists\PlaylistEntry.cs" />
     <Compile Include="Playlists\PlaylistExtensions.cs" />
     <Compile Include="Rendering\ClosedCaptionsBuffer.cs" />
+    <Compile Include="Rendering\ClosedCaptionsCell.cs" />
+    <Compile Include="Rendering\ClosedCaptionsCellState.cs" />
     <Compile Include="Rendering\ClosedCaptionsControl.cs" />
     <Compile Include="Rendering\ImageHost.cs" />
     <Compile Include="Rendering\ElementHostBase.cs" />

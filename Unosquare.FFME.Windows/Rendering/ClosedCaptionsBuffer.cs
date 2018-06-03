@@ -4,10 +4,8 @@
     using Shared;
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Linq;
     using System.Runtime.CompilerServices;
-    using System.Windows.Media;
 
     /// <summary>
     /// Provides a Closed Captions packet buffer and state manager
@@ -54,8 +52,11 @@
         /// <summary>
         /// The independent channel packet buffers
         /// </summary>
-        private readonly Dictionary<CaptionsChannel, SortedDictionary<long, ClosedCaptionPacket>> ChannelPacketBuffer
-            = new Dictionary<CaptionsChannel, SortedDictionary<long, ClosedCaptionPacket>>();
+        private readonly Dictionary<CaptionsChannel, Dictionary<long, ClosedCaptionPacket>> ChannelPacketBuffer
+            = new Dictionary<CaptionsChannel, Dictionary<long, ClosedCaptionPacket>>();
+
+        private int m_CursorColumnIndex = default;
+        private int m_CursorRowIndex = DefaultBaseRowIndex;
 
         #endregion
 
@@ -67,15 +68,15 @@
         public ClosedCaptionsBuffer()
         {
             for (var channel = 1; channel <= 4; channel++)
-                ChannelPacketBuffer[(CaptionsChannel)channel] = new SortedDictionary<long, ClosedCaptionPacket>();
+                ChannelPacketBuffer[(CaptionsChannel)channel] = new Dictionary<long, ClosedCaptionPacket>(MaxBufferLength / 4);
 
             // Instantiate the state buffer
             for (var rowIndex = 0; rowIndex < RowCount; rowIndex++)
             {
-                State[rowIndex] = new Dictionary<int, CellState>(ColumnCount);
+                State[rowIndex] = new Dictionary<int, ClosedCaptionsCell>(ColumnCount);
                 for (var columnIndex = 0; columnIndex < ColumnCount; columnIndex++)
                 {
-                    State[rowIndex][columnIndex] = new CellState(rowIndex, columnIndex);
+                    State[rowIndex][columnIndex] = new ClosedCaptionsCell(rowIndex, columnIndex);
                 }
             }
 
@@ -125,7 +126,7 @@
         /// <summary>
         /// Provides access to the state of each of the character cells in the grid
         /// </summary>
-        public Dictionary<int, Dictionary<int, CellState>> State { get; } = new Dictionary<int, Dictionary<int, CellState>>(RowCount);
+        public Dictionary<int, Dictionary<int, ClosedCaptionsCell>> State { get; } = new Dictionary<int, Dictionary<int, ClosedCaptionsCell>>(RowCount);
 
         /// <summary>
         /// Gets the index of the scroll base row.
@@ -160,12 +161,38 @@
         /// <summary>
         /// Gets the current row index position of the cursor
         /// </summary>
-        public int CursorRowIndex { get; private set; } = DefaultBaseRowIndex;
+        public int CursorRowIndex
+        {
+            get
+            {
+                return m_CursorRowIndex;
+            }
+
+            private set
+            {
+                if (value < 0) value = 0;
+                if (value >= RowCount) value = RowCount - 1;
+                m_CursorRowIndex = value;
+            }
+        }
 
         /// <summary>
         /// Gets the current column index position of the cursor
         /// </summary>
-        public int CursorColumnIndex { get; private set; } = default;
+        public int CursorColumnIndex
+        {
+            get
+            {
+                return m_CursorColumnIndex;
+            }
+
+            private set
+            {
+                if (value < 0) value = 0;
+                if (value >= ColumnCount) value = ColumnCount - 1;
+                m_CursorColumnIndex = value;
+            }
+        }
 
         /// <summary>
         /// Gets the currently active packet.
@@ -339,17 +366,21 @@
         /// </summary>
         /// <param name="channel">The channel.</param>
         /// <param name="clockPosition">The clock position.</param>
-        public void UpdateState(CaptionsChannel channel, TimeSpan clockPosition)
+        /// <returns>A boolean to determine if the display needs repainting.</returns>
+        public bool UpdateState(CaptionsChannel channel, TimeSpan clockPosition)
         {
+            var needsRepaint = false;
+
             // Reset the buffer state if the channels don't match or if we have a timeout
             if (channel != Channel || DateTime.UtcNow.Subtract(LastReceiveTime).TotalSeconds > TimeoutSeconds)
             {
                 Reset();
                 Channel = channel;
+                needsRepaint = true;
             }
 
             if (channel == CaptionsChannel.CCP)
-                return;
+                return needsRepaint;
 
             // Dequeue packets for all channels but only process the current channel packets
             List<ClosedCaptionPacket> packets = null;
@@ -363,7 +394,7 @@
 
             // Check if we have at least 1 dequeued packet
             if (packets == null || packets.Count <= 0)
-                return;
+                return needsRepaint;
 
             // Update the last received time
             LastReceiveTime = DateTime.UtcNow;
@@ -411,7 +442,9 @@
 
                     case CaptionsPacketType.Command:
                         {
-                            ProcessCommandPacket(packet);
+                            if (ProcessCommandPacket(packet))
+                                needsRepaint = true;
+
                             break;
                         }
 
@@ -424,17 +457,16 @@
                     case CaptionsPacketType.Tabs:
                         {
                             if (StateMode == ParserStateMode.Scrolling || StateMode == ParserStateMode.Buffered)
-                            {
                                 CursorColumnIndex += packet.Tabs;
-                                CursorColumnIndex = Math.Min(CursorColumnIndex, ColumnCount - 1);
-                            }
 
                             break;
                         }
 
                     case CaptionsPacketType.Text:
                         {
-                            ProcessTextPacket(packet);
+                            if (ProcessTextPacket(packet))
+                                needsRepaint = true;
+
                             break;
                         }
 
@@ -455,11 +487,14 @@
                         }
                 }
             }
+
+            return needsRepaint;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ProcessCommandPacket(ClosedCaptionPacket packet)
+        private bool ProcessCommandPacket(ClosedCaptionPacket packet)
         {
+            var needsRepaint = false;
             var command = packet.Command;
 
             // Set the scroll size if we have a rollup command
@@ -511,6 +546,7 @@
 
                         IsItalics = default;
                         IsUnderlined = default;
+                        needsRepaint = true;
 
                         break;
                     }
@@ -526,6 +562,7 @@
                         {
                             State[CursorRowIndex][CursorColumnIndex].Display.Clear();
                             CursorColumnIndex--;
+                            needsRepaint = true;
                         }
 
                         break;
@@ -548,6 +585,7 @@
                             CursorColumnIndex = default;
                             IsItalics = default;
                             IsUnderlined = default;
+                            needsRepaint = true;
                         }
 
                         break;
@@ -574,6 +612,8 @@
                         {
                             for (var c = 0; c < ColumnCount; c++)
                                 State[CursorRowIndex][c].Display.Clear();
+
+                            needsRepaint = true;
                         }
 
                         if (StateMode == ParserStateMode.Buffered || StateMode == ParserStateMode.Scrolling)
@@ -609,6 +649,7 @@
 
                         IsItalics = default;
                         IsUnderlined = default;
+                        needsRepaint = true;
                         break;
                     }
 
@@ -619,6 +660,7 @@
                         CursorColumnIndex = default;
                         IsItalics = default;
                         IsUnderlined = default;
+                        needsRepaint = true;
 
                         for (var r = 0; r < RowCount; r++)
                         {
@@ -637,6 +679,8 @@
                         break;
                     }
             }
+
+            return needsRepaint;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -649,19 +693,20 @@
                 if (ScrollBaseRowIndex >= RowCount) ScrollBaseRowIndex = RowCount - 1;
 
                 CursorRowIndex = ScrollBaseRowIndex;
-                CursorColumnIndex = Math.Min(packet.PreambleIndent, ColumnCount - 1);
+                CursorColumnIndex = packet.PreambleIndent;
                 IsItalics = packet.IsItalics;
                 IsUnderlined = packet.IsUnderlined;
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ProcessTextPacket(ClosedCaptionPacket packet)
+        private bool ProcessTextPacket(ClosedCaptionPacket packet)
         {
+            var needsRepaint = false;
             if (StateMode == ParserStateMode.Scrolling || StateMode == ParserStateMode.Buffered)
             {
                 var offset = 0;
-                var cell = default(CellStateContent);
+                var cell = default(ClosedCaptionsCellState);
                 for (var c = CursorColumnIndex; c < ColumnCount; c++)
                 {
                     if (offset > packet.Text.Length - 1) break;
@@ -675,9 +720,11 @@
                     offset++;
                 }
 
+                needsRepaint = StateMode == ParserStateMode.Scrolling;
                 CursorColumnIndex += offset;
-                if (CursorColumnIndex >= ColumnCount) CursorColumnIndex = ColumnCount - 1;
             }
+
+            return needsRepaint;
         }
 
         /// <summary>
@@ -697,7 +744,7 @@
         /// Trims the packet buffer to the maximum allowable length
         /// </summary>
         /// <param name="buffer">The buffer.</param>
-        private void TrimBuffer(SortedDictionary<long, ClosedCaptionPacket> buffer)
+        private void TrimBuffer(IDictionary<long, ClosedCaptionPacket> buffer)
         {
             // Don't trim it if we have not reached a maximum length
             if (buffer.Count <= MaxBufferLength)
@@ -718,7 +765,7 @@
         /// <param name="buffer">The buffer.</param>
         /// <param name="upToTicks">Up to ticks.</param>
         /// <returns>The dequeued packets, in order.</returns>
-        private List<ClosedCaptionPacket> DequeuePackets(SortedDictionary<long, ClosedCaptionPacket> buffer, long upToTicks)
+        private List<ClosedCaptionPacket> DequeuePackets(Dictionary<long, ClosedCaptionPacket> buffer, long upToTicks)
         {
             var result = new List<ClosedCaptionPacket>(buffer.Count);
             var linearBufferKeys = buffer.Keys.ToArray();
@@ -732,136 +779,6 @@
             }
 
             return result;
-        }
-
-        #endregion
-
-        #region Supporting Classes
-
-        /// <summary>
-        /// Represents a grid cell state containing a Display and a back-buffer
-        /// of a character and its properties.
-        /// </summary>
-        public sealed class CellState
-        {
-            /// <summary>
-            /// Initializes a new instance of the <see cref="CellState" /> class.
-            /// </summary>
-            /// <param name="rowIndex">Index of the row.</param>
-            /// <param name="columnIndex">Index of the column.</param>
-            public CellState(int rowIndex, int columnIndex)
-            {
-                RowIndex = rowIndex;
-                ColumnIndex = columnIndex;
-            }
-
-            /// <summary>
-            /// Gets the index of the row this cell belongs to.
-            /// </summary>
-            public int RowIndex { get; }
-
-            /// <summary>
-            /// Gets the index of the column this cell belongs to.
-            /// </summary>
-            public int ColumnIndex { get; }
-
-            /// <summary>
-            /// Gets or sets the character.
-            /// </summary>
-            public CellStateContent Display { get; } = new CellStateContent();
-
-            /// <summary>
-            /// Gets or sets the buffered character.
-            /// </summary>
-            public CellStateContent Buffer { get; } = new CellStateContent();
-
-            /// <summary>
-            /// Copies the bufferc ontent on to the dsiplay content
-            /// and clears the buffer content.
-            /// </summary>
-            public void DisplayBuffer()
-            {
-                Display.CopyFrom(Buffer);
-                Buffer.Clear();
-            }
-
-            /// <summary>
-            /// Resets the entire state and contents of this cell
-            /// </summary>
-            public void Reset()
-            {
-                Display.Clear();
-                Buffer.Clear();
-            }
-        }
-
-        /// <summary>
-        /// Contains single-character text and its attributes
-        /// </summary>
-        public sealed class CellStateContent
-        {
-            /// <summary>
-            /// Gets the character as a string.
-            /// </summary>
-            public string Text => Character == default ?
-                            string.Empty : Character.ToString(CultureInfo.InvariantCulture);
-
-            /// <summary>
-            /// Gets or sets the character.
-            /// </summary>
-            public char Character { get; set; } = default;
-
-            /// <summary>
-            /// Gets or sets the opacity (from 0.0 to 1.0 opaque).
-            /// </summary>
-            public double Opacity { get; set; } = 0.80;
-
-            /// <summary>
-            /// Gets or sets the foreground text color.
-            /// </summary>
-            public Brush Foreground { get; set; } = Brushes.White;
-
-            /// <summary>
-            /// Gets or sets the background color.
-            /// </summary>
-            public Brush Background { get; set; } = Brushes.Black;
-
-            /// <summary>
-            /// Gets or sets a value indicating whether this instance is underline.
-            /// </summary>
-            public bool IsUnderlined { get; set; } = default;
-
-            /// <summary>
-            /// Gets or sets a value indicating whether this instance is italics.
-            /// </summary>
-            public bool IsItalics { get; set; } = default;
-
-            /// <summary>
-            /// Copies text and attributes from another cell state content.
-            /// </summary>
-            /// <param name="cell">The cell.</param>
-            public void CopyFrom(CellStateContent cell)
-            {
-                Character = cell.Character;
-                Opacity = cell.Opacity;
-                Foreground = cell.Foreground;
-                Background = cell.Background;
-                IsUnderlined = cell.IsUnderlined;
-                IsItalics = cell.IsItalics;
-            }
-
-            /// <summary>
-            /// Clears the text and its attributes.
-            /// </summary>
-            public void Clear()
-            {
-                Character = default;
-                Opacity = 0.80;
-                Foreground = Brushes.White;
-                Background = Brushes.Black;
-                IsUnderlined = default;
-                IsItalics = default;
-            }
         }
 
         #endregion
