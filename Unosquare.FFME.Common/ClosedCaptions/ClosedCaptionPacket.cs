@@ -3,6 +3,7 @@
     using Shared;
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     /// <summary>
     /// Represents a 3-byte packet of closed-captioning data in EIA-608 format.
@@ -112,7 +113,7 @@
             { 0x3F, "+" },
         };
 
-        private static readonly Dictionary<byte, int> OddPreambleRows = new Dictionary<byte, int>
+        private static readonly Dictionary<byte, int> Base40PreambleRows = new Dictionary<byte, int>
         {
             { 0x11, 1 },
             { 0x19, 1 },
@@ -126,13 +127,13 @@
             { 0x1F, 9 },
             { 0x10, 11 },
             { 0x18, 11 },
-            { 0x13, 13 },
-            { 0x1B, 13 },
-            { 0x14, 15 },
-            { 0x1C, 15 },
+            { 0x13, 12 },
+            { 0x1B, 12 },
+            { 0x14, 14 },
+            { 0x1C, 14 },
         };
 
-        private static readonly Dictionary<byte, int> EvenPreambleRows = new Dictionary<byte, int>
+        private static readonly Dictionary<byte, int> Base60PreambleRows = new Dictionary<byte, int>
         {
             { 0x11, 2 },
             { 0x19, 2 },
@@ -144,10 +145,56 @@
             { 0x1E, 8 },
             { 0x17, 10 },
             { 0x1F, 10 },
-            { 0x13, 12 },
-            { 0x1B, 12 },
-            { 0x14, 14 },
-            { 0x1C, 14 },
+            { 0x13, 13 },
+            { 0x1B, 13 },
+            { 0x14, 15 },
+            { 0x1C, 15 },
+        };
+
+        private static readonly Dictionary<CaptionsStyle, int> PreambleStyleIndents = new Dictionary<CaptionsStyle, int>()
+        {
+            { CaptionsStyle.WhiteIndent0, 0 },
+            { CaptionsStyle.WhiteIndent4, 4 },
+            { CaptionsStyle.WhiteIndent8, 8 },
+            { CaptionsStyle.WhiteIndent12, 12 },
+            { CaptionsStyle.WhiteIndent16, 16 },
+            { CaptionsStyle.WhiteIndent20, 20 },
+            { CaptionsStyle.WhiteIndent24, 24 },
+            { CaptionsStyle.WhiteIndent28, 28 },
+            { CaptionsStyle.WhiteIndent0Underline, 0 },
+            { CaptionsStyle.WhiteIndent4Underline, 4 },
+            { CaptionsStyle.WhiteIndent8Underline, 8 },
+            { CaptionsStyle.WhiteIndent12Underline, 12 },
+            { CaptionsStyle.WhiteIndent16Underline, 16 },
+            { CaptionsStyle.WhiteIndent20Underline, 20 },
+            { CaptionsStyle.WhiteIndent24Underline, 24 },
+            { CaptionsStyle.WhiteIndent28Underline, 28 },
+        };
+
+        private static readonly CaptionsStyle[] UnderlineCaptionStyles = new CaptionsStyle[]
+        {
+            CaptionsStyle.BlueUnderline,
+            CaptionsStyle.CyanUnderline,
+            CaptionsStyle.GreenUnderline,
+            CaptionsStyle.MagentaUnderline,
+            CaptionsStyle.RedUnderline,
+            CaptionsStyle.WhiteIndent0Underline,
+            CaptionsStyle.WhiteIndent12Underline,
+            CaptionsStyle.WhiteIndent16Underline,
+            CaptionsStyle.WhiteIndent20Underline,
+            CaptionsStyle.WhiteIndent24Underline,
+            CaptionsStyle.WhiteIndent28Underline,
+            CaptionsStyle.WhiteIndent4Underline,
+            CaptionsStyle.WhiteIndent8Underline,
+            CaptionsStyle.WhiteItalicsUnderline,
+            CaptionsStyle.WhiteUnderline,
+            CaptionsStyle.YellowUnderline,
+        };
+
+        private static readonly CaptionsStyle[] ItalicsCaptionStyles = new CaptionsStyle[]
+        {
+            CaptionsStyle.WhiteItalics,
+            CaptionsStyle.WhiteItalicsUnderline,
         };
 
         #endregion
@@ -180,6 +227,7 @@
             D0 = DropParityBit(d0);
             D1 = DropParityBit(d1);
 
+            IsControlPacket = D0 >= 0x10 && D0 <= 0x1F;
             FieldParity = GetHeaderFieldType(header);
             FieldChannel = 0;
             Timestamp = timestamp;
@@ -239,7 +287,7 @@
                 if ((D0 == 0x17 || D0 == 0x1F) && (D1 >= 0x24 && D1 <= 0x2A))
                 {
                     FieldChannel = (D0 == 0x17) ? 1 : 2;
-                    PacketType = CaptionsPacketType.Charset;
+                    PacketType = CaptionsPacketType.PrivateCharset;
                     return;
                 }
 
@@ -253,6 +301,8 @@
                     PacketType = CaptionsPacketType.MidRow;
                     FieldChannel = D0 == 0x11 ? 1 : 2;
                     MidRowStyle = (CaptionsStyle)D1;
+                    IsItalics = ItalicsCaptionStyles.Contains(MidRowStyle);
+                    IsUnderlined = UnderlineCaptionStyles.Contains(MidRowStyle);
                     return;
                 }
 
@@ -292,6 +342,10 @@
                         FieldChannel = D0 == 0x10 ? 1 : 2;
                         PreambleRow = 11;
                         PreambleStyle = (CaptionsStyle)(D1 - 0x20);
+                        IsItalics = ItalicsCaptionStyles.Contains(PreambleStyle);
+                        IsUnderlined = UnderlineCaptionStyles.Contains(PreambleStyle);
+                        PreambleIndent = PreambleStyleIndents.ContainsKey(PreambleStyle) ?
+                            PreambleStyleIndents[PreambleStyle] : 0;
                         return;
                     }
 
@@ -312,15 +366,24 @@
 
                     if (wasSet)
                     {
+                        // Page 109 of CEA-608 Document
                         if (D1 >= 0x40 && D1 <= 0x5F)
                         {
-                            PreambleRow = OddPreambleRows[D0];
+                            PreambleRow = Base40PreambleRows.ContainsKey(D0) ? Base40PreambleRows[D0] : 11;
                             PreambleStyle = (CaptionsStyle)(D1 - 0x20);
+                            IsItalics = ItalicsCaptionStyles.Contains(PreambleStyle);
+                            IsUnderlined = UnderlineCaptionStyles.Contains(PreambleStyle);
+                            PreambleIndent = PreambleStyleIndents.ContainsKey(PreambleStyle) ?
+                                PreambleStyleIndents[PreambleStyle] : 0;
                         }
                         else
                         {
-                            PreambleRow = EvenPreambleRows[D0];
+                            PreambleRow = Base60PreambleRows.ContainsKey(D0) ? Base60PreambleRows[D0] : 11;
                             PreambleStyle = (CaptionsStyle)(D1 - 0x40);
+                            IsItalics = ItalicsCaptionStyles.Contains(PreambleStyle);
+                            IsUnderlined = UnderlineCaptionStyles.Contains(PreambleStyle);
+                            PreambleIndent = PreambleStyleIndents.ContainsKey(PreambleStyle) ?
+                                PreambleStyleIndents[PreambleStyle] : 0;
                         }
 
                         return;
@@ -481,12 +544,17 @@
         /// <summary>
         /// Gets the Preamble Row Number (1 through 15), if the packet type is of Preamble
         /// </summary>
-        public int PreambleRow { get; }
+        public int PreambleRow { get; } = default;
 
         /// <summary>
         /// Gets the Style, if the packet type is of Preamble
         /// </summary>
-        public CaptionsStyle PreambleStyle { get; }
+        public CaptionsStyle PreambleStyle { get; } = CaptionsStyle.None;
+
+        /// <summary>
+        /// Gets the Indent Style, if the packet type is of Preamble
+        /// </summary>
+        public int PreambleIndent { get; } = default;
 
         /// <summary>
         /// Gets the text, if the packet type is of text.
@@ -496,10 +564,19 @@
         /// <summary>
         /// Gets a value indicating whether this is a control packet.
         /// </summary>
-        public bool IsControlPacket
-        {
-            get => D0 >= 0x10 && D0 <= 0x1F;
-        }
+        public bool IsControlPacket { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the current and following
+        /// caption text packets are underlined; only valid for preamble or mid-row packets
+        /// </summary>
+        public bool IsUnderlined { get; } = default;
+
+        /// <summary>
+        /// Gets a value indicating whether the current and following
+        /// caption text packets are italicized; only valid for preamble or mid-row packets
+        /// </summary>
+        public bool IsItalics { get; } = default;
 
         #endregion
 
@@ -554,7 +631,7 @@
             var prefixData = $"{ts} | {channel} | P: {FieldParity} D: {FieldChannel} | {D0:x2}h {D1:x2}h |";
             switch (PacketType)
             {
-                case CaptionsPacketType.Charset:
+                case CaptionsPacketType.PrivateCharset:
                     output = $"{prefixData} CHARSET   | SELECT 0x{D1:x2}"; break;
                 case CaptionsPacketType.Color:
                     output = $"{prefixData} COLOR SET | {nameof(Color)}: {Color}"; break;

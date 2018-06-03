@@ -211,6 +211,10 @@
             target.StreamIndex = source.StreamIndex;
             target.ClosedCaptions = new ReadOnlyCollection<ClosedCaptions.ClosedCaptionPacket>(source.ClosedCaptions);
 
+            // Update the stream info object if we get Closed Caption Data
+            if (StreamInfo.HasClosedCaptions == false && target.ClosedCaptions.Count > 0)
+                StreamInfo.HasClosedCaptions = true;
+
             // Process the aspect ratio
             var aspectRatio = source.Pointer->sample_aspect_ratio;
             if (aspectRatio.num == 0 || aspectRatio.den == 0)

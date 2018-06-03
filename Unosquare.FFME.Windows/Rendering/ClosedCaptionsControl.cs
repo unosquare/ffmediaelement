@@ -16,7 +16,7 @@
     /// <seealso cref="Viewbox" />
     internal sealed class ClosedCaptionsControl : Viewbox
     {
-        private const double BackgroundWidth = 45;
+        private const double BackgroundWidth = 48;
         private const double BackgroundHeight = 80;
         private const double DefaultOpacity = 0.80d;
         private const double DefaultFontSize = 65;
@@ -75,21 +75,6 @@
         }
 
         /// <summary>
-        /// Takes the current state of the CC packet buffer and projects the visual properties
-        /// on to the CC visual grid of characters
-        /// </summary>
-        private void PaintBuffer()
-        {
-            for (var r = 0; r < ClosedCaptionsBuffer.RowCount; r++)
-            {
-                for (var c = 0; c < ClosedCaptionsBuffer.ColumnCount; c++)
-                {
-                    CharacterLookup[r][c].Text = Buffer.State[r][c].Text;
-                }
-            }
-        }
-
-        /// <summary>
         /// Initializes the component.
         /// </summary>
         private void InitializeComponent()
@@ -131,12 +116,10 @@
                         FontFamily = FontFamily,
                         TextAlignment = TextAlignment.Center,
                         Foreground = Brushes.WhiteSmoke,
-                        HorizontalAlignment = HorizontalAlignment.Stretch,
+                        HorizontalAlignment = HorizontalAlignment.Center,
                         VerticalAlignment = VerticalAlignment.Center,
                         FontSize = DefaultFontSize,
                         FontWeight = FontWeights.Medium,
-                        MaxWidth = letterBorder.Width,
-                        MaxHeight = letterBorder.Height
                     };
 
                     letterBorder.Child = letterText;
@@ -147,12 +130,8 @@
                         CharacterLookup[rowIndex] = new Dictionary<int, TextBlock>(ClosedCaptionsBuffer.ColumnCount);
 
                     CharacterLookup[rowIndex][columnIndex] = letterText;
-                    textProperty.AddValueChanged(letterText, (s, ea) =>
-                    {
-                        var border = letterText.Parent as Border;
-                        border.Visibility = string.IsNullOrEmpty(letterText.Text) ?
-                            Visibility.Hidden : Visibility.Visible;
-                    });
+                    letterBorder.Name = $"CC_{rowIndex:00}_{columnIndex:00}";
+                    letterText.Name = $"TX_{rowIndex:00}_{columnIndex:00}";
                 }
             }
 
@@ -160,17 +139,54 @@
             if (GuiContext.Current.IsInDesignTime)
             {
                 // Line 11 (index 10) preview
-                var sampleText = "L11: Closed Captions (preview)";
-                for (var charIndex = 0; charIndex < Math.Min(sampleText.Length, ClosedCaptionsBuffer.ColumnCount); charIndex++)
-                {
-                    CharacterLookup[10][charIndex].Text = sampleText.Substring(charIndex, 1);
-                }
+                Buffer.SetText(10, "L11: Closed Captions (preview)");
 
                 // Line 12 (index 11) preview
-                sampleText = "L12: Closed Captions (preview)";
-                for (var charIndex = 0; charIndex < Math.Min(sampleText.Length, ClosedCaptionsBuffer.ColumnCount); charIndex++)
+                Buffer.SetText(11, "L12: Closed Captions (preview)");
+
+                PaintBuffer();
+            }
+        }
+
+        /// <summary>
+        /// Takes the current state of the CC packet buffer and projects the visual properties
+        /// on to the CC visual grid of characters
+        /// </summary>
+        private void PaintBuffer()
+        {
+            TextBlock block = null;
+            ClosedCaptionsBuffer.CellStateContent cell = null;
+
+            for (var r = 0; r < ClosedCaptionsBuffer.RowCount; r++)
+            {
+                for (var c = 0; c < ClosedCaptionsBuffer.ColumnCount; c++)
                 {
-                    CharacterLookup[11][charIndex].Text = sampleText.Substring(charIndex, 1);
+                    block = CharacterLookup[r][c];
+                    cell = Buffer.State[r][c].Display;
+
+                    block.Text = cell.Text;
+                    block.FontStyle = cell.IsItalics ? FontStyles.Italic : FontStyles.Normal;
+                    block.HorizontalAlignment = cell.IsItalics ? HorizontalAlignment.Left : HorizontalAlignment.Center;
+
+                    block.Foreground = cell.Foreground;
+
+                    var border = block.Parent as Border;
+                    border.Visibility = string.IsNullOrEmpty(cell.Text) ?
+                        Visibility.Hidden : Visibility.Visible;
+
+                    border.Background = cell.Background;
+                    border.Opacity = cell.Opacity;
+
+                    if (cell.IsUnderlined)
+                    {
+                        border.BorderBrush = cell.Foreground;
+                        border.BorderThickness = new Thickness(0, 0, 0, 4);
+                    }
+                    else
+                    {
+                        border.BorderBrush = null;
+                        border.BorderThickness = default;
+                    }
                 }
             }
         }

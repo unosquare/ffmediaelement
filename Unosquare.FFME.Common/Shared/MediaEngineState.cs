@@ -17,7 +17,7 @@
         private const ulong NetworkStreamCacheFactor = 30;
         private const ulong StandardStreamCacheFactor = 4;
 
-        private static PropertyInfo[] Properties = null;
+        private static readonly PropertyInfo[] Properties = null;
         private readonly MediaEngine Parent = null;
         private readonly ReadOnlyDictionary<string, string> EmptyDictionary
             = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());

@@ -48,7 +48,7 @@
         /// <summary>
         /// The charset packet type
         /// </summary>
-        Charset,
+        PrivateCharset,
 
         /// <summary>
         /// The tabs packet type
