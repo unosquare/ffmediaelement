@@ -1135,6 +1135,33 @@ If FFmpeg is already loaded, the value cannot be changed.</p>
   </table>
   
   
+  <a id="Unosquare_FFME_MediaElement_FFmpegVersionInfo_" data-uid="Unosquare.FFME.MediaElement.FFmpegVersionInfo*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_FFmpegVersionInfo" data-uid="Unosquare.FFME.MediaElement.FFmpegVersionInfo">FFmpegVersionInfo</h4>
+  <div class="markdown level1 summary"><p>Gets the FFmpeg version information. Returns null
+when the libraries have not been loaded.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static string FFmpegVersionInfo { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <a id="Unosquare_FFME_MediaElement_FrameStepDuration_" data-uid="Unosquare.FFME.MediaElement.FrameStepDuration*"></a>
   <h4 id="Unosquare_FFME_MediaElement_FrameStepDuration" data-uid="Unosquare.FFME.MediaElement.FrameStepDuration">FrameStepDuration</h4>
   <div class="markdown level1 summary"><p>Gets the duration of a single frame step.
@@ -2277,6 +2304,36 @@ Note: Valid values are from 0 to 1</p>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public void Dispose()</code></pre>
   </div>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_LoadFFmpeg_" data-uid="Unosquare.FFME.MediaElement.LoadFFmpeg*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_LoadFFmpeg" data-uid="Unosquare.FFME.MediaElement.LoadFFmpeg">LoadFFmpeg()</h4>
+  <div class="markdown level1 summary"><p>Forces the preloading of the FFmpeg libraries according to the values of the
+<a class="xref" href="Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_FFmpegDirectory">FFmpegDirectory</a> and <a class="xref" href="Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_FFmpegLoadModeFlags">FFmpegLoadModeFlags</a>
+Also, sets the <a class="xref" href="Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_FFmpegVersionInfo">FFmpegVersionInfo</a> property. Thorws an exception
+if the libraries cannot be loaded.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool LoadFFmpeg()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>true if libraries were loaded, false if libraries were already loaded.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
   
   
   <a id="Unosquare_FFME_MediaElement_Open_" data-uid="Unosquare.FFME.MediaElement.Open*"></a>

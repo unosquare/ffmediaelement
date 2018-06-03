@@ -1031,6 +1031,19 @@ references:
   commentId: E:Unosquare.FFME.MediaElement.FFmpegMessageLogged
   fullName: Unosquare.FFME.MediaElement.FFmpegMessageLogged
   nameWithType: MediaElement.FFmpegMessageLogged
+- uid: Unosquare.FFME.MediaElement.FFmpegVersionInfo
+  name: FFmpegVersionInfo
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_FFmpegVersionInfo
+  commentId: P:Unosquare.FFME.MediaElement.FFmpegVersionInfo
+  fullName: Unosquare.FFME.MediaElement.FFmpegVersionInfo
+  nameWithType: MediaElement.FFmpegVersionInfo
+- uid: Unosquare.FFME.MediaElement.FFmpegVersionInfo*
+  name: FFmpegVersionInfo
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_FFmpegVersionInfo_
+  commentId: Overload:Unosquare.FFME.MediaElement.FFmpegVersionInfo
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.FFmpegVersionInfo
+  nameWithType: MediaElement.FFmpegVersionInfo
 - uid: Unosquare.FFME.MediaElement.FrameStepDuration
   name: FrameStepDuration
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_FrameStepDuration
@@ -1264,6 +1277,19 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.LoadedBehaviorProperty
   fullName: Unosquare.FFME.MediaElement.LoadedBehaviorProperty
   nameWithType: MediaElement.LoadedBehaviorProperty
+- uid: Unosquare.FFME.MediaElement.LoadFFmpeg
+  name: LoadFFmpeg()
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_LoadFFmpeg
+  commentId: M:Unosquare.FFME.MediaElement.LoadFFmpeg
+  fullName: Unosquare.FFME.MediaElement.LoadFFmpeg()
+  nameWithType: MediaElement.LoadFFmpeg()
+- uid: Unosquare.FFME.MediaElement.LoadFFmpeg*
+  name: LoadFFmpeg
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_LoadFFmpeg_
+  commentId: Overload:Unosquare.FFME.MediaElement.LoadFFmpeg
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.LoadFFmpeg
+  nameWithType: MediaElement.LoadFFmpeg
 - uid: Unosquare.FFME.MediaElement.MediaClosed
   name: MediaClosed
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaClosed
