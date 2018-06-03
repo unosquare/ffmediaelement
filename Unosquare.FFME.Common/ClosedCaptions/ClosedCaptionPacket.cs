@@ -3,6 +3,7 @@
     using Shared;
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     /// <summary>
     /// Represents a 3-byte packet of closed-captioning data in EIA-608 format.
@@ -112,7 +113,7 @@
             { 0x3F, "+" },
         };
 
-        private static readonly Dictionary<byte, int> OddPreambleRows = new Dictionary<byte, int>
+        private static readonly Dictionary<byte, int> Base40PreambleRows = new Dictionary<byte, int>
         {
             { 0x11, 1 },
             { 0x19, 1 },
@@ -126,13 +127,13 @@
             { 0x1F, 9 },
             { 0x10, 11 },
             { 0x18, 11 },
-            { 0x13, 13 },
-            { 0x1B, 13 },
-            { 0x14, 15 },
-            { 0x1C, 15 },
+            { 0x13, 12 },
+            { 0x1B, 12 },
+            { 0x14, 14 },
+            { 0x1C, 14 },
         };
 
-        private static readonly Dictionary<byte, int> EvenPreambleRows = new Dictionary<byte, int>
+        private static readonly Dictionary<byte, int> Base60PreambleRows = new Dictionary<byte, int>
         {
             { 0x11, 2 },
             { 0x19, 2 },
@@ -144,10 +145,56 @@
             { 0x1E, 8 },
             { 0x17, 10 },
             { 0x1F, 10 },
-            { 0x13, 12 },
-            { 0x1B, 12 },
-            { 0x14, 14 },
-            { 0x1C, 14 },
+            { 0x13, 13 },
+            { 0x1B, 13 },
+            { 0x14, 15 },
+            { 0x1C, 15 },
+        };
+
+        private static readonly Dictionary<CaptionsStyle, int> PreambleStyleIndents = new Dictionary<CaptionsStyle, int>()
+        {
+            { CaptionsStyle.WhiteIndent0, 0 },
+            { CaptionsStyle.WhiteIndent4, 4 },
+            { CaptionsStyle.WhiteIndent8, 8 },
+            { CaptionsStyle.WhiteIndent12, 12 },
+            { CaptionsStyle.WhiteIndent16, 16 },
+            { CaptionsStyle.WhiteIndent20, 20 },
+            { CaptionsStyle.WhiteIndent24, 24 },
+            { CaptionsStyle.WhiteIndent28, 28 },
+            { CaptionsStyle.WhiteIndent0Underline, 0 },
+            { CaptionsStyle.WhiteIndent4Underline, 4 },
+            { CaptionsStyle.WhiteIndent8Underline, 8 },
+            { CaptionsStyle.WhiteIndent12Underline, 12 },
+            { CaptionsStyle.WhiteIndent16Underline, 16 },
+            { CaptionsStyle.WhiteIndent20Underline, 20 },
+            { CaptionsStyle.WhiteIndent24Underline, 24 },
+            { CaptionsStyle.WhiteIndent28Underline, 28 },
+        };
+
+        private static readonly CaptionsStyle[] UnderlineCaptionStyles = new CaptionsStyle[]
+        {
+            CaptionsStyle.BlueUnderline,
+            CaptionsStyle.CyanUnderline,
+            CaptionsStyle.GreenUnderline,
+            CaptionsStyle.MagentaUnderline,
+            CaptionsStyle.RedUnderline,
+            CaptionsStyle.WhiteIndent0Underline,
+            CaptionsStyle.WhiteIndent12Underline,
+            CaptionsStyle.WhiteIndent16Underline,
+            CaptionsStyle.WhiteIndent20Underline,
+            CaptionsStyle.WhiteIndent24Underline,
+            CaptionsStyle.WhiteIndent28Underline,
+            CaptionsStyle.WhiteIndent4Underline,
+            CaptionsStyle.WhiteIndent8Underline,
+            CaptionsStyle.WhiteItalicsUnderline,
+            CaptionsStyle.WhiteUnderline,
+            CaptionsStyle.YellowUnderline,
+        };
+
+        private static readonly CaptionsStyle[] ItalicsCaptionStyles = new CaptionsStyle[]
+        {
+            CaptionsStyle.WhiteItalics,
+            CaptionsStyle.WhiteItalicsUnderline,
         };
 
         #endregion
@@ -180,6 +227,7 @@
             D0 = DropParityBit(d0);
             D1 = DropParityBit(d1);
 
+            IsControlPacket = D0 >= 0x10 && D0 <= 0x1F;
             FieldParity = GetHeaderFieldType(header);
             FieldChannel = 0;
             Timestamp = timestamp;
@@ -192,11 +240,11 @@
                     || (FieldParity == 0)
                     || (D0 == 0x00 && D1 == 0x00))
                 {
-                    PacketType = CCPacketType.NullPad;
+                    PacketType = CaptionsPacketType.NullPad;
                     return;
                 }
 
-                PacketType = CCPacketType.Unrecognized;
+                PacketType = CaptionsPacketType.Unrecognized;
 
                 #endregion
 
@@ -205,8 +253,8 @@
                 // XDS Parsing
                 if ((D0 & 0x0F) == D0 && D0 != 0)
                 {
-                    PacketType = CCPacketType.XdsClass;
-                    XdsClass = (CCXdsClassType)D0;
+                    PacketType = CaptionsPacketType.XdsClass;
+                    XdsClass = (CaptionsXdsClass)D0;
                     return;
                 }
 
@@ -217,17 +265,17 @@
                 if ((D0 == 0x10 || D0 == 0x18) && (D1 >= 0x20 && D1 <= 0x2F))
                 {
                     FieldChannel = (D0 == 0x10) ? 1 : 2;
-                    PacketType = CCPacketType.Color;
-                    Color = (CCColorType)D1;
+                    PacketType = CaptionsPacketType.Color;
+                    Color = (CaptionsColor)D1;
                     return;
                 }
 
                 if ((D0 == 0x17 || D0 == 0x1F) && (D1 >= 0x2D && D1 <= 0x2F))
                 {
                     FieldChannel = (D0 == 0x17) ? 1 : 2;
-                    PacketType = CCPacketType.Color;
+                    PacketType = CaptionsPacketType.Color;
                     var colorValue = D1 << 16;
-                    Color = (CCColorType)colorValue;
+                    Color = (CaptionsColor)colorValue;
 
                     return;
                 }
@@ -239,7 +287,7 @@
                 if ((D0 == 0x17 || D0 == 0x1F) && (D1 >= 0x24 && D1 <= 0x2A))
                 {
                     FieldChannel = (D0 == 0x17) ? 1 : 2;
-                    PacketType = CCPacketType.Charset;
+                    PacketType = CaptionsPacketType.PrivateCharset;
                     return;
                 }
 
@@ -250,9 +298,11 @@
                 // Midrow Code Parsing
                 if ((D0 == 0x11 || D0 == 0x19) && (D1 >= 0x20 && D1 <= 0x2F))
                 {
-                    PacketType = CCPacketType.MidRow;
+                    PacketType = CaptionsPacketType.MidRow;
                     FieldChannel = D0 == 0x11 ? 1 : 2;
-                    MidRowStyle = (CCStyleType)D1;
+                    MidRowStyle = (CaptionsStyle)D1;
+                    IsItalics = ItalicsCaptionStyles.Contains(MidRowStyle);
+                    IsUnderlined = UnderlineCaptionStyles.Contains(MidRowStyle);
                     return;
                 }
 
@@ -263,8 +313,8 @@
                 // Screen command parsing
                 if ((D0 == 0x14 || D0 == 0x1C) && (D1 >= 0x20 && D1 <= 0x2F))
                 {
-                    PacketType = CCPacketType.MiscCommand;
-                    MiscCommand = (CCMiscCommandType)D1;
+                    PacketType = CaptionsPacketType.Command;
+                    Command = (CaptionsCommand)D1;
                     FieldChannel = (D0 == 0x14 || D0 == 0x1C) ? 1 : 2;
                     return;
                 }
@@ -272,7 +322,7 @@
                 // Tab command Parsing
                 if ((D0 == 0x17 || D0 == 0x1F) && (D1 >= 0x21 && D1 <= 0x23))
                 {
-                    PacketType = CCPacketType.Tabs;
+                    PacketType = CaptionsPacketType.Tabs;
                     Tabs = D1 & 0x03;
                     FieldChannel = D0 == 0x17 ? 1 : 2;
                     return;
@@ -288,39 +338,52 @@
                     // Row 11 is different -- check for it
                     if (D0 == 0x10 || D0 == 0x18)
                     {
-                        PacketType = CCPacketType.Preamble;
+                        PacketType = CaptionsPacketType.Preamble;
                         FieldChannel = D0 == 0x10 ? 1 : 2;
                         PreambleRow = 11;
-                        PreambleStyle = (CCStyleType)(D1 - 0x20);
+                        PreambleStyle = (CaptionsStyle)(D1 - 0x20);
+                        IsItalics = ItalicsCaptionStyles.Contains(PreambleStyle);
+                        IsUnderlined = UnderlineCaptionStyles.Contains(PreambleStyle);
+                        PreambleIndent = PreambleStyleIndents.ContainsKey(PreambleStyle) ?
+                            PreambleStyleIndents[PreambleStyle] : 0;
                         return;
                     }
 
                     var wasSet = false;
                     if (D0 >= 0x11 && D0 <= 0x17)
                     {
-                        PacketType = CCPacketType.Preamble;
+                        PacketType = CaptionsPacketType.Preamble;
                         FieldChannel = 1;
                         wasSet = true;
                     }
 
                     if (D0 >= 0x19 && D0 <= 0x1F)
                     {
-                        PacketType = CCPacketType.Preamble;
+                        PacketType = CaptionsPacketType.Preamble;
                         FieldChannel = 2;
                         wasSet = true;
                     }
 
                     if (wasSet)
                     {
+                        // Page 109 of CEA-608 Document
                         if (D1 >= 0x40 && D1 <= 0x5F)
                         {
-                            PreambleRow = OddPreambleRows[D0];
-                            PreambleStyle = (CCStyleType)(D1 - 0x20);
+                            PreambleRow = Base40PreambleRows.ContainsKey(D0) ? Base40PreambleRows[D0] : 11;
+                            PreambleStyle = (CaptionsStyle)(D1 - 0x20);
+                            IsItalics = ItalicsCaptionStyles.Contains(PreambleStyle);
+                            IsUnderlined = UnderlineCaptionStyles.Contains(PreambleStyle);
+                            PreambleIndent = PreambleStyleIndents.ContainsKey(PreambleStyle) ?
+                                PreambleStyleIndents[PreambleStyle] : 0;
                         }
                         else
                         {
-                            PreambleRow = EvenPreambleRows[D0];
-                            PreambleStyle = (CCStyleType)(D1 - 0x40);
+                            PreambleRow = Base60PreambleRows.ContainsKey(D0) ? Base60PreambleRows[D0] : 11;
+                            PreambleStyle = (CaptionsStyle)(D1 - 0x40);
+                            IsItalics = ItalicsCaptionStyles.Contains(PreambleStyle);
+                            IsUnderlined = UnderlineCaptionStyles.Contains(PreambleStyle);
+                            PreambleIndent = PreambleStyleIndents.ContainsKey(PreambleStyle) ?
+                                PreambleStyleIndents[PreambleStyle] : 0;
                         }
 
                         return;
@@ -331,7 +394,7 @@
 
                 #region Text Parsing (Table 5, 6, 7, 8, 9, 10, and 68 for ASCII Chars)
 
-                PacketType = CCPacketType.Text;
+                PacketType = CaptionsPacketType.Text;
 
                 // Special North American character set
                 if ((D0 == 0x11 || D0 == 0x19) && D1 >= 0x30 && D1 <= 0x3F)
@@ -388,13 +451,13 @@
 
                 #endregion
 
-                PacketType = CCPacketType.Unrecognized;
+                PacketType = CaptionsPacketType.Unrecognized;
                 FieldChannel = 0;
             }
             finally
             {
                 Channel = FieldParity != 0 && FieldChannel != 0 ?
-                    ComputeChannel(FieldParity, FieldChannel) : ClosedCaptionChannel.CCP;
+                    ComputeChannel(FieldParity, FieldChannel) : CaptionsChannel.CCP;
             }
         }
 
@@ -446,12 +509,12 @@
         /// Gets the channel CC1, CC2, CC3, or CC4.
         /// Returns None when not yet computed
         /// </summary>
-        public ClosedCaptionChannel Channel { get; internal set; }
+        public CaptionsChannel Channel { get; internal set; }
 
         /// <summary>
         /// Gets the type of the packet.
         /// </summary>
-        public CCPacketType PacketType { get; }
+        public CaptionsPacketType PacketType { get; }
 
         /// <summary>
         /// Gets the number of tabs, if the packet type is of Tabs
@@ -459,39 +522,61 @@
         public int Tabs { get; }
 
         /// <summary>
-        /// Gets the Misc Command, if the packet type is of Misc Command
+        /// Gets the Misc Command, if the packet type is of Command
         /// </summary>
-        public CCMiscCommandType MiscCommand { get; }
+        public CaptionsCommand Command { get; }
 
         /// <summary>
         /// Gets the Color, if the packet type is of Color
         /// </summary>
-        public CCColorType Color { get; }
+        public CaptionsColor Color { get; }
 
         /// <summary>
         /// Gets the Style, if the packet type is of Mid Row Style
         /// </summary>
-        public CCStyleType MidRowStyle { get; }
+        public CaptionsStyle MidRowStyle { get; }
 
         /// <summary>
         /// Gets the XDS Class, if the packet type is of XDS
         /// </summary>
-        public CCXdsClassType XdsClass { get; }
+        public CaptionsXdsClass XdsClass { get; }
 
         /// <summary>
         /// Gets the Preamble Row Number (1 through 15), if the packet type is of Preamble
         /// </summary>
-        public int PreambleRow { get; }
+        public int PreambleRow { get; } = default;
 
         /// <summary>
         /// Gets the Style, if the packet type is of Preamble
         /// </summary>
-        public CCStyleType PreambleStyle { get; }
+        public CaptionsStyle PreambleStyle { get; } = CaptionsStyle.None;
+
+        /// <summary>
+        /// Gets the Indent Style, if the packet type is of Preamble
+        /// </summary>
+        public int PreambleIndent { get; } = default;
 
         /// <summary>
         /// Gets the text, if the packet type is of text.
         /// </summary>
         public string Text { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether this is a control packet.
+        /// </summary>
+        public bool IsControlPacket { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the current and following
+        /// caption text packets are underlined; only valid for preamble or mid-row packets
+        /// </summary>
+        public bool IsUnderlined { get; } = default;
+
+        /// <summary>
+        /// Gets a value indicating whether the current and following
+        /// caption text packets are italicized; only valid for preamble or mid-row packets
+        /// </summary>
+        public bool IsItalics { get; } = default;
 
         #endregion
 
@@ -503,19 +588,32 @@
         /// <param name="fieldPartity">The field partity.</param>
         /// <param name="fieldChannel">The field channel.</param>
         /// <returns>The CC channel according to the parity and channel</returns>
-        public static ClosedCaptionChannel ComputeChannel(int fieldPartity, int fieldChannel)
+        public static CaptionsChannel ComputeChannel(int fieldPartity, int fieldChannel)
         {
             // packets with 0 field partiy are null or unkown
             if (fieldPartity <= 0)
-                return ClosedCaptionChannel.CCP;
+                return CaptionsChannel.CCP;
 
             fieldPartity = fieldPartity.Clamp(1, 2);
             fieldChannel = fieldChannel.Clamp(1, 2);
 
             if (fieldPartity == 1)
-                return fieldChannel == 1 ? ClosedCaptionChannel.CC1 : ClosedCaptionChannel.CC2;
+                return fieldChannel == 1 ? CaptionsChannel.CC1 : CaptionsChannel.CC2;
             else
-                return fieldChannel == 1 ? ClosedCaptionChannel.CC3 : ClosedCaptionChannel.CC4;
+                return fieldChannel == 1 ? CaptionsChannel.CC3 : CaptionsChannel.CC4;
+        }
+
+        /// <summary>
+        /// Determines whether a previous packet is a repeated control code.
+        /// This is according to CEA-608 Section D.2 Transmission of Control Code Pairs
+        /// </summary>
+        /// <param name="previousPacket">The previous packet.</param>
+        /// <returns>
+        ///   <c>true</c> it is a repeated control code packet.
+        /// </returns>
+        public bool IsRepeatedControlCode(ClosedCaptionPacket previousPacket)
+        {
+            return IsControlPacket && previousPacket.D0 == D0 && previousPacket.D1 == D1;
         }
 
         /// <summary>
@@ -528,30 +626,30 @@
         {
             var output = string.Empty;
             var ts = $"{Timestamp.TotalSeconds:0.0000}";
-            var channel = Channel == ClosedCaptionChannel.CCP ?
+            var channel = Channel == CaptionsChannel.CCP ?
                 ComputeChannel(FieldParity, FieldChannel).ToString() + "*" : Channel.ToString() + " ";
             var prefixData = $"{ts} | {channel} | P: {FieldParity} D: {FieldChannel} | {D0:x2}h {D1:x2}h |";
             switch (PacketType)
             {
-                case CCPacketType.Charset:
+                case CaptionsPacketType.PrivateCharset:
                     output = $"{prefixData} CHARSET   | SELECT 0x{D1:x2}"; break;
-                case CCPacketType.Color:
+                case CaptionsPacketType.Color:
                     output = $"{prefixData} COLOR SET | {nameof(Color)}: {Color}"; break;
-                case CCPacketType.MiscCommand:
-                    output = $"{prefixData} MISC CTRL | {nameof(MiscCommand)}: {MiscCommand}"; break;
-                case CCPacketType.MidRow:
+                case CaptionsPacketType.Command:
+                    output = $"{prefixData} MISC CTRL | {nameof(Command)}: {Command}"; break;
+                case CaptionsPacketType.MidRow:
                     output = $"{prefixData} MIDROW CD | {nameof(MidRowStyle)}: {MidRowStyle}"; break;
-                case CCPacketType.NullPad:
+                case CaptionsPacketType.NullPad:
                     output = $"{prefixData} NULL  PAD | (NULL)"; break;
-                case CCPacketType.Preamble:
+                case CaptionsPacketType.Preamble:
                     output = $"{prefixData} PREAMBLE  | Row: {PreambleRow}, Style: {PreambleStyle}"; break;
-                case CCPacketType.Tabs:
+                case CaptionsPacketType.Tabs:
                     output = $"{prefixData} TAB SPACE | {nameof(Tabs)}: {Tabs}"; break;
-                case CCPacketType.Text:
+                case CaptionsPacketType.Text:
                     output = $"{prefixData} TEXT DATA | '{Text}'"; break;
-                case CCPacketType.XdsClass:
+                case CaptionsPacketType.XdsClass:
                     output = $"{prefixData} XDS DATA  | {nameof(XdsClass)}: {XdsClass}"; break;
-                case CCPacketType.Unrecognized:
+                case CaptionsPacketType.Unrecognized:
                 default:
                     output = $"{prefixData} INVALID   | N/A"; break;
             }

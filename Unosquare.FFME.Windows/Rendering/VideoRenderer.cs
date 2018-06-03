@@ -112,14 +112,13 @@
         }
 
         /// <summary>
-        /// Executed when the Pause method is called on the parent MediaElement
+        /// Executed when the Stop method is called on the parent MediaElement
         /// </summary>
         public void Stop()
         {
             GuiContext.Current.EnqueueInvoke(() =>
             {
-                // TODO: Formalize this
-                MediaElement.CaptionsView.ResetState();
+                MediaElement.CaptionsView.Reset();
             });
         }
 
@@ -130,8 +129,7 @@
         {
             GuiContext.Current.EnqueueInvoke(() =>
             {
-                // TODO: Formalize this
-                MediaElement.CaptionsView.ResetState();
+                MediaElement.CaptionsView.Reset();
             });
         }
 
@@ -176,10 +174,13 @@
             // Flag the start of a rendering cycle
             IsRenderingInProgress.Value = true;
 
+            // Send the packets to the CC renderer
+            MediaElement?.CaptionsView?.SendPackets(block, MediaCore);
+
             // Create an action that holds GUI thread actions
             var foregroundAction = new Action(() =>
             {
-                MediaElement.CaptionsView.RenderPacket(block, MediaCore, clockPosition);
+                MediaElement?.CaptionsView?.Render(MediaElement.ClosedCaptionsChannel, clockPosition);
                 ApplyLayoutTransforms(block);
             });
 
@@ -259,9 +260,7 @@
             {
                 TargetBitmap = null;
                 MediaElement.VideoView.Source = null;
-
-                // TODO: This still needs work!
-                MediaElement.CaptionsView.ResetState();
+                MediaElement.CaptionsView.Reset();
             });
         }
 

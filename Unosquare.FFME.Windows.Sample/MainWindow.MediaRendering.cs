@@ -19,10 +19,6 @@
 
             #region Audio and Video Frame Rendering Variables
 
-            // We can extract the closed caption data into a file if we need to.
-            var closedCaptionsFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "608.bin");
-            var saveClosedCaptions = false;
-
             // Setup GDI+ graphics
             System.Drawing.Bitmap overlayBitmap = null;
             System.Drawing.Graphics overlayGraphics = null;
@@ -49,20 +45,6 @@
 
             Media.RenderingVideo += (s, e) =>
             {
-                if (saveClosedCaptions && e.ClosedCaptions.Count > 0)
-                {
-                    var byteList = new List<byte>(4096);
-                    byteList.AddRange(BitConverter.GetBytes(e.StartTime.Ticks));
-                    byteList.AddRange(BitConverter.GetBytes(e.ClosedCaptions.Count * 3));
-                    foreach (var cc in e.ClosedCaptions)
-                        byteList.AddRange(cc.Data);
-
-                    using (var stream = new FileStream(closedCaptionsFile, FileMode.Append))
-                    {
-                        stream.Write(byteList.ToArray(), 0, byteList.Count);
-                    }
-                }
-
                 #region Create the overlay buffer to work with
 
                 if (overlayBackBuffer != e.Bitmap.Scan0)

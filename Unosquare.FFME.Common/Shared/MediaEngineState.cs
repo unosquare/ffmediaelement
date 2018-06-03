@@ -17,7 +17,7 @@
         private const ulong NetworkStreamCacheFactor = 30;
         private const ulong StandardStreamCacheFactor = 4;
 
-        private static PropertyInfo[] Properties = null;
+        private static readonly PropertyInfo[] Properties = null;
         private readonly MediaEngine Parent = null;
         private readonly ReadOnlyDictionary<string, string> EmptyDictionary
             = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
@@ -271,6 +271,11 @@
         /// currently has an open media url.
         /// </summary>
         public bool IsOpen => (IsOpening == false) && (Parent.Container?.IsOpen ?? default);
+
+        /// <summary>
+        /// Gets a value indicating whether the current video stream has closed captions
+        /// </summary>
+        public bool HasClosedCaptions => IsOpen && (Parent.Container?.Components[MediaType.Video]?.StreamInfo?.HasClosedCaptions ?? default);
 
         #endregion
 

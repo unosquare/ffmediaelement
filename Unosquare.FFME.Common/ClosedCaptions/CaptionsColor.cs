@@ -1,9 +1,9 @@
 ﻿namespace Unosquare.FFME.ClosedCaptions
 {
     /// <summary>
-    /// Enumerates the differen Closed-Captioning Colors
+    /// Enumerates the different Closed-Captioning Colors
     /// </summary>
-    public enum CCColorType
+    public enum CaptionsColor
     {
         /// <summary>
         /// No color

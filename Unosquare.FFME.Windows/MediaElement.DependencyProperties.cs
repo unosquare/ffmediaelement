@@ -2,6 +2,7 @@
 #pragma warning disable SA1117 // Parameters must be on same line or separate lines
 namespace Unosquare.FFME
 {
+    using ClosedCaptions;
     using Shared;
     using System;
     using System.ComponentModel;
@@ -416,6 +417,39 @@ namespace Unosquare.FFME
             new FrameworkPropertyMetadata(MediaState.Pause, FrameworkPropertyMetadataOptions.None));
 
         #endregion
+
+        #region ClosedCaptionsChannel Dependency Property
+
+        /// <summary>
+        /// Gets/Sets the ClosedCaptionsChannel property on the MediaElement.
+        /// Note: Valid values are from 0 to 1
+        /// </summary>
+        [Category(nameof(MediaElement))]
+        [Description("The video CC Channel to render. Ranges from 0 to 4")]
+        public CaptionsChannel ClosedCaptionsChannel
+        {
+            get { return (CaptionsChannel)GetValue(ClosedCaptionsChannelProperty); }
+            set { SetValue(ClosedCaptionsChannelProperty, value); }
+        }
+
+        /// <summary>
+        /// The DependencyProperty for the MediaElement.ClosedCaptionsChannel property.
+        /// </summary>
+        public static readonly DependencyProperty ClosedCaptionsChannelProperty = DependencyProperty.Register(
+            nameof(ClosedCaptionsChannel), typeof(CaptionsChannel), typeof(MediaElement),
+            new FrameworkPropertyMetadata(
+                Constants.Controller.DefaultClosedCaptionsChannel,
+                FrameworkPropertyMetadataOptions.None,
+                OnClosedCaptionsChannelPropertyChanged));
+
+        private static void OnClosedCaptionsChannelPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var element = d as MediaElement;
+            element?.CaptionsView.Reset();
+        }
+
+        #endregion
+
     }
 }
 #pragma warning restore SA1117 // Parameters must be on same line or separate lines

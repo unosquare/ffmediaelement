@@ -3,7 +3,7 @@
     /// <summary>
     /// Enumerates the 4 different CC channels
     /// </summary>
-    public enum ClosedCaptionChannel
+    public enum CaptionsChannel
     {
         /// <summary>
         /// No channel specified -- use previous

@@ -67,7 +67,7 @@
                     for (var p = 0; p < sideData->size; p += 3)
                     {
                         var packet = new ClosedCaptionPacket(TimeSpan.FromTicks(StartTime.Ticks + p), sideData->data, p);
-                        if (packet.PacketType == CCPacketType.NullPad || packet.PacketType == CCPacketType.Unrecognized)
+                        if (packet.PacketType == CaptionsPacketType.NullPad || packet.PacketType == CaptionsPacketType.Unrecognized)
                             continue;
 
                         // at this point, we have valid CC data

@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
+    using ClosedCaptions;
     using Events;
     using FFmpeg.AutoGen;
     using Platform;
@@ -186,6 +187,9 @@
                 }
 
                 e.Options.VideoFilter = videoFilter.ToString().TrimEnd(',');
+
+                Media.ClosedCaptionsChannel = videoStream.HasClosedCaptions ?
+                    CaptionsChannel.CC1 : CaptionsChannel.CCP;
             }
 
             // e.Options.AudioFilter = "aecho=0.8:0.9:1000:0.3";

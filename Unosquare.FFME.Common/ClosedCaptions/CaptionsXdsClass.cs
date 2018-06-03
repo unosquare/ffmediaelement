@@ -3,7 +3,7 @@
     /// <summary>
     /// Defines Closed-Captioning XDS Packet Classes
     /// </summary>
-    public enum CCXdsClassType
+    public enum CaptionsXdsClass
     {
         /// <summary>
         /// The none XDS Class
