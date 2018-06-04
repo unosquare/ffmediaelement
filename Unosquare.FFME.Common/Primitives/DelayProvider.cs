@@ -112,17 +112,26 @@
 
         #region Private Delay Mechanisms
 
+        /// <summary>
+        /// Implementation using Thread.Sleep
+        /// </summary>
         private void DelaySleep()
         {
             Thread.Sleep(10);
         }
 
+        /// <summary>
+        /// Implementation using Task.Delay
+        /// </summary>
         private void DelayTask()
         {
             Task.Delay(1).ConfigureAwait(continueOnCapturedContext: false)
                 .GetAwaiter().GetResult();
         }
 
+        /// <summary>
+        /// Implementation using the ThreadPool with a wait event.
+        /// </summary>
         private void DelayThreadPool()
         {
             if (DelayEvent == null)

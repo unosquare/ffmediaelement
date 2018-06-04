@@ -29,14 +29,29 @@
         /// </summary>
         private const int MaxBufferLength = 512;
 
+        /// <summary>
+        /// The default base row is row 11 (index 10)
+        /// </summary>
         private const int DefaultBaseRowIndex = 10;
 
+        /// <summary>
+        /// To keep track of previous data channel
+        /// </summary>
         private const int DefaultFieldChannel = 1;
 
+        /// <summary>
+        /// The scroll mode (Roll Up 2/3/4) modes
+        /// </summary>
         private const int DefaultScrollSize = 2;
 
+        /// <summary>
+        /// The default parser state
+        /// </summary>
         private const ParserStateMode DefaultStateMode = ParserStateMode.None;
 
+        /// <summary>
+        /// The number of seconds before a CC timeout occurs
+        /// </summary>
         private const double TimeoutSeconds = 16;
 
         #endregion
@@ -46,14 +61,20 @@
         /// <summary>
         /// The linear, non-demuxed packet buffer
         /// </summary>
-        private readonly SortedDictionary<long, ClosedCaptionPacket> PacketBuffer
-            = new SortedDictionary<long, ClosedCaptionPacket>();
+        private readonly Dictionary<long, ClosedCaptionPacket> PacketBuffer
+            = new Dictionary<long, ClosedCaptionPacket>();
 
         /// <summary>
         /// The independent channel packet buffers
         /// </summary>
         private readonly Dictionary<CaptionsChannel, Dictionary<long, ClosedCaptionPacket>> ChannelPacketBuffer
             = new Dictionary<CaptionsChannel, Dictionary<long, ClosedCaptionPacket>>();
+
+        /// <summary>
+        /// Prevents Writing and reseting at the same time, causing the keys to become
+        /// invalid when processing packets.
+        /// </summary>
+        private readonly object SyncLock = new object();
 
         private int m_CursorColumnIndex = default;
         private int m_CursorRowIndex = DefaultBaseRowIndex;
@@ -240,8 +261,11 @@
         /// <param name="text">The text.</param>
         public void SetText(int rowIndex, string text)
         {
-            for (var c = 0; c < Math.Min(text.Length, ColumnCount); c++)
-                State[rowIndex][c].Display.Character = text[c];
+            lock (SyncLock)
+            {
+                for (var c = 0; c < Math.Min(text.Length, ColumnCount); c++)
+                    State[rowIndex][c].Display.Character = text[c];
+            }
         }
 
         /// <summary>
@@ -251,78 +275,81 @@
         /// <param name="mediaCore">The media core.</param>
         public void Write(VideoBlock currentBlock, MediaEngine mediaCore)
         {
-            // Feed the available closed captions into the packet buffer
-            // We pre-feed the video blocks to avoid any skipping of CC packets
-            // as a result of skipping video frame render calls
-            var block = currentBlock;
-            while (block != null)
+            lock (SyncLock)
             {
-                // Skip the block if we already wrote its CC packets
-                if (block.ClosedCaptions.Count > 0 && block.StartTime.Ticks > WriteTag.Ticks)
+                // Feed the available closed captions into the packet buffer
+                // We pre-feed the video blocks to avoid any skipping of CC packets
+                // as a result of skipping video frame render calls
+                var block = currentBlock;
+                while (block != null)
                 {
-                    // Add the CC packets to the linear, ordered packet buffer
-                    foreach (var cc in block.ClosedCaptions)
+                    // Skip the block if we already wrote its CC packets
+                    if (block.ClosedCaptions.Count > 0 && block.StartTime.Ticks > WriteTag.Ticks)
                     {
-                        PacketBuffer[cc.Timestamp.Ticks] = cc;
+                        // Add the CC packets to the linear, ordered packet buffer
+                        foreach (var cc in block.ClosedCaptions)
+                        {
+                            PacketBuffer[cc.Timestamp.Ticks] = cc;
+                        }
+
+                        // Update the Write Tag and move on to the next block
+                        WriteTag = block.StartTime;
                     }
 
-                    // Update the Write Tag and move on to the next block
-                    WriteTag = block.StartTime;
+                    block = mediaCore.Blocks[currentBlock.MediaType].Next(block) as VideoBlock;
                 }
 
-                block = mediaCore.Blocks[currentBlock.MediaType].Next(block) as VideoBlock;
-            }
+                // Now, we need to demux the packets from the linear packet buffer
+                // into the corresponding independent channel packet buffers
+                var maxPosition = currentBlock.EndTime.Ticks; // The maximum demuxer position
+                var lastDemuxedKey = long.MinValue; // The demuxer position
+                var linearBufferKeys = PacketBuffer.Keys.OrderBy(k => k).ToArray();
 
-            // Now, we need to demux the packets from the linear packet buffer
-            // into the corresponding independent channel packet buffers
-            var maxPosition = currentBlock.EndTime.Ticks; // The maximum demuxer position
-            var lastDemuxedKey = long.MinValue; // The demuxer position
-            var linearBufferKeys = PacketBuffer.Keys.ToArray();
-
-            foreach (var position in linearBufferKeys)
-            {
-                // Get a reference to the packet to demux
-                var packet = PacketBuffer[position];
-
-                // Stop demuxing packets beyond the current video block
-                if (position > maxPosition) break;
-
-                // Update the last processed psoition
-                lastDemuxedKey = position;
-
-                // Skip packets that don't have a valid field parity or that are null
-                if (packet.FieldParity != 1 && packet.FieldParity != 2) continue;
-                if (packet.PacketType == CaptionsPacketType.NullPad || packet.PacketType == CaptionsPacketType.Unrecognized) continue;
-
-                // Update the last channel state if we have all available info (both parity and channel)
-                // This is because some packets will arrive with Field data but not with channel data which means just use the prior channel from the same field.
-                if (packet.FieldChannel == 1 || packet.FieldChannel == 2)
+                foreach (var position in linearBufferKeys)
                 {
-                    if (packet.FieldParity == 1)
-                        Field1LastChannel = packet.FieldChannel;
-                    else
-                        Field2LastChannel = packet.FieldChannel;
+                    // Get a reference to the packet to demux
+                    var packet = PacketBuffer[position];
+
+                    // Stop demuxing packets beyond the current video block
+                    if (position > maxPosition) break;
+
+                    // Update the last processed psoition
+                    lastDemuxedKey = position;
+
+                    // Skip packets that don't have a valid field parity or that are null
+                    if (packet.FieldParity != 1 && packet.FieldParity != 2) continue;
+                    if (packet.PacketType == CaptionsPacketType.NullPad || packet.PacketType == CaptionsPacketType.Unrecognized) continue;
+
+                    // Update the last channel state if we have all available info (both parity and channel)
+                    // This is because some packets will arrive with Field data but not with channel data which means just use the prior channel from the same field.
+                    if (packet.FieldChannel == 1 || packet.FieldChannel == 2)
+                    {
+                        if (packet.FieldParity == 1)
+                            Field1LastChannel = packet.FieldChannel;
+                        else
+                            Field2LastChannel = packet.FieldChannel;
+                    }
+
+                    // Compute the channel using the packet's field parity and the last available channel state
+                    var channel = ClosedCaptionPacket.ComputeChannel(
+                        packet.FieldParity, (packet.FieldParity == 1) ? Field1LastChannel : Field2LastChannel);
+
+                    // Demux the packet to the correspnding channel buffer so the channels are independent
+                    ChannelPacketBuffer[channel][position] = packet;
                 }
 
-                // Compute the channel using the packet's field parity and the last available channel state
-                var channel = ClosedCaptionPacket.ComputeChannel(
-                    packet.FieldParity, (packet.FieldParity == 1) ? Field1LastChannel : Field2LastChannel);
+                // Remove the demuxed packets from the general (linear) packet buffer
+                foreach (var bufferKey in linearBufferKeys)
+                {
+                    if (bufferKey > lastDemuxedKey)
+                        break;
 
-                // Demux the packet to the correspnding channel buffer so the channels are independent
-                ChannelPacketBuffer[channel][position] = packet;
+                    PacketBuffer.Remove(bufferKey);
+                }
+
+                // Trim all buffers to their max length
+                TrimBuffers();
             }
-
-            // Remove the demuxed packets from the general (linear) packet buffer
-            foreach (var bufferKey in linearBufferKeys)
-            {
-                if (bufferKey > lastDemuxedKey)
-                    break;
-
-                PacketBuffer.Remove(bufferKey);
-            }
-
-            // Trim all buffers to their max length
-            TrimBuffers();
         }
 
         /// <summary>
@@ -331,32 +358,35 @@
         /// </summary>
         public void Reset()
         {
-            // Clear the packet buffers
-            LastReceiveTime = DateTime.UtcNow;
-            CurrentPacket = default;
-            PacketBuffer.Clear();
-            for (var channel = 1; channel <= 4; channel++)
-                ChannelPacketBuffer[(CaptionsChannel)channel].Clear();
-
-            // Reset the writer state
-            Field1LastChannel = DefaultFieldChannel;
-            Field2LastChannel = DefaultFieldChannel;
-            WriteTag = TimeSpan.MinValue;
-
-            // Reset the parser state
-            CursorRowIndex = DefaultBaseRowIndex;
-            CursorColumnIndex = default;
-            ScrollBaseRowIndex = DefaultBaseRowIndex;
-            ScrollSize = DefaultScrollSize;
-            StateMode = DefaultStateMode;
-            IsItalics = default;
-            IsUnderlined = default;
-
-            // Clear the state buffer
-            for (var rowIndex = 0; rowIndex < RowCount; rowIndex++)
+            lock (SyncLock)
             {
-                for (var columnIndex = 0; columnIndex < ColumnCount; columnIndex++)
-                    State[rowIndex][columnIndex].Reset();
+                // Clear the packet buffers
+                LastReceiveTime = DateTime.UtcNow;
+                CurrentPacket = default;
+                PacketBuffer.Clear();
+                for (var channel = 1; channel <= 4; channel++)
+                    ChannelPacketBuffer[(CaptionsChannel)channel].Clear();
+
+                // Reset the writer state
+                Field1LastChannel = DefaultFieldChannel;
+                Field2LastChannel = DefaultFieldChannel;
+                WriteTag = TimeSpan.MinValue;
+
+                // Reset the parser state
+                CursorRowIndex = DefaultBaseRowIndex;
+                CursorColumnIndex = default;
+                ScrollBaseRowIndex = DefaultBaseRowIndex;
+                ScrollSize = DefaultScrollSize;
+                StateMode = DefaultStateMode;
+                IsItalics = default;
+                IsUnderlined = default;
+
+                // Clear the state buffer
+                for (var rowIndex = 0; rowIndex < RowCount; rowIndex++)
+                {
+                    for (var columnIndex = 0; columnIndex < ColumnCount; columnIndex++)
+                        State[rowIndex][columnIndex].Reset();
+                }
             }
         }
 
@@ -369,126 +399,129 @@
         /// <returns>A boolean to determine if the display needs repainting.</returns>
         public bool UpdateState(CaptionsChannel channel, TimeSpan clockPosition)
         {
-            var needsRepaint = false;
-
-            // Reset the buffer state if the channels don't match or if we have a timeout
-            if (channel != Channel || DateTime.UtcNow.Subtract(LastReceiveTime).TotalSeconds > TimeoutSeconds)
+            lock (SyncLock)
             {
-                Reset();
-                Channel = channel;
-                needsRepaint = true;
-            }
+                var needsRepaint = false;
 
-            if (channel == CaptionsChannel.CCP)
-                return needsRepaint;
-
-            // Dequeue packets for all channels but only process the current channel packets
-            List<ClosedCaptionPacket> packets = null;
-            for (var c = 1; c <= 4; c++)
-            {
-                var currentChannel = (CaptionsChannel)c;
-                var dequeuedPackets = DequeuePackets(ChannelPacketBuffer[currentChannel], clockPosition.Ticks);
-                if (currentChannel == Channel)
-                    packets = dequeuedPackets;
-            }
-
-            // Check if we have at least 1 dequeued packet
-            if (packets == null || packets.Count <= 0)
-                return needsRepaint;
-
-            // Update the last received time
-            LastReceiveTime = DateTime.UtcNow;
-
-            // Start processing the dequeued packets for the given channel
-            foreach (var packet in packets)
-            {
-                // Skip duplicated control codes
-                if (CurrentPacket != null && CurrentPacket.IsRepeatedControlCode(packet))
+                // Reset the buffer state if the channels don't match or if we have a timeout
+                if (channel != Channel || DateTime.UtcNow.Subtract(LastReceiveTime).TotalSeconds > TimeoutSeconds)
                 {
+                    Reset();
+                    Channel = channel;
+                    needsRepaint = true;
+                }
+
+                if (channel == CaptionsChannel.CCP)
+                    return needsRepaint;
+
+                // Dequeue packets for all channels but only process the current channel packets
+                List<ClosedCaptionPacket> packets = null;
+                for (var c = 1; c <= 4; c++)
+                {
+                    var currentChannel = (CaptionsChannel)c;
+                    var dequeuedPackets = DequeuePackets(ChannelPacketBuffer[currentChannel], clockPosition.Ticks);
+                    if (currentChannel == Channel)
+                        packets = dequeuedPackets;
+                }
+
+                // Check if we have at least 1 dequeued packet
+                if (packets == null || packets.Count <= 0)
+                    return needsRepaint;
+
+                // Update the last received time
+                LastReceiveTime = DateTime.UtcNow;
+
+                // Start processing the dequeued packets for the given channel
+                foreach (var packet in packets)
+                {
+                    // Skip duplicated control codes
+                    if (CurrentPacket != null && CurrentPacket.IsRepeatedControlCode(packet))
+                    {
+                        CurrentPacket = packet;
+                        continue;
+                    }
+
+                    // Update the current packet (we need this to detect duplicated control codes)
                     CurrentPacket = packet;
-                    continue;
-                }
 
-                // Update the current packet (we need this to detect duplicated control codes)
-                CurrentPacket = packet;
-
-                // Now, go ahead and process the packet updating the state
-                switch (packet.PacketType)
-                {
-                    case CaptionsPacketType.Color:
-                        {
-                            if (StateMode == ParserStateMode.Buffered || StateMode == ParserStateMode.Scrolling)
+                    // Now, go ahead and process the packet updating the state
+                    switch (packet.PacketType)
+                    {
+                        case CaptionsPacketType.Color:
                             {
-                                if (packet.Color == CaptionsColor.ForegroundBlackUnderline)
-                                    IsUnderlined = true;
+                                if (StateMode == ParserStateMode.Buffered || StateMode == ParserStateMode.Scrolling)
+                                {
+                                    if (packet.Color == CaptionsColor.ForegroundBlackUnderline)
+                                        IsUnderlined = true;
 
-                                if (packet.Color == CaptionsColor.WhiteItalics)
-                                    IsItalics = true;
+                                    if (packet.Color == CaptionsColor.WhiteItalics)
+                                        IsItalics = true;
+                                }
+
+                                break;
                             }
 
-                            break;
-                        }
-
-                    case CaptionsPacketType.MidRow:
-                        {
-                            if (StateMode == ParserStateMode.Buffered || StateMode == ParserStateMode.Scrolling)
+                        case CaptionsPacketType.MidRow:
                             {
-                                IsItalics = packet.IsItalics;
-                                IsUnderlined = packet.IsUnderlined;
+                                if (StateMode == ParserStateMode.Buffered || StateMode == ParserStateMode.Scrolling)
+                                {
+                                    IsItalics = packet.IsItalics;
+                                    IsUnderlined = packet.IsUnderlined;
+                                }
+
+                                break;
                             }
 
-                            break;
-                        }
+                        case CaptionsPacketType.Command:
+                            {
+                                if (ProcessCommandPacket(packet))
+                                    needsRepaint = true;
 
-                    case CaptionsPacketType.Command:
-                        {
-                            if (ProcessCommandPacket(packet))
-                                needsRepaint = true;
+                                break;
+                            }
 
-                            break;
-                        }
+                        case CaptionsPacketType.Preamble:
+                            {
+                                ProcessPreamblePacket(packet);
+                                break;
+                            }
 
-                    case CaptionsPacketType.Preamble:
-                        {
-                            ProcessPreamblePacket(packet);
-                            break;
-                        }
+                        case CaptionsPacketType.Tabs:
+                            {
+                                if (StateMode == ParserStateMode.Scrolling || StateMode == ParserStateMode.Buffered)
+                                    CursorColumnIndex += packet.Tabs;
 
-                    case CaptionsPacketType.Tabs:
-                        {
-                            if (StateMode == ParserStateMode.Scrolling || StateMode == ParserStateMode.Buffered)
-                                CursorColumnIndex += packet.Tabs;
+                                break;
+                            }
 
-                            break;
-                        }
+                        case CaptionsPacketType.Text:
+                            {
+                                if (ProcessTextPacket(packet))
+                                    needsRepaint = true;
 
-                    case CaptionsPacketType.Text:
-                        {
-                            if (ProcessTextPacket(packet))
-                                needsRepaint = true;
+                                break;
+                            }
 
-                            break;
-                        }
+                        case CaptionsPacketType.XdsClass:
+                            {
+                                // Change state back and forth
+                                StateMode = packet.XdsClass == CaptionsXdsClass.EndAll ?
+                                    ParserStateMode.None : ParserStateMode.XDS;
+                                break;
+                            }
 
-                    case CaptionsPacketType.XdsClass:
-                        {
-                            // Change state back and forth
-                            StateMode = packet.XdsClass == CaptionsXdsClass.EndAll ?
-                                ParserStateMode.None : ParserStateMode.XDS;
-                            break;
-                        }
-
-                    case CaptionsPacketType.PrivateCharset:
-                    case CaptionsPacketType.Unrecognized:
-                    case CaptionsPacketType.NullPad:
-                    default:
-                        {
-                            break;
-                        }
+                        case CaptionsPacketType.PrivateCharset:
+                        case CaptionsPacketType.Unrecognized:
+                        case CaptionsPacketType.NullPad:
+                        default:
+                            {
+                                break;
+                            }
+                    }
                 }
+
+                return needsRepaint;
             }
-
-            return needsRepaint;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
