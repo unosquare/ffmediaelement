@@ -28,10 +28,6 @@
             // when dispose occurs sametime with read cycle
             var mediaContainer = Container;
 
-            var main = mediaContainer.Components.Main.MediaType;
-            var auxs = mediaContainer.Components.MediaTypes.FundamentalAuxsFor(main);
-            var all = main.JoinMediaTypes(auxs);
-
             #endregion
 
             #region Worker Loop
@@ -42,6 +38,7 @@
                 while (IsTaskCancellationPending == false)
                 {
                     // Wait for seeking to be done.
+                    MediaChangingDone.Wait();
                     SeekingDone.Wait();
 
                     // Enter a packet reading cycle
@@ -59,7 +56,7 @@
                         try
                         {
                            t = mediaContainer.Read();
-                        } 
+                        }
                         catch (MediaContainerException)
                         {
                            continue;

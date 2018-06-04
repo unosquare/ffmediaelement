@@ -18,18 +18,12 @@
 
         #region State Management
 
-        private readonly IWaitEvent m_PacketReadingCycle = WaitEventFactory.Create(isCompleted: false, useSlim: false);
-        private readonly IWaitEvent m_FrameDecodingCycle = WaitEventFactory.Create(isCompleted: false, useSlim: false);
-        private readonly IWaitEvent m_BlockRenderingCycle = WaitEventFactory.Create(isCompleted: false, useSlim: false);
-        private readonly IWaitEvent m_SeekingDone = WaitEventFactory.Create(isCompleted: true, useSlim: true);
-
         private Thread PacketReadingTask = null;
         private Thread FrameDecodingTask = null;
         private Timer BlockRenderingWorker = null;
 
         private AtomicBoolean m_IsTaskCancellationPending = new AtomicBoolean(false);
         private AtomicBoolean m_HasDecoderSeeked = new AtomicBoolean(false);
-        private MediaBlockBuffer m_PreloadedSubtitles = null;
         private IWaitEvent BlockRenderingWorkerExit = null;
 
         /// <summary>
@@ -40,27 +34,32 @@
         /// <summary>
         /// Gets the preloaded subtitle blocks.
         /// </summary>
-        public MediaBlockBuffer PreloadedSubtitles => m_PreloadedSubtitles;
+        public MediaBlockBuffer PreloadedSubtitles { get; private set; } = null;
 
         /// <summary>
         /// Gets the packet reading cycle control evenet.
         /// </summary>
-        internal IWaitEvent PacketReadingCycle => m_PacketReadingCycle;
+        internal IWaitEvent PacketReadingCycle { get; } = WaitEventFactory.Create(isCompleted: false, useSlim: false);
 
         /// <summary>
         /// Gets the frame decoding cycle control event.
         /// </summary>
-        internal IWaitEvent FrameDecodingCycle => m_FrameDecodingCycle;
+        internal IWaitEvent FrameDecodingCycle { get; } = WaitEventFactory.Create(isCompleted: false, useSlim: false);
 
         /// <summary>
         /// Gets the block rendering cycle control event.
         /// </summary>
-        internal IWaitEvent BlockRenderingCycle => m_BlockRenderingCycle;
+        internal IWaitEvent BlockRenderingCycle { get; } = WaitEventFactory.Create(isCompleted: false, useSlim: false);
 
         /// <summary>
         /// Gets the seeking done control event.
         /// </summary>
-        internal IWaitEvent SeekingDone => m_SeekingDone;
+        internal IWaitEvent SeekingDone { get; } = WaitEventFactory.Create(isCompleted: true, useSlim: false);
+
+        /// <summary>
+        /// Gets the media changing done control event.
+        /// </summary>
+        internal IWaitEvent MediaChangingDone { get; } = WaitEventFactory.Create(isCompleted: true, useSlim: false);
 
         /// <summary>
         /// Gets or sets a value indicating whether the workedrs have been requested
@@ -152,7 +151,8 @@
 
             // Set the initial state of the task cycles.
             SeekingDone.Complete();
-            BlockRenderingCycle.Begin();
+            MediaChangingDone.Complete();
+            BlockRenderingCycle.Complete();
             FrameDecodingCycle.Begin();
             PacketReadingCycle.Begin();
 
@@ -225,15 +225,15 @@
 
             try
             {
-                m_PreloadedSubtitles = LoadBlocks(subtitlesUrl, MediaType.Subtitle, this);
+                PreloadedSubtitles = LoadBlocks(subtitlesUrl, MediaType.Subtitle, this);
 
                 // Process and adjust subtitle delays if necessary
                 if (Container.MediaOptions.SubtitlesDelay != TimeSpan.Zero)
                 {
                     var delay = Container.MediaOptions.SubtitlesDelay;
-                    for (var i = 0; i < m_PreloadedSubtitles.Count; i++)
+                    for (var i = 0; i < PreloadedSubtitles.Count; i++)
                     {
-                        var target = m_PreloadedSubtitles[i];
+                        var target = PreloadedSubtitles[i];
                         target.StartTime = TimeSpan.FromTicks(target.StartTime.Ticks + delay.Ticks);
                         target.EndTime = TimeSpan.FromTicks(target.EndTime.Ticks + delay.Ticks);
                         target.Duration = TimeSpan.FromTicks(target.EndTime.Ticks - target.StartTime.Ticks);

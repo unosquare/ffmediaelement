@@ -18,9 +18,6 @@
 
             BlockRenderingWorkerExit = WaitEventFactory.Create(isCompleted: false, useSlim: true);
 
-            // Synchronized access to parts of the run cycle
-            var isRunningRenderingCycle = false;
-
             // Holds the main media type
             var main = Container.Components.Main.MediaType;
 
@@ -67,11 +64,8 @@
 
                 #region Run the Rendering Cycle
 
-                // Updatete Status  Properties
-                State.UpdateBufferingProperties();
-
                 // Don't run the cycle if it's already running
-                if (isRunningRenderingCycle)
+                if (BlockRenderingCycle.IsInProgress)
                 {
                     Log(MediaLogMessageType.Trace, $"SKIP: {nameof(BlockRenderingWorker)} alredy in a cycle. {WallClock}");
                     return;
@@ -81,15 +75,20 @@
                 {
                     #region 1. Control and Capture
 
-                    // Flag the current rendering cycle
-                    isRunningRenderingCycle = true;
+                    // Wait for Media Changing
+                    MediaChangingDone.Wait();
+
+                    // Signal the start of a block rendering cycle
+                    BlockRenderingCycle.Begin();
+
+                    // Updatete Status Properties
+                    main = Container.Components.Main.MediaType;
+                    all = Renderers.Keys.ToArray();
+                    State.UpdateBufferingProperties();
 
                     // Reset the rendered count to 0
                     foreach (var t in all)
                         renderedBlockCount[t] = 0;
-
-                    // Capture current clock position for the rest of this cycle
-                    BlockRenderingCycle.Begin();
 
                     #endregion
 
@@ -146,7 +145,6 @@
                 {
                     // Always exit notifying the cycle is done.
                     BlockRenderingCycle.Complete();
-                    isRunningRenderingCycle = false;
                 }
 
                 #endregion

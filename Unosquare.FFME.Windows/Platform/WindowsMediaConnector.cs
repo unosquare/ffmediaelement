@@ -155,6 +155,18 @@
         }
 
         /// <summary>
+        /// Called when media options are changing.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="mediaInfo">The media information.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public Task OnMediaChanging(MediaEngine sender, MediaOptions options, MediaInfo mediaInfo)
+        {
+            return Parent != null ? Parent.RaiseMediaChangingEvent(options, mediaInfo) : Task.CompletedTask;
+        }
+
+        /// <summary>
         /// Called when [media initializing].
         /// </summary>
         /// <param name="sender">The sender.</param>

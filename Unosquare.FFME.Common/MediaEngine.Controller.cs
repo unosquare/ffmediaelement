@@ -122,6 +122,17 @@
         }
 
         /// <summary>
+        /// Requests new media options to be applied, including stream component selection.
+        /// </summary>
+        /// <returns>The awaitable command</returns>
+        public async Task ChangeMedia()
+        {
+            try { await Commands.ChangeMediaAsync(); }
+            catch (OperationCanceledException) { }
+            catch { throw; }
+        }
+
+        /// <summary>
         /// Begins or resumes playback of the currently loaded media.
         /// </summary>
         /// <returns>The awaitable command</returns>

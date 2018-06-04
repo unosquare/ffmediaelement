@@ -218,6 +218,63 @@
             // var playTask = Media.Play(); // fire up the play task asynchronously
         }
 
+        /// <summary>
+        /// Handles the MediaChanging event of the MediaControl.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="MediaOpeningRoutedEventArgs"/> instance containing the event data.</param>
+        private void OnMediaChanging(object sender, MediaOpeningRoutedEventArgs e)
+        {
+            var availableStreams = e.Info.Streams
+                .Where(s => s.Value.CodecType == (AVMediaType)StreamCycleMediaType)
+                .Select(x => x.Value)
+                .ToList();
+
+            if (availableStreams.Count <= 0) return;
+
+            // Allow cyclling though a null stream (means removing the stream)
+            // Except for video streams.
+            if (StreamCycleMediaType != MediaType.Video)
+                availableStreams.Add(null);
+
+            var currentIndex = -1;
+
+            switch (StreamCycleMediaType)
+            {
+                case MediaType.Audio:
+                    currentIndex = availableStreams.IndexOf(e.Options.AudioStream);
+                    break;
+
+                case MediaType.Video:
+                    currentIndex = availableStreams.IndexOf(e.Options.VideoStream);
+                    break;
+
+                case MediaType.Subtitle:
+                    currentIndex = availableStreams.IndexOf(e.Options.SubtitleStream);
+                    break;
+            }
+
+            currentIndex += 1;
+            if (currentIndex >= availableStreams.Count)
+                currentIndex = 0;
+
+            var newStream = availableStreams[currentIndex];
+            switch (StreamCycleMediaType)
+            {
+                case MediaType.Audio:
+                    e.Options.AudioStream = newStream;
+                    break;
+
+                case MediaType.Video:
+                    e.Options.VideoStream = newStream;
+                    break;
+
+                case MediaType.Subtitle:
+                    e.Options.SubtitleStream = newStream;
+                    break;
+            }
+        }
+
         #endregion
 
         #region Other Media Event Handlers

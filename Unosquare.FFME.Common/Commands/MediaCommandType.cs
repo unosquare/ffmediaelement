@@ -6,38 +6,43 @@
     internal enum MediaCommandType
     {
         /// <summary>
-        /// The open command
+        /// The open command id
         /// </summary>
         Open,
 
         /// <summary>
-        /// The seek command
+        /// The seek command id
         /// </summary>
         Seek,
 
         /// <summary>
-        /// The play command
+        /// The play command id
         /// </summary>
         Play,
 
         /// <summary>
-        /// The pause command
+        /// The pause command id
         /// </summary>
         Pause,
 
         /// <summary>
-        /// The stop command
+        /// The stop command id
         /// </summary>
         Stop,
 
         /// <summary>
-        /// The close command
+        /// The close command id
         /// </summary>
         Close,
 
         /// <summary>
-        /// The set speed ratio command
+        /// The set speed ratio command id
         /// </summary>
-        SetSpeedRatio
+        SetSpeedRatio,
+
+        /// <summary>
+        /// The change media command id
+        /// </summary>
+        ChangeMedia,
     }
 }

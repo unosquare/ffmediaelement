@@ -23,6 +23,7 @@
         private DateTime LastMouseMoveTime;
         private Point LastMousePosition;
         private DispatcherTimer MouseMoveTimer = null;
+        private MediaType StreamCycleMediaType = MediaType.None;
 
         #endregion
 
@@ -139,6 +140,7 @@
             Media.MediaInitializing += OnMediaInitializing;
             Media.MediaOpening += OnMediaOpening;
             Media.MediaOpened += OnMediaOpened;
+            Media.MediaChanging += OnMediaChanging;
             Media.PositionChanged += OnMediaPositionChanged;
             Media.MediaFailed += OnMediaFailed;
             Media.MessageLogged += OnMediaMessageLogged;
@@ -289,6 +291,30 @@
             if (e.Key == Key.Down)
             {
                 Media.SpeedRatio -= 0.05;
+                return;
+            }
+
+            // Cycle Through Audio Streams
+            if (e.Key == Key.A)
+            {
+                StreamCycleMediaType = MediaType.Audio;
+                await Media.ChangeMedia();
+                return;
+            }
+
+            // Cycle Through Subtitle Streams
+            if (e.Key == Key.S)
+            {
+                StreamCycleMediaType = MediaType.Subtitle;
+                await Media.ChangeMedia();
+                return;
+            }
+
+            // Cycle Through Video Streams
+            if (e.Key == Key.Q)
+            {
+                StreamCycleMediaType = MediaType.Video;
+                await Media.ChangeMedia();
                 return;
             }
 

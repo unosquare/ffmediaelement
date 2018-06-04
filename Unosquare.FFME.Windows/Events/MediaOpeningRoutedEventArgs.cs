@@ -4,7 +4,7 @@
     using System.Windows;
 
     /// <summary>
-    /// Represents the event arguments of the MediaOpening routed event.
+    /// Represents the event arguments of the MediaOpening or MediaChanging routed events.
     /// </summary>
     /// <seealso cref="RoutedEventArgs" />
     public class MediaOpeningRoutedEventArgs : RoutedEventArgs

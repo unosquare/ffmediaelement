@@ -220,6 +220,18 @@
         public static bool LoadFFmpeg() => MediaEngine.LoadFFmpeg();
 
         /// <summary>
+        /// Requests new media options to be applied, including stream component selection.
+        /// Handle the <see cref="MediaChanging"/> event to set new <see cref="MediaOptions"/> based on
+        /// <see cref="MediaInfo"/> properties.
+        /// </summary>
+        /// <returns>The awaitable command</returns>
+        public async Task ChangeMedia()
+        {
+            try { await MediaCore.ChangeMedia(); }
+            catch (Exception ex) { var t = RaiseMediaFailedEvent(ex); }
+        }
+
+        /// <summary>
         /// Begins or resumes playback of the currently loaded media.
         /// </summary>
         /// <returns>The awaitable command</returns>

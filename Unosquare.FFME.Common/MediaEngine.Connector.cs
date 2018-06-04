@@ -72,6 +72,16 @@
         }
 
         /// <summary>
+        /// Raises the media changing event.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal Task SendOnMediaChanging()
+        {
+            return Connector != null ? Connector.OnMediaChanging(this, Container.MediaOptions, Container.MediaInfo) : Task.CompletedTask;
+        }
+
+        /// <summary>
         /// Raises the buffering started event.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>

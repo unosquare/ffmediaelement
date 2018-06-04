@@ -35,9 +35,7 @@
             // Holds the auxiliary media types
             var auxs = Container.Components.MediaTypes.ExcludeMediaType(main);
 
-            // Holds all components
-            var all = Container.Components.MediaTypes.DeepCopy();
-
+            // State properties
             var isBuffering = false;
             var resumeClock = false;
             var hasPendingSeeks = false;
@@ -106,6 +104,13 @@
                         // Notify position changes
                         State.UpdatePosition(wallClock);
                     }
+
+                    // Wait for media changes
+                    MediaChangingDone.Wait();
+
+                    // Update state properties
+                    main = Container.Components.Main.MediaType;
+                    auxs = Container.Components.MediaTypes.ExcludeMediaType(main);
 
                     // Initiate the frame docding cycle
                     FrameDecodingCycle.Begin();

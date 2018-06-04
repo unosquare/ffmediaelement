@@ -7,7 +7,7 @@
 
     internal class MacMediaConnector : IMediaConnector
     {
-        private MediaElement Control = null;
+        private readonly MediaElement Control = null;
 
         public MacMediaConnector(MediaElement control)
         {
@@ -76,6 +76,11 @@
         }
 
         public Task OnMediaStateChanged(MediaEngine sender, PlaybackStatus oldValue, PlaybackStatus newValue)
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task OnMediaChanging(MediaEngine sender, MediaOptions mediaOptions, MediaInfo mediaInfo)
         {
             return Task.CompletedTask;
         }

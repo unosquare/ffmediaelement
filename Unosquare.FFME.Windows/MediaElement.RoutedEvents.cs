@@ -107,6 +107,16 @@
                             typeof(MediaElement));
 
         /// <summary>
+        /// MediaChangingEvent is a routed event.
+        /// </summary>
+        public static readonly RoutedEvent MediaChangingEvent =
+            EventManager.RegisterRoutedEvent(
+                            nameof(MediaChanging),
+                            RoutingStrategy.Bubble,
+                            typeof(EventHandler<MediaOpeningRoutedEventArgs>),
+                            typeof(MediaElement));
+
+        /// <summary>
         /// PositionChanged is a routed event
         /// </summary>
         public static readonly RoutedEvent PositionChangedEvent =
@@ -205,12 +215,22 @@
 
         /// <summary>
         /// Raised before the input stream of the media is opened.
-        /// Use this method to modify the media options.
+        /// Use this method to modify the media options and select streams.
         /// </summary>
         public event EventHandler<MediaOpeningRoutedEventArgs> MediaOpening
         {
             add { AddHandler(MediaOpeningEvent, value); }
             remove { RemoveHandler(MediaOpeningEvent, value); }
+        }
+
+        /// <summary>
+        /// Raised before a change in media options is applied.
+        /// Use this method to modify the selected streams.
+        /// </summary>
+        public event EventHandler<MediaOpeningRoutedEventArgs> MediaChanging
+        {
+            add { AddHandler(MediaChangingEvent, value); }
+            remove { RemoveHandler(MediaChangingEvent, value); }
         }
 
         /// <summary>
@@ -356,6 +376,28 @@
                     mediaInfo));
 
                 LogEventDone(MediaOpeningEvent);
+            });
+        }
+
+        /// <summary>
+        /// Raises the media opening event.
+        /// </summary>
+        /// <param name="options">The options.</param>
+        /// <param name="mediaInfo">The media information.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal Task RaiseMediaChangingEvent(MediaOptions options, MediaInfo mediaInfo)
+        {
+            LogEventStart(MediaChangingEvent);
+            return GuiContext.Current.EnqueueInvoke(() =>
+            {
+                RaiseEvent(new MediaOpeningRoutedEventArgs(
+                    MediaChangingEvent,
+                    this,
+                    options,
+                    mediaInfo));
+
+                LogEventDone(MediaChangingEvent);
             });
         }
 

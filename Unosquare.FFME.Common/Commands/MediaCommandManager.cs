@@ -226,7 +226,28 @@
         #region Singleton, Asynchronous Command Handlers: Priority 1
 
         /// <summary>
-        /// Starts playing the open media URI.
+        /// Requests new media options to be applied, including stream component selection.
+        /// </summary>
+        /// <returns>The awaitable command</returns>
+        public async Task ChangeMediaAsync()
+        {
+            ChangeMediaCommand command = null;
+
+            lock (SyncLock)
+            {
+                command = Commands.FirstOrDefault(c => c.CommandType == MediaCommandType.ChangeMedia) as ChangeMediaCommand;
+                if (command == null)
+                {
+                    command = new ChangeMediaCommand(this);
+                    EnqueueCommand(command);
+                }
+            }
+
+            await command.TaskContext;
+        }
+
+        /// <summary>
+        /// Starts playing the currently open input.
         /// </summary>
         /// <returns>The awaitable command</returns>
         public async Task PlayAsync()

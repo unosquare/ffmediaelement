@@ -218,39 +218,8 @@
                     if (Items.ContainsKey(mediaType))
                         throw new ArgumentException($"A component for '{mediaType}' is already registered.");
                     Items[mediaType] = value ?? throw new ArgumentNullException($"{nameof(MediaComponent)} {nameof(value)} must not be null.");
-
-                    // Try for the main component to be the video (if it's not stuff like audio album art, that is)
-                    if (HasVideo && HasAudio &&
-                        (Video.StreamInfo.Disposition & ffmpeg.AV_DISPOSITION_ATTACHED_PIC) != ffmpeg.AV_DISPOSITION_ATTACHED_PIC)
-                    {
-                        Main = Video;
-                        return;
-                    }
-
-                    // If it was not vide, then it has to be audio (if it has audio)
-                    if (HasAudio)
-                    {
-                        Main = Audio;
-                        return;
-                    }
-
-                    // Set it to video even if it's attached pic stuff
-                    if (HasVideo)
-                    {
-                        Main = Video;
-                        return;
-                    }
-
-                    // As a last resort, set the main component to be the subtitles
-                    if (HasSubtitles)
-                    {
-                        Main = Subtitles;
-                        return;
-                    }
-
-                    // We whould never really hit this line
-                    if (Items.Count > 0)
-                        Main = Items.First().Value;
+                    CachedComponents = null;
+                    ComputeMainComponent();
                 }
             }
         }
@@ -349,7 +318,51 @@
                 }
                 catch
                 { }
+                finally
+                {
+                    CachedComponents = null;
+                    ComputeMainComponent();
+                }
             }
+        }
+
+        /// <summary>
+        /// Computes the main component.
+        /// </summary>
+        private void ComputeMainComponent()
+        {
+            // Try for the main component to be the video (if it's not stuff like audio album art, that is)
+            if (HasVideo && HasAudio &&
+                (Video.StreamInfo.Disposition & ffmpeg.AV_DISPOSITION_ATTACHED_PIC) != ffmpeg.AV_DISPOSITION_ATTACHED_PIC)
+            {
+                Main = Video;
+                return;
+            }
+
+            // If it was not vide, then it has to be audio (if it has audio)
+            if (HasAudio)
+            {
+                Main = Audio;
+                return;
+            }
+
+            // Set it to video even if it's attached pic stuff
+            if (HasVideo)
+            {
+                Main = Video;
+                return;
+            }
+
+            // As a last resort, set the main component to be the subtitles
+            if (HasSubtitles)
+            {
+                Main = Subtitles;
+                return;
+            }
+
+            // We whould never really hit this line
+            if (Items.Count > 0)
+                Main = Items.First().Value;
         }
 
         /// <summary>

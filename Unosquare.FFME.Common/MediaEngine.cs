@@ -108,8 +108,8 @@
         /// </summary>
         internal void DisposePreloadedSubtitles()
         {
-            m_PreloadedSubtitles?.Dispose();
-            m_PreloadedSubtitles = null;
+            PreloadedSubtitles?.Dispose();
+            PreloadedSubtitles = null;
         }
 
         /// <summary>
@@ -147,10 +147,11 @@
 
             // Dispose the Wait Event objects as they are
             // backed by unmanaged code
-            m_PacketReadingCycle.Dispose();
-            m_FrameDecodingCycle.Dispose();
-            m_BlockRenderingCycle.Dispose();
-            m_SeekingDone.Dispose();
+            PacketReadingCycle.Dispose();
+            FrameDecodingCycle.Dispose();
+            BlockRenderingCycle.Dispose();
+            SeekingDone.Dispose();
+            MediaChangingDone.Dispose();
         }
 
         #endregion
