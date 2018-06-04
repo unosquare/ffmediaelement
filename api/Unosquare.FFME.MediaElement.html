@@ -270,6 +270,31 @@ the FFmpeg library to perform reading and decoding of media streams.</p>
   </table>
   
   
+  <h4 id="Unosquare_FFME_MediaElement_MediaChangingEvent" data-uid="Unosquare.FFME.MediaElement.MediaChangingEvent">MediaChangingEvent</h4>
+  <div class="markdown level1 summary"><p>MediaChangingEvent is a routed event.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly RoutedEvent MediaChangingEvent</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEvent</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <h4 id="Unosquare_FFME_MediaElement_MediaClosedEvent" data-uid="Unosquare.FFME.MediaElement.MediaClosedEvent">MediaClosedEvent</h4>
   <div class="markdown level1 summary"><p>MediaClosed is a routed event.</p>
 </div>
@@ -2268,6 +2293,35 @@ Note: Valid values are from 0 to 1</p>
   </h3>
   
   
+  <a id="Unosquare_FFME_MediaElement_ChangeMedia_" data-uid="Unosquare.FFME.MediaElement.ChangeMedia*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_ChangeMedia" data-uid="Unosquare.FFME.MediaElement.ChangeMedia">ChangeMedia()</h4>
+  <div class="markdown level1 summary"><p>Requests new media options to be applied, including stream component selection.
+Handle the <a class="xref" href="Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaChanging">MediaChanging</a> event to set new <see cref="!:MediaOptions"></see> based on
+<a class="xref" href="Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaInfo">MediaInfo</a> properties.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Task ChangeMedia()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Threading.Tasks.Task</span></td>
+        <td><p>The awaitable command</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <a id="Unosquare_FFME_MediaElement_Close_" data-uid="Unosquare.FFME.MediaElement.Close*"></a>
   <h4 id="Unosquare_FFME_MediaElement_Close" data-uid="Unosquare.FFME.MediaElement.Close">Close()</h4>
   <div class="markdown level1 summary"><p>Closes the currently loaded media.</p>
@@ -2587,6 +2641,32 @@ This is shared across all instances of Media Elements</p>
   </table>
   
   
+  <h4 id="Unosquare_FFME_MediaElement_MediaChanging" data-uid="Unosquare.FFME.MediaElement.MediaChanging">MediaChanging</h4>
+  <div class="markdown level1 summary"><p>Raised before a change in media options is applied.
+Use this method to modify the selected streams.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event EventHandler&lt;MediaOpeningRoutedEventArgs&gt; MediaChanging</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.EventHandler</span>&lt;<a class="xref" href="Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.html">MediaOpeningRoutedEventArgs</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <h4 id="Unosquare_FFME_MediaElement_MediaClosed" data-uid="Unosquare.FFME.MediaElement.MediaClosed">MediaClosed</h4>
   <div class="markdown level1 summary"><p>Raised when the media is closed</p>
 </div>
@@ -2715,7 +2795,7 @@ Use this method to modify the input options.</p>
   
   <h4 id="Unosquare_FFME_MediaElement_MediaOpening" data-uid="Unosquare.FFME.MediaElement.MediaOpening">MediaOpening</h4>
   <div class="markdown level1 summary"><p>Raised before the input stream of the media is opened.
-Use this method to modify the media options.</p>
+Use this method to modify the media options and select streams.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>

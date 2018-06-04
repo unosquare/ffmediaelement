@@ -915,6 +915,19 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.CanPause
   nameWithType: MediaElement.CanPause
+- uid: Unosquare.FFME.MediaElement.ChangeMedia
+  name: ChangeMedia()
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_ChangeMedia
+  commentId: M:Unosquare.FFME.MediaElement.ChangeMedia
+  fullName: Unosquare.FFME.MediaElement.ChangeMedia()
+  nameWithType: MediaElement.ChangeMedia()
+- uid: Unosquare.FFME.MediaElement.ChangeMedia*
+  name: ChangeMedia
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_ChangeMedia_
+  commentId: Overload:Unosquare.FFME.MediaElement.ChangeMedia
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.ChangeMedia
+  nameWithType: MediaElement.ChangeMedia
 - uid: Unosquare.FFME.MediaElement.Close
   name: Close()
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Close
@@ -1290,6 +1303,18 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.LoadFFmpeg
   nameWithType: MediaElement.LoadFFmpeg
+- uid: Unosquare.FFME.MediaElement.MediaChanging
+  name: MediaChanging
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaChanging
+  commentId: E:Unosquare.FFME.MediaElement.MediaChanging
+  fullName: Unosquare.FFME.MediaElement.MediaChanging
+  nameWithType: MediaElement.MediaChanging
+- uid: Unosquare.FFME.MediaElement.MediaChangingEvent
+  name: MediaChangingEvent
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaChangingEvent
+  commentId: F:Unosquare.FFME.MediaElement.MediaChangingEvent
+  fullName: Unosquare.FFME.MediaElement.MediaChangingEvent
+  nameWithType: MediaElement.MediaChangingEvent
 - uid: Unosquare.FFME.MediaElement.MediaClosed
   name: MediaClosed
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaClosed
