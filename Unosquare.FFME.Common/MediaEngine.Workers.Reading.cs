@@ -37,7 +37,7 @@
                 // Worker logic begins here
                 while (IsTaskCancellationPending == false)
                 {
-                    // Wait for seeking to be done.
+                    // Wait for seeking or changing to be done.
                     MediaChangingDone.Wait();
                     SeekingDone.Wait();
 

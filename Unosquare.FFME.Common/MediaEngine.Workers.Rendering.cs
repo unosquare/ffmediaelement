@@ -78,6 +78,10 @@
                     // Wait for Media Changing
                     MediaChangingDone.Wait();
 
+                    // Wait for the seek op to finish before we capture blocks
+                    if (HasDecoderSeeked)
+                        SeekingDone.Wait();
+
                     // Signal the start of a block rendering cycle
                     BlockRenderingCycle.Begin();
 
@@ -93,10 +97,6 @@
                     #endregion
 
                     #region 2. Handle Block Rendering
-
-                    // Wait for the seek op to finish before we capture blocks
-                    if (HasDecoderSeeked)
-                        SeekingDone.Wait();
 
                     // capture the wall clock for this cycle
                     wallClock = WallClock;

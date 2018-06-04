@@ -33,23 +33,32 @@
             if (m == null || m.IsDisposed || m.State.IsOpen == false || m.State.IsOpening)
                 return;
 
+            var resumeClock = false;
+            var isSeeking = m.State.IsSeeking;
+
             try
             {
                 // Signal the start of a changing event
                 m.MediaChangingDone.Begin();
+                m.State.IsSeeking = true;
+
+                // Signal the start of a sync-buffering scenario
+                m.HasDecoderSeeked = true;
+                resumeClock = m.Clock.IsRunning;
+                m.Clock.Pause();
 
                 // Wait for the cycles to complete
-                var workerEvents = new IWaitEvent[] { m.BlockRenderingCycle, m.FrameDecodingCycle, m.PacketReadingCycle };
+                var workerEvents = new IWaitEvent[] { m.BlockRenderingCycle, m.PacketReadingCycle };
                 foreach (var workerEvent in workerEvents)
                     workerEvent.Wait();
 
                 // Send the changing event to the connector
-                var oldComponentTypes = m.Container.Components.MediaTypes;
+                var beforeComponentTypes = m.Container.Components.MediaTypes;
                 await m.SendOnMediaChanging();
                 m.Container.UpdateComponents();
-                var newComponentTypes = m.Container.Components.MediaTypes;
-                var disposableComponentTypes = oldComponentTypes
-                    .Where(c => newComponentTypes.Contains(c) == false)
+                var afterComponentTypes = m.Container.Components.MediaTypes;
+                var disposableComponentTypes = beforeComponentTypes
+                    .Where(c => afterComponentTypes.Contains(c) == false)
                     .ToArray();
 
                 // Remove components that are no longer needed
@@ -69,7 +78,9 @@
                 }
 
                 // Create the block buffers and renderers as necessary
-                foreach (var t in newComponentTypes)
+                // TODO: For smoother transition, only invalidate/change the components
+                // that actually changed.
+                foreach (var t in afterComponentTypes)
                 {
                     if (m.Blocks.ContainsKey(t) == false)
                         m.Blocks[t] = new MediaBlockBuffer(Constants.MaxBlocks[t], t);
@@ -79,11 +90,18 @@
 
                     m.Blocks[t].Clear();
                     m.Renderers[t].WaitForReadyState();
-                    m.InvalidateRenderer(t);
                 }
 
                 if (m.State.IsSeekable)
-                    Manager.EnqueueSeek(m.State.Position);
+                {
+                    var seekCommand = new SeekCommand(Manager, m.WallClock);
+                    seekCommand.RunSynchronously();
+                }
+                else
+                {
+                    foreach (var t in afterComponentTypes)
+                        m.InvalidateRenderer(t);
+                }
             }
             catch
             {
@@ -91,6 +109,8 @@
             }
             finally
             {
+                if (resumeClock) m?.Clock?.Play();
+                m.State.IsSeeking = isSeeking;
                 m.MediaChangingDone.Complete();
             }
         }

@@ -53,7 +53,10 @@
                 {
                     #region 1. Setup the Decoding Cycle
 
-                    // Singal a Seek starting operation
+                    // Signal a Seek starting operation
+                    FrameDecodingCycle.Begin();
+
+                    // Chek if we have pending seeks to notify the start of a seek operation
                     hasPendingSeeks = Commands.PendingCountOf(MediaCommandType.Seek) > 0;
                     if (State.IsSeeking == false && hasPendingSeeks)
                     {
@@ -65,9 +68,10 @@
                     // Execute the following command at the beginning of the cycle
                     Commands.ProcessNext();
 
-                    // Wait for a seek operation to complete (if any)
-                    // and initiate a frame decoding cycle.
-                    SeekingDone.Wait();
+                    // Update state properties -- this must be after processing commanmds as
+                    // a command might have changed the components
+                    main = Container.Components.Main.MediaType;
+                    auxs = Container.Components.MediaTypes.ExcludeMediaType(main);
 
                     // Set initial state
                     wallClock = WallClock;
@@ -104,16 +108,6 @@
                         // Notify position changes
                         State.UpdatePosition(wallClock);
                     }
-
-                    // Wait for media changes
-                    MediaChangingDone.Wait();
-
-                    // Update state properties
-                    main = Container.Components.Main.MediaType;
-                    auxs = Container.Components.MediaTypes.ExcludeMediaType(main);
-
-                    // Initiate the frame docding cycle
-                    FrameDecodingCycle.Begin();
 
                     #endregion
 
@@ -303,14 +297,14 @@
                         Log(MediaLogMessageType.Debug, $"SYNC-BUFFER: Finished. Clock set to {wallClock.Format()}");
                     }
 
-                    // Complete the frame decoding cycle
-                    FrameDecodingCycle.Complete();
+                    // If not already set, guess the 1-second buffer length
+                    State.GuessBufferingProperties();
 
                     // After a seek operation, always reset the has seeked flag.
                     HasDecoderSeeked = false;
 
-                    // If not already set, guess the 1-second buffer length
-                    State.GuessBufferingProperties();
+                    // Complete the frame decoding cycle
+                    FrameDecodingCycle.Complete();
 
                     // Give it a break if there was nothing to decode.
                     // We probably need to wait for some more input
