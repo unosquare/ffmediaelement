@@ -46,14 +46,8 @@
         /// Gets a safe timestamp the the block can be displayed.
         /// Returns StartTime if the duration is Zero or negative.
         /// </summary>
-        public TimeSpan SnapTime
-        {
-            get
-            {
-                if (Duration.Ticks <= 0) return StartTime;
-                return TimeSpan.FromTicks(StartTime.Ticks + TimeSpan.TicksPerMillisecond);
-            }
-        }
+        public TimeSpan SnapTime => (Duration.Ticks <= 0) ?
+            StartTime : TimeSpan.FromTicks(StartTime.Ticks + TimeSpan.TicksPerMillisecond);
 
         /// <summary>
         /// Gets a value indicating whether this block is disposed
@@ -84,10 +78,7 @@
         /// <returns>
         /// A value that indicates the relative order of the objects being compared. The return value has these meanings: Value Meaning Less than zero This instance precedes <paramref name="other" /> in the sort order.  Zero This instance occurs in the same position in the sort order as <paramref name="other" />. Greater than zero This instance follows <paramref name="other" /> in the sort order.
         /// </returns>
-        public int CompareTo(MediaBlock other)
-        {
-            return StartTime.CompareTo(other.StartTime);
-        }
+        public int CompareTo(MediaBlock other) => StartTime.CompareTo(other.StartTime);
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.

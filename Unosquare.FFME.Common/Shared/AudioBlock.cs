@@ -1,7 +1,8 @@
 ﻿namespace Unosquare.FFME.Shared
 {
+    using FFmpeg.AutoGen;
     using System;
-    using System.Runtime.InteropServices;
+    using Unosquare.FFME.Core;
 
     /// <summary>
     /// A scaled, preallocated audio frame container.
@@ -57,16 +58,16 @@
         /// <summary>
         /// The picture buffer length of the last allocated buffer
         /// </summary>
-        internal int AudioBufferLength { get; set; }
+        internal int AudioBufferLength { get; private set; }
 
         /// <summary>
         /// Holds a reference to the last allocated buffer
         /// </summary>
-        internal IntPtr AudioBuffer { get; set; }
+        internal IntPtr AudioBuffer { get; private set; }
 
         #endregion
 
-        #region IDisposable Support
+        #region Methods
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -75,6 +76,36 @@
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Allocates a block of memory suitable for a picture buffer
+        /// and sets the corresponding properties.
+        /// </summary>
+        /// <param name="audioParams">The audio format parameters.</param>
+        internal unsafe void EnsureAllocated(FFAudioParams audioParams)
+        {
+            // Ensure proper allocation of the buffer
+            // If there is a size mismatch between the wanted buffer length and the existing one,
+            // then let's reallocate the buffer and set the new size (dispose of the existing one if any)
+            if (AudioBufferLength != audioParams.BufferLength)
+            {
+                Deallocate();
+                AudioBufferLength = audioParams.BufferLength;
+                AudioBuffer = new IntPtr(ffmpeg.av_malloc((uint)AudioBufferLength));
+            }
+        }
+
+        /// <summary>
+        /// Deallocates the picture buffer and resets the related buffer properties
+        /// </summary>
+        private unsafe void Deallocate()
+        {
+            if (AudioBuffer == IntPtr.Zero) return;
+
+            ffmpeg.av_free(AudioBuffer.ToPointer());
+            AudioBuffer = IntPtr.Zero;
+            AudioBufferLength = 0;
         }
 
         /// <summary>
@@ -90,13 +121,7 @@
                     // no code for managed dispose
                 }
 
-                if (AudioBuffer != IntPtr.Zero)
-                {
-                    Marshal.FreeHGlobal(AudioBuffer);
-                    AudioBuffer = IntPtr.Zero;
-                    AudioBufferLength = 0;
-                }
-
+                Deallocate();
                 IsDisposed = true;
             }
         }

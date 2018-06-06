@@ -220,7 +220,7 @@
                     {
                         LoadTargetBitmapBuffer(bitmapData, block);
                         MediaElement.RaiseRenderingVideoEvent(block, bitmapData, clockPosition);
-                        RenderTargetBitmap(block, bitmapData, clockPosition);
+                        RenderTargetBitmap(bitmapData, clockPosition);
                     }
                 }
                 catch (Exception ex)
@@ -269,10 +269,9 @@
         /// <summary>
         /// Renders the target bitmap.
         /// </summary>
-        /// <param name="block">The block.</param>
         /// <param name="bitmapData">The bitmap data.</param>
         /// <param name="clockPosition">The clock position.</param>
-        private void RenderTargetBitmap(VideoBlock block, BitmapDataBuffer bitmapData, TimeSpan clockPosition)
+        private void RenderTargetBitmap(BitmapDataBuffer bitmapData, TimeSpan clockPosition)
         {
             try
             {
