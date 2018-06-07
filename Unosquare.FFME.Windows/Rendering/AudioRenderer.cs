@@ -153,23 +153,30 @@
                 // Capture Media Block Reference
                 if (mediaBlock is AudioBlock == false) return;
                 var audioBlock = mediaBlock as AudioBlock;
+                if (audioBlock == null) return;
                 var audioBlocks = MediaCore.Blocks[MediaType.Audio];
 
                 while (audioBlock != null)
                 {
-                    // Write the block if we have to, avoiding repeated blocks.
-                    if (AudioBuffer.WriteTag < audioBlock.StartTime)
+                    if (audioBlock.TryAcquireReaderLock(out var readLock) == false)
+                        return;
+
+                    using (readLock)
                     {
-                        MediaElement.RaiseRenderingAudioEvent(audioBlock, clockPosition);
-                        AudioBuffer.Write(audioBlock.Buffer, audioBlock.BufferLength, audioBlock.StartTime, true);
+                        // Write the block if we have to, avoiding repeated blocks.
+                        if (AudioBuffer.WriteTag < audioBlock.StartTime)
+                        {
+                            MediaElement.RaiseRenderingAudioEvent(audioBlock, clockPosition);
+                            AudioBuffer.Write(audioBlock.Buffer, audioBlock.SamplesBufferLength, audioBlock.StartTime, true);
+                        }
+
+                        // Stop adding if we have too much in there.
+                        if (AudioBuffer.CapacityPercent >= 0.8)
+                            break;
+
+                        // Retrieve the following block
+                        audioBlock = audioBlocks.Next(audioBlock) as AudioBlock;
                     }
-
-                    // Stop adding if we have too much in there.
-                    if (AudioBuffer.CapacityPercent >= 0.8)
-                        break;
-
-                    // Retrieve the following block
-                    audioBlock = audioBlocks.Next(audioBlock) as AudioBlock;
                 }
             }
         }

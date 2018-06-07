@@ -122,17 +122,24 @@
             }
 
             // Allocate the unmanaged output buffer
-            target.EnsureAllocated(targetSpec);
-            var outputBufferPtr = (byte*)target.AudioBuffer;
+            var outputSamplesPerChannel = 0;
+            target.Allocate(targetSpec.BufferLength);
 
-            // Execute the conversion (audio scaling). It will return the number of samples that were output
-            var outputSamplesPerChannel =
-                ffmpeg.swr_convert(
-                    Scaler,
-                    &outputBufferPtr,
-                    targetSpec.SamplesPerChannel,
-                    source.Pointer->extended_data,
-                    source.Pointer->nb_samples);
+            if (target.TryAcquireWriterLock(out var locker))
+            {
+                using (locker)
+                {
+                    var outputBufferPtr = (byte*)target.Buffer.ToPointer();
+
+                    // Execute the conversion (audio scaling). It will return the number of samples that were output
+                    outputSamplesPerChannel = ffmpeg.swr_convert(
+                        Scaler,
+                        &outputBufferPtr,
+                        targetSpec.SamplesPerChannel,
+                        source.Pointer->extended_data,
+                        source.Pointer->nb_samples);
+                }
+            }
 
             // Compute the buffer length
             var outputBufferLength =
@@ -160,7 +167,7 @@
                 target.EndTime = source.EndTime;
             }
 
-            target.BufferLength = outputBufferLength;
+            target.SamplesBufferLength = outputBufferLength;
             target.ChannelCount = targetSpec.ChannelCount;
 
             target.SampleRate = targetSpec.SampleRate;

@@ -1,5 +1,7 @@
 ﻿namespace Unosquare.FFME.Shared
 {
+    using FFmpeg.AutoGen;
+    using Primitives;
     using System;
 
     /// <summary>
@@ -11,6 +13,25 @@
     /// </summary>
     public abstract class MediaBlock : IComparable<MediaBlock>, IDisposable
     {
+        private readonly object SyncLock = new object();
+        private bool m_IsDisposed = false;
+        private ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
+        private IntPtr m_Buffer = IntPtr.Zero;
+        private int m_BufferLength = default;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MediaBlock"/> class.
+        /// </summary>
+        protected MediaBlock()
+        {
+            // placeholder
+        }
+
+        /// <summary>
+        /// Finalizes an instance of the <see cref="MediaBlock"/> class.
+        /// </summary>
+        ~MediaBlock() => Dispose(false);
+
         /// <summary>
         /// Gets the media type of the data
         /// </summary>
@@ -50,9 +71,70 @@
             StartTime : TimeSpan.FromTicks(StartTime.Ticks + TimeSpan.TicksPerMillisecond);
 
         /// <summary>
+        /// Gets a pointer to the first byte of the unmanaged data buffer.
+        /// </summary>
+        public IntPtr Buffer { get { lock (SyncLock) return m_Buffer; } }
+
+        /// <summary>
+        /// Gets the length of the unmanaged buffer in bytes.
+        /// </summary>
+        public int BufferLength { get { lock (SyncLock) return m_BufferLength; } }
+
+        /// <summary>
+        /// Gets a value indicating whether an unmanaged buffer has been allocated.
+        /// </summary>
+        public bool IsAllocated
+        {
+            get
+            {
+                lock (SyncLock)
+                {
+                    return m_IsDisposed == false && m_Buffer != IntPtr.Zero;
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets a value indicating whether this block is disposed
         /// </summary>
-        public bool IsDisposed { get; protected set; }
+        public bool IsDisposed
+        {
+            get { lock (SyncLock) return m_IsDisposed; }
+        }
+
+        /// <summary>
+        /// Tries the acquire a reader lock on the unmanaged buffer.
+        /// Returns false if the buffer has been disposed.
+        /// </summary>
+        /// <param name="locker">The locker.</param>
+        /// <returns>The disposable lock</returns>
+        public bool TryAcquireReaderLock(out IDisposable locker)
+        {
+            locker = null;
+            lock (SyncLock)
+            {
+                if (m_IsDisposed) return false;
+                locker = Locker.AcquireReaderLock();
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Tries the acquire a writer lock on the unmanaged buffer.
+        /// Returns false if the buffer has been disposed.
+        /// </summary>
+        /// <param name="locker">The locker.</param>
+        /// <returns>The disposable lock</returns>
+        public bool TryAcquireWriterLock(out IDisposable locker)
+        {
+            locker = null;
+            lock (SyncLock)
+            {
+                if (m_IsDisposed) return false;
+                locker = Locker.AcquireWriterLock();
+                return true;
+            }
+        }
 
         /// <summary>
         /// Determines whether this media block holds the specified position.
@@ -83,6 +165,78 @@
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public abstract void Dispose();
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Allocates the specified buffer length.
+        /// </summary>
+        /// <param name="bufferLength">Length of the buffer.</param>
+        /// <returns>True if the buffer was newly allocated. False if the buffer is being reused.</returns>
+        internal virtual unsafe bool Allocate(int bufferLength)
+        {
+            if (bufferLength <= 0)
+                throw new ArgumentException($"{nameof(bufferLength)} must be greater than 0");
+
+            lock (SyncLock)
+            {
+                if (m_IsDisposed) return false;
+
+                if (m_BufferLength != bufferLength)
+                {
+                    using (Locker.AcquireWriterLock())
+                    {
+                        m_Buffer = new IntPtr(ffmpeg.av_malloc((ulong)bufferLength));
+                        m_BufferLength = bufferLength;
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        protected virtual void Dispose(bool alsoManaged)
+        {
+            lock (SyncLock)
+            {
+                if (m_IsDisposed) return;
+
+                if (alsoManaged)
+                {
+                    // Dispose managed state (managed objects).
+                }
+
+                // Free unmanaged resources (unmanaged objects) and override a finalizer below.
+                using (Locker.AcquireWriterLock())
+                {
+                    Deallocate();
+                }
+
+                // set large fields to null.
+                Locker.Dispose();
+                Locker = null;
+                m_IsDisposed = true;
+            }
+        }
+
+        /// <summary>
+        /// Deallocates the picture buffer and resets the related buffer properties
+        /// </summary>
+        protected virtual unsafe void Deallocate()
+        {
+            if (m_Buffer == IntPtr.Zero) return;
+
+            ffmpeg.av_free(m_Buffer.ToPointer());
+            m_Buffer = IntPtr.Zero;
+            m_BufferLength = default;
+        }
     }
 }
