@@ -36,11 +36,22 @@
         Task OnMediaChanging(MediaEngine sender, MediaOptions mediaOptions, MediaInfo mediaInfo);
 
         /// <summary>
+        /// Called when a change in stream components has been completed.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="mediaInfo">The media information.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        Task OnMediaChanged(MediaEngine sender, MediaInfo mediaInfo);
+
+        /// <summary>
         /// Called when media has been fully opened and components were created.
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        Task OnMediaOpened(MediaEngine sender);
+        /// <param name="mediaInfo">The media information.</param>
+        /// <returns>
+        /// A <see cref="Task" /> representing the asynchronous operation.
+        /// </returns>
+        Task OnMediaOpened(MediaEngine sender, MediaInfo mediaInfo);
 
         /// <summary>
         /// Called when media has been closed.

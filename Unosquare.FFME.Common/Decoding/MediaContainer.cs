@@ -544,13 +544,15 @@
         }
 
         /// <summary>
-        /// Updates the selected components using the selected streams in <see cref="MediaOptions"/>.
-        /// If the newly set streams are null or have different stream indexes, these components
-        /// are removed, disposed, and recreated accordingly.
+        /// Recreates the components using the selected streams in <see cref="MediaOptions" />.
+        /// If the newly set streams are null these components are removed and disposed.
+        /// All selected stream components are recreated.
         /// </summary>
-        public void UpdateComponents()
+        /// <returns>The registered component types</returns>
+        public MediaType[] UpdateComponents()
         {
-            if (IsDisposed) return;
+            if (IsDisposed || InputContext == null)
+                return new MediaType[] { };
 
             lock (ReadSyncRoot)
             {
@@ -558,7 +560,9 @@
                 {
                     lock (ConvertSyncRoot)
                     {
-                        StreamOpen();
+                        // Open the suitable streams as components.
+                        // Throw if no audio and/or video streams are found
+                        return StreamCreateComponents();
                     }
                 }
             }
@@ -825,10 +829,6 @@
                 Parent?.Log(MediaLogMessageType.Warning, $"Input Start: {MediaStartTimeOffset.Format()} Comp. Start: {minOffset.Format()}. Input start will be updated.");
                 MediaStartTimeOffset = minOffset;
             }
-
-            // Initially and depending on the video component, rquire picture attachments.
-            // Picture attachments are only required after the first read or after a seek.
-            StateRequiresPictureAttachments = true;
         }
 
         /// <summary>
@@ -837,7 +837,8 @@
         /// </summary>
         /// <param name="t">The Media Type.</param>
         /// <param name="stream">The stream information. Set to null to remove.</param>
-        private void StreamCreateComponent(MediaType t, StreamInfo stream)
+        /// <returns>The media type that was created. None for unsuccessful creation</returns>
+        private MediaType StreamCreateComponent(MediaType t, StreamInfo stream)
         {
             // Check if the component should be disabled (removed)
             var isDisabled = true;
@@ -848,20 +849,13 @@
             else if (t == MediaType.Subtitle)
                 isDisabled = MediaOptions.IsSubtitleDisabled;
             else
-                return;
+                return MediaType.None;
 
             try
             {
-                // Remove the component if the stream info passed is null or if the component is now disabled
-                if (Components[t] != null &&
-                   (stream == null || isDisabled || stream.StreamIndex != Components[t].StreamIndex))
-                {
+                // Remove the existing component if it exists already
+                if (Components[t] != null)
                     Components.RemoveComponent(t);
-                }
-
-                // Do not recreate the component if we already have a component using the same stream index
-                if (Components[t] != null && stream != null && Components[t].StreamIndex == stream.StreamIndex)
-                    return;
 
                 // Instantiate component
                 if (stream != null && stream.CodecType == (AVMediaType)t && isDisabled == false)
@@ -878,14 +872,20 @@
             {
                 Parent?.Log(MediaLogMessageType.Error, $"Unable to initialize {t} component. {ex.Message}");
             }
+
+            if (Components[t] != null)
+                return t;
+            else
+                return MediaType.None;
         }
 
         /// <summary>
         /// Creates the stream components according to the specified streams in the current media options.
         /// Then it initializes the components of the correct type each.
         /// </summary>
+        /// <returns>The component media types that are available</returns>
         /// <exception cref="MediaContainerException">The exception ifnromation</exception>
-        private void StreamCreateComponents()
+        private MediaType[] StreamCreateComponents()
         {
             // Apply Media Options by selecting the desired components
             StreamCreateComponent(MediaType.Audio, MediaOptions.AudioStream);
@@ -895,6 +895,13 @@
             // Verify we have at least 1 stream component to work with.
             if (Components.HasVideo == false && Components.HasAudio == false && Components.HasSubtitles == false)
                 throw new MediaContainerException($"{MediaUrl}: No audio, video, or subtitle streams found to decode.");
+
+            // Initially and depending on the video component, rquire picture attachments.
+            // Picture attachments are only required after the first read or after a seek.
+            StateRequiresPictureAttachments = true;
+
+            // Return the registered component types
+            return Components.MediaTypes.ToArray();
         }
 
         /// <summary>

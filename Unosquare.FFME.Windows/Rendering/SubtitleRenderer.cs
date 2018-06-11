@@ -74,10 +74,7 @@
         /// <summary>
         /// Executed when the Pause method is called on the parent MediaElement
         /// </summary>
-        public void Stop()
-        {
-            SetText(string.Empty);
-        }
+        public void Stop() => WaitForReadyState();
 
         /// <summary>
         /// Executed after a Seek operation is performed on the parent MediaElement
@@ -92,9 +89,15 @@
         /// </summary>
         public void WaitForReadyState()
         {
-            // This initializes the text blocks
-            // for subtitle rendering automatically.
-            SetText(string.Empty);
+            lock (SyncLock)
+            {
+                // This initializes the text blocks
+                // for subtitle rendering automatically.
+                BlockText = string.Empty;
+                SetText(string.Empty);
+                StartTime = default;
+                EndTime = default;
+            }
         }
 
         /// <summary>
@@ -167,8 +170,11 @@
         /// <param name="text">The text.</param>
         private void SetText(string text)
         {
-            if (RenderedText.Equals(text))
-                return;
+            lock (SyncLock)
+            {
+                if (RenderedText.Equals(text))
+                    return;
+            }
 
             // We fire-and-forget the update of the text
             GuiContext.Current.EnqueueInvoke(DispatcherPriority.Render, () =>

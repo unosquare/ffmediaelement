@@ -211,21 +211,20 @@
                         if (blocks.Count > 0 && blocks.RangeStartTime > wallClock)
                             continue;
 
-                        // Try to catch up with the wall clock
-                        while (blocks.Count == 0 || blocks.RangeEndTime <= wallClock)
+                        // We need the other components to catch up with the main
+                        while (blocks.Count == 0 || blocks.RangeEndTime <= wallClock
+                            || (t == MediaType.Audio && Blocks[main].Count > 0 && blocks.RangeEndTime < Blocks[main].RangeEndTime))
                         {
-                            // Wait for packets if we don't have enough packets
-                            // When we wait for audio packets we need to wait until we get some
-                            // Otherwise, we'll get audio skipping!
+                            // Wait for packets if we don't have enough
                             WaitForPackets(comp, t == MediaType.Audio ? -1 : 1);
 
                             if (comp.PacketBufferCount <= 0)
-                                break; // give up; we never received packets for the expected component
+                                break; // give up because we never received packets for the expected component
                             else
                                 decodedFrameCount += AddBlocks(t);
                         }
 
-                        // Chek if we are finally within range
+                        // Check if we are finally within range
                         isInRange = blocks.IsInRange(wallClock);
 
                         // Invalidate the renderer if we don't have the block.
@@ -236,7 +235,7 @@
                         if (isInRange == false || isBuffering || comp.PacketBufferCount <= 0)
                             continue;
 
-                        // Read as much as we can for this cycle.
+                        // Decode as much as we can off the packet buffer for this cycle.
                         while (comp.PacketBufferCount > 0)
                         {
                             rangePercent = blocks.GetRangePercent(wallClock);
@@ -308,8 +307,12 @@
 
                     // Give it a break if there was nothing to decode.
                     // We probably need to wait for some more input
-                    if (decodedFrameCount <= 0 && Commands.PendingCount <= 0)
+                    if (IsTaskCancellationPending == false
+                        && decodedFrameCount <= 0
+                        && Commands.PendingCount <= 0)
+                    {
                         delay.WaitOne();
+                    }
 
                     #endregion
                 }
@@ -352,8 +355,7 @@
         private void WaitForPackets(MediaComponent mediaComponent, int cycleCount = -1)
         {
             var cycleIndex = 0;
-            while (IsTaskCancellationPending == false
-                && mediaComponent.PacketBufferCount <= 0
+            while (mediaComponent.PacketBufferCount <= 0
                 && CanReadMorePackets
                 && ShouldReadMorePackets)
             {

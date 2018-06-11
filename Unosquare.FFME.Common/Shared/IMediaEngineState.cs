@@ -9,6 +9,21 @@
     public interface IMediaEngineState
     {
         /// <summary>
+        /// Gets the index of the video stream.
+        /// </summary>
+        int VideoStreamIndex { get; }
+
+        /// <summary>
+        /// Gets the index of the audio stream.
+        /// </summary>
+        int AudioStreamIndex { get; }
+
+        /// <summary>
+        /// Gets the index of the subtitle stream.
+        /// </summary>
+        int SubtitleStreamIndex { get; }
+
+        /// <summary>
         /// Gets the audio bitrate.
         /// </summary>
         ulong AudioBitrate { get; }

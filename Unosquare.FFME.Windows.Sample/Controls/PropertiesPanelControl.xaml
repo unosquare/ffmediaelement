@@ -43,7 +43,7 @@
                             </Style>
                         </ItemsControl.Resources>
 
-                        <DockPanel Background="#bb444444">
+                        <DockPanel Background="#ee444444">
                             <TextBlock Style="{StaticResource Key}">Media Format</TextBlock>
                             <TextBlock Style="{StaticResource Value}" Text="{Binding MediaFormat, Mode=OneWay}" />
                         </DockPanel>
@@ -123,9 +123,14 @@
                             <TextBlock Style="{StaticResource Value}" Text="{Binding DownloadCacheLength, Mode=OneWay, Converter={StaticResource ByteFormatter}}" />
                         </DockPanel>
 
-                        <DockPanel Background="#bb444444">
+                        <DockPanel Background="#ee444444">
                             <TextBlock Style="{StaticResource Key}">Has Video</TextBlock>
                             <TextBlock Style="{StaticResource Value}" Text="{Binding HasVideo, Mode=OneWay}" />
+                        </DockPanel>
+
+                        <DockPanel>
+                            <TextBlock Style="{StaticResource Key}">Video Stream Index</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding VideoStreamIndex, Mode=OneWay}" />
                         </DockPanel>
 
                         <DockPanel>
@@ -168,9 +173,14 @@
                             <TextBlock Style="{StaticResource Value}" Text="{Binding VideoSmtpeTimecode, Mode=OneWay}" />
                         </DockPanel>
 
-                        <DockPanel Background="#bb444444">
+                        <DockPanel Background="#ee444444">
                             <TextBlock Style="{StaticResource Key}">Has Audio</TextBlock>
                             <TextBlock Style="{StaticResource Value}" Text="{Binding HasAudio, Mode=OneWay}" />
+                        </DockPanel>
+
+                        <DockPanel>
+                            <TextBlock Style="{StaticResource Key}">Audio Stream Index</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding AudioStreamIndex, Mode=OneWay}" />
                         </DockPanel>
 
                         <DockPanel>
@@ -196,6 +206,16 @@
                         <DockPanel>
                             <TextBlock Style="{StaticResource Key}">Audio Bits/Sample</TextBlock>
                             <TextBlock Style="{StaticResource Value}" Text="{Binding AudioBitsPerSample, Mode=OneWay}" />
+                        </DockPanel>
+
+                        <DockPanel Background="#ee444444">
+                            <TextBlock Style="{StaticResource Key}">Has Subtitles</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding HasSubtitles, Mode=OneWay}" />
+                        </DockPanel>
+
+                        <DockPanel>
+                            <TextBlock Style="{StaticResource Key}">Subtitle Stream Index</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding SubtitleStreamIndex, Mode=OneWay}" />
                         </DockPanel>
                     </ItemsControl>
                 </ScrollViewer>

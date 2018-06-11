@@ -136,6 +136,21 @@
         }
 
         /// <summary>
+        /// Gets the index of the video stream.
+        /// </summary>
+        public int VideoStreamIndex => Parent.Container?.Components[MediaType.Video]?.StreamIndex ?? -1;
+
+        /// <summary>
+        /// Gets the index of the audio stream.
+        /// </summary>
+        public int AudioStreamIndex => Parent.Container?.Components[MediaType.Audio]?.StreamIndex ?? -1;
+
+        /// <summary>
+        /// Gets the index of the subtitle stream.
+        /// </summary>
+        public int SubtitleStreamIndex => Parent.Container?.Components[MediaType.Subtitle]?.StreamIndex ?? -1;
+
+        /// <summary>
         /// Returns whether the given media has audio.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
@@ -153,7 +168,7 @@
         /// </summary>
         public bool HasSubtitles =>
             (Parent.PreloadedSubtitles != null && Parent.PreloadedSubtitles.Count > 0) ||
-            (Parent.Container?.Components.HasVideo ?? false);
+            (Parent.Container?.Components.HasSubtitles ?? false);
 
         /// <summary>
         /// Gets the video codec.

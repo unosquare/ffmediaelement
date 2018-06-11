@@ -108,14 +108,17 @@
         /// Called when [media opened].
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public Task OnMediaOpened(MediaEngine sender)
+        /// <param name="mediaInfo">The media information.</param>
+        /// <returns>
+        /// A <see cref="Task" /> representing the asynchronous operation.
+        /// </returns>
+        public Task OnMediaOpened(MediaEngine sender, MediaInfo mediaInfo)
         {
             if (Parent == null) return Task.CompletedTask;
 
             return GuiContext.Current.EnqueueInvoke(async () =>
             {
-                await Parent.RaiseMediaOpenedEvent();
+                await Parent.RaiseMediaOpenedEvent(mediaInfo);
                 if (sender.State.CanPause == false)
                 {
                     await sender.Play();
@@ -164,6 +167,17 @@
         public Task OnMediaChanging(MediaEngine sender, MediaOptions options, MediaInfo mediaInfo)
         {
             return Parent != null ? Parent.RaiseMediaChangingEvent(options, mediaInfo) : Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Called when media options have been changed.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="mediaInfo">The media information.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public Task OnMediaChanged(MediaEngine sender, MediaInfo mediaInfo)
+        {
+            return Parent != null ? Parent.RaiseMediaChangedEvent(mediaInfo) : Task.CompletedTask;
         }
 
         /// <summary>

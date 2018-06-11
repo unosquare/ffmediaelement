@@ -150,7 +150,7 @@
                 m.State.UpdateMediaState(PlaybackStatus.Stop);
 
                 // Raise the opened event
-                await m.SendOnMediaOpened();
+                await m.SendOnMediaOpened(m.Container.MediaInfo);
             }
             catch (Exception ex)
             {

@@ -4,30 +4,23 @@
     using System.Windows;
 
     /// <summary>
-    /// Represents the event arguments of the <see cref="MediaElement.MediaOpening"/>
-    /// or <see cref="MediaElement.MediaChanging"/> routed events.
+    /// Represents the event arguments of the <see cref="MediaElement.MediaOpened"/> or
+    /// <see cref="MediaElement.MediaChanged"/> routed events.
     /// </summary>
     /// <seealso cref="RoutedEventArgs" />
-    public class MediaOpeningRoutedEventArgs : RoutedEventArgs
+    public class MediaOpenedRoutedEventArgs : RoutedEventArgs
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="MediaOpeningRoutedEventArgs" /> class.
+        /// Initializes a new instance of the <see cref="MediaOpenedRoutedEventArgs" /> class.
         /// </summary>
         /// <param name="routedEvent">The routed event.</param>
         /// <param name="source">The source.</param>
-        /// <param name="options">The options.</param>
         /// <param name="info">The input information.</param>
-        public MediaOpeningRoutedEventArgs(RoutedEvent routedEvent, object source, MediaOptions options, MediaInfo info)
+        public MediaOpenedRoutedEventArgs(RoutedEvent routedEvent, object source, MediaInfo info)
             : base(routedEvent, source)
         {
-            Options = options;
             Info = info;
         }
-
-        /// <summary>
-        /// Set or change the options before the media is opened.
-        /// </summary>
-        public MediaOptions Options { get; }
 
         /// <summary>
         /// Provides internal details of the media, including its component streams.

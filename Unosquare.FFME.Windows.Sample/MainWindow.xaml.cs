@@ -141,6 +141,7 @@
             Media.MediaOpening += OnMediaOpening;
             Media.MediaOpened += OnMediaOpened;
             Media.MediaChanging += OnMediaChanging;
+            Media.MediaChanged += OnMediaChanged;
             Media.PositionChanged += OnMediaPositionChanged;
             Media.MediaFailed += OnMediaFailed;
             Media.MessageLogged += OnMediaMessageLogged;

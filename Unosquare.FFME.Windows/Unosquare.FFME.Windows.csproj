@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="Events\BitmapDataBuffer.cs" />
     <Compile Include="Events\MediaInitializingRoutedEventArgs.cs" />
+    <Compile Include="Events\MediaOpenedRoutedEventArgs.cs" />
     <Compile Include="Events\MediaStateChangedRoutedEventArgs.cs" />
     <Compile Include="Events\RenderingAudioEventArgs.cs" />
     <Compile Include="Events\RenderingEventArgs.cs" />
