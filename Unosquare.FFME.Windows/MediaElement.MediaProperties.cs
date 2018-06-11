@@ -274,6 +274,11 @@
         public bool IsOpening => MediaCore?.State.IsOpening ?? default;
 
         /// <summary>
+        /// Gets a value indicating whether the media is currently changing its components.
+        /// </summary>
+        public bool IsChanging => MediaCore?.State.IsChanging ?? default;
+
+        /// <summary>
         /// Gets a value indicating whether this media element
         /// currently has an open media url.
         /// </summary>

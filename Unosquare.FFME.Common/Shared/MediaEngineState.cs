@@ -365,6 +365,11 @@
         /// </summary>
         public bool IsOpening { get; internal set; } = default;
 
+        /// <summary>
+        /// Gets a value indicating whether the media is currently changing its components.
+        /// </summary>
+        public bool IsChanging { get; internal set; } = default;
+
         #endregion
 
         /// <summary>
@@ -419,6 +424,7 @@
             DownloadProgress = default;
             DownloadCacheLength = default;
             IsOpening = default;
+            IsChanging = default;
 
             // Reset volatile controller poperties
             SpeedRatio = Constants.Controller.DefaultSpeedRatio;

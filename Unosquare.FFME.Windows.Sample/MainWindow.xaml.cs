@@ -357,7 +357,7 @@
         /// <param name="e">The <see cref="MouseWheelEventArgs"/> instance containing the event data.</param>
         private void OnMouseWheelChange(object sender, MouseWheelEventArgs e)
         {
-            if (Media.IsOpen == false || Media.IsOpening)
+            if (Media.IsOpen == false || Media.IsOpening || Media.IsChanging)
                 return;
 
             var delta = (e.Delta / 2000d).ToMultipleOf(0.05d);

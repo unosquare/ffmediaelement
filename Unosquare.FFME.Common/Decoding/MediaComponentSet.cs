@@ -119,7 +119,7 @@
         /// <summary>
         /// Gets the stream index of the first packet received.
         /// </summary>
-        public int? FisrtPacketStreamIndex { get; private set; } = default;
+        public int? FirstPacketStreamIndex { get; private set; } = default;
 
         /// <summary>
         /// Gets the first packet byte position.
@@ -250,10 +250,10 @@
                 if (packet == null)
                     return MediaType.None;
 
-                if (FirstPacketDts == null && packet->dts != ffmpeg.AV_NOPTS_VALUE)
+                if (FirstPacketStreamIndex == null && packet->dts != ffmpeg.AV_NOPTS_VALUE)
                 {
                     FirstPacketDts = packet->dts;
-                    FisrtPacketStreamIndex = packet->stream_index;
+                    FirstPacketStreamIndex = packet->stream_index;
                     FirstPacketPosition = packet->pos;
                 }
 

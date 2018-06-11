@@ -5,6 +5,10 @@
     using System.ComponentModel;
     using Primitives;
 
+    /// <summary>
+    /// A very simple set of extensions to more easily hanlde UI state changes based on
+    /// notification properties
+    /// </summary>
     internal static class ReactiveExtensions
     {
         /// <summary>
@@ -15,8 +19,17 @@
 
         private static readonly ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
 
+        /// <summary>
+        /// The pinned actions (action that don't get remove if the weak reference is lost.
+        /// </summary>
         private static readonly Dictionary<Action, bool> PinnedActions = new Dictionary<Action, bool>();
 
+        /// <summary>
+        /// Specifies a callback when properties change.
+        /// </summary>
+        /// <param name="callback">The callback.</param>
+        /// <param name="publisher">The publisher.</param>
+        /// <param name="propertyNames">The property names.</param>
         internal static void WhenChanged(this Action callback, INotifyPropertyChanged publisher, params string[] propertyNames)
         {
             callback.WhenChanged(true, publisher, propertyNames);
@@ -48,7 +61,7 @@
 
             if (bindPropertyChanged == false) return;
 
-            // Finally, bind to proety changed
+            // Finally, bind to property changed
             publisher.PropertyChanged += (s, e) =>
             {
                 if (Subscriptions[publisher].ContainsKey(e.PropertyName) == false)

@@ -303,21 +303,6 @@
         #region Private State Management
 
         /// <summary>
-        /// Gets the seek start timestamp of the main component.
-        /// </summary>
-        private long StartSeekTimestamp => Components.Main.FirstPacketDts ?? Components.Main.StartTimeOffset.ToLong(Components.Main.Stream->time_base);
-
-        /// <summary>
-        /// Gets the index of the seek stream to seek on for the BOF.
-        /// </summary>
-        private int StartSeekStreamIndex => Components.Main.StreamIndex;
-
-        /// <summary>
-        /// Gets the start seek byte position.
-        /// </summary>
-        private long StartSeekPosition => Components.FirstPacketPosition ?? 0;
-
-        /// <summary>
         /// Gets the time the last packet was read from the input
         /// </summary>
         private DateTime StateLastReadTimeUtc { get; set; } = DateTime.MinValue;
@@ -1050,15 +1035,16 @@
         {
             // Create the output result object
             var result = new List<MediaFrame>(256);
+            var seekRequirement = Components.Main.MediaType == MediaType.Audio ? SeekRequirement.MainComponentOnly : SeekRequirement.AudioAndVideo;
+
+            #region Setup
 
             // A special kind of seek is the zero seek. Execute it if requested.
             if (targetTime <= TimeSpan.Zero)
             {
-                StreamSeekToStart();
-                return result; // this will have no frames at this point.
+                StreamSeekToStart(result, seekRequirement);
+                return result; // this may or may not have the start frames
             }
-
-            #region Setup
 
             // Cancel the seek operation if the stream does not support it.
             if (IsStreamSeekable == false)
@@ -1119,8 +1105,8 @@
                     StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
                     if (streamSeekRelativeTime.Ticks <= main.StartTimeOffset.Ticks)
                     {
-                        seekTarget = StartSeekTimestamp;
-                        streamIndex = StartSeekStreamIndex;
+                        seekTarget = main.StartTimeOffset.ToLong(main.Stream->time_base);
+                        streamIndex = main.StreamIndex;
                         isAtStartOfStream = true;
                     }
                     else
@@ -1147,10 +1133,7 @@
 
                 // Read and decode frames for all components and check if the decoded frames
                 // are on or right before the target time.
-                StreamSeekDecode(
-                    result,
-                    targetTime,
-                    Components.Main.MediaType == MediaType.Audio ? SeekRequirement.MainComponentOnly : SeekRequirement.AudioAndVideo);
+                StreamSeekDecode(result, targetTime, seekRequirement);
 
                 var firstAudioFrame = result.FirstOrDefault(f => f.MediaType == MediaType.Audio && f.StartTime <= targetTime);
                 var firstVideoFrame = result.FirstOrDefault(f => f.MediaType == MediaType.Video && f.StartTime <= targetTime);
@@ -1187,14 +1170,23 @@
         /// <summary>
         /// Seeks to the position at the start of the stream.
         /// </summary>
+        /// <param name="result">The result.</param>
+        /// <param name="seekRequirement">The seek requirement.</param>
+        /// <returns>The number of read and decode cycles</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void StreamSeekToStart()
+        private int StreamSeekToStart(List<MediaFrame> result, SeekRequirement seekRequirement)
         {
-            if (MediaStartTimeOffset == TimeSpan.MinValue) return;
+            if (MediaStartTimeOffset == TimeSpan.MinValue) return 0;
+
+            var main = Components.Main;
+            var seekTarget = main.StartTimeOffset.ToLong(main.Stream->time_base);
+            var streamIndex = main.StreamIndex;
+            var seekFlags = ffmpeg.AVSEEK_FLAG_BACKWARD;
+
             StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
 
-            var seekResult = ffmpeg.av_seek_frame(
-                InputContext, StartSeekStreamIndex, StartSeekTimestamp, ffmpeg.AVSEEK_FLAG_BACKWARD);
+            // var seekResult = ffmpeg.av_seek_frame(InputContext, StartSeekStreamIndex, StartSeekTimestamp, ffmpeg.AVSEEK_FLAG_BACKWARD);
+            var seekResult = ffmpeg.av_seek_frame(InputContext, streamIndex, seekTarget, seekFlags);
 
             // Flush packets, state, and codec buffers
             Components.ClearPacketQueues();
@@ -1205,7 +1197,10 @@
             {
                 Parent?.Log(MediaLogMessageType.Warning,
                     $"SEEK 0: {nameof(StreamSeekToStart)} operation failed. Error code {seekResult}, {FFInterop.DecodeMessage(seekResult)}");
+                return 0;
             }
+
+            return StreamSeekDecode(result, TimeSpan.Zero, seekRequirement);
         }
 
         /// <summary>

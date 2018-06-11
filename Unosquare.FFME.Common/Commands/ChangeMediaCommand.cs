@@ -32,9 +32,10 @@
             var m = Manager.MediaCore;
 
             // Avoid running the command if run conditions are not met
-            if (m == null || m.IsDisposed || m.State.IsOpen == false || m.State.IsOpening)
+            if (m == null || m.IsDisposed || m.State.IsOpen == false || m.State.IsOpening || m.State.IsChanging)
                 return;
 
+            m.State.IsChanging = true;
             var resumeClock = false;
             var isSeeking = m.State.IsSeeking;
 
@@ -174,6 +175,7 @@
                 if (resumeClock) m?.Clock?.Play();
                 m.State.IsSeeking = isSeeking;
                 m.MediaChangingDone.Complete();
+                m.State.IsChanging = false;
                 await m.SendOnMediaChanged();
             }
         }

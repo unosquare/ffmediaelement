@@ -54,7 +54,7 @@
         {
             var m = Manager.MediaCore;
 
-            if (m.IsDisposed || m.State.IsOpen || m.State.IsOpening) return;
+            if (m.IsDisposed || m.State.IsOpen || m.State.IsOpening || m.State.IsChanging) return;
 
             // Notify Media will start opening
             m.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Entered");

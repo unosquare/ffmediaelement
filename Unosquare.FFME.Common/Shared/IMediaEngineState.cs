@@ -139,6 +139,11 @@
         bool IsOpening { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the media is currently changing its components.
+        /// </summary>
+        bool IsChanging { get; }
+
+        /// <summary>
         /// Gets a value indicating whether the media is paused.
         /// </summary>
         bool IsPaused { get; }
