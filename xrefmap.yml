@@ -1193,6 +1193,19 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.IsBuffering
   nameWithType: MediaElement.IsBuffering
+- uid: Unosquare.FFME.MediaElement.IsChanging
+  name: IsChanging
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsChanging
+  commentId: P:Unosquare.FFME.MediaElement.IsChanging
+  fullName: Unosquare.FFME.MediaElement.IsChanging
+  nameWithType: MediaElement.IsChanging
+- uid: Unosquare.FFME.MediaElement.IsChanging*
+  name: IsChanging
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsChanging_
+  commentId: Overload:Unosquare.FFME.MediaElement.IsChanging
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.IsChanging
+  nameWithType: MediaElement.IsChanging
 - uid: Unosquare.FFME.MediaElement.IsLiveStream
   name: IsLiveStream
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsLiveStream
