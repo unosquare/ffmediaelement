@@ -270,6 +270,31 @@ the FFmpeg library to perform reading and decoding of media streams.</p>
   </table>
   
   
+  <h4 id="Unosquare_FFME_MediaElement_MediaChangedEvent" data-uid="Unosquare.FFME.MediaElement.MediaChangedEvent">MediaChangedEvent</h4>
+  <div class="markdown level1 summary"><p>MediaChangedEvent is a routed event.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly RoutedEvent MediaChangedEvent</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEvent</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <h4 id="Unosquare_FFME_MediaElement_MediaChangingEvent" data-uid="Unosquare.FFME.MediaElement.MediaChangingEvent">MediaChangingEvent</h4>
   <div class="markdown level1 summary"><p>MediaChangingEvent is a routed event.</p>
 </div>
@@ -864,6 +889,32 @@ Only valid after the MediaOpened event has fired.</p>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public int AudioSampleRate { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_AudioStreamIndex_" data-uid="Unosquare.FFME.MediaElement.AudioStreamIndex*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_AudioStreamIndex" data-uid="Unosquare.FFME.MediaElement.AudioStreamIndex">AudioStreamIndex</h4>
+  <div class="markdown level1 summary"><p>Gets the index of the audio stream.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int AudioStreamIndex { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2046,6 +2097,32 @@ its native size.</p>
   </table>
   
   
+  <a id="Unosquare_FFME_MediaElement_SubtitleStreamIndex_" data-uid="Unosquare.FFME.MediaElement.SubtitleStreamIndex*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_SubtitleStreamIndex" data-uid="Unosquare.FFME.MediaElement.SubtitleStreamIndex">SubtitleStreamIndex</h4>
+  <div class="markdown level1 summary"><p>Gets the index of the subtitle stream.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int SubtitleStreamIndex { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <a id="Unosquare_FFME_MediaElement_UnloadedBehavior_" data-uid="Unosquare.FFME.MediaElement.UnloadedBehavior*"></a>
   <h4 id="Unosquare_FFME_MediaElement_UnloadedBehavior" data-uid="Unosquare.FFME.MediaElement.UnloadedBehavior">UnloadedBehavior</h4>
   <div class="markdown level1 summary"><p>Specifies how the underlying media should behave when
@@ -2258,6 +2335,32 @@ If not available, this property returns an empty string.</p>
     <tbody>
       <tr>
         <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_VideoStreamIndex_" data-uid="Unosquare.FFME.MediaElement.VideoStreamIndex*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_VideoStreamIndex" data-uid="Unosquare.FFME.MediaElement.VideoStreamIndex">VideoStreamIndex</h4>
+  <div class="markdown level1 summary"><p>Gets the index of the video stream.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int VideoStreamIndex { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
         <td></td>
       </tr>
     </tbody>
@@ -2641,6 +2744,31 @@ This is shared across all instances of Media Elements</p>
   </table>
   
   
+  <h4 id="Unosquare_FFME_MediaElement_MediaChanged" data-uid="Unosquare.FFME.MediaElement.MediaChanged">MediaChanged</h4>
+  <div class="markdown level1 summary"><p>Raised after a change in media options and components is applied.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event EventHandler&lt;MediaOpenedRoutedEventArgs&gt; MediaChanged</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.EventHandler</span>&lt;<a class="xref" href="Unosquare.FFME.Events.MediaOpenedRoutedEventArgs.html">MediaOpenedRoutedEventArgs</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <h4 id="Unosquare_FFME_MediaElement_MediaChanging" data-uid="Unosquare.FFME.MediaElement.MediaChanging">MediaChanging</h4>
   <div class="markdown level1 summary"><p>Raised before a change in media options is applied.
 Use this method to modify the selected streams.</p>
@@ -2774,7 +2902,7 @@ Use this method to modify the input options.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public event RoutedEventHandler MediaOpened</code></pre>
+    <pre><code class="lang-csharp hljs">public event EventHandler&lt;MediaOpenedRoutedEventArgs&gt; MediaOpened</code></pre>
   </div>
   <h5 class="eventType">Event Type</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2786,7 +2914,7 @@ Use this method to modify the input options.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">RoutedEventHandler</span></td>
+        <td><span class="xref">System.EventHandler</span>&lt;<a class="xref" href="Unosquare.FFME.Events.MediaOpenedRoutedEventArgs.html">MediaOpenedRoutedEventArgs</a>&gt;</td>
         <td></td>
       </tr>
     </tbody>

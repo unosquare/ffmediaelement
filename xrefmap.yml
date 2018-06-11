@@ -304,6 +304,38 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.Events.MediaLogMessageEventArgs.TimestampUtc
   nameWithType: MediaLogMessageEventArgs.TimestampUtc
+- uid: Unosquare.FFME.Events.MediaOpenedRoutedEventArgs
+  name: MediaOpenedRoutedEventArgs
+  href: api/Unosquare.FFME.Events.MediaOpenedRoutedEventArgs.html
+  commentId: T:Unosquare.FFME.Events.MediaOpenedRoutedEventArgs
+  fullName: Unosquare.FFME.Events.MediaOpenedRoutedEventArgs
+  nameWithType: MediaOpenedRoutedEventArgs
+- uid: Unosquare.FFME.Events.MediaOpenedRoutedEventArgs.#ctor(RoutedEvent,System.Object,MediaInfo)
+  name: MediaOpenedRoutedEventArgs(RoutedEvent, Object, MediaInfo)
+  href: api/Unosquare.FFME.Events.MediaOpenedRoutedEventArgs.html#Unosquare_FFME_Events_MediaOpenedRoutedEventArgs__ctor_RoutedEvent_System_Object_MediaInfo_
+  commentId: M:Unosquare.FFME.Events.MediaOpenedRoutedEventArgs.#ctor(RoutedEvent,System.Object,MediaInfo)
+  fullName: Unosquare.FFME.Events.MediaOpenedRoutedEventArgs.MediaOpenedRoutedEventArgs(RoutedEvent, System.Object, MediaInfo)
+  nameWithType: MediaOpenedRoutedEventArgs.MediaOpenedRoutedEventArgs(RoutedEvent, Object, MediaInfo)
+- uid: Unosquare.FFME.Events.MediaOpenedRoutedEventArgs.#ctor*
+  name: MediaOpenedRoutedEventArgs
+  href: api/Unosquare.FFME.Events.MediaOpenedRoutedEventArgs.html#Unosquare_FFME_Events_MediaOpenedRoutedEventArgs__ctor_
+  commentId: Overload:Unosquare.FFME.Events.MediaOpenedRoutedEventArgs.#ctor
+  isSpec: "True"
+  fullName: Unosquare.FFME.Events.MediaOpenedRoutedEventArgs.MediaOpenedRoutedEventArgs
+  nameWithType: MediaOpenedRoutedEventArgs.MediaOpenedRoutedEventArgs
+- uid: Unosquare.FFME.Events.MediaOpenedRoutedEventArgs.Info
+  name: Info
+  href: api/Unosquare.FFME.Events.MediaOpenedRoutedEventArgs.html#Unosquare_FFME_Events_MediaOpenedRoutedEventArgs_Info
+  commentId: P:Unosquare.FFME.Events.MediaOpenedRoutedEventArgs.Info
+  fullName: Unosquare.FFME.Events.MediaOpenedRoutedEventArgs.Info
+  nameWithType: MediaOpenedRoutedEventArgs.Info
+- uid: Unosquare.FFME.Events.MediaOpenedRoutedEventArgs.Info*
+  name: Info
+  href: api/Unosquare.FFME.Events.MediaOpenedRoutedEventArgs.html#Unosquare_FFME_Events_MediaOpenedRoutedEventArgs_Info_
+  commentId: Overload:Unosquare.FFME.Events.MediaOpenedRoutedEventArgs.Info
+  isSpec: "True"
+  fullName: Unosquare.FFME.Events.MediaOpenedRoutedEventArgs.Info
+  nameWithType: MediaOpenedRoutedEventArgs.Info
 - uid: Unosquare.FFME.Events.MediaOpeningRoutedEventArgs
   name: MediaOpeningRoutedEventArgs
   href: api/Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.html
@@ -833,6 +865,19 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.AudioSampleRate
   nameWithType: MediaElement.AudioSampleRate
+- uid: Unosquare.FFME.MediaElement.AudioStreamIndex
+  name: AudioStreamIndex
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_AudioStreamIndex
+  commentId: P:Unosquare.FFME.MediaElement.AudioStreamIndex
+  fullName: Unosquare.FFME.MediaElement.AudioStreamIndex
+  nameWithType: MediaElement.AudioStreamIndex
+- uid: Unosquare.FFME.MediaElement.AudioStreamIndex*
+  name: AudioStreamIndex
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_AudioStreamIndex_
+  commentId: Overload:Unosquare.FFME.MediaElement.AudioStreamIndex
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.AudioStreamIndex
+  nameWithType: MediaElement.AudioStreamIndex
 - uid: Unosquare.FFME.MediaElement.Balance
   name: Balance
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Balance
@@ -1303,6 +1348,18 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.LoadFFmpeg
   nameWithType: MediaElement.LoadFFmpeg
+- uid: Unosquare.FFME.MediaElement.MediaChanged
+  name: MediaChanged
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaChanged
+  commentId: E:Unosquare.FFME.MediaElement.MediaChanged
+  fullName: Unosquare.FFME.MediaElement.MediaChanged
+  nameWithType: MediaElement.MediaChanged
+- uid: Unosquare.FFME.MediaElement.MediaChangedEvent
+  name: MediaChangedEvent
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaChangedEvent
+  commentId: F:Unosquare.FFME.MediaElement.MediaChangedEvent
+  fullName: Unosquare.FFME.MediaElement.MediaChangedEvent
+  nameWithType: MediaElement.MediaChangedEvent
 - uid: Unosquare.FFME.MediaElement.MediaChanging
   name: MediaChanging
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaChanging
@@ -1754,6 +1811,19 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.StretchProperty
   fullName: Unosquare.FFME.MediaElement.StretchProperty
   nameWithType: MediaElement.StretchProperty
+- uid: Unosquare.FFME.MediaElement.SubtitleStreamIndex
+  name: SubtitleStreamIndex
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_SubtitleStreamIndex
+  commentId: P:Unosquare.FFME.MediaElement.SubtitleStreamIndex
+  fullName: Unosquare.FFME.MediaElement.SubtitleStreamIndex
+  nameWithType: MediaElement.SubtitleStreamIndex
+- uid: Unosquare.FFME.MediaElement.SubtitleStreamIndex*
+  name: SubtitleStreamIndex
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_SubtitleStreamIndex_
+  commentId: Overload:Unosquare.FFME.MediaElement.SubtitleStreamIndex
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.SubtitleStreamIndex
+  nameWithType: MediaElement.SubtitleStreamIndex
 - uid: Unosquare.FFME.MediaElement.UnloadedBehavior
   name: UnloadedBehavior
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_UnloadedBehavior
@@ -1864,6 +1934,19 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.VideoSmtpeTimecode
   nameWithType: MediaElement.VideoSmtpeTimecode
+- uid: Unosquare.FFME.MediaElement.VideoStreamIndex
+  name: VideoStreamIndex
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoStreamIndex
+  commentId: P:Unosquare.FFME.MediaElement.VideoStreamIndex
+  fullName: Unosquare.FFME.MediaElement.VideoStreamIndex
+  nameWithType: MediaElement.VideoStreamIndex
+- uid: Unosquare.FFME.MediaElement.VideoStreamIndex*
+  name: VideoStreamIndex
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoStreamIndex_
+  commentId: Overload:Unosquare.FFME.MediaElement.VideoStreamIndex
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.VideoStreamIndex
+  nameWithType: MediaElement.VideoStreamIndex
 - uid: Unosquare.FFME.MediaElement.Volume
   name: Volume
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Volume
