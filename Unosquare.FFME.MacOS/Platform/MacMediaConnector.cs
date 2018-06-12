@@ -39,7 +39,7 @@
             return Task.CompletedTask;
         }
 
-        public Task OnMediaOpened(MediaEngine sender)
+        public Task OnMediaOpened(MediaEngine sender, MediaInfo info)
         {
             return Task.CompletedTask;
         }
@@ -81,6 +81,11 @@
         }
 
         public Task OnMediaChanging(MediaEngine sender, MediaOptions mediaOptions, MediaInfo mediaInfo)
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task OnMediaChanged(MediaEngine sender, MediaInfo info)
         {
             return Task.CompletedTask;
         }

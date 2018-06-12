@@ -105,7 +105,7 @@
         {
             get
             {
-                if (Container == null || Container.Components == null)
+                if (IsTaskCancellationPending || Container == null || Container.Components == null)
                     return false;
 
                 // If it's a live stream always continue reading regardless

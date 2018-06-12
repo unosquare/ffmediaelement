@@ -73,7 +73,7 @@
             EventManager.RegisterRoutedEvent(
                             nameof(MediaOpened),
                             RoutingStrategy.Bubble,
-                            typeof(RoutedEventHandler),
+                            typeof(EventHandler<MediaOpenedRoutedEventArgs>),
                             typeof(MediaElement));
 
         /// <summary>
@@ -114,6 +114,16 @@
                             nameof(MediaChanging),
                             RoutingStrategy.Bubble,
                             typeof(EventHandler<MediaOpeningRoutedEventArgs>),
+                            typeof(MediaElement));
+
+        /// <summary>
+        /// MediaChangedEvent is a routed event.
+        /// </summary>
+        public static readonly RoutedEvent MediaChangedEvent =
+            EventManager.RegisterRoutedEvent(
+                            nameof(MediaChanged),
+                            RoutingStrategy.Bubble,
+                            typeof(EventHandler<MediaOpenedRoutedEventArgs>),
                             typeof(MediaElement));
 
         /// <summary>
@@ -198,7 +208,7 @@
         /// <summary>
         /// Raised when the media is opened
         /// </summary>
-        public event RoutedEventHandler MediaOpened
+        public event EventHandler<MediaOpenedRoutedEventArgs> MediaOpened
         {
             add { AddHandler(MediaOpenedEvent, value); }
             remove { RemoveHandler(MediaOpenedEvent, value); }
@@ -231,6 +241,15 @@
         {
             add { AddHandler(MediaChangingEvent, value); }
             remove { RemoveHandler(MediaChangingEvent, value); }
+        }
+
+        /// <summary>
+        /// Raised after a change in media options and components is applied.
+        /// </summary>
+        public event EventHandler<MediaOpenedRoutedEventArgs> MediaChanged
+        {
+            add { AddHandler(MediaChangedEvent, value); }
+            remove { RemoveHandler(MediaChangedEvent, value); }
         }
 
         /// <summary>
@@ -330,14 +349,20 @@
         /// <summary>
         /// Raises the media opened event.
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        /// <param name="mediaInfo">The media information.</param>
+        /// <returns>
+        /// A <see cref="Task" /> representing the asynchronous operation.
+        /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Task RaiseMediaOpenedEvent()
+        internal Task RaiseMediaOpenedEvent(MediaInfo mediaInfo)
         {
             LogEventStart(MediaOpenedEvent);
             return GuiContext.Current.EnqueueInvoke(() =>
             {
-                RaiseEvent(new RoutedEventArgs(MediaOpenedEvent, this));
+                RaiseEvent(new MediaOpenedRoutedEventArgs(
+                    MediaOpenedEvent,
+                    this,
+                    mediaInfo));
                 LogEventDone(MediaOpenedEvent);
             });
         }
@@ -380,7 +405,7 @@
         }
 
         /// <summary>
-        /// Raises the media opening event.
+        /// Raises the media changing event.
         /// </summary>
         /// <param name="options">The options.</param>
         /// <param name="mediaInfo">The media information.</param>
@@ -398,6 +423,26 @@
                     mediaInfo));
 
                 LogEventDone(MediaChangingEvent);
+            });
+        }
+
+        /// <summary>
+        /// Raises the media changed event.
+        /// </summary>
+        /// <param name="mediaInfo">The media information.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal Task RaiseMediaChangedEvent(MediaInfo mediaInfo)
+        {
+            LogEventStart(MediaChangedEvent);
+            return GuiContext.Current.EnqueueInvoke(() =>
+            {
+                RaiseEvent(new MediaOpenedRoutedEventArgs(
+                    MediaChangedEvent,
+                    this,
+                    mediaInfo));
+
+                LogEventDone(MediaChangedEvent);
             });
         }
 

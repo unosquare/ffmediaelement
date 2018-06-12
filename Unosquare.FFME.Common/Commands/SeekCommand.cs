@@ -71,7 +71,9 @@
                 {
                     var targetSkewTicks = Convert.ToInt64(
                         m.Blocks[main][0].Duration.Ticks * (m.Blocks[main].Capacity / 2d));
-                    adjustedSeekTarget = TimeSpan.FromTicks(adjustedSeekTarget.Ticks - targetSkewTicks);
+
+                    if (adjustedSeekTarget.Ticks >= targetSkewTicks)
+                        adjustedSeekTarget = TimeSpan.FromTicks(adjustedSeekTarget.Ticks - targetSkewTicks);
                 }
 
                 // Clear Blocks and frames, reset the render times

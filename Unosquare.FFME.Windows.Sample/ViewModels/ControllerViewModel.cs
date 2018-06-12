@@ -220,13 +220,23 @@
             new Action(() => { PauseButtonVisibility = m.CanPause && m.IsPlaying ? Visibility.Visible : Visibility.Collapsed; })
                 .WhenChanged(m, nameof(m.CanPause), nameof(m.IsPlaying));
 
-            new Action(() => { PlayButtonVisibility = m.IsOpen && m.IsPlaying == false && m.HasMediaEnded == false ? Visibility.Visible : Visibility.Collapsed; })
-                .WhenChanged(m, nameof(m.IsOpen), nameof(m.IsPlaying), nameof(m.HasMediaEnded));
+            new Action(() =>
+            {
+                PlayButtonVisibility =
+                    m.IsOpen && m.IsPlaying == false && m.HasMediaEnded == false && m.IsSeeking == false && m.IsChanging == false ?
+                    Visibility.Visible : Visibility.Collapsed;
+            })
+            .WhenChanged(m, nameof(m.IsOpen), nameof(m.IsPlaying), nameof(m.HasMediaEnded), nameof(m.IsSeeking), nameof(m.IsChanging));
 
-            new Action(() => { StopButtonVisibility = m.IsOpen && (m.HasMediaEnded || (m.IsSeekable && m.MediaState != MediaState.Stop)) ? Visibility.Visible : Visibility.Hidden; })
-                .WhenChanged(m, nameof(m.IsOpen), nameof(m.HasMediaEnded), nameof(m.IsSeekable), nameof(m.MediaState));
+            new Action(() =>
+            {
+                StopButtonVisibility =
+                    m.IsOpen && m.IsChanging == false && m.IsSeeking == false && (m.HasMediaEnded || (m.IsSeekable && m.MediaState != MediaState.Stop)) ?
+                    Visibility.Visible : Visibility.Hidden;
+            })
+            .WhenChanged(m, nameof(m.IsOpen), nameof(m.HasMediaEnded), nameof(m.IsSeekable), nameof(m.MediaState), nameof(m.IsChanging), nameof(m.IsSeeking));
 
-            new Action(() => { CloseButtonVisibility = m.IsOpen ? Visibility.Visible : Visibility.Hidden; })
+            new Action(() => { CloseButtonVisibility = m.IsOpen && m.IsChanging == false ? Visibility.Visible : Visibility.Hidden; })
                 .WhenChanged(m, nameof(m.IsOpen));
 
             new Action(() => { SeekBarVisibility = m.IsSeekable ? Visibility.Visible : Visibility.Hidden; })

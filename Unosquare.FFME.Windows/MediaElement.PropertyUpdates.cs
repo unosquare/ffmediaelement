@@ -119,7 +119,6 @@
             // Detect Notification and Dependency property changes
             var dependencyProperties = this.DetectDependencyPropertyChanges();
             var isSeeking = MediaCore?.State?.IsSeeking ?? false;
-            var isBuffering = MediaCore?.State?.IsBuffering ?? false;
 
             // Write the media engine state property state to the dependency properties
             foreach (var kvp in dependencyProperties)
@@ -141,7 +140,7 @@
             // After we update the position dependency property, clear the reportable position
             // to make way for new updates.
             var notifiedPositionChanged = false;
-            if (isSeeking == false && isBuffering == false)
+            if (isSeeking == false)
             {
                 lock (ReportablePositionLock)
                 {

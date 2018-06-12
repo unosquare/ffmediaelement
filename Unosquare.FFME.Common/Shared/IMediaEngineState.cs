@@ -9,6 +9,21 @@
     public interface IMediaEngineState
     {
         /// <summary>
+        /// Gets the index of the video stream.
+        /// </summary>
+        int VideoStreamIndex { get; }
+
+        /// <summary>
+        /// Gets the index of the audio stream.
+        /// </summary>
+        int AudioStreamIndex { get; }
+
+        /// <summary>
+        /// Gets the index of the subtitle stream.
+        /// </summary>
+        int SubtitleStreamIndex { get; }
+
+        /// <summary>
         /// Gets the audio bitrate.
         /// </summary>
         ulong AudioBitrate { get; }
@@ -122,6 +137,11 @@
         /// Gets a value indicating whether the media is currently opening.
         /// </summary>
         bool IsOpening { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the media is currently changing its components.
+        /// </summary>
+        bool IsChanging { get; }
 
         /// <summary>
         /// Gets a value indicating whether the media is paused.

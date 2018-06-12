@@ -72,7 +72,7 @@
 
             var e = new RenderingAudioEventArgs(
                     audioBlock.Buffer,
-                    audioBlock.BufferLength,
+                    audioBlock.SamplesBufferLength,
                     MediaCore.State,
                     MediaCore.MediaInfo.Streams[audioBlock.StreamIndex],
                     audioBlock.StartTime,

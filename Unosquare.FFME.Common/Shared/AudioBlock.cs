@@ -1,38 +1,12 @@
 ﻿namespace Unosquare.FFME.Shared
 {
-    using System;
-    using System.Runtime.InteropServices;
-
     /// <summary>
     /// A scaled, preallocated audio frame container.
     /// The buffer is in 16-bit signed, interleaved sample data
     /// </summary>
     public sealed class AudioBlock : MediaBlock
     {
-        #region Constructors and Destructors
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="AudioBlock"/> class.
-        /// </summary>
-        ~AudioBlock()
-        {
-            Dispose(false);
-        }
-
-        #endregion
-
         #region Properties
-
-        /// <summary>
-        /// Gets a pointer to the first byte of the data buffer.
-        /// The format signed 16-bits per sample, channel interleaved
-        /// </summary>
-        public IntPtr Buffer => AudioBuffer;
-
-        /// <summary>
-        /// Gets the length of the buffer in bytes.
-        /// </summary>
-        public int BufferLength { get; internal set; }
 
         /// <summary>
         /// Gets the sample rate.
@@ -50,55 +24,33 @@
         public int SamplesPerChannel { get; internal set; }
 
         /// <summary>
+        /// Gets the length of the samples buffer. This might differ from the <see cref="MediaBlock.BufferLength"/>
+        /// property after scaling but must always be less than or equal to it.
+        /// </summary>
+        /// <value>
+        /// The length of the samples buffer.
+        /// </value>
+        public int SamplesBufferLength { get; internal set; }
+
+        /// <summary>
         /// Gets the media type of the data
         /// </summary>
         public override MediaType MediaType => MediaType.Audio;
 
-        /// <summary>
-        /// The picture buffer length of the last allocated buffer
-        /// </summary>
-        internal int AudioBufferLength { get; set; }
-
-        /// <summary>
-        /// Holds a reference to the last allocated buffer
-        /// </summary>
-        internal IntPtr AudioBuffer { get; set; }
-
         #endregion
 
-        #region IDisposable Support
+        #region Methods
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// Deallocates the buffer and resets the related buffer properties
         /// </summary>
-        public override void Dispose()
+        protected override void Deallocate()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool alsoManaged)
-        {
-            if (!IsDisposed)
-            {
-                if (alsoManaged)
-                {
-                    // no code for managed dispose
-                }
-
-                if (AudioBuffer != IntPtr.Zero)
-                {
-                    Marshal.FreeHGlobal(AudioBuffer);
-                    AudioBuffer = IntPtr.Zero;
-                    AudioBufferLength = 0;
-                }
-
-                IsDisposed = true;
-            }
+            base.Deallocate();
+            SampleRate = default;
+            ChannelCount = default;
+            SamplesPerChannel = default;
+            SamplesBufferLength = 0;
         }
 
         #endregion

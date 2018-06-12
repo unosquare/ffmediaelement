@@ -63,6 +63,21 @@
         public MediaInfo MediaInfo => MediaCore?.MediaInfo;
 
         /// <summary>
+        /// Gets the index of the video stream.
+        /// </summary>
+        public int VideoStreamIndex => MediaCore?.State.VideoStreamIndex ?? -1;
+
+        /// <summary>
+        /// Gets the index of the audio stream.
+        /// </summary>
+        public int AudioStreamIndex => MediaCore?.State.AudioStreamIndex ?? -1;
+
+        /// <summary>
+        /// Gets the index of the subtitle stream.
+        /// </summary>
+        public int SubtitleStreamIndex => MediaCore?.State.SubtitleStreamIndex ?? -1;
+
+        /// <summary>
         /// Gets the media format. Returns null when media has not been loaded.
         /// </summary>
         public string MediaFormat => MediaCore?.State.MediaFormat;
@@ -257,6 +272,11 @@
         /// Gets a value indicating whether the media is in the process of opening.
         /// </summary>
         public bool IsOpening => MediaCore?.State.IsOpening ?? default;
+
+        /// <summary>
+        /// Gets a value indicating whether the media is currently changing its components.
+        /// </summary>
+        public bool IsChanging => MediaCore?.State.IsChanging ?? default;
 
         /// <summary>
         /// Gets a value indicating whether this media element

@@ -303,21 +303,6 @@
         #region Private State Management
 
         /// <summary>
-        /// Gets the seek start timestamp of the main component.
-        /// </summary>
-        private long StartSeekTimestamp => Components.Main.FirstPacketDts ?? Components.Main.StartTimeOffset.ToLong(Components.Main.Stream->time_base);
-
-        /// <summary>
-        /// Gets the index of the seek stream to seek on for the BOF.
-        /// </summary>
-        private int StartSeekStreamIndex => Components.Main.StreamIndex;
-
-        /// <summary>
-        /// Gets the start seek byte position.
-        /// </summary>
-        private long StartSeekPosition => Components.FirstPacketPosition ?? 0;
-
-        /// <summary>
         /// Gets the time the last packet was read from the input
         /// </summary>
         private DateTime StateLastReadTimeUtc { get; set; } = DateTime.MinValue;
@@ -544,13 +529,15 @@
         }
 
         /// <summary>
-        /// Updates the selected components using the selected streams in <see cref="MediaOptions"/>.
-        /// If the newly set streams are null or have different stream indexes, these components
-        /// are removed, disposed, and recreated accordingly.
+        /// Recreates the components using the selected streams in <see cref="MediaOptions" />.
+        /// If the newly set streams are null these components are removed and disposed.
+        /// All selected stream components are recreated.
         /// </summary>
-        public void UpdateComponents()
+        /// <returns>The registered component types</returns>
+        public MediaType[] UpdateComponents()
         {
-            if (IsDisposed) return;
+            if (IsDisposed || InputContext == null)
+                return new MediaType[] { };
 
             lock (ReadSyncRoot)
             {
@@ -558,7 +545,9 @@
                 {
                     lock (ConvertSyncRoot)
                     {
-                        StreamOpen();
+                        // Open the suitable streams as components.
+                        // Throw if no audio and/or video streams are found
+                        return StreamCreateComponents();
                     }
                 }
             }
@@ -825,10 +814,6 @@
                 Parent?.Log(MediaLogMessageType.Warning, $"Input Start: {MediaStartTimeOffset.Format()} Comp. Start: {minOffset.Format()}. Input start will be updated.");
                 MediaStartTimeOffset = minOffset;
             }
-
-            // Initially and depending on the video component, rquire picture attachments.
-            // Picture attachments are only required after the first read or after a seek.
-            StateRequiresPictureAttachments = true;
         }
 
         /// <summary>
@@ -837,7 +822,8 @@
         /// </summary>
         /// <param name="t">The Media Type.</param>
         /// <param name="stream">The stream information. Set to null to remove.</param>
-        private void StreamCreateComponent(MediaType t, StreamInfo stream)
+        /// <returns>The media type that was created. None for unsuccessful creation</returns>
+        private MediaType StreamCreateComponent(MediaType t, StreamInfo stream)
         {
             // Check if the component should be disabled (removed)
             var isDisabled = true;
@@ -848,20 +834,13 @@
             else if (t == MediaType.Subtitle)
                 isDisabled = MediaOptions.IsSubtitleDisabled;
             else
-                return;
+                return MediaType.None;
 
             try
             {
-                // Remove the component if the stream info passed is null or if the component is now disabled
-                if (Components[t] != null &&
-                   (stream == null || isDisabled || stream.StreamIndex != Components[t].StreamIndex))
-                {
+                // Remove the existing component if it exists already
+                if (Components[t] != null)
                     Components.RemoveComponent(t);
-                }
-
-                // Do not recreate the component if we already have a component using the same stream index
-                if (Components[t] != null && stream != null && Components[t].StreamIndex == stream.StreamIndex)
-                    return;
 
                 // Instantiate component
                 if (stream != null && stream.CodecType == (AVMediaType)t && isDisabled == false)
@@ -878,14 +857,20 @@
             {
                 Parent?.Log(MediaLogMessageType.Error, $"Unable to initialize {t} component. {ex.Message}");
             }
+
+            if (Components[t] != null)
+                return t;
+            else
+                return MediaType.None;
         }
 
         /// <summary>
         /// Creates the stream components according to the specified streams in the current media options.
         /// Then it initializes the components of the correct type each.
         /// </summary>
+        /// <returns>The component media types that are available</returns>
         /// <exception cref="MediaContainerException">The exception ifnromation</exception>
-        private void StreamCreateComponents()
+        private MediaType[] StreamCreateComponents()
         {
             // Apply Media Options by selecting the desired components
             StreamCreateComponent(MediaType.Audio, MediaOptions.AudioStream);
@@ -895,6 +880,13 @@
             // Verify we have at least 1 stream component to work with.
             if (Components.HasVideo == false && Components.HasAudio == false && Components.HasSubtitles == false)
                 throw new MediaContainerException($"{MediaUrl}: No audio, video, or subtitle streams found to decode.");
+
+            // Initially and depending on the video component, rquire picture attachments.
+            // Picture attachments are only required after the first read or after a seek.
+            StateRequiresPictureAttachments = true;
+
+            // Return the registered component types
+            return Components.MediaTypes.ToArray();
         }
 
         /// <summary>
@@ -1043,15 +1035,16 @@
         {
             // Create the output result object
             var result = new List<MediaFrame>(256);
+            var seekRequirement = Components.Main.MediaType == MediaType.Audio ? SeekRequirement.MainComponentOnly : SeekRequirement.AudioAndVideo;
+
+            #region Setup
 
             // A special kind of seek is the zero seek. Execute it if requested.
             if (targetTime <= TimeSpan.Zero)
             {
-                StreamSeekToStart();
-                return result; // this will have no frames at this point.
+                StreamSeekToStart(result, seekRequirement);
+                return result; // this may or may not have the start frames
             }
-
-            #region Setup
 
             // Cancel the seek operation if the stream does not support it.
             if (IsStreamSeekable == false)
@@ -1112,8 +1105,8 @@
                     StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
                     if (streamSeekRelativeTime.Ticks <= main.StartTimeOffset.Ticks)
                     {
-                        seekTarget = StartSeekTimestamp;
-                        streamIndex = StartSeekStreamIndex;
+                        seekTarget = main.StartTimeOffset.ToLong(main.Stream->time_base);
+                        streamIndex = main.StreamIndex;
                         isAtStartOfStream = true;
                     }
                     else
@@ -1140,10 +1133,7 @@
 
                 // Read and decode frames for all components and check if the decoded frames
                 // are on or right before the target time.
-                StreamSeekDecode(
-                    result,
-                    targetTime,
-                    Components.Main.MediaType == MediaType.Audio ? SeekRequirement.MainComponentOnly : SeekRequirement.AudioAndVideo);
+                StreamSeekDecode(result, targetTime, seekRequirement);
 
                 var firstAudioFrame = result.FirstOrDefault(f => f.MediaType == MediaType.Audio && f.StartTime <= targetTime);
                 var firstVideoFrame = result.FirstOrDefault(f => f.MediaType == MediaType.Video && f.StartTime <= targetTime);
@@ -1180,14 +1170,23 @@
         /// <summary>
         /// Seeks to the position at the start of the stream.
         /// </summary>
+        /// <param name="result">The result.</param>
+        /// <param name="seekRequirement">The seek requirement.</param>
+        /// <returns>The number of read and decode cycles</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void StreamSeekToStart()
+        private int StreamSeekToStart(List<MediaFrame> result, SeekRequirement seekRequirement)
         {
-            if (MediaStartTimeOffset == TimeSpan.MinValue) return;
+            if (MediaStartTimeOffset == TimeSpan.MinValue) return 0;
+
+            var main = Components.Main;
+            var seekTarget = main.StartTimeOffset.ToLong(main.Stream->time_base);
+            var streamIndex = main.StreamIndex;
+            var seekFlags = ffmpeg.AVSEEK_FLAG_BACKWARD;
+
             StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
 
-            var seekResult = ffmpeg.av_seek_frame(
-                InputContext, StartSeekStreamIndex, StartSeekTimestamp, ffmpeg.AVSEEK_FLAG_BACKWARD);
+            // var seekResult = ffmpeg.av_seek_frame(InputContext, StartSeekStreamIndex, StartSeekTimestamp, ffmpeg.AVSEEK_FLAG_BACKWARD);
+            var seekResult = ffmpeg.av_seek_frame(InputContext, streamIndex, seekTarget, seekFlags);
 
             // Flush packets, state, and codec buffers
             Components.ClearPacketQueues();
@@ -1198,7 +1197,10 @@
             {
                 Parent?.Log(MediaLogMessageType.Warning,
                     $"SEEK 0: {nameof(StreamSeekToStart)} operation failed. Error code {seekResult}, {FFInterop.DecodeMessage(seekResult)}");
+                return 0;
             }
+
+            return StreamSeekDecode(result, TimeSpan.Zero, seekRequirement);
         }
 
         /// <summary>

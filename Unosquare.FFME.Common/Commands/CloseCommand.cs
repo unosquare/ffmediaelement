@@ -30,7 +30,7 @@
         {
             var m = Manager.MediaCore;
 
-            if (m.IsDisposed || m.State.IsOpen == false || m.State.IsOpening) return Task.CompletedTask;
+            if (m.IsDisposed || m.State.IsOpen == false || m.State.IsOpening || m.State.IsChanging) return Task.CompletedTask;
 
             m.Log(MediaLogMessageType.Debug, $"{nameof(CloseCommand)}: Entered");
             m.StopWorkers();

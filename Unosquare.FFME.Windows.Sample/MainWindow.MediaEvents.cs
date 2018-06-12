@@ -211,11 +211,10 @@
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
-        private void OnMediaOpened(object sender, RoutedEventArgs e)
+        private void OnMediaOpened(object sender, MediaOpenedRoutedEventArgs e)
         {
             // Set a start position (see issue #66)
             // Media.Position = TimeSpan.FromSeconds(5);
-            // var playTask = Media.Play(); // fire up the play task asynchronously
         }
 
         /// <summary>
@@ -273,6 +272,16 @@
                     e.Options.SubtitleStream = newStream;
                     break;
             }
+        }
+
+        /// <summary>
+        /// Handles the media changed event.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="MediaOpenedRoutedEventArgs"/> instance containing the event data.</param>
+        private void OnMediaChanged(object sender, MediaOpenedRoutedEventArgs e)
+        {
+            // placeholder
         }
 
         #endregion

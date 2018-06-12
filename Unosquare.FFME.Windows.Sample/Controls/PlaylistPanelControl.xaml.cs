@@ -63,6 +63,9 @@
             DeferredAction deferredAction = null;
             deferredAction = DeferredAction.Create(() =>
             {
+                if (textBox == null || App.Current == null || App.Current.MainWindow == null)
+                    return;
+
                 textBox.Focus();
                 textBox.SelectAll();
                 FocusManager.SetFocusedElement(App.Current.MainWindow, textBox);

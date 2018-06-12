@@ -6,7 +6,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Runtime.InteropServices;
 
     /// <summary>
     /// Provides audio sample extraction, decoding and scaling functionality.
@@ -123,25 +122,24 @@
             }
 
             // Allocate the unmanaged output buffer
-            if (target.AudioBufferLength != targetSpec.BufferLength)
+            var outputSamplesPerChannel = 0;
+            target.Allocate(targetSpec.BufferLength);
+
+            if (target.TryAcquireWriterLock(out var locker))
             {
-                if (target.AudioBuffer != IntPtr.Zero)
-                    Marshal.FreeHGlobal(target.AudioBuffer);
+                using (locker)
+                {
+                    var outputBufferPtr = (byte*)target.Buffer.ToPointer();
 
-                target.AudioBufferLength = targetSpec.BufferLength;
-                target.AudioBuffer = Marshal.AllocHGlobal(targetSpec.BufferLength);
+                    // Execute the conversion (audio scaling). It will return the number of samples that were output
+                    outputSamplesPerChannel = ffmpeg.swr_convert(
+                        Scaler,
+                        &outputBufferPtr,
+                        targetSpec.SamplesPerChannel,
+                        source.Pointer->extended_data,
+                        source.Pointer->nb_samples);
+                }
             }
-
-            var outputBufferPtr = (byte*)target.AudioBuffer;
-
-            // Execute the conversion (audio scaling). It will return the number of samples that were output
-            var outputSamplesPerChannel =
-                ffmpeg.swr_convert(
-                    Scaler,
-                    &outputBufferPtr,
-                    targetSpec.SamplesPerChannel,
-                    source.Pointer->extended_data,
-                    source.Pointer->nb_samples);
 
             // Compute the buffer length
             var outputBufferLength =
@@ -169,7 +167,7 @@
                 target.EndTime = source.EndTime;
             }
 
-            target.BufferLength = outputBufferLength;
+            target.SamplesBufferLength = outputBufferLength;
             target.ChannelCount = targetSpec.ChannelCount;
 
             target.SampleRate = targetSpec.SampleRate;

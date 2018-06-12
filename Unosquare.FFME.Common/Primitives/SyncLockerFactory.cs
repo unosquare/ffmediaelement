@@ -66,12 +66,12 @@
         /// <summary>
         /// The lock releaser. Calling the dispose method releases the lock entered by the parent SyncLocker.
         /// </summary>
-        /// <seealso cref="System.IDisposable" />
+        /// <seealso cref="IDisposable" />
         private sealed class SyncLockReleaser : IDisposable
         {
+            private readonly LockHolderType Operation;
             private bool IsDisposed = false;
             private ISyncReleasable Parent = null;
-            private LockHolderType Operation;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="SyncLockReleaser"/> class.

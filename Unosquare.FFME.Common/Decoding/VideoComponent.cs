@@ -159,20 +159,27 @@
             }
 
             // Perform scaling and save the data to our unmanaged buffer pointer
-            target.EnsureAllocated(source, Constants.Video.VideoPixelFormat);
-            var targetStride = new int[] { target.PictureBufferStride };
-            var targetScan = default(byte_ptrArray8);
-            targetScan[0] = (byte*)target.PictureBuffer;
+            target.Allocate(source, Constants.Video.VideoPixelFormat);
 
-            // The scaling is done here
-            var outputHeight = ffmpeg.sws_scale(
-                Scaler,
-                source.Pointer->data,
-                source.Pointer->linesize,
-                0,
-                source.Pointer->height,
-                targetScan,
-                targetStride);
+            if (target.TryAcquireWriterLock(out var locker))
+            {
+                using (locker)
+                {
+                    var targetStride = new int[] { target.PictureBufferStride };
+                    var targetScan = default(byte_ptrArray8);
+                    targetScan[0] = (byte*)target.Buffer;
+
+                    // The scaling is done here
+                    var outputHeight = ffmpeg.sws_scale(
+                        Scaler,
+                        source.Pointer->data,
+                        source.Pointer->linesize,
+                        0,
+                        source.Pointer->height,
+                        targetScan,
+                        targetStride);
+                }
+            }
 
             // After scaling, we need to copy and guess some of the block properties
             // Flag the block if we have to

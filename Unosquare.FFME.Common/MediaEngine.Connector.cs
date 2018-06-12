@@ -42,11 +42,12 @@
         /// <summary>
         /// Raises the media opened event.
         /// </summary>
+        /// <param name="mediaInfo">The media information.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Task SendOnMediaOpened()
+        internal Task SendOnMediaOpened(MediaInfo mediaInfo)
         {
-            return Connector != null ? Connector.OnMediaOpened(this) : Task.CompletedTask;
+            return Connector != null ? Connector.OnMediaOpened(this, mediaInfo) : Task.CompletedTask;
         }
 
         /// <summary>
@@ -79,6 +80,16 @@
         internal Task SendOnMediaChanging()
         {
             return Connector != null ? Connector.OnMediaChanging(this, Container.MediaOptions, Container.MediaInfo) : Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Raises the media changed event.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal Task SendOnMediaChanged()
+        {
+            return Connector != null ? Connector.OnMediaChanged(this, Container.MediaInfo) : Task.CompletedTask;
         }
 
         /// <summary>
