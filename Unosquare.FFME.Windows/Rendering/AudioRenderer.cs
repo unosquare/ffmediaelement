@@ -28,7 +28,7 @@
         private readonly object SyncLock = new object();
         private readonly object PlaySyncLock = new object();
 
-        private WavePlayer AudioDevice = null;
+        private IWavePlayer AudioDevice = null;
         private SoundTouch AudioProcessor = null;
         private short[] AudioProcessorBuffer = null;
         private CircularBuffer AudioBuffer = null;
@@ -383,11 +383,9 @@
                 };
             }
 
-            AudioDevice = new WavePlayer(this)
-            {
-                DesiredLatency = 200,
-                NumberOfBuffers = 2,
-            };
+            AudioDevice = MediaElement.RendererOptions.UseLegacyWaveOut ?
+                new LegacyWavePlayer(this, MediaElement.RendererOptions.LegacyWaveDeviceId) as IWavePlayer :
+                new DirectSoundPlayer(this, MediaElement.RendererOptions.DirectSoundDeviceId);
 
             SampleBlockSize = Constants.Audio.BytesPerSample * Constants.Audio.ChannelCount;
             var bufferLength = WaveFormat.ConvertLatencyToByteSize(AudioDevice.DesiredLatency) * MediaCore.Blocks[MediaType.Audio].Capacity / 2;

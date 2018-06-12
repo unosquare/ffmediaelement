@@ -9,13 +9,11 @@
     /// A wave player that opens an audio device and continuously feeds it
     /// with audio samples using a wave provider.
     /// </summary>
-    internal class WavePlayer : IDisposable
+    internal sealed class LegacyWavePlayer : IWavePlayer
     {
         #region State Variables
 
         private readonly object WaveOutLock = new object();
-        private readonly AudioRenderer Renderer = null;
-
         private IntPtr DeviceHandle;
         private WaveOutBuffer[] Buffers;
         private IWaveProvider WaveStream;
@@ -30,31 +28,37 @@
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="WavePlayer" /> class.
+        /// Initializes a new instance of the <see cref="LegacyWavePlayer" /> class.
         /// </summary>
         /// <param name="renderer">The renderer.</param>
-        public WavePlayer(AudioRenderer renderer)
+        /// <param name="deviceNumber">The device number.</param>
+        public LegacyWavePlayer(AudioRenderer renderer, int deviceNumber)
         {
             // Initialize the default values
             Renderer = renderer;
-            DeviceNumber = -1;
-            DesiredLatency = 300;
+            DeviceNumber = deviceNumber;
+            DesiredLatency = 200;
             NumberOfBuffers = 2;
         }
 
         /// <summary>
-        /// Finalizes an instance of the <see cref="WavePlayer"/> class.
+        /// Finalizes an instance of the <see cref="LegacyWavePlayer"/> class.
         /// </summary>
-        ~WavePlayer()
+        ~LegacyWavePlayer()
         {
             Dispose(false);
             Renderer?.MediaCore?.Log(MediaLogMessageType.Error,
-                $"{nameof(WavePlayer)}.{nameof(Dispose)} was not called. Please ensure you dispose when finished using this object.");
+                $"{nameof(LegacyWavePlayer)}.{nameof(Dispose)} was not called. Please ensure you dispose when finished using this object.");
         }
 
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// Gets the renderer that owns this wave player.
+        /// </summary>
+        public AudioRenderer Renderer { get; }
 
         /// <summary>
         /// Gets or sets the desired latency in milliseconds
@@ -269,7 +273,7 @@
         /// Closes the WaveOut device and disposes of buffers
         /// </summary>
         /// <param name="alsoManaged">True if called from <see>Dispose</see></param>
-        protected void Dispose(bool alsoManaged)
+        private void Dispose(bool alsoManaged)
         {
             try
             {
@@ -279,7 +283,7 @@
             {
                 // Dispose() and Finalize() methods should not throw exception
                 // WaveInterop.NativeMethods.waveOutReset(DeviceHandle) throws MmException if DeviceHandle is invalid
-                Renderer?.MediaCore?.Log(MediaLogMessageType.Error, $"{nameof(WavePlayer)} disposing. {e.Message}. Stack Trace:\r\n{e.StackTrace}");
+                Renderer?.MediaCore?.Log(MediaLogMessageType.Error, $"{nameof(LegacyWavePlayer)} disposing. {e.Message}. Stack Trace:\r\n{e.StackTrace}");
             }
 
             if (alsoManaged)

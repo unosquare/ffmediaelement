@@ -9,41 +9,42 @@
     internal class WaveOutBuffer : IDisposable
     {
         private readonly WaveHeader header;
-        private readonly int bufferSize; // allocated bytes, may not be the same as bytes read
-        private readonly byte[] buffer;
-        private readonly IWaveProvider waveStream;
-        private readonly object waveOutLock;
-        private GCHandle bufferHandle;
-        private IntPtr waveOutPtr;
-        private GCHandle headerHandle; // we need to pin the header structure
-        private GCHandle callbackHandle; // for the user callback
+        private readonly byte[] Buffer;
+        private readonly IWaveProvider WaveStream;
+        private readonly object SyncLock;
+
+        private IntPtr DeviceHandle;
+        private GCHandle BufferHandle;
+        private GCHandle HeaderHandle; // we need to pin the header structure
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WaveOutBuffer"/> class.
         /// </summary>
-        /// <param name="hWaveOut">WaveOut device to write to</param>
+        /// <param name="deviceHandle">WaveOut device to write to</param>
         /// <param name="bufferSize">Buffer size in bytes</param>
-        /// <param name="bufferFillStream">Stream to provide more data</param>
+        /// <param name="waveStream">Stream to provide more data</param>
         /// <param name="waveOutLock">Lock to protect WaveOut API's from being called on &gt;1 thread</param>
-        public WaveOutBuffer(IntPtr hWaveOut, int bufferSize, IWaveProvider bufferFillStream, object waveOutLock)
+        public WaveOutBuffer(IntPtr deviceHandle, int bufferSize, IWaveProvider waveStream, object waveOutLock)
         {
-            this.bufferSize = bufferSize;
-            buffer = new byte[bufferSize];
-            bufferHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-            waveOutPtr = hWaveOut;
-            waveStream = bufferFillStream;
-            this.waveOutLock = waveOutLock;
+            BufferSize = bufferSize;
+            Buffer = new byte[BufferSize];
+            DeviceHandle = deviceHandle;
+            WaveStream = waveStream;
+            SyncLock = waveOutLock;
 
+            BufferHandle = GCHandle.Alloc(Buffer, GCHandleType.Pinned);
             header = new WaveHeader();
-            headerHandle = GCHandle.Alloc(header, GCHandleType.Pinned);
-            header.DataBuffer = bufferHandle.AddrOfPinnedObject();
+            HeaderHandle = GCHandle.Alloc(header, GCHandleType.Pinned);
+
+            header.DataBuffer = BufferHandle.AddrOfPinnedObject();
             header.BufferLength = bufferSize;
             header.Loops = 1;
-            callbackHandle = GCHandle.Alloc(this);
-            header.UserData = (IntPtr)callbackHandle;
-            lock (waveOutLock)
+            header.UserData = IntPtr.Zero;
+
+            lock (SyncLock)
             {
-                MmException.Try(WaveInterop.NativeMethods.waveOutPrepareHeader(hWaveOut, header, Marshal.SizeOf(header)), "waveOutPrepareHeader");
+                MmException.Try(WaveInterop.NativeMethods.waveOutPrepareHeader(DeviceHandle, header, Marshal.SizeOf(header)),
+                    nameof(WaveInterop.NativeMethods.waveOutPrepareHeader));
             }
         }
 
@@ -53,24 +54,18 @@
         ~WaveOutBuffer()
         {
             Dispose(false);
-            System.Diagnostics.Debug.Assert(true, "WaveBuffer was not disposed");
+            System.Diagnostics.Debug.Assert(true, $"{nameof(WaveOutBuffer)} was not disposed");
         }
 
         /// <summary>
         /// Whether the header's in queue flag is set
         /// </summary>
-        public bool InQueue
-        {
-            get
-            {
-                return (header.Flags & WaveHeaderFlags.InQueue) == WaveHeaderFlags.InQueue;
-            }
-        }
+        public bool InQueue => header.Flags.HasFlag(WaveHeaderFlags.InQueue);
 
         /// <summary>
         /// The buffer size in bytes
         /// </summary>
-        public int BufferSize => bufferSize;
+        public int BufferSize { get; }
 
         /// <summary>
         /// Releases resources held by this WaveBuffer
@@ -83,22 +78,22 @@
 
         /// <summary>
         /// this is called by the Wave callback and should be used to refill the buffer.
-        /// This calls the .Read method on the stream
+        /// This calls the <see cref="IWaveProvider.Read(byte[], int, int)"/> method on the stream
         /// </summary>
         /// <returns>true when bytes were written. False if no bytes were written.</returns>
         internal bool OnDone()
         {
             int bytes;
-            lock (waveStream)
+            lock (WaveStream)
             {
-                bytes = waveStream.Read(buffer, 0, buffer.Length);
+                bytes = WaveStream.Read(Buffer, 0, Buffer.Length);
             }
 
             if (bytes == 0)
                 return false;
 
-            for (int n = bytes; n < buffer.Length; n++)
-                buffer[n] = 0;
+            for (int n = bytes; n < Buffer.Length; n++)
+                Buffer[n] = 0;
 
             WriteToWaveOut();
             return true;
@@ -115,18 +110,16 @@
                 // free managed resources
             }
 
-            if (headerHandle.IsAllocated)
-                headerHandle.Free();
-            if (bufferHandle.IsAllocated)
-                bufferHandle.Free();
-            if (callbackHandle.IsAllocated)
-                callbackHandle.Free();
-            if (waveOutPtr != IntPtr.Zero)
+            if (HeaderHandle.IsAllocated)
+                HeaderHandle.Free();
+            if (BufferHandle.IsAllocated)
+                BufferHandle.Free();
+            if (DeviceHandle != IntPtr.Zero)
             {
-                lock (waveOutLock)
-                    WaveInterop.NativeMethods.waveOutUnprepareHeader(waveOutPtr, header, Marshal.SizeOf(header));
+                lock (SyncLock)
+                    WaveInterop.NativeMethods.waveOutUnprepareHeader(DeviceHandle, header, Marshal.SizeOf(header));
 
-                waveOutPtr = IntPtr.Zero;
+                DeviceHandle = IntPtr.Zero;
             }
         }
 
@@ -138,8 +131,8 @@
         {
             MmResult result;
 
-            lock (waveOutLock)
-                result = WaveInterop.NativeMethods.waveOutWrite(waveOutPtr, header, Marshal.SizeOf(header));
+            lock (SyncLock)
+                result = WaveInterop.NativeMethods.waveOutWrite(DeviceHandle, header, Marshal.SizeOf(header));
 
             if (result != MmResult.NoError)
             {

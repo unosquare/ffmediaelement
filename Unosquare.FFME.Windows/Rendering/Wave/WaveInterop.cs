@@ -133,77 +133,9 @@ namespace Unosquare.FFME.Rendering.Wave
             [DllImport(WinMM)]
             public static extern MmResult waveOutGetPosition(IntPtr hWaveOut, out MmTime mmTime, int uSize);
 
-            // http://msdn.microsoft.com/en-us/library/dd743874%28VS.85%29.aspx
-            [DllImport(WinMM)]
-            public static extern MmResult waveOutSetVolume(IntPtr hWaveOut, int dwVolume);
-
-            [DllImport(WinMM)]
-            public static extern MmResult waveOutSetPitch(IntPtr hWaveOut, int dwPitch);
-
-            [DllImport(WinMM)]
-            public static extern MmResult waveOutSetPlaybackRate(IntPtr hWaveOut, int dwRate);
-
-            [DllImport(WinMM)]
-            public static extern MmResult waveOutGetVolume(IntPtr hWaveOut, out int dwVolume);
-
             // http://msdn.microsoft.com/en-us/library/dd743857%28VS.85%29.aspx
             [DllImport(WinMM, CharSet = CharSet.Auto)]
             public static extern MmResult waveOutGetDevCaps(IntPtr deviceID, out WaveOutCapabilities waveOutCaps, int waveOutCapsSize);
-        }
-    }
-
-    /// <summary>
-    /// A wrapper class for MmException.
-    /// </summary>
-    [Serializable]
-    internal class MmException : Exception
-    {
-        private MmResult result;
-        private string function;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MmException"/> class.
-        /// </summary>
-        /// <param name="result">The result returned by the Windows API call</param>
-        /// <param name="function">The name of the Windows API that failed</param>
-        public MmException(MmResult result, string function)
-            : base(ErrorMessage(result, function))
-        {
-            this.result = result;
-            this.function = function;
-        }
-
-        /// <summary>
-        /// Returns the Windows API result
-        /// </summary>
-        public MmResult Result
-        {
-            get
-            {
-                return result;
-            }
-        }
-
-        /// <summary>
-        /// Helper function to automatically raise an exception on failure
-        /// </summary>
-        /// <param name="result">The result of the API call</param>
-        /// <param name="function">The API function name</param>
-        public static void Try(MmResult result, string function)
-        {
-            if (result != MmResult.NoError)
-                throw new MmException(result, function);
-        }
-
-        /// <summary>
-        /// Creates an error message base don an erro result.
-        /// </summary>
-        /// <param name="result">The result.</param>
-        /// <param name="function">The function.</param>
-        /// <returns>A descriptive rror message</returns>
-        private static string ErrorMessage(MmResult result, string function)
-        {
-            return string.Format("{0} calling {1}", result, function);
         }
     }
 }
