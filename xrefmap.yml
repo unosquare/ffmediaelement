@@ -2544,6 +2544,45 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.Rendering.RendererOptions.AudioDisableSync
   nameWithType: RendererOptions.AudioDisableSync
+- uid: Unosquare.FFME.Rendering.RendererOptions.DirectSoundDeviceId
+  name: DirectSoundDeviceId
+  href: api/Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_DirectSoundDeviceId
+  commentId: P:Unosquare.FFME.Rendering.RendererOptions.DirectSoundDeviceId
+  fullName: Unosquare.FFME.Rendering.RendererOptions.DirectSoundDeviceId
+  nameWithType: RendererOptions.DirectSoundDeviceId
+- uid: Unosquare.FFME.Rendering.RendererOptions.DirectSoundDeviceId*
+  name: DirectSoundDeviceId
+  href: api/Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_DirectSoundDeviceId_
+  commentId: Overload:Unosquare.FFME.Rendering.RendererOptions.DirectSoundDeviceId
+  isSpec: "True"
+  fullName: Unosquare.FFME.Rendering.RendererOptions.DirectSoundDeviceId
+  nameWithType: RendererOptions.DirectSoundDeviceId
+- uid: Unosquare.FFME.Rendering.RendererOptions.LegacyWaveDeviceId
+  name: LegacyWaveDeviceId
+  href: api/Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_LegacyWaveDeviceId
+  commentId: P:Unosquare.FFME.Rendering.RendererOptions.LegacyWaveDeviceId
+  fullName: Unosquare.FFME.Rendering.RendererOptions.LegacyWaveDeviceId
+  nameWithType: RendererOptions.LegacyWaveDeviceId
+- uid: Unosquare.FFME.Rendering.RendererOptions.LegacyWaveDeviceId*
+  name: LegacyWaveDeviceId
+  href: api/Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_LegacyWaveDeviceId_
+  commentId: Overload:Unosquare.FFME.Rendering.RendererOptions.LegacyWaveDeviceId
+  isSpec: "True"
+  fullName: Unosquare.FFME.Rendering.RendererOptions.LegacyWaveDeviceId
+  nameWithType: RendererOptions.LegacyWaveDeviceId
+- uid: Unosquare.FFME.Rendering.RendererOptions.UseLegacyWaveOut
+  name: UseLegacyWaveOut
+  href: api/Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_UseLegacyWaveOut
+  commentId: P:Unosquare.FFME.Rendering.RendererOptions.UseLegacyWaveOut
+  fullName: Unosquare.FFME.Rendering.RendererOptions.UseLegacyWaveOut
+  nameWithType: RendererOptions.UseLegacyWaveOut
+- uid: Unosquare.FFME.Rendering.RendererOptions.UseLegacyWaveOut*
+  name: UseLegacyWaveOut
+  href: api/Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_UseLegacyWaveOut_
+  commentId: Overload:Unosquare.FFME.Rendering.RendererOptions.UseLegacyWaveOut
+  isSpec: "True"
+  fullName: Unosquare.FFME.Rendering.RendererOptions.UseLegacyWaveOut
+  nameWithType: RendererOptions.UseLegacyWaveOut
 - uid: Unosquare.FFME.Subtitles
   name: Subtitles
   href: api/Unosquare.FFME.Subtitles.html

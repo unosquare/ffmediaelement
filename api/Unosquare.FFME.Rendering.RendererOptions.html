@@ -148,6 +148,87 @@ synchronize to video.</p>
       </tr>
     </tbody>
   </table>
+  
+  
+  <a id="Unosquare_FFME_Rendering_RendererOptions_DirectSoundDeviceId_" data-uid="Unosquare.FFME.Rendering.RendererOptions.DirectSoundDeviceId*"></a>
+  <h4 id="Unosquare_FFME_Rendering_RendererOptions_DirectSoundDeviceId" data-uid="Unosquare.FFME.Rendering.RendererOptions.DirectSoundDeviceId">DirectSoundDeviceId</h4>
+  <div class="markdown level1 summary"><p>Gets or sets the DirectSound device identifier. It is the default playback device by default.
+Only valid if <a class="xref" href="Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_UseLegacyWaveOut">UseLegacyWaveOut</a> is set to false which is the default.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Guid DirectSoundDeviceId { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Guid</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_Rendering_RendererOptions_LegacyWaveDeviceId_" data-uid="Unosquare.FFME.Rendering.RendererOptions.LegacyWaveDeviceId*"></a>
+  <h4 id="Unosquare_FFME_Rendering_RendererOptions_LegacyWaveDeviceId" data-uid="Unosquare.FFME.Rendering.RendererOptions.LegacyWaveDeviceId">LegacyWaveDeviceId</h4>
+  <div class="markdown level1 summary"><p>Gets or sets the wave device identifier. -1 is the default playback device.
+Only valid if <a class="xref" href="Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_UseLegacyWaveOut">UseLegacyWaveOut</a> is set to true.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int LegacyWaveDeviceId { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_Rendering_RendererOptions_UseLegacyWaveOut_" data-uid="Unosquare.FFME.Rendering.RendererOptions.UseLegacyWaveOut*"></a>
+  <h4 id="Unosquare_FFME_Rendering_RendererOptions_UseLegacyWaveOut" data-uid="Unosquare.FFME.Rendering.RendererOptions.UseLegacyWaveOut">UseLegacyWaveOut</h4>
+  <div class="markdown level1 summary"><p>Gets or sets a value indicating whether the legacy MME (WinMM) should be used
+as an audio output device as opposed to DirectSound. This defaults to false.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool UseLegacyWaveOut { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
 
 <h3>Comments</h3>
 <div id="disqus_thread"></div>
