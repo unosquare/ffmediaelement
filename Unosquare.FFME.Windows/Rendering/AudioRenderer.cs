@@ -390,9 +390,9 @@
                 };
             }
 
-            AudioDevice = MediaElement.RendererOptions.UseLegacyWaveOut ?
-                new LegacyWavePlayer(this, MediaElement.RendererOptions.LegacyWaveDeviceId) as IWavePlayer :
-                new DirectSoundPlayer(this, MediaElement.RendererOptions.DirectSoundDeviceId);
+            AudioDevice = MediaElement.RendererOptions.UseLegacyAudioOut ?
+                new LegacyAudioPlayer(this, MediaElement.RendererOptions.LegacyAudioDevice?.DeviceId ?? -1) as IWavePlayer :
+                new DirectSoundPlayer(this, MediaElement.RendererOptions.DirectSoundDevice?.DeviceId ?? DirectSoundPlayer.DefaultPlaybackDeviceId);
 
             SampleBlockSize = Constants.Audio.BytesPerSample * Constants.Audio.ChannelCount;
             var bufferLength = WaveFormat.ConvertLatencyToByteSize(AudioDevice.DesiredLatency) * MediaCore.Blocks[MediaType.Audio].Capacity / 2;

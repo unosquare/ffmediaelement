@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.Rendering
+﻿namespace Unosquare.FFME.Rendering.Wave
 {
 #pragma warning disable SA1202 // Elements must be ordered by access
 #pragma warning disable SA1307 // Accessible fields must begin with upper-case letter
@@ -7,14 +7,13 @@
 
     using System;
     using System.Runtime.InteropServices;
-    using Wave;
 
     /// <summary>
     /// WaveOutCapabilities structure (based on WAVEOUTCAPS2 from mmsystem.h)
     /// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/multimed/htm/_win32_waveoutcaps_str.asp
     /// </summary>
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-    public struct LegacyWaveDeviceInfo
+    internal struct LegacyAudioDeviceInfo
     {
         private const int MaxProductNameLength = 32;
 

@@ -27,7 +27,9 @@
         private static List<DirectSoundDeviceInfo> EnumeratedDevices;
 
         private readonly object SyncLock = new object();
+        private readonly SynchronizationContext SyncContext;
         private WaveFormat WaveFormat;
+        private long BytesPlayedCount;
         private int SamplesTotalSize;
         private int SamplesFrameSize;
         private int NextSamplesWriteIndex;
@@ -40,9 +42,7 @@
         private EventWaitHandle FrameEventWaitHandle1;
         private EventWaitHandle FrameEventWaitHandle2;
         private EventWaitHandle EndEventWaitHandle;
-        private Thread NotifyThread;
-        private SynchronizationContext SyncContext;
-        private long BytesPlayedCount;
+        private Thread PlaybackThread;
 
         #endregion
 
@@ -157,7 +157,7 @@
         /// Gets the DirectSound output devices in the system
         /// </summary>
         /// <returns>The available DirectSound devices</returns>
-        public static IEnumerable<DirectSoundDeviceInfo> EnumerateDevices()
+        public static List<DirectSoundDeviceInfo> EnumerateDevices()
         {
             lock (DevicesEnumLock)
             {
@@ -185,14 +185,14 @@
             if (PlaybackState == PlaybackState.Stopped)
             {
                 // Thread that processes samples
-                NotifyThread = new Thread(new ThreadStart(PerformContinuousPlayback))
+                PlaybackThread = new Thread(new ThreadStart(PerformContinuousPlayback))
                 {
                     // put this back to highest when we are confident we don't have any bugs in the thread proc
                     Priority = ThreadPriority.AboveNormal,
                     IsBackground = true
                 };
 
-                NotifyThread.Start();
+                PlaybackThread.Start();
             }
 
             lock (SyncLock)
@@ -215,10 +215,10 @@
             else
             {
                 // No joy - abort the thread!
-                if (NotifyThread != null)
+                if (PlaybackThread != null)
                 {
-                    NotifyThread.Abort();
-                    NotifyThread = null;
+                    PlaybackThread.Abort();
+                    PlaybackThread = null;
                 }
             }
         }
@@ -334,7 +334,7 @@
                     DirectSoundDriver.CreateSoundBuffer(bufferDesc, out object soundBufferObj, IntPtr.Zero);
                     PrimarySoundBuffer = (DirectSound.IDirectSoundBuffer)soundBufferObj;
 
-                    // Play & Loop on the PrimarySound Buffer 
+                    // Play & Loop on the PrimarySound Buffer
                     PrimarySoundBuffer.Play(0, 0, DirectSound.DirectSoundPlayFlags.DSBPLAY_LOOPING);
 
                     // -------------------------------------------------------------------------------------
@@ -372,7 +372,7 @@
                     NextSamplesWriteIndex = 0;
                     SamplesTotalSize = dsbCaps.BufferBytes;
                     Samples = new byte[SamplesTotalSize];
-                    System.Diagnostics.Debug.Assert(SamplesTotalSize == (2 * SamplesFrameSize), "Invalid SamplesTotalSize vs SamplesFrameSize");
+                    Debug.Assert(SamplesTotalSize == (2 * SamplesFrameSize), "Invalid SamplesTotalSize vs SamplesFrameSize");
 
                     // -------------------------------------------------------------------------------------
                     // Create double buffering notification.

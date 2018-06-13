@@ -10,7 +10,7 @@
     /// A wave player that opens an audio device and continuously feeds it
     /// with audio samples using a wave provider.
     /// </summary>
-    internal sealed class LegacyWavePlayer : IWavePlayer
+    internal sealed class LegacyAudioPlayer : IWavePlayer
     {
         #region State Variables
 
@@ -30,11 +30,11 @@
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LegacyWavePlayer" /> class.
+        /// Initializes a new instance of the <see cref="LegacyAudioPlayer" /> class.
         /// </summary>
         /// <param name="renderer">The renderer.</param>
         /// <param name="deviceNumber">The device number.</param>
-        public LegacyWavePlayer(AudioRenderer renderer, int deviceNumber)
+        public LegacyAudioPlayer(AudioRenderer renderer, int deviceNumber)
         {
             // Initialize the default values
             Renderer = renderer;
@@ -44,13 +44,13 @@
         }
 
         /// <summary>
-        /// Finalizes an instance of the <see cref="LegacyWavePlayer"/> class.
+        /// Finalizes an instance of the <see cref="LegacyAudioPlayer"/> class.
         /// </summary>
-        ~LegacyWavePlayer()
+        ~LegacyAudioPlayer()
         {
             Dispose(false);
             Renderer?.MediaCore?.Log(MediaLogMessageType.Error,
-                $"{nameof(LegacyWavePlayer)}.{nameof(Dispose)} was not called. Please ensure you dispose when finished using this object.");
+                $"{nameof(LegacyAudioPlayer)}.{nameof(Dispose)} was not called. Please ensure you dispose when finished using this object.");
         }
 
         #endregion
@@ -91,7 +91,7 @@
                 m_DeviceNumber = value;
                 lock (WaveOutLock)
                 {
-                    WaveInterop.NativeMethods.waveOutGetDevCaps((IntPtr)m_DeviceNumber, out LegacyWaveDeviceInfo caps, Marshal.SizeOf(typeof(LegacyWaveDeviceInfo)));
+                    WaveInterop.NativeMethods.waveOutGetDevCaps((IntPtr)m_DeviceNumber, out LegacyAudioDeviceInfo caps, Marshal.SizeOf(typeof(LegacyAudioDeviceInfo)));
                     Capabilities = caps;
                 }
             }
@@ -110,7 +110,7 @@
         /// <summary>
         /// Gets the capabilities.
         /// </summary>
-        public LegacyWaveDeviceInfo Capabilities { get; private set; }
+        public LegacyAudioDeviceInfo Capabilities { get; private set; }
 
         #endregion
 
@@ -120,15 +120,15 @@
         /// Gets the Windows Multimedia Extensions (MME) devices in the system
         /// </summary>
         /// <returns>The available MME devices</returns>
-        public static IEnumerable<LegacyWaveDeviceInfo> EnumerateDevices()
+        public static List<LegacyAudioDeviceInfo> EnumerateDevices()
         {
             lock (DevicesEnumLock)
             {
-                var devices = new List<LegacyWaveDeviceInfo>(32);
+                var devices = new List<LegacyAudioDeviceInfo>(32);
                 var count = WaveInterop.NativeMethods.waveOutGetNumDevs();
                 for (var i = 0; i < count; i++)
                 {
-                    WaveInterop.NativeMethods.waveOutGetDevCaps((IntPtr)i, out var device, Marshal.SizeOf(typeof(LegacyWaveDeviceInfo)));
+                    WaveInterop.NativeMethods.waveOutGetDevCaps((IntPtr)i, out var device, Marshal.SizeOf(typeof(LegacyAudioDeviceInfo)));
                     devices.Add(device);
                 }
 
@@ -299,7 +299,7 @@
             {
                 // Dispose() and Finalize() methods should not throw exception
                 // WaveInterop.NativeMethods.waveOutReset(DeviceHandle) throws MmException if DeviceHandle is invalid
-                Renderer?.MediaCore?.Log(MediaLogMessageType.Error, $"{nameof(LegacyWavePlayer)} disposing. {e.Message}. Stack Trace:\r\n{e.StackTrace}");
+                Renderer?.MediaCore?.Log(MediaLogMessageType.Error, $"{nameof(LegacyAudioPlayer)} disposing. {e.Message}. Stack Trace:\r\n{e.StackTrace}");
             }
 
             if (alsoManaged)

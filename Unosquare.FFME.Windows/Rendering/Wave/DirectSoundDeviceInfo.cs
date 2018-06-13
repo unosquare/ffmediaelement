@@ -1,11 +1,11 @@
-﻿namespace Unosquare.FFME.Rendering
+﻿namespace Unosquare.FFME.Rendering.Wave
 {
     using System;
 
     /// <summary>
     /// Class for enumerating DirectSound devices
     /// </summary>
-    public class DirectSoundDeviceInfo
+    internal class DirectSoundDeviceInfo
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="DirectSoundDeviceInfo"/> class.

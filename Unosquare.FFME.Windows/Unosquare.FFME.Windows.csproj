@@ -71,6 +71,7 @@
     <Compile Include="Playlists\Playlist.cs" />
     <Compile Include="Playlists\PlaylistEntry.cs" />
     <Compile Include="Playlists\PlaylistExtensions.cs" />
+    <Compile Include="Rendering\AudioDeviceInfo.cs" />
     <Compile Include="Rendering\ClosedCaptionsBuffer.cs" />
     <Compile Include="Rendering\ClosedCaptionsCell.cs" />
     <Compile Include="Rendering\ClosedCaptionsCellState.cs" />
@@ -78,7 +79,7 @@
     <Compile Include="Rendering\ImageHost.cs" />
     <Compile Include="Rendering\ElementHostBase.cs" />
     <Compile Include="Rendering\RendererOptions.cs" />
-    <Compile Include="Rendering\DirectSoundDeviceInfo.cs" />
+    <Compile Include="Rendering\Wave\DirectSoundDeviceInfo.cs" />
     <Compile Include="Rendering\Wave\DirectSoundPlayer.cs" />
     <Compile Include="Rendering\Wave\IWavePlayer.cs" />
     <Compile Include="Rendering\Wave\MmException.cs" />
@@ -102,14 +103,14 @@
     <Compile Include="Rendering\Wave\WaveHeaderFlags.cs" />
     <Compile Include="Rendering\Wave\WaveInterop.cs" />
     <Compile Include="Rendering\Wave\WaveOutBuffer.cs" />
-    <Compile Include="Rendering\LegacyWaveDeviceInfo.cs" />
+    <Compile Include="Rendering\Wave\LegacyAudioDeviceInfo.cs" />
     <Compile Include="MediaElement.cs" />
     <Compile Include="MediaElement.DependencyProperties.cs" />
     <Compile Include="MediaElement.MediaProperties.cs" />
     <Compile Include="MediaElement.RoutedEvents.cs" />
     <Compile Include="Events\MediaOpeningRoutedEventArgs.cs" />
     <Compile Include="Rendering\Wave\WaveOutSupport.cs" />
-    <Compile Include="Rendering\Wave\LegacyWavePlayer.cs" />
+    <Compile Include="Rendering\Wave\LegacyAudioPlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
