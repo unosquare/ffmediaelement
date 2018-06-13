@@ -14,7 +14,7 @@
     /// </summary>
     internal sealed class DirectSoundPlayer : IWavePlayer
     {
-        // TODO: Make device enumeration accessible; log/bubble errors to renderer/MediaElement
+        // TODO: log/bubble errors to renderer/MediaElement
         #region Fields
 
         /// <summary>
@@ -116,22 +116,6 @@
         #region Properties
 
         /// <summary>
-        /// Gets the DirectSound output devices in the system
-        /// </summary>
-        public static IEnumerable<DirectSoundDeviceInfo> Devices
-        {
-            get
-            {
-                lock (DevicesEnumLock)
-                {
-                    EnumeratedDevices = new List<DirectSoundDeviceInfo>(32);
-                    NativeMethods.DirectSoundEnumerateA(new DirectSound.EnumerateDevicesDelegate(EnumerateDevicesCallback), IntPtr.Zero);
-                    return EnumeratedDevices;
-                }
-            }
-        }
-
-        /// <summary>
         /// Gets the renderer that owns this wave player.
         /// </summary>
         public AudioRenderer Renderer { get; }
@@ -170,6 +154,20 @@
         #region Public Methods
 
         /// <summary>
+        /// Gets the DirectSound output devices in the system
+        /// </summary>
+        /// <returns>The available DirectSound devices</returns>
+        public static IEnumerable<DirectSoundDeviceInfo> EnumerateDevices()
+        {
+            lock (DevicesEnumLock)
+            {
+                EnumeratedDevices = new List<DirectSoundDeviceInfo>(32);
+                NativeMethods.DirectSoundEnumerateA(new DirectSound.EnumerateDevicesDelegate(EnumerateDevicesCallback), IntPtr.Zero);
+                return EnumeratedDevices;
+            }
+        }
+
+        /// <summary>
         /// Initialise playback
         /// </summary>
         /// <param name="waveProvider">The waveprovider to be played</param>
@@ -187,10 +185,10 @@
             if (PlaybackState == PlaybackState.Stopped)
             {
                 // Thread that processes samples
-                NotifyThread = new Thread(new ThreadStart(PlaybackThreadFunc))
+                NotifyThread = new Thread(new ThreadStart(PerformContinuousPlayback))
                 {
                     // put this back to highest when we are confident we don't have any bugs in the thread proc
-                    Priority = ThreadPriority.Normal,
+                    Priority = ThreadPriority.AboveNormal,
                     IsBackground = true
                 };
 
@@ -274,6 +272,14 @@
 
         #region Helper Methods
 
+        /// <summary>
+        /// Enumerates the devices.
+        /// </summary>
+        /// <param name="lpGuid">The lp unique identifier.</param>
+        /// <param name="lpcstrDescription">The LPCSTR description.</param>
+        /// <param name="lpcstrModule">The LPCSTR module.</param>
+        /// <param name="lpContext">The lp context.</param>
+        /// <returns>The devices</returns>
         private static bool EnumerateDevicesCallback(IntPtr lpGuid, IntPtr lpcstrDescription, IntPtr lpcstrModule, IntPtr lpContext)
         {
             var device = new DirectSoundDeviceInfo();
@@ -428,7 +434,7 @@
         /// <summary>
         /// Processes the samples in a separate thread.
         /// </summary>
-        private void PlaybackThreadFunc()
+        private void PerformContinuousPlayback()
         {
             // Used to determine if playback is halted
             var loopPlaybackHalted = false;
@@ -676,7 +682,7 @@
 
             return bytesRead;
         }
-        
+
         #endregion
 
         #region Native DirectSound COM Interface

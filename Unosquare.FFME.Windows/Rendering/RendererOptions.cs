@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME.Rendering
 {
     using System;
+    using System.Collections.Generic;
     using Wave;
 
     /// <summary>
@@ -31,5 +32,19 @@
         /// as an audio output device as opposed to DirectSound. This defaults to false.
         /// </summary>
         public bool UseLegacyWaveOut { get; set; } = false;
+
+        /// <summary>
+        /// Enumerates the DirectSound devices.
+        /// </summary>
+        /// <returns>The available DirectSound devices</returns>
+        public IEnumerable<DirectSoundDeviceInfo> EnumerateDirectSoundDevices() =>
+            DirectSoundPlayer.EnumerateDevices();
+
+        /// <summary>
+        /// Enumerates the (Legacy) Windows Multimedia Extensions devices.
+        /// </summary>
+        /// <returns>The available MME devices</returns>
+        public IEnumerable<LegacyWaveDeviceInfo> EnumerateLegacyAudioDevices() =>
+            LegacyWavePlayer.EnumerateDevices();
     }
 }

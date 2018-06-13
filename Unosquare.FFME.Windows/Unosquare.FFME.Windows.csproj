@@ -78,7 +78,7 @@
     <Compile Include="Rendering\ImageHost.cs" />
     <Compile Include="Rendering\ElementHostBase.cs" />
     <Compile Include="Rendering\RendererOptions.cs" />
-    <Compile Include="Rendering\Wave\DirectSoundDeviceInfo.cs" />
+    <Compile Include="Rendering\DirectSoundDeviceInfo.cs" />
     <Compile Include="Rendering\Wave\DirectSoundPlayer.cs" />
     <Compile Include="Rendering\Wave\IWavePlayer.cs" />
     <Compile Include="Rendering\Wave\MmException.cs" />
@@ -102,7 +102,7 @@
     <Compile Include="Rendering\Wave\WaveHeaderFlags.cs" />
     <Compile Include="Rendering\Wave\WaveInterop.cs" />
     <Compile Include="Rendering\Wave\WaveOutBuffer.cs" />
-    <Compile Include="Rendering\Wave\WaveOutCapabilities.cs" />
+    <Compile Include="Rendering\LegacyWaveDeviceInfo.cs" />
     <Compile Include="MediaElement.cs" />
     <Compile Include="MediaElement.DependencyProperties.cs" />
     <Compile Include="MediaElement.MediaProperties.cs" />

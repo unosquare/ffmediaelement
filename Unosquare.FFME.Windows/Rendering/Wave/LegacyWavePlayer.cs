@@ -2,6 +2,7 @@
 {
     using Shared;
     using System;
+    using System.Collections.Generic;
     using System.Runtime.InteropServices;
     using System.Threading;
 
@@ -13,6 +14,7 @@
     {
         #region State Variables
 
+        private static readonly object DevicesEnumLock = new object();
         private readonly object WaveOutLock = new object();
         private IntPtr DeviceHandle;
         private WaveOutBuffer[] Buffers;
@@ -89,7 +91,7 @@
                 m_DeviceNumber = value;
                 lock (WaveOutLock)
                 {
-                    WaveInterop.NativeMethods.waveOutGetDevCaps((IntPtr)m_DeviceNumber, out WaveOutCapabilities caps, Marshal.SizeOf(typeof(WaveOutCapabilities)));
+                    WaveInterop.NativeMethods.waveOutGetDevCaps((IntPtr)m_DeviceNumber, out LegacyWaveDeviceInfo caps, Marshal.SizeOf(typeof(LegacyWaveDeviceInfo)));
                     Capabilities = caps;
                 }
             }
@@ -98,27 +100,41 @@
         /// <summary>
         /// Gets a <see cref="WaveFormat"/> instance indicating the format the hardware is using.
         /// </summary>
-        public WaveFormat OutputWaveFormat
-        {
-            get { return WaveStream.WaveFormat; }
-        }
+        public WaveFormat OutputWaveFormat => WaveStream.WaveFormat;
 
         /// <summary>
         /// Playback State
         /// </summary>
-        public PlaybackState PlaybackState
-        {
-            get { return m_PlaybackState; }
-        }
+        public PlaybackState PlaybackState => m_PlaybackState;
 
         /// <summary>
         /// Gets the capabilities.
         /// </summary>
-        public WaveOutCapabilities Capabilities { get; private set; }
+        public LegacyWaveDeviceInfo Capabilities { get; private set; }
 
         #endregion
 
         #region Public API
+
+        /// <summary>
+        /// Gets the Windows Multimedia Extensions (MME) devices in the system
+        /// </summary>
+        /// <returns>The available MME devices</returns>
+        public static IEnumerable<LegacyWaveDeviceInfo> EnumerateDevices()
+        {
+            lock (DevicesEnumLock)
+            {
+                var devices = new List<LegacyWaveDeviceInfo>(32);
+                var count = WaveInterop.NativeMethods.waveOutGetNumDevs();
+                for (var i = 0; i < count; i++)
+                {
+                    WaveInterop.NativeMethods.waveOutGetDevCaps((IntPtr)i, out var device, Marshal.SizeOf(typeof(LegacyWaveDeviceInfo)));
+                    devices.Add(device);
+                }
+
+                return devices;
+            }
+        }
 
         /// <summary>
         /// Initializes the specified wave provider.
