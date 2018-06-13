@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Class RendererOptions
    | FFME: WPF MediaElement replacement based on FFmpeg ">
-    <meta name="generator" content="docfx 2.36.1.0">
+    <meta name="generator" content="docfx 2.36.2.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -119,6 +119,58 @@
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public sealed class RendererOptions</code></pre>
   </div>
+  <h3 id="fields">Fields
+  </h3>
+  
+  
+  <h4 id="Unosquare_FFME_Rendering_RendererOptions_DefaultDirectSoundDevice" data-uid="Unosquare.FFME.Rendering.RendererOptions.DefaultDirectSoundDevice">DefaultDirectSoundDevice</h4>
+  <div class="markdown level1 summary"><p>The default DirectSound device</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly AudioDeviceInfo&lt;Guid&gt; DefaultDirectSoundDevice</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Unosquare.FFME.Rendering.AudioDeviceInfo-1.html">AudioDeviceInfo</a>&lt;<span class="xref">System.Guid</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_Rendering_RendererOptions_DefaultLegacyAudioDevice" data-uid="Unosquare.FFME.Rendering.RendererOptions.DefaultLegacyAudioDevice">DefaultLegacyAudioDevice</h4>
+  <div class="markdown level1 summary"><p>The default Windows MME Legacy Audio Device</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly AudioDeviceInfo&lt;int&gt; DefaultLegacyAudioDevice</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="Unosquare.FFME.Rendering.AudioDeviceInfo-1.html">AudioDeviceInfo</a>&lt;<span class="xref">System.Int32</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
   <h3 id="properties">Properties
   </h3>
   
@@ -150,15 +202,15 @@ synchronize to video.</p>
   </table>
   
   
-  <a id="Unosquare_FFME_Rendering_RendererOptions_DirectSoundDeviceId_" data-uid="Unosquare.FFME.Rendering.RendererOptions.DirectSoundDeviceId*"></a>
-  <h4 id="Unosquare_FFME_Rendering_RendererOptions_DirectSoundDeviceId" data-uid="Unosquare.FFME.Rendering.RendererOptions.DirectSoundDeviceId">DirectSoundDeviceId</h4>
+  <a id="Unosquare_FFME_Rendering_RendererOptions_DirectSoundDevice_" data-uid="Unosquare.FFME.Rendering.RendererOptions.DirectSoundDevice*"></a>
+  <h4 id="Unosquare_FFME_Rendering_RendererOptions_DirectSoundDevice" data-uid="Unosquare.FFME.Rendering.RendererOptions.DirectSoundDevice">DirectSoundDevice</h4>
   <div class="markdown level1 summary"><p>Gets or sets the DirectSound device identifier. It is the default playback device by default.
-Only valid if <a class="xref" href="Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_UseLegacyWaveOut">UseLegacyWaveOut</a> is set to false which is the default.</p>
+Only valid if <a class="xref" href="Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_UseLegacyAudioOut">UseLegacyAudioOut</a> is set to false which is the default.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Guid DirectSoundDeviceId { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public AudioDeviceInfo&lt;Guid&gt; DirectSoundDevice { get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -170,22 +222,22 @@ Only valid if <a class="xref" href="Unosquare.FFME.Rendering.RendererOptions.htm
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.Guid</span></td>
+        <td><a class="xref" href="Unosquare.FFME.Rendering.AudioDeviceInfo-1.html">AudioDeviceInfo</a>&lt;<span class="xref">System.Guid</span>&gt;</td>
         <td></td>
       </tr>
     </tbody>
   </table>
   
   
-  <a id="Unosquare_FFME_Rendering_RendererOptions_LegacyWaveDeviceId_" data-uid="Unosquare.FFME.Rendering.RendererOptions.LegacyWaveDeviceId*"></a>
-  <h4 id="Unosquare_FFME_Rendering_RendererOptions_LegacyWaveDeviceId" data-uid="Unosquare.FFME.Rendering.RendererOptions.LegacyWaveDeviceId">LegacyWaveDeviceId</h4>
+  <a id="Unosquare_FFME_Rendering_RendererOptions_LegacyAudioDevice_" data-uid="Unosquare.FFME.Rendering.RendererOptions.LegacyAudioDevice*"></a>
+  <h4 id="Unosquare_FFME_Rendering_RendererOptions_LegacyAudioDevice" data-uid="Unosquare.FFME.Rendering.RendererOptions.LegacyAudioDevice">LegacyAudioDevice</h4>
   <div class="markdown level1 summary"><p>Gets or sets the wave device identifier. -1 is the default playback device.
-Only valid if <a class="xref" href="Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_UseLegacyWaveOut">UseLegacyWaveOut</a> is set to true.</p>
+Only valid if <a class="xref" href="Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_UseLegacyAudioOut">UseLegacyAudioOut</a> is set to true.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int LegacyWaveDeviceId { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public AudioDeviceInfo&lt;int&gt; LegacyAudioDevice { get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -197,22 +249,22 @@ Only valid if <a class="xref" href="Unosquare.FFME.Rendering.RendererOptions.htm
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.Int32</span></td>
+        <td><a class="xref" href="Unosquare.FFME.Rendering.AudioDeviceInfo-1.html">AudioDeviceInfo</a>&lt;<span class="xref">System.Int32</span>&gt;</td>
         <td></td>
       </tr>
     </tbody>
   </table>
   
   
-  <a id="Unosquare_FFME_Rendering_RendererOptions_UseLegacyWaveOut_" data-uid="Unosquare.FFME.Rendering.RendererOptions.UseLegacyWaveOut*"></a>
-  <h4 id="Unosquare_FFME_Rendering_RendererOptions_UseLegacyWaveOut" data-uid="Unosquare.FFME.Rendering.RendererOptions.UseLegacyWaveOut">UseLegacyWaveOut</h4>
+  <a id="Unosquare_FFME_Rendering_RendererOptions_UseLegacyAudioOut_" data-uid="Unosquare.FFME.Rendering.RendererOptions.UseLegacyAudioOut*"></a>
+  <h4 id="Unosquare_FFME_Rendering_RendererOptions_UseLegacyAudioOut" data-uid="Unosquare.FFME.Rendering.RendererOptions.UseLegacyAudioOut">UseLegacyAudioOut</h4>
   <div class="markdown level1 summary"><p>Gets or sets a value indicating whether the legacy MME (WinMM) should be used
 as an audio output device as opposed to DirectSound. This defaults to false.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool UseLegacyWaveOut { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public bool UseLegacyAudioOut { get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -240,7 +292,7 @@ as an audio output device as opposed to DirectSound. This defaults to false.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IEnumerable&lt;DirectSoundDeviceInfo&gt; EnumerateDirectSoundDevices()</code></pre>
+    <pre><code class="lang-csharp hljs">public List&lt;AudioDeviceInfo&lt;Guid&gt;&gt; EnumerateDirectSoundDevices()</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -252,7 +304,7 @@ as an audio output device as opposed to DirectSound. This defaults to false.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="Unosquare.FFME.Rendering.DirectSoundDeviceInfo.html">DirectSoundDeviceInfo</a>&gt;</td>
+        <td><span class="xref">System.Collections.Generic.List</span>&lt;<a class="xref" href="Unosquare.FFME.Rendering.AudioDeviceInfo-1.html">AudioDeviceInfo</a>&lt;<span class="xref">System.Guid</span>&gt;&gt;</td>
         <td><p>The available DirectSound devices</p>
 </td>
       </tr>
@@ -267,7 +319,7 @@ as an audio output device as opposed to DirectSound. This defaults to false.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IEnumerable&lt;LegacyWaveDeviceInfo&gt; EnumerateLegacyAudioDevices()</code></pre>
+    <pre><code class="lang-csharp hljs">public List&lt;AudioDeviceInfo&lt;int&gt;&gt; EnumerateLegacyAudioDevices()</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -279,7 +331,7 @@ as an audio output device as opposed to DirectSound. This defaults to false.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.html">LegacyWaveDeviceInfo</a>&gt;</td>
+        <td><span class="xref">System.Collections.Generic.List</span>&lt;<a class="xref" href="Unosquare.FFME.Rendering.AudioDeviceInfo-1.html">AudioDeviceInfo</a>&lt;<span class="xref">System.Int32</span>&gt;&gt;</td>
         <td><p>The available MME devices</p>
 </td>
       </tr>

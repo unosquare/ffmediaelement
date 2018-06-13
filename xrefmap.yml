@@ -2525,200 +2525,117 @@ references:
   commentId: N:Unosquare.FFME.Rendering
   fullName: Unosquare.FFME.Rendering
   nameWithType: Unosquare.FFME.Rendering
-- uid: Unosquare.FFME.Rendering.DirectSoundDeviceInfo
-  name: DirectSoundDeviceInfo
-  href: api/Unosquare.FFME.Rendering.DirectSoundDeviceInfo.html
-  commentId: T:Unosquare.FFME.Rendering.DirectSoundDeviceInfo
-  fullName: Unosquare.FFME.Rendering.DirectSoundDeviceInfo
-  nameWithType: DirectSoundDeviceInfo
-- uid: Unosquare.FFME.Rendering.DirectSoundDeviceInfo.Description
-  name: Description
-  href: api/Unosquare.FFME.Rendering.DirectSoundDeviceInfo.html#Unosquare_FFME_Rendering_DirectSoundDeviceInfo_Description
-  commentId: P:Unosquare.FFME.Rendering.DirectSoundDeviceInfo.Description
-  fullName: Unosquare.FFME.Rendering.DirectSoundDeviceInfo.Description
-  nameWithType: DirectSoundDeviceInfo.Description
-- uid: Unosquare.FFME.Rendering.DirectSoundDeviceInfo.Description*
-  name: Description
-  href: api/Unosquare.FFME.Rendering.DirectSoundDeviceInfo.html#Unosquare_FFME_Rendering_DirectSoundDeviceInfo_Description_
-  commentId: Overload:Unosquare.FFME.Rendering.DirectSoundDeviceInfo.Description
+- uid: Unosquare.FFME.Rendering.AudioDeviceInfo`1
+  name: AudioDeviceInfo<T>
+  href: api/Unosquare.FFME.Rendering.AudioDeviceInfo-1.html
+  commentId: T:Unosquare.FFME.Rendering.AudioDeviceInfo`1
+  name.vb: AudioDeviceInfo(Of T)
+  fullName: Unosquare.FFME.Rendering.AudioDeviceInfo<T>
+  fullName.vb: Unosquare.FFME.Rendering.AudioDeviceInfo(Of T)
+  nameWithType: AudioDeviceInfo<T>
+  nameWithType.vb: AudioDeviceInfo(Of T)
+- uid: Unosquare.FFME.Rendering.AudioDeviceInfo`1.DeviceId
+  name: DeviceId
+  href: api/Unosquare.FFME.Rendering.AudioDeviceInfo-1.html#Unosquare_FFME_Rendering_AudioDeviceInfo_1_DeviceId
+  commentId: P:Unosquare.FFME.Rendering.AudioDeviceInfo`1.DeviceId
+  fullName: Unosquare.FFME.Rendering.AudioDeviceInfo<T>.DeviceId
+  fullName.vb: Unosquare.FFME.Rendering.AudioDeviceInfo(Of T).DeviceId
+  nameWithType: AudioDeviceInfo<T>.DeviceId
+  nameWithType.vb: AudioDeviceInfo(Of T).DeviceId
+- uid: Unosquare.FFME.Rendering.AudioDeviceInfo`1.DeviceId*
+  name: DeviceId
+  href: api/Unosquare.FFME.Rendering.AudioDeviceInfo-1.html#Unosquare_FFME_Rendering_AudioDeviceInfo_1_DeviceId_
+  commentId: Overload:Unosquare.FFME.Rendering.AudioDeviceInfo`1.DeviceId
   isSpec: "True"
-  fullName: Unosquare.FFME.Rendering.DirectSoundDeviceInfo.Description
-  nameWithType: DirectSoundDeviceInfo.Description
-- uid: Unosquare.FFME.Rendering.DirectSoundDeviceInfo.Guid
-  name: Guid
-  href: api/Unosquare.FFME.Rendering.DirectSoundDeviceInfo.html#Unosquare_FFME_Rendering_DirectSoundDeviceInfo_Guid
-  commentId: P:Unosquare.FFME.Rendering.DirectSoundDeviceInfo.Guid
-  fullName: Unosquare.FFME.Rendering.DirectSoundDeviceInfo.Guid
-  nameWithType: DirectSoundDeviceInfo.Guid
-- uid: Unosquare.FFME.Rendering.DirectSoundDeviceInfo.Guid*
-  name: Guid
-  href: api/Unosquare.FFME.Rendering.DirectSoundDeviceInfo.html#Unosquare_FFME_Rendering_DirectSoundDeviceInfo_Guid_
-  commentId: Overload:Unosquare.FFME.Rendering.DirectSoundDeviceInfo.Guid
+  fullName: Unosquare.FFME.Rendering.AudioDeviceInfo<T>.DeviceId
+  fullName.vb: Unosquare.FFME.Rendering.AudioDeviceInfo(Of T).DeviceId
+  nameWithType: AudioDeviceInfo<T>.DeviceId
+  nameWithType.vb: AudioDeviceInfo(Of T).DeviceId
+- uid: Unosquare.FFME.Rendering.AudioDeviceInfo`1.IsDefault
+  name: IsDefault
+  href: api/Unosquare.FFME.Rendering.AudioDeviceInfo-1.html#Unosquare_FFME_Rendering_AudioDeviceInfo_1_IsDefault
+  commentId: P:Unosquare.FFME.Rendering.AudioDeviceInfo`1.IsDefault
+  fullName: Unosquare.FFME.Rendering.AudioDeviceInfo<T>.IsDefault
+  fullName.vb: Unosquare.FFME.Rendering.AudioDeviceInfo(Of T).IsDefault
+  nameWithType: AudioDeviceInfo<T>.IsDefault
+  nameWithType.vb: AudioDeviceInfo(Of T).IsDefault
+- uid: Unosquare.FFME.Rendering.AudioDeviceInfo`1.IsDefault*
+  name: IsDefault
+  href: api/Unosquare.FFME.Rendering.AudioDeviceInfo-1.html#Unosquare_FFME_Rendering_AudioDeviceInfo_1_IsDefault_
+  commentId: Overload:Unosquare.FFME.Rendering.AudioDeviceInfo`1.IsDefault
   isSpec: "True"
-  fullName: Unosquare.FFME.Rendering.DirectSoundDeviceInfo.Guid
-  nameWithType: DirectSoundDeviceInfo.Guid
-- uid: Unosquare.FFME.Rendering.DirectSoundDeviceInfo.ModuleName
-  name: ModuleName
-  href: api/Unosquare.FFME.Rendering.DirectSoundDeviceInfo.html#Unosquare_FFME_Rendering_DirectSoundDeviceInfo_ModuleName
-  commentId: P:Unosquare.FFME.Rendering.DirectSoundDeviceInfo.ModuleName
-  fullName: Unosquare.FFME.Rendering.DirectSoundDeviceInfo.ModuleName
-  nameWithType: DirectSoundDeviceInfo.ModuleName
-- uid: Unosquare.FFME.Rendering.DirectSoundDeviceInfo.ModuleName*
-  name: ModuleName
-  href: api/Unosquare.FFME.Rendering.DirectSoundDeviceInfo.html#Unosquare_FFME_Rendering_DirectSoundDeviceInfo_ModuleName_
-  commentId: Overload:Unosquare.FFME.Rendering.DirectSoundDeviceInfo.ModuleName
+  fullName: Unosquare.FFME.Rendering.AudioDeviceInfo<T>.IsDefault
+  fullName.vb: Unosquare.FFME.Rendering.AudioDeviceInfo(Of T).IsDefault
+  nameWithType: AudioDeviceInfo<T>.IsDefault
+  nameWithType.vb: AudioDeviceInfo(Of T).IsDefault
+- uid: Unosquare.FFME.Rendering.AudioDeviceInfo`1.Name
+  name: Name
+  href: api/Unosquare.FFME.Rendering.AudioDeviceInfo-1.html#Unosquare_FFME_Rendering_AudioDeviceInfo_1_Name
+  commentId: P:Unosquare.FFME.Rendering.AudioDeviceInfo`1.Name
+  fullName: Unosquare.FFME.Rendering.AudioDeviceInfo<T>.Name
+  fullName.vb: Unosquare.FFME.Rendering.AudioDeviceInfo(Of T).Name
+  nameWithType: AudioDeviceInfo<T>.Name
+  nameWithType.vb: AudioDeviceInfo(Of T).Name
+- uid: Unosquare.FFME.Rendering.AudioDeviceInfo`1.Name*
+  name: Name
+  href: api/Unosquare.FFME.Rendering.AudioDeviceInfo-1.html#Unosquare_FFME_Rendering_AudioDeviceInfo_1_Name_
+  commentId: Overload:Unosquare.FFME.Rendering.AudioDeviceInfo`1.Name
   isSpec: "True"
-  fullName: Unosquare.FFME.Rendering.DirectSoundDeviceInfo.ModuleName
-  nameWithType: DirectSoundDeviceInfo.ModuleName
-- uid: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo
-  name: LegacyWaveDeviceInfo
-  href: api/Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.html
-  commentId: T:Unosquare.FFME.Rendering.LegacyWaveDeviceInfo
-  fullName: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo
-  nameWithType: LegacyWaveDeviceInfo
-- uid: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.Channels
-  name: Channels
-  href: api/Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.html#Unosquare_FFME_Rendering_LegacyWaveDeviceInfo_Channels
-  commentId: P:Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.Channels
-  fullName: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.Channels
-  nameWithType: LegacyWaveDeviceInfo.Channels
-- uid: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.Channels*
-  name: Channels
-  href: api/Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.html#Unosquare_FFME_Rendering_LegacyWaveDeviceInfo_Channels_
-  commentId: Overload:Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.Channels
+  fullName: Unosquare.FFME.Rendering.AudioDeviceInfo<T>.Name
+  fullName.vb: Unosquare.FFME.Rendering.AudioDeviceInfo(Of T).Name
+  nameWithType: AudioDeviceInfo<T>.Name
+  nameWithType.vb: AudioDeviceInfo(Of T).Name
+- uid: Unosquare.FFME.Rendering.AudioDeviceInfo`1.Provider
+  name: Provider
+  href: api/Unosquare.FFME.Rendering.AudioDeviceInfo-1.html#Unosquare_FFME_Rendering_AudioDeviceInfo_1_Provider
+  commentId: P:Unosquare.FFME.Rendering.AudioDeviceInfo`1.Provider
+  fullName: Unosquare.FFME.Rendering.AudioDeviceInfo<T>.Provider
+  fullName.vb: Unosquare.FFME.Rendering.AudioDeviceInfo(Of T).Provider
+  nameWithType: AudioDeviceInfo<T>.Provider
+  nameWithType.vb: AudioDeviceInfo(Of T).Provider
+- uid: Unosquare.FFME.Rendering.AudioDeviceInfo`1.Provider*
+  name: Provider
+  href: api/Unosquare.FFME.Rendering.AudioDeviceInfo-1.html#Unosquare_FFME_Rendering_AudioDeviceInfo_1_Provider_
+  commentId: Overload:Unosquare.FFME.Rendering.AudioDeviceInfo`1.Provider
   isSpec: "True"
-  fullName: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.Channels
-  nameWithType: LegacyWaveDeviceInfo.Channels
-- uid: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.IsSynchronousOutput
-  name: IsSynchronousOutput
-  href: api/Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.html#Unosquare_FFME_Rendering_LegacyWaveDeviceInfo_IsSynchronousOutput
-  commentId: P:Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.IsSynchronousOutput
-  fullName: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.IsSynchronousOutput
-  nameWithType: LegacyWaveDeviceInfo.IsSynchronousOutput
-- uid: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.IsSynchronousOutput*
-  name: IsSynchronousOutput
-  href: api/Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.html#Unosquare_FFME_Rendering_LegacyWaveDeviceInfo_IsSynchronousOutput_
-  commentId: Overload:Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.IsSynchronousOutput
+  fullName: Unosquare.FFME.Rendering.AudioDeviceInfo<T>.Provider
+  fullName.vb: Unosquare.FFME.Rendering.AudioDeviceInfo(Of T).Provider
+  nameWithType: AudioDeviceInfo<T>.Provider
+  nameWithType.vb: AudioDeviceInfo(Of T).Provider
+- uid: Unosquare.FFME.Rendering.AudioDeviceInfo`1.Tag
+  name: Tag
+  href: api/Unosquare.FFME.Rendering.AudioDeviceInfo-1.html#Unosquare_FFME_Rendering_AudioDeviceInfo_1_Tag
+  commentId: P:Unosquare.FFME.Rendering.AudioDeviceInfo`1.Tag
+  fullName: Unosquare.FFME.Rendering.AudioDeviceInfo<T>.Tag
+  fullName.vb: Unosquare.FFME.Rendering.AudioDeviceInfo(Of T).Tag
+  nameWithType: AudioDeviceInfo<T>.Tag
+  nameWithType.vb: AudioDeviceInfo(Of T).Tag
+- uid: Unosquare.FFME.Rendering.AudioDeviceInfo`1.Tag*
+  name: Tag
+  href: api/Unosquare.FFME.Rendering.AudioDeviceInfo-1.html#Unosquare_FFME_Rendering_AudioDeviceInfo_1_Tag_
+  commentId: Overload:Unosquare.FFME.Rendering.AudioDeviceInfo`1.Tag
   isSpec: "True"
-  fullName: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.IsSynchronousOutput
-  nameWithType: LegacyWaveDeviceInfo.IsSynchronousOutput
-- uid: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.ManufacturerGuid
-  name: ManufacturerGuid
-  href: api/Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.html#Unosquare_FFME_Rendering_LegacyWaveDeviceInfo_ManufacturerGuid
-  commentId: P:Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.ManufacturerGuid
-  fullName: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.ManufacturerGuid
-  nameWithType: LegacyWaveDeviceInfo.ManufacturerGuid
-- uid: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.ManufacturerGuid*
-  name: ManufacturerGuid
-  href: api/Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.html#Unosquare_FFME_Rendering_LegacyWaveDeviceInfo_ManufacturerGuid_
-  commentId: Overload:Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.ManufacturerGuid
+  fullName: Unosquare.FFME.Rendering.AudioDeviceInfo<T>.Tag
+  fullName.vb: Unosquare.FFME.Rendering.AudioDeviceInfo(Of T).Tag
+  nameWithType: AudioDeviceInfo<T>.Tag
+  nameWithType.vb: AudioDeviceInfo(Of T).Tag
+- uid: Unosquare.FFME.Rendering.AudioDeviceInfo`1.ToString
+  name: ToString()
+  href: api/Unosquare.FFME.Rendering.AudioDeviceInfo-1.html#Unosquare_FFME_Rendering_AudioDeviceInfo_1_ToString
+  commentId: M:Unosquare.FFME.Rendering.AudioDeviceInfo`1.ToString
+  fullName: Unosquare.FFME.Rendering.AudioDeviceInfo<T>.ToString()
+  fullName.vb: Unosquare.FFME.Rendering.AudioDeviceInfo(Of T).ToString()
+  nameWithType: AudioDeviceInfo<T>.ToString()
+  nameWithType.vb: AudioDeviceInfo(Of T).ToString()
+- uid: Unosquare.FFME.Rendering.AudioDeviceInfo`1.ToString*
+  name: ToString
+  href: api/Unosquare.FFME.Rendering.AudioDeviceInfo-1.html#Unosquare_FFME_Rendering_AudioDeviceInfo_1_ToString_
+  commentId: Overload:Unosquare.FFME.Rendering.AudioDeviceInfo`1.ToString
   isSpec: "True"
-  fullName: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.ManufacturerGuid
-  nameWithType: LegacyWaveDeviceInfo.ManufacturerGuid
-- uid: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.NameGuid
-  name: NameGuid
-  href: api/Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.html#Unosquare_FFME_Rendering_LegacyWaveDeviceInfo_NameGuid
-  commentId: P:Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.NameGuid
-  fullName: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.NameGuid
-  nameWithType: LegacyWaveDeviceInfo.NameGuid
-- uid: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.NameGuid*
-  name: NameGuid
-  href: api/Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.html#Unosquare_FFME_Rendering_LegacyWaveDeviceInfo_NameGuid_
-  commentId: Overload:Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.NameGuid
-  isSpec: "True"
-  fullName: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.NameGuid
-  nameWithType: LegacyWaveDeviceInfo.NameGuid
-- uid: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.ProductGuid
-  name: ProductGuid
-  href: api/Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.html#Unosquare_FFME_Rendering_LegacyWaveDeviceInfo_ProductGuid
-  commentId: P:Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.ProductGuid
-  fullName: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.ProductGuid
-  nameWithType: LegacyWaveDeviceInfo.ProductGuid
-- uid: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.ProductGuid*
-  name: ProductGuid
-  href: api/Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.html#Unosquare_FFME_Rendering_LegacyWaveDeviceInfo_ProductGuid_
-  commentId: Overload:Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.ProductGuid
-  isSpec: "True"
-  fullName: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.ProductGuid
-  nameWithType: LegacyWaveDeviceInfo.ProductGuid
-- uid: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.ProductName
-  name: ProductName
-  href: api/Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.html#Unosquare_FFME_Rendering_LegacyWaveDeviceInfo_ProductName
-  commentId: P:Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.ProductName
-  fullName: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.ProductName
-  nameWithType: LegacyWaveDeviceInfo.ProductName
-- uid: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.ProductName*
-  name: ProductName
-  href: api/Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.html#Unosquare_FFME_Rendering_LegacyWaveDeviceInfo_ProductName_
-  commentId: Overload:Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.ProductName
-  isSpec: "True"
-  fullName: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.ProductName
-  nameWithType: LegacyWaveDeviceInfo.ProductName
-- uid: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsChannelVolumeControl
-  name: SupportsChannelVolumeControl
-  href: api/Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.html#Unosquare_FFME_Rendering_LegacyWaveDeviceInfo_SupportsChannelVolumeControl
-  commentId: P:Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsChannelVolumeControl
-  fullName: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsChannelVolumeControl
-  nameWithType: LegacyWaveDeviceInfo.SupportsChannelVolumeControl
-- uid: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsChannelVolumeControl*
-  name: SupportsChannelVolumeControl
-  href: api/Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.html#Unosquare_FFME_Rendering_LegacyWaveDeviceInfo_SupportsChannelVolumeControl_
-  commentId: Overload:Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsChannelVolumeControl
-  isSpec: "True"
-  fullName: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsChannelVolumeControl
-  nameWithType: LegacyWaveDeviceInfo.SupportsChannelVolumeControl
-- uid: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsPitchControl
-  name: SupportsPitchControl
-  href: api/Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.html#Unosquare_FFME_Rendering_LegacyWaveDeviceInfo_SupportsPitchControl
-  commentId: P:Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsPitchControl
-  fullName: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsPitchControl
-  nameWithType: LegacyWaveDeviceInfo.SupportsPitchControl
-- uid: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsPitchControl*
-  name: SupportsPitchControl
-  href: api/Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.html#Unosquare_FFME_Rendering_LegacyWaveDeviceInfo_SupportsPitchControl_
-  commentId: Overload:Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsPitchControl
-  isSpec: "True"
-  fullName: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsPitchControl
-  nameWithType: LegacyWaveDeviceInfo.SupportsPitchControl
-- uid: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsPlaybackRateControl
-  name: SupportsPlaybackRateControl
-  href: api/Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.html#Unosquare_FFME_Rendering_LegacyWaveDeviceInfo_SupportsPlaybackRateControl
-  commentId: P:Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsPlaybackRateControl
-  fullName: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsPlaybackRateControl
-  nameWithType: LegacyWaveDeviceInfo.SupportsPlaybackRateControl
-- uid: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsPlaybackRateControl*
-  name: SupportsPlaybackRateControl
-  href: api/Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.html#Unosquare_FFME_Rendering_LegacyWaveDeviceInfo_SupportsPlaybackRateControl_
-  commentId: Overload:Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsPlaybackRateControl
-  isSpec: "True"
-  fullName: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsPlaybackRateControl
-  nameWithType: LegacyWaveDeviceInfo.SupportsPlaybackRateControl
-- uid: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsSampleAccuratePosition
-  name: SupportsSampleAccuratePosition
-  href: api/Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.html#Unosquare_FFME_Rendering_LegacyWaveDeviceInfo_SupportsSampleAccuratePosition
-  commentId: P:Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsSampleAccuratePosition
-  fullName: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsSampleAccuratePosition
-  nameWithType: LegacyWaveDeviceInfo.SupportsSampleAccuratePosition
-- uid: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsSampleAccuratePosition*
-  name: SupportsSampleAccuratePosition
-  href: api/Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.html#Unosquare_FFME_Rendering_LegacyWaveDeviceInfo_SupportsSampleAccuratePosition_
-  commentId: Overload:Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsSampleAccuratePosition
-  isSpec: "True"
-  fullName: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsSampleAccuratePosition
-  nameWithType: LegacyWaveDeviceInfo.SupportsSampleAccuratePosition
-- uid: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsVolumeControl
-  name: SupportsVolumeControl
-  href: api/Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.html#Unosquare_FFME_Rendering_LegacyWaveDeviceInfo_SupportsVolumeControl
-  commentId: P:Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsVolumeControl
-  fullName: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsVolumeControl
-  nameWithType: LegacyWaveDeviceInfo.SupportsVolumeControl
-- uid: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsVolumeControl*
-  name: SupportsVolumeControl
-  href: api/Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.html#Unosquare_FFME_Rendering_LegacyWaveDeviceInfo_SupportsVolumeControl_
-  commentId: Overload:Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsVolumeControl
-  isSpec: "True"
-  fullName: Unosquare.FFME.Rendering.LegacyWaveDeviceInfo.SupportsVolumeControl
-  nameWithType: LegacyWaveDeviceInfo.SupportsVolumeControl
+  fullName: Unosquare.FFME.Rendering.AudioDeviceInfo<T>.ToString
+  fullName.vb: Unosquare.FFME.Rendering.AudioDeviceInfo(Of T).ToString
+  nameWithType: AudioDeviceInfo<T>.ToString
+  nameWithType.vb: AudioDeviceInfo(Of T).ToString
 - uid: Unosquare.FFME.Rendering.RendererOptions
   name: RendererOptions
   href: api/Unosquare.FFME.Rendering.RendererOptions.html
@@ -2738,19 +2655,31 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.Rendering.RendererOptions.AudioDisableSync
   nameWithType: RendererOptions.AudioDisableSync
-- uid: Unosquare.FFME.Rendering.RendererOptions.DirectSoundDeviceId
-  name: DirectSoundDeviceId
-  href: api/Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_DirectSoundDeviceId
-  commentId: P:Unosquare.FFME.Rendering.RendererOptions.DirectSoundDeviceId
-  fullName: Unosquare.FFME.Rendering.RendererOptions.DirectSoundDeviceId
-  nameWithType: RendererOptions.DirectSoundDeviceId
-- uid: Unosquare.FFME.Rendering.RendererOptions.DirectSoundDeviceId*
-  name: DirectSoundDeviceId
-  href: api/Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_DirectSoundDeviceId_
-  commentId: Overload:Unosquare.FFME.Rendering.RendererOptions.DirectSoundDeviceId
+- uid: Unosquare.FFME.Rendering.RendererOptions.DefaultDirectSoundDevice
+  name: DefaultDirectSoundDevice
+  href: api/Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_DefaultDirectSoundDevice
+  commentId: F:Unosquare.FFME.Rendering.RendererOptions.DefaultDirectSoundDevice
+  fullName: Unosquare.FFME.Rendering.RendererOptions.DefaultDirectSoundDevice
+  nameWithType: RendererOptions.DefaultDirectSoundDevice
+- uid: Unosquare.FFME.Rendering.RendererOptions.DefaultLegacyAudioDevice
+  name: DefaultLegacyAudioDevice
+  href: api/Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_DefaultLegacyAudioDevice
+  commentId: F:Unosquare.FFME.Rendering.RendererOptions.DefaultLegacyAudioDevice
+  fullName: Unosquare.FFME.Rendering.RendererOptions.DefaultLegacyAudioDevice
+  nameWithType: RendererOptions.DefaultLegacyAudioDevice
+- uid: Unosquare.FFME.Rendering.RendererOptions.DirectSoundDevice
+  name: DirectSoundDevice
+  href: api/Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_DirectSoundDevice
+  commentId: P:Unosquare.FFME.Rendering.RendererOptions.DirectSoundDevice
+  fullName: Unosquare.FFME.Rendering.RendererOptions.DirectSoundDevice
+  nameWithType: RendererOptions.DirectSoundDevice
+- uid: Unosquare.FFME.Rendering.RendererOptions.DirectSoundDevice*
+  name: DirectSoundDevice
+  href: api/Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_DirectSoundDevice_
+  commentId: Overload:Unosquare.FFME.Rendering.RendererOptions.DirectSoundDevice
   isSpec: "True"
-  fullName: Unosquare.FFME.Rendering.RendererOptions.DirectSoundDeviceId
-  nameWithType: RendererOptions.DirectSoundDeviceId
+  fullName: Unosquare.FFME.Rendering.RendererOptions.DirectSoundDevice
+  nameWithType: RendererOptions.DirectSoundDevice
 - uid: Unosquare.FFME.Rendering.RendererOptions.EnumerateDirectSoundDevices
   name: EnumerateDirectSoundDevices()
   href: api/Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_EnumerateDirectSoundDevices
@@ -2777,32 +2706,32 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.Rendering.RendererOptions.EnumerateLegacyAudioDevices
   nameWithType: RendererOptions.EnumerateLegacyAudioDevices
-- uid: Unosquare.FFME.Rendering.RendererOptions.LegacyWaveDeviceId
-  name: LegacyWaveDeviceId
-  href: api/Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_LegacyWaveDeviceId
-  commentId: P:Unosquare.FFME.Rendering.RendererOptions.LegacyWaveDeviceId
-  fullName: Unosquare.FFME.Rendering.RendererOptions.LegacyWaveDeviceId
-  nameWithType: RendererOptions.LegacyWaveDeviceId
-- uid: Unosquare.FFME.Rendering.RendererOptions.LegacyWaveDeviceId*
-  name: LegacyWaveDeviceId
-  href: api/Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_LegacyWaveDeviceId_
-  commentId: Overload:Unosquare.FFME.Rendering.RendererOptions.LegacyWaveDeviceId
+- uid: Unosquare.FFME.Rendering.RendererOptions.LegacyAudioDevice
+  name: LegacyAudioDevice
+  href: api/Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_LegacyAudioDevice
+  commentId: P:Unosquare.FFME.Rendering.RendererOptions.LegacyAudioDevice
+  fullName: Unosquare.FFME.Rendering.RendererOptions.LegacyAudioDevice
+  nameWithType: RendererOptions.LegacyAudioDevice
+- uid: Unosquare.FFME.Rendering.RendererOptions.LegacyAudioDevice*
+  name: LegacyAudioDevice
+  href: api/Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_LegacyAudioDevice_
+  commentId: Overload:Unosquare.FFME.Rendering.RendererOptions.LegacyAudioDevice
   isSpec: "True"
-  fullName: Unosquare.FFME.Rendering.RendererOptions.LegacyWaveDeviceId
-  nameWithType: RendererOptions.LegacyWaveDeviceId
-- uid: Unosquare.FFME.Rendering.RendererOptions.UseLegacyWaveOut
-  name: UseLegacyWaveOut
-  href: api/Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_UseLegacyWaveOut
-  commentId: P:Unosquare.FFME.Rendering.RendererOptions.UseLegacyWaveOut
-  fullName: Unosquare.FFME.Rendering.RendererOptions.UseLegacyWaveOut
-  nameWithType: RendererOptions.UseLegacyWaveOut
-- uid: Unosquare.FFME.Rendering.RendererOptions.UseLegacyWaveOut*
-  name: UseLegacyWaveOut
-  href: api/Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_UseLegacyWaveOut_
-  commentId: Overload:Unosquare.FFME.Rendering.RendererOptions.UseLegacyWaveOut
+  fullName: Unosquare.FFME.Rendering.RendererOptions.LegacyAudioDevice
+  nameWithType: RendererOptions.LegacyAudioDevice
+- uid: Unosquare.FFME.Rendering.RendererOptions.UseLegacyAudioOut
+  name: UseLegacyAudioOut
+  href: api/Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_UseLegacyAudioOut
+  commentId: P:Unosquare.FFME.Rendering.RendererOptions.UseLegacyAudioOut
+  fullName: Unosquare.FFME.Rendering.RendererOptions.UseLegacyAudioOut
+  nameWithType: RendererOptions.UseLegacyAudioOut
+- uid: Unosquare.FFME.Rendering.RendererOptions.UseLegacyAudioOut*
+  name: UseLegacyAudioOut
+  href: api/Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_UseLegacyAudioOut_
+  commentId: Overload:Unosquare.FFME.Rendering.RendererOptions.UseLegacyAudioOut
   isSpec: "True"
-  fullName: Unosquare.FFME.Rendering.RendererOptions.UseLegacyWaveOut
-  nameWithType: RendererOptions.UseLegacyWaveOut
+  fullName: Unosquare.FFME.Rendering.RendererOptions.UseLegacyAudioOut
+  nameWithType: RendererOptions.UseLegacyAudioOut
 - uid: Unosquare.FFME.Subtitles
   name: Subtitles
   href: api/Unosquare.FFME.Subtitles.html
