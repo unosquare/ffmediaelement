@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Rendering.Wave
 {
+    using Shared;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -14,7 +15,6 @@
     /// </summary>
     internal sealed class DirectSoundPlayer : IWavePlayer
     {
-        // TODO: log/bubble errors to renderer/MediaElement
         #region Fields
 
         /// <summary>
@@ -26,6 +26,7 @@
         private static readonly object DevicesEnumLock = new object();
         private static List<DirectSoundDeviceInfo> EnumeratedDevices;
 
+        // Instance fields
         private readonly object SyncLock = new object();
         private readonly SynchronizationContext SyncContext;
         private WaveFormat WaveFormat;
@@ -304,6 +305,9 @@
             return true;
         }
 
+        /// <summary>
+        /// Initializes the direct sound.
+        /// </summary>
         private void InitializeDirectSound()
         {
             // Open DirectSound
@@ -315,7 +319,8 @@
                 if (DirectSoundDriver != null)
                 {
                     // Set Cooperative Level to PRIORITY (priority level can call the SetFormat and Compact methods)
-                    DirectSoundDriver.SetCooperativeLevel(NativeMethods.GetDesktopWindow(), DirectSound.DirectSoundCooperativeLevel.DSSCL_PRIORITY);
+                    DirectSoundDriver.SetCooperativeLevel(NativeMethods.GetDesktopWindow(),
+                        DirectSound.DirectSoundCooperativeLevel.DSSCL_PRIORITY);
 
                     // -------------------------------------------------------------------------------------
                     // Create PrimaryBuffer
@@ -530,7 +535,7 @@
             catch (Exception e)
             {
                 // Do nothing (except report error)
-                Debug.WriteLine(e.ToString());
+                Renderer?.MediaCore?.Log(MediaLogMessageType.Error, $"{nameof(DirectSoundPlayer)} - {e.GetType().Name}: {e.Message}");
                 exception = e;
             }
             finally
@@ -543,7 +548,8 @@
                     }
                     catch (Exception e)
                     {
-                        Debug.WriteLine(e.ToString());
+                        Renderer?.MediaCore?.Log(MediaLogMessageType.Error,
+                            $"{nameof(DirectSoundPlayer)} - {e.GetType().Name}: {e.Message}");
 
                         // don't overwrite the original reason we exited the playback loop
                         if (exception == null) exception = e;
