@@ -178,15 +178,8 @@
                         // Write the block if we have to, avoiding repeated blocks.
                         if (AudioBuffer.WriteTag < audioBlock.StartTime)
                         {
-                            try
-                            {
-                                MediaElement.RaiseRenderingAudioEvent(audioBlock, clockPosition);
-                                AudioBuffer.Write(audioBlock.Buffer, audioBlock.SamplesBufferLength, audioBlock.StartTime, true);
-                            }
-                            catch (Exception ex2)
-                            {
-
-                            }
+                            MediaElement.RaiseRenderingAudioEvent(audioBlock, clockPosition);
+                            AudioBuffer.Write(audioBlock.Buffer, audioBlock.SamplesBufferLength, audioBlock.StartTime, true);
                         }
 
                         // Stop adding if we have too much in there.
