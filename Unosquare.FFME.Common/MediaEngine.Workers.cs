@@ -336,7 +336,8 @@
                 // Add each decoded frame as a playback block
                 if (frame == null) continue;
                 var block = Blocks[t].Add(frame, Container);
-                decodedFrameCount += 1;
+                if (block != null)
+                    decodedFrameCount += 1;
             }
 
             return decodedFrameCount;

@@ -446,7 +446,7 @@
         /// <param name="siblings">The siblings that may help guess additional output parameters.</param>
         /// <param name="releaseInput">if set to <c>true</c> releases the raw frame source from unmanaged memory.</param>
         /// <returns>
-        /// The media block
+        /// True if successful. False otherwise.
         /// </returns>
         /// <exception cref="InvalidOperationException">No input context initialized</exception>
         /// <exception cref="MediaContainerException">MediaType</exception>
@@ -454,7 +454,7 @@
         /// <exception cref="ArgumentException">input
         /// or
         /// input</exception>
-        public MediaBlock Convert(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings, bool releaseInput = true)
+        public bool Convert(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings, bool releaseInput = true)
         {
             lock (ConvertSyncRoot)
             {
@@ -476,16 +476,22 @@
                     switch (input.MediaType)
                     {
                         case MediaType.Video:
-                            if (Components.HasVideo) Components.Video.MaterializeFrame(input, ref output, siblings);
-                            return output;
+                            if (Components.HasVideo)
+                                return Components.Video.MaterializeFrame(input, ref output, siblings);
+                            else
+                                return false;
 
                         case MediaType.Audio:
-                            if (Components.HasAudio) Components.Audio.MaterializeFrame(input, ref output, siblings);
-                            return output;
+                            if (Components.HasAudio)
+                                return Components.Audio.MaterializeFrame(input, ref output, siblings);
+                            else
+                                return false;
 
                         case MediaType.Subtitle:
-                            if (Components.HasSubtitles) Components.Subtitles.MaterializeFrame(input, ref output, siblings);
-                            return output;
+                            if (Components.HasSubtitles)
+                                return Components.Subtitles.MaterializeFrame(input, ref output, siblings);
+                            else
+                                return false;
 
                         default:
                             throw new MediaContainerException($"Unable to materialize frame of {nameof(MediaType)} {input.MediaType}");

@@ -87,18 +87,24 @@
         /// </summary>
         /// <param name="source">The source.</param>
         /// <param name="pixelFormat">The pixel format.</param>
-        internal unsafe void Allocate(VideoFrame source, AVPixelFormat pixelFormat)
+        /// <returns>True if the allocation was successful</returns>
+        internal unsafe bool Allocate(VideoFrame source, AVPixelFormat pixelFormat)
         {
             // Ensure proper allocation of the buffer
             // If there is a size mismatch between the wanted buffer length and the existing one,
             // then let's reallocate the buffer and set the new size (dispose of the existing one if any)
             var targetLength = ffmpeg.av_image_get_buffer_size(pixelFormat, source.Pointer->width, source.Pointer->height, 1);
-            Allocate(targetLength);
+            if (Allocate(targetLength))
+            {
+                // Update related properties
+                PictureBufferStride = ffmpeg.av_image_get_linesize(pixelFormat, source.Pointer->width, 0);
+                PixelWidth = source.Pointer->width;
+                PixelHeight = source.Pointer->height;
 
-            // Update related properties
-            PictureBufferStride = ffmpeg.av_image_get_linesize(pixelFormat, source.Pointer->width, 0);
-            PixelWidth = source.Pointer->width;
-            PixelHeight = source.Pointer->height;
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>

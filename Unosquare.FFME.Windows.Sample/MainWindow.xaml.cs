@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
+    using ClosedCaptions;
     using Platform;
     using Shared;
     using System;
@@ -316,6 +317,15 @@
             {
                 StreamCycleMediaType = MediaType.Video;
                 await Media.ChangeMedia();
+                return;
+            }
+
+            // Cycle through closed captions
+            if (e.Key == Key.C)
+            {
+                var currentCaptions = (int)Media.ClosedCaptionsChannel;
+                var nextCaptions = currentCaptions >= (int)CaptionsChannel.CC4 ? CaptionsChannel.CCP : (CaptionsChannel)(currentCaptions + 1);
+                Media.ClosedCaptionsChannel = nextCaptions;
                 return;
             }
 

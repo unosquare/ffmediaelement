@@ -397,24 +397,28 @@
 
                 // Get a block reference from the pool and convert it!
                 var targetBlock = PoolBlocks.Dequeue();
-                container.Convert(source, ref targetBlock, PlaybackBlocks, true);
-
-                // Discard a frame with incorrect timing
-                if (targetBlock.IsStartTimeGuessed && IsMonotonic && PlaybackBlocks.Count > 1
-                    && targetBlock.Duration != PlaybackBlocks.Last().Duration)
+                if (container.Convert(source, ref targetBlock, PlaybackBlocks, true) == false)
                 {
                     // return the converted block to the pool
                     PoolBlocks.Enqueue(targetBlock);
                     return null;
                 }
-                else
+
+                // Discard video frames with incorrect timing
+                if (MediaType == MediaType.Video && targetBlock.IsStartTimeGuessed && IsMonotonic
+                    && PlaybackBlocks.Count > 1 && targetBlock.Duration != PlaybackBlocks.Last().Duration)
                 {
-                    // Add the converted block to the playback list and sort it.
-                    PlaybackBlocks.Add(targetBlock);
-                    PlaybackBlocks.Sort();
+                    // return the converted block to the pool
+                    PoolBlocks.Enqueue(targetBlock);
+                    return null;
                 }
 
+                // Add the converted block to the playback list and sort it.
+                PlaybackBlocks.Add(targetBlock);
+                PlaybackBlocks.Sort();
                 LifetimeBlockDuration = TimeSpan.FromTicks(LifetimeBlockDuration.Ticks + targetBlock.Duration.Ticks);
+
+                // return the new target block
                 return targetBlock;
             }
         }

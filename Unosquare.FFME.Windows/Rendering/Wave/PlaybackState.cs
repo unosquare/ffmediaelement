@@ -14,10 +14,5 @@
         /// Playing
         /// </summary>
         Playing,
-
-        /// <summary>
-        /// Paused
-        /// </summary>
-        Paused
     }
 }

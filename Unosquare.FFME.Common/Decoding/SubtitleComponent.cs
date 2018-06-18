@@ -38,10 +38,10 @@
         /// <param name="output">The target frame that will be updated with the source frame. If null is passed the frame will be instantiated.</param>
         /// <param name="siblings">The sibling blocks that may help guess some additional parameters for the input frame.</param>
         /// <returns>
-        /// Return the updated output frame
+        /// Returns true if successful. False otherwise
         /// </returns>
         /// <exception cref="ArgumentNullException">input cannot be null</exception>
-        public override MediaBlock MaterializeFrame(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings)
+        public override bool MaterializeFrame(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings)
         {
             if (output == null) output = new SubtitleBlock();
             var source = input as SubtitleFrame;
@@ -89,7 +89,7 @@
                 }
             }
 
-            return target;
+            return true;
         }
 
         #region Output Formatting

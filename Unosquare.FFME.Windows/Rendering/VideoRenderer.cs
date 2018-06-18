@@ -344,9 +344,9 @@
         /// <param name="source">The source.</param>
         private void LoadTargetBitmapBuffer(BitmapDataBuffer target, VideoBlock source)
         {
-            if (source != null && source.TryAcquireReaderLock(out var readerLock))
+            if (source != null && source.TryAcquireReaderLock(out var readLock))
             {
-                using (readerLock)
+                using (readLock)
                 {
                     // Compute a safe number of bytes to copy
                     // At this point, we it is assumed the strides are equal

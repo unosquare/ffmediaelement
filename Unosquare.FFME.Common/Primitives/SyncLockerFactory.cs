@@ -11,6 +11,8 @@
     {
         #region Enums and Interfaces
 
+        private const int DefaultTimeout = 100;
+
         /// <summary>
         /// Enumerates the locking operations
         /// </summary>
@@ -69,9 +71,9 @@
         /// <seealso cref="IDisposable" />
         private sealed class SyncLockReleaser : IDisposable
         {
+            private readonly ISyncReleasable Parent = null;
             private readonly LockHolderType Operation;
             private bool IsDisposed = false;
-            private ISyncReleasable Parent = null;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="SyncLockReleaser"/> class.
@@ -82,7 +84,15 @@
             {
                 Parent = parent;
                 Operation = operation;
+
+                if (parent == null)
+                    IsDisposed = true;
             }
+
+            /// <summary>
+            /// An actionless, dummy disposable object.
+            /// </summary>
+            public static SyncLockReleaser Empty { get; } = new SyncLockReleaser(null, default);
 
             /// <summary>
             /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -99,9 +109,9 @@
                 IsDisposed = true;
 
                 if (Operation == LockHolderType.Read)
-                    Parent.ReleaseReaderLock();
+                    Parent?.ReleaseReaderLock();
                 else
-                    Parent.ReleaseWriterLock();
+                    Parent?.ReleaseWriterLock();
             }
         }
 
@@ -124,9 +134,20 @@
             /// </returns>
             public IDisposable AcquireReaderLock()
             {
-                Locker?.AcquireReaderLock(Timeout.Infinite);
-                return new SyncLockReleaser(this, LockHolderType.Read);
+                AcquireReaderLock(Timeout.Infinite, out var releaser);
+                return releaser;
             }
+
+            /// <summary>
+            /// Tries to acquire a reader lock with a timeout.
+            /// </summary>
+            /// <param name="timeoutMilliseconds">The timeout milliseconds.</param>
+            /// <param name="locker">The locker.</param>
+            /// <returns>
+            /// True if the lock was acquired
+            /// </returns>
+            public bool TryAcquireReaderLock(int timeoutMilliseconds, out IDisposable locker) =>
+                AcquireReaderLock(timeoutMilliseconds, out locker);
 
             /// <summary>
             /// Acquires a writer lock.
@@ -137,9 +158,40 @@
             /// </returns>
             public IDisposable AcquireWriterLock()
             {
-                Locker?.AcquireWriterLock(Timeout.Infinite);
-                return new SyncLockReleaser(this, LockHolderType.Write);
+                AcquireWriterLock(Timeout.Infinite, out var releaser);
+                return releaser;
             }
+
+            /// <summary>
+            /// Tries to acquire a writer lock with a tiemout.
+            /// </summary>
+            /// <param name="timeoutMilliseconds">The timeout milliseconds.</param>
+            /// <param name="locker">The locker.</param>
+            /// <returns>
+            /// True if the lock was acquired
+            /// </returns>
+            public bool TryAcquireWriterLock(int timeoutMilliseconds, out IDisposable locker) =>
+                AcquireWriterLock(timeoutMilliseconds, out locker);
+
+            /// <summary>
+            /// Tries to acquire a writer lock with a default tiemout.
+            /// </summary>
+            /// <param name="locker">The locker.</param>
+            /// <returns>
+            /// True if the lock was acquired
+            /// </returns>
+            public bool TryAcquireWriterLock(out IDisposable locker) =>
+                TryAcquireWriterLock(DefaultTimeout, out locker);
+
+            /// <summary>
+            /// Tries to acquire a reader lock with a default timeout.
+            /// </summary>
+            /// <param name="locker">The locker.</param>
+            /// <returns>
+            /// True if the lock was acquired
+            /// </returns>
+            public bool TryAcquireReaderLock(out IDisposable locker) =>
+                TryAcquireReaderLock(DefaultTimeout, out locker);
 
             /// <summary>
             /// Releases the writer lock.
@@ -155,6 +207,51 @@
             /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             /// </summary>
             public void Dispose() => Dispose(true);
+
+            /// <summary>
+            /// Acquires the writer lock.
+            /// </summary>
+            /// <param name="timeoutMilliseconds">The timeout milliseconds.</param>
+            /// <param name="releaser">The releaser.</param>
+            /// <returns>Success</returns>
+            private bool AcquireWriterLock(int timeoutMilliseconds, out IDisposable releaser)
+            {
+                releaser = SyncLockReleaser.Empty;
+
+                if (Locker?.IsReaderLockHeld ?? false)
+                {
+                    Locker?.AcquireReaderLock(timeoutMilliseconds);
+                    releaser = new SyncLockReleaser(this, LockHolderType.Read);
+                    return Locker?.IsReaderLockHeld ?? false;
+                }
+
+                Locker?.AcquireWriterLock(timeoutMilliseconds);
+                if (Locker?.IsWriterLockHeld ?? false)
+                {
+                    releaser = new SyncLockReleaser(this, LockHolderType.Write);
+                }
+
+                return Locker?.IsWriterLockHeld ?? false;
+            }
+
+            /// <summary>
+            /// Acquires the reader lock.
+            /// </summary>
+            /// <param name="timeoutMilliseconds">The timeout milliseconds.</param>
+            /// <param name="releaser">The releaser.</param>
+            /// <returns>Success</returns>
+            private bool AcquireReaderLock(int timeoutMilliseconds, out IDisposable releaser)
+            {
+                releaser = SyncLockReleaser.Empty;
+                Locker?.AcquireReaderLock(timeoutMilliseconds);
+                if (Locker?.IsReaderLockHeld ?? false)
+                {
+                    releaser = new SyncLockReleaser(this, LockHolderType.Read);
+                    return true;
+                }
+
+                return false;
+            }
 
             /// <summary>
             /// Releases unmanaged and - optionally - managed resources.
@@ -189,9 +286,20 @@
             /// </returns>
             public IDisposable AcquireReaderLock()
             {
-                Locker?.EnterReadLock();
-                return new SyncLockReleaser(this, LockHolderType.Read);
+                AcquireReaderLock(Timeout.Infinite, out var releaser);
+                return releaser;
             }
+
+            /// <summary>
+            /// Tries to acquire a reader lock with a timeout.
+            /// </summary>
+            /// <param name="timeoutMilliseconds">The timeout milliseconds.</param>
+            /// <param name="locker">The locker.</param>
+            /// <returns>
+            /// True if the lock was acquired
+            /// </returns>
+            public bool TryAcquireReaderLock(int timeoutMilliseconds, out IDisposable locker) =>
+                AcquireReaderLock(timeoutMilliseconds, out locker);
 
             /// <summary>
             /// Acquires a writer lock.
@@ -202,9 +310,40 @@
             /// </returns>
             public IDisposable AcquireWriterLock()
             {
-                Locker?.EnterWriteLock();
-                return new SyncLockReleaser(this, LockHolderType.Write);
+                AcquireWriterLock(Timeout.Infinite, out var releaser);
+                return releaser;
             }
+
+            /// <summary>
+            /// Tries to acquire a writer lock with a tiemout.
+            /// </summary>
+            /// <param name="timeoutMilliseconds">The timeout milliseconds.</param>
+            /// <param name="locker">The locker.</param>
+            /// <returns>
+            /// True if the lock was acquired
+            /// </returns>
+            public bool TryAcquireWriterLock(int timeoutMilliseconds, out IDisposable locker) =>
+                AcquireWriterLock(timeoutMilliseconds, out locker);
+
+            /// <summary>
+            /// Tries to acquire a writer lock with a default tiemout.
+            /// </summary>
+            /// <param name="locker">The locker.</param>
+            /// <returns>
+            /// True if the lock was acquired
+            /// </returns>
+            public bool TryAcquireWriterLock(out IDisposable locker) =>
+                TryAcquireWriterLock(DefaultTimeout, out locker);
+
+            /// <summary>
+            /// Tries to acquire a reader lock with a default timeout.
+            /// </summary>
+            /// <param name="locker">The locker.</param>
+            /// <returns>
+            /// True if the lock was acquired
+            /// </returns>
+            public bool TryAcquireReaderLock(out IDisposable locker) =>
+                TryAcquireReaderLock(DefaultTimeout, out locker);
 
             /// <summary>
             /// Releases the writer lock.
@@ -220,6 +359,49 @@
             /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             /// </summary>
             public void Dispose() => Dispose(true);
+
+            /// <summary>
+            /// Acquires the writer lock.
+            /// </summary>
+            /// <param name="timeoutMilliseconds">The timeout milliseconds.</param>
+            /// <param name="releaser">The releaser.</param>
+            /// <returns>Success</returns>
+            private bool AcquireWriterLock(int timeoutMilliseconds, out IDisposable releaser)
+            {
+                releaser = SyncLockReleaser.Empty;
+                var result = false;
+
+                if (Locker?.IsReadLockHeld ?? false)
+                {
+                    result = Locker?.TryEnterReadLock(timeoutMilliseconds) ?? false;
+                    if (result)
+                        releaser = new SyncLockReleaser(this, LockHolderType.Read);
+
+                    return result;
+                }
+
+                result = Locker?.TryEnterWriteLock(timeoutMilliseconds) ?? false;
+                if (result)
+                    releaser = new SyncLockReleaser(this, LockHolderType.Write);
+
+                return result;
+            }
+
+            /// <summary>
+            /// Acquires the reader lock.
+            /// </summary>
+            /// <param name="timeoutMilliseconds">The timeout milliseconds.</param>
+            /// <param name="releaser">The releaser.</param>
+            /// <returns>Success</returns>
+            private bool AcquireReaderLock(int timeoutMilliseconds, out IDisposable releaser)
+            {
+                releaser = SyncLockReleaser.Empty;
+                var result = Locker?.TryEnterReadLock(timeoutMilliseconds) ?? false;
+                if (result)
+                    releaser = new SyncLockReleaser(this, LockHolderType.Read);
+
+                return result;
+            }
 
             /// <summary>
             /// Releases unmanaged and - optionally - managed resources.

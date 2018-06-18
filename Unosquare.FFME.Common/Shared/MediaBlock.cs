@@ -114,14 +114,13 @@
             lock (SyncLock)
             {
                 if (m_IsDisposed) return false;
-                locker = Locker.AcquireReaderLock();
-                return true;
+                return Locker.TryAcquireReaderLock(out locker);
             }
         }
 
         /// <summary>
         /// Tries the acquire a writer lock on the unmanaged buffer.
-        /// Returns false if the buffer has been disposed.
+        /// Returns false if the buffer has been disposed or a lock operation times out.
         /// </summary>
         /// <param name="locker">The locker.</param>
         /// <returns>The disposable lock</returns>
@@ -131,8 +130,7 @@
             lock (SyncLock)
             {
                 if (m_IsDisposed) return false;
-                locker = Locker.AcquireWriterLock();
-                return true;
+                return Locker.TryAcquireWriterLock(out locker);
             }
         }
 
@@ -175,7 +173,7 @@
         /// Allocates the specified buffer length.
         /// </summary>
         /// <param name="bufferLength">Length of the buffer.</param>
-        /// <returns>True if the buffer was newly allocated. False if the buffer is being reused.</returns>
+        /// <returns>True if the buffer is successfully allocated</returns>
         internal virtual unsafe bool Allocate(int bufferLength)
         {
             if (bufferLength <= 0)
@@ -185,9 +183,12 @@
             {
                 if (m_IsDisposed) return false;
 
-                if (m_BufferLength != bufferLength)
+                if (m_BufferLength == bufferLength)
+                    return true;
+
+                if (Locker.TryAcquireWriterLock(out var writeLock))
                 {
-                    using (Locker.AcquireWriterLock())
+                    using (writeLock)
                     {
                         m_Buffer = new IntPtr(ffmpeg.av_malloc((ulong)bufferLength));
                         m_BufferLength = bufferLength;

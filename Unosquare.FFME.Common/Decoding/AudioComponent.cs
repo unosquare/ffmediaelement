@@ -88,7 +88,7 @@
         /// Return the updated output frame
         /// </returns>
         /// <exception cref="ArgumentNullException">input</exception>
-        public override MediaBlock MaterializeFrame(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings)
+        public override bool MaterializeFrame(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings)
         {
             if (output == null) output = new AudioBlock();
             var source = input as AudioFrame;
@@ -121,13 +121,12 @@
                 LastSourceSpec = sourceSpec;
             }
 
-            // Allocate the unmanaged output buffer
+            // Allocate the unmanaged output buffer and convert to stereo.
             var outputSamplesPerChannel = 0;
-            target.Allocate(targetSpec.BufferLength);
-
-            if (target.TryAcquireWriterLock(out var locker))
+            if (target.Allocate(targetSpec.BufferLength) &&
+                target.TryAcquireWriterLock(out var writeLock))
             {
-                using (locker)
+                using (writeLock)
                 {
                     var outputBufferPtr = (byte*)target.Buffer.ToPointer();
 
@@ -139,6 +138,10 @@
                         source.Pointer->extended_data,
                         source.Pointer->nb_samples);
                 }
+            }
+            else
+            {
+                return false;
             }
 
             // Compute the buffer length
@@ -174,7 +177,7 @@
             target.SamplesPerChannel = outputSamplesPerChannel;
             target.StreamIndex = input.StreamIndex;
 
-            return target;
+            return true;
         }
 
         /// <summary>
@@ -184,6 +187,13 @@
         /// <returns>The media frame</returns>
         protected override unsafe MediaFrame CreateFrameSource(ref AVFrame* frame)
         {
+            // Validate the audio frame
+            if (frame == null || (*frame).extended_data == null || frame->channels <= 0 ||
+                frame->nb_samples <= 0 || frame->sample_rate <= 0)
+            {
+                return null;
+            }
+
             if (string.IsNullOrWhiteSpace(FilterString) == false)
                 InitializeFilterGraph(frame);
 

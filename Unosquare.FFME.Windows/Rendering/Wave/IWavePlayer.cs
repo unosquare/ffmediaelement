@@ -13,10 +13,15 @@
         PlaybackState PlaybackState { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the audio playback is running.
+        /// </summary>
+        bool IsRunning { get; }
+
+        /// <summary>
         /// Gets or sets the desired latency in milliseconds
         /// Should be set before a call to Init
         /// </summary>
-        int DesiredLatency { get; set; }
+        int DesiredLatency { get; }
 
         /// <summary>
         /// Gets the renderer that owns this wave player.
@@ -26,22 +31,6 @@
         /// <summary>
         /// Begin playback
         /// </summary>
-        void Play();
-
-        /// <summary>
-        /// Stop playback
-        /// </summary>
-        void Stop();
-
-        /// <summary>
-        /// Pause Playback
-        /// </summary>
-        void Pause();
-
-        /// <summary>
-        /// Initialise playback
-        /// </summary>
-        /// <param name="waveProvider">The waveprovider to be played</param>
-        void Init(IWaveProvider waveProvider);
+        void Start();
     }
 }

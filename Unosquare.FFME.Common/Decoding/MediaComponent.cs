@@ -360,9 +360,9 @@
         /// <param name="output">The target frame that will be updated with the source frame. If null is passed the frame will be instantiated.</param>
         /// <param name="siblings">The sibling blocks that may help guess some additional parameters for the input frame.</param>
         /// <returns>
-        /// Return the updated output frame
+        /// Returns true of the operation succeeded. False otherwise.
         /// </returns>
-        public abstract MediaBlock MaterializeFrame(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings);
+        public abstract bool MaterializeFrame(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings);
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.

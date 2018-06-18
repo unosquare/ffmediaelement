@@ -11,7 +11,6 @@
         private readonly WaveHeader header;
         private readonly byte[] Buffer;
         private readonly IWaveProvider WaveStream;
-        private readonly object SyncLock;
 
         private IntPtr DeviceHandle;
         private GCHandle BufferHandle;
@@ -23,14 +22,12 @@
         /// <param name="deviceHandle">WaveOut device to write to</param>
         /// <param name="bufferSize">Buffer size in bytes</param>
         /// <param name="waveStream">Stream to provide more data</param>
-        /// <param name="waveOutLock">Lock to protect WaveOut API's from being called on &gt;1 thread</param>
-        public WaveOutBuffer(IntPtr deviceHandle, int bufferSize, IWaveProvider waveStream, object waveOutLock)
+        public WaveOutBuffer(IntPtr deviceHandle, int bufferSize, IWaveProvider waveStream)
         {
             BufferSize = bufferSize;
             Buffer = new byte[BufferSize];
             DeviceHandle = deviceHandle;
             WaveStream = waveStream;
-            SyncLock = waveOutLock;
 
             BufferHandle = GCHandle.Alloc(Buffer, GCHandleType.Pinned);
             header = new WaveHeader();
@@ -41,11 +38,7 @@
             header.Loops = 1;
             header.UserData = IntPtr.Zero;
 
-            lock (SyncLock)
-            {
-                MmException.Try(WaveInterop.NativeMethods.waveOutPrepareHeader(DeviceHandle, header, Marshal.SizeOf(header)),
-                    nameof(WaveInterop.NativeMethods.waveOutPrepareHeader));
-            }
+            WaveInterop.AllocateHeader(DeviceHandle, header);
         }
 
         /// <summary>
@@ -60,7 +53,7 @@
         /// <summary>
         /// Whether the header's in queue flag is set
         /// </summary>
-        public bool InQueue => header.Flags.HasFlag(WaveHeaderFlags.InQueue);
+        public bool IsQueued => header.Flags.HasFlag(WaveHeaderFlags.InQueue);
 
         /// <summary>
         /// The buffer size in bytes
@@ -80,22 +73,16 @@
         /// this is called by the Wave callback and should be used to refill the buffer.
         /// This calls the <see cref="IWaveProvider.Read(byte[], int, int)"/> method on the stream
         /// </summary>
-        /// <returns>true when bytes were written. False if no bytes were written.</returns>
-        internal bool OnDone()
+        /// <returns>True when bytes were written. False if no bytes were written.</returns>
+        internal bool ReadWaveStream()
         {
-            int bytes;
-            lock (WaveStream)
-            {
-                bytes = WaveStream.Read(Buffer, 0, Buffer.Length);
-            }
+            var readCount = WaveStream.Read(Buffer, 0, Buffer.Length);
+            if (readCount <= 0) return false;
 
-            if (bytes == 0)
-                return false;
+            if (readCount < Buffer.Length)
+                Array.Clear(Buffer, readCount, Buffer.Length - readCount);
 
-            for (int n = bytes; n < Buffer.Length; n++)
-                Buffer[n] = 0;
-
-            WriteToWaveOut();
+            WaveInterop.WriteAudioData(DeviceHandle, header);
             return true;
         }
 
@@ -112,34 +99,15 @@
 
             if (HeaderHandle.IsAllocated)
                 HeaderHandle.Free();
+
             if (BufferHandle.IsAllocated)
                 BufferHandle.Free();
+
             if (DeviceHandle != IntPtr.Zero)
             {
-                lock (SyncLock)
-                    WaveInterop.NativeMethods.waveOutUnprepareHeader(DeviceHandle, header, Marshal.SizeOf(header));
-
+                WaveInterop.ReleaseHeader(DeviceHandle, header);
                 DeviceHandle = IntPtr.Zero;
             }
-        }
-
-        /// <summary>
-        /// Writes to wave out.
-        /// </summary>
-        /// <exception cref="MmException">waveOutWrite</exception>
-        private void WriteToWaveOut()
-        {
-            MmResult result;
-
-            lock (SyncLock)
-                result = WaveInterop.NativeMethods.waveOutWrite(DeviceHandle, header, Marshal.SizeOf(header));
-
-            if (result != MmResult.NoError)
-            {
-                throw new MmException(result, nameof(WaveInterop.NativeMethods.waveOutWrite));
-            }
-
-            GC.KeepAlive(this);
         }
     }
 }

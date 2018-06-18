@@ -117,10 +117,10 @@
         /// <param name="output">The target frame that will be updated with the source frame. If null is passed the frame will be instantiated.</param>
         /// <param name="siblings">The siblings to help guess additional frame parameters.</param>
         /// <returns>
-        /// Return the updated output frame
+        /// Returns True if successful. False otherwise.
         /// </returns>
         /// <exception cref="ArgumentNullException">input</exception>
-        public override MediaBlock MaterializeFrame(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings)
+        public override bool MaterializeFrame(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings)
         {
             if (output == null) output = new VideoBlock();
             var source = input as VideoFrame;
@@ -159,11 +159,10 @@
             }
 
             // Perform scaling and save the data to our unmanaged buffer pointer
-            target.Allocate(source, Constants.Video.VideoPixelFormat);
-
-            if (target.TryAcquireWriterLock(out var locker))
+            if (target.Allocate(source, Constants.Video.VideoPixelFormat)
+                && target.TryAcquireWriterLock(out var writeLock))
             {
-                using (locker)
+                using (writeLock)
                 {
                     var targetStride = new int[] { target.PictureBufferStride };
                     var targetScan = default(byte_ptrArray8);
@@ -179,6 +178,10 @@
                         targetScan,
                         targetStride);
                 }
+            }
+            else
+            {
+                return false;
             }
 
             // After scaling, we need to copy and guess some of the block properties
@@ -235,7 +238,7 @@
                 target.AspectHeight = aspectRatio.den;
             }
 
-            return target;
+            return true;
         }
 
         /// <summary>
@@ -245,6 +248,10 @@
         /// <returns>Create a managed fraome from an unmanaged one.</returns>
         protected override unsafe MediaFrame CreateFrameSource(ref AVFrame* frame)
         {
+            // Validate the video frame
+            if (frame == null || frame->width <= 0 || frame->height <= 0)
+                return null;
+
             // Move the frame from hardware (GPU) memory to RAM (CPU)
             if (HardwareAccelerator != null)
                 frame = HardwareAccelerator.ExchangeFrame(CodecContext, frame, out IsUsingHardwareDecoding);

@@ -6,6 +6,7 @@
     using Shared;
     using System;
     using System.Runtime.CompilerServices;
+    using System.Threading;
     using System.Windows;
     using System.Windows.Threading;
 
@@ -23,10 +24,10 @@
         private const double SyncThresholdLagging = 100;
         private const double SyncThresholdLeading = -25;
         private const int SyncThresholdMaxStep = 25;
+        private const int SyncLockTimeout = 100;
 
         private readonly IWaitEvent WaitForReadyEvent = WaitEventFactory.Create(isCompleted: false, useSlim: true);
         private readonly object SyncLock = new object();
-        private readonly object PlaySyncLock = new object();
 
         private IWavePlayer AudioDevice = null;
         private SoundTouch AudioProcessor = null;
@@ -145,9 +146,20 @@
         public void Render(MediaBlock mediaBlock, TimeSpan clockPosition)
         {
             // We don't need to render anything while we are seeking. Simply drop the blocks.
-            lock (SyncLock)
+            if (MediaCore.State.IsSeeking) return;
+
+            var lockTaken = false;
+            Monitor.TryEnter(SyncLock, SyncLockTimeout, ref lockTaken);
+            if (lockTaken == false) return;
+
+            try
             {
-                if (MediaCore.State.IsSeeking) return;
+                if ((AudioDevice?.IsRunning ?? false) == false)
+                {
+                    // TODO: Handle this? -- see issue #93
+                    return;
+                }
+
                 if (AudioBuffer == null) return;
 
                 // Capture Media Block Reference
@@ -166,8 +178,15 @@
                         // Write the block if we have to, avoiding repeated blocks.
                         if (AudioBuffer.WriteTag < audioBlock.StartTime)
                         {
-                            MediaElement.RaiseRenderingAudioEvent(audioBlock, clockPosition);
-                            AudioBuffer.Write(audioBlock.Buffer, audioBlock.SamplesBufferLength, audioBlock.StartTime, true);
+                            try
+                            {
+                                MediaElement.RaiseRenderingAudioEvent(audioBlock, clockPosition);
+                                AudioBuffer.Write(audioBlock.Buffer, audioBlock.SamplesBufferLength, audioBlock.StartTime, true);
+                            }
+                            catch (Exception ex2)
+                            {
+
+                            }
                         }
 
                         // Stop adding if we have too much in there.
@@ -178,6 +197,15 @@
                         audioBlock = audioBlocks.Next(audioBlock) as AudioBlock;
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                MediaCore?.Log(MediaLogMessageType.Error,
+                    $"{ex.GetType()} in {nameof(AudioRenderer)}.{nameof(Read)}: {ex.Message}. Stack Trace:\r\n{ex.StackTrace}");
+            }
+            finally
+            {
+                Monitor.Exit(SyncLock);
             }
         }
 
@@ -193,7 +221,7 @@
                 return;
 
             // Detect state changes to reset give up sync conditions.
-            lock (PlaySyncLock)
+            lock (SyncLock)
             {
                 if (MediaCore.State.IsPlaying && PlaySyncStartTime == null)
                 {
@@ -292,64 +320,75 @@
         public int Read(byte[] targetBuffer, int targetBufferOffset, int requestedBytes)
         {
             // We sync-lock the reads to avoid null reference exceptions as detaroy might have been called
-            lock (SyncLock)
-            {
-                try
-                {
-                    WaitForReadyEvent.Complete();
-                    var speedRatio = MediaCore?.State.SpeedRatio ?? 0;
+            var lockTaken = false;
+            Monitor.TryEnter(SyncLock, SyncLockTimeout, ref lockTaken);
 
-                    // Render silence if we don't need to output samples
-                    if (MediaCore.State.IsPlaying == false || speedRatio <= 0d || MediaCore.State.HasAudio == false || AudioBuffer.ReadableCount <= 0)
+            if (lockTaken == false)
+            {
+                Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
+                return requestedBytes;
+            }
+
+            try
+            {
+                WaitForReadyEvent.Complete();
+                var speedRatio = MediaCore?.State.SpeedRatio ?? 0;
+
+                // Render silence if we don't need to output samples
+                if (MediaCore.State.IsPlaying == false || speedRatio <= 0d || MediaCore.State.HasAudio == false || AudioBuffer.ReadableCount <= 0)
+                {
+                    Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
+                    return requestedBytes;
+                }
+
+                // Ensure a preallocated ReadBuffer
+                if (ReadBuffer == null || ReadBuffer.Length < Convert.ToInt32(requestedBytes * Constants.Controller.MaxSpeedRatio))
+                    ReadBuffer = new byte[Convert.ToInt32(requestedBytes * Constants.Controller.MaxSpeedRatio)];
+
+                // First part of DSP: Perform AV Synchronization if needed
+                if (MediaCore.State.HasVideo && Synchronize(targetBuffer, targetBufferOffset, requestedBytes, speedRatio) == false)
+                    return requestedBytes;
+
+                // Perform DSP
+                if (speedRatio < 1.0)
+                {
+                    if (AudioProcessor != null)
+                        ReadAndUseAudioProcessor(requestedBytes, speedRatio);
+                    else
+                        ReadAndSlowDown(requestedBytes, speedRatio);
+                }
+                else if (speedRatio > 1.0)
+                {
+                    if (AudioProcessor != null)
+                        ReadAndUseAudioProcessor(requestedBytes, speedRatio);
+                    else
+                        ReadAndSpeedUp(requestedBytes, true, speedRatio);
+                }
+                else
+                {
+                    if (requestedBytes > AudioBuffer.ReadableCount)
                     {
                         Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
                         return requestedBytes;
                     }
 
-                    // Ensure a preallocated ReadBuffer
-                    if (ReadBuffer == null || ReadBuffer.Length < Convert.ToInt32(requestedBytes * Constants.Controller.MaxSpeedRatio))
-                        ReadBuffer = new byte[Convert.ToInt32(requestedBytes * Constants.Controller.MaxSpeedRatio)];
-
-                    // First part of DSP: Perform AV Synchronization if needed
-                    if (MediaCore.State.HasVideo && Synchronize(targetBuffer, targetBufferOffset, requestedBytes, speedRatio) == false)
-                        return requestedBytes;
-
-                    // Perform DSP
-                    if (speedRatio < 1.0)
-                    {
-                        if (AudioProcessor != null)
-                            ReadAndUseAudioProcessor(requestedBytes, speedRatio);
-                        else
-                            ReadAndSlowDown(requestedBytes, speedRatio);
-                    }
-                    else if (speedRatio > 1.0)
-                    {
-                        if (AudioProcessor != null)
-                            ReadAndUseAudioProcessor(requestedBytes, speedRatio);
-                        else
-                            ReadAndSpeedUp(requestedBytes, true, speedRatio);
-                    }
-                    else
-                    {
-                        if (requestedBytes > AudioBuffer.ReadableCount)
-                        {
-                            Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
-                            return requestedBytes;
-                        }
-
-                        AudioBuffer.Read(requestedBytes, ReadBuffer, 0);
-                    }
-
-                    ApplyVolumeAndBalance(targetBuffer, targetBufferOffset, requestedBytes);
-                }
-                catch (Exception ex)
-                {
-                    MediaCore?.Log(MediaLogMessageType.Error, $"{ex.GetType()} in {nameof(AudioRenderer)}.{nameof(Read)}: {ex.Message}. Stack Trace:\r\n{ex.StackTrace}");
-                    Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
+                    AudioBuffer.Read(requestedBytes, ReadBuffer, 0);
                 }
 
-                return requestedBytes;
+                ApplyVolumeAndBalance(targetBuffer, targetBufferOffset, requestedBytes);
             }
+            catch (Exception ex)
+            {
+                MediaCore?.Log(MediaLogMessageType.Error,
+                    $"{ex.GetType()} in {nameof(AudioRenderer)}.{nameof(Read)}: {ex.Message}. Stack Trace:\r\n{ex.StackTrace}");
+                Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
+            }
+            finally
+            {
+                Monitor.Exit(SyncLock);
+            }
+
+            return requestedBytes;
         }
 
         #endregion
@@ -397,8 +436,7 @@
             SampleBlockSize = Constants.Audio.BytesPerSample * Constants.Audio.ChannelCount;
             var bufferLength = WaveFormat.ConvertLatencyToByteSize(AudioDevice.DesiredLatency) * MediaCore.Blocks[MediaType.Audio].Capacity / 2;
             AudioBuffer = new CircularBuffer(bufferLength);
-            AudioDevice.Init(this);
-            AudioDevice.Play();
+            AudioDevice.Start();
         }
 
         /// <summary>
@@ -411,7 +449,6 @@
             {
                 if (AudioDevice != null)
                 {
-                    AudioDevice.Pause();
                     AudioDevice.Dispose();
                     AudioDevice = null;
                 }
@@ -492,28 +529,25 @@
             // The Sync conditions are reset in the Update method.
             if ((MediaCore?.State?.IsSeekable ?? true) == false && PlaySyncGaveUp.Value == false)
             {
-                lock (PlaySyncLock)
+                // 1. Determine if a sync is required
+                if (audioLatencyMs > SyncThresholdLagging ||
+                    audioLatencyMs < SyncThresholdLeading ||
+                    Math.Abs(audioLatencyMs) > SyncThresholdPerfect)
                 {
-                    // 1. Determine if a sync is required
-                    if (audioLatencyMs > SyncThresholdLagging ||
-                        audioLatencyMs < SyncThresholdLeading ||
-                        Math.Abs(audioLatencyMs) > SyncThresholdPerfect)
-                    {
-                        PlaySyncCount++;
-                    }
+                    PlaySyncCount++;
+                }
 
-                    // 2. Compute the variables to determine give-up conditions
-                    var playbackElapsedSeconds = PlaySyncStartTime.HasValue == false ?
-                        0 : DateTime.UtcNow.Subtract(PlaySyncStartTime.Value).TotalSeconds;
-                    var syncsPerSecond = PlaySyncCount / playbackElapsedSeconds;
+                // 2. Compute the variables to determine give-up conditions
+                var playbackElapsedSeconds = PlaySyncStartTime.HasValue == false ?
+                    0 : DateTime.UtcNow.Subtract(PlaySyncStartTime.Value).TotalSeconds;
+                var syncsPerSecond = PlaySyncCount / playbackElapsedSeconds;
 
-                    // 3. Determine if we need to give up
-                    if (playbackElapsedSeconds >= 3 && syncsPerSecond >= 3)
-                    {
-                        MediaCore.Log(MediaLogMessageType.Warning,
-                            $"SYNC AUDIO: GIVE UP | SECS: {playbackElapsedSeconds:0.00}; SYN: {PlaySyncCount}; RATE: {syncsPerSecond:0.00} SYN/s; LAT: {audioLatencyMs} ms.");
-                        PlaySyncGaveUp.Value = true;
-                    }
+                // 3. Determine if we need to give up
+                if (playbackElapsedSeconds >= 3 && syncsPerSecond >= 3)
+                {
+                    MediaCore.Log(MediaLogMessageType.Warning,
+                        $"SYNC AUDIO: GIVE UP | SECS: {playbackElapsedSeconds:0.00}; SYN: {PlaySyncCount}; RATE: {syncsPerSecond:0.00} SYN/s; LAT: {audioLatencyMs} ms.");
+                    PlaySyncGaveUp.Value = true;
                 }
             }
 
@@ -840,6 +874,5 @@
         }
 
         #endregion
-
     }
 }
