@@ -49,10 +49,11 @@
                 var t = MediaType.None;
 
                 // Check if we already have the block. If we do, simply set the clock position to the target position
-                // we don't need anything else.
+                // we don't need anything else. This implements frame-by frame seeking and we need to snap to a discrete
+                // position of the main component so it sticks on it.
                 if (m.Blocks[main].IsInRange(TargetPosition))
                 {
-                    m.Clock.Update(TargetPosition);
+                    m.Clock.Update(m.SnapPositionToFramePosition(TargetPosition));
                     return Task.CompletedTask;
                 }
 
@@ -135,7 +136,7 @@
                 else
                 {
                     resultPosition = (m.Blocks[main].Count == 0 && TargetPosition != TimeSpan.Zero) ?
-                        initialPosition : // Unsuccessful. This initial position is simply
+                        initialPosition : // Unsuccessful. This initial position is simply what the clock was :(
                         TargetPosition; // Successful seek with main blocks in range
                 }
 

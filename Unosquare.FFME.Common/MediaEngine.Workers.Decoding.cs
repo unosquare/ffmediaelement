@@ -82,9 +82,9 @@
                     hasPendingSeeks = Commands.PendingCountOf(MediaCommandType.Seek) > 0;
                     if (State.IsSeeking && hasPendingSeeks == false)
                     {
-                        // Detect a end of seek cycle and update to the final position
-                        wallClock = SnapToFramePosition(WallClock);
-                        Clock.Update(wallClock);
+                        // Detect a end of seek cycle and update the state to the final position
+                        // as set by the seek command. This is the position we already captured 
+                        // as the seek command was processed already.
                         State.UpdatePosition(wallClock);
 
                         // Call the seek method on all renderers
@@ -105,7 +105,7 @@
                     }
                     else if (State.IsSeeking == false)
                     {
-                        // Notify position changes
+                        // Notify position changes continuously on the state object
                         State.UpdatePosition(wallClock);
                     }
 

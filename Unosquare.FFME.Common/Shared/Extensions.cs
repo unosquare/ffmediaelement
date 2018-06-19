@@ -236,6 +236,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double ToDouble(this AVRational rational)
         {
+            if (rational.den == 0) return 0; // prevent overflows.
             return Convert.ToDouble(rational.num) / Convert.ToDouble(rational.den);
         }
 

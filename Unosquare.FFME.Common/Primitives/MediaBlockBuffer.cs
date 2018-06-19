@@ -233,6 +233,30 @@
         #region Methods
 
         /// <summary>
+        /// Gets the snap, discrete position of the corresponding frame.
+        /// </summary>
+        /// <param name="position">The analog position.</param>
+        /// <returns>A discrete frame position</returns>
+        public TimeSpan? GetSnapPosition(TimeSpan position)
+        {
+            using (Locker.AcquireReaderLock())
+            {
+                if (IsMonotonic == false)
+                    return this[position]?.StartTime;
+
+                var block = this[position];
+                if (block == null) return default;
+
+                if (block.EndTime > position) return block.StartTime;
+
+                var nextBlock = Next(block);
+                if (nextBlock == null) return block.StartTime;
+
+                return nextBlock.StartTime;
+            }
+        }
+
+        /// <summary>
         /// Gets the percentage of the range for the given time position.
         /// </summary>
         /// <param name="position">The position.</param>
@@ -308,7 +332,7 @@
                 var highIndex = blockCount - 1;
                 var midIndex = 1 + lowIndex + ((highIndex - lowIndex) / 2);
 
-                // edge condition cheching
+                // edge condition checking
                 if (PlaybackBlocks[lowIndex].StartTime >= renderTime) return lowIndex;
                 if (PlaybackBlocks[highIndex].StartTime <= renderTime) return highIndex;
 

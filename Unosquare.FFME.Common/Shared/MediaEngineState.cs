@@ -17,6 +17,7 @@
         private const ulong NetworkStreamCacheFactor = 30;
         private const ulong StandardStreamCacheFactor = 4;
 
+        private static readonly TimeSpan GenericFrameStepDuration = TimeSpan.FromSeconds(0.01d);
         private static readonly PropertyInfo[] Properties = null;
         private readonly MediaEngine Parent = null;
         private readonly ReadOnlyDictionary<string, string> EmptyDictionary
@@ -113,25 +114,18 @@
         /// <summary>
         /// Gets the duration of a single frame step.
         /// If there is a video component with a framerate, this propery returns the length of a frame.
-        /// If there is no video component it simply returns a tenth of a second.
+        /// If there is no video component it simply returns 10 milliseconds.
         /// </summary>
         public TimeSpan FrameStepDuration
         {
             get
             {
-                if (IsOpen == false) { return TimeSpan.Zero; }
+                var frameLengthMillis = 1000d * VideoFrameLength;
 
-                if (HasVideo && VideoFrameLength > 0 && !double.IsInfinity(VideoFrameLength))
-                {
-                    try
-                    {
-                        return TimeSpan.FromSeconds(VideoFrameLength);
-                    }
-                    catch(OverflowException)
-                    { }
-                }
+                if (frameLengthMillis <= 0)
+                    return IsOpen ? GenericFrameStepDuration : TimeSpan.Zero;
 
-                return TimeSpan.FromSeconds(0.1d);
+                return TimeSpan.FromTicks(Convert.ToInt64(TimeSpan.TicksPerMillisecond * frameLengthMillis));
             }
         }
 
@@ -209,7 +203,7 @@
         /// Gets the duration in seconds of the video frame.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public double VideoFrameLength => 1d / VideoFrameRate;
+        public double VideoFrameLength => VideoFrameRate <= 0 ? default : 1d / VideoFrameRate;
 
         /// <summary>
         /// Gets the audio codec.

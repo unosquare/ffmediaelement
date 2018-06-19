@@ -251,27 +251,22 @@
         }
 
         /// <summary>
-        /// Returns the value of a discrete video position if possible
+        /// Returns the value of a discrete frame position of themain media component if possible.
+        /// Otherwise, it simply rounds the position to the nearest millisecond.
         /// </summary>
         /// <param name="position">The position.</param>
-        /// <returns>The snapped position</returns>
+        /// <returns>The snapped, discrete, normalized position</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal TimeSpan SnapToFramePosition(TimeSpan position)
+        internal TimeSpan SnapPositionToFramePosition(TimeSpan position)
         {
             // return position;
             if (Container == null)
-                return position;
+                return position.Normalize();
 
-            // Set the clock to a discrete video position if possible
-            if (Container.Components.Main.MediaType == MediaType.Video
-               && Blocks[MediaType.Video].IsInRange(position))
-            {
-                var block = Blocks[MediaType.Video][position];
-                if (block != null && block.Duration.Ticks > 0 && State.VideoFrameRate != 0d)
-                    return block.SnapTime;
-            }
+            var blocks = Blocks[Container.Components.Main.MediaType];
+            if (blocks == null) return position.Normalize();
 
-            return position.Normalize();
+            return blocks.GetSnapPosition(position) ?? position.Normalize();
         }
 
         /// <summary>
