@@ -183,14 +183,15 @@
                 var screenWidth = SystemParameters.PrimaryScreenWidth;
                 var screenHeight = SystemParameters.PrimaryScreenHeight;
 
-                if (SystemParameters.VirtualScreenWidth != SystemParameters.FullPrimaryScreenWidth)
+                if (SystemParameters.VirtualScreenWidth != SystemParameters.FullPrimaryScreenWidth &&
+                    SystemParameters.VirtualScreenLeft == 0 && SystemParameters.VirtualScreenTop == 0)
                 {
                     screenOffsetX = SystemParameters.PrimaryScreenWidth;
                     screenWidth = SystemParameters.VirtualScreenWidth - SystemParameters.PrimaryScreenWidth;
                 }
 
                 Left = screenOffsetX + ((screenWidth - ActualWidth) / 2d);
-                Top = (SystemParameters.PrimaryScreenHeight - ActualHeight) / 2d;
+                Top = (screenHeight - ActualHeight) / 2d;
             }
 
             // Open a file if it is specified in the arguments
@@ -245,8 +246,8 @@
             if (e.Key == Key.Left)
             {
                 if (Media.IsPlaying) await Media.Pause();
-                Media.Position -= TimeSpan.FromMilliseconds(
-                    Media.FrameStepDuration.TotalMilliseconds * (Media.SpeedRatio >= 1 ? Media.SpeedRatio : 1));
+                Media.Position = TimeSpan.FromTicks(Media.Position.Ticks + TimeSpan.TicksPerMillisecond - Convert.ToInt64(
+                    Media.FrameStepDuration.Ticks * (Media.SpeedRatio >= 1 ? Media.SpeedRatio : 1)));
 
                 return;
             }
@@ -255,8 +256,8 @@
             if (e.Key == Key.Right)
             {
                 if (Media.IsPlaying) await Media.Pause();
-                Media.Position += TimeSpan.FromMilliseconds(
-                    Media.FrameStepDuration.TotalMilliseconds * (Media.SpeedRatio >= 1 ? Media.SpeedRatio : 1));
+                Media.Position = TimeSpan.FromTicks(Media.Position.Ticks + Convert.ToInt64(
+                    Media.FrameStepDuration.Ticks * (Media.SpeedRatio >= 1 ? Media.SpeedRatio : 1)));
 
                 return;
             }
