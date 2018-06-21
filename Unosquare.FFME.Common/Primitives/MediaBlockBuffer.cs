@@ -20,12 +20,12 @@
         /// <summary>
         /// The blocks that are available to be filled.
         /// </summary>
-        private readonly Queue<MediaBlock> PoolBlocks = new Queue<MediaBlock>();
+        private readonly Queue<MediaBlock> PoolBlocks;
 
         /// <summary>
         /// The blocks that are available for rendering.
         /// </summary>
-        private readonly List<MediaBlock> PlaybackBlocks = new List<MediaBlock>();
+        private readonly List<MediaBlock> PlaybackBlocks;
 
         /// <summary>
         /// Controls multiple reads and exclusive writes
@@ -45,6 +45,8 @@
         {
             Capacity = capacity;
             MediaType = mediaType;
+            PoolBlocks = new Queue<MediaBlock>(capacity + 1); // +1 to be safe and not degrade performance
+            PlaybackBlocks = new List<MediaBlock>(capacity + 1); // +1 to be safe and not degrade performance
 
             // allocate the blocks
             for (var i = 0; i < capacity; i++)
@@ -131,8 +133,8 @@
                     if (PlaybackBlocks.Count <= 0)
                         return false;
 
-                    var firstBlockDuration = PlaybackBlocks[0].Duration;
-                    return PlaybackBlocks.All(b => b.Duration == firstBlockDuration);
+                    var firstBlockTicks = PlaybackBlocks[0].Duration.Ticks;
+                    return PlaybackBlocks.All(b => b.Duration.Ticks == firstBlockTicks);
                 }
             }
         }
@@ -233,30 +235,6 @@
         #region Methods
 
         /// <summary>
-        /// Gets the snap, discrete position of the corresponding frame.
-        /// </summary>
-        /// <param name="position">The analog position.</param>
-        /// <returns>A discrete frame position</returns>
-        public TimeSpan? GetSnapPosition(TimeSpan position)
-        {
-            using (Locker.AcquireReaderLock())
-            {
-                if (IsMonotonic == false)
-                    return this[position]?.StartTime;
-
-                var block = this[position];
-                if (block == null) return default;
-
-                if (block.EndTime > position) return block.StartTime;
-
-                var nextBlock = Next(block);
-                if (nextBlock == null) return block.StartTime;
-
-                return nextBlock.StartTime;
-            }
-        }
-
-        /// <summary>
         /// Gets the percentage of the range for the given time position.
         /// </summary>
         /// <param name="position">The position.</param>
@@ -271,7 +249,8 @@
         }
 
         /// <summary>
-        /// Retrieves the block following the provided current block
+        /// Retrieves the block following the provided current block.
+        /// If the argument is null and there are blocks, the first block is returned.
         /// </summary>
         /// <param name="current">The current block.</param>
         /// <returns>The next media block</returns>
@@ -279,14 +258,59 @@
         {
             using (Locker.AcquireReaderLock())
             {
-                var currentIndex = current == null && PlaybackBlocks.Count > 0 ?
-                    0 : PlaybackBlocks.IndexOf(current);
+                // for current null, return the first one if there are any
+                if (current == null)
+                {
+                    if (PlaybackBlocks.Count > 0)
+                        return PlaybackBlocks[0];
+                    else
+                        return null;
+                }
 
-                if (currentIndex < 0)
-                    return null;
+                // Find the block index
+                var currentIndex = PlaybackBlocks.IndexOf(current);
 
-                if (currentIndex + 1 < PlaybackBlocks.Count)
-                    return PlaybackBlocks[currentIndex + 1];
+                // When IndexOf fails
+                if (currentIndex < 0) return null;
+
+                // Compute the target index
+                var targetIndex = currentIndex + 1;
+                if (targetIndex >= 0 && targetIndex < PlaybackBlocks.Count)
+                    return PlaybackBlocks[targetIndex];
+
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the block prior the provided current block.
+        /// If the argument is null and there are blocks, the last block is returned.
+        /// </summary>
+        /// <param name="current">The current block.</param>
+        /// <returns>The next media block</returns>
+        public MediaBlock Previous(MediaBlock current)
+        {
+            using (Locker.AcquireReaderLock())
+            {
+                // for current null, return the last one if there are any
+                if (current == null)
+                {
+                    if (PlaybackBlocks.Count > 0)
+                        return PlaybackBlocks[PlaybackBlocks.Count - 1];
+                    else
+                        return null;
+                }
+
+                // Find the block index
+                var currentIndex = PlaybackBlocks.IndexOf(current);
+
+                // When IndexOf fails
+                if (currentIndex < 0) return null;
+
+                // Compute the target index
+                var targetIndex = currentIndex - 1;
+                if (targetIndex >= 0 && targetIndex < PlaybackBlocks.Count)
+                    return PlaybackBlocks[targetIndex];
 
                 return null;
             }
@@ -437,10 +461,14 @@
                     return null;
                 }
 
-                // Add the converted block to the playback list and sort it.
+                // Add the converted block to the playback list and sort it if we have to.
+                var requiresSorting = targetBlock.StartTime < RangeEndTime;
                 PlaybackBlocks.Add(targetBlock);
-                PlaybackBlocks.Sort();
                 LifetimeBlockDuration = TimeSpan.FromTicks(LifetimeBlockDuration.Ticks + targetBlock.Duration.Ticks);
+
+                // Perform the sorting
+                if (requiresSorting)
+                    PlaybackBlocks.Sort();
 
                 // return the new target block
                 return targetBlock;
@@ -473,6 +501,50 @@
             {
                 return $"{MediaType,-12} - CAP: {Capacity,10} | FRE: {PoolBlocks.Count,7} | " +
                     $"USD: {PlaybackBlocks.Count,4} |  RNG: {RangeStartTime.Format(),8} to {RangeEndTime.Format().Trim()}";
+            }
+        }
+
+        /// <summary>
+        /// Gets the snap, discrete position of the corresponding block.
+        /// If the position is greater than the end time of the block, the
+        /// start time of the next available block is returned.
+        /// </summary>
+        /// <param name="position">The analog position.</param>
+        /// <returns>A discrete frame position</returns>
+        internal TimeSpan? GetSnapPosition(TimeSpan position)
+        {
+            using (Locker.AcquireReaderLock())
+            {
+                if (IsMonotonic == false)
+                    return this[position]?.StartTime;
+
+                var block = this[position];
+                if (block == null) return default;
+
+                if (block.EndTime > position) return block.StartTime;
+
+                var nextBlock = Next(block);
+                if (nextBlock == null) return block.StartTime;
+
+                return nextBlock.StartTime;
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the current, next, and previous blocks based on the given clock position.
+        /// If the blocks are not found, it returns them as null;
+        /// </summary>
+        /// <param name="position">The clock position.</param>
+        /// <param name="current">The current block.</param>
+        /// <param name="previous">The position of the previous frame.</param>
+        /// <param name="next">The position of the next frame.</param>
+        internal void GetNeighboringBlocks(TimeSpan position, out MediaBlock current, out MediaBlock previous, out MediaBlock next)
+        {
+            using (Locker.AcquireReaderLock())
+            {
+                current = this[position];
+                previous = current != null ? Previous(current) : default;
+                next = current != null ? Next(current) : default;
             }
         }
 

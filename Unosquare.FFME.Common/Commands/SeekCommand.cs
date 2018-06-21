@@ -53,7 +53,7 @@
                 // position of the main component so it sticks on it.
                 if (m.Blocks[main].IsInRange(TargetPosition))
                 {
-                    m.Clock.Update(m.SnapPositionToFramePosition(TargetPosition));
+                    m.Clock.Update(m.SnapPositionToBlockPosition(TargetPosition));
                     return Task.CompletedTask;
                 }
 

@@ -33,7 +33,7 @@
             foreach (var renderer in m.Renderers.Values)
                 renderer.Pause();
 
-            var wallClock = m.SnapPositionToFramePosition(m.WallClock);
+            var wallClock = m.SnapPositionToBlockPosition(m.WallClock);
             m.Clock.Update(wallClock);
             m.State.UpdateMediaState(PlaybackStatus.Pause);
 

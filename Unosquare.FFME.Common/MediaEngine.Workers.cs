@@ -257,7 +257,7 @@
         /// <param name="position">The position.</param>
         /// <returns>The snapped, discrete, normalized position</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal TimeSpan SnapPositionToFramePosition(TimeSpan position)
+        internal TimeSpan SnapPositionToBlockPosition(TimeSpan position)
         {
             // return position;
             if (Container == null)

@@ -64,11 +64,22 @@
         /// <summary>
         /// Gets or Sets the Position property on the MediaElement.
         /// </summary>
-        public TimeSpan Position
-        {
-            get;
-            private set;
-        }
+        public TimeSpan Position { get; private set; }
+
+        /// <summary>
+        /// Gets the discrete timestamp of the next frame.
+        /// </summary>
+        public TimeSpan PositionNext { get; private set; }
+
+        /// <summary>
+        /// Gets the discrete timestamp of the current frame.
+        /// </summary>
+        public TimeSpan PositionCurrent { get; private set; }
+
+        /// <summary>
+        /// Gets the discrete timestamp of the previous frame.
+        /// </summary>
+        public TimeSpan PositionPrevious { get; private set; }
 
         #endregion
 
@@ -372,13 +383,37 @@
         /// <param name="newPosition">The position.</param>
         internal void UpdatePosition(TimeSpan newPosition)
         {
-            var oldValue = Position;
-            var newValue = newPosition;
-            if (oldValue.Ticks == newValue.Ticks)
+            const long Millisecond = TimeSpan.TicksPerMillisecond;
+
+            var oldPosition = Position;
+            if (oldPosition.Ticks == newPosition.Ticks)
                 return;
 
-            Position = newValue;
-            Parent.SendOnPositionChanged(oldValue, newValue);
+            Position = newPosition;
+
+            // Update discrete positions
+            var t = Parent?.Container?.Components?.Main?.MediaType;
+            if (t.HasValue && Parent?.Blocks[t.Value] != null)
+            {
+                Parent.Blocks[t.Value].GetNeighboringBlocks(newPosition, out var current, out var previous, out var next);
+                PositionCurrent = current?.StartTime ?? newPosition;
+                if (current == null)
+                {
+                    PositionNext = next?.StartTime ?? TimeSpan.FromTicks(
+                        PositionCurrent.Ticks + FrameStepDuration.Ticks + Millisecond);
+                    PositionPrevious = previous?.StartTime ?? TimeSpan.FromTicks(
+                        PositionCurrent.Ticks - FrameStepDuration.Ticks + Millisecond);
+                }
+                else
+                {
+                    PositionNext = next?.StartTime ?? TimeSpan.FromTicks(
+                        current.EndTime.Ticks + (current.Duration.Ticks / 2));
+                    PositionPrevious = previous?.StartTime ?? TimeSpan.FromTicks(
+                        current.StartTime.Ticks - (current.Duration.Ticks / 2));
+                }
+            }
+
+            Parent.SendOnPositionChanged(oldPosition, newPosition);
         }
 
         /// <summary>

@@ -246,8 +246,7 @@
             if (e.Key == Key.Left)
             {
                 if (Media.IsPlaying) await Media.Pause();
-                Media.Position = TimeSpan.FromTicks(Media.Position.Ticks + TimeSpan.TicksPerMillisecond - Convert.ToInt64(
-                    Media.FrameStepDuration.Ticks * (Media.SpeedRatio >= 1 ? Media.SpeedRatio : 1)));
+                Media.Position = Media.PositionPrevious;
 
                 return;
             }
@@ -256,8 +255,7 @@
             if (e.Key == Key.Right)
             {
                 if (Media.IsPlaying) await Media.Pause();
-                Media.Position = TimeSpan.FromTicks(Media.Position.Ticks + Convert.ToInt64(
-                    Media.FrameStepDuration.Ticks * (Media.SpeedRatio >= 1 ? Media.SpeedRatio : 1)));
+                Media.Position = Media.PositionNext;
 
                 return;
             }

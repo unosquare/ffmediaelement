@@ -83,7 +83,7 @@
                     if (State.IsSeeking && hasPendingSeeks == false)
                     {
                         // Detect a end of seek cycle and update the state to the final position
-                        // as set by the seek command. This is the position we already captured 
+                        // as set by the seek command. This is the position we already captured
                         // as the seek command was processed already.
                         State.UpdatePosition(wallClock);
 

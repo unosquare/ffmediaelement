@@ -84,6 +84,21 @@
         TimeSpan FrameStepDuration { get; }
 
         /// <summary>
+        /// Gets the discrete timestamp of the next frame.
+        /// </summary>
+        TimeSpan PositionNext { get; }
+
+        /// <summary>
+        /// Gets the discrete timestamp of the current frame.
+        /// </summary>
+        TimeSpan PositionCurrent { get; }
+
+        /// <summary>
+        /// Gets the discrete timestamp of the previous frame.
+        /// </summary>
+        TimeSpan PositionPrevious { get; }
+
+        /// <summary>
         /// Gets a value indicating whether the media has audio.
         /// </summary>
         bool HasAudio { get; }
