@@ -542,9 +542,10 @@
         {
             using (Locker.AcquireReaderLock())
             {
-                current = this[position];
-                previous = current != null ? Previous(current) : default;
-                next = current != null ? Next(current) : default;
+                var currentIndex = IndexOf(position);
+                current = currentIndex >= 0 ? PlaybackBlocks[currentIndex] : default;
+                previous = currentIndex - 1 >= 0 ? PlaybackBlocks[currentIndex - 1] : default;
+                next = currentIndex >= 0 && currentIndex + 1 < PlaybackBlocks.Count ? PlaybackBlocks[currentIndex + 1] : default;
             }
         }
 
