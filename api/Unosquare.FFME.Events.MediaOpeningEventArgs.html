@@ -5,10 +5,10 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Class MediaOpeningRoutedEventArgs
+    <title>Class MediaOpeningEventArgs
    | FFME: WPF MediaElement replacement based on FFmpeg </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Class MediaOpeningRoutedEventArgs
+    <meta name="title" content="Class MediaOpeningEventArgs
    | FFME: WPF MediaElement replacement based on FFmpeg ">
     <meta name="generator" content="docfx 2.36.2.0">
     
@@ -77,10 +77,10 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="Unosquare.FFME.Events.MediaOpeningRoutedEventArgs">
+            <article class="content wrap" id="_content" data-uid="Unosquare.FFME.Events.MediaOpeningEventArgs">
   
   
-  <h1 id="Unosquare_FFME_Events_MediaOpeningRoutedEventArgs" data-uid="Unosquare.FFME.Events.MediaOpeningRoutedEventArgs" class="text-break">Class MediaOpeningRoutedEventArgs
+  <h1 id="Unosquare_FFME_Events_MediaOpeningEventArgs" data-uid="Unosquare.FFME.Events.MediaOpeningEventArgs" class="text-break">Class MediaOpeningEventArgs
   </h1>
   <div class="markdown level0 summary"><p>Represents the event arguments of the <a class="xref" href="Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaOpening">MediaOpening</a>
 or <a class="xref" href="Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaChanging">MediaChanging</a> routed events.</p>
@@ -89,25 +89,25 @@ or <a class="xref" href="Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaEl
   <div class="inheritance">
     <h5>Inheritance</h5>
     <div class="level0"><span class="xref">System.Object</span></div>
-    <div class="level1"><span class="xref">MediaOpeningRoutedEventArgs</span></div>
+    <div class="level1"><span class="xref">MediaOpeningEventArgs</span></div>
   </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Unosquare.FFME.Events.html">Unosquare.FFME.Events</a></h6>
-  <h5 id="Unosquare_FFME_Events_MediaOpeningRoutedEventArgs_syntax">Syntax</h5>
+  <h5 id="Unosquare_FFME_Events_MediaOpeningEventArgs_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public class MediaOpeningRoutedEventArgs : RoutedEventArgs</code></pre>
+    <pre><code class="lang-csharp hljs">public class MediaOpeningEventArgs : RoutedEventArgs</code></pre>
   </div>
   <h3 id="constructors">Constructors
   </h3>
   
   
-  <a id="Unosquare_FFME_Events_MediaOpeningRoutedEventArgs__ctor_" data-uid="Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.#ctor*"></a>
-  <h4 id="Unosquare_FFME_Events_MediaOpeningRoutedEventArgs__ctor_RoutedEvent_System_Object_MediaOptions_MediaInfo_" data-uid="Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.#ctor(RoutedEvent,System.Object,MediaOptions,MediaInfo)">MediaOpeningRoutedEventArgs(RoutedEvent, Object, MediaOptions, MediaInfo)</h4>
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.html">MediaOpeningRoutedEventArgs</a> class.</p>
+  <a id="Unosquare_FFME_Events_MediaOpeningEventArgs__ctor_" data-uid="Unosquare.FFME.Events.MediaOpeningEventArgs.#ctor*"></a>
+  <h4 id="Unosquare_FFME_Events_MediaOpeningEventArgs__ctor_MediaOptions_MediaInfo_" data-uid="Unosquare.FFME.Events.MediaOpeningEventArgs.#ctor(MediaOptions,MediaInfo)">MediaOpeningEventArgs(MediaOptions, MediaInfo)</h4>
+  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="Unosquare.FFME.Events.MediaOpeningEventArgs.html">MediaOpeningEventArgs</a> class.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MediaOpeningRoutedEventArgs(RoutedEvent routedEvent, object source, MediaOptions options, MediaInfo info)</code></pre>
+    <pre><code class="lang-csharp hljs">public MediaOpeningEventArgs(MediaOptions options, MediaInfo info)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -119,18 +119,6 @@ or <a class="xref" href="Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaEl
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td><span class="xref">RoutedEvent</span></td>
-        <td><span class="parametername">routedEvent</span></td>
-        <td><p>The routed event.</p>
-</td>
-      </tr>
-      <tr>
-        <td><span class="xref">System.Object</span></td>
-        <td><span class="parametername">source</span></td>
-        <td><p>The source.</p>
-</td>
-      </tr>
       <tr>
         <td><span class="xref">MediaOptions</span></td>
         <td><span class="parametername">options</span></td>
@@ -149,8 +137,8 @@ or <a class="xref" href="Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaEl
   </h3>
   
   
-  <a id="Unosquare_FFME_Events_MediaOpeningRoutedEventArgs_Info_" data-uid="Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.Info*"></a>
-  <h4 id="Unosquare_FFME_Events_MediaOpeningRoutedEventArgs_Info" data-uid="Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.Info">Info</h4>
+  <a id="Unosquare_FFME_Events_MediaOpeningEventArgs_Info_" data-uid="Unosquare.FFME.Events.MediaOpeningEventArgs.Info*"></a>
+  <h4 id="Unosquare_FFME_Events_MediaOpeningEventArgs_Info" data-uid="Unosquare.FFME.Events.MediaOpeningEventArgs.Info">Info</h4>
   <div class="markdown level1 summary"><p>Provides internal details of the media, including its component streams.
 Typically, options are set based on what this information contains.</p>
 </div>
@@ -176,8 +164,8 @@ Typically, options are set based on what this information contains.</p>
   </table>
   
   
-  <a id="Unosquare_FFME_Events_MediaOpeningRoutedEventArgs_Options_" data-uid="Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.Options*"></a>
-  <h4 id="Unosquare_FFME_Events_MediaOpeningRoutedEventArgs_Options" data-uid="Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.Options">Options</h4>
+  <a id="Unosquare_FFME_Events_MediaOpeningEventArgs_Options_" data-uid="Unosquare.FFME.Events.MediaOpeningEventArgs.Options*"></a>
+  <h4 id="Unosquare_FFME_Events_MediaOpeningEventArgs_Options" data-uid="Unosquare.FFME.Events.MediaOpeningEventArgs.Options">Options</h4>
   <div class="markdown level1 summary"><p>Set or change the options before the media is opened.</p>
 </div>
   <div class="markdown level1 conceptual"></div>

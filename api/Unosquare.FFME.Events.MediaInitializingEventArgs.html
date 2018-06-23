@@ -5,10 +5,10 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Class MediaInitializingRoutedEventArgs
+    <title>Class MediaInitializingEventArgs
    | FFME: WPF MediaElement replacement based on FFmpeg </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Class MediaInitializingRoutedEventArgs
+    <meta name="title" content="Class MediaInitializingEventArgs
    | FFME: WPF MediaElement replacement based on FFmpeg ">
     <meta name="generator" content="docfx 2.36.2.0">
     
@@ -77,10 +77,10 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs">
+            <article class="content wrap" id="_content" data-uid="Unosquare.FFME.Events.MediaInitializingEventArgs">
   
   
-  <h1 id="Unosquare_FFME_Events_MediaInitializingRoutedEventArgs" data-uid="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs" class="text-break">Class MediaInitializingRoutedEventArgs
+  <h1 id="Unosquare_FFME_Events_MediaInitializingEventArgs" data-uid="Unosquare.FFME.Events.MediaInitializingEventArgs" class="text-break">Class MediaInitializingEventArgs
   </h1>
   <div class="markdown level0 summary"><p>Represents the event arguments of the MediaInitializing routed event.</p>
 </div>
@@ -88,25 +88,53 @@
   <div class="inheritance">
     <h5>Inheritance</h5>
     <div class="level0"><span class="xref">System.Object</span></div>
-    <div class="level1"><span class="xref">MediaInitializingRoutedEventArgs</span></div>
+    <div class="level1"><span class="xref">System.EventArgs</span></div>
+    <div class="level2"><span class="xref">MediaInitializingEventArgs</span></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.EventArgs.Empty</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
   </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Unosquare.FFME.Events.html">Unosquare.FFME.Events</a></h6>
-  <h5 id="Unosquare_FFME_Events_MediaInitializingRoutedEventArgs_syntax">Syntax</h5>
+  <h5 id="Unosquare_FFME_Events_MediaInitializingEventArgs_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public class MediaInitializingRoutedEventArgs : RoutedEventArgs</code></pre>
+    <pre><code class="lang-csharp hljs">public class MediaInitializingEventArgs : EventArgs</code></pre>
   </div>
   <h3 id="constructors">Constructors
   </h3>
   
   
-  <a id="Unosquare_FFME_Events_MediaInitializingRoutedEventArgs__ctor_" data-uid="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.#ctor*"></a>
-  <h4 id="Unosquare_FFME_Events_MediaInitializingRoutedEventArgs__ctor_RoutedEvent_System_Object_ContainerConfiguration_System_String_" data-uid="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.#ctor(RoutedEvent,System.Object,ContainerConfiguration,System.String)">MediaInitializingRoutedEventArgs(RoutedEvent, Object, ContainerConfiguration, String)</h4>
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.html">MediaInitializingRoutedEventArgs</a> class.</p>
+  <a id="Unosquare_FFME_Events_MediaInitializingEventArgs__ctor_" data-uid="Unosquare.FFME.Events.MediaInitializingEventArgs.#ctor*"></a>
+  <h4 id="Unosquare_FFME_Events_MediaInitializingEventArgs__ctor_ContainerConfiguration_System_String_" data-uid="Unosquare.FFME.Events.MediaInitializingEventArgs.#ctor(ContainerConfiguration,System.String)">MediaInitializingEventArgs(ContainerConfiguration, String)</h4>
+  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="Unosquare.FFME.Events.MediaInitializingEventArgs.html">MediaInitializingEventArgs</a> class.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public MediaInitializingRoutedEventArgs(RoutedEvent routedEvent, object source, ContainerConfiguration config, string url)</code></pre>
+    <pre><code class="lang-csharp hljs">public MediaInitializingEventArgs(ContainerConfiguration config, string url)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -118,18 +146,6 @@
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td><span class="xref">RoutedEvent</span></td>
-        <td><span class="parametername">routedEvent</span></td>
-        <td><p>The routed event.</p>
-</td>
-      </tr>
-      <tr>
-        <td><span class="xref">System.Object</span></td>
-        <td><span class="parametername">source</span></td>
-        <td><p>The source.</p>
-</td>
-      </tr>
       <tr>
         <td><span class="xref">ContainerConfiguration</span></td>
         <td><span class="parametername">config</span></td>
@@ -148,8 +164,8 @@
   </h3>
   
   
-  <a id="Unosquare_FFME_Events_MediaInitializingRoutedEventArgs_Configuration_" data-uid="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.Configuration*"></a>
-  <h4 id="Unosquare_FFME_Events_MediaInitializingRoutedEventArgs_Configuration" data-uid="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.Configuration">Configuration</h4>
+  <a id="Unosquare_FFME_Events_MediaInitializingEventArgs_Configuration_" data-uid="Unosquare.FFME.Events.MediaInitializingEventArgs.Configuration*"></a>
+  <h4 id="Unosquare_FFME_Events_MediaInitializingEventArgs_Configuration" data-uid="Unosquare.FFME.Events.MediaInitializingEventArgs.Configuration">Configuration</h4>
   <div class="markdown level1 summary"><p>Set or change the container configuration options before the media is opened.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
@@ -174,8 +190,8 @@
   </table>
   
   
-  <a id="Unosquare_FFME_Events_MediaInitializingRoutedEventArgs_Url_" data-uid="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.Url*"></a>
-  <h4 id="Unosquare_FFME_Events_MediaInitializingRoutedEventArgs_Url" data-uid="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.Url">Url</h4>
+  <a id="Unosquare_FFME_Events_MediaInitializingEventArgs_Url_" data-uid="Unosquare.FFME.Events.MediaInitializingEventArgs.Url*"></a>
+  <h4 id="Unosquare_FFME_Events_MediaInitializingEventArgs_Url" data-uid="Unosquare.FFME.Events.MediaInitializingEventArgs.Url">Url</h4>
   <div class="markdown level1 summary"><p>Gets the URL.</p>
 </div>
   <div class="markdown level1 conceptual"></div>

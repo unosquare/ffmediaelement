@@ -188,51 +188,51 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.Events.BitmapDataBuffer.UpdateRect
   nameWithType: BitmapDataBuffer.UpdateRect
-- uid: Unosquare.FFME.Events.MediaInitializingRoutedEventArgs
-  name: MediaInitializingRoutedEventArgs
-  href: api/Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.html
-  commentId: T:Unosquare.FFME.Events.MediaInitializingRoutedEventArgs
-  fullName: Unosquare.FFME.Events.MediaInitializingRoutedEventArgs
-  nameWithType: MediaInitializingRoutedEventArgs
-- uid: Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.#ctor(RoutedEvent,System.Object,ContainerConfiguration,System.String)
-  name: MediaInitializingRoutedEventArgs(RoutedEvent, Object, ContainerConfiguration, String)
-  href: api/Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.html#Unosquare_FFME_Events_MediaInitializingRoutedEventArgs__ctor_RoutedEvent_System_Object_ContainerConfiguration_System_String_
-  commentId: M:Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.#ctor(RoutedEvent,System.Object,ContainerConfiguration,System.String)
-  fullName: Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.MediaInitializingRoutedEventArgs(RoutedEvent, System.Object, ContainerConfiguration, System.String)
-  nameWithType: MediaInitializingRoutedEventArgs.MediaInitializingRoutedEventArgs(RoutedEvent, Object, ContainerConfiguration, String)
-- uid: Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.#ctor*
-  name: MediaInitializingRoutedEventArgs
-  href: api/Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.html#Unosquare_FFME_Events_MediaInitializingRoutedEventArgs__ctor_
-  commentId: Overload:Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.#ctor
+- uid: Unosquare.FFME.Events.MediaInitializingEventArgs
+  name: MediaInitializingEventArgs
+  href: api/Unosquare.FFME.Events.MediaInitializingEventArgs.html
+  commentId: T:Unosquare.FFME.Events.MediaInitializingEventArgs
+  fullName: Unosquare.FFME.Events.MediaInitializingEventArgs
+  nameWithType: MediaInitializingEventArgs
+- uid: Unosquare.FFME.Events.MediaInitializingEventArgs.#ctor(ContainerConfiguration,System.String)
+  name: MediaInitializingEventArgs(ContainerConfiguration, String)
+  href: api/Unosquare.FFME.Events.MediaInitializingEventArgs.html#Unosquare_FFME_Events_MediaInitializingEventArgs__ctor_ContainerConfiguration_System_String_
+  commentId: M:Unosquare.FFME.Events.MediaInitializingEventArgs.#ctor(ContainerConfiguration,System.String)
+  fullName: Unosquare.FFME.Events.MediaInitializingEventArgs.MediaInitializingEventArgs(ContainerConfiguration, System.String)
+  nameWithType: MediaInitializingEventArgs.MediaInitializingEventArgs(ContainerConfiguration, String)
+- uid: Unosquare.FFME.Events.MediaInitializingEventArgs.#ctor*
+  name: MediaInitializingEventArgs
+  href: api/Unosquare.FFME.Events.MediaInitializingEventArgs.html#Unosquare_FFME_Events_MediaInitializingEventArgs__ctor_
+  commentId: Overload:Unosquare.FFME.Events.MediaInitializingEventArgs.#ctor
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.MediaInitializingRoutedEventArgs
-  nameWithType: MediaInitializingRoutedEventArgs.MediaInitializingRoutedEventArgs
-- uid: Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.Configuration
+  fullName: Unosquare.FFME.Events.MediaInitializingEventArgs.MediaInitializingEventArgs
+  nameWithType: MediaInitializingEventArgs.MediaInitializingEventArgs
+- uid: Unosquare.FFME.Events.MediaInitializingEventArgs.Configuration
   name: Configuration
-  href: api/Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.html#Unosquare_FFME_Events_MediaInitializingRoutedEventArgs_Configuration
-  commentId: P:Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.Configuration
-  fullName: Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.Configuration
-  nameWithType: MediaInitializingRoutedEventArgs.Configuration
-- uid: Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.Configuration*
+  href: api/Unosquare.FFME.Events.MediaInitializingEventArgs.html#Unosquare_FFME_Events_MediaInitializingEventArgs_Configuration
+  commentId: P:Unosquare.FFME.Events.MediaInitializingEventArgs.Configuration
+  fullName: Unosquare.FFME.Events.MediaInitializingEventArgs.Configuration
+  nameWithType: MediaInitializingEventArgs.Configuration
+- uid: Unosquare.FFME.Events.MediaInitializingEventArgs.Configuration*
   name: Configuration
-  href: api/Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.html#Unosquare_FFME_Events_MediaInitializingRoutedEventArgs_Configuration_
-  commentId: Overload:Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.Configuration
+  href: api/Unosquare.FFME.Events.MediaInitializingEventArgs.html#Unosquare_FFME_Events_MediaInitializingEventArgs_Configuration_
+  commentId: Overload:Unosquare.FFME.Events.MediaInitializingEventArgs.Configuration
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.Configuration
-  nameWithType: MediaInitializingRoutedEventArgs.Configuration
-- uid: Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.Url
+  fullName: Unosquare.FFME.Events.MediaInitializingEventArgs.Configuration
+  nameWithType: MediaInitializingEventArgs.Configuration
+- uid: Unosquare.FFME.Events.MediaInitializingEventArgs.Url
   name: Url
-  href: api/Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.html#Unosquare_FFME_Events_MediaInitializingRoutedEventArgs_Url
-  commentId: P:Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.Url
-  fullName: Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.Url
-  nameWithType: MediaInitializingRoutedEventArgs.Url
-- uid: Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.Url*
+  href: api/Unosquare.FFME.Events.MediaInitializingEventArgs.html#Unosquare_FFME_Events_MediaInitializingEventArgs_Url
+  commentId: P:Unosquare.FFME.Events.MediaInitializingEventArgs.Url
+  fullName: Unosquare.FFME.Events.MediaInitializingEventArgs.Url
+  nameWithType: MediaInitializingEventArgs.Url
+- uid: Unosquare.FFME.Events.MediaInitializingEventArgs.Url*
   name: Url
-  href: api/Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.html#Unosquare_FFME_Events_MediaInitializingRoutedEventArgs_Url_
-  commentId: Overload:Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.Url
+  href: api/Unosquare.FFME.Events.MediaInitializingEventArgs.html#Unosquare_FFME_Events_MediaInitializingEventArgs_Url_
+  commentId: Overload:Unosquare.FFME.Events.MediaInitializingEventArgs.Url
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.Url
-  nameWithType: MediaInitializingRoutedEventArgs.Url
+  fullName: Unosquare.FFME.Events.MediaInitializingEventArgs.Url
+  nameWithType: MediaInitializingEventArgs.Url
 - uid: Unosquare.FFME.Events.MediaLogMessageEventArgs
   name: MediaLogMessageEventArgs
   href: api/Unosquare.FFME.Events.MediaLogMessageEventArgs.html
@@ -336,51 +336,51 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.Events.MediaOpenedRoutedEventArgs.Info
   nameWithType: MediaOpenedRoutedEventArgs.Info
-- uid: Unosquare.FFME.Events.MediaOpeningRoutedEventArgs
-  name: MediaOpeningRoutedEventArgs
-  href: api/Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.html
-  commentId: T:Unosquare.FFME.Events.MediaOpeningRoutedEventArgs
-  fullName: Unosquare.FFME.Events.MediaOpeningRoutedEventArgs
-  nameWithType: MediaOpeningRoutedEventArgs
-- uid: Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.#ctor(RoutedEvent,System.Object,MediaOptions,MediaInfo)
-  name: MediaOpeningRoutedEventArgs(RoutedEvent, Object, MediaOptions, MediaInfo)
-  href: api/Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.html#Unosquare_FFME_Events_MediaOpeningRoutedEventArgs__ctor_RoutedEvent_System_Object_MediaOptions_MediaInfo_
-  commentId: M:Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.#ctor(RoutedEvent,System.Object,MediaOptions,MediaInfo)
-  fullName: Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.MediaOpeningRoutedEventArgs(RoutedEvent, System.Object, MediaOptions, MediaInfo)
-  nameWithType: MediaOpeningRoutedEventArgs.MediaOpeningRoutedEventArgs(RoutedEvent, Object, MediaOptions, MediaInfo)
-- uid: Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.#ctor*
-  name: MediaOpeningRoutedEventArgs
-  href: api/Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.html#Unosquare_FFME_Events_MediaOpeningRoutedEventArgs__ctor_
-  commentId: Overload:Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.#ctor
+- uid: Unosquare.FFME.Events.MediaOpeningEventArgs
+  name: MediaOpeningEventArgs
+  href: api/Unosquare.FFME.Events.MediaOpeningEventArgs.html
+  commentId: T:Unosquare.FFME.Events.MediaOpeningEventArgs
+  fullName: Unosquare.FFME.Events.MediaOpeningEventArgs
+  nameWithType: MediaOpeningEventArgs
+- uid: Unosquare.FFME.Events.MediaOpeningEventArgs.#ctor(MediaOptions,MediaInfo)
+  name: MediaOpeningEventArgs(MediaOptions, MediaInfo)
+  href: api/Unosquare.FFME.Events.MediaOpeningEventArgs.html#Unosquare_FFME_Events_MediaOpeningEventArgs__ctor_MediaOptions_MediaInfo_
+  commentId: M:Unosquare.FFME.Events.MediaOpeningEventArgs.#ctor(MediaOptions,MediaInfo)
+  fullName: Unosquare.FFME.Events.MediaOpeningEventArgs.MediaOpeningEventArgs(MediaOptions, MediaInfo)
+  nameWithType: MediaOpeningEventArgs.MediaOpeningEventArgs(MediaOptions, MediaInfo)
+- uid: Unosquare.FFME.Events.MediaOpeningEventArgs.#ctor*
+  name: MediaOpeningEventArgs
+  href: api/Unosquare.FFME.Events.MediaOpeningEventArgs.html#Unosquare_FFME_Events_MediaOpeningEventArgs__ctor_
+  commentId: Overload:Unosquare.FFME.Events.MediaOpeningEventArgs.#ctor
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.MediaOpeningRoutedEventArgs
-  nameWithType: MediaOpeningRoutedEventArgs.MediaOpeningRoutedEventArgs
-- uid: Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.Info
+  fullName: Unosquare.FFME.Events.MediaOpeningEventArgs.MediaOpeningEventArgs
+  nameWithType: MediaOpeningEventArgs.MediaOpeningEventArgs
+- uid: Unosquare.FFME.Events.MediaOpeningEventArgs.Info
   name: Info
-  href: api/Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.html#Unosquare_FFME_Events_MediaOpeningRoutedEventArgs_Info
-  commentId: P:Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.Info
-  fullName: Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.Info
-  nameWithType: MediaOpeningRoutedEventArgs.Info
-- uid: Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.Info*
+  href: api/Unosquare.FFME.Events.MediaOpeningEventArgs.html#Unosquare_FFME_Events_MediaOpeningEventArgs_Info
+  commentId: P:Unosquare.FFME.Events.MediaOpeningEventArgs.Info
+  fullName: Unosquare.FFME.Events.MediaOpeningEventArgs.Info
+  nameWithType: MediaOpeningEventArgs.Info
+- uid: Unosquare.FFME.Events.MediaOpeningEventArgs.Info*
   name: Info
-  href: api/Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.html#Unosquare_FFME_Events_MediaOpeningRoutedEventArgs_Info_
-  commentId: Overload:Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.Info
+  href: api/Unosquare.FFME.Events.MediaOpeningEventArgs.html#Unosquare_FFME_Events_MediaOpeningEventArgs_Info_
+  commentId: Overload:Unosquare.FFME.Events.MediaOpeningEventArgs.Info
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.Info
-  nameWithType: MediaOpeningRoutedEventArgs.Info
-- uid: Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.Options
+  fullName: Unosquare.FFME.Events.MediaOpeningEventArgs.Info
+  nameWithType: MediaOpeningEventArgs.Info
+- uid: Unosquare.FFME.Events.MediaOpeningEventArgs.Options
   name: Options
-  href: api/Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.html#Unosquare_FFME_Events_MediaOpeningRoutedEventArgs_Options
-  commentId: P:Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.Options
-  fullName: Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.Options
-  nameWithType: MediaOpeningRoutedEventArgs.Options
-- uid: Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.Options*
+  href: api/Unosquare.FFME.Events.MediaOpeningEventArgs.html#Unosquare_FFME_Events_MediaOpeningEventArgs_Options
+  commentId: P:Unosquare.FFME.Events.MediaOpeningEventArgs.Options
+  fullName: Unosquare.FFME.Events.MediaOpeningEventArgs.Options
+  nameWithType: MediaOpeningEventArgs.Options
+- uid: Unosquare.FFME.Events.MediaOpeningEventArgs.Options*
   name: Options
-  href: api/Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.html#Unosquare_FFME_Events_MediaOpeningRoutedEventArgs_Options_
-  commentId: Overload:Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.Options
+  href: api/Unosquare.FFME.Events.MediaOpeningEventArgs.html#Unosquare_FFME_Events_MediaOpeningEventArgs_Options_
+  commentId: Overload:Unosquare.FFME.Events.MediaOpeningEventArgs.Options
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.Options
-  nameWithType: MediaOpeningRoutedEventArgs.Options
+  fullName: Unosquare.FFME.Events.MediaOpeningEventArgs.Options
+  nameWithType: MediaOpeningEventArgs.Options
 - uid: Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs
   name: MediaStateChangedRoutedEventArgs
   href: api/Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.html
@@ -1379,12 +1379,6 @@ references:
   commentId: E:Unosquare.FFME.MediaElement.MediaChanging
   fullName: Unosquare.FFME.MediaElement.MediaChanging
   nameWithType: MediaElement.MediaChanging
-- uid: Unosquare.FFME.MediaElement.MediaChangingEvent
-  name: MediaChangingEvent
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaChangingEvent
-  commentId: F:Unosquare.FFME.MediaElement.MediaChangingEvent
-  fullName: Unosquare.FFME.MediaElement.MediaChangingEvent
-  nameWithType: MediaElement.MediaChangingEvent
 - uid: Unosquare.FFME.MediaElement.MediaClosed
   name: MediaClosed
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaClosed
@@ -1453,12 +1447,6 @@ references:
   commentId: E:Unosquare.FFME.MediaElement.MediaInitializing
   fullName: Unosquare.FFME.MediaElement.MediaInitializing
   nameWithType: MediaElement.MediaInitializing
-- uid: Unosquare.FFME.MediaElement.MediaInitializingEvent
-  name: MediaInitializingEvent
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaInitializingEvent
-  commentId: F:Unosquare.FFME.MediaElement.MediaInitializingEvent
-  fullName: Unosquare.FFME.MediaElement.MediaInitializingEvent
-  nameWithType: MediaElement.MediaInitializingEvent
 - uid: Unosquare.FFME.MediaElement.MediaOpened
   name: MediaOpened
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaOpened
@@ -1477,12 +1465,6 @@ references:
   commentId: E:Unosquare.FFME.MediaElement.MediaOpening
   fullName: Unosquare.FFME.MediaElement.MediaOpening
   nameWithType: MediaElement.MediaOpening
-- uid: Unosquare.FFME.MediaElement.MediaOpeningEvent
-  name: MediaOpeningEvent
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaOpeningEvent
-  commentId: F:Unosquare.FFME.MediaElement.MediaOpeningEvent
-  fullName: Unosquare.FFME.MediaElement.MediaOpeningEvent
-  nameWithType: MediaElement.MediaOpeningEvent
 - uid: Unosquare.FFME.MediaElement.MediaState
   name: MediaState
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaState

@@ -71,11 +71,11 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.yml",
+      "source_relative_path": "obj/api/Unosquare.FFME.Events.MediaInitializingEventArgs.yml",
       "output": {
         ".html": {
-          "relative_path": "api/Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.html",
-          "hash": "ghk9LRBrh39M1VyxWF0Gjg=="
+          "relative_path": "api/Unosquare.FFME.Events.MediaInitializingEventArgs.html",
+          "hash": "sR65l+P79EDwdSpV2iCSgQ=="
         }
       },
       "is_incremental": false,
@@ -107,11 +107,11 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.yml",
+      "source_relative_path": "obj/api/Unosquare.FFME.Events.MediaOpeningEventArgs.yml",
       "output": {
         ".html": {
-          "relative_path": "api/Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.html",
-          "hash": "vSCYXKiOcw6XY8s4uO6LCQ=="
+          "relative_path": "api/Unosquare.FFME.Events.MediaOpeningEventArgs.html",
+          "hash": "0Z1XZTMMpgFV043XaldlQQ=="
         }
       },
       "is_incremental": false,
@@ -195,7 +195,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Events.html",
-          "hash": "CTsT1vZBY2/CY3QwQoe5MA=="
+          "hash": "FtEzvDJNF2hHVZoNOUOqWw=="
         }
       },
       "is_incremental": false,
@@ -207,7 +207,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.MediaElement.html",
-          "hash": "+H2RuMlkNAN0Jox2+nirrw=="
+          "hash": "X25wnZaNfsYbnABLxzXmQQ=="
         }
       },
       "is_incremental": false,
@@ -219,7 +219,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Platform.GuiContext.html",
-          "hash": "/XBsPCXZ4RDhQfVv5Hzo+w=="
+          "hash": "BS47hAdxwEomtlEuZ9LWRg=="
         }
       },
       "is_incremental": false,
@@ -375,7 +375,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "CW5BfrDb+R179i0ZZ3cx8g=="
+          "hash": "eGYCBhoVfwzdkdiQXRgcZw=="
         }
       },
       "is_incremental": false,
@@ -411,13 +411,13 @@
           "can_incremental": false,
           "incrementalPhase": "build"
         },
-        "ManagedReferenceDocumentProcessor": {
-          "can_incremental": false,
-          "incrementalPhase": "build"
-        },
         "ResourceDocumentProcessor": {
           "can_incremental": false,
           "details": "Processor ResourceDocumentProcessor cannot support incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
+          "incrementalPhase": "build"
+        },
+        "ManagedReferenceDocumentProcessor": {
+          "can_incremental": false,
           "incrementalPhase": "build"
         }
       }

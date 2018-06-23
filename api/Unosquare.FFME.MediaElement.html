@@ -295,31 +295,6 @@ the FFmpeg library to perform reading and decoding of media streams.</p>
   </table>
   
   
-  <h4 id="Unosquare_FFME_MediaElement_MediaChangingEvent" data-uid="Unosquare.FFME.MediaElement.MediaChangingEvent">MediaChangingEvent</h4>
-  <div class="markdown level1 summary"><p>MediaChangingEvent is a routed event.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static readonly RoutedEvent MediaChangingEvent</code></pre>
-  </div>
-  <h5 class="fieldValue">Field Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">RoutedEvent</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
   <h4 id="Unosquare_FFME_MediaElement_MediaClosedEvent" data-uid="Unosquare.FFME.MediaElement.MediaClosedEvent">MediaClosedEvent</h4>
   <div class="markdown level1 summary"><p>MediaClosed is a routed event.</p>
 </div>
@@ -395,31 +370,6 @@ the FFmpeg library to perform reading and decoding of media streams.</p>
   </table>
   
   
-  <h4 id="Unosquare_FFME_MediaElement_MediaInitializingEvent" data-uid="Unosquare.FFME.MediaElement.MediaInitializingEvent">MediaInitializingEvent</h4>
-  <div class="markdown level1 summary"><p>MediaOpeningEvent is a routed event.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static readonly RoutedEvent MediaInitializingEvent</code></pre>
-  </div>
-  <h5 class="fieldValue">Field Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">RoutedEvent</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
   <h4 id="Unosquare_FFME_MediaElement_MediaOpenedEvent" data-uid="Unosquare.FFME.MediaElement.MediaOpenedEvent">MediaOpenedEvent</h4>
   <div class="markdown level1 summary"><p>MediaOpened is a routed event.</p>
 </div>
@@ -427,31 +377,6 @@ the FFmpeg library to perform reading and decoding of media streams.</p>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public static readonly RoutedEvent MediaOpenedEvent</code></pre>
-  </div>
-  <h5 class="fieldValue">Field Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">RoutedEvent</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
-  <h4 id="Unosquare_FFME_MediaElement_MediaOpeningEvent" data-uid="Unosquare.FFME.MediaElement.MediaOpeningEvent">MediaOpeningEvent</h4>
-  <div class="markdown level1 summary"><p>MediaOpeningEvent is a routed event.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static readonly RoutedEvent MediaOpeningEvent</code></pre>
   </div>
   <h5 class="fieldValue">Field Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2824,7 +2749,7 @@ This is an alternative method of opening media vs using the
   
   <h4 id="Unosquare_FFME_MediaElement_FFmpegMessageLogged" data-uid="Unosquare.FFME.MediaElement.FFmpegMessageLogged">FFmpegMessageLogged</h4>
   <div class="markdown level1 summary"><p>Occurs when a logging message from the FFmpeg library has been received.
-This is shared across all instances of Media Elements</p>
+This is shared across all instances of Media Elements.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -2846,6 +2771,10 @@ This is shared across all instances of Media Elements</p>
       </tr>
     </tbody>
   </table>
+  <h5 id="Unosquare_FFME_MediaElement_FFmpegMessageLogged_remarks">Remarks</h5>
+  <div class="markdown level1 remarks"><p>This event is raised on a background thread.
+All interaction with UI elements requires calls on their corresponding dispatcher.</p>
+</div>
   
   
   <h4 id="Unosquare_FFME_MediaElement_MediaChanged" data-uid="Unosquare.FFME.MediaElement.MediaChanged">MediaChanged</h4>
@@ -2880,7 +2809,7 @@ Use this method to modify the selected streams.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public event EventHandler&lt;MediaOpeningRoutedEventArgs&gt; MediaChanging</code></pre>
+    <pre><code class="lang-csharp hljs">public event EventHandler&lt;MediaOpeningEventArgs&gt; MediaChanging</code></pre>
   </div>
   <h5 class="eventType">Event Type</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2892,11 +2821,15 @@ Use this method to modify the selected streams.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.EventHandler</span>&lt;<a class="xref" href="Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.html">MediaOpeningRoutedEventArgs</a>&gt;</td>
+        <td><span class="xref">System.EventHandler</span>&lt;<a class="xref" href="Unosquare.FFME.Events.MediaOpeningEventArgs.html">MediaOpeningEventArgs</a>&gt;</td>
         <td></td>
       </tr>
     </tbody>
   </table>
+  <h5 id="Unosquare_FFME_MediaElement_MediaChanging_remarks">Remarks</h5>
+  <div class="markdown level1 remarks"><p>This event is raised on a background thread.
+All interaction with UI elements requires calls on their corresponding dispatcher.</p>
+</div>
   
   
   <h4 id="Unosquare_FFME_MediaElement_MediaClosed" data-uid="Unosquare.FFME.MediaElement.MediaClosed">MediaClosed</h4>
@@ -2981,7 +2914,7 @@ Use this method to modify the input options.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public event EventHandler&lt;MediaInitializingRoutedEventArgs&gt; MediaInitializing</code></pre>
+    <pre><code class="lang-csharp hljs">public event EventHandler&lt;MediaInitializingEventArgs&gt; MediaInitializing</code></pre>
   </div>
   <h5 class="eventType">Event Type</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2993,11 +2926,15 @@ Use this method to modify the input options.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.EventHandler</span>&lt;<a class="xref" href="Unosquare.FFME.Events.MediaInitializingRoutedEventArgs.html">MediaInitializingRoutedEventArgs</a>&gt;</td>
+        <td><span class="xref">System.EventHandler</span>&lt;<a class="xref" href="Unosquare.FFME.Events.MediaInitializingEventArgs.html">MediaInitializingEventArgs</a>&gt;</td>
         <td></td>
       </tr>
     </tbody>
   </table>
+  <h5 id="Unosquare_FFME_MediaElement_MediaInitializing_remarks">Remarks</h5>
+  <div class="markdown level1 remarks"><p>This event is raised on a background thread.
+All interaction with UI elements requires calls on their corresponding dispatcher.</p>
+</div>
   
   
   <h4 id="Unosquare_FFME_MediaElement_MediaOpened" data-uid="Unosquare.FFME.MediaElement.MediaOpened">MediaOpened</h4>
@@ -3032,7 +2969,7 @@ Use this method to modify the media options and select streams.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public event EventHandler&lt;MediaOpeningRoutedEventArgs&gt; MediaOpening</code></pre>
+    <pre><code class="lang-csharp hljs">public event EventHandler&lt;MediaOpeningEventArgs&gt; MediaOpening</code></pre>
   </div>
   <h5 class="eventType">Event Type</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -3044,11 +2981,15 @@ Use this method to modify the media options and select streams.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.EventHandler</span>&lt;<a class="xref" href="Unosquare.FFME.Events.MediaOpeningRoutedEventArgs.html">MediaOpeningRoutedEventArgs</a>&gt;</td>
+        <td><span class="xref">System.EventHandler</span>&lt;<a class="xref" href="Unosquare.FFME.Events.MediaOpeningEventArgs.html">MediaOpeningEventArgs</a>&gt;</td>
         <td></td>
       </tr>
     </tbody>
   </table>
+  <h5 id="Unosquare_FFME_MediaElement_MediaOpening_remarks">Remarks</h5>
+  <div class="markdown level1 remarks"><p>This event is raised on a background thread.
+All interaction with UI elements requires calls on their corresponding dispatcher.</p>
+</div>
   
   
   <h4 id="Unosquare_FFME_MediaElement_MediaStateChanged" data-uid="Unosquare.FFME.MediaElement.MediaStateChanged">MediaStateChanged</h4>
@@ -3100,6 +3041,10 @@ This does not include FFmpeg messages.</p>
       </tr>
     </tbody>
   </table>
+  <h5 id="Unosquare_FFME_MediaElement_MessageLogged_remarks">Remarks</h5>
+  <div class="markdown level1 remarks"><p>This event is raised on a background thread.
+All interaction with UI elements requires calls on their corresponding dispatcher.</p>
+</div>
   
   
   <h4 id="Unosquare_FFME_MediaElement_PositionChanged" data-uid="Unosquare.FFME.MediaElement.PositionChanged">PositionChanged</h4>
@@ -3128,7 +3073,8 @@ This does not include FFmpeg messages.</p>
   
   
   <h4 id="Unosquare_FFME_MediaElement_PropertyChanged" data-uid="Unosquare.FFME.MediaElement.PropertyChanged">PropertyChanged</h4>
-  <div class="markdown level1 summary"><p>Multicast event for property change notifications.</p>
+  <div class="markdown level1 summary"><p>Multicast event for property change notifications.
+This event runs on the UI thread.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
