@@ -27,13 +27,13 @@
         /// <returns>
         /// The awaitable task.
         /// </returns>
-        internal override async Task ExecuteInternal()
+        internal override Task ExecuteInternal()
         {
             var m = Manager.MediaCore;
 
             // Avoid running the command if run conditions are not met
             if (m == null || m.IsDisposed || m.State.IsOpen == false || m.State.IsOpening || m.State.IsChanging)
-                return;
+                return Task.CompletedTask;
 
             m.State.IsChanging = true;
             var resumeClock = false;
@@ -57,7 +57,10 @@
 
                 // Signal a change so the user get the chance to update
                 // selected streams and options
-                await m.SendOnMediaChanging();
+                m.SendOnMediaChanging();
+
+                // Side load subtitles
+                m.PreloadSubtitles();
 
                 // Capture the current media types before components change
                 var oldMediaTypes = m.Container.Components.MediaTypes.ToArray();
@@ -103,7 +106,7 @@
                     // Let's simply do an automated seek
                     var seekCommand = new SeekCommand(Manager, m.WallClock);
                     seekCommand.RunSynchronously();
-                    return;
+                    return Task.CompletedTask;
                 }
 
                 // We need to perform some packet reading and decoding
@@ -176,8 +179,10 @@
                 m.State.IsSeeking = isSeeking;
                 m.MediaChangingDone.Complete();
                 m.State.IsChanging = false;
-                await m.SendOnMediaChanged();
+                m.SendOnMediaChanged();
             }
+
+            return Task.CompletedTask;
         }
     }
 }

@@ -8,17 +8,15 @@
     /// or <see cref="MediaElement.MediaChanging"/> routed events.
     /// </summary>
     /// <seealso cref="RoutedEventArgs" />
-    public class MediaOpeningRoutedEventArgs : RoutedEventArgs
+    public class MediaOpeningEventArgs : RoutedEventArgs
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="MediaOpeningRoutedEventArgs" /> class.
+        /// Initializes a new instance of the <see cref="MediaOpeningEventArgs" /> class.
         /// </summary>
-        /// <param name="routedEvent">The routed event.</param>
-        /// <param name="source">The source.</param>
         /// <param name="options">The options.</param>
         /// <param name="info">The input information.</param>
-        public MediaOpeningRoutedEventArgs(RoutedEvent routedEvent, object source, MediaOptions options, MediaInfo info)
-            : base(routedEvent, source)
+        public MediaOpeningEventArgs(MediaOptions options, MediaInfo info)
+            : base()
         {
             Options = options;
             Info = info;

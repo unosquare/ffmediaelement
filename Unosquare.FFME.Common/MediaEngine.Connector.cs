@@ -3,7 +3,6 @@
     using Shared;
     using System;
     using System.Runtime.CompilerServices;
-    using System.Threading.Tasks;
 
     public partial class MediaEngine
     {
@@ -12,135 +11,99 @@
         /// </summary>
         /// <param name="message">The <see cref="MediaLogMessage" /> instance containing the message.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void SendOnMessageLogged(MediaLogMessage message)
-        {
+        internal void SendOnMessageLogged(MediaLogMessage message) =>
             Connector?.OnMessageLogged(this, message);
-        }
 
         /// <summary>
         /// Raises the media failed event.
         /// </summary>
         /// <param name="ex">The ex.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Task SendOnMediaFailed(Exception ex)
+        internal void SendOnMediaFailed(Exception ex)
         {
             Log(MediaLogMessageType.Error, $"Media Failure - {ex?.GetType()}: {ex?.Message}");
-            return Connector != null ? Connector.OnMediaFailed(this, ex) : Task.CompletedTask;
+            Connector?.OnMediaFailed(this, ex);
         }
 
         /// <summary>
         /// Raises the media closed event.
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Task SendOnMediaClosed()
-        {
-            return Connector != null ? Connector.OnMediaClosed(this) : Task.CompletedTask;
-        }
+        internal void SendOnMediaClosed() =>
+            Connector?.OnMediaClosed(this);
 
         /// <summary>
         /// Raises the media opened event.
         /// </summary>
         /// <param name="mediaInfo">The media information.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Task SendOnMediaOpened(MediaInfo mediaInfo)
-        {
-            return Connector != null ? Connector.OnMediaOpened(this, mediaInfo) : Task.CompletedTask;
-        }
+        internal void SendOnMediaOpened(MediaInfo mediaInfo) =>
+            Connector?.OnMediaOpened(this, mediaInfo);
 
         /// <summary>
         /// Raises the media initializing event.
         /// </summary>
         /// <param name="config">The container configuration options.</param>
         /// <param name="url">The URL.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Task SendOnMediaInitializing(ContainerConfiguration config, string url)
-        {
-            return Connector != null ? Connector.OnMediaInitializing(this, config, url) : Task.CompletedTask;
-        }
+        internal void SendOnMediaInitializing(ContainerConfiguration config, string url) =>
+            Connector?.OnMediaInitializing(this, config, url);
 
         /// <summary>
         /// Raises the media opening event.
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Task SendOnMediaOpening()
-        {
-            return Connector != null ? Connector.OnMediaOpening(this, Container.MediaOptions, Container.MediaInfo) : Task.CompletedTask;
-        }
+        internal void SendOnMediaOpening() =>
+            Connector?.OnMediaOpening(this, Container.MediaOptions, Container.MediaInfo);
 
         /// <summary>
         /// Raises the media changing event.
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Task SendOnMediaChanging()
-        {
-            return Connector != null ? Connector.OnMediaChanging(this, Container.MediaOptions, Container.MediaInfo) : Task.CompletedTask;
-        }
+        internal void SendOnMediaChanging() =>
+            Connector?.OnMediaChanging(this, Container.MediaOptions, Container.MediaInfo);
 
         /// <summary>
         /// Raises the media changed event.
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Task SendOnMediaChanged()
-        {
-            return Connector != null ? Connector.OnMediaChanged(this, Container.MediaInfo) : Task.CompletedTask;
-        }
+        internal void SendOnMediaChanged() =>
+            Connector?.OnMediaChanged(this, Container.MediaInfo);
 
         /// <summary>
         /// Raises the buffering started event.
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Task SendOnBufferingStarted()
-        {
-            return Connector != null ? Connector.OnBufferingStarted(this) : Task.CompletedTask;
-        }
+        internal void SendOnBufferingStarted() =>
+            Connector?.OnBufferingStarted(this);
 
         /// <summary>
         /// Raises the buffering ended event.
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Task SendOnBufferingEnded()
-        {
-            return Connector != null ? Connector.OnBufferingEnded(this) : Task.CompletedTask;
-        }
+        internal void SendOnBufferingEnded() =>
+            Connector?.OnBufferingEnded(this);
 
         /// <summary>
         /// Raises the Seeking started event.
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Task SendOnSeekingStarted()
-        {
-            return Connector != null ? Connector.OnSeekingStarted(this) : Task.CompletedTask;
-        }
+        internal void SendOnSeekingStarted() =>
+            Connector?.OnSeekingStarted(this);
 
         /// <summary>
         /// Raises the Seeking ended event.
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Task SendOnSeekingEnded()
-        {
-            return Connector != null ? Connector.OnSeekingEnded(this) : Task.CompletedTask;
-        }
+        internal void SendOnSeekingEnded() =>
+            Connector?.OnSeekingEnded(this);
 
         /// <summary>
         /// Raises the media ended event.
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Task SendOnMediaEnded()
-        {
-            return Connector != null ? Connector.OnMediaEnded(this) : Task.CompletedTask;
-        }
+        internal void SendOnMediaEnded() =>
+            Connector?.OnMediaEnded(this);
 
         /// <summary>
         /// Sends the on position changed.
@@ -148,21 +111,16 @@
         /// <param name="oldValue">The old value.</param>
         /// <param name="newValue">The new value.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void SendOnPositionChanged(TimeSpan oldValue, TimeSpan newValue)
-        {
+        internal void SendOnPositionChanged(TimeSpan oldValue, TimeSpan newValue) =>
             Connector?.OnPositionChanged(this, oldValue, newValue);
-        }
 
         /// <summary>
         /// Sends the on media state changed.
         /// </summary>
         /// <param name="oldValue">The old value.</param>
         /// <param name="newValue">The new value.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Task SendOnMediaStateChanged(PlaybackStatus oldValue, PlaybackStatus newValue)
-        {
-            return Connector != null ? Connector.OnMediaStateChanged(this, oldValue, newValue) : Task.CompletedTask;
-        }
+        internal void SendOnMediaStateChanged(PlaybackStatus oldValue, PlaybackStatus newValue) =>
+            Connector?.OnMediaStateChanged(this, oldValue, newValue);
     }
 }

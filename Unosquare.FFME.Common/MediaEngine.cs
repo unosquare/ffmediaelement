@@ -76,6 +76,12 @@
         public object Parent { get; }
 
         /// <summary>
+        /// Represents a real-time time measuring device.
+        /// Rendering media should occur as requested by the clock.
+        /// </summary>
+        internal RealTimeClock Clock { get; } = new RealTimeClock();
+
+        /// <summary>
         /// Gets the event connector (platform specific).
         /// </summary>
         internal IMediaConnector Connector { get; }

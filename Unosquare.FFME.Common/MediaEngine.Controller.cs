@@ -1,7 +1,6 @@
 ﻿namespace Unosquare.FFME
 {
     using Commands;
-    using Core;
     using Decoding;
     using Primitives;
     using Shared;
@@ -22,12 +21,6 @@
         /// The command queue to be executed in the order they were sent.
         /// </summary>
         internal MediaCommandManager Commands { get; private set; }
-
-        /// <summary>
-        /// Represents a real-time time measuring device.
-        /// Rendering media should occur as requested by the clock.
-        /// </summary>
-        internal RealTimeClock Clock { get; } = new RealTimeClock();
 
         /// <summary>
         /// The underlying media container that provides access to
@@ -190,7 +183,8 @@
             if (IsDisposed) return false;
 
             var waitHandle = SynchronousCommandDone;
-            if (waitHandle == null || waitHandle.IsValid == false) return false;
+            if (waitHandle == null || waitHandle.IsValid == false || waitHandle.IsInProgress)
+                return false;
 
             try
             {

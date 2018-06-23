@@ -261,6 +261,9 @@
                 TargetBitmap = null;
                 MediaElement.VideoView.Source = null;
                 MediaElement.CaptionsView.Reset();
+
+                // Force refresh
+                MediaElement.VideoView?.Dispatcher?.Invoke(() => { }, DispatcherPriority.Render);
             });
         }
 

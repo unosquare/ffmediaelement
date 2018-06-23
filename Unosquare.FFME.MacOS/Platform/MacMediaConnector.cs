@@ -14,6 +14,12 @@
             Control = control;
         }
 
+        public void OnMessageLogged(MediaEngine sender, MediaLogMessage e)
+        {
+            if (e.MessageType == MediaLogMessageType.Trace) return;
+            Console.WriteLine($"{e.MessageType,10} - {e.Message}");
+        }
+
         public Task OnBufferingEnded(MediaEngine sender)
         {
             return Task.CompletedTask;
@@ -54,12 +60,6 @@
             return Task.CompletedTask;
         }
 
-        public void OnMessageLogged(MediaEngine sender, MediaLogMessage e)
-        {
-            if (e.MessageType == MediaLogMessageType.Trace) return;
-            Console.WriteLine($"{e.MessageType,10} - {e.Message}");
-        }
-
         public Task OnSeekingEnded(MediaEngine sender)
         {
             return Task.CompletedTask;
@@ -70,9 +70,9 @@
             return Task.CompletedTask;
         }
 
-        public void OnPositionChanged(MediaEngine sender, TimeSpan oldValue, TimeSpan newValue)
+        public Task OnPositionChanged(MediaEngine sender, TimeSpan oldValue, TimeSpan newValue)
         {
-            // placeholder
+            return Task.CompletedTask;
         }
 
         public Task OnMediaStateChanged(MediaEngine sender, PlaybackStatus oldValue, PlaybackStatus newValue)

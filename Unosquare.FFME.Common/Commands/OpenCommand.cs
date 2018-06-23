@@ -50,11 +50,12 @@
         /// Performs the actions that this command implements.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        internal override async Task ExecuteInternal()
+        internal override Task ExecuteInternal()
         {
             var m = Manager.MediaCore;
 
-            if (m.IsDisposed || m.State.IsOpen || m.State.IsOpening || m.State.IsChanging) return;
+            if (m.IsDisposed || m.State.IsOpen || m.State.IsOpening || m.State.IsChanging)
+                return Task.CompletedTask;
 
             // Notify Media will start opening
             m.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Entered");
@@ -117,7 +118,7 @@
                 }
 
                 // Allow the stream input options to be changed
-                await m.SendOnMediaInitializing(containerConfig, mediaUrl);
+                m.SendOnMediaInitializing(containerConfig, mediaUrl);
 
                 // Instantiate the internal container using either a URL (default) or a custom input stream.
                 if (InputStream == null)
@@ -127,7 +128,7 @@
 
                 // Notify the user media is opening and allow for media options to be modified
                 // Stuff like audio and video filters and stream selection can be performed here.
-                await m.SendOnMediaOpening();
+                m.SendOnMediaOpening();
 
                 // Side-load subtitles if requested
                 m.PreloadSubtitles();
@@ -150,7 +151,7 @@
                 m.State.UpdateMediaState(PlaybackStatus.Stop);
 
                 // Raise the opened event
-                await m.SendOnMediaOpened(m.Container.MediaInfo);
+                m.SendOnMediaOpened(m.Container.MediaInfo);
             }
             catch (Exception ex)
             {
@@ -158,7 +159,7 @@
                 m.DisposePreloadedSubtitles();
                 m.Container = null;
                 m.State.UpdateMediaState(PlaybackStatus.Close);
-                await m.SendOnMediaFailed(ex);
+                m.SendOnMediaFailed(ex);
             }
             finally
             {
@@ -167,6 +168,8 @@
                 m.State.IsOpening = false;
                 m.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Completed");
             }
+
+            return Task.CompletedTask;
         }
     }
 }
