@@ -111,7 +111,7 @@
 
                 // We need to perform some packet reading and decoding
                 var main = m.Container.Components.Main.MediaType;
-                var auxs = m.Container.Components.MediaTypes.ExcludeMediaType(main);
+                var auxs = m.Container.Components.MediaTypes.Except(main);
 
                 // Read and decode blocks until the main component is half full
                 while (m.ShouldReadMorePackets && m.CanReadMorePackets)

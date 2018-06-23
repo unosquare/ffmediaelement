@@ -33,7 +33,7 @@
             var main = Container.Components.Main.MediaType;
 
             // Holds the auxiliary media types
-            var auxs = Container.Components.MediaTypes.ExcludeMediaType(main);
+            var auxs = Container.Components.MediaTypes.Except(main);
 
             // State properties
             var isBuffering = false;
@@ -71,7 +71,7 @@
                     // Update state properties -- this must be after processing commanmds as
                     // a command might have changed the components
                     main = Container.Components.Main.MediaType;
-                    auxs = Container.Components.MediaTypes.ExcludeMediaType(main);
+                    auxs = Container.Components.MediaTypes.Except(main);
 
                     // Set initial state
                     wallClock = WallClock;

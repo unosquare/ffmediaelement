@@ -70,7 +70,7 @@
                         packetsRead[t] += 1;
 
                         // Ensure we have read at least some packets from main and auxiliary streams.
-                        if (packetsRead.FundamentalsGreaterThan(0))
+                        if (packetsRead.ContainsMoreThan(0))
                             break;
                     }
 
