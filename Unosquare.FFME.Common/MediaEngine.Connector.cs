@@ -35,10 +35,9 @@
         /// <summary>
         /// Raises the media opened event.
         /// </summary>
-        /// <param name="mediaInfo">The media information.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void SendOnMediaOpened(MediaInfo mediaInfo) =>
-            Connector?.OnMediaOpened(this, mediaInfo);
+        internal void SendOnMediaOpened() =>
+            Connector?.OnMediaOpened(this, Container?.MediaInfo);
 
         /// <summary>
         /// Raises the media initializing event.

@@ -127,37 +127,30 @@
         {
             if (IsDisposed) return;
 
-            // Run the close command immediately
-            if (BeginSynchronousCommand() == false) return;
-
-            // Dispose the wait handle: No more command accepted from this point forward.
-            SynchronousCommandDone.Dispose();
-
             try
             {
-                var closeCommand = new CloseCommand(Commands);
-                closeCommand.RunSynchronously();
+                // Dispose of commands. This calls close automatically
+                Commands.Dispose();
+
+                // Dispose the container
+                Container?.Dispose();
+                Container = null;
+
+                // Dispose the RTC
+                Clock.Dispose();
+
+                // Dispose the Wait Event objects as they are
+                // backed by unmanaged code
+                PacketReadingCycle.Dispose();
+                FrameDecodingCycle.Dispose();
+                BlockRenderingCycle.Dispose();
+                SeekingDone.Dispose();
             }
             catch { throw; }
             finally
             {
                 IsDisposed = true;
             }
-
-            // Dispose the container
-            Container?.Dispose();
-            Container = null;
-
-            // Dispose the RTC
-            Clock.Dispose();
-
-            // Dispose the Wait Event objects as they are
-            // backed by unmanaged code
-            PacketReadingCycle.Dispose();
-            FrameDecodingCycle.Dispose();
-            BlockRenderingCycle.Dispose();
-            SeekingDone.Dispose();
-            MediaChangingDone.Dispose();
         }
 
         #endregion

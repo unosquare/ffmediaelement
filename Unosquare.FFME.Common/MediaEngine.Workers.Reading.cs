@@ -2,7 +2,6 @@
 {
     using Primitives;
     using Shared;
-    using System.Threading;
 
     public partial class MediaEngine
     {
@@ -37,8 +36,14 @@
                 // Worker logic begins here
                 while (IsTaskCancellationPending == false)
                 {
+                    // Determine what to do on a priority command
+                    if (Commands.IsExecutingDirectCommand)
+                    {
+                        if (Commands.IsClosing) break;
+                        if (Commands.IsChanging) Commands.WaitForDirectCommand();
+                    }
+
                     // Wait for seeking or changing to be done.
-                    MediaChangingDone.Wait();
                     SeekingDone.Wait();
 
                     // Enter a packet reading cycle
@@ -90,8 +95,7 @@
                     }
                 }
             }
-            catch (ThreadAbortException) { /* swallow */ }
-            catch { if (!IsDisposed) throw; }
+            catch { throw; }
             finally
             {
                 // Always exit notifying the reading cycle is done.

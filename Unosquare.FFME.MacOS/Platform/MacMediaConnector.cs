@@ -1,9 +1,7 @@
 ﻿namespace Unosquare.FFME.MacOS.Platform
 {
+    using Shared;
     using System;
-    using System.ComponentModel;
-    using Unosquare.FFME.Shared;
-    using System.Threading.Tasks;
 
     internal class MacMediaConnector : IMediaConnector
     {
@@ -20,74 +18,32 @@
             Console.WriteLine($"{e.MessageType,10} - {e.Message}");
         }
 
-        public Task OnBufferingEnded(MediaEngine sender)
-        {
-            return Task.CompletedTask;
-        }
+        public void OnBufferingEnded(MediaEngine sender) { }
 
-        public Task OnBufferingStarted(MediaEngine sender)
-        {
-            return Task.CompletedTask;
-        }
+        public void OnBufferingStarted(MediaEngine sender) { }
 
-        public Task OnMediaClosed(MediaEngine sender)
-        {
-            return Task.CompletedTask;
-        }
+        public void OnMediaClosed(MediaEngine sender) { }
 
-        public Task OnMediaEnded(MediaEngine sender)
-        {
-            return Task.CompletedTask;
-        }
+        public void OnMediaEnded(MediaEngine sender) { }
 
-        public Task OnMediaFailed(MediaEngine sender, Exception e)
-        {
-            return Task.CompletedTask;
-        }
+        public void OnMediaFailed(MediaEngine sender, Exception e) { }
 
-        public Task OnMediaOpened(MediaEngine sender, MediaInfo info)
-        {
-            return Task.CompletedTask;
-        }
+        public void OnMediaOpened(MediaEngine sender, MediaInfo info) { }
 
-        public Task OnMediaOpening(MediaEngine sender, MediaOptions options, MediaInfo mediaInfo)
-        {
-            return Task.CompletedTask;
-        }
+        public void OnMediaOpening(MediaEngine sender, MediaOptions options, MediaInfo mediaInfo) { }
 
-        public Task OnMediaInitializing(MediaEngine sender, ContainerConfiguration config, string url)
-        {
-            return Task.CompletedTask;
-        }
+        public void OnMediaInitializing(MediaEngine sender, ContainerConfiguration config, string url) { }
 
-        public Task OnSeekingEnded(MediaEngine sender)
-        {
-            return Task.CompletedTask;
-        }
+        public void OnSeekingEnded(MediaEngine sender) { }
 
-        public Task OnSeekingStarted(MediaEngine sender)
-        {
-            return Task.CompletedTask;
-        }
+        public void OnSeekingStarted(MediaEngine sender) { }
 
-        public Task OnPositionChanged(MediaEngine sender, TimeSpan oldValue, TimeSpan newValue)
-        {
-            return Task.CompletedTask;
-        }
+        public void OnPositionChanged(MediaEngine sender, TimeSpan oldValue, TimeSpan newValue) { }
 
-        public Task OnMediaStateChanged(MediaEngine sender, PlaybackStatus oldValue, PlaybackStatus newValue)
-        {
-            return Task.CompletedTask;
-        }
+        public void OnMediaStateChanged(MediaEngine sender, PlaybackStatus oldValue, PlaybackStatus newValue) { }
 
-        public Task OnMediaChanging(MediaEngine sender, MediaOptions mediaOptions, MediaInfo mediaInfo)
-        {
-            return Task.CompletedTask;
-        }
+        public void OnMediaChanging(MediaEngine sender, MediaOptions mediaOptions, MediaInfo mediaInfo) { }
 
-        public Task OnMediaChanged(MediaEngine sender, MediaInfo info)
-        {
-            return Task.CompletedTask;
-        }
+        public void OnMediaChanged(MediaEngine sender, MediaInfo info) { }
     }
 }

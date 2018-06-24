@@ -2,40 +2,41 @@
 {
     using Shared;
     using System;
-    using System.Threading.Tasks;
 
     /// <summary>
-    /// Implements the logic to seek on the media stream
+    /// The Seek Command Implementation
     /// </summary>
     /// <seealso cref="MediaCommand" />
     internal sealed class SeekCommand : MediaCommand
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SeekCommand" /> class.
+        /// Initializes a new instance of the <see cref="SeekCommand"/> class.
         /// </summary>
-        /// <param name="manager">The media element.</param>
+        /// <param name="mediaCore">The media core.</param>
         /// <param name="targetPosition">The target position.</param>
-        public SeekCommand(MediaCommandManager manager, TimeSpan targetPosition)
-            : base(manager, MediaCommandType.Seek)
+        public SeekCommand(MediaEngine mediaCore, TimeSpan targetPosition)
+            : base(mediaCore)
         {
             TargetPosition = targetPosition;
+            CommandType = MediaCommandType.Seek;
         }
 
         /// <summary>
-        /// Gets or sets the target position.
+        /// Gets the command type identifier.
         /// </summary>
-        /// <value>
-        /// The target position.
-        /// </value>
+        public override MediaCommandType CommandType { get; }
+
+        /// <summary>
+        /// Gets or sets the target seek position.
+        /// </summary>
         public TimeSpan TargetPosition { get; set; } = TimeSpan.Zero;
 
         /// <summary>
-        /// Performs the actions that this command implements.
+        /// Performs the actions represented by this deferred task.
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        internal override Task ExecuteInternal()
+        protected override void PerformActions()
         {
-            var m = Manager.MediaCore;
+            var m = MediaCore;
             m.Clock.Pause();
             var initialPosition = m.WallClock;
             m.State.UpdateMediaState(PlaybackStatus.Manual);
@@ -54,7 +55,7 @@
                 if (m.Blocks[main].IsInRange(TargetPosition))
                 {
                     m.Clock.Update(m.SnapPositionToBlockPosition(TargetPosition));
-                    return Task.CompletedTask;
+                    return;
                 }
 
                 // Signal to wait one more frame decoding cycle before
@@ -159,8 +160,6 @@
 
                 m.SeekingDone.Complete();
             }
-
-            return Task.CompletedTask;
         }
     }
 }

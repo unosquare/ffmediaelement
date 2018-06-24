@@ -154,6 +154,11 @@
         bool IsOpening { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the media is currently closing.
+        /// </summary>
+        bool IsClosing { get; }
+
+        /// <summary>
         /// Gets a value indicating whether the media is currently changing its components.
         /// </summary>
         bool IsChanging { get; }

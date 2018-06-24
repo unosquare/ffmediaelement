@@ -366,14 +366,19 @@
         public ulong DownloadCacheLength { get; internal set; } = default;
 
         /// <summary>
+        /// Gets a value indicating whether the media is in the process of closing media.
+        /// </summary>
+        public bool IsClosing => Parent?.Commands?.IsClosing ?? false;
+
+        /// <summary>
         /// Gets a value indicating whether the media is in the process of opening.
         /// </summary>
-        public bool IsOpening { get; internal set; } = default;
+        public bool IsOpening => Parent?.Commands?.IsOpening ?? false;
 
         /// <summary>
         /// Gets a value indicating whether the media is currently changing its components.
         /// </summary>
-        public bool IsChanging { get; internal set; } = default;
+        public bool IsChanging => Parent?.Commands?.IsChanging ?? false;
 
         #endregion
 
@@ -452,8 +457,6 @@
             BufferCacheLength = default;
             DownloadProgress = default;
             DownloadCacheLength = default;
-            IsOpening = default;
-            IsChanging = default;
 
             // Reset volatile controller poperties
             SpeedRatio = Constants.Controller.DefaultSpeedRatio;

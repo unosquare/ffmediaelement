@@ -165,7 +165,7 @@ namespace Unosquare.FFME
 
         private static void OnSpeedRatioPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            (d as MediaElement).MediaCore?.RequestSpeedRatio((double)e.NewValue);
+            (d as MediaElement).MediaCore?.SetSpeedRatio((double)e.NewValue);
         }
 
         #endregion
@@ -218,7 +218,7 @@ namespace Unosquare.FFME
                 targetSeek = ((TimeSpan)value).Clamp(TimeSpan.Zero, element.MediaCore.MediaInfo.Duration);
 
             // coming in as a seek from user
-            element.MediaCore?.RequestSeek(targetSeek);
+            element.MediaCore?.Seek(targetSeek);
 
             // Prevent updates from the mediacore into the position dependency property.
             element.m_ReportablePosition = null;

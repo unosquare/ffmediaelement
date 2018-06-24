@@ -1,53 +1,73 @@
 ﻿namespace Unosquare.FFME.Commands
 {
-    using System.Linq;
-    using System.Threading.Tasks;
+    using Primitives;
     using Shared;
-    using Unosquare.FFME.Primitives;
+    using System;
+    using System.Linq;
 
     /// <summary>
-    /// Allows the Media Engine to switch to newly assigned streams or close existing ones.
+    /// Change Media Command Implementation
     /// </summary>
-    /// <seealso cref="MediaCommand" />
-    internal sealed class ChangeMediaCommand : MediaCommand
+    /// <seealso cref="DirectMediaCommand" />
+    internal sealed class DirectChangeCommand : DirectMediaCommand
     {
+        private bool ResumeClock = default;
+        private PlaybackStatus MediaState = default;
+        private Exception ErrorException = default;
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="ChangeMediaCommand" /> class.
+        /// Initializes a new instance of the <see cref="DirectChangeCommand" /> class.
         /// </summary>
-        /// <param name="manager">The manager.</param>
-        public ChangeMediaCommand(MediaCommandManager manager)
-            : base(manager, MediaCommandType.ChangeMedia)
+        /// <param name="mediaCore">The media core.</param>
+        public DirectChangeCommand(MediaEngine mediaCore)
+                    : base(mediaCore)
         {
-            // placheholder
+            CommandType = MediaCommandType.ChangeMedia;
         }
 
         /// <summary>
-        /// Provides the implementation of the command
+        /// Gets the command type identifier.
         /// </summary>
-        /// <returns>
-        /// The awaitable task.
-        /// </returns>
-        internal override Task ExecuteInternal()
+        public override MediaCommandType CommandType { get; }
+
+        /// <summary>
+        /// Performs actions when the command has been executed.
+        /// This is useful to notify exceptions or update the state of the media.
+        /// </summary>
+        public override void PostProcess()
         {
-            var m = Manager.MediaCore;
+            if (ErrorException == null)
+                MediaCore.SendOnMediaChanged();
+            else
+                MediaCore.SendOnMediaFailed(ErrorException);
 
-            // Avoid running the command if run conditions are not met
-            if (m == null || m.IsDisposed || m.State.IsOpen == false || m.State.IsOpening || m.State.IsChanging)
-                return Task.CompletedTask;
+            MediaCore.State.UpdateMediaState(MediaState, MediaCore.WallClock);
+            if (ResumeClock) MediaCore.Clock.Play();
 
-            m.State.IsChanging = true;
-            var resumeClock = false;
-            var isSeeking = m.State.IsSeeking;
+            MediaCore.Log(MediaLogMessageType.Debug, $"Command {CommandType}: Completed");
+        }
+
+        /// <summary>
+        /// Performs the actions represented by this deferred task.
+        /// </summary>
+        protected override void PerformActions()
+        {
+            var m = MediaCore;
+
+            m.Log(MediaLogMessageType.Debug, $"Command {CommandType}: Entered");
+            ResumeClock = false;
+            MediaState = m.State.MediaState;
 
             try
             {
+                m.State.UpdateMediaState(PlaybackStatus.Manual);
+
                 // Signal the start of a changing event
-                m.MediaChangingDone.Begin();
                 m.State.IsSeeking = true;
 
                 // Signal the start of a sync-buffering scenario
                 m.HasDecoderSeeked = true;
-                resumeClock = m.Clock.IsRunning;
+                ResumeClock = m.Clock.IsRunning;
                 m.Clock.Pause();
 
                 // Wait for the cycles to complete
@@ -104,9 +124,9 @@
                 if (m.State.IsSeekable)
                 {
                     // Let's simply do an automated seek
-                    var seekCommand = new SeekCommand(Manager, m.WallClock);
-                    seekCommand.RunSynchronously();
-                    return Task.CompletedTask;
+                    var seekCommand = new SeekCommand(m, m.WallClock);
+                    seekCommand.Execute();
+                    return;
                 }
 
                 // We need to perform some packet reading and decoding
@@ -169,20 +189,14 @@
 
                 m.HasDecoderSeeked = true;
             }
-            catch
+            catch (Exception ex)
             {
-                // TODO: Handle errors here
+                ErrorException = ex;
             }
             finally
             {
-                if (resumeClock) m?.Clock?.Play();
-                m.State.IsSeeking = isSeeking;
-                m.MediaChangingDone.Complete();
-                m.State.IsChanging = false;
-                m.SendOnMediaChanged();
+                m.State.IsSeeking = false;
             }
-
-            return Task.CompletedTask;
         }
     }
 }

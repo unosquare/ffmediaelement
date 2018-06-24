@@ -57,11 +57,6 @@
         internal IWaitEvent SeekingDone { get; } = WaitEventFactory.Create(isCompleted: true, useSlim: false);
 
         /// <summary>
-        /// Gets the media changing done control event.
-        /// </summary>
-        internal IWaitEvent MediaChangingDone { get; } = WaitEventFactory.Create(isCompleted: true, useSlim: false);
-
-        /// <summary>
         /// Gets or sets a value indicating whether the workedrs have been requested
         /// an exit.
         /// </summary>
@@ -151,7 +146,6 @@
 
             // Set the initial state of the task cycles.
             SeekingDone.Complete();
-            MediaChangingDone.Complete();
             BlockRenderingCycle.Complete();
             FrameDecodingCycle.Begin();
             PacketReadingCycle.Begin();
@@ -195,8 +189,9 @@
             var wrokers = new[] { PacketReadingTask, FrameDecodingTask };
             foreach (var w in wrokers)
             {
-                // w.Abort(); //Abort causes memory leaks bacause packets and frames might not
+                // Abort causes memory leaks bacause packets and frames might not
                 // get disposed by the corresponding workers. We use Join instead.
+                // w.Abort();
                 w.Join();
             }
 

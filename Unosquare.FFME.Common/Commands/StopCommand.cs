@@ -1,36 +1,39 @@
 ﻿namespace Unosquare.FFME.Commands
 {
-    using Shared;
     using System;
-    using System.Threading.Tasks;
+    using Unosquare.FFME.Shared;
 
     /// <summary>
-    /// Implements the logic to pause and rewind the media stream
+    /// The Stop Command Implementation
     /// </summary>
     /// <seealso cref="MediaCommand" />
     internal sealed class StopCommand : MediaCommand
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="StopCommand" /> class.
+        /// Initializes a new instance of the <see cref="StopCommand"/> class.
         /// </summary>
-        /// <param name="manager">The media element.</param>
-        public StopCommand(MediaCommandManager manager)
-            : base(manager, MediaCommandType.Stop)
+        /// <param name="mediaCore">The media core.</param>
+        public StopCommand(MediaEngine mediaCore)
+            : base(mediaCore)
         {
-            // placeholder
+            CommandType = MediaCommandType.Stop;
         }
 
         /// <summary>
-        /// Performs the actions that this command implements.
+        /// Gets the command type identifier.
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        internal override async Task ExecuteInternal()
+        public override MediaCommandType CommandType { get; }
+
+        /// <summary>
+        /// Performs the actions represented by this deferred task.
+        /// </summary>
+        protected override void PerformActions()
         {
-            var m = Manager.MediaCore;
+            var m = MediaCore;
             m.Clock.Reset();
             m.State.UpdateMediaState(PlaybackStatus.Manual);
-            var seek = new SeekCommand(Manager, TimeSpan.Zero);
-            await seek.ExecuteInternal();
+            var seek = new SeekCommand(m, TimeSpan.Zero);
+            seek.Execute();
             m.State.UpdateMediaState(PlaybackStatus.Stop, m.WallClock);
 
             foreach (var renderer in m.Renderers.Values)

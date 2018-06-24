@@ -1,10 +1,9 @@
 ﻿namespace Unosquare.FFME.Commands
 {
     using Shared;
-    using System.Threading.Tasks;
 
     /// <summary>
-    /// A command to change speed ratio asynchronously
+    /// The Set Speed Ratio Command Implementation
     /// </summary>
     /// <seealso cref="MediaCommand" />
     internal sealed class SpeedRatioCommand : MediaCommand
@@ -12,13 +11,19 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="SpeedRatioCommand"/> class.
         /// </summary>
-        /// <param name="manager">The manager.</param>
+        /// <param name="mediaCore">The media core.</param>
         /// <param name="speedRatio">The speed ratio.</param>
-        public SpeedRatioCommand(MediaCommandManager manager, double speedRatio)
-            : base(manager, MediaCommandType.SetSpeedRatio)
+        public SpeedRatioCommand(MediaEngine mediaCore, double speedRatio)
+            : base(mediaCore)
         {
             SpeedRatio = speedRatio;
+            CommandType = MediaCommandType.SpeedRatio;
         }
+
+        /// <summary>
+        /// Gets the command type identifier.
+        /// </summary>
+        public override MediaCommandType CommandType { get; }
 
         /// <summary>
         /// The target speed ratio
@@ -26,17 +31,14 @@
         public double SpeedRatio { get; set; } = Constants.Controller.DefaultSpeedRatio;
 
         /// <summary>
-        /// Performs the actions that this command implements.
+        /// Performs the actions represented by this deferred task.
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        internal override Task ExecuteInternal()
+        protected override void PerformActions()
         {
-            if (Manager.MediaCore.Clock.SpeedRatio != SpeedRatio)
-                Manager.MediaCore.Clock.SpeedRatio = SpeedRatio;
+            if (MediaCore.Clock.SpeedRatio != SpeedRatio)
+                MediaCore.Clock.SpeedRatio = SpeedRatio;
 
-            Manager.MediaCore.State.SpeedRatio = Manager.MediaCore.Clock.SpeedRatio;
-
-            return Task.CompletedTask;
+            MediaCore.State.SpeedRatio = MediaCore.Clock.SpeedRatio;
         }
     }
 }

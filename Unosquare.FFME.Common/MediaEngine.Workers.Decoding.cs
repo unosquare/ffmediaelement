@@ -2,8 +2,6 @@
 {
     using System;
     using System.Runtime.CompilerServices;
-    using System.Threading;
-    using Unosquare.FFME.Commands;
     using Unosquare.FFME.Decoding;
     using Unosquare.FFME.Primitives;
     using Unosquare.FFME.Shared;
@@ -38,7 +36,6 @@
             // State properties
             var isBuffering = false;
             var resumeClock = false;
-            var hasPendingSeeks = false;
 
             MediaComponent comp = null;
             MediaBlockBuffer blocks = null;
@@ -53,12 +50,18 @@
                 {
                     #region 1. Setup the Decoding Cycle
 
+                    // Determine what to do on a priority command
+                    if (Commands.IsExecutingDirectCommand)
+                    {
+                        if (Commands.IsClosing) break;
+                        if (Commands.IsChanging) Commands.WaitForDirectCommand();
+                    }
+
                     // Signal a Seek starting operation
                     FrameDecodingCycle.Begin();
 
                     // Chek if we have pending seeks to notify the start of a seek operation
-                    hasPendingSeeks = Commands.PendingCountOf(MediaCommandType.Seek) > 0;
-                    if (State.IsSeeking == false && hasPendingSeeks)
+                    if (State.IsSeeking == false && Commands.HasQueuedSeekCommands)
                     {
                         playAfterSeek = State.IsPlaying;
                         State.IsSeeking = true;
@@ -66,7 +69,7 @@
                     }
 
                     // Execute the following command at the beginning of the cycle
-                    Commands.ProcessNext();
+                    Commands.ExecuteNextQueuedCommand();
 
                     // Update state properties -- this must be after processing commanmds as
                     // a command might have changed the components
@@ -79,8 +82,7 @@
 
                     // Signal a Seek ending operation
                     // TOD: Maybe this should go on the block rendering worker?
-                    hasPendingSeeks = Commands.PendingCountOf(MediaCommandType.Seek) > 0;
-                    if (State.IsSeeking && hasPendingSeeks == false)
+                    if (State.IsSeeking && Commands.HasQueuedSeekCommands == false)
                     {
                         // Detect a end of seek cycle and update the state to the final position
                         // as set by the seek command. This is the position we already captured
@@ -309,7 +311,7 @@
                     // We probably need to wait for some more input
                     if (IsTaskCancellationPending == false
                         && decodedFrameCount <= 0
-                        && Commands.PendingCount <= 0)
+                        && Commands.HasQueuedCommands == false)
                     {
                         delay.WaitOne();
                     }
@@ -317,8 +319,7 @@
                     #endregion
                 }
             }
-            catch (ThreadAbortException) { /* swallow */ }
-            catch { if (!IsDisposed) throw; }
+            catch { throw; }
             finally
             {
                 // Always exit notifying the cycle is done.

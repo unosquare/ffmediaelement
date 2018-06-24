@@ -1,46 +1,48 @@
 ﻿namespace Unosquare.FFME.Commands
 {
-    using Shared;
     using System;
-    using System.Threading.Tasks;
+    using Unosquare.FFME.Shared;
 
     /// <summary>
-    /// Implements the logic to start or resume media playback
+    /// The Play Command Implementation
     /// </summary>
     /// <seealso cref="MediaCommand" />
     internal sealed class PlayCommand : MediaCommand
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="PlayCommand" /> class.
+        /// Initializes a new instance of the <see cref="PlayCommand"/> class.
         /// </summary>
-        /// <param name="manager">The media element.</param>
-        public PlayCommand(MediaCommandManager manager)
-            : base(manager, MediaCommandType.Play)
+        /// <param name="mediaCore">The media core.</param>
+        public PlayCommand(MediaEngine mediaCore)
+            : base(mediaCore)
         {
+            CommandType = MediaCommandType.Play;
         }
 
         /// <summary>
-        /// Performs the actions that this command implements.
+        /// Gets the command type identifier.
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        internal override Task ExecuteInternal()
-        {
-            var m = Manager.MediaCore;
+        public override MediaCommandType CommandType { get; }
 
-            if (m.State.IsOpen == false) return Task.CompletedTask;
+        /// <summary>
+        /// Performs the actions represented by this deferred task.
+        /// </summary>
+        protected override void PerformActions()
+        {
+            var m = MediaCore;
             if (m.State.HasMediaEnded
                 || (m.State.NaturalDuration.HasValue
                 && m.State.NaturalDuration != TimeSpan.MinValue
                 && m.WallClock >= m.State.NaturalDuration.Value))
-                return Task.CompletedTask;
+            {
+                return;
+            }
 
             foreach (var renderer in m.Renderers.Values)
                 renderer.Play();
 
             m.Clock.Play();
             m.State.UpdateMediaState(PlaybackStatus.Play, m.WallClock);
-
-            return Task.CompletedTask;
         }
     }
 }

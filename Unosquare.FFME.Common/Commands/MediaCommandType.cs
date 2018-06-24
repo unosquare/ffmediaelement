@@ -38,7 +38,7 @@
         /// <summary>
         /// The set speed ratio command id
         /// </summary>
-        SetSpeedRatio,
+        SpeedRatio,
 
         /// <summary>
         /// The change media command id

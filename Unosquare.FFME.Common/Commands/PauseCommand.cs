@@ -1,32 +1,36 @@
 ﻿namespace Unosquare.FFME.Commands
 {
     using Shared;
-    using System.Threading.Tasks;
 
     /// <summary>
-    /// Implements the logic to pause the media stream
+    /// The Pause Command Implementation
     /// </summary>
     /// <seealso cref="MediaCommand" />
     internal sealed class PauseCommand : MediaCommand
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="PauseCommand" /> class.
+        /// Initializes a new instance of the <see cref="PauseCommand"/> class.
         /// </summary>
-        /// <param name="manager">The manager.</param>
-        public PauseCommand(MediaCommandManager manager)
-            : base(manager, MediaCommandType.Pause)
+        /// <param name="mediaCore">The media core.</param>
+        public PauseCommand(MediaEngine mediaCore)
+            : base(mediaCore)
         {
-            // placeholder
+            CommandType = MediaCommandType.Pause;
         }
 
         /// <summary>
-        /// Performs the actions that this command implements.
+        /// Gets the command type identifier.
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        internal override Task ExecuteInternal()
+        public override MediaCommandType CommandType { get; }
+
+        /// <summary>
+        /// Performs the actions represented by this deferred task.
+        /// </summary>
+        protected override void PerformActions()
         {
-            var m = Manager.MediaCore;
-            if (m.State.IsOpen == false || m.State.CanPause == false) return Task.CompletedTask;
+            var m = MediaCore;
+            if (m.State.CanPause == false)
+                return;
 
             m.Clock.Pause();
 
@@ -36,8 +40,6 @@
             var wallClock = m.SnapPositionToBlockPosition(m.WallClock);
             m.Clock.Update(wallClock);
             m.State.UpdateMediaState(PlaybackStatus.Pause);
-
-            return Task.CompletedTask;
         }
     }
 }

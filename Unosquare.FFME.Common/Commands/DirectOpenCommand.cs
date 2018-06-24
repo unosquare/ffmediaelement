@@ -4,36 +4,44 @@
     using Decoding;
     using Shared;
     using System;
-    using System.Threading.Tasks;
 
     /// <summary>
-    /// Implements the logic to open a media stream.
+    /// The Open Command Implementation
     /// </summary>
-    /// <seealso cref="MediaCommand" />
-    internal sealed class OpenCommand : MediaCommand
+    /// <seealso cref="DirectMediaCommand" />
+    internal sealed class DirectOpenCommand : DirectMediaCommand
     {
+        private Exception ExceptionResult = null;
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="OpenCommand" /> class.
+        /// Initializes a new instance of the <see cref="DirectOpenCommand" /> class.
         /// </summary>
-        /// <param name="manager">The manager.</param>
+        /// <param name="mediaCore">The manager.</param>
         /// <param name="source">The source.</param>
-        public OpenCommand(MediaCommandManager manager, Uri source)
-            : base(manager, MediaCommandType.Open)
+        public DirectOpenCommand(MediaEngine mediaCore, Uri source)
+            : base(mediaCore)
         {
             Source = source;
+            CommandType = MediaCommandType.Open;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="OpenCommand"/> class.
+        /// Initializes a new instance of the <see cref="DirectOpenCommand"/> class.
         /// </summary>
-        /// <param name="manager">The manager.</param>
+        /// <param name="mediaCore">The manager.</param>
         /// <param name="inputStream">The custom implementation of an input stream.</param>
-        public OpenCommand(MediaCommandManager manager, IMediaInputStream inputStream)
-            : base(manager, MediaCommandType.Open)
+        public DirectOpenCommand(MediaEngine mediaCore, IMediaInputStream inputStream)
+            : base(mediaCore)
         {
             InputStream = inputStream;
             Source = inputStream.StreamUri;
+            CommandType = MediaCommandType.Open;
         }
+
+        /// <summary>
+        /// Gets the command type identifier.
+        /// </summary>
+        public override MediaCommandType CommandType { get; }
 
         /// <summary>
         /// Gets the source uri of the media stream.
@@ -47,18 +55,34 @@
         public IMediaInputStream InputStream { get; }
 
         /// <summary>
-        /// Performs the actions that this command implements.
+        /// Performs actions when the command has been executed.
+        /// This is useful to notify exceptions or update the state of the media.
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        internal override Task ExecuteInternal()
+        public override void PostProcess()
         {
-            var m = Manager.MediaCore;
+            if (ExceptionResult == null)
+            {
+                MediaCore.State.UpdateMediaState(PlaybackStatus.Stop);
+                MediaCore.SendOnMediaOpened();
+            }
+            else
+            {
+                MediaCore.State.UpdateMediaState(PlaybackStatus.Close);
+                MediaCore.SendOnMediaFailed(ExceptionResult);
+            }
 
-            if (m.IsDisposed || m.State.IsOpen || m.State.IsOpening || m.State.IsChanging)
-                return Task.CompletedTask;
+            MediaCore.Log(MediaLogMessageType.Debug, $"Command {CommandType}: Completed");
+        }
+
+        /// <summary>
+        /// Performs the actions represented by this deferred task.
+        /// </summary>
+        protected override void PerformActions()
+        {
+            var m = MediaCore;
 
             // Notify Media will start opening
-            m.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Entered");
+            m.Log(MediaLogMessageType.Debug, $"Command {CommandType}: Entered");
 
             try
             {
@@ -68,7 +92,6 @@
                 // Signal the initial state
                 m.State.ResetMediaProperties();
                 m.State.Source = Source;
-                m.State.IsOpening = true;
 
                 // Register FFmpeg libraries if not already done
                 if (MediaEngine.LoadFFmpeg())
@@ -145,31 +168,15 @@
 
                 // Charge! We are good to go, fire up the worker threads!
                 m.StartWorkers();
-
-                // Set the state to stopped and exit the IsOpening state
-                m.State.IsOpening = false;
-                m.State.UpdateMediaState(PlaybackStatus.Stop);
-
-                // Raise the opened event
-                m.SendOnMediaOpened(m.Container.MediaInfo);
             }
             catch (Exception ex)
             {
+                try { m.StopWorkers(); } catch { }
                 try { m.Container?.Dispose(); } catch { }
                 m.DisposePreloadedSubtitles();
                 m.Container = null;
-                m.State.UpdateMediaState(PlaybackStatus.Close);
-                m.SendOnMediaFailed(ex);
+                ExceptionResult = ex;
             }
-            finally
-            {
-                // Signal we are no longer in the opening state
-                // so we can enqueue commands in the command handler
-                m.State.IsOpening = false;
-                m.Log(MediaLogMessageType.Debug, $"{nameof(OpenCommand)}: Completed");
-            }
-
-            return Task.CompletedTask;
         }
     }
 }
