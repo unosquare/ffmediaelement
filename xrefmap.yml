@@ -1206,6 +1206,19 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.IsChanging
   nameWithType: MediaElement.IsChanging
+- uid: Unosquare.FFME.MediaElement.IsClosing
+  name: IsClosing
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsClosing
+  commentId: P:Unosquare.FFME.MediaElement.IsClosing
+  fullName: Unosquare.FFME.MediaElement.IsClosing
+  nameWithType: MediaElement.IsClosing
+- uid: Unosquare.FFME.MediaElement.IsClosing*
+  name: IsClosing
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsClosing_
+  commentId: Overload:Unosquare.FFME.MediaElement.IsClosing
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.IsClosing
+  nameWithType: MediaElement.IsClosing
 - uid: Unosquare.FFME.MediaElement.IsLiveStream
   name: IsLiveStream
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsLiveStream
