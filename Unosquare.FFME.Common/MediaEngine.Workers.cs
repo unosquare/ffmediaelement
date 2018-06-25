@@ -164,7 +164,7 @@
             Commands.IsStopWorkersPending = true;
 
             // Cause an immediate Packet read abort
-            Container.SignalAbortReads(false);
+            Container?.SignalAbortReads(false);
 
             // Stop the rendering worker before anything else
             StopBlockRenderingWorker();
@@ -181,7 +181,7 @@
                 // Abort causes memory leaks bacause packets and frames might not
                 // get disposed by the corresponding workers. We use Join instead.
                 // w.Abort();
-                w.Join();
+                w?.Join();
             }
 
             // Set the threads to null

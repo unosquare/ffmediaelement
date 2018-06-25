@@ -13,7 +13,7 @@
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
         protected CommandBase(MediaEngine mediaCore)
-            : base(continueOnCapturedContext: false)
+            : base(continueOnCapturedContext: true)
         {
             MediaCore = mediaCore;
         }

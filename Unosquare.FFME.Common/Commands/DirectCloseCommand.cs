@@ -47,11 +47,8 @@
             m.StopWorkers();
 
             // Dispose the container
-            if (m.Container != null)
-            {
-                m.Container.Dispose();
-                m.Container = null;
-            }
+            m.Container?.Dispose();
+            m.Container = null;
 
             // Dispose the Blocks for all components
             foreach (var kvp in m.Blocks)

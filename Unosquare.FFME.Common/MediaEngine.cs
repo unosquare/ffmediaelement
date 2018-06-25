@@ -13,6 +13,9 @@
     /// <seealso cref="IDisposable" />
     public partial class MediaEngine : IDisposable, IMediaLogger
     {
+        private readonly object DisposeLock = new object();
+        private bool m_IsDisposed = false;
+
         #region Constructors
 
         /// <summary>
@@ -68,7 +71,7 @@
         /// <summary>
         /// Gets a value indicating whether this instance is disposed.
         /// </summary>
-        public bool IsDisposed { get; private set; } = default;
+        public bool IsDisposed { get { lock (DisposeLock) return m_IsDisposed; } }
 
         /// <summary>
         /// Gets the associated parent object.
@@ -125,31 +128,32 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
-            if (IsDisposed) return;
-
-            try
+            lock (DisposeLock)
             {
-                // Dispose of commands. This calls close automatically
-                Commands.Dispose();
+                if (m_IsDisposed) return;
 
-                // Dispose the container
-                Container?.Dispose();
-                Container = null;
+                try
+                {
+                    // Dispose of commands. This closes the
+                    // Media automatically and signals an exit
+                    // This also causes the Container to get disposed.
+                    Commands.Dispose();
 
-                // Dispose the RTC
-                Clock.Dispose();
+                    // Dispose the RTC
+                    Clock.Dispose();
 
-                // Dispose the Wait Event objects as they are
-                // backed by unmanaged code
-                PacketReadingCycle.Dispose();
-                FrameDecodingCycle.Dispose();
-                BlockRenderingCycle.Dispose();
-                SeekingDone.Dispose();
-            }
-            catch { throw; }
-            finally
-            {
-                IsDisposed = true;
+                    // Dispose the Wait Event objects as they are
+                    // backed by unmanaged code
+                    PacketReadingCycle.Dispose();
+                    FrameDecodingCycle.Dispose();
+                    BlockRenderingCycle.Dispose();
+                    SeekingDone.Dispose();
+                }
+                catch { throw; }
+                finally
+                {
+                    m_IsDisposed = true;
+                }
             }
         }
 

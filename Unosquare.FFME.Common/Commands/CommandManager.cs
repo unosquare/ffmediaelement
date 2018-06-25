@@ -21,10 +21,12 @@
         private readonly object DirectLock = new object();
         private readonly object QueueLock = new object();
         private readonly object StatusLock = new object();
+        private readonly object DisposeLock = new object();
 
         private bool m_IsClosing = default;
         private bool m_IsOpening = default;
         private bool m_IsChanging = default;
+        private bool m_IsDisposed = default;
 
         private DirectCommandBase CurrentDirectCommand = null;
         private CommandBase CurrentQueueCommand = null;
@@ -116,8 +118,11 @@
             {
                 lock (StatusLock)
                 {
+                    // If we are closing or already disposed, we can't enqueue
                     if (m_IsClosing || IsDisposed) return false;
-                    if ((m_IsOpening || MediaCore.State.IsOpen) == false) return false;
+
+                    // If we are not opening or have already opened, we can't enqueue commands
+                    if (m_IsOpening == false && MediaCore.State.IsOpen == false) return false;
 
                     return true;
                 }
@@ -127,7 +132,7 @@
         /// <summary>
         /// Gets a value indicating whether this instance is disposed.
         /// </summary>
-        public bool IsDisposed { get; private set; }
+        public bool IsDisposed { get { lock (DisposeLock) return m_IsDisposed; } }
 
         #endregion
 
@@ -241,21 +246,6 @@
                     DirectCommandEvent.Wait();
 
         /// <summary>
-        /// Clears the command queue.
-        /// All commands are signalled so all awaiters stop awaiting.
-        /// </summary>
-        public void ClearQueuedCommands()
-        {
-            lock (QueueLock)
-            {
-                for (var i = CommandQueue.Count - 1; i >= 0; i--)
-                    CommandQueue[i].Dispose();
-
-                CommandQueue.Clear();
-            }
-        }
-
-        /// <summary>
         /// Executes the next command in the queued.
         /// </summary>
         public void ExecuteNextQueuedCommand()
@@ -283,11 +273,26 @@
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose() =>
-                    Dispose(true);
+            Dispose(true);
 
         #endregion
 
         #region Private Methods
+
+        /// <summary>
+        /// Clears the command queue.
+        /// All commands are signalled so all awaiters stop awaiting.
+        /// </summary>
+        private void ClearQueuedCommands()
+        {
+            lock (QueueLock)
+            {
+                for (var i = CommandQueue.Count - 1; i >= 0; i--)
+                    CommandQueue[i].Dispose();
+
+                CommandQueue.Clear();
+            }
+        }
 
         /// <summary>
         /// Gets the current direct command of the specified type.
@@ -318,67 +323,15 @@
         /// <returns>The awaitable task handle</returns>
         private async Task<bool> ExecuteDirectCommand(DirectCommandBase command)
         {
-            lock (DirectLock)
-            {
-                // Prevent running a new priority event if one is already in progress
-                if (DirectCommandEvent.IsInProgress)
-                {
-                    command.Dispose();
-                    return false;
-                }
+            if (TryEnterDirectCommand(command) == false)
+                return false;
 
-                // Signal the workers they need to wait
-                DirectCommandEvent.Begin();
-                CurrentDirectCommand = command;
-
-                // Update the state
-                lock (StatusLock)
-                {
-                    m_IsOpening = command.CommandType == CommandType.Open;
-                    m_IsClosing = command.CommandType == CommandType.Close;
-                    m_IsChanging = command.CommandType == CommandType.ChangeMedia;
-                }
-            }
-
-            // Signal the workers to stop
-            if (command.CommandType == CommandType.Close)
-            {
-                // Prepare for close command by signalling workers to stop
-                IsStopWorkersPending = true;
-
-                // Signal the reads to abort
-                MediaCore.Container?.SignalAbortReads(false);
-            }
-
-            // Wait for cycles to complete.
-            // Cycles must wait for priority commands before continuing
-            if (MediaCore.State.IsOpen)
-            {
-                MediaCore.FrameDecodingCycle.Wait();
-                MediaCore.PacketReadingCycle.Wait();
-            }
-
-            ClearQueuedCommands();
+            PrepareForDirectCommand(command.CommandType);
             command.BeginExecute();
 
             try { return await command.Awaiter; }
             catch { throw; }
-            finally
-            {
-                lock (StatusLock)
-                {
-                    m_IsOpening = false;
-                    m_IsClosing = false;
-                    m_IsChanging = false;
-                }
-
-                lock (DirectLock)
-                {
-                    command.PostProcess();
-                    DirectCommandEvent.Complete();
-                    CurrentDirectCommand = null;
-                }
-            }
+            finally { FinalizeDirectCommand(command); }
         }
 
         /// <summary>
@@ -502,26 +455,115 @@
         }
 
         /// <summary>
+        /// Tries the enter direct command.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        /// <returns>If direct command entering was successful</returns>
+        private bool TryEnterDirectCommand(DirectCommandBase command)
+        {
+            lock (DirectLock)
+            {
+                // Prevent running a new priority event if one is already in progress
+                if (IsDisposed || DirectCommandEvent.IsInProgress)
+                {
+                    command.Dispose();
+                    return false;
+                }
+
+                // Signal the workers they need to wait
+                DirectCommandEvent.Begin();
+                CurrentDirectCommand = command;
+
+                // Update the state
+                lock (StatusLock)
+                {
+                    m_IsOpening = command.CommandType == CommandType.Open;
+                    m_IsClosing = command.CommandType == CommandType.Close;
+                    m_IsChanging = command.CommandType == CommandType.ChangeMedia;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Prepares for direct command.
+        /// </summary>
+        /// <param name="commandType">Type of the command.</param>
+        private void PrepareForDirectCommand(CommandType commandType)
+        {
+            ClearQueuedCommands();
+
+            // Signal the workers to stop
+            if (commandType == CommandType.Close)
+            {
+                // Prepare for close command by signalling workers to stop
+                IsStopWorkersPending = true;
+
+                // Signal the reads to abort
+                MediaCore.Container?.SignalAbortReads(false);
+            }
+
+            // Wait for cycles to complete.
+            // Cycles must wait for priority commands before continuing
+            if (MediaCore.State.IsOpen)
+            {
+                MediaCore.FrameDecodingCycle.Wait();
+                MediaCore.PacketReadingCycle.Wait();
+            }
+        }
+
+        /// <summary>
+        /// Finalizes the direct command by performing command post-processing.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        private void FinalizeDirectCommand(DirectCommandBase command)
+        {
+            lock (StatusLock)
+            {
+                m_IsOpening = false;
+                m_IsClosing = false;
+                m_IsChanging = false;
+            }
+
+            lock (DirectLock)
+            {
+                CurrentDirectCommand = null;
+                DirectCommandEvent.Complete();
+            }
+
+            command.PostProcess();
+        }
+
+        /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="alsoManaged">
         ///   <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
-            if (!IsDisposed)
+            lock (DisposeLock)
             {
-                if (alsoManaged)
-                {
-                    DirectCommandEvent.Wait();
-                    ExecuteDirectCommand(new DirectCloseCommand(MediaCore)).GetAwaiter().GetResult();
-                    ClearQueuedCommands(); // TODO: might be unncessary
+                if (m_IsDisposed) return;
 
-                    // TODO: dispose managed state (managed objects).
-                }
+                // Immediately mark as disposed so no more
+                // Commands can be executed/enqueued
+                m_IsDisposed = true;
 
-                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // TODO: set large fields to null.
-                IsDisposed = true;
+                // Signal the workers we need to quit
+                ClearQueuedCommands();
+                IsStopWorkersPending = true;
+                MediaCore.Container?.SignalAbortReads(false);
+
+                // Wait for any pending direct command
+                DirectCommandEvent.Wait();
+
+                // Run the close command directly
+                var closeCommand = new DirectCloseCommand(MediaCore);
+                closeCommand.Execute();
+
+                // Dispose of additional resources.
+                DirectCommandEvent?.Dispose();
             }
         }
 

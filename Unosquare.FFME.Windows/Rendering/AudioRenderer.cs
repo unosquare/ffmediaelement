@@ -854,15 +854,13 @@
         ///   <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
-            if (!IsDisposed)
+            lock (SyncLock)
             {
-                IsDisposed = true;
+                if (IsDisposed) return;
 
-                if (alsoManaged)
-                {
-                    Destroy();
-                    WaitForReadyEvent.Dispose();
-                }
+                IsDisposed = true;
+                Destroy();
+                WaitForReadyEvent.Dispose();
             }
         }
 
