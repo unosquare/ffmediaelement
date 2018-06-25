@@ -5,8 +5,8 @@
     /// <summary>
     /// The Set Speed Ratio Command Implementation
     /// </summary>
-    /// <seealso cref="MediaCommand" />
-    internal sealed class SpeedRatioCommand : MediaCommand
+    /// <seealso cref="CommandBase" />
+    internal sealed class SpeedRatioCommand : CommandBase
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SpeedRatioCommand"/> class.
@@ -17,13 +17,19 @@
             : base(mediaCore)
         {
             SpeedRatio = speedRatio;
-            CommandType = MediaCommandType.SpeedRatio;
+            CommandType = CommandType.SpeedRatio;
+            Category = CommandCategory.Delayed;
         }
 
         /// <summary>
         /// Gets the command type identifier.
         /// </summary>
-        public override MediaCommandType CommandType { get; }
+        public override CommandType CommandType { get; }
+
+        /// <summary>
+        /// Gets the command category.
+        /// </summary>
+        public override CommandCategory Category { get; }
 
         /// <summary>
         /// The target speed ratio

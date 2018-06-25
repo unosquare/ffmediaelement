@@ -8,8 +8,8 @@
     /// <summary>
     /// Change Media Command Implementation
     /// </summary>
-    /// <seealso cref="DirectMediaCommand" />
-    internal sealed class DirectChangeCommand : DirectMediaCommand
+    /// <seealso cref="DirectCommandBase" />
+    internal sealed class DirectChangeCommand : DirectCommandBase
     {
         private bool ResumeClock = default;
         private PlaybackStatus MediaState = default;
@@ -22,13 +22,13 @@
         public DirectChangeCommand(MediaEngine mediaCore)
                     : base(mediaCore)
         {
-            CommandType = MediaCommandType.ChangeMedia;
+            CommandType = CommandType.ChangeMedia;
         }
 
         /// <summary>
         /// Gets the command type identifier.
         /// </summary>
-        public override MediaCommandType CommandType { get; }
+        public override CommandType CommandType { get; }
 
         /// <summary>
         /// Performs actions when the command has been executed.

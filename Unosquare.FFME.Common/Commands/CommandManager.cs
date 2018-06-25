@@ -7,10 +7,17 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    internal sealed class MediaCommandManager : IDisposable
+    /// <summary>
+    /// Provides centralized access to playback controls
+    /// </summary>
+    /// <seealso cref="IDisposable" />
+    internal sealed class CommandManager : IDisposable
     {
-        private readonly List<MediaCommand> CommandQueue = new List<MediaCommand>(32);
+        #region Private Members
+
+        private readonly List<CommandBase> CommandQueue = new List<CommandBase>(32);
         private readonly IWaitEvent DirectCommandEvent = null;
+        private readonly AtomicBoolean m_IsStopWorkersPending = new AtomicBoolean(false);
         private readonly object DirectLock = new object();
         private readonly object QueueLock = new object();
         private readonly object StatusLock = new object();
@@ -19,46 +26,90 @@
         private bool m_IsOpening = default;
         private bool m_IsChanging = default;
 
-        private DirectMediaCommand CurrentDirectCommand = null;
-        private MediaCommand CurrentQueueCommand = null;
+        private DirectCommandBase CurrentDirectCommand = null;
+        private CommandBase CurrentQueueCommand = null;
 
-        public MediaCommandManager(MediaEngine mediaCore)
+        #endregion
+
+        #region Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CommandManager" /> class.
+        /// </summary>
+        /// <param name="mediaCore">The media core.</param>
+        public CommandManager(MediaEngine mediaCore)
         {
             DirectCommandEvent = WaitEventFactory.Create(isCompleted: true, useSlim: true);
             MediaCore = mediaCore;
         }
 
+        #endregion
+
         #region Properties
 
+        /// <summary>
+        /// Gets the associated media core.
+        /// </summary>
         public MediaEngine MediaCore { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether a direct command is currently executing.
+        /// </summary>
         public bool IsExecutingDirectCommand => DirectCommandEvent.IsInProgress;
 
+        /// <summary>
+        /// Gets a value indicating whether a close command is in progress
+        /// </summary>
         public bool IsClosing
         {
             get { lock (StatusLock) return m_IsClosing; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether an open command is in progress
+        /// </summary>
         public bool IsOpening
         {
             get { lock (StatusLock) return m_IsOpening; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether a change media command is in progress
+        /// </summary>
         public bool IsChanging
         {
             get { lock (StatusLock) return m_IsChanging; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether Reading, Decoding and Rendering workers are
+        /// pending stop.
+        /// </summary>
+        public bool IsStopWorkersPending
+        {
+            get => m_IsStopWorkersPending.Value;
+            set => m_IsStopWorkersPending.Value = value;
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the command queued constains commands.
+        /// </summary>
         public bool HasQueuedCommands
         {
             get { lock (QueueLock) return CommandQueue.Count > 0; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the command queue contains seek commands.
+        /// </summary>
         public bool HasQueuedSeekCommands
         {
-            get { lock (QueueLock) return CommandQueue.Any(c => c.CommandType == MediaCommandType.Seek); }
+            get { lock (QueueLock) return CommandQueue.Any(c => c.CommandType == CommandType.Seek); }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this instance can execute queued commands.
+        /// </summary>
         public bool CanExecuteQueuedCommands
         {
             get
@@ -73,12 +124,20 @@
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this instance is disposed.
+        /// </summary>
         public bool IsDisposed { get; private set; }
 
         #endregion
 
         #region Public API
 
+        /// <summary>
+        /// Opens a media URI
+        /// </summary>
+        /// <param name="uri">The URI.</param>
+        /// <returns>The awaitable task. The task result determines if the command was successfully started</returns>
         public async Task<bool> OpenAsync(Uri uri)
         {
             if (MediaCore.State.IsOpen || IsDisposed || IsExecutingDirectCommand)
@@ -87,6 +146,11 @@
             return await ExecuteDirectCommand(new DirectOpenCommand(MediaCore, uri));
         }
 
+        /// <summary>
+        /// Opens the media stream.
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        /// <returns>The awaitable task. The task result determines if the command was successfully started</returns>
         public async Task<bool> OpenAsync(IMediaInputStream stream)
         {
             if (MediaCore.State.IsOpen || IsDisposed || IsExecutingDirectCommand)
@@ -95,12 +159,16 @@
             return await ExecuteDirectCommand(new DirectOpenCommand(MediaCore, stream));
         }
 
+        /// <summary>
+        /// Closes the currently open media.
+        /// </summary>
+        /// <returns>The awaitable task. The task result determines if the command was successfully started</returns>
         public async Task<bool> CloseAsync()
         {
             if (MediaCore.State.IsOpen == false || IsDisposed)
                 return false;
 
-            var currentCommand = GetCurrentDirectCommand(MediaCommandType.Close);
+            var currentCommand = GetCurrentDirectCommand(CommandType.Close);
 
             if (currentCommand != null)
                 return await currentCommand.Awaiter;
@@ -110,12 +178,16 @@
                 return await ExecuteDirectCommand(new DirectCloseCommand(MediaCore));
         }
 
+        /// <summary>
+        /// Begins the process of changing/updating media paramaeters.
+        /// </summary>
+        /// <returns>The awaitable task. The task result determines if the command was successfully started</returns>
         public async Task<bool> ChangeMediaAsync()
         {
             if (MediaCore.State.IsOpen == false || IsDisposed)
                 return false;
 
-            var currentCommand = GetCurrentDirectCommand(MediaCommandType.ChangeMedia);
+            var currentCommand = GetCurrentDirectCommand(CommandType.ChangeMedia);
 
             if (currentCommand != null)
                 return await currentCommand.Awaiter;
@@ -125,24 +197,53 @@
                 return await ExecuteDirectCommand(new DirectChangeCommand(MediaCore));
         }
 
+        /// <summary>
+        /// Begins playback of the media.
+        /// </summary>
+        /// <returns>The awaitable task. The task result determines if the command was successfully started</returns>
         public async Task<bool> PlayAsync() =>
-            await ExecuteQueuedProrityCommand(MediaCommandType.Play);
+                    await ExecuteProrityCommand(CommandType.Play);
 
+        /// <summary>
+        /// Pauses the playback of the media.
+        /// </summary>
+        /// <returns>The awaitable task. The task result determines if the command was successfully started</returns>
         public async Task<bool> PauseAsync() =>
-            await ExecuteQueuedProrityCommand(MediaCommandType.Pause);
+                    await ExecuteProrityCommand(CommandType.Pause);
 
+        /// <summary>
+        /// Stops the playback of the media.
+        /// </summary>
+        /// <returns>The awaitable task. The task result determines if the command was successfully started</returns>
         public async Task<bool> StopAsync() =>
-            await ExecuteQueuedProrityCommand(MediaCommandType.Stop);
+            await ExecuteProrityCommand(CommandType.Stop);
 
+        /// <summary>
+        /// Seeks to the target position on the media
+        /// </summary>
+        /// <param name="target">The target.</param>
+        /// <returns>The awaitable task. The task result determines if the command was successfully started</returns>
         public async Task<bool> SeekAsync(TimeSpan target) =>
-            await ExecuteQueuedDelayedCommand(MediaCommandType.Seek, target);
+                    await ExecuteDelayedCommand(CommandType.Seek, target);
 
+        /// <summary>
+        /// Sets the speed ratio on the media.
+        /// </summary>
+        /// <param name="target">The target.</param>
+        /// <returns>The awaitable task. The task result determines if the command was successfully started</returns>
         public async Task<bool> SetSpeedRatioAsync(double target) =>
-            await ExecuteQueuedDelayedCommand(MediaCommandType.SpeedRatio, target);
+                    await ExecuteDelayedCommand(CommandType.SpeedRatio, target);
 
+        /// <summary>
+        /// Waits for any current direct command to finish execution.
+        /// </summary>
         public void WaitForDirectCommand() =>
-            DirectCommandEvent.Wait();
+                    DirectCommandEvent.Wait();
 
+        /// <summary>
+        /// Clears the command queue.
+        /// All commands are signalled so all awaiters stop awaiting.
+        /// </summary>
         public void ClearQueuedCommands()
         {
             lock (QueueLock)
@@ -154,12 +255,15 @@
             }
         }
 
+        /// <summary>
+        /// Executes the next command in the queued.
+        /// </summary>
         public void ExecuteNextQueuedCommand()
         {
             if (DirectCommandEvent.IsInProgress)
                 return;
 
-            MediaCommand command = null;
+            CommandBase command = null;
             lock (QueueLock)
             {
                 if (CommandQueue.Count > 0)
@@ -175,20 +279,30 @@
             finally { lock (QueueLock) { CurrentQueueCommand = null; } }
         }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose() =>
-            Dispose(true);
+                    Dispose(true);
 
         #endregion
 
         #region Private Methods
 
-        private MediaCommand GetCurrentDirectCommand(MediaCommandType commandType)
+        /// <summary>
+        /// Gets the current direct command of the specified type.
+        /// If there is no direct command executing or the command type does not match
+        /// what is currently executed, null is returned.
+        /// </summary>
+        /// <param name="commandType">Type of the command.</param>
+        /// <returns>The currently executing command</returns>
+        private CommandBase GetCurrentDirectCommand(CommandType commandType)
         {
-            var currentCommand = default(MediaCommand);
+            var currentCommand = default(CommandBase);
             lock (DirectLock)
             {
                 if (CurrentDirectCommand != null &&
-                    CurrentDirectCommand.CommandType == MediaCommandType.Close)
+                    CurrentDirectCommand.CommandType == CommandType.Close)
                 {
                     currentCommand = CurrentDirectCommand;
                 }
@@ -197,7 +311,12 @@
             return currentCommand;
         }
 
-        private async Task<bool> ExecuteDirectCommand(DirectMediaCommand command)
+        /// <summary>
+        /// Executes the specified direct command.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        /// <returns>The awaitable task handle</returns>
+        private async Task<bool> ExecuteDirectCommand(DirectCommandBase command)
         {
             lock (DirectLock)
             {
@@ -215,10 +334,20 @@
                 // Update the state
                 lock (StatusLock)
                 {
-                    m_IsOpening = command.CommandType == MediaCommandType.Open;
-                    m_IsClosing = command.CommandType == MediaCommandType.Close;
-                    m_IsChanging = command.CommandType == MediaCommandType.ChangeMedia;
+                    m_IsOpening = command.CommandType == CommandType.Open;
+                    m_IsClosing = command.CommandType == CommandType.Close;
+                    m_IsChanging = command.CommandType == CommandType.ChangeMedia;
                 }
+            }
+
+            // Signal the workers to stop
+            if (command.CommandType == CommandType.Close)
+            {
+                // Prepare for close command by signalling workers to stop
+                IsStopWorkersPending = true;
+
+                // Signal the reads to abort
+                MediaCore.Container?.SignalAbortReads(false);
             }
 
             // Wait for cycles to complete.
@@ -252,11 +381,16 @@
             }
         }
 
-        private async Task<bool> ExecuteQueuedProrityCommand(MediaCommandType commandType)
+        /// <summary>
+        /// Executes the specified prority command.
+        /// </summary>
+        /// <param name="commandType">Type of the command.</param>
+        /// <returns>The awaitable task handle</returns>
+        private async Task<bool> ExecuteProrityCommand(CommandType commandType)
         {
             if (CanExecuteQueuedCommands == false) return false;
 
-            MediaCommand currentCommand = null;
+            CommandBase currentCommand = null;
             lock (QueueLock)
             {
                 if (CurrentQueueCommand != null &&
@@ -278,17 +412,17 @@
             if (currentCommand != null)
                 return await currentCommand.Awaiter;
 
-            MediaCommand command = null;
+            CommandBase command = null;
 
             switch (commandType)
             {
-                case MediaCommandType.Play:
+                case CommandType.Play:
                     command = new PlayCommand(MediaCore);
                     break;
-                case MediaCommandType.Pause:
+                case CommandType.Pause:
                     command = new PauseCommand(MediaCore);
                     break;
-                case MediaCommandType.Stop:
+                case CommandType.Stop:
                     command = new StopCommand(MediaCore);
                     break;
                 default:
@@ -304,18 +438,25 @@
             return await command.Awaiter;
         }
 
-        private async Task<bool> ExecuteQueuedDelayedCommand<T>(MediaCommandType commandType, T argument)
+        /// <summary>
+        /// Executes the specified delayed command.
+        /// </summary>
+        /// <typeparam name="T">The agument type for the command</typeparam>
+        /// <param name="commandType">Type of the command.</param>
+        /// <param name="argument">The argument.</param>
+        /// <returns>The awaitable task handle</returns>
+        private async Task<bool> ExecuteDelayedCommand<T>(CommandType commandType, T argument)
         {
             if (CanExecuteQueuedCommands == false) return false;
 
-            var timeSpanArgument = commandType == MediaCommandType.Seek ?
+            var timeSpanArgument = commandType == CommandType.Seek ?
                 (TimeSpan)Convert.ChangeType(argument, typeof(TimeSpan)) :
                 TimeSpan.Zero;
 
-            var doubleArgument = commandType == MediaCommandType.SpeedRatio ?
+            var doubleArgument = commandType == CommandType.SpeedRatio ?
                 (double)Convert.ChangeType(argument, typeof(double)) : default;
 
-            MediaCommand currentCommand = null;
+            CommandBase currentCommand = null;
             lock (QueueLock)
             {
                 currentCommand = CommandQueue
@@ -325,10 +466,10 @@
                 {
                     switch (commandType)
                     {
-                        case MediaCommandType.Seek:
+                        case CommandType.Seek:
                             (currentCommand as SeekCommand).TargetPosition = timeSpanArgument;
                             break;
-                        case MediaCommandType.SpeedRatio:
+                        case CommandType.SpeedRatio:
                             (currentCommand as SpeedRatioCommand).SpeedRatio = doubleArgument;
                             break;
                         default:
@@ -340,14 +481,14 @@
             if (currentCommand != null)
                 return await currentCommand.Awaiter;
 
-            MediaCommand command = null;
+            CommandBase command = null;
 
             switch (commandType)
             {
-                case MediaCommandType.Seek:
+                case CommandType.Seek:
                     command = new SeekCommand(MediaCore, timeSpanArgument);
                     break;
-                case MediaCommandType.SpeedRatio:
+                case CommandType.SpeedRatio:
                     command = new SpeedRatioCommand(MediaCore, doubleArgument);
                     break;
                 default:
@@ -360,6 +501,11 @@
             return await command.Awaiter;
         }
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="alsoManaged">
+        ///   <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
             if (!IsDisposed)

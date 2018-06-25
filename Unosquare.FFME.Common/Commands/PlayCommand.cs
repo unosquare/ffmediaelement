@@ -6,8 +6,8 @@
     /// <summary>
     /// The Play Command Implementation
     /// </summary>
-    /// <seealso cref="MediaCommand" />
-    internal sealed class PlayCommand : MediaCommand
+    /// <seealso cref="CommandBase" />
+    internal sealed class PlayCommand : CommandBase
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PlayCommand"/> class.
@@ -16,13 +16,19 @@
         public PlayCommand(MediaEngine mediaCore)
             : base(mediaCore)
         {
-            CommandType = MediaCommandType.Play;
+            CommandType = CommandType.Play;
+            Category = CommandCategory.Priority;
         }
 
         /// <summary>
         /// Gets the command type identifier.
         /// </summary>
-        public override MediaCommandType CommandType { get; }
+        public override CommandType CommandType { get; }
+
+        /// <summary>
+        /// Gets the command category.
+        /// </summary>
+        public override CommandCategory Category { get; }
 
         /// <summary>
         /// Performs the actions represented by this deferred task.

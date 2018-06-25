@@ -11,18 +11,6 @@
     /// </summary>
     public sealed class VideoBlock : MediaBlock, IDisposable
     {
-        #region Constructors and Descrutors
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="VideoBlock"/> class.
-        /// </summary>
-        ~VideoBlock()
-        {
-            Dispose(false);
-        }
-
-        #endregion
-
         #region Properties
 
         /// <summary>
@@ -119,6 +107,5 @@
         }
 
         #endregion
-
     }
 }

@@ -4,18 +4,23 @@
     /// Represents a promise-style media command that is executed directly on the
     /// media command manager.
     /// </summary>
-    /// <seealso cref="MediaCommand" />
-    internal abstract class DirectMediaCommand : MediaCommand
+    /// <seealso cref="CommandBase" />
+    internal abstract class DirectCommandBase : CommandBase
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="DirectMediaCommand"/> class.
+        /// Initializes a new instance of the <see cref="DirectCommandBase"/> class.
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
-        public DirectMediaCommand(MediaEngine mediaCore)
+        public DirectCommandBase(MediaEngine mediaCore)
             : base(mediaCore)
         {
-            // Placeholder
+            Category = CommandCategory.Direct;
         }
+
+        /// <summary>
+        /// Gets the command category.
+        /// </summary>
+        public override CommandCategory Category { get; }
 
         /// <summary>
         /// Performs actions when the command has been executed.

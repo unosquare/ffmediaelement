@@ -6,8 +6,8 @@
     /// <summary>
     /// The Stop Command Implementation
     /// </summary>
-    /// <seealso cref="MediaCommand" />
-    internal sealed class StopCommand : MediaCommand
+    /// <seealso cref="CommandBase" />
+    internal sealed class StopCommand : CommandBase
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="StopCommand"/> class.
@@ -16,13 +16,19 @@
         public StopCommand(MediaEngine mediaCore)
             : base(mediaCore)
         {
-            CommandType = MediaCommandType.Stop;
+            CommandType = CommandType.Stop;
+            Category = CommandCategory.Priority;
         }
 
         /// <summary>
         /// Gets the command type identifier.
         /// </summary>
-        public override MediaCommandType CommandType { get; }
+        public override CommandType CommandType { get; }
+
+        /// <summary>
+        /// Gets the command category.
+        /// </summary>
+        public override CommandCategory Category { get; }
 
         /// <summary>
         /// Performs the actions represented by this deferred task.

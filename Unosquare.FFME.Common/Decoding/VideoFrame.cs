@@ -15,6 +15,7 @@
     {
         #region Private Members
 
+        private readonly object DisposeLock = new object();
         private AVFrame* m_Pointer = null;
         private bool IsDisposed = false;
 
@@ -79,14 +80,6 @@
             }
         }
 
-        /// <summary>
-        /// Finalizes an instance of the <see cref="VideoFrame"/> class.
-        /// </summary>
-        ~VideoFrame()
-        {
-            Dispose(false);
-        }
-
         #endregion
 
         #region Properties
@@ -130,11 +123,8 @@
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        public override void Dispose()
-        {
+        public override void Dispose() =>
             Dispose(true);
-            GC.SuppressFinalize(this);
-        }
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
@@ -142,8 +132,10 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
-            if (!IsDisposed)
+            lock (DisposeLock)
             {
+                if (IsDisposed) return;
+
                 if (m_Pointer != null)
                 {
                     fixed (AVFrame** pointer = &m_Pointer)

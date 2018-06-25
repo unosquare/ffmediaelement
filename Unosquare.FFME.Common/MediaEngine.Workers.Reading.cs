@@ -34,7 +34,7 @@
             try
             {
                 // Worker logic begins here
-                while (IsTaskCancellationPending == false)
+                while (Commands.IsStopWorkersPending == false)
                 {
                     // Determine what to do on a priority command
                     if (Commands.IsExecutingDirectCommand)

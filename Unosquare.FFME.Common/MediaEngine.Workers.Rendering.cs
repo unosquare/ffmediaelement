@@ -54,7 +54,7 @@
             {
                 #region Detect Exit/Skip Conditions
 
-                if (IsTaskCancellationPending || BlockRenderingWorkerExit.IsCompleted || IsDisposed)
+                if (Commands.IsStopWorkersPending || BlockRenderingWorkerExit.IsCompleted || IsDisposed)
                 {
                     BlockRenderingWorkerExit?.Complete();
                     return;

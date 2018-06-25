@@ -26,7 +26,7 @@
             // Associate the parent as the media connector that implements the callbacks
             Parent = parent;
             Connector = connector;
-            Commands = new MediaCommandManager(this);
+            Commands = new CommandManager(this);
             State = new MediaEngineState(this);
 
             // Don't start up timers or any other stuff if we are in design-time

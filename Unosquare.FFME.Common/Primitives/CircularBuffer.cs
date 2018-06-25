@@ -13,6 +13,8 @@
     {
         #region Private State Variables
 
+        private readonly object DisposeLock = new object();
+
         /// <summary>
         /// The locking object to perform synchronization.
         /// </summary>
@@ -48,14 +50,6 @@
             m_Length = bufferLength;
             Buffer = Marshal.AllocHGlobal(m_Length);
             MediaEngine.Platform.NativeMethods.FillMemory(Buffer, Convert.ToUInt32(m_Length), 0);
-        }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="CircularBuffer"/> class.
-        /// </summary>
-        ~CircularBuffer()
-        {
-            Dispose(false);
         }
 
         #endregion
@@ -321,11 +315,8 @@
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose()
-        {
+        public void Dispose() =>
             Dispose(true);
-            GC.SuppressFinalize(this);
-        }
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
@@ -333,20 +324,19 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
-            if (IsDisposed) return;
-
-            if (alsoManaged)
+            lock (DisposeLock)
             {
+                if (IsDisposed) return;
+
                 Clear();
                 Locker?.Dispose();
+                Marshal.FreeHGlobal(Buffer);
+                Buffer = IntPtr.Zero;
+                m_Length = 0;
+                Locker = null;
+
+                IsDisposed = true;
             }
-
-            Marshal.FreeHGlobal(Buffer);
-            Buffer = IntPtr.Zero;
-            m_Length = 0;
-            Locker = null;
-
-            IsDisposed = true;
         }
 
         #endregion

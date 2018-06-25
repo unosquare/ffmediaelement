@@ -46,7 +46,7 @@
 
             try
             {
-                while (IsTaskCancellationPending == false)
+                while (Commands.IsStopWorkersPending == false)
                 {
                     #region 1. Setup the Decoding Cycle
 
@@ -264,13 +264,18 @@
                         {
                             // Rendered all and nothing else to read
                             Clock.Pause();
-
-                            if (State.NaturalDuration != null && State.NaturalDuration != TimeSpan.MinValue)
-                                wallClock = State.NaturalDuration.Value;
-                            else
-                                wallClock = Blocks[main].RangeEndTime;
-
+                            wallClock = Blocks[main].RangeEndTime;
                             Clock.Update(wallClock);
+
+                            if (State.NaturalDuration != null &&
+                                State.NaturalDuration != TimeSpan.MinValue &&
+                                State.NaturalDuration < wallClock)
+                            {
+                                Log(MediaLogMessageType.Warning,
+                                    $"{nameof(State.HasMediaEnded)} conditions met at {wallClock.Format()} but " + 
+                                    $"{nameof(State.NaturalDuration)} reports {State.NaturalDuration.Value.Format()}");
+                            }
+                            
                             State.HasMediaEnded = true;
                             State.UpdateMediaState(PlaybackStatus.Stop, wallClock);
                             SendOnMediaEnded();
@@ -309,7 +314,7 @@
 
                     // Give it a break if there was nothing to decode.
                     // We probably need to wait for some more input
-                    if (IsTaskCancellationPending == false
+                    if (Commands.IsStopWorkersPending == false
                         && decodedFrameCount <= 0
                         && Commands.HasQueuedCommands == false)
                     {

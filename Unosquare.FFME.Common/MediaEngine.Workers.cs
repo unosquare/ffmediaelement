@@ -22,7 +22,6 @@
         private Thread FrameDecodingTask = null;
         private Timer BlockRenderingWorker = null;
 
-        private AtomicBoolean m_IsTaskCancellationPending = new AtomicBoolean(false);
         private AtomicBoolean m_HasDecoderSeeked = new AtomicBoolean(false);
         private IWaitEvent BlockRenderingWorkerExit = null;
 
@@ -55,16 +54,6 @@
         /// Gets the seeking done control event.
         /// </summary>
         internal IWaitEvent SeekingDone { get; } = WaitEventFactory.Create(isCompleted: true, useSlim: false);
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the workedrs have been requested
-        /// an exit.
-        /// </summary>
-        internal bool IsTaskCancellationPending
-        {
-            get => m_IsTaskCancellationPending.Value;
-            set => m_IsTaskCancellationPending.Value = value;
-        }
 
         /// <summary>
         /// Gets or sets a value indicating whether the decoder has moved its byte position
@@ -100,7 +89,7 @@
         {
             get
             {
-                if (IsTaskCancellationPending || Container == null || Container.Components == null)
+                if (Commands.IsStopWorkersPending || Container == null || Container.Components == null)
                     return false;
 
                 // If it's a live stream always continue reading regardless
@@ -142,7 +131,7 @@
             }
 
             Clock.SpeedRatio = Constants.Controller.DefaultSpeedRatio;
-            IsTaskCancellationPending = false;
+            Commands.IsStopWorkersPending = false;
 
             // Set the initial state of the task cycles.
             SeekingDone.Complete();
@@ -172,7 +161,7 @@
             Clock.Pause();
 
             // Let the threads know a cancellation is pending.
-            IsTaskCancellationPending = true;
+            Commands.IsStopWorkersPending = true;
 
             // Cause an immediate Packet read abort
             Container.SignalAbortReads(false);

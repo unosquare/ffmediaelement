@@ -6,8 +6,8 @@
     /// <summary>
     /// The Seek Command Implementation
     /// </summary>
-    /// <seealso cref="MediaCommand" />
-    internal sealed class SeekCommand : MediaCommand
+    /// <seealso cref="CommandBase" />
+    internal sealed class SeekCommand : CommandBase
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SeekCommand"/> class.
@@ -18,13 +18,19 @@
             : base(mediaCore)
         {
             TargetPosition = targetPosition;
-            CommandType = MediaCommandType.Seek;
+            CommandType = CommandType.Seek;
+            Category = CommandCategory.Delayed;
         }
 
         /// <summary>
         /// Gets the command type identifier.
         /// </summary>
-        public override MediaCommandType CommandType { get; }
+        public override CommandType CommandType { get; }
+
+        /// <summary>
+        /// Gets the command category.
+        /// </summary>
+        public override CommandCategory Category { get; }
 
         /// <summary>
         /// Gets or sets the target seek position.

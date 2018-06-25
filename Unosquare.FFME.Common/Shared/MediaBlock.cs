@@ -28,11 +28,6 @@
         }
 
         /// <summary>
-        /// Finalizes an instance of the <see cref="MediaBlock"/> class.
-        /// </summary>
-        ~MediaBlock() => Dispose(false);
-
-        /// <summary>
         /// Gets the media type of the data
         /// </summary>
         public abstract MediaType MediaType { get; }
@@ -163,11 +158,8 @@
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose()
-        {
+        public void Dispose() =>
             Dispose(true);
-            GC.SuppressFinalize(this);
-        }
 
         /// <summary>
         /// Allocates the specified buffer length.
@@ -209,11 +201,6 @@
             lock (SyncLock)
             {
                 if (m_IsDisposed) return;
-
-                if (alsoManaged)
-                {
-                    // Dispose managed state (managed objects).
-                }
 
                 // Free unmanaged resources (unmanaged objects) and override a finalizer below.
                 using (Locker.AcquireWriterLock())

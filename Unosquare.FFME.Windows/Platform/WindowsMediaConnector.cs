@@ -51,7 +51,7 @@
         {
             if (Parent == null) return;
 
-            GuiContext.Current.InvokeAsync(() =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
                 Parent?.PostMediaEndedEvent();
                 switch (Parent?.UnloadedBehavior ?? System.Windows.Controls.MediaState.Manual)
@@ -64,8 +64,7 @@
 
                     case System.Windows.Controls.MediaState.Play:
                         {
-                            sender?.Stop();
-                            sender?.Play();
+                            sender?.Stop().ContinueWith((t) => sender?.Play());
                             break;
                         }
 
@@ -80,7 +79,7 @@
                             break;
                         }
                 }
-            }).GetAwaiter().GetResult();
+            });
         }
 
         /// <summary>
@@ -100,7 +99,7 @@
         {
             if (Parent == null) return;
 
-            GuiContext.Current.InvokeAsync(() =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
                 Parent?.PostMediaOpenedEvent(mediaInfo);
                 if ((sender?.State.CanPause ?? true) == false)
@@ -128,7 +127,7 @@
                             break;
                         }
                 }
-            }).GetAwaiter().GetResult();
+            });
         }
 
         /// <summary>

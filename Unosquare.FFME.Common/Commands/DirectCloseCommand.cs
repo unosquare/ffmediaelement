@@ -8,8 +8,8 @@
     /// <summary>
     /// Close Command Implementation
     /// </summary>
-    /// <seealso cref="DirectMediaCommand" />
-    internal sealed class DirectCloseCommand : DirectMediaCommand
+    /// <seealso cref="DirectCommandBase" />
+    internal sealed class DirectCloseCommand : DirectCommandBase
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="DirectCloseCommand"/> class.
@@ -18,13 +18,13 @@
         public DirectCloseCommand(MediaEngine mediaCore)
             : base(mediaCore)
         {
-            CommandType = MediaCommandType.Close;
+            CommandType = CommandType.Close;
         }
 
         /// <summary>
         /// Gets the command type identifier.
         /// </summary>
-        public override MediaCommandType CommandType { get; }
+        public override CommandType CommandType { get; }
 
         /// <summary>
         /// Performs actions when the command has been executed.

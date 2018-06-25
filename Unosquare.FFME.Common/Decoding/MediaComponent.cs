@@ -34,7 +34,7 @@
         /// <summary>
         /// Related to issue 94, looks like FFmpeg requires exclusive access when calling avcodec_open2()
         /// </summary>
-        private static readonly object CodecOpenLock = new object();
+        private static readonly object CodecLock = new object();
 
         /// <summary>
         /// Contains the packets pending to be sent to the decoder
@@ -157,7 +157,7 @@
                     HardwareAccelerator.Attach(this as VideoComponent, container.MediaOptions.VideoHardwareDevice);
 
                 // Open the CodecContext. This requires exclusive FFmpeg access
-                lock (CodecOpenLock)
+                lock (CodecLock)
                 {
                     fixed (AVDictionary** codecOptionsRef = &codecOptions.Pointer)
                         codecOpenResult = ffmpeg.avcodec_open2(CodecContext, codec, codecOptionsRef);
@@ -212,14 +212,6 @@
             Bitrate = Stream->codec->bit_rate < 0 ? 0 : Convert.ToUInt64(Stream->codec->bit_rate);
             Container.Parent?.Log(MediaLogMessageType.Debug,
                 $"COMP {MediaType.ToString().ToUpperInvariant()}: Start Offset: {StartTimeOffset.Format()}; Duration: {Duration.Format()}");
-        }
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="MediaComponent"/> class.
-        /// </summary>
-        ~MediaComponent()
-        {
-            Dispose(false);
         }
 
         #endregion
@@ -367,11 +359,7 @@
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+        public void Dispose() => Dispose(true);
 
         /// <summary>
         /// Determines whether the specified packet is a Null Packet (data = null, size = 0)
@@ -433,13 +421,9 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool alsoManaged)
         {
-            if (!IsDisposed)
+            lock (CodecLock)
             {
-                if (alsoManaged)
-                {
-                    // no code for managed dispose
-                }
-
+                if (IsDisposed) return;
                 CloseComponent();
                 IsDisposed = true;
             }
@@ -601,6 +585,5 @@
         }
 
         #endregion
-
     }
 }

@@ -3,7 +3,7 @@
     /// <summary>
     /// Enumerates the different available Media Command Types
     /// </summary>
-    internal enum MediaCommandType
+    internal enum CommandType
     {
         /// <summary>
         /// The open command id

@@ -6,13 +6,13 @@
     /// Represents a promise-style command executed in a queue.
     /// </summary>
     /// <seealso cref="PromiseBase" />
-    internal abstract class MediaCommand : PromiseBase
+    internal abstract class CommandBase : PromiseBase
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="MediaCommand"/> class.
+        /// Initializes a new instance of the <see cref="CommandBase"/> class.
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
-        protected MediaCommand(MediaEngine mediaCore)
+        protected CommandBase(MediaEngine mediaCore)
             : base(continueOnCapturedContext: false)
         {
             MediaCore = mediaCore;
@@ -26,6 +26,11 @@
         /// <summary>
         /// Gets the command type identifier.
         /// </summary>
-        public abstract MediaCommandType CommandType { get; }
+        public abstract CommandType CommandType { get; }
+
+        /// <summary>
+        /// Gets the command category.
+        /// </summary>
+        public abstract CommandCategory Category { get; }
     }
 }

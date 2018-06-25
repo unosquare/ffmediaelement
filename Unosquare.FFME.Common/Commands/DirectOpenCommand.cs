@@ -8,8 +8,8 @@
     /// <summary>
     /// The Open Command Implementation
     /// </summary>
-    /// <seealso cref="DirectMediaCommand" />
-    internal sealed class DirectOpenCommand : DirectMediaCommand
+    /// <seealso cref="DirectCommandBase" />
+    internal sealed class DirectOpenCommand : DirectCommandBase
     {
         private Exception ExceptionResult = null;
 
@@ -22,7 +22,7 @@
             : base(mediaCore)
         {
             Source = source;
-            CommandType = MediaCommandType.Open;
+            CommandType = CommandType.Open;
         }
 
         /// <summary>
@@ -35,13 +35,13 @@
         {
             InputStream = inputStream;
             Source = inputStream.StreamUri;
-            CommandType = MediaCommandType.Open;
+            CommandType = CommandType.Open;
         }
 
         /// <summary>
         /// Gets the command type identifier.
         /// </summary>
-        public override MediaCommandType CommandType { get; }
+        public override CommandType CommandType { get; }
 
         /// <summary>
         /// Gets the source uri of the media stream.
