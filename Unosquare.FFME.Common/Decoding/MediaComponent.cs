@@ -36,6 +36,9 @@
         /// </summary>
         private static readonly object CodecLock = new object();
 
+        /// <summary>
+        /// The empty frames list
+        /// </summary>
         private static readonly List<MediaFrame> EmptyFramesList = new List<MediaFrame>(0);
 
         /// <summary>
@@ -48,6 +51,14 @@
         /// once a frame has been decoded.
         /// </summary>
         private readonly PacketQueue SentPackets = new PacketQueue();
+
+        /// <summary>
+        /// The decode packet function
+        /// </summary>
+        private readonly Func<List<MediaFrame>> DecodePacketFunction;
+
+        private readonly List<string> DebuggerOutput = new List<string>(2048);
+        private int DecodeCallNumber = -1;
 
         /// <summary>
         /// Detects redundant, unmanaged calls to the Dispose method.
@@ -197,6 +208,19 @@
             Stream->discard = AVDiscard.AVDISCARD_DEFAULT;
             MediaType = (MediaType)CodecContext->codec_type;
 
+            switch (MediaType)
+            {
+                case MediaType.Audio:
+                case MediaType.Video:
+                    DecodePacketFunction = DecodeNextAVFrame;
+                    break;
+                case MediaType.Subtitle:
+                    DecodePacketFunction = DecodeNextAVSubtitle;
+                    break;
+                default:
+                    throw new NotSupportedException($"A compoenent of MediaType '{MediaType}' is not supported");
+            }
+
             // Compute the start time
             if (Stream->start_time == ffmpeg.AV_NOPTS_VALUE)
                 StartTimeOffset = Container.MediaStartTimeOffset;
@@ -341,7 +365,7 @@
         public List<MediaFrame> ReceiveFrames()
         {
             if (PacketBufferCount <= 0) return EmptyFramesList;
-            var decodedFrames = DecodeNextPacketInternal();
+            var decodedFrames = DecodePacketFunction();
             return decodedFrames;
         }
 
@@ -429,6 +453,82 @@
                 CloseComponent();
                 IsDisposed = true;
             }
+        }
+
+        private List<MediaFrame> DecodeNextAVFrame()
+        {
+            if (MediaType == MediaType.Video)
+            {
+                // TODO
+            }
+
+            DecodeCallNumber++;
+            var result = new List<MediaFrame>(1);
+
+            var sendPacketResult = 0;
+
+            // Feed the decoder buffer
+            if (Packets.Count > 0)
+            {
+                var packet = Packets.Peek();
+                sendPacketResult = ffmpeg.avcodec_send_packet(CodecContext, packet);
+
+                if (MediaType == MediaType.Video)
+                    DebuggerOutput.Add($"Call: {DecodeCallNumber,5} | SND: {sendPacketResult,5} - {FFInterop.DecodeMessage(sendPacketResult)}");
+
+                // EAGAIN Means we need to receive frames before
+                // we can continue to send packets to the decoder
+                if (sendPacketResult >= 0)
+                {
+                    Packets.Dequeue();
+                    SentPackets.Push(packet);
+                }
+            }
+
+            var receiveFrameResult = 0;
+            var outputFrame = ffmpeg.av_frame_alloc();
+            var managedFrame = default(MediaFrame);
+            RC.Current.Add(outputFrame, $"327: {nameof(MediaComponent)}[{MediaType}].{nameof(DecodeNextAVFrame)}()");
+
+            // EAGAIN Means we need to send packets before
+            // we can continue to receive frames
+            receiveFrameResult = ffmpeg.avcodec_receive_frame(CodecContext, outputFrame);
+            if (MediaType == MediaType.Video)
+                DebuggerOutput.Add($"Call: {DecodeCallNumber,5} | RCV: {receiveFrameResult,5} - {FFInterop.DecodeMessage(receiveFrameResult)}");
+
+            if (receiveFrameResult >= 0)
+            {
+                managedFrame = CreateFrameSource(ref outputFrame);
+                if (managedFrame != null)
+                    result.Add(managedFrame);
+            }
+
+            if (managedFrame == null)
+            {
+                RC.Current.Remove(outputFrame);
+                ffmpeg.av_frame_free(&outputFrame);
+            }
+
+            if (receiveFrameResult == ffmpeg.AVERROR_EOF)
+            {
+                // ffmpeg.avcodec_flush_buffers(CodecContext);
+                ffmpeg.avcodec_send_packet(CodecContext, null);
+            }
+
+            if (receiveFrameResult == -ffmpeg.EAGAIN)
+            {
+                // ffmpeg.avcodec_send_packet(CodecContext, null);
+            }
+
+            // TODO: still need to clear SentPackets
+            // TODO: still need to make a difference between FlushPackets and DrainPackets
+            // DrainPackets are NULL. FlushPackets are Size = 0 or marked specially
+            return result;
+        }
+
+        private List<MediaFrame> DecodeNextAVSubtitle()
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
