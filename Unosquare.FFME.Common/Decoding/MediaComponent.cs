@@ -442,25 +442,36 @@
         {
             var result = new List<MediaFrame>(16);
 
-            // Ensure there is at least one packet in the queue
-            if (PacketBufferCount <= 0) return result;
-
-            // Setup some initial state variables
-            var packet = Packets.Dequeue();
-
-            // The packets are alwasy sent. We dequeue them and keep a reference to them
-            // in the SentPackets queue
-            SentPackets.Push(packet);
-
             var receiveFrameResult = 0;
+            var sendPacketResult = 0;
+            var isEmptyPacket = false;
 
             if (MediaType == MediaType.Audio || MediaType == MediaType.Video)
             {
-                // If it's audio or video, we use the new API and the decoded frames are stored in AVFrame
-                // Let us send the packet to the codec for decoding a frame of uncompressed data later.
-                // TODO: sendPacketResult is never checked for errors... We require some error handling.
-                // for example when using h264_qsv codec, this returns -40 (Function not implemented)
-                var sendPacketResult = ffmpeg.avcodec_send_packet(CodecContext, IsEmptyPacket(packet) ? null : packet);
+                if (Packets.Count > 0)
+                {
+                    // Setup some initial state variables
+                    var packet = Packets.Peek();
+                    isEmptyPacket = IsEmptyPacket(packet);
+
+                    // If it's audio or video, we use the new API and the decoded frames are stored in AVFrame
+                    // Let us send the packet to the codec for decoding a frame of uncompressed data later.
+                    // TODO: sendPacketResult is never checked for errors... We require some error handling.
+                    // for example when using h264_qsv codec, this returns -40 (Function not implemented)
+                    sendPacketResult = ffmpeg.avcodec_send_packet(CodecContext, IsEmptyPacket(packet) ? null : packet);
+
+                    // Packet sending successful
+                    if (sendPacketResult != ffmpeg.AVERROR(ffmpeg.EAGAIN))
+                    {
+                        // The packet was sent. We dequeue it and prepare for its disposal in the SentPackets queue
+                        Packets.Dequeue();
+                        SentPackets.Push(packet);
+                    }
+
+                    // AVERROR(EINVAL): codec not opened, it is an encoder, or requires flush
+                    if (sendPacketResult == ffmpeg.AVERROR(ffmpeg.EINVAL))
+                        ffmpeg.avcodec_flush_buffers(CodecContext);
+                }
 
                 // Let's check and see if we can get 1 or more frames from the packet we just sent to the decoder.
                 // Audio packets will typically contain 1 or more audioframes
@@ -501,8 +512,12 @@
                     }
                 }
             }
-            else if (MediaType == MediaType.Subtitle)
+            else if (MediaType == MediaType.Subtitle && Packets.Count > 0)
             {
+                var packet = Packets.Dequeue();
+                SentPackets.Push(packet);
+                isEmptyPacket = IsEmptyPacket(packet);
+
                 // Fors subtitles we use the old API (new API send_packet/receive_frame) is not yet available
                 var gotFrame = 0;
                 var outputFrame = SubtitleFrame.AllocateSubtitle();
@@ -577,7 +592,7 @@
             }
 
             // Release the sent packets if 1 or more frames were received in the packet
-            if (result.Count >= 1 || (Container.IsAtEndOfStream && IsEmptyPacket(packet) && PacketBufferCount == 0))
+            if (result.Count >= 1 || (Container.IsAtEndOfStream && isEmptyPacket && PacketBufferCount == 0))
             {
                 // We clear the sent packet queue (releasing packet from unmanaged memory also)
                 // because we got at least 1 frame from the packet.
