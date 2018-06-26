@@ -17,7 +17,7 @@
         #region Private Members
 
         private static readonly ConcurrentQueue<MediaLogMessage> LogQueue = new ConcurrentQueue<MediaLogMessage>();
-        private static readonly List<string> FFmpegLogBuffer = new List<string>();
+        private static readonly List<string> FFmpegLogBuffer = new List<string>(1024);
         private static readonly object FFmpegLogBufferSyncLock = new object();
         private static readonly ReadOnlyDictionary<int, MediaLogMessageType> FFmpegLogLevels =
             new ReadOnlyDictionary<int, MediaLogMessageType>(

@@ -36,6 +36,8 @@
         /// </summary>
         private static readonly object CodecLock = new object();
 
+        private static readonly List<MediaFrame> EmptyFramesList = new List<MediaFrame>(0);
+
         /// <summary>
         /// Contains the packets pending to be sent to the decoder
         /// </summary>
@@ -338,7 +340,7 @@
         /// <returns>The received Media Frames</returns>
         public List<MediaFrame> ReceiveFrames()
         {
-            if (PacketBufferCount <= 0) return new List<MediaFrame>(0);
+            if (PacketBufferCount <= 0) return EmptyFramesList;
             var decodedFrames = DecodeNextPacketInternal();
             return decodedFrames;
         }
@@ -438,7 +440,7 @@
         /// <returns>The list of frames</returns>
         private List<MediaFrame> DecodeNextPacketInternal()
         {
-            var result = new List<MediaFrame>();
+            var result = new List<MediaFrame>(16);
 
             // Ensure there is at least one packet in the queue
             if (PacketBufferCount <= 0) return result;
@@ -464,7 +466,7 @@
                 // Audio packets will typically contain 1 or more audioframes
                 // Video packets might require several packets to decode 1 frame
                 MediaFrame managedFrame = null;
-                while (receiveFrameResult == 0)
+                while (receiveFrameResult >= 0)
                 {
                     // Allocate a frame in unmanaged memory and
                     // Try to receive the decompressed frame data
@@ -475,18 +477,12 @@
                     try
                     {
                         managedFrame = null;
-                        if (receiveFrameResult == 0)
+                        if (receiveFrameResult >= 0)
                         {
                             // Send the frame to processing
                             managedFrame = CreateFrameSource(ref outputFrame);
                             if (managedFrame != null)
                                 result.Add(managedFrame);
-                        }
-
-                        if (managedFrame == null)
-                        {
-                            RC.Current.Remove(outputFrame);
-                            ffmpeg.av_frame_free(&outputFrame);
                         }
                     }
                     catch
@@ -495,6 +491,14 @@
                         RC.Current.Remove(outputFrame);
                         ffmpeg.av_frame_free(&outputFrame);
                         throw;
+                    }
+                    finally
+                    {
+                        if (managedFrame == null)
+                        {
+                            RC.Current.Remove(outputFrame);
+                            ffmpeg.av_frame_free(&outputFrame);
+                        }
                     }
                 }
             }

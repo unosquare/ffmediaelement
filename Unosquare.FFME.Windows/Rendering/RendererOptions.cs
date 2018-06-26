@@ -52,7 +52,7 @@
         public List<AudioDeviceInfo<Guid>> EnumerateDirectSoundDevices()
         {
             var devices = DirectSoundPlayer.EnumerateDevices();
-            var result = new List<AudioDeviceInfo<Guid>> { DefaultDirectSoundDevice };
+            var result = new List<AudioDeviceInfo<Guid>>(16) { DefaultDirectSoundDevice };
 
             foreach (var device in devices)
             {
@@ -70,7 +70,7 @@
         public List<AudioDeviceInfo<int>> EnumerateLegacyAudioDevices()
         {
             var devices = LegacyAudioPlayer.EnumerateDevices();
-            var result = new List<AudioDeviceInfo<int>> { DefaultLegacyAudioDevice };
+            var result = new List<AudioDeviceInfo<int>>(16) { DefaultLegacyAudioDevice };
 
             for (var deviceId = 0; deviceId < devices.Count; deviceId++)
             {

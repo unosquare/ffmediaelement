@@ -110,7 +110,7 @@
         /// <returns>The list of stream infos</returns>
         private static List<StreamInfo> ExtractStreams(AVFormatContext* inputContext)
         {
-            var result = new List<StreamInfo>();
+            var result = new List<StreamInfo>(32);
             if (inputContext->streams == null) return result;
 
             for (var i = 0; i < inputContext->nb_streams; i++)
@@ -265,7 +265,7 @@
         /// <returns>The chapters</returns>
         private static List<ChapterInfo> ExtractChapters(AVFormatContext* ic)
         {
-            var result = new List<ChapterInfo>();
+            var result = new List<ChapterInfo>(128);
             if (ic->chapters == null) return result;
 
             for (var i = 0; i < ic->nb_chapters; i++)
@@ -295,7 +295,7 @@
         /// <returns>The program information</returns>
         private static List<ProgramInfo> ExtractPrograms(AVFormatContext* ic, ReadOnlyDictionary<int, StreamInfo> streams)
         {
-            var result = new List<ProgramInfo>();
+            var result = new List<ProgramInfo>(128);
             if (ic->programs == null) return result;
 
             for (var i = 0; i < ic->nb_programs; i++)
@@ -309,7 +309,7 @@
                     ProgramNumber = p->program_num,
                 };
 
-                var associatedStreams = new List<StreamInfo>();
+                var associatedStreams = new List<StreamInfo>(32);
                 for (var s = 0; s < p->nb_stream_indexes; s++)
                 {
                     var streamIndex = Convert.ToInt32(p->stream_index[s]);
@@ -332,7 +332,7 @@
         /// <returns>A list of hardware-enabled decoder codec names</returns>
         private static List<string> GetHardwareDecoders(AVCodecID codecFamily)
         {
-            var result = new List<string>();
+            var result = new List<string>(16);
 
             foreach (var c in MediaEngine.AllCodecs)
             {

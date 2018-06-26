@@ -1224,7 +1224,7 @@
             // Create a holder of frame lists; one for each type of media
             var outputFrames = new Dictionary<MediaType, List<MediaFrame>>();
             foreach (var mediaType in Components.MediaTypes)
-                outputFrames[mediaType] = new List<MediaFrame>();
+                outputFrames[mediaType] = new List<MediaFrame>(128);
 
             // Create a component requirement
             var requiredComponents = new List<MediaType>(8);

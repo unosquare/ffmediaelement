@@ -16,7 +16,7 @@
     {
         #region Private Declarations
 
-        private readonly List<IntPtr> PacketPointers = new List<IntPtr>();
+        private readonly List<IntPtr> PacketPointers = new List<IntPtr>(2048);
         private ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
         private bool IsDisposed = false; // To detect redundant calls
         private ulong m_BufferLength = default;

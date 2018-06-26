@@ -92,7 +92,7 @@
         /// <summary>
         /// Gets the closed caption data collected from the frame in CEA-708/EAS-608 format.
         /// </summary>
-        public List<ClosedCaptionPacket> ClosedCaptions { get; } = new List<ClosedCaptionPacket>();
+        public List<ClosedCaptionPacket> ClosedCaptions { get; } = new List<ClosedCaptionPacket>(128);
 
         /// <summary>
         /// Gets the display picture number (frame number).
