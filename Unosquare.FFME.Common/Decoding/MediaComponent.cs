@@ -482,7 +482,14 @@
                             // Send the frame to processing
                             managedFrame = CreateFrameSource(ref outputFrame);
                             if (managedFrame != null)
+                            {
                                 result.Add(managedFrame);
+                            }
+                            else
+                            {
+                                RC.Current.Remove(outputFrame);
+                                ffmpeg.av_frame_free(&outputFrame);
+                            }
                         }
                     }
                     catch
@@ -491,14 +498,6 @@
                         RC.Current.Remove(outputFrame);
                         ffmpeg.av_frame_free(&outputFrame);
                         throw;
-                    }
-                    finally
-                    {
-                        if (managedFrame == null)
-                        {
-                            RC.Current.Remove(outputFrame);
-                            ffmpeg.av_frame_free(&outputFrame);
-                        }
                     }
                 }
             }
