@@ -253,11 +253,12 @@
         /// <summary>
         /// Creates a frame source object given the raw FFmpeg frame reference.
         /// </summary>
-        /// <param name="frame">The raw FFmpeg frame pointer.</param>
+        /// <param name="framePointer">The raw FFmpeg frame pointer.</param>
         /// <returns>Create a managed fraome from an unmanaged one.</returns>
-        protected override unsafe MediaFrame CreateFrameSource(ref AVFrame* frame)
+        protected override unsafe MediaFrame CreateFrameSource(IntPtr framePointer)
         {
             // Validate the video frame
+            var frame = (AVFrame*)framePointer.ToPointer();
             if (frame == null || frame->width <= 0 || frame->height <= 0)
                 return null;
 

@@ -53,7 +53,6 @@
             {
                 var main = m.Container.Components.Main.MediaType;
                 var all = m.Container.Components.MediaTypes;
-                var t = MediaType.None;
 
                 // Check if we already have the block. If we do, simply set the clock position to the target position
                 // we don't need anything else. This implements frame-by frame seeking and we need to snap to a discrete
@@ -109,21 +108,13 @@
                     && m.Blocks[main].IsInRange(TargetPosition) == false)
                 {
                     // Read the next packet
-                    t = m.Container.Read();
+                    m.Container.Read();
 
-                    // Ignore if we don't have an acceptable packet
-                    if (m.Blocks.ContainsKey(t) == false)
-                        continue;
-
-                    // move on if we have plenty
-                    if (m.Blocks[t].IsFull) continue;
-
-                    // Decode and add the frames to the corresponding output
-                    frames.Clear();
-                    frames.AddRange(m.Container.Components[t].ReceiveFrames());
-
-                    foreach (var frame in frames)
-                        m.Blocks[t].Add(frame, m.Container);
+                    foreach (var mt in all)
+                    {
+                        if (m.Blocks[mt].IsFull == false)
+                            m.Blocks[mt].Add(m.Container.Components[mt].ReceiveNextFrame(), m.Container);
+                    }
                 }
 
                 // Find out what the final, best-effort position was

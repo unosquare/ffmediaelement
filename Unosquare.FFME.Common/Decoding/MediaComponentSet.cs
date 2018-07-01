@@ -283,16 +283,28 @@
         }
 
         /// <summary>
+        /// Sends a flush packet to all media components.
+        /// This makes the decoders clear their internal buffers.
+        /// </summary>
+        public void SendFlushPackets()
+        {
+            lock (SyncLock)
+                foreach (var component in All)
+                    component.SendFlushPacket();
+        }
+
+        /// <summary>
         /// Clears the packet queues for all components.
         /// Additionally it flushes the codec buffered packets.
         /// This is useful after a seek operation is performed or a stream
         /// index is changed.
         /// </summary>
-        public void ClearPacketQueues()
+        /// <param name="flushBuffers">if set to <c>true</c> flush codec buffers.</param>
+        public void ClearPacketQueues(bool flushBuffers)
         {
             lock (SyncLock)
                 foreach (var component in All)
-                    component.ClearPacketQueues();
+                    component.ClearPacketQueues(flushBuffers);
         }
 
         #endregion

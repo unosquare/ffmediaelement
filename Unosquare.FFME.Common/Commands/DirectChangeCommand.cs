@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Commands
 {
+    using Decoding;
     using Primitives;
     using Shared;
     using System;
@@ -53,7 +54,7 @@
         protected override void PerformActions()
         {
             var m = MediaCore;
-
+            var frame = default(MediaFrame);
             m.Log(MediaLogMessageType.Debug, $"Command {CommandType}: Entered");
             ResumeClock = false;
             MediaState = m.State.MediaState;
@@ -142,12 +143,8 @@
                     // Decode frames and add the blocks
                     foreach (var t in mediaTypes)
                     {
-                        var frames = m.Container.Components[t].ReceiveFrames();
-                        foreach (var frame in frames)
-                        {
-                            if (frame != null)
-                                m.Blocks[t].Add(frame, m.Container);
-                        }
+                        frame = m.Container.Components[t].ReceiveNextFrame();
+                        m.Blocks[t].Add(frame, m.Container);
                     }
 
                     // Check if we have at least a half a buffer on main
@@ -175,12 +172,8 @@
                         m.Container.Read();
 
                         // Decode frames and add the blocks
-                        var frames = m.Container.Components[t].ReceiveFrames();
-                        foreach (var frame in frames)
-                        {
-                            if (frame != null)
-                                m.Blocks[t].Add(frame, m.Container);
-                        }
+                        frame = m.Container.Components[t].ReceiveNextFrame();
+                        m.Blocks[t].Add(frame, m.Container);
                     }
                 }
 

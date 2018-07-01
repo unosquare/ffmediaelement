@@ -183,11 +183,12 @@
         /// <summary>
         /// Creates a frame source object given the raw FFmpeg frame reference.
         /// </summary>
-        /// <param name="frame">The raw FFmpeg frame pointer.</param>
+        /// <param name="framePointer">The raw FFmpeg frame pointer.</param>
         /// <returns>The media frame</returns>
-        protected override unsafe MediaFrame CreateFrameSource(ref AVFrame* frame)
+        protected override unsafe MediaFrame CreateFrameSource(IntPtr framePointer)
         {
             // Validate the audio frame
+            var frame = (AVFrame*)framePointer.ToPointer();
             if (frame == null || (*frame).extended_data == null || frame->channels <= 0 ||
                 frame->nb_samples <= 0 || frame->sample_rate <= 0)
             {

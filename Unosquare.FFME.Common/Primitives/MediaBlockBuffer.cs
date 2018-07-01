@@ -422,6 +422,8 @@
         /// <returns>The filled block.</returns>
         internal MediaBlock Add(MediaFrame source, MediaContainer container)
         {
+            if (source == null) return null;
+
             using (Locker.AcquireWriterLock())
             {
                 // Check if we already have a block at the given time

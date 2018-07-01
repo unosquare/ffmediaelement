@@ -174,10 +174,11 @@
         /// <summary>
         /// Creates a frame source object given the raw FFmpeg subtitle reference.
         /// </summary>
-        /// <param name="frame">The raw FFmpeg subtitle pointer.</param>
+        /// <param name="framePointer">The raw FFmpeg subtitle pointer.</param>
         /// <returns>The managed frame</returns>
-        protected override unsafe MediaFrame CreateFrameSource(AVSubtitle* frame)
+        protected override unsafe MediaFrame CreateFrameSource(IntPtr framePointer)
         {
+            var frame = (AVSubtitle*)framePointer.ToPointer();
             var frameHolder = new SubtitleFrame(frame, this);
             return frameHolder;
         }

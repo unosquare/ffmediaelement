@@ -113,18 +113,15 @@
 
                     #endregion
 
-                    #region 2. Main Component Decoding
-
-                    // Capture component and blocks for easier readability
-                    // comp is current component, blocks is the block collection for the component
-                    comp = Container.Components[main];
-                    blocks = Blocks[main];
-
-                    // Handle the main component decoding; Start by checking we have some packets
-                    WaitForPackets(comp);
-
-                    if (comp.PacketBufferCount > 0)
+                    if (State.HasMediaEnded == false)
                     {
+                        #region 2. Main Component Decoding
+
+                        // Capture component and blocks for easier readability
+                        // comp is current component, blocks is the block collection for the component
+                        comp = Container.Components[main];
+                        blocks = Blocks[main];
+
                         // Detect if we are in range for the main component
                         isInRange = blocks.IsInRange(wallClock);
 
@@ -144,14 +141,17 @@
                                 WaitForPackets(comp, 1);
 
                                 // Decode some frames and check if we are in reange now
-                                decodedFrameCount += AddBlocks(main);
+                                if (AddNextBlock(main) == false)
+                                    break;
+
+                                decodedFrameCount += 1;
                                 isInRange = blocks.IsInRange(wallClock);
 
                                 // Break the cycle if we are in range
                                 if (isInRange || CanReadMorePackets == false || ShouldReadMorePackets == false)
                                     break;
                             }
-                            while (decodedFrameCount <= 0 && blocks.IsFull == false);
+                            while (blocks.IsFull == false);
 
                             // Unfortunately at this point we will need to adjust the clock after creating the frames.
                             // to ensure tha mian component is within the clock range if the decoded
@@ -172,7 +172,6 @@
 
                                 // Try to recover the regular loop
                                 isInRange = true;
-                                WaitForPackets(comp);
                             }
                         }
 
@@ -181,81 +180,77 @@
                             // Check if we need more blocks for the current components
                             rangePercent = blocks.GetRangePercent(wallClock);
 
-                            // Read as much as we can for this cycle.
-                            while (comp.PacketBufferCount > 0)
+                            // Read as much as we can for this cycle but always within range.
+                            while (blocks.IsFull == false || (blocks.IsFull && rangePercent > 0.75d && rangePercent < 1d))
                             {
-                                rangePercent = blocks.GetRangePercent(wallClock);
-
-                                if (blocks.IsFull == false || (blocks.IsFull && rangePercent > 0.75d && rangePercent < 1d))
-                                    decodedFrameCount += AddBlocks(main);
-                                else
+                                if (AddNextBlock(main) == false)
                                     break;
+
+                                decodedFrameCount += 1;
+                                rangePercent = blocks.GetRangePercent(wallClock);
+                                continue;
                             }
                         }
-                    }
 
-                    #endregion
+                        #endregion
 
-                    #region 3. Auxiliary Component Decoding
+                        #region 3. Auxiliary Component Decoding
 
-                    foreach (var t in auxs)
-                    {
-                        if (State.IsSeeking) continue;
-
-                        // Capture the current block buffer and component
-                        // for easier readability
-                        comp = Container.Components[t];
-                        blocks = Blocks[t];
-                        isInRange = blocks.IsInRange(wallClock);
-
-                        // wait for component to get there if we only have furutre blocks
-                        // in auxiliary component.
-                        if (blocks.Count > 0 && blocks.RangeStartTime > wallClock)
-                            continue;
-
-                        // We need the other components to catch up with the main
-                        while (blocks.Count == 0 || blocks.RangeEndTime <= wallClock
-                            || (t == MediaType.Audio && Blocks[main].Count > 0 && blocks.RangeEndTime < Blocks[main].RangeEndTime))
+                        foreach (var t in auxs)
                         {
-                            // Wait for packets if we don't have enough
-                            WaitForPackets(comp, t == MediaType.Audio ? -1 : 1);
+                            if (State.IsSeeking) continue;
 
-                            if (comp.PacketBufferCount <= 0)
-                                break; // give up because we never received packets for the expected component
-                            else
-                                decodedFrameCount += AddBlocks(t);
-                        }
+                            // Capture the current block buffer and component
+                            // for easier readability
+                            comp = Container.Components[t];
+                            blocks = Blocks[t];
+                            isInRange = blocks.IsInRange(wallClock);
 
-                        // Check if we are finally within range
-                        isInRange = blocks.IsInRange(wallClock);
+                            // wait for component to get there if we only have furutre blocks
+                            // in auxiliary component.
+                            if (blocks.Count > 0 && blocks.RangeStartTime > wallClock)
+                                continue;
 
-                        // Invalidate the renderer if we don't have the block.
-                        if (isInRange == false)
-                            InvalidateRenderer(t);
+                            // We need the other components to catch up with the main
+                            while (blocks.Count == 0 || blocks.RangeEndTime <= wallClock
+                                || (Blocks[main].Count > 0 && blocks.RangeEndTime < Blocks[main].RangeEndTime))
+                            {
+                                // give up if we never received frames for the expected component
+                                if (AddNextBlock(t) == false)
+                                    break;
+                            }
 
-                        // Move to the next component if we don't meet a regular conditions
-                        if (isInRange == false || isBuffering || comp.PacketBufferCount <= 0)
-                            continue;
+                            // Check if we are finally within range
+                            isInRange = blocks.IsInRange(wallClock);
 
-                        // Decode as much as we can off the packet buffer for this cycle.
-                        while (comp.PacketBufferCount > 0)
-                        {
+                            // Invalidate the renderer if we don't have the block.
+                            if (isInRange == false)
+                                InvalidateRenderer(t);
+
+                            // Move to the next component if we don't meet a regular conditions
+                            if (isInRange == false || isBuffering)
+                                continue;
+
+                            // Decode as much as we can off the packet buffer for this cycle.
                             rangePercent = blocks.GetRangePercent(wallClock);
+                            while (blocks.IsFull == false || (blocks.IsFull && rangePercent > 0.75d && rangePercent < 1d))
+                            {
+                                if (AddNextBlock(t) == false)
+                                    break;
 
-                            if (blocks.IsFull == false || (blocks.IsFull && rangePercent > 0.75d && rangePercent < 1d))
-                                decodedFrameCount += AddBlocks(t);
-                            else
-                                break;
+                                rangePercent = blocks.GetRangePercent(wallClock);
+                            }
                         }
-                    }
 
-                    #endregion
+                        #endregion
+                    }
 
                     #region 4. Detect End of Media
 
                     // Detect end of block rendering
                     // TODO: Maybe this detection should be performed on the BlockRendering worker?
                     if (isBuffering == false
+                        && decodedFrameCount <= 0
                         && State.IsSeeking == false
                         && CanReadMoreFramesOf(main) == false
                         && Blocks[main].IndexOf(wallClock) == Blocks[main].Count - 1)
@@ -272,10 +267,10 @@
                                 State.NaturalDuration < wallClock)
                             {
                                 Log(MediaLogMessageType.Warning,
-                                    $"{nameof(State.HasMediaEnded)} conditions met at {wallClock.Format()} but " + 
+                                    $"{nameof(State.HasMediaEnded)} conditions met at {wallClock.Format()} but " +
                                     $"{nameof(State.NaturalDuration)} reports {State.NaturalDuration.Value.Format()}");
                             }
-                            
+
                             State.HasMediaEnded = true;
                             State.UpdateMediaState(PlaybackStatus.Stop, wallClock);
                             SendOnMediaEnded();

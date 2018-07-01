@@ -6,6 +6,7 @@
     using System;
     using System.Collections.Generic;
     using System.Globalization;
+    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// Represents a media component of a given media type within a
@@ -37,9 +38,9 @@
         private static readonly object CodecLock = new object();
 
         /// <summary>
-        /// The empty frames list
+        /// The flush packet data pointer
         /// </summary>
-        private static readonly List<MediaFrame> EmptyFramesList = new List<MediaFrame>(0);
+        private static readonly byte* FlushPacketData = (byte*)ffmpeg.av_malloc(0);
 
         /// <summary>
         /// Contains the packets pending to be sent to the decoder
@@ -47,18 +48,9 @@
         private readonly PacketQueue Packets = new PacketQueue();
 
         /// <summary>
-        /// The packets that have been sent to the decoder. We keep track of them in order to dispose them
-        /// once a frame has been decoded.
-        /// </summary>
-        private readonly PacketQueue SentPackets = new PacketQueue();
-
-        /// <summary>
         /// The decode packet function
         /// </summary>
-        private readonly Func<List<MediaFrame>> DecodePacketFunction;
-
-        private readonly List<string> DebuggerOutput = new List<string>(2048);
-        private int DecodeCallNumber = -1;
+        private readonly Func<MediaFrame> DecodePacketFunction;
 
         /// <summary>
         /// Detects redundant, unmanaged calls to the Dispose method.
@@ -238,6 +230,9 @@
             Bitrate = Stream->codec->bit_rate < 0 ? 0 : Convert.ToUInt64(Stream->codec->bit_rate);
             Container.Parent?.Log(MediaLogMessageType.Debug,
                 $"COMP {MediaType.ToString().ToUpperInvariant()}: Start Offset: {StartTimeOffset.Format()}; Duration: {Duration.Format()}");
+
+            // Begin processing with a flush packet
+            SendFlushPacket();
         }
 
         #endregion
@@ -318,27 +313,43 @@
         /// Clears the pending and sent Packet Queues releasing all memory held by those packets.
         /// Additionally it flushes the codec buffered packets.
         /// </summary>
-        public void ClearPacketQueues()
+        /// <param name="flushBuffers">if set to <c>true</c> flush codec buffers.</param>
+        public void ClearPacketQueues(bool flushBuffers)
         {
             // Release packets that are already in the queue.
-            SentPackets.Clear();
             Packets.Clear();
 
-            // Discard any data that was buffered in codec's internal memory.
-            // reset the buffer
-            if (CodecContext != null)
+            if (flushBuffers && CodecContext != null)
                 ffmpeg.avcodec_flush_buffers(CodecContext);
         }
 
         /// <summary>
-        /// Sends a special kind of packet (an empty packet)
-        /// that tells the decoder to enter draining mode.
+        /// Sends a special kind of packet (an empty/null packet)
+        /// that tells the decoder to refresh the attached picture or enter draining mode.
+        /// This is a port of packet_queue_put_nullpacket
         /// </summary>
         public void SendEmptyPacket()
         {
-            var emptyPacket = ffmpeg.av_packet_alloc();
-            RC.Current.Add(emptyPacket, $"259: {nameof(MediaComponent)}[{MediaType}].{nameof(SendEmptyPacket)}()");
-            SendPacket(emptyPacket);
+            var packet = CreateEmptyPacket();
+            RC.Current.Add(packet, $"259: {nameof(MediaComponent)}[{MediaType}].{nameof(SendEmptyPacket)}()");
+            SendPacket(packet);
+        }
+
+        /// <summary>
+        /// Sends a special kind of packet (a flush packet)
+        /// that tells the decoder to flush it internal buffers
+        /// This an encapsulation of flush_pkt
+        /// </summary>
+        public void SendFlushPacket()
+        {
+            var packet = ffmpeg.av_packet_alloc();
+            ffmpeg.av_init_packet(packet);
+            packet->data = FlushPacketData;
+            packet->size = 0;
+            packet->stream_index = Stream->index;
+
+            RC.Current.Add(packet, $"259: {nameof(MediaComponent)}[{MediaType}].{nameof(SendFlushPacket)}()");
+            SendPacket(packet);
         }
 
         /// <summary>
@@ -349,7 +360,11 @@
         /// <param name="packet">The packet.</param>
         public void SendPacket(AVPacket* packet)
         {
-            if (packet == null) return;
+            if (packet == null)
+            {
+                SendEmptyPacket();
+                return;
+            }
 
             if (packet->size > 0)
                 LifetimeBytesRead += (ulong)packet->size;
@@ -358,16 +373,11 @@
         }
 
         /// <summary>
-        /// Decodes the next packet in the packet queue in this media component.
-        /// Returns the decoded frames.
+        /// Feeds the decoder buffer and tries to return the next available frame.
         /// </summary>
-        /// <returns>The received Media Frames</returns>
-        public List<MediaFrame> ReceiveFrames()
-        {
-            if (PacketBufferCount <= 0) return EmptyFramesList;
-            var decodedFrames = DecodePacketFunction();
-            return decodedFrames;
-        }
+        /// <returns>The received Media Frame. It is null if no frame could be retrieved.</returns>
+        public MediaFrame ReceiveNextFrame() =>
+            DecodePacketFunction();
 
         /// <summary>
         /// Converts decoded, raw frame data in the frame source into a a usable frame. <br />
@@ -388,38 +398,25 @@
         public void Dispose() => Dispose(true);
 
         /// <summary>
-        /// Determines whether the specified packet is a Null Packet (data = null, size = 0)
-        /// These null packets are used to read multiple frames from a single packet.
+        /// Determines whether the specified packet is a flush packet.
+        /// These flush packets are used to clear the internal decoder buffers
         /// </summary>
-        /// <param name="packet">The packet.</param>
+        /// <param name="packet">The packet to check.</param>
         /// <returns>
-        ///   <c>true</c> if [is empty packet] [the specified packet]; otherwise, <c>false</c>.
+        ///   <c>true</c> if it a flush packet<c>false</c>.
         /// </returns>
-        protected static bool IsEmptyPacket(AVPacket* packet)
+        protected static bool IsFlushPacket(AVPacket* packet)
         {
             if (packet == null) return false;
-            return packet->data == null && packet->size == 0;
+            return packet->data == FlushPacketData;
         }
 
         /// <summary>
-        /// Creates a frame source object given the raw FFmpeg subtitle reference.
+        /// Creates a frame source object given the raw FFmpeg AVFrame or AVSubtitle reference.
         /// </summary>
-        /// <param name="frame">The raw FFmpeg subtitle pointer.</param>
+        /// <param name="framePointer">The raw FFmpeg pointer.</param>
         /// <returns>The media frame</returns>
-        protected virtual MediaFrame CreateFrameSource(AVSubtitle* frame)
-        {
-            return null;
-        }
-
-        /// <summary>
-        /// Creates a frame source object given the raw FFmpeg frame reference.
-        /// </summary>
-        /// <param name="frame">The raw FFmpeg frame pointer.</param>
-        /// <returns>The media frame</returns>
-        protected virtual MediaFrame CreateFrameSource(ref AVFrame* frame)
-        {
-            return null;
-        }
+        protected abstract MediaFrame CreateFrameSource(IntPtr framePointer);
 
         /// <summary>
         /// Releases the existing codec context and clears and disposes the packet queues.
@@ -433,9 +430,8 @@
                     ffmpeg.avcodec_free_context(codecContext);
 
                 // free all the pending and sent packets
-                ClearPacketQueues();
+                ClearPacketQueues(true);
                 Packets.Dispose();
-                SentPackets.Dispose();
             }
 
             CodecContext = null;
@@ -455,251 +451,157 @@
             }
         }
 
-        private List<MediaFrame> DecodeNextAVFrame()
+        /// <summary>
+        /// Creates the empty packet.
+        /// </summary>
+        /// <returns>The special empty packet that instructs the decoder to enter draining mode</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private AVPacket* CreateEmptyPacket()
         {
-            if (MediaType == MediaType.Video)
-            {
-                // TODO
-            }
+            var packet = ffmpeg.av_packet_alloc();
+            ffmpeg.av_init_packet(packet);
+            packet->data = null;
+            packet->size = 0;
+            packet->stream_index = Stream->index;
 
-            DecodeCallNumber++;
-            var result = new List<MediaFrame>(1);
-
-            var sendPacketResult = 0;
-
-            // Feed the decoder buffer
-            if (Packets.Count > 0)
-            {
-                var packet = Packets.Peek();
-                sendPacketResult = ffmpeg.avcodec_send_packet(CodecContext, packet);
-
-                if (MediaType == MediaType.Video)
-                    DebuggerOutput.Add($"Call: {DecodeCallNumber,5} | SND: {sendPacketResult,5} - {FFInterop.DecodeMessage(sendPacketResult)}");
-
-                // EAGAIN Means we need to receive frames before
-                // we can continue to send packets to the decoder
-                if (sendPacketResult >= 0)
-                {
-                    Packets.Dequeue();
-                    SentPackets.Push(packet);
-                }
-            }
-
-            var receiveFrameResult = 0;
-            var outputFrame = ffmpeg.av_frame_alloc();
-            var managedFrame = default(MediaFrame);
-            RC.Current.Add(outputFrame, $"327: {nameof(MediaComponent)}[{MediaType}].{nameof(DecodeNextAVFrame)}()");
-
-            // EAGAIN Means we need to send packets before
-            // we can continue to receive frames
-            receiveFrameResult = ffmpeg.avcodec_receive_frame(CodecContext, outputFrame);
-            if (MediaType == MediaType.Video)
-                DebuggerOutput.Add($"Call: {DecodeCallNumber,5} | RCV: {receiveFrameResult,5} - {FFInterop.DecodeMessage(receiveFrameResult)}");
-
-            if (receiveFrameResult >= 0)
-            {
-                managedFrame = CreateFrameSource(ref outputFrame);
-                if (managedFrame != null)
-                    result.Add(managedFrame);
-            }
-
-            if (managedFrame == null)
-            {
-                RC.Current.Remove(outputFrame);
-                ffmpeg.av_frame_free(&outputFrame);
-            }
-
-            if (receiveFrameResult == ffmpeg.AVERROR_EOF)
-            {
-                // ffmpeg.avcodec_flush_buffers(CodecContext);
-                ffmpeg.avcodec_send_packet(CodecContext, null);
-            }
-
-            if (receiveFrameResult == -ffmpeg.EAGAIN)
-            {
-                // ffmpeg.avcodec_send_packet(CodecContext, null);
-            }
-
-            // TODO: still need to clear SentPackets
-            // TODO: still need to make a difference between FlushPackets and DrainPackets
-            // DrainPackets are NULL. FlushPackets are Size = 0 or marked specially
-            return result;
-        }
-
-        private List<MediaFrame> DecodeNextAVSubtitle()
-        {
-            throw new NotImplementedException();
+            return packet;
         }
 
         /// <summary>
-        /// Receives 0 or more frames from the next available packet in the Queue.
-        /// This sends the first available packet to dequeue to the decoder
-        /// and uses the decoded frames (if any) to their corresponding
-        /// ProcessFrame method.
+        /// Feeds the packets to decoder.
         /// </summary>
-        /// <returns>The list of frames</returns>
-        private List<MediaFrame> DecodeNextPacketInternal()
+        /// <param name="fillDecoderBuffer">if set to <c>true</c> fills the decoder buffer with packets.</param>
+        /// <returns>The number of packets fed</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private int FeedPacketsToDecoder(bool fillDecoderBuffer)
         {
-            var result = new List<MediaFrame>(16);
-
-            var receiveFrameResult = 0;
+            var packetCount = 0;
             var sendPacketResult = 0;
-            var isEmptyPacket = false;
 
-            if (MediaType == MediaType.Audio || MediaType == MediaType.Video)
+            while (Packets.Count > 0)
             {
-                if (Packets.Count > 0)
+                var packet = Packets.Peek();
+                if (IsFlushPacket(packet))
                 {
-                    // Setup some initial state variables
-                    var packet = Packets.Peek();
-                    isEmptyPacket = IsEmptyPacket(packet);
-
-                    // If it's audio or video, we use the new API and the decoded frames are stored in AVFrame
-                    // Let us send the packet to the codec for decoding a frame of uncompressed data later.
-                    // TODO: sendPacketResult is never checked for errors... We require some error handling.
-                    // for example when using h264_qsv codec, this returns -40 (Function not implemented)
-                    sendPacketResult = ffmpeg.avcodec_send_packet(CodecContext, IsEmptyPacket(packet) ? null : packet);
-
-                    // Packet sending successful
-                    if (sendPacketResult != ffmpeg.AVERROR(ffmpeg.EAGAIN))
-                    {
-                        // The packet was sent. We dequeue it and prepare for its disposal in the SentPackets queue
-                        Packets.Dequeue();
-                        SentPackets.Push(packet);
-                    }
-
-                    // AVERROR(EINVAL): codec not opened, it is an encoder, or requires flush
-                    if (sendPacketResult == ffmpeg.AVERROR(ffmpeg.EINVAL))
-                        ffmpeg.avcodec_flush_buffers(CodecContext);
+                    ffmpeg.avcodec_flush_buffers(CodecContext);
+                    packet = Packets.Dequeue();
+                    RC.Current.Remove(packet);
+                    ffmpeg.av_packet_free(&packet);
+                    continue;
                 }
 
-                // Let's check and see if we can get 1 or more frames from the packet we just sent to the decoder.
-                // Audio packets will typically contain 1 or more audioframes
-                // Video packets might require several packets to decode 1 frame
-                MediaFrame managedFrame = null;
-                while (receiveFrameResult >= 0)
-                {
-                    // Allocate a frame in unmanaged memory and
-                    // Try to receive the decompressed frame data
-                    var outputFrame = ffmpeg.av_frame_alloc();
-                    RC.Current.Add(outputFrame, $"327: {nameof(MediaComponent)}[{MediaType}].{nameof(DecodeNextPacketInternal)}()");
-                    receiveFrameResult = ffmpeg.avcodec_receive_frame(CodecContext, outputFrame);
+                sendPacketResult = ffmpeg.avcodec_send_packet(CodecContext, packet);
 
-                    try
-                    {
-                        managedFrame = null;
-                        if (receiveFrameResult >= 0)
-                        {
-                            // Send the frame to processing
-                            managedFrame = CreateFrameSource(ref outputFrame);
-                            if (managedFrame != null)
-                            {
-                                result.Add(managedFrame);
-                            }
-                            else
-                            {
-                                RC.Current.Remove(outputFrame);
-                                ffmpeg.av_frame_free(&outputFrame);
-                            }
-                        }
-                    }
-                    catch
-                    {
-                        // Release the frame as the decoded data could not be processed
-                        RC.Current.Remove(outputFrame);
-                        ffmpeg.av_frame_free(&outputFrame);
-                        throw;
-                    }
+                // EAGAIN means we have filled the decoder buffer
+                if (sendPacketResult != -ffmpeg.EAGAIN)
+                {
+                    packet = Packets.Dequeue();
+                    RC.Current.Remove(packet);
+                    ffmpeg.av_packet_free(&packet);
+                    packetCount++;
                 }
+
+                if (fillDecoderBuffer && sendPacketResult >= 0)
+                    continue;
+
+                break;
             }
-            else if (MediaType == MediaType.Subtitle && Packets.Count > 0)
+
+            return packetCount;
+        }
+
+        /// <summary>
+        /// Receives the next available frame from decoder.
+        /// </summary>
+        /// <param name="receiveFrameResult">The receive frame result.</param>
+        /// <returns>The frame or null if no frames could be decoded</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private MediaFrame ReceiveFrameFromDecoder(out int receiveFrameResult)
+        {
+            var managedFrame = default(MediaFrame);
+            receiveFrameResult = 0;
+
+            var outputFrame = ffmpeg.av_frame_alloc();
+            RC.Current.Add(outputFrame, $"509: {nameof(MediaComponent)}[{MediaType}].{nameof(ReceiveFrameFromDecoder)}()");
+
+            managedFrame = null;
+            receiveFrameResult = ffmpeg.avcodec_receive_frame(CodecContext, outputFrame);
+
+            if (receiveFrameResult >= 0)
+                managedFrame = CreateFrameSource(new IntPtr(outputFrame));
+
+            if (managedFrame == null)
             {
-                var packet = Packets.Dequeue();
-                SentPackets.Push(packet);
-                isEmptyPacket = IsEmptyPacket(packet);
+                ffmpeg.av_frame_free(&outputFrame);
+                RC.Current.Remove(outputFrame);
+            }
 
-                // Fors subtitles we use the old API (new API send_packet/receive_frame) is not yet available
-                var gotFrame = 0;
-                var outputFrame = SubtitleFrame.AllocateSubtitle();
-                receiveFrameResult = ffmpeg.avcodec_decode_subtitle2(CodecContext, outputFrame, &gotFrame, packet);
+            if (receiveFrameResult == ffmpeg.AVERROR_EOF)
+                ffmpeg.avcodec_flush_buffers(CodecContext);
 
-                // Check if there is an error decoding the packet.
-                // If there is, remove the packet clear the sent packets
+            return managedFrame;
+        }
+
+        /// <summary>
+        /// Decodes the next Audio or Video frame.
+        /// Reference: https://www.ffmpeg.org/doxygen/4.0/group__lavc__encdec.html
+        /// </summary>
+        /// <returns>A deocder result containing the decoder frames (if any)</returns>
+        private MediaFrame DecodeNextAVFrame()
+        {
+            var frame = ReceiveFrameFromDecoder(out var receiveFrameResult);
+            if (frame == null)
+            {
+                FeedPacketsToDecoder(false);
+                frame = ReceiveFrameFromDecoder(out receiveFrameResult);
+            }
+
+            while (frame == null && FeedPacketsToDecoder(true) > 0)
+            {
+                frame = ReceiveFrameFromDecoder(out receiveFrameResult);
                 if (receiveFrameResult < 0)
-                {
-                    SubtitleFrame.DeallocateSubtitle(outputFrame);
-                    SentPackets.Clear();
-                    Container.Parent?.Log(MediaLogMessageType.Error, $"{MediaType}: Error decoding. Error Code: {receiveFrameResult}");
-                }
-                else
-                {
-                    // Process the first frame if we got it from the packet
-                    // Note that there could be more frames (subtitles) in the packet
-                    if (gotFrame != 0)
-                    {
-                        try
-                        {
-                            // Send the frame to processing
-                            var managedFrame = CreateFrameSource(outputFrame);
-                            if (managedFrame == null)
-                                throw new MediaContainerException($"{MediaType} Component does not implement {nameof(CreateFrameSource)}");
-                            result.Add(managedFrame);
-                        }
-                        catch
-                        {
-                            // Once processed, we don't need it anymore. Release it.
-                            SubtitleFrame.DeallocateSubtitle(outputFrame);
-                            throw;
-                        }
-                    }
-
-                    // Let's check if we have more decoded frames from the same single packet
-                    // Packets may contain more than 1 frame and the decoder is drained
-                    // by passing an empty packet (data = null, size = 0)
-                    while (gotFrame != 0 && receiveFrameResult > 0)
-                    {
-                        outputFrame = SubtitleFrame.AllocateSubtitle();
-                        var emptyPacket = ffmpeg.av_packet_alloc();
-                        RC.Current.Add(emptyPacket, $"406: {nameof(MediaComponent)}[{MediaType}].{nameof(DecodeNextPacketInternal)}()");
-
-                        // Receive the frames in a loop
-                        try
-                        {
-                            receiveFrameResult = ffmpeg.avcodec_decode_subtitle2(CodecContext, outputFrame, &gotFrame, emptyPacket);
-                            if (gotFrame != 0 && receiveFrameResult > 0)
-                            {
-                                // Send the subtitle to processing
-                                var managedFrame = CreateFrameSource(outputFrame);
-                                if (managedFrame == null)
-                                    throw new MediaContainerException($"{MediaType} Component does not implement {nameof(CreateFrameSource)}");
-                                result.Add(managedFrame);
-                            }
-                        }
-                        catch
-                        {
-                            // once the subtitle is processed. Release it from memory
-                            SubtitleFrame.DeallocateSubtitle(outputFrame);
-                            throw;
-                        }
-                        finally
-                        {
-                            // free the empty packet
-                            RC.Current.Remove(emptyPacket);
-                            ffmpeg.av_packet_free(&emptyPacket);
-                        }
-                    }
-                }
+                    break;
             }
 
-            // Release the sent packets if 1 or more frames were received in the packet
-            if (result.Count >= 1 || (Container.IsAtEndOfStream && isEmptyPacket && PacketBufferCount == 0))
+            return frame;
+        }
+
+        /// <summary>
+        /// Decodes the next subtitle frame.
+        /// </summary>
+        /// <returns>The managed frame</returns>
+        private MediaFrame DecodeNextAVSubtitle()
+        {
+            // For subtitles we use the old API (new API send_packet/receive_frame) is not yet available
+            // We first try to flush anything we've already sent vy using an empty packet.
+            var managedFrame = default(MediaFrame);
+            var packet = CreateEmptyPacket();
+            var gotFrame = 0;
+            var outputFrame = SubtitleFrame.AllocateSubtitle();
+            var receiveFrameResult = ffmpeg.avcodec_decode_subtitle2(CodecContext, outputFrame, &gotFrame, packet);
+
+            // If we don't get a frame from flushing. Feed the packet into the decoder and try getting a frame.
+            if (gotFrame == 0)
             {
-                // We clear the sent packet queue (releasing packet from unmanaged memory also)
-                // because we got at least 1 frame from the packet.
-                SentPackets.Clear();
+                ffmpeg.av_packet_free(&packet);
+                packet = Packets.Dequeue();
+                if (packet != null)
+                    receiveFrameResult = ffmpeg.avcodec_decode_subtitle2(CodecContext, outputFrame, &gotFrame, packet);
             }
 
-            return result;
+            // If we got a frame, turn into a managed frame
+            if (gotFrame != 0)
+                managedFrame = CreateFrameSource(new IntPtr(outputFrame));
+
+            // Free the packet if we have allocated it
+            if (packet != null)
+                ffmpeg.av_packet_free(&packet);
+
+            // deallocate the subtitle frame if we did not associate it with a managed frame.
+            if (managedFrame == null)
+                SubtitleFrame.DeallocateSubtitle(outputFrame);
+
+            return managedFrame;
         }
 
         #endregion

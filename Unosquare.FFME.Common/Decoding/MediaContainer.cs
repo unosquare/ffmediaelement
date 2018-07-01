@@ -407,8 +407,8 @@
 
         /// <summary>
         /// Decodes the next available packet in the packet queue for each of the components.
-        /// Returns the list of decoded frames. You can call this method until the Components.PacketBufferCount
-        /// becomes 0; The list of 0 or more decoded frames is returned in ascending StartTime order.
+        /// Returns the list of decoded frames.
+        /// The list of 0 or more decoded frames is returned in ascending StartTime order.
         /// A Packet may contain 0 or more frames. Once the frame source objects are returned, you
         /// are responsible for calling the Dispose method on them to free the underlying FFmpeg frame.
         /// Note that even after releasing them you can still use the managed properties.
@@ -424,9 +424,14 @@
                 if (IsDisposed) throw new ObjectDisposedException(nameof(MediaContainer));
                 if (InputContext == null) throw new InvalidOperationException(ExceptionMessageNoInputContext);
 
-                var result = new List<MediaFrame>(64);
+                var result = new List<MediaFrame>(4);
+                var frame = default(MediaFrame);
                 foreach (var component in Components.All)
-                    result.AddRange(component.ReceiveFrames());
+                {
+                    frame = component.ReceiveNextFrame();
+                    if (frame != null)
+                        result.Add(frame);
+                }
 
                 result.Sort();
                 return result;
@@ -957,7 +962,7 @@
                 // Detect an end of file situation (makes the readers enter draining mode)
                 if (readResult == ffmpeg.AVERROR_EOF || ffmpeg.avio_feof(InputContext->pb) != 0)
                 {
-                    // Force the decoders to enter draining mode (with empry packets)
+                    // Send the decoders empty packets at the EOF
                     if (IsAtEndOfStream == false)
                         Components.SendEmptyPackets();
 
@@ -1126,7 +1131,7 @@
                 }
 
                 // Flush the buffered packets and codec on every seek.
-                Components.ClearPacketQueues();
+                Components.ClearPacketQueues(flushBuffers: true);
                 StateRequiresPictureAttachments = true;
                 IsAtEndOfStream = false;
 
@@ -1195,7 +1200,7 @@
             var seekResult = ffmpeg.av_seek_frame(InputContext, streamIndex, seekTarget, seekFlags);
 
             // Flush packets, state, and codec buffers
-            Components.ClearPacketQueues();
+            Components.ClearPacketQueues(flushBuffers: true);
             StateRequiresPictureAttachments = true;
             IsAtEndOfStream = false;
 
@@ -1220,6 +1225,7 @@
         private int StreamSeekDecode(List<MediaFrame> result, TimeSpan targetTime, SeekRequirement requirement)
         {
             var readSeekCycles = 0;
+            var frame = default(MediaFrame);
 
             // Create a holder of frame lists; one for each type of media
             var outputFrames = new Dictionary<MediaType, List<MediaFrame>>();
@@ -1256,7 +1262,8 @@
                     continue;
 
                 // Decode and add the frames to the corresponding output
-                outputFrames[mediaType].AddRange(Components[mediaType].ReceiveFrames());
+                frame = Components[mediaType].ReceiveNextFrame();
+                if (frame != null) outputFrames[mediaType].Add(frame);
 
                 // keept the frames list short
                 foreach (var componentFrames in outputFrames.Values)

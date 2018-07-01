@@ -297,29 +297,20 @@
         }
 
         /// <summary>
-        /// Adds the blocks of the given media type.
+        /// Tries to receive the next frame from the decoder by decoding queued
+        /// Packets and converting the decoded frame into a Media Block which gets
+        /// enqueued into the playback block buffer.
         /// </summary>
-        /// <param name="t">The t.</param>
-        /// <returns>The number of blocks that were added</returns>
+        /// <param name="t">The MediaType.</param>
+        /// <returns>True if a block could be added. False otherwise.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int AddBlocks(MediaType t)
+        private bool AddNextBlock(MediaType t)
         {
-            var decodedFrameCount = 0;
-
             // Decode the frames
-            var frames = Container.Components[t].ReceiveFrames();
+            var block = Blocks[t].Add(Container.Components[t].ReceiveNextFrame(), Container);
+            if (block != null) return true;
 
-            // exit the loop if there was nothing more to decode
-            foreach (var frame in frames)
-            {
-                // Add each decoded frame as a playback block
-                if (frame == null) continue;
-                var block = Blocks[t].Add(frame, Container);
-                if (block != null)
-                    decodedFrameCount += 1;
-            }
-
-            return decodedFrameCount;
+            return false;
         }
 
         #endregion
