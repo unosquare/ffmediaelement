@@ -20,7 +20,6 @@
         private ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
         private bool IsDisposed = false; // To detect redundant calls
         private ulong m_BufferLength = default;
-        private long m_Duration = default;
 
         #endregion
 
@@ -31,13 +30,7 @@
         /// </summary>
         public int Count
         {
-            get
-            {
-                using (Locker.AcquireReaderLock())
-                {
-                    return PacketPointers.Count;
-                }
-            }
+            get { using (Locker.AcquireReaderLock()) return PacketPointers.Count; }
         }
 
         /// <summary>
@@ -46,27 +39,7 @@
         /// </summary>
         public ulong BufferLength
         {
-            get
-            {
-                using (Locker.AcquireReaderLock())
-                {
-                    return m_BufferLength;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets the total duration in stream TimeBase units.
-        /// </summary>
-        public long Duration
-        {
-            get
-            {
-                using (Locker.AcquireReaderLock())
-                {
-                    return m_Duration;
-                }
-            }
+            get { using (Locker.AcquireReaderLock()) return m_BufferLength; }
         }
 
         /// <summary>
@@ -79,20 +52,8 @@
         /// <returns>The packet reference</returns>
         private AVPacket* this[int index]
         {
-            get
-            {
-                using (Locker.AcquireReaderLock())
-                {
-                    return (AVPacket*)PacketPointers[index];
-                }
-            }
-            set
-            {
-                using (Locker.AcquireWriterLock())
-                {
-                    PacketPointers[index] = (IntPtr)value;
-                }
-            }
+            get { using (Locker.AcquireReaderLock()) return (AVPacket*)PacketPointers[index]; }
+            set { using (Locker.AcquireWriterLock()) PacketPointers[index] = (IntPtr)value; }
         }
 
         #endregion
@@ -126,8 +87,7 @@
             using (Locker.AcquireWriterLock())
             {
                 PacketPointers.Add((IntPtr)packet);
-                m_BufferLength += Convert.ToUInt64(packet->size < 0 ? default : packet->size);
-                m_Duration += packet->duration;
+                m_BufferLength += packet->size < 0 ? default : (ulong)packet->size;
             }
         }
 
@@ -144,8 +104,7 @@
                 PacketPointers.RemoveAt(0);
 
                 var packet = (AVPacket*)result;
-                m_BufferLength -= Convert.ToUInt64(packet->size < 0 ? default : packet->size);
-                m_Duration -= packet->duration;
+                m_BufferLength -= packet->size < 0 ? default : (ulong)packet->size;
                 return packet;
             }
         }
@@ -165,7 +124,6 @@
                 }
 
                 m_BufferLength = 0;
-                m_Duration = 0;
             }
         }
 
@@ -176,10 +134,8 @@
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose()
-        {
+        public void Dispose() =>
             Dispose(true);
-        }
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.

@@ -9,7 +9,7 @@
     /// Represents the application-wide view model
     /// </summary>
     /// <seealso cref="ViewModelBase" />
-    public class RootViewModel : ViewModelBase
+    public sealed class RootViewModel : ViewModelBase
     {
         /// <summary>
         /// The product name

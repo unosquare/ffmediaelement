@@ -1131,7 +1131,7 @@
                 }
 
                 // Flush the buffered packets and codec on every seek.
-                Components.ClearPacketQueues(flushBuffers: true);
+                Components.ClearQueuedPackets(flushBuffers: true);
                 StateRequiresPictureAttachments = true;
                 IsAtEndOfStream = false;
 
@@ -1200,7 +1200,7 @@
             var seekResult = ffmpeg.av_seek_frame(InputContext, streamIndex, seekTarget, seekFlags);
 
             // Flush packets, state, and codec buffers
-            Components.ClearPacketQueues(flushBuffers: true);
+            Components.ClearQueuedPackets(flushBuffers: true);
             StateRequiresPictureAttachments = true;
             IsAtEndOfStream = false;
 

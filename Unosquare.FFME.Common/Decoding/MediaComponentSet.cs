@@ -37,6 +37,8 @@
         /// </summary>
         private bool IsDisposed = false;
 
+        private MediaComponent m_Main = null;
+
         #endregion
 
         #region Constructor
@@ -82,7 +84,11 @@
         /// Gets the main media component of the stream to which time is synchronized.
         /// By order of priority, first Audio, then Video
         /// </summary>
-        public MediaComponent Main { get; private set; }
+        public MediaComponent Main
+        {
+            get { lock (SyncLock) return m_Main; }
+            private set { lock (SyncLock) m_Main = value; }
+        }
 
         /// <summary>
         /// Gets the video component.
@@ -112,21 +118,6 @@
         }
 
         /// <summary>
-        /// Gets the first packet DTS.
-        /// </summary>
-        public long? FirstPacketDts { get; private set; } = default;
-
-        /// <summary>
-        /// Gets the stream index of the first packet received.
-        /// </summary>
-        public int? FirstPacketStreamIndex { get; private set; } = default;
-
-        /// <summary>
-        /// Gets the first packet byte position.
-        /// </summary>
-        public long? FirstPacketPosition { get; private set; } = default;
-
-        /// <summary>
         /// Gets the current length in bytes of the packet buffer.
         /// These packets are the ones that have not been yet deecoded.
         /// </summary>
@@ -143,15 +134,6 @@
                     return result;
                 }
             }
-        }
-
-        /// <summary>
-        /// Gets the number of packets that have not been
-        /// fed to the decoders.
-        /// </summary>
-        public int PacketBufferCount
-        {
-            get { lock (SyncLock) return All.Sum(c => c.PacketBufferCount); }
         }
 
         /// <summary>
@@ -209,7 +191,7 @@
         {
             get
             {
-                lock (SyncLock) return Items.ContainsKey(mediaType) ? Items[mediaType] : null;
+                lock (SyncLock) return Items[mediaType];
             }
             set
             {
@@ -217,7 +199,9 @@
                 {
                     if (Items.ContainsKey(mediaType))
                         throw new ArgumentException($"A component for '{mediaType}' is already registered.");
-                    Items[mediaType] = value ?? throw new ArgumentNullException($"{nameof(MediaComponent)} {nameof(value)} must not be null.");
+                    Items[mediaType] = value ??
+                        throw new ArgumentNullException($"{nameof(MediaComponent)} {nameof(value)} must not be null.");
+
                     CachedComponents = null;
                     ComputeMainComponent();
                 }
@@ -227,10 +211,8 @@
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose()
-        {
+        public void Dispose() =>
             Dispose(true);
-        }
 
         #endregion
 
@@ -249,13 +231,6 @@
             {
                 if (packet == null)
                     return MediaType.None;
-
-                if (FirstPacketStreamIndex == null && packet->dts != ffmpeg.AV_NOPTS_VALUE)
-                {
-                    FirstPacketDts = packet->dts;
-                    FirstPacketStreamIndex = packet->stream_index;
-                    FirstPacketPosition = packet->pos;
-                }
 
                 foreach (var component in All)
                 {
@@ -300,16 +275,16 @@
         /// index is changed.
         /// </summary>
         /// <param name="flushBuffers">if set to <c>true</c> flush codec buffers.</param>
-        public void ClearPacketQueues(bool flushBuffers)
+        public void ClearQueuedPackets(bool flushBuffers)
         {
             lock (SyncLock)
                 foreach (var component in All)
-                    component.ClearPacketQueues(flushBuffers);
+                    component.ClearQueuedPackets(flushBuffers);
         }
 
         #endregion
 
-        #region IDisposable Support
+        #region Helper Methods
 
         /// <summary>
         /// Removes the component of specified media type (if registered).

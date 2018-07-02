@@ -2,6 +2,7 @@
 {
     using Core;
     using FFmpeg.AutoGen;
+    using Primitives;
     using Shared;
     using System;
     using System.Collections.Generic;
@@ -55,7 +56,12 @@
         /// <summary>
         /// Detects redundant, unmanaged calls to the Dispose method.
         /// </summary>
-        private bool IsDisposed = false;
+        private AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
+
+        /// <summary>
+        /// Determines if packets have been fed into the codec and frames can be decoded.
+        /// </summary>
+        private AtomicBoolean m_HasCodecPackets = new AtomicBoolean(false);
 
         #endregion
 
@@ -305,6 +311,24 @@
         /// </summary>
         public StreamInfo StreamInfo { get; }
 
+        /// <summary>
+        /// Gets whether packets have been fed into the codec and frames can be decoded.
+        /// </summary>
+        public bool HasCodecPackets
+        {
+            get => m_HasCodecPackets.Value;
+            private set => m_HasCodecPackets.Value = value;
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is disposed.
+        /// </summary>
+        public bool IsDisposed
+        {
+            get => m_IsDisposed.Value;
+            private set => m_IsDisposed.Value = value;
+        }
+
         #endregion
 
         #region Methods
@@ -314,13 +338,16 @@
         /// Additionally it flushes the codec buffered packets.
         /// </summary>
         /// <param name="flushBuffers">if set to <c>true</c> flush codec buffers.</param>
-        public void ClearPacketQueues(bool flushBuffers)
+        public void ClearQueuedPackets(bool flushBuffers)
         {
             // Release packets that are already in the queue.
             Packets.Clear();
 
             if (flushBuffers && CodecContext != null)
+            {
+                HasCodecPackets = false;
                 ffmpeg.avcodec_flush_buffers(CodecContext);
+            }
         }
 
         /// <summary>
@@ -430,7 +457,7 @@
                     ffmpeg.avcodec_free_context(codecContext);
 
                 // free all the pending and sent packets
-                ClearPacketQueues(true);
+                ClearQueuedPackets(true);
                 Packets.Dispose();
             }
 
@@ -483,6 +510,7 @@
                 var packet = Packets.Peek();
                 if (IsFlushPacket(packet))
                 {
+                    HasCodecPackets = false;
                     ffmpeg.avcodec_flush_buffers(CodecContext);
                     packet = Packets.Dequeue();
                     RC.Current.Remove(packet);
@@ -500,6 +528,9 @@
                     ffmpeg.av_packet_free(&packet);
                     packetCount++;
                 }
+
+                if (sendPacketResult >= 0)
+                    HasCodecPackets = true;
 
                 if (fillDecoderBuffer && sendPacketResult >= 0)
                     continue;
@@ -537,7 +568,13 @@
             }
 
             if (receiveFrameResult == ffmpeg.AVERROR_EOF)
+            {
+                HasCodecPackets = false;
                 ffmpeg.avcodec_flush_buffers(CodecContext);
+            }
+
+            if (receiveFrameResult == -ffmpeg.EAGAIN)
+                HasCodecPackets = false;
 
             return managedFrame;
         }
@@ -600,6 +637,9 @@
             // deallocate the subtitle frame if we did not associate it with a managed frame.
             if (managedFrame == null)
                 SubtitleFrame.DeallocateSubtitle(outputFrame);
+
+            if (receiveFrameResult < 0)
+                HasCodecPackets = false;
 
             return managedFrame;
         }
