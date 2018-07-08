@@ -20,7 +20,7 @@
         /// <param name="duration">The duration.</param>
         /// <param name="clock">The clock.</param>
         internal RenderingAudioEventArgs(
-            IntPtr buffer, int length, MediaEngineState engineState, StreamInfo stream, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
+            byte[] buffer, int length, MediaEngineState engineState, StreamInfo stream, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
             : base(engineState, stream, startTime, duration, clock)
         {
             Buffer = buffer;
@@ -31,10 +31,10 @@
         }
 
         /// <summary>
-        /// Gets a pointer to the samples buffer.
+        /// Gets a the raw data buffer going into the audio device.
         /// Samples are provided in PCM 16-bit signed, interleaved stereo.
         /// </summary>
-        public IntPtr Buffer { get; }
+        public byte[] Buffer { get; }
 
         /// <summary>
         /// Gets the length in bytes of the samples buffer.

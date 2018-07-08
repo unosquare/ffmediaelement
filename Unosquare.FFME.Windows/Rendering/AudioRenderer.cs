@@ -109,7 +109,7 @@
         }
 
         /// <summary>
-        /// Gets current audio the position.
+        /// Gets current realtime audio position.
         /// </summary>
         public TimeSpan Position
         {
@@ -177,10 +177,7 @@
                     {
                         // Write the block if we have to, avoiding repeated blocks.
                         if (AudioBuffer.WriteTag < audioBlock.StartTime)
-                        {
-                            MediaElement.RaiseRenderingAudioEvent(audioBlock, clockPosition);
                             AudioBuffer.Write(audioBlock.Buffer, audioBlock.SamplesBufferLength, audioBlock.StartTime, true);
-                        }
 
                         // Stop adding if we have too much in there.
                         if (AudioBuffer.CapacityPercent >= 0.8)
@@ -342,6 +339,8 @@
                 if (MediaCore.State.HasVideo && Synchronize(targetBuffer, targetBufferOffset, requestedBytes, speedRatio) == false)
                     return requestedBytes;
 
+                var startPosition = Position;
+
                 // Perform DSP
                 if (speedRatio < 1.0)
                 {
@@ -369,6 +368,8 @@
                 }
 
                 ApplyVolumeAndBalance(targetBuffer, targetBufferOffset, requestedBytes);
+                MediaElement.RaiseRenderingAudioEvent(
+                    targetBuffer, requestedBytes, startPosition, WaveFormat.ConvertByteSizeToDuration(requestedBytes));
             }
             catch (Exception ex)
             {
@@ -427,7 +428,7 @@
                 new DirectSoundPlayer(this, MediaElement.RendererOptions.DirectSoundDevice?.DeviceId ?? DirectSoundPlayer.DefaultPlaybackDeviceId);
 
             SampleBlockSize = Constants.Audio.BytesPerSample * Constants.Audio.ChannelCount;
-            var bufferLength = WaveFormat.ConvertLatencyToByteSize(AudioDevice.DesiredLatency) * MediaCore.Blocks[MediaType.Audio].Capacity / 2;
+            var bufferLength = WaveFormat.ConvertMillisToByteSize(AudioDevice.DesiredLatency) * MediaCore.Blocks[MediaType.Audio].Capacity / 2;
             AudioBuffer = new CircularBuffer(bufferLength);
             AudioDevice.Start();
         }
@@ -565,7 +566,7 @@
                 }
 
                 // skip some samples from the buffer.
-                var audioLatencyBytes = WaveFormat.ConvertLatencyToByteSize(Convert.ToInt32(Math.Ceiling(audioLatencyMs)));
+                var audioLatencyBytes = WaveFormat.ConvertMillisToByteSize(Convert.ToInt32(Math.Ceiling(audioLatencyMs)));
                 AudioBuffer.Skip(Math.Min(audioLatencyBytes, readableCount));
             }
             else if (audioLatencyMs < SyncThresholdLeading)
@@ -573,7 +574,7 @@
                 isBeyondThreshold = true;
 
                 // Compute the latency in bytes
-                var audioLatencyBytes = WaveFormat.ConvertLatencyToByteSize(Convert.ToInt32(Math.Ceiling(Math.Abs(audioLatencyMs))));
+                var audioLatencyBytes = WaveFormat.ConvertMillisToByteSize(Convert.ToInt32(Math.Ceiling(Math.Abs(audioLatencyMs))));
 
                 // audioLatencyBytes = requestedBytes; // uncomment this line to enable rewinding.
                 if (audioLatencyBytes > requestedBytes && audioLatencyBytes < rewindableCount)
@@ -609,7 +610,7 @@
                 Math.Abs(audioLatencyMs) > SyncThresholdPerfect)
             {
                 var stepDurationMillis = Convert.ToInt32(Math.Min(SyncThresholdMaxStep, Math.Abs(audioLatencyMs)));
-                var stepDurationBytes = WaveFormat.ConvertLatencyToByteSize(stepDurationMillis);
+                var stepDurationBytes = WaveFormat.ConvertMillisToByteSize(stepDurationMillis);
 
                 if (audioLatencyMs > SyncThresholdPerfect)
                     AudioBuffer.Skip(Math.Min(stepDurationBytes, readableCount));

@@ -218,7 +218,7 @@
 
         /// <summary>
         /// Provides access to the underlying media engine driving this control.
-        /// This property is intender for advance usages only.
+        /// This property is intended for advance usages only.
         /// </summary>
         internal MediaEngine MediaCore { get; private set; } = null;
 
