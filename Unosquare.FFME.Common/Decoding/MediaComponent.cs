@@ -76,7 +76,7 @@
         /// <exception cref="MediaContainerException">The container exception.</exception>
         protected MediaComponent(MediaContainer container, int streamIndex)
         {
-            // Parted from: https://github.com/FFmpeg/FFmpeg/blob/master/fftools/ffplay.c#L2559
+            // Ported from: https://github.com/FFmpeg/FFmpeg/blob/master/fftools/ffplay.c#L2559
             // avctx = avcodec_alloc_context3(NULL);
             Container = container ?? throw new ArgumentNullException(nameof(container));
             CodecContext = ffmpeg.avcodec_alloc_context3(null);
@@ -148,11 +148,15 @@
 
                     // Configure the codec context flags
                     if (decoderOptions.EnableFastDecoding) CodecContext->flags2 |= ffmpeg.AV_CODEC_FLAG2_FAST;
-                    if (decoderOptions.EnableLowDelay) CodecContext->flags |= ffmpeg.AV_CODEC_FLAG_LOW_DELAY;
+                    if (decoderOptions.EnableLowDelayDecoding) CodecContext->flags |= ffmpeg.AV_CODEC_FLAG_LOW_DELAY;
 
                     // process the low res option
-                    if (decoderOptions.EnableLowRes && codec->max_lowres > 0)
-                        decoderOptions.LowResIndex = codec->max_lowres.ToString(CultureInfo.InvariantCulture);
+                    if (decoderOptions.LowResolutionIndex != ResolutionDivider.Full && codec->max_lowres > 0)
+                    {
+                        var lowResOption = Math.Min((byte)decoderOptions.LowResolutionIndex, codec->max_lowres)
+                            .ToString(CultureInfo.InvariantCulture);
+                        decoderOptions.LowResIndexOption = lowResOption;
+                    }
 
                     // Ensure ref counted frames for audio and video decoding
                     if (CodecContext->codec_type == AVMediaType.AVMEDIA_TYPE_VIDEO || CodecContext->codec_type == AVMediaType.AVMEDIA_TYPE_AUDIO)

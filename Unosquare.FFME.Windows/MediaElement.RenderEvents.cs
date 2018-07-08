@@ -31,6 +31,13 @@
         /// </summary>
         public event EventHandler<RenderingSubtitlesEventArgs> RenderingSubtitles;
 
+        /// <summary>
+        /// Occurs when the currently selected audio device stops or loses its buffer.
+        /// Call the <see cref="ChangeMedia"/> method and select a new audio device
+        /// in order to output to a new audio device
+        /// </summary>
+        public event EventHandler AudioDeviceStopped;
+
         #endregion
 
         #region Event Raisers
@@ -112,6 +119,12 @@
             RenderingSubtitles?.Invoke(this, e);
             return e.Cancel;
         }
+
+        /// <summary>
+        /// Raises the audio device stopped event.
+        /// </summary>
+        internal void RaiseAudioDeviceStoppedEvent() =>
+            AudioDeviceStopped?.Invoke(this, EventArgs.Empty);
 
         #endregion
     }

@@ -272,8 +272,7 @@
 
             AVFrame* outputFrame;
 
-            // TODO: (Floyd) Support real-time changes in Video Filtergraph by checking if MediaOptions.VideoFilterGraph has changed
-            // Maybe expose the VideoFilterGraph string as a MediaElement Control Property
+            // Changes in the filtergraph can be applied by calling the ChangeMedia command
             if (FilterGraph != null)
             {
                 // Allocate the output frame

@@ -34,6 +34,7 @@
         private short[] AudioProcessorBuffer = null;
         private CircularBuffer AudioBuffer = null;
         private bool IsDisposed = false;
+        private bool m_HasFiredAudioDeviceStopped = false;
 
         private byte[] ReadBuffer = null;
         private int SampleBlockSize = 0;
@@ -134,6 +135,15 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance has fired the audio device stopped event.
+        /// </summary>
+        private bool HasFiredAudioDeviceStopped
+        {
+            get { lock (SyncLock) return m_HasFiredAudioDeviceStopped; }
+            set { lock (SyncLock) m_HasFiredAudioDeviceStopped = value; }
+        }
+
         #endregion
 
         #region Public API
@@ -146,7 +156,7 @@
         public void Render(MediaBlock mediaBlock, TimeSpan clockPosition)
         {
             // We don't need to render anything while we are seeking. Simply drop the blocks.
-            if (MediaCore.State.IsSeeking) return;
+            if (MediaCore.State.IsSeeking || HasFiredAudioDeviceStopped) return;
 
             var lockTaken = false;
             Monitor.TryEnter(SyncLock, SyncLockTimeout, ref lockTaken);
@@ -156,7 +166,12 @@
             {
                 if ((AudioDevice?.IsRunning ?? false) == false)
                 {
-                    // TODO: Handle this? -- see issue #93
+                    if (HasFiredAudioDeviceStopped == false)
+                    {
+                        MediaElement.RaiseAudioDeviceStoppedEvent();
+                        HasFiredAudioDeviceStopped = true;
+                    }
+
                     return;
                 }
 
@@ -313,7 +328,7 @@
             var lockTaken = false;
             Monitor.TryEnter(SyncLock, SyncLockTimeout, ref lockTaken);
 
-            if (lockTaken == false)
+            if (lockTaken == false || HasFiredAudioDeviceStopped)
             {
                 Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
                 return requestedBytes;

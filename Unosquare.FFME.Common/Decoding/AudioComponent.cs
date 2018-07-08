@@ -200,8 +200,7 @@
 
             AVFrame* outputFrame = null;
 
-            // TODO: (Floyd) Support real-time changes in Audio Filtergraph by checking if MediaOptions.AudioFilterGraph has changed
-            // Maybe expose the AudioFilterGraph string as a MediaElement Control Property
+            // Filtergraph can be changed by issuing a ChangeMedia command
             if (FilterGraph != null)
             {
                 // Allocate the output frame
