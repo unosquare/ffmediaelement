@@ -25,7 +25,6 @@
             var wallClock = TimeSpan.Zero;
             var rangePercent = 0d;
             var isInRange = false;
-            var playAfterSeek = false;
 
             // Holds the main media type
             var main = Container.Components.Main.MediaType;
@@ -60,14 +59,6 @@
                     // Signal a Seek starting operation
                     FrameDecodingCycle.Begin();
 
-                    // Chek if we have pending seeks to notify the start of a seek operation
-                    if (State.IsSeeking == false && Commands.HasQueuedSeekCommands)
-                    {
-                        playAfterSeek = State.IsPlaying;
-                        State.IsSeeking = true;
-                        SendOnSeekingStarted();
-                    }
-
                     // Execute the following command at the beginning of the cycle
                     Commands.ExecuteNextQueuedCommand();
 
@@ -80,36 +71,10 @@
                     wallClock = WallClock;
                     decodedFrameCount = 0;
 
-                    // Signal a Seek ending operation
-                    // TOD: Maybe this should go on the block rendering worker?
-                    if (State.IsSeeking && Commands.HasQueuedSeekCommands == false)
-                    {
-                        // Detect a end of seek cycle and update the state to the final position
-                        // as set by the seek command. This is the position we already captured
-                        // as the seek command was processed already.
+                    // Notify position changes continuously on the state object
+                    // only if we are not currently seeking
+                    if (State.IsSeeking == false)
                         State.UpdatePosition(wallClock);
-
-                        // Call the seek method on all renderers
-                        foreach (var kvp in Renderers)
-                            InvalidateRenderer(kvp.Key);
-
-                        SendOnSeekingEnded();
-                        State.IsSeeking = false;
-                        if (playAfterSeek)
-                        {
-                            Clock.Play();
-                            State.UpdateMediaState(PlaybackStatus.Play);
-                        }
-                        else
-                        {
-                            State.UpdateMediaState(PlaybackStatus.Pause);
-                        }
-                    }
-                    else if (State.IsSeeking == false)
-                    {
-                        // Notify position changes continuously on the state object
-                        State.UpdatePosition(wallClock);
-                    }
 
                     #endregion
 

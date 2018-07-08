@@ -5,7 +5,6 @@
     using System.Collections.ObjectModel;
     using System.Reflection;
     using System.Runtime.CompilerServices;
-    using Unosquare.FFME.Primitives;
 
     /// <summary>
     /// Contains all the status properties of the stream being handled by the media engine.
@@ -22,7 +21,6 @@
         private readonly MediaEngine Parent = null;
         private readonly ReadOnlyDictionary<string, string> EmptyDictionary
             = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
-        private AtomicBoolean m_IsSeeking = new AtomicBoolean(false);
 
         /// <summary>
         /// Gets the guessed buffered bytes in the packet queue per second.
@@ -317,15 +315,6 @@
         public bool IsBuffering { get; internal set; } = default;
 
         /// <summary>
-        /// Gets a value indicating whether the media seeking is in progress.
-        /// </summary>
-        public bool IsSeeking
-        {
-            get => m_IsSeeking.Value == true;
-            internal set => m_IsSeeking.Value = value;
-        }
-
-        /// <summary>
         /// Returns the current video SMTPE timecode if available.
         /// If not available, this property returns an empty string.
         /// </summary>
@@ -364,6 +353,11 @@
         /// Otherwise, it will return  4 times of the buffer cache length.
         /// </summary>
         public ulong DownloadCacheLength { get; internal set; } = default;
+
+        /// <summary>
+        /// Gets a value indicating whether the media seeking is in progress.
+        /// </summary>
+        public bool IsSeeking => Parent?.Commands?.IsSeeking ?? false;
 
         /// <summary>
         /// Gets a value indicating whether the media is in the process of closing media.
@@ -450,7 +444,6 @@
             UpdateMediaState(PlaybackStatus.Close, TimeSpan.Zero);
             HasMediaEnded = default;
             IsBuffering = default;
-            IsSeeking = default;
             VideoSmtpeTimecode = string.Empty;
             VideoHardwareDecoder = string.Empty;
             BufferingProgress = default;

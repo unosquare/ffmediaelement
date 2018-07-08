@@ -5,6 +5,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -18,6 +19,8 @@
         private readonly List<CommandBase> CommandQueue = new List<CommandBase>(32);
         private readonly IWaitEvent DirectCommandEvent = null;
         private readonly AtomicBoolean m_IsStopWorkersPending = new AtomicBoolean(false);
+        private readonly AtomicBoolean m_IsSeeking = new AtomicBoolean(false);
+
         private readonly object DirectLock = new object();
         private readonly object QueueLock = new object();
         private readonly object StatusLock = new object();
@@ -27,6 +30,7 @@
         private bool m_IsOpening = default;
         private bool m_IsChanging = default;
         private bool m_IsDisposed = default;
+        private bool PlayAfterSeek = default;
 
         private DirectCommandBase CurrentDirectCommand = null;
         private CommandBase CurrentQueueCommand = null;
@@ -81,6 +85,15 @@
         public bool IsChanging
         {
             get { lock (StatusLock) return m_IsChanging; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the media seeking is in progress.
+        /// </summary>
+        public bool IsSeeking
+        {
+            get => m_IsSeeking.Value == true;
+            private set => m_IsSeeking.Value = value;
         }
 
         /// <summary>
@@ -256,6 +269,8 @@
             CommandBase command = null;
             lock (QueueLock)
             {
+                DetectSeekingStarted();
+
                 if (CommandQueue.Count > 0)
                 {
                     command = CommandQueue[0];
@@ -266,7 +281,14 @@
 
             try { command?.Execute(); }
             catch { throw; }
-            finally { lock (QueueLock) { CurrentQueueCommand = null; } }
+            finally
+            {
+                lock (QueueLock)
+                {
+                    DetectSeekingEnded();
+                    CurrentQueueCommand = null;
+                }
+            }
         }
 
         /// <summary>
@@ -278,6 +300,73 @@
         #endregion
 
         #region Private Methods
+
+        /// <summary>
+        /// Detects the seeking started operation.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void DetectSeekingStarted()
+        {
+            var m = MediaCore;
+
+            // Check if we have pending seeks to notify the start of a seek operation
+            if (m.State.IsSeeking == false && HasQueuedSeekCommands)
+            {
+                PlayAfterSeek = m.Clock.IsRunning;
+                IsSeeking = true;
+                m.SendOnSeekingStarted();
+            }
+        }
+
+        /// <summary>
+        /// Detects the seeking ended operation.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void DetectSeekingEnded()
+        {
+            var m = MediaCore;
+
+            // Don't do a thing if we are not currently seeking or if we still
+            // have seek commands in the queue.
+            if (IsSeeking == false || HasQueuedCommands) return;
+
+            // Detect a end of seek cycle and update the state to the final position
+            // as set by the seek command. This is the position we already captured
+            // as the seek command was processed already.
+            m.State.UpdatePosition(m.WallClock);
+
+            // Call the seek method on all renderers
+            foreach (var kvp in m.Renderers)
+                m.InvalidateRenderer(kvp.Key);
+
+            m.SendOnSeekingEnded();
+            ResumePlayAfterSeek();
+        }
+
+        /// <summary>
+        /// Resumes playback if the clock was running prior to the start of a seek operation.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ResumePlayAfterSeek()
+        {
+            lock (QueueLock)
+            {
+                if (IsSeeking == false) return;
+
+                if (PlayAfterSeek)
+                {
+                    MediaCore.Clock.Play();
+                    MediaCore.State.UpdateMediaState(PlaybackStatus.Play, MediaCore.WallClock);
+                }
+                else
+                {
+                    MediaCore.State.UpdateMediaState(PlaybackStatus.Pause, MediaCore.WallClock);
+                }
+
+                PlayAfterSeek = false;
+                IsSeeking = false;
+            }
+        }
 
         /// <summary>
         /// Clears the command queue.
@@ -459,6 +548,7 @@
         /// </summary>
         /// <param name="command">The command.</param>
         /// <returns>If direct command entering was successful</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool TryEnterDirectCommand(DirectCommandBase command)
         {
             lock (DirectLock)
@@ -490,6 +580,7 @@
         /// Prepares for direct command.
         /// </summary>
         /// <param name="commandType">Type of the command.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void PrepareForDirectCommand(CommandType commandType)
         {
             ClearQueuedCommands();
@@ -497,11 +588,26 @@
             // Signal the workers to stop
             if (commandType == CommandType.Close)
             {
+                IsSeeking = false;
+                PlayAfterSeek = false;
+
                 // Prepare for close command by signalling workers to stop
                 IsStopWorkersPending = true;
 
                 // Signal the reads to abort
                 MediaCore.Container?.SignalAbortReads(false);
+            }
+            else if (commandType == CommandType.Open)
+            {
+                IsSeeking = false;
+                PlayAfterSeek = false;
+            }
+            else if (commandType == CommandType.ChangeMedia)
+            {
+                // Signal the start of a changing event
+                // and check if we play after mediachanged
+                IsSeeking = true;
+                PlayAfterSeek = MediaCore.Clock.IsRunning;
             }
 
             // Wait for cycles to complete.
@@ -517,6 +623,7 @@
         /// Finalizes the direct command by performing command post-processing.
         /// </summary>
         /// <param name="command">The command.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void FinalizeDirectCommand(DirectCommandBase command)
         {
             lock (StatusLock)
@@ -532,7 +639,19 @@
                 DirectCommandEvent.Complete();
             }
 
-            command.PostProcess();
+            try
+            {
+                command.PostProcess();
+            }
+            catch
+            {
+                PlayAfterSeek = false;
+                throw;
+            }
+            finally
+            {
+                ResumePlayAfterSeek();
+            }
         }
 
         /// <summary>

@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME.Commands
 {
-    using Decoding;
     using Primitives;
     using Shared;
     using System;
@@ -12,8 +11,6 @@
     /// <seealso cref="DirectCommandBase" />
     internal sealed class DirectChangeCommand : DirectCommandBase
     {
-        private bool ResumeClock = default;
-        private PlaybackStatus MediaState = default;
         private Exception ErrorException = default;
 
         /// <summary>
@@ -42,9 +39,6 @@
             else
                 MediaCore.SendOnMediaFailed(ErrorException);
 
-            MediaCore.State.UpdateMediaState(MediaState, MediaCore.WallClock);
-            if (ResumeClock) MediaCore.Clock.Play();
-
             MediaCore.Log(MediaLogMessageType.Debug, $"Command {CommandType}: Completed");
         }
 
@@ -55,19 +49,13 @@
         {
             var m = MediaCore;
             m.Log(MediaLogMessageType.Debug, $"Command {CommandType}: Entered");
-            ResumeClock = false;
-            MediaState = m.State.MediaState;
 
             try
             {
                 m.State.UpdateMediaState(PlaybackStatus.Manual);
 
-                // Signal the start of a changing event
-                m.State.IsSeeking = true;
-
                 // Signal the start of a sync-buffering scenario
                 m.HasDecoderSeeked = true;
-                ResumeClock = m.Clock.IsRunning;
                 m.Clock.Pause();
 
                 // Wait for the cycles to complete
@@ -152,10 +140,6 @@
             catch (Exception ex)
             {
                 ErrorException = ex;
-            }
-            finally
-            {
-                m.State.IsSeeking = false;
             }
         }
     }

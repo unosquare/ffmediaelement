@@ -69,6 +69,11 @@
                         </DockPanel>
 
                         <DockPanel>
+                            <TextBlock Style="{StaticResource Key}">Is Seeking</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding IsSeeking, Mode=OneWay}" />
+                        </DockPanel>
+
+                        <DockPanel>
                             <TextBlock Style="{StaticResource Key}">Is Live Stream</TextBlock>
                             <TextBlock Style="{StaticResource Value}" Text="{Binding IsLiveStream, Mode=OneWay}" />
                         </DockPanel>
