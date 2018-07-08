@@ -171,13 +171,13 @@
   
   <a id="Unosquare_FFME_Events_RenderingAudioEventArgs_Buffer_" data-uid="Unosquare.FFME.Events.RenderingAudioEventArgs.Buffer*"></a>
   <h4 id="Unosquare_FFME_Events_RenderingAudioEventArgs_Buffer" data-uid="Unosquare.FFME.Events.RenderingAudioEventArgs.Buffer">Buffer</h4>
-  <div class="markdown level1 summary"><p>Gets a pointer to the samples buffer.
+  <div class="markdown level1 summary"><p>Gets a the raw data buffer going into the audio device.
 Samples are provided in PCM 16-bit signed, interleaved stereo.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IntPtr Buffer { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public byte[] Buffer { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -189,7 +189,7 @@ Samples are provided in PCM 16-bit signed, interleaved stereo.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.IntPtr</span></td>
+        <td><span class="xref">System.Byte</span>[]</td>
         <td></td>
       </tr>
     </tbody>
