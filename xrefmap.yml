@@ -852,6 +852,12 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.AudioCodec
   nameWithType: MediaElement.AudioCodec
+- uid: Unosquare.FFME.MediaElement.AudioDeviceStopped
+  name: AudioDeviceStopped
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_AudioDeviceStopped
+  commentId: E:Unosquare.FFME.MediaElement.AudioDeviceStopped
+  fullName: Unosquare.FFME.MediaElement.AudioDeviceStopped
+  nameWithType: MediaElement.AudioDeviceStopped
 - uid: Unosquare.FFME.MediaElement.AudioSampleRate
   name: AudioSampleRate
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_AudioSampleRate
