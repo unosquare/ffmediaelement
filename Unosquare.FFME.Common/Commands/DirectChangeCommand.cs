@@ -54,7 +54,6 @@
         protected override void PerformActions()
         {
             var m = MediaCore;
-            var frame = default(MediaFrame);
             m.Log(MediaLogMessageType.Debug, $"Command {CommandType}: Entered");
             ResumeClock = false;
             MediaState = m.State.MediaState;
@@ -89,18 +88,25 @@
                 // Recreate selected streams as media components
                 var mediaTypes = m.Container.UpdateComponents();
 
-                // remove all exiting component blocks and renderers that no longer exist
+                // find all existing component blocks and renderers that no longer exist
+                // We always remove the audio component in case there is a change in audio device
                 var removableMediaTypes = oldMediaTypes
-                    .Where(t => mediaTypes.Contains(t) == false).ToArray();
+                    .Where(t => mediaTypes.Contains(t) == false)
+                    .Union(new[] { MediaType.Audio })
+                    .Distinct()
+                    .ToArray();
 
+                // find all existing component blocks and renderers that no longer exist
                 foreach (var t in removableMediaTypes)
                 {
+                    // Remove the renderer for the component
                     if (m.Renderers.ContainsKey(t))
                     {
                         m.Renderers[t].Close();
                         m.Renderers.Remove(t);
                     }
 
+                    // Remove the block buffer for the component
                     if (m.Blocks.ContainsKey(t))
                     {
                         m.Blocks[t]?.Dispose();
@@ -121,7 +127,8 @@
                     m.Renderers[t].WaitForReadyState();
                 }
 
-                // Mark a seek operation in order to invalidate renderers
+                // Depending on whether or not the media is seekable
+                // perform either a seek operation or a quick buffering operation.
                 if (m.State.IsSeekable)
                 {
                     // Let's simply do an automated seek
@@ -129,58 +136,18 @@
                     seekCommand.Execute();
                     return;
                 }
-
-                // We need to perform some packet reading and decoding
-                var main = m.Container.Components.Main.MediaType;
-                var auxs = m.Container.Components.MediaTypes.Except(main);
-
-                // Read and decode blocks until the main component is half full
-                while (m.ShouldReadMorePackets && m.CanReadMorePackets)
+                else
                 {
-                    // Read some packets
-                    m.Container.Read();
+                    // Let's perform quick-buffering
+                    m.Container.Components.RunQuickBuffering(m);
 
-                    // Decode frames and add the blocks
+                    // Mark the renderers as invalidated
                     foreach (var t in mediaTypes)
-                    {
-                        frame = m.Container.Components[t].ReceiveNextFrame();
-                        m.Blocks[t].Add(frame, m.Container);
-                    }
+                        m.InvalidateRenderer(t);
 
-                    // Check if we have at least a half a buffer on main
-                    if (m.Blocks[main].CapacityPercent >= 0.5)
-                        break;
+                    // Mark a seek operation in order to invalidate renderers
+                    m.HasDecoderSeeked = true;
                 }
-
-                // Check if we have a valid range. If not, just set it what the main component is dictating
-                if (m.Blocks[main].Count > 0 && m.Blocks[main].IsInRange(m.WallClock) == false)
-                    m.Clock.Update(m.Blocks[main].RangeStartTime);
-
-                // Have the other components catch up
-                foreach (var t in auxs)
-                {
-                    if (m.Blocks[main].Count <= 0) break;
-                    if (t != MediaType.Audio && t != MediaType.Video)
-                        continue;
-
-                    while (m.Blocks[t].RangeEndTime < m.Blocks[main].RangeEndTime)
-                    {
-                        if (m.ShouldReadMorePackets == false || m.CanReadMorePackets == false)
-                            break;
-
-                        // Read some packets
-                        m.Container.Read();
-
-                        // Decode frames and add the blocks
-                        frame = m.Container.Components[t].ReceiveNextFrame();
-                        m.Blocks[t].Add(frame, m.Container);
-                    }
-                }
-
-                foreach (var t in mediaTypes)
-                    m.InvalidateRenderer(t);
-
-                m.HasDecoderSeeked = true;
             }
             catch (Exception ex)
             {

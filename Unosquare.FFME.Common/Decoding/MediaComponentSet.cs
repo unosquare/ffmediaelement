@@ -6,6 +6,7 @@
     using System;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// Represents a set of Audio, Video and Subtitle components.
@@ -285,6 +286,64 @@
         #endregion
 
         #region Helper Methods
+
+        /// <summary>
+        /// Runs quick buffering logic on a single thread.
+        /// This assumes no reading, decoding, or rendering is taking place at the time of the call.
+        /// </summary>
+        /// <param name="m">The media core engine.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void RunQuickBuffering(MediaEngine m)
+        {
+            // We need to perform some packet reading and decoding
+            var frame = default(MediaFrame);
+            var main = Main.MediaType;
+            var auxs = MediaTypes.Except(main);
+            var mediaTypes = MediaTypes;
+
+            // Read and decode blocks until the main component is half full
+            while (m.ShouldReadMorePackets && m.CanReadMorePackets)
+            {
+                // Read some packets
+                m.Container.Read();
+
+                // Decode frames and add the blocks
+                foreach (var t in mediaTypes)
+                {
+                    frame = this[t].ReceiveNextFrame();
+                    m.Blocks[t].Add(frame, m.Container);
+                }
+
+                // Check if we have at least a half a buffer on main
+                if (m.Blocks[main].CapacityPercent >= 0.5)
+                    break;
+            }
+
+            // Check if we have a valid range. If not, just set it what the main component is dictating
+            if (m.Blocks[main].Count > 0 && m.Blocks[main].IsInRange(m.WallClock) == false)
+                m.Clock.Update(m.Blocks[main].RangeStartTime);
+
+            // Have the other components catch up
+            foreach (var t in auxs)
+            {
+                if (m.Blocks[main].Count <= 0) break;
+                if (t != MediaType.Audio && t != MediaType.Video)
+                    continue;
+
+                while (m.Blocks[t].RangeEndTime < m.Blocks[main].RangeEndTime)
+                {
+                    if (m.ShouldReadMorePackets == false || m.CanReadMorePackets == false)
+                        break;
+
+                    // Read some packets
+                    m.Container.Read();
+
+                    // Decode frames and add the blocks
+                    frame = this[t].ReceiveNextFrame();
+                    m.Blocks[t].Add(frame, m.Container);
+                }
+            }
+        }
 
         /// <summary>
         /// Removes the component of specified media type (if registered).
