@@ -289,6 +289,12 @@
         /// </summary>
         public TimeSpan MediaStartTimeOffset { get; private set; }
 
+        /// <summary>
+        /// Gets or sets a packet read callback.
+        /// This method is whenever a packet is read.
+        /// </summary>
+        public Action<IntPtr> PacketReadCallback { get; set; }
+
         #endregion
 
         #region Internal Properties
@@ -990,6 +996,10 @@
                 {
                     RC.Current.Remove(readPacket);
                     ffmpeg.av_packet_free(&readPacket);
+                }
+                else
+                {
+                    PacketReadCallback?.Invoke(new IntPtr(readPacket));
                 }
 
                 return componentType;

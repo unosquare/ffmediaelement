@@ -18,6 +18,7 @@
 
         private readonly List<CommandBase> CommandQueue = new List<CommandBase>(32);
         private readonly IWaitEvent DirectCommandEvent = null;
+        private readonly IWaitEvent SeekingDone = null;
         private readonly AtomicBoolean m_IsStopWorkersPending = new AtomicBoolean(false);
         private readonly AtomicBoolean m_IsSeeking = new AtomicBoolean(false);
 
@@ -46,6 +47,7 @@
         public CommandManager(MediaEngine mediaCore)
         {
             DirectCommandEvent = WaitEventFactory.Create(isCompleted: true, useSlim: true);
+            SeekingDone = WaitEventFactory.Create(isCompleted: true, useSlim: true);
             MediaCore = mediaCore;
         }
 
@@ -95,6 +97,13 @@
             get => m_IsSeeking.Value == true;
             private set => m_IsSeeking.Value = value;
         }
+
+        /// <summary>
+        /// Gets a value indicating whether a seek command is currently executing.
+        /// This differs from the <see cref="IsSeeking"/> property as this is the realtime
+        /// state of a seek operation as opposed to a general, delayed state of the command manager.
+        /// </summary>
+        public bool IsActivelySeeking { get => SeekingDone.IsInProgress; }
 
         /// <summary>
         /// Gets a value indicating whether Reading, Decoding and Rendering workers are
@@ -256,7 +265,13 @@
         /// Waits for any current direct command to finish execution.
         /// </summary>
         public void WaitForDirectCommand() =>
-                    DirectCommandEvent.Wait();
+            DirectCommandEvent.Wait();
+
+        /// <summary>
+        /// Waits for an active seek command (if any) to complete.
+        /// </summary>
+        public void WaitForActiveSeekCommand() =>
+            SeekingDone.Wait();
 
         /// <summary>
         /// Executes the next command in the queued.
@@ -279,10 +294,22 @@
                 }
             }
 
-            try { command?.Execute(); }
+            try
+            {
+                if (command != null)
+                {
+                    // Initiate a seek cycle
+                    if (command.CommandType == CommandType.Seek)
+                        SeekingDone.Begin();
+
+                    // Execute the command synchronously
+                    command?.Execute();
+                }
+            }
             catch { throw; }
             finally
             {
+                SeekingDone.Complete();
                 lock (QueueLock)
                 {
                     DetectSeekingEnded();
@@ -590,6 +617,7 @@
             {
                 IsSeeking = false;
                 PlayAfterSeek = false;
+                SeekingDone.Complete();
 
                 // Prepare for close command by signalling workers to stop
                 IsStopWorkersPending = true;
@@ -601,11 +629,13 @@
             {
                 IsSeeking = false;
                 PlayAfterSeek = false;
+                SeekingDone.Complete();
             }
             else if (commandType == CommandType.ChangeMedia)
             {
                 // Signal the start of a changing event
                 // and check if we play after mediachanged
+                SeekingDone.Begin();
                 IsSeeking = true;
                 PlayAfterSeek = MediaCore.Clock.IsRunning;
             }
@@ -650,6 +680,7 @@
             }
             finally
             {
+                SeekingDone.Complete();
                 ResumePlayAfterSeek();
             }
         }
@@ -683,6 +714,7 @@
 
                 // Dispose of additional resources.
                 DirectCommandEvent?.Dispose();
+                SeekingDone?.Dispose();
             }
         }
 

@@ -45,8 +45,8 @@
             var m = MediaCore;
             m.Clock.Pause();
             var initialPosition = m.WallClock;
+            var hasDecoderSeeked = false;
             m.State.UpdateMediaState(PlaybackStatus.Manual);
-            m.SeekingDone.Begin();
             var startTime = DateTime.UtcNow;
 
             try
@@ -63,9 +63,8 @@
                     return;
                 }
 
-                // Signal to wait one more frame decoding cycle before
-                // sending blocks to the renderer.
-                m.HasDecoderSeeked = true;
+                // Mark for debugger output
+                hasDecoderSeeked = true;
 
                 // wait for the current reading and decoding cycles
                 // to finish. We don't want to interfere with reading in progress
@@ -149,13 +148,11 @@
             }
             finally
             {
-                if (m.HasDecoderSeeked)
+                if (hasDecoderSeeked)
                 {
                     m.Log(MediaLogMessageType.Debug,
                         $"SEEK D: Elapsed: {startTime.FormatElapsed()} | Target: {TargetPosition.Format()}");
                 }
-
-                m.SeekingDone.Complete();
             }
         }
     }

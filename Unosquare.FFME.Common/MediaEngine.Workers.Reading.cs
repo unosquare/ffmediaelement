@@ -23,10 +23,6 @@
             // State variables for media types
             var t = MediaType.None;
 
-            // Store Container in local variable to prevent NullReferenceException
-            // when dispose occurs sametime with read cycle
-            var mediaContainer = Container;
-
             #endregion
 
             #region Worker Loop
@@ -44,25 +40,27 @@
                     }
 
                     // Wait for seeking or changing to be done.
-                    SeekingDone.Wait();
+                    Commands.WaitForActiveSeekCommand();
 
                     // Enter a packet reading cycle
                     PacketReadingCycle.Begin();
 
                     // Initialize Packets read to 0 for each component and state variables
-                    foreach (var k in mediaContainer.Components.MediaTypes)
+                    foreach (var k in Container.Components.MediaTypes)
                         packetsRead[k] = 0;
 
                     // Start to perform the read loop
                     // NOTE: Disrupting the packet reader causes errors in UPD streams. Disrupt as little as possible
-                    while (ShouldReadMorePackets && CanReadMorePackets)
+                    while (ShouldReadMorePackets
+                        && CanReadMorePackets
+                        && Commands.IsActivelySeeking == false)
                     {
                         // Perform a packet read. t will hold the packet type.
-                        try { t = mediaContainer.Read(); }
+                        try { t = Container.Read(); }
                         catch (MediaContainerException) { continue; }
 
                         // Discard packets that we don't need (i.e. MediaType == None)
-                        if (mediaContainer.Components.MediaTypes.HasMediaType(t) == false)
+                        if (Container.Components.MediaTypes.HasMediaType(t) == false)
                             continue;
 
                         // Update the packet count for the components
@@ -76,8 +74,8 @@
                     // finish the reading cycle.
                     PacketReadingCycle.Complete();
 
-                    // Don't evaluate a pause condition if we are seeking
-                    if (SeekingDone.IsInProgress)
+                    // Don't evaluate a pause/delay condition if we are seeking
+                    if (Commands.IsActivelySeeking)
                         continue;
 
                     // Wait some if we have a full packet buffer or we are unable to read more packets (i.e. EOF).

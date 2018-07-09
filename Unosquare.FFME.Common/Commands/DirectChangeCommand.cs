@@ -55,7 +55,6 @@
                 m.State.UpdateMediaState(PlaybackStatus.Manual);
 
                 // Signal the start of a sync-buffering scenario
-                m.HasDecoderSeeked = true;
                 m.Clock.Pause();
 
                 // Wait for the cycles to complete
@@ -132,9 +131,6 @@
                     // Mark the renderers as invalidated
                     foreach (var t in mediaTypes)
                         m.InvalidateRenderer(t);
-
-                    // Mark a seek operation in order to invalidate renderers
-                    m.HasDecoderSeeked = true;
                 }
             }
             catch (Exception ex)

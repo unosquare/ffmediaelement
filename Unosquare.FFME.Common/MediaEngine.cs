@@ -60,7 +60,7 @@
         /// This is different from the position property and it is useful
         /// in computing things like real-time latency in a render cycle.
         /// </summary>
-        public TimeSpan WallClock => State.IsOpen ? Clock.Position : TimeSpan.Zero;
+        public TimeSpan WallClock => State.IsOpen || State.IsOpening ? Clock.Position : TimeSpan.Zero;
 
         /// <summary>
         /// Provides stream, chapter and program info of the underlying media.
@@ -147,7 +147,6 @@
                     PacketReadingCycle.Dispose();
                     FrameDecodingCycle.Dispose();
                     BlockRenderingCycle.Dispose();
-                    SeekingDone.Dispose();
                 }
                 catch { throw; }
                 finally

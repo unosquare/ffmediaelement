@@ -21,8 +21,6 @@
         private Thread PacketReadingTask = null;
         private Thread FrameDecodingTask = null;
         private Timer BlockRenderingWorker = null;
-
-        private AtomicBoolean m_HasDecoderSeeked = new AtomicBoolean(false);
         private IWaitEvent BlockRenderingWorkerExit = null;
 
         /// <summary>
@@ -38,32 +36,17 @@
         /// <summary>
         /// Gets the packet reading cycle control evenet.
         /// </summary>
-        internal IWaitEvent PacketReadingCycle { get; } = WaitEventFactory.Create(isCompleted: false, useSlim: false);
+        internal IWaitEvent PacketReadingCycle { get; } = WaitEventFactory.Create(isCompleted: false, useSlim: true);
 
         /// <summary>
         /// Gets the frame decoding cycle control event.
         /// </summary>
-        internal IWaitEvent FrameDecodingCycle { get; } = WaitEventFactory.Create(isCompleted: false, useSlim: false);
+        internal IWaitEvent FrameDecodingCycle { get; } = WaitEventFactory.Create(isCompleted: false, useSlim: true);
 
         /// <summary>
         /// Gets the block rendering cycle control event.
         /// </summary>
-        internal IWaitEvent BlockRenderingCycle { get; } = WaitEventFactory.Create(isCompleted: false, useSlim: false);
-
-        /// <summary>
-        /// Gets the seeking done control event.
-        /// </summary>
-        internal IWaitEvent SeekingDone { get; } = WaitEventFactory.Create(isCompleted: true, useSlim: false);
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the decoder has moved its byte position
-        /// to something other than the normal continuous reads in the last read cycle.
-        /// </summary>
-        internal bool HasDecoderSeeked
-        {
-            get => m_HasDecoderSeeked.Value;
-            set => m_HasDecoderSeeked.Value = value;
-        }
+        internal IWaitEvent BlockRenderingCycle { get; } = WaitEventFactory.Create(isCompleted: false, useSlim: true);
 
         /// <summary>
         /// Holds the block renderers
@@ -128,7 +111,6 @@
             Commands.IsStopWorkersPending = false;
 
             // Set the initial state of the task cycles.
-            SeekingDone.Complete();
             BlockRenderingCycle.Complete();
             FrameDecodingCycle.Begin();
             PacketReadingCycle.Begin();

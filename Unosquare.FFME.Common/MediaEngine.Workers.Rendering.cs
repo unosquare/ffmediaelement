@@ -76,8 +76,7 @@
                     #region 1. Control and Capture
 
                     // Wait for the seek op to finish before we capture blocks
-                    if (HasDecoderSeeked)
-                        SeekingDone.Wait();
+                    Commands.WaitForActiveSeekCommand();
 
                     // Signal the start of a block rendering cycle
                     BlockRenderingCycle.Begin();

@@ -56,16 +56,16 @@
                         if (Commands.IsChanging) Commands.WaitForDirectCommand();
                     }
 
-                    // Signal a Seek starting operation
-                    FrameDecodingCycle.Begin();
+                    // Update state properties -- this must be after processing commanmds as
+                    // a direct command might have changed the components
+                    main = Container.Components.Main.MediaType;
+                    auxs = Container.Components.MediaTypes.Except(main);
 
                     // Execute the following command at the beginning of the cycle
                     Commands.ExecuteNextQueuedCommand();
 
-                    // Update state properties -- this must be after processing commanmds as
-                    // a command might have changed the components
-                    main = Container.Components.Main.MediaType;
-                    auxs = Container.Components.MediaTypes.Except(main);
+                    // Signal a Seek starting operation
+                    FrameDecodingCycle.Begin();
 
                     // Set initial state
                     wallClock = WallClock;
@@ -93,7 +93,6 @@
                         if (isInRange == false)
                         {
                             // Signal the start of a sync-buffering scenario
-                            HasDecoderSeeked = true;
                             isBuffering = true;
                             resumeClock = Clock.IsRunning;
                             Clock.Pause();
@@ -265,9 +264,6 @@
 
                     // If not already set, guess the 1-second buffer length
                     State.GuessBufferingProperties();
-
-                    // After a seek operation, always reset the has seeked flag.
-                    HasDecoderSeeked = false;
 
                     // Complete the frame decoding cycle
                     FrameDecodingCycle.Complete();

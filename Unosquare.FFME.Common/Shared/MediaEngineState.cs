@@ -312,7 +312,7 @@
         /// <summary>
         /// Get a value indicating whether the media is buffering.
         /// </summary>
-        public bool IsBuffering { get; internal set; } = default;
+        public bool IsBuffering { get; private set; } = default;
 
         /// <summary>
         /// Returns the current video SMTPE timecode if available.
@@ -526,21 +526,18 @@
                 1d, Math.Round(packetBufferLength / DownloadCacheLength, 3)) : 0;
 
             // IsBuffering and BufferingProgress
-            if (HasMediaEnded == false && Parent.CanReadMorePackets && (IsOpening || IsOpen))
-            {
-                var wasBuffering = IsBuffering;
-                var isNowBuffering = packetBufferLength < BufferCacheLength;
-                IsBuffering = isNowBuffering;
+            var wasBuffering = IsBuffering;
 
-                if (wasBuffering == false && isNowBuffering)
-                    Parent.SendOnBufferingStarted();
-                else if (wasBuffering && isNowBuffering == false)
-                    Parent.SendOnBufferingEnded();
-            }
-            else
-            {
-                IsBuffering = false;
-            }
+            // Compute the new state
+            IsBuffering = packetBufferLength < BufferCacheLength
+                && HasMediaEnded == false
+                && Parent.CanReadMorePackets
+                && (IsOpening || IsOpen);
+
+            if (wasBuffering == false && IsBuffering)
+                Parent.SendOnBufferingStarted();
+            else if (wasBuffering && IsBuffering == false)
+                Parent.SendOnBufferingEnded();
         }
 
         /// <summary>
