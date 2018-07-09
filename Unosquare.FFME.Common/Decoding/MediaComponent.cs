@@ -342,11 +342,8 @@
             // Release packets that are already in the queue.
             Packets.Clear();
 
-            if (flushBuffers && CodecContext != null)
-            {
-                HasCodecPackets = false;
-                ffmpeg.avcodec_flush_buffers(CodecContext);
-            }
+            if (flushBuffers)
+                FlushCodecBuffers();
         }
 
         /// <summary>
@@ -471,6 +468,18 @@
         }
 
         /// <summary>
+        /// Flushes the codec buffers.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void FlushCodecBuffers()
+        {
+            if (CodecContext != null)
+                ffmpeg.avcodec_flush_buffers(CodecContext);
+
+            HasCodecPackets = false;
+        }
+
+        /// <summary>
         /// Feeds the packets to decoder.
         /// </summary>
         /// <param name="fillDecoderBuffer">if set to <c>true</c> fills the decoder buffer with packets.</param>
@@ -486,8 +495,7 @@
                 var packet = Packets.Peek();
                 if (IsFlushPacket(packet))
                 {
-                    HasCodecPackets = false;
-                    ffmpeg.avcodec_flush_buffers(CodecContext);
+                    FlushCodecBuffers();
                     packet = Packets.Dequeue();
                     PacketQueue.ReleasePacket(packet);
                     continue;
@@ -537,10 +545,7 @@
                 MediaFrame.ReleaseAVFrame(outputFrame);
 
             if (receiveFrameResult == ffmpeg.AVERROR_EOF)
-            {
-                HasCodecPackets = false;
-                ffmpeg.avcodec_flush_buffers(CodecContext);
-            }
+                FlushCodecBuffers();
 
             if (receiveFrameResult == -ffmpeg.EAGAIN)
                 HasCodecPackets = false;
