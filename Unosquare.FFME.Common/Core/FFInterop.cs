@@ -223,13 +223,13 @@
             AVCodec* item;
             while ((item = ffmpeg.av_codec_iterate(&iterator)) != null)
             {
-                result.Add(new IntPtr(item));
+                result.Add((IntPtr)item);
             }
 
             var collection = new AVCodec*[result.Count];
             for (var i = 0; i < result.Count; i++)
             {
-                collection[i] = (AVCodec*)result[i].ToPointer();
+                collection[i] = (AVCodec*)result[i];
             }
 
             return collection;

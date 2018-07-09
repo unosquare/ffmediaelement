@@ -258,7 +258,7 @@
         protected override unsafe MediaFrame CreateFrameSource(IntPtr framePointer)
         {
             // Validate the video frame
-            var frame = (AVFrame*)framePointer.ToPointer();
+            var frame = (AVFrame*)framePointer;
             if (frame == null || frame->width <= 0 || frame->height <= 0)
                 return null;
 

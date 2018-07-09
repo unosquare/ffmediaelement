@@ -583,7 +583,7 @@
             var managedFrame = default(MediaFrame);
             var packet = PacketQueue.CreateEmptyPacket(Stream->index);
             var gotFrame = 0;
-            var outputFrame = SubtitleFrame.CreateAVSubtitle();
+            var outputFrame = MediaFrame.CreateAVSubtitle();
             var receiveFrameResult = ffmpeg.avcodec_decode_subtitle2(CodecContext, outputFrame, &gotFrame, packet);
 
             // If we don't get a frame from flushing. Feed the packet into the decoder and try getting a frame.
@@ -597,7 +597,7 @@
 
             // If we got a frame, turn into a managed frame
             if (gotFrame != 0)
-                managedFrame = CreateFrameSource(new IntPtr(outputFrame));
+                managedFrame = CreateFrameSource((IntPtr)outputFrame);
 
             // Free the packet if we have allocated it
             if (packet != null)
@@ -605,7 +605,7 @@
 
             // deallocate the subtitle frame if we did not associate it with a managed frame.
             if (managedFrame == null)
-                SubtitleFrame.ReleaseAVSubtitle(outputFrame);
+                MediaFrame.ReleaseAVSubtitle(outputFrame);
 
             if (receiveFrameResult < 0)
                 HasCodecPackets = false;

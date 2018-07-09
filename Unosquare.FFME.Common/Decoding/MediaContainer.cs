@@ -992,7 +992,7 @@
                 if (componentType == MediaType.None)
                     PacketQueue.ReleasePacket(readPacket);
                 else
-                    PacketReadCallback?.Invoke(new IntPtr(readPacket));
+                    PacketReadCallback?.Invoke((IntPtr)readPacket);
 
                 return componentType;
             }

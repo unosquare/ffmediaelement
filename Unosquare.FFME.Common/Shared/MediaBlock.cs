@@ -182,7 +182,7 @@
                 {
                     using (writeLock)
                     {
-                        m_Buffer = new IntPtr(ffmpeg.av_malloc((ulong)bufferLength));
+                        m_Buffer = (IntPtr)ffmpeg.av_malloc((ulong)bufferLength);
                         m_BufferLength = bufferLength;
                         return true;
                     }
@@ -222,7 +222,7 @@
         {
             if (m_Buffer == IntPtr.Zero) return;
 
-            ffmpeg.av_free(m_Buffer.ToPointer());
+            ffmpeg.av_free((void*)m_Buffer);
             m_Buffer = IntPtr.Zero;
             m_BufferLength = default;
         }

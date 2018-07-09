@@ -20,7 +20,7 @@
         /// <summary>
         /// The flush packet data pointer
         /// </summary>
-        internal static readonly IntPtr FlushPacketData = new IntPtr(ffmpeg.av_malloc(0));
+        internal static readonly IntPtr FlushPacketData = (IntPtr)ffmpeg.av_malloc(0);
 
         private readonly List<IntPtr> PacketPointers = new List<IntPtr>(2048);
         private ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);

@@ -178,7 +178,7 @@
         /// <returns>The managed frame</returns>
         protected override unsafe MediaFrame CreateFrameSource(IntPtr framePointer)
         {
-            var frame = (AVSubtitle*)framePointer.ToPointer();
+            var frame = (AVSubtitle*)framePointer;
             var frameHolder = new SubtitleFrame(frame, this);
             return frameHolder;
         }

@@ -402,7 +402,7 @@
             var timeCodeBuffer = (byte*)ffmpeg.av_malloc(ffmpeg.AV_TIMECODE_STR_SIZE);
 
             ffmpeg.av_timecode_make_smpte_tc_string(timeCodeBuffer, timeCode, 1);
-            var result = Marshal.PtrToStringAnsi(new IntPtr(timeCodeBuffer));
+            var result = Marshal.PtrToStringAnsi((IntPtr)timeCodeBuffer);
 
             ffmpeg.av_free(timeCodeInfo);
             ffmpeg.av_free(timeCodeBuffer);

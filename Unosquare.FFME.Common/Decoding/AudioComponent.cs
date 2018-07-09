@@ -128,7 +128,7 @@
             {
                 using (writeLock)
                 {
-                    var outputBufferPtr = (byte*)target.Buffer.ToPointer();
+                    var outputBufferPtr = (byte*)target.Buffer;
 
                     // Execute the conversion (audio scaling). It will return the number of samples that were output
                     outputSamplesPerChannel = ffmpeg.swr_convert(
@@ -188,7 +188,7 @@
         protected override unsafe MediaFrame CreateFrameSource(IntPtr framePointer)
         {
             // Validate the audio frame
-            var frame = (AVFrame*)framePointer.ToPointer();
+            var frame = (AVFrame*)framePointer;
             if (frame == null || (*frame).extended_data == null || frame->channels <= 0 ||
                 frame->nb_samples <= 0 || frame->sample_rate <= 0)
             {
