@@ -532,7 +532,7 @@
             IsBuffering = packetBufferLength < BufferCacheLength
                 && HasMediaEnded == false
                 && Parent.CanReadMorePackets
-                && (IsOpening || IsOpen);
+                && (IsChanging || IsOpening || IsOpen);
 
             if (wasBuffering == false && IsBuffering)
                 Parent.SendOnBufferingStarted();
