@@ -5,7 +5,6 @@
     using Shared;
     using System;
     using System.Collections.Generic;
-    using System.Runtime.InteropServices;
 
     /// <summary>
     /// Represents a wrapper for an unmanaged Subtitle frame.
@@ -113,26 +112,6 @@
         public override void Dispose() =>
             Dispose(true);
 
-        /// <summary>
-        /// Allocates an AVSubtitle struct in unmanaged memory,
-        /// </summary>
-        /// <returns>The subtitle struct pointer</returns>
-        internal static AVSubtitle* AllocateSubtitle()
-        {
-            return (AVSubtitle*)ffmpeg.av_malloc((ulong)Marshal.SizeOf(typeof(AVSubtitle)));
-        }
-
-        /// <summary>
-        /// Deallocates the subtitle struct used to create in managed memory.
-        /// </summary>
-        /// <param name="frame">The frame.</param>
-        internal static void DeallocateSubtitle(AVSubtitle* frame)
-        {
-            if (frame == null) return;
-            ffmpeg.avsubtitle_free(frame);
-            ffmpeg.av_free(frame);
-        }
-
         #endregion
 
         #region IDisposable Support
@@ -148,7 +127,7 @@
                 if (IsDisposed) return;
 
                 if (m_Pointer != null)
-                    DeallocateSubtitle(m_Pointer);
+                    ReleaseAVSubtitle(m_Pointer);
 
                 m_Pointer = null;
                 InternalPointer = null;

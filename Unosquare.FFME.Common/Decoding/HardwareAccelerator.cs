@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
-    using Core;
     using FFmpeg.AutoGen;
     using Shared;
     using System;
@@ -143,19 +142,17 @@
             if (input->format != (int)PixelFormat)
                 return input;
 
-            var output = ffmpeg.av_frame_alloc();
+            var output = MediaFrame.CreateAVFrame();
 
             var result = ffmpeg.av_hwframe_transfer_data(output, input, 0);
             ffmpeg.av_frame_copy_props(output, input);
             if (result < 0)
             {
-                ffmpeg.av_frame_free(&output);
+                MediaFrame.ReleaseAVFrame(output);
                 throw new Exception("Failed to transfer data to output frame");
             }
 
-            RC.Current.Remove((IntPtr)input);
-            ffmpeg.av_frame_free(&input);
-            RC.Current.Add(output, $"86: {nameof(HardwareAccelerator)}[{PixelFormat}].{nameof(ExchangeFrame)}()");
+            MediaFrame.ReleaseAVFrame(input);
 
             return output;
         }

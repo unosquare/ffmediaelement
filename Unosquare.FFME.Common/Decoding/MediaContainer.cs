@@ -941,8 +941,7 @@
 
             if (StateRequiresPictureAttachments)
             {
-                var attachedPacket = ffmpeg.av_packet_clone(&Components.Video.Stream->attached_pic);
-                RC.Current.Add(attachedPacket, $"710: {nameof(MediaComponent)}.{nameof(StreamRead)}()");
+                var attachedPacket = PacketQueue.ClonePacket(&Components.Video.Stream->attached_pic);
                 if (attachedPacket != null)
                 {
                     Components.Video.SendPacket(attachedPacket);
@@ -953,8 +952,7 @@
             }
 
             // Allocate the packet to read
-            var readPacket = ffmpeg.av_packet_alloc();
-            RC.Current.Add(readPacket, $"725: {nameof(MediaComponent)}.{nameof(StreamRead)}()");
+            var readPacket = PacketQueue.CreateReadPacket();
             StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
             var readResult = ffmpeg.av_read_frame(InputContext, readPacket);
             StateLastReadTimeUtc = DateTime.UtcNow;
@@ -962,8 +960,7 @@
             if (readResult < 0)
             {
                 // Handle failed packet reads. We don't need the allocated packet anymore
-                RC.Current.Remove(readPacket);
-                ffmpeg.av_packet_free(&readPacket);
+                PacketQueue.ReleasePacket(readPacket);
 
                 // Detect an end of file situation (makes the readers enter draining mode)
                 if (readResult == ffmpeg.AVERROR_EOF || ffmpeg.avio_feof(InputContext->pb) != 0)
@@ -993,14 +990,9 @@
 
                 // Discard the packet -- it was not accepted by any component
                 if (componentType == MediaType.None)
-                {
-                    RC.Current.Remove(readPacket);
-                    ffmpeg.av_packet_free(&readPacket);
-                }
+                    PacketQueue.ReleasePacket(readPacket);
                 else
-                {
                     PacketReadCallback?.Invoke(new IntPtr(readPacket));
-                }
 
                 return componentType;
             }

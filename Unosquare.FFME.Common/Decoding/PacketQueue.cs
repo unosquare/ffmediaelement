@@ -5,6 +5,7 @@
     using Primitives;
     using System;
     using System.Collections.Generic;
+    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// A data structure containing a quque of packets to process.
@@ -15,6 +16,11 @@
     internal sealed unsafe class PacketQueue : IDisposable
     {
         #region Private Declarations
+
+        /// <summary>
+        /// The flush packet data pointer
+        /// </summary>
+        internal static readonly IntPtr FlushPacketData = new IntPtr(ffmpeg.av_malloc(0));
 
         private readonly List<IntPtr> PacketPointers = new List<IntPtr>(2048);
         private ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
@@ -119,8 +125,7 @@
                 while (PacketPointers.Count > 0)
                 {
                     var packet = Dequeue();
-                    RC.Current.Remove(packet);
-                    ffmpeg.av_packet_free(&packet);
+                    ReleasePacket(packet);
                 }
 
                 m_BufferLength = 0;
@@ -136,6 +141,82 @@
         /// </summary>
         public void Dispose() =>
             Dispose(true);
+
+        /// <summary>
+        /// Releases the packet from memory
+        /// </summary>
+        /// <param name="packet">The packet.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void ReleasePacket(AVPacket* packet)
+        {
+            RC.Current.Remove(packet);
+            ffmpeg.av_packet_free(&packet);
+        }
+
+        /// <summary>
+        /// Create a new packet that references the same data as the source packet.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <returns>A clone of the packet</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static AVPacket* ClonePacket(AVPacket* source)
+        {
+            var packet = ffmpeg.av_packet_clone(source);
+            RC.Current.Add(packet, $"160: {nameof(PacketQueue)}.{nameof(ClonePacket)}()");
+            return packet;
+        }
+
+        /// <summary>
+        /// Allocates a default readable packet
+        /// </summary>
+        /// <returns>
+        /// A packet used for receiving data
+        /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static AVPacket* CreateReadPacket()
+        {
+            var packet = ffmpeg.av_packet_alloc();
+            RC.Current.Add(packet, $"174: {nameof(PacketQueue)}.{nameof(CreateReadPacket)}()");
+            return packet;
+        }
+
+        /// <summary>
+        /// Creates the empty packet.
+        /// </summary>
+        /// <param name="streamIndex">The stream index this packet belongs to.</param>
+        /// <returns>
+        /// The special empty packet that instructs the decoder to enter draining mode
+        /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static AVPacket* CreateEmptyPacket(int streamIndex)
+        {
+            var packet = ffmpeg.av_packet_alloc();
+            RC.Current.Add(packet, $"184: {nameof(PacketQueue)}.{nameof(CreateEmptyPacket)}({streamIndex})");
+            ffmpeg.av_init_packet(packet);
+            packet->data = null;
+            packet->size = 0;
+            packet->stream_index = streamIndex;
+
+            return packet;
+        }
+
+        /// <summary>
+        /// Creates a flush packet.
+        /// </summary>
+        /// <param name="streamIndex">The stream index this packet belongs to.</param>
+        /// <returns>A special packet that makes the decoder flush its buffers</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static AVPacket* CreateFlushPacket(int streamIndex)
+        {
+            var packet = ffmpeg.av_packet_alloc();
+            RC.Current.Add(packet, $"202: {nameof(PacketQueue)}.{nameof(CreateFlushPacket)}({streamIndex})");
+            ffmpeg.av_init_packet(packet);
+            packet->data = (byte*)FlushPacketData;
+            packet->size = 0;
+            packet->stream_index = streamIndex;
+
+            return packet;
+        }
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.

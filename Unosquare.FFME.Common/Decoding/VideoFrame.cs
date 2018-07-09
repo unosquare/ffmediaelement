@@ -1,7 +1,6 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
     using ClosedCaptions;
-    using Core;
     using FFmpeg.AutoGen;
     using Shared;
     using System;
@@ -137,13 +136,7 @@
                 if (IsDisposed) return;
 
                 if (m_Pointer != null)
-                {
-                    fixed (AVFrame** pointer = &m_Pointer)
-                    {
-                        RC.Current.Remove(*pointer);
-                        ffmpeg.av_frame_free(pointer);
-                    }
-                }
+                    ReleaseAVFrame(m_Pointer);
 
                 m_Pointer = null;
                 InternalPointer = null;
