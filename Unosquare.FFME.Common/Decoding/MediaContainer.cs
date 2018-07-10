@@ -289,12 +289,6 @@
         /// </summary>
         public TimeSpan MediaStartTimeOffset { get; private set; }
 
-        /// <summary>
-        /// Gets or sets a packet read callback.
-        /// This method is whenever a packet is read.
-        /// </summary>
-        public Action<IntPtr> PacketReadCallback { get; set; }
-
         #endregion
 
         #region Internal Properties
@@ -992,9 +986,7 @@
                 if (componentType == MediaType.None)
                     PacketQueue.ReleasePacket(readPacket);
                 else
-                    PacketReadCallback?.Invoke((IntPtr)readPacket);
-
-                return componentType;
+                    return componentType;
             }
 
             return MediaType.None;

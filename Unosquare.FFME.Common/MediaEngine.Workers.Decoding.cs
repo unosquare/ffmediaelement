@@ -94,6 +94,7 @@
                         {
                             // Signal the start of a sync-buffering scenario
                             isBuffering = true;
+                            State.SignalBufferingStarted();
                             resumeClock = Clock.IsRunning;
                             Clock.Pause();
                             Log(MediaLogMessageType.Debug, $"SYNC-BUFFER: Started.");
@@ -235,14 +236,14 @@
                                     $"{nameof(State.NaturalDuration)} reports {State.NaturalDuration.Value.Format()}");
                             }
 
-                            State.HasMediaEnded = true;
+                            State.UpdateMediaEnded(true);
                             State.UpdateMediaState(PlaybackStatus.Stop, wallClock);
                             SendOnMediaEnded();
                         }
                     }
                     else
                     {
-                        State.HasMediaEnded = false;
+                        State.UpdateMediaEnded(false);
                     }
 
                     #endregion

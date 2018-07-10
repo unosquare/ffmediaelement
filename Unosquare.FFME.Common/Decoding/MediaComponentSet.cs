@@ -54,7 +54,30 @@
 
         #endregion
 
+        #region Delegates
+
+        public delegate void OnPacketQueuedDelegate(IntPtr avPacket, MediaType mediaType, ulong bufferLength, ulong lifetimeBytes);
+        public delegate void OnFrameDecodedDelegate(IntPtr avFrame, MediaType mediaType);
+        public delegate void OnSubtitleDecodedDelegate(IntPtr avSubititle);
+
+        #endregion
+
         #region Properties
+
+        /// <summary>
+        /// Gets or sets a method that gets called when a packet is queued.
+        /// </summary>
+        public OnPacketQueuedDelegate OnPacketQueued { get; set; }
+
+        /// <summary>
+        /// Gets or sets a method that gets called when an audio or video frame gets decoded.
+        /// </summary>
+        public OnFrameDecodedDelegate OnFrameDecoded { get; set; }
+
+        /// <summary>
+        /// Gets or sets a method that gets called when a subtitle frame gets decoded.
+        /// </summary>
+        public OnSubtitleDecodedDelegate OnSubtitleDecoded { get; set; }
 
         /// <summary>
         /// Gets the available component media types.
@@ -238,6 +261,9 @@
                     if (component.StreamIndex == packet->stream_index)
                     {
                         component.SendPacket(packet);
+                        OnPacketQueued?.Invoke(
+                            (IntPtr)packet, component.MediaType, PacketBufferLength, LifetimeBytesRead);
+
                         return component.MediaType;
                     }
                 }
@@ -256,17 +282,6 @@
             lock (SyncLock)
                 foreach (var component in All)
                     component.SendEmptyPacket();
-        }
-
-        /// <summary>
-        /// Sends a flush packet to all media components.
-        /// This makes the decoders clear their internal buffers.
-        /// </summary>
-        public void SendFlushPackets()
-        {
-            lock (SyncLock)
-                foreach (var component in All)
-                    component.SendFlushPacket();
         }
 
         /// <summary>
@@ -300,6 +315,9 @@
             var main = Main.MediaType;
             var auxs = MediaTypes.Except(main);
             var mediaTypes = MediaTypes;
+
+            // Signal Buffering started
+            m.State.SignalBufferingStarted();
 
             // Read and decode blocks until the main component is half full
             while (m.ShouldReadMorePackets && m.CanReadMorePackets)

@@ -64,6 +64,7 @@
                 }
 
                 // Mark for debugger output
+                m.State.SignalBufferingStarted();
                 hasDecoderSeeked = true;
 
                 // wait for the current reading and decoding cycles
@@ -91,7 +92,7 @@
 
                 // Populate frame queues with after-seek operation
                 var frames = m.Container.Seek(adjustedSeekTarget);
-                m.State.HasMediaEnded = false;
+                m.State.UpdateMediaEnded(false);
 
                 // Clear all the blocks. We don't need them
                 foreach (var kvp in m.Blocks)

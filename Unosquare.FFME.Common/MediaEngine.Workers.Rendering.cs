@@ -87,7 +87,6 @@
                     // Updatete Status Properties
                     main = Container.Components.Main.MediaType;
                     all = Renderers.Keys.ToArray();
-                    State.UpdateBufferingProperties();
 
                     // Reset the rendered count to 0
                     foreach (var t in all)

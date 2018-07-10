@@ -23,6 +23,9 @@
             // State variables for media types
             var t = MediaType.None;
 
+            // Signal the start of a buffering operation
+            State.SignalBufferingStarted();
+
             #endregion
 
             #region Worker Loop

@@ -486,6 +486,12 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void LogEventStart(RoutedEvent e)
         {
+            if (e.Name.Equals(nameof(BufferingStarted)))
+            {
+                MediaCore?.Log(MediaLogMessageType.Debug, $"EVENT START: {e.Name}");
+                return;
+            }
+
             if (WindowsPlatform.Instance.IsInDebugMode)
                 MediaCore?.Log(MediaLogMessageType.Trace, $"EVENT START: {e.Name}");
         }
@@ -497,6 +503,12 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void LogEventDone(RoutedEvent e)
         {
+            if (e.Name.Equals(nameof(BufferingEnded)))
+            {
+                MediaCore?.Log(MediaLogMessageType.Debug, $"EVENT DONE: {e.Name}");
+                return;
+            }
+
             if (WindowsPlatform.Instance.IsInDebugMode)
                 MediaCore?.Log(MediaLogMessageType.Trace, $"EVENT DONE : {e.Name}");
         }

@@ -361,17 +361,6 @@
         }
 
         /// <summary>
-        /// Sends a special kind of packet (a flush packet)
-        /// that tells the decoder to flush it internal buffers
-        /// This an encapsulation of flush_pkt
-        /// </summary>
-        public void SendFlushPacket()
-        {
-            var packet = PacketQueue.CreateFlushPacket(Stream->index);
-            SendPacket(packet);
-        }
-
-        /// <summary>
         /// Pushes a packet into the decoding Packet Queue
         /// and processes the packet in order to try to decode
         /// 1 or more frames.
@@ -468,6 +457,18 @@
                 CloseComponent();
                 IsDisposed = true;
             }
+        }
+
+        /// <summary>
+        /// Sends a special kind of packet (a flush packet)
+        /// that tells the decoder to flush it internal buffers
+        /// This an encapsulation of flush_pkt
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void SendFlushPacket()
+        {
+            var packet = PacketQueue.CreateFlushPacket(Stream->index);
+            SendPacket(packet);
         }
 
         /// <summary>
@@ -577,6 +578,14 @@
                     break;
             }
 
+            if (frame != null && Container.Components.OnFrameDecoded != null)
+            {
+                if (MediaType == MediaType.Audio)
+                    Container.Components.OnFrameDecoded?.Invoke((IntPtr)(frame as AudioFrame).Pointer, MediaType);
+                else if (MediaType == MediaType.Video)
+                    Container.Components.OnFrameDecoded?.Invoke((IntPtr)(frame as VideoFrame).Pointer, MediaType);
+            }
+
             return frame;
         }
 
@@ -587,7 +596,7 @@
         private MediaFrame DecodeNextAVSubtitle()
         {
             // For subtitles we use the old API (new API send_packet/receive_frame) is not yet available
-            // We first try to flush anything we've already sent vy using an empty packet.
+            // We first try to flush anything we've already sent by using an empty packet.
             var managedFrame = default(MediaFrame);
             var packet = PacketQueue.CreateEmptyPacket(Stream->index);
             var gotFrame = 0;
@@ -605,7 +614,10 @@
 
             // If we got a frame, turn into a managed frame
             if (gotFrame != 0)
+            {
+                Container.Components.OnSubtitleDecoded?.Invoke((IntPtr)outputFrame);
                 managedFrame = CreateFrameSource((IntPtr)outputFrame);
+            }
 
             // Free the packet if we have allocated it
             if (packet != null)
