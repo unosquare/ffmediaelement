@@ -289,6 +289,15 @@
             // placeholder
         }
 
+        /// <summary>
+        /// Called when the current audio device changes.
+        /// Call <see cref="FFME.MediaElement.ChangeMedia"/> so the new default audio device gets selected.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private async void OnAudioDeviceStopped(object sender, EventArgs e) =>
+            await Media?.ChangeMedia();
+
         #endregion
 
         #region Other Media Event Handlers
