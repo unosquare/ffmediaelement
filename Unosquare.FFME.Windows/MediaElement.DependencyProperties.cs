@@ -47,11 +47,8 @@ namespace Unosquare.FFME
             return ((double)value).Clamp(Constants.Controller.MinVolume, Constants.Controller.MaxVolume);
         }
 
-        private static void OnVolumePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var element = d as MediaElement;
-            element.MediaCore.State.Volume = (double)e.NewValue;
-        }
+        private static void OnVolumePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) =>
+            (d as MediaElement).MediaCore.State.Volume = (double)e.NewValue;
 
         #endregion
 
@@ -89,10 +86,8 @@ namespace Unosquare.FFME
             return ((double)value).Clamp(Constants.Controller.MinBalance, Constants.Controller.MaxBalance);
         }
 
-        private static void OnBalancePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
+        private static void OnBalancePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) =>
             (d as MediaElement).MediaCore.State.Balance = (double)e.NewValue;
-        }
 
         #endregion
 
@@ -130,10 +125,8 @@ namespace Unosquare.FFME
             return (bool)value;
         }
 
-        private static void OnIsMutedPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
+        private static void OnIsMutedPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) =>
             (d as MediaElement).MediaCore.State.IsMuted = (bool)e.NewValue;
-        }
 
         #endregion
 
@@ -172,7 +165,7 @@ namespace Unosquare.FFME
 
         private static void OnSpeedRatioPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            (d as MediaElement).MediaCore?.RequestSpeedRatio((double)e.NewValue);
+            (d as MediaElement).MediaCore?.SetSpeedRatio((double)e.NewValue);
         }
 
         #endregion
@@ -225,7 +218,7 @@ namespace Unosquare.FFME
                 targetSeek = ((TimeSpan)value).Clamp(TimeSpan.Zero, element.MediaCore.MediaInfo.Duration);
 
             // coming in as a seek from user
-            element.MediaCore?.RequestSeek(targetSeek);
+            element.MediaCore?.Seek(targetSeek);
 
             // Prevent updates from the mediacore into the position dependency property.
             element.m_ReportablePosition = null;
@@ -453,7 +446,6 @@ namespace Unosquare.FFME
         }
 
         #endregion
-
     }
 }
 #pragma warning restore SA1117 // Parameters must be on same line or separate lines

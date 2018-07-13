@@ -12,7 +12,7 @@
     /// Represents the Playlist
     /// </summary>
     /// <seealso cref="AttachedViewModel" />
-    public class PlaylistViewModel : AttachedViewModel
+    public sealed class PlaylistViewModel : AttachedViewModel
     {
         #region Private State
 

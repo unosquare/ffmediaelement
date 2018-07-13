@@ -28,11 +28,6 @@
         }
 
         /// <summary>
-        /// Finalizes an instance of the <see cref="MediaBlock"/> class.
-        /// </summary>
-        ~MediaBlock() => Dispose(false);
-
-        /// <summary>
         /// Gets the media type of the data
         /// </summary>
         public abstract MediaType MediaType { get; }
@@ -163,11 +158,8 @@
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose()
-        {
+        public void Dispose() =>
             Dispose(true);
-            GC.SuppressFinalize(this);
-        }
 
         /// <summary>
         /// Allocates the specified buffer length.
@@ -190,7 +182,7 @@
                 {
                     using (writeLock)
                     {
-                        m_Buffer = new IntPtr(ffmpeg.av_malloc((ulong)bufferLength));
+                        m_Buffer = (IntPtr)ffmpeg.av_malloc((ulong)bufferLength);
                         m_BufferLength = bufferLength;
                         return true;
                     }
@@ -209,11 +201,6 @@
             lock (SyncLock)
             {
                 if (m_IsDisposed) return;
-
-                if (alsoManaged)
-                {
-                    // Dispose managed state (managed objects).
-                }
 
                 // Free unmanaged resources (unmanaged objects) and override a finalizer below.
                 using (Locker.AcquireWriterLock())
@@ -235,7 +222,7 @@
         {
             if (m_Buffer == IntPtr.Zero) return;
 
-            ffmpeg.av_free(m_Buffer.ToPointer());
+            ffmpeg.av_free((void*)m_Buffer);
             m_Buffer = IntPtr.Zero;
             m_BufferLength = default;
         }

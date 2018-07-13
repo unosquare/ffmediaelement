@@ -11,6 +11,7 @@
     public sealed class DelayProvider : IDisposable
     {
         private readonly object SyncRoot = new object();
+        private readonly Action DelayAction = null;
         private bool IsDisposed = false;
         private IWaitEvent DelayEvent = null;
         private Stopwatch DelayStopwatch = new Stopwatch();
@@ -22,6 +23,20 @@
         public DelayProvider(DelayStrategy strategy)
         {
             Strategy = strategy;
+            switch (Strategy)
+            {
+                case DelayStrategy.ThreadSleep:
+                    DelayAction = DelaySleep;
+                    break;
+                case DelayStrategy.TaskDelay:
+                    DelayAction = DelayTask;
+                    break;
+                case DelayStrategy.ThreadPool:
+                    DelayAction = DelayThreadPool;
+                    break;
+                default:
+                    throw new ArgumentException($"{nameof(strategy)} is invalid");
+            }
         }
 
         /// <summary>
@@ -70,19 +85,7 @@
                 if (IsDisposed) return TimeSpan.Zero;
 
                 DelayStopwatch.Restart();
-                switch (Strategy)
-                {
-                    case DelayStrategy.ThreadSleep:
-                        DelaySleep();
-                        break;
-                    case DelayStrategy.TaskDelay:
-                        DelayTask();
-                        break;
-                    case DelayStrategy.ThreadPool:
-                        DelayThreadPool();
-                        break;
-                }
-
+                DelayAction();
                 return DelayStopwatch.Elapsed;
             }
         }

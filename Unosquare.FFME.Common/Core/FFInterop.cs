@@ -18,6 +18,7 @@
         #region Private Declarations
 
         private static readonly object SyncLock = new object();
+        private static readonly List<OptionMeta> EmptyOptionMetaList = new List<OptionMeta>(0);
         private static bool m_IsInitialized = false;
         private static string m_LibrariesPath = string.Empty;
         private static int m_LibraryIdentifiers = 0;
@@ -222,13 +223,13 @@
             AVCodec* item;
             while ((item = ffmpeg.av_codec_iterate(&iterator)) != null)
             {
-                result.Add(new IntPtr(item));
+                result.Add((IntPtr)item);
             }
 
             var collection = new AVCodec*[result.Count];
             for (var i = 0; i < result.Count; i++)
             {
-                collection[i] = (AVCodec*)result[i].ToPointer();
+                collection[i] = (AVCodec*)result[i];
             }
 
             return collection;
@@ -290,7 +291,7 @@
         public static unsafe List<OptionMeta> RetrieveInputFormatOptions(string formatName)
         {
             var item = ffmpeg.av_find_input_format(formatName);
-            if (item == null) return new List<OptionMeta>(0);
+            if (item == null) return EmptyOptionMetaList;
 
             return RetrieveOptions(item->priv_class);
         }

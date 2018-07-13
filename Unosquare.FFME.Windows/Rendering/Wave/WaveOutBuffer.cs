@@ -8,6 +8,7 @@
     /// </summary>
     internal class WaveOutBuffer : IDisposable
     {
+        private readonly object DisposeLock = new object();
         private readonly WaveHeader header;
         private readonly byte[] Buffer;
         private readonly IWaveProvider WaveStream;
@@ -42,15 +43,6 @@
         }
 
         /// <summary>
-        /// Finalizes an instance of the <see cref="WaveOutBuffer"/> class.
-        /// </summary>
-        ~WaveOutBuffer()
-        {
-            Dispose(false);
-            System.Diagnostics.Debug.Assert(true, $"{nameof(WaveOutBuffer)} was not disposed");
-        }
-
-        /// <summary>
         /// Whether the header's in queue flag is set
         /// </summary>
         public bool IsQueued => header.Flags.HasFlag(WaveHeaderFlags.InQueue);
@@ -63,11 +55,8 @@
         /// <summary>
         /// Releases resources held by this WaveBuffer
         /// </summary>
-        public void Dispose()
-        {
-            GC.SuppressFinalize(this);
+        public void Dispose() =>
             Dispose(true);
-        }
 
         /// <summary>
         /// this is called by the Wave callback and should be used to refill the buffer.
@@ -92,21 +81,19 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected void Dispose(bool alsoManaged)
         {
-            if (alsoManaged)
+            lock (DisposeLock)
             {
-                // free managed resources
-            }
+                if (HeaderHandle.IsAllocated)
+                    HeaderHandle.Free();
 
-            if (HeaderHandle.IsAllocated)
-                HeaderHandle.Free();
+                if (BufferHandle.IsAllocated)
+                    BufferHandle.Free();
 
-            if (BufferHandle.IsAllocated)
-                BufferHandle.Free();
-
-            if (DeviceHandle != IntPtr.Zero)
-            {
-                WaveInterop.ReleaseHeader(DeviceHandle, header);
-                DeviceHandle = IntPtr.Zero;
+                if (DeviceHandle != IntPtr.Zero)
+                {
+                    WaveInterop.ReleaseHeader(DeviceHandle, header);
+                    DeviceHandle = IntPtr.Zero;
+                }
             }
         }
     }

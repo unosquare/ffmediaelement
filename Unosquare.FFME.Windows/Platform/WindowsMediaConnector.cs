@@ -2,7 +2,6 @@
 {
     using Shared;
     using System;
-    using System.Threading.Tasks;
 
     /// <summary>
     /// The Media engine connector
@@ -27,61 +26,51 @@
         /// Called when [buffering ended].
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public Task OnBufferingEnded(MediaEngine sender)
-        {
-            return Parent != null ? Parent.RaiseBufferingEndedEvent() : Task.CompletedTask;
-        }
+        public void OnBufferingEnded(MediaEngine sender) =>
+            Parent?.PostBufferingEndedEvent();
 
         /// <summary>
         /// Called when [buffering started].
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public Task OnBufferingStarted(MediaEngine sender)
-        {
-            return Parent != null ? Parent.RaiseBufferingStartedEvent() : Task.CompletedTask;
-        }
+        public void OnBufferingStarted(MediaEngine sender) =>
+            Parent?.PostBufferingStartedEvent();
 
         /// <summary>
         /// Called when [media closed].
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public Task OnMediaClosed(MediaEngine sender)
-        {
-            return Parent != null ? Parent.RaiseMediaClosedEvent() : Task.CompletedTask;
-        }
+        public void OnMediaClosed(MediaEngine sender) =>
+            Parent?.PostMediaClosedEvent();
 
         /// <summary>
         /// Called when [media ended].
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public Task OnMediaEnded(MediaEngine sender)
+        public void OnMediaEnded(MediaEngine sender)
         {
-            if (Parent == null) return Task.CompletedTask;
+            if (Parent == null) return;
 
-            return GuiContext.Current.EnqueueInvoke(async () =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
-                await Parent.RaiseMediaEndedEvent();
-                switch (Parent.UnloadedBehavior)
+                Parent?.PostMediaEndedEvent();
+                switch (Parent?.UnloadedBehavior ?? System.Windows.Controls.MediaState.Manual)
                 {
                     case System.Windows.Controls.MediaState.Close:
                         {
-                            await sender.Close();
+                            sender?.Close();
                             break;
                         }
 
                     case System.Windows.Controls.MediaState.Play:
                         {
-                            await sender.Stop().ContinueWith(async (t) => await sender.Play());
+                            sender?.Stop().ContinueWith((t) => sender?.Play());
                             break;
                         }
 
                     case System.Windows.Controls.MediaState.Stop:
                         {
-                            await sender.Stop();
+                            sender?.Stop();
                             break;
                         }
 
@@ -98,45 +87,41 @@
         /// </summary>
         /// <param name="sender">The sender.</param>
         /// <param name="e">The e.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public Task OnMediaFailed(MediaEngine sender, Exception e)
-        {
-            return Parent != null ? Parent.RaiseMediaFailedEvent(e) : Task.CompletedTask;
-        }
+        public void OnMediaFailed(MediaEngine sender, Exception e) =>
+            Parent?.PostMediaFailedEvent(e);
 
         /// <summary>
         /// Called when [media opened].
         /// </summary>
         /// <param name="sender">The sender.</param>
         /// <param name="mediaInfo">The media information.</param>
-        /// <returns>
-        /// A <see cref="Task" /> representing the asynchronous operation.
-        /// </returns>
-        public Task OnMediaOpened(MediaEngine sender, MediaInfo mediaInfo)
+        public void OnMediaOpened(MediaEngine sender, MediaInfo mediaInfo)
         {
-            if (Parent == null) return Task.CompletedTask;
+            if (Parent == null) return;
 
-            return GuiContext.Current.EnqueueInvoke(async () =>
+            GuiContext.Current.EnqueueInvoke(() =>
             {
-                await Parent.RaiseMediaOpenedEvent(mediaInfo);
-                if (sender.State.CanPause == false)
+                Parent?.PostMediaOpenedEvent(mediaInfo);
+                if ((sender?.State.CanPause ?? true) == false)
                 {
-                    await sender.Play();
+                    sender?.Play();
                     return;
                 }
 
-                switch (Parent.LoadedBehavior)
+                switch (Parent?.LoadedBehavior ?? System.Windows.Controls.MediaState.Manual)
                 {
                     case System.Windows.Controls.MediaState.Play:
                         {
-                            await sender.Play();
+                            sender?.Play();
                             break;
                         }
+
                     case System.Windows.Controls.MediaState.Pause:
                         {
-                            await sender.Pause();
+                            sender?.Pause();
                             break;
                         }
+
                     default:
                         {
                             break;
@@ -151,11 +136,8 @@
         /// <param name="sender">The sender.</param>
         /// <param name="options">The media options.</param>
         /// <param name="mediaInfo">The media information.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public Task OnMediaOpening(MediaEngine sender, MediaOptions options, MediaInfo mediaInfo)
-        {
-            return Parent != null ? Parent.RaiseMediaOpeningEvent(options, mediaInfo) : Task.CompletedTask;
-        }
+        public void OnMediaOpening(MediaEngine sender, MediaOptions options, MediaInfo mediaInfo) =>
+            Parent?.RaiseMediaOpeningEvent(options, mediaInfo);
 
         /// <summary>
         /// Called when media options are changing.
@@ -163,22 +145,16 @@
         /// <param name="sender">The sender.</param>
         /// <param name="options">The options.</param>
         /// <param name="mediaInfo">The media information.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public Task OnMediaChanging(MediaEngine sender, MediaOptions options, MediaInfo mediaInfo)
-        {
-            return Parent != null ? Parent.RaiseMediaChangingEvent(options, mediaInfo) : Task.CompletedTask;
-        }
+        public void OnMediaChanging(MediaEngine sender, MediaOptions options, MediaInfo mediaInfo) =>
+            Parent?.RaiseMediaChangingEvent(options, mediaInfo);
 
         /// <summary>
         /// Called when media options have been changed.
         /// </summary>
         /// <param name="sender">The sender.</param>
         /// <param name="mediaInfo">The media information.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public Task OnMediaChanged(MediaEngine sender, MediaInfo mediaInfo)
-        {
-            return Parent != null ? Parent.RaiseMediaChangedEvent(mediaInfo) : Task.CompletedTask;
-        }
+        public void OnMediaChanged(MediaEngine sender, MediaInfo mediaInfo) =>
+            Parent?.PostMediaChangedEvent(mediaInfo);
 
         /// <summary>
         /// Called when [media initializing].
@@ -186,41 +162,30 @@
         /// <param name="sender">The sender.</param>
         /// <param name="config">The container configuration options.</param>
         /// <param name="url">The URL.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public Task OnMediaInitializing(MediaEngine sender, ContainerConfiguration config, string url)
-        {
-            return Parent != null ? Parent.RaiseMediaInitializingEvent(config, url) : Task.CompletedTask;
-        }
+        public void OnMediaInitializing(MediaEngine sender, ContainerConfiguration config, string url) =>
+            Parent?.RaiseMediaInitializingEvent(config, url);
 
         /// <summary>
         /// Called when [message logged].
         /// </summary>
         /// <param name="sender">The sender.</param>
         /// <param name="e">The <see cref="T:Unosquare.FFME.Shared.MediaLogMessage" /> instance containing the event data.</param>
-        public void OnMessageLogged(MediaEngine sender, MediaLogMessage e)
-        {
+        public void OnMessageLogged(MediaEngine sender, MediaLogMessage e) =>
             Parent?.RaiseMessageLoggedEvent(e);
-        }
 
         /// <summary>
         /// Called when [seeking ended].
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public Task OnSeekingEnded(MediaEngine sender)
-        {
-            return Parent != null ? Parent.RaiseSeekingEndedEvent() : Task.CompletedTask;
-        }
+        public void OnSeekingEnded(MediaEngine sender) =>
+            Parent?.PostSeekingEndedEvent();
 
         /// <summary>
         /// Called when [seeking started].
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public Task OnSeekingStarted(MediaEngine sender)
-        {
-            return Parent != null ? Parent.RaiseSeekingStartedEvent() : Task.CompletedTask;
-        }
+        public void OnSeekingStarted(MediaEngine sender) =>
+            Parent?.PostSeekingStartedEvent();
 
         /// <summary>
         /// Called when [position changed].
@@ -236,7 +201,7 @@
             if (sender.State.IsPlaying && sender.State.IsSeeking == false)
                 Parent.ReportablePosition = newValue;
 
-            Parent.RaisePositionChangedEvent(oldValue, newValue);
+            Parent?.PostPositionChangedEvent(oldValue, newValue);
         }
 
         /// <summary>
@@ -245,14 +210,13 @@
         /// <param name="sender">The sender.</param>
         /// <param name="oldValue">The old value.</param>
         /// <param name="newValue">The new value.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public Task OnMediaStateChanged(MediaEngine sender, PlaybackStatus oldValue, PlaybackStatus newValue)
+        public void OnMediaStateChanged(MediaEngine sender, PlaybackStatus oldValue, PlaybackStatus newValue)
         {
-            if (Parent == null) return Task.CompletedTask;
+            if (Parent == null) return;
 
             // Force a reportable position when the media state changes
             Parent.ReportablePosition = sender.State.Position;
-            return Parent.RaiseMediaStateChangedEvent(
+            Parent?.PostMediaStateChangedEvent(
                 (System.Windows.Controls.MediaState)oldValue,
                 (System.Windows.Controls.MediaState)newValue);
         }

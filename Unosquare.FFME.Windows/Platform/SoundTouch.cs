@@ -17,7 +17,7 @@
     /// Mario Di Vece
     ///
     /// Changes:
-    /// Set-prefixed methods to proety setters
+    /// Set-prefixed methods to property setters
     /// Native wrappers to NativeMethods class name
     /// Adding enum with settings as defined in the header file
     /// Setttings getters and setters as indexers
@@ -69,7 +69,6 @@
         /// </summary>
         ~SoundTouch()
         {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             Dispose(false);
         }
 
@@ -434,17 +433,14 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
-            if (!IsDisposed)
+            lock (SyncRoot)
             {
-                if (alsoManaged)
-                {
-                    // NOTE: Placeholder, dispose managed state (managed objects).
-                    // At this point, nothing managed to dispose
-                }
+                if (IsDisposed) return;
 
-                NativeMethods.DestroyInstance(handle);
+                if (handle != IntPtr.Zero)
+                    NativeMethods.DestroyInstance(handle);
+
                 handle = IntPtr.Zero;
-
                 IsDisposed = true;
             }
         }

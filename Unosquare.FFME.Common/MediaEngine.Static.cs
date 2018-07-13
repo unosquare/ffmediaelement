@@ -356,7 +356,7 @@
 
                 // read all the packets and decode them
                 var outputFrames = new List<MediaFrame>(1024 * 8);
-                while (tempContainer.IsAtEndOfStream == false)
+                while (true)
                 {
                     tempContainer.Read();
                     var frames = tempContainer.Decode();
@@ -367,6 +367,9 @@
 
                         outputFrames.Add(frame);
                     }
+
+                    if (frames.Count <= 0 && tempContainer.IsAtEndOfStream)
+                        break;
                 }
 
                 // Build the result

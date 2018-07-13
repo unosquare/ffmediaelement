@@ -90,6 +90,21 @@
         public TimeSpan FrameStepDuration => MediaCore?.State.FrameStepDuration ?? TimeSpan.Zero;
 
         /// <summary>
+        /// Gets the discrete timestamp of the next frame.
+        /// </summary>
+        public TimeSpan PositionNext => MediaCore?.State.PositionNext ?? TimeSpan.Zero;
+
+        /// <summary>
+        /// Gets the discrete timestamp of the current frame.
+        /// </summary>
+        public TimeSpan PositionCurrent => MediaCore?.State.PositionCurrent ?? TimeSpan.Zero;
+
+        /// <summary>
+        /// Gets the discrete timestamp of the previous frame.
+        /// </summary>
+        public TimeSpan PositionPrevious => MediaCore?.State.PositionPrevious ?? TimeSpan.Zero;
+
+        /// <summary>
         /// Returns whether the given media has audio.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
@@ -272,6 +287,11 @@
         /// Gets a value indicating whether the media is in the process of opening.
         /// </summary>
         public bool IsOpening => MediaCore?.State.IsOpening ?? default;
+
+        /// <summary>
+        /// Gets a value indicating whether the media is in the process of closing.
+        /// </summary>
+        public bool IsClosing => MediaCore?.State.IsClosing ?? default;
 
         /// <summary>
         /// Gets a value indicating whether the media is currently changing its components.

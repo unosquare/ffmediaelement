@@ -69,8 +69,8 @@
         /// Handles the MediaInitializing event of the Media control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="MediaInitializingRoutedEventArgs"/> instance containing the event data.</param>
-        private void OnMediaInitializing(object sender, MediaInitializingRoutedEventArgs e)
+        /// <param name="e">The <see cref="MediaInitializingEventArgs"/> instance containing the event data.</param>
+        private void OnMediaInitializing(object sender, MediaInitializingEventArgs e)
         {
             // An example of injecting input options for http/https streams
             if (e.Url.StartsWith("http://") || e.Url.StartsWith("https://"))
@@ -109,8 +109,8 @@
         /// Handles the MediaOpening event of the Media control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="MediaOpeningRoutedEventArgs"/> instance containing the event data.</param>
-        private void OnMediaOpening(object sender, MediaOpeningRoutedEventArgs e)
+        /// <param name="e">The <see cref="MediaOpeningEventArgs"/> instance containing the event data.</param>
+        private void OnMediaOpening(object sender, MediaOpeningEventArgs e)
         {
             // You can start off by adjusting subtitles delay
             // e.Options.SubtitlesDelay = TimeSpan.FromSeconds(7); // See issue #216
@@ -198,8 +198,13 @@
 
                 e.Options.VideoFilter = videoFilter.ToString().TrimEnd(',');
 
-                Media.ClosedCaptionsChannel = videoStream.HasClosedCaptions ?
-                    CaptionsChannel.CC1 : CaptionsChannel.CCP;
+                // Since the MediaElement control belongs to a different thread
+                // we have to set properties on its UI thread.
+                GuiContext.Current.EnqueueInvoke(() =>
+                {
+                    Media.ClosedCaptionsChannel = videoStream.HasClosedCaptions ?
+                        CaptionsChannel.CC1 : CaptionsChannel.CCP;
+                });
             }
 
             // e.Options.AudioFilter = "aecho=0.8:0.9:1000:0.3";
@@ -221,8 +226,8 @@
         /// Handles the MediaChanging event of the MediaControl.
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="MediaOpeningRoutedEventArgs"/> instance containing the event data.</param>
-        private void OnMediaChanging(object sender, MediaOpeningRoutedEventArgs e)
+        /// <param name="e">The <see cref="MediaOpeningEventArgs"/> instance containing the event data.</param>
+        private void OnMediaChanging(object sender, MediaOpeningEventArgs e)
         {
             var availableStreams = e.Info.Streams
                 .Where(s => s.Value.CodecType == (AVMediaType)StreamCycleMediaType)
@@ -283,6 +288,15 @@
         {
             // placeholder
         }
+
+        /// <summary>
+        /// Called when the current audio device changes.
+        /// Call <see cref="FFME.MediaElement.ChangeMedia"/> so the new default audio device gets selected.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private async void OnAudioDeviceStopped(object sender, EventArgs e) =>
+            await Media?.ChangeMedia();
 
         #endregion
 

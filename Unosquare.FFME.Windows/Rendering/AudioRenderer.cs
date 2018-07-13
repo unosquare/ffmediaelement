@@ -34,6 +34,7 @@
         private short[] AudioProcessorBuffer = null;
         private CircularBuffer AudioBuffer = null;
         private bool IsDisposed = false;
+        private bool m_HasFiredAudioDeviceStopped = false;
 
         private byte[] ReadBuffer = null;
         private int SampleBlockSize = 0;
@@ -109,7 +110,7 @@
         }
 
         /// <summary>
-        /// Gets current audio the position.
+        /// Gets current realtime audio position.
         /// </summary>
         public TimeSpan Position
         {
@@ -134,6 +135,15 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance has fired the audio device stopped event.
+        /// </summary>
+        private bool HasFiredAudioDeviceStopped
+        {
+            get { lock (SyncLock) return m_HasFiredAudioDeviceStopped; }
+            set { lock (SyncLock) m_HasFiredAudioDeviceStopped = value; }
+        }
+
         #endregion
 
         #region Public API
@@ -146,7 +156,7 @@
         public void Render(MediaBlock mediaBlock, TimeSpan clockPosition)
         {
             // We don't need to render anything while we are seeking. Simply drop the blocks.
-            if (MediaCore.State.IsSeeking) return;
+            if (MediaCore.State.IsSeeking || HasFiredAudioDeviceStopped) return;
 
             var lockTaken = false;
             Monitor.TryEnter(SyncLock, SyncLockTimeout, ref lockTaken);
@@ -156,7 +166,12 @@
             {
                 if ((AudioDevice?.IsRunning ?? false) == false)
                 {
-                    // TODO: Handle this? -- see issue #93
+                    if (HasFiredAudioDeviceStopped == false)
+                    {
+                        MediaElement.RaiseAudioDeviceStoppedEvent();
+                        HasFiredAudioDeviceStopped = true;
+                    }
+
                     return;
                 }
 
@@ -177,10 +192,7 @@
                     {
                         // Write the block if we have to, avoiding repeated blocks.
                         if (AudioBuffer.WriteTag < audioBlock.StartTime)
-                        {
-                            MediaElement.RaiseRenderingAudioEvent(audioBlock, clockPosition);
                             AudioBuffer.Write(audioBlock.Buffer, audioBlock.SamplesBufferLength, audioBlock.StartTime, true);
-                        }
 
                         // Stop adding if we have too much in there.
                         if (AudioBuffer.CapacityPercent >= 0.8)
@@ -316,7 +328,7 @@
             var lockTaken = false;
             Monitor.TryEnter(SyncLock, SyncLockTimeout, ref lockTaken);
 
-            if (lockTaken == false)
+            if (lockTaken == false || HasFiredAudioDeviceStopped)
             {
                 Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
                 return requestedBytes;
@@ -341,6 +353,8 @@
                 // First part of DSP: Perform AV Synchronization if needed
                 if (MediaCore.State.HasVideo && Synchronize(targetBuffer, targetBufferOffset, requestedBytes, speedRatio) == false)
                     return requestedBytes;
+
+                var startPosition = Position;
 
                 // Perform DSP
                 if (speedRatio < 1.0)
@@ -369,6 +383,8 @@
                 }
 
                 ApplyVolumeAndBalance(targetBuffer, targetBufferOffset, requestedBytes);
+                MediaElement.RaiseRenderingAudioEvent(
+                    targetBuffer, requestedBytes, startPosition, WaveFormat.ConvertByteSizeToDuration(requestedBytes));
             }
             catch (Exception ex)
             {
@@ -427,7 +443,7 @@
                 new DirectSoundPlayer(this, MediaElement.RendererOptions.DirectSoundDevice?.DeviceId ?? DirectSoundPlayer.DefaultPlaybackDeviceId);
 
             SampleBlockSize = Constants.Audio.BytesPerSample * Constants.Audio.ChannelCount;
-            var bufferLength = WaveFormat.ConvertLatencyToByteSize(AudioDevice.DesiredLatency) * MediaCore.Blocks[MediaType.Audio].Capacity / 2;
+            var bufferLength = WaveFormat.ConvertMillisToByteSize(AudioDevice.DesiredLatency) * MediaCore.Blocks[MediaType.Audio].Capacity / 2;
             AudioBuffer = new CircularBuffer(bufferLength);
             AudioDevice.Start();
         }
@@ -565,7 +581,7 @@
                 }
 
                 // skip some samples from the buffer.
-                var audioLatencyBytes = WaveFormat.ConvertLatencyToByteSize(Convert.ToInt32(Math.Ceiling(audioLatencyMs)));
+                var audioLatencyBytes = WaveFormat.ConvertMillisToByteSize(Convert.ToInt32(Math.Ceiling(audioLatencyMs)));
                 AudioBuffer.Skip(Math.Min(audioLatencyBytes, readableCount));
             }
             else if (audioLatencyMs < SyncThresholdLeading)
@@ -573,7 +589,7 @@
                 isBeyondThreshold = true;
 
                 // Compute the latency in bytes
-                var audioLatencyBytes = WaveFormat.ConvertLatencyToByteSize(Convert.ToInt32(Math.Ceiling(Math.Abs(audioLatencyMs))));
+                var audioLatencyBytes = WaveFormat.ConvertMillisToByteSize(Convert.ToInt32(Math.Ceiling(Math.Abs(audioLatencyMs))));
 
                 // audioLatencyBytes = requestedBytes; // uncomment this line to enable rewinding.
                 if (audioLatencyBytes > requestedBytes && audioLatencyBytes < rewindableCount)
@@ -609,7 +625,7 @@
                 Math.Abs(audioLatencyMs) > SyncThresholdPerfect)
             {
                 var stepDurationMillis = Convert.ToInt32(Math.Min(SyncThresholdMaxStep, Math.Abs(audioLatencyMs)));
-                var stepDurationBytes = WaveFormat.ConvertLatencyToByteSize(stepDurationMillis);
+                var stepDurationBytes = WaveFormat.ConvertMillisToByteSize(stepDurationMillis);
 
                 if (audioLatencyMs > SyncThresholdPerfect)
                     AudioBuffer.Skip(Math.Min(stepDurationBytes, readableCount));
@@ -854,15 +870,13 @@
         ///   <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
-            if (!IsDisposed)
+            lock (SyncLock)
             {
-                IsDisposed = true;
+                if (IsDisposed) return;
 
-                if (alsoManaged)
-                {
-                    Destroy();
-                    WaitForReadyEvent.Dispose();
-                }
+                IsDisposed = true;
+                Destroy();
+                WaitForReadyEvent.Dispose();
             }
         }
 

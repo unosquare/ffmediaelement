@@ -1,23 +1,21 @@
 ﻿namespace Unosquare.FFME.Events
 {
     using Shared;
+    using System;
     using System.Windows;
 
     /// <summary>
     /// Represents the event arguments of the MediaInitializing routed event.
     /// </summary>
     /// <seealso cref="RoutedEventArgs" />
-    public class MediaInitializingRoutedEventArgs : RoutedEventArgs
+    public class MediaInitializingEventArgs : EventArgs
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="MediaInitializingRoutedEventArgs" /> class.
+        /// Initializes a new instance of the <see cref="MediaInitializingEventArgs" /> class.
         /// </summary>
-        /// <param name="routedEvent">The routed event.</param>
-        /// <param name="source">The source.</param>
         /// <param name="config">The container configuration options.</param>
         /// <param name="url">The URL.</param>
-        public MediaInitializingRoutedEventArgs(RoutedEvent routedEvent, object source, ContainerConfiguration config, string url)
-            : base(routedEvent, source)
+        public MediaInitializingEventArgs(ContainerConfiguration config, string url)
         {
             Configuration = config;
             Url = url;

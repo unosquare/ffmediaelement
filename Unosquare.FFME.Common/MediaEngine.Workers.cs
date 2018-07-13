@@ -21,9 +21,6 @@
         private Thread PacketReadingTask = null;
         private Thread FrameDecodingTask = null;
         private Timer BlockRenderingWorker = null;
-
-        private AtomicBoolean m_IsTaskCancellationPending = new AtomicBoolean(false);
-        private AtomicBoolean m_HasDecoderSeeked = new AtomicBoolean(false);
         private IWaitEvent BlockRenderingWorkerExit = null;
 
         /// <summary>
@@ -39,47 +36,17 @@
         /// <summary>
         /// Gets the packet reading cycle control evenet.
         /// </summary>
-        internal IWaitEvent PacketReadingCycle { get; } = WaitEventFactory.Create(isCompleted: false, useSlim: false);
+        internal IWaitEvent PacketReadingCycle { get; } = WaitEventFactory.Create(isCompleted: false, useSlim: true);
 
         /// <summary>
         /// Gets the frame decoding cycle control event.
         /// </summary>
-        internal IWaitEvent FrameDecodingCycle { get; } = WaitEventFactory.Create(isCompleted: false, useSlim: false);
+        internal IWaitEvent FrameDecodingCycle { get; } = WaitEventFactory.Create(isCompleted: false, useSlim: true);
 
         /// <summary>
         /// Gets the block rendering cycle control event.
         /// </summary>
-        internal IWaitEvent BlockRenderingCycle { get; } = WaitEventFactory.Create(isCompleted: false, useSlim: false);
-
-        /// <summary>
-        /// Gets the seeking done control event.
-        /// </summary>
-        internal IWaitEvent SeekingDone { get; } = WaitEventFactory.Create(isCompleted: true, useSlim: false);
-
-        /// <summary>
-        /// Gets the media changing done control event.
-        /// </summary>
-        internal IWaitEvent MediaChangingDone { get; } = WaitEventFactory.Create(isCompleted: true, useSlim: false);
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the workedrs have been requested
-        /// an exit.
-        /// </summary>
-        internal bool IsTaskCancellationPending
-        {
-            get => m_IsTaskCancellationPending.Value;
-            set => m_IsTaskCancellationPending.Value = value;
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the decoder has moved its byte position
-        /// to something other than the normal continuous reads in the last read cycle.
-        /// </summary>
-        internal bool HasDecoderSeeked
-        {
-            get => m_HasDecoderSeeked.Value;
-            set => m_HasDecoderSeeked.Value = value;
-        }
+        internal IWaitEvent BlockRenderingCycle { get; } = WaitEventFactory.Create(isCompleted: false, useSlim: true);
 
         /// <summary>
         /// Holds the block renderers
@@ -105,7 +72,7 @@
         {
             get
             {
-                if (IsTaskCancellationPending || Container == null || Container.Components == null)
+                if (Commands.IsStopWorkersPending || Container == null || Container.Components == null)
                     return false;
 
                 // If it's a live stream always continue reading regardless
@@ -114,12 +81,6 @@
                 return Container.Components.PacketBufferLength < State.DownloadCacheLength;
             }
         }
-
-        /// <summary>
-        /// Gets a value indicating whether more frames can be decoded from the packet queue.
-        /// That is, if we have packets in the packet buffer or if we are not at the end of the stream.
-        /// </summary>
-        internal bool CanReadMoreFrames => CanReadMorePackets || (Container?.Components.PacketBufferLength ?? 0) > 0;
 
         #endregion
 
@@ -147,11 +108,9 @@
             }
 
             Clock.SpeedRatio = Constants.Controller.DefaultSpeedRatio;
-            IsTaskCancellationPending = false;
+            Commands.IsStopWorkersPending = false;
 
             // Set the initial state of the task cycles.
-            SeekingDone.Complete();
-            MediaChangingDone.Complete();
             BlockRenderingCycle.Complete();
             FrameDecodingCycle.Begin();
             PacketReadingCycle.Begin();
@@ -178,10 +137,10 @@
             Clock.Pause();
 
             // Let the threads know a cancellation is pending.
-            IsTaskCancellationPending = true;
+            Commands.IsStopWorkersPending = true;
 
             // Cause an immediate Packet read abort
-            Container.SignalAbortReads(false);
+            Container?.SignalAbortReads(false);
 
             // Stop the rendering worker before anything else
             StopBlockRenderingWorker();
@@ -195,9 +154,10 @@
             var wrokers = new[] { PacketReadingTask, FrameDecodingTask };
             foreach (var w in wrokers)
             {
-                // w.Abort(); //Abort causes memory leaks bacause packets and frames might not
+                // Abort causes memory leaks bacause packets and frames might not
                 // get disposed by the corresponding workers. We use Join instead.
-                w.Join();
+                // w.Abort();
+                w?.Join();
             }
 
             // Set the threads to null
@@ -251,27 +211,22 @@
         }
 
         /// <summary>
-        /// Returns the value of a discrete video position if possible
+        /// Returns the value of a discrete frame position of themain media component if possible.
+        /// Otherwise, it simply rounds the position to the nearest millisecond.
         /// </summary>
         /// <param name="position">The position.</param>
-        /// <returns>The snapped position</returns>
+        /// <returns>The snapped, discrete, normalized position</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal TimeSpan SnapToFramePosition(TimeSpan position)
+        internal TimeSpan SnapPositionToBlockPosition(TimeSpan position)
         {
             // return position;
             if (Container == null)
-                return position;
+                return position.Normalize();
 
-            // Set the clock to a discrete video position if possible
-            if (Container.Components.Main.MediaType == MediaType.Video
-               && Blocks[MediaType.Video].IsInRange(position))
-            {
-                var block = Blocks[MediaType.Video][position];
-                if (block != null && block.Duration.Ticks > 0 && State.VideoFrameRate != 0d)
-                    return block.SnapTime;
-            }
+            var blocks = Blocks[Container.Components.Main.MediaType];
+            if (blocks == null) return position.Normalize();
 
-            return position.Normalize();
+            return blocks.GetSnapPosition(position) ?? position.Normalize();
         }
 
         /// <summary>
@@ -284,7 +239,9 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool CanReadMoreFramesOf(MediaType t)
         {
-            return CanReadMorePackets || Container.Components[t].PacketBufferLength > 0;
+            return CanReadMorePackets ||
+                Container.Components[t].PacketBufferLength > 0 ||
+                Container.Components[t].HasCodecPackets;
         }
 
         /// <summary>
@@ -318,29 +275,20 @@
         }
 
         /// <summary>
-        /// Adds the blocks of the given media type.
+        /// Tries to receive the next frame from the decoder by decoding queued
+        /// Packets and converting the decoded frame into a Media Block which gets
+        /// enqueued into the playback block buffer.
         /// </summary>
-        /// <param name="t">The t.</param>
-        /// <returns>The number of blocks that were added</returns>
+        /// <param name="t">The MediaType.</param>
+        /// <returns>True if a block could be added. False otherwise.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int AddBlocks(MediaType t)
+        private bool AddNextBlock(MediaType t)
         {
-            var decodedFrameCount = 0;
-
             // Decode the frames
-            var frames = Container.Components[t].ReceiveFrames();
+            var block = Blocks[t].Add(Container.Components[t].ReceiveNextFrame(), Container);
+            if (block != null) return true;
 
-            // exit the loop if there was nothing more to decode
-            foreach (var frame in frames)
-            {
-                // Add each decoded frame as a playback block
-                if (frame == null) continue;
-                var block = Blocks[t].Add(frame, Container);
-                if (block != null)
-                    decodedFrameCount += 1;
-            }
-
-            return decodedFrameCount;
+            return false;
         }
 
         #endregion

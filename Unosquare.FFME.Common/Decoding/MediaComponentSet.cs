@@ -6,6 +6,7 @@
     using System;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// Represents a set of Audio, Video and Subtitle components.
@@ -37,6 +38,8 @@
         /// </summary>
         private bool IsDisposed = false;
 
+        private MediaComponent m_Main = null;
+
         #endregion
 
         #region Constructor
@@ -51,7 +54,30 @@
 
         #endregion
 
+        #region Delegates
+
+        public delegate void OnPacketQueuedDelegate(IntPtr avPacket, MediaType mediaType, ulong bufferLength, ulong lifetimeBytes);
+        public delegate void OnFrameDecodedDelegate(IntPtr avFrame, MediaType mediaType);
+        public delegate void OnSubtitleDecodedDelegate(IntPtr avSubititle);
+
+        #endregion
+
         #region Properties
+
+        /// <summary>
+        /// Gets or sets a method that gets called when a packet is queued.
+        /// </summary>
+        public OnPacketQueuedDelegate OnPacketQueued { get; set; }
+
+        /// <summary>
+        /// Gets or sets a method that gets called when an audio or video frame gets decoded.
+        /// </summary>
+        public OnFrameDecodedDelegate OnFrameDecoded { get; set; }
+
+        /// <summary>
+        /// Gets or sets a method that gets called when a subtitle frame gets decoded.
+        /// </summary>
+        public OnSubtitleDecodedDelegate OnSubtitleDecoded { get; set; }
 
         /// <summary>
         /// Gets the available component media types.
@@ -82,7 +108,11 @@
         /// Gets the main media component of the stream to which time is synchronized.
         /// By order of priority, first Audio, then Video
         /// </summary>
-        public MediaComponent Main { get; private set; }
+        public MediaComponent Main
+        {
+            get { lock (SyncLock) return m_Main; }
+            private set { lock (SyncLock) m_Main = value; }
+        }
 
         /// <summary>
         /// Gets the video component.
@@ -112,21 +142,6 @@
         }
 
         /// <summary>
-        /// Gets the first packet DTS.
-        /// </summary>
-        public long? FirstPacketDts { get; private set; } = default;
-
-        /// <summary>
-        /// Gets the stream index of the first packet received.
-        /// </summary>
-        public int? FirstPacketStreamIndex { get; private set; } = default;
-
-        /// <summary>
-        /// Gets the first packet byte position.
-        /// </summary>
-        public long? FirstPacketPosition { get; private set; } = default;
-
-        /// <summary>
         /// Gets the current length in bytes of the packet buffer.
         /// These packets are the ones that have not been yet deecoded.
         /// </summary>
@@ -143,15 +158,6 @@
                     return result;
                 }
             }
-        }
-
-        /// <summary>
-        /// Gets the number of packets that have not been
-        /// fed to the decoders.
-        /// </summary>
-        public int PacketBufferCount
-        {
-            get { lock (SyncLock) return All.Sum(c => c.PacketBufferCount); }
         }
 
         /// <summary>
@@ -209,7 +215,7 @@
         {
             get
             {
-                lock (SyncLock) return Items.ContainsKey(mediaType) ? Items[mediaType] : null;
+                lock (SyncLock) return Items[mediaType];
             }
             set
             {
@@ -217,7 +223,9 @@
                 {
                     if (Items.ContainsKey(mediaType))
                         throw new ArgumentException($"A component for '{mediaType}' is already registered.");
-                    Items[mediaType] = value ?? throw new ArgumentNullException($"{nameof(MediaComponent)} {nameof(value)} must not be null.");
+                    Items[mediaType] = value ??
+                        throw new ArgumentNullException($"{nameof(MediaComponent)} {nameof(value)} must not be null.");
+
                     CachedComponents = null;
                     ComputeMainComponent();
                 }
@@ -227,10 +235,8 @@
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose()
-        {
+        public void Dispose() =>
             Dispose(true);
-        }
 
         #endregion
 
@@ -250,18 +256,14 @@
                 if (packet == null)
                     return MediaType.None;
 
-                if (FirstPacketStreamIndex == null && packet->dts != ffmpeg.AV_NOPTS_VALUE)
-                {
-                    FirstPacketDts = packet->dts;
-                    FirstPacketStreamIndex = packet->stream_index;
-                    FirstPacketPosition = packet->pos;
-                }
-
                 foreach (var component in All)
                 {
                     if (component.StreamIndex == packet->stream_index)
                     {
                         component.SendPacket(packet);
+                        OnPacketQueued?.Invoke(
+                            (IntPtr)packet, component.MediaType, PacketBufferLength, LifetimeBytesRead);
+
                         return component.MediaType;
                     }
                 }
@@ -288,16 +290,78 @@
         /// This is useful after a seek operation is performed or a stream
         /// index is changed.
         /// </summary>
-        public void ClearPacketQueues()
+        /// <param name="flushBuffers">if set to <c>true</c> flush codec buffers.</param>
+        public void ClearQueuedPackets(bool flushBuffers)
         {
             lock (SyncLock)
                 foreach (var component in All)
-                    component.ClearPacketQueues();
+                    component.ClearQueuedPackets(flushBuffers);
         }
 
         #endregion
 
-        #region IDisposable Support
+        #region Helper Methods
+
+        /// <summary>
+        /// Runs quick buffering logic on a single thread.
+        /// This assumes no reading, decoding, or rendering is taking place at the time of the call.
+        /// </summary>
+        /// <param name="m">The media core engine.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void RunQuickBuffering(MediaEngine m)
+        {
+            // We need to perform some packet reading and decoding
+            var frame = default(MediaFrame);
+            var main = Main.MediaType;
+            var auxs = MediaTypes.Except(main);
+            var mediaTypes = MediaTypes;
+
+            // Signal Buffering started
+            m.State.SignalBufferingStarted();
+
+            // Read and decode blocks until the main component is half full
+            while (m.ShouldReadMorePackets && m.CanReadMorePackets)
+            {
+                // Read some packets
+                m.Container.Read();
+
+                // Decode frames and add the blocks
+                foreach (var t in mediaTypes)
+                {
+                    frame = this[t].ReceiveNextFrame();
+                    m.Blocks[t].Add(frame, m.Container);
+                }
+
+                // Check if we have at least a half a buffer on main
+                if (m.Blocks[main].CapacityPercent >= 0.5)
+                    break;
+            }
+
+            // Check if we have a valid range. If not, just set it what the main component is dictating
+            if (m.Blocks[main].Count > 0 && m.Blocks[main].IsInRange(m.WallClock) == false)
+                m.Clock.Update(m.Blocks[main].RangeStartTime);
+
+            // Have the other components catch up
+            foreach (var t in auxs)
+            {
+                if (m.Blocks[main].Count <= 0) break;
+                if (t != MediaType.Audio && t != MediaType.Video)
+                    continue;
+
+                while (m.Blocks[t].RangeEndTime < m.Blocks[main].RangeEndTime)
+                {
+                    if (m.ShouldReadMorePackets == false || m.CanReadMorePackets == false)
+                        break;
+
+                    // Read some packets
+                    m.Container.Read();
+
+                    // Decode frames and add the blocks
+                    frame = this[t].ReceiveNextFrame();
+                    m.Blocks[t].Add(frame, m.Container);
+                }
+            }
+        }
 
         /// <summary>
         /// Removes the component of specified media type (if registered).

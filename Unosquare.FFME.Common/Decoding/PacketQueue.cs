@@ -5,6 +5,7 @@
     using Primitives;
     using System;
     using System.Collections.Generic;
+    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// A data structure containing a quque of packets to process.
@@ -16,11 +17,15 @@
     {
         #region Private Declarations
 
-        private readonly List<IntPtr> PacketPointers = new List<IntPtr>();
+        /// <summary>
+        /// The flush packet data pointer
+        /// </summary>
+        internal static readonly IntPtr FlushPacketData = (IntPtr)ffmpeg.av_malloc(0);
+
+        private readonly List<IntPtr> PacketPointers = new List<IntPtr>(2048);
         private ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
         private bool IsDisposed = false; // To detect redundant calls
         private ulong m_BufferLength = default;
-        private long m_Duration = default;
 
         #endregion
 
@@ -31,13 +36,7 @@
         /// </summary>
         public int Count
         {
-            get
-            {
-                using (Locker.AcquireReaderLock())
-                {
-                    return PacketPointers.Count;
-                }
-            }
+            get { using (Locker.AcquireReaderLock()) return PacketPointers.Count; }
         }
 
         /// <summary>
@@ -46,27 +45,7 @@
         /// </summary>
         public ulong BufferLength
         {
-            get
-            {
-                using (Locker.AcquireReaderLock())
-                {
-                    return m_BufferLength;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets the total duration in stream TimeBase units.
-        /// </summary>
-        public long Duration
-        {
-            get
-            {
-                using (Locker.AcquireReaderLock())
-                {
-                    return m_Duration;
-                }
-            }
+            get { using (Locker.AcquireReaderLock()) return m_BufferLength; }
         }
 
         /// <summary>
@@ -79,20 +58,8 @@
         /// <returns>The packet reference</returns>
         private AVPacket* this[int index]
         {
-            get
-            {
-                using (Locker.AcquireReaderLock())
-                {
-                    return (AVPacket*)PacketPointers[index];
-                }
-            }
-            set
-            {
-                using (Locker.AcquireWriterLock())
-                {
-                    PacketPointers[index] = (IntPtr)value;
-                }
-            }
+            get { using (Locker.AcquireReaderLock()) return (AVPacket*)PacketPointers[index]; }
+            set { using (Locker.AcquireWriterLock()) PacketPointers[index] = (IntPtr)value; }
         }
 
         #endregion
@@ -126,8 +93,7 @@
             using (Locker.AcquireWriterLock())
             {
                 PacketPointers.Add((IntPtr)packet);
-                m_BufferLength += Convert.ToUInt64(packet->size < 0 ? default : packet->size);
-                m_Duration += packet->duration;
+                m_BufferLength += packet->size < 0 ? default : (ulong)packet->size;
             }
         }
 
@@ -144,8 +110,7 @@
                 PacketPointers.RemoveAt(0);
 
                 var packet = (AVPacket*)result;
-                m_BufferLength -= Convert.ToUInt64(packet->size < 0 ? default : packet->size);
-                m_Duration -= packet->duration;
+                m_BufferLength -= packet->size < 0 ? default : (ulong)packet->size;
                 return packet;
             }
         }
@@ -160,12 +125,10 @@
                 while (PacketPointers.Count > 0)
                 {
                     var packet = Dequeue();
-                    RC.Current.Remove(packet);
-                    ffmpeg.av_packet_free(&packet);
+                    ReleasePacket(packet);
                 }
 
                 m_BufferLength = 0;
-                m_Duration = 0;
             }
         }
 
@@ -176,9 +139,83 @@
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose()
-        {
+        public void Dispose() =>
             Dispose(true);
+
+        /// <summary>
+        /// Releases the packet from memory
+        /// </summary>
+        /// <param name="packet">The packet.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void ReleasePacket(AVPacket* packet)
+        {
+            RC.Current.Remove(packet);
+            ffmpeg.av_packet_free(&packet);
+        }
+
+        /// <summary>
+        /// Create a new packet that references the same data as the source packet.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <returns>A clone of the packet</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static AVPacket* ClonePacket(AVPacket* source)
+        {
+            var packet = ffmpeg.av_packet_clone(source);
+            RC.Current.Add(packet, $"160: {nameof(PacketQueue)}.{nameof(ClonePacket)}()");
+            return packet;
+        }
+
+        /// <summary>
+        /// Allocates a default readable packet
+        /// </summary>
+        /// <returns>
+        /// A packet used for receiving data
+        /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static AVPacket* CreateReadPacket()
+        {
+            var packet = ffmpeg.av_packet_alloc();
+            RC.Current.Add(packet, $"174: {nameof(PacketQueue)}.{nameof(CreateReadPacket)}()");
+            return packet;
+        }
+
+        /// <summary>
+        /// Creates the empty packet.
+        /// </summary>
+        /// <param name="streamIndex">The stream index this packet belongs to.</param>
+        /// <returns>
+        /// The special empty packet that instructs the decoder to enter draining mode
+        /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static AVPacket* CreateEmptyPacket(int streamIndex)
+        {
+            var packet = ffmpeg.av_packet_alloc();
+            RC.Current.Add(packet, $"184: {nameof(PacketQueue)}.{nameof(CreateEmptyPacket)}({streamIndex})");
+            ffmpeg.av_init_packet(packet);
+            packet->data = null;
+            packet->size = 0;
+            packet->stream_index = streamIndex;
+
+            return packet;
+        }
+
+        /// <summary>
+        /// Creates a flush packet.
+        /// </summary>
+        /// <param name="streamIndex">The stream index this packet belongs to.</param>
+        /// <returns>A special packet that makes the decoder flush its buffers</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static AVPacket* CreateFlushPacket(int streamIndex)
+        {
+            var packet = ffmpeg.av_packet_alloc();
+            RC.Current.Add(packet, $"202: {nameof(PacketQueue)}.{nameof(CreateFlushPacket)}({streamIndex})");
+            ffmpeg.av_init_packet(packet);
+            packet->data = (byte*)FlushPacketData;
+            packet->size = 0;
+            packet->stream_index = streamIndex;
+
+            return packet;
         }
 
         /// <summary>

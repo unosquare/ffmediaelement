@@ -48,15 +48,24 @@
         internal VideoComponent(MediaContainer container, int streamIndex)
             : base(container, streamIndex)
         {
-            BaseFrameRateQ = ffmpeg.av_guess_frame_rate(container.InputContext, Stream, null);
             FilterString = container.MediaOptions.VideoFilter;
-
-            if (double.IsNaN(BaseFrameRate))
+            BaseFrameRateQ = ffmpeg.av_guess_frame_rate(container.InputContext, Stream, null);
+            if (BaseFrameRateQ.den == 0)
                 BaseFrameRateQ = Stream->r_frame_rate;
 
-            CurrentFrameRate = BaseFrameRate;
-            if (double.IsNaN(CurrentFrameRate))
+            if (BaseFrameRateQ.den == 0)
+            {
+                container.Parent.Log(MediaLogMessageType.Warning, $"{nameof(VideoComponent)} - Unable to extract valid framerate. Will use 25fps (40ms)");
+                BaseFrameRateQ.num = 25;
+                BaseFrameRateQ.den = 1;
+            }
+
+            BaseFrameRate = BaseFrameRateQ.ToDouble();
+
+            if (Stream->avg_frame_rate.den > 0 && Stream->avg_frame_rate.num > 0)
                 CurrentFrameRate = Stream->avg_frame_rate.ToDouble();
+            else
+                CurrentFrameRate = BaseFrameRate;
 
             FrameWidth = Stream->codec->width;
             FrameHeight = Stream->codec->height;
@@ -73,7 +82,7 @@
         /// <summary>
         /// Gets the video scaler flags used to perfom colorspace conversion (if needed).
         /// Point / nearest-neighbor is the default and it is the cheapest. This is by design as
-        /// we don't change the dimensions  of the image. We only do color conversion.
+        /// we don't change the dimensions of the image. We only do color conversion.
         /// </summary>
         public static int ScalerFlags { get; internal set; } = ffmpeg.SWS_POINT;
 
@@ -81,7 +90,7 @@
         /// Gets the base frame rate as reported by the stream component.
         /// All discrete timestamps can be represented in this framerate.
         /// </summary>
-        public double BaseFrameRate => BaseFrameRateQ.ToDouble();
+        public double BaseFrameRate { get; private set; }
 
         /// <summary>
         /// Gets the current frame rate as guessed by the last processed frame.
@@ -244,11 +253,12 @@
         /// <summary>
         /// Creates a frame source object given the raw FFmpeg frame reference.
         /// </summary>
-        /// <param name="frame">The raw FFmpeg frame pointer.</param>
+        /// <param name="framePointer">The raw FFmpeg frame pointer.</param>
         /// <returns>Create a managed fraome from an unmanaged one.</returns>
-        protected override unsafe MediaFrame CreateFrameSource(ref AVFrame* frame)
+        protected override unsafe MediaFrame CreateFrameSource(IntPtr framePointer)
         {
             // Validate the video frame
+            var frame = (AVFrame*)framePointer;
             if (frame == null || frame->width <= 0 || frame->height <= 0)
                 return null;
 
@@ -262,12 +272,11 @@
 
             AVFrame* outputFrame;
 
-            // TODO: (Floyd) Support real-time changes in Video Filtergraph by checking if MediaOptions.VideoFilterGraph has changed
-            // Maybe expose the VideoFilterGraph string as a MediaElement Control Property
+            // Changes in the filtergraph can be applied by calling the ChangeMedia command
             if (FilterGraph != null)
             {
                 // Allocate the output frame
-                outputFrame = ffmpeg.av_frame_clone(frame);
+                outputFrame = MediaFrame.CloneAVFrame(frame);
 
                 var result = ffmpeg.av_buffersrc_add_frame(SourceFilter, outputFrame);
                 while (result >= 0)
@@ -277,17 +286,14 @@
                 {
                     // If we don't have a valid output frame simply release it and
                     // return the original input frame
-                    RC.Current.Remove(outputFrame);
-                    ffmpeg.av_frame_free(&outputFrame);
+                    MediaFrame.ReleaseAVFrame(outputFrame);
                     outputFrame = frame;
                 }
                 else
                 {
                     // the output frame is the new valid frame (output frame).
                     // threfore, we need to release the original
-                    RC.Current.Remove(frame);
-                    var framePtr = frame;
-                    ffmpeg.av_frame_free(&framePtr);
+                    MediaFrame.ReleaseAVFrame(frame);
                 }
             }
             else

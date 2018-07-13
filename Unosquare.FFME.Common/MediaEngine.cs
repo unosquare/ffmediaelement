@@ -13,6 +13,9 @@
     /// <seealso cref="IDisposable" />
     public partial class MediaEngine : IDisposable, IMediaLogger
     {
+        private readonly object DisposeLock = new object();
+        private bool m_IsDisposed = false;
+
         #region Constructors
 
         /// <summary>
@@ -26,7 +29,7 @@
             // Associate the parent as the media connector that implements the callbacks
             Parent = parent;
             Connector = connector;
-            Commands = new MediaCommandManager(this);
+            Commands = new CommandManager(this);
             State = new MediaEngineState(this);
 
             // Don't start up timers or any other stuff if we are in design-time
@@ -57,7 +60,7 @@
         /// This is different from the position property and it is useful
         /// in computing things like real-time latency in a render cycle.
         /// </summary>
-        public TimeSpan WallClock => State.IsOpen ? Clock.Position : TimeSpan.Zero;
+        public TimeSpan WallClock => State.IsOpen || State.IsOpening ? Clock.Position : TimeSpan.Zero;
 
         /// <summary>
         /// Provides stream, chapter and program info of the underlying media.
@@ -68,12 +71,18 @@
         /// <summary>
         /// Gets a value indicating whether this instance is disposed.
         /// </summary>
-        public bool IsDisposed { get; private set; } = default;
+        public bool IsDisposed { get { lock (DisposeLock) return m_IsDisposed; } }
 
         /// <summary>
         /// Gets the associated parent object.
         /// </summary>
         public object Parent { get; }
+
+        /// <summary>
+        /// Represents a real-time time measuring device.
+        /// Rendering media should occur as requested by the clock.
+        /// </summary>
+        internal RealTimeClock Clock { get; } = new RealTimeClock();
 
         /// <summary>
         /// Gets the event connector (platform specific).
@@ -119,39 +128,32 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
-            if (IsDisposed) return;
-
-            // Run the close command immediately
-            if (BeginSynchronousCommand() == false) return;
-
-            // Dispose the wait handle: No more command accepted from this point forward.
-            SynchronousCommandDone.Dispose();
-
-            try
+            lock (DisposeLock)
             {
-                var closeCommand = new CloseCommand(Commands);
-                closeCommand.RunSynchronously();
+                if (m_IsDisposed) return;
+
+                try
+                {
+                    // Dispose of commands. This closes the
+                    // Media automatically and signals an exit
+                    // This also causes the Container to get disposed.
+                    Commands.Dispose();
+
+                    // Dispose the RTC
+                    Clock.Dispose();
+
+                    // Dispose the Wait Event objects as they are
+                    // backed by unmanaged code
+                    PacketReadingCycle.Dispose();
+                    FrameDecodingCycle.Dispose();
+                    BlockRenderingCycle.Dispose();
+                }
+                catch { throw; }
+                finally
+                {
+                    m_IsDisposed = true;
+                }
             }
-            catch { throw; }
-            finally
-            {
-                IsDisposed = true;
-            }
-
-            // Dispose the container
-            Container?.Dispose();
-            Container = null;
-
-            // Dispose the RTC
-            Clock.Dispose();
-
-            // Dispose the Wait Event objects as they are
-            // backed by unmanaged code
-            PacketReadingCycle.Dispose();
-            FrameDecodingCycle.Dispose();
-            BlockRenderingCycle.Dispose();
-            SeekingDone.Dispose();
-            MediaChangingDone.Dispose();
         }
 
         #endregion

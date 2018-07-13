@@ -20,6 +20,7 @@
                 Style="{DynamicResource PositionSliderStyle}"
                 Visibility="{Binding Controller.SeekBarVisibility}"
                 IsEnabled="{Binding App.MediaElement.IsOpen}"
+                IsSnapToTickEnabled="False"
                 SmallChange="{Binding App.MediaElement.FrameStepDuration, Converter={StaticResource TimeSpanToSecondsConverter}}"
                 LargeChange="{Binding App.MediaElement.FrameStepDuration, Converter={StaticResource TimeSpanToSecondsConverter}}"
                 Maximum="{Binding App.MediaElement.NaturalDuration, Converter={StaticResource TimeSpanToSecondsConverter}}" 

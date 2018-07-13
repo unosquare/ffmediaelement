@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
-    using Core;
     using FFmpeg.AutoGen;
     using Shared;
     using System;
@@ -14,6 +13,7 @@
     {
         #region Private Members
 
+        private readonly object DisposeLock = new object();
         private AVFrame* m_Pointer = null;
         private bool IsDisposed = false;
 
@@ -47,14 +47,6 @@
             EndTime = TimeSpan.FromTicks(StartTime.Ticks + Duration.Ticks);
         }
 
-        /// <summary>
-        /// Finalizes an instance of the <see cref="AudioFrame"/> class.
-        /// </summary>
-        ~AudioFrame()
-        {
-            Dispose(false);
-        }
-
         #endregion
 
         #region Properties
@@ -76,11 +68,8 @@
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        public override void Dispose()
-        {
+        public override void Dispose() =>
             Dispose(true);
-            GC.SuppressFinalize(this);
-        }
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
@@ -88,16 +77,12 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
-            if (!IsDisposed)
+            lock (DisposeLock)
             {
+                if (IsDisposed) return;
+
                 if (m_Pointer != null)
-                {
-                    fixed (AVFrame** pointer = &m_Pointer)
-                    {
-                        RC.Current.Remove(*pointer);
-                        ffmpeg.av_frame_free(pointer);
-                    }
-                }
+                    ReleaseAVFrame(m_Pointer);
 
                 m_Pointer = null;
                 InternalPointer = null;

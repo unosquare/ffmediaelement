@@ -5,7 +5,6 @@
     using Shared;
     using System;
     using System.Collections.Generic;
-    using System.Runtime.InteropServices;
 
     /// <summary>
     /// Represents a wrapper for an unmanaged Subtitle frame.
@@ -17,6 +16,7 @@
     {
         #region Private Members
 
+        private readonly object DisposeLock = new object();
         private AVSubtitle* m_Pointer = null;
         private bool IsDisposed = false;
 
@@ -75,14 +75,6 @@
             }
         }
 
-        /// <summary>
-        /// Finalizes an instance of the <see cref="SubtitleFrame"/> class.
-        /// </summary>
-        ~SubtitleFrame()
-        {
-            Dispose(false);
-        }
-
         #endregion
 
         #region Properties
@@ -117,31 +109,8 @@
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        public override void Dispose()
-        {
+        public override void Dispose() =>
             Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Allocates an AVSubtitle struct in unmanaged memory,
-        /// </summary>
-        /// <returns>The subtitle struct pointer</returns>
-        internal static AVSubtitle* AllocateSubtitle()
-        {
-            return (AVSubtitle*)ffmpeg.av_malloc((ulong)Marshal.SizeOf(typeof(AVSubtitle)));
-        }
-
-        /// <summary>
-        /// Deallocates the subtitle struct used to create in managed memory.
-        /// </summary>
-        /// <param name="frame">The frame.</param>
-        internal static void DeallocateSubtitle(AVSubtitle* frame)
-        {
-            if (frame == null) return;
-            ffmpeg.avsubtitle_free(frame);
-            ffmpeg.av_free(frame);
-        }
 
         #endregion
 
@@ -153,12 +122,12 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
-            if (!IsDisposed)
+            lock (DisposeLock)
             {
+                if (IsDisposed) return;
+
                 if (m_Pointer != null)
-                {
-                    DeallocateSubtitle(m_Pointer);
-                }
+                    ReleaseAVSubtitle(m_Pointer);
 
                 m_Pointer = null;
                 InternalPointer = null;

@@ -56,7 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Events\BitmapDataBuffer.cs" />
-    <Compile Include="Events\MediaInitializingRoutedEventArgs.cs" />
+    <Compile Include="Events\MediaInitializingEventArgs.cs" />
     <Compile Include="Events\MediaOpenedRoutedEventArgs.cs" />
     <Compile Include="Events\MediaStateChangedRoutedEventArgs.cs" />
     <Compile Include="Events\RenderingAudioEventArgs.cs" />
@@ -108,7 +108,7 @@
     <Compile Include="MediaElement.DependencyProperties.cs" />
     <Compile Include="MediaElement.MediaProperties.cs" />
     <Compile Include="MediaElement.RoutedEvents.cs" />
-    <Compile Include="Events\MediaOpeningRoutedEventArgs.cs" />
+    <Compile Include="Events\MediaOpeningEventArgs.cs" />
     <Compile Include="Rendering\Wave\WaveOutSupport.cs" />
     <Compile Include="Rendering\Wave\LegacyAudioPlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

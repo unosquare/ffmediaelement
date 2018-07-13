@@ -31,6 +31,13 @@
         /// </summary>
         public event EventHandler<RenderingSubtitlesEventArgs> RenderingSubtitles;
 
+        /// <summary>
+        /// Occurs when the currently selected audio device stops or loses its buffer.
+        /// Call the <see cref="ChangeMedia"/> method and select a new audio device
+        /// in order to output to a new audio device
+        /// </summary>
+        public event EventHandler AudioDeviceStopped;
+
         #endregion
 
         #region Event Raisers
@@ -63,21 +70,26 @@
         /// <summary>
         /// Raises the rendering audio event.
         /// </summary>
-        /// <param name="audioBlock">The audio block.</param>
-        /// <param name="clock">The clock.</param>
+        /// <param name="buffer">The audio buffer.</param>
+        /// <param name="bufferLength">Length of the buffer.</param>
+        /// <param name="startTime">The start time.</param>
+        /// <param name="duration">The duration.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseRenderingAudioEvent(AudioBlock audioBlock, TimeSpan clock)
+        internal void RaiseRenderingAudioEvent(
+            byte[] buffer, int bufferLength, TimeSpan startTime, TimeSpan duration)
         {
             if (RenderingAudio == null) return;
+            if (MediaCore == null || MediaCore.IsDisposed) return;
+            if (MediaCore.MediaInfo.Streams.ContainsKey(MediaCore.State.AudioStreamIndex) == false) return;
 
             var e = new RenderingAudioEventArgs(
-                    audioBlock.Buffer,
-                    audioBlock.SamplesBufferLength,
+                    buffer,
+                    bufferLength,
                     MediaCore.State,
-                    MediaCore.MediaInfo.Streams[audioBlock.StreamIndex],
-                    audioBlock.StartTime,
-                    audioBlock.Duration,
-                    clock);
+                    MediaCore.MediaInfo.Streams[MediaCore.State.AudioStreamIndex],
+                    startTime,
+                    duration,
+                    MediaCore.WallClock);
 
             RenderingAudio?.Invoke(this, e);
         }
@@ -107,6 +119,12 @@
             RenderingSubtitles?.Invoke(this, e);
             return e.Cancel;
         }
+
+        /// <summary>
+        /// Raises the audio device stopped event.
+        /// </summary>
+        internal void RaiseAudioDeviceStoppedEvent() =>
+            AudioDeviceStopped?.Invoke(this, EventArgs.Empty);
 
         #endregion
     }

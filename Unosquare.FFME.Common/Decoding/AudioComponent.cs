@@ -128,7 +128,7 @@
             {
                 using (writeLock)
                 {
-                    var outputBufferPtr = (byte*)target.Buffer.ToPointer();
+                    var outputBufferPtr = (byte*)target.Buffer;
 
                     // Execute the conversion (audio scaling). It will return the number of samples that were output
                     outputSamplesPerChannel = ffmpeg.swr_convert(
@@ -183,11 +183,12 @@
         /// <summary>
         /// Creates a frame source object given the raw FFmpeg frame reference.
         /// </summary>
-        /// <param name="frame">The raw FFmpeg frame pointer.</param>
+        /// <param name="framePointer">The raw FFmpeg frame pointer.</param>
         /// <returns>The media frame</returns>
-        protected override unsafe MediaFrame CreateFrameSource(ref AVFrame* frame)
+        protected override unsafe MediaFrame CreateFrameSource(IntPtr framePointer)
         {
             // Validate the audio frame
+            var frame = (AVFrame*)framePointer;
             if (frame == null || (*frame).extended_data == null || frame->channels <= 0 ||
                 frame->nb_samples <= 0 || frame->sample_rate <= 0)
             {
@@ -199,12 +200,11 @@
 
             AVFrame* outputFrame = null;
 
-            // TODO: (Floyd) Support real-time changes in Audio Filtergraph by checking if MediaOptions.AudioFilterGraph has changed
-            // Maybe expose the AudioFilterGraph string as a MediaElement Control Property
+            // Filtergraph can be changed by issuing a ChangeMedia command
             if (FilterGraph != null)
             {
                 // Allocate the output frame
-                outputFrame = ffmpeg.av_frame_clone(frame);
+                outputFrame = MediaFrame.CloneAVFrame(frame);
 
                 var result = ffmpeg.av_buffersrc_add_frame(SourceFilter, outputFrame);
                 while (result >= 0)
@@ -214,17 +214,14 @@
                 {
                     // If we don't have a valid output frame simply release it and
                     // return the original input frame
-                    RC.Current.Remove(outputFrame);
-                    ffmpeg.av_frame_free(&outputFrame);
+                    MediaFrame.ReleaseAVFrame(outputFrame);
                     outputFrame = frame;
                 }
                 else
                 {
                     // the output frame is the new valid frame (output frame).
                     // threfore, we need to release the original
-                    RC.Current.Remove(frame);
-                    var framePtr = frame;
-                    ffmpeg.av_frame_free(&framePtr);
+                    MediaFrame.ReleaseAVFrame(frame);
                 }
             }
             else

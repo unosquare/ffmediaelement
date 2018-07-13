@@ -52,11 +52,18 @@
             // The Render timer is responsible for sending frames to renders
             BlockRenderingWorker = new Timer((s) =>
             {
-                #region Detect a Timer Stop
+                #region Detect Exit/Skip Conditions
 
-                if (IsTaskCancellationPending || BlockRenderingWorkerExit.IsCompleted || IsDisposed)
+                if (Commands.IsStopWorkersPending || BlockRenderingWorkerExit.IsCompleted || IsDisposed)
                 {
                     BlockRenderingWorkerExit?.Complete();
+                    return;
+                }
+
+                // Skip the cycle if it's already running
+                if (BlockRenderingCycle.IsInProgress)
+                {
+                    Log(MediaLogMessageType.Trace, $"SKIP: {nameof(BlockRenderingWorker)} alredy in a cycle. {WallClock}");
                     return;
                 }
 
@@ -64,31 +71,22 @@
 
                 #region Run the Rendering Cycle
 
-                // Don't run the cycle if it's already running
-                if (BlockRenderingCycle.IsInProgress)
-                {
-                    Log(MediaLogMessageType.Trace, $"SKIP: {nameof(BlockRenderingWorker)} alredy in a cycle. {WallClock}");
-                    return;
-                }
-
                 try
                 {
                     #region 1. Control and Capture
 
-                    // Wait for Media Changing
-                    MediaChangingDone.Wait();
-
                     // Wait for the seek op to finish before we capture blocks
-                    if (HasDecoderSeeked)
-                        SeekingDone.Wait();
+                    Commands.WaitForActiveSeekCommand();
 
                     // Signal the start of a block rendering cycle
                     BlockRenderingCycle.Begin();
 
+                    // Skip the cycle if we are running a priority command
+                    if (Commands.IsExecutingDirectCommand) return;
+
                     // Updatete Status Properties
                     main = Container.Components.Main.MediaType;
                     all = Renderers.Keys.ToArray();
-                    State.UpdateBufferingProperties();
 
                     // Reset the rendered count to 0
                     foreach (var t in all)
@@ -139,8 +137,7 @@
                     #endregion
 
                 }
-                catch (ThreadAbortException) { /* swallow */ }
-                catch { if (!IsDisposed) throw; }
+                catch { throw; }
                 finally
                 {
                     // Always exit notifying the cycle is done.
@@ -163,10 +160,10 @@
             if (BlockRenderingWorkerExit == null)
                 return;
 
-            BlockRenderingWorkerExit.Wait();
+            BlockRenderingWorkerExit?.Wait();
             BlockRenderingWorker?.Dispose();
             BlockRenderingWorker = null;
-            BlockRenderingWorkerExit.Dispose();
+            BlockRenderingWorkerExit?.Dispose();
             BlockRenderingWorkerExit = null;
         }
     }

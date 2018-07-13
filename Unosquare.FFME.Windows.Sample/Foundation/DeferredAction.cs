@@ -66,7 +66,10 @@
         {
             if (IsDiposed) return;
             IsDiposed = true;
-            DeferTimer?.Dispose();
+
+            if (DeferTimer != null)
+                DeferTimer.Dispose();
+
             DeferTimer = null;
         }
 

@@ -27,7 +27,7 @@
         /// </summary>
         static FFLibrary()
         {
-            All = new ReadOnlyCollection<FFLibrary>(new List<FFLibrary>
+            All = new ReadOnlyCollection<FFLibrary>(new List<FFLibrary>(16)
             {
                 LibAVCodec,
                 LibAVFilter,

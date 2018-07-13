@@ -1,7 +1,6 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
     using ClosedCaptions;
-    using Core;
     using FFmpeg.AutoGen;
     using Shared;
     using System;
@@ -15,6 +14,7 @@
     {
         #region Private Members
 
+        private readonly object DisposeLock = new object();
         private AVFrame* m_Pointer = null;
         private bool IsDisposed = false;
 
@@ -79,14 +79,6 @@
             }
         }
 
-        /// <summary>
-        /// Finalizes an instance of the <see cref="VideoFrame"/> class.
-        /// </summary>
-        ~VideoFrame()
-        {
-            Dispose(false);
-        }
-
         #endregion
 
         #region Properties
@@ -99,7 +91,7 @@
         /// <summary>
         /// Gets the closed caption data collected from the frame in CEA-708/EAS-608 format.
         /// </summary>
-        public List<ClosedCaptionPacket> ClosedCaptions { get; } = new List<ClosedCaptionPacket>();
+        public List<ClosedCaptionPacket> ClosedCaptions { get; } = new List<ClosedCaptionPacket>(128);
 
         /// <summary>
         /// Gets the display picture number (frame number).
@@ -130,11 +122,8 @@
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        public override void Dispose()
-        {
+        public override void Dispose() =>
             Dispose(true);
-            GC.SuppressFinalize(this);
-        }
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
@@ -142,16 +131,12 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
-            if (!IsDisposed)
+            lock (DisposeLock)
             {
+                if (IsDisposed) return;
+
                 if (m_Pointer != null)
-                {
-                    fixed (AVFrame** pointer = &m_Pointer)
-                    {
-                        RC.Current.Remove(*pointer);
-                        ffmpeg.av_frame_free(pointer);
-                    }
-                }
+                    ReleaseAVFrame(m_Pointer);
 
                 m_Pointer = null;
                 InternalPointer = null;

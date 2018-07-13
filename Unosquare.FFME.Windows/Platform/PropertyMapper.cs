@@ -146,7 +146,7 @@
         /// <returns>A list of dependency properties</returns>
         private static List<DependencyProperty> RetrieveDependencyProperties(Type t)
         {
-            var result = new List<DependencyProperty>();
+            var result = new List<DependencyProperty>(64);
             var fieldInfos = t.GetFields(BindingFlags.Public | BindingFlags.Static)
                 .Where(x => x.FieldType == typeof(DependencyProperty))
                 .ToArray();
@@ -171,7 +171,7 @@
             var flags = BindingFlags.Instance | BindingFlags.Public;
             if (declaredOnly) flags |= BindingFlags.DeclaredOnly;
 
-            var result = new List<PropertyInfo>();
+            var result = new List<PropertyInfo>(64);
             var propertyInfos = t.GetProperties(flags).ToArray();
             foreach (var propertyInfo in propertyInfos)
                 result.Add(propertyInfo);

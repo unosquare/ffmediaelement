@@ -1,8 +1,11 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
+    using Core;
     using FFmpeg.AutoGen;
     using Shared;
     using System;
+    using System.Runtime.CompilerServices;
+    using System.Runtime.InteropServices;
 
     /// <summary>
     /// Represents a wrapper for an unmanaged frame.
@@ -108,5 +111,63 @@
         public abstract void Dispose();
 
         #endregion
+
+        /// <summary>
+        /// Creates a frame used for Audio or Video
+        /// </summary>
+        /// <returns>The frame allocated in unmanaged memory</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static AVFrame* CreateAVFrame()
+        {
+            var frame = ffmpeg.av_frame_alloc();
+            RC.Current.Add(frame, $"119: {nameof(MediaFrame)}.{nameof(CreateAVFrame)}()");
+            return frame;
+        }
+
+        /// <summary>
+        /// Releases a previously allocated frame used for Audio or Video
+        /// </summary>
+        /// <param name="frame">The frame.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void ReleaseAVFrame(AVFrame* frame)
+        {
+            RC.Current.Remove(frame);
+            ffmpeg.av_frame_free(&frame);
+        }
+
+        /// <summary>
+        /// Creates a deep copy of the specified source
+        /// </summary>
+        /// <param name="source">The source frame.</param>
+        /// <returns>The cloned frame</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static AVFrame* CloneAVFrame(AVFrame* source)
+        {
+            var frame = ffmpeg.av_frame_clone(source);
+            RC.Current.Add(frame, $"119: {nameof(MediaFrame)}.{nameof(CloneAVFrame)}()");
+            return frame;
+        }
+
+        /// <summary>
+        /// Allocates an AVSubtitle struct in unmanaged memory,
+        /// </summary>
+        /// <returns>The subtitle struct pointer</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static AVSubtitle* CreateAVSubtitle()
+        {
+            return (AVSubtitle*)ffmpeg.av_malloc((ulong)Marshal.SizeOf(typeof(AVSubtitle)));
+        }
+
+        /// <summary>
+        /// Deallocates the subtitle struct used to create in managed memory.
+        /// </summary>
+        /// <param name="frame">The frame.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void ReleaseAVSubtitle(AVSubtitle* frame)
+        {
+            if (frame == null) return;
+            ffmpeg.avsubtitle_free(frame);
+            ffmpeg.av_free(frame);
+        }
     }
 }

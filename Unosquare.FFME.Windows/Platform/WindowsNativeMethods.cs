@@ -110,7 +110,7 @@
 
                 case MemoryCopyStartegy.Buffer:
                     {
-                        Buffer.MemoryCopy(sourceAddress.ToPointer(), targetAddress.ToPointer(), copyLength, copyLength);
+                        Buffer.MemoryCopy((void*)sourceAddress, (void*)targetAddress, copyLength, copyLength);
                         break;
                     }
             }

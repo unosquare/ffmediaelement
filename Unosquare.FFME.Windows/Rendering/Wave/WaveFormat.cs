@@ -114,7 +114,7 @@
         /// </summary>
         /// <param name="milliseconds">The milliseconds.</param>
         /// <returns>The size</returns>
-        public int ConvertLatencyToByteSize(int milliseconds)
+        public int ConvertMillisToByteSize(int milliseconds)
         {
             var byteCount = Convert.ToInt32((AverageBytesPerSecond / 1000.0d) * milliseconds);
             if ((byteCount % BlockAlign) != 0)
@@ -125,6 +125,14 @@
 
             return byteCount;
         }
+
+        /// <summary>
+        /// Converts from byte size to duration
+        /// </summary>
+        /// <param name="byteSize">Size of the byte.</param>
+        /// <returns>The duration given the byte size</returns>
+        public TimeSpan ConvertByteSizeToDuration(int byteSize) =>
+            TimeSpan.FromTicks(Convert.ToInt64(TimeSpan.TicksPerSecond * (double)byteSize / averageBytesPerSecond));
 
         /// <summary>
         /// Reports this WaveFormat as a string

@@ -130,7 +130,7 @@
         /// <param name="ptr">The unmanaged object reference.</param>
         public void Remove(void* ptr)
         {
-            Remove(new IntPtr(ptr));
+            Remove((IntPtr)ptr);
         }
 
         /// <summary>
@@ -138,60 +138,48 @@
         /// </summary>
         /// <param name="packet">The packet.</param>
         /// <param name="location">The location.</param>
-        public void Add(AVPacket* packet, string location)
-        {
-            Add(UnmanagedType.Packet, new IntPtr(packet), location);
-        }
+        public void Add(AVPacket* packet, string location) =>
+            Add(UnmanagedType.Packet, (IntPtr)packet, location);
 
         /// <summary>
         /// Adds the specified context.
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="location">The location.</param>
-        public void Add(SwrContext* context, string location)
-        {
-            Add(UnmanagedType.SwrContext, new IntPtr(context), location);
-        }
+        public void Add(SwrContext* context, string location) =>
+            Add(UnmanagedType.SwrContext, (IntPtr)context, location);
 
         /// <summary>
         /// Adds the specified context.
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="location">The location.</param>
-        public void Add(SwsContext* context, string location)
-        {
-            Add(UnmanagedType.SwsContext, new IntPtr(context), location);
-        }
+        public void Add(SwsContext* context, string location) =>
+            Add(UnmanagedType.SwsContext, (IntPtr)context, location);
 
         /// <summary>
         /// Adds the specified codec.
         /// </summary>
         /// <param name="codec">The codec.</param>
         /// <param name="location">The location.</param>
-        public void Add(AVCodecContext* codec, string location)
-        {
-            Add(UnmanagedType.CodecContext, new IntPtr(codec), location);
-        }
+        public void Add(AVCodecContext* codec, string location) =>
+            Add(UnmanagedType.CodecContext, (IntPtr)codec, location);
 
         /// <summary>
         /// Adds the specified frame.
         /// </summary>
         /// <param name="frame">The frame.</param>
         /// <param name="location">The location.</param>
-        public void Add(AVFrame* frame, string location)
-        {
-            Add(UnmanagedType.Frame, new IntPtr(frame), location);
-        }
+        public void Add(AVFrame* frame, string location) =>
+            Add(UnmanagedType.Frame, (IntPtr)frame, location);
 
         /// <summary>
         /// Adds the specified filtergraph.
         /// </summary>
         /// <param name="filtergraph">The filtergraph.</param>
         /// <param name="location">The location.</param>
-        public void Add(AVFilterGraph* filtergraph, string location)
-        {
-            Add(UnmanagedType.FilterGraph, new IntPtr(filtergraph), location);
-        }
+        public void Add(AVFilterGraph* filtergraph, string location) =>
+            Add(UnmanagedType.FilterGraph, (IntPtr)filtergraph, location);
 
         /// <summary>
         /// A reference entry

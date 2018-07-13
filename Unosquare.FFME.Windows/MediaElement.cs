@@ -108,18 +108,57 @@
 
         /// <summary>
         /// Occurs when a logging message from the FFmpeg library has been received.
-        /// This is shared across all instances of Media Elements
+        /// This is shared across all instances of Media Elements.
         /// </summary>
+        /// <remarks>
+        /// This event is raised on a background thread.
+        /// All interaction with UI elements requires calls on their corresponding dispatcher.
+        /// </remarks>
         public static event EventHandler<MediaLogMessageEventArgs> FFmpegMessageLogged;
 
         /// <summary>
         /// Occurs when a logging message has been logged.
         /// This does not include FFmpeg messages.
         /// </summary>
+        /// <remarks>
+        /// This event is raised on a background thread.
+        /// All interaction with UI elements requires calls on their corresponding dispatcher.
+        /// </remarks>
         public event EventHandler<MediaLogMessageEventArgs> MessageLogged;
 
         /// <summary>
+        /// Raised before the input stream of the media is initialized.
+        /// Use this method to modify the input options.
+        /// </summary>
+        /// <remarks>
+        /// This event is raised on a background thread.
+        /// All interaction with UI elements requires calls on their corresponding dispatcher.
+        /// </remarks>
+        public event EventHandler<MediaInitializingEventArgs> MediaInitializing;
+
+        /// <summary>
+        /// Raised before the input stream of the media is opened.
+        /// Use this method to modify the media options and select streams.
+        /// </summary>
+        /// <remarks>
+        /// This event is raised on a background thread.
+        /// All interaction with UI elements requires calls on their corresponding dispatcher.
+        /// </remarks>
+        public event EventHandler<MediaOpeningEventArgs> MediaOpening;
+
+        /// <summary>
+        /// Raised before a change in media options is applied.
+        /// Use this method to modify the selected streams.
+        /// </summary>
+        /// <remarks>
+        /// This event is raised on a background thread.
+        /// All interaction with UI elements requires calls on their corresponding dispatcher.
+        /// </remarks>
+        public event EventHandler<MediaOpeningEventArgs> MediaChanging;
+
+        /// <summary>
         /// Multicast event for property change notifications.
+        /// This event runs on the UI thread.
         /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -179,7 +218,7 @@
 
         /// <summary>
         /// Provides access to the underlying media engine driving this control.
-        /// This property is intender for advance usages only.
+        /// This property is intended for advance usages only.
         /// </summary>
         internal MediaEngine MediaCore { get; private set; } = null;
 
@@ -228,7 +267,7 @@
         public async Task ChangeMedia()
         {
             try { await MediaCore.ChangeMedia(); }
-            catch (Exception ex) { var t = RaiseMediaFailedEvent(ex); }
+            catch (Exception ex) { PostMediaFailedEvent(ex); }
         }
 
         /// <summary>
@@ -238,7 +277,7 @@
         public async Task Play()
         {
             try { await MediaCore.Play(); }
-            catch (Exception ex) { var t = RaiseMediaFailedEvent(ex); }
+            catch (Exception ex) { PostMediaFailedEvent(ex); }
         }
 
         /// <summary>
@@ -248,7 +287,7 @@
         public async Task Pause()
         {
             try { await MediaCore.Pause(); }
-            catch (Exception ex) { var t = RaiseMediaFailedEvent(ex); }
+            catch (Exception ex) { PostMediaFailedEvent(ex); }
         }
 
         /// <summary>
@@ -258,7 +297,7 @@
         public async Task Stop()
         {
             try { await MediaCore.Stop(); }
-            catch (Exception ex) { var t = RaiseMediaFailedEvent(ex); }
+            catch (Exception ex) { PostMediaFailedEvent(ex); }
         }
 
         /// <summary>
@@ -272,7 +311,7 @@
                 await MediaCore.Close();
                 Source = null;
             }
-            catch (Exception ex) { var t = RaiseMediaFailedEvent(ex); }
+            catch (Exception ex) { PostMediaFailedEvent(ex); }
         }
 
         /// <summary>
@@ -287,13 +326,13 @@
             try
             {
                 IsOpeningViaCommand.Value = true;
-                await GuiContext.Current.EnqueueInvoke(() => Source = uri);
+                await GuiContext.Current.InvokeAsync(() => Source = uri);
                 await MediaCore.Open(uri);
             }
             catch (Exception ex)
             {
-                await GuiContext.Current.EnqueueInvoke(() => Source = null);
-                var t = RaiseMediaFailedEvent(ex);
+                await GuiContext.Current.InvokeAsync(() => Source = null);
+                PostMediaFailedEvent(ex);
                 IsOpeningViaCommand.Value = false;
             }
         }
@@ -308,13 +347,13 @@
             try
             {
                 IsOpeningViaCommand.Value = true;
-                await GuiContext.Current.EnqueueInvoke(() => Source = stream.StreamUri);
+                await GuiContext.Current.InvokeAsync(() => Source = stream.StreamUri);
                 await MediaCore.Open(stream);
             }
             catch (Exception ex)
             {
-                await GuiContext.Current.EnqueueInvoke(() => Source = null);
-                var t = RaiseMediaFailedEvent(ex);
+                await GuiContext.Current.InvokeAsync(() => Source = null);
+                PostMediaFailedEvent(ex);
                 IsOpeningViaCommand.Value = false;
             }
         }
@@ -344,9 +383,13 @@
                     catch { }
 
                     // Remove all the controls
-                    ContentGrid.Children.Remove(VideoView);
-                    ContentGrid.Children.Remove(SubtitlesView);
-                    ContentGrid.Children.Remove(CaptionsView);
+                    ContentGrid?.Children.Remove(VideoView);
+                    ContentGrid?.Children.Remove(SubtitlesView);
+                    ContentGrid?.Children.Remove(CaptionsView);
+
+                    // Force Refresh
+                    ContentGrid?.Dispatcher?.InvokeAsync(() => { },
+                        System.Windows.Threading.DispatcherPriority.Render);
                 });
             }
         }

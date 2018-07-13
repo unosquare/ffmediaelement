@@ -106,7 +106,7 @@
             foreach (var p in notificationProperties)
             {
                 // Notify the changed properties
-                RaisePropertyChangedEvent(p);
+                NotifyPropertyChangedEvent(p);
             }
         }
 
@@ -159,7 +159,7 @@
                 if (notifiedPositionChanged)
                 {
                     // Do notify the ramianing duration has changed
-                    RaisePropertyChangedEvent(nameof(RemainingDuration));
+                    NotifyPropertyChangedEvent(nameof(RemainingDuration));
                 }
             }
         }

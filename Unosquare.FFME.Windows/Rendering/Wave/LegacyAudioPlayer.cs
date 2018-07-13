@@ -122,7 +122,7 @@
                 throw new InvalidOperationException($"{nameof(AudioPlaybackThread)} was already started");
 
             PlaybackFinished.Begin();
-            var bufferSize = Renderer.WaveFormat.ConvertLatencyToByteSize((DesiredLatency + NumberOfBuffers - 1) / NumberOfBuffers);
+            var bufferSize = Renderer.WaveFormat.ConvertMillisToByteSize((DesiredLatency + NumberOfBuffers - 1) / NumberOfBuffers);
 
             // Acquire a device handle
             DeviceHandle = WaveInterop.OpenAudioDevice(
