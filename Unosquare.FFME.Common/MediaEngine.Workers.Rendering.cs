@@ -142,6 +142,11 @@
                 {
                     // Always exit notifying the cycle is done.
                     BlockRenderingCycle.Complete();
+
+                    // Notify position changes continuously on the state object
+                    // only if we are not currently seeking
+                    if (State.IsSeeking == false)
+                        State.UpdatePosition(wallClock);
                 }
 
                 #endregion

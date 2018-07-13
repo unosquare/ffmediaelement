@@ -71,11 +71,6 @@
                     wallClock = WallClock;
                     decodedFrameCount = 0;
 
-                    // Notify position changes continuously on the state object
-                    // only if we are not currently seeking
-                    if (State.IsSeeking == false)
-                        State.UpdatePosition(wallClock);
-
                     #endregion
 
                     if (State.HasMediaEnded == false)
