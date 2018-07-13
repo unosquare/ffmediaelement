@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME.Core
 {
-    using Primitives;
     using Shared;
     using System;
     using System.Diagnostics;
@@ -8,22 +7,18 @@
     /// <summary>
     /// A time measurement artifact.
     /// </summary>
-    internal sealed class RealTimeClock : IDisposable
+    internal sealed class RealTimeClock
     {
         private readonly Stopwatch Chrono = new Stopwatch();
         private readonly object SyncLock = new object();
         private long OffsetTicks = 0;
         private double m_SpeedRatio = Constants.Controller.DefaultSpeedRatio;
-        private AtomicBoolean IsDisposed = new AtomicBoolean(false);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RealTimeClock"/> class.
         /// The clock starts paused and at the 0 position.
         /// </summary>
-        public RealTimeClock()
-        {
-            Reset();
-        }
+        public RealTimeClock() => Reset();
 
         /// <summary>
         /// Gets or sets the clock position.
@@ -43,14 +38,7 @@
         /// <summary>
         /// Gets a value indicating whether the clock is running.
         /// </summary>
-        public bool IsRunning
-        {
-            get
-            {
-                if (IsDisposed == true) return false;
-                return Chrono?.IsRunning ?? false;
-            }
-        }
+        public bool IsRunning => Chrono.IsRunning;
 
         /// <summary>
         /// Gets or sets the speed ratio at which the clock runs.
@@ -112,9 +100,7 @@
         public void Pause()
         {
             lock (SyncLock)
-            {
                 Chrono.Stop();
-            }
         }
 
         /// <summary>
@@ -128,21 +114,6 @@
                 OffsetTicks = 0;
                 Chrono.Reset();
             }
-        }
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose() => Dispose(true);
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool alsoManaged)
-        {
-            if (IsDisposed == true) return;
-            IsDisposed.Value = true;
         }
     }
 }

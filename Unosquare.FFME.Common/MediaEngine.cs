@@ -139,8 +139,8 @@
                     // This also causes the Container to get disposed.
                     Commands.Dispose();
 
-                    // Dispose the RTC
-                    Clock.Dispose();
+                    // Reset the RTC
+                    Clock.Reset();
 
                     // Dispose the Wait Event objects as they are
                     // backed by unmanaged code
