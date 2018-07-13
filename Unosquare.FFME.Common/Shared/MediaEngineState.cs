@@ -136,7 +136,7 @@
         /// Returns the current video SMTPE timecode if available.
         /// If not available, this property returns an empty string.
         /// </summary>
-        public string VideoSmtpeTimecode { get; internal set; } = string.Empty;
+        public string VideoSmtpeTimecode { get; private set; } = string.Empty;
 
         /// <summary>
         /// Gets the name of the video hardware decoder in use.
@@ -144,7 +144,12 @@
         /// When hardware decoding of frames is in use this will return the name of the HW accelerator.
         /// Otherwise it will return an empty string.
         /// </summary>
-        public string VideoHardwareDecoder { get; internal set; } = string.Empty;
+        public string VideoHardwareDecoder { get; private set; } = string.Empty;
+
+        /// <summary>
+        /// Gets a value indicating whether the current video stream has closed captions
+        /// </summary>
+        public bool HasClosedCaptions { get; private set; }
 
         /// <summary>
         /// Gets the duration of a single frame step.
@@ -283,11 +288,6 @@
         /// MediaOpened event has fired.
         /// </summary>
         public bool HasVideo { get; private set; }
-
-        /// <summary>
-        /// Gets a value indicating whether the current video stream has closed captions
-        /// </summary>
-        public bool HasClosedCaptions { get; private set; }
 
         /// <summary>
         /// Returns whether the given media has subtitles (in stream or preloaded). Only valid after the
@@ -451,6 +451,7 @@
         /// <summary>
         /// Updates the fixed container properties.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void UpdateFixedContainerProperties()
         {
             IsOpen = (IsOpening == false) && (Parent.Container?.IsOpen ?? default);
@@ -481,6 +482,30 @@
             IsNetowrkStream = Parent.Container?.IsNetworkStream ?? default;
             IsSeekable = Parent.Container?.IsStreamSeekable ?? default;
             CanPause = IsOpen ? (IsLiveStream == false) : default;
+        }
+
+        /// <summary>
+        /// Updates state properties coming from a new media block.
+        /// </summary>
+        /// <param name="block">The block.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void UpdateDynamicBlockProperties(MediaBlock block)
+        {
+            if (block == null) return;
+
+            // TODO: Still missing current, previous and next positions here
+            if (block is VideoBlock videoBlock)
+            {
+                // TODO: I don't know of any codecs changing the widht and the height dynamically
+                // NaturalVideoWidth = videoBlock.PixelWidth;
+                // NaturalVideoHeight = videoBlock.PixelHeight;
+                if (HasClosedCaptions == false && videoBlock.ClosedCaptions.Count > 0)
+                    HasClosedCaptions = true;
+
+                VideoSmtpeTimecode = videoBlock.SmtpeTimecode;
+                VideoHardwareDecoder = (Parent.Container?.Components.Video?.IsUsingHardwareDecoding ?? false) ?
+                    Parent.Container?.Components.Video?.HardwareAccelerator?.Name ?? string.Empty : string.Empty;
+            }
         }
 
         /// <summary>
@@ -515,7 +540,6 @@
                 return;
 
             Position = newPosition;
-            HasClosedCaptions = Parent.Container?.Components.Video?.StreamInfo?.HasClosedCaptions ?? default;
 
             // TODO: Improve this code - it's not efficient.
             // Update discrete positions

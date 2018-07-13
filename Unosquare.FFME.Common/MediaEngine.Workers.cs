@@ -254,15 +254,7 @@
         private int SendBlockToRenderer(MediaBlock block, TimeSpan clockPosition)
         {
             // Process property changes coming from video blocks
-            if (block.MediaType == MediaType.Video)
-            {
-                if (block is VideoBlock videoBlock)
-                {
-                    State.VideoSmtpeTimecode = videoBlock.SmtpeTimecode;
-                    State.VideoHardwareDecoder = (Container?.Components.Video?.IsUsingHardwareDecoding ?? false) ?
-                        Container?.Components.Video?.HardwareAccelerator?.Name ?? string.Empty : string.Empty;
-                }
-            }
+            State.UpdateDynamicBlockProperties(block);
 
             // Send the block to its corresponding renderer
             Renderers[block.MediaType]?.Render(block, clockPosition);
