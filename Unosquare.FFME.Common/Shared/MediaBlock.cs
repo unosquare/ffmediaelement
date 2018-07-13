@@ -98,6 +98,16 @@
         }
 
         /// <summary>
+        /// Gets or sets the next MediaBlock.
+        /// </summary>
+        internal MediaBlock Next { get; set; }
+
+        /// <summary>
+        /// Gets or sets the previous MediaBlock.
+        /// </summary>
+        internal MediaBlock Previous { get; set; }
+
+        /// <summary>
         /// Tries the acquire a reader lock on the unmanaged buffer.
         /// Returns false if the buffer has been disposed.
         /// </summary>

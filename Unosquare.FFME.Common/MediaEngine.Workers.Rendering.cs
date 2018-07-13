@@ -123,7 +123,7 @@
 
                         // Render by forced signal (TimeSpan.MinValue) or because simply it is time to do so
                         if (LastRenderTime[t] == TimeSpan.MinValue || currentBlock[t].StartTime != LastRenderTime[t])
-                            renderedBlockCount[t] += SendBlockToRenderer(currentBlock[t], wallClock);
+                            renderedBlockCount[t] += SendBlockToRenderer(currentBlock[t], wallClock, main);
                     }
 
                     #endregion

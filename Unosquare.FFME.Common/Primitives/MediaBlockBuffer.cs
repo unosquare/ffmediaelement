@@ -256,30 +256,10 @@
         /// <returns>The next media block</returns>
         public MediaBlock Next(MediaBlock current)
         {
+            if (current == null) return null;
+
             using (Locker.AcquireReaderLock())
-            {
-                // for current null, return the first one if there are any
-                if (current == null)
-                {
-                    if (PlaybackBlocks.Count > 0)
-                        return PlaybackBlocks[0];
-                    else
-                        return null;
-                }
-
-                // Find the block index
-                var currentIndex = PlaybackBlocks.IndexOf(current);
-
-                // When IndexOf fails
-                if (currentIndex < 0) return null;
-
-                // Compute the target index
-                var targetIndex = currentIndex + 1;
-                if (targetIndex >= 0 && targetIndex < PlaybackBlocks.Count)
-                    return PlaybackBlocks[targetIndex];
-
-                return null;
-            }
+                return current.Next;
         }
 
         /// <summary>
@@ -290,30 +270,10 @@
         /// <returns>The next media block</returns>
         public MediaBlock Previous(MediaBlock current)
         {
+            if (current == null) return null;
+
             using (Locker.AcquireReaderLock())
-            {
-                // for current null, return the last one if there are any
-                if (current == null)
-                {
-                    if (PlaybackBlocks.Count > 0)
-                        return PlaybackBlocks[PlaybackBlocks.Count - 1];
-                    else
-                        return null;
-                }
-
-                // Find the block index
-                var currentIndex = PlaybackBlocks.IndexOf(current);
-
-                // When IndexOf fails
-                if (currentIndex < 0) return null;
-
-                // Compute the target index
-                var targetIndex = currentIndex - 1;
-                if (targetIndex >= 0 && targetIndex < PlaybackBlocks.Count)
-                    return PlaybackBlocks[targetIndex];
-
-                return null;
-            }
+                return current.Previous;
         }
 
         /// <summary>
@@ -466,11 +426,31 @@
                 // Add the converted block to the playback list and sort it if we have to.
                 var requiresSorting = targetBlock.StartTime < RangeEndTime;
                 PlaybackBlocks.Add(targetBlock);
+                var maxBlockIndex = PlaybackBlocks.Count - 1;
+
                 LifetimeBlockDuration = TimeSpan.FromTicks(LifetimeBlockDuration.Ticks + targetBlock.Duration.Ticks);
 
                 // Perform the sorting
                 if (requiresSorting)
+                {
                     PlaybackBlocks.Sort();
+                    PlaybackBlocks[0].Previous = null;
+                    PlaybackBlocks[maxBlockIndex].Next = null;
+
+                    for (var blockIndex = 1; blockIndex <= maxBlockIndex; blockIndex++)
+                    {
+                        PlaybackBlocks[blockIndex].Previous = PlaybackBlocks[blockIndex - 1];
+                        PlaybackBlocks[blockIndex].Next = blockIndex + 1 <= maxBlockIndex ? PlaybackBlocks[blockIndex + 1] : null;
+                    }
+                }
+                else
+                {
+                    targetBlock.Previous = maxBlockIndex >= 1 ? PlaybackBlocks[maxBlockIndex - 1] : null;
+                    targetBlock.Next = null;
+
+                    if (targetBlock.Previous != null)
+                        targetBlock.Previous.Next = targetBlock;
+                }
 
                 // return the new target block
                 return targetBlock;
