@@ -11,10 +11,10 @@
     internal sealed class RealTimeClock : IDisposable
     {
         private readonly Stopwatch Chrono = new Stopwatch();
-        private ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
+        private readonly object SyncLock = new object();
         private long OffsetTicks = 0;
         private double m_SpeedRatio = Constants.Controller.DefaultSpeedRatio;
-        private bool IsDisposed = false;
+        private AtomicBoolean IsDisposed = new AtomicBoolean(false);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RealTimeClock"/> class.
@@ -32,7 +32,7 @@
         {
             get
             {
-                using (Locker.AcquireReaderLock())
+                lock (SyncLock)
                 {
                     return TimeSpan.FromTicks(
                         OffsetTicks + Convert.ToInt64(Chrono.Elapsed.Ticks * SpeedRatio));
@@ -47,7 +47,7 @@
         {
             get
             {
-                if (IsDisposed) return false;
+                if (IsDisposed == true) return false;
                 return Chrono?.IsRunning ?? false;
             }
         }
@@ -59,14 +59,14 @@
         {
             get
             {
-                using (Locker.AcquireReaderLock())
+                lock (SyncLock)
                 {
                     return m_SpeedRatio;
                 }
             }
             set
             {
-                using (Locker.AcquireWriterLock())
+                lock (SyncLock)
                 {
                     if (value < 0d) value = 0d;
 
@@ -85,7 +85,7 @@
         /// <param name="value">The new value that the position porperty will hold.</param>
         public void Update(TimeSpan value)
         {
-            using (Locker.AcquireWriterLock())
+            lock (SyncLock)
             {
                 var resume = Chrono.IsRunning;
                 Chrono.Reset();
@@ -99,7 +99,7 @@
         /// </summary>
         public void Play()
         {
-            using (Locker.AcquireWriterLock())
+            lock (SyncLock)
             {
                 if (Chrono.IsRunning) return;
                 Chrono.Start();
@@ -111,7 +111,7 @@
         /// </summary>
         public void Pause()
         {
-            using (Locker.AcquireWriterLock())
+            lock (SyncLock)
             {
                 Chrono.Stop();
             }
@@ -123,7 +123,7 @@
         /// </summary>
         public void Reset()
         {
-            using (Locker.AcquireWriterLock())
+            lock (SyncLock)
             {
                 OffsetTicks = 0;
                 Chrono.Reset();
@@ -141,10 +141,8 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
-            if (IsDisposed) return;
-            IsDisposed = true;
-            Locker?.Dispose();
-            Locker = null;
+            if (IsDisposed == true) return;
+            IsDisposed.Value = true;
         }
     }
 }
