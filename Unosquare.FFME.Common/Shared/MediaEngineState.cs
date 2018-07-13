@@ -26,6 +26,7 @@
 
         private readonly AtomicInteger m_MediaState = new AtomicInteger((int)PlaybackStatus.Close);
 
+        private readonly AtomicBoolean m_IsOpen = new AtomicBoolean(default);
         private readonly AtomicBoolean m_HasMediaEnded = new AtomicBoolean(default);
         private readonly AtomicBoolean m_IsBuffering = new AtomicBoolean(default);
 
@@ -103,6 +104,33 @@
         #endregion
 
         #region Renderer Update Driven Properties
+
+        /// <summary>
+        /// Gets the current playback state.
+        /// </summary>
+        public PlaybackStatus MediaState
+        {
+            get => (PlaybackStatus)m_MediaState.Value;
+            private set => m_MediaState.Value = (int)value;
+        }
+
+        /// <summary>
+        /// Gets or Sets the Position property on the MediaElement.
+        /// </summary>
+        public TimeSpan Position
+        {
+            get => m_Position.Value;
+            private set => m_Position.Value = value;
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the media has reached its end.
+        /// </summary>
+        public bool HasMediaEnded
+        {
+            get => m_HasMediaEnded.Value;
+            private set => m_HasMediaEnded.Value = value;
+        }
 
         /// <summary>
         /// Returns the current video SMTPE timecode if available.
@@ -202,23 +230,27 @@
         #region Container Fixed, One-Time Properties
 
         /// <summary>
-        /// Returns whether the currently loaded media can be paused.
-        /// This is only valid after the MediaOpened event has fired.
-        /// Note that this property is computed based on wether the stream is detected to be a live stream.
-        /// </summary>
-        public bool CanPause { get; private set; }
-
-        /// <summary>
         /// Gets a value indicating whether this media element
         /// currently has an open media url.
         /// </summary>
-        public bool IsOpen { get; private set; }
+        public bool IsOpen
+        {
+            get => m_IsOpen.Value;
+            private set => m_IsOpen.Value = value;
+        }
 
         /// <summary>
         /// Provides key-value pairs of the metadata contained in the media.
         /// Returns null when media has not been loaded.
         /// </summary>
         public ReadOnlyDictionary<string, string> Metadata { get; private set; }
+
+        /// <summary>
+        /// Returns whether the currently loaded media can be paused.
+        /// This is only valid after the MediaOpened event has fired.
+        /// Note that this property is computed based on wether the stream is detected to be a live stream.
+        /// </summary>
+        public bool CanPause { get; private set; }
 
         /// <summary>
         /// Gets the media format. Returns null when media has not been loaded.
@@ -360,33 +392,6 @@
         #endregion
 
         #region State Method Managed Media Properties
-
-        /// <summary>
-        /// Gets the current playback state.
-        /// </summary>
-        public PlaybackStatus MediaState
-        {
-            get => (PlaybackStatus)m_MediaState.Value;
-            private set => m_MediaState.Value = (int)value;
-        }
-
-        /// <summary>
-        /// Gets or Sets the Position property on the MediaElement.
-        /// </summary>
-        public TimeSpan Position
-        {
-            get => m_Position.Value;
-            private set => m_Position.Value = value;
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether the media has reached its end.
-        /// </summary>
-        public bool HasMediaEnded
-        {
-            get => m_HasMediaEnded.Value;
-            private set => m_HasMediaEnded.Value = value;
-        }
 
         /// <summary>
         /// Get a value indicating whether the media is buffering.

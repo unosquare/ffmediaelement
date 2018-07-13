@@ -46,6 +46,12 @@
         private readonly object ConvertSyncRoot = new object();
 
         /// <summary>
+        /// The stream read interrupt start time.
+        /// When a read operation is started, this is set to the ticks of UTC now.
+        /// </summary>
+        private readonly AtomicDateTime StreamReadInterruptStartTime = new AtomicDateTime(default);
+
+        /// <summary>
         /// The custom media input stream
         /// </summary>
         private IMediaInputStream CustomInputStream = null;
@@ -78,12 +84,6 @@
         /// Used to detect read rimeouts.
         /// </summary>
         private AVIOInterruptCB_callback StreamReadInterruptCallback;
-
-        /// <summary>
-        /// The stream read interrupt start time.
-        /// When a read operation is started, this is set to the ticks of UTC now.
-        /// </summary>
-        private AtomicLong StreamReadInterruptStartTime = new AtomicLong();
 
         /// <summary>
         /// The signal to request the abortion of the following read operation
@@ -656,7 +656,7 @@
 
                     // We set the start of the read operation time so tiomeouts can be detected
                     // and we open the URL so the input context can be initialized.
-                    StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
+                    StreamReadInterruptStartTime.Value = DateTime.UtcNow;
                     fixed (AVDictionary** privateOptionsRef = &privateOptions.Pointer)
                     {
                         // Open the input and pass the private options dictionary
@@ -947,7 +947,7 @@
 
             // Allocate the packet to read
             var readPacket = PacketQueue.CreateReadPacket();
-            StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
+            StreamReadInterruptStartTime.Value = DateTime.UtcNow;
             var readResult = ffmpeg.av_read_frame(InputContext, readPacket);
             StateLastReadTimeUtc = DateTime.UtcNow;
 
@@ -1015,8 +1015,8 @@
             var nowTicks = DateTime.UtcNow.Ticks;
 
             // We use Interlocked read because in 32 bits it takes 2 trips!
-            var startTicks = StreamReadInterruptStartTime.Value;
-            var timeDifference = TimeSpan.FromTicks(nowTicks - startTicks);
+            var start = StreamReadInterruptStartTime.Value;
+            var timeDifference = TimeSpan.FromTicks(nowTicks - start.Ticks);
 
             if (Configuration.ReadTimeout.Ticks >= 0 && timeDifference.Ticks > Configuration.ReadTimeout.Ticks)
             {
@@ -1107,7 +1107,7 @@
                 }
                 else
                 {
-                    StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
+                    StreamReadInterruptStartTime.Value = DateTime.UtcNow;
                     if (streamSeekRelativeTime.Ticks <= main.StartTimeOffset.Ticks)
                     {
                         seekTarget = main.StartTimeOffset.ToLong(main.Stream->time_base);
@@ -1188,7 +1188,7 @@
             var streamIndex = main.StreamIndex;
             var seekFlags = ffmpeg.AVSEEK_FLAG_BACKWARD;
 
-            StreamReadInterruptStartTime.Value = DateTime.UtcNow.Ticks;
+            StreamReadInterruptStartTime.Value = DateTime.UtcNow;
 
             // var seekResult = ffmpeg.av_seek_frame(InputContext, StartSeekStreamIndex, StartSeekTimestamp, ffmpeg.AVSEEK_FLAG_BACKWARD);
             var seekResult = ffmpeg.av_seek_frame(InputContext, streamIndex, seekTarget, seekFlags);
