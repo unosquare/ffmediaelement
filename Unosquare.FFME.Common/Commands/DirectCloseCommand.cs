@@ -33,6 +33,7 @@
         public override void PostProcess()
         {
             MediaCore.SendOnMediaClosed();
+            MediaCore.State.UpdateFixedContainerProperties();
             LogReferenceCounter(MediaCore);
             MediaCore.Log(MediaLogMessageType.Debug, $"Command {CommandType}: Completed");
         }
@@ -67,6 +68,7 @@
 
             // Update notification properties
             m.State.ResetMediaProperties();
+            m.State.UpdateFixedContainerProperties();
             m.State.InitializeBufferingProperties();
             m.State.UpdateMediaState(PlaybackStatus.Close, TimeSpan.Zero);
             m.State.Source = null;

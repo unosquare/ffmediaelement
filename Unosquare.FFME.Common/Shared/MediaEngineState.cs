@@ -62,6 +62,9 @@
         internal MediaEngineState(MediaEngine parent)
         {
             Parent = parent;
+            ResetMediaProperties();
+            UpdateFixedContainerProperties();
+            InitializeBufferingProperties();
         }
 
         #endregion
@@ -115,18 +118,7 @@
 
         #endregion
 
-        #region Read-Only Media Properties
-
-        /// <summary>
-        /// Provides key-value pairs of the metadata contained in the media.
-        /// Returns null when media has not been loaded.
-        /// </summary>
-        public ReadOnlyDictionary<string, string> Metadata => Parent.Container?.Metadata ?? EmptyDictionary;
-
-        /// <summary>
-        /// Gets the media format. Returns null when media has not been loaded.
-        /// </summary>
-        public string MediaFormat => Parent.Container?.MediaFormatName;
+        #region Renderer Update Properties
 
         /// <summary>
         /// Gets the duration of a single frame step.
@@ -146,141 +138,164 @@
             }
         }
 
+        #endregion
+
+        #region Container Fixed, One-Time Properties
+
+        /// <summary>
+        /// Provides key-value pairs of the metadata contained in the media.
+        /// Returns null when media has not been loaded.
+        /// </summary>
+        public ReadOnlyDictionary<string, string> Metadata { get; private set; }
+
+        /// <summary>
+        /// Gets the media format. Returns null when media has not been loaded.
+        /// </summary>
+        public string MediaFormat { get; private set; }
+
         /// <summary>
         /// Gets the index of the video stream.
         /// </summary>
-        public int VideoStreamIndex => Parent.Container?.Components[MediaType.Video]?.StreamIndex ?? -1;
+        public int VideoStreamIndex { get; private set; }
 
         /// <summary>
         /// Gets the index of the audio stream.
         /// </summary>
-        public int AudioStreamIndex => Parent.Container?.Components[MediaType.Audio]?.StreamIndex ?? -1;
+        public int AudioStreamIndex { get; private set; }
 
         /// <summary>
         /// Gets the index of the subtitle stream.
         /// </summary>
-        public int SubtitleStreamIndex => Parent.Container?.Components[MediaType.Subtitle]?.StreamIndex ?? -1;
+        public int SubtitleStreamIndex { get; private set; }
 
         /// <summary>
         /// Returns whether the given media has audio.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public bool HasAudio => Parent.Container?.Components.HasAudio ?? default;
+        public bool HasAudio { get; private set; }
 
         /// <summary>
         /// Returns whether the given media has video. Only valid after the
         /// MediaOpened event has fired.
         /// </summary>
-        public bool HasVideo => Parent.Container?.Components.HasVideo ?? default;
+        public bool HasVideo { get; private set; }
 
         /// <summary>
         /// Returns whether the given media has subtitles (in stream or preloaded). Only valid after the
         /// MediaOpened event has fired.
         /// </summary>
-        public bool HasSubtitles =>
-            (Parent.PreloadedSubtitles != null && Parent.PreloadedSubtitles.Count > 0) ||
-            (Parent.Container?.Components.HasSubtitles ?? false);
+        public bool HasSubtitles { get; private set; }
 
         /// <summary>
         /// Gets the video codec.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public string VideoCodec => Parent.Container?.Components.Video?.CodecName;
+        public string VideoCodec { get; private set; }
 
         /// <summary>
         /// Gets the video bitrate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public ulong VideoBitrate => Parent.Container?.Components.Video?.Bitrate ?? default;
+        public ulong VideoBitrate { get; private set; }
 
         /// <summary>
         /// Gets the video display rotation.
         /// </summary>
-        public double VideoRotation => Parent.Container?.Components.Video?.DisplayRotation ?? default;
+        public double VideoRotation { get; private set; }
 
         /// <summary>
         /// Returns the natural width of the media in the video.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int NaturalVideoWidth => Parent.Container?.Components.Video?.FrameWidth ?? default;
+        public int NaturalVideoWidth { get; private set; }
 
         /// <summary>
         /// Returns the natural height of the media in the video.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int NaturalVideoHeight => Parent.Container?.Components.Video?.FrameHeight ?? default;
+        public int NaturalVideoHeight { get; private set; }
 
         /// <summary>
         /// Gets the video frame rate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public double VideoFrameRate => Parent.Container?.Components.Video?.BaseFrameRate ?? default;
+        public double VideoFrameRate { get; private set; }
 
         /// <summary>
         /// Gets the duration in seconds of the video frame.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public double VideoFrameLength => VideoFrameRate <= 0 ? default : 1d / VideoFrameRate;
+        public double VideoFrameLength { get; private set; }
 
         /// <summary>
         /// Gets the audio codec.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public string AudioCodec => Parent.Container?.Components.Audio?.CodecName;
+        public string AudioCodec { get; private set; }
 
         /// <summary>
         /// Gets the audio bitrate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public ulong AudioBitrate => Parent.Container?.Components.Audio?.Bitrate ?? default;
+        public ulong AudioBitrate { get; private set; }
 
         /// <summary>
         /// Gets the audio channels count.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int AudioChannels => Parent.Container?.Components.Audio?.Channels ?? default;
+        public int AudioChannels { get; private set; }
 
         /// <summary>
         /// Gets the audio sample rate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int AudioSampleRate => Parent.Container?.Components.Audio?.SampleRate ?? default;
+        public int AudioSampleRate { get; private set; }
 
         /// <summary>
         /// Gets the audio bits per sample.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public int AudioBitsPerSample => Parent.Container?.Components.Audio?.BitsPerSample ?? default;
+        public int AudioBitsPerSample { get; private set; }
 
         /// <summary>
         /// Gets the Media's natural duration
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public TimeSpan? NaturalDuration => Parent.Container?.MediaDuration;
+        public TimeSpan? NaturalDuration { get; private set; }
+
+        /// <summary>
+        /// Returns whether the currently loaded media is live or real-time and does not have a set duration
+        /// This is only valid after the MediaOpened event has fired.
+        /// </summary>
+        public bool IsLiveStream { get; private set; }
+
+        /// <summary>
+        /// Returns whether the currently loaded media is a network stream.
+        /// This is only valid after the MediaOpened event has fired.
+        /// </summary>
+        public bool IsNetowrkStream { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the currently loaded media can be seeked.
+        /// </summary>
+        public bool IsSeekable { get; private set; }
+
+        #endregion
+
+        #region Self-Updating Properties
 
         /// <summary>
         /// Returns whether the currently loaded media can be paused.
         /// This is only valid after the MediaOpened event has fired.
         /// Note that this property is computed based on wether the stream is detected to be a live stream.
         /// </summary>
-        public bool CanPause => IsOpen ? (IsLiveStream == false) : default;
+        public bool CanPause { get; private set; }
 
         /// <summary>
-        /// Returns whether the currently loaded media is live or real-time and does not have a set duration
-        /// This is only valid after the MediaOpened event has fired.
+        /// Gets a value indicating whether this media element
+        /// currently has an open media url.
         /// </summary>
-        public bool IsLiveStream => Parent.Container?.IsLiveStream ?? default;
-
-        /// <summary>
-        /// Returns whether the currently loaded media is a network stream.
-        /// This is only valid after the MediaOpened event has fired.
-        /// </summary>
-        public bool IsNetowrkStream => Parent.Container?.IsNetworkStream ?? default;
-
-        /// <summary>
-        /// Gets a value indicating whether the currently loaded media can be seeked.
-        /// </summary>
-        public bool IsSeekable => Parent.Container?.IsStreamSeekable ?? default;
+        public bool IsOpen { get; private set; }
 
         /// <summary>
         /// Gets a value indicating whether the media clock is playing.
@@ -293,16 +308,10 @@
         public bool IsPaused => IsOpen && (Parent?.Clock?.IsRunning ?? true) == false;
 
         /// <summary>
-        /// Gets a value indicating whether this media element
-        /// currently has an open media url.
-        /// </summary>
-        public bool IsOpen => (IsOpening == false) && (Parent.Container?.IsOpen ?? default);
-
-        /// <summary>
         /// Gets a value indicating whether the current video stream has closed captions
         /// </summary>
         public bool HasClosedCaptions =>
-            IsOpen && (Parent.Container?.Components[MediaType.Video]?.StreamInfo?.HasClosedCaptions ?? default);
+            Parent.Container?.Components[MediaType.Video]?.StreamInfo?.HasClosedCaptions ?? default;
 
         /// <summary>
         /// Gets a value indicating whether the media seeking is in progress.
@@ -431,6 +440,48 @@
         {
             get { lock (SyncLock) return m_DownloadCacheLength; }
             private set { lock (SyncLock) m_DownloadCacheLength = value; }
+        }
+
+        #endregion
+
+        #region Container Property Management Methods
+
+        /// <summary>
+        /// Updates the fixed container properties.
+        /// </summary>
+        internal void UpdateFixedContainerProperties()
+        {
+            lock (SyncLock)
+            {
+                IsOpen = (IsOpening == false) && (Parent.Container?.IsOpen ?? default);
+                Metadata = Parent.Container?.Metadata ?? EmptyDictionary;
+                MediaFormat = Parent.Container?.MediaFormatName;
+                VideoStreamIndex = Parent.Container?.Components[MediaType.Video]?.StreamIndex ?? -1;
+                AudioStreamIndex = Parent.Container?.Components[MediaType.Audio]?.StreamIndex ?? -1;
+                SubtitleStreamIndex = Parent.Container?.Components[MediaType.Subtitle]?.StreamIndex ?? -1;
+                HasAudio = Parent.Container?.Components.HasAudio ?? default;
+                HasVideo = Parent.Container?.Components.HasVideo ?? default;
+                HasSubtitles =
+                    (Parent.PreloadedSubtitles != null && Parent.PreloadedSubtitles.Count > 0) ||
+                    (Parent.Container?.Components.HasSubtitles ?? false);
+                VideoCodec = Parent.Container?.Components.Video?.CodecName;
+                VideoBitrate = Parent.Container?.Components.Video?.Bitrate ?? default;
+                VideoRotation = Parent.Container?.Components.Video?.DisplayRotation ?? default;
+                NaturalVideoWidth = Parent.Container?.Components.Video?.FrameWidth ?? default;
+                NaturalVideoHeight = Parent.Container?.Components.Video?.FrameHeight ?? default;
+                VideoFrameRate = Parent.Container?.Components.Video?.BaseFrameRate ?? default;
+                VideoFrameLength = VideoFrameRate <= 0 ? default : 1d / VideoFrameRate;
+                AudioCodec = Parent.Container?.Components.Audio?.CodecName;
+                AudioBitrate = Parent.Container?.Components.Audio?.Bitrate ?? default;
+                AudioChannels = Parent.Container?.Components.Audio?.Channels ?? default;
+                AudioSampleRate = Parent.Container?.Components.Audio?.SampleRate ?? default;
+                AudioBitsPerSample = Parent.Container?.Components.Audio?.BitsPerSample ?? default;
+                NaturalDuration = Parent.Container?.MediaDuration;
+                IsLiveStream = Parent.Container?.IsLiveStream ?? default;
+                IsNetowrkStream = Parent.Container?.IsNetworkStream ?? default;
+                IsSeekable = Parent.Container?.IsStreamSeekable ?? default;
+                CanPause = IsOpen ? (IsLiveStream == false) : default;
+            }
         }
 
         #endregion

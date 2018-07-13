@@ -2,6 +2,7 @@
 {
     using Commands;
     using Core;
+    using Primitives;
     using Shared;
     using System;
 
@@ -13,8 +14,7 @@
     /// <seealso cref="IDisposable" />
     public partial class MediaEngine : IDisposable, IMediaLogger
     {
-        private readonly object DisposeLock = new object();
-        private bool m_IsDisposed = false;
+        private AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
 
         #region Constructors
 
@@ -71,7 +71,7 @@
         /// <summary>
         /// Gets a value indicating whether this instance is disposed.
         /// </summary>
-        public bool IsDisposed { get { lock (DisposeLock) return m_IsDisposed; } }
+        public bool IsDisposed { get => m_IsDisposed.Value; }
 
         /// <summary>
         /// Gets the associated parent object.
@@ -98,10 +98,8 @@
         /// </summary>
         /// <param name="messageType">Type of the message.</param>
         /// <param name="message">The message.</param>
-        public void Log(MediaLogMessageType messageType, string message)
-        {
+        public void Log(MediaLogMessageType messageType, string message) =>
             LoggingWorker.Log(this, messageType, message);
-        }
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -128,32 +126,26 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
-            lock (DisposeLock)
+            if (m_IsDisposed == true) return;
+            m_IsDisposed.Value = true;
+
+            try
             {
-                if (m_IsDisposed) return;
+                // Dispose of commands. This closes the
+                // Media automatically and signals an exit
+                // This also causes the Container to get disposed.
+                Commands.Dispose();
 
-                try
-                {
-                    // Dispose of commands. This closes the
-                    // Media automatically and signals an exit
-                    // This also causes the Container to get disposed.
-                    Commands.Dispose();
+                // Reset the RTC
+                Clock.Reset();
 
-                    // Reset the RTC
-                    Clock.Reset();
-
-                    // Dispose the Wait Event objects as they are
-                    // backed by unmanaged code
-                    PacketReadingCycle.Dispose();
-                    FrameDecodingCycle.Dispose();
-                    BlockRenderingCycle.Dispose();
-                }
-                catch { throw; }
-                finally
-                {
-                    m_IsDisposed = true;
-                }
+                // Dispose the Wait Event objects as they are
+                // backed by unmanaged code
+                PacketReadingCycle.Dispose();
+                FrameDecodingCycle.Dispose();
+                BlockRenderingCycle.Dispose();
             }
+            catch { throw; }
         }
 
         #endregion

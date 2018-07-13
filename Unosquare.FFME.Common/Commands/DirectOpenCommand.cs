@@ -60,6 +60,8 @@
         /// </summary>
         public override void PostProcess()
         {
+            MediaCore.State.UpdateFixedContainerProperties();
+
             if (ExceptionResult == null)
             {
                 MediaCore.State.UpdateMediaState(PlaybackStatus.Stop);
@@ -91,6 +93,7 @@
 
                 // Signal the initial state
                 m.State.ResetMediaProperties();
+                m.State.UpdateFixedContainerProperties();
                 m.State.Source = Source;
 
                 // Register FFmpeg libraries if not already done
@@ -154,6 +157,7 @@
 
                 // Notify the user media is opening and allow for media options to be modified
                 // Stuff like audio and video filters and stream selection can be performed here.
+                m.State.UpdateFixedContainerProperties();
                 m.SendOnMediaOpening();
 
                 // Side-load subtitles if requested
@@ -167,10 +171,11 @@
                 m.Container.Open();
 
                 // Reset buffering properties
+                m.State.UpdateFixedContainerProperties();
                 m.State.InitializeBufferingProperties();
 
                 // Check if we have at least audio or video here
-                if (m.Container.Components.HasAudio == false && m.Container.Components.HasVideo == false)
+                if (m.State.HasAudio == false && m.State.HasVideo == false)
                     throw new MediaContainerException($"Unable to initialize at least one audio or video component fron the input stream.");
 
                 // Charge! We are good to go, fire up the worker threads!

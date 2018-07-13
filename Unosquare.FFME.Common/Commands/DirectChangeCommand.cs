@@ -34,6 +34,8 @@
         /// </summary>
         public override void PostProcess()
         {
+            MediaCore.State.UpdateFixedContainerProperties();
+
             if (ErrorException == null)
                 MediaCore.SendOnMediaChanged();
             else
@@ -74,6 +76,7 @@
 
                 // Recreate selected streams as media components
                 var mediaTypes = m.Container.UpdateComponents();
+                m.State.UpdateFixedContainerProperties();
 
                 // find all existing component blocks and renderers that no longer exist
                 // We always remove the audio component in case there is a change in audio device
