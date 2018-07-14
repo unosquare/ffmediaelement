@@ -256,6 +256,9 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int SendBlockToRenderer(MediaBlock block, TimeSpan clockPosition, MediaType main)
         {
+            // No blocks were rendered
+            if (block == null) return 0;
+
             // Process property changes coming from video blocks
             State.UpdateDynamicBlockProperties(block, main);
 
