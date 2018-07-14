@@ -32,8 +32,19 @@
         /// </summary>
         public override void PostProcess()
         {
+            var s = MediaCore?.State;
+            if (s == null) return;
+
+            // Update notification properties
+            s.ResetMediaProperties();
+            s.UpdateFixedContainerProperties();
+            s.InitializeBufferingProperties();
+            s.UpdatePosition(TimeSpan.Zero);
+            s.UpdateMediaState(PlaybackStatus.Close);
+            s.Source = null;
+
+            // Notify media has closed
             MediaCore.SendOnMediaClosed();
-            MediaCore.State.UpdateFixedContainerProperties();
             LogReferenceCounter(MediaCore);
             MediaCore.Log(MediaLogMessageType.Debug, $"Command {CommandType}: Completed");
         }
@@ -65,13 +76,6 @@
 
             // Clear the render times
             m.LastRenderTime.Clear();
-
-            // Update notification properties
-            m.State.ResetMediaProperties();
-            m.State.UpdateFixedContainerProperties();
-            m.State.InitializeBufferingProperties();
-            m.State.UpdateMediaState(PlaybackStatus.Close, TimeSpan.Zero);
-            m.State.Source = null;
         }
 
         /// <summary>

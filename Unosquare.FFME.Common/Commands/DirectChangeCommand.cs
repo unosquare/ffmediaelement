@@ -54,8 +54,6 @@
 
             try
             {
-                m.State.UpdateMediaState(PlaybackStatus.Manual);
-
                 // Signal the start of a sync-buffering scenario
                 m.Clock.Pause();
 

@@ -488,8 +488,9 @@
         /// Updates state properties coming from a new media block.
         /// </summary>
         /// <param name="block">The block.</param>
+        /// <param name="main">The main MediaType</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdateDynamicBlockProperties(MediaBlock block)
+        internal void UpdateDynamicBlockProperties(MediaBlock block, MediaType main)
         {
             if (block == null) return;
 
@@ -529,55 +530,45 @@
         /// <summary>
         /// Updates the position.
         /// </summary>
-        /// <param name="newPosition">The position.</param>
+        /// <param name="newPosition">The new position.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void UpdatePosition(TimeSpan newPosition)
         {
-            const long Millisecond = TimeSpan.TicksPerMillisecond;
-
             var oldPosition = Position;
             if (oldPosition.Ticks == newPosition.Ticks)
                 return;
 
             Position = newPosition;
-
-            // TODO: Improve this code - it's not efficient.
-            // Update discrete positions
-            var t = Parent?.Container?.Components?.Main?.MediaType;
-            if (t.HasValue && Parent?.Blocks[t.Value] != null)
-            {
-                Parent.Blocks[t.Value].GetNeighboringBlocks(newPosition, out var current, out var previous, out var next);
-                PositionCurrent = current?.StartTime ?? newPosition;
-                if (current == null)
-                {
-                    PositionNext = next?.StartTime ?? TimeSpan.FromTicks(
-                        PositionCurrent.Ticks + FrameStepDuration.Ticks + Millisecond);
-                    PositionPrevious = previous?.StartTime ?? TimeSpan.FromTicks(
-                        PositionCurrent.Ticks - FrameStepDuration.Ticks + Millisecond);
-                }
-                else
-                {
-                    PositionNext = next?.StartTime ?? TimeSpan.FromTicks(
-                        current.EndTime.Ticks + (current.Duration.Ticks / 2));
-                    PositionPrevious = previous?.StartTime ?? TimeSpan.FromTicks(
-                        current.StartTime.Ticks - (current.Duration.Ticks / 2));
-                }
-            }
-
             Parent.SendOnPositionChanged(oldPosition, newPosition);
+
+            var main = Parent.Container?.Components?.Main.MediaType ?? MediaType.None;
+            var blocks = Parent.Blocks[main];
+            var currentMainBlock = blocks[newPosition];
+
+            if (currentMainBlock == null || blocks == null)
+            {
+                PositionCurrent = default;
+                PositionNext = default;
+                PositionPrevious = default;
+            }
+            else
+            {
+                blocks.Neighbors(currentMainBlock, out var previous, out var next);
+                PositionCurrent = currentMainBlock.StartTime;
+                PositionNext = next?.StartTime ?? TimeSpan.FromTicks(
+                    currentMainBlock.EndTime.Ticks + (currentMainBlock.Duration.Ticks / 2));
+                PositionPrevious = previous?.StartTime ?? TimeSpan.FromTicks(
+                    currentMainBlock.StartTime.Ticks - (currentMainBlock.Duration.Ticks / 2));
+            }
         }
 
         /// <summary>
         /// Updates the MediaState property.
         /// </summary>
         /// <param name="mediaState">State of the media.</param>
-        /// <param name="position">The new position value for this state.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdateMediaState(PlaybackStatus mediaState, TimeSpan? position = null)
+        internal void UpdateMediaState(PlaybackStatus mediaState)
         {
-            if (position != null)
-                UpdatePosition(position.Value);
-
             var oldValue = MediaState;
             if (oldValue == mediaState)
                 return;

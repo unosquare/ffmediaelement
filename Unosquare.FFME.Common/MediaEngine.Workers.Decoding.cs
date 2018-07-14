@@ -232,7 +232,7 @@
                             }
 
                             State.UpdateMediaEnded(true);
-                            State.UpdateMediaState(PlaybackStatus.Stop, wallClock);
+                            State.UpdateMediaState(PlaybackStatus.Stop);
                             SendOnMediaEnded();
                         }
                     }

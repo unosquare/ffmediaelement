@@ -1,7 +1,6 @@
 ﻿namespace Unosquare.FFME.Commands
 {
     using System;
-    using Unosquare.FFME.Shared;
 
     /// <summary>
     /// The Stop Command Implementation
@@ -37,10 +36,8 @@
         {
             var m = MediaCore;
             m.Clock.Reset();
-            m.State.UpdateMediaState(PlaybackStatus.Manual);
             var seek = new SeekCommand(m, TimeSpan.Zero);
             seek.Execute();
-            m.State.UpdateMediaState(PlaybackStatus.Stop, m.WallClock);
 
             foreach (var renderer in m.Renderers.Values)
                 renderer.Stop();

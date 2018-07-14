@@ -257,15 +257,14 @@
         private int SendBlockToRenderer(MediaBlock block, TimeSpan clockPosition, MediaType main)
         {
             // Process property changes coming from video blocks
-            State.UpdateDynamicBlockProperties(block);
+            State.UpdateDynamicBlockProperties(block, main);
 
             // Send the block to its corresponding renderer
             Renderers[block.MediaType]?.Render(block, clockPosition);
             LastRenderTime[block.MediaType] = block.StartTime;
 
             // Extension method for logging
-            var blockIndex = Blocks.ContainsKey(block.MediaType) ? Blocks[block.MediaType].IndexOf(clockPosition) : 0;
-            this.LogRenderBlock(block, clockPosition, blockIndex);
+            this.LogRenderBlock(block, clockPosition, block.Index);
             return 1;
         }
 

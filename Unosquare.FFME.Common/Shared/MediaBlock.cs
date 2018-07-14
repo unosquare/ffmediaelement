@@ -98,6 +98,11 @@
         }
 
         /// <summary>
+        /// Gets or sets the index within the block buffer.
+        /// </summary>
+        internal int Index { get; set; }
+
+        /// <summary>
         /// Gets or sets the next MediaBlock.
         /// </summary>
         internal MediaBlock Next { get; set; }

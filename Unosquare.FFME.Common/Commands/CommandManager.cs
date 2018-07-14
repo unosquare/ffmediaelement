@@ -126,9 +126,9 @@
         /// <summary>
         /// Gets a value indicating whether the command queue contains seek commands.
         /// </summary>
-        public bool HasQueuedSeekCommands
+        public bool HasQueuedSeekOrStopCommands
         {
-            get { lock (QueueLock) return CommandQueue.Any(c => c.CommandType == CommandType.Seek); }
+            get { lock (QueueLock) return CommandQueue.Any(c => c.CommandType == CommandType.Seek || c.CommandType == CommandType.Stop); }
         }
 
         /// <summary>
@@ -284,7 +284,7 @@
             CommandBase command = null;
             lock (QueueLock)
             {
-                DetectSeekingStarted();
+                DetectSeekingOrStopStarted();
 
                 if (CommandQueue.Count > 0)
                 {
@@ -299,7 +299,8 @@
                 if (command != null)
                 {
                     // Initiate a seek cycle
-                    if (command.CommandType == CommandType.Seek)
+                    if (command.CommandType == CommandType.Seek ||
+                        command.CommandType == CommandType.Stop)
                         SeekingDone.Begin();
 
                     // Execute the command synchronously
@@ -312,7 +313,7 @@
                 SeekingDone.Complete();
                 lock (QueueLock)
                 {
-                    DetectSeekingEnded();
+                    DetectSeekingOrStopEnded(command);
                     CurrentQueueCommand = null;
                 }
             }
@@ -332,13 +333,14 @@
         /// Detects the seeking started operation.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void DetectSeekingStarted()
+        private void DetectSeekingOrStopStarted()
         {
             var m = MediaCore;
 
             // Check if we have pending seeks to notify the start of a seek operation
-            if (m.State.IsSeeking == false && HasQueuedSeekCommands)
+            if (m.State.IsSeeking == false && HasQueuedSeekOrStopCommands)
             {
+                m.State.UpdateMediaState(PlaybackStatus.Manual);
                 PlayAfterSeek = m.Clock.IsRunning;
                 IsSeeking = true;
                 m.SendOnSeekingStarted();
@@ -348,26 +350,31 @@
         /// <summary>
         /// Detects the seeking ended operation.
         /// </summary>
+        /// <param name="command">The command.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void DetectSeekingEnded()
+        private void DetectSeekingOrStopEnded(CommandBase command)
         {
             var m = MediaCore;
 
             // Don't do a thing if we are not currently seeking or if we still
             // have seek commands in the queue.
-            if (IsSeeking == false || HasQueuedCommands) return;
-
-            // Detect a end of seek cycle and update the state to the final position
-            // as set by the seek command. This is the position we already captured
-            // as the seek command was processed already.
-            m.State.UpdatePosition(m.WallClock);
+            if (IsSeeking == false || HasQueuedSeekOrStopCommands) return;
 
             // Call the seek method on all renderers
             foreach (var kvp in m.Renderers)
                 m.InvalidateRenderer(kvp.Key);
 
             m.SendOnSeekingEnded();
-            ResumePlayAfterSeek();
+            if (command != null && command.CommandType == CommandType.Stop)
+            {
+                PlayAfterSeek = false;
+                IsSeeking = false;
+                MediaCore.State.UpdateMediaState(PlaybackStatus.Stop);
+            }
+            else
+            {
+                ResumePlayAfterSeek();
+            }
         }
 
         /// <summary>
@@ -379,19 +386,20 @@
             lock (QueueLock)
             {
                 if (IsSeeking == false) return;
+                IsSeeking = false;
 
+                // Update the media state
                 if (PlayAfterSeek)
                 {
                     MediaCore.Clock.Play();
-                    MediaCore.State.UpdateMediaState(PlaybackStatus.Play, MediaCore.WallClock);
+                    MediaCore.State.UpdateMediaState(PlaybackStatus.Play);
                 }
                 else
                 {
-                    MediaCore.State.UpdateMediaState(PlaybackStatus.Pause, MediaCore.WallClock);
+                    MediaCore.State.UpdateMediaState(PlaybackStatus.Pause);
                 }
 
                 PlayAfterSeek = false;
-                IsSeeking = false;
             }
         }
 
@@ -635,9 +643,10 @@
             {
                 // Signal the start of a changing event
                 // and check if we play after mediachanged
+                PlayAfterSeek = MediaCore.Clock.IsRunning;
                 SeekingDone.Begin();
                 IsSeeking = true;
-                PlayAfterSeek = MediaCore.Clock.IsRunning;
+                MediaCore.State.UpdateMediaState(PlaybackStatus.Manual);
             }
 
             // Wait for cycles to complete.

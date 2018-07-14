@@ -46,7 +46,6 @@
             m.Clock.Pause();
             var initialPosition = m.WallClock;
             var hasDecoderSeeked = false;
-            m.State.UpdateMediaState(PlaybackStatus.Manual);
             var startTime = DateTime.UtcNow;
 
             try

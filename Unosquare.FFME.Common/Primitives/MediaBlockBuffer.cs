@@ -249,6 +249,25 @@
         }
 
         /// <summary>
+        /// Gets the neighboring blocks in an atomic operation
+        /// </summary>
+        /// <param name="current">The current.</param>
+        /// <param name="previous">The previous.</param>
+        /// <param name="next">The next.</param>
+        public void Neighbors(MediaBlock current, out MediaBlock previous, out MediaBlock next)
+        {
+            using (Locker.AcquireReaderLock())
+            {
+                previous = null;
+                next = null;
+                if (current == null) return;
+
+                previous = current.Previous;
+                next = current.Next;
+            }
+        }
+
+        /// <summary>
         /// Retrieves the block following the provided current block.
         /// If the argument is null and there are blocks, the first block is returned.
         /// </summary>
@@ -424,21 +443,23 @@
                 }
 
                 // Add the converted block to the playback list and sort it if we have to.
-                var requiresSorting = targetBlock.StartTime < RangeEndTime;
                 PlaybackBlocks.Add(targetBlock);
+                var requiresSorting = targetBlock.StartTime < RangeEndTime;
                 var maxBlockIndex = PlaybackBlocks.Count - 1;
 
                 LifetimeBlockDuration = TimeSpan.FromTicks(LifetimeBlockDuration.Ticks + targetBlock.Duration.Ticks);
 
-                // Perform the sorting
+                // Perform the sorting and assignment of Previous and Next blocks
                 if (requiresSorting)
                 {
                     PlaybackBlocks.Sort();
+                    PlaybackBlocks[0].Index = 0;
                     PlaybackBlocks[0].Previous = null;
-                    PlaybackBlocks[maxBlockIndex].Next = null;
+                    PlaybackBlocks[0].Next = maxBlockIndex > 0 ? PlaybackBlocks[1] : null;
 
                     for (var blockIndex = 1; blockIndex <= maxBlockIndex; blockIndex++)
                     {
+                        PlaybackBlocks[blockIndex].Index = blockIndex;
                         PlaybackBlocks[blockIndex].Previous = PlaybackBlocks[blockIndex - 1];
                         PlaybackBlocks[blockIndex].Next = blockIndex + 1 <= maxBlockIndex ? PlaybackBlocks[blockIndex + 1] : null;
                     }
@@ -447,6 +468,7 @@
                 {
                     targetBlock.Previous = maxBlockIndex >= 1 ? PlaybackBlocks[maxBlockIndex - 1] : null;
                     targetBlock.Next = null;
+                    targetBlock.Index = PlaybackBlocks.Count - 1;
 
                     if (targetBlock.Previous != null)
                         targetBlock.Previous.Next = targetBlock;
@@ -509,25 +531,6 @@
                 if (nextBlock == null) return block.StartTime;
 
                 return nextBlock.StartTime;
-            }
-        }
-
-        /// <summary>
-        /// Retrieves the current, next, and previous blocks based on the given clock position.
-        /// If the blocks are not found, it returns them as null;
-        /// </summary>
-        /// <param name="position">The clock position.</param>
-        /// <param name="current">The current block.</param>
-        /// <param name="previous">The position of the previous frame.</param>
-        /// <param name="next">The position of the next frame.</param>
-        internal void GetNeighboringBlocks(TimeSpan position, out MediaBlock current, out MediaBlock previous, out MediaBlock next)
-        {
-            using (Locker.AcquireReaderLock())
-            {
-                var currentIndex = IndexOf(position);
-                current = currentIndex >= 0 ? PlaybackBlocks[currentIndex] : default;
-                previous = currentIndex - 1 >= 0 ? PlaybackBlocks[currentIndex - 1] : default;
-                next = currentIndex >= 0 && currentIndex + 1 < PlaybackBlocks.Count ? PlaybackBlocks[currentIndex + 1] : default;
             }
         }
 

@@ -201,16 +201,7 @@ namespace Unosquare.FFME
             if (element.MediaCore.State.IsSeekable == false) return element.MediaCore.State.Position;
 
             if (element.PropertyUpdatesWorker.IsExecutingCycle)
-            {
-                lock (element.ReportablePositionLock)
-                {
-                    if (element.m_ReportablePosition != null)
-                    {
-                        // coming from underlying engine
-                        return element.m_ReportablePosition.Value;
-                    }
-                }
-            }
+                return value;
 
             // Clamp from 0 to duration
             var targetSeek = (TimeSpan)value;
@@ -219,9 +210,6 @@ namespace Unosquare.FFME
 
             // coming in as a seek from user
             element.MediaCore?.Seek(targetSeek);
-
-            // Prevent updates from the mediacore into the position dependency property.
-            element.m_ReportablePosition = null;
 
             return targetSeek;
         }

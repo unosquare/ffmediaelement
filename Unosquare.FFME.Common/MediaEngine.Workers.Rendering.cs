@@ -63,7 +63,7 @@
                 // Skip the cycle if it's already running
                 if (BlockRenderingCycle.IsInProgress)
                 {
-                    Log(MediaLogMessageType.Trace, $"SKIP: {nameof(BlockRenderingWorker)} alredy in a cycle. {WallClock}");
+                    Log(MediaLogMessageType.Trace, $"SKIP: {nameof(BlockRenderingWorker)} already in a cycle. {WallClock}");
                     return;
                 }
 
@@ -128,7 +128,7 @@
 
                     #endregion
 
-                    #region 6. Finalize the Rendering Cycle
+                    #region 3. Finalize the Rendering Cycle
 
                     // Call the update method on all renderers so they receive what the new wall clock is.
                     foreach (var t in all)
@@ -140,13 +140,12 @@
                 catch { throw; }
                 finally
                 {
+                    // Update the Position
+                    if (State.IsSeeking == false && Commands.HasQueuedSeekOrStopCommands == false)
+                        State.UpdatePosition(wallClock);
+
                     // Always exit notifying the cycle is done.
                     BlockRenderingCycle.Complete();
-
-                    // Notify position changes continuously on the state object
-                    // only if we are not currently seeking
-                    if (State.IsSeeking == false)
-                        State.UpdatePosition(wallClock);
                 }
 
                 #endregion
