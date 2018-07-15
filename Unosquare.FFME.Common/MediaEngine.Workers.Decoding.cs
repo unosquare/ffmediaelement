@@ -89,29 +89,37 @@
                         {
                             // Signal the start of a sync-buffering scenario
                             isBuffering = true;
-                            State.SignalBufferingStarted();
                             resumeClock = Clock.IsRunning;
                             Clock.Pause();
+                            State.SignalBufferingStarted();
+
                             Log(MediaLogMessageType.Debug, $"SYNC-BUFFER: Started.");
 
-                            // Read some frames and try to get a valid range
-                            do
+                            // Wait for the packet cache to fill up and decode as we go
+                            var breakBuffering = false;
+                            while (CanReadMorePackets && ShouldReadMorePackets)
                             {
-                                // Try to get more packets by waiting for read cycles.
                                 WaitForPackets(comp, 1);
+                                decodedFrameCount += AddNextBlock(main) ? 1 : 0;
 
-                                // Decode some frames and check if we are in reange now
-                                if (AddNextBlock(main) == false)
+                                // Detect end of buffering loop for non-network streams
+                                breakBuffering = decodedFrameCount > 0 &&
+                                    State.IsNetowrkStream == false &&
+                                    blocks.IsInRange(wallClock);
+
+                                if (breakBuffering)
                                     break;
 
-                                decodedFrameCount += 1;
-                                isInRange = blocks.IsInRange(wallClock);
+                                // Detect general stream end of buffering loop
+                                breakBuffering = decodedFrameCount >= blocks.Capacity ||
+                                    CanReadMoreFramesOf(main) == false;
 
-                                // Break the cycle if we are in range
-                                if (isInRange || CanReadMorePackets == false || ShouldReadMorePackets == false)
+                                if (breakBuffering)
                                     break;
                             }
-                            while (blocks.IsFull == false);
+
+                            // Update the renage status
+                            isInRange = blocks.IsInRange(wallClock);
 
                             // Unfortunately at this point we will need to adjust the clock after creating the frames.
                             // to ensure tha mian component is within the clock range if the decoded
@@ -252,7 +260,8 @@
                         isBuffering = false;
 
                         // Resume the clock if it was playing
-                        if (resumeClock) Clock.Play();
+                        if (resumeClock)
+                            Clock.Play();
 
                         // log some message
                         Log(MediaLogMessageType.Debug, $"SYNC-BUFFER: Finished. Clock set to {wallClock.Format()}");

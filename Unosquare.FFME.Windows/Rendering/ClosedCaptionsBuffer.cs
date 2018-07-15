@@ -801,7 +801,7 @@
         private List<ClosedCaptionPacket> DequeuePackets(Dictionary<long, ClosedCaptionPacket> buffer, long upToTicks)
         {
             var result = new List<ClosedCaptionPacket>(buffer.Count);
-            var linearBufferKeys = buffer.Keys.ToArray();
+            var linearBufferKeys = buffer.Keys.OrderBy(k => k).ToArray();
             foreach (var bufferKey in linearBufferKeys)
             {
                 if (bufferKey > upToTicks)

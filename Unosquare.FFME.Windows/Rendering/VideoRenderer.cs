@@ -167,7 +167,12 @@
             if (block == null) return;
             if (IsRenderingInProgress.Value == true)
             {
-                MediaElement?.MediaCore?.Log(MediaLogMessageType.Debug, $"{nameof(VideoRenderer)}: Frame skipped at {mediaBlock.StartTime}");
+                if (MediaCore?.State.IsPlaying ?? false)
+                {
+                    MediaCore?.Log(MediaLogMessageType.Debug,
+                        $"{nameof(VideoRenderer)}: Frame skipped at {mediaBlock.StartTime}");
+                }
+
                 return;
             }
 
@@ -189,7 +194,7 @@
                 MediaElement.Dispatcher.InvokeAsync(foregroundAction) : null;
 
             // Ensure the target bitmap can be loaded
-            MediaElement.VideoView.InvokeAsync(DispatcherPriority.Render, () =>
+            MediaElement?.VideoView?.InvokeAsync(DispatcherPriority.Render, () =>
             {
                 if (block.IsDisposed)
                 {
@@ -368,6 +373,8 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ApplyLayoutTransforms(VideoBlock b)
         {
+            if (MediaElement == null || MediaElement.VideoView == null) return;
+
             var layoutTransforms = MediaElement.VideoView.LayoutTransform as TransformGroup;
             ScaleTransform scaleTransform = null;
             RotateTransform rotateTransform = null;

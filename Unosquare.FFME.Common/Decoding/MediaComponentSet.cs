@@ -56,7 +56,9 @@
 
         #region Delegates
 
+        public delegate void OnPacketsClearedDelegate();
         public delegate void OnPacketQueuedDelegate(IntPtr avPacket, MediaType mediaType, ulong bufferLength, ulong lifetimeBytes);
+        public delegate void OnPacketDequeuedDelegate(IntPtr avPacket, MediaType mediaType, ulong bufferLength, ulong lifetimeBytes);
         public delegate void OnFrameDecodedDelegate(IntPtr avFrame, MediaType mediaType);
         public delegate void OnSubtitleDecodedDelegate(IntPtr avSubititle);
 
@@ -68,6 +70,16 @@
         /// Gets or sets a method that gets called when a packet is queued.
         /// </summary>
         public OnPacketQueuedDelegate OnPacketQueued { get; set; }
+
+        /// <summary>
+        /// Gets or sets a method that gets called when a packet is removed from the queue.
+        /// </summary>
+        public OnPacketDequeuedDelegate OnPacketDequeued { get; set; }
+
+        /// <summary>
+        /// Gets or sets a method that gets called when all component packet queues are cleared.
+        /// </summary>
+        public OnPacketsClearedDelegate OnPacketsCleared { get; set; }
 
         /// <summary>
         /// Gets or sets a method that gets called when an audio or video frame gets decoded.
@@ -296,6 +308,8 @@
             lock (SyncLock)
                 foreach (var component in All)
                     component.ClearQueuedPackets(flushBuffers);
+
+            OnPacketsCleared?.Invoke();
         }
 
         #endregion

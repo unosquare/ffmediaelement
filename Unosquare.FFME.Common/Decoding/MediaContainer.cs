@@ -1201,7 +1201,7 @@
             if (seekResult < 0)
             {
                 Parent?.Log(MediaLogMessageType.Warning,
-                    $"SEEK 0: {nameof(StreamSeekToStart)} operation failed. Error code {seekResult}, {FFInterop.DecodeMessage(seekResult)}");
+                    $"SEEK 0: {nameof(StreamSeekToStart)} operation failed. Error code {seekResult}: {FFInterop.DecodeMessage(seekResult)}");
                 return 0;
             }
 

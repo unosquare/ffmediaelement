@@ -309,7 +309,11 @@
         /// <param name="e">The <see cref="PositionChangedRoutedEventArgs"/> instance containing the event data.</param>
         private void OnMediaPositionChanged(object sender, PositionChangedRoutedEventArgs e)
         {
-            // Debug.WriteLine($"{nameof(Media.Position)} = {e.Position}");
+            if (Media.MediaState == MediaState.Pause)
+            {
+                Debug.WriteLine($"EVENT {nameof(Media.PositionChanged)} Handled. " +
+                    $"{nameof(Media.Position)} = {e.Position}; Previous: {e.OldPosition};");
+            }
         }
 
         #endregion

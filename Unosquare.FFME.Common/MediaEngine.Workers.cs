@@ -62,8 +62,8 @@
         /// Gets a value indicating whether more packets can be read from the stream.
         /// This does not check if the packet queue is full.
         /// </summary>
-        internal bool CanReadMorePackets => (Container?.IsReadAborted ?? true) == false
-            && (Container?.IsAtEndOfStream ?? true) == false;
+        internal bool CanReadMorePackets => Commands.IsStopWorkersPending == false &&
+            ((Container?.IsReadAborted ?? true) == false && (Container?.IsAtEndOfStream ?? true) == false);
 
         /// <summary>
         /// Gets a value indicating whether room is available in the download cache.
@@ -239,7 +239,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool CanReadMoreFramesOf(MediaType t)
         {
-            return CanReadMorePackets ||
+            return (CanReadMorePackets && ShouldReadMorePackets) ||
                 Container.Components[t].PacketBufferLength > 0 ||
                 Container.Components[t].HasCodecPackets;
         }

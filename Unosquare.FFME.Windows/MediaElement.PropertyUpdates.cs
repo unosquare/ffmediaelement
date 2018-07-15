@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME
 {
+    using Primitives;
     using Shared;
     using System;
     using System.Collections.Generic;
@@ -20,6 +21,8 @@
         /// </summary>
         private readonly Dictionary<string, object> NotificationPropertyCache
             = new Dictionary<string, object>(PropertyMapper.PropertyMaxCount);
+
+        private readonly AtomicInteger PendingSeeks = new AtomicInteger(0);
 
         /// <summary>
         /// The property updates worker timer
@@ -98,21 +101,28 @@
         private void UpdateDependencyProperties()
         {
             // Detect Notification and Dependency property changes
-            var dependencyProperties = this.DetectDependencyPropertyChanges();
+            var changes = this.DetectDependencyPropertyChanges();
+
+            // Remove the position property updates if we are not allowed to
+            // report changes from the engine
+            if (PendingSeeks > 0 && changes.ContainsKey(PositionProperty))
+                changes.Remove(PositionProperty);
 
             // Write the media engine state property state to the dependency properties
-            foreach (var kvp in dependencyProperties)
+            foreach (var change in changes)
             {
                 // Do not upstream the Source porperty
                 // This causes unintended Open/Close commands to be run
-                if (kvp.Key == SourceProperty)
+                if (change.Key == SourceProperty)
                     continue;
 
-                SetValue(kvp.Key, kvp.Value);
-            }
+                // Update the dependency porperty value
+                SetValue(change.Key, change.Value);
 
-            if (dependencyProperties.ContainsKey(PositionProperty))
-                NotifyPropertyChangedEvent(nameof(RemainingDuration));
+                // Update the remaining duration
+                if (change.Key == PositionProperty)
+                    NotifyPropertyChangedEvent(nameof(RemainingDuration));
+            }
         }
     }
 }

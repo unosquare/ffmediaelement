@@ -39,7 +39,7 @@
 
             // wait for main component blocks or EOF or cancellation pending
             while (CanReadMoreFramesOf(main) && Blocks[main].Count <= 0)
-                FrameDecodingCycle.Wait();
+                FrameDecodingCycle.Wait(Constants.Interval.LowPriority);
 
             // Set the initial clock position
             Clock.Update(Blocks[main].RangeStartTime);

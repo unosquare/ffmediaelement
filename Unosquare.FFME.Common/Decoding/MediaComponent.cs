@@ -501,6 +501,12 @@
                 {
                     FlushCodecBuffers();
                     packet = Packets.Dequeue();
+                    Container.Components.OnPacketDequeued?.Invoke(
+                        (IntPtr)packet,
+                        MediaType,
+                        Container.Components.PacketBufferLength,
+                        Container.Components.LifetimeBytesRead);
+
                     PacketQueue.ReleasePacket(packet);
                     continue;
                 }
@@ -511,6 +517,12 @@
                 if (sendPacketResult != -ffmpeg.EAGAIN)
                 {
                     packet = Packets.Dequeue();
+                    Container.Components.OnPacketDequeued?.Invoke(
+                        (IntPtr)packet,
+                        MediaType,
+                        Container.Components.PacketBufferLength,
+                        Container.Components.LifetimeBytesRead);
+
                     PacketQueue.ReleasePacket(packet);
                     packetCount++;
                 }
@@ -608,6 +620,12 @@
             {
                 PacketQueue.ReleasePacket(packet);
                 packet = Packets.Dequeue();
+                Container.Components.OnPacketDequeued?.Invoke(
+                    (IntPtr)packet,
+                    MediaType,
+                    Container.Components.PacketBufferLength,
+                    Container.Components.LifetimeBytesRead);
+
                 if (packet != null)
                     receiveFrameResult = ffmpeg.avcodec_decode_subtitle2(CodecContext, outputFrame, &gotFrame, packet);
             }

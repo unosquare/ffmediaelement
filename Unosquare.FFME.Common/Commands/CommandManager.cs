@@ -229,14 +229,14 @@
         /// </summary>
         /// <returns>The awaitable task. The task result determines if the command was successfully started</returns>
         public async Task<bool> PlayAsync() =>
-                    await ExecuteProrityCommand(CommandType.Play);
+            await ExecuteProrityCommand(CommandType.Play);
 
         /// <summary>
         /// Pauses the playback of the media.
         /// </summary>
         /// <returns>The awaitable task. The task result determines if the command was successfully started</returns>
         public async Task<bool> PauseAsync() =>
-                    await ExecuteProrityCommand(CommandType.Pause);
+            await ExecuteProrityCommand(CommandType.Pause);
 
         /// <summary>
         /// Stops the playback of the media.
@@ -251,15 +251,7 @@
         /// <param name="target">The target.</param>
         /// <returns>The awaitable task. The task result determines if the command was successfully started</returns>
         public async Task<bool> SeekAsync(TimeSpan target) =>
-                    await ExecuteDelayedCommand(CommandType.Seek, target);
-
-        /// <summary>
-        /// Sets the speed ratio on the media.
-        /// </summary>
-        /// <param name="target">The target.</param>
-        /// <returns>The awaitable task. The task result determines if the command was successfully started</returns>
-        public async Task<bool> SetSpeedRatioAsync(double target) =>
-                    await ExecuteDelayedCommand(CommandType.SpeedRatio, target);
+            await ExecuteDelayedSeekCommand(target);
 
         /// <summary>
         /// Waits for any current direct command to finish execution.
@@ -340,9 +332,9 @@
             // Check if we have pending seeks to notify the start of a seek operation
             if (m.State.IsSeeking == false && HasQueuedSeekOrStopCommands)
             {
-                m.State.UpdateMediaState(PlaybackStatus.Manual);
                 PlayAfterSeek = m.Clock.IsRunning;
                 IsSeeking = true;
+                m.State.UpdateMediaState(PlaybackStatus.Manual);
                 m.SendOnSeekingStarted();
             }
         }
@@ -364,7 +356,6 @@
             foreach (var kvp in m.Renderers)
                 m.InvalidateRenderer(kvp.Key);
 
-            m.SendOnSeekingEnded();
             if (command != null && command.CommandType == CommandType.Stop)
             {
                 PlayAfterSeek = false;
@@ -375,6 +366,8 @@
             {
                 ResumePlayAfterSeek();
             }
+
+            m.SendOnSeekingEnded();
         }
 
         /// <summary>
@@ -385,21 +378,21 @@
         {
             lock (QueueLock)
             {
-                if (IsSeeking == false) return;
+                if (IsSeeking == false && HasQueuedSeekOrStopCommands) return;
                 IsSeeking = false;
 
                 // Update the media state
                 if (PlayAfterSeek)
                 {
+                    PlayAfterSeek = false;
                     MediaCore.Clock.Play();
                     MediaCore.State.UpdateMediaState(PlaybackStatus.Play);
                 }
                 else
                 {
+                    MediaCore.Clock.Pause();
                     MediaCore.State.UpdateMediaState(PlaybackStatus.Pause);
                 }
-
-                PlayAfterSeek = false;
             }
         }
 
@@ -518,60 +511,27 @@
         /// <summary>
         /// Executes the specified delayed command.
         /// </summary>
-        /// <typeparam name="T">The agument type for the command</typeparam>
-        /// <param name="commandType">Type of the command.</param>
         /// <param name="argument">The argument.</param>
         /// <returns>The awaitable task handle</returns>
-        private async Task<bool> ExecuteDelayedCommand<T>(CommandType commandType, T argument)
+        private async Task<bool> ExecuteDelayedSeekCommand(TimeSpan argument)
         {
-            if (CanExecuteQueuedCommands == false) return false;
+            if (CanExecuteQueuedCommands == false)
+                return false;
 
-            var timeSpanArgument = commandType == CommandType.Seek ?
-                (TimeSpan)Convert.ChangeType(argument, typeof(TimeSpan)) :
-                TimeSpan.Zero;
-
-            var doubleArgument = commandType == CommandType.SpeedRatio ?
-                (double)Convert.ChangeType(argument, typeof(double)) : default;
-
-            CommandBase currentCommand = null;
+            SeekCommand currentCommand = null;
             lock (QueueLock)
             {
                 currentCommand = CommandQueue
-                    .FirstOrDefault(c => c.CommandType == commandType);
+                    .FirstOrDefault(c => c.CommandType == CommandType.Seek) as SeekCommand;
 
                 if (currentCommand != null)
-                {
-                    switch (commandType)
-                    {
-                        case CommandType.Seek:
-                            (currentCommand as SeekCommand).TargetPosition = timeSpanArgument;
-                            break;
-                        case CommandType.SpeedRatio:
-                            (currentCommand as SpeedRatioCommand).SpeedRatio = doubleArgument;
-                            break;
-                        default:
-                            throw new ArgumentException($"{nameof(commandType)} is of invalid type '{commandType}'");
-                    }
-                }
+                    currentCommand.TargetPosition = argument;
             }
 
             if (currentCommand != null)
                 return await currentCommand.Awaiter;
 
-            CommandBase command = null;
-
-            switch (commandType)
-            {
-                case CommandType.Seek:
-                    command = new SeekCommand(MediaCore, timeSpanArgument);
-                    break;
-                case CommandType.SpeedRatio:
-                    command = new SpeedRatioCommand(MediaCore, doubleArgument);
-                    break;
-                default:
-                    throw new ArgumentException($"{nameof(commandType)} is of invalid type '{commandType}'");
-            }
-
+            var command = new SeekCommand(MediaCore, argument);
             lock (QueueLock)
                 CommandQueue.Add(command);
 

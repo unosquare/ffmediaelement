@@ -41,6 +41,16 @@
         private readonly AtomicTimeSpan m_PositionCurrent = new AtomicTimeSpan(default);
         private readonly AtomicTimeSpan m_PositionPrevious = new AtomicTimeSpan(default);
 
+        private readonly object ControllerLock = new object();
+        private double m_CurrentSpeedRatio = Constants.Controller.DefaultSpeedRatio;
+        private double m_RequestedSpeedRatio = Constants.Controller.DefaultSpeedRatio;
+        private double m_CurrentVolume = Constants.Controller.DefaultVolume;
+        private double m_RequestedVolume = Constants.Controller.DefaultVolume;
+        private double m_CurrentBalance = Constants.Controller.DefaultBalance;
+        private double m_RequestedBalance = Constants.Controller.DefaultBalance;
+        private bool m_CurrentIsMuted = false;
+        private bool m_RequestedIsMuted = false;
+
         /// <summary>
         /// Gets the guessed buffered bytes in the packet queue per second.
         /// If bitrate information is available, then it returns the bitrate converted to byte rate.
@@ -75,31 +85,70 @@
         #region Controller Properties
 
         /// <summary>
-        /// Gets or Sets the SpeedRatio property of the media.
-        /// </summary>
-        public double SpeedRatio { get; set; }
-
-        /// <summary>
         /// Gets or Sets the Source on this MediaElement.
         /// The Source property is the Uri of the media to be played.
         /// </summary>
         public Uri Source { get; internal set; }
 
         /// <summary>
-        /// Gets/Sets the Volume property on the MediaElement.
-        /// Note: Valid values are from 0 to 1
+        /// Gets or sets the requested, non-guaranteed current SpeedRatio property of the media.
         /// </summary>
-        public double Volume { get; set; } = Constants.Controller.DefaultVolume;
+        public double SpeedRatio
+        {
+            get { lock (ControllerLock) return m_RequestedSpeedRatio; }
+            set { lock (ControllerLock) m_RequestedSpeedRatio = value; }
+        }
 
         /// <summary>
-        /// Gets/Sets the Balance property on the MediaElement.
+        /// Gets or sets the requested, non-guaranteed current Volume property on the MediaElement from 0 to 1.
         /// </summary>
-        public double Balance { get; set; } = Constants.Controller.DefaultBalance;
+        public double Volume
+        {
+            get { lock (ControllerLock) return m_RequestedVolume; }
+            set { lock (ControllerLock) m_RequestedVolume = value; }
+        }
 
         /// <summary>
-        /// Gets/Sets the IsMuted property on the MediaElement.
+        /// Gets or sets the requested, non-guaranteed current Balance property on the MediaElement.
         /// </summary>
-        public bool IsMuted { get; set; } = false;
+        public double Balance
+        {
+            get { lock (ControllerLock) return m_RequestedBalance; }
+            set { lock (ControllerLock) m_RequestedBalance = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the requested, non-guaranteed current IsMuted property on the MediaElement.
+        /// </summary>
+        public bool IsMuted
+        {
+            get { lock (ControllerLock) return m_RequestedIsMuted; }
+            set { lock (ControllerLock) m_RequestedIsMuted = value; }
+        }
+
+        /// <summary>
+        /// Gets the Current SpeedRatio property of the media.
+        /// This differs from the <see cref="SpeedRatio"/> property as it is the currently applicable one.
+        /// </summary>
+        public double CurrentSpeedRatio { get { lock (ControllerLock) return m_CurrentSpeedRatio; } }
+
+        /// <summary>
+        /// Gets the Current Volume property on the MediaElement from 0 to 1.
+        /// This differs from the <see cref="Volume"/> property as it is the currently applicable one.
+        /// </summary>
+        public double CurrentVolume { get { lock (ControllerLock) return m_CurrentVolume; } }
+
+        /// <summary>
+        /// Gets the Current Balance property on the MediaElement.
+        /// This differs from the <see cref="Balance"/> property as it is the currently applicable one.
+        /// </summary>
+        public double CurrentBalance { get { lock (ControllerLock) return m_CurrentBalance; } }
+
+        /// <summary>
+        /// Gets the Current IsMuted property on the MediaElement.
+        /// This differs from the <see cref="IsMuted"/> property as it is the currently applicable one.
+        /// </summary>
+        public bool CurrentIsMuted { get { lock (ControllerLock) return m_CurrentIsMuted; } }
 
         #endregion
 
@@ -530,6 +579,12 @@
         /// <summary>
         /// Updates the position.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void UpdatePosition() => UpdatePosition(Parent.WallClock);
+
+        /// <summary>
+        /// Updates the position.
+        /// </summary>
         /// <param name="newPosition">The new position.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void UpdatePosition(TimeSpan newPosition)
@@ -539,7 +594,6 @@
                 return;
 
             Position = newPosition;
-            Parent.SendOnPositionChanged(oldPosition, newPosition);
 
             var main = Parent.Container?.Components?.Main.MediaType ?? MediaType.None;
             var blocks = Parent.Blocks[main];
@@ -560,6 +614,9 @@
                 PositionPrevious = previous?.StartTime ?? TimeSpan.FromTicks(
                     currentMainBlock.StartTime.Ticks - (currentMainBlock.Duration.Ticks / 2));
             }
+
+            ApplyControllerRequests();
+            Parent.SendOnPositionChanged(oldPosition, newPosition);
         }
 
         /// <summary>
@@ -573,6 +630,7 @@
             if (oldValue == mediaState)
                 return;
 
+            ApplyControllerRequests();
             MediaState = mediaState;
             Parent.SendOnMediaStateChanged(oldValue, mediaState);
         }
@@ -606,6 +664,7 @@
 
             // Reset volatile controller poperties
             SpeedRatio = Constants.Controller.DefaultSpeedRatio;
+            ApplyControllerRequests();
 
             if (oldMediaState != newMediaState)
                 Parent.SendOnMediaStateChanged(oldMediaState, newMediaState);
@@ -617,8 +676,8 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void InitializeBufferingProperties()
         {
-            const int MinimumValidBitrate = 96 * 1000; // 96kbps
-            const int StartingCacheLength = 512 * 1024; // Half a megabyte
+            const int MinimumValidBitrate = 512 * 1000; // 512 kbits per second
+            const int StartingCacheLength = 1024 * 1024; // a megabyte
 
             GuessedByteRate = default;
 
@@ -649,18 +708,16 @@
             var mediaBitrate = 2d * Math.Max(Parent.Container.MediaBitrate,
                 allComponentsHaveBitrate ? AudioBitrate + VideoBitrate : 0);
 
-            if (mediaBitrate > MinimumValidBitrate)
-            {
-                BufferCacheLength = Convert.ToUInt64(mediaBitrate / 8d);
-                GuessedByteRate = Convert.ToUInt64(BufferCacheLength);
-            }
-            else
-            {
-                BufferCacheLength = StartingCacheLength;
-            }
+            BufferCacheLength = Math.Max((mediaBitrate > MinimumValidBitrate) ?
+                Convert.ToUInt64(mediaBitrate / 8d) : StartingCacheLength, StartingCacheLength);
 
             DownloadCacheLength = BufferCacheLength * (IsNetowrkStream ?
                 NetworkStreamCacheFactor : StandardStreamCacheFactor);
+
+            Parent.Log(MediaLogMessageType.Debug,
+                $"CACHES: Init - Buffer: {Math.Round(BufferCacheLength / 1024d / 1024d, 2)} MB; " +
+                $"Download: {Math.Round(DownloadCacheLength / 1024d / 1024d, 2)} MB");
+
             IsBuffering = false;
             BufferingProgress = 0;
             DownloadProgress = 0;
@@ -754,8 +811,38 @@
             {
                 // We make the byterate 20% larget than what we have received, just to be safe.
                 GuessedByteRate = (ulong)(1.2 * bytesReadSoFar / shortestDuration.TotalSeconds);
-                BufferCacheLength = Convert.ToUInt64(GuessedByteRate);
-                DownloadCacheLength = BufferCacheLength * (IsNetowrkStream ? NetworkStreamCacheFactor : StandardStreamCacheFactor);
+                BufferCacheLength = Math.Max(Convert.ToUInt64(GuessedByteRate), BufferCacheLength);
+                DownloadCacheLength = BufferCacheLength * (IsNetowrkStream ?
+                    NetworkStreamCacheFactor : StandardStreamCacheFactor);
+
+                Parent.Log(MediaLogMessageType.Debug,
+                    $"CACHES: Guessed - Buffer: {Math.Round(BufferCacheLength / 1024d / 1024d, 2)} MB; " +
+                    $"Download: {Math.Round(DownloadCacheLength / 1024d / 1024d, 2)} MB; " +
+                    $"Guessed: {Math.Round(GuessedByteRate.Value / 1024d / 1024d, 2)} MB");
+            }
+        }
+
+        #endregion
+
+        #region Controller Management Methods
+
+        /// <summary>
+        /// Applies the controller property requests.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ApplyControllerRequests()
+        {
+            lock (ControllerLock)
+            {
+                if (Parent.Clock.SpeedRatio != m_RequestedSpeedRatio)
+                    Parent.Clock.SpeedRatio = m_RequestedSpeedRatio;
+
+                m_RequestedSpeedRatio = Parent.Clock.SpeedRatio;
+
+                m_CurrentSpeedRatio = m_RequestedSpeedRatio;
+                m_CurrentVolume = m_RequestedVolume;
+                m_CurrentBalance = m_RequestedBalance;
+                m_CurrentIsMuted = m_RequestedIsMuted;
             }
         }
 

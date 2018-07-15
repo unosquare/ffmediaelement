@@ -158,15 +158,14 @@ namespace Unosquare.FFME
         {
             var element = d as MediaElement;
             if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return Constants.Controller.DefaultSpeedRatio;
-            if (element.MediaCore.State.IsSeekable == false) return Constants.Controller.DefaultSpeedRatio;
+            if (element.PropertyUpdatesWorker.IsExecutingCycle) return value;
+            if (element.IsSeekable == false) return Constants.Controller.DefaultSpeedRatio;
 
             return ((double)value).Clamp(Constants.Controller.MinSpeedRatio, Constants.Controller.MaxSpeedRatio);
         }
 
-        private static void OnSpeedRatioPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            (d as MediaElement).MediaCore?.SetSpeedRatio((double)e.NewValue);
-        }
+        private static void OnSpeedRatioPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) =>
+            (d as MediaElement).MediaCore.State.SpeedRatio = (double)e.NewValue;
 
         #endregion
 
@@ -200,7 +199,9 @@ namespace Unosquare.FFME
             if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return TimeSpan.Zero;
             if (element.MediaCore.State.IsSeekable == false) return element.MediaCore.State.Position;
 
-            if (element.PropertyUpdatesWorker.IsExecutingCycle)
+            var valueComingFromEngine = element.PropertyUpdatesWorker.IsExecutingCycle;
+
+            if (valueComingFromEngine && element.PendingSeeks <= 0)
                 return value;
 
             // Clamp from 0 to duration
@@ -208,8 +209,17 @@ namespace Unosquare.FFME
             if ((element.MediaCore?.MediaInfo?.Duration ?? TimeSpan.Zero) != TimeSpan.Zero)
                 targetSeek = ((TimeSpan)value).Clamp(TimeSpan.Zero, element.MediaCore.MediaInfo.Duration);
 
+            if (valueComingFromEngine)
+                return targetSeek;
+
             // coming in as a seek from user
-            element.MediaCore?.Seek(targetSeek);
+            element.PendingSeeks.Value++;
+            element.MediaCore?.Seek(targetSeek).ContinueWith((t) =>
+            {
+                element.PendingSeeks.Value--;
+                if (element.PendingSeeks.Value < 0)
+                    element.PendingSeeks.Value = 0;
+            });
 
             return targetSeek;
         }
