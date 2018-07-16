@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME
 {
-    using Primitives;
     using Shared;
     using System;
     using System.Collections.Generic;
@@ -21,8 +20,6 @@
         /// </summary>
         private readonly Dictionary<string, object> NotificationPropertyCache
             = new Dictionary<string, object>(PropertyMapper.PropertyMaxCount);
-
-        private readonly AtomicInteger PendingSeeks = new AtomicInteger(0);
 
         /// <summary>
         /// The property updates worker timer
@@ -105,7 +102,7 @@
 
             // Remove the position property updates if we are not allowed to
             // report changes from the engine
-            if (PendingSeeks > 0 && changes.ContainsKey(PositionProperty))
+            if ((MediaCore?.State.IsSeeking ?? false) && changes.ContainsKey(PositionProperty))
                 changes.Remove(PositionProperty);
 
             // Write the media engine state property state to the dependency properties

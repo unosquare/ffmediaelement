@@ -201,7 +201,7 @@ namespace Unosquare.FFME
 
             var valueComingFromEngine = element.PropertyUpdatesWorker.IsExecutingCycle;
 
-            if (valueComingFromEngine && element.PendingSeeks <= 0)
+            if (valueComingFromEngine && element.MediaCore.State.IsSeeking == false)
                 return value;
 
             // Clamp from 0 to duration
@@ -213,13 +213,7 @@ namespace Unosquare.FFME
                 return targetSeek;
 
             // coming in as a seek from user
-            element.PendingSeeks.Value++;
-            element.MediaCore?.Seek(targetSeek).ContinueWith((t) =>
-            {
-                element.PendingSeeks.Value--;
-                if (element.PendingSeeks.Value < 0)
-                    element.PendingSeeks.Value = 0;
-            });
+            element.MediaCore?.Seek(targetSeek);
 
             return targetSeek;
         }

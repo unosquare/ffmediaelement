@@ -32,5 +32,23 @@
         /// Gets the command category.
         /// </summary>
         public abstract CommandCategory Category { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether this command processes seeking operations
+        /// </summary>
+        public bool AffectsSeekingState
+        {
+            get => TypeAffectsSeekingState(CommandType);
+        }
+
+        /// <summary>
+        /// Determines if the command type affects seeking states.
+        /// </summary>
+        /// <param name="commandType">Type of the command.</param>
+        /// <returns>The value</returns>
+        public static bool TypeAffectsSeekingState(CommandType commandType) =>
+            commandType == CommandType.Seek ||
+            commandType == CommandType.Stop ||
+            commandType == CommandType.ChangeMedia;
     }
 }

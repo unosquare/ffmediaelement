@@ -389,7 +389,7 @@
             LogEventStart(MediaStateChangedEvent);
             GuiContext.Current.EnqueueInvoke(() =>
             {
-                Console.WriteLine($"STATE CHANGED: {oldValue} to {newValue} | Pending Seeks: {PendingSeeks.Value}");
+                Console.WriteLine($"STATE CHANGED: {oldValue} to {newValue} | IsSeeking: {MediaCore?.State.IsSeeking ?? false}");
                 RaiseEvent(new MediaStateChangedRoutedEventArgs(
                     MediaStateChangedEvent, this, oldValue, newValue));
                 LogEventDone(MediaStateChangedEvent);

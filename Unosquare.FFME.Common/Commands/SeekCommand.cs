@@ -150,7 +150,7 @@
             {
                 if (hasDecoderSeeked)
                 {
-                    m.Log(MediaLogMessageType.Debug,
+                    m.Log(MediaLogMessageType.Trace,
                         $"SEEK D: Elapsed: {startTime.FormatElapsed()} | Target: {TargetPosition.Format()}");
                 }
             }

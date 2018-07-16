@@ -18,20 +18,21 @@
 
         private readonly List<CommandBase> CommandQueue = new List<CommandBase>(32);
         private readonly IWaitEvent DirectCommandEvent = null;
-        private readonly IWaitEvent SeekingDone = null;
         private readonly AtomicBoolean m_IsStopWorkersPending = new AtomicBoolean(false);
-        private readonly AtomicBoolean m_IsSeeking = new AtomicBoolean(false);
 
         private readonly object DirectLock = new object();
         private readonly object QueueLock = new object();
         private readonly object StatusLock = new object();
         private readonly object DisposeLock = new object();
 
+        // private bool PlayAfterSeek = default;
+        private readonly AtomicInteger PendingSeekCount = new AtomicInteger(0);
+        private readonly IWaitEvent SeekingDone = null;
+
         private bool m_IsClosing = default;
         private bool m_IsOpening = default;
         private bool m_IsChanging = default;
         private bool m_IsDisposed = default;
-        private bool PlayAfterSeek = default;
 
         private DirectCommandBase CurrentDirectCommand = null;
         private CommandBase CurrentQueueCommand = null;
@@ -94,8 +95,7 @@
         /// </summary>
         public bool IsSeeking
         {
-            get => m_IsSeeking.Value == true;
-            private set => m_IsSeeking.Value = value;
+            get => IsActivelySeeking || HasQueuedSeekCommands;
         }
 
         /// <summary>
@@ -124,14 +124,6 @@
         }
 
         /// <summary>
-        /// Gets a value indicating whether the command queue contains seek commands.
-        /// </summary>
-        public bool HasQueuedSeekOrStopCommands
-        {
-            get { lock (QueueLock) return CommandQueue.Any(c => c.CommandType == CommandType.Seek || c.CommandType == CommandType.Stop); }
-        }
-
-        /// <summary>
         /// Gets a value indicating whether this instance can execute queued commands.
         /// </summary>
         public bool CanExecuteQueuedCommands
@@ -155,6 +147,14 @@
         /// Gets a value indicating whether this instance is disposed.
         /// </summary>
         public bool IsDisposed { get { lock (DisposeLock) return m_IsDisposed; } }
+
+        /// <summary>
+        /// Gets a value indicating whether the command queue contains seek commands.
+        /// </summary>
+        private bool HasQueuedSeekCommands
+        {
+            get { lock (QueueLock) return PendingSeekCount > 0; }
+        }
 
         #endregion
 
@@ -217,11 +217,18 @@
             var currentCommand = GetCurrentDirectCommand(CommandType.ChangeMedia);
 
             if (currentCommand != null)
+            {
                 return await currentCommand.Awaiter;
+            }
             else if (IsExecutingDirectCommand)
+            {
                 return false;
+            }
             else
+            {
+                IncrementPendingSeeks();
                 return await ExecuteDirectCommand(new DirectChangeCommand(MediaCore));
+            }
         }
 
         /// <summary>
@@ -242,16 +249,24 @@
         /// Stops the playback of the media.
         /// </summary>
         /// <returns>The awaitable task. The task result determines if the command was successfully started</returns>
-        public async Task<bool> StopAsync() =>
-            await ExecuteProrityCommand(CommandType.Stop);
+        public async Task<bool> StopAsync()
+        {
+            IncrementPendingSeeks();
+            var stopTask = ExecuteProrityCommand(CommandType.Stop);
+            return await stopTask;
+        }
 
         /// <summary>
         /// Seeks to the target position on the media
         /// </summary>
         /// <param name="target">The target.</param>
         /// <returns>The awaitable task. The task result determines if the command was successfully started</returns>
-        public async Task<bool> SeekAsync(TimeSpan target) =>
-            await ExecuteDelayedSeekCommand(target);
+        public async Task<bool> SeekAsync(TimeSpan target)
+        {
+            IncrementPendingSeeks();
+            var seekTask = ExecuteDelayedSeekCommand(target);
+            return await seekTask;
+        }
 
         /// <summary>
         /// Waits for any current direct command to finish execution.
@@ -276,8 +291,6 @@
             CommandBase command = null;
             lock (QueueLock)
             {
-                DetectSeekingOrStopStarted();
-
                 if (CommandQueue.Count > 0)
                 {
                     command = CommandQueue[0];
@@ -291,21 +304,24 @@
                 if (command != null)
                 {
                     // Initiate a seek cycle
-                    if (command.CommandType == CommandType.Seek ||
-                        command.CommandType == CommandType.Stop)
+                    if (command.AffectsSeekingState)
                         SeekingDone.Begin();
 
                     // Execute the command synchronously
-                    command?.Execute();
+                    command.Execute();
                 }
             }
             catch { throw; }
             finally
             {
-                SeekingDone.Complete();
                 lock (QueueLock)
                 {
-                    DetectSeekingOrStopEnded(command);
+                    if (command?.AffectsSeekingState ?? false)
+                    {
+                        DecrementPendingSeeks(wasCancelled: false);
+                        SeekingDone.Complete();
+                    }
+
                     CurrentQueueCommand = null;
                 }
             }
@@ -321,78 +337,21 @@
 
         #region Private Methods
 
-        /// <summary>
-        /// Detects the seeking started operation.
-        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void DetectSeekingOrStopStarted()
-        {
-            var m = MediaCore;
-
-            // Check if we have pending seeks to notify the start of a seek operation
-            if (m.State.IsSeeking == false && HasQueuedSeekOrStopCommands)
-            {
-                PlayAfterSeek = m.Clock.IsRunning;
-                IsSeeking = true;
-                m.State.UpdateMediaState(PlaybackStatus.Manual);
-                m.SendOnSeekingStarted();
-            }
-        }
-
-        /// <summary>
-        /// Detects the seeking ended operation.
-        /// </summary>
-        /// <param name="command">The command.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void DetectSeekingOrStopEnded(CommandBase command)
-        {
-            var m = MediaCore;
-
-            // Don't do a thing if we are not currently seeking or if we still
-            // have seek commands in the queue.
-            if (IsSeeking == false || HasQueuedSeekOrStopCommands) return;
-
-            // Call the seek method on all renderers
-            foreach (var kvp in m.Renderers)
-                m.InvalidateRenderer(kvp.Key);
-
-            if (command != null && command.CommandType == CommandType.Stop)
-            {
-                PlayAfterSeek = false;
-                IsSeeking = false;
-                MediaCore.State.UpdateMediaState(PlaybackStatus.Stop);
-            }
-            else
-            {
-                ResumePlayAfterSeek();
-            }
-
-            m.SendOnSeekingEnded();
-        }
-
-        /// <summary>
-        /// Resumes playback if the clock was running prior to the start of a seek operation.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ResumePlayAfterSeek()
+        private void DecrementPendingSeeks(bool wasCancelled)
         {
             lock (QueueLock)
             {
-                if (IsSeeking == false && HasQueuedSeekOrStopCommands) return;
-                IsSeeking = false;
+                PendingSeekCount.Value--;
+            }
+        }
 
-                // Update the media state
-                if (PlayAfterSeek)
-                {
-                    PlayAfterSeek = false;
-                    MediaCore.Clock.Play();
-                    MediaCore.State.UpdateMediaState(PlaybackStatus.Play);
-                }
-                else
-                {
-                    MediaCore.Clock.Pause();
-                    MediaCore.State.UpdateMediaState(PlaybackStatus.Pause);
-                }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void IncrementPendingSeeks()
+        {
+            lock (QueueLock)
+            {
+                PendingSeekCount.Value++;
             }
         }
 
@@ -400,12 +359,21 @@
         /// Clears the command queue.
         /// All commands are signalled so all awaiters stop awaiting.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ClearQueuedCommands()
         {
             lock (QueueLock)
             {
+                var command = default(CommandBase);
+
                 for (var i = CommandQueue.Count - 1; i >= 0; i--)
-                    CommandQueue[i].Dispose();
+                {
+                    command = CommandQueue[i];
+                    command.Dispose();
+
+                    if (command.AffectsSeekingState)
+                        DecrementPendingSeeks(wasCancelled: true);
+                }
 
                 CommandQueue.Clear();
             }
@@ -441,9 +409,18 @@
         private async Task<bool> ExecuteDirectCommand(DirectCommandBase command)
         {
             if (TryEnterDirectCommand(command) == false)
+            {
+                if (command.AffectsSeekingState)
+                    DecrementPendingSeeks(wasCancelled: true);
+
                 return false;
+            }
 
             PrepareForDirectCommand(command.CommandType);
+
+            if (command.AffectsSeekingState)
+                SeekingDone.Begin();
+
             command.BeginExecute();
 
             try { return await command.Awaiter; }
@@ -458,7 +435,13 @@
         /// <returns>The awaitable task handle</returns>
         private async Task<bool> ExecuteProrityCommand(CommandType commandType)
         {
-            if (CanExecuteQueuedCommands == false) return false;
+            if (CanExecuteQueuedCommands == false)
+            {
+                if (CommandBase.TypeAffectsSeekingState(commandType))
+                    DecrementPendingSeeks(wasCancelled: true);
+
+                return false;
+            }
 
             CommandBase currentCommand = null;
             lock (QueueLock)
@@ -480,7 +463,10 @@
             }
 
             if (currentCommand != null)
+            {
+                DecrementPendingSeeks(wasCancelled: true);
                 return await currentCommand.Awaiter;
+            }
 
             CommandBase command = null;
 
@@ -516,7 +502,10 @@
         private async Task<bool> ExecuteDelayedSeekCommand(TimeSpan argument)
         {
             if (CanExecuteQueuedCommands == false)
+            {
+                DecrementPendingSeeks(wasCancelled: true);
                 return false;
+            }
 
             SeekCommand currentCommand = null;
             lock (QueueLock)
@@ -529,7 +518,10 @@
             }
 
             if (currentCommand != null)
+            {
+                DecrementPendingSeeks(wasCancelled: true);
                 return await currentCommand.Awaiter;
+            }
 
             var command = new SeekCommand(MediaCore, argument);
             lock (QueueLock)
@@ -583,10 +575,6 @@
             // Signal the workers to stop
             if (commandType == CommandType.Close)
             {
-                IsSeeking = false;
-                PlayAfterSeek = false;
-                SeekingDone.Complete();
-
                 // Prepare for close command by signalling workers to stop
                 IsStopWorkersPending = true;
 
@@ -595,17 +583,10 @@
             }
             else if (commandType == CommandType.Open)
             {
-                IsSeeking = false;
-                PlayAfterSeek = false;
-                SeekingDone.Complete();
+                // placeholder
             }
             else if (commandType == CommandType.ChangeMedia)
             {
-                // Signal the start of a changing event
-                // and check if we play after mediachanged
-                PlayAfterSeek = MediaCore.Clock.IsRunning;
-                SeekingDone.Begin();
-                IsSeeking = true;
                 MediaCore.State.UpdateMediaState(PlaybackStatus.Manual);
             }
 
@@ -638,20 +619,13 @@
                 DirectCommandEvent.Complete();
             }
 
-            try
+            if (command.AffectsSeekingState)
             {
-                command.PostProcess();
-            }
-            catch
-            {
-                PlayAfterSeek = false;
-                throw;
-            }
-            finally
-            {
+                DecrementPendingSeeks(wasCancelled: false);
                 SeekingDone.Complete();
-                ResumePlayAfterSeek();
             }
+
+            command.PostProcess();
         }
 
         /// <summary>

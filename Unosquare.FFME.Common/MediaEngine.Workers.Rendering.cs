@@ -141,7 +141,7 @@
                 finally
                 {
                     // Update the Position
-                    if (State.IsSeeking == false && Commands.HasQueuedSeekOrStopCommands == false)
+                    if (State.IsSeeking == false)
                         State.UpdatePosition(wallClock);
 
                     // Always exit notifying the cycle is done.
