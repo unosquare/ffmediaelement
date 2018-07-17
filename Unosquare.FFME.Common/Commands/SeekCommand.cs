@@ -58,13 +58,16 @@
                 // position of the main component so it sticks on it.
                 if (m.Blocks[main].IsInRange(TargetPosition))
                 {
-                    m.UpdateClock(TargetPosition);
+                    m.ChangePosition(TargetPosition);
                     return;
                 }
 
                 // Mark for debugger output
-                m.State.SignalBufferingStarted();
                 hasDecoderSeeked = true;
+
+                // Signal the starting state clearing the packet buffer cache
+                m.Container.Components.ClearQueuedPackets(flushBuffers: true);
+                m.State.SignalBufferingStarted();
 
                 // wait for the current reading and decoding cycles
                 // to finish. We don't want to interfere with reading in progress
@@ -138,7 +141,7 @@
                 }
 
                 // Write a new Real-time clock position now.
-                m.UpdateClock(resultPosition);
+                m.ChangePosition(resultPosition);
             }
             catch (Exception ex)
             {

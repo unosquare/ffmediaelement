@@ -134,7 +134,7 @@
                                     resumeClock = false; // Hard stop the clock.
 
                                 // Update the clock to what the main component range mandates
-                                UpdateClock(wallClock);
+                                ChangePosition(wallClock);
 
                                 // Force renderer invalidation
                                 InvalidateRenderer(main);
@@ -228,7 +228,7 @@
                         {
                             // Rendered all and nothing else to read
                             Clock.Pause();
-                            wallClock = UpdateClock(Blocks[main].RangeEndTime);
+                            wallClock = ChangePosition(Blocks[main].RangeEndTime);
 
                             if (State.NaturalDuration != null &&
                                 State.NaturalDuration != TimeSpan.MinValue &&

@@ -704,12 +704,11 @@
 
             // The metadata states that we have bitrates for the components
             // but sometimes (like in certain WMV files) we have slightly incorrect information
-            // and therefore, we multiply times 2 just to be safe
-            var mediaBitrate = 2d * Math.Max(Parent.Container.MediaBitrate,
+            var mediaBitrate = Math.Max(Parent.Container.MediaBitrate,
                 allComponentsHaveBitrate ? AudioBitrate + VideoBitrate : 0);
 
-            BufferCacheLength = Math.Max((mediaBitrate > MinimumValidBitrate) ?
-                Convert.ToUInt64(mediaBitrate / 8d) : StartingCacheLength, StartingCacheLength);
+            BufferCacheLength = mediaBitrate > MinimumValidBitrate ?
+                Convert.ToUInt64(mediaBitrate / 8d) : StartingCacheLength;
 
             DownloadCacheLength = BufferCacheLength * (IsNetowrkStream ?
                 NetworkStreamCacheFactor : StandardStreamCacheFactor);

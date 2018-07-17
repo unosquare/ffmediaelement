@@ -43,7 +43,7 @@
             foreach (var renderer in m.Renderers.Values)
                 renderer.Pause();
 
-            m.UpdateClock(m.SnapPositionToBlockPosition(m.WallClock));
+            m.ChangePosition(m.SnapPositionToBlockPosition(m.WallClock));
             m.State.UpdateMediaState(PlaybackStatus.Pause);
         }
     }

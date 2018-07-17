@@ -168,7 +168,7 @@
             Renderers.Clear();
 
             // Reset the clock
-            ResetClock();
+            ResetPosition();
         }
 
         /// <summary>
@@ -236,7 +236,7 @@
         /// <param name="position">The position.</param>
         /// <returns>The newly set postion</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal TimeSpan UpdateClock(TimeSpan position)
+        internal TimeSpan ChangePosition(TimeSpan position)
         {
             Clock.Update(position);
             State.UpdatePosition();
@@ -249,7 +249,7 @@
         /// </summary>
         /// <returns>The newly set postion</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal TimeSpan ResetClock()
+        internal TimeSpan ResetPosition()
         {
             Clock.Reset();
             State.UpdatePosition();

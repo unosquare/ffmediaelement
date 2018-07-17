@@ -353,7 +353,7 @@
 
             // Check if we have a valid range. If not, just set it what the main component is dictating
             if (m.Blocks[main].Count > 0 && m.Blocks[main].IsInRange(m.WallClock) == false)
-                m.UpdateClock(m.Blocks[main].RangeStartTime);
+                m.ChangePosition(m.Blocks[main].RangeStartTime);
 
             // Have the other components catch up
             foreach (var t in auxs)

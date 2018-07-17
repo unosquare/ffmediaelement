@@ -38,7 +38,7 @@
             m.State.ResetMediaProperties();
             m.State.UpdateFixedContainerProperties();
             m.State.InitializeBufferingProperties();
-            m.ResetClock();
+            m.ResetPosition();
             m.State.UpdateMediaState(PlaybackStatus.Close);
             m.State.Source = null;
 
