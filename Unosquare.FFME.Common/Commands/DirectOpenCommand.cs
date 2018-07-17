@@ -69,7 +69,7 @@
             }
             else
             {
-                MediaCore.State.UpdatePosition(TimeSpan.Zero);
+                MediaCore.ResetClock();
                 MediaCore.State.UpdateMediaState(PlaybackStatus.Close);
                 MediaCore.SendOnMediaFailed(ExceptionResult);
             }

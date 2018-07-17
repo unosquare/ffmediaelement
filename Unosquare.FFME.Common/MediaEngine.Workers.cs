@@ -168,8 +168,7 @@
             Renderers.Clear();
 
             // Reset the clock
-            Clock.Reset();
-            State.UpdatePosition();
+            ResetClock();
         }
 
         /// <summary>
@@ -228,6 +227,33 @@
             if (blocks == null) return position.Normalize();
 
             return blocks.GetSnapPosition(position) ?? position.Normalize();
+        }
+
+        /// <summary>
+        /// Updates the clock position and notifies the new
+        /// position to the <see cref="State" />.
+        /// </summary>
+        /// <param name="position">The position.</param>
+        /// <returns>The newly set postion</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal TimeSpan UpdateClock(TimeSpan position)
+        {
+            Clock.Update(position);
+            State.UpdatePosition();
+            return position;
+        }
+
+        /// <summary>
+        /// Resets the clock to the zero position and notifies the new
+        /// position to rhe <see cref="State"/>.
+        /// </summary>
+        /// <returns>The newly set postion</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal TimeSpan ResetClock()
+        {
+            Clock.Reset();
+            State.UpdatePosition();
+            return TimeSpan.Zero;
         }
 
         /// <summary>

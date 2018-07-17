@@ -88,6 +88,7 @@
                         if (isInRange == false)
                         {
                             // Signal the start of a sync-buffering scenario
+                            // TODO: Maybe this should be in the command manager?
                             isBuffering = true;
                             resumeClock = Clock.IsRunning;
                             Clock.Pause();
@@ -133,8 +134,7 @@
                                     resumeClock = false; // Hard stop the clock.
 
                                 // Update the clock to what the main component range mandates
-                                Clock.Update(wallClock);
-                                State.UpdatePosition();
+                                UpdateClock(wallClock);
 
                                 // Force renderer invalidation
                                 InvalidateRenderer(main);
@@ -228,9 +228,7 @@
                         {
                             // Rendered all and nothing else to read
                             Clock.Pause();
-                            wallClock = Blocks[main].RangeEndTime;
-                            Clock.Update(wallClock);
-                            State.UpdatePosition();
+                            wallClock = UpdateClock(Blocks[main].RangeEndTime);
 
                             if (State.NaturalDuration != null &&
                                 State.NaturalDuration != TimeSpan.MinValue &&

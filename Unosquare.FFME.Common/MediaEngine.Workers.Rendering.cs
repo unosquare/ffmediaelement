@@ -42,9 +42,7 @@
                 FrameDecodingCycle.Wait(Constants.Interval.LowPriority);
 
             // Set the initial clock position
-            Clock.Update(Blocks[main].RangeStartTime);
-            State.UpdatePosition();
-            var wallClock = WallClock;
+            var wallClock = UpdateClock(Blocks[main].RangeStartTime);
 
             // Wait for renderers to be ready
             foreach (var t in all)

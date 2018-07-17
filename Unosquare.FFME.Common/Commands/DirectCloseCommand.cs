@@ -2,7 +2,6 @@
 {
     using Core;
     using Shared;
-    using System;
     using System.Text;
 
     /// <summary>
@@ -32,16 +31,16 @@
         /// </summary>
         public override void PostProcess()
         {
-            var s = MediaCore?.State;
-            if (s == null) return;
+            var m = MediaCore;
+            if (m == null) return;
 
             // Update notification properties
-            s.ResetMediaProperties();
-            s.UpdateFixedContainerProperties();
-            s.InitializeBufferingProperties();
-            s.UpdatePosition(TimeSpan.Zero);
-            s.UpdateMediaState(PlaybackStatus.Close);
-            s.Source = null;
+            m.State.ResetMediaProperties();
+            m.State.UpdateFixedContainerProperties();
+            m.State.InitializeBufferingProperties();
+            m.ResetClock();
+            m.State.UpdateMediaState(PlaybackStatus.Close);
+            m.State.Source = null;
 
             // Notify media has closed
             MediaCore.SendOnMediaClosed();

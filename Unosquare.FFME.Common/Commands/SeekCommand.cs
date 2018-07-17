@@ -58,8 +58,7 @@
                 // position of the main component so it sticks on it.
                 if (m.Blocks[main].IsInRange(TargetPosition))
                 {
-                    m.Clock.Update(TargetPosition);
-                    m.State.UpdatePosition();
+                    m.UpdateClock(TargetPosition);
                     return;
                 }
 
@@ -139,8 +138,7 @@
                 }
 
                 // Write a new Real-time clock position now.
-                m.Clock.Update(resultPosition);
-                m.State.UpdatePosition();
+                m.UpdateClock(resultPosition);
             }
             catch (Exception ex)
             {

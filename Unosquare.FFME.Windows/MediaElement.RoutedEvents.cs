@@ -5,6 +5,7 @@
     using Shared;
     using System;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
@@ -389,7 +390,7 @@
             LogEventStart(MediaStateChangedEvent);
             GuiContext.Current.EnqueueInvoke(() =>
             {
-                Console.WriteLine($"STATE CHANGED: {oldValue} to {newValue} | IsSeeking: {MediaCore?.State.IsSeeking ?? false}");
+                Debug.WriteLine($"STATE CHANGED: {oldValue} to {newValue} | IsSeeking: {MediaCore?.State.IsSeeking ?? false}");
                 RaiseEvent(new MediaStateChangedRoutedEventArgs(
                     MediaStateChangedEvent, this, oldValue, newValue));
                 LogEventDone(MediaStateChangedEvent);

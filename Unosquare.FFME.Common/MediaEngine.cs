@@ -137,8 +137,7 @@
                 Commands.Dispose();
 
                 // Reset the RTC
-                Clock.Reset();
-                State.UpdatePosition();
+                ResetClock();
 
                 // Dispose the Wait Event objects as they are
                 // backed by unmanaged code
