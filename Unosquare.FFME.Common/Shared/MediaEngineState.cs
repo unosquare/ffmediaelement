@@ -671,6 +671,30 @@
         }
 
         /// <summary>
+        /// Signals the buffering started.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void SignalBufferingStarted()
+        {
+            if (IsBuffering) return;
+            else IsBuffering = true;
+
+            Parent?.SendOnBufferingStarted();
+        }
+
+        /// <summary>
+        /// Signals the buffering ended.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void SignalBufferingEnded()
+        {
+            if (IsBuffering == false) return;
+            else IsBuffering = false;
+
+            Parent?.SendOnBufferingEnded();
+        }
+
+        /// <summary>
         /// Resets all the buffering properties to their defaults.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -720,30 +744,6 @@
             IsBuffering = false;
             BufferingProgress = 0;
             DownloadProgress = 0;
-        }
-
-        /// <summary>
-        /// Signals the buffering started.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void SignalBufferingStarted()
-        {
-            if (IsBuffering) return;
-            else IsBuffering = true;
-
-            Parent?.SendOnBufferingStarted();
-        }
-
-        /// <summary>
-        /// Signals the buffering ended.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void SignalBufferingEnded()
-        {
-            if (IsBuffering == false) return;
-            else IsBuffering = false;
-
-            Parent?.SendOnBufferingEnded();
         }
 
         /// <summary>
