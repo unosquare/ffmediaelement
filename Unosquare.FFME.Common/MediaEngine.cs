@@ -138,6 +138,7 @@
 
                 // Reset the RTC
                 Clock.Reset();
+                State.UpdatePosition();
 
                 // Dispose the Wait Event objects as they are
                 // backed by unmanaged code

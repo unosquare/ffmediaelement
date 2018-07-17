@@ -43,6 +43,7 @@
 
             // Set the initial clock position
             Clock.Update(Blocks[main].RangeStartTime);
+            State.UpdatePosition();
             var wallClock = WallClock;
 
             // Wait for renderers to be ready
@@ -142,7 +143,7 @@
                 {
                     // Update the Position
                     if (State.IsSeeking == false)
-                        State.UpdatePosition(wallClock);
+                        State.UpdatePosition(Clock.IsRunning ? wallClock : Clock.Position);
 
                     // Always exit notifying the cycle is done.
                     BlockRenderingCycle.Complete();

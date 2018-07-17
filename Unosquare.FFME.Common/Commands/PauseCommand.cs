@@ -45,6 +45,7 @@
 
             var wallClock = m.SnapPositionToBlockPosition(m.WallClock);
             m.Clock.Update(wallClock);
+            m.State.UpdatePosition();
             m.State.UpdateMediaState(PlaybackStatus.Pause);
         }
     }

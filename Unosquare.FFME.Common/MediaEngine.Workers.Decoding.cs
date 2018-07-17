@@ -134,6 +134,7 @@
 
                                 // Update the clock to what the main component range mandates
                                 Clock.Update(wallClock);
+                                State.UpdatePosition();
 
                                 // Force renderer invalidation
                                 InvalidateRenderer(main);
@@ -229,6 +230,7 @@
                             Clock.Pause();
                             wallClock = Blocks[main].RangeEndTime;
                             Clock.Update(wallClock);
+                            State.UpdatePosition();
 
                             if (State.NaturalDuration != null &&
                                 State.NaturalDuration != TimeSpan.MinValue &&

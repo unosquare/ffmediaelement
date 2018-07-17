@@ -169,6 +169,7 @@
 
             // Reset the clock
             Clock.Reset();
+            State.UpdatePosition();
         }
 
         /// <summary>
