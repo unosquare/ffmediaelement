@@ -337,7 +337,7 @@
             try
             {
                 WaitForReadyEvent.Complete();
-                var speedRatio = MediaCore?.State.CurrentSpeedRatio ?? 0;
+                var speedRatio = MediaCore?.State.SpeedRatio ?? 0;
 
                 // Render silence if we don't need to output samples
                 if (MediaCore.State.IsPlaying == false || speedRatio <= 0d || MediaCore.State.HasAudio == false || AudioBuffer.ReadableCount <= 0)
@@ -810,7 +810,7 @@
         private void ApplyVolumeAndBalance(byte[] targetBuffer, int targetBufferOffset, int requestedBytes)
         {
             // Check if we are muted. We don't need process volume and balance
-            var isMuted = MediaCore?.State.CurrentIsMuted ?? true;
+            var isMuted = MediaCore?.State.IsMuted ?? true;
             if (isMuted)
             {
                 for (var sourceBufferOffset = 0; sourceBufferOffset < requestedBytes; sourceBufferOffset++)
@@ -820,8 +820,8 @@
             }
 
             // Capture and adjust volume and balance
-            var volume = MediaCore?.State.CurrentVolume ?? Constants.Controller.DefaultVolume;
-            var balance = MediaCore?.State.CurrentBalance ?? Constants.Controller.DefaultBalance;
+            var volume = MediaCore?.State.Volume ?? Constants.Controller.DefaultVolume;
+            var balance = MediaCore?.State.Balance ?? Constants.Controller.DefaultBalance;
 
             volume = volume.Clamp(Constants.Controller.MinVolume, Constants.Controller.MaxVolume);
             balance = balance.Clamp(Constants.Controller.MinBalance, Constants.Controller.MaxBalance);

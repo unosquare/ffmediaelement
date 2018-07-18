@@ -41,15 +41,10 @@
         private readonly AtomicTimeSpan m_PositionCurrent = new AtomicTimeSpan(default);
         private readonly AtomicTimeSpan m_PositionPrevious = new AtomicTimeSpan(default);
 
-        private readonly object ControllerLock = new object();
-        private double m_CurrentSpeedRatio = Constants.Controller.DefaultSpeedRatio;
-        private double m_RequestedSpeedRatio = Constants.Controller.DefaultSpeedRatio;
-        private double m_CurrentVolume = Constants.Controller.DefaultVolume;
-        private double m_RequestedVolume = Constants.Controller.DefaultVolume;
-        private double m_CurrentBalance = Constants.Controller.DefaultBalance;
-        private double m_RequestedBalance = Constants.Controller.DefaultBalance;
-        private bool m_CurrentIsMuted = false;
-        private bool m_RequestedIsMuted = false;
+        private readonly AtomicDouble m_SpeedRatio = new AtomicDouble(Constants.Controller.DefaultSpeedRatio);
+        private readonly AtomicDouble m_Volume = new AtomicDouble(Constants.Controller.DefaultVolume);
+        private readonly AtomicDouble m_Balance = new AtomicDouble(Constants.Controller.DefaultBalance);
+        private readonly AtomicBoolean m_IsMuted = new AtomicBoolean(false);
 
         /// <summary>
         /// Gets the guessed buffered bytes in the packet queue per second.
@@ -95,8 +90,8 @@
         /// </summary>
         public double SpeedRatio
         {
-            get { lock (ControllerLock) return m_RequestedSpeedRatio; }
-            set { lock (ControllerLock) m_RequestedSpeedRatio = value; }
+            get => m_SpeedRatio.Value;
+            set => m_SpeedRatio.Value = value;
         }
 
         /// <summary>
@@ -104,8 +99,8 @@
         /// </summary>
         public double Volume
         {
-            get { lock (ControllerLock) return m_RequestedVolume; }
-            set { lock (ControllerLock) m_RequestedVolume = value; }
+            get => m_Volume.Value;
+            set => m_Volume.Value = value;
         }
 
         /// <summary>
@@ -113,8 +108,8 @@
         /// </summary>
         public double Balance
         {
-            get { lock (ControllerLock) return m_RequestedBalance; }
-            set { lock (ControllerLock) m_RequestedBalance = value; }
+            get => m_Balance.Value;
+            set => m_Balance.Value = value;
         }
 
         /// <summary>
@@ -122,33 +117,9 @@
         /// </summary>
         public bool IsMuted
         {
-            get { lock (ControllerLock) return m_RequestedIsMuted; }
-            set { lock (ControllerLock) m_RequestedIsMuted = value; }
+            get => m_IsMuted.Value;
+            set => m_IsMuted.Value = value;
         }
-
-        /// <summary>
-        /// Gets the Current SpeedRatio property of the media.
-        /// This differs from the <see cref="SpeedRatio"/> property as it is the currently applicable one.
-        /// </summary>
-        public double CurrentSpeedRatio { get { lock (ControllerLock) return m_CurrentSpeedRatio; } }
-
-        /// <summary>
-        /// Gets the Current Volume property on the MediaElement from 0 to 1.
-        /// This differs from the <see cref="Volume"/> property as it is the currently applicable one.
-        /// </summary>
-        public double CurrentVolume { get { lock (ControllerLock) return m_CurrentVolume; } }
-
-        /// <summary>
-        /// Gets the Current Balance property on the MediaElement.
-        /// This differs from the <see cref="Balance"/> property as it is the currently applicable one.
-        /// </summary>
-        public double CurrentBalance { get { lock (ControllerLock) return m_CurrentBalance; } }
-
-        /// <summary>
-        /// Gets the Current IsMuted property on the MediaElement.
-        /// This differs from the <see cref="IsMuted"/> property as it is the currently applicable one.
-        /// </summary>
-        public bool CurrentIsMuted { get { lock (ControllerLock) return m_CurrentIsMuted; } }
 
         #endregion
 
@@ -252,32 +223,32 @@
         /// <summary>
         /// Gets a value indicating whether the media clock is playing.
         /// </summary>
-        public bool IsPlaying => IsOpen && (Parent?.Clock.IsRunning ?? default);
+        public bool IsPlaying => IsOpen && Parent.Clock.IsRunning;
 
         /// <summary>
         /// Gets a value indicating whether the media clock is paused.
         /// </summary>
-        public bool IsPaused => IsOpen && (Parent?.Clock.IsRunning ?? true) == false;
+        public bool IsPaused => IsOpen && (Parent.Clock.IsRunning == false);
 
         /// <summary>
         /// Gets a value indicating whether the media seeking is in progress.
         /// </summary>
-        public bool IsSeeking => Parent?.Commands?.IsSeeking ?? false;
+        public bool IsSeeking => Parent.Commands?.IsSeeking ?? false;
 
         /// <summary>
         /// Gets a value indicating whether the media is in the process of closing media.
         /// </summary>
-        public bool IsClosing => Parent?.Commands?.IsClosing ?? false;
+        public bool IsClosing => Parent.Commands?.IsClosing ?? false;
 
         /// <summary>
         /// Gets a value indicating whether the media is in the process of opening.
         /// </summary>
-        public bool IsOpening => Parent?.Commands?.IsOpening ?? false;
+        public bool IsOpening => Parent.Commands?.IsOpening ?? false;
 
         /// <summary>
         /// Gets a value indicating whether the media is currently changing its components.
         /// </summary>
-        public bool IsChanging => Parent?.Commands?.IsChanging ?? false;
+        public bool IsChanging => Parent.Commands?.IsChanging ?? false;
 
         #endregion
 
@@ -575,7 +546,7 @@
             {
                 SignalBufferingEnded();
                 HasMediaEnded = true;
-                Parent?.SendOnMediaEnded();
+                Parent.SendOnMediaEnded();
                 return;
             }
 
@@ -595,6 +566,12 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void UpdatePosition(TimeSpan newPosition)
         {
+            var oldSpeedRatio = Parent.Clock.SpeedRatio;
+            var newSpeedRatio = SpeedRatio;
+
+            if (oldSpeedRatio != newSpeedRatio)
+                Parent.Clock.SpeedRatio = SpeedRatio;
+
             var oldPosition = Position;
             if (oldPosition.Ticks == newPosition.Ticks)
                 return;
@@ -621,7 +598,6 @@
                     currentMainBlock.StartTime.Ticks - (currentMainBlock.Duration.Ticks / 2));
             }
 
-            ApplyControllerRequests();
             Parent.SendOnPositionChanged(oldPosition, newPosition);
         }
 
@@ -636,7 +612,6 @@
             if (oldValue == mediaState)
                 return;
 
-            ApplyControllerRequests();
             MediaState = mediaState;
             Parent.SendOnMediaStateChanged(oldValue, mediaState);
         }
@@ -647,12 +622,10 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void ResetMediaProperties()
         {
-            var oldMediaState = default(PlaybackStatus);
+            var oldMediaState = MediaState;
             var newMediaState = PlaybackStatus.Close;
 
             // Reset Method-controlled properties
-            oldMediaState = MediaState;
-
             MediaState = newMediaState;
             Position = default;
             PositionCurrent = default;
@@ -668,9 +641,8 @@
             VideoSmtpeTimecode = string.Empty;
             VideoHardwareDecoder = string.Empty;
 
-            // Reset volatile controller poperties
+            // Reset controller poperties
             SpeedRatio = Constants.Controller.DefaultSpeedRatio;
-            ApplyControllerRequests();
 
             if (oldMediaState != newMediaState)
                 Parent.SendOnMediaStateChanged(oldMediaState, newMediaState);
@@ -685,7 +657,7 @@
             if (IsBuffering) return;
             else IsBuffering = true;
 
-            Parent?.SendOnBufferingStarted();
+            Parent.SendOnBufferingStarted();
         }
 
         /// <summary>
@@ -697,7 +669,7 @@
             if (IsBuffering == false) return;
             else IsBuffering = false;
 
-            Parent?.SendOnBufferingEnded();
+            Parent.SendOnBufferingEnded();
         }
 
         /// <summary>
@@ -777,11 +749,11 @@
 
             // Compute the new state
             IsBuffering = packetBufferLength < BufferCacheLength
-                && (Parent?.CanReadMorePackets ?? false);
+                && Parent.CanReadMorePackets;
 
             // Notify the change
             if (wasBuffering && IsBuffering == false)
-                Parent?.SendOnBufferingEnded();
+                Parent.SendOnBufferingEnded();
         }
 
         /// <summary>
@@ -809,30 +781,6 @@
                     $"CACHES: Guessed - Buffer: {Math.Round(BufferCacheLength / 1024d / 1024d, 2)} MB; " +
                     $"Download: {Math.Round(DownloadCacheLength / 1024d / 1024d, 2)} MB; " +
                     $"Guessed: {Math.Round(GuessedByteRate.Value / 1024d / 1024d, 2)} MB");
-            }
-        }
-
-        #endregion
-
-        #region Controller Management Methods
-
-        /// <summary>
-        /// Applies the controller property requests.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ApplyControllerRequests()
-        {
-            lock (ControllerLock)
-            {
-                if (Parent.Clock.SpeedRatio != m_RequestedSpeedRatio)
-                    Parent.Clock.SpeedRatio = m_RequestedSpeedRatio;
-
-                m_RequestedSpeedRatio = Parent.Clock.SpeedRatio;
-
-                m_CurrentSpeedRatio = m_RequestedSpeedRatio;
-                m_CurrentVolume = m_RequestedVolume;
-                m_CurrentBalance = m_RequestedBalance;
-                m_CurrentIsMuted = m_RequestedIsMuted;
             }
         }
 
