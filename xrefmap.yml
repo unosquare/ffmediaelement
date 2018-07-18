@@ -903,6 +903,19 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.BalanceProperty
   fullName: Unosquare.FFME.MediaElement.BalanceProperty
   nameWithType: MediaElement.BalanceProperty
+- uid: Unosquare.FFME.MediaElement.Bitrate
+  name: Bitrate
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Bitrate
+  commentId: P:Unosquare.FFME.MediaElement.Bitrate
+  fullName: Unosquare.FFME.MediaElement.Bitrate
+  nameWithType: MediaElement.Bitrate
+- uid: Unosquare.FFME.MediaElement.Bitrate*
+  name: Bitrate
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Bitrate_
+  commentId: Overload:Unosquare.FFME.MediaElement.Bitrate
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.Bitrate
+  nameWithType: MediaElement.Bitrate
 - uid: Unosquare.FFME.MediaElement.BufferCacheLength
   name: BufferCacheLength
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_BufferCacheLength
