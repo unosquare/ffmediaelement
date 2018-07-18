@@ -820,7 +820,7 @@
             }
 
             // Capture and adjust volume and balance
-            var volume = MediaCore?.State.Volume ?? Constants.Controller.DefaultVolume;
+            var volume = MediaCore?.State.Volume ?? default;
             var balance = MediaCore?.State.Balance ?? Constants.Controller.DefaultBalance;
 
             volume = volume.Clamp(Constants.Controller.MinVolume, Constants.Controller.MaxVolume);
