@@ -284,6 +284,11 @@
         #region Container Fixed, One-Time Properties
 
         /// <summary>
+        /// Gets the stream's bitrate. Returns 0 if unavaliable.
+        /// </summary>
+        public ulong Bitrate { get; private set; }
+
+        /// <summary>
         /// Gets a value indicating whether this media element
         /// currently has an open media url.
         /// </summary>
@@ -503,6 +508,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void UpdateFixedContainerProperties()
         {
+            Bitrate = Parent.Container?.MediaBitrate ?? default;
             IsOpen = (IsOpening == false) && (Parent.Container?.IsOpen ?? default);
             Metadata = Parent.Container?.Metadata ?? EmptyDictionary;
             MediaFormat = Parent.Container?.MediaFormatName;
@@ -700,6 +706,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void InitializeBufferingProperties()
         {
+            // var fileSize = ffmpeg.avio_size(Parent.Container.InputContext->pb);
             const int MinimumValidBitrate = 512 * 1000; // 512 kbits per second
             const int StartingCacheLength = 1024 * 1024; // a megabyte
 
@@ -728,7 +735,7 @@
 
             // The metadata states that we have bitrates for the components
             // but sometimes (like in certain WMV files) we have slightly incorrect information
-            var mediaBitrate = Math.Max(Parent.Container.MediaBitrate,
+            var mediaBitrate = Math.Max(Bitrate,
                 allComponentsHaveBitrate ? AudioBitrate + VideoBitrate : 0);
 
             BufferCacheLength = mediaBitrate > MinimumValidBitrate ?
@@ -736,6 +743,8 @@
 
             DownloadCacheLength = BufferCacheLength * (IsNetowrkStream ?
                 NetworkStreamCacheFactor : StandardStreamCacheFactor);
+
+            GuessedByteRate = Bitrate > MinimumValidBitrate ? BufferCacheLength : default;
 
             Parent.Log(MediaLogMessageType.Debug,
                 $"CACHES: Init - Buffer: {Math.Round(BufferCacheLength / 1024d / 1024d, 2)} MB; " +
@@ -785,31 +794,13 @@
                 return;
 
             // Capture the read bytes of a 1-second buffer
-            var bytesReadSoFar = Parent.Container.Components.LifetimeBytesRead;
-            var shortestDuration = TimeSpan.MaxValue;
-            var currentDuration = TimeSpan.Zero;
+            var bytesDecodedSoFar = Parent.Container.Components.LifetimeBytesDecoded;
+            var durationDecodedSoFar = Parent.Container.Components.LifetimeDurationDecoded;
 
-            foreach (var t in Parent.Container.Components.MediaTypes)
-            {
-                if (t != MediaType.Audio && t != MediaType.Video)
-                    continue;
-
-                currentDuration = Parent.Blocks[t].LifetimeBlockDuration;
-
-                if (currentDuration.TotalSeconds < 1)
-                {
-                    shortestDuration = TimeSpan.Zero;
-                    break;
-                }
-
-                if (currentDuration < shortestDuration)
-                    shortestDuration = currentDuration;
-            }
-
-            if (shortestDuration.TotalSeconds >= 1 && shortestDuration != TimeSpan.MaxValue)
+            if (durationDecodedSoFar.TotalSeconds >= Parent.Container.MediaInfo.Streams.Count)
             {
                 // We make the byterate 20% larget than what we have received, just to be safe.
-                GuessedByteRate = (ulong)(1.2 * bytesReadSoFar / shortestDuration.TotalSeconds);
+                GuessedByteRate = (ulong)(1.2 * bytesDecodedSoFar / durationDecodedSoFar.TotalSeconds);
                 BufferCacheLength = Math.Max(Convert.ToUInt64(GuessedByteRate), BufferCacheLength);
                 DownloadCacheLength = BufferCacheLength * (IsNetowrkStream ?
                     NetworkStreamCacheFactor : StandardStreamCacheFactor);

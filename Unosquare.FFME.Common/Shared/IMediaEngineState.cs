@@ -9,6 +9,11 @@
     public interface IMediaEngineState
     {
         /// <summary>
+        /// Gets the stream's bitrate. Returns 0 if unavaliable.
+        /// </summary>
+        ulong Bitrate { get; }
+
+        /// <summary>
         /// Gets the index of the video stream.
         /// </summary>
         int VideoStreamIndex { get; }

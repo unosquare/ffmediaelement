@@ -49,6 +49,11 @@
                         </DockPanel>
 
                         <DockPanel>
+                            <TextBlock Style="{StaticResource Key}">Bitrate</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding Bitrate, Mode=OneWay, Converter={StaticResource BitFormatter}}" />
+                        </DockPanel>
+
+                        <DockPanel>
                             <TextBlock Style="{StaticResource Key}">Duration</TextBlock>
                             <TextBlock Style="{StaticResource Value}" Text="{Binding NaturalDuration, Mode=OneWay}" />
                         </DockPanel>
@@ -155,7 +160,7 @@
 
                         <DockPanel>
                             <TextBlock Style="{StaticResource Key}">Video Bitrate</TextBlock>
-                            <TextBlock Style="{StaticResource Value}" Text="{Binding VideoBitrate, Mode=OneWay}" />
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding VideoBitrate, Mode=OneWay, Converter={StaticResource BitFormatter}}" />
                         </DockPanel>
 
                         <DockPanel>
@@ -200,7 +205,7 @@
 
                         <DockPanel>
                             <TextBlock Style="{StaticResource Key}">Audio Bitrate</TextBlock>
-                            <TextBlock Style="{StaticResource Value}" Text="{Binding AudioBitrate, Mode=OneWay}" />
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding AudioBitrate, Mode=OneWay, Converter={StaticResource BitFormatter}}" />
                         </DockPanel>
 
                         <DockPanel>

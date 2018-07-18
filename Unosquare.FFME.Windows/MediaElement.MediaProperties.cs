@@ -51,6 +51,11 @@
         }
 
         /// <summary>
+        /// Gets the stream's total bitrate. Returns 0 if unavailable.
+        /// </summary>
+        public ulong Bitrate => MediaCore?.State.Bitrate ?? default;
+
+        /// <summary>
         /// Provides key-value pairs of the metadata contained in the media.
         /// Returns null when media has not been loaded.
         /// </summary>

@@ -191,6 +191,42 @@
         }
 
         /// <summary>
+        /// Gets the total bytes decoded by all components in the lifetime of this object.
+        /// </summary>
+        public ulong LifetimeBytesDecoded
+        {
+            get
+            {
+                lock (SyncLock)
+                {
+                    ulong result = 0;
+                    foreach (var c in All)
+                        result = unchecked(result + c.LifetimeBytesDecoded);
+
+                    return result;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the total bytes decoded by all components in the lifetime of this object.
+        /// </summary>
+        public TimeSpan LifetimeDurationDecoded
+        {
+            get
+            {
+                lock (SyncLock)
+                {
+                    long result = 0;
+                    foreach (var c in All)
+                        result = unchecked(result + c.LifetimeDurationDecoded.Ticks);
+
+                    return TimeSpan.FromTicks(result);
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets a value indicating whether this instance has a video component.
         /// </summary>
         public bool HasVideo

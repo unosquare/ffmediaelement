@@ -37,6 +37,7 @@
                     <local:TimeSpanFormatter x:Key="TimeSpanFormatter" />
                     <local:PercentageFormatter x:Key="PercentageFormatter" />
                     <local:ByteFormatter x:Key="ByteFormatter" />
+                    <local:BitFormatter x:Key="BitFormatter" />
                     <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
                     <local:PlaylistDurationFormatter x:Key="PlaylistDurationFormatter" />
                     <local:PlaylistEntryThumbnailConverter x:Key="PlaylistEntryThumbnailConverter" />

@@ -51,12 +51,27 @@
         /// <summary>
         /// Detects redundant, unmanaged calls to the Dispose method.
         /// </summary>
-        private AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
+        private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
 
         /// <summary>
         /// Determines if packets have been fed into the codec and frames can be decoded.
         /// </summary>
-        private AtomicBoolean m_HasCodecPackets = new AtomicBoolean(false);
+        private readonly AtomicBoolean m_HasCodecPackets = new AtomicBoolean(false);
+
+        /// <summary>
+        /// Holds the amount of bytes read in the lifetime of this object
+        /// </summary>
+        private readonly AtomicULong m_LifetimeBytesRead = new AtomicULong(0);
+
+        /// <summary>
+        /// Holds the amount of bytes decoded in the lifetime of this object
+        /// </summary>
+        private readonly AtomicULong m_LifetimeBytesDecoded = new AtomicULong(0);
+
+        /// <summary>
+        /// Holds the amount of decoded frame duration in the lifetime of this object
+        /// </summary>
+        private readonly AtomicTimeSpan m_LifetimeDurationDecoded = new AtomicTimeSpan(TimeSpan.Zero);
 
         #endregion
 
@@ -290,7 +305,17 @@
         /// <summary>
         /// Gets the total amount of bytes read by this component in the lifetime of this component.
         /// </summary>
-        public ulong LifetimeBytesRead { get; private set; } = 0;
+        public ulong LifetimeBytesRead { get => m_LifetimeBytesRead.Value; }
+
+        /// <summary>
+        /// Gets the total amount of bytes decoded by this component in the lifetime of this component.
+        /// </summary>
+        public ulong LifetimeBytesDecoded { get => m_LifetimeBytesDecoded.Value; }
+
+        /// <summary>
+        /// Gets the total time decoded by this component in the lifetime of this component.
+        /// </summary>
+        public TimeSpan LifetimeDurationDecoded { get => m_LifetimeDurationDecoded.Value; }
 
         /// <summary>
         /// Gets the ID of the codec for this component.
@@ -375,7 +400,7 @@
             }
 
             if (packet->size > 0)
-                LifetimeBytesRead += (ulong)packet->size;
+                m_LifetimeBytesRead.Value += (ulong)packet->size;
 
             Packets.Push(packet);
         }
@@ -500,12 +525,10 @@
                 if (IsFlushPacket(packet))
                 {
                     FlushCodecBuffers();
+
+                    // Dequeue the flush packet. We don't add to the decode
+                    // count or call the OnPacketDequeued callback because the size is 0
                     packet = Packets.Dequeue();
-                    Container.Components.OnPacketDequeued?.Invoke(
-                        (IntPtr)packet,
-                        MediaType,
-                        Container.Components.PacketBufferLength,
-                        Container.Components.LifetimeBytesRead);
 
                     PacketQueue.ReleasePacket(packet);
                     continue;
@@ -516,7 +539,9 @@
                 // EAGAIN means we have filled the decoder buffer
                 if (sendPacketResult != -ffmpeg.EAGAIN)
                 {
+                    // Dequeue the packet and add to the decoded count
                     packet = Packets.Dequeue();
+                    m_LifetimeBytesDecoded.Value += packet->size >= 0 ? (ulong)packet->size : 0;
                     Container.Components.OnPacketDequeued?.Invoke(
                         (IntPtr)packet,
                         MediaType,
@@ -590,12 +615,18 @@
                     break;
             }
 
-            if (frame != null && Container.Components.OnFrameDecoded != null)
+            if (frame != null)
             {
-                if (MediaType == MediaType.Audio)
-                    Container.Components.OnFrameDecoded?.Invoke((IntPtr)(frame as AudioFrame).Pointer, MediaType);
-                else if (MediaType == MediaType.Video)
-                    Container.Components.OnFrameDecoded?.Invoke((IntPtr)(frame as VideoFrame).Pointer, MediaType);
+                m_LifetimeDurationDecoded.Value = TimeSpan.FromTicks(
+                    m_LifetimeDurationDecoded.Value.Ticks + frame.Duration.Ticks);
+
+                if (Container.Components.OnFrameDecoded != null)
+                {
+                    if (MediaType == MediaType.Audio)
+                        Container.Components.OnFrameDecoded?.Invoke((IntPtr)(frame as AudioFrame).Pointer, MediaType);
+                    else if (MediaType == MediaType.Video)
+                        Container.Components.OnFrameDecoded?.Invoke((IntPtr)(frame as VideoFrame).Pointer, MediaType);
+                }
             }
 
             return frame;
@@ -619,15 +650,22 @@
             if (gotFrame == 0)
             {
                 PacketQueue.ReleasePacket(packet);
+
+                // Dequeue the packet and add the size to decoded byte count
                 packet = Packets.Dequeue();
-                Container.Components.OnPacketDequeued?.Invoke(
-                    (IntPtr)packet,
-                    MediaType,
-                    Container.Components.PacketBufferLength,
-                    Container.Components.LifetimeBytesRead);
 
                 if (packet != null)
+                {
+                    m_LifetimeBytesDecoded.Value += packet->size >= 0 ? (ulong)packet->size : 0;
+
+                    Container.Components.OnPacketDequeued?.Invoke(
+                        (IntPtr)packet,
+                        MediaType,
+                        Container.Components.PacketBufferLength,
+                        Container.Components.LifetimeBytesRead);
+
                     receiveFrameResult = ffmpeg.avcodec_decode_subtitle2(CodecContext, outputFrame, &gotFrame, packet);
+                }
             }
 
             // If we got a frame, turn into a managed frame
@@ -635,6 +673,12 @@
             {
                 Container.Components.OnSubtitleDecoded?.Invoke((IntPtr)outputFrame);
                 managedFrame = CreateFrameSource((IntPtr)outputFrame);
+
+                if (managedFrame != null)
+                {
+                    m_LifetimeDurationDecoded.Value = TimeSpan.FromTicks(
+                        m_LifetimeDurationDecoded.Value.Ticks + managedFrame.Duration.Ticks);
+                }
             }
 
             // Free the packet if we have allocated it
