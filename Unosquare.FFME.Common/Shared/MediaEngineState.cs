@@ -70,9 +70,7 @@
         internal MediaEngineState(MediaEngine parent)
         {
             Parent = parent;
-            ResetMediaProperties();
-            UpdateFixedContainerProperties();
-            InitializeBufferingProperties();
+            ResetAll();
         }
 
         #endregion
@@ -564,13 +562,13 @@
         }
 
         /// <summary>
-        /// Updates the position.
+        /// Updates the position related properies.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void UpdatePosition() => UpdatePosition(Parent.WallClock);
 
         /// <summary>
-        /// Updates the position.
+        /// Updates the position related properties.
         /// </summary>
         /// <param name="newPosition">The new position.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -609,6 +607,17 @@
             }
 
             Parent.SendOnPositionChanged(oldPosition, newPosition);
+        }
+
+        /// <summary>
+        /// Resets all media state properties
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void ResetAll()
+        {
+            ResetMediaProperties();
+            UpdateFixedContainerProperties();
+            InitializeBufferingProperties();
         }
 
         /// <summary>

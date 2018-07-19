@@ -93,8 +93,7 @@
                 // until the interrupt timeout occurs but and the Real-Time Clock continues. Strange behavior. Investigate more.
 
                 // Signal the initial state
-                m.State.ResetMediaProperties();
-                m.State.UpdateFixedContainerProperties();
+                m.State.ResetAll();
                 m.State.UpdateSource(Source);
 
                 // Register FFmpeg libraries if not already done

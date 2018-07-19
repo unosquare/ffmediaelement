@@ -35,9 +35,7 @@
             if (m == null) return;
 
             // Update notification properties
-            m.State.ResetMediaProperties();
-            m.State.UpdateFixedContainerProperties();
-            m.State.InitializeBufferingProperties();
+            m.State.ResetAll();
             m.ResetPosition();
             m.State.UpdateMediaState(PlaybackStatus.Close);
             m.State.UpdateSource(null);
