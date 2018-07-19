@@ -23,8 +23,7 @@
         internal static readonly IntPtr FlushPacketData = (IntPtr)ffmpeg.av_malloc(0);
 
         private readonly List<IntPtr> PacketPointers = new List<IntPtr>(2048);
-        private ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
-        private bool IsDisposed = false; // To detect redundant calls
+        private readonly ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
         private ulong m_BufferLength = default;
 
         #endregion
@@ -224,17 +223,11 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
-            if (!IsDisposed)
-            {
-                IsDisposed = true;
-                if (alsoManaged)
-                {
-                    Clear();
-                    Locker.Dispose();
-                }
+            if (Locker.IsDisposed) return;
+            if (alsoManaged == false) return;
 
-                Locker = null;
-            }
+            Clear();
+            Locker.Dispose();
         }
 
         #endregion

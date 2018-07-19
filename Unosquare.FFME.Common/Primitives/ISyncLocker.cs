@@ -8,6 +8,11 @@
     public interface ISyncLocker : IDisposable
     {
         /// <summary>
+        /// Gets a value indicating whether this instance is disposed.
+        /// </summary>
+        bool IsDisposed { get; }
+
+        /// <summary>
         /// Acquires a writer lock.
         /// The lock is released when the returned locking object is disposed.
         /// </summary>
