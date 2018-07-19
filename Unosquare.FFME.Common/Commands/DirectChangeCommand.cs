@@ -21,12 +21,18 @@
                     : base(mediaCore)
         {
             CommandType = CommandType.ChangeMedia;
+            PlayWhenCompleted = mediaCore.Clock.IsRunning;
         }
 
         /// <summary>
         /// Gets the command type identifier.
         /// </summary>
         public override CommandType CommandType { get; }
+
+        /// <summary>
+        /// Gets a value indicating whetherthe media resumes playback when postprocessing.
+        /// </summary>
+        public bool PlayWhenCompleted { get; }
 
         /// <summary>
         /// Performs actions when the command has been executed.
@@ -37,9 +43,19 @@
             MediaCore.State.UpdateFixedContainerProperties();
 
             if (ErrorException == null)
+            {
                 MediaCore.SendOnMediaChanged();
+
+                if (PlayWhenCompleted)
+                    MediaCore.Clock.Play();
+
+                MediaCore.State.UpdateMediaState(MediaCore.Clock.IsRunning ? PlaybackStatus.Play : PlaybackStatus.Pause);
+            }
             else
+            {
                 MediaCore.SendOnMediaFailed(ErrorException);
+                MediaCore.State.UpdateMediaState(PlaybackStatus.Pause);
+            }
 
             MediaCore.Log(MediaLogMessageType.Debug, $"Command {CommandType}: Completed");
         }

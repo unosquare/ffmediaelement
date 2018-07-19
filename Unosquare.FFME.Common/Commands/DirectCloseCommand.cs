@@ -40,7 +40,7 @@
             m.State.InitializeBufferingProperties();
             m.ResetPosition();
             m.State.UpdateMediaState(PlaybackStatus.Close);
-            m.State.Source = null;
+            m.State.UpdateSource(null);
 
             // Notify media has closed
             MediaCore.SendOnMediaClosed();

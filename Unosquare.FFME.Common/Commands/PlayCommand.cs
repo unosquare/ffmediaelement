@@ -1,7 +1,6 @@
 ﻿namespace Unosquare.FFME.Commands
 {
     using System;
-    using Unosquare.FFME.Shared;
 
     /// <summary>
     /// The Play Command Implementation
@@ -47,8 +46,7 @@
             foreach (var renderer in m.Renderers.Values)
                 renderer.Play();
 
-            m.Clock.Play();
-            m.State.UpdateMediaState(PlaybackStatus.Play);
+            m.ResumePlayback();
         }
     }
 }

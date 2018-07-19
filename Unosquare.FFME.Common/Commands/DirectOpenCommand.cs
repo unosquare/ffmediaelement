@@ -95,7 +95,7 @@
                 // Signal the initial state
                 m.State.ResetMediaProperties();
                 m.State.UpdateFixedContainerProperties();
-                m.State.Source = Source;
+                m.State.UpdateSource(Source);
 
                 // Register FFmpeg libraries if not already done
                 if (MediaEngine.LoadFFmpeg())

@@ -230,6 +230,16 @@
         }
 
         /// <summary>
+        /// Resumes the playback by resuming the clock and updating the playback state to state.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void ResumePlayback()
+        {
+            Clock.Play();
+            State.UpdateMediaState(PlaybackStatus.Play);
+        }
+
+        /// <summary>
         /// Updates the clock position and notifies the new
         /// position to the <see cref="State" />.
         /// </summary>

@@ -83,7 +83,7 @@
         /// Gets or Sets the Source on this MediaElement.
         /// The Source property is the Uri of the media to be played.
         /// </summary>
-        public Uri Source { get; internal set; }
+        public Uri Source { get; private set; }
 
         /// <summary>
         /// Gets or sets the requested, non-guaranteed current SpeedRatio property of the media.
@@ -472,6 +472,16 @@
         #endregion
 
         #region State Management Methods
+
+        /// <summary>
+        /// Updates the <see cref="Source"/> property.
+        /// </summary>
+        /// <param name="newSource">The new source.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void UpdateSource(Uri newSource)
+        {
+            Source = newSource;
+        }
 
         /// <summary>
         /// Updates the fixed container properties.

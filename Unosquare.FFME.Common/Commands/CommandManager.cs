@@ -19,6 +19,7 @@
         private readonly List<CommandBase> CommandQueue = new List<CommandBase>(32);
         private readonly IWaitEvent DirectCommandEvent = null;
         private readonly AtomicBoolean m_IsStopWorkersPending = new AtomicBoolean(false);
+        private readonly AtomicBoolean PlayAfterSeek = new AtomicBoolean(false);
 
         private readonly object DirectLock = new object();
         private readonly object QueueLock = new object();
@@ -320,6 +321,12 @@
                     {
                         DecrementPendingSeeks(wasCancelled: false);
                         SeekingDone.Complete();
+
+                        if (PendingSeekCount <= 0 && PlayAfterSeek == true)
+                        {
+                            MediaCore.ResumePlayback();
+                            PlayAfterSeek.Value = false;
+                        }
                     }
 
                     CurrentQueueCommand = null;
@@ -338,22 +345,10 @@
         #region Private Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void DecrementPendingSeeks(bool wasCancelled)
-        {
-            lock (QueueLock)
-            {
-                PendingSeekCount.Value--;
-            }
-        }
+        private void DecrementPendingSeeks(bool wasCancelled) { lock (QueueLock) PendingSeekCount.Value--; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void IncrementPendingSeeks()
-        {
-            lock (QueueLock)
-            {
-                PendingSeekCount.Value++;
-            }
-        }
+        private void IncrementPendingSeeks() { lock (QueueLock) PendingSeekCount.Value++; }
 
         /// <summary>
         /// Clears the command queue.
@@ -525,7 +520,12 @@
 
             var command = new SeekCommand(MediaCore, argument);
             lock (QueueLock)
+            {
                 CommandQueue.Add(command);
+
+                if (PendingSeekCount == 1)
+                    PlayAfterSeek.Value = MediaCore.Clock.IsRunning;
+            }
 
             return await command.Awaiter;
         }
@@ -570,6 +570,14 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void PrepareForDirectCommand(CommandType commandType)
         {
+            // Always pause the clock when opening, closing or changin media
+            MediaCore?.Clock.Pause();
+
+            // Always signal a manual change of state.
+            MediaCore.State.UpdateMediaState(PlaybackStatus.Manual);
+
+            // Clear any commands that have been queued. Direct commands
+            // take over all pending commands.
             ClearQueuedCommands();
 
             // Signal the workers to stop
@@ -578,16 +586,8 @@
                 // Prepare for close command by signalling workers to stop
                 IsStopWorkersPending = true;
 
-                // Signal the reads to abort
+                // Signal the container reads to abort immediately
                 MediaCore.Container?.SignalAbortReads(false);
-            }
-            else if (commandType == CommandType.Open)
-            {
-                // placeholder
-            }
-            else if (commandType == CommandType.ChangeMedia)
-            {
-                MediaCore.State.UpdateMediaState(PlaybackStatus.Manual);
             }
 
             // Wait for cycles to complete.

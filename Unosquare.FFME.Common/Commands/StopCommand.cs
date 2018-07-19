@@ -41,6 +41,8 @@
 
             foreach (var renderer in m.Renderers.Values)
                 renderer.Stop();
+
+            m.State.UpdateMediaState(Shared.PlaybackStatus.Stop);
         }
     }
 }
