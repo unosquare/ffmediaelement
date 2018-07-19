@@ -13,17 +13,10 @@
     {
         #region Private State Variables
 
-        private readonly object DisposeLock = new object();
-
         /// <summary>
         /// The locking object to perform synchronization.
         /// </summary>
-        private ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
-
-        /// <summary>
-        /// To detect redundant calls
-        /// </summary>
-        private bool IsDisposed = false;
+        private readonly ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
 
         /// <summary>
         /// The unmanaged buffer
@@ -55,6 +48,11 @@
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is disposed.
+        /// </summary>
+        public bool IsDisposed => Locker.IsDisposed;
 
         /// <summary>
         /// Gets the capacity of this buffer.
@@ -324,19 +322,12 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
-            lock (DisposeLock)
-            {
-                if (IsDisposed) return;
-
-                Clear();
-                Locker?.Dispose();
-                Marshal.FreeHGlobal(Buffer);
-                Buffer = IntPtr.Zero;
-                m_Length = 0;
-                Locker = null;
-
-                IsDisposed = true;
-            }
+            if (IsDisposed == true) return;
+            Clear();
+            Locker.Dispose();
+            Marshal.FreeHGlobal(Buffer);
+            Buffer = IntPtr.Zero;
+            m_Length = 0;
         }
 
         #endregion

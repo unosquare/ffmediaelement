@@ -30,7 +30,7 @@
         /// <summary>
         /// Controls multiple reads and exclusive writes
         /// </summary>
-        private ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
+        private readonly ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
 
         #endregion
 
@@ -56,6 +56,11 @@
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is disposed.
+        /// </summary>
+        public bool IsDisposed => Locker.IsDisposed;
 
         /// <summary>
         /// Gets the media type of the block buffer.
@@ -371,6 +376,8 @@
         /// </summary>
         public void Dispose()
         {
+            if (IsDisposed) return;
+
             using (Locker.AcquireWriterLock())
             {
                 while (PoolBlocks.Count > 0)
@@ -388,7 +395,6 @@
             }
 
             Locker.Dispose();
-            Locker = null;
         }
 
         /// <summary>

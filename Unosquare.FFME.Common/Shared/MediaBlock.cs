@@ -14,8 +14,7 @@
     public abstract class MediaBlock : IComparable<MediaBlock>, IDisposable
     {
         private readonly object SyncLock = new object();
-        private bool m_IsDisposed = false;
-        private ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
+        private readonly ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
         private IntPtr m_Buffer = IntPtr.Zero;
         private int m_BufferLength = default;
 
@@ -84,7 +83,7 @@
             {
                 lock (SyncLock)
                 {
-                    return m_IsDisposed == false && m_Buffer != IntPtr.Zero;
+                    return IsDisposed == false && m_Buffer != IntPtr.Zero;
                 }
             }
         }
@@ -92,10 +91,7 @@
         /// <summary>
         /// Gets a value indicating whether this block is disposed
         /// </summary>
-        public bool IsDisposed
-        {
-            get { lock (SyncLock) return m_IsDisposed; }
-        }
+        public bool IsDisposed => Locker.IsDisposed;
 
         /// <summary>
         /// Gets or sets the index within the block buffer.
@@ -123,7 +119,7 @@
             locker = null;
             lock (SyncLock)
             {
-                if (m_IsDisposed) return false;
+                if (IsDisposed) return false;
                 return Locker.TryAcquireReaderLock(out locker);
             }
         }
@@ -139,7 +135,7 @@
             locker = null;
             lock (SyncLock)
             {
-                if (m_IsDisposed) return false;
+                if (IsDisposed) return false;
                 return Locker.TryAcquireWriterLock(out locker);
             }
         }
@@ -188,7 +184,7 @@
 
             lock (SyncLock)
             {
-                if (m_IsDisposed) return false;
+                if (IsDisposed) return false;
 
                 if (m_BufferLength == bufferLength)
                     return true;
@@ -213,10 +209,10 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool alsoManaged)
         {
+            if (IsDisposed) return;
+
             lock (SyncLock)
             {
-                if (m_IsDisposed) return;
-
                 // Free unmanaged resources (unmanaged objects) and override a finalizer below.
                 using (Locker.AcquireWriterLock())
                 {
@@ -225,8 +221,6 @@
 
                 // set large fields to null.
                 Locker.Dispose();
-                Locker = null;
-                m_IsDisposed = true;
             }
         }
 
