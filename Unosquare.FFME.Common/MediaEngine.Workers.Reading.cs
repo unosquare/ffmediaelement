@@ -63,7 +63,7 @@
                         catch (MediaContainerException) { continue; }
 
                         // Discard packets that we don't need (i.e. MediaType == None)
-                        if (Container.Components.MediaTypes.HasMediaType(t) == false)
+                        if (Container.Components.MediaTypes.Contains(t) == false)
                             continue;
 
                         // Update the packet count for the components

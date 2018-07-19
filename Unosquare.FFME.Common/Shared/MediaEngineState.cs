@@ -258,6 +258,11 @@
         public ulong Bitrate { get; private set; }
 
         /// <summary>
+        /// Gets the current bitrate.
+        /// </summary>
+        public ulong CurrentBitrate { get; private set; }
+
+        /// <summary>
         /// Gets a value indicating whether this media element
         /// currently has an open media url.
         /// </summary>
@@ -488,6 +493,7 @@
         internal void UpdateFixedContainerProperties()
         {
             Bitrate = Parent.Container?.MediaBitrate ?? default;
+            CurrentBitrate = Bitrate;
             IsOpen = (IsOpening == false) && (Parent.Container?.IsOpen ?? default);
             Metadata = Parent.Container?.Metadata ?? EmptyDictionary;
             MediaFormat = Parent.Container?.MediaFormatName;
@@ -729,6 +735,8 @@
             var mediaBitrate = Math.Max(Bitrate,
                 allComponentsHaveBitrate ? AudioBitrate + VideoBitrate : 0);
 
+            CurrentBitrate = mediaBitrate;
+
             BufferCacheLength = mediaBitrate > MinimumValidBitrate ?
                 Convert.ToUInt64(mediaBitrate / 8d) : StartingCacheLength;
 
@@ -781,16 +789,21 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void GuessBufferingProperties()
         {
-            if (GuessedByteRate != null || Parent.Container == null || Parent.Container.Components == null)
-                return;
-
             // Capture the read bytes of a 1-second buffer
             var bytesDecodedSoFar = Parent.Container.Components.LifetimeBytesDecoded;
             var durationDecodedSoFar = Parent.Container.Components.LifetimeDurationDecoded;
 
-            if (durationDecodedSoFar.TotalSeconds >= Parent.Container.MediaInfo.Streams.Count)
+            if (durationDecodedSoFar.TotalSeconds > 5)
+                CurrentBitrate = 8 * (ulong)(bytesDecodedSoFar / durationDecodedSoFar.TotalSeconds);
+            else
+                CurrentBitrate = Bitrate;
+
+            if (GuessedByteRate != null || Parent.Container == null || Parent.Container.Components == null)
+                return;
+
+            if (durationDecodedSoFar.TotalSeconds >= Math.Max(Parent.Container.MediaInfo.Streams.Count, 1))
             {
-                // We make the byterate 20% larget than what we have received, just to be safe.
+                // We make the byterate 20% larger than what we have received, just to be safe.
                 GuessedByteRate = (ulong)(1.2 * bytesDecodedSoFar / durationDecodedSoFar.TotalSeconds);
                 BufferCacheLength = Math.Max(Convert.ToUInt64(GuessedByteRate), BufferCacheLength);
                 DownloadCacheLength = BufferCacheLength * (IsNetowrkStream ?

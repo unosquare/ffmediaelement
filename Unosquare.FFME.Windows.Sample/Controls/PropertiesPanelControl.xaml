@@ -54,6 +54,11 @@
                         </DockPanel>
 
                         <DockPanel>
+                            <TextBlock Style="{StaticResource Key}">Current Bitrate</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding CurrentBitrate, Mode=OneWay, Converter={StaticResource BitFormatter}}" />
+                        </DockPanel>
+
+                        <DockPanel>
                             <TextBlock Style="{StaticResource Key}">Duration</TextBlock>
                             <TextBlock Style="{StaticResource Value}" Text="{Binding NaturalDuration, Mode=OneWay}" />
                         </DockPanel>

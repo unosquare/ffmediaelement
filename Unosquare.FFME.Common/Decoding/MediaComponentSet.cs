@@ -4,6 +4,7 @@
     using Primitives;
     using Shared;
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Runtime.CompilerServices;
@@ -19,26 +20,30 @@
         #region Private Declarations
 
         /// <summary>
-        /// The internal Components
-        /// </summary>
-        private readonly MediaTypeDictionary<MediaComponent> Items = new MediaTypeDictionary<MediaComponent>();
-
-        /// <summary>
         /// The synchronize lock
         /// </summary>
         private readonly object SyncLock = new object();
 
         /// <summary>
-        /// Provides a cached array to the components backing the All property.
-        /// </summary>
-        private ReadOnlyCollection<MediaComponent> CachedComponents = null;
-
-        /// <summary>
         /// To detect redundant Dispose calls
         /// </summary>
-        private bool IsDisposed = false;
+        private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
+
+        private ReadOnlyCollection<MediaComponent> m_All = new ReadOnlyCollection<MediaComponent>(new List<MediaComponent>(0));
+
+        private ReadOnlyCollection<MediaType> m_MediaTypes = new ReadOnlyCollection<MediaType>(new List<MediaType>(0));
+
+        private int m_Count = default;
+
+        private MediaType m_MainMediaType = MediaType.None;
 
         private MediaComponent m_Main = null;
+
+        private AudioComponent m_Audio = null;
+
+        private VideoComponent m_Video = null;
+
+        private SubtitleComponent m_Subtitle = null;
 
         #endregion
 
@@ -92,11 +97,24 @@
         public OnSubtitleDecodedDelegate OnSubtitleDecoded { get; set; }
 
         /// <summary>
+        /// Gets a value indicating whether this instance is disposed.
+        /// </summary>
+        public bool IsDisposed => m_IsDisposed.Value;
+
+        /// <summary>
+        /// Gets the registred component count.
+        /// </summary>
+        public int Count
+        {
+            get { lock (SyncLock) return m_Count; }
+        }
+
+        /// <summary>
         /// Gets the available component media types.
         /// </summary>
-        public MediaType[] MediaTypes
+        public ReadOnlyCollection<MediaType> MediaTypes
         {
-            get { lock (SyncLock) return Items.Keys.ToArray(); }
+            get { lock (SyncLock) return m_MediaTypes; }
         }
 
         /// <summary>
@@ -104,16 +122,15 @@
         /// </summary>
         public ReadOnlyCollection<MediaComponent> All
         {
-            get
-            {
-                lock (SyncLock)
-                {
-                    if (CachedComponents == null || CachedComponents.Count != Items.Count)
-                        CachedComponents = new ReadOnlyCollection<MediaComponent>(Items.Values.ToArray());
+            get { lock (SyncLock) return m_All; }
+        }
 
-                    return CachedComponents;
-                }
-            }
+        /// <summary>
+        /// Gets the type of the main.
+        /// </summary>
+        public MediaType MainMediaType
+        {
+            get { lock (SyncLock) return m_MainMediaType; }
         }
 
         /// <summary>
@@ -123,7 +140,6 @@
         public MediaComponent Main
         {
             get { lock (SyncLock) return m_Main; }
-            private set { lock (SyncLock) m_Main = value; }
         }
 
         /// <summary>
@@ -132,7 +148,7 @@
         /// </summary>
         public VideoComponent Video
         {
-            get { lock (SyncLock) return Items[MediaType.Video] as VideoComponent; }
+            get { lock (SyncLock) return m_Video; }
         }
 
         /// <summary>
@@ -141,7 +157,7 @@
         /// </summary>
         public AudioComponent Audio
         {
-            get { lock (SyncLock) return Items[MediaType.Audio] as AudioComponent; }
+            get { lock (SyncLock) return m_Audio; }
         }
 
         /// <summary>
@@ -150,7 +166,31 @@
         /// </summary>
         public SubtitleComponent Subtitles
         {
-            get { lock (SyncLock) return Items[MediaType.Subtitle] as SubtitleComponent; }
+            get { lock (SyncLock) return m_Subtitle; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance has a video component.
+        /// </summary>
+        public bool HasVideo
+        {
+            get { lock (SyncLock) return m_Video != null; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance has an audio component.
+        /// </summary>
+        public bool HasAudio
+        {
+            get { lock (SyncLock) return m_Audio != null; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance has a subtitles component.
+        /// </summary>
+        public bool HasSubtitles
+        {
+            get { lock (SyncLock) return m_Subtitle != null; }
         }
 
         /// <summary>
@@ -227,30 +267,6 @@
         }
 
         /// <summary>
-        /// Gets a value indicating whether this instance has a video component.
-        /// </summary>
-        public bool HasVideo
-        {
-            get { lock (SyncLock) return Items.ContainsKey(MediaType.Video); }
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether this instance has an audio component.
-        /// </summary>
-        public bool HasAudio
-        {
-            get { lock (SyncLock) return Items.ContainsKey(MediaType.Audio); }
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether this instance has a subtitles component.
-        /// </summary>
-        public bool HasSubtitles
-        {
-            get { lock (SyncLock) return Items.ContainsKey(MediaType.Subtitle); }
-        }
-
-        /// <summary>
         /// Gets or sets the <see cref="MediaComponent"/> with the specified media type.
         /// Setting a new component on an existing media type component will throw.
         /// Getting a non existing media component fro the given media type will return null.
@@ -263,19 +279,15 @@
         {
             get
             {
-                lock (SyncLock) return Items[mediaType];
-            }
-            set
-            {
                 lock (SyncLock)
                 {
-                    if (Items.ContainsKey(mediaType))
-                        throw new ArgumentException($"A component for '{mediaType}' is already registered.");
-                    Items[mediaType] = value ??
-                        throw new ArgumentNullException($"{nameof(MediaComponent)} {nameof(value)} must not be null.");
-
-                    CachedComponents = null;
-                    ComputeMainComponent();
+                    switch (mediaType)
+                    {
+                        case MediaType.Audio: return m_Audio;
+                        case MediaType.Video: return m_Video;
+                        case MediaType.Subtitle: return m_Subtitle;
+                        default: return null;
+                    }
                 }
             }
         }
@@ -283,8 +295,7 @@
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose() =>
-            Dispose(true);
+        public void Dispose() => Dispose(true);
 
         #endregion
 
@@ -414,6 +425,48 @@
         }
 
         /// <summary>
+        /// Registers the component in this component set.
+        /// </summary>
+        /// <param name="component">The component.</param>
+        /// <exception cref="ArgumentNullException">When component of the same type is already registered</exception>
+        /// <exception cref="NotSupportedException">When MediaType is not supported</exception>
+        /// <exception cref="ArgumentException">When the component is null</exception>
+        internal void AddComponent(MediaComponent component)
+        {
+            lock (SyncLock)
+            {
+                if (component == null)
+                    throw new ArgumentNullException(nameof(component));
+
+                switch (component.MediaType)
+                {
+                    case MediaType.Audio:
+                        if (m_Audio != null)
+                            throw new ArgumentException($"A component for '{component.MediaType}' is already registered.");
+
+                        m_Audio = component as AudioComponent;
+                        break;
+                    case MediaType.Video:
+                        if (m_Video != null)
+                            throw new ArgumentException($"A component for '{component.MediaType}' is already registered.");
+
+                        m_Video = component as VideoComponent;
+                        break;
+                    case MediaType.Subtitle:
+                        if (m_Subtitle != null)
+                            throw new ArgumentException($"A component for '{component.MediaType}' is already registered.");
+
+                        m_Subtitle = component as SubtitleComponent;
+                        break;
+                    default:
+                        throw new NotSupportedException($"Unable to register component with {nameof(MediaType)} '{component.MediaType}'");
+                }
+
+                UpdateBackingFields();
+            }
+        }
+
+        /// <summary>
         /// Removes the component of specified media type (if registered).
         /// It calls the dispose method of the media component too.
         /// </summary>
@@ -422,61 +475,96 @@
         {
             lock (SyncLock)
             {
-                if (Items.ContainsKey(mediaType) == false) return;
+                var component = default(MediaComponent);
+                switch (mediaType)
+                {
+                    case MediaType.Audio:
+                        component = m_Audio;
+                        m_Audio = null;
+                        break;
+                    case MediaType.Video:
+                        component = m_Video;
+                        m_Video = null;
+                        break;
+                    case MediaType.Subtitle:
+                        component = m_Subtitle;
+                        m_Subtitle = null;
+                        break;
+                    default:
+                        break;
+                }
 
-                try
-                {
-                    var component = Items[mediaType];
-                    Items.Remove(mediaType);
-                    component.Dispose();
-                }
-                catch
-                { }
-                finally
-                {
-                    CachedComponents = null;
-                    ComputeMainComponent();
-                }
+                component?.Dispose();
+                UpdateBackingFields();
             }
         }
 
         /// <summary>
-        /// Computes the main component.
+        /// Computes the main component and backing fields.
         /// </summary>
-        private void ComputeMainComponent()
+        private void UpdateBackingFields()
         {
-            // Try for the main component to be the video (if it's not stuff like audio album art, that is)
-            if (HasVideo && HasAudio &&
-                (Video.StreamInfo.Disposition & ffmpeg.AV_DISPOSITION_ATTACHED_PIC) != ffmpeg.AV_DISPOSITION_ATTACHED_PIC)
+            var allComponents = new List<MediaComponent>(4);
+            var allMediaTypes = new List<MediaType>(4);
+
+            if (m_Audio != null)
             {
-                Main = Video;
+                allComponents.Add(m_Audio);
+                allMediaTypes.Add(MediaType.Audio);
+            }
+
+            if (m_Video != null)
+            {
+                allComponents.Add(m_Video);
+                allMediaTypes.Add(MediaType.Video);
+            }
+
+            if (m_Subtitle != null)
+            {
+                allComponents.Add(m_Subtitle);
+                allMediaTypes.Add(MediaType.Subtitle);
+            }
+
+            m_All = new ReadOnlyCollection<MediaComponent>(allComponents);
+            m_MediaTypes = new ReadOnlyCollection<MediaType>(allMediaTypes);
+            m_Count = allComponents.Count;
+
+            // Try for the main component to be the video (if it's not stuff like audio album art, that is)
+            if (m_Video != null && m_Audio != null &&
+                (m_Video.StreamInfo.Disposition & ffmpeg.AV_DISPOSITION_ATTACHED_PIC) != ffmpeg.AV_DISPOSITION_ATTACHED_PIC)
+            {
+                m_Main = m_Video;
+                m_MainMediaType = MediaType.Video;
                 return;
             }
 
             // If it was not vide, then it has to be audio (if it has audio)
-            if (HasAudio)
+            if (m_Audio != null)
             {
-                Main = Audio;
+                m_Main = m_Audio;
+                m_MainMediaType = MediaType.Audio;
                 return;
             }
 
             // Set it to video even if it's attached pic stuff
-            if (HasVideo)
+            if (m_Video != null)
             {
-                Main = Video;
+                m_Main = m_Video;
+                m_MainMediaType = MediaType.Video;
                 return;
             }
 
             // As a last resort, set the main component to be the subtitles
-            if (HasSubtitles)
+            if (m_Subtitle != null)
             {
-                Main = Subtitles;
+                m_Main = m_Subtitle;
+                m_MainMediaType = MediaType.Subtitle;
                 return;
             }
 
             // We whould never really hit this line
-            if (Items.Count > 0)
-                Main = Items.First().Value;
+            m_Main = null;
+            m_MainMediaType = MediaType.None;
         }
 
         /// <summary>
@@ -485,21 +573,17 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
-            if (!IsDisposed)
+            lock (SyncLock)
             {
-                if (alsoManaged)
-                {
-                    var componentKeys = Items.Keys.ToArray();
-                    foreach (var mediaType in componentKeys)
-                        RemoveComponent(mediaType);
-                }
+                if (IsDisposed || alsoManaged == false)
+                    return;
 
-                // free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // and set large fields to null.
-                IsDisposed = true;
+                m_IsDisposed.Value = true;
+                foreach (var mediaType in m_MediaTypes)
+                    RemoveComponent(mediaType);
             }
         }
-
-        #endregion
     }
+
+    #endregion
 }

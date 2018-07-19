@@ -225,7 +225,7 @@
         /// <summary>
         /// Gets a value indicating whether this instance is open.
         /// </summary>
-        public bool IsOpen => IsInitialized && Components.All.Count > 0;
+        public bool IsOpen => IsInitialized && Components.Count > 0;
 
         /// <summary>
         /// Gets the duration of the media.
@@ -819,7 +819,7 @@
             StreamCreateComponents();
 
             // Verify the stream input start offset. This is the zero measure for all sub-streams.
-            var minOffset = Components.All.Count > 0 ? Components.All.Min(c => c.StartTimeOffset) : MediaStartTimeOffset;
+            var minOffset = Components.Count > 0 ? Components.All.Min(c => c.StartTimeOffset) : MediaStartTimeOffset;
             if (minOffset != MediaStartTimeOffset)
             {
                 Parent?.Log(MediaLogMessageType.Warning, $"Input Start: {MediaStartTimeOffset.Format()} Comp. Start: {minOffset.Format()}. Input start will be updated.");
@@ -857,11 +857,11 @@
                 if (stream != null && stream.CodecType == (AVMediaType)t && isDisabled == false)
                 {
                     if (t == MediaType.Audio)
-                        Components[t] = new AudioComponent(this, stream.StreamIndex);
+                        Components.AddComponent(new AudioComponent(this, stream.StreamIndex));
                     else if (t == MediaType.Video)
-                        Components[t] = new VideoComponent(this, stream.StreamIndex);
+                        Components.AddComponent(new VideoComponent(this, stream.StreamIndex));
                     else if (t == MediaType.Subtitle)
-                        Components[t] = new SubtitleComponent(this, stream.StreamIndex);
+                        Components.AddComponent(new SubtitleComponent(this, stream.StreamIndex));
                 }
             }
             catch (Exception ex)

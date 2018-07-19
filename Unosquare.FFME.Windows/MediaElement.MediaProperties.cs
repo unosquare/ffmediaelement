@@ -56,6 +56,11 @@
         public ulong Bitrate => MediaCore?.State.Bitrate ?? default;
 
         /// <summary>
+        /// Gets the current bitrate.
+        /// </summary>
+        public ulong CurrentBitrate => MediaCore?.State.CurrentBitrate ?? default;
+
+        /// <summary>
         /// Provides key-value pairs of the metadata contained in the media.
         /// Returns null when media has not been loaded.
         /// </summary>

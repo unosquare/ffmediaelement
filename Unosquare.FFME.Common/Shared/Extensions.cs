@@ -279,35 +279,16 @@
         /// <param name="main">The main.</param>
         /// <returns>An array without the media type</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static MediaType[] Except(this MediaType[] all, MediaType main)
+        internal static MediaType[] Except(this IEnumerable<MediaType> all, MediaType main)
         {
-            var result = new List<MediaType>(16);
-            var current = MediaType.None;
-            for (var i = 0; i < all.Length; i++)
+            var result = new List<MediaType>(4);
+            foreach (var item in all)
             {
-                current = all[i];
-                if (current != main)
-                    result.Add(current);
+                if (item != main)
+                    result.Add(item);
             }
 
             return result.ToArray();
-        }
-
-        /// <summary>
-        /// Determines whether the array contains the media type
-        /// </summary>
-        /// <param name="all">All.</param>
-        /// <param name="t">The t.</param>
-        /// <returns>True if it exists in the array</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static bool HasMediaType(this MediaType[] all, MediaType t)
-        {
-            for (var i = 0; i < all.Length; i++)
-            {
-                if (all[i] == t) return true;
-            }
-
-            return false;
         }
 
         /// <summary>

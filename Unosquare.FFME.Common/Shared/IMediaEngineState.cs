@@ -9,9 +9,14 @@
     public interface IMediaEngineState
     {
         /// <summary>
-        /// Gets the stream's bitrate. Returns 0 if unavaliable.
+        /// Gets the input bitrate as reported by the container. Returns 0 if unavaliable.
         /// </summary>
         ulong Bitrate { get; }
+
+        /// <summary>
+        /// Gets the current bitrate.
+        /// </summary>
+        ulong CurrentBitrate { get; }
 
         /// <summary>
         /// Gets the index of the video stream.

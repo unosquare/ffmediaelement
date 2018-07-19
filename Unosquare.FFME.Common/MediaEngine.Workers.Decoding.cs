@@ -27,7 +27,7 @@
             var isInRange = false;
 
             // Holds the main media type
-            var main = Container.Components.Main.MediaType;
+            var main = Container.Components.MainMediaType;
 
             // Holds the auxiliary media types
             var auxs = Container.Components.MediaTypes.Except(main);
