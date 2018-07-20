@@ -314,6 +314,32 @@
         }
 
         /// <summary>
+        /// Retrieves the next time-continuous block.
+        /// </summary>
+        /// <param name="current">The current.</param>
+        /// <returns>The next time-continuous block</returns>
+        public MediaBlock ContinuousNext(MediaBlock current)
+        {
+            if (current == null) return null;
+            using (Locker.AcquireReaderLock())
+            {
+                // capture the next frame
+                var next = current.Next;
+                if (next == null) return null;
+
+                // capture the spacing between the current and the next frame
+                var discontinuity = TimeSpan.FromTicks(
+                    next.StartTime.Ticks - current.EndTime.Ticks);
+
+                // return null if we have a discontinuity of more than half of the duration
+                if (discontinuity.Ticks > current.Duration.Ticks / 2)
+                    return null;
+
+                return next;
+            }
+        }
+
+        /// <summary>
         /// Retrieves the block prior the provided current block.
         /// If the argument is null and there are blocks, the last block is returned.
         /// </summary>

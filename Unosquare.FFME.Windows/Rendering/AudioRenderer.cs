@@ -199,7 +199,7 @@
                             break;
 
                         // Retrieve the following block
-                        audioBlock = audioBlocks.Next(audioBlock) as AudioBlock;
+                        audioBlock = audioBlocks.ContinuousNext(audioBlock) as AudioBlock;
                     }
                 }
             }

@@ -62,6 +62,11 @@
                         try { t = Container.Read(); }
                         catch (MediaContainerException) { continue; }
 
+                        // We could not read any packets.
+                        // We'll check again on the next reading cycle.
+                        if (t == MediaType.None)
+                            break;
+
                         // Discard packets that we don't need (i.e. MediaType == None)
                         if (Container.Components.MediaTypes.Contains(t) == false)
                             continue;

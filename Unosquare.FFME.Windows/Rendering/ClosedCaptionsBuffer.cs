@@ -296,7 +296,7 @@
                         WriteTag = block.StartTime;
                     }
 
-                    block = mediaCore.Blocks[currentBlock.MediaType].Next(block) as VideoBlock;
+                    block = mediaCore.Blocks[currentBlock.MediaType].ContinuousNext(block) as VideoBlock;
                 }
 
                 // Now, we need to demux the packets from the linear packet buffer

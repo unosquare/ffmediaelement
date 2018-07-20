@@ -92,15 +92,15 @@
                 // draw a simple VU meter
                 overlayGraphics.DrawLine(drawVuMeterLeftPen,
                     drawVuMeterLeftOffset,
-                    drawVuMeterTopOffset,
+                    drawVuMeterTopOffset * overlayGraphics.DpiY / 96f,
                     drawVuMeterLeftOffset + leftChannelWidth,
-                    drawVuMeterTopOffset);
+                    drawVuMeterTopOffset * overlayGraphics.DpiY / 96f);
 
                 overlayGraphics.DrawLine(drawVuMeterRightPen,
                     drawVuMeterLeftOffset,
-                    drawVuMeterTopOffset + drawVuMeterTopSpacing,
+                    (drawVuMeterTopOffset + drawVuMeterTopSpacing) * overlayGraphics.DpiY / 96f,
                     drawVuMeterLeftOffset + rightChannelWidth,
-                    drawVuMeterTopOffset + drawVuMeterTopSpacing);
+                    (drawVuMeterTopOffset + drawVuMeterTopSpacing) * overlayGraphics.DpiY / 96f);
 
                 #endregion
             };
