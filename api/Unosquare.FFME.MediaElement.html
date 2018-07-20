@@ -886,7 +886,8 @@ Only valid after the MediaOpened event has fired.</p>
   
   <a id="Unosquare_FFME_MediaElement_Bitrate_" data-uid="Unosquare.FFME.MediaElement.Bitrate*"></a>
   <h4 id="Unosquare_FFME_MediaElement_Bitrate" data-uid="Unosquare.FFME.MediaElement.Bitrate">Bitrate</h4>
-  <div class="markdown level1 summary"><p>Gets the stream&apos;s total bitrate. Returns 0 if unavailable.</p>
+  <div class="markdown level1 summary"><p>Gets the stream&apos;s total bitrate as reported by the container.
+Returns 0 if unavailable.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -1020,14 +1021,15 @@ Note: Valid values are from 0 to 1</p>
   </table>
   
   
-  <a id="Unosquare_FFME_MediaElement_CurrentBitrate_" data-uid="Unosquare.FFME.MediaElement.CurrentBitrate*"></a>
-  <h4 id="Unosquare_FFME_MediaElement_CurrentBitrate" data-uid="Unosquare.FFME.MediaElement.CurrentBitrate">CurrentBitrate</h4>
-  <div class="markdown level1 summary"><p>Gets the current bitrate.</p>
+  <a id="Unosquare_FFME_MediaElement_DecodingBitrate_" data-uid="Unosquare.FFME.MediaElement.DecodingBitrate*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_DecodingBitrate" data-uid="Unosquare.FFME.MediaElement.DecodingBitrate">DecodingBitrate</h4>
+  <div class="markdown level1 summary"><p>Gets the instantaneous, compressed bitrate of the decoders for the currently active component streams.
+This is provided in bits per second.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ulong CurrentBitrate { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public ulong DecodingBitrate { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">

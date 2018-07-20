@@ -1024,19 +1024,19 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.ClosedCaptionsChannelProperty
   fullName: Unosquare.FFME.MediaElement.ClosedCaptionsChannelProperty
   nameWithType: MediaElement.ClosedCaptionsChannelProperty
-- uid: Unosquare.FFME.MediaElement.CurrentBitrate
-  name: CurrentBitrate
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_CurrentBitrate
-  commentId: P:Unosquare.FFME.MediaElement.CurrentBitrate
-  fullName: Unosquare.FFME.MediaElement.CurrentBitrate
-  nameWithType: MediaElement.CurrentBitrate
-- uid: Unosquare.FFME.MediaElement.CurrentBitrate*
-  name: CurrentBitrate
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_CurrentBitrate_
-  commentId: Overload:Unosquare.FFME.MediaElement.CurrentBitrate
+- uid: Unosquare.FFME.MediaElement.DecodingBitrate
+  name: DecodingBitrate
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_DecodingBitrate
+  commentId: P:Unosquare.FFME.MediaElement.DecodingBitrate
+  fullName: Unosquare.FFME.MediaElement.DecodingBitrate
+  nameWithType: MediaElement.DecodingBitrate
+- uid: Unosquare.FFME.MediaElement.DecodingBitrate*
+  name: DecodingBitrate
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_DecodingBitrate_
+  commentId: Overload:Unosquare.FFME.MediaElement.DecodingBitrate
   isSpec: "True"
-  fullName: Unosquare.FFME.MediaElement.CurrentBitrate
-  nameWithType: MediaElement.CurrentBitrate
+  fullName: Unosquare.FFME.MediaElement.DecodingBitrate
+  nameWithType: MediaElement.DecodingBitrate
 - uid: Unosquare.FFME.MediaElement.Dispose
   name: Dispose()
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Dispose
