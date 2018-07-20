@@ -170,6 +170,7 @@
                 target.EndTime = source.EndTime;
             }
 
+            target.CompressedSize = source.CompressedSize;
             target.SamplesBufferLength = outputBufferLength;
             target.ChannelCount = targetSpec.ChannelCount;
 

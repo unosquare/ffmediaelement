@@ -14,24 +14,40 @@
     /// <seealso cref="IDisposable" />
     internal abstract unsafe class MediaFrame : IDisposable, IComparable<MediaFrame>
     {
-        #region Private Members
-
-#pragma warning disable SA1401 // Fields must be private
-        protected void* InternalPointer;
-#pragma warning restore SA1401 // Fields must be private
-
-        #endregion
-
         #region Constructor
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MediaFrame"/> class.
+        /// </summary>
+        /// <param name="pointer">The pointer.</param>
+        /// <param name="component">The component.</param>
+        internal MediaFrame(AVFrame* pointer, MediaComponent component)
+            : this((void*)pointer, component)
+        {
+            var packetSize = pointer->pkt_size;
+            CompressedSize = packetSize > 0 ? packetSize : 0;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MediaFrame"/> class.
+        /// </summary>
+        /// <param name="pointer">The pointer.</param>
+        /// <param name="component">The component.</param>
+        internal MediaFrame(AVSubtitle* pointer, MediaComponent component)
+            : this((void*)pointer, component)
+        {
+            // TODO: Compressed size is simply an estimate
+            CompressedSize = (int)pointer->num_rects * 256;
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MediaFrame" /> class.
         /// </summary>
         /// <param name="pointer">The pointer.</param>
         /// <param name="component">The component.</param>
-        internal MediaFrame(void* pointer, MediaComponent component)
+        private MediaFrame(void* pointer, MediaComponent component)
         {
-            InternalPointer = pointer;
+            InternalPointer = new IntPtr(pointer);
             StreamTimeBase = component.Stream->time_base;
             StreamIndex = component.StreamIndex;
         }
@@ -47,6 +63,8 @@
         /// The type of the media.
         /// </value>
         public abstract MediaType MediaType { get; }
+
+        public int CompressedSize { get; }
 
         /// <summary>
         /// Gets the start time of the frame.
@@ -78,12 +96,17 @@
         /// When the unmanaged frame is released (freed from unmanaged memory)
         /// this property will return true.
         /// </summary>
-        public bool IsStale => InternalPointer == null;
+        public bool IsStale => InternalPointer == IntPtr.Zero;
 
         /// <summary>
         /// Gets the time base of the stream that generated this frame.
         /// </summary>
         internal AVRational StreamTimeBase { get; }
+
+        /// <summary>
+        /// Gets or sets the internal pointer.
+        /// </summary>
+        protected IntPtr InternalPointer { get; set; }
 
         #endregion
 

@@ -32,6 +32,11 @@
         public abstract MediaType MediaType { get; }
 
         /// <summary>
+        /// Gets the size of the compressed frame.
+        /// </summary>
+        public int CompressedSize { get; internal set; }
+
+        /// <summary>
         /// Gets a value indicating whether the start time was guessed from siblings
         /// or the source frame PTS comes from a NO PTS value
         /// </summary>
@@ -169,8 +174,7 @@
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose() =>
-            Dispose(true);
+        public void Dispose() => Dispose(true);
 
         /// <summary>
         /// Allocates the specified buffer length.

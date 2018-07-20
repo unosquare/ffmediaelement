@@ -136,6 +136,11 @@
         }
 
         /// <summary>
+        /// Clears the internal audio data with silence data.
+        /// </summary>
+        public void Clear() => ClearBackBuffer();
+
+        /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose() => Dispose(true);

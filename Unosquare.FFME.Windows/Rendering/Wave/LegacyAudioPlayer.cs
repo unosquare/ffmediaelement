@@ -152,10 +152,20 @@
             AudioPlaybackThread.Start();
         }
 
-        public void Dispose()
+        /// <summary>
+        /// Clears the internal audio data with silence data.
+        /// </summary>
+        public void Clear()
         {
-            Dispose(true);
+            if (IsDisposed) return;
+            foreach (var buffer in Buffers)
+                buffer.Clear();
         }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose() => Dispose(true);
 
         #endregion
 

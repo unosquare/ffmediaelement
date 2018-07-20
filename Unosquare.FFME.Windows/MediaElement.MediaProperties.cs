@@ -51,14 +51,16 @@
         }
 
         /// <summary>
-        /// Gets the stream's total bitrate. Returns 0 if unavailable.
+        /// Gets the stream's total bitrate as reported by the container.
+        /// Returns 0 if unavailable.
         /// </summary>
         public ulong Bitrate => MediaCore?.State.Bitrate ?? default;
 
         /// <summary>
-        /// Gets the current bitrate.
+        /// Gets the instantaneous, compressed bitrate of the decoders for the currently active component streams.
+        /// This is provided in bits per second.
         /// </summary>
-        public ulong CurrentBitrate => MediaCore?.State.CurrentBitrate ?? default;
+        public ulong DecodingBitrate => MediaCore?.State.DecodingBitrate ?? default;
 
         /// <summary>
         /// Provides key-value pairs of the metadata contained in the media.

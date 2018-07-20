@@ -291,7 +291,7 @@
             lock (SyncLock)
             {
                 AudioBuffer?.Clear();
-
+                AudioDevice?.Clear();
                 if (ReadBuffer != null)
                     Array.Clear(ReadBuffer, 0, ReadBuffer.Length);
             }

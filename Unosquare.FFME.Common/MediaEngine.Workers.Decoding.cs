@@ -268,7 +268,7 @@
                     }
 
                     // If not already set, guess the 1-second buffer length
-                    State.GuessBufferingProperties();
+                    State.UpdateDecodingBitrate();
 
                     // Complete the frame decoding cycle
                     FrameDecodingCycle.Complete();

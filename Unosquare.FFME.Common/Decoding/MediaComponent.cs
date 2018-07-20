@@ -58,21 +58,6 @@
         /// </summary>
         private readonly AtomicBoolean m_HasCodecPackets = new AtomicBoolean(false);
 
-        /// <summary>
-        /// Holds the amount of bytes read in the lifetime of this object
-        /// </summary>
-        private readonly AtomicULong m_LifetimeBytesRead = new AtomicULong(0);
-
-        /// <summary>
-        /// Holds the amount of bytes decoded in the lifetime of this object
-        /// </summary>
-        private readonly AtomicULong m_LifetimeBytesDecoded = new AtomicULong(0);
-
-        /// <summary>
-        /// Holds the amount of decoded frame duration in the lifetime of this object
-        /// </summary>
-        private readonly AtomicTimeSpan m_LifetimeDurationDecoded = new AtomicTimeSpan(TimeSpan.Zero);
-
         #endregion
 
         #region Constructor
@@ -303,21 +288,6 @@
         public int PacketBufferCount => Packets.Count;
 
         /// <summary>
-        /// Gets the total amount of bytes read by this component in the lifetime of this component.
-        /// </summary>
-        public ulong LifetimeBytesRead { get => m_LifetimeBytesRead.Value; }
-
-        /// <summary>
-        /// Gets the total amount of bytes decoded by this component in the lifetime of this component.
-        /// </summary>
-        public ulong LifetimeBytesDecoded { get => m_LifetimeBytesDecoded.Value; }
-
-        /// <summary>
-        /// Gets the total time decoded by this component in the lifetime of this component.
-        /// </summary>
-        public TimeSpan LifetimeDurationDecoded { get => m_LifetimeDurationDecoded.Value; }
-
-        /// <summary>
         /// Gets the ID of the codec for this component.
         /// </summary>
         public AVCodecID CodecId { get; }
@@ -399,9 +369,6 @@
                 return;
             }
 
-            if (packet->size > 0)
-                m_LifetimeBytesRead.Value += (ulong)packet->size;
-
             Packets.Push(packet);
         }
 
@@ -409,8 +376,7 @@
         /// Feeds the decoder buffer and tries to return the next available frame.
         /// </summary>
         /// <returns>The received Media Frame. It is null if no frame could be retrieved.</returns>
-        public MediaFrame ReceiveNextFrame() =>
-            DecodePacketFunction();
+        public MediaFrame ReceiveNextFrame() => DecodePacketFunction();
 
         /// <summary>
         /// Converts decoded, raw frame data in the frame source into a a usable frame. <br />
@@ -539,14 +505,12 @@
                 // EAGAIN means we have filled the decoder buffer
                 if (sendPacketResult != -ffmpeg.EAGAIN)
                 {
-                    // Dequeue the packet and add to the decoded count
+                    // Dequeue the packet and release it.
                     packet = Packets.Dequeue();
-                    m_LifetimeBytesDecoded.Value += packet->size >= 0 ? (ulong)packet->size : 0;
                     Container.Components.OnPacketDequeued?.Invoke(
                         (IntPtr)packet,
                         MediaType,
-                        Container.Components.PacketBufferLength,
-                        Container.Components.LifetimeBytesRead);
+                        Container.Components.PacketBufferLength);
 
                     PacketQueue.ReleasePacket(packet);
                     packetCount++;
@@ -615,18 +579,12 @@
                     break;
             }
 
-            if (frame != null)
+            if (frame != null && Container.Components.OnFrameDecoded != null)
             {
-                m_LifetimeDurationDecoded.Value = TimeSpan.FromTicks(
-                    m_LifetimeDurationDecoded.Value.Ticks + frame.Duration.Ticks);
-
-                if (Container.Components.OnFrameDecoded != null)
-                {
-                    if (MediaType == MediaType.Audio)
-                        Container.Components.OnFrameDecoded?.Invoke((IntPtr)(frame as AudioFrame).Pointer, MediaType);
-                    else if (MediaType == MediaType.Video)
-                        Container.Components.OnFrameDecoded?.Invoke((IntPtr)(frame as VideoFrame).Pointer, MediaType);
-                }
+                if (MediaType == MediaType.Audio)
+                    Container.Components.OnFrameDecoded?.Invoke((IntPtr)(frame as AudioFrame).Pointer, MediaType);
+                else if (MediaType == MediaType.Video)
+                    Container.Components.OnFrameDecoded?.Invoke((IntPtr)(frame as VideoFrame).Pointer, MediaType);
             }
 
             return frame;
@@ -651,18 +609,15 @@
             {
                 PacketQueue.ReleasePacket(packet);
 
-                // Dequeue the packet and add the size to decoded byte count
+                // Dequeue the packet and try to decode with it.
                 packet = Packets.Dequeue();
 
                 if (packet != null)
                 {
-                    m_LifetimeBytesDecoded.Value += packet->size >= 0 ? (ulong)packet->size : 0;
-
                     Container.Components.OnPacketDequeued?.Invoke(
                         (IntPtr)packet,
                         MediaType,
-                        Container.Components.PacketBufferLength,
-                        Container.Components.LifetimeBytesRead);
+                        Container.Components.PacketBufferLength);
 
                     receiveFrameResult = ffmpeg.avcodec_decode_subtitle2(CodecContext, outputFrame, &gotFrame, packet);
                 }
@@ -673,15 +628,9 @@
             {
                 Container.Components.OnSubtitleDecoded?.Invoke((IntPtr)outputFrame);
                 managedFrame = CreateFrameSource((IntPtr)outputFrame);
-
-                if (managedFrame != null)
-                {
-                    m_LifetimeDurationDecoded.Value = TimeSpan.FromTicks(
-                        m_LifetimeDurationDecoded.Value.Ticks + managedFrame.Duration.Ticks);
-                }
             }
 
-            // Free the packet if we have allocated it
+            // Free the packet if we have dequeued it
             if (packet != null)
                 PacketQueue.ReleasePacket(packet);
 

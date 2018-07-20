@@ -54,8 +54,8 @@
                         </DockPanel>
 
                         <DockPanel>
-                            <TextBlock Style="{StaticResource Key}">Current Bitrate</TextBlock>
-                            <TextBlock Style="{StaticResource Value}" Text="{Binding CurrentBitrate, Mode=OneWay, Converter={StaticResource BitFormatter}}" />
+                            <TextBlock Style="{StaticResource Key}">Decoding Bitrate</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding DecodingBitrate, Mode=OneWay, Converter={StaticResource BitFormatter}}" />
                         </DockPanel>
 
                         <DockPanel>

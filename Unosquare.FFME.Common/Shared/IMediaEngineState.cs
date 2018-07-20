@@ -14,9 +14,10 @@
         ulong Bitrate { get; }
 
         /// <summary>
-        /// Gets the current bitrate.
+        /// Gets the instantaneous, compressed bitrate of the decoders for the currently active component streams.
+        /// This is provided in bits per second.
         /// </summary>
-        ulong CurrentBitrate { get; }
+        ulong DecodingBitrate { get; }
 
         /// <summary>
         /// Gets the index of the video stream.

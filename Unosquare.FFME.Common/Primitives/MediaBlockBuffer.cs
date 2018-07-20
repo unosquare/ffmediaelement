@@ -112,6 +112,38 @@
         }
 
         /// <summary>
+        /// Gets byte length of the compressed packets from which the media blocks were created.
+        /// </summary>
+        public ulong CompressedSize
+        {
+            get
+            {
+                using (Locker.AcquireReaderLock())
+                {
+                    return (ulong)PlaybackBlocks.Sum(m => m.CompressedSize);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the compressed data bitrate from which media blocks were created.
+        /// </summary>
+        public ulong RangeBitrate
+        {
+            get
+            {
+                using (Locker.AcquireReaderLock())
+                {
+                    var totalBits = 8d * PlaybackBlocks.Sum(m => m.CompressedSize);
+                    var totalSeconds = RangeDuration.TotalSeconds;
+
+                    if (totalSeconds <= 0) return default;
+                    return Convert.ToUInt64(totalBits / totalSeconds);
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets the average duration of the currently available playback blocks.
         /// </summary>
         public TimeSpan AverageBlockDuration
@@ -190,11 +222,6 @@
                 }
             }
         }
-
-        /// <summary>
-        /// Holds the duration of all the blocks that have been added in the lifetime of this object.
-        /// </summary>
-        internal TimeSpan LifetimeBlockDuration { get; private set; } = TimeSpan.Zero;
 
         /// <summary>
         /// Gets the <see cref="MediaBlock" /> at the specified index.
@@ -452,8 +479,6 @@
                 PlaybackBlocks.Add(targetBlock);
                 var requiresSorting = targetBlock.StartTime < RangeEndTime;
                 var maxBlockIndex = PlaybackBlocks.Count - 1;
-
-                LifetimeBlockDuration = TimeSpan.FromTicks(LifetimeBlockDuration.Ticks + targetBlock.Duration.Ticks);
 
                 // Perform the sorting and assignment of Previous and Next blocks
                 if (requiresSorting)

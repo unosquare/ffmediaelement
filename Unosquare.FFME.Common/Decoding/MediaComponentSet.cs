@@ -62,8 +62,8 @@
         #region Delegates
 
         public delegate void OnPacketsClearedDelegate();
-        public delegate void OnPacketQueuedDelegate(IntPtr avPacket, MediaType mediaType, ulong bufferLength, ulong lifetimeBytes);
-        public delegate void OnPacketDequeuedDelegate(IntPtr avPacket, MediaType mediaType, ulong bufferLength, ulong lifetimeBytes);
+        public delegate void OnPacketQueuedDelegate(IntPtr avPacket, MediaType mediaType, ulong bufferLength);
+        public delegate void OnPacketDequeuedDelegate(IntPtr avPacket, MediaType mediaType, ulong bufferLength);
         public delegate void OnFrameDecodedDelegate(IntPtr avFrame, MediaType mediaType);
         public delegate void OnSubtitleDecodedDelegate(IntPtr avSubititle);
 
@@ -213,60 +213,6 @@
         }
 
         /// <summary>
-        /// Gets the total bytes read by all components in the lifetime of this object.
-        /// </summary>
-        public ulong LifetimeBytesRead
-        {
-            get
-            {
-                lock (SyncLock)
-                {
-                    ulong result = 0;
-                    foreach (var c in All)
-                        result = unchecked(result + c.LifetimeBytesRead);
-
-                    return result;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets the total bytes decoded by all components in the lifetime of this object.
-        /// </summary>
-        public ulong LifetimeBytesDecoded
-        {
-            get
-            {
-                lock (SyncLock)
-                {
-                    ulong result = 0;
-                    foreach (var c in All)
-                        result = unchecked(result + c.LifetimeBytesDecoded);
-
-                    return result;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets the total bytes decoded by all components in the lifetime of this object.
-        /// </summary>
-        public TimeSpan LifetimeDurationDecoded
-        {
-            get
-            {
-                lock (SyncLock)
-                {
-                    long result = 0;
-                    foreach (var c in All)
-                        result = unchecked(result + c.LifetimeDurationDecoded.Ticks);
-
-                    return TimeSpan.FromTicks(result);
-                }
-            }
-        }
-
-        /// <summary>
         /// Gets or sets the <see cref="MediaComponent"/> with the specified media type.
         /// Setting a new component on an existing media type component will throw.
         /// Getting a non existing media component fro the given media type will return null.
@@ -321,7 +267,7 @@
                     {
                         component.SendPacket(packet);
                         OnPacketQueued?.Invoke(
-                            (IntPtr)packet, component.MediaType, PacketBufferLength, LifetimeBytesRead);
+                            (IntPtr)packet, component.MediaType, PacketBufferLength);
 
                         return component.MediaType;
                     }

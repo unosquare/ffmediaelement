@@ -130,7 +130,7 @@
                     ReleaseAVSubtitle(m_Pointer);
 
                 m_Pointer = null;
-                InternalPointer = null;
+                InternalPointer = IntPtr.Zero;
                 IsDisposed = true;
             }
         }
