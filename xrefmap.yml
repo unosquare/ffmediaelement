@@ -1283,19 +1283,19 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.IsMutedProperty
   fullName: Unosquare.FFME.MediaElement.IsMutedProperty
   nameWithType: MediaElement.IsMutedProperty
-- uid: Unosquare.FFME.MediaElement.IsNetowrkStream
-  name: IsNetowrkStream
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsNetowrkStream
-  commentId: P:Unosquare.FFME.MediaElement.IsNetowrkStream
-  fullName: Unosquare.FFME.MediaElement.IsNetowrkStream
-  nameWithType: MediaElement.IsNetowrkStream
-- uid: Unosquare.FFME.MediaElement.IsNetowrkStream*
-  name: IsNetowrkStream
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsNetowrkStream_
-  commentId: Overload:Unosquare.FFME.MediaElement.IsNetowrkStream
+- uid: Unosquare.FFME.MediaElement.IsNetworkStream
+  name: IsNetworkStream
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsNetworkStream
+  commentId: P:Unosquare.FFME.MediaElement.IsNetworkStream
+  fullName: Unosquare.FFME.MediaElement.IsNetworkStream
+  nameWithType: MediaElement.IsNetworkStream
+- uid: Unosquare.FFME.MediaElement.IsNetworkStream*
+  name: IsNetworkStream
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsNetworkStream_
+  commentId: Overload:Unosquare.FFME.MediaElement.IsNetworkStream
   isSpec: "True"
-  fullName: Unosquare.FFME.MediaElement.IsNetowrkStream
-  nameWithType: MediaElement.IsNetowrkStream
+  fullName: Unosquare.FFME.MediaElement.IsNetworkStream
+  nameWithType: MediaElement.IsNetworkStream
 - uid: Unosquare.FFME.MediaElement.IsOpen
   name: IsOpen
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsOpen
