@@ -35,8 +35,8 @@
             double[] rdrawVuMeterRightSamples = null;
 
             const float drawVuMeterLeftOffset = 36;
-            const float drawVuMeterTopSpacing = 26;
-            const float drawVuMeterTopOffset = 100;
+            const float drawVuMeterTopSpacing = 21;
+            const float drawVuMeterTopOffset = 81;
             const float drawVuMeterMinWidth = 5;
             const float drawVuMeterScaleFactor = 20; // RMS * pixel factor = the length of the VU meter lines
 

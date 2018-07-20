@@ -231,7 +231,7 @@
         /// Returns whether the currently loaded media is a network stream.
         /// This is only valid after the MediaOpened event has fired.
         /// </summary>
-        public bool IsNetowrkStream => MediaCore?.State.IsNetowrkStream ?? default;
+        public bool IsNetworkStream => MediaCore?.State.IsNetworkStream ?? default;
 
         /// <summary>
         /// Gets a value indicating whether the currently loaded media can be seeked.

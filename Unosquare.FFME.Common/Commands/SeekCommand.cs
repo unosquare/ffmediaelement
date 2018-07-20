@@ -7,7 +7,7 @@
     /// The Seek Command Implementation
     /// </summary>
     /// <seealso cref="CommandBase" />
-    internal sealed class SeekCommand : CommandBase
+    internal class SeekCommand : CommandBase
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SeekCommand"/> class.

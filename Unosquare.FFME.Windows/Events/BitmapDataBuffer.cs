@@ -129,6 +129,12 @@
                 System.Drawing.Imaging.PixelFormat.Format32bppArgb,
                 Scan0);
 
+            // Set the DPI, otherwise the pixel coordinates won't match
+            // See issue #250
+            result.SetResolution(
+                Convert.ToSingle(DpiX),
+                Convert.ToSingle(DpiY));
+
             return result;
         }
 

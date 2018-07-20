@@ -48,7 +48,6 @@
         /// <returns>The value</returns>
         public static bool TypeAffectsSeekingState(CommandType commandType) =>
             commandType == CommandType.Seek ||
-            commandType == CommandType.Stop ||
-            commandType == CommandType.ChangeMedia;
+            commandType == CommandType.Stop;
     }
 }

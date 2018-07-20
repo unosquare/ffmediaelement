@@ -49,7 +49,8 @@
                 if (PlayWhenCompleted)
                     MediaCore.Clock.Play();
 
-                MediaCore.State.UpdateMediaState(MediaCore.Clock.IsRunning ? PlaybackStatus.Play : PlaybackStatus.Pause);
+                MediaCore.State.UpdateMediaState(
+                    MediaCore.Clock.IsRunning ? PlaybackStatus.Play : PlaybackStatus.Pause);
             }
             else
             {

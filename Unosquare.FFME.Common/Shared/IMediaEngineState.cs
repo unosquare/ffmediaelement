@@ -150,9 +150,9 @@
         bool IsMuted { get; set; }
 
         /// <summary>
-        /// Gets a value indicating whether the media is a netowrk stream.
+        /// Gets a value indicating whether the media is a network stream.
         /// </summary>
-        bool IsNetowrkStream { get; }
+        bool IsNetworkStream { get; }
 
         /// <summary>
         /// Gets a value indicating whether the media is currently open.

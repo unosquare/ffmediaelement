@@ -140,7 +140,7 @@
                 finally
                 {
                     // Update the Position
-                    if (State.IsSeeking == false)
+                    if (State.IsSeeking == false && State.IsChanging == false)
                         State.UpdatePosition(Clock.IsRunning ? wallClock : Clock.Position);
 
                     // Always exit notifying the cycle is done.

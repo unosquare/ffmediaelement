@@ -100,12 +100,12 @@
                             var breakBuffering = false;
                             while (CanReadMorePackets && ShouldReadMorePackets)
                             {
-                                WaitForPackets(comp, 1);
+                                WaitForPackets();
                                 decodedFrameCount += AddNextBlock(main) ? 1 : 0;
 
                                 // Detect end of buffering loop for non-network streams
                                 breakBuffering = decodedFrameCount > 0 &&
-                                    State.IsNetowrkStream == false &&
+                                    State.IsNetworkStream == false &&
                                     blocks.IsInRange(wallClock);
 
                                 if (breakBuffering)
@@ -114,6 +114,15 @@
                                 // Detect general stream end of buffering loop
                                 breakBuffering = decodedFrameCount >= blocks.Capacity ||
                                     CanReadMoreFramesOf(main) == false;
+
+                                // For network stream, fill up the packet buffer
+                                while (breakBuffering && State.IsNetworkStream && CanReadMorePackets)
+                                {
+                                    if (Container.Components.PacketBufferLength < State.BufferCacheLength)
+                                        WaitForPackets();
+                                    else
+                                        break;
+                                }
 
                                 if (breakBuffering)
                                     break;
@@ -316,24 +325,21 @@
         /// <summary>
         /// Waits for at least 1 packet on the given media component.
         /// </summary>
-        /// <param name="mediaComponent">The component.</param>
-        /// <param name="cycleCount">The maximum cycles.</param>
+        /// <returns>The number of packets that were read</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void WaitForPackets(MediaComponent mediaComponent, int cycleCount = -1)
+        private int WaitForPackets()
         {
-            var cycleIndex = 0;
-            while (mediaComponent.PacketBufferCount <= 0
-                && CanReadMorePackets
-                && ShouldReadMorePackets)
+            var startingPacketCount = Container.Components.PacketBufferLength;
+            var currentPacketCount = Container.Components.PacketBufferLength;
+            while (CanReadMorePackets && ShouldReadMorePackets)
             {
                 PacketReadingCycle.Wait(Constants.Interval.LowPriority);
-                if (cycleCount <= 0)
-                    continue;
-
-                cycleIndex++;
-                if (cycleCount >= cycleIndex)
+                currentPacketCount = Container.Components.PacketBufferLength;
+                if (currentPacketCount > startingPacketCount)
                     break;
             }
+
+            return Convert.ToInt32(currentPacketCount - startingPacketCount);
         }
     }
 }

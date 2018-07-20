@@ -405,7 +405,7 @@
         /// Returns whether the currently loaded media is a network stream.
         /// This is only valid after the MediaOpened event has fired.
         /// </summary>
-        public bool IsNetowrkStream { get; private set; }
+        public bool IsNetworkStream { get; private set; }
 
         /// <summary>
         /// Gets a value indicating whether the currently loaded media can be seeked.
@@ -514,7 +514,7 @@
             AudioBitsPerSample = Parent.Container?.Components.Audio?.BitsPerSample ?? default;
             NaturalDuration = Parent.Container?.MediaDuration;
             IsLiveStream = Parent.Container?.IsLiveStream ?? default;
-            IsNetowrkStream = Parent.Container?.IsNetworkStream ?? default;
+            IsNetworkStream = Parent.Container?.IsNetworkStream ?? default;
             IsSeekable = Parent.Container?.IsStreamSeekable ?? default;
             CanPause = IsOpen ? (IsLiveStream == false) : default;
         }
@@ -735,7 +735,7 @@
             BufferCacheLength = (mediaBitrate > MinimumValidBitrate ?
                 Convert.ToUInt64(mediaBitrate / 8d) : StartingCacheLength).Clamp(MinCacheLength, MaxCacheLength);
 
-            DownloadCacheLength = (BufferCacheLength * (IsNetowrkStream ?
+            DownloadCacheLength = (BufferCacheLength * (IsNetworkStream ?
                 NetworkStreamCacheFactor : StandardStreamCacheFactor)).Clamp(BufferCacheLength, MaxCacheLength);
 
             Parent.Log(MediaLogMessageType.Debug,
@@ -754,11 +754,6 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void UpdateBufferingProgress(double packetBufferLength)
         {
-            bool wasBuffering = default;
-
-            // Capture the current state
-            wasBuffering = IsBuffering;
-
             // Update the buffering progress
             BufferingProgress = BufferCacheLength != 0 ? Math.Min(
                 1d, Math.Round(packetBufferLength / BufferCacheLength, 3)) : 0;
@@ -768,12 +763,10 @@
                 1d, Math.Round(packetBufferLength / DownloadCacheLength, 3)) : 0;
 
             // Compute the new state
-            IsBuffering = packetBufferLength < BufferCacheLength
-                && Parent.CanReadMorePackets;
-
-            // Notify the change
-            if (wasBuffering && IsBuffering == false)
-                Parent.SendOnBufferingEnded();
+            if (packetBufferLength < BufferCacheLength && Parent.CanReadMorePackets)
+                SignalBufferingStarted();
+            else
+                SignalBufferingEnded();
         }
 
         /// <summary>
