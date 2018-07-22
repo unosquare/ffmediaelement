@@ -1535,6 +1535,19 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.MediaStateChangedEvent
   fullName: Unosquare.FFME.MediaElement.MediaStateChangedEvent
   nameWithType: MediaElement.MediaStateChangedEvent
+- uid: Unosquare.FFME.MediaElement.MediaStreamSize
+  name: MediaStreamSize
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaStreamSize
+  commentId: P:Unosquare.FFME.MediaElement.MediaStreamSize
+  fullName: Unosquare.FFME.MediaElement.MediaStreamSize
+  nameWithType: MediaElement.MediaStreamSize
+- uid: Unosquare.FFME.MediaElement.MediaStreamSize*
+  name: MediaStreamSize
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaStreamSize_
+  commentId: Overload:Unosquare.FFME.MediaElement.MediaStreamSize
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.MediaStreamSize
+  nameWithType: MediaElement.MediaStreamSize
 - uid: Unosquare.FFME.MediaElement.MessageLogged
   name: MessageLogged
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MessageLogged
