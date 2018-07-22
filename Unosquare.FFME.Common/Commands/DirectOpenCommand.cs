@@ -146,9 +146,6 @@
                 // Allow the stream input options to be changed
                 m.SendOnMediaInitializing(containerConfig, mediaUrl);
 
-                // Opening the media means we are buffering packets
-                m.State.SignalBufferingStarted();
-
                 // Instantiate the internal container using either a URL (default) or a custom input stream.
                 if (InputStream == null)
                     m.Container = new MediaContainer(mediaUrl, containerConfig, m);
@@ -189,9 +186,6 @@
             }
             catch (Exception ex)
             {
-                // On closing we immediately signal a buffering ended operation
-                m.State.SignalBufferingEnded();
-
                 try { m.StopWorkers(); } catch { }
                 try { m.Container?.Dispose(); } catch { }
                 m.DisposePreloadedSubtitles();

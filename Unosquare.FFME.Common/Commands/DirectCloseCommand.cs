@@ -54,9 +54,6 @@
             var m = MediaCore;
             m.Log(MediaLogMessageType.Debug, $"Command {CommandType}: Entered");
 
-            // On closing we immediately signal a buffering ended operation
-            m.State.SignalBufferingEnded();
-
             // Wait for the workers to stop
             m.StopWorkers();
 

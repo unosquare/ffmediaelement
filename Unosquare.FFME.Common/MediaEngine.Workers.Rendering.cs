@@ -34,9 +34,6 @@
             foreach (var t in all)
                 InvalidateRenderer(t);
 
-            // Ensure packet reading is running
-            PacketReadingCycle.Wait();
-
             // wait for main component blocks or EOF or cancellation pending
             while (CanReadMoreFramesOf(main) && Blocks[main].Count <= 0)
                 FrameDecodingCycle.Wait(Constants.Interval.LowPriority);
@@ -140,7 +137,7 @@
                 finally
                 {
                     // Update the Position
-                    if (State.IsSeeking == false && State.IsChanging == false)
+                    if (IsWorkerInterruptRequested == false)
                         State.UpdatePosition(Clock.IsRunning ? wallClock : Clock.Position);
 
                     // Always exit notifying the cycle is done.

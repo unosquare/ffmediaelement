@@ -1,7 +1,6 @@
 ﻿namespace Unosquare.FFME.Shared
 {
     using FFmpeg.AutoGen;
-    using Primitives;
     using System;
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
@@ -289,46 +288,6 @@
             }
 
             return result.ToArray();
-        }
-
-        /// <summary>
-        /// Verifies all fundamental (audio and video) components are greater than the supplied value
-        /// </summary>
-        /// <param name="all">All.</param>
-        /// <param name="value">The value.</param>
-        /// <returns>
-        /// True if all components are greater than the value
-        /// </returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static bool ContainsMoreThan(this MediaTypeDictionary<int> all, int value)
-        {
-            var hasFundamentals = false;
-            foreach (var kvp in all)
-            {
-                // Skip over non-fundamental types
-                if (kvp.Key != MediaType.Audio && kvp.Key != MediaType.Video)
-                    continue;
-
-                hasFundamentals = true;
-                if (kvp.Value <= value) return false;
-            }
-
-            return hasFundamentals;
-        }
-
-        /// <summary>
-        /// Gets the sum of all the values in the keyed dictionary.
-        /// </summary>
-        /// <param name="all">All.</param>
-        /// <returns>The sum of all values.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static int GetSum(this MediaTypeDictionary<int> all)
-        {
-            var result = default(int);
-            foreach (var kvp in all)
-                result += kvp.Value;
-
-            return result;
         }
 
         /// <summary>

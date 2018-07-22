@@ -553,7 +553,6 @@
         {
             if (HasMediaEnded == false && hasEnded == true)
             {
-                SignalBufferingEnded();
                 HasMediaEnded = true;
                 Parent.SendOnMediaEnded();
                 return;
@@ -669,30 +668,6 @@
         }
 
         /// <summary>
-        /// Signals the buffering started.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void SignalBufferingStarted()
-        {
-            if (IsBuffering) return;
-            else IsBuffering = true;
-
-            Parent.SendOnBufferingStarted();
-        }
-
-        /// <summary>
-        /// Signals the buffering ended.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void SignalBufferingEnded()
-        {
-            if (IsBuffering == false) return;
-            else IsBuffering = false;
-
-            Parent.SendOnBufferingEnded();
-        }
-
-        /// <summary>
         /// Resets all the buffering properties to their defaults.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -762,11 +737,21 @@
             DownloadProgress = DownloadCacheLength != 0 ? Math.Min(
                 1d, Math.Round(packetBufferLength / DownloadCacheLength, 3)) : 0;
 
-            // Compute the new state
-            if (packetBufferLength < BufferCacheLength && Parent.CanReadMorePackets)
-                SignalBufferingStarted();
-            else
-                SignalBufferingEnded();
+            // Detect the start of buffering
+            if (IsBuffering == false && BufferingProgress < 1 && Parent.CanReadMorePackets)
+            {
+                IsBuffering = true;
+                Parent.SendOnBufferingStarted();
+                return;
+            }
+
+            // Detect the end of buffering
+            if (IsBuffering == true && (BufferingProgress >= 1 || Parent.CanReadMorePackets == false))
+            {
+                IsBuffering = false;
+                Parent.SendOnBufferingEnded();
+                return;
+            }
         }
 
         /// <summary>

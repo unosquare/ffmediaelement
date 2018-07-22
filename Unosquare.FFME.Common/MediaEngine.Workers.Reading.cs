@@ -6,29 +6,46 @@
     public partial class MediaEngine
     {
         /// <summary>
+        /// Gets a value indicating whether a worker interrupt has been requested by the command manager.
+        /// This instructs potentially long loops in workers to immediately exit.
+        /// </summary>
+        private bool IsWorkerInterruptRequested
+        {
+            get
+            {
+                return Commands.IsSeeking ||
+                    Commands.IsChanging ||
+                    Commands.IsClosing ||
+                    Commands.IsStopWorkersPending;
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the reading worker can read packets at the current time.
+        /// This is simply a bit-wise AND of negating <see cref="IsWorkerInterruptRequested"/> == false
+        /// and <see cref="ShouldReadMorePackets"/> and <see cref="CanReadMorePackets"/>
+        /// </summary>
+        private bool CanWorkerReadPackets
+        {
+            get
+            {
+                return IsWorkerInterruptRequested == false &&
+                    ShouldReadMorePackets &&
+                    CanReadMorePackets;
+            }
+        }
+
+        /// <summary>
         /// Runs the read task which keeps a packet buffer as full as possible.
         /// It reports on DownloadProgress by enqueueing an update to the property
         /// in order to avoid any kind of disruption to this thread caused by the UI thread.
         /// </summary>
         internal void RunPacketReadingWorker()
         {
-            #region Worker State Setup
-
-            // The delay provider prevents 100% core usage
-            var delay = new DelayProvider();
-
-            // Holds the packet count for each read cycle
-            var packetsRead = new MediaTypeDictionary<int>();
-
-            // State variables for media types
-            var t = MediaType.None;
-
-            // Signal the start of a buffering operation
-            State.SignalBufferingStarted();
-
-            #endregion
-
-            #region Worker Loop
+            // Setup some state variables
+            var delay = new DelayProvider(); // The delay provider prevents 100% core usage
+            var packetsReadCount = 0; // Holds the packet count for each read cycle
+            var t = MediaType.None; // State variables for media types
 
             try
             {
@@ -49,50 +66,28 @@
                     PacketReadingCycle.Begin();
 
                     // Initialize Packets read to 0 for each component and state variables
-                    foreach (var k in Container.Components.MediaTypes)
-                        packetsRead[k] = 0;
+                    packetsReadCount = 0;
+                    t = MediaType.None;
 
-                    // Start to perform the read loop
-                    // NOTE: Disrupting the packet reader causes errors in UPD streams. Disrupt as little as possible
-                    while (ShouldReadMorePackets
-                        && CanReadMorePackets
-                        && Commands.IsActivelySeeking == false)
+                    while (CanWorkerReadPackets)
                     {
                         // Perform a packet read. t will hold the packet type.
                         try { t = Container.Read(); }
-                        catch (MediaContainerException) { continue; }
+                        catch (MediaContainerException) { break; }
 
-                        // We could not read any packets.
-                        // We'll check again on the next reading cycle.
+                        // Packet skipped
                         if (t == MediaType.None)
-                            break;
-
-                        // Discard packets that we don't need (i.e. MediaType == None)
-                        if (Container.Components.MediaTypes.Contains(t) == false)
                             continue;
 
-                        // Update the packet count for the components
-                        packetsRead[t] += 1;
-
-                        // Ensure we have read at least some packets from main and auxiliary streams.
-                        if (packetsRead.ContainsMoreThan(0))
-                            break;
+                        packetsReadCount++;
                     }
+
+                    // Introduce a delay if we did not read packets
+                    if (packetsReadCount <= 0 && IsWorkerInterruptRequested == false)
+                        delay.WaitOne();
 
                     // finish the reading cycle.
                     PacketReadingCycle.Complete();
-
-                    // Don't evaluate a pause/delay condition if we are seeking
-                    if (Commands.IsActivelySeeking)
-                        continue;
-
-                    // Wait some if we have a full packet buffer or we are unable to read more packets (i.e. EOF).
-                    if (ShouldReadMorePackets == false
-                        || CanReadMorePackets == false
-                        || packetsRead.GetSum() <= 0)
-                    {
-                        delay.WaitOne();
-                    }
                 }
             }
             catch { throw; }
@@ -102,8 +97,6 @@
                 PacketReadingCycle.Complete();
                 delay.Dispose();
             }
-
-            #endregion
         }
     }
 }

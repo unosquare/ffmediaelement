@@ -213,6 +213,24 @@
         }
 
         /// <summary>
+        /// Gets the total number of packets in the packet buffer.
+        /// </summary>
+        public int PacketBufferCount
+        {
+            get
+            {
+                lock (SyncLock)
+                {
+                    var result = 0;
+                    foreach (var c in All)
+                        result += c.PacketBufferCount;
+
+                    return result;
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the <see cref="MediaComponent"/> with the specified media type.
         /// Setting a new component on an existing media type component will throw.
         /// Getting a non existing media component fro the given media type will return null.
@@ -322,9 +340,6 @@
             var main = Main.MediaType;
             var auxs = MediaTypes.Except(main);
             var mediaTypes = MediaTypes;
-
-            // Signal Buffering started
-            m.State.SignalBufferingStarted();
 
             // Read and decode blocks until the main component is half full
             while (m.ShouldReadMorePackets && m.CanReadMorePackets)

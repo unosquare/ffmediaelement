@@ -67,7 +67,6 @@
 
                 // Signal the starting state clearing the packet buffer cache
                 m.Container.Components.ClearQueuedPackets(flushBuffers: true);
-                m.State.SignalBufferingStarted();
 
                 // wait for the current reading and decoding cycles
                 // to finish. We don't want to interfere with reading in progress
