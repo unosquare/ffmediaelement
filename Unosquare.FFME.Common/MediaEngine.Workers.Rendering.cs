@@ -106,6 +106,9 @@
                         else
                         {
                             // Get the regular audio, video, or sub block
+                            if (Blocks[t].IsInRange(wallClock) == false)
+                                InvalidateRenderer(t);
+
                             currentBlock[t] = Blocks[t][wallClock];
                         }
                     }

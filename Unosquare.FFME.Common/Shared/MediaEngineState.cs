@@ -286,6 +286,12 @@
         public string MediaFormat { get; private set; }
 
         /// <summary>
+        /// Gets the size in bytes of the current stream being read.
+        /// For multi-file streams, get the size of the current file only.
+        /// </summary>
+        public long MediaStreamSize { get; private set; }
+
+        /// <summary>
         /// Gets the index of the video stream.
         /// </summary>
         public int VideoStreamIndex { get; private set; }
@@ -492,6 +498,7 @@
             IsOpen = (IsOpening == false) && (Parent.Container?.IsOpen ?? default);
             Metadata = Parent.Container?.Metadata ?? EmptyDictionary;
             MediaFormat = Parent.Container?.MediaFormatName;
+            MediaStreamSize = Parent.Container?.MediaStreamSize ?? default;
             VideoStreamIndex = Parent.Container?.Components.Video?.StreamIndex ?? -1;
             AudioStreamIndex = Parent.Container?.Components.Audio?.StreamIndex ?? -1;
             SubtitleStreamIndex = Parent.Container?.Components.Subtitles?.StreamIndex ?? -1;
@@ -674,10 +681,11 @@
         internal void InitializeBufferingProperties()
         {
             // var fileSize = ffmpeg.avio_size(Parent.Container.InputContext->pb);
+            const long MinimumValidFileSize = 1024 * 1024; // 1 Mbytes
             const int MinimumValidBitrate = 512 * 1000; // 512 kbits per second
             const int StartingCacheLength = 1024 * 1024; // a megabyte
             const ulong MaxCacheLength = 1024 * 1024 * 512; // 512MBytes as absolute max!
-            const ulong MinCacheLength = 1024 * 512; // 512kb absolute min.
+            const ulong MinCacheLength = 1024 * 256; // 256kb absolute min.
 
             if (Parent.Container == null)
             {
@@ -686,36 +694,45 @@
                 DownloadCacheLength = default;
                 BufferingProgress = default;
                 DownloadProgress = default;
+                MediaStreamSize = default;
                 return;
             }
 
-            var allComponentsHaveBitrate = true;
+            // Try to get a valid stream size
+            MediaStreamSize = Parent.Container?.MediaStreamSize ?? default;
 
-            if (HasAudio && AudioBitrate <= 0)
-                allComponentsHaveBitrate = false;
+            var hasComputed = false;
 
-            if (HasVideo && VideoBitrate <= 0)
-                allComponentsHaveBitrate = false;
+            if (MediaStreamSize >= MinimumValidFileSize)
+            {
+                if (IsSeekable && NaturalDuration.HasValue && NaturalDuration.Value.TotalSeconds > 0)
+                {
+                    Bitrate = Convert.ToUInt64(8d * MediaStreamSize / NaturalDuration.Value.TotalSeconds);
+                    BufferCacheLength = (2 * Bitrate / 8).Clamp(MinCacheLength, (ulong)MediaStreamSize);
+                    DownloadCacheLength = (BufferCacheLength * 4).Clamp(MinCacheLength, (ulong)MediaStreamSize);
 
-            if (HasAudio == false && HasVideo == false)
-                allComponentsHaveBitrate = false;
+                    hasComputed = true;
+                }
+            }
 
-            // The metadata states that we have bitrates for the components
-            // but sometimes (like in certain WMV files) we have slightly incorrect information
-            var mediaBitrate = Math.Max(Bitrate,
-                allComponentsHaveBitrate ? AudioBitrate + VideoBitrate : 0);
+            if (hasComputed == false)
+            {
+                // The metadata states that we have bitrates for the components
+                // but sometimes (like in certain WMV files) we have slightly incorrect information
+                var mediaBitrate = Math.Max(Bitrate, AudioBitrate + VideoBitrate);
 
-            DecodingBitrate = mediaBitrate;
+                DecodingBitrate = mediaBitrate;
 
-            BufferCacheLength = (mediaBitrate > MinimumValidBitrate ?
-                Convert.ToUInt64(mediaBitrate / 8d) : StartingCacheLength).Clamp(MinCacheLength, MaxCacheLength);
+                BufferCacheLength = (mediaBitrate > MinimumValidBitrate ?
+                    Convert.ToUInt64(mediaBitrate / 8d) : StartingCacheLength).Clamp(MinCacheLength, MaxCacheLength);
 
-            DownloadCacheLength = (BufferCacheLength * (IsNetworkStream ?
-                NetworkStreamCacheFactor : StandardStreamCacheFactor)).Clamp(BufferCacheLength, MaxCacheLength);
+                DownloadCacheLength = (BufferCacheLength * (IsNetworkStream ?
+                    NetworkStreamCacheFactor : StandardStreamCacheFactor)).Clamp(BufferCacheLength, MaxCacheLength);
 
-            Parent.Log(MediaLogMessageType.Debug,
-                $"CACHES: Init - Buffer: {Math.Round(BufferCacheLength / 1024d / 1024d, 2)} MB; " +
-                $"Download: {Math.Round(DownloadCacheLength / 1024d / 1024d, 2)} MB");
+                Parent.Log(MediaLogMessageType.Debug,
+                    $"CACHES: Init - Buffer: {Math.Round(BufferCacheLength / 1024d / 1024d, 2)} MB; " +
+                    $"Download: {Math.Round(DownloadCacheLength / 1024d / 1024d, 2)} MB");
+            }
 
             IsBuffering = false;
             BufferingProgress = 0;
@@ -762,7 +779,8 @@
         {
             // Capture the read bytes of a 1-second buffer
             DecodingBitrate = Parent.Blocks == null || Parent.Blocks.Count <= 0 ? 0 :
-                Convert.ToUInt64(Parent.Blocks.Values.Sum(bb => (double)bb.RangeBitrate));
+                Convert.ToUInt64(Parent.Blocks.Values
+                .Sum(bb => bb.IsInRange(Position) ? (double)bb.RangeBitrate : 0));
         }
 
         #endregion

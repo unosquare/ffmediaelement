@@ -133,9 +133,6 @@
                                 decodedFrameCount += 1;
                                 rangePercent = blocks.GetRangePercent(WallClock);
                             }
-
-                            if (blocks.IsInRange(WallClock) == false)
-                                InvalidateRenderer(t);
                         }
 
                         State.UpdateDecodingBitrate();
@@ -154,7 +151,7 @@
                         resumeClock = false;
 
                         if (State.HasMediaEnded == false)
-                            Clock.Play();
+                            ResumePlayback();
                     }
 
                     // Complete the frame decoding cycle

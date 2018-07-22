@@ -200,6 +200,12 @@
         string MediaFormat { get; }
 
         /// <summary>
+        /// Gets the size in bytes of the current stream being read.
+        /// For multi-file streams, get the size of the current file only.
+        /// </summary>
+        long MediaStreamSize { get; }
+
+        /// <summary>
         /// Gets the playback status of the media.
         /// </summary>
         PlaybackStatus MediaState { get; }

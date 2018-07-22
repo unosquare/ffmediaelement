@@ -245,6 +245,7 @@
         /// <summary>
         /// Gets the byte position at which the stream is being read.
         /// Please note that this property gets updated after every Read.
+        /// For multi-file streams, get the position of the current file only.
         /// </summary>
         public long StreamPosition
         {
@@ -252,6 +253,20 @@
             {
                 if (InputContext == null || InputContext->pb == null) return 0;
                 return InputContext->pb->pos;
+            }
+        }
+
+        /// <summary>
+        /// Gets the size in bytes of the current stream being read.
+        /// For multi-file streams, get the size of the current file only.
+        /// </summary>
+        public long MediaStreamSize
+        {
+            get
+            {
+                if (InputContext == null || InputContext->pb == null) return 0;
+                var size = ffmpeg.avio_size(InputContext->pb);
+                return size > 0 ? size : 0;
             }
         }
 
@@ -532,11 +547,15 @@
         /// </summary>
         public void SignalResumeReads()
         {
+            throw new NotSupportedException("The Container does not support resuming the InputContext from aborted reads yet.");
+
+            /*
             if (IsDisposed) throw new ObjectDisposedException(nameof(MediaContainer));
             if (InputContext == null) throw new InvalidOperationException(ExceptionMessageNoInputContext);
 
             SignalAbortReadsRequested.Value = false;
             SignalAbortReadsAutoReset.Value = true;
+            */
         }
 
         /// <summary>

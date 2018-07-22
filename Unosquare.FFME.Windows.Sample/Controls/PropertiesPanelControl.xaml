@@ -48,6 +48,11 @@
                         </DockPanel>
 
                         <DockPanel>
+                            <TextBlock Style="{StaticResource Key}">Media Size</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding MediaStreamSize, Mode=OneWay, Converter={StaticResource ByteFormatter}}" />
+                        </DockPanel>
+
+                        <DockPanel>
                             <TextBlock Style="{StaticResource Key}">Bitrate</TextBlock>
                             <TextBlock Style="{StaticResource Value}" Text="{Binding Bitrate, Mode=OneWay, Converter={StaticResource BitFormatter}}" />
                         </DockPanel>

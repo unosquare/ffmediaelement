@@ -95,6 +95,12 @@
         public string MediaFormat => MediaCore?.State.MediaFormat;
 
         /// <summary>
+        /// Gets the size in bytes of the current stream being read.
+        /// For multi-file streams, get the size of the current file only.
+        /// </summary>
+        public long MediaStreamSize => MediaCore?.State.MediaStreamSize ?? 0;
+
+        /// <summary>
         /// Gets the duration of a single frame step.
         /// If there is a video component with a framerate, this propery returns the length of a frame.
         /// If there is no video component it simply returns a tenth of a second.

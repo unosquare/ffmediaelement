@@ -82,6 +82,36 @@
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether a worker interrupt has been requested by the command manager.
+        /// This instructs potentially long loops in workers to immediately exit.
+        /// </summary>
+        private bool IsWorkerInterruptRequested
+        {
+            get
+            {
+                return Commands.IsSeeking ||
+                    Commands.IsChanging ||
+                    Commands.IsClosing ||
+                    Commands.IsStopWorkersPending;
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the reading worker can read packets at the current time.
+        /// This is simply a bit-wise AND of negating <see cref="IsWorkerInterruptRequested"/> == false
+        /// and <see cref="ShouldReadMorePackets"/> and <see cref="CanReadMorePackets"/>
+        /// </summary>
+        private bool CanWorkerReadPackets
+        {
+            get
+            {
+                return IsWorkerInterruptRequested == false &&
+                    ShouldReadMorePackets &&
+                    CanReadMorePackets;
+            }
+        }
+
         #endregion
 
         #region Methods
