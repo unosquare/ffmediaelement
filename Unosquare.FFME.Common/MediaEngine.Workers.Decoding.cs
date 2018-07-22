@@ -19,7 +19,8 @@
             var decodedFrameCount = 0;
             var rangePercent = 0d;
             var main = Container.Components.MainMediaType; // Holds the main media type
-            var resumeClock = false;
+            var resumeSyncBufferingClock = false;
+            var isSyncBuffering = false;
             MediaBlockBuffer blocks = null;
 
             try
@@ -62,8 +63,10 @@
                         {
                             // Signal the start of a sync-buffering scenario
                             // TODO: Maybe this should be in the command manager?
-                            resumeClock = Clock.IsRunning;
+                            isSyncBuffering = true;
+                            resumeSyncBufferingClock = Clock.IsRunning;
                             Clock.Pause();
+                            State.UpdateMediaState(PlaybackStatus.Manual);
 
                             Log(MediaLogMessageType.Debug, $"SYNC-BUFFER: Started.");
 
@@ -103,11 +106,8 @@
                                 if (blocks.Count > 0)
                                     ChangePosition(blocks[WallClock].StartTime);
                                 else
-                                    resumeClock = false; // Hard stop the clock.
+                                    resumeSyncBufferingClock = false; // Hard stop the clock.
                             }
-
-                            // log some message and resume the clock if it was playing
-                            Log(MediaLogMessageType.Debug, $"SYNC-BUFFER: Finished. Clock set to {WallClock.Format()}");
                         }
 
                         #endregion
@@ -121,17 +121,27 @@
                             if (IsWorkerInterruptRequested) break;
 
                             // Capture a reference to the blocks and the current Range Percent
+                            const double rangePercentThreshold = 0.75d;
                             blocks = Blocks[t];
                             rangePercent = blocks.GetRangePercent(WallClock);
 
                             // Read as much as we can for this cycle but always within range.
-                            while (blocks.IsFull == false || rangePercent > 0.75d)
+                            while (blocks.IsFull == false || rangePercent > rangePercentThreshold)
                             {
                                 if (IsWorkerInterruptRequested || AddNextBlock(t) == false)
                                     break;
 
                                 decodedFrameCount += 1;
                                 rangePercent = blocks.GetRangePercent(WallClock);
+
+                                // Determine break conditions to save CPU time
+                                if (isSyncBuffering == false &&
+                                    rangePercent > 0 &&
+                                    rangePercent <= rangePercentThreshold &&
+                                    blocks.IsFull == false &&
+                                    blocks.CapacityPercent >= 0.25d &&
+                                    blocks.IsInRange(WallClock))
+                                    break;
                             }
                         }
 
@@ -146,12 +156,16 @@
                     DetectEndOfMedia(decodedFrameCount, main);
 
                     // Resume sync-buffering clock
-                    if (resumeClock)
+                    if (isSyncBuffering)
                     {
-                        resumeClock = false;
+                        // log some message and resume the clock if it was playing
+                        Log(MediaLogMessageType.Debug, $"SYNC-BUFFER: Finished. Clock set to {WallClock.Format()}");
 
-                        if (State.HasMediaEnded == false)
+                        if (resumeSyncBufferingClock && State.HasMediaEnded == false)
                             ResumePlayback();
+
+                        isSyncBuffering = false;
+                        resumeSyncBufferingClock = false;
                     }
 
                     // Complete the frame decoding cycle
