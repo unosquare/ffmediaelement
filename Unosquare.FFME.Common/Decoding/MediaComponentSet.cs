@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
-    using FFmpeg.AutoGen;
     using Primitives;
     using Shared;
     using System;
@@ -62,8 +61,8 @@
         #region Delegates
 
         public delegate void OnPacketsClearedDelegate();
-        public delegate void OnPacketQueuedDelegate(IntPtr avPacket, MediaType mediaType, ulong bufferLength);
-        public delegate void OnPacketDequeuedDelegate(IntPtr avPacket, MediaType mediaType, ulong bufferLength);
+        public delegate void OnPacketQueuedDelegate(IntPtr avPacket, MediaType mediaType);
+        public delegate void OnPacketDequeuedDelegate(IntPtr avPacket, MediaType mediaType);
         public delegate void OnFrameDecodedDelegate(IntPtr avFrame, MediaType mediaType);
         public delegate void OnSubtitleDecodedDelegate(IntPtr avSubititle);
 
@@ -213,6 +212,17 @@
         }
 
         /// <summary>
+        /// Gets the packet buffer length maximum.
+        /// Port of ffplay.c (MAX_QUEUE_SIZE)
+        /// </summary>
+        public ulong PacketBufferLengthMax => 15 * 1024 * 1024;
+
+        /// <summary>
+        /// Gets the packet buffer length progress percent, from 0.0 to 1.0.
+        /// </summary>
+        public double PacketBufferLengthProgress => Math.Min((double)PacketBufferLength / PacketBufferLengthMax, 1);
+
+        /// <summary>
         /// Gets the total number of packets in the packet buffer.
         /// </summary>
         public int PacketBufferCount
@@ -226,6 +236,50 @@
                         result += c.PacketBufferCount;
 
                     return result;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the number of packets to cache before <see cref="HasEnoughPackets"/> returns true.
+        /// </summary>
+        public int PacketBufferCountMax
+        {
+            get
+            {
+                lock (SyncLock)
+                {
+                    var result = 0;
+                    foreach (var c in All)
+                        result += c.PacketBufferCountMax;
+
+                    return result;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the packet buffer count progress percent, from 0.0 to 1.0.
+        /// </summary>
+        public double PacketBufferCountProgress => Math.Min((double)PacketBufferCount / PacketBufferCountMax, 1);
+
+        /// <summary>
+        /// Gets or sets a value indicating whether all packet queues contain enough packets.
+        /// Port of ffplay.c stream_has_enough_packets
+        /// </summary>
+        public bool HasEnoughPackets
+        {
+            get
+            {
+                lock (SyncLock)
+                {
+                    foreach (var c in All)
+                    {
+                        if (c.HasEnoughPackets == false)
+                            return false;
+                    }
+
+                    return true;
                 }
             }
         }
@@ -272,7 +326,7 @@
         /// </summary>
         /// <param name="packet">The packet.</param>
         /// <returns>The media type</returns>
-        public unsafe MediaType SendPacket(AVPacket* packet)
+        public unsafe MediaType SendPacket(MediaPacket packet)
         {
             lock (SyncLock)
             {
@@ -281,11 +335,10 @@
 
                 foreach (var component in All)
                 {
-                    if (component.StreamIndex == packet->stream_index)
+                    if (component.StreamIndex == packet.StreamIndex)
                     {
                         component.SendPacket(packet);
-                        OnPacketQueued?.Invoke(
-                            (IntPtr)packet, component.MediaType, PacketBufferLength);
+                        OnPacketQueued?.Invoke(packet.SafePointer, component.MediaType);
 
                         return component.MediaType;
                     }
@@ -342,7 +395,7 @@
             var mediaTypes = MediaTypes;
 
             // Read and decode blocks until the main component is half full
-            while (m.ShouldReadMorePackets && m.CanReadMorePackets)
+            while (m.ShouldReadMorePackets)
             {
                 // Read some packets
                 m.Container.Read();
@@ -372,7 +425,7 @@
 
                 while (m.Blocks[t].RangeEndTime < m.Blocks[main].RangeEndTime)
                 {
-                    if (m.ShouldReadMorePackets == false || m.CanReadMorePackets == false)
+                    if (m.ShouldReadMorePackets == false)
                         break;
 
                     // Read some packets
@@ -491,8 +544,7 @@
             m_Count = allComponents.Count;
 
             // Try for the main component to be the video (if it's not stuff like audio album art, that is)
-            if (m_Video != null && m_Audio != null &&
-                (m_Video.StreamInfo.Disposition & ffmpeg.AV_DISPOSITION_ATTACHED_PIC) != ffmpeg.AV_DISPOSITION_ATTACHED_PIC)
+            if (m_Video != null && m_Audio != null && m_Video.StreamInfo.IsAttachedPictureDisposition == false)
             {
                 m_Main = m_Video;
                 m_MainMediaType = MediaType.Video;

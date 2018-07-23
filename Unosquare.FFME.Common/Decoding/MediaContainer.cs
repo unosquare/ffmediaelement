@@ -340,15 +340,15 @@
         {
             get
             {
-                var canRequireAttachments = Components.HasVideo
-                    && (Components.Video.Stream->disposition & ffmpeg.AV_DISPOSITION_ATTACHED_PIC) != 0;
+                var canRequireAttachments = Components.HasVideo &&
+                    Components.Video.StreamInfo.IsAttachedPictureDisposition;
 
                 return canRequireAttachments && RequiresPictureAttachments;
             }
             set
             {
-                var canRequireAttachments = Components.HasVideo
-                    && (Components.Video.Stream->disposition & ffmpeg.AV_DISPOSITION_ATTACHED_PIC) != 0;
+                var canRequireAttachments = Components.HasVideo &&
+                    Components.Video.StreamInfo.IsAttachedPictureDisposition;
 
                 RequiresPictureAttachments = canRequireAttachments && value;
             }
@@ -954,7 +954,7 @@
 
             if (StateRequiresPictureAttachments)
             {
-                var attachedPacket = PacketQueue.ClonePacket(&Components.Video.Stream->attached_pic);
+                var attachedPacket = MediaPacket.ClonePacket(&Components.Video.Stream->attached_pic);
                 if (attachedPacket != null)
                 {
                     Components.Video.SendPacket(attachedPacket);
@@ -965,15 +965,15 @@
             }
 
             // Allocate the packet to read
-            var readPacket = PacketQueue.CreateReadPacket();
+            var readPacket = MediaPacket.CreateReadPacket();
             StreamReadInterruptStartTime.Value = DateTime.UtcNow;
-            var readResult = ffmpeg.av_read_frame(InputContext, readPacket);
+            var readResult = ffmpeg.av_read_frame(InputContext, readPacket.Pointer);
             StateLastReadTimeUtc = DateTime.UtcNow;
 
             if (readResult < 0)
             {
                 // Handle failed packet reads. We don't need the allocated packet anymore
-                PacketQueue.ReleasePacket(readPacket);
+                readPacket.Dispose();
 
                 // Detect an end of file situation (makes the readers enter draining mode)
                 if (readResult == ffmpeg.AVERROR_EOF || ffmpeg.avio_feof(InputContext->pb) != 0)
@@ -1003,7 +1003,7 @@
 
                 // Discard the packet -- it was not accepted by any component
                 if (componentType == MediaType.None)
-                    PacketQueue.ReleasePacket(readPacket);
+                    readPacket.Dispose();
                 else
                     return componentType;
             }

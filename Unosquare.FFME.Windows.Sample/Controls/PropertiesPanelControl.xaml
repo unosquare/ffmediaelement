@@ -134,7 +134,7 @@
 
                         <DockPanel>
                             <TextBlock Style="{StaticResource Key}">Max Buffer</TextBlock>
-                            <TextBlock Style="{StaticResource Value}" Text="{Binding BufferCacheLength, Mode=OneWay, Converter={StaticResource ByteFormatter}}" />
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding BufferCacheLength, Mode=OneWay}" />
                         </DockPanel>
 
                         <DockPanel>

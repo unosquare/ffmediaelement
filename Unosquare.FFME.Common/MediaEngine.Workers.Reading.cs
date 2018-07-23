@@ -39,7 +39,7 @@
                     packetsReadCount = 0;
                     t = MediaType.None;
 
-                    while (CanWorkerReadPackets)
+                    while (ShouldWorkerReadPackets)
                     {
                         // Perform a packet read. t will hold the packet type.
                         try { t = Container.Read(); }
@@ -53,7 +53,7 @@
                     }
 
                     // Introduce a delay if we did not read packets
-                    if (packetsReadCount <= 0 && IsWorkerInterruptRequested == false)
+                    if (ShouldWorkerReadPackets == false)
                         delay.WaitOne();
 
                     // finish the reading cycle.

@@ -64,6 +64,9 @@
         /// </value>
         public abstract MediaType MediaType { get; }
 
+        /// <summary>
+        /// Gets the size of the compressed packets that created this frame.
+        /// </summary>
         public int CompressedSize { get; }
 
         /// <summary>
@@ -124,16 +127,10 @@
             return StartTime.CompareTo(other.StartTime);
         }
 
-        #endregion
-
-        #region IDisposable Support
-
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public abstract void Dispose();
-
-        #endregion
 
         /// <summary>
         /// Creates a frame used for Audio or Video
@@ -192,5 +189,7 @@
             ffmpeg.avsubtitle_free(frame);
             ffmpeg.av_free(frame);
         }
+
+        #endregion
     }
 }

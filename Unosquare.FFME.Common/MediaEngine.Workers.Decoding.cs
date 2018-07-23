@@ -73,6 +73,7 @@
                             var hasAddedBlock = false;
                             while (IsWorkerInterruptRequested == false && CanReadMoreFramesOf(main))
                             {
+                                hasAddedBlock = false;
                                 if (decodedFrameCount < blocks.Capacity)
                                 {
                                     hasAddedBlock = AddNextBlock(main);
@@ -93,7 +94,7 @@
                                 if (decodedFrameCount >= blocks.Capacity)
                                     break;
 
-                                if (hasAddedBlock == false && CanWorkerReadPackets)
+                                if (hasAddedBlock == false && ShouldWorkerReadPackets)
                                     PacketReadingCycle.Wait(Constants.Interval.LowPriority);
                             }
 

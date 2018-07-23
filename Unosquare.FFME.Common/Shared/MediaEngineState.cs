@@ -15,9 +15,6 @@
     {
         #region Property Backing and Private State
 
-        private const ulong NetworkStreamCacheFactor = 30;
-        private const ulong StandardStreamCacheFactor = 4;
-
         private static readonly TimeSpan GenericFrameStepDuration = TimeSpan.FromSeconds(0.01d);
         private static readonly PropertyInfo[] Properties = null;
 
@@ -682,11 +679,8 @@
         {
             // var fileSize = ffmpeg.avio_size(Parent.Container.InputContext->pb);
             const long MinimumValidFileSize = 1024 * 1024; // 1 Mbytes
-            const int MinimumValidBitrate = 512 * 1000; // 512 kbits per second
-            const int StartingCacheLength = 1024 * 1024; // a megabyte
-            const ulong MaxCacheLength = 1024 * 1024 * 512; // 512MBytes as absolute max!
-            const ulong MinCacheLength = 1024 * 256; // 256kb absolute min.
 
+            // Reset the properties if the is no associated container
             if (Parent.Container == null)
             {
                 IsBuffering = default;
@@ -695,67 +689,42 @@
                 BufferingProgress = default;
                 DownloadProgress = default;
                 MediaStreamSize = default;
+                DecodingBitrate = default;
                 return;
             }
 
             // Try to get a valid stream size
+            var durationSeconds = NaturalDuration.HasValue ? NaturalDuration.Value.TotalSeconds : 0d;
             MediaStreamSize = Parent.Container?.MediaStreamSize ?? default;
 
-            var hasComputed = false;
-
-            if (MediaStreamSize >= MinimumValidFileSize)
+            // Compute the bitrate and buffering properties based on media byte size
+            if (MediaStreamSize >= MinimumValidFileSize && IsSeekable && durationSeconds > 0)
             {
-                if (IsSeekable && NaturalDuration.HasValue && NaturalDuration.Value.TotalSeconds > 0)
-                {
-                    Bitrate = Convert.ToUInt64(8d * MediaStreamSize / NaturalDuration.Value.TotalSeconds);
-                    BufferCacheLength = (2 * Bitrate / 8).Clamp(MinCacheLength, (ulong)MediaStreamSize);
-                    DownloadCacheLength = (BufferCacheLength * 4).Clamp(MinCacheLength, (ulong)MediaStreamSize);
-
-                    hasComputed = true;
-                }
+                // The bitrate is simply the media size over the total duration
+                Bitrate = Convert.ToUInt64(8d * MediaStreamSize / NaturalDuration.Value.TotalSeconds);
+                DecodingBitrate = Bitrate;
             }
 
-            if (hasComputed == false)
-            {
-                // The metadata states that we have bitrates for the components
-                // but sometimes (like in certain WMV files) we have slightly incorrect information
-                var mediaBitrate = Math.Max(Bitrate, AudioBitrate + VideoBitrate);
-
-                DecodingBitrate = mediaBitrate;
-
-                BufferCacheLength = (mediaBitrate > MinimumValidBitrate ?
-                    Convert.ToUInt64(mediaBitrate / 8d) : StartingCacheLength).Clamp(MinCacheLength, MaxCacheLength);
-
-                DownloadCacheLength = (BufferCacheLength * (IsNetworkStream ?
-                    NetworkStreamCacheFactor : StandardStreamCacheFactor)).Clamp(BufferCacheLength, MaxCacheLength);
-
-                Parent.Log(MediaLogMessageType.Debug,
-                    $"CACHES: Init - Buffer: {Math.Round(BufferCacheLength / 1024d / 1024d, 2)} MB; " +
-                    $"Download: {Math.Round(DownloadCacheLength / 1024d / 1024d, 2)} MB");
-            }
-
-            IsBuffering = false;
-            BufferingProgress = 0;
-            DownloadProgress = 0;
+            IsBuffering = default;
+            BufferingProgress = default;
+            DownloadProgress = default;
         }
 
         /// <summary>
         /// Updates the buffering properties: IsBuffering, BufferingProgress, DownloadProgress.
         /// </summary>
-        /// <param name="packetBufferLength">Length of the packet buffer.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdateBufferingProgress(double packetBufferLength)
+        internal void UpdateBufferingProgress()
         {
-            // Update the buffering progress
-            BufferingProgress = BufferCacheLength != 0 ? Math.Min(
-                1d, Math.Round(packetBufferLength / BufferCacheLength, 3)) : 0;
+            // Update the buffering and download progress
+            DownloadCacheLength = Parent.Container.Components.PacketBufferLength;
+            BufferCacheLength = (ulong)Parent.Container.Components.PacketBufferCount;
 
-            // Update the download progress
-            DownloadProgress = DownloadCacheLength != 0 ? Math.Min(
-                1d, Math.Round(packetBufferLength / DownloadCacheLength, 3)) : 0;
+            BufferingProgress = Math.Round(Parent.Container.Components.PacketBufferCountProgress, 3);
+            DownloadProgress = Math.Round(Parent.Container.Components.PacketBufferLengthProgress, 3);
 
             // Detect the start of buffering
-            if (IsBuffering == false && BufferingProgress < 1 && Parent.CanReadMorePackets)
+            if (IsBuffering == false && BufferingProgress < 1 && Parent.ShouldReadMorePackets)
             {
                 IsBuffering = true;
                 Parent.SendOnBufferingStarted();
@@ -763,7 +732,7 @@
             }
 
             // Detect the end of buffering
-            if (IsBuffering == true && (BufferingProgress >= 1 || Parent.CanReadMorePackets == false))
+            if (IsBuffering == true && (BufferingProgress >= 1 || Parent.ShouldReadMorePackets == false))
             {
                 IsBuffering = false;
                 Parent.SendOnBufferingEnded();

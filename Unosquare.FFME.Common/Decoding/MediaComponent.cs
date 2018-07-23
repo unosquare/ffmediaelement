@@ -77,8 +77,8 @@
             CodecContext = ffmpeg.avcodec_alloc_context3(null);
             RC.Current.Add(CodecContext, $"134: {nameof(MediaComponent)}[{MediaType}].ctor()");
             StreamIndex = streamIndex;
-            Stream = container.InputContext->streams[StreamIndex];
-            StreamInfo = container.MediaInfo.Streams[StreamIndex];
+            Stream = container.InputContext->streams[streamIndex];
+            StreamInfo = container.MediaInfo.Streams[streamIndex];
 
             // Set default codec context options from probed stream
             var setCodecParamsResult = ffmpeg.avcodec_parameters_to_context(CodecContext, Stream->codecpar);
@@ -212,14 +212,19 @@
             {
                 case MediaType.Audio:
                 case MediaType.Video:
+                    PacketBufferCountMax = 25;
                     DecodePacketFunction = DecodeNextAVFrame;
                     break;
                 case MediaType.Subtitle:
+                    PacketBufferCountMax = 0;
                     DecodePacketFunction = DecodeNextAVSubtitle;
                     break;
                 default:
                     throw new NotSupportedException($"A compoenent of MediaType '{MediaType}' is not supported");
             }
+
+            if (StreamInfo.IsAttachedPictureDisposition)
+                PacketBufferCountMax = 0;
 
             // Compute the start time
             if (Stream->start_time == ffmpeg.AV_NOPTS_VALUE)
@@ -282,10 +287,42 @@
         public ulong PacketBufferLength => Packets.BufferLength;
 
         /// <summary>
+        /// Gets the duration of the packet buffer.
+        /// </summary>
+        public TimeSpan PacketBufferDuration => Packets.GetDuration(StreamInfo.TimeBase);
+
+        /// <summary>
         /// Gets the number of packets in the queue.
         /// Decode packets until this number becomes 0.
         /// </summary>
         public int PacketBufferCount => Packets.Count;
+
+        /// <summary>
+        /// Gets the number of packets to cache before <see cref="HasEnoughPackets"/> returns true.
+        /// </summary>
+        public int PacketBufferCountMax { get; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the packet queue contains enough packets.
+        /// Port of ffplay.c stream_has_enough_packets
+        /// </summary>
+        public bool HasEnoughPackets
+        {
+            get
+            {
+                const double MinDuration = 1.0d;
+
+                if (IsDisposed ||
+                    PacketBufferCountMax <= 0 ||
+                    (Container?.IsReadAborted ?? false) || Stream == null ||
+                    StreamInfo.IsAttachedPictureDisposition ||
+                    (Container?.IsAtEndOfStream ?? false))
+                    return true;
+
+                return (PacketBufferDuration == TimeSpan.Zero || PacketBufferDuration.TotalSeconds >= MinDuration) &&
+                    PacketBufferCount >= PacketBufferCountMax;
+            }
+        }
 
         /// <summary>
         /// Gets the ID of the codec for this component.
@@ -351,7 +388,7 @@
         /// </summary>
         public void SendEmptyPacket()
         {
-            var packet = PacketQueue.CreateEmptyPacket(Stream->index);
+            var packet = MediaPacket.CreateEmptyPacket(Stream->index);
             SendPacket(packet);
         }
 
@@ -361,7 +398,7 @@
         /// 1 or more frames.
         /// </summary>
         /// <param name="packet">The packet.</param>
-        public void SendPacket(AVPacket* packet)
+        public void SendPacket(MediaPacket packet)
         {
             if (packet == null)
             {
@@ -395,20 +432,6 @@
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose() => Dispose(true);
-
-        /// <summary>
-        /// Determines whether the specified packet is a flush packet.
-        /// These flush packets are used to clear the internal decoder buffers
-        /// </summary>
-        /// <param name="packet">The packet to check.</param>
-        /// <returns>
-        ///   <c>true</c> if it a flush packet<c>false</c>.
-        /// </returns>
-        protected static bool IsFlushPacket(AVPacket* packet)
-        {
-            if (packet == null) return false;
-            return (IntPtr)packet->data == PacketQueue.FlushPacketData;
-        }
 
         /// <summary>
         /// Creates a frame source object given the raw FFmpeg AVFrame or AVSubtitle reference.
@@ -458,7 +481,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void SendFlushPacket()
         {
-            var packet = PacketQueue.CreateFlushPacket(Stream->index);
+            var packet = MediaPacket.CreateFlushPacket(Stream->index);
             SendPacket(packet);
         }
 
@@ -488,7 +511,7 @@
             while (Packets.Count > 0)
             {
                 var packet = Packets.Peek();
-                if (IsFlushPacket(packet))
+                if (packet.IsFlushPacket)
                 {
                     FlushCodecBuffers();
 
@@ -496,23 +519,20 @@
                     // count or call the OnPacketDequeued callback because the size is 0
                     packet = Packets.Dequeue();
 
-                    PacketQueue.ReleasePacket(packet);
+                    packet.Dispose();
                     continue;
                 }
 
-                sendPacketResult = ffmpeg.avcodec_send_packet(CodecContext, packet);
+                sendPacketResult = ffmpeg.avcodec_send_packet(CodecContext, packet.Pointer);
 
                 // EAGAIN means we have filled the decoder buffer
                 if (sendPacketResult != -ffmpeg.EAGAIN)
                 {
                     // Dequeue the packet and release it.
                     packet = Packets.Dequeue();
-                    Container.Components.OnPacketDequeued?.Invoke(
-                        (IntPtr)packet,
-                        MediaType,
-                        Container.Components.PacketBufferLength);
+                    Container.Components.OnPacketDequeued?.Invoke(packet.SafePointer, MediaType);
 
-                    PacketQueue.ReleasePacket(packet);
+                    packet.Dispose();
                     packetCount++;
                 }
 
@@ -599,27 +619,23 @@
             // For subtitles we use the old API (new API send_packet/receive_frame) is not yet available
             // We first try to flush anything we've already sent by using an empty packet.
             var managedFrame = default(MediaFrame);
-            var packet = PacketQueue.CreateEmptyPacket(Stream->index);
+            var packet = MediaPacket.CreateEmptyPacket(Stream->index);
             var gotFrame = 0;
             var outputFrame = MediaFrame.CreateAVSubtitle();
-            var receiveFrameResult = ffmpeg.avcodec_decode_subtitle2(CodecContext, outputFrame, &gotFrame, packet);
+            var receiveFrameResult = ffmpeg.avcodec_decode_subtitle2(CodecContext, outputFrame, &gotFrame, packet.Pointer);
 
             // If we don't get a frame from flushing. Feed the packet into the decoder and try getting a frame.
             if (gotFrame == 0)
             {
-                PacketQueue.ReleasePacket(packet);
+                packet.Dispose();
 
                 // Dequeue the packet and try to decode with it.
                 packet = Packets.Dequeue();
 
                 if (packet != null)
                 {
-                    Container.Components.OnPacketDequeued?.Invoke(
-                        (IntPtr)packet,
-                        MediaType,
-                        Container.Components.PacketBufferLength);
-
-                    receiveFrameResult = ffmpeg.avcodec_decode_subtitle2(CodecContext, outputFrame, &gotFrame, packet);
+                    Container.Components.OnPacketDequeued?.Invoke(packet.SafePointer, MediaType);
+                    receiveFrameResult = ffmpeg.avcodec_decode_subtitle2(CodecContext, outputFrame, &gotFrame, packet.Pointer);
                 }
             }
 
@@ -631,8 +647,7 @@
             }
 
             // Free the packet if we have dequeued it
-            if (packet != null)
-                PacketQueue.ReleasePacket(packet);
+            packet?.Dispose();
 
             // deallocate the subtitle frame if we did not associate it with a managed frame.
             if (managedFrame == null)

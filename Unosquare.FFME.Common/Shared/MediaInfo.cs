@@ -513,6 +513,11 @@
         public int Disposition { get; internal set; }
 
         /// <summary>
+        /// Gets a value indicating whether this instance is attached picture disposition.
+        /// </summary>
+        public bool IsAttachedPictureDisposition => (Disposition & ffmpeg.AV_DISPOSITION_ATTACHED_PIC) != 0;
+
+        /// <summary>
         /// Gets the start time.
         /// </summary>
         public TimeSpan StartTime { get; internal set; }

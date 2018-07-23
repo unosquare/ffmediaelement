@@ -161,14 +161,14 @@
                 m.PreloadSubtitles();
 
                 // Set the callbacks to update buffering progress
-                m.Container.Components.OnPacketQueued = (packetPtr, mediaType, bufferLength) =>
-                    m.State.UpdateBufferingProgress(bufferLength);
+                m.Container.Components.OnPacketQueued = (packetPtr, mediaType) =>
+                    m.State.UpdateBufferingProgress();
 
-                m.Container.Components.OnPacketDequeued = (packetPtr, mediaType, bufferLength) =>
-                    m.State.UpdateBufferingProgress(bufferLength);
+                m.Container.Components.OnPacketDequeued = (packetPtr, mediaType) =>
+                    m.State.UpdateBufferingProgress();
 
                 m.Container.Components.OnPacketsCleared = () =>
-                    m.State.UpdateBufferingProgress(0);
+                    m.State.UpdateBufferingProgress();
 
                 // Get the main container open
                 m.Container.Open();

@@ -59,14 +59,8 @@
         internal MediaTypeDictionary<TimeSpan> LastRenderTime { get; } = new MediaTypeDictionary<TimeSpan>();
 
         /// <summary>
-        /// Gets a value indicating whether more packets can be read from the stream.
-        /// This does not check if the packet queue is full.
-        /// </summary>
-        internal bool CanReadMorePackets => Commands.IsStopWorkersPending == false &&
-            ((Container?.IsReadAborted ?? true) == false && (Container?.IsAtEndOfStream ?? true) == false);
-
-        /// <summary>
-        /// Gets a value indicating whether room is available in the download cache.
+        /// Gets a value indicating whether packets can be read and
+        /// room is available in the download cache.
         /// </summary>
         internal bool ShouldReadMorePackets
         {
@@ -75,12 +69,24 @@
                 if (Commands.IsStopWorkersPending || Container == null || Container.Components == null)
                     return false;
 
-                // If it's a live stream always continue reading regardless
-                if (State.IsLiveStream) return true;
+                if (Container.IsReadAborted || Container.IsAtEndOfStream)
+                    return false;
 
-                return Container.Components.PacketBufferLength < State.DownloadCacheLength;
+                // If it's a live stream always continue reading, regardless
+                if (State.IsLiveStream && Container.Components.PacketBufferLengthProgress < 1d)
+                    return true;
+
+                // if we don't have enough packets queued we should read
+                return Container.Components.HasEnoughPackets == false;
             }
         }
+
+        /// <summary>
+        /// Gets a value indicating whether the reading worker can read packets at the current time.
+        /// This is simply a bit-wise AND of negating <see cref="IsWorkerInterruptRequested"/> == false
+        /// and <see cref="ShouldReadMorePackets"/>
+        /// </summary>
+        private bool ShouldWorkerReadPackets => IsWorkerInterruptRequested == false && ShouldReadMorePackets;
 
         /// <summary>
         /// Gets a value indicating whether a worker interrupt has been requested by the command manager.
@@ -94,21 +100,6 @@
                     Commands.IsChanging ||
                     Commands.IsClosing ||
                     Commands.IsStopWorkersPending;
-            }
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether the reading worker can read packets at the current time.
-        /// This is simply a bit-wise AND of negating <see cref="IsWorkerInterruptRequested"/> == false
-        /// and <see cref="ShouldReadMorePackets"/> and <see cref="CanReadMorePackets"/>
-        /// </summary>
-        private bool CanWorkerReadPackets
-        {
-            get
-            {
-                return IsWorkerInterruptRequested == false &&
-                    ShouldReadMorePackets &&
-                    CanReadMorePackets;
             }
         }
 
@@ -306,9 +297,10 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool CanReadMoreFramesOf(MediaType t)
         {
-            return (CanReadMorePackets && ShouldReadMorePackets) ||
+            return
                 Container.Components[t].PacketBufferLength > 0 ||
-                Container.Components[t].HasCodecPackets;
+                Container.Components[t].HasCodecPackets ||
+                ShouldReadMorePackets;
         }
 
         /// <summary>

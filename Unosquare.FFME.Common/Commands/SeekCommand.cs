@@ -104,7 +104,7 @@
                     m.Blocks[frame.MediaType]?.Add(frame, m.Container);
 
                 // Now read blocks until we have reached at least the Target Position
-                while (m.CanReadMorePackets
+                while (m.ShouldReadMorePackets
                     && m.Blocks[main].IsFull == false
                     && m.Blocks[main].IsInRange(TargetPosition) == false)
                 {
