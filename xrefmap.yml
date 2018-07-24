@@ -916,19 +916,6 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.Bitrate
   nameWithType: MediaElement.Bitrate
-- uid: Unosquare.FFME.MediaElement.BufferCacheLength
-  name: BufferCacheLength
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_BufferCacheLength
-  commentId: P:Unosquare.FFME.MediaElement.BufferCacheLength
-  fullName: Unosquare.FFME.MediaElement.BufferCacheLength
-  nameWithType: MediaElement.BufferCacheLength
-- uid: Unosquare.FFME.MediaElement.BufferCacheLength*
-  name: BufferCacheLength
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_BufferCacheLength_
-  commentId: Overload:Unosquare.FFME.MediaElement.BufferCacheLength
-  isSpec: "True"
-  fullName: Unosquare.FFME.MediaElement.BufferCacheLength
-  nameWithType: MediaElement.BufferCacheLength
 - uid: Unosquare.FFME.MediaElement.BufferingEnded
   name: BufferingEnded
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_BufferingEnded
@@ -1050,19 +1037,6 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.Dispose
   nameWithType: MediaElement.Dispose
-- uid: Unosquare.FFME.MediaElement.DownloadCacheLength
-  name: DownloadCacheLength
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_DownloadCacheLength
-  commentId: P:Unosquare.FFME.MediaElement.DownloadCacheLength
-  fullName: Unosquare.FFME.MediaElement.DownloadCacheLength
-  nameWithType: MediaElement.DownloadCacheLength
-- uid: Unosquare.FFME.MediaElement.DownloadCacheLength*
-  name: DownloadCacheLength
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_DownloadCacheLength_
-  commentId: Overload:Unosquare.FFME.MediaElement.DownloadCacheLength
-  isSpec: "True"
-  fullName: Unosquare.FFME.MediaElement.DownloadCacheLength
-  nameWithType: MediaElement.DownloadCacheLength
 - uid: Unosquare.FFME.MediaElement.DownloadProgress
   name: DownloadProgress
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_DownloadProgress
@@ -1625,6 +1599,32 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.Open
   nameWithType: MediaElement.Open
+- uid: Unosquare.FFME.MediaElement.PacketBufferCount
+  name: PacketBufferCount
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_PacketBufferCount
+  commentId: P:Unosquare.FFME.MediaElement.PacketBufferCount
+  fullName: Unosquare.FFME.MediaElement.PacketBufferCount
+  nameWithType: MediaElement.PacketBufferCount
+- uid: Unosquare.FFME.MediaElement.PacketBufferCount*
+  name: PacketBufferCount
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_PacketBufferCount_
+  commentId: Overload:Unosquare.FFME.MediaElement.PacketBufferCount
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.PacketBufferCount
+  nameWithType: MediaElement.PacketBufferCount
+- uid: Unosquare.FFME.MediaElement.PacketBufferLength
+  name: PacketBufferLength
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_PacketBufferLength
+  commentId: P:Unosquare.FFME.MediaElement.PacketBufferLength
+  fullName: Unosquare.FFME.MediaElement.PacketBufferLength
+  nameWithType: MediaElement.PacketBufferLength
+- uid: Unosquare.FFME.MediaElement.PacketBufferLength*
+  name: PacketBufferLength
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_PacketBufferLength_
+  commentId: Overload:Unosquare.FFME.MediaElement.PacketBufferLength
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.PacketBufferLength
+  nameWithType: MediaElement.PacketBufferLength
 - uid: Unosquare.FFME.MediaElement.Pause
   name: Pause()
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Pause

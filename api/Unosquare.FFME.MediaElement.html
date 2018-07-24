@@ -705,7 +705,7 @@ Only valid after the MediaOpened event has fired.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ulong AudioBitrate { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public long AudioBitrate { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -717,7 +717,7 @@ Only valid after the MediaOpened event has fired.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.UInt64</span></td>
+        <td><span class="xref">System.Int64</span></td>
         <td></td>
       </tr>
     </tbody>
@@ -892,7 +892,7 @@ Returns 0 if unavailable.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ulong Bitrate { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public long Bitrate { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -904,35 +904,7 @@ Returns 0 if unavailable.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.UInt64</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
-  <a id="Unosquare_FFME_MediaElement_BufferCacheLength_" data-uid="Unosquare.FFME.MediaElement.BufferCacheLength*"></a>
-  <h4 id="Unosquare_FFME_MediaElement_BufferCacheLength" data-uid="Unosquare.FFME.MediaElement.BufferCacheLength">BufferCacheLength</h4>
-  <div class="markdown level1 summary"><p>The wait packet buffer length.
-It is adjusted to 1 second if bitrate information is available.
-Otherwise, it&apos;s simply 512KB</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ulong BufferCacheLength { get; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.UInt64</span></td>
+        <td><span class="xref">System.Int64</span></td>
         <td></td>
       </tr>
     </tbody>
@@ -1029,7 +1001,7 @@ This is provided in bits per second.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ulong DecodingBitrate { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public long DecodingBitrate { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -1041,35 +1013,7 @@ This is provided in bits per second.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.UInt64</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
-  <a id="Unosquare_FFME_MediaElement_DownloadCacheLength_" data-uid="Unosquare.FFME.MediaElement.DownloadCacheLength*"></a>
-  <h4 id="Unosquare_FFME_MediaElement_DownloadCacheLength" data-uid="Unosquare.FFME.MediaElement.DownloadCacheLength">DownloadCacheLength</h4>
-  <div class="markdown level1 summary"><p>Gets the maximum packet buffer length, according to the bitrate (if available).
-If it&apos;s a realtime stream it will return 30 times the buffer cache length.
-Otherwise, it will return  4 times of the buffer cache length.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ulong DownloadCacheLength { get; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.UInt64</span></td>
+        <td><span class="xref">System.Int64</span></td>
         <td></td>
       </tr>
     </tbody>
@@ -1938,6 +1882,58 @@ Only valid after the MediaOpened event has fired.</p>
   </table>
   
   
+  <a id="Unosquare_FFME_MediaElement_PacketBufferCount_" data-uid="Unosquare.FFME.MediaElement.PacketBufferCount*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_PacketBufferCount" data-uid="Unosquare.FFME.MediaElement.PacketBufferCount">PacketBufferCount</h4>
+  <div class="markdown level1 summary"><p>Gets the number of packets buffered for all components</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int PacketBufferCount { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_PacketBufferLength_" data-uid="Unosquare.FFME.MediaElement.PacketBufferLength*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_PacketBufferLength" data-uid="Unosquare.FFME.MediaElement.PacketBufferLength">PacketBufferLength</h4>
+  <div class="markdown level1 summary"><p>Gets the amount of bytes in the packet buffer for the active stream components.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public long PacketBufferLength { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int64</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <a id="Unosquare_FFME_MediaElement_Position_" data-uid="Unosquare.FFME.MediaElement.Position*"></a>
   <h4 id="Unosquare_FFME_MediaElement_Position" data-uid="Unosquare.FFME.MediaElement.Position">Position</h4>
   <div class="markdown level1 summary"><p>Gets/Sets the Position property on the MediaElement.</p>
@@ -2294,7 +2290,7 @@ Only valid after the MediaOpened event has fired.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ulong VideoBitrate { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public long VideoBitrate { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2306,7 +2302,7 @@ Only valid after the MediaOpened event has fired.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.UInt64</span></td>
+        <td><span class="xref">System.Int64</span></td>
         <td></td>
       </tr>
     </tbody>
