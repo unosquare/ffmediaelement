@@ -36,15 +36,15 @@
                         if (Commands.IsChanging) Commands.WaitForDirectCommand();
                     }
 
-                    // Update state properties -- this must be after processing commanmds as
-                    // a direct command might have changed the components
-                    main = Container.Components.Main.MediaType;
-
                     // Execute the following command at the beginning of the cycle
                     Commands.ExecuteNextQueuedCommand();
 
                     // Signal a Seek starting operation and set the initial state
                     FrameDecodingCycle.Begin();
+
+                    // Update state properties -- this must be after processing commanmds as
+                    // a direct command might have changed the components
+                    main = Container.Components.Main.MediaType;
                     decodedFrameCount = 0;
 
                     #endregion
@@ -145,8 +145,6 @@
                                     break;
                             }
                         }
-
-                        State.UpdateDecodingBitrate();
 
                         #endregion
                     }

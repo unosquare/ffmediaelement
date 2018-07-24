@@ -160,22 +160,12 @@
                 // Side-load subtitles if requested
                 m.PreloadSubtitles();
 
-                // Set the callbacks to update buffering progress
-                m.Container.Components.OnPacketQueued = (packetPtr, mediaType) =>
-                    m.State.UpdateBufferingProgress();
-
-                m.Container.Components.OnPacketDequeued = (packetPtr, mediaType) =>
-                    m.State.UpdateBufferingProgress();
-
-                m.Container.Components.OnPacketsCleared = () =>
-                    m.State.UpdateBufferingProgress();
-
                 // Get the main container open
                 m.Container.Open();
 
                 // Reset buffering properties
                 m.State.UpdateFixedContainerProperties();
-                m.State.InitializeBufferingProperties();
+                m.State.InitializeBufferingStatistics();
 
                 // Check if we have at least audio or video here
                 if (m.State.HasAudio == false && m.State.HasVideo == false)

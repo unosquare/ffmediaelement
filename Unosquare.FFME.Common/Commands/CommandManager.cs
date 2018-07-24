@@ -278,10 +278,11 @@
         /// <summary>
         /// Executes the next command in the queued.
         /// </summary>
-        public void ExecuteNextQueuedCommand()
+        /// <returns>The type of command that was executed</returns>
+        public CommandType ExecuteNextQueuedCommand()
         {
             if (DirectCommandEvent.IsInProgress)
-                return;
+                return CommandType.None;
 
             CommandBase command = null;
             lock (QueueLock)
@@ -294,34 +295,34 @@
                 }
             }
 
+            if (command == null)
+                return CommandType.None;
+
             try
             {
-                if (command != null)
+                // Initiate a seek cycle
+                if (command.AffectsSeekingState)
                 {
-                    // Initiate a seek cycle
-                    if (command.AffectsSeekingState)
+                    SeekingDone.Begin();
+                    MediaCore.State.UpdateMediaState(PlaybackStatus.Manual);
+                    if (HasSeekingStarted == false)
                     {
-                        SeekingDone.Begin();
-                        MediaCore.State.UpdateMediaState(PlaybackStatus.Manual);
-                        if (HasSeekingStarted == false)
-                        {
-                            HasSeekingStarted.Value = true;
-                            PlayAfterSeek.Value = MediaCore.Clock.IsRunning &&
-                                command.CommandType != CommandType.Stop;
-                            MediaCore.SendOnSeekingStarted();
-                        }
+                        HasSeekingStarted.Value = true;
+                        PlayAfterSeek.Value = MediaCore.Clock.IsRunning &&
+                            command.CommandType != CommandType.Stop;
+                        MediaCore.SendOnSeekingStarted();
                     }
-
-                    // Execute the command synchronously
-                    command.Execute();
                 }
+
+                // Execute the command synchronously
+                command.Execute();
             }
             catch { throw; }
             finally
             {
                 lock (QueueLock)
                 {
-                    if (command?.AffectsSeekingState ?? false)
+                    if (command.AffectsSeekingState)
                     {
                         SeekingDone.Complete();
                         DecrementPendingSeeks(wasCancelled: false);
@@ -330,6 +331,8 @@
                     CurrentQueueCommand = null;
                 }
             }
+
+            return command.CommandType;
         }
 
         /// <summary>

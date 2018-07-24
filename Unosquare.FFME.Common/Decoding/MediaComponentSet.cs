@@ -196,31 +196,14 @@
         /// Gets the current length in bytes of the packet buffer.
         /// These packets are the ones that have not been yet deecoded.
         /// </summary>
-        public ulong PacketBufferLength
+        public long PacketBufferLength
         {
             get
             {
                 lock (SyncLock)
-                {
-                    var result = default(ulong);
-                    foreach (var c in All)
-                        result += c.PacketBufferLength;
-
-                    return result;
-                }
+                    return All.Sum(c => c.PacketBufferLength);
             }
         }
-
-        /// <summary>
-        /// Gets the packet buffer length maximum.
-        /// Port of ffplay.c (MAX_QUEUE_SIZE)
-        /// </summary>
-        public ulong PacketBufferLengthMax => 15 * 1024 * 1024;
-
-        /// <summary>
-        /// Gets the packet buffer length progress percent, from 0.0 to 1.0.
-        /// </summary>
-        public double PacketBufferLengthProgress => Math.Min((double)PacketBufferLength / PacketBufferLengthMax, 1);
 
         /// <summary>
         /// Gets the total number of packets in the packet buffer.
@@ -230,15 +213,20 @@
             get
             {
                 lock (SyncLock)
-                {
-                    var result = 0;
-                    foreach (var c in All)
-                        result += c.PacketBufferCount;
-
-                    return result;
-                }
+                    return All.Sum(c => c.PacketBufferCount);
             }
         }
+
+        /// <summary>
+        /// Gets the packet buffer length maximum.
+        /// Port of ffplay.c (MAX_QUEUE_SIZE)
+        /// </summary>
+        public int PacketBufferLengthMax => 15 * 1024 * 1024;
+
+        /// <summary>
+        /// Gets the packet buffer length progress percent, from 0.0 to 1.0.
+        /// </summary>
+        public double PacketBufferLengthProgress => Math.Min((double)PacketBufferLength / PacketBufferLengthMax, 1);
 
         /// <summary>
         /// Gets the number of packets to cache before <see cref="HasEnoughPackets"/> returns true.

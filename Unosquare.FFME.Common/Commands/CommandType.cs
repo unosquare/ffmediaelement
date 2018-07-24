@@ -6,6 +6,11 @@
     internal enum CommandType
     {
         /// <summary>
+        /// Represents no command
+        /// </summary>
+        None,
+
+        /// <summary>
         /// The open command id
         /// </summary>
         Open,

@@ -30,7 +30,9 @@
         /// <summary>
         /// Controls multiple reads and exclusive writes
         /// </summary>
-        private readonly ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
+        private readonly object SyncLock = new object();
+
+        private bool m_IsDisposed = false;
 
         #endregion
 
@@ -60,7 +62,7 @@
         /// <summary>
         /// Gets a value indicating whether this instance is disposed.
         /// </summary>
-        public bool IsDisposed => Locker.IsDisposed;
+        public bool IsDisposed { get { lock (SyncLock) return m_IsDisposed; } }
 
         /// <summary>
         /// Gets the media type of the block buffer.
@@ -74,7 +76,7 @@
         {
             get
             {
-                using (Locker.AcquireReaderLock())
+                lock (SyncLock)
                 {
                     return PlaybackBlocks.Count == 0 ? TimeSpan.Zero : PlaybackBlocks[0].StartTime;
                 }
@@ -88,7 +90,7 @@
         {
             get
             {
-                using (Locker.AcquireReaderLock())
+                lock (SyncLock)
                 {
                     if (PlaybackBlocks.Count == 0) return TimeSpan.Zero;
                     var lastBlock = PlaybackBlocks[PlaybackBlocks.Count - 1];
@@ -104,7 +106,7 @@
         {
             get
             {
-                using (Locker.AcquireReaderLock())
+                lock (SyncLock)
                 {
                     return TimeSpan.FromTicks(RangeEndTime.Ticks - RangeStartTime.Ticks);
                 }
@@ -114,31 +116,29 @@
         /// <summary>
         /// Gets byte length of the compressed packets from which the media blocks were created.
         /// </summary>
-        public ulong CompressedSize
+        public int CompressedSize
         {
             get
             {
-                using (Locker.AcquireReaderLock())
-                {
-                    return (ulong)PlaybackBlocks.Sum(m => m.CompressedSize);
-                }
+                lock (SyncLock)
+                    return PlaybackBlocks.Sum(m => m.CompressedSize);
             }
         }
 
         /// <summary>
         /// Gets the compressed data bitrate from which media blocks were created.
         /// </summary>
-        public ulong RangeBitrate
+        public int RangeBitrate
         {
             get
             {
-                using (Locker.AcquireReaderLock())
+                lock (SyncLock)
                 {
-                    var totalBits = 8d * PlaybackBlocks.Sum(m => m.CompressedSize);
                     var totalSeconds = RangeDuration.TotalSeconds;
-
                     if (totalSeconds <= 0) return default;
-                    return Convert.ToUInt64(totalBits / totalSeconds);
+
+                    var totalBits = 8d * PlaybackBlocks.Sum(m => m.CompressedSize);
+                    return Convert.ToInt32(totalBits / totalSeconds);
                 }
             }
         }
@@ -150,7 +150,7 @@
         {
             get
             {
-                using (Locker.AcquireReaderLock())
+                lock (SyncLock)
                 {
                     if (PlaybackBlocks.Count <= 0) return TimeSpan.Zero;
                     return TimeSpan.FromTicks(Convert.ToInt64(PlaybackBlocks.Average(b => Convert.ToDouble(b.Duration.Ticks))));
@@ -165,7 +165,7 @@
         {
             get
             {
-                using (Locker.AcquireReaderLock())
+                lock (SyncLock)
                 {
                     if (PlaybackBlocks.Count <= 0)
                         return false;
@@ -183,7 +183,7 @@
         {
             get
             {
-                using (Locker.AcquireReaderLock())
+                lock (SyncLock)
                 {
                     return PlaybackBlocks.Count;
                 }
@@ -202,7 +202,7 @@
         {
             get
             {
-                using (Locker.AcquireReaderLock())
+                lock (SyncLock)
                 {
                     return Convert.ToDouble(Count) / Capacity;
                 }
@@ -216,7 +216,7 @@
         {
             get
             {
-                using (Locker.AcquireReaderLock())
+                lock (SyncLock)
                 {
                     return PlaybackBlocks.Count >= Capacity;
                 }
@@ -235,7 +235,7 @@
         {
             get
             {
-                using (Locker.AcquireReaderLock())
+                lock (SyncLock)
                 {
                     return PlaybackBlocks[index];
                 }
@@ -254,7 +254,7 @@
         {
             get
             {
-                using (Locker.AcquireReaderLock())
+                lock (SyncLock)
                 {
                     var index = IndexOf(at);
                     return index >= 0 ? PlaybackBlocks[index] : null;
@@ -273,7 +273,7 @@
         /// <returns>The percent of the range</returns>
         public double GetRangePercent(TimeSpan position)
         {
-            using (Locker.AcquireReaderLock())
+            lock (SyncLock)
             {
                 return RangeDuration.Ticks != 0 ?
                     Convert.ToDouble(position.Ticks - RangeStartTime.Ticks) / RangeDuration.Ticks : 0d;
@@ -288,7 +288,7 @@
         /// <param name="next">The next.</param>
         public void Neighbors(MediaBlock current, out MediaBlock previous, out MediaBlock next)
         {
-            using (Locker.AcquireReaderLock())
+            lock (SyncLock)
             {
                 previous = null;
                 next = null;
@@ -309,7 +309,7 @@
         {
             if (current == null) return null;
 
-            using (Locker.AcquireReaderLock())
+            lock (SyncLock)
                 return current.Next;
         }
 
@@ -321,7 +321,7 @@
         public MediaBlock ContinuousNext(MediaBlock current)
         {
             if (current == null) return null;
-            using (Locker.AcquireReaderLock())
+            lock (SyncLock)
             {
                 // capture the next frame
                 var next = current.Next;
@@ -349,7 +349,7 @@
         {
             if (current == null) return null;
 
-            using (Locker.AcquireReaderLock())
+            lock (SyncLock)
                 return current.Previous;
         }
 
@@ -362,7 +362,7 @@
         /// </returns>
         public bool IsInRange(TimeSpan renderTime)
         {
-            using (Locker.AcquireReaderLock())
+            lock (SyncLock)
             {
                 if (PlaybackBlocks.Count == 0) return false;
                 return renderTime.Ticks >= RangeStartTime.Ticks && renderTime.Ticks <= RangeEndTime.Ticks;
@@ -380,7 +380,7 @@
         /// <returns>The media block's index</returns>
         public int IndexOf(TimeSpan renderTime)
         {
-            using (Locker.AcquireReaderLock())
+            lock (SyncLock)
             {
                 var blockCount = PlaybackBlocks.Count;
 
@@ -429,10 +429,11 @@
         /// </summary>
         public void Dispose()
         {
-            if (IsDisposed) return;
-
-            using (Locker.AcquireWriterLock())
+            lock (SyncLock)
             {
+                if (m_IsDisposed == true) return;
+                m_IsDisposed = true;
+
                 while (PoolBlocks.Count > 0)
                 {
                     var block = PoolBlocks.Dequeue();
@@ -446,8 +447,6 @@
                     block.Dispose();
                 }
             }
-
-            Locker.Dispose();
         }
 
         /// <summary>
@@ -462,7 +461,7 @@
         {
             if (source == null) return null;
 
-            using (Locker.AcquireWriterLock())
+            lock (SyncLock)
             {
                 // Check if we already have a block at the given time
                 if (IsInRange(source.StartTime) && source.HasValidStartTime)
@@ -542,7 +541,7 @@
         /// </summary>
         internal void Clear()
         {
-            using (Locker.AcquireWriterLock())
+            lock (SyncLock)
             {
                 // return all the blocks to the block pool
                 foreach (var block in PlaybackBlocks)
@@ -558,7 +557,7 @@
         /// <returns>The formatted string</returns>
         internal string Debug()
         {
-            using (Locker.AcquireReaderLock())
+            lock (SyncLock)
             {
                 return $"{MediaType,-12} - CAP: {Capacity,10} | FRE: {PoolBlocks.Count,7} | " +
                     $"USD: {PlaybackBlocks.Count,4} |  RNG: {RangeStartTime.Format(),8} to {RangeEndTime.Format().Trim()}";
@@ -574,7 +573,7 @@
         /// <returns>A discrete frame position</returns>
         internal TimeSpan? GetSnapPosition(TimeSpan position)
         {
-            using (Locker.AcquireReaderLock())
+            lock (SyncLock)
             {
                 if (IsMonotonic == false)
                     return this[position]?.StartTime;

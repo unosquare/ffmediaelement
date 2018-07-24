@@ -54,13 +54,13 @@
         /// Gets the stream's total bitrate as reported by the container.
         /// Returns 0 if unavailable.
         /// </summary>
-        public ulong Bitrate => MediaCore?.State.Bitrate ?? default;
+        public long Bitrate => MediaCore?.State.Bitrate ?? default;
 
         /// <summary>
         /// Gets the instantaneous, compressed bitrate of the decoders for the currently active component streams.
         /// This is provided in bits per second.
         /// </summary>
-        public ulong DecodingBitrate => MediaCore?.State.DecodingBitrate ?? default;
+        public long DecodingBitrate => MediaCore?.State.DecodingBitrate ?? default;
 
         /// <summary>
         /// Provides key-value pairs of the metadata contained in the media.
@@ -150,7 +150,7 @@
         /// Gets the video bitrate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public ulong VideoBitrate => MediaCore?.State.VideoBitrate ?? default;
+        public long VideoBitrate => MediaCore?.State.VideoBitrate ?? default;
 
         /// <summary>
         /// Returns the clockwise angle that needs to be applied to the video for it to be displayed
@@ -200,7 +200,7 @@
         /// Gets the audio bitrate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public ulong AudioBitrate => MediaCore?.State.AudioBitrate ?? default;
+        public long AudioBitrate => MediaCore?.State.AudioBitrate ?? default;
 
         /// <summary>
         /// Gets the audio channels count.
@@ -282,24 +282,20 @@
         public double BufferingProgress => MediaCore?.State.BufferingProgress ?? default;
 
         /// <summary>
-        /// The wait packet buffer length.
-        /// It is adjusted to 1 second if bitrate information is available.
-        /// Otherwise, it's simply 512KB
-        /// </summary>
-        public ulong BufferCacheLength => MediaCore?.State.BufferCacheLength ?? default;
-
-        /// <summary>
         /// Gets a value that indicates the percentage of download progress made.
         /// Range is from 0 to 1
         /// </summary>
         public double DownloadProgress => MediaCore?.State.DownloadProgress ?? default;
 
         /// <summary>
-        /// Gets the maximum packet buffer length, according to the bitrate (if available).
-        /// If it's a realtime stream it will return 30 times the buffer cache length.
-        /// Otherwise, it will return  4 times of the buffer cache length.
+        /// Gets the amount of bytes in the packet buffer for the active stream components.
         /// </summary>
-        public ulong DownloadCacheLength => MediaCore?.State.DownloadCacheLength ?? default;
+        public long PacketBufferLength => MediaCore?.State.PacketBufferLength ?? default;
+
+        /// <summary>
+        /// Gets the number of packets buffered for all components
+        /// </summary>
+        public int PacketBufferCount => MediaCore?.State.PacketBufferCount ?? default;
 
         /// <summary>
         /// Gets a value indicating whether the media is in the process of opening.

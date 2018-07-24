@@ -240,7 +240,7 @@
 
             CodecId = Stream->codec->codec_id;
             CodecName = FFInterop.PtrToStringUTF8(selectedCodec->name);
-            Bitrate = Stream->codec->bit_rate < 0 ? 0 : Convert.ToUInt64(Stream->codec->bit_rate);
+            Bitrate = Stream->codec->bit_rate < 0 ? 0 : Stream->codec->bit_rate;
             Container.Parent?.Log(MediaLogMessageType.Debug,
                 $"COMP {MediaType.ToString().ToUpperInvariant()}: Start Offset: {StartTimeOffset.Format()}; Duration: {Duration.Format()}");
 
@@ -284,7 +284,7 @@
         /// packet buffer. Limit your Reads to something reasonable before
         /// this becomes too large.
         /// </summary>
-        public ulong PacketBufferLength => Packets.BufferLength;
+        public long PacketBufferLength => Packets.BufferLength;
 
         /// <summary>
         /// Gets the duration of the packet buffer.
@@ -338,7 +338,7 @@
         /// Gets the bitrate of this component as reported by the codec context.
         /// Returns 0 for unknown.
         /// </summary>
-        public ulong Bitrate { get; }
+        public long Bitrate { get; }
 
         /// <summary>
         /// Gets the stream information.

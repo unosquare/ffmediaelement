@@ -11,13 +11,13 @@
         /// <summary>
         /// Gets the input bitrate as reported by the container. Returns 0 if unavaliable.
         /// </summary>
-        ulong Bitrate { get; }
+        long Bitrate { get; }
 
         /// <summary>
         /// Gets the instantaneous, compressed bitrate of the decoders for the currently active component streams.
         /// This is provided in bits per second.
         /// </summary>
-        ulong DecodingBitrate { get; }
+        long DecodingBitrate { get; }
 
         /// <summary>
         /// Gets the index of the video stream.
@@ -37,7 +37,7 @@
         /// <summary>
         /// Gets the audio bitrate.
         /// </summary>
-        ulong AudioBitrate { get; }
+        long AudioBitrate { get; }
 
         /// <summary>
         /// Gets the audio bits per sample.
@@ -65,11 +65,6 @@
         double Balance { get; }
 
         /// <summary>
-        /// Gets the length of the buffer cache.
-        /// </summary>
-        ulong BufferCacheLength { get; }
-
-        /// <summary>
         /// Gets the buffering progress.
         /// </summary>
         double BufferingProgress { get; }
@@ -80,9 +75,14 @@
         bool CanPause { get; }
 
         /// <summary>
-        /// Gets the length of the download cache.
+        /// Gets the byte length of the buffered packets
         /// </summary>
-        ulong DownloadCacheLength { get; }
+        long PacketBufferLength { get; }
+
+        /// <summary>
+        /// Gets the number of packets buffered for all media components.
+        /// </summary>
+        int PacketBufferCount { get; }
 
         /// <summary>
         /// Gets the download progress.
@@ -248,7 +248,7 @@
         /// <summary>
         /// Gets the video bitrate.
         /// </summary>
-        ulong VideoBitrate { get; }
+        long VideoBitrate { get; }
 
         /// <summary>
         /// Gets the video codec.

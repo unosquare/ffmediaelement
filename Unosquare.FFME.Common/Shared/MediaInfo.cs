@@ -33,7 +33,7 @@
             StartTime = ic->start_time != ffmpeg.AV_NOPTS_VALUE ?
                 ic->start_time.ToTimeSpan() :
                 default(TimeSpan?);
-            BitRate = ic->bit_rate < 0 ? 0 : Convert.ToUInt64(ic->bit_rate);
+            Bitrate = ic->bit_rate < 0 ? 0 : ic->bit_rate;
 
             Streams = new ReadOnlyDictionary<int, StreamInfo>(ExtractStreams(ic).ToDictionary(k => k.StreamIndex, v => v));
             Chapters = new ReadOnlyCollection<ChapterInfo>(ExtractChapters(ic));
@@ -76,7 +76,7 @@
         /// <summary>
         /// If available, returns a non-zero value as reported by the container format.
         /// </summary>
-        public ulong BitRate { get; }
+        public long Bitrate { get; }
 
         /// <summary>
         /// Gets a list of chapters

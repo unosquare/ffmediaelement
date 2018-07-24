@@ -58,13 +58,38 @@
                         </DockPanel>
 
                         <DockPanel>
-                            <TextBlock Style="{StaticResource Key}">Decoding Bitrate</TextBlock>
-                            <TextBlock Style="{StaticResource Value}" Text="{Binding DecodingBitrate, Mode=OneWay, Converter={StaticResource BitFormatter}}" />
+                            <TextBlock Style="{StaticResource Key}">Duration</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding NaturalDuration, Mode=OneWay}" />
                         </DockPanel>
 
                         <DockPanel>
-                            <TextBlock Style="{StaticResource Key}">Duration</TextBlock>
-                            <TextBlock Style="{StaticResource Value}" Text="{Binding NaturalDuration, Mode=OneWay}" />
+                            <TextBlock Style="{StaticResource Key}">Is Live Stream</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding IsLiveStream, Mode=OneWay}" />
+                        </DockPanel>
+
+                        <DockPanel>
+                            <TextBlock Style="{StaticResource Key}">Is Network Stream</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding IsNetworkStream, Mode=OneWay}" />
+                        </DockPanel>
+
+                        <DockPanel>
+                            <TextBlock Style="{StaticResource Key}">Can Stream Seek</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding IsSeekable, Mode=OneWay}" />
+                        </DockPanel>
+
+                        <DockPanel>
+                            <TextBlock Style="{StaticResource Key}">Can Stream Pause</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding CanPause, Mode=OneWay}" />
+                        </DockPanel>
+
+                        <DockPanel Background="#ee444444">
+                            <TextBlock Style="{StaticResource Key}">State</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding MediaState, Mode=OneWay}" />
+                        </DockPanel>
+
+                        <DockPanel>
+                            <TextBlock Style="{StaticResource Key}">Position</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding Position, Mode=OneWay}" />
                         </DockPanel>
 
                         <DockPanel>
@@ -88,31 +113,6 @@
                         </DockPanel>
 
                         <DockPanel>
-                            <TextBlock Style="{StaticResource Key}">Is Live Stream</TextBlock>
-                            <TextBlock Style="{StaticResource Value}" Text="{Binding IsLiveStream, Mode=OneWay}" />
-                        </DockPanel>
-
-                        <DockPanel>
-                            <TextBlock Style="{StaticResource Key}">Can Pause</TextBlock>
-                            <TextBlock Style="{StaticResource Value}" Text="{Binding CanPause, Mode=OneWay}" />
-                        </DockPanel>
-
-                        <DockPanel>
-                            <TextBlock Style="{StaticResource Key}">Is Seekable</TextBlock>
-                            <TextBlock Style="{StaticResource Value}" Text="{Binding IsSeekable, Mode=OneWay}" />
-                        </DockPanel>
-
-                        <DockPanel>
-                            <TextBlock Style="{StaticResource Key}">Position</TextBlock>
-                            <TextBlock Style="{StaticResource Value}" Text="{Binding Position, Mode=OneWay}" />
-                        </DockPanel>
-
-                        <DockPanel>
-                            <TextBlock Style="{StaticResource Key}">State</TextBlock>
-                            <TextBlock Style="{StaticResource Value}" Text="{Binding MediaState, Mode=OneWay}" />
-                        </DockPanel>
-
-                        <DockPanel>
                             <TextBlock Style="{StaticResource Key}">Is Playing</TextBlock>
                             <TextBlock Style="{StaticResource Value}" Text="{Binding IsPlaying, Mode=OneWay}" />
                         </DockPanel>
@@ -122,9 +122,14 @@
                             <TextBlock Style="{StaticResource Value}" Text="{Binding HasMediaEnded, Mode=OneWay}" />
                         </DockPanel>
 
-                        <DockPanel>
+                        <DockPanel Background="#ee444444">
                             <TextBlock Style="{StaticResource Key}">Is Buffering</TextBlock>
                             <TextBlock Style="{StaticResource Value}" Text="{Binding IsBuffering, Mode=OneWay}" />
+                        </DockPanel>
+
+                        <DockPanel>
+                            <TextBlock Style="{StaticResource Key}">Decoding Bitrate</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding DecodingBitrate, Mode=OneWay, Converter={StaticResource BitFormatter}}" />
                         </DockPanel>
 
                         <DockPanel>
@@ -133,18 +138,18 @@
                         </DockPanel>
 
                         <DockPanel>
-                            <TextBlock Style="{StaticResource Key}">Max Buffer</TextBlock>
-                            <TextBlock Style="{StaticResource Value}" Text="{Binding BufferCacheLength, Mode=OneWay}" />
-                        </DockPanel>
-
-                        <DockPanel>
                             <TextBlock Style="{StaticResource Key}">Download Progress</TextBlock>
                             <TextBlock Style="{StaticResource Value}" Text="{Binding DownloadProgress, Mode=OneWay, Converter={StaticResource PercentageFormatter}}" />
                         </DockPanel>
 
                         <DockPanel>
-                            <TextBlock Style="{StaticResource Key}">Max Download</TextBlock>
-                            <TextBlock Style="{StaticResource Value}" Text="{Binding DownloadCacheLength, Mode=OneWay, Converter={StaticResource ByteFormatter}}" />
+                            <TextBlock Style="{StaticResource Key}">Buffered Packets</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding PacketBufferCount, Mode=OneWay}" />
+                        </DockPanel>
+
+                        <DockPanel>
+                            <TextBlock Style="{StaticResource Key}">Buffered Bytes</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding PacketBufferLength, Mode=OneWay, Converter={StaticResource ByteFormatter}}" />
                         </DockPanel>
 
                         <DockPanel Background="#ee444444">

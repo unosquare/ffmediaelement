@@ -16,7 +16,7 @@
         /// <summary>
         /// The locking object to perform synchronization.
         /// </summary>
-        private readonly ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
+        private readonly object SyncLock = new object();
 
         /// <summary>
         /// The unmanaged buffer
@@ -24,6 +24,7 @@
         private IntPtr Buffer = IntPtr.Zero;
 
         // Property backing
+        private bool m_IsDisposed = false;
         private int m_ReadableCount = default;
         private TimeSpan m_WriteTag = TimeSpan.MinValue;
         private int m_WriteIndex = default;
@@ -52,35 +53,17 @@
         /// <summary>
         /// Gets a value indicating whether this instance is disposed.
         /// </summary>
-        public bool IsDisposed => Locker.IsDisposed;
+        public bool IsDisposed { get { lock (SyncLock) return m_IsDisposed; } }
 
         /// <summary>
         /// Gets the capacity of this buffer.
         /// </summary>
-        public int Length
-        {
-            get
-            {
-                using (Locker.AcquireReaderLock())
-                {
-                    return m_Length;
-                }
-            }
-        }
+        public int Length { get { lock (SyncLock) return m_Length; } }
 
         /// <summary>
         /// Gets the current, 0-based read index
         /// </summary>
-        public int ReadIndex
-        {
-            get
-            {
-                using (Locker.AcquireReaderLock())
-                {
-                    return m_ReadIndex;
-                }
-            }
-        }
+        public int ReadIndex { get { lock (SyncLock) return m_ReadIndex; } }
 
         /// <summary>
         /// Gets the maximum rewindable amount of bytes.
@@ -89,7 +72,7 @@
         {
             get
             {
-                using (Locker.AcquireReaderLock())
+                lock (SyncLock)
                 {
                     if (m_WriteIndex < m_ReadIndex)
                         return m_ReadIndex - m_WriteIndex;
@@ -102,72 +85,27 @@
         /// <summary>
         /// Gets the current, 0-based write index.
         /// </summary>
-        public int WriteIndex
-        {
-            get
-            {
-                using (Locker.AcquireReaderLock())
-                {
-                    return m_WriteIndex;
-                }
-            }
-        }
+        public int WriteIndex { get { lock (SyncLock) return m_WriteIndex; } }
 
         /// <summary>
         /// Gets an the object associated with the last write
         /// </summary>
-        public TimeSpan WriteTag
-        {
-            get
-            {
-                using (Locker.AcquireReaderLock())
-                {
-                    return m_WriteTag;
-                }
-            }
-        }
+        public TimeSpan WriteTag { get { lock (SyncLock) return m_WriteTag; } }
 
         /// <summary>
         /// Gets the available bytes to read.
         /// </summary>
-        public int ReadableCount
-        {
-            get
-            {
-                using (Locker.AcquireReaderLock())
-                {
-                    return m_ReadableCount;
-                }
-            }
-        }
+        public int ReadableCount { get { lock (SyncLock) return m_ReadableCount; } }
 
         /// <summary>
         /// Gets the number of bytes that can be written.
         /// </summary>
-        public int WritableCount
-        {
-            get
-            {
-                using (Locker.AcquireReaderLock())
-                {
-                    return m_Length - m_ReadableCount;
-                }
-            }
-        }
+        public int WritableCount { get { lock (SyncLock) return m_Length - m_ReadableCount; } }
 
         /// <summary>
         /// Gets percentage of used bytes (readbale/available, from 0.0 to 1.0).
         /// </summary>
-        public double CapacityPercent
-        {
-            get
-            {
-                using (Locker.AcquireReaderLock())
-                {
-                    return 1.0 * m_ReadableCount / m_Length;
-                }
-            }
-        }
+        public double CapacityPercent { get { lock (SyncLock) return 1.0 * m_ReadableCount / m_Length; } }
 
         #endregion
 
@@ -180,7 +118,7 @@
         /// <exception cref="InvalidOperationException">When requested bytes GT readable count</exception>
         public void Skip(int requestedBytes)
         {
-            using (Locker.AcquireWriterLock())
+            lock (SyncLock)
             {
                 if (requestedBytes > m_ReadableCount)
                 {
@@ -203,7 +141,7 @@
         /// <exception cref="InvalidOperationException">When requested GT rewindable</exception>
         public void Rewind(int requestedBytes)
         {
-            using (Locker.AcquireWriterLock())
+            lock (SyncLock)
             {
                 if (requestedBytes > RewindableCount)
                 {
@@ -228,7 +166,7 @@
         /// <exception cref="InvalidOperationException">When requested bytes is greater than readble count</exception>
         public void Read(int requestedBytes, byte[] target, int targetOffset)
         {
-            using (Locker.AcquireWriterLock())
+            lock (SyncLock)
             {
                 if (requestedBytes > m_ReadableCount)
                 {
@@ -264,7 +202,7 @@
         /// <exception cref="InvalidOperationException">When read needs to be called more often!</exception>
         public void Write(IntPtr source, int length, TimeSpan writeTag, bool overwrite)
         {
-            using (Locker.AcquireWriterLock())
+            lock (SyncLock)
             {
                 if (overwrite == false && length > WritableCount)
                 {
@@ -297,7 +235,7 @@
         /// </summary>
         public void Clear()
         {
-            using (Locker.AcquireWriterLock())
+            lock (SyncLock)
             {
                 m_WriteIndex = 0;
                 m_ReadIndex = 0;
@@ -313,8 +251,7 @@
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose() =>
-            Dispose(true);
+        public void Dispose() => Dispose(true);
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
@@ -322,12 +259,16 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
-            if (IsDisposed == true) return;
-            Clear();
-            Locker.Dispose();
-            Marshal.FreeHGlobal(Buffer);
-            Buffer = IntPtr.Zero;
-            m_Length = 0;
+            lock (SyncLock)
+            {
+                if (m_IsDisposed == true) return;
+
+                Clear();
+                Marshal.FreeHGlobal(Buffer);
+                Buffer = IntPtr.Zero;
+                m_Length = 0;
+                m_IsDisposed = true;
+            }
         }
 
         #endregion

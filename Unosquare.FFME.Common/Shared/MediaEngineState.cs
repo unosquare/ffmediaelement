@@ -26,13 +26,13 @@
 
         private readonly AtomicBoolean m_IsOpen = new AtomicBoolean(default);
         private readonly AtomicBoolean m_HasMediaEnded = new AtomicBoolean(default);
-        private readonly AtomicBoolean m_IsBuffering = new AtomicBoolean(default);
 
+        private readonly AtomicBoolean m_IsBuffering = new AtomicBoolean(default);
+        private readonly AtomicLong m_DecodingBitrate = new AtomicLong(default);
         private readonly AtomicDouble m_BufferingProgress = new AtomicDouble(default);
         private readonly AtomicDouble m_DownloadProgress = new AtomicDouble(default);
-
-        private readonly AtomicULong m_BufferCacheLength = new AtomicULong(default);
-        private readonly AtomicULong m_DownloadCacheLength = new AtomicULong(default);
+        private readonly AtomicLong m_PacketBufferLength = new AtomicLong(default);
+        private readonly AtomicInteger m_PacketBufferCount = new AtomicInteger(default);
 
         private readonly AtomicTimeSpan m_Position = new AtomicTimeSpan(default);
         private readonly AtomicTimeSpan m_PositionNext = new AtomicTimeSpan(default);
@@ -246,13 +246,7 @@
         /// <summary>
         /// Gets the stream's bitrate. Returns 0 if unavaliable.
         /// </summary>
-        public ulong Bitrate { get; private set; }
-
-        /// <summary>
-        /// Gets the instantaneous, compressed bitrate of the decoders for the currently active component streams.
-        /// This is provided in bits per second.
-        /// </summary>
-        public ulong DecodingBitrate { get; private set; }
+        public long Bitrate { get; private set; }
 
         /// <summary>
         /// Gets a value indicating whether this media element
@@ -331,7 +325,7 @@
         /// Gets the video bitrate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public ulong VideoBitrate { get; private set; }
+        public long VideoBitrate { get; private set; }
 
         /// <summary>
         /// Gets the video display rotation.
@@ -372,7 +366,7 @@
         /// Gets the audio bitrate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public ulong AudioBitrate { get; private set; }
+        public long AudioBitrate { get; private set; }
 
         /// <summary>
         /// Gets the audio channels count.
@@ -429,6 +423,16 @@
         }
 
         /// <summary>
+        /// Gets the instantaneous, compressed bitrate of the decoders for the currently active component streams.
+        /// This is provided in bits per second.
+        /// </summary>
+        public long DecodingBitrate
+        {
+            get => m_DecodingBitrate.Value;
+            private set => m_DecodingBitrate.Value = value;
+        }
+
+        /// <summary>
         /// Gets a value that indicates the percentage of buffering progress made.
         /// Range is from 0 to 1
         /// </summary>
@@ -436,17 +440,6 @@
         {
             get => m_BufferingProgress.Value;
             private set => m_BufferingProgress.Value = value;
-        }
-
-        /// <summary>
-        /// The packet buffer length.
-        /// It is adjusted to 1 second if bitrate information is available.
-        /// Otherwise, it's simply 512KB and it is guessed later on.
-        /// </summary>
-        public ulong BufferCacheLength
-        {
-            get => m_BufferCacheLength.Value;
-            private set => m_BufferCacheLength.Value = value;
         }
 
         /// <summary>
@@ -460,14 +453,21 @@
         }
 
         /// <summary>
-        /// Gets the maximum packet buffer length, according to the bitrate (if available).
-        /// If it's a realtime stream it will return 30 times the buffer cache length.
-        /// Otherwise, it will return  4 times of the buffer cache length.
+        /// Gets the current byte length of the buffered packets
         /// </summary>
-        public ulong DownloadCacheLength
+        public long PacketBufferLength
         {
-            get => m_DownloadCacheLength.Value;
-            private set => m_DownloadCacheLength.Value = value;
+            get => m_PacketBufferLength.Value;
+            private set => m_PacketBufferLength.Value = value;
+        }
+
+        /// <summary>
+        /// The number of packets in the buffer for all media components.
+        /// </summary>
+        public int PacketBufferCount
+        {
+            get => m_PacketBufferCount.Value;
+            private set => m_PacketBufferCount.Value = value;
         }
 
         #endregion
@@ -491,7 +491,6 @@
         internal void UpdateFixedContainerProperties()
         {
             Bitrate = Parent.Container?.MediaBitrate ?? default;
-            DecodingBitrate = Bitrate;
             IsOpen = (IsOpening == false) && (Parent.Container?.IsOpen ?? default);
             Metadata = Parent.Container?.Metadata ?? EmptyDictionary;
             MediaFormat = Parent.Container?.MediaFormatName;
@@ -621,7 +620,7 @@
         {
             ResetMediaProperties();
             UpdateFixedContainerProperties();
-            InitializeBufferingProperties();
+            InitializeBufferingStatistics();
         }
 
         /// <summary>
@@ -655,11 +654,9 @@
             PositionNext = default;
             PositionPrevious = default;
             HasMediaEnded = default;
-            IsBuffering = default;
-            BufferingProgress = default;
-            BufferCacheLength = default;
-            DownloadProgress = default;
-            DownloadCacheLength = default;
+
+            // Reset decoder and buffering
+            ResetBufferingStatistics();
 
             VideoSmtpeTimecode = string.Empty;
             VideoHardwareDecoder = string.Empty;
@@ -675,21 +672,18 @@
         /// Resets all the buffering properties to their defaults.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void InitializeBufferingProperties()
+        internal void InitializeBufferingStatistics()
         {
             // var fileSize = ffmpeg.avio_size(Parent.Container.InputContext->pb);
             const long MinimumValidFileSize = 1024 * 1024; // 1 Mbytes
 
+            // Start with default values
+            ResetBufferingStatistics();
+
             // Reset the properties if the is no associated container
             if (Parent.Container == null)
             {
-                IsBuffering = default;
-                BufferCacheLength = default;
-                DownloadCacheLength = default;
-                BufferingProgress = default;
-                DownloadProgress = default;
                 MediaStreamSize = default;
-                DecodingBitrate = default;
                 return;
             }
 
@@ -701,25 +695,21 @@
             if (MediaStreamSize >= MinimumValidFileSize && IsSeekable && durationSeconds > 0)
             {
                 // The bitrate is simply the media size over the total duration
-                Bitrate = Convert.ToUInt64(8d * MediaStreamSize / NaturalDuration.Value.TotalSeconds);
-                DecodingBitrate = Bitrate;
+                Bitrate = Convert.ToInt64(8d * MediaStreamSize / NaturalDuration.Value.TotalSeconds);
             }
-
-            IsBuffering = default;
-            BufferingProgress = default;
-            DownloadProgress = default;
         }
 
         /// <summary>
         /// Updates the buffering properties: IsBuffering, BufferingProgress, DownloadProgress.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdateBufferingProgress()
+        internal void UpdateBufferingStatistics()
         {
-            // Update the buffering and download progress
-            DownloadCacheLength = Parent.Container.Components.PacketBufferLength;
-            BufferCacheLength = (ulong)Parent.Container.Components.PacketBufferCount;
+            DecodingBitrate = (Parent.Blocks?.Count ?? 0) > 0 ?
+                Parent.Blocks.Values.Sum(blocks => blocks.IsInRange(Position) ? blocks.RangeBitrate : 0) : default;
 
+            PacketBufferCount = Parent.Container.Components.PacketBufferCount;
+            PacketBufferLength = Parent.Container.Components.PacketBufferLength;
             BufferingProgress = Math.Round(Parent.Container.Components.PacketBufferCountProgress, 3);
             DownloadProgress = Math.Round(Parent.Container.Components.PacketBufferLengthProgress, 3);
 
@@ -741,15 +731,17 @@
         }
 
         /// <summary>
-        /// Updates the instantaneous decoding bitrate.
+        /// Resets the buffering statistics.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdateDecodingBitrate()
+        private void ResetBufferingStatistics()
         {
-            // Capture the read bytes of a 1-second buffer
-            DecodingBitrate = Parent.Blocks == null || Parent.Blocks.Count <= 0 ? 0 :
-                Convert.ToUInt64(Parent.Blocks.Values
-                .Sum(bb => bb.IsInRange(Position) ? (double)bb.RangeBitrate : 0));
+            IsBuffering = default;
+            DecodingBitrate = default;
+            BufferingProgress = default;
+            DownloadProgress = default;
+            PacketBufferLength = default;
+            PacketBufferCount = default;
         }
 
         #endregion

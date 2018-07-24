@@ -1,7 +1,6 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
     using FFmpeg.AutoGen;
-    using Primitives;
     using Shared;
     using System;
     using System.Collections.Generic;
@@ -16,9 +15,9 @@
     {
         #region Private Declarations
 
-        private readonly List<MediaPacket> PacketPointers = new List<MediaPacket>(2048);
-        private readonly ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
-        private ulong m_BufferLength = default;
+        private readonly List<MediaPacket> Packets = new List<MediaPacket>(2048);
+        private readonly object SyncLock = new object();
+        private long m_BufferLength = default;
 
         #endregion
 
@@ -29,16 +28,16 @@
         /// </summary>
         public int Count
         {
-            get { using (Locker.AcquireReaderLock()) return PacketPointers.Count; }
+            get { lock (SyncLock) return Packets.Count; }
         }
 
         /// <summary>
         /// Gets the sum of all the packet sizes contained
         /// by this queue.
         /// </summary>
-        public ulong BufferLength
+        public long BufferLength
         {
-            get { using (Locker.AcquireReaderLock()) return m_BufferLength; }
+            get { lock (SyncLock) return m_BufferLength; }
         }
 
         /// <summary>
@@ -51,8 +50,8 @@
         /// <returns>The packet reference</returns>
         private MediaPacket this[int index]
         {
-            get { using (Locker.AcquireReaderLock()) return PacketPointers[index]; }
-            set { using (Locker.AcquireWriterLock()) PacketPointers[index] = value; }
+            get { lock (SyncLock) return Packets[index]; }
+            set { lock (SyncLock) Packets[index] = value; }
         }
 
         #endregion
@@ -68,9 +67,9 @@
         {
             var packetDuration = 0L;
             var totalDuration = 0L;
-            using (Locker.AcquireReaderLock())
+            lock (SyncLock)
             {
-                foreach (var packet in PacketPointers)
+                foreach (var packet in Packets)
                 {
                     if (packet == null) continue;
                     packetDuration = packet.Duration;
@@ -89,10 +88,10 @@
         /// <returns>The packet</returns>
         public MediaPacket Peek()
         {
-            using (Locker.AcquireReaderLock())
+            lock (SyncLock)
             {
-                if (PacketPointers.Count <= 0) return null;
-                return PacketPointers[0];
+                if (Packets.Count <= 0) return null;
+                return Packets[0];
             }
         }
 
@@ -106,10 +105,10 @@
             // avoid pushing null packets
             if (packet == null) return;
 
-            using (Locker.AcquireWriterLock())
+            lock (SyncLock)
             {
-                PacketPointers.Add(packet);
-                m_BufferLength += packet.Size < 0 ? default : (ulong)packet.Size;
+                Packets.Add(packet);
+                m_BufferLength += packet.Size < 0 ? default : packet.Size;
             }
         }
 
@@ -119,14 +118,14 @@
         /// <returns>The dequeued packet</returns>
         public MediaPacket Dequeue()
         {
-            using (Locker.AcquireWriterLock())
+            lock (SyncLock)
             {
-                if (PacketPointers.Count <= 0) return null;
-                var result = PacketPointers[0];
-                PacketPointers.RemoveAt(0);
+                if (Packets.Count <= 0) return null;
+                var result = Packets[0];
+                Packets.RemoveAt(0);
 
                 var packet = result;
-                m_BufferLength -= packet.Size < 0 ? default : (ulong)packet.Size;
+                m_BufferLength -= packet.Size < 0 ? default : packet.Size;
                 return packet;
             }
         }
@@ -136,9 +135,9 @@
         /// </summary>
         public void Clear()
         {
-            using (Locker.AcquireWriterLock())
+            lock (SyncLock)
             {
-                while (PacketPointers.Count > 0)
+                while (Packets.Count > 0)
                 {
                     var packet = Dequeue();
                     packet.Dispose();
@@ -161,14 +160,7 @@
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool alsoManaged)
-        {
-            if (Locker.IsDisposed) return;
-            if (alsoManaged == false) return;
-
-            Clear();
-            Locker.Dispose();
-        }
+        private void Dispose(bool alsoManaged) { lock (SyncLock) Clear(); }
 
         #endregion
     }
