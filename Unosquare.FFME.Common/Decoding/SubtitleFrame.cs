@@ -17,7 +17,6 @@
         #region Private Members
 
         private readonly object DisposeLock = new object();
-        private AVSubtitle* m_Pointer = null;
         private bool IsDisposed = false;
 
         #endregion
@@ -32,8 +31,6 @@
         internal SubtitleFrame(AVSubtitle* frame, MediaComponent component)
             : base(frame, component)
         {
-            m_Pointer = (AVSubtitle*)InternalPointer;
-
             // Extract timing information (pts for Subtitles is always in AV_TIME_BASE units)
             HasValidStartTime = frame->pts != ffmpeg.AV_NOPTS_VALUE;
             var timeOffset = TimeSpan.FromTicks(frame->pts.ToTimeSpan(ffmpeg.AV_TIME_BASE).Ticks - component.Container.MediaStartTimeOffset.Ticks);
@@ -100,7 +97,7 @@
         /// <summary>
         /// Gets the pointer to the unmanaged subtitle struct
         /// </summary>
-        internal AVSubtitle* Pointer => m_Pointer;
+        internal AVSubtitle* Pointer => (AVSubtitle*)InternalPointer;
 
         #endregion
 
@@ -126,10 +123,9 @@
             {
                 if (IsDisposed) return;
 
-                if (m_Pointer != null)
-                    ReleaseAVSubtitle(m_Pointer);
+                if (InternalPointer != null)
+                    ReleaseAVSubtitle(Pointer);
 
-                m_Pointer = null;
                 InternalPointer = IntPtr.Zero;
                 IsDisposed = true;
             }

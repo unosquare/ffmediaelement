@@ -14,7 +14,6 @@
         #region Private Members
 
         private readonly object DisposeLock = new object();
-        private AVFrame* m_Pointer = null;
         private bool IsDisposed = false;
 
         #endregion
@@ -29,10 +28,8 @@
         internal AudioFrame(AVFrame* frame, MediaComponent component)
             : base(frame, component)
         {
-            m_Pointer = (AVFrame*)InternalPointer;
-
-            // Compute the timespans.
-            // We don't use for Audio frames: frame->pts = ffmpeg.av_frame_get_best_effort_timestamp(frame);
+            // Compute the timestamps.
+            frame->pts = frame->best_effort_timestamp;
             HasValidStartTime = frame->pts != ffmpeg.AV_NOPTS_VALUE;
             StartTime = frame->pts == ffmpeg.AV_NOPTS_VALUE ?
                 TimeSpan.FromTicks(0) :
@@ -59,7 +56,7 @@
         /// <summary>
         /// Gets the pointer to the unmanaged frame.
         /// </summary>
-        internal AVFrame* Pointer => m_Pointer;
+        internal AVFrame* Pointer => (AVFrame*)InternalPointer;
 
         #endregion
 
@@ -81,10 +78,9 @@
             {
                 if (IsDisposed) return;
 
-                if (m_Pointer != null)
-                    ReleaseAVFrame(m_Pointer);
+                if (InternalPointer != IntPtr.Zero)
+                    ReleaseAVFrame(Pointer);
 
-                m_Pointer = null;
                 InternalPointer = IntPtr.Zero;
                 IsDisposed = true;
             }

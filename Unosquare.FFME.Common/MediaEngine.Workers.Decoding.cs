@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME
 {
     using System;
+    using System.Linq;
     using System.Runtime.CompilerServices;
     using Unosquare.FFME.Primitives;
     using Unosquare.FFME.Shared;
@@ -167,6 +168,10 @@
                         resumeSyncBufferingClock = false;
                     }
 
+                    // Provide updates to decoding stats
+                    State.UpdateDecodingBitrate(
+                        Blocks.Values.Sum(b => b.IsInRange(WallClock) ? b.RangeBitrate : 0));
+
                     // Complete the frame decoding cycle
                     FrameDecodingCycle.Complete();
 
@@ -179,6 +184,9 @@
             catch { throw; }
             finally
             {
+                // Reset decoding stats
+                State.UpdateDecodingBitrate(0);
+
                 // Always exit notifying the cycle is done.
                 FrameDecodingCycle.Complete();
                 delay.Dispose();

@@ -61,8 +61,8 @@
         #region Delegates
 
         public delegate void OnPacketsClearedDelegate();
-        public delegate void OnPacketQueuedDelegate(IntPtr avPacket, MediaType mediaType);
-        public delegate void OnPacketDequeuedDelegate(IntPtr avPacket, MediaType mediaType);
+        public delegate void OnPacketQueuedDelegate(IntPtr avPacket, MediaType mediaType, long packetBufferLength, int packetBufferCount);
+        public delegate void OnPacketDequeuedDelegate(IntPtr avPacket, MediaType mediaType, long packetBufferLength, int packetBufferCount);
         public delegate void OnFrameDecodedDelegate(IntPtr avFrame, MediaType mediaType);
         public delegate void OnSubtitleDecodedDelegate(IntPtr avSubititle);
 
@@ -260,15 +260,7 @@
             get
             {
                 lock (SyncLock)
-                {
-                    foreach (var c in All)
-                    {
-                        if (c.HasEnoughPackets == false)
-                            return false;
-                    }
-
-                    return true;
-                }
+                    return All.Any(c => c.HasEnoughPackets == false) == false;
             }
         }
 
@@ -326,7 +318,7 @@
                     if (component.StreamIndex == packet.StreamIndex)
                     {
                         component.SendPacket(packet);
-                        OnPacketQueued?.Invoke(packet.SafePointer, component.MediaType);
+                        OnPacketQueued?.Invoke(packet.SafePointer, component.MediaType, PacketBufferLength, PacketBufferCount);
 
                         return component.MediaType;
                     }

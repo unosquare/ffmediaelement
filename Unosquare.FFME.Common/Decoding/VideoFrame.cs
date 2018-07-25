@@ -15,7 +15,6 @@
         #region Private Members
 
         private readonly object DisposeLock = new object();
-        private AVFrame* m_Pointer = null;
         private bool IsDisposed = false;
 
         #endregion
@@ -30,8 +29,6 @@
         internal VideoFrame(AVFrame* frame, MediaComponent component)
             : base(frame, component)
         {
-            m_Pointer = (AVFrame*)InternalPointer;
-
             var repeatFactor = 1d + (0.5d * frame->repeat_pict);
             var timeBase = ffmpeg.av_guess_frame_rate(component.Container.InputContext, component.Stream, frame);
             Duration = repeatFactor.ToTimeSpan(new AVRational { num = timeBase.den, den = timeBase.num });
@@ -113,7 +110,7 @@
         /// <summary>
         /// Gets the pointer to the unmanaged frame.
         /// </summary>
-        internal AVFrame* Pointer => m_Pointer;
+        internal AVFrame* Pointer => (AVFrame*)InternalPointer;
 
         #endregion
 
@@ -122,8 +119,7 @@
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        public override void Dispose() =>
-            Dispose(true);
+        public override void Dispose() => Dispose(true);
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
@@ -135,10 +131,9 @@
             {
                 if (IsDisposed) return;
 
-                if (m_Pointer != null)
-                    ReleaseAVFrame(m_Pointer);
+                if (InternalPointer != IntPtr.Zero)
+                    ReleaseAVFrame(Pointer);
 
-                m_Pointer = null;
                 InternalPointer = IntPtr.Zero;
                 IsDisposed = true;
             }

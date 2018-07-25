@@ -56,9 +56,6 @@
                     return;
                 }
 
-                // Provide updates to buffering stats
-                State.UpdateBufferingStatistics();
-
                 // Skip the cycle if it's already running
                 if (BlockRenderingCycle.IsInProgress)
                 {

@@ -4,7 +4,6 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
 
@@ -700,16 +699,22 @@
         }
 
         /// <summary>
+        /// Updates the decoding bitrate.
+        /// </summary>
+        /// <param name="bitrate">The bitrate.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void UpdateDecodingBitrate(long bitrate) => DecodingBitrate = bitrate;
+
+        /// <summary>
         /// Updates the buffering properties: IsBuffering, BufferingProgress, DownloadProgress.
         /// </summary>
+        /// <param name="packetBufferLength">Length of the packet buffer.</param>
+        /// <param name="packetBufferCount">The packet buffer count.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdateBufferingStatistics()
+        internal void UpdateBufferingStatistics(long packetBufferLength, int packetBufferCount)
         {
-            DecodingBitrate = (Parent.Blocks?.Count ?? 0) > 0 ?
-                Parent.Blocks.Values.Sum(blocks => blocks.IsInRange(Position) ? blocks.RangeBitrate : 0) : default;
-
-            PacketBufferCount = Parent.Container.Components.PacketBufferCount;
-            PacketBufferLength = Parent.Container.Components.PacketBufferLength;
+            PacketBufferCount = packetBufferCount;
+            PacketBufferLength = packetBufferLength;
             BufferingProgress = Math.Round(Parent.Container.Components.PacketBufferCountProgress, 3);
             DownloadProgress = Math.Round(Parent.Container.Components.PacketBufferLengthProgress, 3);
 

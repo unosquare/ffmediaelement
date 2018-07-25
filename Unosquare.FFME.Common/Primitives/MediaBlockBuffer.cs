@@ -134,8 +134,9 @@
             {
                 lock (SyncLock)
                 {
-                    var totalSeconds = RangeDuration.TotalSeconds;
-                    if (totalSeconds <= 0) return default;
+                    var totalSeconds = Math.Round(RangeDuration.TotalSeconds, 3);
+                    if (totalSeconds <= 0 || PlaybackBlocks.Count <= 1)
+                        return default;
 
                     var totalBits = 8d * PlaybackBlocks.Sum(m => m.CompressedSize);
                     return Convert.ToInt32(totalBits / totalSeconds);

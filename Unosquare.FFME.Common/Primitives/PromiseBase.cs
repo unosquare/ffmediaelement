@@ -34,13 +34,13 @@
         {
             Awaiter = new Task<bool>(() =>
             {
-                try
+                while (CancelToken.IsCancellationRequested == false)
                 {
-                    CompletedEvent.Wait(CancelToken.Token);
-                    return true;
+                    if (CompletedEvent.Wait(1))
+                        return true;
                 }
-                catch (OperationCanceledException) { return false; }
-                catch { throw; }
+
+                return false;
             });
 
             // We don't start the awaiter just yet.
@@ -92,7 +92,9 @@
                 if (IsDisposed || IsExecuting || CompletedEvent.IsSet)
                     return;
 
-                ThreadPool.QueueUserWorkItem((s) => Execute());
+                var executeTask = new Task(Execute);
+                executeTask.ConfigureAwait(false);
+                executeTask.Start();
             }
         }
 

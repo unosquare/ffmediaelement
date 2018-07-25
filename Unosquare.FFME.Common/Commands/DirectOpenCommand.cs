@@ -167,6 +167,16 @@
                 m.State.UpdateFixedContainerProperties();
                 m.State.InitializeBufferingStatistics();
 
+                // Packet Buffer Notification Callbacks
+                m.Container.Components.OnPacketQueued = (packet, mediaType, bufferLength, bufferCount)
+                    => { m.State.UpdateBufferingStatistics(bufferLength, bufferCount); };
+
+                m.Container.Components.OnPacketDequeued = (packet, mediaType, bufferLength, bufferCount)
+                    => { m.State.UpdateBufferingStatistics(bufferLength, bufferCount); };
+
+                m.Container.Components.OnPacketsCleared = ()
+                    => { m.State.UpdateBufferingStatistics(0, 0); };
+
                 // Check if we have at least audio or video here
                 if (m.State.HasAudio == false && m.State.HasVideo == false)
                     throw new MediaContainerException($"Unable to initialize at least one audio or video component fron the input stream.");

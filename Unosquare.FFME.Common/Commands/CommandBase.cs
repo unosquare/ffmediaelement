@@ -36,10 +36,7 @@
         /// <summary>
         /// Gets a value indicating whether this command processes seeking operations
         /// </summary>
-        public bool AffectsSeekingState
-        {
-            get => TypeAffectsSeekingState(CommandType);
-        }
+        public bool AffectsSeekingState => TypeAffectsSeekingState(CommandType);
 
         /// <summary>
         /// Determines if the command type affects seeking states.
