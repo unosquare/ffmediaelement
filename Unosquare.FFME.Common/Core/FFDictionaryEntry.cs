@@ -1,16 +1,15 @@
 ﻿namespace Unosquare.FFME.Core
 {
     using FFmpeg.AutoGen;
+    using System;
 
     /// <summary>
     /// An AVDictionaryEntry wrapper
     /// </summary>
     internal unsafe class FFDictionaryEntry
     {
-        // This ointer is generated in unmanaged code.
-#pragma warning disable SA1401 // Fields must be private
-        internal readonly AVDictionaryEntry* Pointer;
-#pragma warning restore SA1401 // Fields must be private
+        // This pointer is generated in unmanaged code.
+        private readonly IntPtr m_Pointer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FFDictionaryEntry"/> class.
@@ -18,19 +17,22 @@
         /// <param name="entryPointer">The entry pointer.</param>
         public FFDictionaryEntry(AVDictionaryEntry* entryPointer)
         {
-            Pointer = entryPointer;
+            m_Pointer = new IntPtr(entryPointer);
         }
+
+        /// <summary>
+        /// Gets the unmanaged pointer.
+        /// </summary>
+        public AVDictionaryEntry* Pointer => (AVDictionaryEntry*)m_Pointer;
 
         /// <summary>
         /// Gets the key.
         /// </summary>
-        public string Key => Pointer != null ?
-                    FFInterop.PtrToStringUTF8(Pointer->key) : null;
+        public string Key => m_Pointer != IntPtr.Zero ? FFInterop.PtrToStringUTF8(Pointer->key) : null;
 
         /// <summary>
         /// Gets the value.
         /// </summary>
-        public string Value => Pointer != null ?
-                    FFInterop.PtrToStringUTF8(Pointer->value) : null;
+        public string Value => m_Pointer != IntPtr.Zero ? FFInterop.PtrToStringUTF8(Pointer->value) : null;
     }
 }

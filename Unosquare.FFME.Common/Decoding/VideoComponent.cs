@@ -118,6 +118,19 @@
         #region Methods
 
         /// <summary>
+        /// Releases the hardware device context.
+        /// </summary>
+        public void ReleaseHardwareDeviceContext()
+        {
+            if (HardwareDeviceContext == null) return;
+
+            var hwdc = HardwareDeviceContext;
+            ffmpeg.av_buffer_unref(&hwdc);
+            HardwareDeviceContext = null;
+            HardwareAccelerator = null;
+        }
+
+        /// <summary>
         /// Converts decoded, raw frame data in the frame source into a a usable frame. <br />
         /// The process includes performing picture, samples or text conversions
         /// so that the decoded source frame data is easily usable in multimedia applications

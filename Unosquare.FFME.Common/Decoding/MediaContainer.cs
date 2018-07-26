@@ -676,12 +676,12 @@
                     // We set the start of the read operation time so tiomeouts can be detected
                     // and we open the URL so the input context can be initialized.
                     StreamReadInterruptStartTime.Value = DateTime.UtcNow;
-                    fixed (AVDictionary** privateOptionsRef = &privateOptions.Pointer)
-                    {
-                        // Open the input and pass the private options dictionary
-                        openResult = ffmpeg.avformat_open_input(&inputContextPtr, openUrl, inputFormat, privateOptionsRef);
-                        InputContext = inputContextPtr;
-                    }
+                    var privateOptionsRef = privateOptions.Pointer;
+
+                    // Open the input and pass the private options dictionary
+                    openResult = ffmpeg.avformat_open_input(&inputContextPtr, openUrl, inputFormat, &privateOptionsRef);
+                    privateOptions.UpdateReference(privateOptionsRef);
+                    InputContext = inputContextPtr;
 
                     // Validate the open operation
                     if (openResult < 0)

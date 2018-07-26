@@ -108,15 +108,7 @@
         /// </summary>
         public void Release()
         {
-            if (Component.HardwareDeviceContext != null)
-            {
-                fixed (AVBufferRef** hwdc = &Component.HardwareDeviceContext)
-                {
-                    ffmpeg.av_buffer_unref(hwdc);
-                    Component.HardwareDeviceContext = null;
-                    Component.HardwareAccelerator = null;
-                }
-            }
+            Component.ReleaseHardwareDeviceContext();
         }
 
         /// <summary>

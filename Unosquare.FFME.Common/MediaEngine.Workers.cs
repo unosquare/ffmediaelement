@@ -298,8 +298,8 @@
         private bool CanReadMoreFramesOf(MediaType t)
         {
             return
-                Container.Components[t].PacketBufferLength > 0 ||
-                Container.Components[t].HasCodecPackets ||
+                Container.Components[t].BufferLength > 0 ||
+                Container.Components[t].HasPacketsInCodec ||
                 ShouldReadMorePackets;
         }
 

@@ -19,20 +19,6 @@
     {
         #region Private Declarations
 
-#pragma warning disable SA1401 // Field must be private
-
-        /// <summary>
-        /// Holds a reference to the Codec Context.
-        /// </summary>
-        internal AVCodecContext* CodecContext;
-
-        /// <summary>
-        /// Holds a reference to the associated input context stream
-        /// </summary>
-        internal AVStream* Stream;
-
-#pragma warning restore SA1401 // Field must be private
-
         /// <summary>
         /// Related to issue 94, looks like FFmpeg requires exclusive access when calling avcodec_open2()
         /// </summary>
@@ -58,6 +44,16 @@
         /// </summary>
         private readonly AtomicBoolean m_HasCodecPackets = new AtomicBoolean(false);
 
+        /// <summary>
+        /// Holds a reference to the Codec Context.
+        /// </summary>
+        private IntPtr m_CodecContext;
+
+        /// <summary>
+        /// Holds a reference to the associated input context stream
+        /// </summary>
+        private IntPtr m_Stream;
+
         #endregion
 
         #region Constructor
@@ -74,10 +70,10 @@
             // Ported from: https://github.com/FFmpeg/FFmpeg/blob/master/fftools/ffplay.c#L2559
             // avctx = avcodec_alloc_context3(NULL);
             Container = container ?? throw new ArgumentNullException(nameof(container));
-            CodecContext = ffmpeg.avcodec_alloc_context3(null);
+            m_CodecContext = new IntPtr(ffmpeg.avcodec_alloc_context3(null));
             RC.Current.Add(CodecContext, $"134: {nameof(MediaComponent)}[{MediaType}].ctor()");
             StreamIndex = streamIndex;
-            Stream = container.InputContext->streams[streamIndex];
+            m_Stream = new IntPtr(container.InputContext->streams[streamIndex]);
             StreamInfo = container.MediaInfo.Streams[streamIndex];
 
             // Set default codec context options from probed stream
@@ -172,8 +168,9 @@
                 // Open the CodecContext. This requires exclusive FFmpeg access
                 lock (CodecLock)
                 {
-                    fixed (AVDictionary** codecOptionsRef = &codecOptions.Pointer)
-                        codecOpenResult = ffmpeg.avcodec_open2(CodecContext, codec, codecOptionsRef);
+                    var codecOptionsRef = codecOptions.Pointer;
+                    codecOpenResult = ffmpeg.avcodec_open2(CodecContext, codec, &codecOptionsRef);
+                    codecOptions.UpdateReference(codecOptionsRef);
                 }
 
                 // Check if the codec opened successfully
@@ -212,11 +209,13 @@
             {
                 case MediaType.Audio:
                 case MediaType.Video:
-                    PacketBufferCountMax = 25;
+                    BufferCountThreshold = 25;
+                    BufferDurationThreshold = TimeSpan.FromSeconds(1);
                     DecodePacketFunction = DecodeNextAVFrame;
                     break;
                 case MediaType.Subtitle:
-                    PacketBufferCountMax = 0;
+                    BufferCountThreshold = 0;
+                    BufferDurationThreshold = TimeSpan.Zero;
                     DecodePacketFunction = DecodeNextAVSubtitle;
                     break;
                 default:
@@ -224,7 +223,10 @@
             }
 
             if (StreamInfo.IsAttachedPictureDisposition)
-                PacketBufferCountMax = 0;
+            {
+                BufferCountThreshold = 0;
+                BufferDurationThreshold = TimeSpan.Zero;
+            }
 
             // Compute the start time
             if (Stream->start_time == ffmpeg.AV_NOPTS_VALUE)
@@ -251,6 +253,16 @@
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// Gets the pointer to the codec context.
+        /// </summary>
+        public AVCodecContext* CodecContext => (AVCodecContext*)m_CodecContext;
+
+        /// <summary>
+        /// Gets a pointer to the component's stream.
+        /// </summary>
+        public AVStream* Stream => (AVStream*)m_Stream;
 
         /// <summary>
         /// Gets the media container associated with this component.
@@ -284,23 +296,28 @@
         /// packet buffer. Limit your Reads to something reasonable before
         /// this becomes too large.
         /// </summary>
-        public long PacketBufferLength => Packets.BufferLength;
+        public long BufferLength => Packets.BufferLength;
 
         /// <summary>
         /// Gets the duration of the packet buffer.
         /// </summary>
-        public TimeSpan PacketBufferDuration => Packets.GetDuration(StreamInfo.TimeBase);
+        public TimeSpan BufferDuration => Packets.GetDuration(StreamInfo.TimeBase);
 
         /// <summary>
         /// Gets the number of packets in the queue.
         /// Decode packets until this number becomes 0.
         /// </summary>
-        public int PacketBufferCount => Packets.Count;
+        public int BufferCount => Packets.Count;
 
         /// <summary>
         /// Gets the number of packets to cache before <see cref="HasEnoughPackets"/> returns true.
         /// </summary>
-        public int PacketBufferCountMax { get; }
+        public int BufferCountThreshold { get; }
+
+        /// <summary>
+        /// Gets the packet buffer duration threshold before <see cref="HasEnoughPackets"/> returns true.
+        /// </summary>
+        public TimeSpan BufferDurationThreshold { get; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the packet queue contains enough packets.
@@ -310,20 +327,18 @@
         {
             get
             {
-                const double MinDuration = 1.0d;
-
                 // We want to return true when we can't really get a buffer.
                 if (IsDisposed ||
-                    PacketBufferCountMax <= 0 ||
+                    BufferCountThreshold <= 0 ||
                     StreamInfo.IsAttachedPictureDisposition ||
-                    (Container?.IsReadAborted ?? false) || Stream == null ||
+                    (Container?.IsReadAborted ?? false) ||
                     (Container?.IsAtEndOfStream ?? false))
                     return true;
 
                 // Enough packets means we have a duration of at least 1 second (if the packets report duration)
                 // and that we have enough of a packet count depending on the type of media
-                return (PacketBufferDuration <= TimeSpan.Zero || PacketBufferDuration.TotalSeconds >= MinDuration) &&
-                    PacketBufferCount >= PacketBufferCountMax;
+                return (BufferDuration <= TimeSpan.Zero || BufferDuration.TotalSeconds >= BufferDurationThreshold.TotalSeconds) &&
+                    BufferCount >= BufferCountThreshold;
             }
         }
 
@@ -351,7 +366,7 @@
         /// <summary>
         /// Gets whether packets have been fed into the codec and frames can be decoded.
         /// </summary>
-        public bool HasCodecPackets
+        public bool HasPacketsInCodec
         {
             get => m_HasCodecPackets.Value;
             private set => m_HasCodecPackets.Value = value;
@@ -448,18 +463,17 @@
         /// </summary>
         protected void CloseComponent()
         {
-            if (CodecContext != null)
+            if (m_CodecContext != IntPtr.Zero)
             {
-                RC.Current.Remove(CodecContext);
-                fixed (AVCodecContext** codecContext = &CodecContext)
-                    ffmpeg.avcodec_free_context(codecContext);
+                RC.Current.Remove(m_CodecContext);
+                var codecContext = CodecContext;
+                ffmpeg.avcodec_free_context(&codecContext);
+                m_CodecContext = IntPtr.Zero;
 
                 // free all the pending and sent packets
                 ClearQueuedPackets(true);
                 Packets.Dispose();
             }
-
-            CodecContext = null;
         }
 
         /// <summary>
@@ -494,10 +508,10 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void FlushCodecBuffers()
         {
-            if (CodecContext != null)
+            if (m_CodecContext != IntPtr.Zero)
                 ffmpeg.avcodec_flush_buffers(CodecContext);
 
-            HasCodecPackets = false;
+            HasPacketsInCodec = false;
         }
 
         /// <summary>
@@ -535,14 +549,14 @@
                     var components = Container.Components;
                     packet = Packets.Dequeue();
                     components.OnPacketDequeued?.Invoke(
-                        packet.SafePointer, MediaType, components.PacketBufferLength, components.PacketBufferCount);
+                        packet.SafePointer, MediaType, components.BufferLength, components.BufferCount);
 
                     packet.Dispose();
                     packetCount++;
                 }
 
                 if (sendPacketResult >= 0)
-                    HasCodecPackets = true;
+                    HasPacketsInCodec = true;
 
                 if (fillDecoderBuffer && sendPacketResult >= 0)
                     continue;
@@ -578,7 +592,7 @@
                 FlushCodecBuffers();
 
             if (receiveFrameResult == -ffmpeg.EAGAIN)
-                HasCodecPackets = false;
+                HasPacketsInCodec = false;
 
             return managedFrame;
         }
@@ -641,7 +655,7 @@
                 {
                     var components = Container.Components;
                     components.OnPacketDequeued?.Invoke(
-                        packet.SafePointer, MediaType, components.PacketBufferLength, components.PacketBufferCount);
+                        packet.SafePointer, MediaType, components.BufferLength, components.BufferCount);
                     receiveFrameResult = ffmpeg.avcodec_decode_subtitle2(CodecContext, outputFrame, &gotFrame, packet.Pointer);
                 }
             }
@@ -661,7 +675,7 @@
                 MediaFrame.ReleaseAVSubtitle(outputFrame);
 
             if (receiveFrameResult < 0)
-                HasCodecPackets = false;
+                HasPacketsInCodec = false;
 
             return managedFrame;
         }

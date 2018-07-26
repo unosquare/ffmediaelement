@@ -193,27 +193,27 @@
         }
 
         /// <summary>
-        /// Gets the current length in bytes of the packet buffer.
-        /// These packets are the ones that have not been yet deecoded.
+        /// Gets the current length in bytes of the packet buffer for all components.
+        /// These packets are the ones that have not been yet decoded.
         /// </summary>
-        public long PacketBufferLength
+        public long BufferLength
         {
             get
             {
                 lock (SyncLock)
-                    return All.Sum(c => c.PacketBufferLength);
+                    return All.Sum(c => c.BufferLength);
             }
         }
 
         /// <summary>
-        /// Gets the total number of packets in the packet buffer.
+        /// Gets the total number of packets in the packet buffer for all components.
         /// </summary>
-        public int PacketBufferCount
+        public int BufferCount
         {
             get
             {
                 lock (SyncLock)
-                    return All.Sum(c => c.PacketBufferCount);
+                    return All.Sum(c => c.BufferCount);
             }
         }
 
@@ -221,12 +221,12 @@
         /// Gets the packet buffer length maximum.
         /// Port of ffplay.c (MAX_QUEUE_SIZE)
         /// </summary>
-        public int PacketBufferLengthMax => 15 * 1024 * 1024;
+        public int PacketBufferLengthMax => 16 * 1024 * 1024;
 
         /// <summary>
         /// Gets the packet buffer length progress percent, from 0.0 to 1.0.
         /// </summary>
-        public double PacketBufferLengthProgress => Math.Min((double)PacketBufferLength / PacketBufferLengthMax, 1);
+        public double PacketBufferLengthProgress => Math.Min((double)BufferLength / PacketBufferLengthMax, 1);
 
         /// <summary>
         /// Gets the number of packets to cache before <see cref="HasEnoughPackets"/> returns true.
@@ -239,7 +239,7 @@
                 {
                     var result = 0;
                     foreach (var c in All)
-                        result += c.PacketBufferCountMax;
+                        result += c.BufferCountThreshold;
 
                     return result;
                 }
@@ -249,7 +249,7 @@
         /// <summary>
         /// Gets the packet buffer count progress percent, from 0.0 to 1.0.
         /// </summary>
-        public double PacketBufferCountProgress => Math.Min((double)PacketBufferCount / PacketBufferCountMax, 1);
+        public double PacketBufferCountProgress => Math.Min((double)BufferCount / PacketBufferCountMax, 1);
 
         /// <summary>
         /// Gets or sets a value indicating whether all packet queues contain enough packets.
@@ -318,7 +318,7 @@
                     if (component.StreamIndex == packet.StreamIndex)
                     {
                         component.SendPacket(packet);
-                        OnPacketQueued?.Invoke(packet.SafePointer, component.MediaType, PacketBufferLength, PacketBufferCount);
+                        OnPacketQueued?.Invoke(packet.SafePointer, component.MediaType, BufferLength, BufferCount);
 
                         return component.MediaType;
                     }
