@@ -715,8 +715,8 @@
         {
             PacketBufferCount = packetBufferCount;
             PacketBufferLength = packetBufferLength;
-            BufferingProgress = Math.Round(Parent.Container.Components.PacketBufferCountProgress, 3);
-            DownloadProgress = Math.Round(Parent.Container.Components.PacketBufferLengthProgress, 3);
+            BufferingProgress = Math.Round(Parent.Container.Components.BufferCountProgress, 3);
+            DownloadProgress = Math.Round(Parent.Container.Components.BufferLengthProgress, 3);
 
             // Detect the start of buffering
             if (IsBuffering == false && BufferingProgress < 1 && Parent.ShouldReadMorePackets)

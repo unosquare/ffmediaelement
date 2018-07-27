@@ -73,7 +73,7 @@
                     return false;
 
                 // If it's a live stream always continue reading, regardless
-                if (State.IsLiveStream && Container.Components.PacketBufferLengthProgress < 1d)
+                if (State.IsLiveStream && Container.Components.BufferLengthProgress < 1d)
                     return true;
 
                 // if we don't have enough packets queued we should read
