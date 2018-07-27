@@ -45,14 +45,14 @@
         private readonly AtomicBoolean m_HasCodecPackets = new AtomicBoolean(false);
 
         /// <summary>
+        /// Holds a reference to the associated input context stream
+        /// </summary>
+        private readonly IntPtr m_Stream;
+
+        /// <summary>
         /// Holds a reference to the Codec Context.
         /// </summary>
         private IntPtr m_CodecContext;
-
-        /// <summary>
-        /// Holds a reference to the associated input context stream
-        /// </summary>
-        private IntPtr m_Stream;
 
         #endregion
 
@@ -162,8 +162,7 @@
                 var codecOptions = Container.MediaOptions.DecoderParams.GetStreamCodecOptions(Stream->index);
 
                 // Enable Hardware acceleration if requested
-                if (this is VideoComponent && container.MediaOptions.VideoHardwareDevice != null)
-                    HardwareAccelerator.Attach(this as VideoComponent, container.MediaOptions.VideoHardwareDevice);
+                (this as VideoComponent)?.AttachHardwareDevice(container.MediaOptions.VideoHardwareDevice);
 
                 // Open the CodecContext. This requires exclusive FFmpeg access
                 lock (CodecLock)

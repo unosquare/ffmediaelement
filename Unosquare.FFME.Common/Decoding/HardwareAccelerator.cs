@@ -5,68 +5,49 @@
     using System;
     using System.Collections.Generic;
 
-    internal unsafe class HardwareAccelerator
+    /// <summary>
+    /// Encapsulates Hardware Accelerator Properties
+    /// </summary>
+    internal sealed unsafe class HardwareAccelerator
     {
         /// <summary>
-        /// The get format callback
+        /// Initializes a new instance of the <see cref="HardwareAccelerator"/> class.
         /// </summary>
-        private readonly AVCodecContext_get_format GetFormatCallback;
-
-        private VideoComponent Component;
-
-        /// <summary>
-        /// Prevents a default instance of the <see cref="HardwareAccelerator"/> class from being created.
-        /// </summary>
-        private HardwareAccelerator()
+        /// <param name="component">The component this accelerator is attached to.</param>
+        /// <param name="selectedConfig">The selected hardware device configuration.</param>
+        public HardwareAccelerator(VideoComponent component, HardwareDeviceInfo selectedConfig)
         {
-            // prevent instantiation outside this class
+            Component = component;
+            Name = selectedConfig.DeviceTypeName;
+            DeviceType = selectedConfig.DeviceType;
+            PixelFormat = selectedConfig.PixelFormat;
             GetFormatCallback = new AVCodecContext_get_format(GetPixelFormat);
         }
 
         /// <summary>
         /// Gets the name of the HW accelerator.
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get; }
+
+        /// <summary>
+        /// Gets the component this accelerator is attached to..
+        /// </summary>
+        public VideoComponent Component { get; }
 
         /// <summary>
         /// Gets the hardware output pixel format.
         /// </summary>
-        public AVPixelFormat PixelFormat { get; private set; }
+        public AVPixelFormat PixelFormat { get; }
 
         /// <summary>
         /// Gets the type of the hardware device.
         /// </summary>
-        public AVHWDeviceType DeviceType { get; private set; }
+        public AVHWDeviceType DeviceType { get; }
 
         /// <summary>
-        /// Attaches a hardware accelerator to the specified component.
+        /// Gets the callback used to resolve the hardware pixel format.
         /// </summary>
-        /// <param name="component">The component.</param>
-        /// <param name="selectedConfig">The selected configuration.</param>
-        /// <returns>
-        /// Whether or not the hardware accelerator was attached
-        /// </returns>
-        public static bool Attach(VideoComponent component, HardwareDeviceInfo selectedConfig)
-        {
-            try
-            {
-                var result = new HardwareAccelerator
-                {
-                    Component = component,
-                    Name = selectedConfig.DeviceTypeName,
-                    DeviceType = selectedConfig.DeviceType,
-                    PixelFormat = selectedConfig.PixelFormat,
-                };
-
-                result.InitializeHardwareContext();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                component.Container.Parent?.Log(MediaLogMessageType.Error, $"Could not attach hardware decoder. {ex.Message}");
-                return false;
-            }
-        }
+        public AVCodecContext_get_format GetFormatCallback { get; }
 
         /// <summary>
         /// Gets the supported hardware decoder device types for the given codec.
@@ -101,14 +82,6 @@
             }
 
             return result;
-        }
-
-        /// <summary>
-        /// Detaches and disposes the hardware device context from the specified video component
-        /// </summary>
-        public void Release()
-        {
-            Component.ReleaseHardwareDeviceContext();
         }
 
         /// <summary>
@@ -147,25 +120,6 @@
             MediaFrame.ReleaseAVFrame(input);
 
             return output;
-        }
-
-        /// <summary>
-        /// Attaches a hardware device context to the specified video component.
-        /// </summary>
-        /// <exception cref="Exception">Throws when unable to initialize the hardware device</exception>
-        private void InitializeHardwareContext()
-        {
-            fixed (AVBufferRef** devContextRef = &Component.HardwareDeviceContext)
-            {
-                var initResultCode = 0;
-                initResultCode = ffmpeg.av_hwdevice_ctx_create(devContextRef, DeviceType, null, null, 0);
-                if (initResultCode < 0)
-                    throw new Exception($"Unable to initialize hardware context for device {Name}");
-            }
-
-            Component.HardwareAccelerator = this;
-            Component.CodecContext->hw_device_ctx = ffmpeg.av_buffer_ref(Component.HardwareDeviceContext);
-            Component.CodecContext->get_format = GetFormatCallback;
         }
 
         /// <summary>
