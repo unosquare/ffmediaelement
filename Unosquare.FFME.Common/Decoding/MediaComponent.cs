@@ -336,7 +336,7 @@
 
                 // Enough packets means we have a duration of at least 1 second (if the packets report duration)
                 // and that we have enough of a packet count depending on the type of media
-                return (BufferDuration <= TimeSpan.Zero || BufferDuration.TotalSeconds >= BufferDurationThreshold.TotalSeconds) &&
+                return (BufferDuration <= TimeSpan.Zero || BufferDuration.Ticks >= BufferDurationThreshold.Ticks) &&
                     BufferCount >= BufferCountThreshold;
             }
         }
@@ -396,6 +396,9 @@
 
             if (flushBuffers)
                 FlushCodecBuffers();
+
+            Container.Components.InvokeOnPacketQueueChanged(
+                PacketQueueOp.Clear, null, MediaType);
         }
 
         /// <summary>
@@ -545,10 +548,9 @@
                 if (sendPacketResult != -ffmpeg.EAGAIN)
                 {
                     // Dequeue the packet and release it.
-                    var components = Container.Components;
                     packet = Packets.Dequeue();
-                    components.OnPacketDequeued?.Invoke(
-                        packet.SafePointer, MediaType, components.BufferLength, components.BufferCount);
+                    Container.Components.InvokeOnPacketQueueChanged(
+                        PacketQueueOp.Dequeued, packet, MediaType);
 
                     packet.Dispose();
                     packetCount++;
@@ -652,9 +654,7 @@
 
                 if (packet != null)
                 {
-                    var components = Container.Components;
-                    components.OnPacketDequeued?.Invoke(
-                        packet.SafePointer, MediaType, components.BufferLength, components.BufferCount);
+                    Container.Components.InvokeOnPacketQueueChanged(PacketQueueOp.Dequeued, packet, MediaType);
                     receiveFrameResult = ffmpeg.avcodec_decode_subtitle2(CodecContext, outputFrame, &gotFrame, packet.Pointer);
                 }
             }

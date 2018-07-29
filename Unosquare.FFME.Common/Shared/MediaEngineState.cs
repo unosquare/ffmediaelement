@@ -708,15 +708,19 @@
         /// <summary>
         /// Updates the buffering properties: IsBuffering, BufferingProgress, DownloadProgress.
         /// </summary>
-        /// <param name="packetBufferLength">Length of the packet buffer.</param>
-        /// <param name="packetBufferCount">The packet buffer count.</param>
+        /// <param name="bufferLength">Length of the packet buffer.</param>
+        /// <param name="bufferCount">The packet buffer count.</param>
+        /// <param name="bufferCountMax">The packet buffer count maximum for all components</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdateBufferingStatistics(long packetBufferLength, int packetBufferCount)
+        internal void UpdateBufferingStatistics(long bufferLength, int bufferCount, int bufferCountMax)
         {
-            PacketBufferCount = packetBufferCount;
-            PacketBufferLength = packetBufferLength;
-            BufferingProgress = Math.Round(Parent.Container.Components.BufferCountProgress, 3);
-            DownloadProgress = Math.Round(Parent.Container.Components.BufferLengthProgress, 3);
+            // port of MAX_QUEUE_SIZE (ffplay.c)
+            const long BufferLengthMax = 16 * 1024 * 1024;
+
+            PacketBufferCount = bufferCount;
+            PacketBufferLength = bufferLength;
+            BufferingProgress = bufferCountMax <= 0 ? 0 : Math.Min(1d, (double)bufferCount / bufferCountMax);
+            DownloadProgress = Math.Min(1d, (double)bufferLength / BufferLengthMax);
 
             // Detect the start of buffering
             if (IsBuffering == false && BufferingProgress < 1 && Parent.ShouldReadMorePackets)

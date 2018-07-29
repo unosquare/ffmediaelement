@@ -128,7 +128,7 @@
         /// <summary>
         /// Gets the compressed data bitrate from which media blocks were created.
         /// </summary>
-        public int RangeBitrate
+        public long RangeBitrate
         {
             get
             {
@@ -139,7 +139,7 @@
                         return default;
 
                     var totalBits = 8d * PlaybackBlocks.Sum(m => m.CompressedSize);
-                    return Convert.ToInt32(totalBits / totalSeconds);
+                    return Convert.ToInt64(totalBits / totalSeconds);
                 }
             }
         }

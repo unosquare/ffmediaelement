@@ -15,6 +15,10 @@
         /// </summary>
         internal void RunFrameDecodingWorker()
         {
+            // TODO: Don't use State properties in workers as they are only for
+            // TODO: Check the use of wall clock. Maybe it's be more consistent
+            // to use a single atomic wallclock value per cycle. Check other workers as well.
+            // state notification purposes.
             // State variables
             var delay = new DelayProvider(); // The delay provider prevents 100% core usage
             var decodedFrameCount = 0;

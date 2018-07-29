@@ -60,9 +60,7 @@
 
         #region Delegates
 
-        public delegate void OnPacketsClearedDelegate();
-        public delegate void OnPacketQueuedDelegate(IntPtr avPacket, MediaType mediaType, long packetBufferLength, int packetBufferCount);
-        public delegate void OnPacketDequeuedDelegate(IntPtr avPacket, MediaType mediaType, long packetBufferLength, int packetBufferCount);
+        public delegate void OnPacketQueueChangedDelegate(PacketQueueOp operation, IntPtr avPacket, MediaType mediaType, long bufferLength, int bufferCount, int bufferCountMax);
         public delegate void OnFrameDecodedDelegate(IntPtr avFrame, MediaType mediaType);
         public delegate void OnSubtitleDecodedDelegate(IntPtr avSubititle);
 
@@ -73,17 +71,7 @@
         /// <summary>
         /// Gets or sets a method that gets called when a packet is queued.
         /// </summary>
-        public OnPacketQueuedDelegate OnPacketQueued { get; set; }
-
-        /// <summary>
-        /// Gets or sets a method that gets called when a packet is removed from the queue.
-        /// </summary>
-        public OnPacketDequeuedDelegate OnPacketDequeued { get; set; }
-
-        /// <summary>
-        /// Gets or sets a method that gets called when all component packet queues are cleared.
-        /// </summary>
-        public OnPacketsClearedDelegate OnPacketsCleared { get; set; }
+        public OnPacketQueueChangedDelegate OnPacketQueueChanged { get; set; }
 
         /// <summary>
         /// Gets or sets a method that gets called when an audio or video frame gets decoded.
@@ -202,17 +190,6 @@
         }
 
         /// <summary>
-        /// Gets the packet buffer length maximum.
-        /// Port of ffplay.c (MAX_QUEUE_SIZE)
-        /// </summary>
-        public long BufferLengthThreshold => 16 * 1024 * 1024;
-
-        /// <summary>
-        /// Gets the packet buffer length progress percent, from 0.0 to 1.0.
-        /// </summary>
-        public double BufferLengthProgress => Math.Min((double)BufferLength / BufferLengthThreshold, 1);
-
-        /// <summary>
         /// Gets the total number of packets in the packet buffer for all components.
         /// </summary>
         public int BufferCount
@@ -221,19 +198,11 @@
         }
 
         /// <summary>
-        /// Gets the minimum number of packets to read before <see cref="HasEnoughPackets"/> returns true.
+        /// Gets the minimum number of packets to read before <see cref="HasEnoughPackets"/> is able to return true.
         /// </summary>
         public int BufferCountThreshold
         {
             get { lock (SyncLock) return All.Sum(c => c.BufferCountThreshold); }
-        }
-
-        /// <summary>
-        /// Gets the packet buffer count progress percent, from 0.0 to 1.0.
-        /// </summary>
-        public double BufferCountProgress
-        {
-            get { lock (SyncLock) return Math.Min((double)BufferCount / BufferCountThreshold, 1); }
         }
 
         /// <summary>
@@ -299,8 +268,8 @@
                     if (component.StreamIndex == packet.StreamIndex)
                     {
                         component.SendPacket(packet);
-                        OnPacketQueued?.Invoke(packet.SafePointer, component.MediaType, BufferLength, BufferCount);
-
+                        InvokeOnPacketQueueChanged(
+                            PacketQueueOp.Queued, packet, component.MediaType);
                         return component.MediaType;
                     }
                 }
@@ -333,13 +302,42 @@
             lock (SyncLock)
                 foreach (var component in All)
                     component.ClearQueuedPackets(flushBuffers);
-
-            OnPacketsCleared?.Invoke();
         }
 
         #endregion
 
         #region Helper Methods
+
+        /// <summary>
+        /// Invokes the on packet queue changed callback.
+        /// </summary>
+        /// <param name="operation">The operation.</param>
+        /// <param name="packet">The packet.</param>
+        /// <param name="mediaType">Type of the media.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void InvokeOnPacketQueueChanged(PacketQueueOp operation, MediaPacket packet, MediaType mediaType)
+        {
+            if (OnPacketQueueChanged == null)
+                return;
+
+            var bufferLength = 0L;
+            var bufferCount = 0;
+            var bufferCountMax = 0;
+
+            lock (SyncLock)
+            {
+                foreach (var c in All)
+                {
+                    bufferLength += c.BufferLength;
+                    bufferCount += c.BufferCount;
+                    bufferCountMax += c.BufferCountThreshold;
+                }
+            }
+
+            var pointer = packet == null ? IntPtr.Zero : packet.SafePointer;
+            OnPacketQueueChanged?.Invoke(
+                operation, pointer, mediaType, bufferLength, bufferCount, bufferCountMax);
+        }
 
         /// <summary>
         /// Runs quick buffering logic on a single thread.

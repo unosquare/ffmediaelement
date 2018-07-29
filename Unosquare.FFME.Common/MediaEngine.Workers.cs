@@ -73,7 +73,7 @@
                     return false;
 
                 // If it's a live stream always continue reading, regardless
-                if (State.IsLiveStream && Container.Components.BufferLengthProgress < 1d)
+                if (Container.IsLiveStream)
                     return true;
 
                 // if we don't have enough packets queued we should read
@@ -288,11 +288,11 @@
         }
 
         /// <summary>
-        /// Gets a value indicating whether more frames can be converted into blocks of the given type.
+        /// Gets a value indicating whether more frames can be decoded into blocks of the given type.
         /// </summary>
-        /// <param name="t">The t.</param>
+        /// <param name="t">The media type.</param>
         /// <returns>
-        ///   <c>true</c> if this instance [can read more frames of] the specified t; otherwise, <c>false</c>.
+        ///   <c>true</c> if more frames can be decoded; otherwise, <c>false</c>.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool CanReadMoreFramesOf(MediaType t)

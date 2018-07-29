@@ -323,14 +323,6 @@
         private DateTime StateLastReadTimeUtc { get; set; } = DateTime.MinValue;
 
         /// <summary>
-        /// Gets a value indicating whether a packet read delay witll be enforced.
-        /// RSTP formats or MMSH Urls will have this property set to true.
-        /// Reading packets will block for at most 10 milliseconds depending on the last read time.
-        /// This is a hack according to the source code in ffplay.c
-        /// </summary>
-        private bool StateRequiresReadDelay { get; set; }
-
-        /// <summary>
         /// Picture attachments are required when video streams support them
         /// and these attached packets must be read before reading the first frame
         /// of the stream and after seeking. This property is not part of the public API
@@ -718,15 +710,18 @@
                 Metadata = new ReadOnlyDictionary<string, string>(FFDictionary.ToDictionary(InputContext->metadata));
 
                 // If read_play is set, it is only relevant to network streams
-                IsNetworkStream = InputContext->iformat->read_play.Pointer != IntPtr.Zero;
+                IsNetworkStream = false;
+                if (InputContext->iformat->read_play.Pointer != IntPtr.Zero)
+                {
+                    IsNetworkStream = true;
+                    ffmpeg.av_read_play(InputContext);
+                }
+
                 if (IsNetworkStream == false && Uri.TryCreate(MediaUrl, UriKind.RelativeOrAbsolute, out var uri))
                 {
                     try { IsNetworkStream = uri.IsFile == false || uri.IsUnc; }
                     catch { }
                 }
-
-                // Unsure how this works. Ported from ffplay
-                StateRequiresReadDelay = MediaFormatName.Equals("rstp") || MediaUrl.StartsWith("mmsh:");
 
                 // Extract the Media Info
                 MediaInfo = new MediaInfo(this);
@@ -935,22 +930,6 @@
 
             if (IsReadAborted)
                 return MediaType.None;
-
-#if CONFIG_RTSP_DEMUXER
-            // I am unsure how this code ported from ffplay provides any advantage or functionality
-            // I have tested with several streams and it does not make any difference other than 
-            // making the reads much longer and the buffers fill up more slowly.
-            if (RequiresReadDelay)
-            {
-                // in ffplay.c this is referenced via CONFIG_RTSP_DEMUXER || CONFIG_MMSH_PROTOCOL
-                var millisecondsDifference = System.Convert.ToInt32(DateTime.UtcNow.Subtract(StreamLastReadTimeUtc).TotalMilliseconds);
-                var sleepMilliseconds = 10 - millisecondsDifference;
-
-                // wait at least 10 ms to avoid trying to get another packet
-                if (sleepMilliseconds > 0)
-                    Task.Delay(sleepMilliseconds).Wait(); // XXX: horrible
-            }
-#endif
 
             if (StateRequiresPictureAttachments)
             {
@@ -1209,7 +1188,7 @@
 
             StreamReadInterruptStartTime.Value = DateTime.UtcNow;
 
-            // var seekResult = ffmpeg.av_seek_frame(InputContext, StartSeekStreamIndex, StartSeekTimestamp, ffmpeg.AVSEEK_FLAG_BACKWARD);
+            // TODO: seekTaget might need firther adjustement. Maybe seek to long.MinValue?
             var seekResult = ffmpeg.av_seek_frame(InputContext, streamIndex, seekTarget, seekFlags);
 
             // Flush packets, state, and codec buffers
