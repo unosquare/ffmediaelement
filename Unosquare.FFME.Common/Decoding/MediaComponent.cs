@@ -397,8 +397,7 @@
             if (flushBuffers)
                 FlushCodecBuffers();
 
-            Container.Components.InvokeOnPacketQueueChanged(
-                PacketQueueOp.Clear, null, MediaType);
+            Container.Components.ProcessPacketQueueChanges(PacketQueueOp.Clear, null, MediaType);
         }
 
         /// <summary>
@@ -549,8 +548,7 @@
                 {
                     // Dequeue the packet and release it.
                     packet = Packets.Dequeue();
-                    Container.Components.InvokeOnPacketQueueChanged(
-                        PacketQueueOp.Dequeued, packet, MediaType);
+                    Container.Components.ProcessPacketQueueChanges(PacketQueueOp.Dequeued, packet, MediaType);
 
                     packet.Dispose();
                     packetCount++;
@@ -654,7 +652,7 @@
 
                 if (packet != null)
                 {
-                    Container.Components.InvokeOnPacketQueueChanged(PacketQueueOp.Dequeued, packet, MediaType);
+                    Container.Components.ProcessPacketQueueChanges(PacketQueueOp.Dequeued, packet, MediaType);
                     receiveFrameResult = ffmpeg.avcodec_decode_subtitle2(CodecContext, outputFrame, &gotFrame, packet.Pointer);
                 }
             }

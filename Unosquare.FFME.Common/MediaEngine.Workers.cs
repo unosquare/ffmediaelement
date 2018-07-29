@@ -18,6 +18,7 @@
 
         #region State Management
 
+        private readonly AtomicBoolean m_IsSyncBuffering = new AtomicBoolean(false);
         private Thread PacketReadingTask = null;
         private Thread FrameDecodingTask = null;
         private Timer BlockRenderingWorker = null;
@@ -57,6 +58,15 @@
         /// Holds the last rendered StartTime for each of the media block types
         /// </summary>
         internal MediaTypeDictionary<TimeSpan> LastRenderTime { get; } = new MediaTypeDictionary<TimeSpan>();
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the decoder worker is sync-buffering
+        /// </summary>
+        internal bool IsSyncBuffering
+        {
+            get => m_IsSyncBuffering.Value;
+            set => m_IsSyncBuffering.Value = value;
+        }
 
         /// <summary>
         /// Gets a value indicating whether packets can be read and

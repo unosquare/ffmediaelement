@@ -18,31 +18,25 @@
     {
         #region Private Declarations
 
-        /// <summary>
-        /// The synchronize lock
-        /// </summary>
-        private readonly object SyncLock = new object();
-
-        /// <summary>
-        /// To detect redundant Dispose calls
-        /// </summary>
+        // Synchronization locks
+        private readonly object ComponentSyncLock = new object();
+        private readonly object BufferSyncLock = new object();
         private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
 
         private ReadOnlyCollection<MediaComponent> m_All = new ReadOnlyCollection<MediaComponent>(new List<MediaComponent>(0));
-
         private ReadOnlyCollection<MediaType> m_MediaTypes = new ReadOnlyCollection<MediaType>(new List<MediaType>(0));
 
         private int m_Count = default;
-
         private MediaType m_MainMediaType = MediaType.None;
-
         private MediaComponent m_Main = null;
-
         private AudioComponent m_Audio = null;
-
         private VideoComponent m_Video = null;
-
         private SubtitleComponent m_Subtitle = null;
+
+        private long m_BufferLength = default;
+        private int m_BufferCount = default;
+        private int m_BufferCountThreshold = default;
+        private bool m_HasEnoughPackets = default;
 
         #endregion
 
@@ -93,7 +87,7 @@
         /// </summary>
         public int Count
         {
-            get { lock (SyncLock) return m_Count; }
+            get { lock (ComponentSyncLock) return m_Count; }
         }
 
         /// <summary>
@@ -101,7 +95,7 @@
         /// </summary>
         public ReadOnlyCollection<MediaType> MediaTypes
         {
-            get { lock (SyncLock) return m_MediaTypes; }
+            get { lock (ComponentSyncLock) return m_MediaTypes; }
         }
 
         /// <summary>
@@ -109,7 +103,7 @@
         /// </summary>
         public ReadOnlyCollection<MediaComponent> All
         {
-            get { lock (SyncLock) return m_All; }
+            get { lock (ComponentSyncLock) return m_All; }
         }
 
         /// <summary>
@@ -117,7 +111,7 @@
         /// </summary>
         public MediaType MainMediaType
         {
-            get { lock (SyncLock) return m_MainMediaType; }
+            get { lock (ComponentSyncLock) return m_MainMediaType; }
         }
 
         /// <summary>
@@ -126,7 +120,7 @@
         /// </summary>
         public MediaComponent Main
         {
-            get { lock (SyncLock) return m_Main; }
+            get { lock (ComponentSyncLock) return m_Main; }
         }
 
         /// <summary>
@@ -135,7 +129,7 @@
         /// </summary>
         public VideoComponent Video
         {
-            get { lock (SyncLock) return m_Video; }
+            get { lock (ComponentSyncLock) return m_Video; }
         }
 
         /// <summary>
@@ -144,7 +138,7 @@
         /// </summary>
         public AudioComponent Audio
         {
-            get { lock (SyncLock) return m_Audio; }
+            get { lock (ComponentSyncLock) return m_Audio; }
         }
 
         /// <summary>
@@ -153,7 +147,7 @@
         /// </summary>
         public SubtitleComponent Subtitles
         {
-            get { lock (SyncLock) return m_Subtitle; }
+            get { lock (ComponentSyncLock) return m_Subtitle; }
         }
 
         /// <summary>
@@ -161,7 +155,7 @@
         /// </summary>
         public bool HasVideo
         {
-            get { lock (SyncLock) return m_Video != null; }
+            get { lock (ComponentSyncLock) return m_Video != null; }
         }
 
         /// <summary>
@@ -169,7 +163,7 @@
         /// </summary>
         public bool HasAudio
         {
-            get { lock (SyncLock) return m_Audio != null; }
+            get { lock (ComponentSyncLock) return m_Audio != null; }
         }
 
         /// <summary>
@@ -177,7 +171,7 @@
         /// </summary>
         public bool HasSubtitles
         {
-            get { lock (SyncLock) return m_Subtitle != null; }
+            get { lock (ComponentSyncLock) return m_Subtitle != null; }
         }
 
         /// <summary>
@@ -186,7 +180,7 @@
         /// </summary>
         public long BufferLength
         {
-            get { lock (SyncLock) return All.Sum(c => c.BufferLength); }
+            get { lock (BufferSyncLock) return m_BufferLength; }
         }
 
         /// <summary>
@@ -194,7 +188,7 @@
         /// </summary>
         public int BufferCount
         {
-            get { lock (SyncLock) return All.Sum(c => c.BufferCount); }
+            get { lock (BufferSyncLock) return m_BufferCount; }
         }
 
         /// <summary>
@@ -202,7 +196,7 @@
         /// </summary>
         public int BufferCountThreshold
         {
-            get { lock (SyncLock) return All.Sum(c => c.BufferCountThreshold); }
+            get { lock (BufferSyncLock) return m_BufferCountThreshold; }
         }
 
         /// <summary>
@@ -211,7 +205,7 @@
         /// </summary>
         public bool HasEnoughPackets
         {
-            get { lock (SyncLock) return All.Any(c => c.HasEnoughPackets == false) == false; }
+            get { lock (BufferSyncLock) return m_HasEnoughPackets; }
         }
 
         /// <summary>
@@ -227,7 +221,7 @@
         {
             get
             {
-                lock (SyncLock)
+                lock (ComponentSyncLock)
                 {
                     switch (mediaType)
                     {
@@ -258,24 +252,20 @@
         /// <returns>The media type</returns>
         public unsafe MediaType SendPacket(MediaPacket packet)
         {
-            lock (SyncLock)
-            {
-                if (packet == null)
-                    return MediaType.None;
-
-                foreach (var component in All)
-                {
-                    if (component.StreamIndex == packet.StreamIndex)
-                    {
-                        component.SendPacket(packet);
-                        InvokeOnPacketQueueChanged(
-                            PacketQueueOp.Queued, packet, component.MediaType);
-                        return component.MediaType;
-                    }
-                }
-
+            if (packet == null)
                 return MediaType.None;
+
+            foreach (var component in All)
+            {
+                if (component.StreamIndex == packet.StreamIndex)
+                {
+                    component.SendPacket(packet);
+                    ProcessPacketQueueChanges(PacketQueueOp.Queued, packet, component.MediaType);
+                    return component.MediaType;
+                }
             }
+
+            return MediaType.None;
         }
 
         /// <summary>
@@ -285,9 +275,8 @@
         /// </summary>
         public void SendEmptyPackets()
         {
-            lock (SyncLock)
-                foreach (var component in All)
-                    component.SendEmptyPacket();
+            foreach (var component in All)
+                component.SendEmptyPacket();
         }
 
         /// <summary>
@@ -299,9 +288,8 @@
         /// <param name="flushBuffers">if set to <c>true</c> flush codec buffers.</param>
         public void ClearQueuedPackets(bool flushBuffers)
         {
-            lock (SyncLock)
-                foreach (var component in All)
-                    component.ClearQueuedPackets(flushBuffers);
+            foreach (var component in All)
+                component.ClearQueuedPackets(flushBuffers);
         }
 
         #endregion
@@ -309,13 +297,13 @@
         #region Helper Methods
 
         /// <summary>
-        /// Invokes the on packet queue changed callback.
+        /// Updates queue properties and invokes the on packet queue changed callback.
         /// </summary>
         /// <param name="operation">The operation.</param>
         /// <param name="packet">The packet.</param>
         /// <param name="mediaType">Type of the media.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void InvokeOnPacketQueueChanged(PacketQueueOp operation, MediaPacket packet, MediaType mediaType)
+        internal void ProcessPacketQueueChanges(PacketQueueOp operation, MediaPacket packet, MediaType mediaType)
         {
             if (OnPacketQueueChanged == null)
                 return;
@@ -323,20 +311,27 @@
             var bufferLength = 0L;
             var bufferCount = 0;
             var bufferCountMax = 0;
+            var hasEnoughPackets = true;
 
-            lock (SyncLock)
+            lock (BufferSyncLock)
             {
                 foreach (var c in All)
                 {
                     bufferLength += c.BufferLength;
                     bufferCount += c.BufferCount;
                     bufferCountMax += c.BufferCountThreshold;
+                    if (hasEnoughPackets && c.HasEnoughPackets == false)
+                        hasEnoughPackets = false;
                 }
+
+                m_BufferCountThreshold = bufferCountMax;
+                m_BufferLength = bufferLength;
+                m_BufferCount = bufferCount;
+                m_HasEnoughPackets = hasEnoughPackets;
             }
 
-            var pointer = packet == null ? IntPtr.Zero : packet.SafePointer;
             OnPacketQueueChanged?.Invoke(
-                operation, pointer, mediaType, bufferLength, bufferCount, bufferCountMax);
+                operation, packet?.SafePointer ?? IntPtr.Zero, mediaType, bufferLength, bufferCount, bufferCountMax);
         }
 
         /// <summary>
@@ -406,7 +401,7 @@
         /// <exception cref="ArgumentException">When the component is null</exception>
         internal void AddComponent(MediaComponent component)
         {
-            lock (SyncLock)
+            lock (ComponentSyncLock)
             {
                 if (component == null)
                     throw new ArgumentNullException(nameof(component));
@@ -435,7 +430,7 @@
                         throw new NotSupportedException($"Unable to register component with {nameof(MediaType)} '{component.MediaType}'");
                 }
 
-                UpdateBackingFields();
+                UpdateComponentBackingFields();
             }
         }
 
@@ -446,7 +441,7 @@
         /// <param name="mediaType">Type of the media.</param>
         internal void RemoveComponent(MediaType mediaType)
         {
-            lock (SyncLock)
+            lock (ComponentSyncLock)
             {
                 var component = default(MediaComponent);
                 switch (mediaType)
@@ -468,14 +463,14 @@
                 }
 
                 component?.Dispose();
-                UpdateBackingFields();
+                UpdateComponentBackingFields();
             }
         }
 
         /// <summary>
         /// Computes the main component and backing fields.
         /// </summary>
-        private void UpdateBackingFields()
+        private void UpdateComponentBackingFields()
         {
             var allComponents = new List<MediaComponent>(4);
             var allMediaTypes = new List<MediaType>(4);
@@ -545,7 +540,7 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
-            lock (SyncLock)
+            lock (ComponentSyncLock)
             {
                 if (IsDisposed || alsoManaged == false)
                     return;

@@ -25,7 +25,6 @@
             var rangePercent = 0d;
             var main = Container.Components.MainMediaType; // Holds the main media type
             var resumeSyncBufferingClock = false;
-            var isSyncBuffering = false;
             MediaBlockBuffer blocks = null;
 
             try
@@ -64,56 +63,14 @@
                         blocks = Blocks[main];
 
                         // If we are not then we need to begin sync-buffering
-                        if (blocks.IsInRange(WallClock) == false)
+                        if (IsSyncBuffering == false && blocks.IsInRange(WallClock) == false)
                         {
                             // Signal the start of a sync-buffering scenario
-                            // TODO: Maybe this should be in the command manager?
-                            isSyncBuffering = true;
+                            IsSyncBuffering = true;
                             resumeSyncBufferingClock = Clock.IsRunning;
                             Clock.Pause();
                             State.UpdateMediaState(PlaybackStatus.Manual);
-
                             Log(MediaLogMessageType.Debug, $"SYNC-BUFFER: Started.");
-
-                            var hasAddedBlock = false;
-                            while (IsWorkerInterruptRequested == false && CanReadMoreFramesOf(main))
-                            {
-                                hasAddedBlock = false;
-                                if (decodedFrameCount < blocks.Capacity)
-                                {
-                                    hasAddedBlock = AddNextBlock(main);
-                                    decodedFrameCount += hasAddedBlock ? 1 : 0;
-                                }
-
-                                if (State.IsNetworkStream &&
-                                    State.IsLiveStream == false &&
-                                    State.BufferingProgress < 1)
-                                {
-                                    PacketReadingCycle.Wait(Constants.Interval.LowPriority);
-                                    continue;
-                                }
-
-                                if (decodedFrameCount > 0 && blocks.IsInRange(WallClock))
-                                    break;
-
-                                if (decodedFrameCount >= blocks.Capacity)
-                                    break;
-
-                                if (hasAddedBlock == false && ShouldWorkerReadPackets)
-                                    PacketReadingCycle.Wait(Constants.Interval.LowPriority);
-                            }
-
-                            // Unfortunately at this point we will need to adjust the clock after creating the frames.
-                            // to ensure tha mian component is within the clock range if the decoded
-                            // frames are not with range. This is normal while buffering though.
-                            if (blocks.IsInRange(WallClock) == false)
-                            {
-                                // Update the wall clock to the most appropriate available block.
-                                if (blocks.Count > 0)
-                                    ChangePosition(blocks[WallClock].StartTime);
-                                else
-                                    resumeSyncBufferingClock = false; // Hard stop the clock.
-                            }
                         }
 
                         #endregion
@@ -141,7 +98,7 @@
                                 rangePercent = blocks.GetRangePercent(WallClock);
 
                                 // Determine break conditions to save CPU time
-                                if (isSyncBuffering == false &&
+                                if (IsSyncBuffering == false &&
                                     rangePercent > 0 &&
                                     rangePercent <= rangePercentThreshold &&
                                     blocks.IsFull == false &&
@@ -149,6 +106,13 @@
                                     blocks.IsInRange(WallClock))
                                     break;
                             }
+                        }
+
+                        if (IsSyncBuffering == true && Container.Components.HasEnoughPackets == false)
+                        {
+                            FrameDecodingCycle.Complete();
+                            DelayDecoder(delay, 0);
+                            continue;
                         }
 
                         #endregion
@@ -160,15 +124,30 @@
                     DetectEndOfMedia(decodedFrameCount, main);
 
                     // Resume sync-buffering clock
-                    if (isSyncBuffering)
+                    if (IsSyncBuffering && Container.Components.HasEnoughPackets)
                     {
+                        // Sync-buffering blocks
+                        blocks = Blocks[main];
+
+                        // Unfortunately at this point we will need to adjust the clock after creating the frames.
+                        // to ensure tha mian component is within the clock range if the decoded
+                        // frames are not with range. This is normal while buffering though.
+                        if (blocks.IsInRange(WallClock) == false)
+                        {
+                            // Update the wall clock to the most appropriate available block.
+                            if (blocks.Count > 0)
+                                ChangePosition(blocks[WallClock].StartTime);
+                            else
+                                resumeSyncBufferingClock = false; // Hard stop the clock.
+                        }
+
                         // log some message and resume the clock if it was playing
                         Log(MediaLogMessageType.Debug, $"SYNC-BUFFER: Finished. Clock set to {WallClock.Format()}");
 
                         if (resumeSyncBufferingClock && State.HasMediaEnded == false)
                             ResumePlayback();
 
-                        isSyncBuffering = false;
+                        IsSyncBuffering = false;
                         resumeSyncBufferingClock = false;
                     }
 
