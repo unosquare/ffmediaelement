@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME
 {
-    using Primitives;
     using Shared;
+    using System;
 
     public partial class MediaEngine
     {
@@ -12,10 +12,7 @@
         /// </summary>
         internal void RunPacketReadingWorker()
         {
-            // Setup some state variables
-            var delay = new DelayProvider(); // The delay provider prevents 100% core usage
-            var packetsReadCount = 0; // Holds the packet count for each read cycle
-            var t = MediaType.None; // State variables for media types
+            var delay = TimeSpan.FromMilliseconds(1);
 
             try
             {
@@ -35,26 +32,26 @@
                     // Enter a packet reading cycle
                     PacketReadingCycle.Begin();
 
-                    // Initialize Packets read to 0 for each component and state variables
-                    packetsReadCount = 0;
-                    t = MediaType.None;
-
-                    while (ShouldWorkerReadPackets)
+                    // Perform a packet read. t will hold the packet type.
+                    if (ShouldWorkerReadPackets)
                     {
-                        // Perform a packet read. t will hold the packet type.
-                        try { t = Container.Read(); }
+                        try { Container.Read(); }
                         catch (MediaContainerException) { break; }
-
-                        // Packet skipped
-                        if (t == MediaType.None)
-                            continue;
-
-                        packetsReadCount++;
                     }
+                    else
+                    {
+                        // Give it a break until there are packet changes
+                        // this prevent pegging the cpu core
+                        BufferChangedEvent.Begin();
+                        while (IsWorkerInterruptRequested == false)
+                        {
+                            if (ShouldWorkerReadPackets)
+                                break;
 
-                    // Introduce a delay if we did not read packets
-                    if (ShouldWorkerReadPackets == false)
-                        delay.WaitOne();
+                            if (BufferChangedEvent.Wait(delay))
+                                break;
+                        }
+                    }
 
                     // finish the reading cycle.
                     PacketReadingCycle.Complete();
@@ -65,7 +62,6 @@
             {
                 // Always exit notifying the reading cycle is done.
                 PacketReadingCycle.Complete();
-                delay.Dispose();
             }
         }
     }

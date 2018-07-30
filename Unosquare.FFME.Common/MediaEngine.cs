@@ -144,6 +144,7 @@
                 PacketReadingCycle.Dispose();
                 FrameDecodingCycle.Dispose();
                 BlockRenderingCycle.Dispose();
+                BufferChangedEvent.Dispose();
             }
             catch { throw; }
         }

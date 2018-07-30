@@ -19,6 +19,8 @@
         #region State Management
 
         private readonly AtomicBoolean m_IsSyncBuffering = new AtomicBoolean(false);
+        private readonly AtomicLong m_MaxDecoderBitrate = new AtomicLong(0);
+
         private Thread PacketReadingTask = null;
         private Thread FrameDecodingTask = null;
         private Timer BlockRenderingWorker = null;
@@ -50,9 +52,25 @@
         internal IWaitEvent BlockRenderingCycle { get; } = WaitEventFactory.Create(isCompleted: false, useSlim: true);
 
         /// <summary>
+        /// Completed whenever a change in the packet buffer is detected.
+        /// This needs to be reset manually and prevents high CPU usage in the packet reading worker.
+        /// </summary>
+        internal IWaitEvent BufferChangedEvent { get; } = WaitEventFactory.Create(isCompleted: true, useSlim: true);
+
+        /// <summary>
         /// Holds the block renderers
         /// </summary>
         internal MediaTypeDictionary<IMediaRenderer> Renderers { get; } = new MediaTypeDictionary<IMediaRenderer>();
+
+        /// <summary>
+        /// Gets or sets the maximum decoder bitrate that has been found.
+        /// This is useful for adaptive buffering in network streams.
+        /// </summary>
+        internal long MaxDecoderBitrate
+        {
+            get => m_MaxDecoderBitrate.Value;
+            set => m_MaxDecoderBitrate.Value = value;
+        }
 
         /// <summary>
         /// Holds the last rendered StartTime for each of the media block types
@@ -76,6 +94,8 @@
         {
             get
             {
+                const long NetworkBufferLengthMin = 512 * 1024;
+
                 if (Commands.IsStopWorkersPending || Container == null || Container.Components == null)
                     return false;
 
@@ -84,6 +104,15 @@
 
                 // If it's a live stream always continue reading, regardless
                 if (Container.IsLiveStream)
+                    return true;
+
+                // For network streams always expect a minimum buffer length
+                if (Container.IsNetworkStream && Container.Components.BufferLength < NetworkBufferLengthMin)
+                    return true;
+
+                // Adaptive Buffering: If we have computed the maximum decoder bitrate and we have
+                // less than the max decoder bitrate in the buffer then go ahead and read
+                if (MaxDecoderBitrate > 0 && Container.Components.BufferLength < MaxDecoderBitrate / 8)
                     return true;
 
                 // if we don't have enough packets queued we should read

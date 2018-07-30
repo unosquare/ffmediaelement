@@ -171,6 +171,7 @@
                 m.Container.Components.OnPacketQueueChanged = (op, packet, mediaType, state) =>
                 {
                     m.State.UpdateBufferingStatistics(state.Length, state.Count, state.CountThreshold);
+                    m.BufferChangedEvent.Complete();
                 };
 
                 // Check if we have at least audio or video here

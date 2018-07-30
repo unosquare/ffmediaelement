@@ -20,7 +20,9 @@
             // to use a single atomic wallclock value per cycle. Check other workers as well.
             // state notification purposes.
             // State variables
+            MaxDecoderBitrate = 0L;
             var delay = new DelayProvider(); // The delay provider prevents 100% core usage
+            var currentDecoderBitrate = 0L;
             var decodedFrameCount = 0;
             var rangePercent = 0d;
             var main = Container.Components.MainMediaType; // Holds the main media type
@@ -152,8 +154,11 @@
                     }
 
                     // Provide updates to decoding stats
-                    State.UpdateDecodingBitrate(
-                        Blocks.Values.Sum(b => b.IsInRange(WallClock) ? b.RangeBitrate : 0));
+                    currentDecoderBitrate = Blocks.Values.Sum(b => b.IsInRange(WallClock) ? b.RangeBitrate : 0);
+                    State.UpdateDecodingBitrate(currentDecoderBitrate);
+
+                    if (Blocks[main].IsFull && currentDecoderBitrate > MaxDecoderBitrate)
+                        MaxDecoderBitrate = currentDecoderBitrate;
 
                     // Complete the frame decoding cycle
                     FrameDecodingCycle.Complete();
