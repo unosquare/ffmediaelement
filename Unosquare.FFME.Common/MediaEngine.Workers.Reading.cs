@@ -13,6 +13,7 @@
         internal void RunPacketReadingWorker()
         {
             var delay = TimeSpan.FromMilliseconds(1);
+            IsSyncBuffering = false;
 
             try
             {
@@ -53,6 +54,12 @@
                         }
                     }
 
+                    // No more sync-buffering if we have enough packets
+                    if (Container.Components.HasEnoughPackets ||
+                        Container.Components.BufferLength > BufferLengthMax ||
+                        (Container.IsLiveStream && Blocks[Container.Components.MainMediaType].IsFull))
+                        IsSyncBuffering = false;
+
                     // finish the reading cycle.
                     PacketReadingCycle.Complete();
                 }
@@ -62,6 +69,7 @@
             {
                 // Always exit notifying the reading cycle is done.
                 PacketReadingCycle.Complete();
+                IsSyncBuffering = false;
             }
         }
     }

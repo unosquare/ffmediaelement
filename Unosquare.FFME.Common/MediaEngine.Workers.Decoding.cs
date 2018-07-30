@@ -20,9 +20,8 @@
             // to use a single atomic wallclock value per cycle. Check other workers as well.
             // state notification purposes.
             // State variables
-            MaxDecoderBitrate = 0L;
+            var wasSyncBuffering = false;
             var delay = new DelayProvider(); // The delay provider prevents 100% core usage
-            var currentDecoderBitrate = 0L;
             var decodedFrameCount = 0;
             var rangePercent = 0d;
             var main = Container.Components.MainMediaType; // Holds the main media type
@@ -43,7 +42,8 @@
                     }
 
                     // Execute the following command at the beginning of the cycle
-                    Commands.ExecuteNextQueuedCommand();
+                    if (IsSyncBuffering == false)
+                        Commands.ExecuteNextQueuedCommand();
 
                     // Signal a Seek starting operation and set the initial state
                     FrameDecodingCycle.Begin();
@@ -65,10 +65,11 @@
                         blocks = Blocks[main];
 
                         // If we are not then we need to begin sync-buffering
-                        if (IsSyncBuffering == false && blocks.IsInRange(WallClock) == false)
+                        if (wasSyncBuffering == false && blocks.IsInRange(WallClock) == false)
                         {
                             // Signal the start of a sync-buffering scenario
                             IsSyncBuffering = true;
+                            wasSyncBuffering = true;
                             resumeSyncBufferingClock = Clock.IsRunning;
                             Clock.Pause();
                             State.UpdateMediaState(PlaybackStatus.Manual);
@@ -93,6 +94,10 @@
                             // Read as much as we can for this cycle but always within range.
                             while (blocks.IsFull == false || rangePercent > rangePercentThreshold)
                             {
+                                // Stop decoding under sync-buffering conditions
+                                if (IsSyncBuffering && blocks.IsFull)
+                                    break;
+
                                 if (IsWorkerInterruptRequested || AddNextBlock(t) == false)
                                     break;
 
@@ -110,10 +115,11 @@
                             }
                         }
 
-                        if (IsSyncBuffering == true && Container.Components.HasEnoughPackets == false)
+                        // Give it a break if we are still buffering packets
+                        if (IsSyncBuffering)
                         {
+                            delay.WaitOne();
                             FrameDecodingCycle.Complete();
-                            DelayDecoder(delay, 0);
                             continue;
                         }
 
@@ -126,7 +132,7 @@
                     DetectEndOfMedia(decodedFrameCount, main);
 
                     // Resume sync-buffering clock
-                    if (IsSyncBuffering && Container.Components.HasEnoughPackets)
+                    if (wasSyncBuffering && IsSyncBuffering == false)
                     {
                         // Sync-buffering blocks
                         blocks = Blocks[main];
@@ -149,16 +155,13 @@
                         if (resumeSyncBufferingClock && State.HasMediaEnded == false)
                             ResumePlayback();
 
-                        IsSyncBuffering = false;
+                        wasSyncBuffering = false;
                         resumeSyncBufferingClock = false;
                     }
 
                     // Provide updates to decoding stats
-                    currentDecoderBitrate = Blocks.Values.Sum(b => b.IsInRange(WallClock) ? b.RangeBitrate : 0);
-                    State.UpdateDecodingBitrate(currentDecoderBitrate);
-
-                    if (Blocks[main].IsFull && currentDecoderBitrate > MaxDecoderBitrate)
-                        MaxDecoderBitrate = currentDecoderBitrate;
+                    State.UpdateDecodingBitrate(
+                        Blocks.Values.Sum(b => b.IsInRange(WallClock) ? b.RangeBitrate : 0));
 
                     // Complete the frame decoding cycle
                     FrameDecodingCycle.Complete();

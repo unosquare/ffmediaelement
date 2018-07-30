@@ -140,7 +140,7 @@
                 finally
                 {
                     // Update the Position
-                    if (IsWorkerInterruptRequested == false)
+                    if (IsWorkerInterruptRequested == false && IsSyncBuffering == false)
                         State.UpdatePosition(Clock.IsRunning ? wallClock : Clock.Position);
 
                     // Always exit notifying the cycle is done.

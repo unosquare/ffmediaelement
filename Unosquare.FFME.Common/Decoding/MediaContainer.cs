@@ -719,8 +719,8 @@
 
                 if (IsNetworkStream == false && Uri.TryCreate(MediaUrl, UriKind.RelativeOrAbsolute, out var uri))
                 {
-                    try { IsNetworkStream = uri.IsFile == false || uri.IsUnc; }
-                    catch { }
+                    try { IsNetworkStream = uri.IsFile == false; }
+                    catch { IsNetworkStream = true; }
                 }
 
                 // Extract the Media Info

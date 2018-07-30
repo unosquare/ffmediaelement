@@ -19,7 +19,6 @@
         #region State Management
 
         private readonly AtomicBoolean m_IsSyncBuffering = new AtomicBoolean(false);
-        private readonly AtomicLong m_MaxDecoderBitrate = new AtomicLong(0);
 
         private Thread PacketReadingTask = null;
         private Thread FrameDecodingTask = null;
@@ -63,16 +62,6 @@
         internal MediaTypeDictionary<IMediaRenderer> Renderers { get; } = new MediaTypeDictionary<IMediaRenderer>();
 
         /// <summary>
-        /// Gets or sets the maximum decoder bitrate that has been found.
-        /// This is useful for adaptive buffering in network streams.
-        /// </summary>
-        internal long MaxDecoderBitrate
-        {
-            get => m_MaxDecoderBitrate.Value;
-            set => m_MaxDecoderBitrate.Value = value;
-        }
-
-        /// <summary>
         /// Holds the last rendered StartTime for each of the media block types
         /// </summary>
         internal MediaTypeDictionary<TimeSpan> LastRenderTime { get; } = new MediaTypeDictionary<TimeSpan>();
@@ -87,6 +76,12 @@
         }
 
         /// <summary>
+        /// Gets the buffer length maximum.
+        /// port of MAX_QUEUE_SIZE (ffplay.c)
+        /// </summary>
+        internal long BufferLengthMax => 16 * 1024 * 1024;
+
+        /// <summary>
         /// Gets a value indicating whether packets can be read and
         /// room is available in the download cache.
         /// </summary>
@@ -94,8 +89,6 @@
         {
             get
             {
-                const long NetworkBufferLengthMin = 512 * 1024;
-
                 if (Commands.IsStopWorkersPending || Container == null || Container.Components == null)
                     return false;
 
@@ -107,12 +100,7 @@
                     return true;
 
                 // For network streams always expect a minimum buffer length
-                if (Container.IsNetworkStream && Container.Components.BufferLength < NetworkBufferLengthMin)
-                    return true;
-
-                // Adaptive Buffering: If we have computed the maximum decoder bitrate and we have
-                // less than the max decoder bitrate in the buffer then go ahead and read
-                if (MaxDecoderBitrate > 0 && Container.Components.BufferLength < MaxDecoderBitrate / 8)
+                if (Container.IsNetworkStream && Container.Components.BufferLength < BufferLengthMax)
                     return true;
 
                 // if we don't have enough packets queued we should read
@@ -169,6 +157,7 @@
 
             Clock.SpeedRatio = Constants.Controller.DefaultSpeedRatio;
             Commands.IsStopWorkersPending = false;
+            IsSyncBuffering = true;
 
             // Set the initial state of the task cycles.
             BlockRenderingCycle.Complete();

@@ -714,13 +714,10 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void UpdateBufferingStatistics(long bufferLength, int bufferCount, int bufferCountMax)
         {
-            // port of MAX_QUEUE_SIZE (ffplay.c)
-            const long BufferLengthMax = 16 * 1024 * 1024;
-
             PacketBufferCount = bufferCount;
             PacketBufferLength = bufferLength;
             BufferingProgress = bufferCountMax <= 0 ? 0 : Math.Min(1d, (double)bufferCount / bufferCountMax);
-            DownloadProgress = Math.Min(1d, (double)bufferLength / BufferLengthMax);
+            DownloadProgress = Math.Min(1d, (double)bufferLength / Parent.BufferLengthMax);
 
             // Detect the start of buffering
             if (IsBuffering == false && BufferingProgress < 1 && Parent.ShouldReadMorePackets)
