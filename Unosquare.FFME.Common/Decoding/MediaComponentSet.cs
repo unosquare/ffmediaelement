@@ -32,11 +32,7 @@
         private AudioComponent m_Audio = null;
         private VideoComponent m_Video = null;
         private SubtitleComponent m_Subtitle = null;
-
-        private long m_BufferLength = default;
-        private int m_BufferCount = default;
-        private int m_BufferCountThreshold = default;
-        private bool m_HasEnoughPackets = default;
+        private PacketBufferState BufferState = default;
 
         #endregion
 
@@ -54,7 +50,9 @@
 
         #region Delegates
 
-        public delegate void OnPacketQueueChangedDelegate(PacketQueueOp operation, IntPtr avPacket, MediaType mediaType, long bufferLength, int bufferCount, int bufferCountMax);
+        public delegate void OnPacketQueueChangedDelegate(
+            PacketQueueOp operation, MediaPacket avPacket, MediaType mediaType, PacketBufferState bufferState);
+
         public delegate void OnFrameDecodedDelegate(IntPtr avFrame, MediaType mediaType);
         public delegate void OnSubtitleDecodedDelegate(IntPtr avSubititle);
 
@@ -180,7 +178,7 @@
         /// </summary>
         public long BufferLength
         {
-            get { lock (BufferSyncLock) return m_BufferLength; }
+            get { lock (BufferSyncLock) return BufferState.Length; }
         }
 
         /// <summary>
@@ -188,7 +186,7 @@
         /// </summary>
         public int BufferCount
         {
-            get { lock (BufferSyncLock) return m_BufferCount; }
+            get { lock (BufferSyncLock) return BufferState.Count; }
         }
 
         /// <summary>
@@ -196,7 +194,7 @@
         /// </summary>
         public int BufferCountThreshold
         {
-            get { lock (BufferSyncLock) return m_BufferCountThreshold; }
+            get { lock (BufferSyncLock) return BufferState.CountThreshold; }
         }
 
         /// <summary>
@@ -205,7 +203,7 @@
         /// </summary>
         public bool HasEnoughPackets
         {
-            get { lock (BufferSyncLock) return m_HasEnoughPackets; }
+            get { lock (BufferSyncLock) return BufferState.HasEnoughPackets; }
         }
 
         /// <summary>
@@ -260,7 +258,6 @@
                 if (component.StreamIndex == packet.StreamIndex)
                 {
                     component.SendPacket(packet);
-                    ProcessPacketQueueChanges(PacketQueueOp.Queued, packet, component.MediaType);
                     return component.MediaType;
                 }
             }
@@ -308,30 +305,24 @@
             if (OnPacketQueueChanged == null)
                 return;
 
-            var bufferLength = 0L;
-            var bufferCount = 0;
-            var bufferCountMax = 0;
-            var hasEnoughPackets = true;
+            var state = default(PacketBufferState);
+            state.HasEnoughPackets = true;
 
-            lock (BufferSyncLock)
+            foreach (var c in All)
             {
-                foreach (var c in All)
-                {
-                    bufferLength += c.BufferLength;
-                    bufferCount += c.BufferCount;
-                    bufferCountMax += c.BufferCountThreshold;
-                    if (hasEnoughPackets && c.HasEnoughPackets == false)
-                        hasEnoughPackets = false;
-                }
-
-                m_BufferCountThreshold = bufferCountMax;
-                m_BufferLength = bufferLength;
-                m_BufferCount = bufferCount;
-                m_HasEnoughPackets = hasEnoughPackets;
+                state.Length += c.BufferLength;
+                state.Count += c.BufferCount;
+                state.CountThreshold += c.BufferCountThreshold;
+                if (state.HasEnoughPackets && c.HasEnoughPackets == false)
+                    state.HasEnoughPackets = false;
             }
 
-            OnPacketQueueChanged?.Invoke(
-                operation, packet?.SafePointer ?? IntPtr.Zero, mediaType, bufferLength, bufferCount, bufferCountMax);
+            // Update the buffer state
+            lock (BufferSyncLock)
+                BufferState = state;
+
+            // Send the callabck
+            OnPacketQueueChanged?.Invoke(operation, packet, mediaType, state);
         }
 
         /// <summary>

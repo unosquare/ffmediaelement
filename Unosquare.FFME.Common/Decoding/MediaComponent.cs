@@ -426,6 +426,7 @@
             }
 
             Packets.Push(packet);
+            Container.Components.ProcessPacketQueueChanges(PacketQueueOp.Queued, packet, MediaType);
         }
 
         /// <summary>

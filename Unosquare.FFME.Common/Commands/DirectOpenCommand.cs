@@ -168,8 +168,10 @@
                 m.State.InitializeBufferingStatistics();
 
                 // Packet Buffer Notification Callbacks
-                m.Container.Components.OnPacketQueueChanged = (operation, packet, mediaType, bufferLength, bufferCount, bufferCountMax)
-                    => { m.State.UpdateBufferingStatistics(bufferLength, bufferCount, bufferCountMax); };
+                m.Container.Components.OnPacketQueueChanged = (op, packet, mediaType, state) =>
+                {
+                    m.State.UpdateBufferingStatistics(state.Length, state.Count, state.CountThreshold);
+                };
 
                 // Check if we have at least audio or video here
                 if (m.State.HasAudio == false && m.State.HasVideo == false)
