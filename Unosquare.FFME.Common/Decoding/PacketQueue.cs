@@ -18,6 +18,7 @@
         private readonly List<MediaPacket> Packets = new List<MediaPacket>(2048);
         private readonly object SyncLock = new object();
         private long m_BufferLength = default;
+        private long m_Duration = default;
 
         #endregion
 
@@ -65,20 +66,7 @@
         /// <returns>The total duration</returns>
         public TimeSpan GetDuration(AVRational timeBase)
         {
-            var packetDuration = 0L;
-            var totalDuration = 0L;
-            lock (SyncLock)
-            {
-                foreach (var packet in Packets)
-                {
-                    if (packet == null) continue;
-                    packetDuration = packet.Duration;
-                    if (packetDuration > 0)
-                        totalDuration += packetDuration;
-                }
-            }
-
-            return totalDuration.ToTimeSpan(timeBase);
+            lock (SyncLock) { return m_Duration.ToTimeSpan(timeBase); }
         }
 
         /// <summary>
@@ -109,6 +97,7 @@
             {
                 Packets.Add(packet);
                 m_BufferLength += packet.Size < 0 ? default : packet.Size;
+                m_Duration += packet.Duration < 0 ? default : packet.Duration;
             }
         }
 
@@ -126,6 +115,7 @@
 
                 var packet = result;
                 m_BufferLength -= packet.Size < 0 ? default : packet.Size;
+                m_Duration -= packet.Duration < 0 ? default : packet.Duration;
                 return packet;
             }
         }
@@ -144,6 +134,7 @@
                 }
 
                 m_BufferLength = 0;
+                m_Duration = 0;
             }
         }
 
