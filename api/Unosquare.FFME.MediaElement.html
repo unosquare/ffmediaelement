@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Class MediaElement
    | FFME: WPF MediaElement replacement based on FFmpeg ">
-    <meta name="generator" content="docfx 2.37.1.0">
+    <meta name="generator" content="docfx 2.37.2.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -1161,34 +1161,6 @@ when the libraries have not been loaded.</p>
   </table>
   
   
-  <a id="Unosquare_FFME_MediaElement_FrameStepDuration_" data-uid="Unosquare.FFME.MediaElement.FrameStepDuration*"></a>
-  <h4 id="Unosquare_FFME_MediaElement_FrameStepDuration" data-uid="Unosquare.FFME.MediaElement.FrameStepDuration">FrameStepDuration</h4>
-  <div class="markdown level1 summary"><p>Gets the duration of a single frame step.
-If there is a video component with a framerate, this propery returns the length of a frame.
-If there is no video component it simply returns a tenth of a second.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public TimeSpan FrameStepDuration { get; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.TimeSpan</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
   <a id="Unosquare_FFME_MediaElement_HasAudio_" data-uid="Unosquare.FFME.MediaElement.HasAudio*"></a>
   <h4 id="Unosquare_FFME_MediaElement_HasAudio" data-uid="Unosquare.FFME.MediaElement.HasAudio">HasAudio</h4>
   <div class="markdown level1 summary"><p>Returns whether the given media has audio.
@@ -2038,6 +2010,34 @@ Only valid after the MediaOpened event has fired.</p>
   </table>
   
   
+  <a id="Unosquare_FFME_MediaElement_PositionStep_" data-uid="Unosquare.FFME.MediaElement.PositionStep*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_PositionStep" data-uid="Unosquare.FFME.MediaElement.PositionStep">PositionStep</h4>
+  <div class="markdown level1 summary"><p>Gets the duration of a single frame step.
+If there is a video component with a framerate, this propery returns the length of a frame.
+If there is no video component it simply returns a tenth of a second.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TimeSpan PositionStep { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.TimeSpan</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <a id="Unosquare_FFME_MediaElement_RemainingDuration_" data-uid="Unosquare.FFME.MediaElement.RemainingDuration*"></a>
   <h4 id="Unosquare_FFME_MediaElement_RemainingDuration" data-uid="Unosquare.FFME.MediaElement.RemainingDuration">RemainingDuration</h4>
   <div class="markdown level1 summary"><p>Gets the remaining playback duration. Returns Forever for indeterminate values.</p>
@@ -2282,6 +2282,32 @@ it has ended. The default behavior is to Pause the media.</p>
   </table>
   
   
+  <a id="Unosquare_FFME_MediaElement_VideoAspectRatio_" data-uid="Unosquare.FFME.MediaElement.VideoAspectRatio*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_VideoAspectRatio" data-uid="Unosquare.FFME.MediaElement.VideoAspectRatio">VideoAspectRatio</h4>
+  <div class="markdown level1 summary"><p>Gets the current video aspec ratio if available.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string VideoAspectRatio { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <a id="Unosquare_FFME_MediaElement_VideoBitrate_" data-uid="Unosquare.FFME.MediaElement.VideoBitrate*"></a>
   <h4 id="Unosquare_FFME_MediaElement_VideoBitrate" data-uid="Unosquare.FFME.MediaElement.VideoBitrate">VideoBitrate</h4>
   <div class="markdown level1 summary"><p>Gets the video bitrate.
@@ -2330,33 +2356,6 @@ Only valid after the MediaOpened event has fired.</p>
     <tbody>
       <tr>
         <td><span class="xref">System.String</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
-  <a id="Unosquare_FFME_MediaElement_VideoFrameLength_" data-uid="Unosquare.FFME.MediaElement.VideoFrameLength*"></a>
-  <h4 id="Unosquare_FFME_MediaElement_VideoFrameLength" data-uid="Unosquare.FFME.MediaElement.VideoFrameLength">VideoFrameLength</h4>
-  <div class="markdown level1 summary"><p>Gets the duration in seconds of the video frame.
-Only valid after the MediaOpened event has fired.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public double VideoFrameLength { get; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.Double</span></td>
         <td></td>
       </tr>
     </tbody>
@@ -2448,8 +2447,7 @@ Only valid after the MediaOpened event has fired.</p>
   
   <a id="Unosquare_FFME_MediaElement_VideoSmtpeTimecode_" data-uid="Unosquare.FFME.MediaElement.VideoSmtpeTimecode*"></a>
   <h4 id="Unosquare_FFME_MediaElement_VideoSmtpeTimecode" data-uid="Unosquare.FFME.MediaElement.VideoSmtpeTimecode">VideoSmtpeTimecode</h4>
-  <div class="markdown level1 summary"><p>Returns the current video SMTPE timecode if available.
-If not available, this property returns an empty string.</p>
+  <div class="markdown level1 summary"><p>Returns the current video SMTPE timecode if available.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>

@@ -1108,19 +1108,6 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.FFmpegVersionInfo
   nameWithType: MediaElement.FFmpegVersionInfo
-- uid: Unosquare.FFME.MediaElement.FrameStepDuration
-  name: FrameStepDuration
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_FrameStepDuration
-  commentId: P:Unosquare.FFME.MediaElement.FrameStepDuration
-  fullName: Unosquare.FFME.MediaElement.FrameStepDuration
-  nameWithType: MediaElement.FrameStepDuration
-- uid: Unosquare.FFME.MediaElement.FrameStepDuration*
-  name: FrameStepDuration
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_FrameStepDuration_
-  commentId: Overload:Unosquare.FFME.MediaElement.FrameStepDuration
-  isSpec: "True"
-  fullName: Unosquare.FFME.MediaElement.FrameStepDuration
-  nameWithType: MediaElement.FrameStepDuration
 - uid: Unosquare.FFME.MediaElement.HasAudio
   name: HasAudio
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_HasAudio
@@ -1721,6 +1708,19 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.PositionProperty
   fullName: Unosquare.FFME.MediaElement.PositionProperty
   nameWithType: MediaElement.PositionProperty
+- uid: Unosquare.FFME.MediaElement.PositionStep
+  name: PositionStep
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_PositionStep
+  commentId: P:Unosquare.FFME.MediaElement.PositionStep
+  fullName: Unosquare.FFME.MediaElement.PositionStep
+  nameWithType: MediaElement.PositionStep
+- uid: Unosquare.FFME.MediaElement.PositionStep*
+  name: PositionStep
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_PositionStep_
+  commentId: Overload:Unosquare.FFME.MediaElement.PositionStep
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.PositionStep
+  nameWithType: MediaElement.PositionStep
 - uid: Unosquare.FFME.MediaElement.PropertyChanged
   name: PropertyChanged
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_PropertyChanged
@@ -1935,6 +1935,19 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.UnloadedBehaviorProperty
   fullName: Unosquare.FFME.MediaElement.UnloadedBehaviorProperty
   nameWithType: MediaElement.UnloadedBehaviorProperty
+- uid: Unosquare.FFME.MediaElement.VideoAspectRatio
+  name: VideoAspectRatio
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoAspectRatio
+  commentId: P:Unosquare.FFME.MediaElement.VideoAspectRatio
+  fullName: Unosquare.FFME.MediaElement.VideoAspectRatio
+  nameWithType: MediaElement.VideoAspectRatio
+- uid: Unosquare.FFME.MediaElement.VideoAspectRatio*
+  name: VideoAspectRatio
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoAspectRatio_
+  commentId: Overload:Unosquare.FFME.MediaElement.VideoAspectRatio
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.VideoAspectRatio
+  nameWithType: MediaElement.VideoAspectRatio
 - uid: Unosquare.FFME.MediaElement.VideoBitrate
   name: VideoBitrate
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoBitrate
@@ -1961,19 +1974,6 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.VideoCodec
   nameWithType: MediaElement.VideoCodec
-- uid: Unosquare.FFME.MediaElement.VideoFrameLength
-  name: VideoFrameLength
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoFrameLength
-  commentId: P:Unosquare.FFME.MediaElement.VideoFrameLength
-  fullName: Unosquare.FFME.MediaElement.VideoFrameLength
-  nameWithType: MediaElement.VideoFrameLength
-- uid: Unosquare.FFME.MediaElement.VideoFrameLength*
-  name: VideoFrameLength
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoFrameLength_
-  commentId: Overload:Unosquare.FFME.MediaElement.VideoFrameLength
-  isSpec: "True"
-  fullName: Unosquare.FFME.MediaElement.VideoFrameLength
-  nameWithType: MediaElement.VideoFrameLength
 - uid: Unosquare.FFME.MediaElement.VideoFrameRate
   name: VideoFrameRate
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoFrameRate
