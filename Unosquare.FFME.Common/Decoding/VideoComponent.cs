@@ -42,13 +42,15 @@
             : base(container, streamIndex)
         {
             FilterString = container.MediaOptions.VideoFilter;
-            BaseFrameRateQ = ffmpeg.av_guess_frame_rate(container.InputContext, Stream, null);
-            if (BaseFrameRateQ.den == 0)
-                BaseFrameRateQ = Stream->r_frame_rate;
+            BaseFrameRateQ = Stream->r_frame_rate;
 
-            if (BaseFrameRateQ.den == 0)
+            if (BaseFrameRateQ.den == 0 || BaseFrameRateQ.num == 0)
+                BaseFrameRateQ = ffmpeg.av_guess_frame_rate(container.InputContext, Stream, null);
+
+            if (BaseFrameRateQ.den == 0 || BaseFrameRateQ.num == 0)
             {
-                container.Parent.Log(MediaLogMessageType.Warning, $"{nameof(VideoComponent)} - Unable to extract valid framerate. Will use 25fps (40ms)");
+                container.Parent.Log(MediaLogMessageType.Warning,
+                    $"{nameof(VideoComponent)} - Unable to extract valid framerate. Will use 25fps (40ms)");
                 BaseFrameRateQ.num = 25;
                 BaseFrameRateQ.den = 1;
             }
@@ -56,9 +58,9 @@
             BaseFrameRate = BaseFrameRateQ.ToDouble();
 
             if (Stream->avg_frame_rate.den > 0 && Stream->avg_frame_rate.num > 0)
-                CurrentFrameRate = Stream->avg_frame_rate.ToDouble();
+                AverageFrameRate = Stream->avg_frame_rate.ToDouble();
             else
-                CurrentFrameRate = BaseFrameRate;
+                AverageFrameRate = BaseFrameRate;
 
             FrameWidth = Stream->codec->width;
             FrameHeight = Stream->codec->height;
@@ -66,6 +68,10 @@
             // Retrieve Matrix Rotation
             var displayMatrixRef = ffmpeg.av_stream_get_side_data(Stream, AVPacketSideDataType.AV_PKT_DATA_DISPLAYMATRIX, null);
             DisplayRotation = ComputeRotation(displayMatrixRef);
+
+            var aspectRatio = ffmpeg.av_d2q((double)FrameWidth / FrameHeight, int.MaxValue);
+            DisplayAspectWidth = aspectRatio.num;
+            DisplayAspectHeight = aspectRatio.den;
         }
 
         #endregion
@@ -86,10 +92,9 @@
         public double BaseFrameRate { get; private set; }
 
         /// <summary>
-        /// Gets the current frame rate as guessed by the last processed frame.
-        /// Variable framerate might report different values at different times.
+        /// Gets the stream's average framerate
         /// </summary>
-        public double CurrentFrameRate { get; private set; }
+        public double AverageFrameRate { get; private set; }
 
         /// <summary>
         /// Gets the width of the picture frame.
@@ -105,6 +110,18 @@
         /// Gets the display rotation.
         /// </summary>
         public double DisplayRotation { get; }
+
+        /// <summary>
+        /// Gets the display aspect width.
+        /// This is NOT the pixel aspect width.
+        /// </summary>
+        public int DisplayAspectWidth { get; }
+
+        /// <summary>
+        /// Gets the display aspect height.
+        /// This si NOT the pixel aspect height.
+        /// </summary>
+        public int DisplayAspectHeight { get; }
 
         /// <summary>
         /// Gets the hardware accelerator.
@@ -289,16 +306,16 @@
                 StreamInfo.HasClosedCaptions = true;
 
             // Process the aspect ratio
-            var aspectRatio = source.Pointer->sample_aspect_ratio;
+            var aspectRatio = ffmpeg.av_guess_sample_aspect_ratio(Container.InputContext, Stream, source.Pointer);
             if (aspectRatio.num == 0 || aspectRatio.den == 0)
             {
-                target.AspectWidth = 1;
-                target.AspectHeight = 1;
+                target.PixelAspectWidth = 1;
+                target.PixelAspectHeight = 1;
             }
             else
             {
-                target.AspectWidth = aspectRatio.num;
-                target.AspectHeight = aspectRatio.den;
+                target.PixelAspectWidth = aspectRatio.num;
+                target.PixelAspectHeight = aspectRatio.den;
             }
 
             return true;
@@ -363,9 +380,7 @@
                 return null;
 
             // Create the frame holder object and return it.
-            var frameHolder = new VideoFrame(outputFrame, this);
-            CurrentFrameRate = ffmpeg.av_guess_frame_rate(Container.InputContext, Stream, outputFrame).ToDouble();
-            return frameHolder;
+            return new VideoFrame(outputFrame, this);
         }
 
         /// <summary>

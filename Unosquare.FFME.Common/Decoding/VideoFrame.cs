@@ -29,9 +29,12 @@
         internal VideoFrame(AVFrame* frame, MediaComponent component)
             : base(frame, component)
         {
-            var repeatFactor = 1d + (0.5d * frame->repeat_pict);
             var timeBase = ffmpeg.av_guess_frame_rate(component.Container.InputContext, component.Stream, frame);
-            Duration = repeatFactor.ToTimeSpan(new AVRational { num = timeBase.den, den = timeBase.num });
+            var repeatFactor = 1d + (0.5d * frame->repeat_pict);
+
+            Duration = frame->pkt_duration <= 0 ?
+                repeatFactor.ToTimeSpan(new AVRational { num = timeBase.den, den = timeBase.num }) :
+                frame->pkt_duration.ToTimeSpan(component.Stream->time_base);
 
             // for video frames, we always get the best effort timestamp as dts and pts might
             // contain different times.

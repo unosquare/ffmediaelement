@@ -246,7 +246,11 @@
                     next.StartTime.Ticks - current.EndTime.Ticks);
 
                 // return null if we have a discontinuity of more than half of the duration
-                if (discontinuity.Ticks > current.Duration.Ticks / 2)
+                var discontinuityThreshold = IsMonotonic ?
+                    TimeSpan.FromTicks(current.Duration.Ticks / 2) :
+                    TimeSpan.FromMilliseconds(1);
+
+                if (discontinuity.Ticks > discontinuityThreshold.Ticks)
                     return null;
 
                 return next;
@@ -410,9 +414,10 @@
                     }
 
                     // Add the converted block to the playback list and sort it if we have to.
-                    PlaybackBlocks.Add(targetBlock);
+                    var lastBlock = PlaybackBlocks.Count > 0 ? PlaybackBlocks[PlaybackBlocks.Count - 1] : null;
+                    var requiresSorting = lastBlock != null && targetBlock.StartTime < lastBlock.StartTime;
 
-                    var requiresSorting = targetBlock.StartTime < RangeEndTime;
+                    PlaybackBlocks.Add(targetBlock);
                     var maxBlockIndex = PlaybackBlocks.Count - 1;
 
                     // Perform the sorting and assignment of Previous and Next blocks

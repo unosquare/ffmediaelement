@@ -31,10 +31,10 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="SubtitleRenderer"/> class.
         /// </summary>
-        /// <param name="mediaEngine">The core media element.</param>
-        public SubtitleRenderer(MediaEngine mediaEngine)
+        /// <param name="mediaCore">The core media element.</param>
+        public SubtitleRenderer(MediaEngine mediaCore)
         {
-            MediaCore = mediaEngine;
+            MediaCore = mediaCore;
         }
 
         /// <summary>

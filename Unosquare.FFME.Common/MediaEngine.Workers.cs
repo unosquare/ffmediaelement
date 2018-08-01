@@ -76,6 +76,29 @@
         }
 
         /// <summary>
+        /// Gets a value indicating whether the packet reader has finished sync-buffering.
+        /// </summary>
+        internal bool CanExitSyncBuffering
+        {
+            get
+            {
+                if (IsSyncBuffering == false)
+                    return false;
+
+                if (Container.Components.BufferLength > BufferLengthMax)
+                    return true;
+
+                if (Container.Components.HasEnoughPackets)
+                    return true;
+
+                if (Container.IsLiveStream && Blocks[Container.Components.MainMediaType].IsFull)
+                    return true;
+
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Gets the buffer length maximum.
         /// port of MAX_QUEUE_SIZE (ffplay.c)
         /// </summary>
@@ -151,8 +174,9 @@
             // Create the renderer for the preloaded subs
             if (PreloadedSubtitles != null)
             {
-                Renderers[PreloadedSubtitles.MediaType] = Platform.CreateRenderer(PreloadedSubtitles.MediaType, this);
-                InvalidateRenderer(PreloadedSubtitles.MediaType);
+                var t = PreloadedSubtitles.MediaType;
+                Renderers[t] = Platform.CreateRenderer(t, this);
+                InvalidateRenderer(t);
             }
 
             Clock.SpeedRatio = Constants.Controller.DefaultSpeedRatio;

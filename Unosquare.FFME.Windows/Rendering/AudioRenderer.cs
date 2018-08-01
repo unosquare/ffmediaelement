@@ -50,10 +50,10 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="AudioRenderer"/> class.
         /// </summary>
-        /// <param name="mediaEngine">The core media engine.</param>
-        public AudioRenderer(MediaEngine mediaEngine)
+        /// <param name="mediaCore">The core media engine.</param>
+        public AudioRenderer(MediaEngine mediaCore)
         {
-            MediaCore = mediaEngine;
+            MediaCore = mediaCore;
 
             WaveFormat = new WaveFormat(
                 Constants.Audio.SampleRate,
@@ -195,7 +195,7 @@
                             AudioBuffer.Write(audioBlock.Buffer, audioBlock.SamplesBufferLength, audioBlock.StartTime, true);
 
                         // Stop adding if we have too much in there.
-                        if (AudioBuffer.CapacityPercent >= 0.8)
+                        if (AudioBuffer.CapacityPercent >= 0.5)
                             break;
 
                         // Retrieve the following block
@@ -444,7 +444,7 @@
                 new DirectSoundPlayer(this, MediaElement.RendererOptions.DirectSoundDevice?.DeviceId ?? DirectSoundPlayer.DefaultPlaybackDeviceId);
 
             SampleBlockSize = Constants.Audio.BytesPerSample * Constants.Audio.ChannelCount;
-            var bufferLength = WaveFormat.ConvertMillisToByteSize(AudioDevice.DesiredLatency) * MediaCore.Blocks[MediaType.Audio].Capacity / 2;
+            var bufferLength = WaveFormat.ConvertMillisToByteSize(2000); // 2-second buffer
             AudioBuffer = new CircularBuffer(bufferLength);
             AudioDevice.Start();
         }

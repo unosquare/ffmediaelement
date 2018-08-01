@@ -30,10 +30,6 @@
             // Keeps track of how many blocks were rendered in the cycle.
             var renderedBlockCount = new MediaTypeDictionary<int>();
 
-            // reset render times for all components
-            foreach (var t in all)
-                InvalidateRenderer(t);
-
             // wait for main component blocks or EOF or cancellation pending
             while (CanReadMoreFramesOf(main) && Blocks[main].Count <= 0)
                 FrameDecodingCycle.Wait(Constants.Interval.LowPriority);
@@ -98,19 +94,10 @@
                     // Capture the blocks to render
                     foreach (var t in all)
                     {
-                        if (t == MediaType.Subtitle && PreloadedSubtitles != null)
-                        {
-                            // Get the preloaded, cached subtitle block
-                            currentBlock[t] = PreloadedSubtitles[wallClock];
-                        }
-                        else
-                        {
-                            // Get the regular audio, video, or sub block
-                            if (Blocks[t].IsInRange(wallClock) == false)
-                                InvalidateRenderer(t);
-
+                        // Get the audio, video, or subtitle block to render
+                        currentBlock[t] = (t == MediaType.Subtitle && PreloadedSubtitles != null) ?
+                            PreloadedSubtitles[wallClock] :
                             currentBlock[t] = Blocks[t][wallClock];
-                        }
                     }
 
                     // Render each of the Media Types if it is time to do so.

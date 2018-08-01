@@ -28,7 +28,7 @@
         internal AudioFrame(AVFrame* frame, MediaComponent component)
             : base(frame, component)
         {
-            // Compute the timestamps.
+            // Compute the start time.
             frame->pts = frame->best_effort_timestamp;
             HasValidStartTime = frame->pts != ffmpeg.AV_NOPTS_VALUE;
             StartTime = frame->pts == ffmpeg.AV_NOPTS_VALUE ?
@@ -41,6 +41,7 @@
             else
                 Duration = TimeSpan.FromTicks(Convert.ToInt64(TimeSpan.TicksPerMillisecond * 1000d * frame->nb_samples / frame->sample_rate));
 
+            // Compute the audio frame end time
             EndTime = TimeSpan.FromTicks(StartTime.Ticks + Duration.Ticks);
         }
 

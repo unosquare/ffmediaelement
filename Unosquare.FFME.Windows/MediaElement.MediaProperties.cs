@@ -105,7 +105,7 @@
         /// If there is a video component with a framerate, this propery returns the length of a frame.
         /// If there is no video component it simply returns a tenth of a second.
         /// </summary>
-        public TimeSpan FrameStepDuration => MediaCore?.State.FrameStepDuration ?? TimeSpan.Zero;
+        public TimeSpan PositionStep => MediaCore?.State.PositionStep ?? TimeSpan.Zero;
 
         /// <summary>
         /// Gets the discrete timestamp of the next frame.
@@ -175,12 +175,6 @@
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
         public double VideoFrameRate => MediaCore?.State.VideoFrameRate ?? default;
-
-        /// <summary>
-        /// Gets the duration in seconds of the video frame.
-        /// Only valid after the MediaOpened event has fired.
-        /// </summary>
-        public double VideoFrameLength => MediaCore?.State.VideoFrameLength ?? default;
 
         /// <summary>
         /// Gets the name of the video hardware decoder in use.
@@ -271,9 +265,13 @@
 
         /// <summary>
         /// Returns the current video SMTPE timecode if available.
-        /// If not available, this property returns an empty string.
         /// </summary>
         public string VideoSmtpeTimecode => MediaCore?.State.VideoSmtpeTimecode;
+
+        /// <summary>
+        /// Gets the current video aspec ratio if available.
+        /// </summary>
+        public string VideoAspectRatio => MediaCore?.State.VideoAspectRatio;
 
         /// <summary>
         /// Gets a value that indicates the percentage of buffering progress made.

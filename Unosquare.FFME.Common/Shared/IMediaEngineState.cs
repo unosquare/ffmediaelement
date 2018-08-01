@@ -90,9 +90,9 @@
         double DownloadProgress { get; }
 
         /// <summary>
-        /// Gets the duration of the frame step.
+        /// Gets the duration of a frame step.
         /// </summary>
-        TimeSpan FrameStepDuration { get; }
+        TimeSpan PositionStep { get; }
 
         /// <summary>
         /// Gets the discrete timestamp of the next frame.
@@ -256,11 +256,6 @@
         string VideoCodec { get; }
 
         /// <summary>
-        /// Gets the duration in seconds of video each video frame.
-        /// </summary>
-        double VideoFrameLength { get; }
-
-        /// <summary>
         /// Gets the video frame rate.
         /// </summary>
         double VideoFrameRate { get; }
@@ -276,9 +271,14 @@
         double VideoRotation { get; }
 
         /// <summary>
-        /// Gets the video smtpe timecode.
+        /// Gets the video SMTPE timecode.
         /// </summary>
         string VideoSmtpeTimecode { get; }
+
+        /// <summary>
+        /// Gets the current video aspect ratio.
+        /// </summary>
+        string VideoAspectRatio { get; }
 
         /// <summary>
         /// Gets the current audio volume.

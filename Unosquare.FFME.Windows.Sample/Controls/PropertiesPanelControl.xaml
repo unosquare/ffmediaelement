@@ -202,6 +202,11 @@
                             <TextBlock Style="{StaticResource Value}" Text="{Binding VideoSmtpeTimecode, Mode=OneWay}" />
                         </DockPanel>
 
+                        <DockPanel>
+                            <TextBlock Style="{StaticResource Key}">Video Aspect Ratio</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding VideoAspectRatio, Mode=OneWay}" />
+                        </DockPanel>
+
                         <DockPanel Background="#ee444444">
                             <TextBlock Style="{StaticResource Key}">Has Audio</TextBlock>
                             <TextBlock Style="{StaticResource Value}" Text="{Binding HasAudio, Mode=OneWay}" />

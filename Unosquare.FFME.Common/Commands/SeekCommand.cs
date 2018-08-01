@@ -75,10 +75,10 @@
 
                 // Capture seek target adjustment
                 var adjustedSeekTarget = TargetPosition;
-                if (main == MediaType.Video && m.Blocks[main].IsMonotonic)
+                if (m.Blocks[main].IsMonotonic)
                 {
                     var targetSkewTicks = Convert.ToInt64(
-                        m.Blocks[main][0].Duration.Ticks * (m.Blocks[main].Capacity / 2d));
+                        m.Blocks[main].MonotonicDuration.Ticks * (m.Blocks[main].Capacity / 2d));
 
                     if (adjustedSeekTarget.Ticks >= targetSkewTicks)
                         adjustedSeekTarget = TimeSpan.FromTicks(adjustedSeekTarget.Ticks - targetSkewTicks);

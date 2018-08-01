@@ -12,7 +12,8 @@
         /// </summary>
         internal void RunPacketReadingWorker()
         {
-            var delay = TimeSpan.FromMilliseconds(1);
+            var delay = TimeSpan.FromMilliseconds(10);
+            var needsMorePackets = false;
             IsSyncBuffering = false;
 
             try
@@ -46,18 +47,24 @@
                         BufferChangedEvent.Begin();
                         while (IsWorkerInterruptRequested == false)
                         {
-                            if (ShouldWorkerReadPackets)
+                            needsMorePackets = ShouldWorkerReadPackets;
+
+                            // We now need more packets, we need to stop waiting
+                            if (needsMorePackets)
                                 break;
 
+                            // we are sync-buffering but we don't need more packets
+                            if (IsSyncBuffering && needsMorePackets == false)
+                                break;
+
+                            // We detected a change in buffered packets
                             if (BufferChangedEvent.Wait(delay))
                                 break;
                         }
                     }
 
-                    // No more sync-buffering if we have enough packets
-                    if (Container.Components.HasEnoughPackets ||
-                        Container.Components.BufferLength > BufferLengthMax ||
-                        (Container.IsLiveStream && Blocks[Container.Components.MainMediaType].IsFull))
+                    // No more sync-buffering if we have enough data
+                    if (CanExitSyncBuffering)
                         IsSyncBuffering = false;
 
                     // finish the reading cycle.

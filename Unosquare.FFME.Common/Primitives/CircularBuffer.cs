@@ -105,7 +105,7 @@
         /// <summary>
         /// Gets percentage of used bytes (readbale/available, from 0.0 to 1.0).
         /// </summary>
-        public double CapacityPercent { get { lock (SyncLock) return 1.0 * m_ReadableCount / m_Length; } }
+        public double CapacityPercent { get { lock (SyncLock) return (double)m_ReadableCount / m_Length; } }
 
         #endregion
 

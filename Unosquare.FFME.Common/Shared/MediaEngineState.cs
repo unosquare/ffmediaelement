@@ -1,10 +1,10 @@
 ﻿namespace Unosquare.FFME.Shared
 {
+    using Decoding;
     using Primitives;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.Reflection;
     using System.Runtime.CompilerServices;
 
     /// <summary>
@@ -15,15 +15,11 @@
         #region Property Backing and Private State
 
         private static readonly TimeSpan GenericFrameStepDuration = TimeSpan.FromSeconds(0.01d);
-        private static readonly PropertyInfo[] Properties = null;
-
-        private readonly MediaEngine Parent = null;
-        private readonly ReadOnlyDictionary<string, string> EmptyDictionary
+        private static readonly ReadOnlyDictionary<string, string> EmptyDictionary
             = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
 
+        private readonly MediaEngine MediaCore = null;
         private readonly AtomicInteger m_MediaState = new AtomicInteger((int)PlaybackStatus.Close);
-
-        private readonly AtomicBoolean m_IsOpen = new AtomicBoolean(default);
         private readonly AtomicBoolean m_HasMediaEnded = new AtomicBoolean(default);
 
         private readonly AtomicBoolean m_IsBuffering = new AtomicBoolean(default);
@@ -48,18 +44,12 @@
         #region Constructors
 
         /// <summary>
-        /// Initializes static members of the <see cref="MediaEngineState" /> class.
-        /// </summary>
-        static MediaEngineState() =>
-            Properties = typeof(MediaEngineState).GetProperties(BindingFlags.Instance | BindingFlags.Public);
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="MediaEngineState" /> class.
         /// </summary>
-        /// <param name="parent">The parent.</param>
-        internal MediaEngineState(MediaEngine parent)
+        /// <param name="mediaCore">The associated media core.</param>
+        internal MediaEngineState(MediaEngine mediaCore)
         {
-            Parent = parent;
+            MediaCore = mediaCore;
             ResetAll();
         }
 
@@ -142,7 +132,6 @@
 
         /// <summary>
         /// Returns the current video SMTPE timecode if available.
-        /// If not available, this property returns an empty string.
         /// </summary>
         public string VideoSmtpeTimecode { get; private set; } = string.Empty;
 
@@ -158,24 +147,6 @@
         /// Gets a value indicating whether the current video stream has closed captions
         /// </summary>
         public bool HasClosedCaptions { get; private set; }
-
-        /// <summary>
-        /// Gets the duration of a single frame step.
-        /// If there is a video component with a framerate, this propery returns the length of a frame.
-        /// If there is no video component it simply returns 10 milliseconds.
-        /// </summary>
-        public TimeSpan FrameStepDuration
-        {
-            get
-            {
-                var frameLengthMillis = 1000d * VideoFrameLength;
-
-                if (frameLengthMillis <= 0)
-                    return IsOpen ? GenericFrameStepDuration : TimeSpan.Zero;
-
-                return TimeSpan.FromTicks(Convert.ToInt64(TimeSpan.TicksPerMillisecond * frameLengthMillis));
-            }
-        }
 
         /// <summary>
         /// Gets the discrete timestamp of the next frame.
@@ -211,51 +182,52 @@
         /// <summary>
         /// Gets a value indicating whether the media clock is playing.
         /// </summary>
-        public bool IsPlaying => IsOpen && Parent.Clock.IsRunning;
+        public bool IsPlaying => IsOpen && MediaCore.Clock.IsRunning;
 
         /// <summary>
         /// Gets a value indicating whether the media clock is paused.
         /// </summary>
-        public bool IsPaused => IsOpen && (Parent.Clock.IsRunning == false);
+        public bool IsPaused => IsOpen && (MediaCore.Clock.IsRunning == false);
 
         /// <summary>
         /// Gets a value indicating whether the media seeking is in progress.
         /// </summary>
-        public bool IsSeeking => Parent.Commands?.IsSeeking ?? false;
+        public bool IsSeeking => MediaCore.Commands?.IsSeeking ?? false;
 
         /// <summary>
         /// Gets a value indicating whether the media is in the process of closing media.
         /// </summary>
-        public bool IsClosing => Parent.Commands?.IsClosing ?? false;
+        public bool IsClosing => MediaCore.Commands?.IsClosing ?? false;
 
         /// <summary>
         /// Gets a value indicating whether the media is in the process of opening.
         /// </summary>
-        public bool IsOpening => Parent.Commands?.IsOpening ?? false;
+        public bool IsOpening => MediaCore.Commands?.IsOpening ?? false;
 
         /// <summary>
         /// Gets a value indicating whether the media is currently changing its components.
         /// </summary>
-        public bool IsChanging => Parent.Commands?.IsChanging ?? false;
+        public bool IsChanging => MediaCore.Commands?.IsChanging ?? false;
 
         #endregion
 
         #region Container Fixed, One-Time Properties
 
         /// <summary>
-        /// Gets the stream's bitrate. Returns 0 if unavaliable.
-        /// </summary>
-        public long Bitrate { get; private set; }
-
-        /// <summary>
         /// Gets a value indicating whether this media element
         /// currently has an open media url.
         /// </summary>
-        public bool IsOpen
-        {
-            get => m_IsOpen.Value;
-            private set => m_IsOpen.Value = value;
-        }
+        public bool IsOpen { get; private set; }
+
+        /// <summary>
+        /// Gets the duration of a single frame step on the main component.
+        /// </summary>
+        public TimeSpan PositionStep { get; private set; }
+
+        /// <summary>
+        /// Gets the stream's bitrate. Returns 0 if unavaliable.
+        /// </summary>
+        public long Bitrate { get; private set; }
 
         /// <summary>
         /// Provides key-value pairs of the metadata contained in the media.
@@ -344,16 +316,15 @@
         public int NaturalVideoHeight { get; private set; }
 
         /// <summary>
-        /// Gets the video frame rate.
+        /// Returns the current video aspect ratio if available.
+        /// </summary>
+        public string VideoAspectRatio { get; private set; }
+
+        /// <summary>
+        /// Gets the video frame rate in which all timestamps can be represented.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
         public double VideoFrameRate { get; private set; }
-
-        /// <summary>
-        /// Gets the duration in seconds of the video frame.
-        /// Only valid after the MediaOpened event has fired.
-        /// </summary>
-        public double VideoFrameLength { get; private set; }
 
         /// <summary>
         /// Gets the audio codec.
@@ -478,10 +449,7 @@
         /// </summary>
         /// <param name="newSource">The new source.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdateSource(Uri newSource)
-        {
-            Source = newSource;
-        }
+        internal void UpdateSource(Uri newSource) => Source = newSource;
 
         /// <summary>
         /// Updates the fixed container properties.
@@ -489,36 +457,61 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void UpdateFixedContainerProperties()
         {
-            Bitrate = Parent.Container?.MediaBitrate ?? default;
-            IsOpen = (IsOpening == false) && (Parent.Container?.IsOpen ?? default);
-            Metadata = Parent.Container?.Metadata ?? EmptyDictionary;
-            MediaFormat = Parent.Container?.MediaFormatName;
-            MediaStreamSize = Parent.Container?.MediaStreamSize ?? default;
-            VideoStreamIndex = Parent.Container?.Components.Video?.StreamIndex ?? -1;
-            AudioStreamIndex = Parent.Container?.Components.Audio?.StreamIndex ?? -1;
-            SubtitleStreamIndex = Parent.Container?.Components.Subtitles?.StreamIndex ?? -1;
-            HasAudio = Parent.Container?.Components.HasAudio ?? default;
-            HasVideo = Parent.Container?.Components.HasVideo ?? default;
-            HasClosedCaptions = Parent.Container?.Components.Video?.StreamInfo?.HasClosedCaptions ?? default;
-            HasSubtitles = (Parent.PreloadedSubtitles?.Count ?? 0) > 0
-                || (Parent.Container?.Components.HasSubtitles ?? false);
-            VideoCodec = Parent.Container?.Components.Video?.CodecName;
-            VideoBitrate = Parent.Container?.Components.Video?.Bitrate ?? default;
-            VideoRotation = Parent.Container?.Components.Video?.DisplayRotation ?? default;
-            NaturalVideoWidth = Parent.Container?.Components.Video?.FrameWidth ?? default;
-            NaturalVideoHeight = Parent.Container?.Components.Video?.FrameHeight ?? default;
-            VideoFrameRate = Parent.Container?.Components.Video?.BaseFrameRate ?? default;
-            VideoFrameLength = VideoFrameRate <= 0 ? default : 1d / VideoFrameRate;
-            AudioCodec = Parent.Container?.Components.Audio?.CodecName;
-            AudioBitrate = Parent.Container?.Components.Audio?.Bitrate ?? default;
-            AudioChannels = Parent.Container?.Components.Audio?.Channels ?? default;
-            AudioSampleRate = Parent.Container?.Components.Audio?.SampleRate ?? default;
-            AudioBitsPerSample = Parent.Container?.Components.Audio?.BitsPerSample ?? default;
-            NaturalDuration = Parent.Container?.MediaDuration;
-            IsLiveStream = Parent.Container?.IsLiveStream ?? default;
-            IsNetworkStream = Parent.Container?.IsNetworkStream ?? default;
-            IsSeekable = Parent.Container?.IsStreamSeekable ?? default;
+            Bitrate = MediaCore.Container?.MediaBitrate ?? default;
+            IsOpen = (IsOpening == false) && (MediaCore.Container?.IsOpen ?? default);
+            Metadata = MediaCore.Container?.Metadata ?? EmptyDictionary;
+            MediaFormat = MediaCore.Container?.MediaFormatName;
+            MediaStreamSize = MediaCore.Container?.MediaStreamSize ?? default;
+            VideoStreamIndex = MediaCore.Container?.Components.Video?.StreamIndex ?? -1;
+            AudioStreamIndex = MediaCore.Container?.Components.Audio?.StreamIndex ?? -1;
+            SubtitleStreamIndex = MediaCore.Container?.Components.Subtitles?.StreamIndex ?? -1;
+            HasAudio = MediaCore.Container?.Components.HasAudio ?? default;
+            HasVideo = MediaCore.Container?.Components.HasVideo ?? default;
+            HasClosedCaptions = MediaCore.Container?.Components.Video?.StreamInfo?.HasClosedCaptions ?? default;
+            HasSubtitles = (MediaCore.PreloadedSubtitles?.Count ?? 0) > 0
+                || (MediaCore.Container?.Components.HasSubtitles ?? false);
+            VideoCodec = MediaCore.Container?.Components.Video?.CodecName;
+            VideoBitrate = MediaCore.Container?.Components.Video?.Bitrate ?? default;
+            VideoRotation = MediaCore.Container?.Components.Video?.DisplayRotation ?? default;
+            NaturalVideoWidth = MediaCore.Container?.Components.Video?.FrameWidth ?? default;
+            NaturalVideoHeight = MediaCore.Container?.Components.Video?.FrameHeight ?? default;
+            VideoFrameRate = MediaCore.Container?.Components.Video?.AverageFrameRate ?? default;
+            AudioCodec = MediaCore.Container?.Components.Audio?.CodecName;
+            AudioBitrate = MediaCore.Container?.Components.Audio?.Bitrate ?? default;
+            AudioChannels = MediaCore.Container?.Components.Audio?.Channels ?? default;
+            AudioSampleRate = MediaCore.Container?.Components.Audio?.SampleRate ?? default;
+            AudioBitsPerSample = MediaCore.Container?.Components.Audio?.BitsPerSample ?? default;
+            NaturalDuration = MediaCore.Container?.MediaDuration;
+            IsLiveStream = MediaCore.Container?.IsLiveStream ?? default;
+            IsNetworkStream = MediaCore.Container?.IsNetworkStream ?? default;
+            IsSeekable = MediaCore.Container?.IsStreamSeekable ?? default;
             CanPause = IsOpen ? (IsLiveStream == false) : default;
+
+            var videoAspectWidth = MediaCore.Container?.Components.Video?.DisplayAspectWidth ?? default;
+            var videoAspectHeight = MediaCore.Container?.Components.Video?.DisplayAspectHeight ?? default;
+            VideoAspectRatio = videoAspectWidth != default && videoAspectHeight != default ?
+                $"{videoAspectWidth}:{videoAspectHeight}" : default;
+
+            var mediaType = MediaCore.Container?.Components.MainMediaType ?? MediaType.None;
+            var main = MediaCore.Container?.Components.Main;
+            switch (mediaType)
+            {
+                case MediaType.Audio:
+                    PositionStep = TimeSpan.FromTicks(Convert.ToInt64(
+                        TimeSpan.TicksPerMillisecond * AudioSampleRate / 1000d));
+                    break;
+
+                case MediaType.Video:
+                    PositionStep = TimeSpan.FromTicks(Convert.ToInt64(
+                        TimeSpan.TicksPerMillisecond * 1000d / (main as VideoComponent).BaseFrameRate));
+                    break;
+
+                case MediaType.None:
+                case MediaType.Subtitle:
+                default:
+                    PositionStep = default;
+                    break;
+            }
         }
 
         /// <summary>
@@ -541,8 +534,8 @@
                     HasClosedCaptions = true;
 
                 VideoSmtpeTimecode = videoBlock.SmtpeTimecode;
-                VideoHardwareDecoder = (Parent.Container?.Components.Video?.IsUsingHardwareDecoding ?? false) ?
-                    Parent.Container?.Components.Video?.HardwareAccelerator?.Name ?? string.Empty : string.Empty;
+                VideoHardwareDecoder = (MediaCore.Container?.Components.Video?.IsUsingHardwareDecoding ?? false) ?
+                    MediaCore.Container?.Components.Video?.HardwareAccelerator?.Name ?? string.Empty : string.Empty;
             }
         }
 
@@ -556,7 +549,7 @@
             if (HasMediaEnded == false && hasEnded == true)
             {
                 HasMediaEnded = true;
-                Parent.SendOnMediaEnded();
+                MediaCore.SendOnMediaEnded();
                 return;
             }
 
@@ -567,7 +560,7 @@
         /// Updates the position related properies.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdatePosition() => UpdatePosition(Parent.WallClock);
+        internal void UpdatePosition() => UpdatePosition(MediaCore.WallClock);
 
         /// <summary>
         /// Updates the position related properties.
@@ -576,11 +569,11 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void UpdatePosition(TimeSpan newPosition)
         {
-            var oldSpeedRatio = Parent.Clock.SpeedRatio;
+            var oldSpeedRatio = MediaCore.Clock.SpeedRatio;
             var newSpeedRatio = SpeedRatio;
 
             if (oldSpeedRatio != newSpeedRatio)
-                Parent.Clock.SpeedRatio = SpeedRatio;
+                MediaCore.Clock.SpeedRatio = SpeedRatio;
 
             var oldPosition = Position;
             if (oldPosition.Ticks == newPosition.Ticks)
@@ -588,8 +581,8 @@
 
             Position = newPosition;
 
-            var main = Parent.Container?.Components?.Main.MediaType ?? MediaType.None;
-            var blocks = Parent.Blocks[main];
+            var main = MediaCore.Container?.Components?.Main.MediaType ?? MediaType.None;
+            var blocks = MediaCore.Blocks[main];
             var currentMainBlock = blocks[newPosition];
 
             if (currentMainBlock == null || blocks == null)
@@ -608,7 +601,7 @@
                     currentMainBlock.StartTime.Ticks - (currentMainBlock.Duration.Ticks / 2));
             }
 
-            Parent.SendOnPositionChanged(oldPosition, newPosition);
+            MediaCore.SendOnPositionChanged(oldPosition, newPosition);
         }
 
         /// <summary>
@@ -634,7 +627,7 @@
                 return;
 
             MediaState = mediaState;
-            Parent.SendOnMediaStateChanged(oldValue, mediaState);
+            MediaCore.SendOnMediaStateChanged(oldValue, mediaState);
         }
 
         /// <summary>
@@ -664,7 +657,7 @@
             SpeedRatio = Constants.Controller.DefaultSpeedRatio;
 
             if (oldMediaState != newMediaState)
-                Parent.SendOnMediaStateChanged(oldMediaState, newMediaState);
+                MediaCore.SendOnMediaStateChanged(oldMediaState, newMediaState);
         }
 
         /// <summary>
@@ -680,7 +673,7 @@
             ResetBufferingStatistics();
 
             // Reset the properties if the is no associated container
-            if (Parent.Container == null)
+            if (MediaCore.Container == null)
             {
                 MediaStreamSize = default;
                 return;
@@ -688,7 +681,7 @@
 
             // Try to get a valid stream size
             var durationSeconds = NaturalDuration.HasValue ? NaturalDuration.Value.TotalSeconds : 0d;
-            MediaStreamSize = Parent.Container?.MediaStreamSize ?? default;
+            MediaStreamSize = MediaCore.Container?.MediaStreamSize ?? default;
 
             // Compute the bitrate and buffering properties based on media byte size
             if (MediaStreamSize >= MinimumValidFileSize && IsSeekable && durationSeconds > 0)
@@ -717,22 +710,20 @@
             PacketBufferCount = bufferCount;
             PacketBufferLength = bufferLength;
             BufferingProgress = bufferCountMax <= 0 ? 0 : Math.Min(1d, (double)bufferCount / bufferCountMax);
-            DownloadProgress = Math.Min(1d, (double)bufferLength / Parent.BufferLengthMax);
+            DownloadProgress = Math.Min(1d, (double)bufferLength / MediaCore.BufferLengthMax);
 
-            // Detect the start of buffering
-            if (IsBuffering == false && BufferingProgress < 1 && Parent.ShouldReadMorePackets)
-            {
-                IsBuffering = true;
-                Parent.SendOnBufferingStarted();
-                return;
-            }
+            // Check if we are currently buffering
+            var isCurrentlyBuffering = MediaCore.ShouldReadMorePackets
+                && (MediaCore.IsSyncBuffering || BufferingProgress < 1d);
 
-            // Detect the end of buffering
-            if (IsBuffering == true && (BufferingProgress >= 1 || Parent.ShouldReadMorePackets == false))
+            // Detect and notify a change in buffering state
+            if (isCurrentlyBuffering != IsBuffering)
             {
-                IsBuffering = false;
-                Parent.SendOnBufferingEnded();
-                return;
+                IsBuffering = isCurrentlyBuffering;
+                if (isCurrentlyBuffering)
+                    MediaCore.SendOnBufferingStarted();
+                else
+                    MediaCore.SendOnBufferingEnded();
             }
         }
 

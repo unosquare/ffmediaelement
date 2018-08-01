@@ -120,7 +120,8 @@
                 var codecContext = ffmpeg.avcodec_alloc_context3(null);
                 ffmpeg.avcodec_parameters_to_context(codecContext, s->codecpar);
 
-                // Fields which are missing from AVCodecParameters need to be taken from the AVCodecContext
+                // Fields which are missing from AVCodecParameters need to be taken
+                // from the strem's AVCodecContext
                 codecContext->properties = s->codec->properties;
                 codecContext->codec = s->codec->codec;
                 codecContext->qmin = s->codec->qmin;
@@ -175,8 +176,8 @@
                     DisplayAspectRatio = dar,
                     SampleAspectRatio = sar,
                     Disposition = s->disposition,
-                    StartTime = s->start_time.ToTimeSpan(),
-                    Duration = s->duration.ToTimeSpan(),
+                    StartTime = s->start_time.ToTimeSpan(s->time_base),
+                    Duration = s->duration.ToTimeSpan(s->time_base),
                     FPS = s->avg_frame_rate.ToDouble(),
                     TBR = s->r_frame_rate.ToDouble(),
                     TBN = 1d / s->time_base.ToDouble(),

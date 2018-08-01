@@ -49,10 +49,10 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="VideoRenderer"/> class.
         /// </summary>
-        /// <param name="mediaEngine">The core media element.</param>
-        public VideoRenderer(MediaEngine mediaEngine)
+        /// <param name="mediaCore">The core media element.</param>
+        public VideoRenderer(MediaEngine mediaCore)
         {
-            MediaCore = mediaEngine;
+            MediaCore = mediaCore;
 
             // Check that the renderer supports the passed in Pixel format
             if (MediaPixelFormats.ContainsKey(Constants.Video.VideoPixelFormat) == false)
@@ -396,10 +396,10 @@
             }
 
             // Process Aspect Ratio according to block.
-            if (b.AspectWidth != b.AspectHeight)
+            if (b.PixelAspectWidth != b.PixelAspectHeight)
             {
-                var scaleX = b.AspectWidth > b.AspectHeight ? Convert.ToDouble(b.AspectWidth) / Convert.ToDouble(b.AspectHeight) : 1d;
-                var scaleY = b.AspectHeight > b.AspectWidth ? Convert.ToDouble(b.AspectHeight) / Convert.ToDouble(b.AspectWidth) : 1d;
+                var scaleX = b.PixelAspectWidth > b.PixelAspectHeight ? Convert.ToDouble(b.PixelAspectWidth) / Convert.ToDouble(b.PixelAspectHeight) : 1d;
+                var scaleY = b.PixelAspectHeight > b.PixelAspectWidth ? Convert.ToDouble(b.PixelAspectHeight) / Convert.ToDouble(b.PixelAspectWidth) : 1d;
 
                 if (scaleTransform.ScaleX != scaleX || scaleTransform.ScaleY != scaleY)
                 {

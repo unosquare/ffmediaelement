@@ -192,9 +192,6 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void InvalidateRenderer(MediaType t)
         {
-            if (State.HasMediaEnded)
-                return;
-
             // This forces the rendering worker to send the
             // corresponding block to its renderer
             LastRenderTime[t] = TimeSpan.MinValue;
@@ -253,6 +250,9 @@
 
                     State.UpdateMediaEnded(true);
                     State.UpdateMediaState(PlaybackStatus.Stop);
+                    foreach (var mt in Container.Components.MediaTypes)
+                        InvalidateRenderer(mt);
+
                     SendOnMediaEnded();
                 }
             }
