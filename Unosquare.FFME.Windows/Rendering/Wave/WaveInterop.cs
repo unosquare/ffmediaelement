@@ -237,11 +237,13 @@
 
             try
             {
-                MmException.Try(
-                    NativeMethods.waveOutOpenWindow(out IntPtr hWaveOut, deviceId, format, callbackWindowHandle, instanceHandle, openFlags),
-                    nameof(NativeMethods.waveOutOpenWindow));
-
-                return hWaveOut;
+				try
+                {
+					MmException.Try(
+						NativeMethods.waveOutOpenWindow(out IntPtr hWaveOut, deviceId, format, callbackWindowHandle, instanceHandle, openFlags),
+						nameof(NativeMethods.waveOutOpenWindow));
+                    return hWaveOut;
+                } catch { return IntPtr.Zero; }
             }
             catch { throw; }
             finally { Monitor.Exit(SyncLock); }
