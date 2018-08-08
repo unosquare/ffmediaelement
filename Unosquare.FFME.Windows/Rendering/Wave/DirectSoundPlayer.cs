@@ -109,7 +109,7 @@
             lock (DevicesEnumLock)
             {
                 EnumeratedDevices = new List<DirectSoundDeviceInfo>(32);
-                NativeMethods.DirectSoundEnumerateA(new DirectSound.EnumerateDevicesDelegate(EnumerateDevicesCallback), IntPtr.Zero);
+                NativeMethods.DirectSoundEnumerateA(EnumerateDevicesCallback, IntPtr.Zero);
                 return EnumeratedDevices;
             }
         }

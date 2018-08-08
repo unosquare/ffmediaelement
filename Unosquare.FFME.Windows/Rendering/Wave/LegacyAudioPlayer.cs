@@ -95,7 +95,7 @@
         #region Public API
 
         /// <summary>
-        /// Gets the Windows Multimedia Extensions (MME) devices in the system
+        /// Gets the Windows Multimedia Extensions (MME) devices in the system.
         /// </summary>
         /// <returns>The available MME devices</returns>
         public static List<LegacyAudioDeviceInfo> EnumerateDevices()
@@ -104,10 +104,8 @@
             {
                 var devices = new List<LegacyAudioDeviceInfo>(32);
                 var count = WaveInterop.RetrieveAudioDeviceCount();
-                for (var i = 0; i < count; i++)
-                {
+                for (var i = -1; i < count; i++)
                     devices.Add(WaveInterop.RetrieveAudioDeviceInfo(i));
-                }
 
                 return devices;
             }

@@ -306,10 +306,7 @@
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        public void Dispose() => Dispose(true);
 
         #endregion
 
@@ -430,19 +427,34 @@
         {
             Destroy();
 
-            if (SoundTouch.IsAvailable)
+            // Enumerate devices. The default device is the first one so we check
+            // that we have more than 1 device (other than the default stub)
+            var hasAudioDevices = MediaElement.RendererOptions.UseLegacyAudioOut ?
+                LegacyAudioPlayer.EnumerateDevices().Count > 1 :
+                DirectSoundPlayer.EnumerateDevices().Count > 1;
+
+            // Check if we have an audio output device.
+            if (hasAudioDevices == false)
             {
-                AudioProcessor = new SoundTouch
-                {
-                    Channels = Convert.ToUInt32(WaveFormat.Channels),
-                    SampleRate = Convert.ToUInt32(WaveFormat.SampleRate)
-                };
+                MediaCore.Log(MediaLogMessageType.Warning,
+                    $"AUDIO OUT: No audio device found for output.");
+
+                return;
             }
 
+            // Initialize the SoundTouch Audio Processor (if available)
+            AudioProcessor = (SoundTouch.IsAvailable == false) ? null : new SoundTouch
+            {
+                Channels = Convert.ToUInt32(WaveFormat.Channels),
+                SampleRate = Convert.ToUInt32(WaveFormat.SampleRate)
+            };
+
+            // Initialize the Audio Device
             AudioDevice = MediaElement.RendererOptions.UseLegacyAudioOut ?
                 new LegacyAudioPlayer(this, MediaElement.RendererOptions.LegacyAudioDevice?.DeviceId ?? -1) as IWavePlayer :
                 new DirectSoundPlayer(this, MediaElement.RendererOptions.DirectSoundDevice?.DeviceId ?? DirectSoundPlayer.DefaultPlaybackDeviceId);
 
+            // Create the Audio Buffer
             SampleBlockSize = Constants.Audio.BytesPerSample * Constants.Audio.ChannelCount;
             var bufferLength = WaveFormat.ConvertMillisToByteSize(2000); // 2-second buffer
             AudioBuffer = new CircularBuffer(bufferLength);
