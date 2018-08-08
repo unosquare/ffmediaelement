@@ -1038,7 +1038,8 @@
         {
             // Create the output result object
             var result = new List<MediaFrame>(256);
-            var seekRequirement = Components.Main.MediaType == MediaType.Audio ? SeekRequirement.MainComponentOnly : SeekRequirement.AudioAndVideo;
+            var seekRequirement = Components.MainMediaType == MediaType.Audio ?
+                SeekRequirement.MainComponentOnly : SeekRequirement.AudioAndVideo;
 
             #region Setup
 
@@ -1142,11 +1143,11 @@
                 var firstVideoFrame = result.FirstOrDefault(f => f.MediaType == MediaType.Video && f.StartTime <= targetTime);
 
                 var isAudioSeekInRange = Components.HasAudio == false
-                    || (firstAudioFrame == null && Components.Main.MediaType != MediaType.Audio)
+                    || (firstAudioFrame == null && Components.MainMediaType != MediaType.Audio)
                     || (firstAudioFrame != null && firstAudioFrame.StartTime <= targetTime);
 
                 var isVideoSeekInRange = Components.HasVideo == false
-                    || (firstVideoFrame == null && Components.Main.MediaType != MediaType.Video)
+                    || (firstVideoFrame == null && Components.MainMediaType != MediaType.Video)
                     || (firstVideoFrame != null && firstVideoFrame.StartTime <= targetTime);
 
                 // If we have the correct range, no further processing is required.
@@ -1237,7 +1238,7 @@
             }
             else
             {
-                requiredComponents.Add(Components.Main.MediaType);
+                requiredComponents.Add(Components.MainMediaType);
             }
 
             // Start reading and decoding util we reach the target

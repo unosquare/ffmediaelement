@@ -19,7 +19,7 @@
             BlockRenderingWorkerExit = WaitEventFactory.Create(isCompleted: false, useSlim: true);
 
             // Holds the main media type
-            var main = Container.Components.Main.MediaType;
+            var main = Container.Components.MainMediaType;
 
             // Holds all components
             var all = Renderers.Keys.ToArray();
@@ -77,7 +77,7 @@
                     if (Commands.IsExecutingDirectCommand) return;
 
                     // Updatete Status Properties
-                    main = Container.Components.Main.MediaType;
+                    main = Container.Components.MainMediaType;
                     all = Renderers.Keys.ToArray();
 
                     // Reset the rendered count to 0

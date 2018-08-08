@@ -50,13 +50,14 @@
 
             try
             {
-                var main = m.Container.Components.Main.MediaType;
+                var main = m.Container.Components.MainMediaType;
                 var all = m.Container.Components.MediaTypes;
+                var mainBlocks = m.Blocks[main];
 
                 // Check if we already have the block. If we do, simply set the clock position to the target position
                 // we don't need anything else. This implements frame-by frame seeking and we need to snap to a discrete
                 // position of the main component so it sticks on it.
-                if (m.Blocks[main].IsInRange(TargetPosition))
+                if (mainBlocks.IsInRange(TargetPosition))
                 {
                     m.ChangePosition(TargetPosition);
                     return;
@@ -76,10 +77,10 @@
 
                 // Capture seek target adjustment
                 var adjustedSeekTarget = TargetPosition;
-                if (m.Blocks[main].IsMonotonic)
+                if (mainBlocks.IsMonotonic)
                 {
                     var targetSkewTicks = Convert.ToInt64(
-                        m.Blocks[main].MonotonicDuration.Ticks * (m.Blocks[main].Capacity / 2d));
+                        mainBlocks.MonotonicDuration.Ticks * (mainBlocks.Capacity / 2d));
 
                     if (adjustedSeekTarget.Ticks >= targetSkewTicks)
                         adjustedSeekTarget = TimeSpan.FromTicks(adjustedSeekTarget.Ticks - targetSkewTicks);
@@ -105,9 +106,10 @@
                     m.Blocks[frame.MediaType]?.Add(frame, m.Container);
 
                 // Now read blocks until we have reached at least the Target Position
+                // TODO: This might not be entirely right
                 while (m.ShouldReadMorePackets
-                    && m.Blocks[main].IsFull == false
-                    && m.Blocks[main].IsInRange(TargetPosition) == false)
+                    && mainBlocks.IsFull == false
+                    && mainBlocks.IsInRange(TargetPosition) == false)
                 {
                     // Read the next packet
                     m.Container.Read();
@@ -121,21 +123,21 @@
 
                 // Find out what the final, best-effort position was
                 var resultPosition = TargetPosition;
-                if (m.Blocks[main].IsInRange(TargetPosition) == false)
+                if (mainBlocks.IsInRange(TargetPosition) == false)
                 {
                     // We don't have a a valid main range
-                    var minStartTimeTicks = m.Blocks[main].RangeStartTime.Ticks;
-                    var maxStartTimeTicks = m.Blocks[main].RangeEndTime.Ticks;
+                    var minStartTimeTicks = mainBlocks.RangeStartTime.Ticks;
+                    var maxStartTimeTicks = mainBlocks.RangeEndTime.Ticks;
 
                     m.Log(MediaLogMessageType.Warning,
-                        $"SEEK TP: Target Pos {TargetPosition.Format()} not between {m.Blocks[main].RangeStartTime.TotalSeconds:0.000} " +
-                        $"and {m.Blocks[main].RangeEndTime.TotalSeconds:0.000}");
+                        $"SEEK TP: Target Pos {TargetPosition.Format()} not between {mainBlocks.RangeStartTime.TotalSeconds:0.000} " +
+                        $"and {mainBlocks.RangeEndTime.TotalSeconds:0.000}");
 
                     resultPosition = TimeSpan.FromTicks(TargetPosition.Ticks.Clamp(minStartTimeTicks, maxStartTimeTicks));
                 }
                 else
                 {
-                    resultPosition = (m.Blocks[main].Count == 0 && TargetPosition != TimeSpan.Zero) ?
+                    resultPosition = (mainBlocks.Count == 0 && TargetPosition != TimeSpan.Zero) ?
                         initialPosition : // Unsuccessful. This initial position is simply what the clock was :(
                         TargetPosition; // Successful seek with main blocks in range
                 }

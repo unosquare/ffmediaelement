@@ -50,7 +50,7 @@
 
                     // Update state properties -- this must be after processing commanmds as
                     // a direct command might have changed the components
-                    main = Container.Components.Main.MediaType;
+                    main = Container.Components.MainMediaType;
                     decodedFrameCount = 0;
 
                     #endregion

@@ -91,7 +91,7 @@
                 if (Container.Components.HasEnoughPackets)
                     return true;
 
-                if (Container.IsLiveStream && Blocks[Container.Components.MainMediaType].IsFull)
+                if (Container.IsLiveStream && Blocks.Main(Container).IsFull)
                     return true;
 
                 return false;
@@ -296,7 +296,7 @@
             if (Container == null)
                 return position.Normalize();
 
-            var blocks = Blocks[Container.Components.Main.MediaType];
+            var blocks = Blocks.Main(Container);
             if (blocks == null) return position.Normalize();
 
             return blocks.GetSnapPosition(position) ?? position.Normalize();

@@ -1,6 +1,8 @@
 ﻿namespace Unosquare.FFME.Shared
 {
+    using Decoding;
     using FFmpeg.AutoGen;
+    using Primitives;
     using System;
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
@@ -272,6 +274,16 @@
         #region Faster-than-Linq replacements
 
         /// <summary>
+        /// Gets the <see cref="MediaBlockBuffer"/> for the main media type of the specified media container.
+        /// </summary>
+        /// <param name="blocks">The blocks.</param>
+        /// <param name="container">The container.</param>
+        /// <returns>The block buffer of the main media type</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static MediaBlockBuffer Main(this MediaTypeDictionary<MediaBlockBuffer> blocks, MediaContainer container) =>
+            blocks[container.Components?.MainMediaType ?? MediaType.None];
+
+        /// <summary>
         /// Excludes the type of the media.
         /// </summary>
         /// <param name="all">All.</param>
@@ -300,10 +312,8 @@
         /// The serial picture number
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static long ComputePictureNumber(TimeSpan startTime, TimeSpan duration, long startNumber)
-        {
-            return startNumber + Convert.ToInt64(Convert.ToDouble(startTime.Ticks) / duration.Ticks);
-        }
+        internal static long ComputePictureNumber(TimeSpan startTime, TimeSpan duration, long startNumber) =>
+            startNumber + Convert.ToInt64(Convert.ToDouble(startTime.Ticks) / duration.Ticks);
 
         /// <summary>
         /// Computes the smtpe time code.

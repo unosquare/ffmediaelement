@@ -525,7 +525,18 @@
         {
             if (block == null) return;
 
-            // TODO: Still missing current, previous and next positions here
+            // Update PositionCurrent, PositionNext and PositionPrevious
+            if (block.MediaType == main)
+            {
+                PositionCurrent = block.StartTime;
+                buffer.Neighbors(block, out MediaBlock previous, out MediaBlock next);
+                PositionNext = next?.StartTime ?? TimeSpan.FromTicks(
+                    block.EndTime.Ticks + (block.Duration.Ticks / 2));
+                PositionPrevious = previous?.StartTime ?? TimeSpan.FromTicks(
+                    block.StartTime.Ticks - (block.Duration.Ticks / 2));
+            }
+
+            // Update video block properties
             if (block is VideoBlock videoBlock)
             {
                 // I don't know of any codecs changing the width and the height dynamically
@@ -586,24 +597,12 @@
 
             Position = newPosition;
 
-            var main = MediaCore.Container?.Components?.Main.MediaType ?? MediaType.None;
-            var blocks = MediaCore.Blocks[main];
-            var currentMainBlock = blocks[newPosition];
-
-            if (currentMainBlock == null || blocks == null)
+            var blockCount = MediaCore.Blocks.Main(MediaCore.Container)?.Count ?? 0;
+            if (blockCount <= 0)
             {
                 PositionCurrent = default;
                 PositionNext = default;
                 PositionPrevious = default;
-            }
-            else
-            {
-                blocks.Neighbors(currentMainBlock, out var previous, out var next);
-                PositionCurrent = currentMainBlock.StartTime;
-                PositionNext = next?.StartTime ?? TimeSpan.FromTicks(
-                    currentMainBlock.EndTime.Ticks + (currentMainBlock.Duration.Ticks / 2));
-                PositionPrevious = previous?.StartTime ?? TimeSpan.FromTicks(
-                    currentMainBlock.StartTime.Ticks - (currentMainBlock.Duration.Ticks / 2));
             }
 
             MediaCore.SendOnPositionChanged(oldPosition, newPosition);

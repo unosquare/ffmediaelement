@@ -335,9 +335,10 @@
         {
             // We need to perform some packet reading and decoding
             var frame = default(MediaFrame);
-            var main = Main.MediaType;
+            var main = MainMediaType;
             var auxs = MediaTypes.Except(main);
             var mediaTypes = MediaTypes;
+            var mainBlocks = m.Blocks[main];
 
             // Read and decode blocks until the main component is half full
             while (m.ShouldReadMorePackets)
@@ -353,22 +354,22 @@
                 }
 
                 // Check if we have at least a half a buffer on main
-                if (m.Blocks[main].CapacityPercent >= 0.5)
+                if (mainBlocks.CapacityPercent >= 0.5)
                     break;
             }
 
             // Check if we have a valid range. If not, just set it what the main component is dictating
-            if (m.Blocks[main].Count > 0 && m.Blocks[main].IsInRange(m.WallClock) == false)
-                m.ChangePosition(m.Blocks[main].RangeStartTime);
+            if (mainBlocks.Count > 0 && mainBlocks.IsInRange(m.WallClock) == false)
+                m.ChangePosition(mainBlocks.RangeStartTime);
 
             // Have the other components catch up
             foreach (var t in auxs)
             {
-                if (m.Blocks[main].Count <= 0) break;
+                if (mainBlocks.Count <= 0) break;
                 if (t != MediaType.Audio && t != MediaType.Video)
                     continue;
 
-                while (m.Blocks[t].RangeEndTime < m.Blocks[main].RangeEndTime)
+                while (m.Blocks[t].RangeEndTime < mainBlocks.RangeEndTime)
                 {
                     if (m.ShouldReadMorePackets == false)
                         break;
