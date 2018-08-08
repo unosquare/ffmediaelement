@@ -518,24 +518,29 @@
         /// Updates state properties coming from a new media block.
         /// </summary>
         /// <param name="block">The block.</param>
+        /// <param name="buffer">The buffer.</param>
         /// <param name="main">The main MediaType</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdateDynamicBlockProperties(MediaBlock block, MediaType main)
+        internal void UpdateDynamicBlockProperties(MediaBlock block, MediaBlockBuffer buffer, MediaType main)
         {
             if (block == null) return;
 
             // TODO: Still missing current, previous and next positions here
             if (block is VideoBlock videoBlock)
             {
-                // TODO: I don't know of any codecs changing the widht and the height dynamically
-                // NaturalVideoWidth = videoBlock.PixelWidth;
-                // NaturalVideoHeight = videoBlock.PixelHeight;
+                // I don't know of any codecs changing the width and the height dynamically
+                // but we update the properties just to be safe.
+                NaturalVideoWidth = videoBlock.PixelWidth;
+                NaturalVideoHeight = videoBlock.PixelHeight;
+
+                // Update the has closed captions state as it might come in later
+                // as frames are decoded
                 if (HasClosedCaptions == false && videoBlock.ClosedCaptions.Count > 0)
                     HasClosedCaptions = true;
 
                 VideoSmtpeTimecode = videoBlock.SmtpeTimecode;
-                VideoHardwareDecoder = (MediaCore.Container?.Components.Video?.IsUsingHardwareDecoding ?? false) ?
-                    MediaCore.Container?.Components.Video?.HardwareAccelerator?.Name ?? string.Empty : string.Empty;
+                VideoHardwareDecoder = videoBlock.IsHardwareFrame ?
+                    videoBlock.HardwareAcceleratorName : string.Empty;
             }
         }
 
@@ -699,13 +704,15 @@
         internal void UpdateDecodingBitrate(long bitrate) => DecodingBitrate = bitrate;
 
         /// <summary>
-        /// Updates the buffering properties: IsBuffering, BufferingProgress, DownloadProgress.
+        /// Updates the buffering properties: <see cref="PacketBufferCount" />, <see cref="PacketBufferLength" />,
+        /// <see cref="IsBuffering" />, <see cref="BufferingProgress" />, <see cref="DownloadProgress" />.
+        /// If a change is detected on the <see cref="IsBuffering" /> property then a notification is sent.
         /// </summary>
         /// <param name="bufferLength">Length of the packet buffer.</param>
         /// <param name="bufferCount">The packet buffer count.</param>
         /// <param name="bufferCountMax">The packet buffer count maximum for all components</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdateBufferingStatistics(long bufferLength, int bufferCount, int bufferCountMax)
+        internal void UpdateBufferingStats(long bufferLength, int bufferCount, int bufferCountMax)
         {
             PacketBufferCount = bufferCount;
             PacketBufferLength = bufferLength;

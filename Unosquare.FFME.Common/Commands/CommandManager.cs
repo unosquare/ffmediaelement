@@ -17,7 +17,7 @@
         #region Private Members
 
         private readonly List<CommandBase> CommandQueue = new List<CommandBase>(32);
-        private readonly IWaitEvent DirectCommandEvent = null;
+        private readonly IWaitEvent DirectCommandEvent = WaitEventFactory.Create(isCompleted: true, useSlim: true);
         private readonly AtomicBoolean m_IsStopWorkersPending = new AtomicBoolean(false);
         private readonly AtomicBoolean PlayAfterSeek = new AtomicBoolean(false);
 
@@ -26,10 +26,9 @@
         private readonly object StatusLock = new object();
         private readonly object DisposeLock = new object();
 
-        // private bool PlayAfterSeek = default;
         private readonly AtomicInteger PendingSeekCount = new AtomicInteger(0);
         private readonly AtomicBoolean HasSeekingStarted = new AtomicBoolean(false);
-        private readonly IWaitEvent SeekingDone = null;
+        private readonly IWaitEvent SeekingCommandEvent = WaitEventFactory.Create(isCompleted: true, useSlim: true);
 
         private bool m_IsClosing = default;
         private bool m_IsOpening = default;
@@ -49,8 +48,6 @@
         /// <param name="mediaCore">The media core.</param>
         public CommandManager(MediaEngine mediaCore)
         {
-            DirectCommandEvent = WaitEventFactory.Create(isCompleted: true, useSlim: true);
-            SeekingDone = WaitEventFactory.Create(isCompleted: true, useSlim: true);
             MediaCore = mediaCore;
         }
 
@@ -105,7 +102,7 @@
         /// This differs from the <see cref="IsSeeking"/> property as this is the realtime
         /// state of a seek operation as opposed to a general, delayed state of the command manager.
         /// </summary>
-        public bool IsActivelySeeking { get => SeekingDone.IsInProgress; }
+        public bool IsActivelySeeking { get => SeekingCommandEvent.IsInProgress; }
 
         /// <summary>
         /// Gets a value indicating whether Reading, Decoding and Rendering workers are
@@ -273,7 +270,7 @@
         /// Waits for an active seek command (if any) to complete.
         /// </summary>
         public void WaitForActiveSeekCommand() =>
-            SeekingDone.Wait();
+            SeekingCommandEvent.Wait();
 
         /// <summary>
         /// Executes the next command in the queued.
@@ -303,7 +300,7 @@
                 // Initiate a seek cycle
                 if (command.AffectsSeekingState)
                 {
-                    SeekingDone.Begin();
+                    SeekingCommandEvent.Begin();
                     MediaCore.State.UpdateMediaState(PlaybackStatus.Manual);
                     if (HasSeekingStarted == false)
                     {
@@ -324,7 +321,7 @@
                 {
                     if (command.AffectsSeekingState)
                     {
-                        SeekingDone.Complete();
+                        SeekingCommandEvent.Complete();
                         DecrementPendingSeeks(wasCancelled: false);
                     }
 
@@ -390,7 +387,7 @@
         /// All commands are signalled so all awaiters stop awaiting.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ClearQueuedCommands()
+        private void ClearCommandQueue()
         {
             lock (QueueLock)
             {
@@ -506,9 +503,10 @@
                     throw new ArgumentException($"{nameof(commandType)} is of invalid type '{commandType}'");
             }
 
+            // Priority commands clear the queue and add themselves.
             lock (QueueLock)
             {
-                ClearQueuedCommands();
+                ClearCommandQueue();
                 CommandQueue.Add(command);
             }
 
@@ -599,7 +597,7 @@
 
             // Clear any commands that have been queued. Direct commands
             // take over all pending commands.
-            ClearQueuedCommands();
+            ClearCommandQueue();
 
             // Signal the workers to stop
             if (commandType == CommandType.Close)
@@ -659,7 +657,7 @@
                 m_IsDisposed = true;
 
                 // Signal the workers we need to quit
-                ClearQueuedCommands();
+                ClearCommandQueue();
                 IsStopWorkersPending = true;
                 MediaCore.Container?.SignalAbortReads(false);
 
@@ -672,7 +670,7 @@
 
                 // Dispose of additional resources.
                 DirectCommandEvent?.Dispose();
-                SeekingDone?.Dispose();
+                SeekingCommandEvent?.Dispose();
             }
         }
 

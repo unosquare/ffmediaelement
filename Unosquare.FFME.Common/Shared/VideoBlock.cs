@@ -46,6 +46,16 @@
         public string SmtpeTimecode { get; internal set; }
 
         /// <summary>
+        /// Gets a value indicating whether this frame was decoded in a hardware context.
+        /// </summary>
+        public bool IsHardwareFrame { get; internal set; }
+
+        /// <summary>
+        /// Gets the name of the hardware decoder if the frame was decoded in a hardware context.
+        /// </summary>
+        public string HardwareAcceleratorName { get; internal set; }
+
+        /// <summary>
         /// Gets the display picture number (frame number).
         /// If not set by the decoder, this attempts to obtain it by dividing the start time by the
         /// frame duration

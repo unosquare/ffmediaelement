@@ -25,8 +25,8 @@
         /// Initializes a new instance of the <see cref="VideoFrame" /> class.
         /// </summary>
         /// <param name="frame">The frame.</param>
-        /// <param name="component">The component.</param>
-        internal VideoFrame(AVFrame* frame, MediaComponent component)
+        /// <param name="component">The video component.</param>
+        internal VideoFrame(AVFrame* frame, VideoComponent component)
             : base(frame, component)
         {
             var timeBase = ffmpeg.av_guess_frame_rate(component.Container.InputContext, component.Stream, frame);
@@ -54,6 +54,8 @@
 
             CodedPictureNumber = frame->coded_picture_number;
             SmtpeTimecode = Extensions.ComputeSmtpeTimeCode(component.StartTimeOffset, Duration, timeBase, DisplayPictureNumber);
+            IsHardwareFrame = component.IsUsingHardwareDecoding;
+            HardwareAcceleratorName = component.HardwareAccelerator?.Name ?? null;
 
             // Process side data such as CC packets
             for (var i = 0; i < frame->nb_side_data; i++)
@@ -109,6 +111,16 @@
         /// Gets the SMTPE time code.
         /// </summary>
         public string SmtpeTimecode { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether this frame was decoded in a hardware context.
+        /// </summary>
+        public bool IsHardwareFrame { get; }
+
+        /// <summary>
+        /// Gets the name of the hardware decoder if the frame was decoded in a hardware context.
+        /// </summary>
+        public string HardwareAcceleratorName { get; }
 
         /// <summary>
         /// Gets the pointer to the unmanaged frame.

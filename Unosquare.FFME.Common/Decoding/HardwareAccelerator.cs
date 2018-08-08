@@ -90,19 +90,19 @@
         /// </summary>
         /// <param name="codecContext">The codec context.</param>
         /// <param name="input">The input frame coming from the decoder (may or may not be hardware).</param>
-        /// <param name="comesFromHardware">if set to <c>true</c> [comes from hardware] otherwise, hardware decoding was not perfomred.</param>
+        /// <param name="isHardwareFrame">if set to <c>true</c> [comes from hardware] otherwise, hardware decoding was not perfomred.</param>
         /// <returns>
         /// The frame downloaded from the device into RAM
         /// </returns>
         /// <exception cref="Exception">Failed to transfer data to output frame</exception>
-        public AVFrame* ExchangeFrame(AVCodecContext* codecContext, AVFrame* input, out bool comesFromHardware)
+        public AVFrame* ExchangeFrame(AVCodecContext* codecContext, AVFrame* input, out bool isHardwareFrame)
         {
-            comesFromHardware = false;
+            isHardwareFrame = false;
 
             if (codecContext->hw_device_ctx == null)
                 return input;
 
-            comesFromHardware = true;
+            isHardwareFrame = true;
 
             if (input->format != (int)PixelFormat)
                 return input;

@@ -170,7 +170,7 @@
                 // Packet Buffer Notification Callbacks
                 m.Container.Components.OnPacketQueueChanged = (op, packet, mediaType, state) =>
                 {
-                    m.State.UpdateBufferingStatistics(state.Length, state.Count, state.CountThreshold);
+                    m.State.UpdateBufferingStats(state.Length, state.Count, state.CountThreshold);
                     m.BufferChangedEvent.Complete();
                 };
 

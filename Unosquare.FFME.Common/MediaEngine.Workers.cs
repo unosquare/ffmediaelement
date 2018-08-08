@@ -371,7 +371,7 @@
             if (block == null) return 0;
 
             // Process property changes coming from video blocks
-            State.UpdateDynamicBlockProperties(block, main);
+            State.UpdateDynamicBlockProperties(block, Blocks[block.MediaType], main);
 
             // Send the block to its corresponding renderer
             Renderers[block.MediaType]?.Render(block, clockPosition);

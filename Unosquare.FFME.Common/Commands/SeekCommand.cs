@@ -70,7 +70,8 @@
 
                 // wait for the current reading and decoding cycles
                 // to finish. We don't want to interfere with reading in progress
-                // or decoding in progress
+                // or decoding in progress. For decoding we already know we are not
+                // in a cycle because the docoding worker called this logic.
                 m.PacketReadingCycle.Wait();
 
                 // Capture seek target adjustment

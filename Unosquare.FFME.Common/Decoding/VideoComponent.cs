@@ -296,6 +296,8 @@
             }
 
             // Fill out other properties
+            target.IsHardwareFrame = source.IsHardwareFrame;
+            target.HardwareAcceleratorName = source.HardwareAcceleratorName;
             target.CompressedSize = source.CompressedSize;
             target.CodedPictureNumber = source.CodedPictureNumber;
             target.StreamIndex = source.StreamIndex;
@@ -330,14 +332,15 @@
         {
             // Validate the video frame
             var frame = (AVFrame*)framePointer;
+
             if (frame == null || frame->width <= 0 || frame->height <= 0)
                 return null;
 
             // Move the frame from hardware (GPU) memory to RAM (CPU)
             if (HardwareAccelerator != null)
             {
-                frame = HardwareAccelerator.ExchangeFrame(CodecContext, frame, out bool isUsingHardwareDecoding);
-                IsUsingHardwareDecoding = isUsingHardwareDecoding;
+                frame = HardwareAccelerator.ExchangeFrame(CodecContext, frame, out bool isHardwareFrame);
+                IsUsingHardwareDecoding = isHardwareFrame;
             }
 
             // Init the filtergraph for the frame
