@@ -11,6 +11,7 @@
     }
   ],
   "build": {
+    "xrefService": "https://xref.docs.microsoft.com/query?uid={uid}",
     "template": [
       "best-practices/templates/default"
     ],
@@ -37,7 +38,7 @@
     "globalMetadata": {
       "_appTitle": "FFME: WPF MediaElement replacement based on FFmpeg",
       "_enableSearch": true,
-      "_docLogo":  "ffme.png",
+      "_docLogo": "ffme.png",
       "_appLogoPath": "best-practices/resources/images/logo.png"
     },
     "dest": "_site"
