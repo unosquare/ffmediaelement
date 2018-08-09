@@ -35,8 +35,8 @@
             double[] rdrawVuMeterRightSamples = null;
 
             const float drawVuMeterLeftOffset = 36;
-            const float drawVuMeterTopSpacing = 20;
-            const float drawVuMeterTopOffset = 82;
+            const float drawVuMeterTopSpacing = 21;
+            const float drawVuMeterTopOffset = 81;
             const float drawVuMeterMinWidth = 5;
             const float drawVuMeterScaleFactor = 20; // RMS * pixel factor = the length of the VU meter lines
 
@@ -92,15 +92,15 @@
                 // draw a simple VU meter
                 overlayGraphics.DrawLine(drawVuMeterLeftPen,
                     drawVuMeterLeftOffset,
-                    drawVuMeterTopOffset,
+                    drawVuMeterTopOffset * overlayGraphics.DpiY / 96f,
                     drawVuMeterLeftOffset + leftChannelWidth,
-                    drawVuMeterTopOffset);
+                    drawVuMeterTopOffset * overlayGraphics.DpiY / 96f);
 
                 overlayGraphics.DrawLine(drawVuMeterRightPen,
                     drawVuMeterLeftOffset,
-                    drawVuMeterTopOffset + drawVuMeterTopSpacing,
+                    (drawVuMeterTopOffset + drawVuMeterTopSpacing) * overlayGraphics.DpiY / 96f,
                     drawVuMeterLeftOffset + rightChannelWidth,
-                    drawVuMeterTopOffset + drawVuMeterTopSpacing);
+                    (drawVuMeterTopOffset + drawVuMeterTopSpacing) * overlayGraphics.DpiY / 96f);
 
                 #endregion
             };

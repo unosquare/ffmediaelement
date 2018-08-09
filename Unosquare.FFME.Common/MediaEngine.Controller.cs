@@ -106,14 +106,6 @@
         public async Task Seek(TimeSpan position) =>
             await Commands.SeekAsync(position);
 
-        /// <summary>
-        /// Sets the specified playback speed ratio.
-        /// </summary>
-        /// <param name="targetSpeedRatio">New playback speed ratio.</param>
-        /// <returns>The awaitable command</returns>
-        public async Task SetSpeedRatio(double targetSpeedRatio) =>
-            await Commands.SetSpeedRatioAsync(targetSpeedRatio);
-
         #endregion
     }
 }

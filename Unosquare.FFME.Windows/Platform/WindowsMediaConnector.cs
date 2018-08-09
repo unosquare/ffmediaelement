@@ -196,11 +196,6 @@
         public void OnPositionChanged(MediaEngine sender, TimeSpan oldValue, TimeSpan newValue)
         {
             if (Parent == null) return;
-
-            // Only set a reportable position if we are playing and not seeking
-            if (sender.State.IsPlaying && sender.State.IsSeeking == false)
-                Parent.ReportablePosition = newValue;
-
             Parent?.PostPositionChangedEvent(oldValue, newValue);
         }
 
@@ -214,8 +209,6 @@
         {
             if (Parent == null) return;
 
-            // Force a reportable position when the media state changes
-            Parent.ReportablePosition = sender.State.Position;
             Parent?.PostMediaStateChangedEvent(
                 (System.Windows.Controls.MediaState)oldValue,
                 (System.Windows.Controls.MediaState)newValue);

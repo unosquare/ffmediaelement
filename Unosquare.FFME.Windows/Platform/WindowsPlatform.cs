@@ -56,16 +56,16 @@
         /// Creates a renderer of the specified media type.
         /// </summary>
         /// <param name="mediaType">Type of the media.</param>
-        /// <param name="mediaEngine">The media engine.</param>
+        /// <param name="mediaCore">The media engine.</param>
         /// <returns>
         /// The renderer
         /// </returns>
         /// <exception cref="NotSupportedException">When the media type is not supported</exception>
-        public IMediaRenderer CreateRenderer(MediaType mediaType, MediaEngine mediaEngine)
+        public IMediaRenderer CreateRenderer(MediaType mediaType, MediaEngine mediaCore)
         {
-            if (mediaType == MediaType.Audio) return new AudioRenderer(mediaEngine);
-            else if (mediaType == MediaType.Video) return new VideoRenderer(mediaEngine);
-            else if (mediaType == MediaType.Subtitle) return new SubtitleRenderer(mediaEngine);
+            if (mediaType == MediaType.Audio) return new AudioRenderer(mediaCore);
+            else if (mediaType == MediaType.Video) return new VideoRenderer(mediaCore);
+            else if (mediaType == MediaType.Subtitle) return new SubtitleRenderer(mediaCore);
 
             throw new NotSupportedException($"No suitable renderer for Media Type '{mediaType}'");
         }

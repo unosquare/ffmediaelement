@@ -24,7 +24,7 @@
         static PropertyMapper()
         {
             MediaEngineStateProperties = new ReadOnlyDictionary<string, PropertyInfo>(
-                RetrieveProperties(typeof(MediaEngineState), false).ToDictionary((p) => p.Name, (p) => p));
+                RetrieveProperties(typeof(IMediaEngineState), false).ToDictionary((p) => p.Name, (p) => p));
 
             var enginePropertyNames = MediaEngineStateProperties.Keys.ToArray();
 

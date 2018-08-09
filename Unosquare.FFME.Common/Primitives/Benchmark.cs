@@ -35,10 +35,10 @@
                 var builder = new StringBuilder();
                 foreach (var kvp in Measures)
                 {
-                    builder.AppendLine($"BID: {kvp.Key, -30} | CNT: {kvp.Value.Count, 6} | " +
-                        $"AVG: {kvp.Value.Average(t => t.TotalMilliseconds), 8:0.000} ms. | " +
-                        $"MAX: {kvp.Value.Max(t => t.TotalMilliseconds), 8:0.000} ms. | " +
-                        $"MIN: {kvp.Value.Min(t => t.TotalMilliseconds), 8:0.000} ms. | ");
+                    builder.AppendLine($"BID: {kvp.Key,-30} | CNT: {kvp.Value.Count,6} | " +
+                        $"AVG: {kvp.Value.Average(t => t.TotalMilliseconds),8:0.000} ms. | " +
+                        $"MAX: {kvp.Value.Max(t => t.TotalMilliseconds),8:0.000} ms. | " +
+                        $"MIN: {kvp.Value.Min(t => t.TotalMilliseconds),8:0.000} ms. | ");
                 }
 
                 return builder.ToString().TrimEnd();
@@ -67,9 +67,9 @@
         /// <seealso cref="IDisposable" />
         private sealed class BenchmarkUnit : IDisposable
         {
-            private bool IsDisposed = false; // To detect redundant calls
+            private readonly string Identifier = null;
+            private AtomicBoolean IsDisposed = new AtomicBoolean(false); // To detect redundant calls
             private Stopwatch Stopwatch = new Stopwatch();
-            private string Identifier = null;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="BenchmarkUnit" /> class.
@@ -84,10 +84,7 @@
             /// <summary>
             /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             /// </summary>
-            public void Dispose()
-            {
-                Dispose(true);
-            }
+            public void Dispose() => Dispose(true);
 
             /// <summary>
             /// Releases unmanaged and - optionally - managed resources.
@@ -95,17 +92,16 @@
             /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
             private void Dispose(bool alsoManaged)
             {
-                if (!IsDisposed)
-                {
-                    if (alsoManaged)
-                    {
-                        Add(Identifier, Stopwatch.Elapsed);
-                        Stopwatch?.Stop();
-                    }
+                if (IsDisposed == true) return;
+                IsDisposed.Value = true;
 
-                    Stopwatch = null;
-                    IsDisposed = true;
+                if (alsoManaged)
+                {
+                    Add(Identifier, Stopwatch.Elapsed);
+                    Stopwatch?.Stop();
                 }
+
+                Stopwatch = null;
             }
         }
     }

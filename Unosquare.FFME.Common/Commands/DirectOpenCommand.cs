@@ -69,6 +69,7 @@
             }
             else
             {
+                MediaCore.ResetPosition();
                 MediaCore.State.UpdateMediaState(PlaybackStatus.Close);
                 MediaCore.SendOnMediaFailed(ExceptionResult);
             }
@@ -92,9 +93,8 @@
                 // until the interrupt timeout occurs but and the Real-Time Clock continues. Strange behavior. Investigate more.
 
                 // Signal the initial state
-                m.State.ResetMediaProperties();
-                m.State.UpdateFixedContainerProperties();
-                m.State.Source = Source;
+                m.State.ResetAll();
+                m.State.UpdateSource(Source);
 
                 // Register FFmpeg libraries if not already done
                 if (MediaEngine.LoadFFmpeg())
@@ -146,9 +146,6 @@
                 // Allow the stream input options to be changed
                 m.SendOnMediaInitializing(containerConfig, mediaUrl);
 
-                // Opening the media means we are buffering packets
-                m.State.SignalBufferingStarted();
-
                 // Instantiate the internal container using either a URL (default) or a custom input stream.
                 if (InputStream == null)
                     m.Container = new MediaContainer(mediaUrl, containerConfig, m);
@@ -163,16 +160,19 @@
                 // Side-load subtitles if requested
                 m.PreloadSubtitles();
 
-                // Set the callback to update buffering progress
-                m.Container.Components.OnPacketQueued = (packetPtr, mediaType, bufferLength, lifetimeBytes) =>
-                    m.State.UpdateBufferingProgress(bufferLength);
-
                 // Get the main container open
                 m.Container.Open();
 
                 // Reset buffering properties
                 m.State.UpdateFixedContainerProperties();
-                m.State.InitializeBufferingProperties();
+                m.State.InitializeBufferingStatistics();
+
+                // Packet Buffer Notification Callbacks
+                m.Container.Components.OnPacketQueueChanged = (op, packet, mediaType, state) =>
+                {
+                    m.State.UpdateBufferingStats(state.Length, state.Count, state.CountThreshold);
+                    m.BufferChangedEvent.Complete();
+                };
 
                 // Check if we have at least audio or video here
                 if (m.State.HasAudio == false && m.State.HasVideo == false)
@@ -183,9 +183,6 @@
             }
             catch (Exception ex)
             {
-                // On closing we immediately signal a buffering ended operation
-                m.State.SignalBufferingEnded();
-
                 try { m.StopWorkers(); } catch { }
                 try { m.Container?.Dispose(); } catch { }
                 m.DisposePreloadedSubtitles();

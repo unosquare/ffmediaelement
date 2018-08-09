@@ -19,7 +19,7 @@
             BlockRenderingWorkerExit = WaitEventFactory.Create(isCompleted: false, useSlim: true);
 
             // Holds the main media type
-            var main = Container.Components.Main.MediaType;
+            var main = Container.Components.MainMediaType;
 
             // Holds all components
             var all = Renderers.Keys.ToArray();
@@ -30,20 +30,12 @@
             // Keeps track of how many blocks were rendered in the cycle.
             var renderedBlockCount = new MediaTypeDictionary<int>();
 
-            // reset render times for all components
-            foreach (var t in all)
-                InvalidateRenderer(t);
-
-            // Ensure packet reading is running
-            PacketReadingCycle.Wait();
-
             // wait for main component blocks or EOF or cancellation pending
             while (CanReadMoreFramesOf(main) && Blocks[main].Count <= 0)
-                FrameDecodingCycle.Wait();
+                FrameDecodingCycle.Wait(Constants.Interval.LowPriority);
 
             // Set the initial clock position
-            Clock.Update(Blocks[main].RangeStartTime);
-            var wallClock = WallClock;
+            var wallClock = ChangePosition(Blocks[main].RangeStartTime);
 
             // Wait for renderers to be ready
             foreach (var t in all)
@@ -63,7 +55,7 @@
                 // Skip the cycle if it's already running
                 if (BlockRenderingCycle.IsInProgress)
                 {
-                    Log(MediaLogMessageType.Trace, $"SKIP: {nameof(BlockRenderingWorker)} alredy in a cycle. {WallClock}");
+                    Log(MediaLogMessageType.Trace, $"SKIP: {nameof(BlockRenderingWorker)} already in a cycle. {WallClock}");
                     return;
                 }
 
@@ -85,7 +77,7 @@
                     if (Commands.IsExecutingDirectCommand) return;
 
                     // Updatete Status Properties
-                    main = Container.Components.Main.MediaType;
+                    main = Container.Components.MainMediaType;
                     all = Renderers.Keys.ToArray();
 
                     // Reset the rendered count to 0
@@ -102,16 +94,10 @@
                     // Capture the blocks to render
                     foreach (var t in all)
                     {
-                        if (t == MediaType.Subtitle && PreloadedSubtitles != null)
-                        {
-                            // Get the preloaded, cached subtitle block
-                            currentBlock[t] = PreloadedSubtitles[wallClock];
-                        }
-                        else
-                        {
-                            // Get the regular audio, video, or sub block
+                        // Get the audio, video, or subtitle block to render
+                        currentBlock[t] = (t == MediaType.Subtitle && PreloadedSubtitles != null) ?
+                            PreloadedSubtitles[wallClock] :
                             currentBlock[t] = Blocks[t][wallClock];
-                        }
                     }
 
                     // Render each of the Media Types if it is time to do so.
@@ -128,7 +114,7 @@
 
                     #endregion
 
-                    #region 6. Finalize the Rendering Cycle
+                    #region 3. Finalize the Rendering Cycle
 
                     // Call the update method on all renderers so they receive what the new wall clock is.
                     foreach (var t in all)
@@ -140,13 +126,12 @@
                 catch { throw; }
                 finally
                 {
+                    // Update the Position
+                    if (IsWorkerInterruptRequested == false && IsSyncBuffering == false)
+                        State.UpdatePosition(Clock.IsRunning ? wallClock : Clock.Position);
+
                     // Always exit notifying the cycle is done.
                     BlockRenderingCycle.Complete();
-
-                    // Notify position changes continuously on the state object
-                    // only if we are not currently seeking
-                    if (State.IsSeeking == false)
-                        State.UpdatePosition(wallClock);
                 }
 
                 #endregion

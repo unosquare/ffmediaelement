@@ -122,8 +122,13 @@
         /// <seealso cref="ISyncReleasable" />
         private sealed class SyncLocker : ISyncLocker, ISyncReleasable
         {
-            private bool IsDisposed = false;
-            private ReaderWriterLock Locker = new ReaderWriterLock();
+            private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
+            private readonly ReaderWriterLock Locker = new ReaderWriterLock();
+
+            /// <summary>
+            /// Gets a value indicating whether this instance is disposed.
+            /// </summary>
+            public bool IsDisposed => m_IsDisposed.Value;
 
             /// <summary>
             /// Acquires a reader lock.
@@ -216,16 +221,17 @@
             /// <returns>Success</returns>
             private bool AcquireWriterLock(int timeoutMilliseconds, out IDisposable releaser)
             {
-                releaser = SyncLockReleaser.Empty;
+                if (m_IsDisposed == true) throw new ObjectDisposedException(nameof(ISyncLocker));
 
-                if (Locker?.IsReaderLockHeld ?? false)
+                releaser = SyncLockReleaser.Empty;
+                if (Locker.IsReaderLockHeld)
                 {
-                    Locker?.AcquireReaderLock(timeoutMilliseconds);
+                    Locker.AcquireReaderLock(timeoutMilliseconds);
                     releaser = new SyncLockReleaser(this, LockHolderType.Read);
                     return Locker?.IsReaderLockHeld ?? false;
                 }
 
-                Locker?.AcquireWriterLock(timeoutMilliseconds);
+                Locker.AcquireWriterLock(timeoutMilliseconds);
                 if (Locker?.IsWriterLockHeld ?? false)
                 {
                     releaser = new SyncLockReleaser(this, LockHolderType.Write);
@@ -242,9 +248,11 @@
             /// <returns>Success</returns>
             private bool AcquireReaderLock(int timeoutMilliseconds, out IDisposable releaser)
             {
+                if (m_IsDisposed == true) throw new ObjectDisposedException(nameof(ISyncLocker));
+
                 releaser = SyncLockReleaser.Empty;
-                Locker?.AcquireReaderLock(timeoutMilliseconds);
-                if (Locker?.IsReaderLockHeld ?? false)
+                Locker.AcquireReaderLock(timeoutMilliseconds);
+                if (Locker.IsReaderLockHeld)
                 {
                     releaser = new SyncLockReleaser(this, LockHolderType.Read);
                     return true;
@@ -259,10 +267,9 @@
             /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
             private void Dispose(bool alsoManaged)
             {
-                if (IsDisposed) return;
-                IsDisposed = true;
-                Locker?.ReleaseLock();
-                Locker = null;
+                if (m_IsDisposed == true) return;
+                m_IsDisposed.Value = true;
+                Locker.ReleaseLock();
             }
         }
 
@@ -273,9 +280,14 @@
         /// <seealso cref="ISyncReleasable" />
         private sealed class SyncLockerSlim : ISyncLocker, ISyncReleasable
         {
-            private bool IsDisposed = false;
-            private ReaderWriterLockSlim Locker
+            private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
+            private readonly ReaderWriterLockSlim Locker
                 = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+
+            /// <summary>
+            /// Gets a value indicating whether this instance is disposed.
+            /// </summary>
+            public bool IsDisposed => m_IsDisposed.Value;
 
             /// <summary>
             /// Acquires a reader lock.
@@ -368,6 +380,8 @@
             /// <returns>Success</returns>
             private bool AcquireWriterLock(int timeoutMilliseconds, out IDisposable releaser)
             {
+                if (m_IsDisposed == true) throw new ObjectDisposedException(nameof(ISyncLocker));
+
                 releaser = SyncLockReleaser.Empty;
                 var result = false;
 
@@ -395,6 +409,8 @@
             /// <returns>Success</returns>
             private bool AcquireReaderLock(int timeoutMilliseconds, out IDisposable releaser)
             {
+                if (m_IsDisposed == true) throw new ObjectDisposedException(nameof(ISyncLocker));
+
                 releaser = SyncLockReleaser.Empty;
                 var result = Locker?.TryEnterReadLock(timeoutMilliseconds) ?? false;
                 if (result)
@@ -409,10 +425,9 @@
             /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
             private void Dispose(bool alsoManaged)
             {
-                if (IsDisposed) return;
-                IsDisposed = true;
-                Locker?.Dispose();
-                Locker = null;
+                if (m_IsDisposed == true) return;
+                m_IsDisposed.Value = true;
+                Locker.Dispose();
             }
         }
 

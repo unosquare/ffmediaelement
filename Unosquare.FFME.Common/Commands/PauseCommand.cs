@@ -43,8 +43,7 @@
             foreach (var renderer in m.Renderers.Values)
                 renderer.Pause();
 
-            var wallClock = m.SnapPositionToBlockPosition(m.WallClock);
-            m.Clock.Update(wallClock);
+            m.ChangePosition(m.SnapPositionToBlockPosition(m.WallClock));
             m.State.UpdateMediaState(PlaybackStatus.Pause);
         }
     }

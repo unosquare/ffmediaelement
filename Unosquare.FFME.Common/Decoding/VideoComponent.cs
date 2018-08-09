@@ -15,15 +15,8 @@
     {
         #region Private State Variables
 
-#pragma warning disable SA1401 // Fields must be private
-        internal AVBufferRef* HardwareDeviceContext = null;
-        internal HardwareAccelerator HardwareAccelerator = null;
-        internal bool IsUsingHardwareDecoding = false;
-#pragma warning restore SA1401 // Fields must be private
+        private readonly string FilterString = null;
 
-        /// <summary>
-        /// Holds a reference to the video scaler
-        /// </summary>
         private SwsContext* Scaler = null;
         private AVRational BaseFrameRateQ;
 
@@ -34,7 +27,7 @@
         private AVFilterInOut* SourceOutput = null;
 
         private string CurrentFilterArguments = null;
-        private string FilterString = null;
+        private AVBufferRef* HardwareDeviceContext = null;
 
         #endregion
 
@@ -49,13 +42,15 @@
             : base(container, streamIndex)
         {
             FilterString = container.MediaOptions.VideoFilter;
-            BaseFrameRateQ = ffmpeg.av_guess_frame_rate(container.InputContext, Stream, null);
-            if (BaseFrameRateQ.den == 0)
-                BaseFrameRateQ = Stream->r_frame_rate;
+            BaseFrameRateQ = Stream->r_frame_rate;
 
-            if (BaseFrameRateQ.den == 0)
+            if (BaseFrameRateQ.den == 0 || BaseFrameRateQ.num == 0)
+                BaseFrameRateQ = ffmpeg.av_guess_frame_rate(container.InputContext, Stream, null);
+
+            if (BaseFrameRateQ.den == 0 || BaseFrameRateQ.num == 0)
             {
-                container.Parent.Log(MediaLogMessageType.Warning, $"{nameof(VideoComponent)} - Unable to extract valid framerate. Will use 25fps (40ms)");
+                container.Parent.Log(MediaLogMessageType.Warning,
+                    $"{nameof(VideoComponent)} - Unable to extract valid framerate. Will use 25fps (40ms)");
                 BaseFrameRateQ.num = 25;
                 BaseFrameRateQ.den = 1;
             }
@@ -63,9 +58,9 @@
             BaseFrameRate = BaseFrameRateQ.ToDouble();
 
             if (Stream->avg_frame_rate.den > 0 && Stream->avg_frame_rate.num > 0)
-                CurrentFrameRate = Stream->avg_frame_rate.ToDouble();
+                AverageFrameRate = Stream->avg_frame_rate.ToDouble();
             else
-                CurrentFrameRate = BaseFrameRate;
+                AverageFrameRate = BaseFrameRate;
 
             FrameWidth = Stream->codec->width;
             FrameHeight = Stream->codec->height;
@@ -73,6 +68,10 @@
             // Retrieve Matrix Rotation
             var displayMatrixRef = ffmpeg.av_stream_get_side_data(Stream, AVPacketSideDataType.AV_PKT_DATA_DISPLAYMATRIX, null);
             DisplayRotation = ComputeRotation(displayMatrixRef);
+
+            var aspectRatio = ffmpeg.av_d2q((double)FrameWidth / FrameHeight, int.MaxValue);
+            DisplayAspectWidth = aspectRatio.num;
+            DisplayAspectHeight = aspectRatio.den;
         }
 
         #endregion
@@ -93,10 +92,9 @@
         public double BaseFrameRate { get; private set; }
 
         /// <summary>
-        /// Gets the current frame rate as guessed by the last processed frame.
-        /// Variable framerate might report different values at different times.
+        /// Gets the stream's average framerate
         /// </summary>
-        public double CurrentFrameRate { get; private set; }
+        public double AverageFrameRate { get; private set; }
 
         /// <summary>
         /// Gets the width of the picture frame.
@@ -113,9 +111,81 @@
         /// </summary>
         public double DisplayRotation { get; }
 
+        /// <summary>
+        /// Gets the display aspect width.
+        /// This is NOT the pixel aspect width.
+        /// </summary>
+        public int DisplayAspectWidth { get; }
+
+        /// <summary>
+        /// Gets the display aspect height.
+        /// This si NOT the pixel aspect height.
+        /// </summary>
+        public int DisplayAspectHeight { get; }
+
+        /// <summary>
+        /// Gets the hardware accelerator.
+        /// </summary>
+        public HardwareAccelerator HardwareAccelerator { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether this component is using hardware-assisted decoding.
+        /// </summary>
+        public bool IsUsingHardwareDecoding { get; private set; } = false;
+
         #endregion
 
         #region Methods
+
+        /// <summary>
+        /// Attaches a hardware accelerator to this video component.
+        /// </summary>
+        /// <param name="selectedConfig">The selected configuration.</param>
+        /// <returns>
+        /// Whether or not the hardware accelerator was attached
+        /// </returns>
+        public bool AttachHardwareDevice(HardwareDeviceInfo selectedConfig)
+        {
+            // Check for no device selection
+            if (selectedConfig == null)
+                return false;
+
+            try
+            {
+                var accelerator = new HardwareAccelerator(this, selectedConfig);
+
+                AVBufferRef* devContextRef = null;
+                var initResultCode = 0;
+                initResultCode = ffmpeg.av_hwdevice_ctx_create(&devContextRef, accelerator.DeviceType, null, null, 0);
+                if (initResultCode < 0)
+                    throw new Exception($"Unable to initialize hardware context for device {accelerator.Name}");
+
+                HardwareDeviceContext = devContextRef;
+                HardwareAccelerator = accelerator;
+                CodecContext->hw_device_ctx = ffmpeg.av_buffer_ref(HardwareDeviceContext);
+                CodecContext->get_format = accelerator.GetFormatCallback;
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Container.Parent?.Log(MediaLogMessageType.Error, $"Could not attach hardware decoder. {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Releases the hardware device context.
+        /// </summary>
+        public void ReleaseHardwareDevice()
+        {
+            if (HardwareDeviceContext == null) return;
+
+            var hwdc = HardwareDeviceContext;
+            ffmpeg.av_buffer_unref(&hwdc);
+            HardwareDeviceContext = null;
+            HardwareAccelerator = null;
+        }
 
         /// <summary>
         /// Converts decoded, raw frame data in the frame source into a a usable frame. <br />
@@ -226,6 +296,9 @@
             }
 
             // Fill out other properties
+            target.IsHardwareFrame = source.IsHardwareFrame;
+            target.HardwareAcceleratorName = source.HardwareAcceleratorName;
+            target.CompressedSize = source.CompressedSize;
             target.CodedPictureNumber = source.CodedPictureNumber;
             target.StreamIndex = source.StreamIndex;
             target.ClosedCaptions = new ReadOnlyCollection<ClosedCaptions.ClosedCaptionPacket>(source.ClosedCaptions);
@@ -235,16 +308,16 @@
                 StreamInfo.HasClosedCaptions = true;
 
             // Process the aspect ratio
-            var aspectRatio = source.Pointer->sample_aspect_ratio;
+            var aspectRatio = ffmpeg.av_guess_sample_aspect_ratio(Container.InputContext, Stream, source.Pointer);
             if (aspectRatio.num == 0 || aspectRatio.den == 0)
             {
-                target.AspectWidth = 1;
-                target.AspectHeight = 1;
+                target.PixelAspectWidth = 1;
+                target.PixelAspectHeight = 1;
             }
             else
             {
-                target.AspectWidth = aspectRatio.num;
-                target.AspectHeight = aspectRatio.den;
+                target.PixelAspectWidth = aspectRatio.num;
+                target.PixelAspectHeight = aspectRatio.den;
             }
 
             return true;
@@ -259,12 +332,16 @@
         {
             // Validate the video frame
             var frame = (AVFrame*)framePointer;
+
             if (frame == null || frame->width <= 0 || frame->height <= 0)
                 return null;
 
             // Move the frame from hardware (GPU) memory to RAM (CPU)
             if (HardwareAccelerator != null)
-                frame = HardwareAccelerator.ExchangeFrame(CodecContext, frame, out IsUsingHardwareDecoding);
+            {
+                frame = HardwareAccelerator.ExchangeFrame(CodecContext, frame, out bool isHardwareFrame);
+                IsUsingHardwareDecoding = isHardwareFrame;
+            }
 
             // Init the filtergraph for the frame
             if (string.IsNullOrWhiteSpace(FilterString) == false)
@@ -306,15 +383,16 @@
                 return null;
 
             // Create the frame holder object and return it.
-            var frameHolder = new VideoFrame(outputFrame, this);
-            CurrentFrameRate = ffmpeg.av_guess_frame_rate(Container.InputContext, Stream, outputFrame).ToDouble();
-            return frameHolder;
+            return new VideoFrame(outputFrame, this);
         }
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="alsoManaged">
+        /// <c>true</c> to release both managed and unmanaged resources;
+        /// <c>false</c> to release only unmanaged resources.
+        /// </param>
         protected override void Dispose(bool alsoManaged)
         {
             if (Scaler != null)
@@ -325,7 +403,7 @@
             }
 
             DestroyFiltergraph();
-            HardwareAccelerator?.Release();
+            ReleaseHardwareDevice();
             base.Dispose(alsoManaged);
         }
 
@@ -464,25 +542,48 @@
             {
                 var result = 0;
 
-                fixed (AVFilterContext** source = &SourceFilter)
-                fixed (AVFilterContext** sink = &SinkFilter)
+                // Get a couple of pointers for source and sink buffers
+                AVFilterContext* sourceFileterRef = null;
+                AVFilterContext* sinkFilterRef = null;
+
+                // Create the source filter
+                result = ffmpeg.avfilter_graph_create_filter(
+                    &sourceFileterRef, ffmpeg.avfilter_get_by_name("buffer"), "video_buffer", CurrentFilterArguments, null, FilterGraph);
+
+                // Check filter creation
+                if (result != 0)
                 {
-                    result = ffmpeg.avfilter_graph_create_filter(source, ffmpeg.avfilter_get_by_name("buffer"), "video_buffer", CurrentFilterArguments, null, FilterGraph);
-                    if (result != 0)
-                        throw new MediaContainerException($"{nameof(ffmpeg.avfilter_graph_create_filter)} (buffer) failed. Error {result}: {FFInterop.DecodeMessage(result)}");
-
-                    result = ffmpeg.avfilter_graph_create_filter(sink, ffmpeg.avfilter_get_by_name("buffersink"), "video_buffersink", null, null, FilterGraph);
-                    if (result != 0)
-                        throw new MediaContainerException($"{nameof(ffmpeg.avfilter_graph_create_filter)} (buffersink) failed. Error {result}: {FFInterop.DecodeMessage(result)}");
-
-                    // TODO: from ffplay, ffmpeg.av_opt_set_int_list(sink, "pix_fmts", (byte*)&f0, 1, ffmpeg.AV_OPT_SEARCH_CHILDREN);
+                    throw new MediaContainerException(
+                        $"{nameof(ffmpeg.avfilter_graph_create_filter)} (buffer) failed. " +
+                        $"Error {result}: {FFInterop.DecodeMessage(result)}");
                 }
 
+                // Create the sink filter
+                result = ffmpeg.avfilter_graph_create_filter(
+                    &sinkFilterRef, ffmpeg.avfilter_get_by_name("buffersink"), "video_buffersink", null, null, FilterGraph);
+
+                // Check filter creation
+                if (result != 0)
+                {
+                    throw new MediaContainerException(
+                        $"{nameof(ffmpeg.avfilter_graph_create_filter)} (buffersink) failed. " +
+                        $"Error {result}: {FFInterop.DecodeMessage(result)}");
+                }
+
+                // Save the filter references
+                SourceFilter = sourceFileterRef;
+                SinkFilter = sinkFilterRef;
+
+                // TODO: from ffplay, ffmpeg.av_opt_set_int_list(sink, "pix_fmts", (byte*)&f0, 1, ffmpeg.AV_OPT_SEARCH_CHILDREN);
                 if (string.IsNullOrWhiteSpace(FilterString))
                 {
                     result = ffmpeg.avfilter_link(SourceFilter, 0, SinkFilter, 0);
                     if (result != 0)
-                        throw new MediaContainerException($"{nameof(ffmpeg.avfilter_link)} failed. Error {result}: {FFInterop.DecodeMessage(result)}");
+                    {
+                        throw new MediaContainerException(
+                            $"{nameof(ffmpeg.avfilter_link)} failed. " +
+                            $"Error {result}: {FFInterop.DecodeMessage(result)}");
+                    }
                 }
                 else
                 {

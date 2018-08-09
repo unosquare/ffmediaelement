@@ -33,7 +33,7 @@
             StartTime = ic->start_time != ffmpeg.AV_NOPTS_VALUE ?
                 ic->start_time.ToTimeSpan() :
                 default(TimeSpan?);
-            BitRate = ic->bit_rate < 0 ? 0 : Convert.ToUInt64(ic->bit_rate);
+            Bitrate = ic->bit_rate < 0 ? 0 : ic->bit_rate;
 
             Streams = new ReadOnlyDictionary<int, StreamInfo>(ExtractStreams(ic).ToDictionary(k => k.StreamIndex, v => v));
             Chapters = new ReadOnlyCollection<ChapterInfo>(ExtractChapters(ic));
@@ -76,7 +76,7 @@
         /// <summary>
         /// If available, returns a non-zero value as reported by the container format.
         /// </summary>
-        public ulong BitRate { get; }
+        public long Bitrate { get; }
 
         /// <summary>
         /// Gets a list of chapters
@@ -120,7 +120,8 @@
                 var codecContext = ffmpeg.avcodec_alloc_context3(null);
                 ffmpeg.avcodec_parameters_to_context(codecContext, s->codecpar);
 
-                // Fields which are missing from AVCodecParameters need to be taken from the AVCodecContext
+                // Fields which are missing from AVCodecParameters need to be taken
+                // from the strem's AVCodecContext
                 codecContext->properties = s->codec->properties;
                 codecContext->codec = s->codec->codec;
                 codecContext->qmin = s->codec->qmin;
@@ -175,8 +176,8 @@
                     DisplayAspectRatio = dar,
                     SampleAspectRatio = sar,
                     Disposition = s->disposition,
-                    StartTime = s->start_time.ToTimeSpan(),
-                    Duration = s->duration.ToTimeSpan(),
+                    StartTime = s->start_time.ToTimeSpan(s->time_base),
+                    Duration = s->duration.ToTimeSpan(s->time_base),
                     FPS = s->avg_frame_rate.ToDouble(),
                     TBR = s->r_frame_rate.ToDouble(),
                     TBN = 1d / s->time_base.ToDouble(),
@@ -511,6 +512,11 @@
         /// Please see ffmpeg.AV_DISPOSITION_* fields.
         /// </summary>
         public int Disposition { get; internal set; }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is attached picture disposition.
+        /// </summary>
+        public bool IsAttachedPictureDisposition => (Disposition & ffmpeg.AV_DISPOSITION_ATTACHED_PIC) != 0;
 
         /// <summary>
         /// Gets the start time.

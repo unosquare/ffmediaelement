@@ -137,8 +137,8 @@
                     + $"CLK: {clockPosition.Format()} | "
                     + $"DFT: {drift.TotalMilliseconds,4:0} | "
                     + $"IX: {renderIndex,3} | "
-                    + $"PQ: {mediaCore.Container?.Components[block.MediaType]?.PacketBufferLength / 1024d,7:0.0}k | "
-                    + $"TQ: {mediaCore.Container?.Components.PacketBufferLength / 1024d,7:0.0}k");
+                    + $"PQ: {mediaCore.Container?.Components[block.MediaType]?.BufferLength / 1024d,7:0.0}k | "
+                    + $"TQ: {mediaCore.Container?.Components.BufferLength / 1024d,7:0.0}k");
             }
             catch
             {

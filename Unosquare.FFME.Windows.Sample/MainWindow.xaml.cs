@@ -210,7 +210,7 @@
         /// <param name="e">The <see cref="KeyEventArgs"/> instance containing the event data.</param>
         private async void OnWindowKeyDown(object sender, KeyEventArgs e)
         {
-            // Console.WriteLine($"KEY: {e.Key}, SRC: {e.OriginalSource?.GetType().Name}");
+            // Debug.WriteLine($"KEY: {e.Key}, SRC: {e.OriginalSource?.GetType().Name}");
             if (e.OriginalSource is TextBox)
                 return;
 

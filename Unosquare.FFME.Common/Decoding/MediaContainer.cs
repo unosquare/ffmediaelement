@@ -210,7 +210,7 @@
         /// <summary>
         /// Gets the media bitrate (bits per second). Returns 0 if not available.
         /// </summary>
-        public ulong MediaBitrate => MediaInfo?.BitRate ?? 0;
+        public long MediaBitrate => MediaInfo?.Bitrate ?? 0;
 
         /// <summary>
         /// Holds the metadata of the media file when the stream is initialized.
@@ -225,7 +225,7 @@
         /// <summary>
         /// Gets a value indicating whether this instance is open.
         /// </summary>
-        public bool IsOpen => IsInitialized && Components.All.Count > 0;
+        public bool IsOpen => IsInitialized && Components.Count > 0;
 
         /// <summary>
         /// Gets the duration of the media.
@@ -245,6 +245,7 @@
         /// <summary>
         /// Gets the byte position at which the stream is being read.
         /// Please note that this property gets updated after every Read.
+        /// For multi-file streams, get the position of the current file only.
         /// </summary>
         public long StreamPosition
         {
@@ -252,6 +253,20 @@
             {
                 if (InputContext == null || InputContext->pb == null) return 0;
                 return InputContext->pb->pos;
+            }
+        }
+
+        /// <summary>
+        /// Gets the size in bytes of the current stream being read.
+        /// For multi-file streams, get the size of the current file only.
+        /// </summary>
+        public long MediaStreamSize
+        {
+            get
+            {
+                if (InputContext == null || InputContext->pb == null) return 0;
+                var size = ffmpeg.avio_size(InputContext->pb);
+                return size > 0 ? size : 0;
             }
         }
 
@@ -308,14 +323,6 @@
         private DateTime StateLastReadTimeUtc { get; set; } = DateTime.MinValue;
 
         /// <summary>
-        /// Gets a value indicating whether a packet read delay witll be enforced.
-        /// RSTP formats or MMSH Urls will have this property set to true.
-        /// Reading packets will block for at most 10 milliseconds depending on the last read time.
-        /// This is a hack according to the source code in ffplay.c
-        /// </summary>
-        private bool StateRequiresReadDelay { get; set; }
-
-        /// <summary>
         /// Picture attachments are required when video streams support them
         /// and these attached packets must be read before reading the first frame
         /// of the stream and after seeking. This property is not part of the public API
@@ -325,15 +332,15 @@
         {
             get
             {
-                var canRequireAttachments = Components.HasVideo
-                    && (Components.Video.Stream->disposition & ffmpeg.AV_DISPOSITION_ATTACHED_PIC) != 0;
+                var canRequireAttachments = Components.HasVideo &&
+                    Components.Video.StreamInfo.IsAttachedPictureDisposition;
 
                 return canRequireAttachments && RequiresPictureAttachments;
             }
             set
             {
-                var canRequireAttachments = Components.HasVideo
-                    && (Components.Video.Stream->disposition & ffmpeg.AV_DISPOSITION_ATTACHED_PIC) != 0;
+                var canRequireAttachments = Components.HasVideo &&
+                    Components.Video.StreamInfo.IsAttachedPictureDisposition;
 
                 RequiresPictureAttachments = canRequireAttachments && value;
             }
@@ -532,11 +539,15 @@
         /// </summary>
         public void SignalResumeReads()
         {
+            throw new NotSupportedException("The Container does not support resuming the InputContext from aborted reads yet.");
+
+            /*
             if (IsDisposed) throw new ObjectDisposedException(nameof(MediaContainer));
             if (InputContext == null) throw new InvalidOperationException(ExceptionMessageNoInputContext);
 
             SignalAbortReadsRequested.Value = false;
             SignalAbortReadsAutoReset.Value = true;
+            */
         }
 
         /// <summary>
@@ -657,12 +668,12 @@
                     // We set the start of the read operation time so tiomeouts can be detected
                     // and we open the URL so the input context can be initialized.
                     StreamReadInterruptStartTime.Value = DateTime.UtcNow;
-                    fixed (AVDictionary** privateOptionsRef = &privateOptions.Pointer)
-                    {
-                        // Open the input and pass the private options dictionary
-                        openResult = ffmpeg.avformat_open_input(&inputContextPtr, openUrl, inputFormat, privateOptionsRef);
-                        InputContext = inputContextPtr;
-                    }
+                    var privateOptionsRef = privateOptions.Pointer;
+
+                    // Open the input and pass the private options dictionary
+                    openResult = ffmpeg.avformat_open_input(&inputContextPtr, openUrl, inputFormat, &privateOptionsRef);
+                    privateOptions.UpdateReference(privateOptionsRef);
+                    InputContext = inputContextPtr;
 
                     // Validate the open operation
                     if (openResult < 0)
@@ -699,15 +710,18 @@
                 Metadata = new ReadOnlyDictionary<string, string>(FFDictionary.ToDictionary(InputContext->metadata));
 
                 // If read_play is set, it is only relevant to network streams
-                IsNetworkStream = InputContext->iformat->read_play.Pointer != IntPtr.Zero;
-                if (IsNetworkStream == false && Uri.TryCreate(MediaUrl, UriKind.RelativeOrAbsolute, out var uri))
+                IsNetworkStream = false;
+                if (InputContext->iformat->read_play.Pointer != IntPtr.Zero)
                 {
-                    try { IsNetworkStream = uri.IsFile == false || uri.IsUnc; }
-                    catch { }
+                    IsNetworkStream = true;
+                    ffmpeg.av_read_play(InputContext);
                 }
 
-                // Unsure how this works. Ported from ffplay
-                StateRequiresReadDelay = MediaFormatName.Equals("rstp") || MediaUrl.StartsWith("mmsh:");
+                if (IsNetworkStream == false && Uri.TryCreate(MediaUrl, UriKind.RelativeOrAbsolute, out var uri))
+                {
+                    try { IsNetworkStream = uri.IsFile == false; }
+                    catch { IsNetworkStream = true; }
+                }
 
                 // Extract the Media Info
                 MediaInfo = new MediaInfo(this);
@@ -819,7 +833,7 @@
             StreamCreateComponents();
 
             // Verify the stream input start offset. This is the zero measure for all sub-streams.
-            var minOffset = Components.All.Count > 0 ? Components.All.Min(c => c.StartTimeOffset) : MediaStartTimeOffset;
+            var minOffset = Components.Count > 0 ? Components.All.Min(c => c.StartTimeOffset) : MediaStartTimeOffset;
             if (minOffset != MediaStartTimeOffset)
             {
                 Parent?.Log(MediaLogMessageType.Warning, $"Input Start: {MediaStartTimeOffset.Format()} Comp. Start: {minOffset.Format()}. Input start will be updated.");
@@ -857,11 +871,11 @@
                 if (stream != null && stream.CodecType == (AVMediaType)t && isDisabled == false)
                 {
                     if (t == MediaType.Audio)
-                        Components[t] = new AudioComponent(this, stream.StreamIndex);
+                        Components.AddComponent(new AudioComponent(this, stream.StreamIndex));
                     else if (t == MediaType.Video)
-                        Components[t] = new VideoComponent(this, stream.StreamIndex);
+                        Components.AddComponent(new VideoComponent(this, stream.StreamIndex));
                     else if (t == MediaType.Subtitle)
-                        Components[t] = new SubtitleComponent(this, stream.StreamIndex);
+                        Components.AddComponent(new SubtitleComponent(this, stream.StreamIndex));
                 }
             }
             catch (Exception ex)
@@ -917,25 +931,9 @@
             if (IsReadAborted)
                 return MediaType.None;
 
-#if CONFIG_RTSP_DEMUXER
-            // I am unsure how this code ported from ffplay provides any advantage or functionality
-            // I have tested with several streams and it does not make any difference other than 
-            // making the reads much longer and the buffers fill up more slowly.
-            if (RequiresReadDelay)
-            {
-                // in ffplay.c this is referenced via CONFIG_RTSP_DEMUXER || CONFIG_MMSH_PROTOCOL
-                var millisecondsDifference = System.Convert.ToInt32(DateTime.UtcNow.Subtract(StreamLastReadTimeUtc).TotalMilliseconds);
-                var sleepMilliseconds = 10 - millisecondsDifference;
-
-                // wait at least 10 ms to avoid trying to get another packet
-                if (sleepMilliseconds > 0)
-                    Task.Delay(sleepMilliseconds).Wait(); // XXX: horrible
-            }
-#endif
-
             if (StateRequiresPictureAttachments)
             {
-                var attachedPacket = PacketQueue.ClonePacket(&Components.Video.Stream->attached_pic);
+                var attachedPacket = MediaPacket.ClonePacket(&Components.Video.Stream->attached_pic);
                 if (attachedPacket != null)
                 {
                     Components.Video.SendPacket(attachedPacket);
@@ -946,15 +944,15 @@
             }
 
             // Allocate the packet to read
-            var readPacket = PacketQueue.CreateReadPacket();
+            var readPacket = MediaPacket.CreateReadPacket();
             StreamReadInterruptStartTime.Value = DateTime.UtcNow;
-            var readResult = ffmpeg.av_read_frame(InputContext, readPacket);
+            var readResult = ffmpeg.av_read_frame(InputContext, readPacket.Pointer);
             StateLastReadTimeUtc = DateTime.UtcNow;
 
             if (readResult < 0)
             {
                 // Handle failed packet reads. We don't need the allocated packet anymore
-                PacketQueue.ReleasePacket(readPacket);
+                readPacket.Dispose();
 
                 // Detect an end of file situation (makes the readers enter draining mode)
                 if (readResult == ffmpeg.AVERROR_EOF || ffmpeg.avio_feof(InputContext->pb) != 0)
@@ -984,7 +982,7 @@
 
                 // Discard the packet -- it was not accepted by any component
                 if (componentType == MediaType.None)
-                    PacketQueue.ReleasePacket(readPacket);
+                    readPacket.Dispose();
                 else
                     return componentType;
             }
@@ -1040,7 +1038,8 @@
         {
             // Create the output result object
             var result = new List<MediaFrame>(256);
-            var seekRequirement = Components.Main.MediaType == MediaType.Audio ? SeekRequirement.MainComponentOnly : SeekRequirement.AudioAndVideo;
+            var seekRequirement = Components.MainMediaType == MediaType.Audio ?
+                SeekRequirement.MainComponentOnly : SeekRequirement.AudioAndVideo;
 
             #region Setup
 
@@ -1144,11 +1143,11 @@
                 var firstVideoFrame = result.FirstOrDefault(f => f.MediaType == MediaType.Video && f.StartTime <= targetTime);
 
                 var isAudioSeekInRange = Components.HasAudio == false
-                    || (firstAudioFrame == null && Components.Main.MediaType != MediaType.Audio)
+                    || (firstAudioFrame == null && Components.MainMediaType != MediaType.Audio)
                     || (firstAudioFrame != null && firstAudioFrame.StartTime <= targetTime);
 
                 var isVideoSeekInRange = Components.HasVideo == false
-                    || (firstVideoFrame == null && Components.Main.MediaType != MediaType.Video)
+                    || (firstVideoFrame == null && Components.MainMediaType != MediaType.Video)
                     || (firstVideoFrame != null && firstVideoFrame.StartTime <= targetTime);
 
                 // If we have the correct range, no further processing is required.
@@ -1190,7 +1189,7 @@
 
             StreamReadInterruptStartTime.Value = DateTime.UtcNow;
 
-            // var seekResult = ffmpeg.av_seek_frame(InputContext, StartSeekStreamIndex, StartSeekTimestamp, ffmpeg.AVSEEK_FLAG_BACKWARD);
+            // TODO: seekTaget might need firther adjustement. Maybe seek to long.MinValue?
             var seekResult = ffmpeg.av_seek_frame(InputContext, streamIndex, seekTarget, seekFlags);
 
             // Flush packets, state, and codec buffers
@@ -1201,7 +1200,7 @@
             if (seekResult < 0)
             {
                 Parent?.Log(MediaLogMessageType.Warning,
-                    $"SEEK 0: {nameof(StreamSeekToStart)} operation failed. Error code {seekResult}, {FFInterop.DecodeMessage(seekResult)}");
+                    $"SEEK 0: {nameof(StreamSeekToStart)} operation failed. Error code {seekResult}: {FFInterop.DecodeMessage(seekResult)}");
                 return 0;
             }
 
@@ -1239,7 +1238,7 @@
             }
             else
             {
-                requiredComponents.Add(Components.Main.MediaType);
+                requiredComponents.Add(Components.MainMediaType);
             }
 
             // Start reading and decoding util we reach the target

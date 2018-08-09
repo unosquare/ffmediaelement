@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME
 {
-    using Primitives;
     using Shared;
+    using System;
 
     public partial class MediaEngine
     {
@@ -12,23 +12,9 @@
         /// </summary>
         internal void RunPacketReadingWorker()
         {
-            #region Worker State Setup
-
-            // The delay provider prevents 100% core usage
-            var delay = new DelayProvider();
-
-            // Holds the packet count for each read cycle
-            var packetsRead = new MediaTypeDictionary<int>();
-
-            // State variables for media types
-            var t = MediaType.None;
-
-            // Signal the start of a buffering operation
-            State.SignalBufferingStarted();
-
-            #endregion
-
-            #region Worker Loop
+            var delay = TimeSpan.FromMilliseconds(10);
+            var needsMorePackets = false;
+            IsSyncBuffering = false;
 
             try
             {
@@ -48,46 +34,41 @@
                     // Enter a packet reading cycle
                     PacketReadingCycle.Begin();
 
-                    // Initialize Packets read to 0 for each component and state variables
-                    foreach (var k in Container.Components.MediaTypes)
-                        packetsRead[k] = 0;
-
-                    // Start to perform the read loop
-                    // NOTE: Disrupting the packet reader causes errors in UPD streams. Disrupt as little as possible
-                    while (ShouldReadMorePackets
-                        && CanReadMorePackets
-                        && Commands.IsActivelySeeking == false)
+                    // Perform a packet read. t will hold the packet type.
+                    if (ShouldWorkerReadPackets)
                     {
-                        // Perform a packet read. t will hold the packet type.
-                        try { t = Container.Read(); }
-                        catch (MediaContainerException) { continue; }
-
-                        // Discard packets that we don't need (i.e. MediaType == None)
-                        if (Container.Components.MediaTypes.HasMediaType(t) == false)
-                            continue;
-
-                        // Update the packet count for the components
-                        packetsRead[t] += 1;
-
-                        // Ensure we have read at least some packets from main and auxiliary streams.
-                        if (packetsRead.ContainsMoreThan(0))
-                            break;
+                        try { Container.Read(); }
+                        catch (MediaContainerException) { break; }
                     }
+                    else
+                    {
+                        // Give it a break until there are packet changes
+                        // this prevent pegging the cpu core
+                        BufferChangedEvent.Begin();
+                        while (IsWorkerInterruptRequested == false)
+                        {
+                            needsMorePackets = ShouldWorkerReadPackets;
+
+                            // We now need more packets, we need to stop waiting
+                            if (needsMorePackets)
+                                break;
+
+                            // we are sync-buffering but we don't need more packets
+                            if (IsSyncBuffering && needsMorePackets == false)
+                                break;
+
+                            // We detected a change in buffered packets
+                            if (BufferChangedEvent.Wait(delay))
+                                break;
+                        }
+                    }
+
+                    // No more sync-buffering if we have enough data
+                    if (CanExitSyncBuffering)
+                        IsSyncBuffering = false;
 
                     // finish the reading cycle.
                     PacketReadingCycle.Complete();
-
-                    // Don't evaluate a pause/delay condition if we are seeking
-                    if (Commands.IsActivelySeeking)
-                        continue;
-
-                    // Wait some if we have a full packet buffer or we are unable to read more packets (i.e. EOF).
-                    if (ShouldReadMorePackets == false
-                        || CanReadMorePackets == false
-                        || packetsRead.GetSum() <= 0)
-                    {
-                        delay.WaitOne();
-                    }
                 }
             }
             catch { throw; }
@@ -95,10 +76,8 @@
             {
                 // Always exit notifying the reading cycle is done.
                 PacketReadingCycle.Complete();
-                delay.Dispose();
+                IsSyncBuffering = false;
             }
-
-            #endregion
         }
     }
 }

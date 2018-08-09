@@ -22,27 +22,9 @@
             = new Dictionary<string, object>(PropertyMapper.PropertyMaxCount);
 
         /// <summary>
-        /// The reportable position synchronization lock
-        /// </summary>
-        private readonly object ReportablePositionLock = new object();
-
-        /// <summary>
         /// The property updates worker timer
         /// </summary>
         private GuiTimer PropertyUpdatesWorker = null;
-
-        /// <summary>
-        /// The backing member of the Reportable position
-        /// </summary>
-        private TimeSpan? m_ReportablePosition = default;
-
-        /// <summary>
-        /// The media engine position to report.
-        /// </summary>
-        internal TimeSpan? ReportablePosition
-        {
-            set { lock (ReportablePositionLock) m_ReportablePosition = value; }
-        }
 
         /// <summary>
         /// Starts the property updates worker.
@@ -86,7 +68,6 @@
                 // Notify the one last state
                 GuiContext.Current.EnqueueInvoke(() =>
                 {
-                    m_ReportablePosition = TimeSpan.Zero;
                     UpdateNotificationProperties();
                     UpdateDependencyProperties();
                 });
@@ -117,50 +98,27 @@
         private void UpdateDependencyProperties()
         {
             // Detect Notification and Dependency property changes
-            var dependencyProperties = this.DetectDependencyPropertyChanges();
-            var isSeeking = MediaCore?.State?.IsSeeking ?? false;
+            var changes = this.DetectDependencyPropertyChanges();
+
+            // Remove the position property updates if we are not allowed to
+            // report changes from the engine
+            if ((MediaCore?.State.IsSeeking ?? false) && changes.ContainsKey(PositionProperty))
+                changes.Remove(PositionProperty);
 
             // Write the media engine state property state to the dependency properties
-            foreach (var kvp in dependencyProperties)
+            foreach (var change in changes)
             {
                 // Do not upstream the Source porperty
                 // This causes unintended Open/Close commands to be run
-                if (kvp.Key == SourceProperty)
+                if (change.Key == SourceProperty)
                     continue;
 
-                // Do not upstream the Position porperty
-                // This causes unintended Seek commands to be run
-                if (kvp.Key == PositionProperty)
-                    continue;
+                // Update the dependency porperty value
+                SetValue(change.Key, change.Value);
 
-                SetValue(kvp.Key, kvp.Value);
-            }
-
-            // Check if we need to report a new position as commanded by the MediaEngine
-            // After we update the position dependency property, clear the reportable position
-            // to make way for new updates.
-            var notifiedPositionChanged = false;
-            if (isSeeking == false)
-            {
-                lock (ReportablePositionLock)
-                {
-                    if (m_ReportablePosition != null)
-                    {
-                        // Upstream the final state
-                        Position = m_ReportablePosition.Value;
-
-                        // reset the reportable position to null it picks up the next change
-                        m_ReportablePosition = default;
-
-                        notifiedPositionChanged = true;
-                    }
-                }
-
-                if (notifiedPositionChanged)
-                {
-                    // Do notify the ramianing duration has changed
+                // Update the remaining duration
+                if (change.Key == PositionProperty)
                     NotifyPropertyChangedEvent(nameof(RemainingDuration));
-                }
             }
         }
     }

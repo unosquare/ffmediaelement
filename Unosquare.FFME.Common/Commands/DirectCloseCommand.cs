@@ -2,7 +2,6 @@
 {
     using Core;
     using Shared;
-    using System;
     using System.Text;
 
     /// <summary>
@@ -32,8 +31,17 @@
         /// </summary>
         public override void PostProcess()
         {
+            var m = MediaCore;
+            if (m == null) return;
+
+            // Update notification properties
+            m.State.ResetAll();
+            m.ResetPosition();
+            m.State.UpdateMediaState(PlaybackStatus.Close);
+            m.State.UpdateSource(null);
+
+            // Notify media has closed
             MediaCore.SendOnMediaClosed();
-            MediaCore.State.UpdateFixedContainerProperties();
             LogReferenceCounter(MediaCore);
             MediaCore.Log(MediaLogMessageType.Debug, $"Command {CommandType}: Completed");
         }
@@ -45,9 +53,6 @@
         {
             var m = MediaCore;
             m.Log(MediaLogMessageType.Debug, $"Command {CommandType}: Entered");
-
-            // On closing we immediately signal a buffering ended operation
-            m.State.SignalBufferingEnded();
 
             // Wait for the workers to stop
             m.StopWorkers();
@@ -65,13 +70,6 @@
 
             // Clear the render times
             m.LastRenderTime.Clear();
-
-            // Update notification properties
-            m.State.ResetMediaProperties();
-            m.State.UpdateFixedContainerProperties();
-            m.State.InitializeBufferingProperties();
-            m.State.UpdateMediaState(PlaybackStatus.Close, TimeSpan.Zero);
-            m.State.Source = null;
         }
 
         /// <summary>

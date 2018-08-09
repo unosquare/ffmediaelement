@@ -51,6 +51,18 @@
         }
 
         /// <summary>
+        /// Gets the stream's total bitrate as reported by the container.
+        /// Returns 0 if unavailable.
+        /// </summary>
+        public long Bitrate => MediaCore?.State.Bitrate ?? default;
+
+        /// <summary>
+        /// Gets the instantaneous, compressed bitrate of the decoders for the currently active component streams.
+        /// This is provided in bits per second.
+        /// </summary>
+        public long DecodingBitrate => MediaCore?.State.DecodingBitrate ?? default;
+
+        /// <summary>
         /// Provides key-value pairs of the metadata contained in the media.
         /// Returns null when media has not been loaded.
         /// </summary>
@@ -83,11 +95,17 @@
         public string MediaFormat => MediaCore?.State.MediaFormat;
 
         /// <summary>
+        /// Gets the size in bytes of the current stream being read.
+        /// For multi-file streams, get the size of the current file only.
+        /// </summary>
+        public long MediaStreamSize => MediaCore?.State.MediaStreamSize ?? 0;
+
+        /// <summary>
         /// Gets the duration of a single frame step.
         /// If there is a video component with a framerate, this propery returns the length of a frame.
         /// If there is no video component it simply returns a tenth of a second.
         /// </summary>
-        public TimeSpan FrameStepDuration => MediaCore?.State.FrameStepDuration ?? TimeSpan.Zero;
+        public TimeSpan PositionStep => MediaCore?.State.PositionStep ?? TimeSpan.Zero;
 
         /// <summary>
         /// Gets the discrete timestamp of the next frame.
@@ -132,7 +150,7 @@
         /// Gets the video bitrate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public ulong VideoBitrate => MediaCore?.State.VideoBitrate ?? default;
+        public long VideoBitrate => MediaCore?.State.VideoBitrate ?? default;
 
         /// <summary>
         /// Returns the clockwise angle that needs to be applied to the video for it to be displayed
@@ -159,12 +177,6 @@
         public double VideoFrameRate => MediaCore?.State.VideoFrameRate ?? default;
 
         /// <summary>
-        /// Gets the duration in seconds of the video frame.
-        /// Only valid after the MediaOpened event has fired.
-        /// </summary>
-        public double VideoFrameLength => MediaCore?.State.VideoFrameLength ?? default;
-
-        /// <summary>
         /// Gets the name of the video hardware decoder in use.
         /// Enabling hardware acceleration does not guarantee decoding will be performed in hardware.
         /// When hardware decoding of frames is in use this will return the name of the HW accelerator.
@@ -182,7 +194,7 @@
         /// Gets the audio bitrate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public ulong AudioBitrate => MediaCore?.State.AudioBitrate ?? default;
+        public long AudioBitrate => MediaCore?.State.AudioBitrate ?? default;
 
         /// <summary>
         /// Gets the audio channels count.
@@ -219,7 +231,7 @@
         /// Returns whether the currently loaded media is a network stream.
         /// This is only valid after the MediaOpened event has fired.
         /// </summary>
-        public bool IsNetowrkStream => MediaCore?.State.IsNetowrkStream ?? default;
+        public bool IsNetworkStream => MediaCore?.State.IsNetworkStream ?? default;
 
         /// <summary>
         /// Gets a value indicating whether the currently loaded media can be seeked.
@@ -253,9 +265,13 @@
 
         /// <summary>
         /// Returns the current video SMTPE timecode if available.
-        /// If not available, this property returns an empty string.
         /// </summary>
         public string VideoSmtpeTimecode => MediaCore?.State.VideoSmtpeTimecode;
+
+        /// <summary>
+        /// Gets the current video aspec ratio if available.
+        /// </summary>
+        public string VideoAspectRatio => MediaCore?.State.VideoAspectRatio;
 
         /// <summary>
         /// Gets a value that indicates the percentage of buffering progress made.
@@ -264,24 +280,20 @@
         public double BufferingProgress => MediaCore?.State.BufferingProgress ?? default;
 
         /// <summary>
-        /// The wait packet buffer length.
-        /// It is adjusted to 1 second if bitrate information is available.
-        /// Otherwise, it's simply 512KB
-        /// </summary>
-        public ulong BufferCacheLength => MediaCore?.State.BufferCacheLength ?? default;
-
-        /// <summary>
         /// Gets a value that indicates the percentage of download progress made.
         /// Range is from 0 to 1
         /// </summary>
         public double DownloadProgress => MediaCore?.State.DownloadProgress ?? default;
 
         /// <summary>
-        /// Gets the maximum packet buffer length, according to the bitrate (if available).
-        /// If it's a realtime stream it will return 30 times the buffer cache length.
-        /// Otherwise, it will return  4 times of the buffer cache length.
+        /// Gets the amount of bytes in the packet buffer for the active stream components.
         /// </summary>
-        public ulong DownloadCacheLength => MediaCore?.State.DownloadCacheLength ?? default;
+        public long PacketBufferLength => MediaCore?.State.PacketBufferLength ?? default;
+
+        /// <summary>
+        /// Gets the number of packets buffered for all components
+        /// </summary>
+        public int PacketBufferCount => MediaCore?.State.PacketBufferCount ?? default;
 
         /// <summary>
         /// Gets a value indicating whether the media is in the process of opening.

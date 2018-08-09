@@ -9,6 +9,17 @@
     public interface IMediaEngineState
     {
         /// <summary>
+        /// Gets the input bitrate as reported by the container. Returns 0 if unavaliable.
+        /// </summary>
+        long Bitrate { get; }
+
+        /// <summary>
+        /// Gets the instantaneous, compressed bitrate of the decoders for the currently active component streams.
+        /// This is provided in bits per second.
+        /// </summary>
+        long DecodingBitrate { get; }
+
+        /// <summary>
         /// Gets the index of the video stream.
         /// </summary>
         int VideoStreamIndex { get; }
@@ -26,7 +37,7 @@
         /// <summary>
         /// Gets the audio bitrate.
         /// </summary>
-        ulong AudioBitrate { get; }
+        long AudioBitrate { get; }
 
         /// <summary>
         /// Gets the audio bits per sample.
@@ -54,11 +65,6 @@
         double Balance { get; }
 
         /// <summary>
-        /// Gets the length of the buffer cache.
-        /// </summary>
-        ulong BufferCacheLength { get; }
-
-        /// <summary>
         /// Gets the buffering progress.
         /// </summary>
         double BufferingProgress { get; }
@@ -69,9 +75,14 @@
         bool CanPause { get; }
 
         /// <summary>
-        /// Gets the length of the download cache.
+        /// Gets the byte length of the buffered packets
         /// </summary>
-        ulong DownloadCacheLength { get; }
+        long PacketBufferLength { get; }
+
+        /// <summary>
+        /// Gets the number of packets buffered for all media components.
+        /// </summary>
+        int PacketBufferCount { get; }
 
         /// <summary>
         /// Gets the download progress.
@@ -79,9 +90,9 @@
         double DownloadProgress { get; }
 
         /// <summary>
-        /// Gets the duration of the frame step.
+        /// Gets the duration of a frame step.
         /// </summary>
-        TimeSpan FrameStepDuration { get; }
+        TimeSpan PositionStep { get; }
 
         /// <summary>
         /// Gets the discrete timestamp of the next frame.
@@ -139,9 +150,9 @@
         bool IsMuted { get; set; }
 
         /// <summary>
-        /// Gets a value indicating whether the media is a netowrk stream.
+        /// Gets a value indicating whether the media is a network stream.
         /// </summary>
-        bool IsNetowrkStream { get; }
+        bool IsNetworkStream { get; }
 
         /// <summary>
         /// Gets a value indicating whether the media is currently open.
@@ -189,6 +200,12 @@
         string MediaFormat { get; }
 
         /// <summary>
+        /// Gets the size in bytes of the current stream being read.
+        /// For multi-file streams, get the size of the current file only.
+        /// </summary>
+        long MediaStreamSize { get; }
+
+        /// <summary>
         /// Gets the playback status of the media.
         /// </summary>
         PlaybackStatus MediaState { get; }
@@ -231,17 +248,12 @@
         /// <summary>
         /// Gets the video bitrate.
         /// </summary>
-        ulong VideoBitrate { get; }
+        long VideoBitrate { get; }
 
         /// <summary>
         /// Gets the video codec.
         /// </summary>
         string VideoCodec { get; }
-
-        /// <summary>
-        /// Gets the duration in seconds of video each video frame.
-        /// </summary>
-        double VideoFrameLength { get; }
 
         /// <summary>
         /// Gets the video frame rate.
@@ -259,9 +271,14 @@
         double VideoRotation { get; }
 
         /// <summary>
-        /// Gets the video smtpe timecode.
+        /// Gets the video SMTPE timecode.
         /// </summary>
         string VideoSmtpeTimecode { get; }
+
+        /// <summary>
+        /// Gets the current video aspect ratio.
+        /// </summary>
+        string VideoAspectRatio { get; }
 
         /// <summary>
         /// Gets the current audio volume.

@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net461</TargetFrameworks>
     <RootNamespace>Unosquare.FFME</RootNamespace>
     <Version>4.0.270</Version>
     <Authors>Mario Di Vece and Contributors to the FFME project</Authors>

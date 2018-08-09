@@ -158,15 +158,14 @@ namespace Unosquare.FFME
         {
             var element = d as MediaElement;
             if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return Constants.Controller.DefaultSpeedRatio;
-            if (element.MediaCore.State.IsSeekable == false) return Constants.Controller.DefaultSpeedRatio;
+            if (element.PropertyUpdatesWorker.IsExecutingCycle) return value;
+            if (element.IsSeekable == false) return Constants.Controller.DefaultSpeedRatio;
 
             return ((double)value).Clamp(Constants.Controller.MinSpeedRatio, Constants.Controller.MaxSpeedRatio);
         }
 
-        private static void OnSpeedRatioPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            (d as MediaElement).MediaCore?.SetSpeedRatio((double)e.NewValue);
-        }
+        private static void OnSpeedRatioPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) =>
+            (d as MediaElement).MediaCore.State.SpeedRatio = (double)e.NewValue;
 
         #endregion
 
@@ -200,28 +199,21 @@ namespace Unosquare.FFME
             if (element == null || element.MediaCore == null || element.MediaCore.IsDisposed) return TimeSpan.Zero;
             if (element.MediaCore.State.IsSeekable == false) return element.MediaCore.State.Position;
 
-            if (element.PropertyUpdatesWorker.IsExecutingCycle)
-            {
-                lock (element.ReportablePositionLock)
-                {
-                    if (element.m_ReportablePosition != null)
-                    {
-                        // coming from underlying engine
-                        return element.m_ReportablePosition.Value;
-                    }
-                }
-            }
+            var valueComingFromEngine = element.PropertyUpdatesWorker.IsExecutingCycle;
+
+            if (valueComingFromEngine && element.MediaCore.State.IsSeeking == false)
+                return value;
 
             // Clamp from 0 to duration
             var targetSeek = (TimeSpan)value;
             if ((element.MediaCore?.MediaInfo?.Duration ?? TimeSpan.Zero) != TimeSpan.Zero)
                 targetSeek = ((TimeSpan)value).Clamp(TimeSpan.Zero, element.MediaCore.MediaInfo.Duration);
 
+            if (valueComingFromEngine)
+                return targetSeek;
+
             // coming in as a seek from user
             element.MediaCore?.Seek(targetSeek);
-
-            // Prevent updates from the mediacore into the position dependency property.
-            element.m_ReportablePosition = null;
 
             return targetSeek;
         }

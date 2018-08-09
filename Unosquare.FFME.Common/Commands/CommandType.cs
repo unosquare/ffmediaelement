@@ -6,6 +6,11 @@
     internal enum CommandType
     {
         /// <summary>
+        /// Represents no command
+        /// </summary>
+        None,
+
+        /// <summary>
         /// The open command id
         /// </summary>
         Open,
@@ -34,11 +39,6 @@
         /// The close command id
         /// </summary>
         Close,
-
-        /// <summary>
-        /// The set speed ratio command id
-        /// </summary>
-        SpeedRatio,
 
         /// <summary>
         /// The change media command id

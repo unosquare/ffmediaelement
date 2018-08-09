@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
-    using Primitives;
 
     /// <summary>
     /// A very simple set of extensions to more easily hanlde UI state changes based on
@@ -17,7 +16,7 @@
         private static readonly Dictionary<INotifyPropertyChanged, SubscriptionSet> Subscriptions
             = new Dictionary<INotifyPropertyChanged, SubscriptionSet>();
 
-        private static readonly ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
+        private static readonly object SyncLock = new object();
 
         /// <summary>
         /// The pinned actions (action that don't get remove if the weak reference is lost.
@@ -39,7 +38,7 @@
         {
             var bindPropertyChanged = false;
 
-            using (Locker.AcquireWriterLock())
+            lock (SyncLock)
             {
                 if (Subscriptions.ContainsKey(publisher) == false)
                 {
@@ -70,7 +69,7 @@
                 var deadCallbacks = new CallbackReferenceSet();
                 var aliveCallbacks = new CallbackReferenceSet();
 
-                using (Locker.AcquireReaderLock())
+                lock (SyncLock)
                 {
                     aliveCallbacks.AddRange(Subscriptions[publisher][e.PropertyName]);
                 }
@@ -88,7 +87,7 @@
 
                 if (deadCallbacks.Count == 0) return;
 
-                using (Locker.AcquireWriterLock())
+                lock (SyncLock)
                 {
                     foreach (var deadSubscriber in deadCallbacks)
                         Subscriptions[publisher][e.PropertyName].Remove(deadSubscriber);

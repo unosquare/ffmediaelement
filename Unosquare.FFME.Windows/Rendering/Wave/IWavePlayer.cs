@@ -32,5 +32,10 @@
         /// Begin playback
         /// </summary>
         void Start();
+
+        /// <summary>
+        /// Clears the internal audio data with silence data.
+        /// </summary>
+        void Clear();
     }
 }

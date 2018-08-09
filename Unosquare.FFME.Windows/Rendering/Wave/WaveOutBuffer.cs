@@ -55,8 +55,19 @@
         /// <summary>
         /// Releases resources held by this WaveBuffer
         /// </summary>
-        public void Dispose() =>
-            Dispose(true);
+        public void Dispose() => Dispose(true);
+
+        /// <summary>
+        /// Clears the internal buffer data.
+        /// </summary>
+        public void Clear()
+        {
+            lock (DisposeLock)
+            {
+                if (Buffer != null)
+                    Array.Clear(Buffer, 0, Buffer.Length);
+            }
+        }
 
         /// <summary>
         /// this is called by the Wave callback and should be used to refill the buffer.

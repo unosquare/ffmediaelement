@@ -351,7 +351,7 @@
 
                 // Open the container
                 tempContainer.Open();
-                if (tempContainer.Components.Main == null || tempContainer.Components.Main.MediaType != sourceType)
+                if (tempContainer.Components.Main == null || tempContainer.Components.MainMediaType != sourceType)
                     throw new MediaContainerException($"Could not find a stream of type '{sourceType}' to load blocks from");
 
                 // read all the packets and decode them

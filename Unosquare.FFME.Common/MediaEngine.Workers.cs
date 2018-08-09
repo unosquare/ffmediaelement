@@ -18,6 +18,8 @@
 
         #region State Management
 
+        private readonly AtomicBoolean m_IsSyncBuffering = new AtomicBoolean(false);
+
         private Thread PacketReadingTask = null;
         private Thread FrameDecodingTask = null;
         private Timer BlockRenderingWorker = null;
@@ -49,6 +51,12 @@
         internal IWaitEvent BlockRenderingCycle { get; } = WaitEventFactory.Create(isCompleted: false, useSlim: true);
 
         /// <summary>
+        /// Completed whenever a change in the packet buffer is detected.
+        /// This needs to be reset manually and prevents high CPU usage in the packet reading worker.
+        /// </summary>
+        internal IWaitEvent BufferChangedEvent { get; } = WaitEventFactory.Create(isCompleted: true, useSlim: true);
+
+        /// <summary>
         /// Holds the block renderers
         /// </summary>
         internal MediaTypeDictionary<IMediaRenderer> Renderers { get; } = new MediaTypeDictionary<IMediaRenderer>();
@@ -59,14 +67,46 @@
         internal MediaTypeDictionary<TimeSpan> LastRenderTime { get; } = new MediaTypeDictionary<TimeSpan>();
 
         /// <summary>
-        /// Gets a value indicating whether more packets can be read from the stream.
-        /// This does not check if the packet queue is full.
+        /// Gets or sets a value indicating whether the decoder worker is sync-buffering
         /// </summary>
-        internal bool CanReadMorePackets => (Container?.IsReadAborted ?? true) == false
-            && (Container?.IsAtEndOfStream ?? true) == false;
+        internal bool IsSyncBuffering
+        {
+            get => m_IsSyncBuffering.Value;
+            set => m_IsSyncBuffering.Value = value;
+        }
 
         /// <summary>
-        /// Gets a value indicating whether room is available in the download cache.
+        /// Gets a value indicating whether the packet reader has finished sync-buffering.
+        /// </summary>
+        internal bool CanExitSyncBuffering
+        {
+            get
+            {
+                if (IsSyncBuffering == false)
+                    return false;
+
+                if (Container.Components.BufferLength > BufferLengthMax)
+                    return true;
+
+                if (Container.Components.HasEnoughPackets)
+                    return true;
+
+                if (Container.IsLiveStream && Blocks.Main(Container).IsFull)
+                    return true;
+
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Gets the buffer length maximum.
+        /// port of MAX_QUEUE_SIZE (ffplay.c)
+        /// </summary>
+        internal long BufferLengthMax => 16 * 1024 * 1024;
+
+        /// <summary>
+        /// Gets a value indicating whether packets can be read and
+        /// room is available in the download cache.
         /// </summary>
         internal bool ShouldReadMorePackets
         {
@@ -75,10 +115,41 @@
                 if (Commands.IsStopWorkersPending || Container == null || Container.Components == null)
                     return false;
 
-                // If it's a live stream always continue reading regardless
-                if (State.IsLiveStream) return true;
+                if (Container.IsReadAborted || Container.IsAtEndOfStream)
+                    return false;
 
-                return Container.Components.PacketBufferLength < State.DownloadCacheLength;
+                // If it's a live stream always continue reading, regardless
+                if (Container.IsLiveStream)
+                    return true;
+
+                // For network streams always expect a minimum buffer length
+                if (Container.IsNetworkStream && Container.Components.BufferLength < BufferLengthMax)
+                    return true;
+
+                // if we don't have enough packets queued we should read
+                return Container.Components.HasEnoughPackets == false;
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the reading worker can read packets at the current time.
+        /// This is simply a bit-wise AND of negating <see cref="IsWorkerInterruptRequested"/> == false
+        /// and <see cref="ShouldReadMorePackets"/>
+        /// </summary>
+        private bool ShouldWorkerReadPackets => IsWorkerInterruptRequested == false && ShouldReadMorePackets;
+
+        /// <summary>
+        /// Gets a value indicating whether a worker interrupt has been requested by the command manager.
+        /// This instructs potentially long loops in workers to immediately exit.
+        /// </summary>
+        private bool IsWorkerInterruptRequested
+        {
+            get
+            {
+                return Commands.IsSeeking ||
+                    Commands.IsChanging ||
+                    Commands.IsClosing ||
+                    Commands.IsStopWorkersPending;
             }
         }
 
@@ -103,12 +174,14 @@
             // Create the renderer for the preloaded subs
             if (PreloadedSubtitles != null)
             {
-                Renderers[PreloadedSubtitles.MediaType] = Platform.CreateRenderer(PreloadedSubtitles.MediaType, this);
-                InvalidateRenderer(PreloadedSubtitles.MediaType);
+                var t = PreloadedSubtitles.MediaType;
+                Renderers[t] = Platform.CreateRenderer(t, this);
+                InvalidateRenderer(t);
             }
 
             Clock.SpeedRatio = Constants.Controller.DefaultSpeedRatio;
             Commands.IsStopWorkersPending = false;
+            IsSyncBuffering = true;
 
             // Set the initial state of the task cycles.
             BlockRenderingCycle.Complete();
@@ -168,7 +241,7 @@
             Renderers.Clear();
 
             // Reset the clock
-            Clock.Reset();
+            ResetPosition();
         }
 
         /// <summary>
@@ -223,25 +296,63 @@
             if (Container == null)
                 return position.Normalize();
 
-            var blocks = Blocks[Container.Components.Main.MediaType];
+            var blocks = Blocks.Main(Container);
             if (blocks == null) return position.Normalize();
 
             return blocks.GetSnapPosition(position) ?? position.Normalize();
         }
 
         /// <summary>
-        /// Gets a value indicating whether more frames can be converted into blocks of the given type.
+        /// Resumes the playback by resuming the clock and updating the playback state to state.
         /// </summary>
-        /// <param name="t">The t.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void ResumePlayback()
+        {
+            Clock.Play();
+            State.UpdateMediaState(PlaybackStatus.Play);
+        }
+
+        /// <summary>
+        /// Updates the clock position and notifies the new
+        /// position to the <see cref="State" />.
+        /// </summary>
+        /// <param name="position">The position.</param>
+        /// <returns>The newly set postion</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal TimeSpan ChangePosition(TimeSpan position)
+        {
+            Clock.Update(position);
+            State.UpdatePosition();
+            return position;
+        }
+
+        /// <summary>
+        /// Resets the clock to the zero position and notifies the new
+        /// position to rhe <see cref="State"/>.
+        /// </summary>
+        /// <returns>The newly set postion</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal TimeSpan ResetPosition()
+        {
+            Clock.Reset();
+            State.UpdatePosition();
+            return TimeSpan.Zero;
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether more frames can be decoded into blocks of the given type.
+        /// </summary>
+        /// <param name="t">The media type.</param>
         /// <returns>
-        ///   <c>true</c> if this instance [can read more frames of] the specified t; otherwise, <c>false</c>.
+        ///   <c>true</c> if more frames can be decoded; otherwise, <c>false</c>.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool CanReadMoreFramesOf(MediaType t)
         {
-            return CanReadMorePackets ||
-                Container.Components[t].PacketBufferLength > 0 ||
-                Container.Components[t].HasCodecPackets;
+            return
+                Container.Components[t].BufferLength > 0 ||
+                Container.Components[t].HasPacketsInCodec ||
+                ShouldReadMorePackets;
         }
 
         /// <summary>
@@ -256,16 +367,18 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int SendBlockToRenderer(MediaBlock block, TimeSpan clockPosition, MediaType main)
         {
+            // No blocks were rendered
+            if (block == null) return 0;
+
             // Process property changes coming from video blocks
-            State.UpdateDynamicBlockProperties(block);
+            State.UpdateDynamicBlockProperties(block, Blocks[block.MediaType], main);
 
             // Send the block to its corresponding renderer
             Renderers[block.MediaType]?.Render(block, clockPosition);
             LastRenderTime[block.MediaType] = block.StartTime;
 
             // Extension method for logging
-            var blockIndex = Blocks.ContainsKey(block.MediaType) ? Blocks[block.MediaType].IndexOf(clockPosition) : 0;
-            this.LogRenderBlock(block, clockPosition, blockIndex);
+            this.LogRenderBlock(block, clockPosition, block.Index);
             return 1;
         }
 

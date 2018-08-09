@@ -184,6 +184,71 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
     }
 
     /// <summary>
+    /// Formats a bit value to a human-readable value.
+    /// </summary>
+    /// <seealso cref="IValueConverter" />
+    internal class BitFormatter : IValueConverter
+    {
+        /// <summary>
+        /// Converts the specified value.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <param name="targetType">Type of the target.</param>
+        /// <param name="format">The format.</param>
+        /// <param name="culture">The culture.</param>
+        /// <returns>The converted value</returns>
+        public object Convert(object value, Type targetType, object format, CultureInfo culture)
+        {
+            const double minKiloBit = 1000;
+            const double minMegaBit = 1000 * 1000;
+            const double minGigaBit = 1000 * 1000 * 1000;
+
+            var byteCount = System.Convert.ToDouble(value);
+
+            var suffix = "bits/s";
+            var output = 0d;
+
+            if (byteCount >= minKiloBit)
+            {
+                suffix = "kbits/s";
+                output = Math.Round(byteCount / minKiloBit, 2);
+            }
+
+            if (byteCount >= minMegaBit)
+            {
+                suffix = "Mbits/s";
+                output = Math.Round(byteCount / minMegaBit, 2);
+            }
+
+            if (byteCount >= minGigaBit)
+            {
+                suffix = "Gbits/s";
+                output = Math.Round(byteCount / minGigaBit, 2);
+            }
+
+            if (suffix == "b")
+                return $"{output:0} {suffix}";
+
+            return $"{output:0.00} {suffix}";
+        }
+
+        /// <summary>
+        /// Converts the back.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <param name="targetType">Type of the target.</param>
+        /// <param name="parameter">The parameter.</param>
+        /// <param name="culture">The culture.</param>
+        /// <returns>
+        /// A converted value. If the method returns null, the valid null value is used.
+        /// </returns>
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
     /// Formats a fractional value as a percentage string.
     /// </summary>
     /// <seealso cref="IValueConverter" />

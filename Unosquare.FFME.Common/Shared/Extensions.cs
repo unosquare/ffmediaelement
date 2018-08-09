@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Shared
 {
+    using Decoding;
     using FFmpeg.AutoGen;
     using Primitives;
     using System;
@@ -273,81 +274,32 @@
         #region Faster-than-Linq replacements
 
         /// <summary>
+        /// Gets the <see cref="MediaBlockBuffer"/> for the main media type of the specified media container.
+        /// </summary>
+        /// <param name="blocks">The blocks.</param>
+        /// <param name="container">The container.</param>
+        /// <returns>The block buffer of the main media type</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static MediaBlockBuffer Main(this MediaTypeDictionary<MediaBlockBuffer> blocks, MediaContainer container) =>
+            blocks[container.Components?.MainMediaType ?? MediaType.None];
+
+        /// <summary>
         /// Excludes the type of the media.
         /// </summary>
         /// <param name="all">All.</param>
         /// <param name="main">The main.</param>
         /// <returns>An array without the media type</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static MediaType[] Except(this MediaType[] all, MediaType main)
+        internal static MediaType[] Except(this IEnumerable<MediaType> all, MediaType main)
         {
-            var result = new List<MediaType>(16);
-            var current = MediaType.None;
-            for (var i = 0; i < all.Length; i++)
+            var result = new List<MediaType>(4);
+            foreach (var item in all)
             {
-                current = all[i];
-                if (current != main)
-                    result.Add(current);
+                if (item != main)
+                    result.Add(item);
             }
 
             return result.ToArray();
-        }
-
-        /// <summary>
-        /// Determines whether the array contains the media type
-        /// </summary>
-        /// <param name="all">All.</param>
-        /// <param name="t">The t.</param>
-        /// <returns>True if it exists in the array</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static bool HasMediaType(this MediaType[] all, MediaType t)
-        {
-            for (var i = 0; i < all.Length; i++)
-            {
-                if (all[i] == t) return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Verifies all fundamental (audio and video) components are greater than the supplied value
-        /// </summary>
-        /// <param name="all">All.</param>
-        /// <param name="value">The value.</param>
-        /// <returns>
-        /// True if all components are greater than the value
-        /// </returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static bool ContainsMoreThan(this MediaTypeDictionary<int> all, int value)
-        {
-            var hasFundamentals = false;
-            foreach (var kvp in all)
-            {
-                // Skip over non-fundamental types
-                if (kvp.Key != MediaType.Audio && kvp.Key != MediaType.Video)
-                    continue;
-
-                hasFundamentals = true;
-                if (kvp.Value <= value) return false;
-            }
-
-            return hasFundamentals;
-        }
-
-        /// <summary>
-        /// Gets the sum of all the values in the keyed dictionary.
-        /// </summary>
-        /// <param name="all">All.</param>
-        /// <returns>The sum of all values.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static int GetSum(this MediaTypeDictionary<int> all)
-        {
-            var result = default(int);
-            foreach (var kvp in all)
-                result += kvp.Value;
-
-            return result;
         }
 
         /// <summary>
@@ -360,10 +312,8 @@
         /// The serial picture number
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static long ComputePictureNumber(TimeSpan startTime, TimeSpan duration, long startNumber)
-        {
-            return startNumber + Convert.ToInt64(Convert.ToDouble(startTime.Ticks) / duration.Ticks);
-        }
+        internal static long ComputePictureNumber(TimeSpan startTime, TimeSpan duration, long startNumber) =>
+            startNumber + Convert.ToInt64(Convert.ToDouble(startTime.Ticks) / duration.Ticks);
 
         /// <summary>
         /// Computes the smtpe time code.

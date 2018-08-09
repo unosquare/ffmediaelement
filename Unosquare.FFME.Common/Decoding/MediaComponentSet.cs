@@ -1,9 +1,9 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
-    using FFmpeg.AutoGen;
     using Primitives;
     using Shared;
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Runtime.CompilerServices;
@@ -18,27 +18,21 @@
     {
         #region Private Declarations
 
-        /// <summary>
-        /// The internal Components
-        /// </summary>
-        private readonly MediaTypeDictionary<MediaComponent> Items = new MediaTypeDictionary<MediaComponent>();
+        // Synchronization locks
+        private readonly object ComponentSyncLock = new object();
+        private readonly object BufferSyncLock = new object();
+        private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
 
-        /// <summary>
-        /// The synchronize lock
-        /// </summary>
-        private readonly object SyncLock = new object();
+        private ReadOnlyCollection<MediaComponent> m_All = new ReadOnlyCollection<MediaComponent>(new List<MediaComponent>(0));
+        private ReadOnlyCollection<MediaType> m_MediaTypes = new ReadOnlyCollection<MediaType>(new List<MediaType>(0));
 
-        /// <summary>
-        /// Provides a cached array to the components backing the All property.
-        /// </summary>
-        private ReadOnlyCollection<MediaComponent> CachedComponents = null;
-
-        /// <summary>
-        /// To detect redundant Dispose calls
-        /// </summary>
-        private bool IsDisposed = false;
-
+        private int m_Count = default;
+        private MediaType m_MainMediaType = MediaType.None;
         private MediaComponent m_Main = null;
+        private AudioComponent m_Audio = null;
+        private VideoComponent m_Video = null;
+        private SubtitleComponent m_Subtitle = null;
+        private PacketBufferState BufferState = default;
 
         #endregion
 
@@ -56,7 +50,9 @@
 
         #region Delegates
 
-        public delegate void OnPacketQueuedDelegate(IntPtr avPacket, MediaType mediaType, ulong bufferLength, ulong lifetimeBytes);
+        public delegate void OnPacketQueueChangedDelegate(
+            PacketQueueOp operation, MediaPacket avPacket, MediaType mediaType, PacketBufferState bufferState);
+
         public delegate void OnFrameDecodedDelegate(IntPtr avFrame, MediaType mediaType);
         public delegate void OnSubtitleDecodedDelegate(IntPtr avSubititle);
 
@@ -67,7 +63,7 @@
         /// <summary>
         /// Gets or sets a method that gets called when a packet is queued.
         /// </summary>
-        public OnPacketQueuedDelegate OnPacketQueued { get; set; }
+        public OnPacketQueueChangedDelegate OnPacketQueueChanged { get; set; }
 
         /// <summary>
         /// Gets or sets a method that gets called when an audio or video frame gets decoded.
@@ -80,11 +76,24 @@
         public OnSubtitleDecodedDelegate OnSubtitleDecoded { get; set; }
 
         /// <summary>
+        /// Gets a value indicating whether this instance is disposed.
+        /// </summary>
+        public bool IsDisposed => m_IsDisposed.Value;
+
+        /// <summary>
+        /// Gets the registred component count.
+        /// </summary>
+        public int Count
+        {
+            get { lock (ComponentSyncLock) return m_Count; }
+        }
+
+        /// <summary>
         /// Gets the available component media types.
         /// </summary>
-        public MediaType[] MediaTypes
+        public ReadOnlyCollection<MediaType> MediaTypes
         {
-            get { lock (SyncLock) return Items.Keys.ToArray(); }
+            get { lock (ComponentSyncLock) return m_MediaTypes; }
         }
 
         /// <summary>
@@ -92,16 +101,15 @@
         /// </summary>
         public ReadOnlyCollection<MediaComponent> All
         {
-            get
-            {
-                lock (SyncLock)
-                {
-                    if (CachedComponents == null || CachedComponents.Count != Items.Count)
-                        CachedComponents = new ReadOnlyCollection<MediaComponent>(Items.Values.ToArray());
+            get { lock (ComponentSyncLock) return m_All; }
+        }
 
-                    return CachedComponents;
-                }
-            }
+        /// <summary>
+        /// Gets the type of the main.
+        /// </summary>
+        public MediaType MainMediaType
+        {
+            get { lock (ComponentSyncLock) return m_MainMediaType; }
         }
 
         /// <summary>
@@ -110,8 +118,7 @@
         /// </summary>
         public MediaComponent Main
         {
-            get { lock (SyncLock) return m_Main; }
-            private set { lock (SyncLock) m_Main = value; }
+            get { lock (ComponentSyncLock) return m_Main; }
         }
 
         /// <summary>
@@ -120,7 +127,7 @@
         /// </summary>
         public VideoComponent Video
         {
-            get { lock (SyncLock) return Items[MediaType.Video] as VideoComponent; }
+            get { lock (ComponentSyncLock) return m_Video; }
         }
 
         /// <summary>
@@ -129,7 +136,7 @@
         /// </summary>
         public AudioComponent Audio
         {
-            get { lock (SyncLock) return Items[MediaType.Audio] as AudioComponent; }
+            get { lock (ComponentSyncLock) return m_Audio; }
         }
 
         /// <summary>
@@ -138,44 +145,7 @@
         /// </summary>
         public SubtitleComponent Subtitles
         {
-            get { lock (SyncLock) return Items[MediaType.Subtitle] as SubtitleComponent; }
-        }
-
-        /// <summary>
-        /// Gets the current length in bytes of the packet buffer.
-        /// These packets are the ones that have not been yet deecoded.
-        /// </summary>
-        public ulong PacketBufferLength
-        {
-            get
-            {
-                lock (SyncLock)
-                {
-                    var result = default(ulong);
-                    foreach (var c in All)
-                        result += c.PacketBufferLength;
-
-                    return result;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets the total bytes read by all components in the lifetime of this object.
-        /// </summary>
-        public ulong LifetimeBytesRead
-        {
-            get
-            {
-                lock (SyncLock)
-                {
-                    ulong result = 0;
-                    foreach (var c in All)
-                        result = unchecked(result + c.LifetimeBytesRead);
-
-                    return result;
-                }
-            }
+            get { lock (ComponentSyncLock) return m_Subtitle; }
         }
 
         /// <summary>
@@ -183,7 +153,7 @@
         /// </summary>
         public bool HasVideo
         {
-            get { lock (SyncLock) return Items.ContainsKey(MediaType.Video); }
+            get { lock (ComponentSyncLock) return m_Video != null; }
         }
 
         /// <summary>
@@ -191,7 +161,7 @@
         /// </summary>
         public bool HasAudio
         {
-            get { lock (SyncLock) return Items.ContainsKey(MediaType.Audio); }
+            get { lock (ComponentSyncLock) return m_Audio != null; }
         }
 
         /// <summary>
@@ -199,7 +169,41 @@
         /// </summary>
         public bool HasSubtitles
         {
-            get { lock (SyncLock) return Items.ContainsKey(MediaType.Subtitle); }
+            get { lock (ComponentSyncLock) return m_Subtitle != null; }
+        }
+
+        /// <summary>
+        /// Gets the current length in bytes of the packet buffer for all components.
+        /// These packets are the ones that have not been yet decoded.
+        /// </summary>
+        public long BufferLength
+        {
+            get { lock (BufferSyncLock) return BufferState.Length; }
+        }
+
+        /// <summary>
+        /// Gets the total number of packets in the packet buffer for all components.
+        /// </summary>
+        public int BufferCount
+        {
+            get { lock (BufferSyncLock) return BufferState.Count; }
+        }
+
+        /// <summary>
+        /// Gets the minimum number of packets to read before <see cref="HasEnoughPackets"/> is able to return true.
+        /// </summary>
+        public int BufferCountThreshold
+        {
+            get { lock (BufferSyncLock) return BufferState.CountThreshold; }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether all packet queues contain enough packets.
+        /// Port of ffplay.c stream_has_enough_packets
+        /// </summary>
+        public bool HasEnoughPackets
+        {
+            get { lock (BufferSyncLock) return BufferState.HasEnoughPackets; }
         }
 
         /// <summary>
@@ -215,19 +219,15 @@
         {
             get
             {
-                lock (SyncLock) return Items[mediaType];
-            }
-            set
-            {
-                lock (SyncLock)
+                lock (ComponentSyncLock)
                 {
-                    if (Items.ContainsKey(mediaType))
-                        throw new ArgumentException($"A component for '{mediaType}' is already registered.");
-                    Items[mediaType] = value ??
-                        throw new ArgumentNullException($"{nameof(MediaComponent)} {nameof(value)} must not be null.");
-
-                    CachedComponents = null;
-                    ComputeMainComponent();
+                    switch (mediaType)
+                    {
+                        case MediaType.Audio: return m_Audio;
+                        case MediaType.Video: return m_Video;
+                        case MediaType.Subtitle: return m_Subtitle;
+                        default: return null;
+                    }
                 }
             }
         }
@@ -235,8 +235,7 @@
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose() =>
-            Dispose(true);
+        public void Dispose() => Dispose(true);
 
         #endregion
 
@@ -249,27 +248,21 @@
         /// </summary>
         /// <param name="packet">The packet.</param>
         /// <returns>The media type</returns>
-        public unsafe MediaType SendPacket(AVPacket* packet)
+        public unsafe MediaType SendPacket(MediaPacket packet)
         {
-            lock (SyncLock)
-            {
-                if (packet == null)
-                    return MediaType.None;
-
-                foreach (var component in All)
-                {
-                    if (component.StreamIndex == packet->stream_index)
-                    {
-                        component.SendPacket(packet);
-                        OnPacketQueued?.Invoke(
-                            (IntPtr)packet, component.MediaType, PacketBufferLength, LifetimeBytesRead);
-
-                        return component.MediaType;
-                    }
-                }
-
+            if (packet == null)
                 return MediaType.None;
+
+            foreach (var component in All)
+            {
+                if (component.StreamIndex == packet.StreamIndex)
+                {
+                    component.SendPacket(packet);
+                    return component.MediaType;
+                }
             }
+
+            return MediaType.None;
         }
 
         /// <summary>
@@ -279,9 +272,8 @@
         /// </summary>
         public void SendEmptyPackets()
         {
-            lock (SyncLock)
-                foreach (var component in All)
-                    component.SendEmptyPacket();
+            foreach (var component in All)
+                component.SendEmptyPacket();
         }
 
         /// <summary>
@@ -293,14 +285,45 @@
         /// <param name="flushBuffers">if set to <c>true</c> flush codec buffers.</param>
         public void ClearQueuedPackets(bool flushBuffers)
         {
-            lock (SyncLock)
-                foreach (var component in All)
-                    component.ClearQueuedPackets(flushBuffers);
+            foreach (var component in All)
+                component.ClearQueuedPackets(flushBuffers);
         }
 
         #endregion
 
         #region Helper Methods
+
+        /// <summary>
+        /// Updates queue properties and invokes the on packet queue changed callback.
+        /// </summary>
+        /// <param name="operation">The operation.</param>
+        /// <param name="packet">The packet.</param>
+        /// <param name="mediaType">Type of the media.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void ProcessPacketQueueChanges(PacketQueueOp operation, MediaPacket packet, MediaType mediaType)
+        {
+            if (OnPacketQueueChanged == null)
+                return;
+
+            var state = default(PacketBufferState);
+            state.HasEnoughPackets = true;
+
+            foreach (var c in All)
+            {
+                state.Length += c.BufferLength;
+                state.Count += c.BufferCount;
+                state.CountThreshold += c.BufferCountThreshold;
+                if (state.HasEnoughPackets && c.HasEnoughPackets == false)
+                    state.HasEnoughPackets = false;
+            }
+
+            // Update the buffer state
+            lock (BufferSyncLock)
+                BufferState = state;
+
+            // Send the callabck
+            OnPacketQueueChanged?.Invoke(operation, packet, mediaType, state);
+        }
 
         /// <summary>
         /// Runs quick buffering logic on a single thread.
@@ -312,15 +335,13 @@
         {
             // We need to perform some packet reading and decoding
             var frame = default(MediaFrame);
-            var main = Main.MediaType;
+            var main = MainMediaType;
             var auxs = MediaTypes.Except(main);
             var mediaTypes = MediaTypes;
-
-            // Signal Buffering started
-            m.State.SignalBufferingStarted();
+            var mainBlocks = m.Blocks[main];
 
             // Read and decode blocks until the main component is half full
-            while (m.ShouldReadMorePackets && m.CanReadMorePackets)
+            while (m.ShouldReadMorePackets)
             {
                 // Read some packets
                 m.Container.Read();
@@ -333,24 +354,24 @@
                 }
 
                 // Check if we have at least a half a buffer on main
-                if (m.Blocks[main].CapacityPercent >= 0.5)
+                if (mainBlocks.CapacityPercent >= 0.5)
                     break;
             }
 
             // Check if we have a valid range. If not, just set it what the main component is dictating
-            if (m.Blocks[main].Count > 0 && m.Blocks[main].IsInRange(m.WallClock) == false)
-                m.Clock.Update(m.Blocks[main].RangeStartTime);
+            if (mainBlocks.Count > 0 && mainBlocks.IsInRange(m.WallClock) == false)
+                m.ChangePosition(mainBlocks.RangeStartTime);
 
             // Have the other components catch up
             foreach (var t in auxs)
             {
-                if (m.Blocks[main].Count <= 0) break;
+                if (mainBlocks.Count <= 0) break;
                 if (t != MediaType.Audio && t != MediaType.Video)
                     continue;
 
-                while (m.Blocks[t].RangeEndTime < m.Blocks[main].RangeEndTime)
+                while (m.Blocks[t].RangeEndTime < mainBlocks.RangeEndTime)
                 {
-                    if (m.ShouldReadMorePackets == false || m.CanReadMorePackets == false)
+                    if (m.ShouldReadMorePackets == false)
                         break;
 
                     // Read some packets
@@ -364,69 +385,145 @@
         }
 
         /// <summary>
+        /// Registers the component in this component set.
+        /// </summary>
+        /// <param name="component">The component.</param>
+        /// <exception cref="ArgumentNullException">When component of the same type is already registered</exception>
+        /// <exception cref="NotSupportedException">When MediaType is not supported</exception>
+        /// <exception cref="ArgumentException">When the component is null</exception>
+        internal void AddComponent(MediaComponent component)
+        {
+            lock (ComponentSyncLock)
+            {
+                if (component == null)
+                    throw new ArgumentNullException(nameof(component));
+
+                switch (component.MediaType)
+                {
+                    case MediaType.Audio:
+                        if (m_Audio != null)
+                            throw new ArgumentException($"A component for '{component.MediaType}' is already registered.");
+
+                        m_Audio = component as AudioComponent;
+                        break;
+                    case MediaType.Video:
+                        if (m_Video != null)
+                            throw new ArgumentException($"A component for '{component.MediaType}' is already registered.");
+
+                        m_Video = component as VideoComponent;
+                        break;
+                    case MediaType.Subtitle:
+                        if (m_Subtitle != null)
+                            throw new ArgumentException($"A component for '{component.MediaType}' is already registered.");
+
+                        m_Subtitle = component as SubtitleComponent;
+                        break;
+                    default:
+                        throw new NotSupportedException($"Unable to register component with {nameof(MediaType)} '{component.MediaType}'");
+                }
+
+                UpdateComponentBackingFields();
+            }
+        }
+
+        /// <summary>
         /// Removes the component of specified media type (if registered).
         /// It calls the dispose method of the media component too.
         /// </summary>
         /// <param name="mediaType">Type of the media.</param>
         internal void RemoveComponent(MediaType mediaType)
         {
-            lock (SyncLock)
+            lock (ComponentSyncLock)
             {
-                if (Items.ContainsKey(mediaType) == false) return;
+                var component = default(MediaComponent);
+                switch (mediaType)
+                {
+                    case MediaType.Audio:
+                        component = m_Audio;
+                        m_Audio = null;
+                        break;
+                    case MediaType.Video:
+                        component = m_Video;
+                        m_Video = null;
+                        break;
+                    case MediaType.Subtitle:
+                        component = m_Subtitle;
+                        m_Subtitle = null;
+                        break;
+                    default:
+                        break;
+                }
 
-                try
-                {
-                    var component = Items[mediaType];
-                    Items.Remove(mediaType);
-                    component.Dispose();
-                }
-                catch
-                { }
-                finally
-                {
-                    CachedComponents = null;
-                    ComputeMainComponent();
-                }
+                component?.Dispose();
+                UpdateComponentBackingFields();
             }
         }
 
         /// <summary>
-        /// Computes the main component.
+        /// Computes the main component and backing fields.
         /// </summary>
-        private void ComputeMainComponent()
+        private void UpdateComponentBackingFields()
         {
-            // Try for the main component to be the video (if it's not stuff like audio album art, that is)
-            if (HasVideo && HasAudio &&
-                (Video.StreamInfo.Disposition & ffmpeg.AV_DISPOSITION_ATTACHED_PIC) != ffmpeg.AV_DISPOSITION_ATTACHED_PIC)
+            var allComponents = new List<MediaComponent>(4);
+            var allMediaTypes = new List<MediaType>(4);
+
+            if (m_Audio != null)
             {
-                Main = Video;
+                allComponents.Add(m_Audio);
+                allMediaTypes.Add(MediaType.Audio);
+            }
+
+            if (m_Video != null)
+            {
+                allComponents.Add(m_Video);
+                allMediaTypes.Add(MediaType.Video);
+            }
+
+            if (m_Subtitle != null)
+            {
+                allComponents.Add(m_Subtitle);
+                allMediaTypes.Add(MediaType.Subtitle);
+            }
+
+            m_All = new ReadOnlyCollection<MediaComponent>(allComponents);
+            m_MediaTypes = new ReadOnlyCollection<MediaType>(allMediaTypes);
+            m_Count = allComponents.Count;
+
+            // Try for the main component to be the video (if it's not stuff like audio album art, that is)
+            if (m_Video != null && m_Audio != null && m_Video.StreamInfo.IsAttachedPictureDisposition == false)
+            {
+                m_Main = m_Video;
+                m_MainMediaType = MediaType.Video;
                 return;
             }
 
             // If it was not vide, then it has to be audio (if it has audio)
-            if (HasAudio)
+            if (m_Audio != null)
             {
-                Main = Audio;
+                m_Main = m_Audio;
+                m_MainMediaType = MediaType.Audio;
                 return;
             }
 
             // Set it to video even if it's attached pic stuff
-            if (HasVideo)
+            if (m_Video != null)
             {
-                Main = Video;
+                m_Main = m_Video;
+                m_MainMediaType = MediaType.Video;
                 return;
             }
 
             // As a last resort, set the main component to be the subtitles
-            if (HasSubtitles)
+            if (m_Subtitle != null)
             {
-                Main = Subtitles;
+                m_Main = m_Subtitle;
+                m_MainMediaType = MediaType.Subtitle;
                 return;
             }
 
             // We whould never really hit this line
-            if (Items.Count > 0)
-                Main = Items.First().Value;
+            m_Main = null;
+            m_MainMediaType = MediaType.None;
         }
 
         /// <summary>
@@ -435,21 +532,17 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
-            if (!IsDisposed)
+            lock (ComponentSyncLock)
             {
-                if (alsoManaged)
-                {
-                    var componentKeys = Items.Keys.ToArray();
-                    foreach (var mediaType in componentKeys)
-                        RemoveComponent(mediaType);
-                }
+                if (IsDisposed || alsoManaged == false)
+                    return;
 
-                // free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // and set large fields to null.
-                IsDisposed = true;
+                m_IsDisposed.Value = true;
+                foreach (var mediaType in m_MediaTypes)
+                    RemoveComponent(mediaType);
             }
         }
-
-        #endregion
     }
+
+    #endregion
 }

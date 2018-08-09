@@ -309,7 +309,7 @@
         /// <param name="e">The <see cref="PositionChangedRoutedEventArgs"/> instance containing the event data.</param>
         private void OnMediaPositionChanged(object sender, PositionChangedRoutedEventArgs e)
         {
-            // Debug.WriteLine($"{nameof(Media.Position)} = {e.Position}");
+            // Hanlde position change notifications
         }
 
         #endregion

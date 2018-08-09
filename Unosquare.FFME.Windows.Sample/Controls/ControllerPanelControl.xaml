@@ -21,8 +21,8 @@
                 Visibility="{Binding Controller.SeekBarVisibility}"
                 IsEnabled="{Binding App.MediaElement.IsOpen}"
                 IsSnapToTickEnabled="False"
-                SmallChange="{Binding App.MediaElement.FrameStepDuration, Converter={StaticResource TimeSpanToSecondsConverter}}"
-                LargeChange="{Binding App.MediaElement.FrameStepDuration, Converter={StaticResource TimeSpanToSecondsConverter}}"
+                SmallChange="{Binding App.MediaElement.PositionStep, Converter={StaticResource TimeSpanToSecondsConverter}}"
+                LargeChange="{Binding App.MediaElement.PositionStep, Converter={StaticResource TimeSpanToSecondsConverter}}"
                 Maximum="{Binding App.MediaElement.NaturalDuration, Converter={StaticResource TimeSpanToSecondsConverter}}" 
                 Value="{Binding App.MediaElement.Position, Converter={StaticResource TimeSpanToSecondsConverter}}" />
 
@@ -103,7 +103,7 @@
                                   Style="{DynamicResource ModernToggleButtonStyle}"
                                   Visibility="{Binding Controller.ClosedCaptionsVisibility}"
                                   IsChecked="{Binding App.MediaElement.ClosedCaptionsChannel, Converter={StaticResource ClosedCaptionsChannelConverter}, Mode=TwoWay}">
-                        <Path Stretch="Uniform" Data="{Binding Source={StaticResource ClosedCaptions}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}}}" />
+                        <TextBlock Grid.Row="1" Text="{Binding App.MediaElement.ClosedCaptionsChannel}" FontWeight="Bold" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}}}" FontSize="11" />
                     </ToggleButton>
                 </DockPanel>
 

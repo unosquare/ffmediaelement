@@ -13,9 +13,7 @@
 
         // These pointers and references are created by unmanaged code
         // there is no need to pin them.
-#pragma warning disable SA1401 // Fields must be private
-        public AVDictionary* Pointer;
-#pragma warning restore SA1401 // Fields must be private
+        private IntPtr m_Pointer;
 
         /// <summary>
         /// To detect redundant Dispose calls
@@ -48,6 +46,11 @@
         #region Properties
 
         /// <summary>
+        /// Gets the unmanaged pointer to the dictionary object.
+        /// </summary>
+        public AVDictionary* Pointer => (AVDictionary*)m_Pointer;
+
+        /// <summary>
         /// Gets the number of elements in the dictionary
         /// </summary>
         /// <value>
@@ -57,7 +60,7 @@
         {
             get
             {
-                if (Pointer == null) return 0;
+                if (m_Pointer == IntPtr.Zero) return 0;
                 return ffmpeg.av_dict_count(Pointer);
             }
         }
@@ -117,6 +120,15 @@
         }
 
         /// <summary>
+        /// Updates the pointer reference after modified.
+        /// </summary>
+        /// <param name="reference">The reference.</param>
+        public void UpdateReference(AVDictionary* reference)
+        {
+            m_Pointer = new IntPtr(reference);
+        }
+
+        /// <summary>
         /// Fills this dictionary with a set of options
         /// </summary>
         /// <param name="other">The other dictionary (source)</param>
@@ -143,7 +155,7 @@
         /// <returns>The entry</returns>
         public FFDictionaryEntry Next(FFDictionaryEntry prior)
         {
-            if (Pointer == null)
+            if (m_Pointer == IntPtr.Zero)
                 return null;
 
             var priorEntry = prior == null ? null : prior.Pointer;
@@ -159,7 +171,7 @@
         /// <returns>True or False</returns>
         public bool HasKey(string key, bool matchCase = true)
         {
-            if (Pointer == null) return false;
+            if (m_Pointer == IntPtr.Zero) return false;
             return ffmpeg.av_dict_get(Pointer, key, null, matchCase ? ffmpeg.AV_DICT_MATCH_CASE : 0) != null;
         }
 
@@ -206,11 +218,9 @@
             var flags = 0;
             if (dontOverwrite) flags |= ffmpeg.AV_DICT_DONT_OVERWRITE;
 
-            fixed (AVDictionary** reference = &Pointer)
-            {
-                ffmpeg.av_dict_set(reference, key, value, flags);
-                Pointer = *reference;
-            }
+            var reference = Pointer;
+            ffmpeg.av_dict_set(&reference, key, value, flags);
+            m_Pointer = new IntPtr(reference);
         }
 
         /// <summary>
@@ -245,8 +255,9 @@
             {
                 if (alsoManaged)
                 {
-                    fixed (AVDictionary** reference = &Pointer)
-                        ffmpeg.av_dict_free(reference);
+                    var reference = Pointer;
+                    ffmpeg.av_dict_free(&reference);
+                    m_Pointer = IntPtr.Zero;
                 }
 
                 IsDisposed = true;

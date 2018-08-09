@@ -25,9 +25,9 @@
         /// Creates a renderer of the specified media type.
         /// </summary>
         /// <param name="mediaType">Type of the media.</param>
-        /// <param name="mediaEngine">The media engine.</param>
+        /// <param name="mediaCore">The media engine.</param>
         /// <returns>The renderer</returns>
-        IMediaRenderer CreateRenderer(MediaType mediaType, MediaEngine mediaEngine);
+        IMediaRenderer CreateRenderer(MediaType mediaType, MediaEngine mediaCore);
 
         /// <summary>
         /// Handles global FFmpeg library messages

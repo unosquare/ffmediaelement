@@ -1,20 +1,19 @@
 ﻿namespace Unosquare.FFME.Commands
 {
     using System;
-    using Unosquare.FFME.Shared;
 
     /// <summary>
     /// The Stop Command Implementation
     /// </summary>
     /// <seealso cref="CommandBase" />
-    internal sealed class StopCommand : CommandBase
+    internal sealed class StopCommand : SeekCommand
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="StopCommand"/> class.
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
         public StopCommand(MediaEngine mediaCore)
-            : base(mediaCore)
+            : base(mediaCore, TimeSpan.Zero)
         {
             CommandType = CommandType.Stop;
             Category = CommandCategory.Priority;
@@ -37,13 +36,11 @@
         {
             var m = MediaCore;
             m.Clock.Reset();
-            m.State.UpdateMediaState(PlaybackStatus.Manual);
-            var seek = new SeekCommand(m, TimeSpan.Zero);
-            seek.Execute();
-            m.State.UpdateMediaState(PlaybackStatus.Stop, m.WallClock);
-
+            base.PerformActions();
             foreach (var renderer in m.Renderers.Values)
                 renderer.Stop();
+
+            m.State.UpdateMediaState(Shared.PlaybackStatus.Stop);
         }
     }
 }

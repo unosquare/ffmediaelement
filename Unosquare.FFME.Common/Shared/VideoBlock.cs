@@ -29,19 +29,31 @@
         public int PixelHeight { get; private set; }
 
         /// <summary>
-        /// Gets the width of the aspect ratio.
+        /// Gets the pixel aspect width.
+        /// This is NOT the display aspect width.
         /// </summary>
-        public int AspectWidth { get; internal set; }
+        public int PixelAspectWidth { get; internal set; }
 
         /// <summary>
-        /// Gets the height of the aspect ratio.
+        /// Gets the pixel aspect height.
+        /// This is NOT the display aspect height.
         /// </summary>
-        public int AspectHeight { get; internal set; }
+        public int PixelAspectHeight { get; internal set; }
 
         /// <summary>
         /// Gets the SMTPE time code.
         /// </summary>
         public string SmtpeTimecode { get; internal set; }
+
+        /// <summary>
+        /// Gets a value indicating whether this frame was decoded in a hardware context.
+        /// </summary>
+        public bool IsHardwareFrame { get; internal set; }
+
+        /// <summary>
+        /// Gets the name of the hardware decoder if the frame was decoded in a hardware context.
+        /// </summary>
+        public string HardwareAcceleratorName { get; internal set; }
 
         /// <summary>
         /// Gets the display picture number (frame number).

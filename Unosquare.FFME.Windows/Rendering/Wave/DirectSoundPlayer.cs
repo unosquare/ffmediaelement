@@ -109,7 +109,7 @@
             lock (DevicesEnumLock)
             {
                 EnumeratedDevices = new List<DirectSoundDeviceInfo>(32);
-                NativeMethods.DirectSoundEnumerateA(new DirectSound.EnumerateDevicesDelegate(EnumerateDevicesCallback), IntPtr.Zero);
+                NativeMethods.DirectSoundEnumerateA(EnumerateDevicesCallback, IntPtr.Zero);
                 return EnumeratedDevices;
             }
         }
@@ -134,6 +134,11 @@
 
             AudioPlaybackThread.Start();
         }
+
+        /// <summary>
+        /// Clears the internal audio data with silence data.
+        /// </summary>
+        public void Clear() => ClearBackBuffer();
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.

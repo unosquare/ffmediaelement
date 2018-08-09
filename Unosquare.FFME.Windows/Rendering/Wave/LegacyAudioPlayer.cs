@@ -95,7 +95,7 @@
         #region Public API
 
         /// <summary>
-        /// Gets the Windows Multimedia Extensions (MME) devices in the system
+        /// Gets the Windows Multimedia Extensions (MME) devices in the system.
         /// </summary>
         /// <returns>The available MME devices</returns>
         public static List<LegacyAudioDeviceInfo> EnumerateDevices()
@@ -104,10 +104,8 @@
             {
                 var devices = new List<LegacyAudioDeviceInfo>(32);
                 var count = WaveInterop.RetrieveAudioDeviceCount();
-                for (var i = 0; i < count; i++)
-                {
+                for (var i = -1; i < count; i++)
                     devices.Add(WaveInterop.RetrieveAudioDeviceInfo(i));
-                }
 
                 return devices;
             }
@@ -152,10 +150,20 @@
             AudioPlaybackThread.Start();
         }
 
-        public void Dispose()
+        /// <summary>
+        /// Clears the internal audio data with silence data.
+        /// </summary>
+        public void Clear()
         {
-            Dispose(true);
+            if (IsDisposed) return;
+            foreach (var buffer in Buffers)
+                buffer.Clear();
         }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose() => Dispose(true);
 
         #endregion
 
