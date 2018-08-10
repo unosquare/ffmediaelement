@@ -88,6 +88,9 @@
             {
                 // Notify the changed properties
                 NotifyPropertyChangedEvent(p);
+
+                if (p.Equals(nameof(NaturalDuration)))
+                    NotifyPropertyChangedEvent(nameof(RemainingDuration));
             }
         }
 

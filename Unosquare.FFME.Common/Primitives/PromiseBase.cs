@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME.Primitives
 {
     using System;
+    using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -28,11 +29,12 @@
         /// Initializes a new instance of the <see cref="PromiseBase"/> class.
         /// </summary>
         /// <param name="continueOnCapturedContext">
-        /// if set to <c>true</c> configures the awaiter to continue on the captured context.
+        /// if set to <c>true</c> configures the awaiter to continue on the captured context only.
+        /// if set to <c>false</c> configures the awaiter to be continued on any thread context.
         /// </param>
         protected PromiseBase(bool continueOnCapturedContext)
         {
-            Awaiter = new Task<bool>(() =>
+            AwaiterTask = new Task<bool>(() =>
             {
                 while (CancelToken.IsCancellationRequested == false)
                 {
@@ -45,7 +47,7 @@
 
             // We don't start the awaiter just yet.
             // It can be awaited in its created state.
-            Awaiter.ConfigureAwait(continueOnCapturedContext);
+            Awaiter = AwaiterTask.ConfigureAwait(continueOnCapturedContext);
         }
 
         #endregion
@@ -53,12 +55,12 @@
         #region Properties
 
         /// <summary>
-        /// Gets the awaitable task.
+        /// Gets the configured task awaiter.
         /// You should await this object.
         /// The task returns true if the actions were run. Returns false
         /// if the actions were cancelled.
         /// </summary>
-        public Task<bool> Awaiter { get; }
+        public ConfiguredTaskAwaitable<bool> Awaiter { get; }
 
         /// <summary>
         /// Gets a value indicating whether this instance is disposed.
@@ -77,6 +79,11 @@
             get { lock (PropertyLock) return m_IsExecuting; }
             private set { lock (PropertyLock) m_IsExecuting = value; }
         }
+
+        /// <summary>
+        /// Gets the task that awits the promise. Do not await on this but use the <see cref="Awaiter"/> property instead.
+        /// </summary>
+        private Task<bool> AwaiterTask { get; }
 
         #endregion
 
@@ -113,7 +120,7 @@
                         return;
 
                     IsExecuting = true;
-                    Awaiter.Start();
+                    AwaiterTask.Start();
                     PerformActions();
                 }
                 catch { throw; }
@@ -139,7 +146,7 @@
                         return;
 
                     CancelToken.Cancel();
-                    Awaiter.Start();
+                    AwaiterTask.Start();
 
                     if (waitForExit)
                         Awaiter.GetAwaiter().GetResult();
@@ -169,14 +176,14 @@
                     return;
 
                 CancelToken.Cancel();
-                if (Awaiter.Status == TaskStatus.Created)
-                    Awaiter.Start();
+                if (AwaiterTask.Status == TaskStatus.Created)
+                    AwaiterTask.Start();
 
                 Awaiter.GetAwaiter().GetResult();
 
                 CancelToken.Dispose();
                 CompletedEvent.Dispose();
-                Awaiter.Dispose();
+                AwaiterTask.Dispose();
 
                 IsDisposed = true;
                 IsExecuting = false;
