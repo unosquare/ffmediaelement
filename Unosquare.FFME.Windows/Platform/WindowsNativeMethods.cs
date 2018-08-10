@@ -109,6 +109,7 @@
                     }
 
                 case MemoryCopyStartegy.Buffer:
+                default:
                     {
                         Buffer.MemoryCopy((void*)sourceAddress, (void*)targetAddress, copyLength, copyLength);
                         break;

@@ -149,7 +149,7 @@
             input = inputParts[inputParts.Length - 1].Replace("\\n", " ").Replace("\\N", "\r\n");
             var builder = new StringBuilder(input.Length);
             var isInStyle = false;
-            char currentChar = default;
+            char currentChar;
 
             for (var i = 0; i < input.Length; i++)
             {

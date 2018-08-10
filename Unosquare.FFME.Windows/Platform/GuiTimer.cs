@@ -38,12 +38,6 @@
 
             switch (contextType)
             {
-                case GuiContextType.None:
-                    {
-                        ThreadingTimer = CreateThreadingTimer();
-                        break;
-                    }
-
                 case GuiContextType.WPF:
                     {
                         DispatcherTimer = CreateDispatcherTimer();
@@ -53,6 +47,13 @@
                 case GuiContextType.WinForms:
                     {
                         FormsTimer = CreateFormsTimer();
+                        break;
+                    }
+
+                case GuiContextType.None:
+                default:
+                    {
+                        ThreadingTimer = CreateThreadingTimer();
                         break;
                     }
             }

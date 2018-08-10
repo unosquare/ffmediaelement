@@ -120,7 +120,7 @@
                 // Iterate through the buffer
                 var isLeftSample = true;
                 var sampleIndex = 0;
-                var samplePercent = default(double);
+                var samplePercent = 0d;
 
                 for (var i = 0; i < e.BufferLength; i += e.BitsPerSample / 8)
                 {

@@ -318,7 +318,7 @@
                     if (handleIndex >= 3)
                         break;
                     else if (handleIndex == 2 || handleIndex == WaitHandle.WaitTimeout)
-                        throw new Exception("DirectSound notification timed out");
+                        throw new TimeoutException("DirectSound notification timed out");
                     else
                         NextSamplesWriteIndex = handleIndex == 0 ? SamplesFrameSize : 0;
 
@@ -442,14 +442,12 @@
         /// <returns>The number of bytes that were read</returns>
         private int FeedBackBuffer(int bytesToCopy)
         {
-            int bytesRead = bytesToCopy;
-
             // Restore the buffer if lost
             if (IsBufferLost())
                 AudioBackBuffer.Restore();
 
             // Read data from stream (Should this be inserted between the lock / unlock?)
-            bytesRead = Renderer?.Read(Samples, 0, bytesToCopy) ?? 0;
+            var bytesRead = Renderer?.Read(Samples, 0, bytesToCopy) ?? 0;
 
             // Write silence
             if (bytesRead <= 0)

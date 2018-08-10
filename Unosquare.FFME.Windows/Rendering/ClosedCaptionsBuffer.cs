@@ -275,6 +275,10 @@
         /// <param name="mediaCore">The media core.</param>
         public void Write(VideoBlock currentBlock, MediaEngine mediaCore)
         {
+            // Check if we have valid params passed
+            if (currentBlock == null || mediaCore == null)
+                return;
+
             lock (SyncLock)
             {
                 // Feed the available closed captions into the packet buffer
@@ -739,7 +743,7 @@
             if (StateMode == ParserStateMode.Scrolling || StateMode == ParserStateMode.Buffered)
             {
                 var offset = 0;
-                var cell = default(ClosedCaptionsCellState);
+                ClosedCaptionsCellState cell;
                 for (var c = CursorColumnIndex; c < ColumnCount; c++)
                 {
                     if (offset > packet.Text.Length - 1) break;
