@@ -953,6 +953,7 @@
             {
                 // Handle failed packet reads. We don't need the allocated packet anymore
                 readPacket.Dispose();
+                readPacket = null;
 
                 // Detect an end of file situation (makes the readers enter draining mode)
                 if (readResult == ffmpeg.AVERROR_EOF || ffmpeg.avio_feof(InputContext->pb) != 0)

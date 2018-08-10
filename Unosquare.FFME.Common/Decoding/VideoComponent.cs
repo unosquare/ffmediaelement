@@ -440,7 +440,7 @@
 
             var matrix = new List<int>(displayMatrixLength);
 
-            double rotation = default;
+            double rotation;
             var scale = new double[2];
 
             for (var i = 0; i < displayMatrixLength * sizeof(int); i += sizeof(int))

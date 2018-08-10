@@ -114,7 +114,7 @@
             if (result < 0)
             {
                 MediaFrame.ReleaseAVFrame(output);
-                throw new Exception("Failed to transfer data to output frame");
+                throw new MediaContainerException("Failed to transfer data to output frame");
             }
 
             MediaFrame.ReleaseAVFrame(input);

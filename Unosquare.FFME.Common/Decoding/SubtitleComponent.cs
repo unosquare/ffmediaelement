@@ -107,7 +107,7 @@
         {
             var output = new StringBuilder(input.Length);
             var isInTag = false;
-            char currentChar = default;
+            char currentChar;
 
             for (var i = 0; i < input.Length; i++)
             {
