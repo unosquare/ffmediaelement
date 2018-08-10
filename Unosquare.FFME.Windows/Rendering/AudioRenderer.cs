@@ -26,8 +26,8 @@
         private const int SyncThresholdMaxStep = 25;
         private const int SyncLockTimeout = 100;
 
-        private readonly IWaitEvent WaitForReadyEvent = WaitEventFactory.Create(isCompleted: false, useSlim: true);
         private readonly object SyncLock = new object();
+        private IWaitEvent WaitForReadyEvent = WaitEventFactory.Create(isCompleted: false, useSlim: true);
 
         private IWavePlayer AudioDevice = null;
         private SoundTouch AudioProcessor = null;
@@ -436,6 +436,7 @@
             // Check if we have an audio output device.
             if (hasAudioDevices == false)
             {
+                WaitForReadyEvent = null;
                 MediaCore.Log(MediaLogMessageType.Warning,
                     $"AUDIO OUT: No audio device found for output.");
 
