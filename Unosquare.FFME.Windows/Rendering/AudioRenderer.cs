@@ -436,6 +436,7 @@
             // Check if we have an audio output device.
             if (hasAudioDevices == false)
             {
+                WaitForReadyEvent.Complete();
                 MediaCore.Log(MediaLogMessageType.Warning,
                     $"AUDIO OUT: No audio device found for output.");
 
