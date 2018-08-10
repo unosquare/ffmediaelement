@@ -334,7 +334,7 @@
         internal void RunQuickBuffering(MediaEngine m)
         {
             // We need to perform some packet reading and decoding
-            var frame = default(MediaFrame);
+            MediaFrame frame = null;
             var main = MainMediaType;
             var auxs = MediaTypes.Except(main);
             var mediaTypes = MediaTypes;

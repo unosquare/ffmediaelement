@@ -432,7 +432,7 @@
                 if (InputContext == null) throw new InvalidOperationException(ExceptionMessageNoInputContext);
 
                 var result = new List<MediaFrame>(4);
-                var frame = default(MediaFrame);
+                MediaFrame frame = null;
                 foreach (var component in Components.All)
                 {
                     frame = component.ReceiveNextFrame();
@@ -1218,7 +1218,7 @@
         private int StreamSeekDecode(List<MediaFrame> result, TimeSpan targetTime, SeekRequirement requirement)
         {
             var readSeekCycles = 0;
-            var frame = default(MediaFrame);
+            MediaFrame frame = null;
 
             // Create a holder of frame lists; one for each type of media
             var outputFrames = new Dictionary<MediaType, List<MediaFrame>>();

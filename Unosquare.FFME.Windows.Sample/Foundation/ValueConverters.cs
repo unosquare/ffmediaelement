@@ -81,10 +81,8 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
                 parameter = media?.NaturalDuration ?? TimeSpan.Zero;
             }
 
-            var p = TimeSpan.Zero;
             var d = TimeSpan.Zero;
-
-            if (value is TimeSpan span) p = span;
+            var p = value is TimeSpan span ? span : default;
             if (value is Duration duration1)
                 p = duration1.HasTimeSpan ? duration1.TimeSpan : TimeSpan.Zero;
 

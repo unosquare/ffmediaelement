@@ -1,9 +1,11 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
+    using System;
+
     /// <summary>
     /// A value type that representing the packet buffer state.
     /// </summary>
-    internal struct PacketBufferState
+    internal struct PacketBufferState : IEquatable<PacketBufferState>
     {
         /// <summary>
         /// The length in bytes of the packet buffer
@@ -24,5 +26,19 @@
         /// Thether the packet buffer has enough packets
         /// </summary>
         public bool HasEnoughPackets;
+
+        /// <summary>
+        /// Indicates whether the current object is equal to another object of the same type.
+        /// </summary>
+        /// <param name="other">An object to compare with this object.</param>
+        /// <returns>
+        ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter;
+        ///   otherwise, <see langword="false" />.
+        /// </returns>
+        public bool Equals(PacketBufferState other) =>
+                    Length == other.Length &&
+                    Count == other.Count &&
+                    CountThreshold == other.CountThreshold &&
+                    HasEnoughPackets == other.HasEnoughPackets;
     }
 }

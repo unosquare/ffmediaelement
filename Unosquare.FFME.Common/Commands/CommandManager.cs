@@ -391,7 +391,7 @@
         {
             lock (QueueLock)
             {
-                var command = default(CommandBase);
+                CommandBase command = null;
 
                 for (var i = CommandQueue.Count - 1; i >= 0; i--)
                 {

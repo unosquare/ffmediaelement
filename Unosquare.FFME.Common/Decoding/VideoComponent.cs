@@ -158,7 +158,7 @@
                 var initResultCode = 0;
                 initResultCode = ffmpeg.av_hwdevice_ctx_create(&devContextRef, accelerator.DeviceType, null, null, 0);
                 if (initResultCode < 0)
-                    throw new Exception($"Unable to initialize hardware context for device {accelerator.Name}");
+                    throw new MediaContainerException($"Unable to initialize hardware context for device {accelerator.Name}");
 
                 HardwareDeviceContext = devContextRef;
                 HardwareAccelerator = accelerator;
@@ -440,7 +440,7 @@
 
             var matrix = new List<int>(displayMatrixLength);
 
-            var rotation = default(double);
+            double rotation = default;
             var scale = new double[2];
 
             for (var i = 0; i < displayMatrixLength * sizeof(int); i += sizeof(int))

@@ -575,7 +575,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private MediaFrame ReceiveFrameFromDecoder(out int receiveFrameResult)
         {
-            var managedFrame = default(MediaFrame);
+            MediaFrame managedFrame = null;
             receiveFrameResult = 0;
 
             var outputFrame = MediaFrame.CreateAVFrame();
@@ -637,7 +637,7 @@
         {
             // For subtitles we use the old API (new API send_packet/receive_frame) is not yet available
             // We first try to flush anything we've already sent by using an empty packet.
-            var managedFrame = default(MediaFrame);
+            MediaFrame managedFrame = null;
             var packet = MediaPacket.CreateEmptyPacket(Stream->index);
             var gotFrame = 0;
             var outputFrame = MediaFrame.CreateAVSubtitle();
