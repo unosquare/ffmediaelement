@@ -26,7 +26,7 @@
         /// </summary>
         static FFAudioParams()
         {
-            Output = new FFAudioParams()
+            Output = new FFAudioParams
             {
                 ChannelCount = Constants.Audio.ChannelCount,
                 SampleRate = Constants.Audio.SampleRate,

@@ -136,13 +136,13 @@
                 var sar = s->sample_aspect_ratio;
                 var codecSar = s->codecpar->sample_aspect_ratio;
 
-                if (sar.num != 0 && (sar.num != s->codecpar->sample_aspect_ratio.num || sar.den != s->codecpar->sample_aspect_ratio.den))
+                if (sar.num != 0 && (sar.num != codecSar.num || sar.den != codecSar.den))
                 {
                     ffmpeg.av_reduce(
                         &dar.num,
                         &dar.den,
-                        s->codecpar->width * s->sample_aspect_ratio.num,
-                        s->codecpar->height * s->sample_aspect_ratio.den,
+                        s->codecpar->width * sar.num,
+                        s->codecpar->height * sar.den,
                         1024 * 1024);
                 }
 

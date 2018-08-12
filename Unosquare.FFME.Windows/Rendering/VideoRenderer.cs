@@ -33,14 +33,14 @@
         };
 
         /// <summary>
+        /// Set when a bitmap is being written to the target bitmap
+        /// </summary>
+        private readonly AtomicBoolean IsRenderingInProgress = new AtomicBoolean(false);
+
+        /// <summary>
         /// The bitmap that is presented to the user.
         /// </summary>
         private WriteableBitmap TargetBitmap = null;
-
-        /// <summary>
-        /// Set when a bitmap is being written to the target bitmap
-        /// </summary>
-        private AtomicBoolean IsRenderingInProgress = new AtomicBoolean(false);
 
         #endregion
 

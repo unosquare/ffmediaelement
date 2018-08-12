@@ -11,7 +11,7 @@
     /// <seealso cref="DirectCommandBase" />
     internal sealed class DirectChangeCommand : DirectCommandBase
     {
-        private Exception ErrorException = default;
+        private Exception ErrorException;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DirectChangeCommand" /> class.
