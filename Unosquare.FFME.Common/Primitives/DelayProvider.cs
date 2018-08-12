@@ -11,8 +11,8 @@
     public sealed class DelayProvider : IDisposable
     {
         private readonly object SyncRoot = new object();
-        private readonly Action DelayAction = null;
-        private bool IsDisposed = false;
+        private readonly Action DelayAction;
+        private bool IsDisposed;
         private IWaitEvent DelayEvent = null;
         private Stopwatch DelayStopwatch = new Stopwatch();
 
@@ -137,8 +137,11 @@
         /// </summary>
         private void DelayThreadPool()
         {
-            if (DelayEvent == null)
-                DelayEvent = WaitEventFactory.Create(isCompleted: true, useSlim: true);
+            lock (SyncRoot)
+            {
+                if (DelayEvent == null)
+                    DelayEvent = WaitEventFactory.Create(isCompleted: true, useSlim: true);
+            }
 
             DelayEvent.Begin();
             ThreadPool.QueueUserWorkItem((s) =>

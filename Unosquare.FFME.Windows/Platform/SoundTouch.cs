@@ -29,7 +29,7 @@
 
         private const string SoundTouchLibrary = "SoundTouch.dll";
         private readonly object SyncRoot = new object();
-        private bool IsDisposed = false;
+        private bool IsDisposed;
         private IntPtr handle;
 
         #endregion

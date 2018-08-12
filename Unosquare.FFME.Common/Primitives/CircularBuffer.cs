@@ -24,12 +24,12 @@
         private IntPtr Buffer = IntPtr.Zero;
 
         // Property backing
-        private bool m_IsDisposed = false;
-        private int m_ReadableCount = default;
+        private bool m_IsDisposed;
+        private int m_ReadableCount;
         private TimeSpan m_WriteTag = TimeSpan.MinValue;
-        private int m_WriteIndex = default;
-        private int m_ReadIndex = default;
-        private int m_Length = default;
+        private int m_WriteIndex;
+        private int m_ReadIndex;
+        private int m_Length;
 
         #endregion
 

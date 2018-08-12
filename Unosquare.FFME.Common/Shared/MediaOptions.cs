@@ -11,6 +11,9 @@
     /// </summary>
     public sealed class MediaOptions
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MediaOptions"/> class.
+        /// </summary>
         internal MediaOptions()
         {
             // placeholder
@@ -45,13 +48,13 @@
         /// Prevent reading from audio stream components.
         /// Port of audio_disable
         /// </summary>
-        public bool IsAudioDisabled { get; set; } = false;
+        public bool IsAudioDisabled { get; set; }
 
         /// <summary>
         /// Prevent reading from video stream components.
         /// Port of video_disable
         /// </summary>
-        public bool IsVideoDisabled { get; set; } = false;
+        public bool IsVideoDisabled { get; set; }
 
         /// <summary>
         /// Prevent reading from subtitle stream components.
@@ -59,7 +62,7 @@
         /// Subtitles are not yet first-class citizens in FFmpeg and
         /// this is why they are disabled by default.
         /// </summary>
-        public bool IsSubtitleDisabled { get; set; } = false;
+        public bool IsSubtitleDisabled { get; set; }
 
         /// <summary>
         /// Allows for a custom video filter string.
@@ -70,13 +73,13 @@
         /// <summary>
         /// Specifies a forced FPS value for the input video stream.
         /// </summary>
-        public double VideoForcedFps { get; set; } = default;
+        public double VideoForcedFps { get; set; }
 
         /// <summary>
         /// Initially contains the best suitable video stream.
         /// Can be changed to a different stream reference.
         /// </summary>
-        public StreamInfo VideoStream { get; set; } = null;
+        public StreamInfo VideoStream { get; set; }
 
         /// <summary>
         /// Allows for a custom audio filter string.
@@ -88,19 +91,19 @@
         /// Initially contains the best suitable audio stream.
         /// Can be changed to a different stream reference.
         /// </summary>
-        public StreamInfo AudioStream { get; set; } = null;
+        public StreamInfo AudioStream { get; set; }
 
         /// <summary>
         /// Initially contains the best suitable subititle stream.
         /// Can be changed to a different stream reference.
         /// </summary>
-        public StreamInfo SubtitleStream { get; set; } = null;
+        public StreamInfo SubtitleStream { get; set; }
 
         /// <summary>
         /// Gets or sets the subtitles URL.
         /// If set, the subtitles will be side-loaded and the loaded media
         /// subtitles (if any) will be ignored.
         /// </summary>
-        public string SubtitlesUrl { get; set; } = null;
+        public string SubtitlesUrl { get; set; }
     }
 }

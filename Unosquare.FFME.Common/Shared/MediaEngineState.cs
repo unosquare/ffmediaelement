@@ -18,7 +18,7 @@
         private static readonly ReadOnlyDictionary<string, string> EmptyDictionary
             = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
 
-        private readonly MediaEngine MediaCore = null;
+        private readonly MediaEngine MediaCore;
         private readonly AtomicInteger m_MediaState = new AtomicInteger((int)PlaybackStatus.Close);
         private readonly AtomicBoolean m_HasMediaEnded = new AtomicBoolean(default);
 

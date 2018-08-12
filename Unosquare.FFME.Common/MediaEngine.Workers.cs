@@ -19,11 +19,10 @@
         #region State Management
 
         private readonly AtomicBoolean m_IsSyncBuffering = new AtomicBoolean(false);
-
+        private IWaitEvent BlockRenderingWorkerExit;
         private Thread PacketReadingTask = null;
         private Thread FrameDecodingTask = null;
         private Timer BlockRenderingWorker = null;
-        private IWaitEvent BlockRenderingWorkerExit = null;
 
         /// <summary>
         /// Holds the materialized block cache for each media type.

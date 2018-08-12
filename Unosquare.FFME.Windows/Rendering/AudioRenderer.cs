@@ -28,20 +28,20 @@
 
         private readonly IWaitEvent WaitForReadyEvent = WaitEventFactory.Create(isCompleted: false, useSlim: true);
         private readonly object SyncLock = new object();
+        private readonly AtomicBoolean PlaySyncGaveUp = new AtomicBoolean(false);
 
-        private IWavePlayer AudioDevice = null;
-        private SoundTouch AudioProcessor = null;
-        private short[] AudioProcessorBuffer = null;
-        private CircularBuffer AudioBuffer = null;
-        private bool IsDisposed = false;
-        private bool m_HasFiredAudioDeviceStopped = false;
+        private IWavePlayer AudioDevice;
+        private SoundTouch AudioProcessor;
+        private short[] AudioProcessorBuffer;
+        private CircularBuffer AudioBuffer;
+        private bool IsDisposed;
+        private bool m_HasFiredAudioDeviceStopped;
 
-        private byte[] ReadBuffer = null;
-        private int SampleBlockSize = 0;
+        private byte[] ReadBuffer;
+        private int SampleBlockSize;
 
-        private DateTime? PlaySyncStartTime = default;
-        private int PlaySyncCount = 0;
-        private AtomicBoolean PlaySyncGaveUp = new AtomicBoolean(false);
+        private DateTime? PlaySyncStartTime;
+        private int PlaySyncCount;
 
         #endregion
 
