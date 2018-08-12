@@ -2108,15 +2108,6 @@ references:
   commentId: M:Unosquare.FFME.Platform.GuiContext.InvokeAsync(DispatcherPriority,System.Action)
   fullName: Unosquare.FFME.Platform.GuiContext.InvokeAsync(DispatcherPriority, System.Action)
   nameWithType: GuiContext.InvokeAsync(DispatcherPriority, Action)
-- uid: Unosquare.FFME.Platform.GuiContext.InvokeAsync(DispatcherPriority,System.Delegate,System.Object[])
-  name: InvokeAsync(DispatcherPriority, Delegate, Object[])
-  href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_InvokeAsync_DispatcherPriority_System_Delegate_System_Object___
-  commentId: M:Unosquare.FFME.Platform.GuiContext.InvokeAsync(DispatcherPriority,System.Delegate,System.Object[])
-  name.vb: InvokeAsync(DispatcherPriority, Delegate, Object())
-  fullName: Unosquare.FFME.Platform.GuiContext.InvokeAsync(DispatcherPriority, System.Delegate, System.Object[])
-  fullName.vb: Unosquare.FFME.Platform.GuiContext.InvokeAsync(DispatcherPriority, System.Delegate, System.Object())
-  nameWithType: GuiContext.InvokeAsync(DispatcherPriority, Delegate, Object[])
-  nameWithType.vb: GuiContext.InvokeAsync(DispatcherPriority, Delegate, Object())
 - uid: Unosquare.FFME.Platform.GuiContext.InvokeAsync(System.Action)
   name: InvokeAsync(Action)
   href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_InvokeAsync_System_Action_
