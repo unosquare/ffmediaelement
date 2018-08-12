@@ -77,11 +77,6 @@
         #region Properties
 
         /// <summary>
-        /// Gets the type of the media.
-        /// </summary>
-        public override MediaType MediaType => MediaType.Subtitle;
-
-        /// <summary>
         /// Gets lines of text that the subtitle frame contains.
         /// </summary>
         public List<string> Text { get; } = new List<string>(16);

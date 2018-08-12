@@ -13,9 +13,17 @@
     public static class Constants
     {
         /// <summary>
+        /// Initializes static members of the <see cref="Constants"/> class.
+        /// </summary>
+        static Constants()
+        {
+            FFmpegSearchPath = Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
+        }
+
+        /// <summary>
         /// Gets the assembly location.
         /// </summary>
-        public static string FFmpegSearchPath { get; } = Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
+        public static string FFmpegSearchPath { get; }
 
         // TODO: (Floyd) Make this configurable. Maybe part of Media Options? See frame cahing policy issue #139.
         internal static Dictionary<MediaType, int> MaxBlocks { get; } = new Dictionary<MediaType, int>
@@ -38,52 +46,52 @@
             /// <summary>
             /// The default speed ratio
             /// </summary>
-            public const double DefaultSpeedRatio = 1.0d;
+            public static double DefaultSpeedRatio => 1.0d;
 
             /// <summary>
             /// The default balance
             /// </summary>
-            public const double DefaultBalance = 0.0d;
+            public static double DefaultBalance => 0.0d;
 
             /// <summary>
             /// The default volume
             /// </summary>
-            public const double DefaultVolume = 1.0d;
+            public static double DefaultVolume => 1.0d;
 
             /// <summary>
             /// The default closed captions channel
             /// </summary>
-            public const CaptionsChannel DefaultClosedCaptionsChannel = CaptionsChannel.CCP;
+            public static CaptionsChannel DefaultClosedCaptionsChannel => CaptionsChannel.CCP;
 
             /// <summary>
             /// The minimum speed ratio
             /// </summary>
-            public const double MinSpeedRatio = 0.0d;
+            public static double MinSpeedRatio => 0.0d;
 
             /// <summary>
             /// The maximum speed ratio
             /// </summary>
-            public const double MaxSpeedRatio = 8.0d;
+            public static double MaxSpeedRatio => 8.0d;
 
             /// <summary>
             /// The minimum balance
             /// </summary>
-            public const double MinBalance = -1.0d;
+            public static double MinBalance => -1.0d;
 
             /// <summary>
             /// The maximum balance
             /// </summary>
-            public const double MaxBalance = 1.0d;
+            public static double MaxBalance => 1.0d;
 
             /// <summary>
             /// The maximum volume
             /// </summary>
-            public const double MaxVolume = 1.0d;
+            public static double MaxVolume => 1.0d;
 
             /// <summary>
             /// The minimum volume
             /// </summary>
-            public const double MinVolume = 0.0d;
+            public static double MinVolume => 0.0d;
         }
 
         /// <summary>
@@ -94,32 +102,32 @@
             /// <summary>
             /// The audio buffer padding
             /// </summary>
-            public const int BufferPadding = 256;
+            public static int BufferPadding => 256;
 
             /// <summary>
             /// The audio bits per sample (1 channel only)
             /// </summary>
-            public const int BitsPerSample = 16;
+            public static int BitsPerSample => 16;
 
             /// <summary>
             /// The audio bytes per sample
             /// </summary>
-            public const int BytesPerSample = BitsPerSample / 8;
+            public static int BytesPerSample => BitsPerSample / 8;
 
             /// <summary>
             /// The audio sample format
             /// </summary>
-            public const AVSampleFormat SampleFormat = AVSampleFormat.AV_SAMPLE_FMT_S16;
+            public static AVSampleFormat SampleFormat => AVSampleFormat.AV_SAMPLE_FMT_S16;
 
             /// <summary>
             /// The audio channel count
             /// </summary>
-            public const int ChannelCount = 2;
+            public static int ChannelCount => 2;
 
             /// <summary>
             /// The audio sample rate (per channel)
             /// </summary>
-            public const int SampleRate = 48000;
+            public static int SampleRate => 48000;
         }
 
         /// <summary>
@@ -130,22 +138,22 @@
             /// <summary>
             /// The video bits per component
             /// </summary>
-            public const int BitsPerComponent = 8;
+            public static int BitsPerComponent => 8;
 
             /// <summary>
             /// The video bits per pixel
             /// </summary>
-            public const int BitsPerPixel = 32;
+            public static int BitsPerPixel => 32;
 
             /// <summary>
             /// The video bytes per pixel
             /// </summary>
-            public const int BytesPerPixel = 4;
+            public static int BytesPerPixel => 4;
 
             /// <summary>
             /// The video pixel format. BGRA, 32bit
             /// </summary>
-            public const AVPixelFormat VideoPixelFormat = AVPixelFormat.AV_PIX_FMT_BGRA;
+            public static AVPixelFormat VideoPixelFormat => AVPixelFormat.AV_PIX_FMT_BGRA;
         }
 
         /// <summary>
@@ -156,17 +164,17 @@
             /// <summary>
             /// The timer high priority interval for stuff like rendering
             /// </summary>
-            public static TimeSpan HighPriority { get; } = TimeSpan.FromMilliseconds(15);
+            public static TimeSpan HighPriority => TimeSpan.FromMilliseconds(15);
 
             /// <summary>
             /// The timer medium priority interval for stuff like property updates
             /// </summary>
-            public static TimeSpan MediumPriority { get; } = TimeSpan.FromMilliseconds(25);
+            public static TimeSpan MediumPriority => TimeSpan.FromMilliseconds(25);
 
             /// <summary>
             /// The timer low priority interval for stuff like logging
             /// </summary>
-            public static TimeSpan LowPriority { get; } = TimeSpan.FromMilliseconds(40);
+            public static TimeSpan LowPriority => TimeSpan.FromMilliseconds(40);
         }
     }
 }

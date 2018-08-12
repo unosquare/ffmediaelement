@@ -588,7 +588,7 @@
 
                 // a positive audio latency means we are rendering audio behind (after) the clock (skip some samples)
                 // and therefore we need to advance the buffer before we read from it.
-                if (speedRatio == 1.0)
+                if (Math.Abs(speedRatio - 1.0) <= double.Epsilon)
                 {
                     MediaCore.Log(MediaLogMessageType.Warning,
                         $"SYNC AUDIO: LATENCY: {audioLatencyMs} ms. | SKIP (samples being rendered too late)");
@@ -616,7 +616,7 @@
                 {
                     // a negative audio latency means we are rendering audio ahead (before) the clock
                     // and therefore we need to render some silence until the clock catches up
-                    if (speedRatio == 1.0)
+                    if (Math.Abs(speedRatio - 1.0) <= double.Epsilon)
                     {
                         MediaCore.Log(MediaLogMessageType.Warning,
                             $"SYNC AUDIO: LATENCY: {audioLatencyMs} ms. | WAIT (samples being rendered too early)");

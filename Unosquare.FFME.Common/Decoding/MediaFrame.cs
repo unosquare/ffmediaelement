@@ -17,12 +17,13 @@
         #region Constructor
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MediaFrame"/> class.
+        /// Initializes a new instance of the <see cref="MediaFrame" /> class.
         /// </summary>
         /// <param name="pointer">The pointer.</param>
         /// <param name="component">The component.</param>
-        internal MediaFrame(AVFrame* pointer, MediaComponent component)
-            : this((void*)pointer, component)
+        /// <param name="mediaType">Type of the media.</param>
+        internal MediaFrame(AVFrame* pointer, MediaComponent component, MediaType mediaType)
+            : this((void*)pointer, component, mediaType)
         {
             var packetSize = pointer->pkt_size;
             CompressedSize = packetSize > 0 ? packetSize : 0;
@@ -34,7 +35,7 @@
         /// <param name="pointer">The pointer.</param>
         /// <param name="component">The component.</param>
         internal MediaFrame(AVSubtitle* pointer, MediaComponent component)
-            : this((void*)pointer, component)
+            : this((void*)pointer, component, MediaType.Subtitle)
         {
             // TODO: Compressed size is simply an estimate
             CompressedSize = (int)pointer->num_rects * 256;
@@ -45,11 +46,13 @@
         /// </summary>
         /// <param name="pointer">The pointer.</param>
         /// <param name="component">The component.</param>
-        private MediaFrame(void* pointer, MediaComponent component)
+        /// <param name="mediaType">Type of the media.</param>
+        private MediaFrame(void* pointer, MediaComponent component, MediaType mediaType)
         {
             InternalPointer = new IntPtr(pointer);
             StreamTimeBase = component.Stream->time_base;
             StreamIndex = component.StreamIndex;
+            MediaType = mediaType;
         }
 
         #endregion
@@ -62,7 +65,7 @@
         /// <value>
         /// The type of the media.
         /// </value>
-        public abstract MediaType MediaType { get; }
+        public MediaType MediaType { get; }
 
         /// <summary>
         /// Gets the size of the compressed packets that created this frame.

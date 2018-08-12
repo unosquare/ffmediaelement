@@ -11,11 +11,6 @@
     /// <seealso cref="IMediaInputStream" />
     public sealed unsafe class FileInputStream : IMediaInputStream
     {
-        /// <summary>
-        /// The custom file scheme (URL prefix) including ://
-        /// </summary>
-        public const string Scheme = "customfile://";
-
         private readonly FileStream BackingStream;
         private readonly object ReadLock = new object();
         private readonly byte[] ReadBuffer;
@@ -34,6 +29,11 @@
             CanSeek = true;
             ReadBuffer = new byte[ReadBufferLength];
         }
+
+        /// <summary>
+        /// The custom file scheme (URL prefix) including ://
+        /// </summary>
+        public static string Scheme => "customfile://";
 
         /// <summary>
         /// Gets the stream URI. This is just a pseudo URI to identify the stream.

@@ -11,12 +11,16 @@
     /// </summary>
     public sealed class VideoBlock : MediaBlock, IDisposable
     {
-        #region Properties
-
         /// <summary>
-        /// Gets the media type of the data
+        /// Initializes a new instance of the <see cref="VideoBlock"/> class.
         /// </summary>
-        public override MediaType MediaType => MediaType.Video;
+        internal VideoBlock()
+            : base(MediaType.Video)
+        {
+            // placeholder
+        }
+
+        #region Properties
 
         /// <summary>
         /// Gets the number of horizontal pixels in the image.

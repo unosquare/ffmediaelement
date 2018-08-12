@@ -12,7 +12,7 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="ViewModelBase"/> class.
         /// </summary>
-        public ViewModelBase()
+        protected ViewModelBase()
         {
             // placeholder
         }

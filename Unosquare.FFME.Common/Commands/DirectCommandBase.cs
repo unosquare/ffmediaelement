@@ -11,7 +11,7 @@
         /// Initializes a new instance of the <see cref="DirectCommandBase"/> class.
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
-        public DirectCommandBase(MediaEngine mediaCore)
+        protected DirectCommandBase(MediaEngine mediaCore)
             : base(mediaCore)
         {
             Category = CommandCategory.Direct;

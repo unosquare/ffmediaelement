@@ -380,7 +380,7 @@
                 {
                     // Remove ebent handlers
                     try { VideoView.LayoutUpdated -= HandleVideoViewLayoutUpdates; }
-                    catch { }
+                    catch { /* Ignore if VideoView is already null by now. */ }
 
                     // Remove all the controls
                     ContentGrid?.Children.Remove(VideoView);

@@ -8,12 +8,16 @@
     /// </summary>
     public sealed class SubtitleBlock : MediaBlock
     {
-        #region Properties
-
         /// <summary>
-        /// Gets the media type of the data
+        /// Initializes a new instance of the <see cref="SubtitleBlock"/> class.
         /// </summary>
-        public override MediaType MediaType => MediaType.Subtitle;
+        internal SubtitleBlock()
+            : base(MediaType.Subtitle)
+        {
+            // placeholder
+        }
+
+        #region Properties
 
         /// <summary>
         /// Gets the lines of text for this subtitle frame with all formatting stripped out.

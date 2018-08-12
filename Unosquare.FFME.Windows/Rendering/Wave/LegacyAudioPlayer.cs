@@ -23,7 +23,7 @@
 
         private IntPtr DeviceHandle;
         private WaveOutBuffer[] Buffers;
-        private Thread AudioPlaybackThread = null;
+        private Thread AudioPlaybackThread;
 
         #endregion
 
@@ -219,15 +219,15 @@
 
                 // Immediately stop the audio driver. Pause it first to
                 // avoid quirky repetitive samples
-                try { WaveInterop.PauseAudioDevice(DeviceHandle); } catch { }
-                try { WaveInterop.ResetAudioDevice(DeviceHandle); } catch { }
+                try { WaveInterop.PauseAudioDevice(DeviceHandle); } catch { /* Ignore */ }
+                try { WaveInterop.ResetAudioDevice(DeviceHandle); } catch { /* Ignore */ }
 
                 // Dispose of buffers
                 foreach (var buffer in Buffers)
-                    try { buffer.Dispose(); } catch { }
+                    try { buffer.Dispose(); } catch { /* Ignore */ }
 
                 // Close the device
-                try { WaveInterop.CloseAudioDevice(DeviceHandle); } catch { }
+                try { WaveInterop.CloseAudioDevice(DeviceHandle); } catch { /* Ignore */ }
 
                 // Dispose of managed state
                 DeviceHandle = IntPtr.Zero;

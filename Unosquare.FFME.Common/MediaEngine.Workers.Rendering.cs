@@ -97,7 +97,7 @@
                         // Get the audio, video, or subtitle block to render
                         currentBlock[t] = (t == MediaType.Subtitle && PreloadedSubtitles != null) ?
                             PreloadedSubtitles[wallClock] :
-                            currentBlock[t] = Blocks[t][wallClock];
+                            Blocks[t][wallClock];
                     }
 
                     // Render each of the Media Types if it is time to do so.

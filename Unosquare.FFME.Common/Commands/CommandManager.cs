@@ -169,7 +169,7 @@
             if (MediaCore.State.IsOpen || IsDisposed || IsExecutingDirectCommand)
                 return false;
 
-            return await ExecuteDirectCommand(new DirectOpenCommand(MediaCore, uri));
+            return await ExecuteDirectCommand(new DirectOpenCommand(MediaCore, uri)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -182,7 +182,7 @@
             if (MediaCore.State.IsOpen || IsDisposed || IsExecutingDirectCommand)
                 return false;
 
-            return await ExecuteDirectCommand(new DirectOpenCommand(MediaCore, stream));
+            return await ExecuteDirectCommand(new DirectOpenCommand(MediaCore, stream)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -201,7 +201,7 @@
             else if (IsExecutingDirectCommand)
                 return false;
             else
-                return await ExecuteDirectCommand(new DirectCloseCommand(MediaCore));
+                return await ExecuteDirectCommand(new DirectCloseCommand(MediaCore)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -220,7 +220,7 @@
             else if (IsExecutingDirectCommand)
                 return false;
             else
-                return await ExecuteDirectCommand(new DirectChangeCommand(MediaCore));
+                return await ExecuteDirectCommand(new DirectChangeCommand(MediaCore)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -228,14 +228,14 @@
         /// </summary>
         /// <returns>The awaitable task. The task result determines if the command was successfully started</returns>
         public async Task<bool> PlayAsync() =>
-            await ExecuteProrityCommand(CommandType.Play);
+            await ExecuteProrityCommand(CommandType.Play).ConfigureAwait(false);
 
         /// <summary>
         /// Pauses the playback of the media.
         /// </summary>
         /// <returns>The awaitable task. The task result determines if the command was successfully started</returns>
         public async Task<bool> PauseAsync() =>
-            await ExecuteProrityCommand(CommandType.Pause);
+            await ExecuteProrityCommand(CommandType.Pause).ConfigureAwait(false);
 
         /// <summary>
         /// Stops the playback of the media.
@@ -244,8 +244,7 @@
         public async Task<bool> StopAsync()
         {
             IncrementPendingSeeks();
-            var stopTask = ExecuteProrityCommand(CommandType.Stop);
-            return await stopTask;
+            return await ExecuteProrityCommand(CommandType.Stop).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -256,8 +255,7 @@
         public async Task<bool> SeekAsync(TimeSpan target)
         {
             IncrementPendingSeeks();
-            var seekTask = ExecuteDelayedSeekCommand(target);
-            return await seekTask;
+            return await ExecuteDelayedSeekCommand(target).ConfigureAwait(false);
         }
 
         /// <summary>

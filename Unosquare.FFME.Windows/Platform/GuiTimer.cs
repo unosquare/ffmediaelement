@@ -14,13 +14,14 @@
     /// <seealso cref="IDisposable" />
     internal sealed class GuiTimer : IDisposable
     {
+        private readonly AtomicBoolean IsDisposing = new AtomicBoolean();
+        private readonly IWaitEvent IsCycleDone = WaitEventFactory.Create(isCompleted: true, useSlim: true);
+        private readonly Action TimerCallback;
+        private readonly Action DisposeCallback;
+
         private Timer ThreadingTimer = null;
         private DispatcherTimer DispatcherTimer = null;
         private System.Windows.Forms.Timer FormsTimer = null;
-        private IWaitEvent IsCycleDone = WaitEventFactory.Create(isCompleted: true, useSlim: true);
-        private Action TimerCallback = null;
-        private Action DisposeCallback = null;
-        private bool IsDisposing = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GuiTimer" /> class.
@@ -107,7 +108,7 @@
         /// </summary>
         public void WaitOne()
         {
-            if (IsDisposing) return;
+            if (IsDisposing == true) return;
             IsCycleDone.Wait();
         }
 
@@ -116,8 +117,8 @@
         /// </summary>
         public void Dispose()
         {
-            if (IsDisposing) return;
-            IsDisposing = true;
+            if (IsDisposing == true) return;
+            IsDisposing.Value = true;
             IsCycleDone.Wait();
             IsCycleDone.Dispose();
         }
@@ -129,7 +130,7 @@
         private void RunTimerCycle(object state)
         {
             // Handle the dispose process.
-            if (IsDisposing)
+            if (IsDisposing == true)
             {
                 if (ThreadingTimer != null)
                 {

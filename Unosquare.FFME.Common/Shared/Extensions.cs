@@ -110,14 +110,23 @@
         /// Returns a fromatted string, dividing by the specified
         /// factor. Useful for debugging longs with byte positions or sizes.
         /// </summary>
-        /// <param name="ts">The ts.</param>
+        /// <param name="ts">The timestamp.</param>
         /// <param name="divideBy">The divide by.</param>
         /// <returns>The formatted string</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string Format(this long ts, double divideBy = 1)
+        public static string Format(this long ts, double divideBy)
         {
             return divideBy == 1 ? $"{ts,10:#,##0}" : $"{ts / divideBy,10:#,##0.000}";
         }
+
+        /// <summary>
+        /// Returns a fromatted string.
+        /// Useful for debugging longs with byte positions or sizes.
+        /// </summary>
+        /// <param name="ts">The timestamp.</param>
+        /// <returns>The formatted string</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string Format(this long ts) => Format(ts, 1);
 
         #endregion
 

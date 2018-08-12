@@ -27,7 +27,7 @@
         /// <param name="frame">The frame.</param>
         /// <param name="component">The video component.</param>
         internal VideoFrame(AVFrame* frame, VideoComponent component)
-            : base(frame, component)
+            : base(frame, component, MediaType.Video)
         {
             var timeBase = ffmpeg.av_guess_frame_rate(component.Container.InputContext, component.Stream, frame);
             var repeatFactor = 1d + (0.5d * frame->repeat_pict);
@@ -84,11 +84,6 @@
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Gets the type of the media.
-        /// </summary>
-        public override MediaType MediaType => MediaType.Video;
 
         /// <summary>
         /// Gets the closed caption data collected from the frame in CEA-708/EAS-608 format.

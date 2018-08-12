@@ -314,8 +314,8 @@
 
             // Figure out what we need to do
             var needsCreation = TargetBitmap == null && MediaElement.HasVideo;
-            var needsModification = TargetBitmap != null
-                && needsCreation == false
+            var needsModification = MediaElement.HasVideo
+                && TargetBitmap != null
                 && (TargetBitmap.PixelWidth != block.PixelWidth || TargetBitmap.PixelHeight != block.PixelHeight);
 
             var hasValidDimensions = block.PixelWidth > 0 && block.PixelHeight > 0;

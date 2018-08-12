@@ -26,7 +26,7 @@
         /// <param name="frame">The frame.</param>
         /// <param name="component">The component.</param>
         internal AudioFrame(AVFrame* frame, MediaComponent component)
-            : base(frame, component)
+            : base(frame, component, MediaType.Audio)
         {
             // Compute the start time.
             frame->pts = frame->best_effort_timestamp;
@@ -48,11 +48,6 @@
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Gets the type of the media.
-        /// </summary>
-        public override MediaType MediaType => MediaType.Audio;
 
         /// <summary>
         /// Gets the pointer to the unmanaged frame.

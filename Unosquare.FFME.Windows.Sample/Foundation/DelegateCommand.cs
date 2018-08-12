@@ -79,10 +79,8 @@
         /// Defines the method to be called when the command is invoked.
         /// </summary>
         /// <param name="parameter">Data used by the command.  If the command does not require data to be passed, this object can be set to null.</param>
-        public async void Execute(object parameter = null)
-        {
-            await ExecuteAsync(parameter);
-        }
+        public void Execute(object parameter = null) =>
+            ExecuteAsync(parameter).ConfigureAwait(false);
 
         /// <summary>
         /// Defines the method to be called when the command is invoked.

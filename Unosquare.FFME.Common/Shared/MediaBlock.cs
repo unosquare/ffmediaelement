@@ -19,17 +19,18 @@
         private int m_BufferLength = default;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MediaBlock"/> class.
+        /// Initializes a new instance of the <see cref="MediaBlock" /> class.
         /// </summary>
-        protected MediaBlock()
+        /// <param name="mediaType">Type of the media.</param>
+        protected MediaBlock(MediaType mediaType)
         {
-            // placeholder
+            MediaType = mediaType;
         }
 
         /// <summary>
         /// Gets the media type of the data
         /// </summary>
-        public abstract MediaType MediaType { get; }
+        public MediaType MediaType { get; }
 
         /// <summary>
         /// Gets the size of the compressed frame.

@@ -17,8 +17,8 @@
 
         private readonly string FilterString = null;
 
+        private readonly AVRational BaseFrameRateQ;
         private SwsContext* Scaler = null;
-        private AVRational BaseFrameRateQ;
 
         private AVFilterGraph* FilterGraph = null;
         private AVFilterContext* SourceFilter = null;

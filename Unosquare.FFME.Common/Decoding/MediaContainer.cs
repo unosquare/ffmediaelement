@@ -52,6 +52,22 @@
         private readonly AtomicDateTime StreamReadInterruptStartTime = new AtomicDateTime(default);
 
         /// <summary>
+        /// The signal to request the abortion of the following read operation
+        /// </summary>
+        private readonly AtomicBoolean SignalAbortReadsRequested = new AtomicBoolean(false);
+
+        /// <summary>
+        /// If set to true, it will reset the abort requested flag to false.
+        /// </summary>
+        private readonly AtomicBoolean SignalAbortReadsAutoReset = new AtomicBoolean(false);
+
+        /// <summary>
+        /// The stream read interrupt callback.
+        /// Used to detect read rimeouts.
+        /// </summary>
+        private readonly AVIOInterruptCB_callback StreamReadInterruptCallback;
+
+        /// <summary>
         /// The custom media input stream
         /// </summary>
         private IMediaInputStream CustomInputStream = null;
@@ -79,22 +95,6 @@
         /// </summary>
         private bool RequiresPictureAttachments = true;
 
-        /// <summary>
-        /// The stream read interrupt callback.
-        /// Used to detect read rimeouts.
-        /// </summary>
-        private AVIOInterruptCB_callback StreamReadInterruptCallback;
-
-        /// <summary>
-        /// The signal to request the abortion of the following read operation
-        /// </summary>
-        private AtomicBoolean SignalAbortReadsRequested = new AtomicBoolean(false);
-
-        /// <summary>
-        /// If set to true, it will reset the abort requested flag to false.
-        /// </summary>
-        private AtomicBoolean SignalAbortReadsAutoReset = new AtomicBoolean(false);
-
         #endregion
 
         #region Constructor
@@ -115,10 +115,11 @@
             // Initialize the library (if not already done)
             FFInterop.Initialize(null, FFmpegLoadMode.FullFeatures);
 
-            // Create the options object
+            // Create the options object and setup some initial properties
             Parent = parent;
             MediaUrl = mediaUrl;
             Configuration = config ?? new ContainerConfiguration();
+            StreamReadInterruptCallback = OnStreamReadInterrupt;
 
             // drop the protocol prefix if it is redundant
             var protocolPrefix = Configuration.ProtocolPrefix;
@@ -784,7 +785,6 @@
             // Setup an interrupt callback to detect read timeouts
             SignalAbortReadsRequested.Value = false;
             SignalAbortReadsAutoReset.Value = true;
-            StreamReadInterruptCallback = OnStreamReadInterrupt;
             InputContext->interrupt_callback.callback = StreamReadInterruptCallback;
             InputContext->interrupt_callback.opaque = InputContext;
 

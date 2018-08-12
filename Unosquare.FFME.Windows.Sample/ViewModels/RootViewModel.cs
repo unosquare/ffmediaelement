@@ -11,11 +11,6 @@
     /// <seealso cref="ViewModelBase" />
     public sealed class RootViewModel : ViewModelBase
     {
-        /// <summary>
-        /// The product name
-        /// </summary>
-        public const string ProductName = "Unosquare FFME-Play";
-
         private string m_WindowTitle = string.Empty;
         private bool m_IsPlaylistPanelOpen = GuiContext.Current.IsInDesignTime;
         private bool m_IsPropertiesPanelOpen = GuiContext.Current.IsInDesignTime;
@@ -37,6 +32,11 @@
             Playlist = new PlaylistViewModel(this);
             Controller = new ControllerViewModel(this);
         }
+
+        /// <summary>
+        /// Gets the product name
+        /// </summary>
+        public static string ProductName => "Unosquare FFME-Play";
 
         /// <summary>
         /// Provides access to the application object owning this View-Model.

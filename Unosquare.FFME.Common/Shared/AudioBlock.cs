@@ -6,6 +6,15 @@
     /// </summary>
     public sealed class AudioBlock : MediaBlock
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AudioBlock"/> class.
+        /// </summary>
+        internal AudioBlock()
+            : base(MediaType.Audio)
+        {
+            // placeholder
+        }
+
         #region Properties
 
         /// <summary>
@@ -31,11 +40,6 @@
         /// The length of the samples buffer.
         /// </value>
         public int SamplesBufferLength { get; internal set; }
-
-        /// <summary>
-        /// Gets the media type of the data
-        /// </summary>
-        public override MediaType MediaType => MediaType.Audio;
 
         #endregion
 
