@@ -2,13 +2,14 @@
 {
 #pragma warning disable SA1310 // Field names must not contain underscore
 
+    using System;
     using System.Runtime.InteropServices;
 
     /// <summary>
     /// http://msdn.microsoft.com/en-us/library/dd757347(v=VS.85).aspx
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]
-    internal struct MmTime
+    internal struct MmTime : IEquatable<MmTime>
     {
         public const int TIME_MS = 0x0001;
         public const int TIME_SAMPLES = 0x0002;
@@ -42,6 +43,21 @@
         public byte SmptePad1;
         [FieldOffset(4)]
         public uint MidiSongPtrPos;
+
+        /// <summary>
+        /// Indicates whether the current object is equal to another object of the same type.
+        /// </summary>
+        /// <param name="other">An object to compare with this object.</param>
+        /// <returns>
+        ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
+        /// </returns>
+        public bool Equals(MmTime other)
+        {
+            return Type == other.Type &&
+                Ms == other.Ms &&
+                Sample == other.Sample &&
+                CB == other.CB;
+        }
     }
 
 #pragma warning restore SA1310 // Field names must not contain underscore

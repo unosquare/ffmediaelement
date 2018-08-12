@@ -660,10 +660,22 @@
             }
 
             [StructLayout(LayoutKind.Sequential)]
-            public struct DirectSoundBufferPositionNotify
+            public struct DirectSoundBufferPositionNotify : IEquatable<DirectSoundBufferPositionNotify>
             {
                 public uint Offset;
                 public IntPtr NotifyHandle;
+
+                /// <summary>
+                /// Indicates whether the current object is equal to another object of the same type.
+                /// </summary>
+                /// <param name="other">An object to compare with this object.</param>
+                /// <returns>
+                ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
+                /// </returns>
+                public bool Equals(DirectSoundBufferPositionNotify other)
+                {
+                    return NotifyHandle == other.NotifyHandle;
+                }
             }
 
 #pragma warning disable SA1401 // Fields must be private

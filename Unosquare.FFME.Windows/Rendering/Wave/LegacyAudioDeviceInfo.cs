@@ -13,7 +13,7 @@
     /// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/multimed/htm/_win32_waveoutcaps_str.asp
     /// </summary>
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-    internal struct LegacyAudioDeviceInfo
+    internal struct LegacyAudioDeviceInfo : IEquatable<LegacyAudioDeviceInfo>
     {
         private const int MaxProductNameLength = 32;
 
@@ -128,6 +128,21 @@
         #endregion
 
         #region Methods
+
+        /// <summary>
+        /// Indicates whether the current object is equal to another object of the same type.
+        /// </summary>
+        /// <param name="other">An object to compare with this object.</param>
+        /// <returns>
+        ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
+        /// </returns>
+        public bool Equals(LegacyAudioDeviceInfo other)
+        {
+            return manufacturerGuid == other.manufacturerGuid &&
+                productGuid == other.productGuid &&
+                driverVersion == other.driverVersion &&
+                channels == other.channels;
+        }
 
         /// <summary>
         /// Checks to see if a given SupportedWaveFormat is supported
