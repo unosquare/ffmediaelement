@@ -35,8 +35,8 @@
         private bool m_IsChanging = default;
         private bool m_IsDisposed = default;
 
-        private DirectCommandBase CurrentDirectCommand = null;
-        private CommandBase CurrentQueueCommand = null;
+        private DirectCommandBase CurrentDirectCommand;
+        private CommandBase CurrentQueueCommand;
 
         #endregion
 

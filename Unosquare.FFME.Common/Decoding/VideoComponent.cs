@@ -131,7 +131,7 @@
         /// <summary>
         /// Gets a value indicating whether this component is using hardware-assisted decoding.
         /// </summary>
-        public bool IsUsingHardwareDecoding { get; private set; } = false;
+        public bool IsUsingHardwareDecoding { get; private set; }
 
         #endregion
 

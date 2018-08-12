@@ -171,11 +171,8 @@
                 device.Guid = new Guid(guidBytes);
             }
 
-            device.Description = Marshal.PtrToStringAnsi(lpcstrDescription);
-            if (lpcstrModule != null)
-            {
-                device.ModuleName = Marshal.PtrToStringAnsi(lpcstrModule);
-            }
+            device.Description = lpcstrDescription != IntPtr.Zero ? Marshal.PtrToStringAnsi(lpcstrDescription) : default;
+            device.ModuleName = lpcstrModule != IntPtr.Zero ? Marshal.PtrToStringAnsi(lpcstrModule) : default;
 
             EnumeratedDevices.Add(device);
             return true;

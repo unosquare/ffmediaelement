@@ -13,7 +13,7 @@
     {
         #region Dictionaries
 
-        private static readonly Dictionary<byte, string> SpecialNorthAmerican = new Dictionary<byte, string>()
+        private static readonly Dictionary<byte, string> SpecialNorthAmerican = new Dictionary<byte, string>
         {
             { 0x30, "®" },
             { 0x31, "°" },
@@ -33,7 +33,7 @@
             { 0x3F, "û" },
         };
 
-        private static readonly Dictionary<byte, string> Spanish = new Dictionary<byte, string>()
+        private static readonly Dictionary<byte, string> Spanish = new Dictionary<byte, string>
         {
             { 0x20, "Á" },
             { 0x21, "É" },
@@ -53,7 +53,7 @@
             { 0x2F, "\"" },
         };
 
-        private static readonly Dictionary<byte, string> Portuguese = new Dictionary<byte, string>()
+        private static readonly Dictionary<byte, string> Portuguese = new Dictionary<byte, string>
         {
             { 0x20, "Á" },
             { 0x21, "ã" },
@@ -73,7 +73,7 @@
             { 0x2F, "~" },
         };
 
-        private static readonly Dictionary<byte, string> French = new Dictionary<byte, string>()
+        private static readonly Dictionary<byte, string> French = new Dictionary<byte, string>
         {
             { 0x30, "À" },
             { 0x31, "Â" },
@@ -93,7 +93,7 @@
             { 0x3F, "»" },
         };
 
-        private static readonly Dictionary<byte, string> German = new Dictionary<byte, string>()
+        private static readonly Dictionary<byte, string> German = new Dictionary<byte, string>
         {
             { 0x30, "Ä" },
             { 0x31, "ä" },
@@ -151,7 +151,7 @@
             { 0x1C, 15 },
         };
 
-        private static readonly Dictionary<CaptionsStyle, int> PreambleStyleIndents = new Dictionary<CaptionsStyle, int>()
+        private static readonly Dictionary<CaptionsStyle, int> PreambleStyleIndents = new Dictionary<CaptionsStyle, int>
         {
             { CaptionsStyle.WhiteIndent0, 0 },
             { CaptionsStyle.WhiteIndent4, 4 },
@@ -712,19 +712,6 @@
         {
             if ((data & 0x03) == 2) return 0;
             return (data & 0x03) == 0 ? 1 : 2;
-        }
-
-        /// <summary>
-        /// Determines whether the data is null padding
-        /// </summary>
-        /// <param name="d0">The d0.</param>
-        /// <param name="d1">The d1.</param>
-        /// <returns>
-        ///   <c>true</c> if [is empty channel data] [the specified d0]; otherwise, <c>false</c>.
-        /// </returns>
-        private static bool IsEmptyChannelData(byte d0, byte d1)
-        {
-            return DropParityBit(d0) == 0 && DropParityBit(d1) == 0;
         }
 
         /// <summary>

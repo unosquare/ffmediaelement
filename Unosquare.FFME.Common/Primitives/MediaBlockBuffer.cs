@@ -32,18 +32,18 @@
         /// </summary>
         private readonly object SyncLock = new object();
 
-        private bool IsNonMonotonic = false;
-        private TimeSpan m_RangeStartTime = default;
-        private TimeSpan m_RangeEndTime = default;
-        private TimeSpan m_RangeDuration = default;
-        private TimeSpan m_AverageBlockDuration = default;
-        private TimeSpan m_MonotonicDuration = default;
-        private int m_Count = default;
-        private long m_RangeBitrate = default;
-        private double m_CapacityPercent = default;
-        private bool m_IsMonotonic = default;
-        private bool m_IsFull = default;
-        private bool m_IsDisposed = false;
+        private bool IsNonMonotonic;
+        private TimeSpan m_RangeStartTime;
+        private TimeSpan m_RangeEndTime;
+        private TimeSpan m_RangeDuration;
+        private TimeSpan m_AverageBlockDuration;
+        private TimeSpan m_MonotonicDuration;
+        private int m_Count;
+        private long m_RangeBitrate;
+        private double m_CapacityPercent;
+        private bool m_IsMonotonic;
+        private bool m_IsFull;
+        private bool m_IsDisposed;
 
         #endregion
 

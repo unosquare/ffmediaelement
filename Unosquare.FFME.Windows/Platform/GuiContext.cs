@@ -113,12 +113,6 @@
 
             switch (Type)
             {
-                case GuiContextType.None:
-                    {
-                        await Task.Run(() => { callback.DynamicInvoke(arguments); });
-                        return;
-                    }
-
                 case GuiContextType.WPF:
                     {
                         await GuiDispatcher.InvokeAsync(() => { callback.DynamicInvoke(arguments); }, priority);
@@ -144,6 +138,13 @@
                             doneEvent.Dispose();
                         });
 
+                        return;
+                    }
+
+                case GuiContextType.None:
+                default:
+                    {
+                        await Task.Run(() => { callback.DynamicInvoke(arguments); });
                         return;
                     }
             }

@@ -256,6 +256,9 @@
                 case MediaType.Subtitle:
                     currentIndex = availableStreams.IndexOf(e.Options.SubtitleStream);
                     break;
+
+                default:
+                    return;
             }
 
             currentIndex += 1;
@@ -276,6 +279,9 @@
                 case MediaType.Subtitle:
                     e.Options.SubtitleStream = newStream;
                     break;
+
+                default:
+                    return;
             }
         }
 
