@@ -73,7 +73,7 @@
         {
             private readonly ISyncReleasable Parent = null;
             private readonly LockHolderType Operation;
-            private bool IsDisposed = false;
+            private bool IsDisposed;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="SyncLockReleaser"/> class.

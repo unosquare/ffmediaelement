@@ -8,7 +8,7 @@
     /// <seealso cref="PromiseBase" />
     public class Promise : PromiseBase
     {
-        private readonly Action DeferredAction = null;
+        private readonly Action DeferredAction;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Promise"/> class.

@@ -40,9 +40,9 @@
         private int NextSamplesWriteIndex;
         private Guid DeviceId;
         private byte[] Samples;
-        private DirectSound.IDirectSound DirectSoundDriver = null;
-        private DirectSound.IDirectSoundBuffer AudioPlaybackBuffer = null;
-        private DirectSound.IDirectSoundBuffer AudioBackBuffer = null;
+        private DirectSound.IDirectSound DirectSoundDriver;
+        private DirectSound.IDirectSoundBuffer AudioPlaybackBuffer;
+        private DirectSound.IDirectSoundBuffer AudioBackBuffer;
         private EventWaitHandle FrameEventWaitHandle1;
         private EventWaitHandle FrameEventWaitHandle2;
         private EventWaitHandle EndEventWaitHandle;

@@ -15,8 +15,8 @@
         /// The synchronize lock
         /// </summary>
         private readonly object SyncLock = new object();
-        private TimeSpan? StartTime = default;
-        private TimeSpan? EndTime = default;
+        private TimeSpan? StartTime;
+        private TimeSpan? EndTime;
 
         /// <summary>
         /// Holds the text to be rendered when the Update method is called.

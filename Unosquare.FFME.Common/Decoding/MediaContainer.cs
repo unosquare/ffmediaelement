@@ -70,22 +70,22 @@
         /// <summary>
         /// The custom media input stream
         /// </summary>
-        private IMediaInputStream CustomInputStream = null;
+        private IMediaInputStream CustomInputStream;
 
         /// <summary>
         /// The custom input stream read callback
         /// </summary>
-        private avio_alloc_context_read_packet CustomInputStreamRead = null;
+        private avio_alloc_context_read_packet CustomInputStreamRead;
 
         /// <summary>
         /// The custom input stream seek callback
         /// </summary>
-        private avio_alloc_context_seek CustomInputStreamSeek = null;
+        private avio_alloc_context_seek CustomInputStreamSeek;
 
         /// <summary>
         /// The custom input stream context
         /// </summary>
-        private AVIOContext* CustomInputStreamContext = null;
+        private AVIOContext* CustomInputStreamContext;
 
         /// <summary>
         /// Hold the value for the internal property with the same name.
@@ -170,7 +170,7 @@
         /// <summary>
         /// To detect redundat Dispose calls
         /// </summary>
-        public bool IsDisposed { get; private set; } = false;
+        public bool IsDisposed { get; private set; }
 
         /// <summary>
         /// Logging Messages will be sent to this parent object.
@@ -241,7 +241,7 @@
         /// <value>
         ///   <c>true</c> if this instance is at end of stream; otherwise, <c>false</c>.
         /// </value>
-        public bool IsAtEndOfStream { get; private set; } = false;
+        public bool IsAtEndOfStream { get; private set; }
 
         /// <summary>
         /// Gets the byte position at which the stream is being read.

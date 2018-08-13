@@ -19,11 +19,11 @@
 
         private static readonly object SyncLock = new object();
         private static readonly List<OptionMeta> EmptyOptionMetaList = new List<OptionMeta>(0);
-        private static bool m_IsInitialized = false;
+        private static bool m_IsInitialized;
         private static string m_LibrariesPath = string.Empty;
-        private static int m_LibraryIdentifiers = 0;
+        private static int m_LibraryIdentifiers;
         private static byte[] TempStringBuffer = new byte[512 * 1024]; // a temp buffer of 512kB
-        private static int TempByteLength = 0;
+        private static int TempByteLength;
 
         #endregion
 

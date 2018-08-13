@@ -21,8 +21,8 @@
 
         // Private state management
         private readonly TimeSpan SearchActionDelay = TimeSpan.FromSeconds(0.25);
-        private bool HasTakenThumbnail = false;
-        private DeferredAction SearchAction = null;
+        private bool HasTakenThumbnail;
+        private DeferredAction SearchAction;
         private string FilterString = string.Empty;
 
         // Property Backing

@@ -31,7 +31,7 @@
         /// Gets or sets a value indicating whether to enable fast decoding.
         /// Port of fast
         /// </summary>
-        public bool EnableFastDecoding { get; set; } = false;
+        public bool EnableFastDecoding { get; set; }
 
         /// <summary>
         /// Enables low_delay flag for no delay in frame decoding.
@@ -39,7 +39,7 @@
         /// This flag is not of much use because the decoder pre-caches and pre-orders a set of decoded
         /// frames internally.
         /// </summary>
-        public bool EnableLowDelayDecoding { get; set; } = false;
+        public bool EnableLowDelayDecoding { get; set; }
 
         /// <summary>
         /// Gets or sets the threads.

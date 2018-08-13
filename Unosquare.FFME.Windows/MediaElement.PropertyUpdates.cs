@@ -24,7 +24,7 @@
         /// <summary>
         /// The property updates worker timer
         /// </summary>
-        private GuiTimer PropertyUpdatesWorker = null;
+        private GuiTimer PropertyUpdatesWorker;
 
         /// <summary>
         /// Starts the property updates worker.

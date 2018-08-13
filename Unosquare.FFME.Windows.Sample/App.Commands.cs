@@ -15,13 +15,13 @@
 
             private readonly WindowStatus PreviousWindowStatus = new WindowStatus();
 
-            private DelegateCommand m_OpenCommand = null;
-            private DelegateCommand m_PauseCommand = null;
-            private DelegateCommand m_PlayCommand = null;
-            private DelegateCommand m_StopCommand = null;
-            private DelegateCommand m_CloseCommand = null;
-            private DelegateCommand m_ToggleFullscreenCommand = null;
-            private DelegateCommand m_RemovePlaylistItemCommand = null;
+            private DelegateCommand m_OpenCommand;
+            private DelegateCommand m_PauseCommand;
+            private DelegateCommand m_PlayCommand;
+            private DelegateCommand m_StopCommand;
+            private DelegateCommand m_CloseCommand;
+            private DelegateCommand m_ToggleFullscreenCommand;
+            private DelegateCommand m_RemovePlaylistItemCommand;
 
             #endregion
 

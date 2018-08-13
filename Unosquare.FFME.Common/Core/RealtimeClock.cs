@@ -11,7 +11,7 @@
     {
         private readonly Stopwatch Chrono = new Stopwatch();
         private readonly object SyncLock = new object();
-        private long OffsetTicks = 0;
+        private long OffsetTicks;
         private double m_SpeedRatio = Constants.Controller.DefaultSpeedRatio;
 
         /// <summary>

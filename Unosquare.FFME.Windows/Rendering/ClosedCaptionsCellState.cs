@@ -17,7 +17,7 @@
         /// <summary>
         /// Gets or sets the character.
         /// </summary>
-        public char Character { get; set; } = default;
+        public char Character { get; set; }
 
         /// <summary>
         /// Gets or sets the opacity (from 0.0 to 1.0 opaque).
@@ -37,12 +37,12 @@
         /// <summary>
         /// Gets or sets a value indicating whether this instance is underline.
         /// </summary>
-        public bool IsUnderlined { get; set; } = default;
+        public bool IsUnderlined { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance is italics.
         /// </summary>
-        public bool IsItalics { get; set; } = default;
+        public bool IsItalics { get; set; }
 
         /// <summary>
         /// Copies text and attributes from another cell state content.

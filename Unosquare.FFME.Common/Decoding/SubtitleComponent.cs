@@ -12,6 +12,8 @@
     /// <seealso cref="MediaComponent" />
     internal sealed unsafe class SubtitleComponent : MediaComponent
     {
+        private static readonly char[] SeparatorChars = new[] { ',' };
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SubtitleComponent"/> class.
         /// </summary>
@@ -142,7 +144,7 @@
             if (input.Substring(0, DialoguePrefix.Length).ToLowerInvariant().Equals(DialoguePrefix) == false)
                 return string.Empty;
 
-            var inputParts = input.Split(new char[] { ',' }, 10);
+            var inputParts = input.Split(SeparatorChars, 10);
             if (inputParts.Length != 10)
                 return string.Empty;
 

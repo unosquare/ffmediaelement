@@ -192,7 +192,7 @@
         public class ReferenceEntry
         {
             public UnmanagedType Type { get; set; } = UnmanagedType.None;
-            public string Location { get; set; } = null;
+            public string Location { get; set; }
             public IntPtr Instance { get; set; } = IntPtr.Zero;
         }
     }

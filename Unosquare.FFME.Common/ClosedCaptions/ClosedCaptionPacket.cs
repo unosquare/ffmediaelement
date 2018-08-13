@@ -544,7 +544,7 @@
         /// <summary>
         /// Gets the Preamble Row Number (1 through 15), if the packet type is of Preamble
         /// </summary>
-        public int PreambleRow { get; } = default;
+        public int PreambleRow { get; }
 
         /// <summary>
         /// Gets the Style, if the packet type is of Preamble
@@ -554,7 +554,7 @@
         /// <summary>
         /// Gets the Indent Style, if the packet type is of Preamble
         /// </summary>
-        public int PreambleIndent { get; } = default;
+        public int PreambleIndent { get; }
 
         /// <summary>
         /// Gets the text, if the packet type is of text.
@@ -570,13 +570,13 @@
         /// Gets a value indicating whether the current and following
         /// caption text packets are underlined; only valid for preamble or mid-row packets
         /// </summary>
-        public bool IsUnderlined { get; } = default;
+        public bool IsUnderlined { get; }
 
         /// <summary>
         /// Gets a value indicating whether the current and following
         /// caption text packets are italicized; only valid for preamble or mid-row packets
         /// </summary>
-        public bool IsItalics { get; } = default;
+        public bool IsItalics { get; }
 
         #endregion
 

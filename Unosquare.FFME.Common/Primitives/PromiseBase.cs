@@ -136,7 +136,7 @@
         /// Prevents the actions from being run and sets the awiter as completed.
         /// </summary>
         /// <param name="waitForExit">if set to <c>true</c> it waits for the awaiter to complete synchronously.</param>
-        public void Cancel(bool waitForExit = false)
+        public void Cancel(bool waitForExit)
         {
             lock (MethodLock)
             {

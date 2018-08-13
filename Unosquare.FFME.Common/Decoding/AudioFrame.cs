@@ -14,7 +14,7 @@
         #region Private Members
 
         private readonly object DisposeLock = new object();
-        private bool IsDisposed = false;
+        private bool IsDisposed;
 
         #endregion
 

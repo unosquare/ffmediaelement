@@ -17,8 +17,8 @@
 
         private readonly List<MediaPacket> Packets = new List<MediaPacket>(2048);
         private readonly object SyncLock = new object();
-        private long m_BufferLength = default;
-        private long m_Duration = default;
+        private long m_BufferLength;
+        private long m_Duration;
 
         #endregion
 

@@ -19,9 +19,9 @@
         private readonly Action TimerCallback;
         private readonly Action DisposeCallback;
 
-        private Timer ThreadingTimer = null;
-        private DispatcherTimer DispatcherTimer = null;
-        private System.Windows.Forms.Timer FormsTimer = null;
+        private Timer ThreadingTimer;
+        private DispatcherTimer DispatcherTimer;
+        private System.Windows.Forms.Timer FormsTimer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GuiTimer" /> class.

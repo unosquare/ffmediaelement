@@ -15,7 +15,7 @@
     {
         #region Private State Variables
 
-        private readonly string FilterString = null;
+        private readonly string FilterString;
 
         private readonly AVRational BaseFrameRateQ;
         private SwsContext* Scaler = null;

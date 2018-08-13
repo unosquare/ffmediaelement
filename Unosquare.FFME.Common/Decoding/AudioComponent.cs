@@ -15,6 +15,8 @@
     {
         #region Private Declarations
 
+        private readonly string FilterString;
+
         /// <summary>
         /// Holds a reference to the audio resampler
         /// This resampler gets disposed upon disposal of this object.
@@ -33,7 +35,6 @@
         private AVFilterInOut* SourceOutput = null;
 
         private string CurrentFilterArguments = null;
-        private string FilterString = null;
 
         #endregion
 

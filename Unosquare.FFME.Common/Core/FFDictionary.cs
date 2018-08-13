@@ -18,7 +18,7 @@
         /// <summary>
         /// To detect redundant Dispose calls
         /// </summary>
-        private bool IsDisposed = false;
+        private bool IsDisposed;
 
         #endregion
 

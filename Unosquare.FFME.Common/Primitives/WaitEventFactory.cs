@@ -42,7 +42,7 @@
         /// <seealso cref="IWaitEvent" />
         private class WaitEvent : IWaitEvent
         {
-            private ManualResetEvent Event = null;
+            private ManualResetEvent Event;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="WaitEvent"/> class.
