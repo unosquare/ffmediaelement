@@ -7,6 +7,7 @@
     using System.Runtime.InteropServices;
     using Unosquare.FFME.Primitives;
     using Unosquare.FFME.MacOS.Platform;
+    using System.Diagnostics;
 
     /// <summary>
     /// Provides Video Image Rendering via NSImage.
@@ -14,7 +15,7 @@
     /// <seealso cref="Unosquare.FFME.Rendering.IRenderer" />
     class VideoRenderer : IMediaRenderer
     {
-        private AtomicBoolean IsRenderingInProgress = new AtomicBoolean(false);
+        private readonly AtomicBoolean IsRenderingInProgress = new AtomicBoolean(false);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:Unosquare.FFME.MacOS.Rendering.VideoRenderer"/> class.
@@ -50,40 +51,48 @@
         {
             var block = mediaBlock as VideoBlock;
             if (block == null) return;
-            //if (IsRenderingInProgress.Value == true)
-            //{
-            //    //MediaElement.Logger.Log(MediaLogMessageType.Debug, $"{nameof(VideoRenderer)}: Frame skipped at {mediaBlock.StartTime}");
-            //    return;
-            //}
 
-            IsRenderingInProgress.Value = true;
+            if (IsRenderingInProgress.Value == true)
+            {
+                // frame skipped
+                return;
+            }
 
-            var size = block.BufferLength;
-            var bytes = new byte[size];
-            Marshal.Copy(block.Buffer, bytes, 0, size);
-
-            Transform(block.Buffer, bytes, block.PixelWidth, block.PixelHeight);
+            try
+            {
+                IsRenderingInProgress.Value = true;
+                var size = block.BufferLength;
+                var bytes = new byte[size];
+                Marshal.Copy(block.Buffer, bytes, 0, size);
+                Transform(bytes, block.PixelWidth, block.PixelHeight);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+            finally
+            {
+                IsRenderingInProgress.Value = false;
+            }
         }
 
-        private void Transform(IntPtr buffer, byte[] bytes, int width, int height)
+        private void Transform(byte[] bytes, int width, int height)
         {
             try
             {
                 var space = CGColorSpace.CreateDeviceRGB();
                 var provider = new CGDataProvider(bytes);
-                //var provider = new CGDataProvider(buffer);
-                //var i = new CGImage(64, 64, 8, 24, 64 * 3, space, CGBitmapFlags.ByteOrderDefault, provider, null, false, CGColorRenderingIntent.Default);
                 var i = new CGImage(
-                    width, 
+                    width,
                     height,
                     Constants.Video.BitsPerComponent,
-                    Constants.Video.BitsPerPixel, 
-                    width * Constants.Video.BytesPerPixel, 
-                    space, 
-                    CGBitmapFlags.ByteOrderDefault, 
-                    provider, 
-                    null, 
-                    false, 
+                    Constants.Video.BitsPerPixel,
+                    width * Constants.Video.BytesPerPixel,
+                    space,
+                    CGBitmapFlags.ByteOrderDefault,
+                    provider,
+                    null,
+                    false,
                     CGColorRenderingIntent.Default);
 
                 var nsImage = new NSImage(i, new CGSize(width, height));
@@ -94,7 +103,7 @@
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Debug.WriteLine(e);
             }
         }
 

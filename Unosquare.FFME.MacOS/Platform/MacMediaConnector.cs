@@ -2,10 +2,11 @@
 {
     using Shared;
     using System;
+    using System.Diagnostics;
 
     internal class MacMediaConnector : IMediaConnector
     {
-        private readonly MediaElement Control = null;
+        private readonly MediaElement Control;
 
         public MacMediaConnector(MediaElement control)
         {
@@ -15,7 +16,7 @@
         public void OnMessageLogged(MediaEngine sender, MediaLogMessage e)
         {
             if (e.MessageType == MediaLogMessageType.Trace) return;
-            Console.WriteLine($"{e.MessageType,10} - {e.Message}");
+            Debug.WriteLine($"{e.MessageType,10} - {e.Message}");
         }
 
         public void OnBufferingEnded(MediaEngine sender) { /* Placeholder */ }

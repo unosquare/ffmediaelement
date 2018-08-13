@@ -1,15 +1,11 @@
-﻿using AppKit;
-using Foundation;
-
-namespace Unosquare.FFME.MacOS.Sample
+﻿namespace Unosquare.FFME.MacOS.Sample
 {
-    [Register("AppDelegate")]
+    using AppKit;
+    using Foundation;
+
+    [Register(nameof(AppDelegate))]
     public class AppDelegate : NSApplicationDelegate
     {
-        public AppDelegate()
-        {
-        }
-
         public override void DidFinishLaunching(NSNotification notification)
         {
             // Insert code here to initialize your application
