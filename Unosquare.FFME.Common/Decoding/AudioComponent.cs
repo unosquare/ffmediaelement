@@ -191,8 +191,10 @@
         {
             // Validate the audio frame
             var frame = (AVFrame*)framePointer;
-            if (frame == null || (*frame).extended_data == null || frame->channels <= 0 ||
-                frame->nb_samples <= 0 || frame->sample_rate <= 0)
+            if (frame == null ||
+                frame->channels <= 0 ||
+                frame->nb_samples <= 0 ||
+                frame->sample_rate <= 0)
             {
                 return null;
             }
