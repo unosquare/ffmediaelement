@@ -147,7 +147,7 @@
 
             Media.RenderingSubtitles += (s, e) =>
             {
-                // a simple example of suffixing subtitles
+                // a simple example of suffixing subtitles:
                 // if (e.Text != null && e.Text.Count > 0 && e.Text[e.Text.Count - 1] != "(subtitles)")
                 //    e.Text.Add("(subtitles)");
             };

@@ -254,8 +254,9 @@
             RC.Current.Remove(Scaler);
             if (Scaler != null)
             {
-                fixed (SwrContext** scaler = &Scaler)
-                    ffmpeg.swr_free(scaler);
+                var scalerRef = Scaler;
+                ffmpeg.swr_free(&scalerRef);
+                Scaler = null;
             }
 
             DestroyFiltergraph();
@@ -274,8 +275,8 @@
             if (FilterGraph != null)
             {
                 RC.Current.Remove(FilterGraph);
-                fixed (AVFilterGraph** filterGraph = &FilterGraph)
-                    ffmpeg.avfilter_graph_free(filterGraph);
+                var filterGraphRef = FilterGraph;
+                ffmpeg.avfilter_graph_free(&filterGraphRef);
 
                 FilterGraph = null;
                 SinkInput = null;
@@ -340,23 +341,25 @@
             {
                 var result = 0;
 
-                fixed (AVFilterContext** source = &SourceFilter)
-                fixed (AVFilterContext** sink = &SinkFilter)
-                {
-                    result = ffmpeg.avfilter_graph_create_filter(source, ffmpeg.avfilter_get_by_name("abuffer"), "audio_buffer", CurrentFilterArguments, null, FilterGraph);
-                    if (result != 0)
-                    {
-                        throw new MediaContainerException(
-                            $"{nameof(ffmpeg.avfilter_graph_create_filter)} (audio_buffer) failed. Error {result}: {FFInterop.DecodeMessage(result)}");
-                    }
+                AVFilterContext* sourceFilterRef = null;
+                AVFilterContext* sinkFilterRef = null;
 
-                    result = ffmpeg.avfilter_graph_create_filter(sink, ffmpeg.avfilter_get_by_name("abuffersink"), "audio_buffersink", null, null, FilterGraph);
-                    if (result != 0)
-                    {
-                        throw new MediaContainerException(
-                            $"{nameof(ffmpeg.avfilter_graph_create_filter)} (audio_buffersink) failed. Error {result}: {FFInterop.DecodeMessage(result)}");
-                    }
+                result = ffmpeg.avfilter_graph_create_filter(&sourceFilterRef, ffmpeg.avfilter_get_by_name("abuffer"), "audio_buffer", CurrentFilterArguments, null, FilterGraph);
+                if (result != 0)
+                {
+                    throw new MediaContainerException(
+                        $"{nameof(ffmpeg.avfilter_graph_create_filter)} (audio_buffer) failed. Error {result}: {FFInterop.DecodeMessage(result)}");
                 }
+
+                result = ffmpeg.avfilter_graph_create_filter(&sinkFilterRef, ffmpeg.avfilter_get_by_name("abuffersink"), "audio_buffersink", null, null, FilterGraph);
+                if (result != 0)
+                {
+                    throw new MediaContainerException(
+                        $"{nameof(ffmpeg.avfilter_graph_create_filter)} (audio_buffersink) failed. Error {result}: {FFInterop.DecodeMessage(result)}");
+                }
+
+                SourceFilter = sourceFilterRef;
+                SinkFilter = sinkFilterRef;
 
                 if (string.IsNullOrWhiteSpace(FilterString))
                 {

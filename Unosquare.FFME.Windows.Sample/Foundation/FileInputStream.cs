@@ -4,6 +4,7 @@
     using Shared;
     using System;
     using System.IO;
+    using System.Runtime.InteropServices;
 
     /// <summary>
     /// Provides an example of a very simple custom input stream.
@@ -77,10 +78,7 @@
                 {
                     var readCount = BackingStream.Read(ReadBuffer, 0, ReadBuffer.Length);
                     if (readCount > 0)
-                    {
-                        fixed (byte* sourceBuffer = &ReadBuffer[0])
-                            Buffer.MemoryCopy(sourceBuffer, targetBuffer, targetBufferLength, readCount);
-                    }
+                        Marshal.Copy(ReadBuffer, 0, (IntPtr)targetBuffer, readCount);
 
                     return readCount;
                 }

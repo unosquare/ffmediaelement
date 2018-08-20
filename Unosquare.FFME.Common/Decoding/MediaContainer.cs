@@ -542,13 +542,11 @@
         {
             throw new NotSupportedException("The Container does not support resuming the InputContext from aborted reads yet.");
 
-            /*
-            if (IsDisposed) throw new ObjectDisposedException(nameof(MediaContainer));
-            if (InputContext == null) throw new InvalidOperationException(ExceptionMessageNoInputContext);
+            // if (IsDisposed) throw new ObjectDisposedException(nameof(MediaContainer));
+            // if (InputContext == null) throw new InvalidOperationException(ExceptionMessageNoInputContext);
 
-            SignalAbortReadsRequested.Value = false;
-            SignalAbortReadsAutoReset.Value = true;
-            */
+            // SignalAbortReadsRequested.Value = false;
+            // SignalAbortReadsAutoReset.Value = true;
         }
 
         /// <summary>
@@ -612,11 +610,8 @@
                                 ffmpeg.av_freep(&CustomInputStreamContext->buffer);
 
                                 // free the stream context
-                                fixed (AVIOContext** contextRef = &CustomInputStreamContext)
-                                {
-                                    ffmpeg.av_freep(contextRef);
-                                }
-
+                                var cutomInputContext = CustomInputStreamContext;
+                                ffmpeg.av_freep(&cutomInputContext);
                                 CustomInputStreamContext = null;
                             }
 

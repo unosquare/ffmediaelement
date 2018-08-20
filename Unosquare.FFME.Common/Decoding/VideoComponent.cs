@@ -638,8 +638,8 @@
             if (FilterGraph != null)
             {
                 RC.Current.Remove(FilterGraph);
-                fixed (AVFilterGraph** filterGraph = &FilterGraph)
-                    ffmpeg.avfilter_graph_free(filterGraph);
+                var filterGraphRef = FilterGraph;
+                ffmpeg.avfilter_graph_free(&filterGraphRef);
 
                 FilterGraph = null;
                 SinkInput = null;

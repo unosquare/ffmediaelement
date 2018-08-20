@@ -160,6 +160,8 @@
                     CodecTag = codecContext->codec_tag,
                     PixelFormat = codecContext->pix_fmt,
                     FieldOrder = codecContext->field_order,
+                    IsInterlaced = codecContext->field_order != AVFieldOrder.AV_FIELD_PROGRESSIVE
+                        && codecContext->field_order != AVFieldOrder.AV_FIELD_UNKNOWN,
                     ColorRange = codecContext->color_range,
                     PixelWidth = codecContext->width,
                     PixelHeight = codecContext->height,
@@ -436,6 +438,11 @@
         /// if the video needs deinterlacing
         /// </summary>
         public AVFieldOrder FieldOrder { get; internal set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the video frames are interlaced
+        /// </summary>
+        public bool IsInterlaced { get; internal set; }
 
         /// <summary>
         /// Gets the video color range.

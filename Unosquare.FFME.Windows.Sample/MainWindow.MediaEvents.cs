@@ -153,10 +153,6 @@
             var videoStream = e.Options.VideoStream;
             if (videoStream != null)
             {
-                // Check if the video requires deinterlacing
-                var requiresDeinterlace = videoStream.FieldOrder != AVFieldOrder.AV_FIELD_PROGRESSIVE
-                    && videoStream.FieldOrder != AVFieldOrder.AV_FIELD_UNKNOWN;
-
                 // Hardwrae device priorities
                 var deviceCandidates = new AVHWDeviceType[]
                 {
@@ -186,7 +182,7 @@
 
                 // The yadif filter deinterlaces the video; we check the field order if we need
                 // to deinterlace the video automatically
-                if (requiresDeinterlace)
+                if (videoStream.IsInterlaced)
                     videoFilter.Append("yadif,");
 
                 // Scale down to maximum 1080p screen resolution.
