@@ -123,7 +123,6 @@
         /// Initializes a new instance of the <see cref="SubtitlesControl"/> class.
         /// </summary>
         public SubtitlesControl()
-            : base()
         {
             var layoutElement = new Grid
             {

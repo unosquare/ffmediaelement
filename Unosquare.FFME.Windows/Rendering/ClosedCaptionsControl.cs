@@ -32,7 +32,6 @@
         /// Initializes a new instance of the <see cref="ClosedCaptionsControl"/> class.
         /// </summary>
         public ClosedCaptionsControl()
-            : base()
         {
             Width = 0;
             Height = 0;

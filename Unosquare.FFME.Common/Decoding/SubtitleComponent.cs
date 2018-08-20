@@ -148,14 +148,14 @@
             if (inputParts.Length != 10)
                 return string.Empty;
 
-            input = inputParts[inputParts.Length - 1].Replace("\\n", " ").Replace("\\N", "\r\n");
-            var builder = new StringBuilder(input.Length);
+            var normalizedInput = inputParts[inputParts.Length - 1].Replace("\\n", " ").Replace("\\N", "\r\n");
+            var builder = new StringBuilder(normalizedInput.Length);
             var isInStyle = false;
             char currentChar;
 
-            for (var i = 0; i < input.Length; i++)
+            for (var i = 0; i < normalizedInput.Length; i++)
             {
-                currentChar = input[i];
+                currentChar = normalizedInput[i];
                 if (currentChar == '{' && isInStyle == false)
                 {
                     isInStyle = true;

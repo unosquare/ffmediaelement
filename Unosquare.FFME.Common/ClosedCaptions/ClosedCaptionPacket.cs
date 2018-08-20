@@ -222,7 +222,7 @@
         /// <param name="d1">The d1.</param>
         internal ClosedCaptionPacket(TimeSpan timestamp, byte header, byte d0, byte d1)
         {
-            Data = new byte[] { header, d0, d1 };
+            Data = new[] { header, d0, d1 };
 
             D0 = DropParityBit(d0);
             D1 = DropParityBit(d1);
@@ -475,8 +475,8 @@
         /// </summary>
         public byte D0
         {
-            get { return Data[1]; }
-            private set { Data[1] = value; }
+            get => Data[1];
+            private set => Data[1] = value;
         }
 
         /// <summary>
@@ -484,8 +484,8 @@
         /// </summary>
         public byte D1
         {
-            get { return Data[2]; }
-            private set { Data[2] = value; }
+            get => Data[2];
+            private set => Data[2] = value;
         }
 
         /// <summary>
@@ -594,10 +594,10 @@
             if (fieldPartity <= 0)
                 return CaptionsChannel.CCP;
 
-            fieldPartity = fieldPartity.Clamp(1, 2);
+            var parity = fieldPartity.Clamp(1, 2);
             fieldChannel = fieldChannel.Clamp(1, 2);
 
-            if (fieldPartity == 1)
+            if (parity == 1)
                 return fieldChannel == 1 ? CaptionsChannel.CC1 : CaptionsChannel.CC2;
             else
                 return fieldChannel == 1 ? CaptionsChannel.CC3 : CaptionsChannel.CC4;

@@ -16,7 +16,6 @@
         /// Initializes a new instance of the <see cref="App" /> class.
         /// </summary>
         public App()
-            : base()
         {
             // Change the default location of the ffmpeg binaries
             // You can get the binaries here: https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.0-win32-shared.zip

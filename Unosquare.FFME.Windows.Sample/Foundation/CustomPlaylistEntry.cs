@@ -23,7 +23,6 @@
         /// Initializes a new instance of the <see cref="CustomPlaylistEntry"/> class.
         /// </summary>
         public CustomPlaylistEntry()
-            : base()
         {
             // placeholder
         }

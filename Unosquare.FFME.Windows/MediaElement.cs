@@ -88,7 +88,6 @@
         /// Initializes a new instance of the <see cref="MediaElement" /> class.
         /// </summary>
         public MediaElement()
-            : base()
         {
             try
             {

@@ -14,7 +14,6 @@
         /// </summary>
         /// <param name="message">The message.</param>
         public MediaLogMessageEventArgs(MediaLogMessage message)
-            : base()
         {
             Source = message.Source;
             TimestampUtc = message.TimestampUtc;
