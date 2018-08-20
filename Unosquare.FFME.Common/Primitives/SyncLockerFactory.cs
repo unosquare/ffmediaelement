@@ -114,7 +114,7 @@
         /// </summary>
         /// <seealso cref="ISyncLocker" />
         /// <seealso cref="ISyncReleasable" />
-        private sealed class SyncLocker : ISyncLocker, ISyncReleasable
+        private sealed class SyncLocker : ISyncLocker, ISyncReleasable, IDisposable
         {
             private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
             private readonly ReaderWriterLock Locker = new ReaderWriterLock();
@@ -205,7 +205,12 @@
             /// <summary>
             /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             /// </summary>
-            public void Dispose() => Dispose(true);
+            public void Dispose()
+            {
+                if (m_IsDisposed == true) return;
+                m_IsDisposed.Value = true;
+                Locker.ReleaseLock();
+            }
 
             /// <summary>
             /// Acquires the writer lock.
@@ -254,17 +259,6 @@
 
                 return false;
             }
-
-            /// <summary>
-            /// Releases unmanaged and - optionally - managed resources.
-            /// </summary>
-            /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-            private void Dispose(bool alsoManaged)
-            {
-                if (m_IsDisposed == true) return;
-                m_IsDisposed.Value = true;
-                Locker.ReleaseLock();
-            }
         }
 
         /// <summary>
@@ -272,7 +266,7 @@
         /// </summary>
         /// <seealso cref="ISyncLocker" />
         /// <seealso cref="ISyncReleasable" />
-        private sealed class SyncLockerSlim : ISyncLocker, ISyncReleasable
+        private sealed class SyncLockerSlim : ISyncLocker, ISyncReleasable, IDisposable
         {
             private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
             private readonly ReaderWriterLockSlim Locker
@@ -364,7 +358,12 @@
             /// <summary>
             /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             /// </summary>
-            public void Dispose() => Dispose(true);
+            public void Dispose()
+            {
+                if (m_IsDisposed == true) return;
+                m_IsDisposed.Value = true;
+                Locker.Dispose();
+            }
 
             /// <summary>
             /// Acquires the writer lock.
@@ -411,17 +410,6 @@
                     releaser = new SyncLockReleaser(this, LockHolderType.Read);
 
                 return result;
-            }
-
-            /// <summary>
-            /// Releases unmanaged and - optionally - managed resources.
-            /// </summary>
-            /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-            private void Dispose(bool alsoManaged)
-            {
-                if (m_IsDisposed == true) return;
-                m_IsDisposed.Value = true;
-                Locker.Dispose();
             }
         }
 

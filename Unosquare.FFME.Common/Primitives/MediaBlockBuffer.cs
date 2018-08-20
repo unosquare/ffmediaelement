@@ -195,21 +195,22 @@
         }
 
         /// <summary>
-        /// Gets the neighboring blocks in an atomic operation
+        /// Gets the neighboring blocks in an atomic operation.
+        /// The first item in the array is the previous block. The second is the next block.
         /// </summary>
-        /// <param name="current">The current.</param>
-        /// <param name="previous">The previous.</param>
-        /// <param name="next">The next.</param>
-        public void Neighbors(MediaBlock current, out MediaBlock previous, out MediaBlock next)
+        /// <param name="current">The current block to get neighbors from.</param>
+        /// <returns>The previous (if any) and next (if any) blocks.</returns>
+        public MediaBlock[] Neighbors(MediaBlock current)
         {
             lock (SyncLock)
             {
-                previous = null;
-                next = null;
-                if (current == null) return;
+                var result = new MediaBlock[2];
+                if (current == null) return result;
 
-                previous = current.Previous;
-                next = current.Next;
+                result[0] = current.Previous;
+                result[1] = current.Next;
+
+                return result;
             }
         }
 

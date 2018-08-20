@@ -40,7 +40,7 @@
         /// Defines a WaitEvent backed by a ManualResetEvent
         /// </summary>
         /// <seealso cref="IWaitEvent" />
-        private class WaitEvent : IWaitEvent
+        private class WaitEvent : IWaitEvent, IDisposable
         {
             private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
             private readonly ManualResetEvent Event;
@@ -139,7 +139,7 @@
         /// Defines a WaitEvent backed by a ManualResetEventSlim
         /// </summary>
         /// <seealso cref="IWaitEvent" />
-        private class WaitEventSlim : IWaitEvent
+        private class WaitEventSlim : IWaitEvent, IDisposable
         {
             private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
             private readonly ManualResetEventSlim Event = null;

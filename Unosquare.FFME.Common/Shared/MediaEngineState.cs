@@ -527,10 +527,10 @@
             if (block.MediaType == main)
             {
                 PositionCurrent = block.StartTime;
-                buffer.Neighbors(block, out MediaBlock previous, out MediaBlock next);
-                PositionNext = next?.StartTime ?? TimeSpan.FromTicks(
+                var neighbors = buffer.Neighbors(block);
+                PositionNext = neighbors[1]?.StartTime ?? TimeSpan.FromTicks(
                     block.EndTime.Ticks + (block.Duration.Ticks / 2));
-                PositionPrevious = previous?.StartTime ?? TimeSpan.FromTicks(
+                PositionPrevious = neighbors[0]?.StartTime ?? TimeSpan.FromTicks(
                     block.StartTime.Ticks - (block.Duration.Ticks / 2));
             }
 
