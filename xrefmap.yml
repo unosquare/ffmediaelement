@@ -1212,6 +1212,19 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.IsClosing
   nameWithType: MediaElement.IsClosing
+- uid: Unosquare.FFME.MediaElement.IsDisposed
+  name: IsDisposed
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsDisposed
+  commentId: P:Unosquare.FFME.MediaElement.IsDisposed
+  fullName: Unosquare.FFME.MediaElement.IsDisposed
+  nameWithType: MediaElement.IsDisposed
+- uid: Unosquare.FFME.MediaElement.IsDisposed*
+  name: IsDisposed
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsDisposed_
+  commentId: Overload:Unosquare.FFME.MediaElement.IsDisposed
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.IsDisposed
+  nameWithType: MediaElement.IsDisposed
 - uid: Unosquare.FFME.MediaElement.IsLiveStream
   name: IsLiveStream
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsLiveStream
