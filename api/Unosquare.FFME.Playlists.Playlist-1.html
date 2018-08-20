@@ -214,13 +214,54 @@ General guidelines taken from <a href="http://xmtvplayer.com/build-m3u-file">htt
   
   
   <a id="Unosquare_FFME_Playlists_Playlist_1_Add_" data-uid="Unosquare.FFME.Playlists.Playlist`1.Add*"></a>
+  <h4 id="Unosquare_FFME_Playlists_Playlist_1_Add_System_String_System_TimeSpan_System_String_" data-uid="Unosquare.FFME.Playlists.Playlist`1.Add(System.String,System.TimeSpan,System.String)">Add(String, TimeSpan, String)</h4>
+  <div class="markdown level1 summary"><p>Adds an entry to the playlist without extended attributes.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Add(string title, TimeSpan duration, string url)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">title</span></td>
+        <td><p>The title.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></td>
+        <td><span class="parametername">duration</span></td>
+        <td><p>The duration.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">url</span></td>
+        <td><p>The URL.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_Playlists_Playlist_1_Add_" data-uid="Unosquare.FFME.Playlists.Playlist`1.Add*"></a>
   <h4 id="Unosquare_FFME_Playlists_Playlist_1_Add_System_String_System_TimeSpan_System_String_System_Collections_Generic_Dictionary_System_String_System_String__" data-uid="Unosquare.FFME.Playlists.Playlist`1.Add(System.String,System.TimeSpan,System.String,System.Collections.Generic.Dictionary{System.String,System.String})">Add(String, TimeSpan, String, Dictionary&lt;String, String&gt;)</h4>
   <div class="markdown level1 summary"><p>Adds an entry to the playlist.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public void Add(string title, TimeSpan duration, string url, Dictionary&lt;string, string&gt; attributes = null)</code></pre>
+    <pre><code class="lang-csharp hljs">public void Add(string title, TimeSpan duration, string url, Dictionary&lt;string, string&gt; attributes)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">

@@ -2307,6 +2307,14 @@ references:
   fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T).Playlist
   nameWithType: Playlist<T>.Playlist
   nameWithType.vb: Playlist(Of T).Playlist
+- uid: Unosquare.FFME.Playlists.Playlist`1.Add(System.String,System.TimeSpan,System.String)
+  name: Add(String, TimeSpan, String)
+  href: api/Unosquare.FFME.Playlists.Playlist-1.html#Unosquare_FFME_Playlists_Playlist_1_Add_System_String_System_TimeSpan_System_String_
+  commentId: M:Unosquare.FFME.Playlists.Playlist`1.Add(System.String,System.TimeSpan,System.String)
+  fullName: Unosquare.FFME.Playlists.Playlist<T>.Add(System.String, System.TimeSpan, System.String)
+  fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T).Add(System.String, System.TimeSpan, System.String)
+  nameWithType: Playlist<T>.Add(String, TimeSpan, String)
+  nameWithType.vb: Playlist(Of T).Add(String, TimeSpan, String)
 - uid: Unosquare.FFME.Playlists.Playlist`1.Add(System.String,System.TimeSpan,System.String,System.Collections.Generic.Dictionary{System.String,System.String})
   name: Add(String, TimeSpan, String, Dictionary<String, String>)
   href: api/Unosquare.FFME.Playlists.Playlist-1.html#Unosquare_FFME_Playlists_Playlist_1_Add_System_String_System_TimeSpan_System_String_System_Collections_Generic_Dictionary_System_String_System_String__
