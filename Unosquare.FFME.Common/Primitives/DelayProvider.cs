@@ -12,9 +12,9 @@
     {
         private readonly object SyncRoot = new object();
         private readonly Action DelayAction;
+        private readonly Stopwatch DelayStopwatch = new Stopwatch();
         private bool IsDisposed;
         private IWaitEvent DelayEvent;
-        private Stopwatch DelayStopwatch = new Stopwatch();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DelayProvider"/> class.
@@ -102,6 +102,7 @@
                 if (IsDisposed) return;
                 IsDisposed = true;
                 DelayEvent?.Dispose();
+                DelayStopwatch.Stop();
             }
         }
 

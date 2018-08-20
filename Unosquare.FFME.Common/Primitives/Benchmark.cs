@@ -68,8 +68,8 @@
         private sealed class BenchmarkUnit : IDisposable
         {
             private readonly string Identifier;
-            private AtomicBoolean IsDisposed = new AtomicBoolean(false); // To detect redundant calls
-            private Stopwatch Stopwatch = new Stopwatch();
+            private readonly AtomicBoolean IsDisposed = new AtomicBoolean(false); // To detect redundant calls
+            private readonly Stopwatch Stopwatch = new Stopwatch();
 
             /// <summary>
             /// Initializes a new instance of the <see cref="BenchmarkUnit" /> class.
@@ -98,10 +98,8 @@
                 if (alsoManaged)
                 {
                     Add(Identifier, Stopwatch.Elapsed);
-                    Stopwatch?.Stop();
+                    Stopwatch.Stop();
                 }
-
-                Stopwatch = null;
             }
         }
     }

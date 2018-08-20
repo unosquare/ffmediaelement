@@ -18,7 +18,7 @@
         private readonly Action<object> m_Execute;
         private readonly Func<object, bool> m_CanExecute;
         private readonly Action<object> ExecuteAction;
-        private AtomicBoolean IsExecuting = new AtomicBoolean(false);
+        private readonly AtomicBoolean IsExecuting = new AtomicBoolean(false);
 
         #region Constructors
 

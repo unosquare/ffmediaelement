@@ -13,9 +13,9 @@
         private readonly byte[] Buffer;
         private readonly IWaveProvider WaveStream;
 
+        private readonly GCHandle BufferHandle;
+        private readonly GCHandle HeaderHandle; // we need to pin the header structure
         private IntPtr DeviceHandle;
-        private GCHandle BufferHandle;
-        private GCHandle HeaderHandle; // we need to pin the header structure
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WaveOutBuffer"/> class.

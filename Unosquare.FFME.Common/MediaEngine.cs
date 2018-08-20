@@ -14,7 +14,7 @@
     /// <seealso cref="IDisposable" />
     public partial class MediaEngine : IDisposable, IMediaLogger
     {
-        private AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
+        private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
 
         #region Constructors
 
@@ -71,7 +71,7 @@
         /// <summary>
         /// Gets a value indicating whether this instance is disposed.
         /// </summary>
-        public bool IsDisposed { get => m_IsDisposed.Value; }
+        public bool IsDisposed => m_IsDisposed.Value;
 
         /// <summary>
         /// Gets the associated parent object.

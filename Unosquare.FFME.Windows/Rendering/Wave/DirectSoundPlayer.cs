@@ -33,7 +33,7 @@
         private readonly EventWaitHandle CancelEvent = new EventWaitHandle(false, EventResetMode.ManualReset);
         private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
 
-        private WaveFormat WaveFormat;
+        private readonly WaveFormat WaveFormat;
         private int SamplesTotalSize;
         private int SamplesFrameSize;
         private int NextSamplesWriteIndex;

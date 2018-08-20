@@ -769,7 +769,7 @@
 
                 // Extract the Media Info
                 MediaInfo = new MediaInfo(this);
-                
+
                 // Compute start time and duration (if possible)
                 MediaStartTimeOffset = InputContext->start_time.ToTimeSpan();
                 if (MediaStartTimeOffset == TimeSpan.MinValue)
