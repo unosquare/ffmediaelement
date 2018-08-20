@@ -305,7 +305,17 @@
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose() => Dispose(true);
+        public void Dispose()
+        {
+            lock (SyncLock)
+            {
+                if (IsDisposed) return;
+
+                IsDisposed = true;
+                Destroy();
+                WaitForReadyEvent.Dispose();
+            }
+        }
 
         #endregion
 
@@ -870,27 +880,6 @@
 
                 targetBuffer.PutAudioSample(targetBufferOffset + sourceBufferOffset, currentSample);
                 isLeftSample = !isLeftSample;
-            }
-        }
-
-        #endregion
-
-        #region IDisposable Support
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="alsoManaged">
-        ///   <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool alsoManaged)
-        {
-            lock (SyncLock)
-            {
-                if (IsDisposed) return;
-
-                IsDisposed = true;
-                Destroy();
-                WaitForReadyEvent.Dispose();
             }
         }
 

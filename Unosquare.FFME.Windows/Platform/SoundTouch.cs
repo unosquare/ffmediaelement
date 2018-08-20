@@ -67,7 +67,7 @@
         /// </summary>
         ~SoundTouch()
         {
-            Dispose(false);
+            DisposeInternal();
         }
 
         /// <summary>
@@ -182,14 +182,7 @@
         /// <summary>
         /// Get SoundTouch version string
         /// </summary>
-        public static string Version
-        {
-            get
-            {
-                // convert "char *" data to c# string
-                return Marshal.PtrToStringAnsi(NativeMethods.GetVersionString());
-            }
-        }
+        public static string Version => Marshal.PtrToStringAnsi(NativeMethods.GetVersionString());
 
         /// <summary>
         /// Gets a value indicating whether the SoundTouch Library (dll) is available
@@ -433,15 +426,14 @@
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            DisposeInternal();
             GC.SuppressFinalize(this);
         }
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool alsoManaged)
+        private void DisposeInternal()
         {
             lock (SyncRoot)
             {

@@ -18,7 +18,10 @@
         /// if set to <c>true</c> configures the awaiter to continue on the captured context.
         /// </param>
         public Promise(Action deferredAction, bool continueOnCapturedContext)
-            : base(continueOnCapturedContext) => DeferredAction = deferredAction;
+            : base(continueOnCapturedContext)
+        {
+            DeferredAction = deferredAction;
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Promise"/> class.

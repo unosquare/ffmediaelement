@@ -590,7 +590,50 @@
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            if (IsDisposed) return;
+
+            lock (ReadSyncRoot)
+            {
+                lock (DecodeSyncRoot)
+                {
+                    lock (ConvertSyncRoot)
+                    {
+                        Components.Dispose();
+                        if (InputContext != null)
+                        {
+                            SignalAbortReads(false);
+                            var inputContextPtr = InputContext;
+                            ffmpeg.avformat_close_input(&inputContextPtr);
+
+                            // Handle freeing of Custom Stream Context
+                            if (CustomInputStreamContext != null)
+                            {
+                                // free the allocated buffer
+                                ffmpeg.av_freep(&CustomInputStreamContext->buffer);
+
+                                // free the stream context
+                                fixed (AVIOContext** contextRef = &CustomInputStreamContext)
+                                {
+                                    ffmpeg.av_freep(contextRef);
+                                }
+
+                                CustomInputStreamContext = null;
+                            }
+
+                            // Clear Custom Input fields
+                            CustomInputStreamRead = null;
+                            CustomInputStreamSeek = null;
+                            CustomInputStream?.Dispose();
+                            CustomInputStream = null;
+
+                            // Clear the input context
+                            InputContext = null;
+                        }
+
+                        IsDisposed = true;
+                    }
+                }
+            }
         }
 
         #endregion
@@ -1326,62 +1369,5 @@
         }
 
         #endregion
-
-        #region IDisposable Support
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool alsoManaged)
-        {
-            if (IsDisposed) return;
-
-            lock (ReadSyncRoot)
-            {
-                lock (DecodeSyncRoot)
-                {
-                    lock (ConvertSyncRoot)
-                    {
-                        Components.Dispose();
-                        if (InputContext != null)
-                        {
-                            SignalAbortReads(false);
-                            var inputContextPtr = InputContext;
-                            ffmpeg.avformat_close_input(&inputContextPtr);
-
-                            // Handle freeing of Custom Stream Context
-                            if (CustomInputStreamContext != null)
-                            {
-                                // free the allocated buffer
-                                ffmpeg.av_freep(&CustomInputStreamContext->buffer);
-
-                                // free the stream context
-                                fixed (AVIOContext** contextRef = &CustomInputStreamContext)
-                                {
-                                    ffmpeg.av_freep(contextRef);
-                                }
-
-                                CustomInputStreamContext = null;
-                            }
-
-                            // Clear Custom Input fields
-                            CustomInputStreamRead = null;
-                            CustomInputStreamSeek = null;
-                            CustomInputStream?.Dispose();
-                            CustomInputStream = null;
-
-                            // Clear the input context
-                            InputContext = null;
-                        }
-
-                        IsDisposed = true;
-                    }
-                }
-            }
-        }
-
-        #endregion
-
     }
 }

@@ -330,8 +330,33 @@
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose() =>
-            Dispose(true);
+        public void Dispose()
+        {
+            lock (DisposeLock)
+            {
+                if (m_IsDisposed) return;
+
+                // Immediately mark as disposed so no more
+                // Commands can be executed/enqueued
+                m_IsDisposed = true;
+
+                // Signal the workers we need to quit
+                ClearCommandQueue();
+                IsStopWorkersPending = true;
+                MediaCore.Container?.SignalAbortReads(false);
+
+                // Wait for any pending direct command
+                DirectCommandEvent.Wait();
+
+                // Run the close command directly
+                var closeCommand = new DirectCloseCommand(MediaCore);
+                closeCommand.Execute();
+
+                // Dispose of additional resources.
+                DirectCommandEvent?.Dispose();
+                SeekingCommandEvent?.Dispose();
+            }
+        }
 
         #endregion
 
@@ -414,7 +439,7 @@
             lock (DirectLock)
             {
                 if (CurrentDirectCommand != null &&
-                    CurrentDirectCommand.CommandType == CommandType.Close)
+                    CurrentDirectCommand.CommandType == commandType)
                 {
                     currentCommand = CurrentDirectCommand;
                 }
@@ -634,39 +659,6 @@
             }
 
             command.PostProcess();
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="alsoManaged">
-        ///   <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool alsoManaged)
-        {
-            lock (DisposeLock)
-            {
-                if (m_IsDisposed) return;
-
-                // Immediately mark as disposed so no more
-                // Commands can be executed/enqueued
-                m_IsDisposed = true;
-
-                // Signal the workers we need to quit
-                ClearCommandQueue();
-                IsStopWorkersPending = true;
-                MediaCore.Container?.SignalAbortReads(false);
-
-                // Wait for any pending direct command
-                DirectCommandEvent.Wait();
-
-                // Run the close command directly
-                var closeCommand = new DirectCloseCommand(MediaCore);
-                closeCommand.Execute();
-
-                // Dispose of additional resources.
-                DirectCommandEvent?.Dispose();
-                SeekingCommandEvent?.Dispose();
-            }
         }
 
         #endregion
