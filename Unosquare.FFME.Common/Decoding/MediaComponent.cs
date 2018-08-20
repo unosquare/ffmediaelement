@@ -68,7 +68,6 @@
         protected MediaComponent(MediaContainer container, int streamIndex)
         {
             // Ported from: https://github.com/FFmpeg/FFmpeg/blob/master/fftools/ffplay.c#L2559
-            // avctx = avcodec_alloc_context3(NULL);
             Container = container ?? throw new ArgumentNullException(nameof(container));
             m_CodecContext = new IntPtr(ffmpeg.avcodec_alloc_context3(null));
             RC.Current.Add(CodecContext, $"134: {nameof(MediaComponent)}[{MediaType}].ctor()");
@@ -130,13 +129,6 @@
 
                 // Pass default codec stuff to the codec contect
                 CodecContext->codec_id = codec->id;
-
-                /*
-                 * Legacy code from ffplay.c (v < 4.0) befor the send packet/receive frame logic, this used to be required.
-                 * Now it only corrupts frame decoding. See issue #251
-                 * if ((codec->capabilities & ffmpeg.AV_CODEC_CAP_TRUNCATED) != 0) CodecContext->flags |= ffmpeg.AV_CODEC_FLAG_TRUNCATED;
-                 * if ((codec->capabilities & ffmpeg.AV_CODEC_FLAG2_CHUNKS) != 0) CodecContext->flags |= ffmpeg.AV_CODEC_FLAG2_CHUNKS;
-                 */
 
                 // Process the decoder options
                 {

@@ -668,7 +668,6 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void InitializeBufferingStatistics()
         {
-            // var fileSize = ffmpeg.avio_size(Parent.Container.InputContext->pb);
             const long MinimumValidFileSize = 1024 * 1024; // 1 Mbytes
 
             // Start with default values

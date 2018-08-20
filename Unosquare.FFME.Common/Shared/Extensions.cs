@@ -42,11 +42,8 @@
         /// <param name="offset">The offset.</param>
         /// <returns>The signed integer.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static short GetAudioSample(this byte[] buffer, int offset)
-        {
-            // return (short)(buffer[offset] | (buffer[offset + 1] << 8));
-            return BitConverter.ToInt16(buffer, offset);
-        }
+        public static short GetAudioSample(this byte[] buffer, int offset) =>
+            BitConverter.ToInt16(buffer, offset);
 
         /// <summary>
         /// Gets the audio sample amplitude (absolute value of the sample).

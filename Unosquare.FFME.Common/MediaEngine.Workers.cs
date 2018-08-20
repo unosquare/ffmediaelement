@@ -220,9 +220,8 @@
             var wrokers = new[] { PacketReadingTask, FrameDecodingTask };
             foreach (var w in wrokers)
             {
-                // Abort causes memory leaks bacause packets and frames might not
+                // w.Abort causes memory leaks bacause packets and frames might not
                 // get disposed by the corresponding workers. We use Join instead.
-                // w.Abort();
                 w?.Join();
             }
 
@@ -285,7 +284,6 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal TimeSpan SnapPositionToBlockPosition(TimeSpan position)
         {
-            // return position;
             if (Container == null)
                 return position.Normalize();
 

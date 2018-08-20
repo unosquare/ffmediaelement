@@ -136,7 +136,7 @@
                     {
                         // Update the Input format and container input URL
                         // It is also possible to set some input options as follows:
-                        // streamOptions.PrivateOptions["framerate"] = "20";
+                        // Example: streamOptions.PrivateOptions["framerate"] = "20";
                         containerConfig.ForcedInputFormat = Source.Host;
                         mediaUrl = Uri.UnescapeDataString(Source.Query).TrimStart('?');
                         m.Log(MediaLogMessageType.Info, $"Media URI will be updated. Input Format: {Source.Host}, Input Argument: {mediaUrl}");

@@ -307,7 +307,7 @@
             // Result will be set on the GUI thread
             BitmapDataBuffer result = null;
 
-            // Skip the locking if scrubbing is not enabled
+            // TODO: Evaluate if we need to skip the locking if scrubbing is not enabled
             // if (MediaElement.ScrubbingEnabled == false && (MediaElement.IsPlaying == false || MediaElement.IsSeeking))
             //     return result;
 

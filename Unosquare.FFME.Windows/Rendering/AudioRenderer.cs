@@ -767,7 +767,8 @@
                 {
                     // If I set samples to average to 1 here, it does not change the pitch but
                     // audio gaps are noticeable
-                    samplesToAverage = 1; //  currentGroupSizeW * SampleBlockSize / BytesPerSample / 2;
+                    // Anoter option: currentGroupSizeW * SampleBlockSize / BytesPerSample / 2
+                    samplesToAverage = 1;
                     leftSamples = ReadBuffer.GetAudioSample(sourceOffset);
                     rightSamples = ReadBuffer.GetAudioSample(sourceOffset + Constants.Audio.BytesPerSample);
                 }

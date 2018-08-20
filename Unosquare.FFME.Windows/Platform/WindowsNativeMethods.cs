@@ -26,7 +26,7 @@
         /// </summary>
         private WindowsNativeMethods()
         {
-            // Placeholder;
+            // placeholder
         }
 
         /// <summary>
@@ -126,7 +126,7 @@
         /// <param name="copyLength">Length of the copy.</param>
         private void CopyMemoryParallel(IntPtr targetAddress, IntPtr sourceAddress, uint copyLength)
         {
-            const int optimalBlockSize = 1024 * 1024 * 2; // 2MB per thread;
+            const int optimalBlockSize = 1024 * 1024 * 2; // Equivalent to 2MB per thread;
             const int maxParallelism = 4;
 
             // Don't run parallelism for smaller chunks -- it's not worth it

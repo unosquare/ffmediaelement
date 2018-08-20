@@ -769,14 +769,7 @@
 
                 // Extract the Media Info
                 MediaInfo = new MediaInfo(this);
-
-                // Determine the seek mode of the input format
-                /*
-                var inputAllowsDiscontinuities = (InputContext->iformat->flags & ffmpeg.AVFMT_TS_DISCONT) != 0;
-                MediaSeeksByBytes = inputAllowsDiscontinuities && (MediaFormatName.Equals("ogg") == false);
-                MediaSeeksByBytes = MediaSeeksByBytes && MediaBitrate > 0;
-                */
-
+                
                 // Compute start time and duration (if possible)
                 MediaStartTimeOffset = InputContext->start_time.ToTimeSpan();
                 if (MediaStartTimeOffset == TimeSpan.MinValue)
