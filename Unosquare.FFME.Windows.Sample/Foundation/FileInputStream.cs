@@ -9,7 +9,7 @@
     /// Provides an example of a very simple custom input stream.
     /// </summary>
     /// <seealso cref="IMediaInputStream" />
-    public sealed unsafe class FileInputStream : IMediaInputStream
+    public sealed unsafe class FileInputStream : IMediaInputStream, IDisposable
     {
         private readonly FileStream BackingStream;
         private readonly object ReadLock = new object();

@@ -25,10 +25,10 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="DelegateCommand"/> class.
         /// </summary>
-        /// <param name="execute">The execute.</param>
-        /// <param name="canExecute">The can execute.</param>
+        /// <param name="execute">The execute callback.</param>
+        /// <param name="canExecute">The can execute checker callback.</param>
         /// <exception cref="ArgumentNullException">execute</exception>
-        public DelegateCommand(Action<object> execute, Func<object, bool> canExecute = null)
+        public DelegateCommand(Action<object> execute, Func<object, bool> canExecute)
         {
             m_Execute = execute ?? throw new ArgumentNullException(nameof(execute));
             m_CanExecute = canExecute;
@@ -40,6 +40,17 @@
                 if (canExecuteAction)
                     m_Execute(parameter);
             };
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DelegateCommand"/> class.
+        /// </summary>
+        /// <param name="execute">The execute callback.</param>
+        /// <exception cref="ArgumentNullException">execute</exception>
+        public DelegateCommand(Action<object> execute)
+            : this(execute, null)
+        {
+            // placeholder
         }
 
         #endregion
@@ -69,25 +80,39 @@
         /// true if this command can be executed; otherwise, false.
         /// </returns>
         [DebuggerStepThrough]
-        public bool CanExecute(object parameter = null)
+        public bool CanExecute(object parameter)
         {
             if (IsExecuting.Value) return false;
             return m_CanExecute == null || m_CanExecute(parameter);
         }
 
         /// <summary>
-        /// Defines the method to be called when the command is invoked.
+        /// Determines whether this instance can execute.
+        /// </summary>
+        /// <returns>
+        ///   <c>true</c> if this instance can execute; otherwise, <c>false</c>.
+        /// </returns>
+        public bool CanExecute() => CanExecute(null);
+
+        /// <summary>
+        /// Executes the command but does not wait for it to complete
         /// </summary>
         /// <param name="parameter">Data used by the command.  If the command does not require data to be passed, this object can be set to null.</param>
-        public void Execute(object parameter = null) =>
+        public void Execute(object parameter) =>
             ExecuteAsync(parameter).ConfigureAwait(false);
 
         /// <summary>
-        /// Defines the method to be called when the command is invoked.
+        /// Executes the command but does not wait for it to complete
+        /// </summary>
+        public void Execute() =>
+            ExecuteAsync(null).ConfigureAwait(false);
+
+        /// <summary>
+        /// Executes the command. This call can be awaited.
         /// </summary>
         /// <param name="parameter">Data used by the command.  If the command does not require data to be passed, this object can be set to null.</param>
         /// <returns>The awaitable task</returns>
-        public async Task ExecuteAsync(object parameter = null)
+        public async Task ExecuteAsync(object parameter)
         {
             if (IsExecuting.Value) return;
 
@@ -107,6 +132,12 @@
                 RaiseCanExecuteChanged();
             }
         }
+
+        /// <summary>
+        /// Executes the command. This call can be awaited.
+        /// </summary>
+        /// <returns>The awaitable task</returns>
+        public async Task ExecuteAsync() => await ExecuteAsync(null).ConfigureAwait(false);
 
         /// <summary>
         /// Raises the can execute changed.

@@ -10,7 +10,7 @@
     /// A wave player that opens an audio device and continuously feeds it
     /// with audio samples using a wave provider.
     /// </summary>
-    internal sealed class LegacyAudioPlayer : IWavePlayer
+    internal sealed class LegacyAudioPlayer : IWavePlayer, IDisposable
     {
         #region State Variables
 
@@ -163,7 +163,17 @@
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose() => Dispose(true);
+        public void Dispose()
+        {
+            if (IsDisposed) return;
+
+            IsCancellationPending.Value = true; // Causes the playback loop to exit
+            DriverCallbackEvent.Set(); // causes the WaitOne to exit
+            PlaybackFinished.Wait(); // waits for the playback loop to finish
+            DriverCallbackEvent.Dispose();
+            PlaybackFinished.Dispose();
+            IsDisposed = true;
+        }
 
         #endregion
 
@@ -233,26 +243,6 @@
                 DeviceHandle = IntPtr.Zero;
                 PlaybackFinished.Complete();
             }
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool alsoManaged)
-        {
-            if (IsDisposed) return;
-
-            if (alsoManaged)
-            {
-                IsCancellationPending.Value = true; // Causes the playback loop to exit
-                DriverCallbackEvent.Set(); // causes the WaitOne to exit
-                PlaybackFinished.Wait(); // waits for the playback loop to finish
-                DriverCallbackEvent.Dispose();
-                PlaybackFinished.Dispose();
-            }
-
-            IsDisposed = true;
         }
 
         #endregion

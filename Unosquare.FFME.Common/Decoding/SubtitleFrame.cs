@@ -101,22 +101,11 @@
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        public override void Dispose() =>
-            Dispose(true);
-
-        #endregion
-
-        #region IDisposable Support
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool alsoManaged)
+        public override void Dispose()
         {
             lock (DisposeLock)
             {
-                if (IsDisposed || alsoManaged == false)
+                if (IsDisposed)
                     return;
 
                 if (InternalPointer != null)

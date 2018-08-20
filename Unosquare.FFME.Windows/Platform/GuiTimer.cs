@@ -95,13 +95,7 @@
         /// <summary>
         /// Gets a value indicating whether this instance is executing a cycle.
         /// </summary>
-        public bool IsExecutingCycle
-        {
-            get
-            {
-                return (IsCycleDone?.IsCompleted ?? true) == false;
-            }
-        }
+        public bool IsExecutingCycle => (IsCycleDone?.IsCompleted ?? true) == false;
 
         /// <summary>
         /// Waits for one cycle to be completed.

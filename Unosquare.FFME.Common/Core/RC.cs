@@ -114,7 +114,7 @@
             if (MediaEngine.Platform.IsInDebugMode == false) return;
 
             lock (SyncLock) Instances[ptr] =
-                new ReferenceEntry() { Instance = ptr, Type = t, Location = location };
+                new ReferenceEntry { Instance = ptr, Type = t, Location = location };
         }
 
         /// <summary>

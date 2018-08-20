@@ -56,10 +56,7 @@
         /// </summary>
         public string Name
         {
-            get
-            {
-                return m_Name;
-            }
+            get => m_Name;
             set
             {
                 m_Name = value;
@@ -276,7 +273,7 @@
         /// <param name="duration">The duration.</param>
         /// <param name="url">The URL.</param>
         /// <param name="attributes">The attributes.</param>
-        public void Add(string title, TimeSpan duration, string url, Dictionary<string, string> attributes = null)
+        public void Add(string title, TimeSpan duration, string url, Dictionary<string, string> attributes)
         {
             var entry = new T()
             {
@@ -295,6 +292,14 @@
 
             Add(entry);
         }
+
+        /// <summary>
+        /// Adds an entry to the playlist without extended attributes.
+        /// </summary>
+        /// <param name="title">The title.</param>
+        /// <param name="duration">The duration.</param>
+        /// <param name="url">The URL.</param>
+        public void Add(string title, TimeSpan duration, string url) => Add(title, duration, url, null);
 
         #endregion
     }

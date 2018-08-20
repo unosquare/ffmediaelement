@@ -110,7 +110,14 @@
             /// <summary>
             /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             /// </summary>
-            public void Dispose() => Dispose(true);
+            public void Dispose()
+            {
+                if (IsDisposed) return;
+                IsDisposed = true;
+
+                Event.Set();
+                Event.Dispose();
+            }
 
             /// <summary>
             /// Waits for the event to be completed
@@ -126,19 +133,6 @@
             /// True when there was no timeout. False if the tiemout was reached
             /// </returns>
             public bool Wait(TimeSpan timeout) => IsDisposed == false ? Event.WaitOne(timeout) : true;
-
-            /// <summary>
-            /// Releases unmanaged and - optionally - managed resources.
-            /// </summary>
-            /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-            private void Dispose(bool alsoManaged)
-            {
-                if (IsDisposed || alsoManaged == false) return;
-                IsDisposed = true;
-
-                Event.Set();
-                Event.Dispose();
-            }
         }
 
         /// <summary>
@@ -220,7 +214,14 @@
             /// <summary>
             /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
             /// </summary>
-            public void Dispose() => Dispose(true);
+            public void Dispose()
+            {
+                if (IsDisposed) return;
+                IsDisposed = true;
+
+                Event.Set();
+                Event.Dispose();
+            }
 
             /// <summary>
             /// Waits for the event to be completed
@@ -236,19 +237,6 @@
             /// True when there was no timeout. False if the tiemout was reached
             /// </returns>
             public bool Wait(TimeSpan timeout) => IsDisposed == false ? Event.Wait(timeout) : true;
-
-            /// <summary>
-            /// Releases unmanaged and - optionally - managed resources.
-            /// </summary>
-            /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-            private void Dispose(bool alsoManaged)
-            {
-                if (IsDisposed || alsoManaged == false) return;
-                IsDisposed = true;
-
-                Event.Set();
-                Event.Dispose();
-            }
         }
 
         #endregion
