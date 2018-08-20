@@ -19,7 +19,7 @@
         private readonly AtomicBoolean IsCancellationPending = new AtomicBoolean(false);
         private readonly IWaitEvent PlaybackFinished = WaitEventFactory.Create(isCompleted: true, useSlim: true);
         private readonly AutoResetEvent DriverCallbackEvent = new AutoResetEvent(false);
-        private volatile bool IsDisposed = false;
+        private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
 
         private IntPtr DeviceHandle;
         private WaveOutBuffer[] Buffers;
@@ -37,10 +37,11 @@
         public LegacyAudioPlayer(AudioRenderer renderer, int deviceNumber)
         {
             // Initialize the default values
-            if (deviceNumber < -1) deviceNumber = -1;
+            var deviceId = deviceNumber;
+            if (deviceId < -1) deviceId = -1;
 
             Renderer = renderer;
-            DeviceNumber = deviceNumber;
+            DeviceNumber = deviceId;
             DesiredLatency = 200;
             NumberOfBuffers = 2;
             Capabilities = WaveInterop.RetrieveAudioDeviceInfo(DeviceNumber);
@@ -89,6 +90,18 @@
         /// Gets the capabilities.
         /// </summary>
         public LegacyAudioDeviceInfo Capabilities { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is disposed.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is disposed; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsDisposed
+        {
+            get => m_IsDisposed.Value;
+            private set => m_IsDisposed.Value = value;
+        }
 
         #endregion
 

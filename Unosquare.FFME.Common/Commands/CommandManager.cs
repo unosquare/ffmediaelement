@@ -30,10 +30,10 @@
         private readonly AtomicBoolean HasSeekingStarted = new AtomicBoolean(false);
         private readonly IWaitEvent SeekingCommandEvent = WaitEventFactory.Create(isCompleted: true, useSlim: true);
 
-        private bool m_IsClosing = default;
-        private bool m_IsOpening = default;
-        private bool m_IsChanging = default;
-        private bool m_IsDisposed = default;
+        private bool m_IsClosing;
+        private bool m_IsOpening;
+        private bool m_IsChanging;
+        private bool m_IsDisposed;
 
         private DirectCommandBase CurrentDirectCommand;
         private CommandBase CurrentQueueCommand;
@@ -92,17 +92,14 @@
         /// <summary>
         /// Gets a value indicating whether the media seeking is in progress.
         /// </summary>
-        public bool IsSeeking
-        {
-            get => IsActivelySeeking || HasQueuedSeekCommands;
-        }
+        public bool IsSeeking => IsActivelySeeking || HasQueuedSeekCommands;
 
         /// <summary>
         /// Gets a value indicating whether a seek command is currently executing.
         /// This differs from the <see cref="IsSeeking"/> property as this is the realtime
         /// state of a seek operation as opposed to a general, delayed state of the command manager.
         /// </summary>
-        public bool IsActivelySeeking { get => SeekingCommandEvent.IsInProgress; }
+        public bool IsActivelySeeking => SeekingCommandEvent.IsInProgress;
 
         /// <summary>
         /// Gets a value indicating whether Reading, Decoding and Rendering workers are

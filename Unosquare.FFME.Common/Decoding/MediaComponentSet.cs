@@ -26,13 +26,13 @@
         private ReadOnlyCollection<MediaComponent> m_All = new ReadOnlyCollection<MediaComponent>(new List<MediaComponent>(0));
         private ReadOnlyCollection<MediaType> m_MediaTypes = new ReadOnlyCollection<MediaType>(new List<MediaType>(0));
 
-        private int m_Count = default;
+        private int m_Count;
         private MediaType m_MainMediaType = MediaType.None;
-        private MediaComponent m_Main = null;
-        private AudioComponent m_Audio = null;
-        private VideoComponent m_Video = null;
-        private SubtitleComponent m_Subtitle = null;
-        private PacketBufferState BufferState = default;
+        private MediaComponent m_Main;
+        private AudioComponent m_Audio;
+        private VideoComponent m_Video;
+        private SubtitleComponent m_Subtitle;
+        private PacketBufferState BufferState;
 
         #endregion
 

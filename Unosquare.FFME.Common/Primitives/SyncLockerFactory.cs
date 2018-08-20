@@ -71,7 +71,7 @@
         /// <seealso cref="IDisposable" />
         private sealed class SyncLockReleaser : IDisposable
         {
-            private readonly ISyncReleasable Parent = null;
+            private readonly ISyncReleasable Parent;
             private readonly LockHolderType Operation;
             private bool IsDisposed;
 

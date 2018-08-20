@@ -92,7 +92,7 @@
         /// <summary>
         /// Gets the output format of the audio
         /// </summary>
-        public WaveFormat WaveFormat { get; } = null;
+        public WaveFormat WaveFormat { get; }
 
         /// <summary>
         /// Gets the realtime latency of the audio relative to the internal wall clock.
@@ -241,7 +241,6 @@
                     PlaySyncStartTime = null;
                     PlaySyncCount = 0;
                     PlaySyncGaveUp.Value = false;
-                    return;
                 }
             }
         }

@@ -16,7 +16,7 @@
         private readonly object SyncLock = new object();
         private readonly ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
         private IntPtr m_Buffer = IntPtr.Zero;
-        private int m_BufferLength = default;
+        private int m_BufferLength;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MediaBlock" /> class.

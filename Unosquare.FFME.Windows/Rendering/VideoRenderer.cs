@@ -40,7 +40,7 @@
         /// <summary>
         /// The bitmap that is presented to the user.
         /// </summary>
-        private WriteableBitmap TargetBitmap = null;
+        private WriteableBitmap TargetBitmap;
 
         #endregion
 

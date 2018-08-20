@@ -18,8 +18,8 @@
         private readonly object PropertyLock = new object();
         private readonly ManualResetEventSlim CompletedEvent = new ManualResetEventSlim(false);
         private readonly CancellationTokenSource CancelToken = new CancellationTokenSource();
-        private bool m_IsDisposed = false;
-        private bool m_IsExecuting = false;
+        private bool m_IsDisposed;
+        private bool m_IsExecuting;
 
         #endregion
 

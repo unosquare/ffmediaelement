@@ -23,7 +23,7 @@
         private static readonly Key[] TogglePlayPauseKeys = new[] { Key.Play, Key.MediaPlayPause, Key.Space };
         private DateTime LastMouseMoveTime;
         private Point LastMousePosition;
-        private DispatcherTimer MouseMoveTimer = null;
+        private DispatcherTimer MouseMoveTimer;
         private MediaType StreamCycleMediaType = MediaType.None;
 
         #endregion

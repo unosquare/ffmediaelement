@@ -9,7 +9,7 @@
     /// <seealso cref="IMediaConnector" />
     internal class WindowsMediaConnector : IMediaConnector
     {
-        private MediaElement Parent = null;
+        private readonly MediaElement Parent;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WindowsMediaConnector"/> class.

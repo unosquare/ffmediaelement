@@ -46,7 +46,7 @@
                     continue;
 
                 var value = string.IsNullOrWhiteSpace(kvp.Value) ? string.Empty : kvp.Value;
-                attribs.Add($"{HttpUtility.UrlEncode(kvp.Key)}=\"{HttpUtility.UrlEncode(kvp.Value)}\"");
+                attribs.Add($"{HttpUtility.UrlEncode(kvp.Key)}=\"{HttpUtility.UrlEncode(value)}\"");
             }
 
             return string.Join(" ", attribs);

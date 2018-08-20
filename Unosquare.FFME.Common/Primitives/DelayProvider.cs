@@ -13,7 +13,7 @@
         private readonly object SyncRoot = new object();
         private readonly Action DelayAction;
         private bool IsDisposed;
-        private IWaitEvent DelayEvent = null;
+        private IWaitEvent DelayEvent;
         private Stopwatch DelayStopwatch = new Stopwatch();
 
         /// <summary>

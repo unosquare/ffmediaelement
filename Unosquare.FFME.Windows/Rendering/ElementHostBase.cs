@@ -368,7 +368,7 @@
         private sealed class HostedPresentationSource : PresentationSource, IDisposable
         {
             private readonly VisualTarget HostConnector;
-            private bool m_IsDisposed = false;
+            private bool m_IsDisposed;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="HostedPresentationSource"/> class.
@@ -384,10 +384,7 @@
             /// </summary>
             public override Visual RootVisual
             {
-                get
-                {
-                    return HostConnector.RootVisual;
-                }
+                get => HostConnector.RootVisual;
                 set
                 {
                     var oldRoot = HostConnector.RootVisual;

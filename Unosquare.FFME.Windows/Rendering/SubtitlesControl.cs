@@ -198,8 +198,8 @@
         [Description("Gets or sets the text contents of this text block.")]
         public string Text
         {
-            get { return GetValue(TextProperty) as string; }
-            set { SetValue(TextProperty, value); }
+            get => GetValue(TextProperty) as string;
+            set => SetValue(TextProperty, value);
         }
 
         /// <summary>
@@ -209,8 +209,8 @@
         [Description("Gets or sets the text contents of this text block.")]
         public Brush TextForeground
         {
-            get { return GetValue(TextForegroundProperty) as Brush; }
-            set { SetValue(TextForegroundProperty, value); }
+            get => GetValue(TextForegroundProperty) as Brush;
+            set => SetValue(TextForegroundProperty, value);
         }
 
         /// <summary>
@@ -220,8 +220,8 @@
         [Description("Gets or sets the text outline brush.")]
         public Brush TextOutline
         {
-            get { return GetValue(TextOutlineProperty) as Brush; }
-            set { SetValue(TextOutlineProperty, value); }
+            get => GetValue(TextOutlineProperty) as Brush;
+            set => SetValue(TextOutlineProperty, value);
         }
 
         /// <summary>
@@ -231,8 +231,8 @@
         [Description("Gets or sets the text outline width.")]
         public Thickness TextOutlineWidth
         {
-            get { return (Thickness)GetValue(TextOutlineWidthProperty); }
-            set { SetValue(TextOutlineWidthProperty, value); }
+            get => (Thickness)GetValue(TextOutlineWidthProperty);
+            set => SetValue(TextOutlineWidthProperty, value);
         }
 
         /// <summary>
@@ -242,8 +242,8 @@
         [Description("Gets or sets the text foreground effect. It's a smooth drop shadow by default.")]
         public Effect TextForegroundEffect
         {
-            get { return GetValue(TextForegroundEffectProperty) as Effect; }
-            set { SetValue(TextForegroundEffectProperty, value); }
+            get => GetValue(TextForegroundEffectProperty) as Effect;
+            set => SetValue(TextForegroundEffectProperty, value);
         }
 
         #endregion

@@ -142,7 +142,7 @@
         private class WaitEventSlim : IWaitEvent, IDisposable
         {
             private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
-            private readonly ManualResetEventSlim Event = null;
+            private readonly ManualResetEventSlim Event;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="WaitEventSlim"/> class.

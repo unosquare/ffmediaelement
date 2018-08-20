@@ -10,15 +10,18 @@
     /// </summary>
     public sealed class DeferredAction : IDisposable
     {
-        private bool IsDiposed = false;
-        private Timer DeferTimer = null;
+        private bool IsDiposed;
+        private Timer DeferTimer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DeferredAction"/> class.
         /// </summary>
         /// <param name="action">The action.</param>
-        private DeferredAction(Action action) => DeferTimer = new Timer(
-            new TimerCallback(s => Application.Current?.Dispatcher?.Invoke(action)));
+        private DeferredAction(Action action)
+        {
+            DeferTimer = new Timer(
+                new TimerCallback(s => Application.Current?.Dispatcher?.Invoke(action)));
+        }
 
         /// <summary>
         /// Creates a new DeferredAction.

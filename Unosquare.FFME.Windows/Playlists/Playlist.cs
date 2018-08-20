@@ -23,7 +23,7 @@
         internal const string HeaderPrefix = "#EXTM3U";
         internal const string EntryPrefix = "#EXTINF";
 
-        private string m_Name = null;
+        private string m_Name;
 
         #endregion
 

@@ -26,7 +26,7 @@
         private readonly Dictionary<int, Dictionary<int, TextBlock>> CharacterLookup
             = new Dictionary<int, Dictionary<int, TextBlock>>(ClosedCaptionsBuffer.RowCount);
 
-        private Grid CaptionsGrid = null;
+        private Grid CaptionsGrid;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClosedCaptionsControl"/> class.

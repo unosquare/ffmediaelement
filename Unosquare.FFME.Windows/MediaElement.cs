@@ -46,22 +46,22 @@
         /// Signals whether the open task was called via the open command
         /// so that the source property changing handler does not re-run the open command.
         /// </summary>
-        private AtomicBoolean IsOpeningViaCommand = new AtomicBoolean(false);
+        private readonly AtomicBoolean IsOpeningViaCommand = new AtomicBoolean(false);
+
+        /// <summary>
+        /// To detect redundant calls
+        /// </summary>
+        private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
 
         /// <summary>
         /// The allow content change flag
         /// </summary>
-        private bool AllowContentChange = false;
+        private bool AllowContentChange;
 
         /// <summary>
         /// IUriContext BaseUri backing
         /// </summary>
-        private Uri m_BaseUri = null;
-
-        /// <summary>
-        /// TO detect redundant calls
-        /// </summary>
-        private volatile bool IsDisposed = false;
+        private Uri m_BaseUri;
 
         #endregion
 
@@ -191,10 +191,7 @@
         /// Gets the FFmpeg version information. Returns null
         /// when the libraries have not been loaded.
         /// </summary>
-        public static string FFmpegVersionInfo
-        {
-            get => MediaEngine.FFmpegVersionInfo;
-        }
+        public static string FFmpegVersionInfo => MediaEngine.FFmpegVersionInfo;
 
         /// <summary>
         /// Gets or sets a value indicating whether the video visualization control
@@ -204,7 +201,7 @@
         /// use time from the main UI thread. This feature is only valid if we are in
         /// a WPF context.
         /// </summary>
-        public static bool EnableWpfMultithreadedVideo { get; set; } = false;
+        public static bool EnableWpfMultithreadedVideo { get; set; }
 
         /// <summary>
         /// Gets or sets the base URI of the current application context.
@@ -213,6 +210,18 @@
         {
             get => m_BaseUri;
             set => m_BaseUri = value;
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is disposed.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is disposed; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsDisposed
+        {
+            get => m_IsDisposed.Value;
+            private set => m_IsDisposed.Value = value;
         }
 
         /// <summary>

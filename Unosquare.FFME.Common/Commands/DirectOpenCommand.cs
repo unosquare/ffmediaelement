@@ -11,7 +11,7 @@
     /// <seealso cref="DirectCommandBase" />
     internal sealed class DirectOpenCommand : DirectCommandBase
     {
-        private Exception ExceptionResult = null;
+        private Exception ExceptionResult;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DirectOpenCommand" /> class.

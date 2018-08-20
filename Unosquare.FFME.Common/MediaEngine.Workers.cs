@@ -20,9 +20,9 @@
 
         private readonly AtomicBoolean m_IsSyncBuffering = new AtomicBoolean(false);
         private IWaitEvent BlockRenderingWorkerExit;
-        private Thread PacketReadingTask = null;
-        private Thread FrameDecodingTask = null;
-        private Timer BlockRenderingWorker = null;
+        private Thread PacketReadingTask;
+        private Thread FrameDecodingTask;
+        private Timer BlockRenderingWorker;
 
         /// <summary>
         /// Holds the materialized block cache for each media type.
@@ -32,7 +32,7 @@
         /// <summary>
         /// Gets the preloaded subtitle blocks.
         /// </summary>
-        public MediaBlockBuffer PreloadedSubtitles { get; private set; } = null;
+        public MediaBlockBuffer PreloadedSubtitles { get; private set; }
 
         /// <summary>
         /// Gets the packet reading cycle control evenet.
@@ -141,16 +141,10 @@
         /// Gets a value indicating whether a worker interrupt has been requested by the command manager.
         /// This instructs potentially long loops in workers to immediately exit.
         /// </summary>
-        private bool IsWorkerInterruptRequested
-        {
-            get
-            {
-                return Commands.IsSeeking ||
+        private bool IsWorkerInterruptRequested => Commands.IsSeeking ||
                     Commands.IsChanging ||
                     Commands.IsClosing ||
                     Commands.IsStopWorkersPending;
-            }
-        }
 
         #endregion
 

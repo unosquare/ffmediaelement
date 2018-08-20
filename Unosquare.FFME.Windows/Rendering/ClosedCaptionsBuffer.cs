@@ -76,7 +76,7 @@
         /// </summary>
         private readonly object SyncLock = new object();
 
-        private int m_CursorColumnIndex = default;
+        private int m_CursorColumnIndex;
         private int m_CursorRowIndex = DefaultBaseRowIndex;
 
         #endregion
@@ -163,13 +163,13 @@
         /// Gets a value indicating whether the current and following
         /// caption text packets are underlined
         /// </summary>
-        public bool IsUnderlined { get; private set; } = default;
+        public bool IsUnderlined { get; private set; }
 
         /// <summary>
         /// Gets a value indicating whether the current and following
         /// caption text packets are italicized
         /// </summary>
-        public bool IsItalics { get; private set; } = default;
+        public bool IsItalics { get; private set; }
 
         /// <summary>
         /// Gets a value indicating whether this instance is in buffered mode.
@@ -184,17 +184,8 @@
         /// </summary>
         public int CursorRowIndex
         {
-            get
-            {
-                return m_CursorRowIndex;
-            }
-
-            private set
-            {
-                if (value < 0) value = 0;
-                if (value >= RowCount) value = RowCount - 1;
-                m_CursorRowIndex = value;
-            }
+            get => m_CursorRowIndex;
+            private set => m_CursorRowIndex = value.Clamp(0, RowCount - 1);
         }
 
         /// <summary>
@@ -202,23 +193,14 @@
         /// </summary>
         public int CursorColumnIndex
         {
-            get
-            {
-                return m_CursorColumnIndex;
-            }
-
-            private set
-            {
-                if (value < 0) value = 0;
-                if (value >= ColumnCount) value = ColumnCount - 1;
-                m_CursorColumnIndex = value;
-            }
+            get => m_CursorColumnIndex;
+            private set => m_CursorColumnIndex = value.Clamp(0, ColumnCount - 1);
         }
 
         /// <summary>
         /// Gets the currently active packet.
         /// </summary>
-        public ClosedCaptionPacket CurrentPacket { get; private set; } = default;
+        public ClosedCaptionPacket CurrentPacket { get; private set; }
 
         #endregion
 

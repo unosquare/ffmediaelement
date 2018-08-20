@@ -21,20 +21,20 @@
         /// Holds a reference to the audio resampler
         /// This resampler gets disposed upon disposal of this object.
         /// </summary>
-        private SwrContext* Scaler = null;
+        private SwrContext* Scaler;
 
         /// <summary>
         /// Used to determine if we have to reset the scaler parameters
         /// </summary>
-        private FFAudioParams LastSourceSpec = null;
+        private FFAudioParams LastSourceSpec;
 
-        private AVFilterGraph* FilterGraph = null;
-        private AVFilterContext* SourceFilter = null;
-        private AVFilterContext* SinkFilter = null;
-        private AVFilterInOut* SinkInput = null;
-        private AVFilterInOut* SourceOutput = null;
+        private AVFilterGraph* FilterGraph;
+        private AVFilterContext* SourceFilter;
+        private AVFilterContext* SinkFilter;
+        private AVFilterInOut* SinkInput;
+        private AVFilterInOut* SourceOutput;
 
-        private string CurrentFilterArguments = null;
+        private string CurrentFilterArguments;
 
         #endregion
 

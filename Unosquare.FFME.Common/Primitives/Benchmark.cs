@@ -67,7 +67,7 @@
         /// <seealso cref="IDisposable" />
         private sealed class BenchmarkUnit : IDisposable
         {
-            private readonly string Identifier = null;
+            private readonly string Identifier;
             private AtomicBoolean IsDisposed = new AtomicBoolean(false); // To detect redundant calls
             private Stopwatch Stopwatch = new Stopwatch();
 

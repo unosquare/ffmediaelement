@@ -10,7 +10,7 @@
     public abstract class AtomicTypeBase<T> : IComparable, IComparable<T>, IComparable<AtomicTypeBase<T>>, IEquatable<T>, IEquatable<AtomicTypeBase<T>>
         where T : struct, IComparable, IComparable<T>, IEquatable<T>
     {
-        private long backingValue = default;
+        private long backingValue;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AtomicTypeBase{T}"/> class.
@@ -47,7 +47,10 @@
         /// <returns>
         /// The result of the operator.
         /// </returns>
-        public static bool operator ==(AtomicTypeBase<T> a, T b) => a.Equals(b);
+        public static bool operator ==(AtomicTypeBase<T> a, T b)
+        {
+            return a.Equals(b);
+        }
 
         /// <summary>
         /// Implements the operator !=.
@@ -57,7 +60,10 @@
         /// <returns>
         /// The result of the operator.
         /// </returns>
-        public static bool operator !=(AtomicTypeBase<T> a, T b) => a.Equals(b) == false;
+        public static bool operator !=(AtomicTypeBase<T> a, T b)
+        {
+            return a.Equals(b) == false;
+        }
 
         /// <summary>
         /// Implements the operator &gt;.
@@ -67,7 +73,10 @@
         /// <returns>
         /// The result of the operator.
         /// </returns>
-        public static bool operator >(AtomicTypeBase<T> a, T b) => a.CompareTo(b) > 0;
+        public static bool operator >(AtomicTypeBase<T> a, T b)
+        {
+            return a.CompareTo(b) > 0;
+        }
 
         /// <summary>
         /// Implements the operator &lt;.
@@ -77,7 +86,10 @@
         /// <returns>
         /// The result of the operator.
         /// </returns>
-        public static bool operator <(AtomicTypeBase<T> a, T b) => a.CompareTo(b) < 0;
+        public static bool operator <(AtomicTypeBase<T> a, T b)
+        {
+            return a.CompareTo(b) < 0;
+        }
 
         /// <summary>
         /// Implements the operator &gt;=.
@@ -87,7 +99,10 @@
         /// <returns>
         /// The result of the operator.
         /// </returns>
-        public static bool operator >=(AtomicTypeBase<T> a, T b) => a.CompareTo(b) >= 0;
+        public static bool operator >=(AtomicTypeBase<T> a, T b)
+        {
+            return a.CompareTo(b) >= 0;
+        }
 
         /// <summary>
         /// Implements the operator &lt;=.
@@ -97,7 +112,10 @@
         /// <returns>
         /// The result of the operator.
         /// </returns>
-        public static bool operator <=(AtomicTypeBase<T> a, T b) => a.CompareTo(b) <= 0;
+        public static bool operator <=(AtomicTypeBase<T> a, T b)
+        {
+            return a.CompareTo(b) <= 0;
+        }
 
         /// <summary>
         /// Implements the operator ++.

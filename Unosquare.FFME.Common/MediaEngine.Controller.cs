@@ -19,7 +19,7 @@
         /// The underlying media container that provides access to
         /// individual media component streams
         /// </summary>
-        internal MediaContainer Container { get; set; } = null;
+        internal MediaContainer Container { get; set; }
 
         #endregion
 
