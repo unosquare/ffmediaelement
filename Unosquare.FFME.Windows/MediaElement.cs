@@ -56,7 +56,7 @@
         /// <summary>
         /// The allow content change flag
         /// </summary>
-        private bool AllowContentChange;
+        private readonly bool AllowContentChange;
 
         /// <summary>
         /// IUriContext BaseUri backing

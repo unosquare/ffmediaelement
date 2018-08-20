@@ -124,7 +124,7 @@
         /// <param name="targetAddress">The target address.</param>
         /// <param name="sourceAddress">The source address.</param>
         /// <param name="copyLength">Length of the copy.</param>
-        private unsafe void CopyMemoryParallel(IntPtr targetAddress, IntPtr sourceAddress, uint copyLength)
+        private void CopyMemoryParallel(IntPtr targetAddress, IntPtr sourceAddress, uint copyLength)
         {
             const int optimalBlockSize = 1024 * 1024 * 2; // 2MB per thread;
             const int maxParallelism = 4;
