@@ -70,7 +70,7 @@
         /// as there is already a valid initialization.
         /// </returns>
         /// <exception cref="FileNotFoundException">When ffmpeg libraries are not found</exception>
-        public static unsafe bool Initialize(string overridePath, int libIdentifiers)
+        public static bool Initialize(string overridePath, int libIdentifiers)
         {
             lock (SyncLock)
             {
@@ -106,12 +106,6 @@
 
                     // Additional library initialization
                     if (FFLibrary.LibAVDevice.IsLoaded) ffmpeg.avdevice_register_all();
-
-                    // Standard set initialization -- not needed anymore starting FFmpeg 4
-                    // if (FFLibrary.LibAVFilter.IsLoaded) ffmpeg.avfilter_register_all();
-                    // ffmpeg.av_register_all();
-                    // ffmpeg.avcodec_register_all();
-                    // ffmpeg.avformat_network_init();
 
                     // Logging and locking
                     LoggingWorker.ConnectToFFmpeg();

@@ -506,8 +506,6 @@
                         TimeSpan.TicksPerMillisecond * 1000d / (main as VideoComponent).BaseFrameRate));
                     break;
 
-                case MediaType.None:
-                case MediaType.Subtitle:
                 default:
                     PositionStep = default;
                     break;

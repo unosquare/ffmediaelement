@@ -116,7 +116,8 @@
         {
             lock (DisposeLock)
             {
-                if (IsDisposed) return;
+                if (IsDisposed || alsoManaged == false)
+                    return;
 
                 if (InternalPointer != null)
                     ReleaseAVSubtitle(Pointer);

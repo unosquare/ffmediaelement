@@ -1,7 +1,5 @@
 ﻿namespace Unosquare.FFME.Platform
 {
-#pragma warning disable SA1311
-
     using System;
     using System.Runtime.InteropServices;
 
@@ -225,99 +223,6 @@
         }
 
         /// <summary>
-        /// Sets the number of channels
-        /// Value: 1 = mono, 2 = stereo, n = multichannel
-        /// </summary>
-        public uint Channels
-        {
-            set { lock (SyncRoot) { NativeMethods.SetChannels(handle, value); } }
-        }
-
-        /// <summary>
-        /// Sets sample rate.
-        /// Value: Sample rate, e.g. 44100
-        /// </summary>
-        public uint SampleRate
-        {
-            set { lock (SyncRoot) { NativeMethods.SetSampleRate(handle, value); } }
-        }
-
-        /// <summary>
-        /// Sets new tempo control value.
-        /// Value: Tempo setting. Normal tempo = 1.0, smaller values
-        /// represent slower tempo, larger faster tempo.
-        /// </summary>
-        public float Tempo
-        {
-            set
-            {
-                lock (SyncRoot)
-                {
-                    NativeMethods.SetTempo(handle, value);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Sets new tempo control value as a difference in percents compared
-        /// to the original tempo (-50 .. +100 %);
-        /// </summary>
-        public float TempoChange
-        {
-            set { lock (SyncRoot) { NativeMethods.SetTempoChange(handle, value); } }
-        }
-
-        /// <summary>
-        /// Sets new rate control value.
-        /// Rate setting. Normal rate = 1.0, smaller values
-        /// represent slower rate, larger faster rate.
-        /// </summary>
-        public float Rate
-        {
-            set { lock (SyncRoot) { NativeMethods.SetTempo(handle, value); } }
-        }
-
-        /// <summary>
-        /// Sets new rate control value as a difference in percents compared
-        /// to the original rate (-50 .. +100 %);
-        /// Value: Rate setting is in %
-        /// </summary>
-        public float RateChange
-        {
-            set { lock (SyncRoot) { NativeMethods.SetRateChange(handle, value); } }
-        }
-
-        /// <summary>
-        /// Sets new pitch control value.
-        /// Value: Pitch setting. Original pitch = 1.0, smaller values
-        /// represent lower pitches, larger values higher pitch.
-        /// </summary>
-        public float Pitch
-        {
-            set { lock (SyncRoot) { NativeMethods.SetPitch(handle, value); } }
-        }
-
-        /// <summary>
-        /// Sets pitch change in octaves compared to the original pitch
-        /// (-1.00 .. +1.00 for +- one octave);
-        /// Value: Pitch setting in octaves
-        /// </summary>
-        public float PitchOctaves
-        {
-            set { lock (SyncRoot) { NativeMethods.SetPitchOctaves(handle, value); } }
-        }
-
-        /// <summary>
-        /// Sets pitch change in semi-tones compared to the original pitch
-        /// (-12 .. +12 for +- one octave);
-        /// Value: Pitch setting in semitones
-        /// </summary>
-        public float PitchSemiTones
-        {
-            set { lock (SyncRoot) { NativeMethods.SetPitchSemiTones(handle, value); } }
-        }
-
-        /// <summary>
         /// Changes or gets a setting controlling the processing system behaviour. See the
         /// 'SETTING_...' defines for available setting ID's.
         /// </summary>
@@ -341,6 +246,111 @@
         #endregion
 
         #region Sample Stream Methods
+
+        /// <summary>
+        /// Sets sample rate.
+        /// Value: Sample rate, e.g. 44100
+        /// </summary>
+        /// <param name="value">The sample rate value.</param>
+        public void SetSampleRate(uint value)
+        {
+            lock (SyncRoot)
+                NativeMethods.SetSampleRate(handle, value);
+        }
+
+        /// <summary>
+        /// Sets the number of channels
+        /// Value: 1 = mono, 2 = stereo, n = multichannel
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public void SetChannels(uint value)
+        {
+            lock (SyncRoot)
+                NativeMethods.SetChannels(handle, value);
+        }
+
+        /// <summary>
+        /// Sets new tempo control value.
+        /// Value: Tempo setting. Normal tempo = 1.0, smaller values
+        /// represent slower tempo, larger faster tempo.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public void SetTempo(float value)
+        {
+            lock (SyncRoot)
+                NativeMethods.SetTempo(handle, value);
+        }
+
+        /// <summary>
+        /// Sets new tempo control value as a difference in percents compared
+        /// to the original tempo (-50 .. +100 %);
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public void SetTempoChange(float value)
+        {
+            lock (SyncRoot)
+                NativeMethods.SetTempoChange(handle, value);
+        }
+
+        /// <summary>
+        /// Sets new rate control value.
+        /// Rate setting. Normal rate = 1.0, smaller values
+        /// represent slower rate, larger faster rate.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public void SetRate(float value)
+        {
+            lock (SyncRoot)
+                NativeMethods.SetRate(handle, value);
+        }
+
+        /// <summary>
+        /// Sets new rate control value as a difference in percents compared
+        /// to the original rate (-50 .. +100 %);
+        /// Value: Rate setting is in %
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public void SetRateChange(float value)
+        {
+            lock (SyncRoot)
+                NativeMethods.SetRateChange(handle, value);
+        }
+
+        /// <summary>
+        /// Sets new pitch control value.
+        /// Value: Pitch setting. Original pitch = 1.0, smaller values
+        /// represent lower pitches, larger values higher pitch.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public void SetPitch(float value)
+        {
+            lock (SyncRoot)
+                NativeMethods.SetPitch(handle, value);
+        }
+
+        /// <summary>
+        /// Sets pitch change in octaves compared to the original pitch
+        /// (-1.00 .. +1.00 for +- one octave);
+        /// Value: Pitch setting in octaves
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public void SetPitchOctaves(float value)
+        {
+            lock (SyncRoot)
+                NativeMethods.SetPitchOctaves(handle, value);
+        }
+
+        /// <summary>
+        /// Sets pitch change in semi-tones compared to the original pitch
+        /// (-12 .. +12 for +- one octave);
+        /// Value: Pitch setting in semitones
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public void SetPitchSemiTones(float value)
+        {
+            lock (SyncRoot)
+                NativeMethods.SetPitchSemiTones(handle, value);
+        }
 
         /// <summary>
         /// Flushes the last samples from the processing pipeline to the output.
@@ -529,6 +539,4 @@
 
         #endregion
     }
-
-#pragma warning restore SA1311
 }

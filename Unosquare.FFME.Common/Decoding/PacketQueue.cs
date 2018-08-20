@@ -151,7 +151,14 @@
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool alsoManaged) { lock (SyncLock) Clear(); }
+        private void Dispose(bool alsoManaged)
+        {
+            if (alsoManaged == false)
+                return;
+
+            lock (SyncLock)
+                Clear();
+        }
 
         #endregion
     }

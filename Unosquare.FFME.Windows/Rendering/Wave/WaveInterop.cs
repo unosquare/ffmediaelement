@@ -200,7 +200,7 @@
         /// <exception cref="MmException">Occurs when the MME interop call fails</exception>
         public static IntPtr OpenAudioDevice(int deviceId, WaveFormat format, WaveCallback callback, IntPtr intanceHandle, WaveInOutOpenFlags openFlags)
         {
-            if (deviceId < -1) deviceId = -1;
+            if (deviceId < -1) throw new ArgumentException($"Invalid Device ID {deviceId}", nameof(deviceId));
             var acquired = false;
             Monitor.TryEnter(SyncLock, LockTimeout, ref acquired);
             if (acquired == false) throw new TimeoutException(TimeoutErrorMessage);
@@ -230,7 +230,7 @@
         /// <exception cref="MmException">Occurs when the MME interop call fails</exception>
         public static IntPtr OpenAudioDevice(int deviceId, WaveFormat format, IntPtr callbackWindowHandle, IntPtr instanceHandle, WaveInOutOpenFlags openFlags)
         {
-            if (deviceId < -1) deviceId = -1;
+            if (deviceId < -1) throw new ArgumentException($"Invalid Device ID {deviceId}", nameof(deviceId));
             var acquired = false;
             Monitor.TryEnter(SyncLock, LockTimeout, ref acquired);
             if (acquired == false) throw new TimeoutException(TimeoutErrorMessage);
@@ -384,7 +384,7 @@
         /// <exception cref="MmException">Occurs when the MME interop call fails</exception>
         public static LegacyAudioDeviceInfo RetrieveAudioDeviceInfo(int deviceId)
         {
-            if (deviceId < -1) deviceId = -1;
+            if (deviceId < -1) throw new ArgumentException($"Invalid Device ID {deviceId}", nameof(deviceId));
             var acquired = false;
             Monitor.TryEnter(SyncLock, LockTimeout, ref acquired);
             if (acquired == false) throw new TimeoutException(TimeoutErrorMessage);

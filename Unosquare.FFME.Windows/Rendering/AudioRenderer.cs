@@ -444,11 +444,12 @@
             }
 
             // Initialize the SoundTouch Audio Processor (if available)
-            AudioProcessor = (SoundTouch.IsAvailable == false) ? null : new SoundTouch
+            AudioProcessor = (SoundTouch.IsAvailable == false) ? null : new SoundTouch();
+            if (AudioProcessor != null)
             {
-                Channels = Convert.ToUInt32(WaveFormat.Channels),
-                SampleRate = Convert.ToUInt32(WaveFormat.SampleRate)
-            };
+                AudioProcessor.SetChannels(Convert.ToUInt32(WaveFormat.Channels));
+                AudioProcessor.SetSampleRate(Convert.ToUInt32(WaveFormat.SampleRate));
+            }
 
             // Initialize the Audio Device
             AudioDevice = MediaElement.RendererOptions.UseLegacyAudioOut ?
@@ -793,7 +794,7 @@
             var samplesToRequest = requestedBytes / SampleBlockSize;
 
             // Set the new tempo (without changing the pitch) according to the speed ratio
-            AudioProcessor.Tempo = Convert.ToSingle(speedRatio);
+            AudioProcessor.SetTempo(Convert.ToSingle(speedRatio));
 
             // Sending Samples to the processor
             while (AudioProcessor.AvailableSampleCount < samplesToRequest && AudioBuffer != null)

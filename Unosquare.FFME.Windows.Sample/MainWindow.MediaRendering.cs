@@ -152,12 +152,12 @@
                 //    e.Text.Add("(subtitles)");
             };
 
-            Media.AudioDeviceStopped += (s, e) =>
+            Media.AudioDeviceStopped += async (s, e) =>
             {
                 // If we detect that the audio device has stopped, simply
                 // call the changemedia command so the default audio device gets selected
                 // and reopened. See issue #93
-                var task = Media.ChangeMedia();
+                await Media.ChangeMedia();
             };
 
             #endregion

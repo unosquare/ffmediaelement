@@ -59,7 +59,7 @@
         /// <summary>
         /// Optional functionality supported by the device
         /// </summary>
-        private WaveOutSupport support; // = new WaveOutSupport();
+        private WaveOutSupport support;
 
         // extra WAVEOUTCAPS2 members
         private Guid manufacturerGuid;

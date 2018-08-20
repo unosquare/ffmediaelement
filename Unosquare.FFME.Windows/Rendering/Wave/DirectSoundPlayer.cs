@@ -14,7 +14,7 @@
     /// Contact author: Alexandre Mutel - alexandre_mutel at yahoo.fr
     /// Modified by: Graham "Gee" Plumb
     /// </summary>
-    internal sealed class DirectSoundPlayer : IWavePlayer
+    internal sealed class DirectSoundPlayer : IWavePlayer, IDisposable
     {
         #region Fields
 
@@ -31,8 +31,7 @@
         private readonly AtomicBoolean IsCancellationPending = new AtomicBoolean(false);
         private readonly IWaitEvent PlaybackFinished = WaitEventFactory.Create(isCompleted: true, useSlim: true);
         private readonly EventWaitHandle CancelEvent = new EventWaitHandle(false, EventResetMode.ManualReset);
-
-        private volatile bool IsDisposed = false;
+        private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
 
         private WaveFormat WaveFormat;
         private int SamplesTotalSize;
@@ -95,6 +94,18 @@
         /// Gets the desired latency in milliseconds
         /// </summary>
         public int DesiredLatency { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is disposed.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is disposed; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsDisposed
+        {
+            get => m_IsDisposed.Value;
+            private set => m_IsDisposed.Value = value;
+        }
 
         #endregion
 

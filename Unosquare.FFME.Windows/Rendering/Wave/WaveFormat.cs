@@ -7,28 +7,28 @@
     /// Represents a Wave file format
     /// </summary>
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 2)]
-    internal class WaveFormat
+    internal class WaveFormat : IEquatable<WaveFormat>
     {
         /// <summary>The format tag -- always 0x0001 PCM</summary>
-        private short formatTag = 0x0001;
+        private readonly short formatTag = 0x0001;
 
         /// <summary>number of channels</summary>
-        private short channels;
+        private readonly short channels;
 
         /// <summary>sample rate</summary>
-        private int sampleRate;
+        private readonly int sampleRate;
 
         /// <summary>for buffer estimation</summary>
-        private int averageBytesPerSecond;
+        private readonly int averageBytesPerSecond;
 
         /// <summary>block size of data</summary>
-        private short blockAlign;
+        private readonly short blockAlign;
 
         /// <summary>number of bits per sample of mono data</summary>
-        private short bitsPerSample;
+        private readonly short bitsPerSample;
 
         /// <summary>number of following bytes</summary>
-        private short extraSize;
+        private readonly short extraSize;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WaveFormat"/> class.
@@ -175,6 +175,18 @@
                 averageBytesPerSecond ^
                 blockAlign ^
                 bitsPerSample;
+        }
+
+        /// <summary>
+        /// Indicates whether the current object is equal to another object of the same type.
+        /// </summary>
+        /// <param name="other">An object to compare with this object.</param>
+        /// <returns>
+        ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
+        /// </returns>
+        public bool Equals(WaveFormat other)
+        {
+            return GetHashCode() == other.GetHashCode();
         }
     }
 }

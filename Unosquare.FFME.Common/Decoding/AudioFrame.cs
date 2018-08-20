@@ -72,7 +72,8 @@
         {
             lock (DisposeLock)
             {
-                if (IsDisposed) return;
+                if (IsDisposed || alsoManaged == false)
+                    return;
 
                 if (InternalPointer != IntPtr.Zero)
                     ReleaseAVFrame(Pointer);

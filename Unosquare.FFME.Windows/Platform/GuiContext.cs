@@ -119,9 +119,9 @@
         /// </summary>
         /// <param name="callback">The callback.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void EnqueueInvoke(Action callback)
+        public async void EnqueueInvoke(Action callback)
         {
-            var postedTask = InvokeAsync(callback);
+            await InvokeAsync(callback);
         }
 
         /// <summary>
@@ -130,9 +130,9 @@
         /// <param name="priority">The priority.</param>
         /// <param name="callback">The callback.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void EnqueueInvoke(DispatcherPriority priority, Action callback)
+        public async void EnqueueInvoke(DispatcherPriority priority, Action callback)
         {
-            var postedTask = InvokeAsync(priority, callback);
+            await InvokeAsync(priority, callback);
         }
 
         /// <summary>

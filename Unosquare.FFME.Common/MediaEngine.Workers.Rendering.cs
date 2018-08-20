@@ -123,7 +123,11 @@
                     #endregion
 
                 }
-                catch { throw; }
+                catch (Exception ex)
+                {
+                    Container.Parent.Log(MediaLogMessageType.Error, $"{ex.GetType()}: {ex.Message}\r\nStack Trace:\r\n{ex.StackTrace}");
+                    throw;
+                }
                 finally
                 {
                     // Update the Position

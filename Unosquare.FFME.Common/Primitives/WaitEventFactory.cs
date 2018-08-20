@@ -42,7 +42,8 @@
         /// <seealso cref="IWaitEvent" />
         private class WaitEvent : IWaitEvent
         {
-            private ManualResetEvent Event;
+            private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
+            private readonly ManualResetEvent Event;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="WaitEvent"/> class.
@@ -56,7 +57,11 @@
             /// <summary>
             /// Gets a value indicating whether this instance is disposed.
             /// </summary>
-            public bool IsDisposed { get; private set; }
+            public bool IsDisposed
+            {
+                get => m_IsDisposed.Value;
+                private set => m_IsDisposed.Value = value;
+            }
 
             /// <summary>
             /// Returns true if the underlying handle is not closed and it is still valid.
@@ -65,9 +70,9 @@
             {
                 get
                 {
-                    if (IsDisposed || Event == null) return false;
-                    if (Event?.SafeWaitHandle?.IsClosed ?? true) return false;
-                    if (Event?.SafeWaitHandle?.IsInvalid ?? true) return false;
+                    if (IsDisposed) return false;
+                    if (Event.SafeWaitHandle?.IsClosed ?? true) return false;
+                    if (Event.SafeWaitHandle?.IsInvalid ?? true) return false;
                     return true;
                 }
             }
@@ -80,7 +85,7 @@
                 get
                 {
                     if (IsValid == false) return true;
-                    return Event?.WaitOne(0) ?? true;
+                    return Event.WaitOne(0);
                 }
             }
 
@@ -94,13 +99,13 @@
             /// Enters the state in which waiters need to wait.
             /// All future waiters will block when they call the Wait method
             /// </summary>
-            public void Begin() => Event?.Reset();
+            public void Begin() { if (IsDisposed) Event.Reset(); }
 
             /// <summary>
             /// Leaves the state in which waiters need to wait.
             /// All current waiters will continue.
             /// </summary>
-            public void Complete() => Event?.Set();
+            public void Complete() { if (IsDisposed) Event.Set(); }
 
             /// <summary>
             /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -110,7 +115,7 @@
             /// <summary>
             /// Waits for the event to be completed
             /// </summary>
-            public void Wait() => Event?.WaitOne();
+            public void Wait() { if (IsDisposed) Event.WaitOne(); }
 
             /// <summary>
             /// Waits for the event to be completed.
@@ -120,7 +125,7 @@
             /// <returns>
             /// True when there was no timeout. False if the tiemout was reached
             /// </returns>
-            public bool Wait(TimeSpan timeout) => Event?.WaitOne(timeout) ?? true;
+            public bool Wait(TimeSpan timeout) => IsDisposed == false ? Event.WaitOne(timeout) : true;
 
             /// <summary>
             /// Releases unmanaged and - optionally - managed resources.
@@ -128,12 +133,11 @@
             /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
             private void Dispose(bool alsoManaged)
             {
-                if (IsDisposed) return;
+                if (IsDisposed || alsoManaged == false) return;
                 IsDisposed = true;
 
-                Event?.Set();
-                Event?.Dispose();
-                Event = null;
+                Event.Set();
+                Event.Dispose();
             }
         }
 
@@ -143,7 +147,8 @@
         /// <seealso cref="IWaitEvent" />
         private class WaitEventSlim : IWaitEvent
         {
-            private ManualResetEventSlim Event = null;
+            private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
+            private readonly ManualResetEventSlim Event = null;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="WaitEventSlim"/> class.
@@ -157,7 +162,11 @@
             /// <summary>
             /// Gets a value indicating whether this instance is disposed.
             /// </summary>
-            public bool IsDisposed { get; private set; }
+            public bool IsDisposed
+            {
+                get => m_IsDisposed.Value;
+                private set => m_IsDisposed.Value = value;
+            }
 
             /// <summary>
             /// Returns true if the underlying handle is not closed and it is still valid.
@@ -166,7 +175,7 @@
             {
                 get
                 {
-                    if (IsDisposed || Event == null) return false;
+                    if (IsDisposed) return false;
                     if (Event.WaitHandle == null) return false;
                     if (Event.WaitHandle.SafeWaitHandle != null
                         && (Event.WaitHandle.SafeWaitHandle.IsClosed || Event.WaitHandle.SafeWaitHandle.IsInvalid))
@@ -200,13 +209,13 @@
             /// Enters the state in which waiters need to wait.
             /// All future waiters will block when they call the Wait method
             /// </summary>
-            public void Begin() => Event?.Reset();
+            public void Begin() { if (IsDisposed == false) Event.Reset(); }
 
             /// <summary>
             /// Leaves the state in which waiters need to wait.
             /// All current waiters will continue.
             /// </summary>
-            public void Complete() => Event?.Set();
+            public void Complete() { if (IsDisposed == false) Event.Set(); }
 
             /// <summary>
             /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -216,7 +225,7 @@
             /// <summary>
             /// Waits for the event to be completed
             /// </summary>
-            public void Wait() => Event?.Wait();
+            public void Wait() { if (IsDisposed == false) Event.Wait(); }
 
             /// <summary>
             /// Waits for the event to be completed.
@@ -226,7 +235,7 @@
             /// <returns>
             /// True when there was no timeout. False if the tiemout was reached
             /// </returns>
-            public bool Wait(TimeSpan timeout) => Event?.Wait(timeout) ?? true;
+            public bool Wait(TimeSpan timeout) => IsDisposed == false ? Event.Wait(timeout) : true;
 
             /// <summary>
             /// Releases unmanaged and - optionally - managed resources.
@@ -234,12 +243,11 @@
             /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
             private void Dispose(bool alsoManaged)
             {
-                if (IsDisposed) return;
+                if (IsDisposed || alsoManaged == false) return;
                 IsDisposed = true;
 
-                Event?.Set();
-                Event?.Dispose();
-                Event = null;
+                Event.Set();
+                Event.Dispose();
             }
         }
 
