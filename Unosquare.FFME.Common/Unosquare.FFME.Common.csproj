@@ -34,8 +34,11 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="FFmpeg.AutoGen" Version="4.0.0.2" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
+    <PackageReference Include="FFmpeg.AutoGen" Version="4.0.0.4" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework)'=='net461'">

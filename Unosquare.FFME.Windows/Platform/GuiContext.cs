@@ -33,7 +33,7 @@
             Thread = Thread.CurrentThread;
             ThreadContext = SynchronizationContext.Current;
             try { GuiDispatcher = System.Windows.Application.Current.Dispatcher; }
-            catch { }
+            catch { /* Ignore error as app might not be available or context is not WPF */ }
 
             Type = GuiContextType.None;
             if (GuiDispatcher != null) Type = GuiContextType.WPF;
@@ -119,9 +119,11 @@
         /// </summary>
         /// <param name="callback">The callback.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async void EnqueueInvoke(Action callback)
+        public void EnqueueInvoke(Action callback)
         {
-            await InvokeAsync(callback);
+#pragma warning disable 4014
+            InvokeAsync(callback).ConfigureAwait(false);
+#pragma warning restore 4014
         }
 
         /// <summary>
@@ -130,9 +132,11 @@
         /// <param name="priority">The priority.</param>
         /// <param name="callback">The callback.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async void EnqueueInvoke(DispatcherPriority priority, Action callback)
+        public void EnqueueInvoke(DispatcherPriority priority, Action callback)
         {
-            await InvokeAsync(priority, callback);
+#pragma warning disable 4014
+            InvokeAsync(priority, callback).ConfigureAwait(false);
+#pragma warning restore 4014
         }
 
         /// <summary>

@@ -82,7 +82,7 @@
     <Rule Id="IDE0005" Action="Info" />
     <Rule Id="IDE0007" Action="Info" />
     <Rule Id="IDE0007WithoutSuggestion" Action="Info" />
-    <Rule Id="IDE0008" Action="Info" />
+    <Rule Id="IDE0008" Action="None" />
     <Rule Id="IDE0008WithoutSuggestion" Action="Info" />
     <Rule Id="IDE0009" Action="Info" />
     <Rule Id="IDE0009WithoutSuggestion" Action="Info" />
