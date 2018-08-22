@@ -60,13 +60,7 @@
         public DirectSoundPlayer(AudioRenderer renderer, Guid deviceId)
         {
             Renderer = renderer;
-
-            if (deviceId == Guid.Empty)
-            {
-                deviceId = DefaultPlaybackDeviceId;
-            }
-
-            DeviceId = deviceId;
+            DeviceId = deviceId == Guid.Empty ? DefaultPlaybackDeviceId : deviceId;
             DesiredLatency = 40;
             WaveFormat = renderer.WaveFormat;
         }

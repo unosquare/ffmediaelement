@@ -595,12 +595,12 @@
                 return CaptionsChannel.CCP;
 
             var parity = fieldPartity.Clamp(1, 2);
-            fieldChannel = fieldChannel.Clamp(1, 2);
+            var channel = fieldChannel.Clamp(1, 2);
 
             if (parity == 1)
-                return fieldChannel == 1 ? CaptionsChannel.CC1 : CaptionsChannel.CC2;
+                return channel == 1 ? CaptionsChannel.CC1 : CaptionsChannel.CC2;
             else
-                return fieldChannel == 1 ? CaptionsChannel.CC3 : CaptionsChannel.CC4;
+                return channel == 1 ? CaptionsChannel.CC3 : CaptionsChannel.CC4;
         }
 
         /// <summary>

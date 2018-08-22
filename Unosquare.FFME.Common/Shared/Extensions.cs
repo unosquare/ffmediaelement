@@ -111,10 +111,8 @@
         /// <param name="divideBy">The divide by.</param>
         /// <returns>The formatted string</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string Format(this long ts, double divideBy)
-        {
-            return divideBy == 1 ? $"{ts,10:#,##0}" : $"{ts / divideBy,10:#,##0.000}";
-        }
+        public static string Format(this long ts, double divideBy) =>
+            Math.Abs(divideBy - 1d) <= double.Epsilon ? $"{ts,10:#,##0}" : $"{ts / divideBy,10:#,##0.000}";
 
         /// <summary>
         /// Returns a fromatted string.

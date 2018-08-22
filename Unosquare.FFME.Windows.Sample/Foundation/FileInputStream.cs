@@ -22,10 +22,9 @@
         /// <param name="path">The path.</param>
         public FileInputStream(string path)
         {
-            path = Path.GetFullPath(path);
-
-            BackingStream = File.OpenRead(path);
-            var uri = new Uri(path);
+            var fullPath = Path.GetFullPath(path);
+            BackingStream = File.OpenRead(fullPath);
+            var uri = new Uri(fullPath);
             StreamUri = new Uri(uri.ToString().Replace("file://", Scheme));
             CanSeek = true;
             ReadBuffer = new byte[ReadBufferLength];

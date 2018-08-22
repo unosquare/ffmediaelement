@@ -333,7 +333,7 @@
             // Validate the video frame
             var frame = (AVFrame*)framePointer;
 
-            if (frame == null || frame->width <= 0 || frame->height <= 0)
+            if (framePointer == IntPtr.Zero || frame->width <= 0 || frame->height <= 0)
                 return null;
 
             // Move the frame from hardware (GPU) memory to RAM (CPU)

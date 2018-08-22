@@ -22,7 +22,7 @@
         /// <param name="pointer">The pointer.</param>
         /// <param name="component">The component.</param>
         /// <param name="mediaType">Type of the media.</param>
-        internal MediaFrame(AVFrame* pointer, MediaComponent component, MediaType mediaType)
+        protected MediaFrame(AVFrame* pointer, MediaComponent component, MediaType mediaType)
             : this((void*)pointer, component, mediaType)
         {
             var packetSize = pointer->pkt_size;
@@ -34,7 +34,7 @@
         /// </summary>
         /// <param name="pointer">The pointer.</param>
         /// <param name="component">The component.</param>
-        internal MediaFrame(AVSubtitle* pointer, MediaComponent component)
+        protected MediaFrame(AVSubtitle* pointer, MediaComponent component)
             : this((void*)pointer, component, MediaType.Subtitle)
         {
             // TODO: Compressed size is simply an estimate
@@ -116,6 +116,58 @@
 
         #endregion
 
+        #region Operators
+
+        /// <summary>
+        /// Implements the operator.
+        /// </summary>
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator ==(MediaFrame left, MediaFrame right) => left.Equals(right);
+
+        /// <summary>
+        /// Implements the operator.
+        /// </summary>
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator !=(MediaFrame left, MediaFrame right) => left.Equals(right) == false;
+
+        /// <summary>
+        /// Implements the operator.
+        /// </summary>
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator >(MediaFrame left, MediaFrame right) => left.CompareTo(right) > 0;
+
+        /// <summary>
+        /// Implements the operator.
+        /// </summary>
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator <(MediaFrame left, MediaFrame right) => left.CompareTo(right) < 0;
+
+        /// <summary>
+        /// Implements the operator.
+        /// </summary>
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator >=(MediaFrame left, MediaFrame right) => left.CompareTo(right) >= 0;
+
+        /// <summary>
+        /// Implements the operator.
+        /// </summary>
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator <=(MediaFrame left, MediaFrame right) => left.CompareTo(right) <= 0;
+
+        #endregion
+
         #region Methods
 
         /// <summary>
@@ -125,9 +177,29 @@
         /// <returns>
         /// A value that indicates the relative order of the objects being compared. The return value has these meanings: Value Meaning Less than zero This instance precedes <paramref name="other" /> in the sort order.  Zero This instance occurs in the same position in the sort order as <paramref name="other" />. Greater than zero This instance follows <paramref name="other" /> in the sort order.
         /// </returns>
-        public int CompareTo(MediaFrame other)
+        public int CompareTo(MediaFrame other) => StartTime.CompareTo(other.StartTime);
+
+        /// <summary>
+        /// Returns a hash code for this instance.
+        /// </summary>
+        /// <returns>
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
+        /// </returns>
+        public override int GetHashCode() => StartTime.GetHashCode();
+
+        /// <summary>
+        /// Determines whether the specified <see cref="object" />, is equal to this instance.
+        /// </summary>
+        /// <param name="obj">The <see cref="object" /> to compare with this instance.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified <see cref="object" /> is equal to this instance; otherwise, <c>false</c>.
+        /// </returns>
+        public override bool Equals(object obj)
         {
-            return StartTime.CompareTo(other.StartTime);
+            if (obj == null) return false;
+            if (obj is MediaFrame == false) return false;
+
+            return (obj as MediaFrame).StartTime.Equals(StartTime);
         }
 
         /// <summary>

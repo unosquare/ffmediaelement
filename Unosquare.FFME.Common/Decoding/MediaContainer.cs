@@ -1061,12 +1061,12 @@
         /// Seeks to the exact or prior frame of the main stream.
         /// Supports byte seeking. Target time is in absolute, zero-based time.
         /// </summary>
-        /// <param name="targetTime">The target time in absolute, 0-based time.</param>
+        /// <param name="targetTimeAbsolute">The target time in absolute, 0-based time.</param>
         /// <returns>
         /// The list of media frames
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private List<MediaFrame> StreamSeek(TimeSpan targetTime)
+        private List<MediaFrame> StreamSeek(TimeSpan targetTimeAbsolute)
         {
             // Create the output result object
             var result = new List<MediaFrame>(256);
@@ -1074,6 +1074,9 @@
                 SeekRequirement.MainComponentOnly : SeekRequirement.AudioAndVideo;
 
             #region Setup
+
+            // Capture absolute, 0-based traget time and clamp it
+            var targetTime = TimeSpan.FromTicks(targetTimeAbsolute.Ticks);
 
             // A special kind of seek is the zero seek. Execute it if requested.
             if (targetTime <= TimeSpan.Zero)

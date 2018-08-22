@@ -56,12 +56,10 @@
             {
                 lock (SyncLock)
                 {
-                    if (value < 0d) value = 0d;
-
                     // Capture the initial position se we set it even after the speedratio has changed
                     // this ensures a smooth position transition
                     var initialPosition = Position;
-                    m_SpeedRatio = value;
+                    m_SpeedRatio = value < 0d ? 0d : value;
                     Update(initialPosition);
                 }
             }
