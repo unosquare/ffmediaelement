@@ -133,7 +133,7 @@
 
             for (var i = (int)Block.Bottom; i >= (int)Block.Foreground; i--)
             {
-                var textBlock = new TextBlock()
+                var textBlock = new TextBlock
                 {
                     Name = $"{nameof(SubtitlesControl)}_{(Block)i}",
                     TextWrapping = TextWrapping.NoWrap,

@@ -12,7 +12,7 @@
     /// Derived classes implement the specifics of each media type.
     /// </summary>
     /// <seealso cref="IDisposable" />
-    internal abstract unsafe class MediaFrame : IDisposable, IComparable<MediaFrame>
+    internal abstract unsafe class MediaFrame : IDisposable, IComparable<MediaFrame>, IEquatable<MediaFrame>
     {
         #region Constructor
 
@@ -201,6 +201,15 @@
 
             return (obj as MediaFrame).StartTime.Equals(StartTime);
         }
+
+        /// <summary>
+        /// Indicates whether the current object is equal to another object of the same type.
+        /// </summary>
+        /// <param name="other">An object to compare with this object.</param>
+        /// <returns>
+        /// true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.
+        /// </returns>
+        public bool Equals(MediaFrame other) => Equals(other);
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
