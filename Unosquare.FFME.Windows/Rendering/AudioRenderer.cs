@@ -419,7 +419,7 @@
         private void OnApplicationExit(object sender, ExitEventArgs e)
         {
             try { Dispose(); }
-            catch { }
+            catch { /* Ignore exception and continue */ }
             finally
             {
                 // Self-disconnect

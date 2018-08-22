@@ -489,22 +489,19 @@
                     switch (input.MediaType)
                     {
                         case MediaType.Video:
-                            if (Components.HasVideo)
-                                return Components.Video.MaterializeFrame(input, ref output, siblings);
-                            else
-                                return false;
+                            return Components.HasVideo ?
+                                Components.Video.MaterializeFrame(input, ref output, siblings) :
+                                false;
 
                         case MediaType.Audio:
-                            if (Components.HasAudio)
-                                return Components.Audio.MaterializeFrame(input, ref output, siblings);
-                            else
-                                return false;
+                            return Components.HasAudio ?
+                                Components.Audio.MaterializeFrame(input, ref output, siblings) :
+                                false;
 
                         case MediaType.Subtitle:
-                            if (Components.HasSubtitles)
-                                return Components.Subtitles.MaterializeFrame(input, ref output, siblings);
-                            else
-                                return false;
+                            return Components.HasSubtitles ?
+                                Components.Subtitles.MaterializeFrame(input, ref output, siblings) :
+                                false;
 
                         default:
                             throw new MediaContainerException($"Unable to materialize frame of {nameof(MediaType)} {input.MediaType}");
@@ -1334,7 +1331,6 @@
             frames.Sort();
 
             var framesToDrop = new List<int>(frames.Count);
-            var frameType = frames[0].MediaType;
 
             for (var i = 0; i < frames.Count - 1; i++)
             {

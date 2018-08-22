@@ -256,6 +256,9 @@
                         source.Pointer->height,
                         targetScan,
                         targetStride);
+
+                    if (outputHeight <= 0)
+                        return false;
                 }
             }
             else

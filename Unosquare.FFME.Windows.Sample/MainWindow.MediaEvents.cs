@@ -127,7 +127,7 @@
                         e.Options.SubtitlesUrl = inputUrl;
                 }
             }
-            catch { }
+            catch { /* Ignore exception and continue */ }
 
             // You can force video FPS if necessary
             // see: https://github.com/unosquare/ffmediaelement/issues/212

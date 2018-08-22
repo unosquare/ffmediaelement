@@ -124,7 +124,7 @@
                             containerConfig.ProtocolPrefix = "async";
                         }
                     }
-                    catch { }
+                    catch { /* Ignore exception and continue */ }
 
                     // Support device URLs
                     // GDIGRAB: Example URI: device://gdigrab?desktop

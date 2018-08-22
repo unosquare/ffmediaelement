@@ -49,7 +49,7 @@
                 thumbnail.Freeze();
                 return thumbnail;
             }
-            catch { }
+            catch { /* Ignore exception and continue */ }
 
             return null;
         }
