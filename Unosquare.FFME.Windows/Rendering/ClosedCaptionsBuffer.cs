@@ -689,14 +689,6 @@
 
                         break;
                     }
-
-                case CaptionsCommand.AlarmOff:
-                case CaptionsCommand.AlarmOn:
-                case CaptionsCommand.None:
-                default:
-                    {
-                        break;
-                    }
             }
 
             return needsRepaint;

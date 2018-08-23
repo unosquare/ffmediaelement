@@ -450,8 +450,6 @@
                         component = m_Subtitle;
                         m_Subtitle = null;
                         break;
-                    default:
-                        break;
                 }
 
                 component?.Dispose();
