@@ -2510,19 +2510,6 @@ references:
   commentId: T:Unosquare.FFME.Playlists.PlaylistEntry
   fullName: Unosquare.FFME.Playlists.PlaylistEntry
   nameWithType: PlaylistEntry
-- uid: Unosquare.FFME.Playlists.PlaylistEntry.#ctor
-  name: PlaylistEntry()
-  href: api/Unosquare.FFME.Playlists.PlaylistEntry.html#Unosquare_FFME_Playlists_PlaylistEntry__ctor
-  commentId: M:Unosquare.FFME.Playlists.PlaylistEntry.#ctor
-  fullName: Unosquare.FFME.Playlists.PlaylistEntry.PlaylistEntry()
-  nameWithType: PlaylistEntry.PlaylistEntry()
-- uid: Unosquare.FFME.Playlists.PlaylistEntry.#ctor*
-  name: PlaylistEntry
-  href: api/Unosquare.FFME.Playlists.PlaylistEntry.html#Unosquare_FFME_Playlists_PlaylistEntry__ctor_
-  commentId: Overload:Unosquare.FFME.Playlists.PlaylistEntry.#ctor
-  isSpec: "True"
-  fullName: Unosquare.FFME.Playlists.PlaylistEntry.PlaylistEntry
-  nameWithType: PlaylistEntry.PlaylistEntry
 - uid: Unosquare.FFME.Playlists.PlaylistEntry.Attributes
   name: Attributes
   href: api/Unosquare.FFME.Playlists.PlaylistEntry.html#Unosquare_FFME_Playlists_PlaylistEntry_Attributes
