@@ -649,7 +649,6 @@
                     output = $"{prefixData} TEXT DATA | '{Text}'"; break;
                 case CaptionsPacketType.XdsClass:
                     output = $"{prefixData} XDS DATA  | {nameof(XdsClass)}: {XdsClass}"; break;
-                case CaptionsPacketType.Unrecognized:
                 default:
                     output = $"{prefixData} INVALID   | N/A"; break;
             }

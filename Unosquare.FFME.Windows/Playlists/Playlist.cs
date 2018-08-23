@@ -275,7 +275,7 @@
         /// <param name="attributes">The attributes.</param>
         public void Add(string title, TimeSpan duration, string url, Dictionary<string, string> attributes)
         {
-            var entry = new T()
+            var entry = new T
             {
                 Duration = duration,
                 MediaUrl = url,

@@ -436,20 +436,20 @@
             lock (ComponentSyncLock)
             {
                 var component = default(MediaComponent);
-                switch (mediaType)
+                if (mediaType == MediaType.Audio)
                 {
-                    case MediaType.Audio:
-                        component = m_Audio;
-                        m_Audio = null;
-                        break;
-                    case MediaType.Video:
-                        component = m_Video;
-                        m_Video = null;
-                        break;
-                    case MediaType.Subtitle:
-                        component = m_Subtitle;
-                        m_Subtitle = null;
-                        break;
+                    component = m_Audio;
+                    m_Audio = null;
+                }
+                else if (mediaType == MediaType.Video)
+                {
+                    component = m_Video;
+                    m_Video = null;
+                }
+                else if (mediaType == MediaType.Subtitle)
+                {
+                    component = m_Subtitle;
+                    m_Subtitle = null;
                 }
 
                 component?.Dispose();
