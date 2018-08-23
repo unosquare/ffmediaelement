@@ -356,7 +356,7 @@
 
             try
             {
-                var time = new MmTime() { Type = MmTime.TIME_BYTES };
+                var time = new MmTime { Type = MmTime.TIME_BYTES };
                 var structSize = Marshal.SizeOf(time);
 
                 MmException.Try(

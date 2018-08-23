@@ -446,7 +446,7 @@
 
             for (var i = 0; i < displayMatrixLength * sizeof(int); i += sizeof(int))
             {
-                matrix.Add(BitConverter.ToInt32(new byte[]
+                matrix.Add(BitConverter.ToInt32(new[]
                 {
                     matrixArrayRef[i + 0],
                     matrixArrayRef[i + 1],

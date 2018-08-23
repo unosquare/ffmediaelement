@@ -38,7 +38,6 @@
         /// <param name="line">The line.</param>
         public static void BeginExtendedInfoLine(this PlaylistEntry target, string line)
         {
-            var result = new PlaylistEntry();
             var lineData = line.Substring($"{Playlist.EntryPrefix}:".Length).Trim();
             var attributes = lineData.ParseAttributes();
 

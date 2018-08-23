@@ -112,7 +112,7 @@
         public static void Log(MediaEngine sender, MediaLogMessageType messageType, string message)
         {
             if (sender == null) throw new ArgumentNullException(nameof(sender));
-            var eventArgs = new MediaLogMessage(sender as MediaEngine, messageType, message);
+            var eventArgs = new MediaLogMessage(sender, messageType, message);
             LogQueue.Enqueue(eventArgs);
         }
 

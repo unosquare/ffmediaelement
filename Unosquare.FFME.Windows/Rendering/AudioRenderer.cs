@@ -800,7 +800,6 @@
                 AudioProcessorBuffer = new short[Convert.ToInt32(requestedBytes * Constants.Controller.MaxSpeedRatio / Constants.Audio.BytesPerSample)];
 
             var bytesToRead = Convert.ToInt32((requestedBytes * speedRatio).ToMultipleOf(SampleBlockSize));
-            var samplesToRead = bytesToRead / SampleBlockSize;
             var samplesToRequest = requestedBytes / SampleBlockSize;
 
             // Set the new tempo (without changing the pitch) according to the speed ratio

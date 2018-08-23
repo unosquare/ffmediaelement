@@ -9,7 +9,7 @@
     /// <summary>
     /// A class for creating, saving, and loading thumbnails.
     /// </summary>
-    internal class ThumbnailGenerator
+    internal static class ThumbnailGenerator
     {
         /// <summary>
         /// Snaps the thumbnail.
