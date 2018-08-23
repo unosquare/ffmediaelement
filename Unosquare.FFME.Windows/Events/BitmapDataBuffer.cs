@@ -13,6 +13,16 @@
         #region Constructors
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="BitmapDataBuffer"/> class.
+        /// </summary>
+        /// <param name="w">The w.</param>
+        internal BitmapDataBuffer(WriteableBitmap w)
+            : this(w.BackBuffer, w.BackBufferStride, w.Format.BitsPerPixel / 8, w.PixelWidth, w.PixelHeight, w.DpiX, w.DpiY, w.Palette, w.Format)
+        {
+            // placeholder
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="BitmapDataBuffer" /> class.
         /// </summary>
         /// <param name="scan0">The scan0.</param>
@@ -137,30 +147,5 @@
 
             return result;
         }
-
-        #region Factory Methods
-
-        /// <summary>
-        /// Creates a buffer reference from the bitmap. Please Lock the bitmap before calling this method.
-        /// </summary>
-        /// <param name="w">The w.</param>
-        /// <returns>The corresponding buffer</returns>
-        internal static BitmapDataBuffer FromWriteableBitmap(WriteableBitmap w)
-        {
-            var result = new BitmapDataBuffer(
-                w.BackBuffer,
-                w.BackBufferStride,
-                w.Format.BitsPerPixel / 8,
-                w.PixelWidth,
-                w.PixelHeight,
-                w.DpiX,
-                w.DpiY,
-                w.Palette,
-                w.Format);
-
-            return result;
-        }
-
-        #endregion
     }
 }
