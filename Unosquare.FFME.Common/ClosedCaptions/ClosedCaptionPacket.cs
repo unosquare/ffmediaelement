@@ -9,7 +9,7 @@
     /// Represents a 3-byte packet of closed-captioning data in EIA-608 format.
     /// See: http://jackyjung.tistory.com/attachment/499e14e28c347DB.pdf
     /// </summary>
-    public sealed class ClosedCaptionPacket : IComparable
+    public sealed class ClosedCaptionPacket : IComparable<ClosedCaptionPacket>
     {
         #region Dictionaries
 
@@ -657,23 +657,17 @@
             return output;
         }
 
-        #endregion
-
-        #region IComparable Support
-
         /// <summary>
         /// Compares the current instance with another object of the same type and returns an integer that indicates whether the current instance precedes, follows, or occurs in the same position in the sort order as the other object.
         /// </summary>
-        /// <param name="obj">An object to compare with this instance.</param>
+        /// <param name="other">An object to compare with this instance.</param>
         /// <returns>
-        /// A value that indicates the relative order of the objects being compared. The return value has these meanings: Value Meaning Less than zero This instance precedes <paramref name="obj" /> in the sort order. Zero This instance occurs in the same position in the sort order as <paramref name="obj" />. Greater than zero This instance follows <paramref name="obj" /> in the sort order.
+        /// A value that indicates the relative order of the objects being compared. The return value has these meanings: Value Meaning Less than zero This instance precedes <paramref name="other" /> in the sort order. Zero This instance occurs in the same position in the sort order as <paramref name="other" />. Greater than zero This instance follows <paramref name="other" /> in the sort order.
         /// </returns>
-        public int CompareTo(object obj)
+        public int CompareTo(ClosedCaptionPacket other)
         {
-            if (obj is null || obj is ClosedCaptionPacket == false)
-                throw new InvalidOperationException("Types must be compatible and non-null.");
-
-            return Timestamp.Ticks.CompareTo((obj as ClosedCaptionPacket).Timestamp.Ticks);
+            if (other == null) throw new ArgumentNullException(nameof(other));
+            return Timestamp.Ticks.CompareTo(other.Timestamp.Ticks);
         }
 
         #endregion

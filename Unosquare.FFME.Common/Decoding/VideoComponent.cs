@@ -16,17 +16,15 @@
         #region Private State Variables
 
         private readonly string FilterString;
-
         private readonly AVRational BaseFrameRateQ;
-        private SwsContext* Scaler = null;
+        private string CurrentFilterArguments;
 
+        private SwsContext* Scaler = null;
         private AVFilterGraph* FilterGraph = null;
         private AVFilterContext* SourceFilter = null;
         private AVFilterContext* SinkFilter = null;
         private AVFilterInOut* SinkInput = null;
         private AVFilterInOut* SourceOutput = null;
-
-        private string CurrentFilterArguments = null;
         private AVBufferRef* HardwareDeviceContext = null;
 
         #endregion
@@ -462,8 +460,8 @@
                 scale[0] = ComputeHypotenuse(Convert.ToDouble(matrix[0]), Convert.ToDouble(matrix[3]));
                 scale[1] = ComputeHypotenuse(Convert.ToDouble(matrix[1]), Convert.ToDouble(matrix[4]));
 
-                scale[0] = scale[0] == 0 ? 1 : scale[0];
-                scale[1] = scale[1] == 0 ? 1 : scale[1];
+                scale[0] = Math.Abs(scale[0]) <= double.Epsilon ? 1 : scale[0];
+                scale[1] = Math.Abs(scale[1]) <= double.Epsilon ? 1 : scale[1];
 
                 rotation = Math.Atan2(
                     Convert.ToDouble(matrix[1]) / scale[1],

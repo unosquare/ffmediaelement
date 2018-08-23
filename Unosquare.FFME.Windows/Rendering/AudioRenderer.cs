@@ -644,7 +644,7 @@
 
             // Perform minor adjustments until the delay is less than 10ms in either direction
             if (MediaCore.State.HasVideo &&
-                speedRatio == 1.0 &&
+                Math.Abs(speedRatio - 1.0) <= double.Epsilon &&
                 isBeyondThreshold == false &&
                 Math.Abs(audioLatencyMs) > SyncThresholdPerfect)
             {

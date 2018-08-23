@@ -12,7 +12,7 @@
     /// Derived classes implement the specifics of each media type.
     /// </summary>
     /// <seealso cref="IDisposable" />
-    internal abstract unsafe class MediaFrame : IDisposable, IComparable<MediaFrame>, IEquatable<MediaFrame>
+    internal abstract unsafe class MediaFrame : IComparable<MediaFrame>, IDisposable
     {
         #region Constructor
 
@@ -116,58 +116,6 @@
 
         #endregion
 
-        #region Operators
-
-        /// <summary>
-        /// Implements the operator.
-        /// </summary>
-        /// <param name="left">The left-hand side operand.</param>
-        /// <param name="right">The right-hand side operand.</param>
-        /// <returns>The result of the operation.</returns>
-        public static bool operator ==(MediaFrame left, MediaFrame right) => left.Equals(right);
-
-        /// <summary>
-        /// Implements the operator.
-        /// </summary>
-        /// <param name="left">The left-hand side operand.</param>
-        /// <param name="right">The right-hand side operand.</param>
-        /// <returns>The result of the operation.</returns>
-        public static bool operator !=(MediaFrame left, MediaFrame right) => left.Equals(right) == false;
-
-        /// <summary>
-        /// Implements the operator.
-        /// </summary>
-        /// <param name="left">The left-hand side operand.</param>
-        /// <param name="right">The right-hand side operand.</param>
-        /// <returns>The result of the operation.</returns>
-        public static bool operator >(MediaFrame left, MediaFrame right) => left.CompareTo(right) > 0;
-
-        /// <summary>
-        /// Implements the operator.
-        /// </summary>
-        /// <param name="left">The left-hand side operand.</param>
-        /// <param name="right">The right-hand side operand.</param>
-        /// <returns>The result of the operation.</returns>
-        public static bool operator <(MediaFrame left, MediaFrame right) => left.CompareTo(right) < 0;
-
-        /// <summary>
-        /// Implements the operator.
-        /// </summary>
-        /// <param name="left">The left-hand side operand.</param>
-        /// <param name="right">The right-hand side operand.</param>
-        /// <returns>The result of the operation.</returns>
-        public static bool operator >=(MediaFrame left, MediaFrame right) => left.CompareTo(right) >= 0;
-
-        /// <summary>
-        /// Implements the operator.
-        /// </summary>
-        /// <param name="left">The left-hand side operand.</param>
-        /// <param name="right">The right-hand side operand.</param>
-        /// <returns>The result of the operation.</returns>
-        public static bool operator <=(MediaFrame left, MediaFrame right) => left.CompareTo(right) <= 0;
-
-        #endregion
-
         #region Methods
 
         /// <summary>
@@ -178,38 +126,6 @@
         /// A value that indicates the relative order of the objects being compared. The return value has these meanings: Value Meaning Less than zero This instance precedes <paramref name="other" /> in the sort order.  Zero This instance occurs in the same position in the sort order as <paramref name="other" />. Greater than zero This instance follows <paramref name="other" /> in the sort order.
         /// </returns>
         public int CompareTo(MediaFrame other) => StartTime.CompareTo(other.StartTime);
-
-        /// <summary>
-        /// Returns a hash code for this instance.
-        /// </summary>
-        /// <returns>
-        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
-        /// </returns>
-        public override int GetHashCode() => StartTime.GetHashCode();
-
-        /// <summary>
-        /// Determines whether the specified <see cref="object" />, is equal to this instance.
-        /// </summary>
-        /// <param name="obj">The <see cref="object" /> to compare with this instance.</param>
-        /// <returns>
-        ///   <c>true</c> if the specified <see cref="object" /> is equal to this instance; otherwise, <c>false</c>.
-        /// </returns>
-        public override bool Equals(object obj)
-        {
-            if (obj == null) return false;
-            if (obj is MediaFrame == false) return false;
-
-            return (obj as MediaFrame).StartTime.Equals(StartTime);
-        }
-
-        /// <summary>
-        /// Indicates whether the current object is equal to another object of the same type.
-        /// </summary>
-        /// <param name="other">An object to compare with this object.</param>
-        /// <returns>
-        /// true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.
-        /// </returns>
-        public bool Equals(MediaFrame other) => Equals(other);
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.

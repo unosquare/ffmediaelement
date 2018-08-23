@@ -267,7 +267,7 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
 
             percentage = Math.Round(percentage * 100d, 0);
 
-            if (format == null || percentage == 0d)
+            if (format == null || Math.Abs(percentage) <= double.Epsilon)
                 return $"{percentage,3:0} %".Trim();
 
             return $"{((percentage > 0d) ? "R " : "L ")} {Math.Abs(percentage),3:0} %".Trim();

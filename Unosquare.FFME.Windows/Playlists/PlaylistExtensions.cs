@@ -87,7 +87,7 @@
         {
             char c;
             var startIndex = lastAttribute == null ? 0 : lastAttribute.EndIndex;
-            var attributePivotIndex = headerData.IndexOf("=\"", startIndex);
+            var attributePivotIndex = headerData.IndexOf("=\"", startIndex, StringComparison.InvariantCulture);
             var attributeStartIndex = -1;
             var attributeEndIndex = -1;
 
