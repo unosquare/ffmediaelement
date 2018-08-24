@@ -372,7 +372,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ApplyLayoutTransforms(VideoBlock b)
         {
-            if (MediaElement == null || MediaElement.VideoView == null) return;
+            if (MediaElement?.VideoView == null) return;
 
             var layoutTransforms = MediaElement.VideoView.LayoutTransform as TransformGroup;
             ScaleTransform scaleTransform = null;

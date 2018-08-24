@@ -56,7 +56,7 @@
             {
                 lock (SyncLock)
                 {
-                    // Capture the initial position se we set it even after the speedratio has changed
+                    // Capture the initial position se we set it even after the speed ratio has changed
                     // this ensures a smooth position transition
                     var initialPosition = Position;
                     m_SpeedRatio = value < 0d ? 0d : value;
@@ -68,7 +68,7 @@
         /// <summary>
         /// Sets a new position value atomically
         /// </summary>
-        /// <param name="value">The new value that the position porperty will hold.</param>
+        /// <param name="value">The new value that the position property will hold.</param>
         public void Update(TimeSpan value)
         {
             lock (SyncLock)

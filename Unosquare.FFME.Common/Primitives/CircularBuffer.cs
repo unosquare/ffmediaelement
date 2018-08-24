@@ -21,7 +21,7 @@
         /// <summary>
         /// The unmanaged buffer
         /// </summary>
-        private IntPtr Buffer = IntPtr.Zero;
+        private IntPtr Buffer;
 
         // Property backing
         private bool m_IsDisposed;

@@ -269,7 +269,7 @@
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
                     if (m_AllCodecs == null)
-                        m_AllCodecs = FFInterop.RetriveCodecs();
+                        m_AllCodecs = FFInterop.RetrieveCodecs();
 
                     return m_AllCodecs;
                 }
@@ -281,7 +281,7 @@
         #region Methods
 
         /// <summary>
-        /// Initializes the MedieElementCore.
+        /// Initializes the Media Element Core.
         /// </summary>
         /// <param name="platform">The platform-specific implementation.</param>
         public static void Initialize(IPlatform platform)

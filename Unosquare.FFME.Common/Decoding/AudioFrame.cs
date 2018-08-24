@@ -4,12 +4,13 @@
     using Shared;
     using System;
 
+    /// <inheritdoc />
     /// <summary>
     /// Represents a wrapper from an unmanaged FFmpeg audio frame
     /// </summary>
-    /// <seealso cref="MediaFrame" />
-    /// <seealso cref="IDisposable" />
-    internal sealed unsafe class AudioFrame : MediaFrame, IDisposable
+    /// <seealso cref="T:Unosquare.FFME.Decoding.MediaFrame" />
+    /// <seealso cref="T:System.IDisposable" />
+    internal sealed unsafe class AudioFrame : MediaFrame
     {
         #region Private Members
 
@@ -36,10 +37,9 @@
                 TimeSpan.FromTicks(frame->pts.ToTimeSpan(StreamTimeBase).Ticks - component.Container.MediaStartTimeOffset.Ticks);
 
             // Compute the audio frame duration
-            if (frame->pkt_duration != 0)
-                Duration = frame->pkt_duration.ToTimeSpan(StreamTimeBase);
-            else
-                Duration = TimeSpan.FromTicks(Convert.ToInt64(TimeSpan.TicksPerMillisecond * 1000d * frame->nb_samples / frame->sample_rate));
+            Duration = frame->pkt_duration != 0 ?
+                frame->pkt_duration.ToTimeSpan(StreamTimeBase) :
+                TimeSpan.FromTicks(Convert.ToInt64(TimeSpan.TicksPerMillisecond * 1000d * frame->nb_samples / frame->sample_rate));
 
             // Compute the audio frame end time
             EndTime = TimeSpan.FromTicks(StartTime.Ticks + Duration.Ticks);

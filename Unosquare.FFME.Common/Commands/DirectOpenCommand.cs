@@ -110,7 +110,7 @@
                 // Convert the URI object to something the Media Container understands (Uri to String)
                 var mediaUrl = Source.ToString();
 
-                // When opening via URL (and not via custom input stream), fixup the protocols and stuff
+                // When opening via URL (and not via custom input stream), fix up the protocols and stuff
                 if (InputStream == null)
                 {
                     try
@@ -147,10 +147,9 @@
                 m.SendOnMediaInitializing(containerConfig, mediaUrl);
 
                 // Instantiate the internal container using either a URL (default) or a custom input stream.
-                if (InputStream == null)
-                    m.Container = new MediaContainer(mediaUrl, containerConfig, m);
-                else
-                    m.Container = new MediaContainer(InputStream, containerConfig, m);
+                m.Container = InputStream == null ?
+                    new MediaContainer(mediaUrl, containerConfig, m) :
+                    new MediaContainer(InputStream, containerConfig, m);
 
                 // Notify the user media is opening and allow for media options to be modified
                 // Stuff like audio and video filters and stream selection can be performed here.
@@ -176,7 +175,7 @@
 
                 // Check if we have at least audio or video here
                 if (m.State.HasAudio == false && m.State.HasVideo == false)
-                    throw new MediaContainerException($"Unable to initialize at least one audio or video component fron the input stream.");
+                    throw new MediaContainerException("Unable to initialize at least one audio or video component from the input stream.");
 
                 // Charge! We are good to go, fire up the worker threads!
                 m.StartWorkers();

@@ -29,7 +29,7 @@
         /// <summary>
         /// Gets the amount of time to offset the subtitles by for this component
         /// </summary>
-        public TimeSpan Delay { get; } = TimeSpan.Zero;
+        public TimeSpan Delay { get; }
 
         /// <summary>
         /// Converts decoded, raw frame data in the frame source into a a usable frame. <br />

@@ -44,8 +44,8 @@
         /// </summary>
         public event RoutedEventHandler ElementLoaded
         {
-            add { AddHandler(ElementLoadedEvent, value); }
-            remove { RemoveHandler(ElementLoadedEvent, value); }
+            add => AddHandler(ElementLoadedEvent, value);
+            remove => RemoveHandler(ElementLoadedEvent, value);
         }
 
         /// <summary>
@@ -59,7 +59,7 @@
         public Dispatcher ElementDispatcher { get; private set; }
 
         /// <summary>
-        /// PRovides access to the framework element hosted within this element
+        /// Provides access to the framework element hosted within this element
         /// </summary>
         public T Element { get; private set; }
 
@@ -247,7 +247,7 @@
                     var desiredSizeChanged = previousDesiredSize != (Element?.DesiredSize ?? default);
 
                     if (availableSizeChanged || desiredSizeChanged)
-                        Dispatcher.InvokeAsync(() => InvalidateMeasure(), DispatcherPriority.Render);
+                        Dispatcher.InvokeAsync(InvalidateMeasure, DispatcherPriority.Render);
                 });
 
                 if (availableSizeChanged)
@@ -339,7 +339,7 @@
                 Element.SizeChanged += (snd, eva) =>
                 {
                     if (eva.PreviousSize == default || eva.NewSize == default)
-                        Dispatcher.Invoke(() => InvalidateMeasure());
+                        Dispatcher.Invoke(InvalidateMeasure);
                 };
 
                 Dispatcher.Run();
@@ -357,7 +357,7 @@
                 Thread.Sleep(50);
 
             ElementDispatcher = Dispatcher.FromThread(thread);
-            Dispatcher.BeginInvoke(new Action(() => { InvalidateMeasure(); }));
+            Dispatcher.BeginInvoke(new Action(InvalidateMeasure));
             RaiseEvent(new RoutedEventArgs(ElementLoadedEvent, this));
         }
 

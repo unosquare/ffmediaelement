@@ -681,21 +681,21 @@
             }
 
             // Try to get a valid stream size
-            var durationSeconds = NaturalDuration.HasValue ? NaturalDuration.Value.TotalSeconds : 0d;
+            var durationSeconds = NaturalDuration?.TotalSeconds ?? 0d;
             MediaStreamSize = MediaCore.Container?.MediaStreamSize ?? default;
 
-            // Compute the bitrate and buffering properties based on media byte size
+            // Compute the bit rate and buffering properties based on media byte size
             if (MediaStreamSize >= MinimumValidFileSize && IsSeekable && durationSeconds > 0)
             {
-                // The bitrate is simply the media size over the total duration
-                Bitrate = Convert.ToInt64(8d * MediaStreamSize / NaturalDuration.Value.TotalSeconds);
+                // The bit rate is simply the media size over the total duration
+                Bitrate = Convert.ToInt64(8d * MediaStreamSize / durationSeconds);
             }
         }
 
         /// <summary>
-        /// Updates the decoding bitrate.
+        /// Updates the decoding bit rate.
         /// </summary>
-        /// <param name="bitrate">The bitrate.</param>
+        /// <param name="bitrate">The bit rate.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void UpdateDecodingBitrate(long bitrate) => DecodingBitrate = bitrate;
 

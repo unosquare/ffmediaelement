@@ -723,7 +723,7 @@
                     // Output the invalid options as warnings
                     privateOptions.Remove(ContainerConfiguration.ScanAllPmts);
                     var currentEntry = privateOptions.First();
-                    while (currentEntry != null && currentEntry?.Key != null)
+                    while (currentEntry?.Key != null)
                     {
                         Parent?.Log(MediaLogMessageType.Warning, $"Invalid input option: '{currentEntry.Key}'");
                         currentEntry = privateOptions.Next(currentEntry);
@@ -733,7 +733,7 @@
                 ffmpeg.av_format_inject_global_side_data(InputContext);
 
                 // This is useful for file formats with no headers such as MPEG. This function also computes
-                // the real framerate in case of MPEG-2 repeat frame mode.
+                // the real frame-rate in case of MPEG-2 repeat frame mode.
                 if (ffmpeg.avformat_find_stream_info(InputContext, null) < 0)
                     Parent?.Log(MediaLogMessageType.Warning, $"{MediaUrl}: could not read stream information.");
 

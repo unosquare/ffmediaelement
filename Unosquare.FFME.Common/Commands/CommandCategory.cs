@@ -13,7 +13,7 @@
         Direct,
 
         /// <summary>
-        /// These commands are queued but clear the command queue qhen they are
+        /// These commands are queued but clear the command queue when they are
         /// queued for execution so that pending commands sre not executed
         /// and new commands can be queued.
         /// </summary>

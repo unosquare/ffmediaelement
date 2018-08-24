@@ -4,6 +4,7 @@
     using System;
     using System.Collections.Generic;
 
+    /// <inheritdoc />
     /// <summary>
     /// An AVDictionary management class
     /// </summary>
@@ -87,7 +88,7 @@
         /// Converts the AVDictionary to a regular dictionary.
         /// </summary>
         /// <param name="dictionary">The dictionary to convert from.</param>
-        /// <returns>the converterd dictionary</returns>
+        /// <returns>the converted dictionary</returns>
         public static Dictionary<string, string> ToDictionary(AVDictionary* dictionary)
         {
             var result = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
@@ -212,7 +213,7 @@
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="value">The value.</param>
-        /// <param name="dontOverwrite">if set to <c>true</c> [dont overwrite].</param>
+        /// <param name="dontOverwrite">if set to <c>true</c> [don't overwrite].</param>
         public void Set(string key, string value, bool dontOverwrite)
         {
             var flags = 0;

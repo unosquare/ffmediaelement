@@ -19,7 +19,7 @@
         }
 
         /// <summary>
-        /// Contins a reference to the media engine associated with this command
+        /// Contains a reference to the media engine associated with this command
         /// </summary>
         public MediaEngine MediaCore { get; }
 

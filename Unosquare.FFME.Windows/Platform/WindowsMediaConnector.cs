@@ -22,31 +22,19 @@
 
         #region Event Signal Handling
 
-        /// <summary>
-        /// Called when [buffering ended].
-        /// </summary>
-        /// <param name="sender">The sender.</param>
+        /// <inheritdoc />
         public void OnBufferingEnded(MediaEngine sender) =>
             Parent?.PostBufferingEndedEvent();
 
-        /// <summary>
-        /// Called when [buffering started].
-        /// </summary>
-        /// <param name="sender">The sender.</param>
+        /// <inheritdoc />
         public void OnBufferingStarted(MediaEngine sender) =>
             Parent?.PostBufferingStartedEvent();
 
-        /// <summary>
-        /// Called when [media closed].
-        /// </summary>
-        /// <param name="sender">The sender.</param>
+        /// <inheritdoc />
         public void OnMediaClosed(MediaEngine sender) =>
             Parent?.PostMediaClosedEvent();
 
-        /// <summary>
-        /// Called when [media ended].
-        /// </summary>
-        /// <param name="sender">The sender.</param>
+        /// <inheritdoc />
         public void OnMediaEnded(MediaEngine sender)
         {
             if (Parent == null) return;
@@ -82,19 +70,11 @@
             });
         }
 
-        /// <summary>
-        /// Called when [media failed].
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="e">The e.</param>
+        /// <inheritdoc />
         public void OnMediaFailed(MediaEngine sender, Exception e) =>
             Parent?.PostMediaFailedEvent(e);
 
-        /// <summary>
-        /// Called when [media opened].
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="mediaInfo">The media information.</param>
+        /// <inheritdoc />
         public void OnMediaOpened(MediaEngine sender, MediaInfo mediaInfo)
         {
             if (Parent == null) return;
@@ -130,85 +110,43 @@
             });
         }
 
-        /// <summary>
-        /// Called when [media opening].
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="options">The media options.</param>
-        /// <param name="mediaInfo">The media information.</param>
+        /// <inheritdoc />
         public void OnMediaOpening(MediaEngine sender, MediaOptions options, MediaInfo mediaInfo) =>
             Parent?.RaiseMediaOpeningEvent(options, mediaInfo);
 
-        /// <summary>
-        /// Called when media options are changing.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="mediaInfo">The media information.</param>
+        /// <inheritdoc />
         public void OnMediaChanging(MediaEngine sender, MediaOptions options, MediaInfo mediaInfo) =>
             Parent?.RaiseMediaChangingEvent(options, mediaInfo);
 
-        /// <summary>
-        /// Called when media options have been changed.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="mediaInfo">The media information.</param>
+        /// <inheritdoc />
         public void OnMediaChanged(MediaEngine sender, MediaInfo mediaInfo) =>
             Parent?.PostMediaChangedEvent(mediaInfo);
 
-        /// <summary>
-        /// Called when [media initializing].
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="config">The container configuration options.</param>
-        /// <param name="url">The URL.</param>
+        /// <inheritdoc />
         public void OnMediaInitializing(MediaEngine sender, ContainerConfiguration config, string url) =>
             Parent?.RaiseMediaInitializingEvent(config, url);
 
-        /// <summary>
-        /// Called when [message logged].
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="T:Unosquare.FFME.Shared.MediaLogMessage" /> instance containing the event data.</param>
+        /// <inheritdoc />
         public void OnMessageLogged(MediaEngine sender, MediaLogMessage e) =>
             Parent?.RaiseMessageLoggedEvent(e);
 
-        /// <summary>
-        /// Called when [seeking ended].
-        /// </summary>
-        /// <param name="sender">The sender.</param>
+        /// <inheritdoc />
         public void OnSeekingEnded(MediaEngine sender) =>
             Parent?.PostSeekingEndedEvent();
 
-        /// <summary>
-        /// Called when [seeking started].
-        /// </summary>
-        /// <param name="sender">The sender.</param>
+        /// <inheritdoc />
         public void OnSeekingStarted(MediaEngine sender) =>
             Parent?.PostSeekingStartedEvent();
 
-        /// <summary>
-        /// Called when [position changed].
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="oldValue">The old value.</param>
-        /// <param name="newValue">The new value.</param>
+        /// <inheritdoc />
         public void OnPositionChanged(MediaEngine sender, TimeSpan oldValue, TimeSpan newValue)
         {
-            if (Parent == null) return;
             Parent?.PostPositionChangedEvent(oldValue, newValue);
         }
 
-        /// <summary>
-        /// Called when [media state changed].
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="oldValue">The old value.</param>
-        /// <param name="newValue">The new value.</param>
+        /// <inheritdoc />
         public void OnMediaStateChanged(MediaEngine sender, PlaybackStatus oldValue, PlaybackStatus newValue)
         {
-            if (Parent == null) return;
-
             Parent?.PostMediaStateChangedEvent(
                 (System.Windows.Controls.MediaState)oldValue,
                 (System.Windows.Controls.MediaState)newValue);

@@ -18,8 +18,8 @@
         private readonly string FilterString;
 
         /// <summary>
-        /// Holds a reference to the audio resampler
-        /// This resampler gets disposed upon disposal of this object.
+        /// Holds a reference to the audio re-sampler
+        /// This re-sampler gets disposed upon disposal of this object.
         /// </summary>
         private SwrContext* Scaler;
 
@@ -98,7 +98,7 @@
             if (source == null || target == null)
                 throw new ArgumentNullException($"{nameof(input)} and {nameof(output)} are either null or not of a compatible media type '{MediaType}'");
 
-            // Create the source and target ausio specs. We might need to scale from
+            // Create the source and target audio specs. We might need to scale from
             // the source to the target
             var sourceSpec = FFAudioParams.CreateSource(source.Pointer);
             var targetSpec = FFAudioParams.CreateTarget(source.Pointer);
@@ -187,7 +187,7 @@
         /// </summary>
         /// <param name="framePointer">The raw FFmpeg frame pointer.</param>
         /// <returns>The media frame</returns>
-        protected override unsafe MediaFrame CreateFrameSource(IntPtr framePointer)
+        protected override MediaFrame CreateFrameSource(IntPtr framePointer)
         {
             // Validate the audio frame
             var frame = (AVFrame*)framePointer;
@@ -197,9 +197,9 @@
             if (string.IsNullOrWhiteSpace(FilterString) == false)
                 InitializeFilterGraph(frame);
 
-            AVFrame* outputFrame = null;
+            AVFrame* outputFrame;
 
-            // Filtergraph can be changed by issuing a ChangeMedia command
+            // Filter Graph can be changed by issuing a ChangeMedia command
             if (FilterGraph != null)
             {
                 // Allocate the output frame
@@ -219,7 +219,7 @@
                 else
                 {
                     // the output frame is the new valid frame (output frame).
-                    // threfore, we need to release the original
+                    // theretofore, we need to release the original
                     MediaFrame.ReleaseAVFrame(frame);
                 }
             }
@@ -254,7 +254,7 @@
                 Scaler = null;
             }
 
-            DestroyFiltergraph();
+            DestroyFilterGraph();
             base.Dispose(alsoManaged);
         }
 
@@ -263,9 +263,9 @@
         #region Filtering Methods
 
         /// <summary>
-        /// Destroys the filtergraph releasing unmanaged resources.
+        /// Destroys the filter graph releasing unmanaged resources.
         /// </summary>
-        private void DestroyFiltergraph()
+        private void DestroyFilterGraph()
         {
             if (FilterGraph != null)
             {
@@ -301,7 +301,7 @@
         }
 
         /// <summary>
-        /// If necessary, disposes the existing filtergraph and creates a new one based on the frame arguments.
+        /// If necessary, disposes the existing filter graph and creates a new one based on the frame arguments.
         /// </summary>
         /// <param name="frame">The frame.</param>
         /// <exception cref="MediaContainerException">
@@ -324,7 +324,7 @@
 
             var frameArguments = ComputeFilterArguments(frame);
             if (string.IsNullOrWhiteSpace(CurrentFilterArguments) || frameArguments.Equals(CurrentFilterArguments) == false)
-                DestroyFiltergraph();
+                DestroyFilterGraph();
             else
                 return;
 
@@ -399,7 +399,7 @@
             catch (Exception ex)
             {
                 Container.Parent?.Log(MediaLogMessageType.Error, $"Audio filter graph could not be built: {FilterString}.\r\n{ex.Message}");
-                DestroyFiltergraph();
+                DestroyFilterGraph();
             }
         }
 

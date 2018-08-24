@@ -7,6 +7,7 @@
     /// <summary>
     /// Defines attached properties for subtitle rendering
     /// </summary>
+    // ReSharper disable once ConvertToStaticClass
     public sealed class Subtitles
     {
         /// <summary>

@@ -111,7 +111,7 @@
         {
             get
             {
-                if (Commands.IsStopWorkersPending || Container == null || Container.Components == null)
+                if (Commands.IsStopWorkersPending || Container?.Components == null)
                     return false;
 
                 if (Container.IsReadAborted || Container.IsAtEndOfStream)

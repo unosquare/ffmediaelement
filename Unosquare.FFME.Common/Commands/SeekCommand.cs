@@ -22,24 +22,18 @@
             Category = CommandCategory.Delayed;
         }
 
-        /// <summary>
-        /// Gets the command type identifier.
-        /// </summary>
+        /// <inheritdoc />
         public override CommandType CommandType { get; }
 
-        /// <summary>
-        /// Gets the command category.
-        /// </summary>
+        /// <inheritdoc />
         public override CommandCategory Category { get; }
 
         /// <summary>
         /// Gets or sets the target seek position.
         /// </summary>
-        public TimeSpan TargetPosition { get; set; } = TimeSpan.Zero;
+        public TimeSpan TargetPosition { get; set; }
 
-        /// <summary>
-        /// Performs the actions represented by this deferred task.
-        /// </summary>
+        /// <inheritdoc />
         protected override void PerformActions()
         {
             var m = MediaCore;
@@ -72,7 +66,7 @@
                 // wait for the current reading and decoding cycles
                 // to finish. We don't want to interfere with reading in progress
                 // or decoding in progress. For decoding we already know we are not
-                // in a cycle because the docoding worker called this logic.
+                // in a cycle because the decoding worker called this logic.
                 m.PacketReadingCycle.Wait();
 
                 // Capture seek target adjustment

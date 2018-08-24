@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.ClosedCaptions
 {
     /// <summary>
-    /// Enumerates the differen Closed-Captioning Styles
+    /// Enumerates the different Closed-Captioning Styles
     /// </summary>
     public enum CaptionsStyle
     {

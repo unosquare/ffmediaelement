@@ -10,7 +10,7 @@
     using System.Text;
 
     /// <summary>
-    /// Provides a set of utilities to perfrom logging, text formatting,
+    /// Provides a set of utilities to perform logging, text formatting,
     /// conversion and other handy calculations.
     /// </summary>
     internal static class FFInterop
@@ -64,7 +64,7 @@
         /// This method is thread-safe.
         /// </summary>
         /// <param name="overridePath">The override path.</param>
-        /// <param name="libIdentifiers">The bitwaise flag identifiers corresponding to the libraries.</param>
+        /// <param name="libIdentifiers">The bit-wise flag identifiers corresponding to the libraries.</param>
         /// <returns>
         /// Returns true if it was a new initialization and it succeeded. False if there was no need to initialize
         /// as there is already a valid initialization.
@@ -139,7 +139,7 @@
         #region Interop Helper Methods
 
         /// <summary>
-        /// Gets the FFmpeg error mesage based on the error code
+        /// Gets the FFmpeg error message based on the error code
         /// </summary>
         /// <param name="errorCode">The code.</param>
         /// <returns>The decoded error message</returns>
@@ -207,10 +207,10 @@
         }
 
         /// <summary>
-        /// Retrives the codecs.
+        /// Retrieves the codecs.
         /// </summary>
         /// <returns>The codecs</returns>
-        public static unsafe AVCodec*[] RetriveCodecs()
+        public static unsafe AVCodec*[] RetrieveCodecs()
         {
             var result = new List<IntPtr>(1024);
             void* iterator;

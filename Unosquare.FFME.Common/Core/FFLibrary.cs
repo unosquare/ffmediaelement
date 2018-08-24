@@ -77,7 +77,7 @@
         public static FFLibrary LibAVUtil { get; } = new FFLibrary(Names.AVUtil, 56, 4);
 
         /// <summary>
-        /// Gets the SWResample library.
+        /// Gets the SW Resample library.
         /// </summary>
         public static FFLibrary LibSWResample { get; } = new FFLibrary(Names.SWResample, 3, 8);
 

@@ -42,14 +42,11 @@
         }
 
         /// <summary>
-        /// Creates an error message base don an erro result.
+        /// Creates an error message base don an error result.
         /// </summary>
         /// <param name="result">The result.</param>
         /// <param name="function">The function.</param>
-        /// <returns>A descriptive rror message</returns>
-        private static string ErrorMessage(MmResult result, string function)
-        {
-            return string.Format("{0} calling {1}", result, function);
-        }
+        /// <returns>A descriptive error message</returns>
+        private static string ErrorMessage(MmResult result, string function) => $"{result} calling {function}";
     }
 }

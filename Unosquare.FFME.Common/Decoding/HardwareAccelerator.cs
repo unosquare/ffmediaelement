@@ -21,7 +21,7 @@
             Name = selectedConfig.DeviceTypeName;
             DeviceType = selectedConfig.DeviceType;
             PixelFormat = selectedConfig.PixelFormat;
-            GetFormatCallback = new AVCodecContext_get_format(GetPixelFormat);
+            GetFormatCallback = GetPixelFormat;
         }
 
         /// <summary>
@@ -90,7 +90,7 @@
         /// </summary>
         /// <param name="codecContext">The codec context.</param>
         /// <param name="input">The input frame coming from the decoder (may or may not be hardware).</param>
-        /// <param name="isHardwareFrame">if set to <c>true</c> [comes from hardware] otherwise, hardware decoding was not perfomred.</param>
+        /// <param name="isHardwareFrame">if set to <c>true</c> [comes from hardware] otherwise, hardware decoding was not performed.</param>
         /// <returns>
         /// The frame downloaded from the device into RAM
         /// </returns>
@@ -134,7 +134,7 @@
             // The default output is the first pixel format found.
             var output = *pix_fmts;
 
-            // Iterate throught the different pixel formats provided by the codec
+            // Iterate throughout the different pixel formats provided by the codec
             for (var p = pix_fmts; *p != AVPixelFormat.AV_PIX_FMT_NONE; p++)
             {
                 // Try to select a hardware output pixel format that matches the HW device

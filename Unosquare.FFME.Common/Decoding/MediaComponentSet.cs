@@ -54,7 +54,7 @@
             PacketQueueOp operation, MediaPacket avPacket, MediaType mediaType, PacketBufferState bufferState);
 
         public delegate void OnFrameDecodedDelegate(IntPtr avFrame, MediaType mediaType);
-        public delegate void OnSubtitleDecodedDelegate(IntPtr avSubititle);
+        public delegate void OnSubtitleDecodedDelegate(IntPtr avSubtitle);
 
         #endregion
 
@@ -81,7 +81,7 @@
         public bool IsDisposed => m_IsDisposed.Value;
 
         /// <summary>
-        /// Gets the registred component count.
+        /// Gets the registered component count.
         /// </summary>
         public int Count
         {
@@ -266,7 +266,7 @@
         /// <summary>
         /// Sends an empty packet to all media components.
         /// When an EOF/EOS situation is encountered, this forces
-        /// the decoders to enter drainig mode until all frames are decoded.
+        /// the decoders to enter draining mode until all frames are decoded.
         /// </summary>
         public void SendEmptyPackets()
         {
@@ -319,7 +319,7 @@
             lock (BufferSyncLock)
                 BufferState = state;
 
-            // Send the callabck
+            // Send the callback
             OnPacketQueueChanged?.Invoke(operation, packet, mediaType, state);
         }
 
@@ -493,7 +493,7 @@
                 return;
             }
 
-            // If it was not vide, then it has to be audio (if it has audio)
+            // If it was not video, then it has to be audio (if it has audio)
             if (m_Audio != null)
             {
                 m_Main = m_Audio;
@@ -517,7 +517,7 @@
                 return;
             }
 
-            // We whould never really hit this line
+            // We should never really hit this line
             m_Main = null;
             m_MainMediaType = MediaType.None;
         }

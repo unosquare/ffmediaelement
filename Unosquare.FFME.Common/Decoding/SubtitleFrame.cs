@@ -87,7 +87,7 @@
         /// <value>
         /// The type of the text.
         /// </value>
-        public AVSubtitleType TextType { get; } = AVSubtitleType.SUBTITLE_NONE;
+        public AVSubtitleType TextType { get; }
 
         /// <summary>
         /// Gets the pointer to the unmanaged subtitle struct

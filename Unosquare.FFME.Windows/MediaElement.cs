@@ -58,11 +58,6 @@
         /// </summary>
         private readonly bool AllowContentChange;
 
-        /// <summary>
-        /// IUriContext BaseUri backing
-        /// </summary>
-        private Uri m_BaseUri;
-
         #endregion
 
         #region Constructors
@@ -168,7 +163,7 @@
         /// <summary>
         /// Gets or sets the FFmpeg path from which to load the FFmpeg binaries.
         /// You must set this path before setting the Source property for the first time on any instance of this control.
-        /// Settng this property when FFmpeg binaries have been registered will throw an exception.
+        /// Setting this property when FFmpeg binaries have been registered will throw an exception.
         /// </summary>
         public static string FFmpegDirectory
         {
@@ -195,7 +190,7 @@
 
         /// <summary>
         /// Gets or sets a value indicating whether the video visualization control
-        /// creates its own dispatcher thread to hanlde rendering of video frames.
+        /// creates its own dispatcher thread to handle rendering of video frames.
         /// This is an experimental feature and it is useful when creating video walls.
         /// For example if you want to display multiple videos at a time and don't want to
         /// use time from the main UI thread. This feature is only valid if we are in
@@ -203,14 +198,8 @@
         /// </summary>
         public static bool EnableWpfMultithreadedVideo { get; set; }
 
-        /// <summary>
-        /// Gets or sets the base URI of the current application context.
-        /// </summary>
-        Uri IUriContext.BaseUri
-        {
-            get => m_BaseUri;
-            set => m_BaseUri = value;
-        }
+        /// <inheritdoc />
+        Uri IUriContext.BaseUri { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether this instance is disposed.
@@ -232,7 +221,7 @@
 
         /// <summary>
         /// This is the image that holds video bitmaps. It is a Hosted Image which means that in a WPF
-        /// GUI context, it runs on its own dispatcher (multhreaded UI)
+        /// GUI context, it runs on its own dispatcher (multi-threaded UI)
         /// </summary>
         internal ImageHost VideoView { get; } = new ImageHost(
             GuiContext.Current.Type == GuiContextType.WPF && EnableWpfMultithreadedVideo)

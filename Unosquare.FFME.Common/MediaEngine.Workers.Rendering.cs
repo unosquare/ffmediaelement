@@ -27,9 +27,6 @@
             // Holds a snapshot of the current block to render
             var currentBlock = new MediaTypeDictionary<MediaBlock>();
 
-            // Keeps track of how many blocks were rendered in the cycle.
-            var renderedBlockCount = new MediaTypeDictionary<int>();
-
             // wait for main component blocks or EOF or cancellation pending
             while (CanReadMoreFramesOf(main) && Blocks[main].Count <= 0)
                 FrameDecodingCycle.Wait(Constants.Interval.LowPriority);
@@ -76,13 +73,9 @@
                     // Skip the cycle if we are running a priority command
                     if (Commands.IsExecutingDirectCommand) return;
 
-                    // Updatete Status Properties
+                    // Update Status Properties
                     main = Container.Components.MainMediaType;
                     all = Renderers.Keys.ToArray();
-
-                    // Reset the rendered count to 0
-                    foreach (var t in all)
-                        renderedBlockCount[t] = 0;
 
                     #endregion
 
@@ -109,7 +102,7 @@
 
                         // Render by forced signal (TimeSpan.MinValue) or because simply it is time to do so
                         if (LastRenderTime[t] == TimeSpan.MinValue || currentBlock[t].StartTime != LastRenderTime[t])
-                            renderedBlockCount[t] += SendBlockToRenderer(currentBlock[t], wallClock, main);
+                            SendBlockToRenderer(currentBlock[t], wallClock, main);
                     }
 
                     #endregion

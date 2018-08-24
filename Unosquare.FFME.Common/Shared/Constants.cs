@@ -25,7 +25,7 @@
         /// </summary>
         public static string FFmpegSearchPath { get; }
 
-        // TODO: (Floyd) Make this configurable. Maybe part of Media Options? See frame cahing policy issue #139.
+        // TODO: (Floyd) Make this configurable. Maybe part of Media Options? See frame caching policy issue #139.
         internal static Dictionary<MediaType, int> MaxBlocks { get; } = new Dictionary<MediaType, int>
         {
             { MediaType.Video, 12 },

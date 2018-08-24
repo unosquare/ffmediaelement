@@ -63,8 +63,7 @@
         /// Gets a value indicating whether the specified packet is a flush packet.
         /// These flush packets are used to clear the internal decoder buffers
         /// </summary>
-        public bool IsFlushPacket => m_IsDisposed.Value ? false
-            : (IntPtr)((AVPacket*)m_Pointer)->data == FlushPacketData;
+        public bool IsFlushPacket => !m_IsDisposed.Value && (IntPtr)((AVPacket*)m_Pointer)->data == FlushPacketData;
 
         /// <summary>
         /// Gets a value indicating whether this instance is disposed.

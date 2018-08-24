@@ -114,10 +114,9 @@
 
                 if (targetProperty.Value.PropertyType != MediaEngineStateProperties[targetProperty.Key].PropertyType)
                 {
-                    if (targetProperty.Value.PropertyType.IsEnum)
-                        engineValue = Enum.ToObject(targetProperty.Value.PropertyType, engineValue);
-                    else
-                        engineValue = Convert.ChangeType(engineValue, targetProperty.Value.PropertyType);
+                    engineValue = targetProperty.Value.PropertyType.IsEnum ?
+                        Enum.ToObject(targetProperty.Value.PropertyType, engineValue) :
+                        Convert.ChangeType(engineValue, targetProperty.Value.PropertyType);
                 }
 
                 if (Equals(engineValue, propertyValue) == false)

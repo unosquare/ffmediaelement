@@ -30,7 +30,7 @@
         public override CommandType CommandType { get; }
 
         /// <summary>
-        /// Gets a value indicating whetherthe media resumes playback when postprocessing.
+        /// Gets a value indicating whether the media resumes playback when postprocessing.
         /// </summary>
         public bool PlayWhenCompleted { get; }
 
@@ -75,7 +75,7 @@
                 m.Clock.Pause();
 
                 // Wait for the cycles to complete
-                var workerEvents = new IWaitEvent[] { m.BlockRenderingCycle, m.PacketReadingCycle };
+                var workerEvents = new[] { m.BlockRenderingCycle, m.PacketReadingCycle };
                 foreach (var workerEvent in workerEvents)
                     workerEvent.Wait();
 
@@ -139,7 +139,6 @@
                     // Let's simply do an automated seek
                     var seekCommand = new SeekCommand(m, m.WallClock);
                     seekCommand.Execute();
-                    return;
                 }
                 else
                 {

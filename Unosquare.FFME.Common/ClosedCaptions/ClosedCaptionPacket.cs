@@ -236,7 +236,7 @@
                 #region Header Checking
 
                 if (HeaderHasMarkers(header) == false
-                    || IsHeaderValidFalgSet(header) == false
+                    || IsHeaderValidFlagSet(header) == false
                     || (FieldParity == 0)
                     || (D0 == 0x00 && D1 == 0x00))
                 {
@@ -295,7 +295,7 @@
 
                 #region MidRow Code Detection (Table 69)
 
-                // Midrow Code Parsing
+                // Mid-row Code Parsing
                 if ((D0 == 0x11 || D0 == 0x19) && (D1 >= 0x20 && D1 <= 0x2F))
                 {
                     PacketType = CaptionsPacketType.MidRow;
@@ -585,16 +585,16 @@
         /// <summary>
         /// Computes the CC channel.
         /// </summary>
-        /// <param name="fieldPartity">The field partity.</param>
+        /// <param name="fieldParity">The field parity.</param>
         /// <param name="fieldChannel">The field channel.</param>
         /// <returns>The CC channel according to the parity and channel</returns>
-        public static CaptionsChannel ComputeChannel(int fieldPartity, int fieldChannel)
+        public static CaptionsChannel ComputeChannel(int fieldParity, int fieldChannel)
         {
-            // packets with 0 field partiy are null or unkown
-            if (fieldPartity <= 0)
+            // packets with 0 field parity are null or unknown
+            if (fieldParity <= 0)
                 return CaptionsChannel.CCP;
 
-            var parity = fieldPartity.Clamp(1, 2);
+            var parity = fieldParity.Clamp(1, 2);
             var channel = fieldChannel.Clamp(1, 2);
 
             if (parity == 1)
@@ -688,12 +688,9 @@
         /// </summary>
         /// <param name="data">The data.</param>
         /// <returns>
-        ///   <c>true</c> if [is header valid falg set] [the specified data]; otherwise, <c>false</c>.
+        ///   <c>true</c> if [is header valid flag set] [the specified data]; otherwise, <c>false</c>.
         /// </returns>
-        private static bool IsHeaderValidFalgSet(byte data)
-        {
-            return (data & 0x04) == 0x04;
-        }
+        private static bool IsHeaderValidFlagSet(byte data) => (data & 0x04) == 0x04;
 
         /// <summary>
         /// Gets the NTSC field type (1 or 2).
@@ -718,7 +715,7 @@
         }
 
         /// <summary>
-        /// Converst an ASCII character code to an EIA-608 char (in Unicode)
+        /// Converts an ASCII character code to an EIA-608 char (in Unicode)
         /// </summary>
         /// <param name="input">The input.</param>
         /// <returns>The charset char.</returns>

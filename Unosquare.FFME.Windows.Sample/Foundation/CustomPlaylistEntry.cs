@@ -24,8 +24,8 @@
         /// </summary>
         public string Thumbnail
         {
-            get => GetMappedAttibuteValue();
-            set => SetMappedAttibuteValue(value);
+            get => GetMappedAttributeValue();
+            set => SetMappedAttributeValue(value);
         }
 
         /// <summary>
@@ -33,8 +33,8 @@
         /// </summary>
         public string Format
         {
-            get => GetMappedAttibuteValue();
-            set => SetMappedAttibuteValue(value);
+            get => GetMappedAttributeValue();
+            set => SetMappedAttributeValue(value);
         }
 
         /// <summary>
@@ -44,34 +44,33 @@
         {
             get
             {
-                var currentValue = GetMappedAttibuteValue();
+                var currentValue = GetMappedAttributeValue();
                 if (string.IsNullOrWhiteSpace(currentValue))
                     return default;
 
-                if (long.TryParse(currentValue, out long binaryValue))
-                    return DateTime.FromBinary(binaryValue);
-
-                return default;
+                return long.TryParse(currentValue, out var binaryValue) ?
+                    DateTime.FromBinary(binaryValue) :
+                    default(DateTime?);
             }
             set
             {
                 if (value == null)
                 {
-                    SetMappedAttibuteValue(null);
+                    SetMappedAttributeValue(null);
                     return;
                 }
 
                 var binaryValue = value.Value.ToBinary().ToString(CultureInfo.InvariantCulture);
-                SetMappedAttibuteValue(binaryValue);
+                SetMappedAttributeValue(binaryValue);
             }
         }
 
-        private string GetMappedAttibuteValue([CallerMemberName] string propertyName = null)
+        private string GetMappedAttributeValue([CallerMemberName] string propertyName = null)
         {
-            return Attributes.GetEntryValue(PropertyMap[propertyName]);
+            return Attributes.GetEntryValue(PropertyMap[propertyName ?? throw new ArgumentNullException(nameof(propertyName))]);
         }
 
-        private void SetMappedAttibuteValue(string value, [CallerMemberName] string propertyName = null)
+        private void SetMappedAttributeValue(string value, [CallerMemberName] string propertyName = null)
         {
             if (Attributes.SetEntryValue(PropertyMap[propertyName], value))
                 OnPropertyChanged(propertyName);

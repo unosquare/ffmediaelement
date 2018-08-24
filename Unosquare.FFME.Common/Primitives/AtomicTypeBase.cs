@@ -168,11 +168,11 @@
             if (other == null)
                 return 1;
 
-            if (other is AtomicTypeBase<T>)
-                return BackingValue.CompareTo((other as AtomicTypeBase<T>).BackingValue);
+            if (other is AtomicTypeBase<T> atomicType)
+                return BackingValue.CompareTo(atomicType.BackingValue);
 
-            if (other is T)
-                return Value.CompareTo((T)other);
+            if (other is T variable)
+                return Value.CompareTo(variable);
 
             throw new ArgumentException($"Incompatible comparison types");
         }
@@ -201,10 +201,8 @@
         /// </returns>
         public override bool Equals(object other)
         {
-            if (other is AtomicTypeBase<T>) return Equals(other as AtomicTypeBase<T>);
-            if (other is T) return Equals((T)other);
-
-            return false;
+            if (other is AtomicTypeBase<T> atomicType) return Equals(atomicType);
+            return other is T variable && Equals(variable);
         }
 
         /// <summary>

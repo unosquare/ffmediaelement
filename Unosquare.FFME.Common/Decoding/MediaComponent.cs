@@ -82,7 +82,7 @@
             if (setCodecParamsResult < 0)
                 Container.Parent?.Log(MediaLogMessageType.Warning, $"Could not set codec parameters. Error code: {setCodecParamsResult}");
 
-            // We set the packet timebase in the same timebase as the stream as opposed to the tpyical AV_TIME_BASE
+            // We set the packet timebase in the same timebase as the stream as opposed to the typical AV_TIME_BASE
             if (this is VideoComponent && Container.MediaOptions.VideoForcedFps > 0)
             {
                 var fpsRational = ffmpeg.av_d2q(Container.MediaOptions.VideoForcedFps, 1000000);
@@ -128,7 +128,7 @@
                 if (codec == null)
                     continue;
 
-                // Pass default codec stuff to the codec contect
+                // Pass default codec stuff to the codec context
                 CodecContext->codec_id = codec->id;
 
                 // Process the decoder options
@@ -178,7 +178,7 @@
 
                 // If there are any codec options left over from passing them, it means they were not consumed
                 var currentEntry = codecOptions.First();
-                while (currentEntry != null && currentEntry?.Key != null)
+                while (currentEntry?.Key != null)
                 {
                     Container.Parent?.Log(MediaLogMessageType.Warning,
                         $"Invalid codec option: '{currentEntry.Key}' for codec '{FFInterop.PtrToStringUTF8(codec->name)}', stream {streamIndex}");
@@ -213,7 +213,7 @@
                     DecodePacketFunction = DecodeNextAVSubtitle;
                     break;
                 default:
-                    throw new NotSupportedException($"A compoenent of MediaType '{MediaType}' is not supported");
+                    throw new NotSupportedException($"A component of MediaType '{MediaType}' is not supported");
             }
 
             if (StreamInfo.IsAttachedPictureDisposition)
@@ -223,10 +223,9 @@
             }
 
             // Compute the start time
-            if (Stream->start_time == ffmpeg.AV_NOPTS_VALUE)
-                StartTimeOffset = Container.MediaStartTimeOffset;
-            else
-                StartTimeOffset = Stream->start_time.ToTimeSpan(Stream->time_base);
+            StartTimeOffset = Stream->start_time == ffmpeg.AV_NOPTS_VALUE ?
+                Container.MediaStartTimeOffset :
+                Stream->start_time.ToTimeSpan(Stream->time_base);
 
             // compute the duration
             if (Stream->duration == ffmpeg.AV_NOPTS_VALUE || Stream->duration == 0)
@@ -347,7 +346,7 @@
         public string CodecName { get; }
 
         /// <summary>
-        /// Gets the bitrate of this component as reported by the codec context.
+        /// Gets the bit rate of this component as reported by the codec context.
         /// Returns 0 for unknown.
         /// </summary>
         public long Bitrate { get; }
@@ -594,7 +593,7 @@
         /// Decodes the next Audio or Video frame.
         /// Reference: https://www.ffmpeg.org/doxygen/4.0/group__lavc__encdec.html
         /// </summary>
-        /// <returns>A deocder result containing the decoder frames (if any)</returns>
+        /// <returns>A decoder result containing the decoder frames (if any)</returns>
         private MediaFrame DecodeNextAVFrame()
         {
             var frame = ReceiveFrameFromDecoder(out var receiveFrameResult);

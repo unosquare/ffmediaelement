@@ -25,7 +25,7 @@
             // Full Features is already the default.
             MediaElement.FFmpegLoadModeFlags = FFmpegLoadMode.FullFeatures;
 
-            // Multithreaded video enables the creation of independent
+            // Multi-threaded video enables the creation of independent
             // dispatcher threads to render video frames.
             MediaElement.EnableWpfMultithreadedVideo = GuiContext.Current.IsInDebugMode == false;
         }
@@ -46,7 +46,7 @@
         public MediaElement MediaElement => MainWindow?.Media;
 
         /// <summary>
-        /// Provides access to tthe root-level, application-wide VM
+        /// Provides access to the root-level, application-wide VM
         /// </summary>
         public RootViewModel ViewModel => Application.Current.Resources[nameof(ViewModel)] as RootViewModel;
 
@@ -66,7 +66,7 @@
             Application.Current.MainWindow.Loaded += (snd, eva) => ViewModel.OnApplicationLoaded();
             Application.Current.MainWindow.Show();
 
-            // Preload FFmpeg libraries in the background. This is optional.
+            // Pre-load FFmpeg libraries in the background. This is optional.
             // FFmpeg will be automatically loaded if not already loaded when you try to open
             // a new stream or file. See issue #242
             ThreadPool.QueueUserWorkItem((s) =>

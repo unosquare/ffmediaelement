@@ -179,12 +179,12 @@
             Add(UnmanagedType.Frame, (IntPtr)frame, location);
 
         /// <summary>
-        /// Adds the specified filtergraph.
+        /// Adds the specified filter graph.
         /// </summary>
-        /// <param name="filtergraph">The filtergraph.</param>
+        /// <param name="filterGraph">The filter graph.</param>
         /// <param name="location">The location.</param>
-        public void Add(AVFilterGraph* filtergraph, string location) =>
-            Add(UnmanagedType.FilterGraph, (IntPtr)filtergraph, location);
+        public void Add(AVFilterGraph* filterGraph, string location) =>
+            Add(UnmanagedType.FilterGraph, (IntPtr)filterGraph, location);
 
         /// <summary>
         /// A reference entry

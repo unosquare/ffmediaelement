@@ -85,7 +85,7 @@
         private static ParsedAttribute ParseNextAttribute(string headerData, ParsedAttribute lastAttribute)
         {
             char c;
-            var startIndex = lastAttribute == null ? 0 : lastAttribute.EndIndex;
+            var startIndex = lastAttribute?.EndIndex ?? 0;
             var attributePivotIndex = headerData.IndexOf("=\"", startIndex, StringComparison.InvariantCulture);
             var attributeStartIndex = -1;
             var attributeEndIndex = -1;
