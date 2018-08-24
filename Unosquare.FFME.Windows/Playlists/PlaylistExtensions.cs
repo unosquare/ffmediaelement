@@ -38,7 +38,6 @@
         /// <param name="line">The line.</param>
         public static void BeginExtendedInfoLine(this PlaylistEntry target, string line)
         {
-            var result = new PlaylistEntry();
             var lineData = line.Substring($"{Playlist.EntryPrefix}:".Length).Trim();
             var attributes = lineData.ParseAttributes();
 
@@ -87,7 +86,7 @@
         {
             char c;
             var startIndex = lastAttribute == null ? 0 : lastAttribute.EndIndex;
-            var attributePivotIndex = headerData.IndexOf("=\"", startIndex);
+            var attributePivotIndex = headerData.IndexOf("=\"", startIndex, StringComparison.InvariantCulture);
             var attributeStartIndex = -1;
             var attributeEndIndex = -1;
 

@@ -92,10 +92,7 @@
         /// </summary>
         public static int FFmpegLoadModeFlags
         {
-            get
-            {
-                return m_FFmpegLoadModeFlags;
-            }
+            get => m_FFmpegLoadModeFlags;
             set
             {
                 if (FFInterop.IsInitialized)

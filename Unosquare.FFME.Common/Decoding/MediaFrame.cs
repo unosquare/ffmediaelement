@@ -12,7 +12,7 @@
     /// Derived classes implement the specifics of each media type.
     /// </summary>
     /// <seealso cref="IDisposable" />
-    internal abstract unsafe class MediaFrame : IDisposable, IComparable<MediaFrame>
+    internal abstract unsafe class MediaFrame : IComparable<MediaFrame>, IDisposable
     {
         #region Constructor
 
@@ -22,7 +22,7 @@
         /// <param name="pointer">The pointer.</param>
         /// <param name="component">The component.</param>
         /// <param name="mediaType">Type of the media.</param>
-        internal MediaFrame(AVFrame* pointer, MediaComponent component, MediaType mediaType)
+        protected MediaFrame(AVFrame* pointer, MediaComponent component, MediaType mediaType)
             : this((void*)pointer, component, mediaType)
         {
             var packetSize = pointer->pkt_size;
@@ -34,7 +34,7 @@
         /// </summary>
         /// <param name="pointer">The pointer.</param>
         /// <param name="component">The component.</param>
-        internal MediaFrame(AVSubtitle* pointer, MediaComponent component)
+        protected MediaFrame(AVSubtitle* pointer, MediaComponent component)
             : this((void*)pointer, component, MediaType.Subtitle)
         {
             // TODO: Compressed size is simply an estimate
@@ -127,7 +127,8 @@
         /// </returns>
         public int CompareTo(MediaFrame other)
         {
-            return StartTime.CompareTo(other.StartTime);
+            if (other == null) throw new ArgumentNullException(nameof(other));
+            return StartTime.Ticks.CompareTo(other.StartTime.Ticks);
         }
 
         /// <inheritdoc />

@@ -489,22 +489,19 @@
                     switch (input.MediaType)
                     {
                         case MediaType.Video:
-                            if (Components.HasVideo)
-                                return Components.Video.MaterializeFrame(input, ref output, siblings);
-                            else
-                                return false;
+                            return Components.HasVideo ?
+                                Components.Video.MaterializeFrame(input, ref output, siblings) :
+                                false;
 
                         case MediaType.Audio:
-                            if (Components.HasAudio)
-                                return Components.Audio.MaterializeFrame(input, ref output, siblings);
-                            else
-                                return false;
+                            return Components.HasAudio ?
+                                Components.Audio.MaterializeFrame(input, ref output, siblings) :
+                                false;
 
                         case MediaType.Subtitle:
-                            if (Components.HasSubtitles)
-                                return Components.Subtitles.MaterializeFrame(input, ref output, siblings);
-                            else
-                                return false;
+                            return Components.HasSubtitles ?
+                                Components.Subtitles.MaterializeFrame(input, ref output, siblings) :
+                                false;
 
                         default:
                             throw new MediaContainerException($"Unable to materialize frame of {nameof(MediaType)} {input.MediaType}");
@@ -1059,12 +1056,12 @@
         /// Seeks to the exact or prior frame of the main stream.
         /// Supports byte seeking. Target time is in absolute, zero-based time.
         /// </summary>
-        /// <param name="targetTime">The target time in absolute, 0-based time.</param>
+        /// <param name="targetTimeAbsolute">The target time in absolute, 0-based time.</param>
         /// <returns>
         /// The list of media frames
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private List<MediaFrame> StreamSeek(TimeSpan targetTime)
+        private List<MediaFrame> StreamSeek(TimeSpan targetTimeAbsolute)
         {
             // Create the output result object
             var result = new List<MediaFrame>(256);
@@ -1072,6 +1069,9 @@
                 SeekRequirement.MainComponentOnly : SeekRequirement.AudioAndVideo;
 
             #region Setup
+
+            // Capture absolute, 0-based traget time and clamp it
+            var targetTime = TimeSpan.FromTicks(targetTimeAbsolute.Ticks);
 
             // A special kind of seek is the zero seek. Execute it if requested.
             if (targetTime <= TimeSpan.Zero)
@@ -1329,7 +1329,6 @@
             frames.Sort();
 
             var framesToDrop = new List<int>(frames.Count);
-            var frameType = frames[0].MediaType;
 
             for (var i = 0; i < frames.Count - 1; i++)
             {

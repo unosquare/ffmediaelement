@@ -517,14 +517,14 @@
             var command = packet.Command;
 
             // Set the scroll size if we have a rollup command
-            switch (command)
-            {
-                case CaptionsCommand.RollUp2: ScrollSize = 2; break;
-                case CaptionsCommand.RollUp3: ScrollSize = 3; break;
-                case CaptionsCommand.RollUp4: ScrollSize = 4; break;
-                default: break;
-            }
+            if (command == CaptionsCommand.RollUp2)
+                ScrollSize = 2;
+            else if (command == CaptionsCommand.RollUp3)
+                ScrollSize = 3;
+            else if (command == CaptionsCommand.RollUp4)
+                ScrollSize = 4;
 
+            // Process the command
             switch (command)
             {
                 case CaptionsCommand.StartCaption:
@@ -687,14 +687,6 @@
                                 State[r][c].DisplayBuffer();
                         }
 
-                        break;
-                    }
-
-                case CaptionsCommand.AlarmOff:
-                case CaptionsCommand.AlarmOn:
-                case CaptionsCommand.None:
-                default:
-                    {
                         break;
                     }
             }

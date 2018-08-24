@@ -12,20 +12,12 @@
     /// <seealso cref="PlaylistEntry" />
     public sealed class CustomPlaylistEntry : PlaylistEntry
     {
-        private static readonly Dictionary<string, string> PropertyMap = new Dictionary<string, string>()
+        private static readonly Dictionary<string, string> PropertyMap = new Dictionary<string, string>
         {
             { nameof(Thumbnail), "ffme-thumbnail" },
             { nameof(Format), "info-format" },
             { nameof(LastOpenedUtc), "ffme-lastopened" },
         };
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CustomPlaylistEntry"/> class.
-        /// </summary>
-        public CustomPlaylistEntry()
-        {
-            // placeholder
-        }
 
         /// <summary>
         /// Gets or sets the thumbnail.

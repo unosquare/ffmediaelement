@@ -415,7 +415,7 @@
         private void OnApplicationExit(object sender, ExitEventArgs e)
         {
             try { Dispose(); }
-            catch { }
+            catch { /* Ignore exception and continue */ }
             finally
             {
                 // Self-disconnect
@@ -640,7 +640,7 @@
 
             // Perform minor adjustments until the delay is less than 10ms in either direction
             if (MediaCore.State.HasVideo &&
-                speedRatio == 1.0 &&
+                Math.Abs(speedRatio - 1.0) <= double.Epsilon &&
                 isBeyondThreshold == false &&
                 Math.Abs(audioLatencyMs) > SyncThresholdPerfect)
             {
@@ -796,7 +796,6 @@
                 AudioProcessorBuffer = new short[Convert.ToInt32(requestedBytes * Constants.Controller.MaxSpeedRatio / Constants.Audio.BytesPerSample)];
 
             var bytesToRead = Convert.ToInt32((requestedBytes * speedRatio).ToMultipleOf(SampleBlockSize));
-            var samplesToRead = bytesToRead / SampleBlockSize;
             var samplesToRequest = requestedBytes / SampleBlockSize;
 
             // Set the new tempo (without changing the pitch) according to the speed ratio

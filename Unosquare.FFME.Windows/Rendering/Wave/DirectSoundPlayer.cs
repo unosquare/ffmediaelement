@@ -60,13 +60,7 @@
         public DirectSoundPlayer(AudioRenderer renderer, Guid deviceId)
         {
             Renderer = renderer;
-
-            if (deviceId == Guid.Empty)
-            {
-                deviceId = DefaultPlaybackDeviceId;
-            }
-
-            DeviceId = deviceId;
+            DeviceId = deviceId == Guid.Empty ? DefaultPlaybackDeviceId : deviceId;
             DesiredLatency = 40;
             WaveFormat = renderer.WaveFormat;
         }
@@ -339,10 +333,10 @@
             }
             finally
             {
-                try { AudioPlaybackBuffer.Stop(); } catch { }
+                try { AudioPlaybackBuffer.Stop(); } catch { /* Ignore exception and continue */ }
 
-                try { ClearBackBuffer(); } catch { }
-                try { AudioBackBuffer.Stop(); } catch { }
+                try { ClearBackBuffer(); } catch { /* Ignore exception and continue */ }
+                try { AudioBackBuffer.Stop(); } catch { /* Ignore exception and continue */ }
 
                 // Signal Completion
                 PlaybackState = PlaybackState.Stopped;

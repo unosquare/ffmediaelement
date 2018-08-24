@@ -124,7 +124,7 @@
                             containerConfig.ProtocolPrefix = "async";
                         }
                     }
-                    catch { }
+                    catch { /* Ignore exception and continue */ }
 
                     // Support device URLs
                     // GDIGRAB: Example URI: device://gdigrab?desktop
@@ -183,8 +183,8 @@
             }
             catch (Exception ex)
             {
-                try { m.StopWorkers(); } catch { }
-                try { m.Container?.Dispose(); } catch { }
+                try { m.StopWorkers(); } catch { /* Ignore any exceptions and continue */ }
+                try { m.Container?.Dispose(); } catch { /* Ignore any exceptions and continue */ }
                 m.DisposePreloadedSubtitles();
                 m.Container = null;
                 ExceptionResult = ex;

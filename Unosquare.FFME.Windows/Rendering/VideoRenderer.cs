@@ -339,7 +339,7 @@
 
             // Lock the back-buffer and create a pointer to it
             TargetBitmap.Lock();
-            result = BitmapDataBuffer.FromWriteableBitmap(TargetBitmap);
+            result = new BitmapDataBuffer(TargetBitmap);
 
             return result;
         }

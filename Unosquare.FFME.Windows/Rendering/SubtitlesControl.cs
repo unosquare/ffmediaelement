@@ -1,4 +1,5 @@
-﻿namespace Unosquare.FFME.Rendering
+﻿#pragma warning disable SA1202
+namespace Unosquare.FFME.Rendering
 {
     using Platform;
     using System.Collections.Generic;
@@ -15,6 +16,33 @@
     /// <seealso cref="UserControl" />
     internal class SubtitlesControl : UserControl
     {
+        #region Constants and Defaults
+
+        private const FrameworkPropertyMetadataOptions AffectsMeasureAndRender
+            = FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender;
+
+        /// <summary>
+        /// The default font size
+        /// </summary>
+        private const double DefaultFontSize = 56;
+
+        /// <summary>
+        /// The default text foregound
+        /// </summary>
+        private static readonly Brush DefaultTextForegound = Brushes.WhiteSmoke;
+
+        /// <summary>
+        /// The default text outline
+        /// </summary>
+        private static readonly Brush DefaultTextOutline = Brushes.Black;
+
+        /// <summary>
+        /// The default text outline width
+        /// </summary>
+        private static readonly Thickness DefaultTextOutlineWidth = new Thickness(1);
+
+        #endregion
+
         #region Dependency Property Registrations
 
         /// <summary>
@@ -42,7 +70,7 @@
             nameof(TextForegroundEffect),
             typeof(Effect),
             typeof(SubtitlesControl),
-            new FrameworkPropertyMetadata(DefaultTextForegroundEffect, AffectsMeasureAndRender, OnTextForegroundEffectPropertyChanged));
+            new FrameworkPropertyMetadata(GetDefaultTextForegroundEffect(), AffectsMeasureAndRender, OnTextForegroundEffectPropertyChanged));
 
         /// <summary>
         /// The text outline width dependency property
@@ -65,42 +93,6 @@
         #endregion
 
         #region Private State Backing
-
-        /// <summary>
-        /// The default font size
-        /// </summary>
-        private const double DefaultFontSize = 56;
-
-        private const FrameworkPropertyMetadataOptions AffectsMeasureAndRender
-            = FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender;
-
-        /// <summary>
-        /// The default text foregound
-        /// </summary>
-        private static Brush DefaultTextForegound = Brushes.WhiteSmoke;
-
-        /// <summary>
-        /// The default text outline
-        /// </summary>
-        private static Brush DefaultTextOutline = Brushes.Black;
-
-        /// <summary>
-        /// The default text outline width
-        /// </summary>
-        private static Thickness DefaultTextOutlineWidth = new Thickness(1);
-
-        /// <summary>
-        /// The default text foreground effect
-        /// </summary>
-        private static Effect DefaultTextForegroundEffect = new DropShadowEffect
-        {
-            BlurRadius = 4,
-            Color = Colors.Black,
-            Direction = 315,
-            Opacity = 0.75,
-            RenderingBias = RenderingBias.Performance,
-            ShadowDepth = 6
-        };
 
         /// <summary>
         /// Holds the text blocks that together create an outlined subtitle text display.
@@ -133,7 +125,7 @@
 
             for (var i = (int)Block.Bottom; i >= (int)Block.Foreground; i--)
             {
-                var textBlock = new TextBlock()
+                var textBlock = new TextBlock
                 {
                     Name = $"{nameof(SubtitlesControl)}_{(Block)i}",
                     TextWrapping = TextWrapping.NoWrap,
@@ -148,7 +140,7 @@
                 var blockType = (Block)i;
                 if (blockType == Block.Foreground)
                 {
-                    textBlock.Effect = DefaultTextForegroundEffect;
+                    textBlock.Effect = GetDefaultTextForegroundEffect();
                     textBlock.Foreground = DefaultTextForegound;
                     textBlock.Margin = new Thickness(0);
                 }
@@ -303,6 +295,20 @@
             return new Thickness(leftMargin, topMargin, 0, 0);
         }
 
+        /// <summary>
+        /// Gets the default text foreground effect
+        /// </summary>
+        /// <returns>A new instance of a foregraound effect.</returns>
+        private static Effect GetDefaultTextForegroundEffect() => new DropShadowEffect
+        {
+            BlurRadius = 4,
+            Color = Colors.Black,
+            Direction = 315,
+            Opacity = 0.75,
+            RenderingBias = RenderingBias.Performance,
+            ShadowDepth = 6
+        };
+
         #endregion
 
         #region Dependency Property Change Handlers
@@ -363,3 +369,4 @@
         #endregion
     }
 }
+#pragma warning restore SA1202

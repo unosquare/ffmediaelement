@@ -124,7 +124,7 @@
             catch (Exception ex)
             {
                 Debug.WriteLine($"Could not execute command. {ex.Message}");
-                throw ex;
+                throw;
             }
             finally
             {

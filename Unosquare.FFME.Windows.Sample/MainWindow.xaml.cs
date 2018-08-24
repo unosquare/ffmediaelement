@@ -344,7 +344,6 @@
             if (e.Key == Key.Escape && WindowStyle == WindowStyle.None)
             {
                 await App.Current.Commands.ToggleFullscreenCommand.ExecuteAsync();
-                return;
             }
         }
 

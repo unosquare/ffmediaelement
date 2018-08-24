@@ -9,7 +9,7 @@
     /// <summary>
     /// A class for creating, saving, and loading thumbnails.
     /// </summary>
-    internal class ThumbnailGenerator
+    internal static class ThumbnailGenerator
     {
         /// <summary>
         /// Snaps the thumbnail.
@@ -49,7 +49,7 @@
                 thumbnail.Freeze();
                 return thumbnail;
             }
-            catch { }
+            catch { /* Ignore exception and continue */ }
 
             return null;
         }

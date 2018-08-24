@@ -58,6 +58,14 @@
             "FontFamily", typeof(FontFamily), typeof(Subtitles));
 
         /// <summary>
+        /// Prevents a default instance of the <see cref="Subtitles"/> class from being created.
+        /// </summary>
+        private Subtitles()
+        {
+            // placeholder
+        }
+
+        /// <summary>
         /// Gets the text.
         /// </summary>
         /// <param name="obj">The object.</param>

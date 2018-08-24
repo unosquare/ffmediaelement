@@ -75,8 +75,6 @@
                         // at this point, we have valid CC data
                         ClosedCaptions.Add(packet);
                     }
-
-                    continue;
                 }
             }
         }
