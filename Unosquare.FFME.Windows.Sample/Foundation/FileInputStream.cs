@@ -6,12 +6,18 @@
     using System.IO;
     using System.Runtime.InteropServices;
 
+    /// <inheritdoc />
     /// <summary>
     /// Provides an example of a very simple custom input stream.
     /// </summary>
     /// <seealso cref="IMediaInputStream" />
-    public sealed unsafe class FileInputStream : IMediaInputStream, IDisposable
+    public sealed unsafe class FileInputStream : IMediaInputStream
     {
+        /// <summary>
+        /// The custom file scheme (URL prefix) including ://
+        /// </summary>
+        public const string Scheme = "customfile://";
+
         private readonly FileStream BackingStream;
         private readonly object ReadLock = new object();
         private readonly byte[] ReadBuffer;
@@ -31,30 +37,16 @@
             ReadBuffer = new byte[ReadBufferLength];
         }
 
-        /// <summary>
-        /// The custom file scheme (URL prefix) including ://
-        /// </summary>
-        public static string Scheme => "customfile://";
-
-        /// <summary>
-        /// Gets the stream URI. This is just a pseudo URI to identify the stream.
-        /// </summary>
+        /// <inheritdoc />
         public Uri StreamUri { get; }
 
-        /// <summary>
-        /// Gets a value indicating whether this stream is seekable.
-        /// </summary>
+        /// <inheritdoc />
         public bool CanSeek { get; }
 
-        /// <summary>
-        /// Gets the length in bytes of the read buffer that will be allocated.
-        /// Something like 4096 is recommended
-        /// </summary>
+        /// <inheritdoc />
         public int ReadBufferLength => 1024 * 16;
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose()
         {
             BackingStream?.Dispose();

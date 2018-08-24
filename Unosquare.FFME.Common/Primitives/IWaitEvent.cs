@@ -2,10 +2,10 @@
 {
     using System;
 
+    /// <inheritdoc />
     /// <summary>
     /// Provides a generalized API for ManualResetEvent and ManualResetEventSlim
     /// </summary>
-    /// <seealso cref="IDisposable" />
     public interface IWaitEvent : IDisposable
     {
         /// <summary>
@@ -48,10 +48,10 @@
 
         /// <summary>
         /// Waits for the event to be completed.
-        /// Returns True when there was no timeout. False if the tiemout was reached
+        /// Returns True when there was no timeout. False if the timeout was reached
         /// </summary>
         /// <param name="timeout">The maximum amount of time to wait for.</param>
-        /// <returns>True when there was no timeout. False if the tiemout was reached</returns>
+        /// <returns>True when there was no timeout. False if the timeout was reached</returns>
         bool Wait(TimeSpan timeout);
     }
 }

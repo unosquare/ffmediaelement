@@ -75,28 +75,16 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
         /// <returns>The object converted</returns>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (parameter != null)
-            {
-                var media = parameter as MediaElement;
-                parameter = media?.NaturalDuration ?? TimeSpan.Zero;
-            }
+            TimeSpan? p = default;
 
-            var d = TimeSpan.Zero;
-            var p = value is TimeSpan span ? span : default;
-            if (value is Duration duration1)
-                p = duration1.HasTimeSpan ? duration1.TimeSpan : TimeSpan.Zero;
+            if (value is TimeSpan position)
+                p = position;
+            else if (value is Duration duration)
+                p = duration.HasTimeSpan ? duration.TimeSpan : default;
 
-            if (parameter != null)
-            {
-                if (parameter is TimeSpan) d = (TimeSpan)parameter;
-                if (parameter is Duration)
-                    d = ((Duration)parameter).HasTimeSpan ? ((Duration)parameter).TimeSpan : TimeSpan.Zero;
-
-                if (d == TimeSpan.Zero) return string.Empty;
-                p = TimeSpan.FromTicks(d.Ticks - p.Ticks);
-            }
-
-            return $"{(int)p.TotalHours:00}:{p.Minutes:00}:{p.Seconds:00}.{p.Milliseconds:000}";
+            return p.HasValue ?
+                $"{(int)p.Value.TotalHours:00}:{p.Value.Minutes:00}:{p.Value.Seconds:00}.{p.Value.Milliseconds:000}" :
+                string.Empty;
         }
 
         /// <summary>

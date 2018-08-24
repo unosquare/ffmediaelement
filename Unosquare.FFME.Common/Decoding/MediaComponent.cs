@@ -9,6 +9,7 @@
     using System.Globalization;
     using System.Runtime.CompilerServices;
 
+    /// <inheritdoc />
     /// <summary>
     /// Represents a media component of a given media type within a
     /// media container. Derived classes must implement frame handling
@@ -442,9 +443,7 @@
         /// </returns>
         public abstract bool MaterializeFrame(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings);
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose() => Dispose(true);
 
         /// <summary>

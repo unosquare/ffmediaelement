@@ -22,8 +22,8 @@ namespace Unosquare.FFME
         [Description("The playback volume. Ranges from 0.0 to 1.0")]
         public double Volume
         {
-            get { return (double)GetValue(VolumeProperty); }
-            set { SetValue(VolumeProperty, value); }
+            get => (double)GetValue(VolumeProperty);
+            set => SetValue(VolumeProperty, value);
         }
 
         /// <summary>
@@ -61,8 +61,8 @@ namespace Unosquare.FFME
         [Description("The audio volume for left and right audio channels. Valid ranges are -1.0 to 1.0")]
         public double Balance
         {
-            get { return (double)GetValue(BalanceProperty); }
-            set { SetValue(BalanceProperty, value); }
+            get => (double)GetValue(BalanceProperty);
+            set => SetValue(BalanceProperty, value);
         }
 
         /// <summary>
@@ -100,8 +100,8 @@ namespace Unosquare.FFME
         [Description("Gets or sets whether audio samples should be rendered.")]
         public bool IsMuted
         {
-            get { return (bool)GetValue(IsMutedProperty); }
-            set { SetValue(IsMutedProperty, value); }
+            get => (bool)GetValue(IsMutedProperty);
+            set => SetValue(IsMutedProperty, value);
         }
 
         /// <summary>
@@ -139,8 +139,8 @@ namespace Unosquare.FFME
         [Description("Specifies how quickly or how slowly the media should be rendered. 1.0 is normal speed. Value must be greater then or equal to 0.0")]
         public double SpeedRatio
         {
-            get { return (double)GetValue(SpeedRatioProperty); }
-            set { SetValue(SpeedRatioProperty, value); }
+            get => (double)GetValue(SpeedRatioProperty);
+            set => SetValue(SpeedRatioProperty, value);
         }
 
         /// <summary>
@@ -178,8 +178,8 @@ namespace Unosquare.FFME
         [Description("Specifies the position of the underlying media. Set this property to seek though the media stream.")]
         public TimeSpan Position
         {
-            get { return (TimeSpan)GetValue(PositionProperty); }
-            set { SetValue(PositionProperty, value); }
+            get => (TimeSpan)GetValue(PositionProperty);
+            set => SetValue(PositionProperty, value);
         }
 
         /// <summary>
@@ -235,8 +235,8 @@ namespace Unosquare.FFME
         [Description("The URL to load the media from. Set it to null in order to close the currently open media.")]
         public Uri Source
         {
-            get { return GetValue(SourceProperty) as Uri; }
-            set { SetValue(SourceProperty, value); }
+            get => GetValue(SourceProperty) as Uri;
+            set => SetValue(SourceProperty, value);
         }
 
         /// <summary>
@@ -282,8 +282,8 @@ namespace Unosquare.FFME
         /// </summary>
         public Stretch Stretch
         {
-            get { return (Stretch)GetValue(StretchProperty); }
-            set { SetValue(StretchProperty, value); }
+            get => (Stretch)GetValue(StretchProperty);
+            set => SetValue(StretchProperty, value);
         }
 
         /// <summary>
@@ -313,8 +313,8 @@ namespace Unosquare.FFME
         /// </summary>
         public StretchDirection StretchDirection
         {
-            get { return (StretchDirection)GetValue(StretchDirectionProperty); }
-            set { SetValue(StretchDirectionProperty, value); }
+            get => (StretchDirection)GetValue(StretchDirectionProperty);
+            set => SetValue(StretchDirectionProperty, value);
         }
 
         /// <summary>
@@ -344,8 +344,8 @@ namespace Unosquare.FFME
         [Description("Gets or sets a value that indicates whether the MediaElement will update frames for seek operations while paused.")]
         public bool ScrubbingEnabled
         {
-            get { return (bool)GetValue(ScrubbingEnabledProperty); }
-            set { SetValue(ScrubbingEnabledProperty, value); }
+            get => (bool)GetValue(ScrubbingEnabledProperty);
+            set => SetValue(ScrubbingEnabledProperty, value);
         }
 
         /// <summary>
@@ -371,8 +371,8 @@ namespace Unosquare.FFME
         [Description("Specifies how the underlying media should behave when it has loaded. The default behavior is to Play the media.")]
         public MediaState LoadedBehavior
         {
-            get { return (MediaState)GetValue(LoadedBehaviorProperty); }
-            set { SetValue(LoadedBehaviorProperty, value); }
+            get => (MediaState)GetValue(LoadedBehaviorProperty);
+            set => SetValue(LoadedBehaviorProperty, value);
         }
 
         /// <summary>
@@ -394,8 +394,8 @@ namespace Unosquare.FFME
         [Description("Specifies how the underlying media should behave when it has ended. The default behavior is to Close the media.")]
         public MediaState UnloadedBehavior
         {
-            get { return (MediaState)GetValue(UnloadedBehaviorProperty); }
-            set { SetValue(UnloadedBehaviorProperty, value); }
+            get => (MediaState)GetValue(UnloadedBehaviorProperty);
+            set => SetValue(UnloadedBehaviorProperty, value);
         }
 
         /// <summary>
@@ -417,8 +417,8 @@ namespace Unosquare.FFME
         [Description("The video CC Channel to render. Ranges from 0 to 4")]
         public CaptionsChannel ClosedCaptionsChannel
         {
-            get { return (CaptionsChannel)GetValue(ClosedCaptionsChannelProperty); }
-            set { SetValue(ClosedCaptionsChannelProperty, value); }
+            get => (CaptionsChannel)GetValue(ClosedCaptionsChannelProperty);
+            set => SetValue(ClosedCaptionsChannelProperty, value);
         }
 
         /// <summary>

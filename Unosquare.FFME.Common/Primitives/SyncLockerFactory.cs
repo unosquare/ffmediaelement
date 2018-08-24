@@ -90,13 +90,11 @@
             }
 
             /// <summary>
-            /// An actionless, dummy disposable object.
+            /// An action-less, dummy disposable object.
             /// </summary>
             public static SyncLockReleaser Empty { get; } = new SyncLockReleaser(null, default);
 
-            /// <summary>
-            /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-            /// </summary>
+            /// <inheritdoc />
             public void Dispose()
             {
                 if (IsDisposed) return;
@@ -124,87 +122,43 @@
             /// </summary>
             public bool IsDisposed => m_IsDisposed.Value;
 
-            /// <summary>
-            /// Acquires a reader lock.
-            /// The lock is released when the returned locking object is disposed.
-            /// </summary>
-            /// <returns>
-            /// A disposable locking object.
-            /// </returns>
+            /// <inheritdoc />
             public IDisposable AcquireReaderLock()
             {
                 AcquireReaderLock(Timeout.Infinite, out var releaser);
                 return releaser;
             }
 
-            /// <summary>
-            /// Tries to acquire a reader lock with a timeout.
-            /// </summary>
-            /// <param name="timeoutMilliseconds">The timeout milliseconds.</param>
-            /// <param name="locker">The locker.</param>
-            /// <returns>
-            /// True if the lock was acquired
-            /// </returns>
+            /// <inheritdoc />
             public bool TryAcquireReaderLock(int timeoutMilliseconds, out IDisposable locker) =>
                 AcquireReaderLock(timeoutMilliseconds, out locker);
 
-            /// <summary>
-            /// Acquires a writer lock.
-            /// The lock is released when the returned locking object is disposed.
-            /// </summary>
-            /// <returns>
-            /// A disposable locking object.
-            /// </returns>
+            /// <inheritdoc />
             public IDisposable AcquireWriterLock()
             {
                 AcquireWriterLock(Timeout.Infinite, out var releaser);
                 return releaser;
             }
 
-            /// <summary>
-            /// Tries to acquire a writer lock with a tiemout.
-            /// </summary>
-            /// <param name="timeoutMilliseconds">The timeout milliseconds.</param>
-            /// <param name="locker">The locker.</param>
-            /// <returns>
-            /// True if the lock was acquired
-            /// </returns>
+            /// <inheritdoc />
             public bool TryAcquireWriterLock(int timeoutMilliseconds, out IDisposable locker) =>
                 AcquireWriterLock(timeoutMilliseconds, out locker);
 
-            /// <summary>
-            /// Tries to acquire a writer lock with a default tiemout.
-            /// </summary>
-            /// <param name="locker">The locker.</param>
-            /// <returns>
-            /// True if the lock was acquired
-            /// </returns>
+            /// <inheritdoc />
             public bool TryAcquireWriterLock(out IDisposable locker) =>
                 TryAcquireWriterLock(DefaultTimeout, out locker);
 
-            /// <summary>
-            /// Tries to acquire a reader lock with a default timeout.
-            /// </summary>
-            /// <param name="locker">The locker.</param>
-            /// <returns>
-            /// True if the lock was acquired
-            /// </returns>
+            /// <inheritdoc />
             public bool TryAcquireReaderLock(out IDisposable locker) =>
                 TryAcquireReaderLock(DefaultTimeout, out locker);
 
-            /// <summary>
-            /// Releases the writer lock.
-            /// </summary>
+            /// <inheritdoc />
             public void ReleaseWriterLock() => Locker?.ReleaseWriterLock();
 
-            /// <summary>
-            /// Releases the reader lock.
-            /// </summary>
+            /// <inheritdoc />
             public void ReleaseReaderLock() => Locker?.ReleaseReaderLock();
 
-            /// <summary>
-            /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-            /// </summary>
+            /// <inheritdoc />
             public void Dispose()
             {
                 if (m_IsDisposed == true) return;
@@ -272,92 +226,46 @@
             private readonly ReaderWriterLockSlim Locker
                 = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
-            /// <summary>
-            /// Gets a value indicating whether this instance is disposed.
-            /// </summary>
+            /// <inheritdoc />
             public bool IsDisposed => m_IsDisposed.Value;
 
-            /// <summary>
-            /// Acquires a reader lock.
-            /// The lock is released when the returned locking object is disposed.
-            /// </summary>
-            /// <returns>
-            /// A disposable locking object.
-            /// </returns>
+            /// <inheritdoc />
             public IDisposable AcquireReaderLock()
             {
                 AcquireReaderLock(Timeout.Infinite, out var releaser);
                 return releaser;
             }
 
-            /// <summary>
-            /// Tries to acquire a reader lock with a timeout.
-            /// </summary>
-            /// <param name="timeoutMilliseconds">The timeout milliseconds.</param>
-            /// <param name="locker">The locker.</param>
-            /// <returns>
-            /// True if the lock was acquired
-            /// </returns>
+            /// <inheritdoc />
             public bool TryAcquireReaderLock(int timeoutMilliseconds, out IDisposable locker) =>
                 AcquireReaderLock(timeoutMilliseconds, out locker);
 
-            /// <summary>
-            /// Acquires a writer lock.
-            /// The lock is released when the returned locking object is disposed.
-            /// </summary>
-            /// <returns>
-            /// A disposable locking object.
-            /// </returns>
+            /// <inheritdoc />
             public IDisposable AcquireWriterLock()
             {
                 AcquireWriterLock(Timeout.Infinite, out var releaser);
                 return releaser;
             }
 
-            /// <summary>
-            /// Tries to acquire a writer lock with a tiemout.
-            /// </summary>
-            /// <param name="timeoutMilliseconds">The timeout milliseconds.</param>
-            /// <param name="locker">The locker.</param>
-            /// <returns>
-            /// True if the lock was acquired
-            /// </returns>
+            /// <inheritdoc />
             public bool TryAcquireWriterLock(int timeoutMilliseconds, out IDisposable locker) =>
                 AcquireWriterLock(timeoutMilliseconds, out locker);
 
-            /// <summary>
-            /// Tries to acquire a writer lock with a default tiemout.
-            /// </summary>
-            /// <param name="locker">The locker.</param>
-            /// <returns>
-            /// True if the lock was acquired
-            /// </returns>
+            /// <inheritdoc />
             public bool TryAcquireWriterLock(out IDisposable locker) =>
                 TryAcquireWriterLock(DefaultTimeout, out locker);
 
-            /// <summary>
-            /// Tries to acquire a reader lock with a default timeout.
-            /// </summary>
-            /// <param name="locker">The locker.</param>
-            /// <returns>
-            /// True if the lock was acquired
-            /// </returns>
+            /// <inheritdoc />
             public bool TryAcquireReaderLock(out IDisposable locker) =>
                 TryAcquireReaderLock(DefaultTimeout, out locker);
 
-            /// <summary>
-            /// Releases the writer lock.
-            /// </summary>
+            /// <inheritdoc />
             public void ReleaseWriterLock() => Locker?.ExitWriteLock();
 
-            /// <summary>
-            /// Releases the reader lock.
-            /// </summary>
+            /// <inheritdoc />
             public void ReleaseReaderLock() => Locker?.ExitReadLock();
 
-            /// <summary>
-            /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-            /// </summary>
+            /// <inheritdoc />
             public void Dispose()
             {
                 if (m_IsDisposed == true) return;

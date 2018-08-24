@@ -297,14 +297,10 @@
             }
         }
 
-        /// <summary>
-        /// Waits for the renderer to be ready to render.
-        /// </summary>
+        /// <inheritdoc />
         public void WaitForReadyState() => WaitForReadyEvent?.Wait();
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose()
         {
             lock (SyncLock)

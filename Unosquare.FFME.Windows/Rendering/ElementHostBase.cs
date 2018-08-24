@@ -412,17 +412,10 @@
             /// </summary>
             public override bool IsDisposed => m_IsDisposed;
 
-            /// <summary>
-            /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-            /// </summary>
+            /// <inheritdoc />
             public void Dispose() => Dispose(true);
 
-            /// <summary>
-            /// When overridden in a derived class, returns a visual target for the given source.
-            /// </summary>
-            /// <returns>
-            /// Returns a <see cref="T:System.Windows.Media.CompositionTarget" /> that is target for rendering the visual.
-            /// </returns>
+            /// <inheritdoc />
             protected override CompositionTarget GetCompositionTargetCore() => HostConnector;
 
             /// <summary>

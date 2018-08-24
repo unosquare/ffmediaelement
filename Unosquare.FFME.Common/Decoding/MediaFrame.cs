@@ -130,9 +130,7 @@
             return StartTime.CompareTo(other.StartTime);
         }
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        /// <inheritdoc />
         public abstract void Dispose();
 
         /// <summary>

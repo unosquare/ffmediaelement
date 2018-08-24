@@ -333,16 +333,17 @@
         internal static unsafe string ComputeSmtpeTimeCode(TimeSpan streamStartTime, TimeSpan frameDuration, AVRational frameTimeBase, long frameNumber)
         {
             // Drop the days in the stream start time
-            if (streamStartTime.Days > 0)
-                streamStartTime = streamStartTime.Subtract(TimeSpan.FromDays(streamStartTime.Days));
+            var startTime = streamStartTime.Days > 0 ?
+                streamStartTime.Subtract(TimeSpan.FromDays(streamStartTime.Days)) :
+                streamStartTime;
 
-            // Adjust to int value
-            if (frameNumber > int.MaxValue)
-                frameNumber = frameNumber % int.MaxValue;
+            // Adjust to int value and turn picture number into picture index.
+            var frameIndex = frameNumber > int.MaxValue ?
+                Convert.ToInt32(frameNumber % int.MaxValue) - 1 :
+                Convert.ToInt32(frameNumber - 1);
 
-            frameNumber--; // tun picture number into picture index.
             var timeCodeInfo = (AVTimecode*)ffmpeg.av_malloc((ulong)Marshal.SizeOf(typeof(AVTimecode)));
-            var startFrameNumber = ComputePictureNumber(streamStartTime, frameDuration, 0);
+            var startFrameNumber = ComputePictureNumber(startTime, frameDuration, 0);
 
             // Adjust to int value
             if (startFrameNumber > int.MaxValue)
@@ -351,8 +352,8 @@
             ffmpeg.av_timecode_init(timeCodeInfo, frameTimeBase, 0, Convert.ToInt32(startFrameNumber), null);
             var isNtsc = frameTimeBase.num == 30000 && frameTimeBase.den == 1001;
             var adjustedFrameNumber = isNtsc ?
-                ffmpeg.av_timecode_adjust_ntsc_framenum2(Convert.ToInt32(frameNumber), Convert.ToInt32(timeCodeInfo->fps)) :
-                Convert.ToInt32(frameNumber);
+                ffmpeg.av_timecode_adjust_ntsc_framenum2(frameIndex, Convert.ToInt32(timeCodeInfo->fps)) :
+                frameIndex;
 
             var timeCode = ffmpeg.av_timecode_get_smpte_from_framenum(timeCodeInfo, adjustedFrameNumber);
             var timeCodeBuffer = (byte*)ffmpeg.av_malloc(ffmpeg.AV_TIMECODE_STR_SIZE);
