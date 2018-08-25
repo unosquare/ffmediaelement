@@ -118,7 +118,7 @@
             {
                 lock (SyncLock)
                 {
-                    // if we don't have a valid write tag it's just wahtever has been read from the audio buffer
+                    // if we don't have a valid write tag it's just whatever has been read from the audio buffer
                     if (AudioBuffer.WriteTag == TimeSpan.MinValue)
                     {
                         return TimeSpan.FromMilliseconds(Convert.ToDouble(
@@ -327,7 +327,7 @@
         /// <returns>The number of bytes that were read.</returns>
         public int Read(byte[] targetBuffer, int targetBufferOffset, int requestedBytes)
         {
-            // We sync-lock the reads to avoid null reference exceptions as detaroy might have been called
+            // We sync-lock the reads to avoid null reference exceptions as destroy might have been called
             var lockTaken = false;
             Monitor.TryEnter(SyncLock, SyncLockTimeout, ref lockTaken);
 
@@ -349,7 +349,7 @@
                     return requestedBytes;
                 }
 
-                // Ensure a preallocated ReadBuffer
+                // Ensure a pre-allocated ReadBuffer
                 if (ReadBuffer == null || ReadBuffer.Length < Convert.ToInt32(requestedBytes * Constants.Controller.MaxSpeedRatio))
                     ReadBuffer = new byte[Convert.ToInt32(requestedBytes * Constants.Controller.MaxSpeedRatio)];
 
@@ -763,7 +763,7 @@
                 {
                     // If I set samples to average to 1 here, it does not change the pitch but
                     // audio gaps are noticeable
-                    // Anoter option: currentGroupSizeW * SampleBlockSize / BytesPerSample / 2
+                    // Another option: currentGroupSizeW * SampleBlockSize / BytesPerSample / 2
                     samplesToAverage = 1;
                     leftSamples = ReadBuffer.GetAudioSample(sourceOffset);
                     rightSamples = ReadBuffer.GetAudioSample(sourceOffset + Constants.Audio.BytesPerSample);
@@ -820,7 +820,7 @@
         }
 
         /// <summary>
-        /// Applies volume and balance to the audio samples storead in RedBuffer and writes them
+        /// Applies volume and balance to the audio samples stored in RedBuffer and writes them
         /// to the specified target buffer.
         /// </summary>
         /// <param name="targetBuffer">The target buffer.</param>

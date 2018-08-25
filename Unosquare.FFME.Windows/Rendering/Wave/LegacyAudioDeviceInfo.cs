@@ -35,7 +35,7 @@
         private int driverVersion;
 
         /// <summary>
-        /// Product Name (szPname)
+        /// Product Name
         /// </summary>
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = MaxProductNameLength)]
         private string productName;

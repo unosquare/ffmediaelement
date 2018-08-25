@@ -71,7 +71,7 @@
             = new Dictionary<CaptionsChannel, Dictionary<long, ClosedCaptionPacket>>();
 
         /// <summary>
-        /// Prevents Writing and reseting at the same time, causing the keys to become
+        /// Prevents Writing and resetting at the same time, causing the keys to become
         /// invalid when processing packets.
         /// </summary>
         private readonly object SyncLock = new object();
@@ -207,7 +207,7 @@
         #region Write State Properties
 
         /// <summary>
-        /// Gets the last start time position of the video block cntaining the CC packets.
+        /// Gets the last start time position of the video block containing the CC packets.
         /// </summary>
         public TimeSpan WriteTag { get; private set; } = TimeSpan.MinValue;
 
@@ -299,7 +299,7 @@
                     // Stop demuxing packets beyond the current video block
                     if (position > maxPosition) break;
 
-                    // Update the last processed psoition
+                    // Update the last processed position
                     lastDemuxedKey = position;
 
                     // Skip packets that don't have a valid field parity or that are null

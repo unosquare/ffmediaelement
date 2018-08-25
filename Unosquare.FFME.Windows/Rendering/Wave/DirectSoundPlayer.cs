@@ -153,27 +153,27 @@
         /// <summary>
         /// Enumerates the devices.
         /// </summary>
-        /// <param name="lpGuid">The lp unique identifier.</param>
-        /// <param name="lpcstrDescription">The LPCSTR description.</param>
-        /// <param name="lpcstrModule">The LPCSTR module.</param>
-        /// <param name="lpContext">The lp context.</param>
+        /// <param name="deviceGuidPtr">The device unique identifier pointer.</param>
+        /// <param name="descriptionPtr">The description string pointer.</param>
+        /// <param name="modulePtr">The module string pointer.</param>
+        /// <param name="contextPtr">The context pointer.</param>
         /// <returns>The devices</returns>
-        private static bool EnumerateDevicesCallback(IntPtr lpGuid, IntPtr lpcstrDescription, IntPtr lpcstrModule, IntPtr lpContext)
+        private static bool EnumerateDevicesCallback(IntPtr deviceGuidPtr, IntPtr descriptionPtr, IntPtr modulePtr, IntPtr contextPtr)
         {
             var device = new DirectSoundDeviceInfo();
-            if (lpGuid == IntPtr.Zero)
+            if (deviceGuidPtr == IntPtr.Zero)
             {
                 device.Guid = Guid.Empty;
             }
             else
             {
-                byte[] guidBytes = new byte[16];
-                Marshal.Copy(lpGuid, guidBytes, 0, 16);
+                var guidBytes = new byte[16];
+                Marshal.Copy(deviceGuidPtr, guidBytes, 0, 16);
                 device.Guid = new Guid(guidBytes);
             }
 
-            device.Description = lpcstrDescription != IntPtr.Zero ? Marshal.PtrToStringAnsi(lpcstrDescription) : default;
-            device.ModuleName = lpcstrModule != IntPtr.Zero ? Marshal.PtrToStringAnsi(lpcstrModule) : default;
+            device.Description = descriptionPtr != IntPtr.Zero ? Marshal.PtrToStringAnsi(descriptionPtr) : default;
+            device.ModuleName = modulePtr != IntPtr.Zero ? Marshal.PtrToStringAnsi(modulePtr) : default;
 
             EnumeratedDevices.Add(device);
             return true;
@@ -192,7 +192,7 @@
 
             // Set Cooperative Level to PRIORITY (priority level can call the SetFormat and Compact methods)
             DirectSoundDriver.SetCooperativeLevel(NativeMethods.GetDesktopWindow(),
-                DirectSound.DirectSoundCooperativeLevel.DSSCL_PRIORITY);
+                DirectSound.DirectSoundCooperativeLevel.Priority);
 
             // -------------------------------------------------------------------------------------
             // Create PrimaryBuffer
@@ -202,7 +202,7 @@
             var bufferDesc = new DirectSound.BufferDescription();
             bufferDesc.Size = Marshal.SizeOf(bufferDesc);
             bufferDesc.BufferBytes = 0;
-            bufferDesc.Flags = DirectSound.DirectSoundBufferCaps.DSBCAPS_PRIMARYBUFFER;
+            bufferDesc.Flags = DirectSound.DirectSoundBufferCaps.PrimaryBuffer;
             bufferDesc.Reserved = 0;
             bufferDesc.FormatHandle = IntPtr.Zero;
             bufferDesc.AlgorithmId = Guid.Empty;
@@ -212,7 +212,7 @@
             AudioPlaybackBuffer = soundBufferObj as DirectSound.IDirectSoundBuffer;
 
             // Play & Loop on the PrimarySound Buffer
-            AudioPlaybackBuffer.Play(0, 0, DirectSound.DirectSoundPlayFlags.DSBPLAY_LOOPING);
+            AudioPlaybackBuffer.Play(0, 0, DirectSound.DirectSoundPlayFlags.Looping);
 
             // -------------------------------------------------------------------------------------
             // Create SecondaryBuffer
@@ -225,12 +225,12 @@
             var bufferDesc2 = new DirectSound.BufferDescription();
             bufferDesc2.Size = Marshal.SizeOf(bufferDesc2);
             bufferDesc2.BufferBytes = (uint)(SamplesFrameSize * 2);
-            bufferDesc2.Flags = DirectSound.DirectSoundBufferCaps.DSBCAPS_GETCURRENTPOSITION2
-                | DirectSound.DirectSoundBufferCaps.DSBCAPS_CTRLPOSITIONNOTIFY
-                | DirectSound.DirectSoundBufferCaps.DSBCAPS_GLOBALFOCUS
-                | DirectSound.DirectSoundBufferCaps.DSBCAPS_CTRLVOLUME
-                | DirectSound.DirectSoundBufferCaps.DSBCAPS_STICKYFOCUS
-                | DirectSound.DirectSoundBufferCaps.DSBCAPS_GETCURRENTPOSITION2;
+            bufferDesc2.Flags = DirectSound.DirectSoundBufferCaps.GetCurrentPosition2
+                | DirectSound.DirectSoundBufferCaps.ControlNotifyPosition
+                | DirectSound.DirectSoundBufferCaps.GlobalFocus
+                | DirectSound.DirectSoundBufferCaps.ControlVolume
+                | DirectSound.DirectSoundBufferCaps.StickyFocus
+                | DirectSound.DirectSoundBufferCaps.GetCurrentPosition2;
 
             bufferDesc2.Reserved = 0;
             var handleOnWaveFormat = GCHandle.Alloc(WaveFormat, GCHandleType.Pinned); // Ptr to waveFormat
@@ -306,7 +306,7 @@
                 PlaybackState = PlaybackState.Playing;
 
                 // Begin notifications on playback wait events
-                AudioBackBuffer.Play(0, 0, DirectSound.DirectSoundPlayFlags.DSBPLAY_LOOPING);
+                AudioBackBuffer.Play(0, 0, DirectSound.DirectSoundPlayFlags.Looping);
 
                 while (IsCancellationPending == false)
                 {
@@ -375,13 +375,13 @@
         /// <c>true</c> if [is buffer lost]; otherwise, <c>false</c>.
         /// </returns>
         private bool IsBufferLost() =>
-            AudioBackBuffer.GetStatus().HasFlag(DirectSound.DirectSoundBufferStatus.DSBSTATUS_BUFFERLOST);
+            AudioBackBuffer.GetStatus().HasFlag(DirectSound.DirectSoundBufferStatus.BufferLost);
 
         /// <summary>
         /// Convert ms to bytes size according to WaveFormat
         /// </summary>
         /// <param name="millis">The ms</param>
-        /// <returns>number of byttes</returns>
+        /// <returns>number of bytes</returns>
         private int MillisToBytes(int millis)
         {
             var bytes = millis * (WaveFormat.AverageBytesPerSecond / 1000);
@@ -505,30 +505,30 @@
             /// The DSEnumCallback function is an application-defined callback function that enumerates the DirectSound drivers.
             /// The system calls this function in response to the application's call to the DirectSoundEnumerate or DirectSoundCaptureEnumerate function.
             /// </summary>
-            /// <param name="lpGuid">Address of the GUID that identifies the device being enumerated, or NULL for the primary device. This value can be passed to the DirectSoundCreate8 or DirectSoundCaptureCreate8 function to create a device object for that driver. </param>
-            /// <param name="lpcstrDescription">Address of a null-terminated string that provides a textual description of the DirectSound device. </param>
-            /// <param name="lpcstrModule">Address of a null-terminated string that specifies the module name of the DirectSound driver corresponding to this device. </param>
-            /// <param name="lpContext">Address of application-defined data. This is the pointer passed to DirectSoundEnumerate or DirectSoundCaptureEnumerate as the lpContext parameter. </param>
+            /// <param name="deviceGuidPtr">Address of the GUID that identifies the device being enumerated, or NULL for the primary device. This value can be passed to the DirectSoundCreate8 or DirectSoundCaptureCreate8 function to create a device object for that driver. </param>
+            /// <param name="descriptionPtr">Address of a null-terminated string that provides a textual description of the DirectSound device. </param>
+            /// <param name="modulePtr">Address of a null-terminated string that specifies the module name of the DirectSound driver corresponding to this device. </param>
+            /// <param name="contextPtr">Address of application-defined data. This is the pointer passed to DirectSoundEnumerate or DirectSoundCaptureEnumerate as the lpContext parameter. </param>
             /// <returns>Returns TRUE to continue enumerating drivers, or FALSE to stop.</returns>
-            public delegate bool EnumerateDevicesDelegate(IntPtr lpGuid, IntPtr lpcstrDescription, IntPtr lpcstrModule, IntPtr lpContext);
+            public delegate bool EnumerateDevicesDelegate(IntPtr deviceGuidPtr, IntPtr descriptionPtr, IntPtr modulePtr, IntPtr contextPtr);
 
             public enum DirectSoundCooperativeLevel : uint
             {
-                DSSCL_NORMAL = 0x00000001,
-                DSSCL_PRIORITY = 0x00000002,
-                DSSCL_EXCLUSIVE = 0x00000003,
-                DSSCL_WRITEPRIMARY = 0x00000004
+                Normal = 0x00000001,
+                Priority = 0x00000002,
+                Exclusive = 0x00000003,
+                WritePrimary = 0x00000004
             }
 
             [Flags]
             public enum DirectSoundPlayFlags : uint
             {
-                DSBPLAY_LOOPING = 0x00000001,
-                DSBPLAY_LOCHARDWARE = 0x00000002,
-                DSBPLAY_LOCSOFTWARE = 0x00000004,
-                DSBPLAY_TERMINATEBY_TIME = 0x00000008,
-                DSBPLAY_TERMINATEBY_DISTANCE = 0x000000010,
-                DSBPLAY_TERMINATEBY_PRIORITY = 0x000000020
+                Looping = 0x00000001,
+                LocHardware = 0x00000002,
+                LocSoftware = 0x00000004,
+                TerminateByTime = 0x00000008,
+                TerminateByDistance = 0x000000010,
+                TerminateByPriority = 0x000000020
             }
 
             [Flags]
@@ -542,32 +542,32 @@
             [Flags]
             public enum DirectSoundBufferStatus : uint
             {
-                DSBSTATUS_PLAYING = 0x00000001,
-                DSBSTATUS_BUFFERLOST = 0x00000002,
-                DSBSTATUS_LOOPING = 0x00000004,
-                DSBSTATUS_LOCHARDWARE = 0x00000008,
-                DSBSTATUS_LOCSOFTWARE = 0x00000010,
-                DSBSTATUS_TERMINATED = 0x00000020
+                Playing = 0x00000001,
+                BufferLost = 0x00000002,
+                Looping = 0x00000004,
+                LocHardware = 0x00000008,
+                LocSoftware = 0x00000010,
+                Terminated = 0x00000020
             }
 
             [Flags]
             public enum DirectSoundBufferCaps : uint
             {
-                DSBCAPS_PRIMARYBUFFER = 0x00000001,
-                DSBCAPS_STATIC = 0x00000002,
-                DSBCAPS_LOCHARDWARE = 0x00000004,
-                DSBCAPS_LOCSOFTWARE = 0x00000008,
-                DSBCAPS_CTRL3D = 0x00000010,
-                DSBCAPS_CTRLFREQUENCY = 0x00000020,
-                DSBCAPS_CTRLPAN = 0x00000040,
-                DSBCAPS_CTRLVOLUME = 0x00000080,
-                DSBCAPS_CTRLPOSITIONNOTIFY = 0x00000100,
-                DSBCAPS_CTRLFX = 0x00000200,
-                DSBCAPS_STICKYFOCUS = 0x00004000,
-                DSBCAPS_GLOBALFOCUS = 0x00008000,
-                DSBCAPS_GETCURRENTPOSITION2 = 0x00010000,
-                DSBCAPS_MUTE3DATMAXDISTANCE = 0x00020000,
-                DSBCAPS_LOCDEFER = 0x00040000
+                PrimaryBuffer = 0x00000001,
+                StaticBuffer = 0x00000002,
+                LocHardware = 0x00000004,
+                LocSoftware = 0x00000008,
+                Control3D = 0x00000010,
+                ControlFrequency = 0x00000020,
+                ControlPan = 0x00000040,
+                ControlVolume = 0x00000080,
+                ControlNotifyPosition = 0x00000100,
+                ControlEffects = 0x00000200,
+                StickyFocus = 0x00004000,
+                GlobalFocus = 0x00008000,
+                GetCurrentPosition2 = 0x00010000,
+                Mute3dAtMaxDistance = 0x00020000,
+                LocDefer = 0x00040000
             }
 
             /// <summary>
@@ -630,7 +630,7 @@
 
                 void SetCurrentPosition(uint dwNewPosition);
 
-                void SetFormat([In] WaveFormat pcfxFormat);
+                void SetFormat([In] WaveFormat waveFormat);
 
                 void SetVolume(int volume);
 

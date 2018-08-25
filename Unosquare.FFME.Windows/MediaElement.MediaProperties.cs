@@ -51,13 +51,13 @@
         }
 
         /// <summary>
-        /// Gets the stream's total bitrate as reported by the container.
+        /// Gets the stream's total bit rate as reported by the container.
         /// Returns 0 if unavailable.
         /// </summary>
         public long Bitrate => MediaCore?.State.Bitrate ?? default;
 
         /// <summary>
-        /// Gets the instantaneous, compressed bitrate of the decoders for the currently active component streams.
+        /// Gets the instantaneous, compressed bit rate of the decoders for the currently active component streams.
         /// This is provided in bits per second.
         /// </summary>
         public long DecodingBitrate => MediaCore?.State.DecodingBitrate ?? default;
@@ -102,7 +102,7 @@
 
         /// <summary>
         /// Gets the duration of a single frame step.
-        /// If there is a video component with a framerate, this propery returns the length of a frame.
+        /// If there is a video component with a frame rate, this property returns the length of a frame.
         /// If there is no video component it simply returns a tenth of a second.
         /// </summary>
         public TimeSpan PositionStep => MediaCore?.State.PositionStep ?? TimeSpan.Zero;
@@ -147,7 +147,7 @@
         public string VideoCodec => MediaCore?.State.VideoCodec;
 
         /// <summary>
-        /// Gets the video bitrate.
+        /// Gets the video bit rate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
         public long VideoBitrate => MediaCore?.State.VideoBitrate ?? default;
@@ -191,7 +191,7 @@
         public string AudioCodec => MediaCore?.State.AudioCodec;
 
         /// <summary>
-        /// Gets the audio bitrate.
+        /// Gets the audio bit rate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
         public long AudioBitrate => MediaCore?.State.AudioBitrate ?? default;
@@ -217,7 +217,7 @@
         /// <summary>
         /// Returns whether the currently loaded media can be paused.
         /// This is only valid after the MediaOpened event has fired.
-        /// Note that this property is computed based on wether the stream is detected to be a live stream.
+        /// Note that this property is computed based on whether the stream is detected to be a live stream.
         /// </summary>
         public bool CanPause => MediaCore?.State.CanPause ?? default;
 
@@ -264,12 +264,12 @@
         public bool IsSeeking => MediaCore?.State.IsSeeking ?? default;
 
         /// <summary>
-        /// Returns the current video SMTPE timecode if available.
+        /// Returns the current video SMTPE time code if available.
         /// </summary>
         public string VideoSmtpeTimecode => MediaCore?.State.VideoSmtpeTimecode;
 
         /// <summary>
-        /// Gets the current video aspec ratio if available.
+        /// Gets the current video aspect ratio if available.
         /// </summary>
         public string VideoAspectRatio => MediaCore?.State.VideoAspectRatio;
 

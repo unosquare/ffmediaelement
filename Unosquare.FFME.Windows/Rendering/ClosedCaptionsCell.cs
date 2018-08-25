@@ -38,7 +38,7 @@
         public ClosedCaptionsCellState Buffer { get; } = new ClosedCaptionsCellState();
 
         /// <summary>
-        /// Copies the bufferc ontent on to the dsiplay content
+        /// Copies the buffer content on to the display content
         /// and clears the buffer content.
         /// </summary>
         public void DisplayBuffer()

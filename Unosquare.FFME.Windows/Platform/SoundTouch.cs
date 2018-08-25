@@ -3,22 +3,20 @@
     using System;
     using System.Runtime.InteropServices;
 
+    /// <inheritdoc />
     /// <summary>
     /// SoundTouch audio processing library wrapper (SoundTouch.cs)
-    ///
     /// Original code by
     /// Copyright (c) Olli Parviainen
     /// http://www.surina.net/soundtouch
     /// LGPL License
-    ///
     /// Modified Code by:
     /// Mario Di Vece
-    ///
     /// Changes:
     /// Set-prefixed methods to property setters
     /// Native wrappers to NativeMethods class name
     /// Adding enum with settings as defined in the header file
-    /// Setttings getters and setters as indexers
+    /// Settings getters and setters as indexers
     /// Implemented Dispose pattern correctly.
     /// </summary>
     internal sealed class SoundTouch : IDisposable
@@ -127,19 +125,19 @@
             /// Notices:
             /// - This is read-only parameter, i.e. setSetting ignores this parameter
             /// - This parameter value is not constant but change depending on
-            ///   tempo/pitch/rate/samplerate settings.
+            ///   tempo/pitch/rate/sample rate settings.
             /// </summary>
             NominalInputSequence = 6,
 
             /// <summary>
             /// Call "getSetting" with this ID to query nominal average processing output
-            /// size in samples. This value tells approcimate value how many output samples
+            /// size in samples. This value tells approximate value how many output samples
             /// SoundTouch outputs once it does DSP processing run for a batch of input samples.
             ///
             /// Notices:
             /// - This is read-only parameter, i.e. setSetting ignores this parameter
             /// - This parameter value is not constant but change depending on
-            ///   tempo/pitch/rate/samplerate settings.
+            ///   tempo/pitch/rate/sample rate settings.
             /// </summary>
             NominalOutputSequence = 7,
 
@@ -170,7 +168,7 @@
             /// Notices:
             /// - This is read-only parameter, i.e. setSetting ignores this parameter
             /// - This parameter value is not constant but change depending on
-            ///   tempo/pitch/rate/samplerate settings.
+            ///   tempo/pitch/rate/sample rate settings.
             /// </summary>
             InitialLatency = 8,
         }
@@ -491,7 +489,7 @@
             public static extern void SetChannels(IntPtr h, uint numChannels);
 
             [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_setSampleRate")]
-            public static extern void SetSampleRate(IntPtr h, uint srate);
+            public static extern void SetSampleRate(IntPtr h, uint sampleRate);
 
             [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_flush")]
             public static extern void Flush(IntPtr h);
