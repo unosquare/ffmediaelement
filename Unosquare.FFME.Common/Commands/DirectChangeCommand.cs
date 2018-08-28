@@ -5,6 +5,7 @@
     using System;
     using System.Linq;
 
+    /// <inheritdoc />
     /// <summary>
     /// Change Media Command Implementation
     /// </summary>
@@ -24,9 +25,7 @@
             PlayWhenCompleted = mediaCore.Clock.IsRunning;
         }
 
-        /// <summary>
-        /// Gets the command type identifier.
-        /// </summary>
+        /// <inheritdoc />
         public override CommandType CommandType { get; }
 
         /// <summary>
@@ -34,10 +33,7 @@
         /// </summary>
         public bool PlayWhenCompleted { get; }
 
-        /// <summary>
-        /// Performs actions when the command has been executed.
-        /// This is useful to notify exceptions or update the state of the media.
-        /// </summary>
+        /// <inheritdoc />
         public override void PostProcess()
         {
             MediaCore.State.UpdateFixedContainerProperties();
@@ -61,9 +57,7 @@
             MediaCore.Log(MediaLogMessageType.Debug, $"Command {CommandType}: Completed");
         }
 
-        /// <summary>
-        /// Performs the actions represented by this deferred task.
-        /// </summary>
+        /// <inheritdoc />
         protected override void PerformActions()
         {
             var m = MediaCore;
@@ -84,7 +78,7 @@
                 m.SendOnMediaChanging();
 
                 // Side load subtitles
-                m.PreloadSubtitles();
+                m.PreLoadSubtitles();
 
                 // Capture the current media types before components change
                 var oldMediaTypes = m.Container.Components.MediaTypes.ToArray();

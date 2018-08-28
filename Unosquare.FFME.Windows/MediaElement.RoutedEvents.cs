@@ -243,8 +243,8 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static ExceptionRoutedEventArgs CreateExceptionRoutedEventArgs(RoutedEvent routedEvent, object sender, Exception errorException)
         {
-            var constructor = (typeof(ExceptionRoutedEventArgs) as TypeInfo).DeclaredConstructors.First();
-            return constructor.Invoke(new object[] { routedEvent, sender, errorException }) as ExceptionRoutedEventArgs;
+            var constructor = (typeof(ExceptionRoutedEventArgs) as TypeInfo)?.DeclaredConstructors.First();
+            return constructor?.Invoke(new[] { routedEvent, sender, errorException }) as ExceptionRoutedEventArgs;
         }
 
         #endregion

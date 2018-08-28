@@ -35,7 +35,7 @@
         public MediaBlockBuffer PreloadedSubtitles { get; private set; }
 
         /// <summary>
-        /// Gets the packet reading cycle control evenet.
+        /// Gets the packet reading cycle control event.
         /// </summary>
         internal IWaitEvent PacketReadingCycle { get; } = WaitEventFactory.Create(isCompleted: false, useSlim: true);
 
@@ -217,10 +217,10 @@
 
             // Stop the rest of the workers
             // i.e. wait for worker threads to finish
-            var wrokers = new[] { PacketReadingTask, FrameDecodingTask };
-            foreach (var w in wrokers)
+            var workers = new[] { PacketReadingTask, FrameDecodingTask };
+            foreach (var w in workers)
             {
-                // w.Abort causes memory leaks bacause packets and frames might not
+                // w.Abort causes memory leaks because packets and frames might not
                 // get disposed by the corresponding workers. We use Join instead.
                 w?.Join();
             }
@@ -237,9 +237,9 @@
         }
 
         /// <summary>
-        /// Preloads the subtitles from the MediaOptions.SubtitlesUrl.
+        /// Pre-loads the subtitles from the MediaOptions.SubtitlesUrl.
         /// </summary>
-        internal void PreloadSubtitles()
+        internal void PreLoadSubtitles()
         {
             DisposePreloadedSubtitles();
             var subtitlesUrl = Container.MediaOptions.SubtitlesUrl;
@@ -276,7 +276,7 @@
         }
 
         /// <summary>
-        /// Returns the value of a discrete frame position of themain media component if possible.
+        /// Returns the value of a discrete frame position of the main media component if possible.
         /// Otherwise, it simply rounds the position to the nearest millisecond.
         /// </summary>
         /// <param name="position">The position.</param>
@@ -308,7 +308,7 @@
         /// position to the <see cref="State" />.
         /// </summary>
         /// <param name="position">The position.</param>
-        /// <returns>The newly set postion</returns>
+        /// <returns>The newly set position</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal TimeSpan ChangePosition(TimeSpan position)
         {
@@ -321,7 +321,7 @@
         /// Resets the clock to the zero position and notifies the new
         /// position to rhe <see cref="State"/>.
         /// </summary>
-        /// <returns>The newly set postion</returns>
+        /// <returns>The newly set position</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal TimeSpan ResetPosition()
         {
@@ -376,7 +376,7 @@
         /// <summary>
         /// Tries to receive the next frame from the decoder by decoding queued
         /// Packets and converting the decoded frame into a Media Block which gets
-        /// enqueued into the playback block buffer.
+        /// queued into the playback block buffer.
         /// </summary>
         /// <param name="t">The MediaType.</param>
         /// <returns>True if a block could be added. False otherwise.</returns>

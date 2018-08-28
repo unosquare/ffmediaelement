@@ -2,6 +2,7 @@
 {
     using Primitives;
 
+    /// <inheritdoc />
     /// <summary>
     /// Represents a promise-style command executed in a queue.
     /// </summary>
@@ -27,11 +28,6 @@
         /// Gets the command type identifier.
         /// </summary>
         public abstract CommandType CommandType { get; }
-
-        /// <summary>
-        /// Gets the command category.
-        /// </summary>
-        public abstract CommandCategory Category { get; }
 
         /// <summary>
         /// Gets a value indicating whether this command processes seeking operations

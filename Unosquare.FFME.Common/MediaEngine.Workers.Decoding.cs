@@ -17,14 +17,14 @@
         {
             // TODO: Don't use State properties in workers as they are only for
             // TODO: Check the use of wall clock. Maybe it's be more consistent
-            // to use a single atomic wallclock value per cycle. Check other workers as well.
+            // to use a single atomic wall clock value per cycle. Check other workers as well.
             // state notification purposes.
             // State variables
             var wasSyncBuffering = false;
             var delay = new DelayProvider(); // The delay provider prevents 100% core usage
             var decodedFrameCount = 0;
             var rangePercent = 0d;
-            var main = Container.Components.MainMediaType; // Holds the main media type
+            MediaType main; // Holds the main media type
             var resumeSyncBufferingClock = false;
             MediaBlockBuffer blocks = null;
 
@@ -48,7 +48,7 @@
                     // Signal a Seek starting operation and set the initial state
                     FrameDecodingCycle.Begin();
 
-                    // Update state properties -- this must be after processing commanmds as
+                    // Update state properties -- this must be after processing commands as
                     // a direct command might have changed the components
                     main = Container.Components.MainMediaType;
                     decodedFrameCount = 0;
@@ -138,7 +138,7 @@
                         blocks = Blocks[main];
 
                         // Unfortunately at this point we will need to adjust the clock after creating the frames.
-                        // to ensure tha mian component is within the clock range if the decoded
+                        // to ensure tha main component is within the clock range if the decoded
                         // frames are not with range. This is normal while buffering though.
                         if (blocks.IsInRange(WallClock) == false)
                         {

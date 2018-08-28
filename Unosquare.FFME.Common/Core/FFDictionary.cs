@@ -8,7 +8,7 @@
     /// <summary>
     /// An AVDictionary management class
     /// </summary>
-    internal unsafe class FFDictionary : IDisposable
+    internal sealed unsafe class FFDictionary : IDisposable
     {
         #region Unmanaged Fields
 
@@ -234,38 +234,16 @@
                 Set(key, null, false);
         }
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose()
         {
-            Dispose(true);
+            if (IsDisposed) return;
+            IsDisposed = true;
+            var reference = Pointer;
+            ffmpeg.av_dict_free(&reference);
+            m_Pointer = IntPtr.Zero;
         }
 
         #endregion
-
-        #region IDisposable Support
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool alsoManaged)
-        {
-            if (!IsDisposed)
-            {
-                if (alsoManaged)
-                {
-                    var reference = Pointer;
-                    ffmpeg.av_dict_free(&reference);
-                    m_Pointer = IntPtr.Zero;
-                }
-
-                IsDisposed = true;
-            }
-        }
-
-        #endregion
-
     }
 }

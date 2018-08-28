@@ -22,9 +22,9 @@
         private static readonly object InitLock = new object();
 
         /// <summary>
-        /// The has intialized flag
+        /// The has initialized flag
         /// </summary>
-        private static bool IsIntialized;
+        private static bool IsInitialized;
 
         /// <summary>
         /// The ffmpeg directory
@@ -62,7 +62,7 @@
         /// <summary>
         /// Gets or sets the FFmpeg path from which to load the FFmpeg binaries.
         /// You must set this path before setting the Source property for the first time on any instance of this control.
-        /// Settng this property when FFmpeg binaries have been registered will have no effect.
+        /// Setting this property when FFmpeg binaries have been registered will have no effect.
         /// </summary>
         public static string FFmpegDirectory
         {
@@ -112,7 +112,7 @@
             {
                 lock (InitLock)
                 {
-                    if (IsIntialized == false)
+                    if (IsInitialized == false)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
                     return m_InputFormatNames ?? (m_InputFormatNames =
@@ -131,7 +131,7 @@
             {
                 lock (InitLock)
                 {
-                    if (IsIntialized == false)
+                    if (IsInitialized == false)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
                     return m_GlobalInputFormatOptions ?? (m_GlobalInputFormatOptions =
@@ -150,7 +150,7 @@
             {
                 lock (InitLock)
                 {
-                    if (IsIntialized == false)
+                    if (IsInitialized == false)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
                     if (m_InputFormatOptions == null)
@@ -180,7 +180,7 @@
             {
                 lock (InitLock)
                 {
-                    if (IsIntialized == false)
+                    if (IsInitialized == false)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
                     return m_DecoderNames ?? (m_DecoderNames =
@@ -199,7 +199,7 @@
             {
                 lock (InitLock)
                 {
-                    if (IsIntialized == false)
+                    if (IsInitialized == false)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
                     return m_GlobalDecoderOptions ?? (m_GlobalDecoderOptions = new ReadOnlyCollection<OptionMeta>(
@@ -218,7 +218,7 @@
             {
                 lock (InitLock)
                 {
-                    if (IsIntialized == false)
+                    if (IsInitialized == false)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
                     if (m_DecoderOptions == null)
@@ -251,7 +251,7 @@
             {
                 lock (InitLock)
                 {
-                    if (IsIntialized == false)
+                    if (IsInitialized == false)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
                     return m_AllCodecs ?? (m_AllCodecs = FFInterop.RetrieveCodecs());
@@ -271,18 +271,18 @@
         {
             lock (InitLock)
             {
-                if (IsIntialized)
+                if (IsInitialized)
                     return;
 
                 Platform = platform;
-                IsIntialized = true;
+                IsInitialized = true;
             }
         }
 
         /// <summary>
-        /// Forces the preloading of the FFmpeg libraries according to the values of the
+        /// Forces the pre-loading of the FFmpeg libraries according to the values of the
         /// <see cref="FFmpegDirectory"/> and <see cref="FFmpegLoadModeFlags"/>
-        /// Also, sets the <see cref="FFmpegVersionInfo"/> property. Thorws an exception
+        /// Also, sets the <see cref="FFmpegVersionInfo"/> property. Throws an exception
         /// if the libraries cannot be loaded.
         /// </summary>
         /// <returns>true if libraries were loaded, false if libraries were already loaded.</returns>
@@ -304,13 +304,11 @@
         /// Retrieves the media information including all streams, chapters and programs.
         /// </summary>
         /// <param name="sourceUrl">The source URL.</param>
-        /// <returns>The contants of the media information.</returns>
+        /// <returns>The contents of the media information.</returns>
         public static MediaInfo RetrieveMediaInfo(string sourceUrl)
         {
             using (var container = new MediaContainer(sourceUrl, null, null))
-            {
                 return container.MediaInfo;
-            }
         }
 
         /// <summary>

@@ -57,10 +57,7 @@
         /// </summary>
         public AppCommands Commands { get; } = new AppCommands();
 
-        /// <summary>
-        /// Raises the <see cref="E:System.Windows.Application.Startup" /> event.
-        /// </summary>
-        /// <param name="e">A <see cref="T:System.Windows.StartupEventArgs" /> that contains the event data.</param>
+        /// <inheritdoc />
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);

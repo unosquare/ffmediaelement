@@ -45,9 +45,7 @@
 
         #region Methods
 
-        /// <summary>
-        /// Deallocates the buffer and resets the related buffer properties
-        /// </summary>
+        /// <inheritdoc />
         protected override void Deallocate()
         {
             base.Deallocate();

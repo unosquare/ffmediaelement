@@ -69,24 +69,16 @@
 
         #region Properties
 
-        /// <summary>
-        /// Gets the renderer that owns this wave player.
-        /// </summary>
+        /// <inheritdoc />
         public AudioRenderer Renderer { get; }
 
-        /// <summary>
-        /// Current playback state
-        /// </summary>
+        /// <inheritdoc />
         public PlaybackState PlaybackState { get; private set; } = PlaybackState.Stopped;
 
-        /// <summary>
-        /// Gets a value indicating whether the audio playback is running.
-        /// </summary>
+        /// <inheritdoc />
         public bool IsRunning => !IsDisposed && !IsCancellationPending.Value && !PlaybackFinished.IsCompleted;
 
-        /// <summary>
-        /// Gets the desired latency in milliseconds
-        /// </summary>
+        /// <inheritdoc />
         public int DesiredLatency { get; }
 
         /// <summary>
@@ -119,9 +111,7 @@
             }
         }
 
-        /// <summary>
-        /// Begin playback
-        /// </summary>
+        /// <inheritdoc />
         public void Start()
         {
             if (DirectSoundDriver != null || IsDisposed)
@@ -663,17 +653,8 @@
                 public uint Offset;
                 public IntPtr NotifyHandle;
 
-                /// <summary>
-                /// Indicates whether the current object is equal to another object of the same type.
-                /// </summary>
-                /// <param name="other">An object to compare with this object.</param>
-                /// <returns>
-                ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
-                /// </returns>
-                public bool Equals(DirectSoundBufferPositionNotify other)
-                {
-                    return NotifyHandle == other.NotifyHandle;
-                }
+                /// <inheritdoc />
+                public bool Equals(DirectSoundBufferPositionNotify other) => NotifyHandle == other.NotifyHandle;
             }
 
 #pragma warning disable SA1401 // Fields must be private

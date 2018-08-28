@@ -17,9 +17,7 @@
             // placeholder
         }
 
-        /// <summary>
-        /// Occurs when a property value changes.
-        /// </summary>
+        /// <inheritdoc />
         public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>

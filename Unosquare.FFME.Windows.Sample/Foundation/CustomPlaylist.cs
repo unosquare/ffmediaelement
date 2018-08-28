@@ -9,7 +9,7 @@
     using ViewModels;
 
     /// <summary>
-    /// A class exposing usage of custom playlists
+    /// A class exposing usage of custom play lists
     /// </summary>
     public class CustomPlaylist : Playlist<CustomPlaylistEntry>
     {

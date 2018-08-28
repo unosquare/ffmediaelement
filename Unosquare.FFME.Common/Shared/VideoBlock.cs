@@ -111,9 +111,7 @@
             return false;
         }
 
-        /// <summary>
-        /// Deallocates the picture buffer and resets the related buffer properties
-        /// </summary>
+        /// <inheritdoc />
         protected override void Deallocate()
         {
             base.Deallocate();

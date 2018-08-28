@@ -58,6 +58,7 @@
                     Measures[identifier] = new List<TimeSpan>(1024 * 1024);
             }
 
+            // ReSharper disable once InconsistentlySynchronizedField
             Measures[identifier].Add(elapsed);
         }
 

@@ -80,17 +80,8 @@
             }
         }
 
-        /// <summary>
-        /// Seeks to the specified offset. The offsect can be in byte position or in time units.
-        /// This is specified by the whence parameter which is one of the AVSEEK prefixed constants.
-        /// </summary>
-        /// <param name="opaque">The opaque.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="whence">The whence.</param>
-        /// <returns>
-        /// The position in bytes or time scale that has been read
-        /// </returns>
-        public unsafe long Seek(void* opaque, long offset, int whence)
+        /// <inheritdoc />
+        public long Seek(void* opaque, long offset, int whence)
         {
             lock (ReadLock)
             {

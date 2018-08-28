@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Commands
 {
+    /// <inheritdoc />
     /// <summary>
     /// Represents a promise-style media command that is executed directly on the
     /// media command manager.
@@ -14,13 +15,8 @@
         protected DirectCommandBase(MediaEngine mediaCore)
             : base(mediaCore)
         {
-            Category = CommandCategory.Direct;
+            // placeholder
         }
-
-        /// <summary>
-        /// Gets the command category.
-        /// </summary>
-        public override CommandCategory Category { get; }
 
         /// <summary>
         /// Performs actions when the command has been executed.

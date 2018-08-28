@@ -90,7 +90,7 @@
         #region Methods
 
         /// <summary>
-        /// Starts to run the promise in a threadpool thread.
+        /// Starts to run the promise in a thread pool thread.
         /// </summary>
         public void BeginExecute()
         {

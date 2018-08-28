@@ -92,10 +92,7 @@
         /// </returns>
         public bool CanExecute() => CanExecute(null);
 
-        /// <summary>
-        /// Executes the command but does not wait for it to complete
-        /// </summary>
-        /// <param name="parameter">Data used by the command.  If the command does not require data to be passed, this object can be set to null.</param>
+        /// <inheritdoc />
         public void Execute(object parameter) =>
             ExecuteAsync(parameter).ConfigureAwait(false);
 

@@ -197,7 +197,7 @@
                     return m_RemovePlaylistItemCommand ?? (m_RemovePlaylistItemCommand = new DelegateCommand((arg) =>
                     {
                         if (arg is CustomPlaylistEntry == false) return;
-                        var entry = arg as CustomPlaylistEntry;
+                        var entry = (CustomPlaylistEntry)arg;
 
                         Current.ViewModel.Playlist.Entries.RemoveEntryByMediaUrl(entry.MediaUrl);
                         Current.ViewModel.Playlist.Entries.SaveEntries();

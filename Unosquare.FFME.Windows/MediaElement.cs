@@ -150,10 +150,7 @@
         /// </remarks>
         public event EventHandler<MediaOpeningEventArgs> MediaChanging;
 
-        /// <summary>
-        /// Multicast event for property change notifications.
-        /// This event runs on the UI thread.
-        /// </summary>
+        /// <inheritdoc />
         public event PropertyChangedEventHandler PropertyChanged;
 
         #endregion

@@ -52,9 +52,7 @@
         /// </summary>
         public int BufferSize { get; }
 
-        /// <summary>
-        /// Releases resources held by this WaveBuffer
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose() => Dispose(true);
 
         /// <summary>
@@ -100,11 +98,9 @@
                 if (BufferHandle.IsAllocated)
                     BufferHandle.Free();
 
-                if (DeviceHandle != IntPtr.Zero)
-                {
-                    WaveInterop.ReleaseHeader(DeviceHandle, header);
-                    DeviceHandle = IntPtr.Zero;
-                }
+                if (DeviceHandle == IntPtr.Zero) return;
+                WaveInterop.ReleaseHeader(DeviceHandle, header);
+                DeviceHandle = IntPtr.Zero;
             }
         }
     }

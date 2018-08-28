@@ -6,7 +6,7 @@
     /// <summary>
     /// A fixed-size buffer that acts as an infinite length one.
     /// This buffer is backed by unmanaged, very fast memory so ensure you call
-    /// the dispose method when you are donde using it.
+    /// the dispose method when you are done using it.
     /// </summary>
     /// <seealso cref="IDisposable" />
     public sealed class CircularBuffer : IDisposable
@@ -248,9 +248,7 @@
 
         #region IDisposable Support
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose()
         {
             lock (SyncLock)

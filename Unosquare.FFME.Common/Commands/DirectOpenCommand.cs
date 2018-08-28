@@ -38,9 +38,7 @@
             CommandType = CommandType.Open;
         }
 
-        /// <summary>
-        /// Gets the command type identifier.
-        /// </summary>
+        /// <inheritdoc />
         public override CommandType CommandType { get; }
 
         /// <summary>
@@ -54,10 +52,7 @@
         /// </summary>
         public IMediaInputStream InputStream { get; }
 
-        /// <summary>
-        /// Performs actions when the command has been executed.
-        /// This is useful to notify exceptions or update the state of the media.
-        /// </summary>
+        /// <inheritdoc />
         public override void PostProcess()
         {
             MediaCore.State.UpdateFixedContainerProperties();
@@ -77,9 +72,7 @@
             MediaCore.Log(MediaLogMessageType.Debug, $"Command {CommandType}: Completed");
         }
 
-        /// <summary>
-        /// Performs the actions represented by this deferred task.
-        /// </summary>
+        /// <inheritdoc />
         protected override void PerformActions()
         {
             var m = MediaCore;
@@ -158,7 +151,7 @@
                 m.SendOnMediaOpening();
 
                 // Side-load subtitles if requested
-                m.PreloadSubtitles();
+                m.PreLoadSubtitles();
 
                 // Get the main container open
                 m.Container.Open();

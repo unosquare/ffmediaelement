@@ -19,14 +19,10 @@
         {
             TargetPosition = targetPosition;
             CommandType = CommandType.Seek;
-            Category = CommandCategory.Delayed;
         }
 
         /// <inheritdoc />
         public override CommandType CommandType { get; }
-
-        /// <inheritdoc />
-        public override CommandCategory Category { get; }
 
         /// <summary>
         /// Gets or sets the target seek position.

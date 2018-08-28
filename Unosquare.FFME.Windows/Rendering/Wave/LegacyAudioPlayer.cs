@@ -51,15 +51,10 @@
 
         #region Properties
 
-        /// <summary>
-        /// Gets the renderer that owns this wave player.
-        /// </summary>
+        /// <inheritdoc />
         public AudioRenderer Renderer { get; }
 
-        /// <summary>
-        /// Gets or sets the desired latency in milliseconds
-        /// Should be set before a call to Init
-        /// </summary>
+        /// <inheritdoc />
         public int DesiredLatency { get; }
 
         /// <summary>
@@ -76,14 +71,10 @@
         /// </summary>
         public int DeviceNumber { get; }
 
-        /// <summary>
-        /// Playback State
-        /// </summary>
+        /// <inheritdoc />
         public PlaybackState PlaybackState { get; private set; } = PlaybackState.Stopped;
 
-        /// <summary>
-        /// Gets a value indicating whether the audio playback is running.
-        /// </summary>
+        /// <inheritdoc />
         public bool IsRunning => !IsDisposed && !IsCancellationPending.Value && !PlaybackFinished.IsCompleted;
 
         /// <summary>
@@ -124,9 +115,7 @@
             }
         }
 
-        /// <summary>
-        /// Begin playback
-        /// </summary>
+        /// <inheritdoc />
         public void Start()
         {
             if (DeviceHandle != IntPtr.Zero || IsDisposed)
@@ -163,9 +152,7 @@
             AudioPlaybackThread.Start();
         }
 
-        /// <summary>
-        /// Clears the internal audio data with silence data.
-        /// </summary>
+        /// <inheritdoc />
         public void Clear()
         {
             if (IsDisposed) return;

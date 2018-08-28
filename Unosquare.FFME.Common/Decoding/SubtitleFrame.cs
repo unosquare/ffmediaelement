@@ -98,9 +98,7 @@
 
         #region Static Methods
 
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
+        /// <inheritdoc />
         public override void Dispose()
         {
             lock (DisposeLock)
@@ -108,7 +106,7 @@
                 if (IsDisposed)
                     return;
 
-                if (InternalPointer != null)
+                if (InternalPointer != IntPtr.Zero)
                     ReleaseAVSubtitle(Pointer);
 
                 InternalPointer = IntPtr.Zero;

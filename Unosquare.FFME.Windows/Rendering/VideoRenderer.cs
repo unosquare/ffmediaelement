@@ -72,9 +72,7 @@
         /// </summary>
         public MediaElement MediaElement => MediaCore?.Parent as MediaElement;
 
-        /// <summary>
-        /// Gets the core platform independent player component.
-        /// </summary>
+        /// <inheritdoc />
         public MediaEngine MediaCore { get; }
 
         #endregion
@@ -95,25 +93,19 @@
 
         #region Unused Media Renderer Methods
 
-        /// <summary>
-        /// Executed when the Play method is called on the parent MediaElement
-        /// </summary>
+        /// <inheritdoc />
         public void Play()
         {
             // placeholder
         }
 
-        /// <summary>
-        /// Executed when the Pause method is called on the parent MediaElement
-        /// </summary>
+        /// <inheritdoc />
         public void Pause()
         {
             // placeholder
         }
 
-        /// <summary>
-        /// Executed when the Stop method is called on the parent MediaElement
-        /// </summary>
+        /// <inheritdoc />
         public void Stop()
         {
             GuiContext.Current.EnqueueInvoke(() =>
@@ -122,9 +114,7 @@
             });
         }
 
-        /// <summary>
-        /// Executed after a Seek operation is performed on the parent MediaElement
-        /// </summary>
+        /// <inheritdoc />
         public void Seek()
         {
             GuiContext.Current.EnqueueInvoke(() =>
@@ -133,19 +123,13 @@
             });
         }
 
-        /// <summary>
-        /// Waits for the renderer to be ready to render.
-        /// </summary>
+        /// <inheritdoc />
         public void WaitForReadyState()
         {
             // placeholder
         }
 
-        /// <summary>
-        /// Called on every block rendering clock cycle just in case some update operation needs to be performed.
-        /// This needs to return immediately so the calling thread is not disturbed.
-        /// </summary>
-        /// <param name="clockPosition">The clock position.</param>
+        /// <inheritdoc />
         public void Update(TimeSpan clockPosition)
         {
             // placeholder
@@ -155,12 +139,7 @@
 
         #region MediaRenderer Methods
 
-        /// <summary>
-        /// Renders the specified media block.
-        /// This needs to return immediately so the calling thread is not disturbed.
-        /// </summary>
-        /// <param name="mediaBlock">The media block.</param>
-        /// <param name="clockPosition">The clock position.</param>
+        /// <inheritdoc />
         public void Render(MediaBlock mediaBlock, TimeSpan clockPosition)
         {
             var block = mediaBlock as VideoBlock;
@@ -256,9 +235,7 @@
             });
         }
 
-        /// <summary>
-        /// Executed when the Close method is called on the parent MediaElement
-        /// </summary>
+        /// <inheritdoc />
         public void Close()
         {
             GuiContext.Current.EnqueueInvoke(() =>

@@ -7,7 +7,7 @@
     {
         /// <summary>
         /// Runs the read task which keeps a packet buffer as full as possible.
-        /// It reports on DownloadProgress by enqueueing an update to the property
+        /// It reports on DownloadProgress by queueing an update to the property
         /// in order to avoid any kind of disruption to this thread caused by the UI thread.
         /// </summary>
         internal void RunPacketReadingWorker()

@@ -77,18 +77,7 @@
 
         #region Methods
 
-        /// <summary>
-        /// Converts decoded, raw frame data in the frame source into a a usable frame. <br />
-        /// The process includes performing picture, samples or text conversions
-        /// so that the decoded source frame data is easily usable in multimedia applications
-        /// </summary>
-        /// <param name="input">The source frame to use as an input.</param>
-        /// <param name="output">The target frame that will be updated with the source frame. If null is passed the frame will be instantiated.</param>
-        /// <param name="siblings">The sibling blocks that may help guess some additional parameters for the input frame.</param>
-        /// <returns>
-        /// Return the updated output frame
-        /// </returns>
-        /// <exception cref="ArgumentNullException">input</exception>
+        /// <inheritdoc />
         public override bool MaterializeFrame(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings)
         {
             if (output == null) output = new AudioBlock();
@@ -182,11 +171,7 @@
             return true;
         }
 
-        /// <summary>
-        /// Creates a frame source object given the raw FFmpeg frame reference.
-        /// </summary>
-        /// <param name="framePointer">The raw FFmpeg frame pointer.</param>
-        /// <returns>The media frame</returns>
+        /// <inheritdoc />
         protected override MediaFrame CreateFrameSource(IntPtr framePointer)
         {
             // Validate the audio frame
@@ -240,10 +225,7 @@
 
         #region IDisposable Support
 
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <inheritdoc />
         protected override void Dispose(bool alsoManaged)
         {
             RC.Current.Remove(Scaler);

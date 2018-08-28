@@ -319,11 +319,6 @@
         #region Private State Management
 
         /// <summary>
-        /// Gets the time the last packet was read from the input
-        /// </summary>
-        private DateTime StateLastReadTimeUtc { get; set; } = DateTime.MinValue;
-
-        /// <summary>
         /// Picture attachments are required when video streams support them
         /// and these attached packets must be read before reading the first frame
         /// of the stream and after seeking. This property is not part of the public API
@@ -520,6 +515,8 @@
         public void SignalAbortReads(bool reset)
         {
             if (IsDisposed) throw new ObjectDisposedException(nameof(MediaContainer));
+
+            // ReSharper disable once InconsistentlySynchronizedField
             if (InputContext == null) throw new InvalidOperationException(ExceptionMessageNoInputContext);
 
             SignalAbortReadsAutoReset.Value = reset;
@@ -970,7 +967,6 @@
             var readPacket = MediaPacket.CreateReadPacket();
             StreamReadInterruptStartTime.Value = DateTime.UtcNow;
             var readResult = ffmpeg.av_read_frame(InputContext, readPacket.Pointer);
-            StateLastReadTimeUtc = DateTime.UtcNow;
 
             if (readResult < 0)
             {

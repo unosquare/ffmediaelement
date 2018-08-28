@@ -176,9 +176,7 @@
             return StartTime.Ticks.CompareTo(other.StartTime.Ticks);
         }
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose() => Dispose(true);
 
         /// <summary>

@@ -56,42 +56,31 @@
 
         #region Controller Properties
 
-        /// <summary>
-        /// Gets or Sets the Source on this MediaElement.
-        /// The Source property is the Uri of the media to be played.
-        /// </summary>
+        /// <inheritdoc />
         public Uri Source { get; private set; }
 
-        /// <summary>
-        /// Gets or sets the requested, non-guaranteed current SpeedRatio property of the media.
-        /// </summary>
+        /// <inheritdoc />
         public double SpeedRatio
         {
             get => m_SpeedRatio.Value;
             set => m_SpeedRatio.Value = value;
         }
 
-        /// <summary>
-        /// Gets or sets the requested, non-guaranteed current Volume property on the MediaElement from 0 to 1.
-        /// </summary>
+        /// <inheritdoc />
         public double Volume
         {
             get => m_Volume.Value;
             set => m_Volume.Value = value;
         }
 
-        /// <summary>
-        /// Gets or sets the requested, non-guaranteed current Balance property on the MediaElement.
-        /// </summary>
+        /// <inheritdoc />
         public double Balance
         {
             get => m_Balance.Value;
             set => m_Balance.Value = value;
         }
 
-        /// <summary>
-        /// Gets or sets the requested, non-guaranteed current IsMuted property on the MediaElement.
-        /// </summary>
+        /// <inheritdoc />
         public bool IsMuted
         {
             get => m_IsMuted.Value;
@@ -102,72 +91,51 @@
 
         #region Renderer Update Driven Properties
 
-        /// <summary>
-        /// Gets the current playback state.
-        /// </summary>
+        /// <inheritdoc />
         public PlaybackStatus MediaState
         {
             get => (PlaybackStatus)m_MediaState.Value;
             private set => m_MediaState.Value = (int)value;
         }
 
-        /// <summary>
-        /// Gets or Sets the Position property on the MediaElement.
-        /// </summary>
+        /// <inheritdoc />
         public TimeSpan Position
         {
             get => m_Position.Value;
             private set => m_Position.Value = value;
         }
 
-        /// <summary>
-        /// Gets a value indicating whether the media has reached its end.
-        /// </summary>
+        /// <inheritdoc />
         public bool HasMediaEnded
         {
             get => m_HasMediaEnded.Value;
             private set => m_HasMediaEnded.Value = value;
         }
 
-        /// <summary>
-        /// Returns the current video SMTPE time code if available.
-        /// </summary>
+        /// <inheritdoc />
         public string VideoSmtpeTimeCode { get; private set; } = string.Empty;
 
-        /// <summary>
-        /// Gets the name of the video hardware decoder in use.
-        /// Enabling hardware acceleration does not guarantee decoding will be performed in hardware.
-        /// When hardware decoding of frames is in use this will return the name of the HW accelerator.
-        /// Otherwise it will return an empty string.
-        /// </summary>
+        /// <inheritdoc />
         public string VideoHardwareDecoder { get; private set; } = string.Empty;
 
-        /// <summary>
-        /// Gets a value indicating whether the current video stream has closed captions
-        /// </summary>
+        /// <inheritdoc />
         public bool HasClosedCaptions { get; private set; }
 
-        /// <summary>
-        /// Gets the discrete timestamp of the next frame.
-        /// </summary>
+        /// <inheritdoc />
         public TimeSpan PositionNext
         {
             get => m_PositionNext.Value;
             private set => m_PositionNext.Value = value;
         }
 
-        /// <summary>
-        /// Gets the discrete timestamp of the current frame.
-        /// </summary>
+        /// <inheritdoc />
         public TimeSpan PositionCurrent
         {
             get => m_PositionCurrent.Value;
             private set => m_PositionCurrent.Value = value;
         }
 
-        /// <summary>
-        /// Gets the discrete timestamp of the previous frame.
-        /// </summary>
+        /// <inheritdoc />
         public TimeSpan PositionPrevious
         {
             get => m_PositionPrevious.Value;

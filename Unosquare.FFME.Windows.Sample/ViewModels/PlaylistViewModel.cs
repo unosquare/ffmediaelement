@@ -57,11 +57,8 @@
                 if (string.IsNullOrWhiteSpace(PlaylistSearchString) || PlaylistSearchString.Trim().Length < MinimumSearchLength)
                     return true;
 
-                if ((entry.Title?.ToLowerInvariant().Contains(PlaylistSearchString) ?? false) ||
-                    (entry.MediaUrl?.ToLowerInvariant().Contains(PlaylistSearchString) ?? false))
-                    return true;
-
-                return false;
+                return (entry.Title?.ToLowerInvariant().Contains(PlaylistSearchString) ?? false) ||
+                       (entry.MediaUrl?.ToLowerInvariant().Contains(PlaylistSearchString) ?? false);
             };
 
             NotifyPropertyChanged(nameof(EntriesView));
@@ -144,9 +141,7 @@
             set => SetProperty(ref m_OpenTargetUrl, value);
         }
 
-        /// <summary>
-        /// Called by the root ViewModel when the application is loaded and fully available
-        /// </summary>
+        /// <inheritdoc />
         internal override void OnApplicationLoaded()
         {
             base.OnApplicationLoaded();

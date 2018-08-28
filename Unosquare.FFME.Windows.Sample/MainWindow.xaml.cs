@@ -80,7 +80,8 @@
             MouseMove += (s, e) =>
             {
                 var currentPosition = e.GetPosition(window);
-                if (currentPosition.X != LastMousePosition.X || currentPosition.Y != LastMousePosition.Y)
+                if (Math.Abs(currentPosition.X - LastMousePosition.X) > double.Epsilon ||
+                    Math.Abs(currentPosition.Y - LastMousePosition.Y) > double.Epsilon)
                     LastMouseMoveTime = DateTime.UtcNow;
 
                 LastMousePosition = currentPosition;
@@ -103,20 +104,22 @@
                 if (elapsedSinceMouseMove.TotalMilliseconds >= 3000 && Media.IsOpen && ControllerPanel.IsMouseOver == false
                     && PropertiesPanel.Visibility != Visibility.Visible && ControllerPanel.SoundMenuPopup.IsOpen == false)
                 {
-                    if (ControllerPanel.Opacity != 0d)
+                    if (!(Math.Abs(ControllerPanel.Opacity) > double.Epsilon)) return;
+                    Cursor = Cursors.None;
+
+                    if (FindResource("HideControlOpacity") is Storyboard sb)
                     {
-                        Cursor = Cursors.None;
-                        var sb = FindResource("HideControlOpacity") as Storyboard;
                         Storyboard.SetTarget(sb, ControllerPanel);
                         sb.Begin();
                     }
                 }
                 else
                 {
-                    if (ControllerPanel.Opacity != 1d)
+                    if (!(Math.Abs(ControllerPanel.Opacity - 1d) > double.Epsilon)) return;
+                    Cursor = Cursors.Arrow;
+
+                    if (FindResource("ShowControlOpacity") is Storyboard sb)
                     {
-                        Cursor = Cursors.Arrow;
-                        var sb = FindResource("ShowControlOpacity") as Storyboard;
                         Storyboard.SetTarget(sb, ControllerPanel);
                         sb.Begin();
                     }

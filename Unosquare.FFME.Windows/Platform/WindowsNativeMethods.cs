@@ -10,7 +10,7 @@
     /// </summary>
     internal class WindowsNativeMethods : INativeMethods
     {
-        private static readonly int Parallelism = 1;
+        private static readonly int Parallelism;
 
         /// <summary>
         /// Initializes static members of the <see cref="WindowsNativeMethods"/> class.
@@ -63,35 +63,15 @@
         /// </summary>
         private MemoryCopyStartegy CopyStrategy { get; } = MemoryCopyStartegy.ParallelNative;
 
-        /// <summary>
-        /// Fills the memory with the specified value repeated.
-        /// </summary>
-        /// <param name="startAddress">The start address.</param>
-        /// <param name="length">The length.</param>
-        /// <param name="value">The value.</param>
-        public void FillMemory(IntPtr startAddress, uint length, byte value)
-        {
+        /// <inheritdoc />
+        public void FillMemory(IntPtr startAddress, uint length, byte value) =>
             NativeMethods.FillMemory(startAddress, length, value);
-        }
 
-        /// <summary>
-        /// Sets the DLL directory in which external dependencies can be located.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <returns>
-        /// True for success. False for failure
-        /// </returns>
-        public bool SetDllDirectory(string path)
-        {
-            return NativeMethods.SetDllDirectory(path);
-        }
+        /// <inheritdoc />
+        public bool SetDllDirectory(string path) =>
+            NativeMethods.SetDllDirectory(path);
 
-        /// <summary>
-        /// Fast pointer memory block copy function
-        /// </summary>
-        /// <param name="targetAddress">The target address.</param>
-        /// <param name="sourceAddress">The source address.</param>
-        /// <param name="copyLength">Length of the copy.</param>
+        /// <inheritdoc />
         public unsafe void CopyMemory(IntPtr targetAddress, IntPtr sourceAddress, uint copyLength)
         {
             switch (CopyStrategy)
@@ -118,7 +98,7 @@
         }
 
         /// <summary>
-        /// An experimetal method of copying large chunks of memory in parallel.
+        /// An experimental method of copying large chunks of memory in parallel.
         /// Does not seem to have any advantages of the native CopyMemory direct call.
         /// </summary>
         /// <param name="targetAddress">The target address.</param>
@@ -149,7 +129,7 @@
                 return;
             }
 
-            // Start the copy operation in the threadpool
+            // Start the copy operation in the thread pool
             Parallel.For(0, blockCount, (blockIndex) =>
             {
                 var offset = blockIndex * (int)blockSize;

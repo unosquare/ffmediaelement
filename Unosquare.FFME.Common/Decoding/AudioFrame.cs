@@ -58,9 +58,7 @@
 
         #region IDisposable Support
 
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
+        /// <inheritdoc />
         public override void Dispose()
         {
             lock (DisposeLock)

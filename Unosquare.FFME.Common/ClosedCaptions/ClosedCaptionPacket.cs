@@ -5,6 +5,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
+    /// <inheritdoc />
     /// <summary>
     /// Represents a 3-byte packet of closed-captioning data in EIA-608 format.
     /// See: http://jackyjung.tistory.com/attachment/499e14e28c347DB.pdf
@@ -202,7 +203,7 @@
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ClosedCaptionPacket"/> class.
+        /// Initializes a new instance of the <see cref="ClosedCaptionPacket" /> class.
         /// </summary>
         /// <param name="timestamp">The timestamp.</param>
         /// <param name="source">The source.</param>
@@ -656,13 +657,7 @@
             return output;
         }
 
-        /// <summary>
-        /// Compares the current instance with another object of the same type and returns an integer that indicates whether the current instance precedes, follows, or occurs in the same position in the sort order as the other object.
-        /// </summary>
-        /// <param name="other">An object to compare with this instance.</param>
-        /// <returns>
-        /// A value that indicates the relative order of the objects being compared. The return value has these meanings: Value Meaning Less than zero This instance precedes <paramref name="other" /> in the sort order. Zero This instance occurs in the same position in the sort order as <paramref name="other" />. Greater than zero This instance follows <paramref name="other" /> in the sort order.
-        /// </returns>
+        /// <inheritdoc />
         public int CompareTo(ClosedCaptionPacket other)
         {
             if (other == null) throw new ArgumentNullException(nameof(other));

@@ -70,9 +70,9 @@
 
                 #region Draw the text and the VU meter
 
-                double differenceMillis = 0d;
-                float leftChannelWidth = 0;
-                float rightChannelWidth = 0;
+                var differenceMillis = 0d;
+                var leftChannelWidth = 0f;
+                var rightChannelWidth = 0f;
 
                 if (e.EngineState.HasAudio)
                 {
@@ -84,19 +84,19 @@
                     }
                 }
 
-                overlayGraphics.DrawString($"Clock: {e.Clock.TotalSeconds:00.00}\r\nPN   : {e.PictureNumber}\r\nA/V  : {differenceMillis:+000;-000}\r\nL \r\nR",
+                overlayGraphics?.DrawString($"Clock: {e.Clock.TotalSeconds:00.00}\r\nPN   : {e.PictureNumber}\r\nA/V  : {differenceMillis:+000;-000}\r\nL \r\nR",
                     overlayTextFont,
                     overlayTextFontBrush,
                     overlayTextOffset);
 
                 // draw a simple VU meter
-                overlayGraphics.DrawLine(drawVuMeterLeftPen,
+                overlayGraphics?.DrawLine(drawVuMeterLeftPen,
                     drawVuMeterLeftOffset,
                     drawVuMeterTopOffset * overlayGraphics.DpiY / 96f,
                     drawVuMeterLeftOffset + leftChannelWidth,
                     drawVuMeterTopOffset * overlayGraphics.DpiY / 96f);
 
-                overlayGraphics.DrawLine(drawVuMeterRightPen,
+                overlayGraphics?.DrawLine(drawVuMeterRightPen,
                     drawVuMeterLeftOffset,
                     (drawVuMeterTopOffset + drawVuMeterTopSpacing) * overlayGraphics.DpiY / 96f,
                     drawVuMeterLeftOffset + rightChannelWidth,

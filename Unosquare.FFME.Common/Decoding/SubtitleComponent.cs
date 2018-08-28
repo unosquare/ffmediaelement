@@ -31,18 +31,7 @@
         /// </summary>
         public TimeSpan Delay { get; }
 
-        /// <summary>
-        /// Converts decoded, raw frame data in the frame source into a a usable frame. <br />
-        /// The process includes performing picture, samples or text conversions
-        /// so that the decoded source frame data is easily usable in multimedia applications
-        /// </summary>
-        /// <param name="input">The source frame to use as an input.</param>
-        /// <param name="output">The target frame that will be updated with the source frame. If null is passed the frame will be instantiated.</param>
-        /// <param name="siblings">The sibling blocks that may help guess some additional parameters for the input frame.</param>
-        /// <returns>
-        /// Returns true if successful. False otherwise
-        /// </returns>
-        /// <exception cref="ArgumentNullException">input cannot be null</exception>
+        /// <inheritdoc />
         public override bool MaterializeFrame(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings)
         {
             if (output == null) output = new SubtitleBlock();
@@ -179,11 +168,7 @@
 
         #endregion
 
-        /// <summary>
-        /// Creates a frame source object given the raw FFmpeg subtitle reference.
-        /// </summary>
-        /// <param name="framePointer">The raw FFmpeg subtitle pointer.</param>
-        /// <returns>The managed frame</returns>
+        /// <inheritdoc />
         protected override unsafe MediaFrame CreateFrameSource(IntPtr framePointer)
         {
             var frame = (AVSubtitle*)framePointer;

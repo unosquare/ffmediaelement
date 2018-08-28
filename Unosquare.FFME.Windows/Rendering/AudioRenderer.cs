@@ -84,14 +84,10 @@
         /// </summary>
         public MediaElement MediaElement => MediaCore?.Parent as MediaElement;
 
-        /// <summary>
-        /// Gets the core platform independent player component.
-        /// </summary>
+        /// <inheritdoc />
         public MediaEngine MediaCore { get; }
 
-        /// <summary>
-        /// Gets the output format of the audio
-        /// </summary>
+        /// <inheritdoc />
         public WaveFormat WaveFormat { get; }
 
         /// <summary>
@@ -148,11 +144,7 @@
 
         #region Public API
 
-        /// <summary>
-        /// Renders the specified media block.
-        /// </summary>
-        /// <param name="mediaBlock">The media block.</param>
-        /// <param name="clockPosition">The clock position.</param>
+        /// <inheritdoc />
         public void Render(MediaBlock mediaBlock, TimeSpan clockPosition)
         {
             // We don't need to render anything while we are seeking. Simply drop the blocks.
@@ -214,11 +206,7 @@
             }
         }
 
-        /// <summary>
-        /// Called on every block rendering clock cycle just in case some update operation needs to be performed.
-        /// This needs to return immediately so the calling thread is not disturbed.
-        /// </summary>
-        /// <param name="clockPosition">The clock position.</param>
+        /// <inheritdoc />
         public void Update(TimeSpan clockPosition)
         {
             // We don't need to keep track of syncs for seekable media
@@ -245,33 +233,25 @@
             }
         }
 
-        /// <summary>
-        /// Executed when the Play method is called on the parent MediaElement
-        /// </summary>
+        /// <inheritdoc />
         public void Play()
         {
             // placeholder
         }
 
-        /// <summary>
-        /// Executed when the Pause method is called on the parent MediaElement
-        /// </summary>
+        /// <inheritdoc />
         public void Pause()
         {
             // Placeholder
         }
 
-        /// <summary>
-        /// Executed when the Pause method is called on the parent MediaElement
-        /// </summary>
+        /// <inheritdoc />
         public void Stop()
         {
             Seek();
         }
 
-        /// <summary>
-        /// Executed when the Close method is called on the parent MediaElement
-        /// </summary>
+        /// <inheritdoc />
         public void Close()
         {
             // Yes, seek and destroy... coincidentally.
@@ -282,9 +262,7 @@
             }
         }
 
-        /// <summary>
-        /// Executed after a Seek operation is performed on the parent MediaElement
-        /// </summary>
+        /// <inheritdoc />
         public void Seek()
         {
             lock (SyncLock)
@@ -317,14 +295,7 @@
 
         #region IWaveProvider Support
 
-        /// <summary>
-        /// Called whenever the audio driver requests samples.
-        /// Do not call this method directly.
-        /// </summary>
-        /// <param name="targetBuffer">The render buffer.</param>
-        /// <param name="targetBufferOffset">The render buffer offset.</param>
-        /// <param name="requestedBytes">The requested bytes.</param>
-        /// <returns>The number of bytes that were read.</returns>
+        /// <inheritdoc />
         public int Read(byte[] targetBuffer, int targetBufferOffset, int requestedBytes)
         {
             // We sync-lock the reads to avoid null reference exceptions as destroy might have been called

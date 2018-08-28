@@ -36,18 +36,6 @@
 
         #endregion
 
-        #region Constructor
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MediaComponentSet"/> class.
-        /// </summary>
-        internal MediaComponentSet()
-        {
-            // prevent external initialization
-        }
-
-        #endregion
-
         #region Delegates
 
         public delegate void OnPacketQueueChangedDelegate(

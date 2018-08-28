@@ -37,46 +37,33 @@
         /// </value>
         public static WindowsPlatform Instance { get; }
 
-        /// <summary>
-        /// Retrieves the platform-specific Native methods
-        /// </summary>
+        /// <inheritdoc />
         public INativeMethods NativeMethods { get; }
 
-        /// <summary>
-        /// Gets a value indicating whether this instance is in debug mode.
-        /// </summary>
+        /// <inheritdoc />
         public bool IsInDebugMode { get; } = Debugger.IsAttached;
 
-        /// <summary>
-        /// Gets a value indicating whether this instance is in design time.
-        /// </summary>
+        /// <inheritdoc />
         public bool IsInDesignTime { get; }
 
-        /// <summary>
-        /// Creates a renderer of the specified media type.
-        /// </summary>
-        /// <param name="mediaType">Type of the media.</param>
-        /// <param name="mediaCore">The media engine.</param>
-        /// <returns>
-        /// The renderer
-        /// </returns>
-        /// <exception cref="NotSupportedException">When the media type is not supported</exception>
+        /// <inheritdoc />
         public IMediaRenderer CreateRenderer(MediaType mediaType, MediaEngine mediaCore)
         {
-            if (mediaType == MediaType.Audio) return new AudioRenderer(mediaCore);
-            else if (mediaType == MediaType.Video) return new VideoRenderer(mediaCore);
-            else if (mediaType == MediaType.Subtitle) return new SubtitleRenderer(mediaCore);
-
-            throw new NotSupportedException($"No suitable renderer for Media Type '{mediaType}'");
+            switch (mediaType)
+            {
+                case MediaType.Audio:
+                    return new AudioRenderer(mediaCore);
+                case MediaType.Video:
+                    return new VideoRenderer(mediaCore);
+                case MediaType.Subtitle:
+                    return new SubtitleRenderer(mediaCore);
+                default:
+                    throw new NotSupportedException($"No suitable renderer for Media Type '{mediaType}'");
+            }
         }
 
-        /// <summary>
-        /// Handles global FFmpeg library messages
-        /// </summary>
-        /// <param name="message">The message.</param>
-        public void HandleFFmpegLogMessage(MediaLogMessage message)
-        {
+        /// <inheritdoc />
+        public void HandleFFmpegLogMessage(MediaLogMessage message) =>
             MediaElement.RaiseFFmpegMessageLogged(typeof(MediaElement), message);
-        }
     }
 }

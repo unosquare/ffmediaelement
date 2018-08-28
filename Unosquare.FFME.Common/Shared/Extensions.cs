@@ -149,13 +149,12 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TimeSpan ToTimeSpan(this double pts, AVRational timeBase)
         {
-            if (double.IsNaN(pts) || pts == ffmpeg.AV_NOPTS_VALUE)
+            if (double.IsNaN(pts) || Math.Abs(pts - ffmpeg.AV_NOPTS_VALUE) <= double.Epsilon)
                 return TimeSpan.MinValue;
 
-            if (timeBase.den == 0)
-                return TimeSpan.FromTicks(Convert.ToInt64(TimeSpan.TicksPerMillisecond * 1000 * pts / ffmpeg.AV_TIME_BASE));
-
-            return TimeSpan.FromTicks(Convert.ToInt64(TimeSpan.TicksPerMillisecond * 1000 * pts * timeBase.num / timeBase.den));
+            return TimeSpan.FromTicks(timeBase.den == 0 ?
+                Convert.ToInt64(TimeSpan.TicksPerMillisecond * 1000 * pts / ffmpeg.AV_TIME_BASE) :
+                Convert.ToInt64(TimeSpan.TicksPerMillisecond * 1000 * pts * timeBase.num / timeBase.den));
         }
 
         /// <summary>
@@ -193,7 +192,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TimeSpan ToTimeSpan(this double pts, double timeBase)
         {
-            if (double.IsNaN(pts) || pts == ffmpeg.AV_NOPTS_VALUE)
+            if (double.IsNaN(pts) || Math.Abs(pts - ffmpeg.AV_NOPTS_VALUE) <= double.Epsilon)
                 return TimeSpan.MinValue;
 
             return TimeSpan.FromTicks(Convert.ToInt64(TimeSpan.TicksPerMillisecond * 1000 * pts / timeBase));

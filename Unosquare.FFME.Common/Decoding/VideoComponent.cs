@@ -185,18 +185,7 @@
             HardwareAccelerator = null;
         }
 
-        /// <summary>
-        /// Converts decoded, raw frame data in the frame source into a a usable frame. <br />
-        /// The process includes performing picture, samples or text conversions
-        /// so that the decoded source frame data is easily usable in multimedia applications
-        /// </summary>
-        /// <param name="input">The source frame to use as an input.</param>
-        /// <param name="output">The target frame that will be updated with the source frame. If null is passed the frame will be instantiated.</param>
-        /// <param name="siblings">The siblings to help guess additional frame parameters.</param>
-        /// <returns>
-        /// Returns True if successful. False otherwise.
-        /// </returns>
-        /// <exception cref="ArgumentNullException">input</exception>
+        /// <inheritdoc />
         public override bool MaterializeFrame(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings)
         {
             if (output == null) output = new VideoBlock();
@@ -324,11 +313,7 @@
             return true;
         }
 
-        /// <summary>
-        /// Creates a frame source object given the raw FFmpeg frame reference.
-        /// </summary>
-        /// <param name="framePointer">The raw FFmpeg frame pointer.</param>
-        /// <returns>Create a managed frame from an unmanaged one.</returns>
+        /// <inheritdoc />
         protected override unsafe MediaFrame CreateFrameSource(IntPtr framePointer)
         {
             // Validate the video frame
@@ -387,13 +372,7 @@
             return new VideoFrame(outputFrame, this);
         }
 
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="alsoManaged">
-        /// <c>true</c> to release both managed and unmanaged resources;
-        /// <c>false</c> to release only unmanaged resources.
-        /// </param>
+        /// <inheritdoc />
         protected override void Dispose(bool alsoManaged)
         {
             if (Scaler != null)
@@ -529,6 +508,13 @@
              * https://raw.githubusercontent.com/FFmpeg/FFmpeg/release/3.2/ffplay.c
              */
 
+            // ReSharper disable StringLiteralTypo
+            const string SourceFilterName = "buffer";
+            const string SourceFilterInstance = "video_buffer";
+            const string SinkFilterName = "buffersink";
+            const string SinkFilterInstance = "video_buffersink";
+
+            // ReSharper restore StringLiteralTypo
             var frameArguments = ComputeFilterArguments(frame);
             if (string.IsNullOrWhiteSpace(CurrentFilterArguments) || frameArguments.Equals(CurrentFilterArguments) == false)
                 DestroyFilterGraph();
@@ -549,25 +535,25 @@
 
                 // Create the source filter
                 result = ffmpeg.avfilter_graph_create_filter(
-                    &sourceFilterRef, ffmpeg.avfilter_get_by_name("buffer"), "video_buffer", CurrentFilterArguments, null, FilterGraph);
+                    &sourceFilterRef, ffmpeg.avfilter_get_by_name(SourceFilterName), SourceFilterInstance, CurrentFilterArguments, null, FilterGraph);
 
                 // Check filter creation
                 if (result != 0)
                 {
                     throw new MediaContainerException(
-                        $"{nameof(ffmpeg.avfilter_graph_create_filter)} (buffer) failed. " +
+                        $"{nameof(ffmpeg.avfilter_graph_create_filter)} ({SourceFilterName}) failed. " +
                         $"Error {result}: {FFInterop.DecodeMessage(result)}");
                 }
 
                 // Create the sink filter
                 result = ffmpeg.avfilter_graph_create_filter(
-                    &sinkFilterRef, ffmpeg.avfilter_get_by_name("buffersink"), "video_buffersink", null, null, FilterGraph);
+                    &sinkFilterRef, ffmpeg.avfilter_get_by_name(SinkFilterName), SinkFilterInstance, null, null, FilterGraph);
 
                 // Check filter creation
                 if (result != 0)
                 {
                     throw new MediaContainerException(
-                        $"{nameof(ffmpeg.avfilter_graph_create_filter)} (buffersink) failed. " +
+                        $"{nameof(ffmpeg.avfilter_graph_create_filter)} ({SinkFilterName}) failed. " +
                         $"Error {result}: {FFInterop.DecodeMessage(result)}");
                 }
 
@@ -575,7 +561,7 @@
                 SourceFilter = sourceFilterRef;
                 SinkFilter = sinkFilterRef;
 
-                // TODO: from ffplay, ffmpeg.av_opt_set_int_list(sink, "pix_fmts", (byte*)&f0, 1, ffmpeg.AV_OPT_SEARCH_CHILDREN);
+                // TODO: from ffplay, ffmpeg.av_opt_set_int_list(sink, "pixel_formats", (byte*)&f0, 1, ffmpeg.AV_OPT_SEARCH_CHILDREN);
                 if (string.IsNullOrWhiteSpace(FilterString))
                 {
                     result = ffmpeg.avfilter_link(SourceFilter, 0, SinkFilter, 0);

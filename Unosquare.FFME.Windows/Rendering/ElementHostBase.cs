@@ -11,9 +11,9 @@
     using System.Windows.Threading;
 
     /// <summary>
-    /// Provides a base class for a frameowrk element that is capable of
-    /// being hosted on its own dispatcher. This allows for mutithreaded
-    /// UI compistion.
+    /// Provides a base class for a framework element that is capable of
+    /// being hosted on its own dispatcher. This allows for multi threaded
+    /// UI composition.
     /// </summary>
     /// <typeparam name="T">The contained framework element</typeparam>
     /// <seealso cref="FrameworkElement" />
@@ -75,9 +75,7 @@
         /// </summary>
         protected HostVisual Host { get; private set; }
 
-        /// <summary>
-        /// Gets the number of visual child elements within this element.
-        /// </summary>
+        /// <inheritdoc />
         protected override int VisualChildrenCount
         {
             get
@@ -89,9 +87,7 @@
             }
         }
 
-        /// <summary>
-        /// Gets an enumerator for logical child elements of this element.
-        /// </summary>
+        /// <inheritdoc />
         protected override IEnumerator LogicalChildren
         {
             get
@@ -148,11 +144,7 @@
             return Task.CompletedTask;
         }
 
-        /// <summary>
-        /// Raises the <see cref="E:System.Windows.FrameworkElement.Initialized" /> event.
-        /// This method is invoked whenever <see cref="P:System.Windows.FrameworkElement.IsInitialized" /> is set to true internally.
-        /// </summary>
-        /// <param name="e">The <see cref="T:System.Windows.RoutedEventArgs" /> that contains the event data.</param>
+        /// <inheritdoc />
         protected override void OnInitialized(EventArgs e)
         {
             if (HasOwnDispatcher)
@@ -180,20 +172,8 @@
             base.OnInitialized(e);
         }
 
-        /// <summary>
-        /// Overrides <see cref="M:System.Windows.Media.Visual.GetVisualChild(System.Int32)" />, and returns a child at the specified index from a collection of child elements.
-        /// </summary>
-        /// <param name="index">The zero-based index of the requested child element in the collection.</param>
-        /// <returns>
-        /// The requested child element. This should not return null; if the provided index is out of range, an exception is thrown.
-        /// </returns>
-        protected override Visual GetVisualChild(int index)
-        {
-            if (HasOwnDispatcher)
-                return Host;
-            else
-                return Element;
-        }
+        /// <inheritdoc />
+        protected override Visual GetVisualChild(int index) => HasOwnDispatcher ? Host : (Visual)Element;
 
         /// <summary>
         /// Creates the element contained by this host
@@ -201,13 +181,6 @@
         /// <returns>An instance of the framework element to be hosted</returns>
         protected abstract T CreateHostedElement();
 
-        /// <summary>
-        /// When overridden in a derived class, positions child elements and determines a size for a <see cref="T:System.Windows.FrameworkElement" /> derived class.
-        /// </summary>
-        /// <param name="finalSize">The final area within the parent that this element should use to arrange itself and its children.</param>
-        /// <returns>
-        /// The actual size used.
-        /// </returns>
         /// <inheritdoc />
         protected override Size ArrangeOverride(Size finalSize)
         {
@@ -221,13 +194,7 @@
             return finalSize;
         }
 
-        /// <summary>
-        /// When overridden in a derived class, measures the size in layout required for child elements and determines a size for the <see cref="T:System.Windows.FrameworkElement" />-derived class.
-        /// </summary>
-        /// <param name="newAvailableSize">The available size that this element can give to child elements. Infinity can be specified as a value to indicate that the element will size to whatever content is available.</param>
-        /// <returns>
-        /// The size that this element determines it needs during layout, based on its calculations of child element sizes.
-        /// </returns>
+        /// <inheritdoc />
         protected override Size MeasureOverride(Size newAvailableSize)
         {
             var previousAvailableSize = AvailableSize;
@@ -379,9 +346,7 @@
                 HostConnector = new VisualTarget(host);
             }
 
-            /// <summary>
-            /// When overridden in a derived class, gets or sets the root visual being presented in the source.
-            /// </summary>
+            /// <inheritdoc />
             public override Visual RootVisual
             {
                 get => HostConnector.RootVisual;
@@ -407,9 +372,7 @@
                 }
             }
 
-            /// <summary>
-            /// When overridden in a derived class, gets a value that declares whether the object is disposed.
-            /// </summary>
+            /// <inheritdoc />
             public override bool IsDisposed => m_IsDisposed;
 
             /// <inheritdoc />

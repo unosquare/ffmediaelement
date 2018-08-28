@@ -38,7 +38,7 @@
             // Check initialization has taken place
             lock (InitLock)
             {
-                if (IsIntialized == false)
+                if (IsInitialized == false)
                 {
                     throw new InvalidOperationException(
                         $"{nameof(MediaEngine)} not initialized. Call the static method {nameof(Initialize)}");
@@ -93,17 +93,11 @@
 
         #region Methods
 
-        /// <summary>
-        /// Logs the specified message into the logger queue.
-        /// </summary>
-        /// <param name="messageType">Type of the message.</param>
-        /// <param name="message">The message.</param>
+        /// <inheritdoc />
         public void Log(MediaLogMessageType messageType, string message) =>
             LoggingWorker.Log(this, messageType, message);
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose()
         {
             if (m_IsDisposed == true) return;

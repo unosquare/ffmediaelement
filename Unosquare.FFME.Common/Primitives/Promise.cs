@@ -36,9 +36,7 @@
         public Promise()
             : this(() => { }, true) { }
 
-        /// <summary>
-        /// Performs the actions represented by this deferred task.
-        /// </summary>
+        /// <inheritdoc />
         protected override void PerformActions() => DeferredAction();
     }
 }

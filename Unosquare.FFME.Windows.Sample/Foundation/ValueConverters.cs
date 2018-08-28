@@ -28,6 +28,7 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
         /// <inheritdoc />
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            if (value is double == false) return 0d;
             var result = TimeSpan.FromTicks(System.Convert.ToInt64(TimeSpan.TicksPerSecond * (double)value));
 
             // Do the conversion from visibility to bool
@@ -198,7 +199,7 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
         /// <inheritdoc />
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var duration = value is TimeSpan ? (TimeSpan)value : TimeSpan.FromSeconds(-1);
+            var duration = value is TimeSpan span ? span : TimeSpan.FromSeconds(-1);
 
             if (duration.TotalSeconds <= 0)
                 return "∞";

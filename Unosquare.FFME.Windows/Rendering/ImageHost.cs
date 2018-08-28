@@ -52,12 +52,7 @@
             set => SetElementProperty(Image.StretchDirectionProperty, value);
         }
 
-        /// <summary>
-        /// Creates the element contained by this host
-        /// </summary>
-        /// <returns>
-        /// An instance of the framework element to be hosted
-        /// </returns>
+        /// <inheritdoc />
         protected override Image CreateHostedElement()
         {
             var control = new Image();
