@@ -1,4 +1,5 @@
-﻿namespace Unosquare.FFME.Shared
+﻿// ReSharper disable UnusedMember.Global
+namespace Unosquare.FFME.Shared
 {
     using System;
     using System.Collections.ObjectModel;
@@ -9,15 +10,15 @@
     public interface IMediaEngineState
     {
         /// <summary>
-        /// Gets the input bitrate as reported by the container. Returns 0 if unavaliable.
+        /// Gets the input bit rate as reported by the container. Returns 0 if unavailable.
         /// </summary>
-        long Bitrate { get; }
+        long BitRate { get; }
 
         /// <summary>
-        /// Gets the instantaneous, compressed bitrate of the decoders for the currently active component streams.
+        /// Gets the instantaneous, compressed bit rate of the decoders for the currently active component streams.
         /// This is provided in bits per second.
         /// </summary>
-        long DecodingBitrate { get; }
+        long DecodingBitRate { get; }
 
         /// <summary>
         /// Gets the index of the video stream.
@@ -35,9 +36,9 @@
         int SubtitleStreamIndex { get; }
 
         /// <summary>
-        /// Gets the audio bitrate.
+        /// Gets the audio bit rate.
         /// </summary>
-        long AudioBitrate { get; }
+        long AudioBitRate { get; }
 
         /// <summary>
         /// Gets the audio bits per sample.
@@ -246,9 +247,9 @@
         double SpeedRatio { get; }
 
         /// <summary>
-        /// Gets the video bitrate.
+        /// Gets the video bit rate.
         /// </summary>
-        long VideoBitrate { get; }
+        long VideoBitRate { get; }
 
         /// <summary>
         /// Gets the video codec.
@@ -271,9 +272,9 @@
         double VideoRotation { get; }
 
         /// <summary>
-        /// Gets the video SMTPE timecode.
+        /// Gets the video SMTPE time code.
         /// </summary>
-        string VideoSmtpeTimecode { get; }
+        string VideoSmtpeTimeCode { get; }
 
         /// <summary>
         /// Gets the current video aspect ratio.

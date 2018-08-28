@@ -56,7 +56,7 @@
             var e = new RenderingVideoEventArgs(
                 bitmap,
                 videoBlock.ClosedCaptions,
-                videoBlock.SmtpeTimecode,
+                videoBlock.SmtpeTimeCode,
                 videoBlock.DisplayPictureNumber,
                 MediaCore.State,
                 MediaCore.MediaInfo.Streams[videoBlock.StreamIndex],

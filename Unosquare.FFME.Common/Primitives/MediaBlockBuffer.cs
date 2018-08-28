@@ -39,7 +39,7 @@
         private TimeSpan m_AverageBlockDuration;
         private TimeSpan m_MonotonicDuration;
         private int m_Count;
-        private long m_RangeBitrate;
+        private long m_RangeBitRate;
         private double m_CapacityPercent;
         private bool m_IsMonotonic;
         private bool m_IsFull;
@@ -105,9 +105,9 @@
         public TimeSpan RangeDuration { get { lock (SyncLock) return m_RangeDuration; } }
 
         /// <summary>
-        /// Gets the compressed data bitrate from which media blocks were created.
+        /// Gets the compressed data bit rate from which media blocks were created.
         /// </summary>
-        public long RangeBitrate { get { lock (SyncLock) return m_RangeBitrate; } }
+        public long RangeBitRate { get { lock (SyncLock) return m_RangeBitRate; } }
 
         /// <summary>
         /// Gets the average duration of the currently available playback blocks.
@@ -541,7 +541,7 @@
             m_RangeDuration = TimeSpan.FromTicks(RangeEndTime.Ticks - RangeStartTime.Ticks);
             m_CapacityPercent = Convert.ToDouble(m_Count) / Capacity;
             m_IsFull = m_Count >= Capacity;
-            m_RangeBitrate = m_RangeDuration.TotalSeconds <= 0 || m_Count <= 1 ? 0 :
+            m_RangeBitRate = m_RangeDuration.TotalSeconds <= 0 || m_Count <= 1 ? 0 :
                 Convert.ToInt64(8d * PlaybackBlocks.Sum(m => m.CompressedSize) / m_RangeDuration.TotalSeconds);
 
             // don't compute an average if we don't have blocks

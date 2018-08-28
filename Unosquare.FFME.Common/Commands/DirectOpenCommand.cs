@@ -127,7 +127,7 @@
                     catch { /* Ignore exception and continue */ }
 
                     // Support device URLs
-                    // GDIGRAB: Example URI: device://gdigrab?desktop
+                    // GDI GRAB: Example URI: device://gdigrab?desktop
                     if (string.IsNullOrWhiteSpace(Source.Scheme) == false
                         && (Source.Scheme.Equals("format") || Source.Scheme.Equals("device"))
                         && string.IsNullOrWhiteSpace(Source.Host) == false
@@ -136,6 +136,7 @@
                     {
                         // Update the Input format and container input URL
                         // It is also possible to set some input options as follows:
+                        // ReSharper disable once CommentTypo
                         // streamOptions.PrivateOptions["framerate"] = "20";
                         containerConfig.ForcedInputFormat = Source.Host;
                         mediaUrl = Uri.UnescapeDataString(Source.Query).TrimStart('?');

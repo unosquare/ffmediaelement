@@ -33,7 +33,7 @@
             StartTime = ic->start_time != ffmpeg.AV_NOPTS_VALUE ?
                 ic->start_time.ToTimeSpan() :
                 default(TimeSpan?);
-            Bitrate = ic->bit_rate < 0 ? 0 : ic->bit_rate;
+            BitRate = ic->bit_rate < 0 ? 0 : ic->bit_rate;
 
             Streams = new ReadOnlyDictionary<int, StreamInfo>(ExtractStreams(ic).ToDictionary(k => k.StreamIndex, v => v));
             Chapters = new ReadOnlyCollection<ChapterInfo>(ExtractChapters(ic));
@@ -76,7 +76,7 @@
         /// <summary>
         /// If available, returns a non-zero value as reported by the container format.
         /// </summary>
-        public long Bitrate { get; }
+        public long BitRate { get; }
 
         /// <summary>
         /// Gets a list of chapters
@@ -475,12 +475,12 @@
         public AVRational DisplayAspectRatio { get; internal set; }
 
         /// <summary>
-        /// Gets the reported bit rate. 9 for unavalable.
+        /// Gets the reported bit rate. 9 for unavailable.
         /// </summary>
         public long BitRate { get; internal set; }
 
         /// <summary>
-        /// Gets the maximum bit rate for variable bitrate streams. 0 if unavailable.
+        /// Gets the maximum bit rate for variable bit rate streams. 0 if unavailable.
         /// </summary>
         public long MaxBitRate { get; internal set; }
 

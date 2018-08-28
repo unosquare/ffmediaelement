@@ -61,7 +61,7 @@
         /// <summary>
         /// Gets or sets a value indicating whether Parallel Copy is enabled.
         /// </summary>
-        private MemoryCopyStartegy CopyStrategy { get; set; } = MemoryCopyStartegy.ParallelNative;
+        private MemoryCopyStartegy CopyStrategy { get; } = MemoryCopyStartegy.ParallelNative;
 
         /// <summary>
         /// Fills the memory with the specified value repeated.

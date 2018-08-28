@@ -73,9 +73,9 @@
         public CustomPlaylist Entries { get; }
 
         /// <summary>
-        /// Gets the custom playlist entries as a view that can be uased in data binding scenarios.
+        /// Gets the custom playlist entries as a view that can be used in data binding scenarios.
         /// </summary>
-        public ICollectionView EntriesView { get; private set; }
+        public ICollectionView EntriesView { get; }
 
         /// <summary>
         /// Gets the full path wehre thumbnails are stored.

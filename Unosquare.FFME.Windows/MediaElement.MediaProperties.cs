@@ -54,13 +54,13 @@
         /// Gets the stream's total bit rate as reported by the container.
         /// Returns 0 if unavailable.
         /// </summary>
-        public long Bitrate => MediaCore?.State.Bitrate ?? default;
+        public long BitRate => MediaCore?.State.BitRate ?? default;
 
         /// <summary>
         /// Gets the instantaneous, compressed bit rate of the decoders for the currently active component streams.
         /// This is provided in bits per second.
         /// </summary>
-        public long DecodingBitrate => MediaCore?.State.DecodingBitrate ?? default;
+        public long DecodingBitRate => MediaCore?.State.DecodingBitRate ?? default;
 
         /// <summary>
         /// Provides key-value pairs of the metadata contained in the media.
@@ -150,7 +150,7 @@
         /// Gets the video bit rate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public long VideoBitrate => MediaCore?.State.VideoBitrate ?? default;
+        public long VideoBitRate => MediaCore?.State.VideoBitRate ?? default;
 
         /// <summary>
         /// Returns the clockwise angle that needs to be applied to the video for it to be displayed
@@ -194,7 +194,7 @@
         /// Gets the audio bit rate.
         /// Only valid after the MediaOpened event has fired.
         /// </summary>
-        public long AudioBitrate => MediaCore?.State.AudioBitrate ?? default;
+        public long AudioBitRate => MediaCore?.State.AudioBitRate ?? default;
 
         /// <summary>
         /// Gets the audio channels count.
@@ -266,7 +266,7 @@
         /// <summary>
         /// Returns the current video SMTPE time code if available.
         /// </summary>
-        public string VideoSmtpeTimecode => MediaCore?.State.VideoSmtpeTimecode;
+        public string VideoSmtpeTimeCode => MediaCore?.State.VideoSmtpeTimeCode;
 
         /// <summary>
         /// Gets the current video aspect ratio if available.

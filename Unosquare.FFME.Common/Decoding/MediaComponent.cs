@@ -235,7 +235,7 @@
 
             CodecId = Stream->codec->codec_id;
             CodecName = FFInterop.PtrToStringUTF8(selectedCodec->name);
-            Bitrate = Stream->codec->bit_rate < 0 ? 0 : Stream->codec->bit_rate;
+            BitRate = Stream->codec->bit_rate < 0 ? 0 : Stream->codec->bit_rate;
             Container.Parent?.Log(MediaLogMessageType.Debug,
                 $"COMP {MediaType.ToString().ToUpperInvariant()}: Start Offset: {StartTimeOffset.Format()}; Duration: {Duration.Format()}");
 
@@ -349,7 +349,7 @@
         /// Gets the bit rate of this component as reported by the codec context.
         /// Returns 0 for unknown.
         /// </summary>
-        public long Bitrate { get; }
+        public long BitRate { get; }
 
         /// <summary>
         /// Gets the stream information.
@@ -610,13 +610,13 @@
                     break;
             }
 
-            if (frame != null && Container.Components.OnFrameDecoded != null)
-            {
-                if (MediaType == MediaType.Audio)
-                    Container.Components.OnFrameDecoded?.Invoke((IntPtr)(frame as AudioFrame).Pointer, MediaType);
-                else if (MediaType == MediaType.Video)
-                    Container.Components.OnFrameDecoded?.Invoke((IntPtr)(frame as VideoFrame).Pointer, MediaType);
-            }
+            if (frame == null || Container.Components.OnFrameDecoded == null)
+                return frame;
+
+            if (MediaType == MediaType.Audio && frame is AudioFrame audioFrame)
+                Container.Components.OnFrameDecoded?.Invoke((IntPtr)audioFrame.Pointer, MediaType);
+            else if (MediaType == MediaType.Video && frame is VideoFrame videoFrame)
+                Container.Components.OnFrameDecoded?.Invoke((IntPtr)videoFrame.Pointer, MediaType);
 
             return frame;
         }

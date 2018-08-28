@@ -9,7 +9,7 @@
     /// </summary>
     internal sealed class RealTimeClock
     {
-        private readonly Stopwatch Chrono = new Stopwatch();
+        private readonly Stopwatch Chronometer = new Stopwatch();
         private readonly object SyncLock = new object();
         private long OffsetTicks;
         private double m_SpeedRatio = Constants.Controller.DefaultSpeedRatio;
@@ -30,7 +30,7 @@
                 lock (SyncLock)
                 {
                     return TimeSpan.FromTicks(
-                        OffsetTicks + Convert.ToInt64(Chrono.Elapsed.Ticks * SpeedRatio));
+                        OffsetTicks + Convert.ToInt64(Chronometer.Elapsed.Ticks * SpeedRatio));
                 }
             }
         }
@@ -38,7 +38,7 @@
         /// <summary>
         /// Gets a value indicating whether the clock is running.
         /// </summary>
-        public bool IsRunning => Chrono.IsRunning;
+        public bool IsRunning => Chronometer.IsRunning;
 
         /// <summary>
         /// Gets or sets the speed ratio at which the clock runs.
@@ -73,10 +73,10 @@
         {
             lock (SyncLock)
             {
-                var resume = Chrono.IsRunning;
-                Chrono.Reset();
+                var resume = Chronometer.IsRunning;
+                Chronometer.Reset();
                 OffsetTicks = value.Ticks;
-                if (resume) Chrono.Start();
+                if (resume) Chronometer.Start();
             }
         }
 
@@ -87,8 +87,8 @@
         {
             lock (SyncLock)
             {
-                if (Chrono.IsRunning) return;
-                Chrono.Start();
+                if (Chronometer.IsRunning) return;
+                Chronometer.Start();
             }
         }
 
@@ -98,7 +98,7 @@
         public void Pause()
         {
             lock (SyncLock)
-                Chrono.Stop();
+                Chronometer.Stop();
         }
 
         /// <summary>
@@ -110,7 +110,7 @@
             lock (SyncLock)
             {
                 OffsetTicks = 0;
-                Chrono.Reset();
+                Chronometer.Reset();
             }
         }
     }

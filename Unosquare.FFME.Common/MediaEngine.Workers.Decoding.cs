@@ -160,8 +160,8 @@
                     }
 
                     // Provide updates to decoding stats
-                    State.UpdateDecodingBitrate(
-                        Blocks.Values.Sum(b => b.IsInRange(WallClock) ? b.RangeBitrate : 0));
+                    State.UpdateDecodingBitRate(
+                        Blocks.Values.Sum(b => b.IsInRange(WallClock) ? b.RangeBitRate : 0));
 
                     // Complete the frame decoding cycle
                     FrameDecodingCycle.Complete();
@@ -176,7 +176,7 @@
             finally
             {
                 // Reset decoding stats
-                State.UpdateDecodingBitrate(0);
+                State.UpdateDecodingBitRate(0);
 
                 // Always exit notifying the cycle is done.
                 FrameDecodingCycle.Complete();

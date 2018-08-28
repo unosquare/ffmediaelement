@@ -334,7 +334,7 @@
             // We need to perform some packet reading and decoding
             MediaFrame frame = null;
             var main = MainMediaType;
-            var auxs = MediaTypes.Except(main);
+            var auxiliaries = MediaTypes.Except(main);
             var mediaTypes = MediaTypes;
             var mainBlocks = m.Blocks[main];
 
@@ -361,7 +361,7 @@
                 m.ChangePosition(mainBlocks.RangeStartTime);
 
             // Have the other components catch up
-            foreach (var t in auxs)
+            foreach (var t in auxiliaries)
             {
                 if (mainBlocks.Count <= 0) break;
                 if (t != MediaType.Audio && t != MediaType.Video)

@@ -1,4 +1,8 @@
-﻿namespace Unosquare.FFME.Rendering.Wave
+﻿// ReSharper disable UnusedMember.Global
+// ReSharper disable ConvertToAutoProperty
+// ReSharper disable ConvertToAutoPropertyWhenPossible
+// ReSharper disable FieldCanBeMadeReadOnly.Local
+namespace Unosquare.FFME.Rendering.Wave
 {
 #pragma warning disable SA1202 // Elements must be ordered by access
 #pragma warning disable SA1307 // Accessible fields must begin with upper-case letter

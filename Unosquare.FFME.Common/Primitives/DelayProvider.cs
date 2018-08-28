@@ -72,12 +72,12 @@
         /// <summary>
         /// Gets the selected delay strategy.
         /// </summary>
-        public DelayStrategy Strategy { get; private set; }
+        public DelayStrategy Strategy { get; }
 
         /// <summary>
         /// Creates the smallest possible, synchronous delay based on the selected strategy
         /// </summary>
-        /// <returns>The elamped time of the delay</returns>
+        /// <returns>The elapsed time of the delay</returns>
         public TimeSpan WaitOne()
         {
             lock (SyncRoot)

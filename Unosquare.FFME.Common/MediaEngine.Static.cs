@@ -115,10 +115,8 @@
                     if (IsIntialized == false)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
-                    if (m_InputFormatNames == null)
-                        m_InputFormatNames = new ReadOnlyCollection<string>(FFInterop.RetrieveInputFormatNames());
-
-                    return m_InputFormatNames;
+                    return m_InputFormatNames ?? (m_InputFormatNames =
+                        new ReadOnlyCollection<string>(FFInterop.RetrieveInputFormatNames()));
                 }
             }
         }
@@ -136,13 +134,8 @@
                     if (IsIntialized == false)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
-                    if (m_GlobalInputFormatOptions == null)
-                    {
-                        m_GlobalInputFormatOptions = new ReadOnlyCollection<OptionMeta>(
-                            FFInterop.RetrieveGlobalFormatOptions().ToArray());
-                    }
-
-                    return m_GlobalInputFormatOptions;
+                    return m_GlobalInputFormatOptions ?? (m_GlobalInputFormatOptions =
+                        new ReadOnlyCollection<OptionMeta>(FFInterop.RetrieveGlobalFormatOptions().ToArray()));
                 }
             }
         }
@@ -190,10 +183,8 @@
                     if (IsIntialized == false)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
-                    if (m_DecoderNames == null)
-                        m_DecoderNames = new ReadOnlyCollection<string>(FFInterop.RetrieveDecoderNames(AllCodecs));
-
-                    return m_DecoderNames;
+                    return m_DecoderNames ?? (m_DecoderNames =
+                        new ReadOnlyCollection<string>(FFInterop.RetrieveDecoderNames(AllCodecs)));
                 }
             }
         }
@@ -211,13 +202,8 @@
                     if (IsIntialized == false)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
-                    if (m_GlobalDecoderOptions == null)
-                    {
-                        m_GlobalDecoderOptions = new ReadOnlyCollection<OptionMeta>(
-                            FFInterop.RetrieveGlobalCodecOptions().Where(o => o.IsDecodingOption).ToArray());
-                    }
-
-                    return m_GlobalDecoderOptions;
+                    return m_GlobalDecoderOptions ?? (m_GlobalDecoderOptions = new ReadOnlyCollection<OptionMeta>(
+                        FFInterop.RetrieveGlobalCodecOptions().Where(o => o.IsDecodingOption).ToArray()));
                 }
             }
         }
@@ -268,10 +254,7 @@
                     if (IsIntialized == false)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
-                    if (m_AllCodecs == null)
-                        m_AllCodecs = FFInterop.RetrieveCodecs();
-
-                    return m_AllCodecs;
+                    return m_AllCodecs ?? (m_AllCodecs = FFInterop.RetrieveCodecs());
                 }
             }
         }

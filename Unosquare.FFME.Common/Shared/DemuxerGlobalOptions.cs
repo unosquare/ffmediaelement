@@ -55,7 +55,7 @@
         /// Do not fill in missing values that can be exactly calculated.
         /// Port of ffflags
         /// </summary>
-        public bool FlagEnableNoFillin { get; set; }
+        public bool FlagEnableNoFillIn { get; set; }
 
         /// <summary>
         /// Ignore DTS.
@@ -106,7 +106,7 @@
         public bool SeekToAny { get; set; }
 
         /// <summary>
-        /// Gets or sets the maximum duration to be analyzed before ifentifying stream information.
+        /// Gets or sets the maximum duration to be analyzed before identifying stream information.
         /// In realtime streams this can be reduced to reduce latency (i.e. TimeSpan.Zero)
         /// </summary>
         public TimeSpan MaxAnalyzeDuration { get; set; }

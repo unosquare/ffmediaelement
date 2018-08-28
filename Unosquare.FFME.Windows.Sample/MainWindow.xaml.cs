@@ -221,11 +221,8 @@
             if (e.Key == Key.G)
             {
                 // Example of toggling subtitle color
-                if (Subtitles.GetForeground(Media) == Brushes.LightYellow)
-                    Subtitles.SetForeground(Media, Brushes.Yellow);
-                else
-                    Subtitles.SetForeground(Media, Brushes.LightYellow);
-
+                Subtitles.SetForeground(Media,
+                    Subtitles.GetForeground(Media) == Brushes.LightYellow ? Brushes.Yellow : Brushes.LightYellow);
                 return;
             }
 

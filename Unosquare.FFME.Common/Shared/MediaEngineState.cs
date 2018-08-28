@@ -14,7 +14,6 @@
     {
         #region Property Backing and Private State
 
-        private static readonly TimeSpan GenericFrameStepDuration = TimeSpan.FromSeconds(0.01d);
         private static readonly ReadOnlyDictionary<string, string> EmptyDictionary
             = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
 
@@ -23,7 +22,7 @@
         private readonly AtomicBoolean m_HasMediaEnded = new AtomicBoolean(default);
 
         private readonly AtomicBoolean m_IsBuffering = new AtomicBoolean(default);
-        private readonly AtomicLong m_DecodingBitrate = new AtomicLong(default);
+        private readonly AtomicLong m_DecodingBitRate = new AtomicLong(default);
         private readonly AtomicDouble m_BufferingProgress = new AtomicDouble(default);
         private readonly AtomicDouble m_DownloadProgress = new AtomicDouble(default);
         private readonly AtomicLong m_PacketBufferLength = new AtomicLong(default);
@@ -131,9 +130,9 @@
         }
 
         /// <summary>
-        /// Returns the current video SMTPE timecode if available.
+        /// Returns the current video SMTPE time code if available.
         /// </summary>
-        public string VideoSmtpeTimecode { get; private set; } = string.Empty;
+        public string VideoSmtpeTimeCode { get; private set; } = string.Empty;
 
         /// <summary>
         /// Gets the name of the video hardware decoder in use.
@@ -179,261 +178,155 @@
 
         #region Self-Updating Properties
 
-        /// <summary>
-        /// Gets a value indicating whether the media clock is playing.
-        /// </summary>
+        /// <inheritdoc />
         public bool IsPlaying => IsOpen && MediaCore.Clock.IsRunning;
 
-        /// <summary>
-        /// Gets a value indicating whether the media clock is paused.
-        /// </summary>
+        /// <inheritdoc />
         public bool IsPaused => IsOpen && (MediaCore.Clock.IsRunning == false);
 
-        /// <summary>
-        /// Gets a value indicating whether the media seeking is in progress.
-        /// </summary>
+        /// <inheritdoc />
         public bool IsSeeking => MediaCore.Commands?.IsSeeking ?? false;
 
-        /// <summary>
-        /// Gets a value indicating whether the media is in the process of closing media.
-        /// </summary>
+        /// <inheritdoc />
         public bool IsClosing => MediaCore.Commands?.IsClosing ?? false;
 
-        /// <summary>
-        /// Gets a value indicating whether the media is in the process of opening.
-        /// </summary>
+        /// <inheritdoc />
         public bool IsOpening => MediaCore.Commands?.IsOpening ?? false;
 
-        /// <summary>
-        /// Gets a value indicating whether the media is currently changing its components.
-        /// </summary>
+        /// <inheritdoc />
         public bool IsChanging => MediaCore.Commands?.IsChanging ?? false;
 
         #endregion
 
         #region Container Fixed, One-Time Properties
 
-        /// <summary>
-        /// Gets a value indicating whether this media element
-        /// currently has an open media url.
-        /// </summary>
+        /// <inheritdoc />
         public bool IsOpen { get; private set; }
 
-        /// <summary>
-        /// Gets the duration of a single frame step on the main component.
-        /// </summary>
+        /// <inheritdoc />
         public TimeSpan PositionStep { get; private set; }
 
-        /// <summary>
-        /// Gets the stream's bitrate. Returns 0 if unavaliable.
-        /// </summary>
-        public long Bitrate { get; private set; }
+        /// <inheritdoc />
+        public long BitRate { get; private set; }
 
-        /// <summary>
-        /// Provides key-value pairs of the metadata contained in the media.
-        /// Returns null when media has not been loaded.
-        /// </summary>
+        /// <inheritdoc />
         public ReadOnlyDictionary<string, string> Metadata { get; private set; }
 
-        /// <summary>
-        /// Returns whether the currently loaded media can be paused.
-        /// This is only valid after the MediaOpened event has fired.
-        /// Note that this property is computed based on wether the stream is detected to be a live stream.
-        /// </summary>
+        /// <inheritdoc />
         public bool CanPause { get; private set; }
 
-        /// <summary>
-        /// Gets the media format. Returns null when media has not been loaded.
-        /// </summary>
+        /// <inheritdoc />
         public string MediaFormat { get; private set; }
 
-        /// <summary>
-        /// Gets the size in bytes of the current stream being read.
-        /// For multi-file streams, get the size of the current file only.
-        /// </summary>
+        /// <inheritdoc />
         public long MediaStreamSize { get; private set; }
 
-        /// <summary>
-        /// Gets the index of the video stream.
-        /// </summary>
+        /// <inheritdoc />
         public int VideoStreamIndex { get; private set; }
 
-        /// <summary>
-        /// Gets the index of the audio stream.
-        /// </summary>
+        /// <inheritdoc />
         public int AudioStreamIndex { get; private set; }
 
-        /// <summary>
-        /// Gets the index of the subtitle stream.
-        /// </summary>
+        /// <inheritdoc />
         public int SubtitleStreamIndex { get; private set; }
 
-        /// <summary>
-        /// Returns whether the given media has audio.
-        /// Only valid after the MediaOpened event has fired.
-        /// </summary>
+        /// <inheritdoc />
         public bool HasAudio { get; private set; }
 
-        /// <summary>
-        /// Returns whether the given media has video. Only valid after the
-        /// MediaOpened event has fired.
-        /// </summary>
+        /// <inheritdoc />
         public bool HasVideo { get; private set; }
 
-        /// <summary>
-        /// Returns whether the given media has subtitles (in stream or preloaded). Only valid after the
-        /// MediaOpened event has fired.
-        /// </summary>
+        /// <inheritdoc />
         public bool HasSubtitles { get; private set; }
 
-        /// <summary>
-        /// Gets the video codec.
-        /// Only valid after the MediaOpened event has fired.
-        /// </summary>
+        /// <inheritdoc />
         public string VideoCodec { get; private set; }
 
-        /// <summary>
-        /// Gets the video bitrate.
-        /// Only valid after the MediaOpened event has fired.
-        /// </summary>
-        public long VideoBitrate { get; private set; }
+        /// <inheritdoc />
+        public long VideoBitRate { get; private set; }
 
-        /// <summary>
-        /// Gets the video display rotation.
-        /// </summary>
+        /// <inheritdoc />
         public double VideoRotation { get; private set; }
 
-        /// <summary>
-        /// Returns the natural width of the media in the video.
-        /// Only valid after the MediaOpened event has fired.
-        /// </summary>
+        /// <inheritdoc />
         public int NaturalVideoWidth { get; private set; }
 
-        /// <summary>
-        /// Returns the natural height of the media in the video.
-        /// Only valid after the MediaOpened event has fired.
-        /// </summary>
+        /// <inheritdoc />
         public int NaturalVideoHeight { get; private set; }
 
-        /// <summary>
-        /// Returns the current video aspect ratio if available.
-        /// </summary>
+        /// <inheritdoc />
         public string VideoAspectRatio { get; private set; }
 
-        /// <summary>
-        /// Gets the video frame rate in which all timestamps can be represented.
-        /// Only valid after the MediaOpened event has fired.
-        /// </summary>
+        /// <inheritdoc />
         public double VideoFrameRate { get; private set; }
 
-        /// <summary>
-        /// Gets the audio codec.
-        /// Only valid after the MediaOpened event has fired.
-        /// </summary>
+        /// <inheritdoc />
         public string AudioCodec { get; private set; }
 
-        /// <summary>
-        /// Gets the audio bitrate.
-        /// Only valid after the MediaOpened event has fired.
-        /// </summary>
-        public long AudioBitrate { get; private set; }
+        /// <inheritdoc />
+        public long AudioBitRate { get; private set; }
 
-        /// <summary>
-        /// Gets the audio channels count.
-        /// Only valid after the MediaOpened event has fired.
-        /// </summary>
+        /// <inheritdoc />
         public int AudioChannels { get; private set; }
 
-        /// <summary>
-        /// Gets the audio sample rate.
-        /// Only valid after the MediaOpened event has fired.
-        /// </summary>
+        /// <inheritdoc />
         public int AudioSampleRate { get; private set; }
 
-        /// <summary>
-        /// Gets the audio bits per sample.
-        /// Only valid after the MediaOpened event has fired.
-        /// </summary>
+        /// <inheritdoc />
         public int AudioBitsPerSample { get; private set; }
 
-        /// <summary>
-        /// Gets the Media's natural duration
-        /// Only valid after the MediaOpened event has fired.
-        /// </summary>
+        /// <inheritdoc />
         public TimeSpan? NaturalDuration { get; private set; }
 
-        /// <summary>
-        /// Returns whether the currently loaded media is live or real-time and does not have a set duration
-        /// This is only valid after the MediaOpened event has fired.
-        /// </summary>
+        /// <inheritdoc />
         public bool IsLiveStream { get; private set; }
 
-        /// <summary>
-        /// Returns whether the currently loaded media is a network stream.
-        /// This is only valid after the MediaOpened event has fired.
-        /// </summary>
+        /// <inheritdoc />
         public bool IsNetworkStream { get; private set; }
 
-        /// <summary>
-        /// Gets a value indicating whether the currently loaded media can be seeked.
-        /// </summary>
+        /// <inheritdoc />
         public bool IsSeekable { get; private set; }
 
         #endregion
 
         #region State Method Managed Media Properties
 
-        /// <summary>
-        /// Get a value indicating whether the media is buffering.
-        /// </summary>
+        /// <inheritdoc />
         public bool IsBuffering
         {
             get => m_IsBuffering.Value;
             private set => m_IsBuffering.Value = value;
         }
 
-        /// <summary>
-        /// Gets the instantaneous, compressed bitrate of the decoders for the currently active component streams.
-        /// This is provided in bits per second.
-        /// </summary>
-        public long DecodingBitrate
+        /// <inheritdoc />
+        public long DecodingBitRate
         {
-            get => m_DecodingBitrate.Value;
-            private set => m_DecodingBitrate.Value = value;
+            get => m_DecodingBitRate.Value;
+            private set => m_DecodingBitRate.Value = value;
         }
 
-        /// <summary>
-        /// Gets a value that indicates the percentage of buffering progress made.
-        /// Range is from 0 to 1
-        /// </summary>
+        /// <inheritdoc />
         public double BufferingProgress
         {
             get => m_BufferingProgress.Value;
             private set => m_BufferingProgress.Value = value;
         }
 
-        /// <summary>
-        /// Gets a value that indicates the percentage of download progress made.
-        /// Range is from 0 to 1
-        /// </summary>
+        /// <inheritdoc />
         public double DownloadProgress
         {
             get => m_DownloadProgress.Value;
             private set => m_DownloadProgress.Value = value;
         }
 
-        /// <summary>
-        /// Gets the current byte length of the buffered packets
-        /// </summary>
+        /// <inheritdoc />
         public long PacketBufferLength
         {
             get => m_PacketBufferLength.Value;
             private set => m_PacketBufferLength.Value = value;
         }
 
-        /// <summary>
-        /// The number of packets in the buffer for all media components.
-        /// </summary>
+        /// <inheritdoc />
         public int PacketBufferCount
         {
             get => m_PacketBufferCount.Value;
@@ -457,7 +350,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void UpdateFixedContainerProperties()
         {
-            Bitrate = MediaCore.Container?.MediaBitrate ?? default;
+            BitRate = MediaCore.Container?.MediaBitRate ?? default;
             IsOpen = (IsOpening == false) && (MediaCore.Container?.IsOpen ?? default);
             Metadata = MediaCore.Container?.Metadata ?? EmptyDictionary;
             MediaFormat = MediaCore.Container?.MediaFormatName;
@@ -471,13 +364,13 @@
             HasSubtitles = (MediaCore.PreloadedSubtitles?.Count ?? 0) > 0
                 || (MediaCore.Container?.Components.HasSubtitles ?? false);
             VideoCodec = MediaCore.Container?.Components.Video?.CodecName;
-            VideoBitrate = MediaCore.Container?.Components.Video?.Bitrate ?? default;
+            VideoBitRate = MediaCore.Container?.Components.Video?.BitRate ?? default;
             VideoRotation = MediaCore.Container?.Components.Video?.DisplayRotation ?? default;
             NaturalVideoWidth = MediaCore.Container?.Components.Video?.FrameWidth ?? default;
             NaturalVideoHeight = MediaCore.Container?.Components.Video?.FrameHeight ?? default;
             VideoFrameRate = MediaCore.Container?.Components.Video?.AverageFrameRate ?? default;
             AudioCodec = MediaCore.Container?.Components.Audio?.CodecName;
-            AudioBitrate = MediaCore.Container?.Components.Audio?.Bitrate ?? default;
+            AudioBitRate = MediaCore.Container?.Components.Audio?.BitRate ?? default;
             AudioChannels = MediaCore.Container?.Components.Audio?.Channels ?? default;
             AudioSampleRate = MediaCore.Container?.Components.Audio?.SampleRate ?? default;
             AudioBitsPerSample = MediaCore.Container?.Components.Audio?.BitsPerSample ?? default;
@@ -494,6 +387,7 @@
 
             var mediaType = MediaCore.Container?.Components.MainMediaType ?? MediaType.None;
             var main = MediaCore.Container?.Components.Main;
+
             switch (mediaType)
             {
                 case MediaType.Audio:
@@ -502,8 +396,9 @@
                     break;
 
                 case MediaType.Video:
+                    var baseFrameRate = (main as VideoComponent)?.BaseFrameRate ?? 1d;
                     PositionStep = TimeSpan.FromTicks(Convert.ToInt64(
-                        TimeSpan.TicksPerMillisecond * 1000d / (main as VideoComponent).BaseFrameRate));
+                        TimeSpan.TicksPerMillisecond * 1000d / baseFrameRate));
                     break;
 
                 default:
@@ -547,7 +442,7 @@
                 if (HasClosedCaptions == false && videoBlock.ClosedCaptions.Count > 0)
                     HasClosedCaptions = true;
 
-                VideoSmtpeTimecode = videoBlock.SmtpeTimecode;
+                VideoSmtpeTimeCode = videoBlock.SmtpeTimeCode;
                 VideoHardwareDecoder = videoBlock.IsHardwareFrame ?
                     videoBlock.HardwareAcceleratorName : string.Empty;
             }
@@ -560,7 +455,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void UpdateMediaEnded(bool hasEnded)
         {
-            if (HasMediaEnded == false && hasEnded == true)
+            if (HasMediaEnded == false && hasEnded)
             {
                 HasMediaEnded = true;
                 MediaCore.SendOnMediaEnded();
@@ -586,7 +481,7 @@
             var oldSpeedRatio = MediaCore.Clock.SpeedRatio;
             var newSpeedRatio = SpeedRatio;
 
-            if (oldSpeedRatio != newSpeedRatio)
+            if (Math.Abs(oldSpeedRatio - newSpeedRatio) > double.Epsilon)
                 MediaCore.Clock.SpeedRatio = SpeedRatio;
 
             var oldPosition = Position;
@@ -652,10 +547,10 @@
             // Reset decoder and buffering
             ResetBufferingStatistics();
 
-            VideoSmtpeTimecode = string.Empty;
+            VideoSmtpeTimeCode = string.Empty;
             VideoHardwareDecoder = string.Empty;
 
-            // Reset controller poperties
+            // Reset controller properties
             SpeedRatio = Constants.Controller.DefaultSpeedRatio;
 
             if (oldMediaState != newMediaState)
@@ -688,16 +583,16 @@
             if (MediaStreamSize >= MinimumValidFileSize && IsSeekable && durationSeconds > 0)
             {
                 // The bit rate is simply the media size over the total duration
-                Bitrate = Convert.ToInt64(8d * MediaStreamSize / durationSeconds);
+                BitRate = Convert.ToInt64(8d * MediaStreamSize / durationSeconds);
             }
         }
 
         /// <summary>
         /// Updates the decoding bit rate.
         /// </summary>
-        /// <param name="bitrate">The bit rate.</param>
+        /// <param name="bitRate">The bit rate.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdateDecodingBitrate(long bitrate) => DecodingBitrate = bitrate;
+        internal void UpdateDecodingBitRate(long bitRate) => DecodingBitRate = bitRate;
 
         /// <summary>
         /// Updates the buffering properties: <see cref="PacketBufferCount" />, <see cref="PacketBufferLength" />,
@@ -737,7 +632,7 @@
         private void ResetBufferingStatistics()
         {
             IsBuffering = default;
-            DecodingBitrate = default;
+            DecodingBitRate = default;
             BufferingProgress = default;
             DownloadProgress = default;
             PacketBufferLength = default;

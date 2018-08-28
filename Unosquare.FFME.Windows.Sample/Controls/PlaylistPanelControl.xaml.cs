@@ -4,6 +4,7 @@
     using Platform;
     using System;
     using System.Windows.Controls;
+    using System.Windows.Controls.Primitives;
     using System.Windows.Input;
     using ViewModels;
 
@@ -58,7 +59,7 @@
 
         #endregion
 
-        private void FocusTextBox(TextBox textBox)
+        private void FocusTextBox(TextBoxBase textBox)
         {
             DeferredAction deferredAction = null;
             deferredAction = DeferredAction.Create(() =>
@@ -72,9 +73,9 @@
                 Keyboard.Focus(textBox);
 
                 if (textBox.IsVisible == false || textBox.IsKeyboardFocused)
-                    deferredAction.Dispose();
+                    deferredAction?.Dispose();
                 else
-                    deferredAction.Defer(TimeSpan.FromSeconds(0.25));
+                    deferredAction?.Defer(TimeSpan.FromSeconds(0.25));
             });
 
             deferredAction.Defer(TimeSpan.FromSeconds(0.25));

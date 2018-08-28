@@ -65,10 +65,7 @@
 
         #region Private Classes
 
-        /// <summary>
-        /// The lock releaser. Calling the dispose method releases the lock entered by the parent SyncLocker.
-        /// </summary>
-        /// <seealso cref="IDisposable" />
+        /// <inheritdoc />
         private sealed class SyncLockReleaser : IDisposable
         {
             private readonly ISyncReleasable Parent;
@@ -112,7 +109,7 @@
         /// </summary>
         /// <seealso cref="ISyncLocker" />
         /// <seealso cref="ISyncReleasable" />
-        private sealed class SyncLocker : ISyncLocker, ISyncReleasable, IDisposable
+        private sealed class SyncLocker : ISyncLocker, ISyncReleasable
         {
             private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
             private readonly ReaderWriterLock Locker = new ReaderWriterLock();
@@ -205,13 +202,9 @@
 
                 releaser = SyncLockReleaser.Empty;
                 Locker.AcquireReaderLock(timeoutMilliseconds);
-                if (Locker.IsReaderLockHeld)
-                {
-                    releaser = new SyncLockReleaser(this, LockHolderType.Read);
-                    return true;
-                }
-
-                return false;
+                if (!Locker.IsReaderLockHeld) return false;
+                releaser = new SyncLockReleaser(this, LockHolderType.Read);
+                return true;
             }
         }
 
@@ -220,7 +213,7 @@
         /// </summary>
         /// <seealso cref="ISyncLocker" />
         /// <seealso cref="ISyncReleasable" />
-        private sealed class SyncLockerSlim : ISyncLocker, ISyncReleasable, IDisposable
+        private sealed class SyncLockerSlim : ISyncLocker, ISyncReleasable
         {
             private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
             private readonly ReaderWriterLockSlim Locker

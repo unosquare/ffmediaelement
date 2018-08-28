@@ -36,7 +36,7 @@
         protected ElementHostBase(bool hasOwnDispatcher)
         {
             var isInDesignMode = DesignerProperties.GetIsInDesignMode(this);
-            HasOwnDispatcher = isInDesignMode ? false : hasOwnDispatcher;
+            HasOwnDispatcher = !isInDesignMode && hasOwnDispatcher;
         }
 
         /// <summary>

@@ -26,25 +26,10 @@
             // placeholder
         }
 
-        /// <summary>
-        /// COnverts froma long value to the target type.
-        /// </summary>
-        /// <param name="backingValue">The backing value.</param>
-        /// <returns>
-        /// The value converted form a long value
-        /// </returns>
-        protected override bool FromLong(long backingValue)
-        {
-            return backingValue == 0 ? false : true;
-        }
+        /// <inheritdoc />
+        protected override bool FromLong(long backingValue) => backingValue != 0;
 
-        /// <summary>
-        /// Converts from the target type to a long value
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>
-        /// The value converted to a long value
-        /// </returns>
+        /// <inheritdoc />
         protected override long ToLong(bool value)
         {
             return value ? 1 : 0;

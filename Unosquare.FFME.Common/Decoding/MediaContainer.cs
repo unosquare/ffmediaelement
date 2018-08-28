@@ -63,7 +63,7 @@
 
         /// <summary>
         /// The stream read interrupt callback.
-        /// Used to detect read rimeouts.
+        /// Used to detect read timeouts.
         /// </summary>
         private readonly AVIOInterruptCB_callback StreamReadInterruptCallback;
 
@@ -168,7 +168,7 @@
         #region Properties
 
         /// <summary>
-        /// To detect redundat Dispose calls
+        /// To detect redundant Dispose calls
         /// </summary>
         public bool IsDisposed { get; private set; }
 
@@ -192,7 +192,7 @@
         public ContainerConfiguration Configuration { get; }
 
         /// <summary>
-        /// Represetnts options that applied before initializing media components and their corresponding
+        /// Represents options that applied before initializing media components and their corresponding
         /// codecs. Once the container has created the media components, changing these options will have no effect.
         /// </summary>
         public MediaOptions MediaOptions { get; } = new MediaOptions();
@@ -209,9 +209,9 @@
         public string MediaFormatName { get; private set; }
 
         /// <summary>
-        /// Gets the media bitrate (bits per second). Returns 0 if not available.
+        /// Gets the media bit rate (bits per second). Returns 0 if not available.
         /// </summary>
-        public long MediaBitrate => MediaInfo?.Bitrate ?? 0;
+        public long MediaBitRate => MediaInfo?.BitRate ?? 0;
 
         /// <summary>
         /// Holds the metadata of the media file when the stream is initialized.
@@ -352,7 +352,7 @@
         #region Public API
 
         /// <summary>
-        /// Opens the individual stram components on the existing input context in order to start reading packets.
+        /// Opens the individual stream components on the existing input context in order to start reading packets.
         /// Any Media Options must be set before this method is called.
         /// </summary>
         public void Open()
@@ -433,7 +433,7 @@
                 if (InputContext == null) throw new InvalidOperationException(ExceptionMessageNoInputContext);
 
                 var result = new List<MediaFrame>(4);
-                MediaFrame frame = null;
+                MediaFrame frame;
                 foreach (var component in Components.All)
                 {
                     frame = component.ReceiveNextFrame();
@@ -451,10 +451,10 @@
         /// can be used as a Frame. Please note that if the output is passed as a reference.
         /// This works as follows: if the output reference is null it will be automatically instantiated
         /// and returned by this function. This enables to  either instantiate or reuse a previously allocated Frame.
-        /// This is important because buffer allocations are exepnsive operations and this allows you
-        /// to perform the allocation once and continue reusing thae same buffer.
+        /// This is important because buffer allocations are expensive operations and this allows you
+        /// to perform the allocation once and continue reusing the same buffer.
         /// </summary>
-        /// <param name="input">The raw frame source. Has to be compatiable with the target. (e.g. use VideoFrameSource to conver to VideoFrame)</param>
+        /// <param name="input">The raw frame source. Has to be compatible with the target. (e.g. use VideoFrameSource to convert to VideoFrame)</param>
         /// <param name="output">The target frame. Has to be compatible with the source.</param>
         /// <param name="siblings">The siblings that may help guess additional output parameters.</param>
         /// <param name="releaseInput">if set to <c>true</c> releases the raw frame source from unmanaged memory.</param>
@@ -489,19 +489,13 @@
                     switch (input.MediaType)
                     {
                         case MediaType.Video:
-                            return Components.HasVideo ?
-                                Components.Video.MaterializeFrame(input, ref output, siblings) :
-                                false;
+                            return Components.HasVideo && Components.Video.MaterializeFrame(input, ref output, siblings);
 
                         case MediaType.Audio:
-                            return Components.HasAudio ?
-                                Components.Audio.MaterializeFrame(input, ref output, siblings) :
-                                false;
+                            return Components.HasAudio && Components.Audio.MaterializeFrame(input, ref output, siblings);
 
                         case MediaType.Subtitle:
-                            return Components.HasSubtitles ?
-                                Components.Subtitles.MaterializeFrame(input, ref output, siblings) :
-                                false;
+                            return Components.HasSubtitles && Components.Subtitles.MaterializeFrame(input, ref output, siblings);
 
                         default:
                             throw new MediaContainerException($"Unable to materialize frame of {nameof(MediaType)} {input.MediaType}");
@@ -605,8 +599,8 @@
                                 ffmpeg.av_freep(&CustomInputStreamContext->buffer);
 
                                 // free the stream context
-                                var cutomInputContext = CustomInputStreamContext;
-                                ffmpeg.av_freep(&cutomInputContext);
+                                var customInputContext = CustomInputStreamContext;
+                                ffmpeg.av_freep(&customInputContext);
                                 CustomInputStreamContext = null;
                             }
 
@@ -669,7 +663,7 @@
                     var inputContextPtr = InputContext;
 
                     // Open the input file
-                    var openResult = 0;
+                    int openResult;
 
                     // Prepare the open Url
                     var prefix = string.IsNullOrWhiteSpace(Configuration.ProtocolPrefix) ?
@@ -699,7 +693,7 @@
                         inputContextPtr->pb = CustomInputStreamContext;
                     }
 
-                    // We set the start of the read operation time so tiomeouts can be detected
+                    // We set the start of the read operation time so timeouts can be detected
                     // and we open the URL so the input context can be initialized.
                     StreamReadInterruptStartTime.Value = DateTime.UtcNow;
                     var privateOptionsRef = privateOptions.Pointer;
@@ -766,7 +760,7 @@
                 {
                     MediaStartTimeOffset = TimeSpan.Zero;
                     Parent?.Log(MediaLogMessageType.Warning,
-                        $"Unable to determine the media start time offset. " +
+                        "Unable to determine the media start time offset. " +
                         $"Media start time offset will be assumed to start at {TimeSpan.Zero}.");
                 }
 
@@ -826,7 +820,7 @@
             InputContext->flags |= opts.FlagDiscardCorrupt ? ffmpeg.AVFMT_FLAG_DISCARD_CORRUPT : InputContext->flags;
             InputContext->flags |= opts.FlagEnableFastSeek ? ffmpeg.AVFMT_FLAG_FAST_SEEK : InputContext->flags;
             InputContext->flags |= opts.FlagEnableLatmPayload ? ffmpeg.AVFMT_FLAG_MP4A_LATM : InputContext->flags;
-            InputContext->flags |= opts.FlagEnableNoFillin ? ffmpeg.AVFMT_FLAG_NOFILLIN : InputContext->flags;
+            InputContext->flags |= opts.FlagEnableNoFillIn ? ffmpeg.AVFMT_FLAG_NOFILLIN : InputContext->flags;
             InputContext->flags |= opts.FlagGeneratePts ? ffmpeg.AVFMT_FLAG_GENPTS : InputContext->flags;
             InputContext->flags |= opts.FlagIgnoreDts ? ffmpeg.AVFMT_FLAG_IGNDTS : InputContext->flags;
             InputContext->flags |= opts.FlagIgnoreIndex ? ffmpeg.AVFMT_FLAG_IGNIDX : InputContext->flags;
@@ -877,15 +871,21 @@
         private MediaType StreamCreateComponent(MediaType t, StreamInfo stream)
         {
             // Check if the component should be disabled (removed)
-            var isDisabled = true;
-            if (t == MediaType.Audio)
-                isDisabled = MediaOptions.IsAudioDisabled;
-            else if (t == MediaType.Video)
-                isDisabled = MediaOptions.IsVideoDisabled;
-            else if (t == MediaType.Subtitle)
-                isDisabled = MediaOptions.IsSubtitleDisabled;
-            else
-                return MediaType.None;
+            bool isDisabled;
+            switch (t)
+            {
+                case MediaType.Audio:
+                    isDisabled = MediaOptions.IsAudioDisabled;
+                    break;
+                case MediaType.Video:
+                    isDisabled = MediaOptions.IsVideoDisabled;
+                    break;
+                case MediaType.Subtitle:
+                    isDisabled = MediaOptions.IsSubtitleDisabled;
+                    break;
+                default:
+                    return MediaType.None;
+            }
 
             try
             {
@@ -909,10 +909,7 @@
                 Parent?.Log(MediaLogMessageType.Error, $"Unable to initialize {t} component. {ex.Message}");
             }
 
-            if (Components[t] != null)
-                return t;
-            else
-                return MediaType.None;
+            return Components[t] != null ? t : MediaType.None;
         }
 
         /// <summary>
@@ -920,7 +917,7 @@
         /// Then it initializes the components of the correct type each.
         /// </summary>
         /// <returns>The component media types that are available</returns>
-        /// <exception cref="MediaContainerException">The exception ifnromation</exception>
+        /// <exception cref="MediaContainerException">The exception information</exception>
         private MediaType[] StreamCreateComponents()
         {
             // Apply Media Options by selecting the desired components
@@ -932,7 +929,7 @@
             if (Components.HasVideo == false && Components.HasAudio == false && Components.HasSubtitles == false)
                 throw new MediaContainerException($"{MediaUrl}: No audio, video, or subtitle streams found to decode.");
 
-            // Initially and depending on the video component, rquire picture attachments.
+            // Initially and depending on the video component, require picture attachments.
             // Picture attachments are only required after the first read or after a seek.
             StateRequiresPictureAttachments = true;
 
@@ -941,7 +938,7 @@
         }
 
         /// <summary>
-        /// Reads the next packet in the underlying stream and enqueues in the corresponding media component.
+        /// Reads the next packet in the underlying stream and queues in the corresponding media component.
         /// Returns None of no packet was read.
         /// </summary>
         /// <returns>The type of media packet that was read</returns>
@@ -1022,7 +1019,7 @@
         /// </summary>
         /// <param name="opaque">A pointer to the format input context</param>
         /// <returns>0 for OK, 1 for error (timeout)</returns>
-        private unsafe int OnStreamReadInterrupt(void* opaque)
+        private int OnStreamReadInterrupt(void* opaque)
         {
             const int ErrorResult = 1;
             const int OkResult = 0;
@@ -1070,7 +1067,7 @@
 
             #region Setup
 
-            // Capture absolute, 0-based traget time and clamp it
+            // Capture absolute, 0-based target time and clamp it
             var targetTime = TimeSpan.FromTicks(targetTimeAbsolute.Ticks);
 
             // A special kind of seek is the zero seek. Execute it if requested.
@@ -1083,7 +1080,7 @@
             // Cancel the seek operation if the stream does not support it.
             if (IsStreamSeekable == false)
             {
-                Parent?.Log(MediaLogMessageType.Warning, $"Unable to seek. Underlying stream does not support seeking.");
+                Parent?.Log(MediaLogMessageType.Warning, "Unable to seek. Underlying stream does not support seeking.");
                 return result;
             }
 
@@ -1106,7 +1103,7 @@
             var timeBase = main.Stream->time_base;
 
             // Perform the stream seek
-            var seekResult = 0;
+            int seekResult;
             var startPos = StreamPosition;
 
             #endregion
@@ -1128,8 +1125,8 @@
                 var seekTarget = streamSeekRelativeTime.ToLong(timeBase);
 
                 // Perform the seek. There is also avformat_seek_file which is the older version of av_seek_frame
-                // Check if we are seeking before the start of the stream in this cyle. If so, simply seek to the
-                // begining of the stream. Otherwise, seek normally.
+                // Check if we are seeking before the start of the stream in this cycle. If so, simply seek to the
+                // beginning of the stream. Otherwise, seek normally.
                 if (IsReadAborted)
                 {
                     seekResult = ffmpeg.AVERROR_EXIT;
@@ -1219,7 +1216,7 @@
 
             StreamReadInterruptStartTime.Value = DateTime.UtcNow;
 
-            // TODO: seekTaget might need firther adjustement. Maybe seek to long.MinValue?
+            // TODO: seekTarget might need further adjustment. Maybe seek to long.MinValue?
             var seekResult = ffmpeg.av_seek_frame(InputContext, streamIndex, seekTarget, seekFlags);
 
             // Flush packets, state, and codec buffers
@@ -1238,7 +1235,7 @@
         }
 
         /// <summary>
-        /// Reads and decodes packets untill the required media components have frames on or right before the target time.
+        /// Reads and decodes packets until the required media components have frames on or right before the target time.
         /// </summary>
         /// <param name="result">The list of frames that is currently being processed. Frames will be added here.</param>
         /// <param name="targetTime">The target time in absolute 0-based time.</param>
@@ -1248,7 +1245,7 @@
         private int StreamSeekDecode(List<MediaFrame> result, TimeSpan targetTime, SeekRequirement requirement)
         {
             var readSeekCycles = 0;
-            MediaFrame frame = null;
+            MediaFrame frame;
 
             // Create a holder of frame lists; one for each type of media
             var outputFrames = new Dictionary<MediaType, List<MediaFrame>>();
@@ -1288,7 +1285,7 @@
                 frame = Components[mediaType].ReceiveNextFrame();
                 if (frame != null) outputFrames[mediaType].Add(frame);
 
-                // keept the frames list short
+                // keep the frames list short
                 foreach (var componentFrames in outputFrames.Values)
                 {
                     // cleanup frames if the output becomes too big

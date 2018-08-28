@@ -53,7 +53,7 @@
                 frame->display_picture_number;
 
             CodedPictureNumber = frame->coded_picture_number;
-            SmtpeTimecode = Extensions.ComputeSmtpeTimeCode(component.StartTimeOffset, Duration, timeBase, DisplayPictureNumber);
+            SmtpeTimeCode = Extensions.ComputeSmtpeTimeCode(component.StartTimeOffset, Duration, timeBase, DisplayPictureNumber);
             IsHardwareFrame = component.IsUsingHardwareDecoding;
             HardwareAcceleratorName = component.HardwareAccelerator?.Name ?? null;
 
@@ -103,7 +103,7 @@
         /// <summary>
         /// Gets the SMTPE time code.
         /// </summary>
-        public string SmtpeTimecode { get; }
+        public string SmtpeTimeCode { get; }
 
         /// <summary>
         /// Gets a value indicating whether this frame was decoded in a hardware context.

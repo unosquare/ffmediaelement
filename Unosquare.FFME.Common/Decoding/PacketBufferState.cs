@@ -23,7 +23,7 @@
         public int CountThreshold;
 
         /// <summary>
-        /// Thether the packet buffer has enough packets
+        /// Whether the packet buffer has enough packets
         /// </summary>
         public bool HasEnoughPackets;
 

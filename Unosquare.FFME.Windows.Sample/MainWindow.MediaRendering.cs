@@ -56,8 +56,8 @@
                         drawVuMeterRightValue = 0;
                     }
 
-                    if (overlayGraphics != null) overlayGraphics.Dispose();
-                    if (overlayBitmap != null) overlayBitmap.Dispose();
+                    overlayGraphics?.Dispose();
+                    overlayBitmap?.Dispose();
 
                     overlayBitmap = e.Bitmap.CreateDrawingBitmap();
 

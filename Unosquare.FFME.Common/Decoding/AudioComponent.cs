@@ -322,6 +322,13 @@
              * https://www.ffmpeg.org/doxygen/2.0/doc_2examples_2filtering_audio_8c-example.html
              */
 
+            // ReSharper disable StringLiteralTypo
+            const string SourceFilterName = "abuffer";
+            const string SourceFilterInstance = "audio_buffer";
+            const string SinkFilterName = "abuffersink";
+            const string SinkFilterInstance = "audio_buffersink";
+
+            // ReSharper restore StringLiteralTypo
             var frameArguments = ComputeFilterArguments(frame);
             if (string.IsNullOrWhiteSpace(CurrentFilterArguments) || frameArguments.Equals(CurrentFilterArguments) == false)
                 DestroyFilterGraph();
@@ -339,18 +346,20 @@
                 AVFilterContext* sourceFilterRef = null;
                 AVFilterContext* sinkFilterRef = null;
 
-                result = ffmpeg.avfilter_graph_create_filter(&sourceFilterRef, ffmpeg.avfilter_get_by_name("abuffer"), "audio_buffer", CurrentFilterArguments, null, FilterGraph);
+                result = ffmpeg.avfilter_graph_create_filter(
+                    &sourceFilterRef, ffmpeg.avfilter_get_by_name(SourceFilterName), SourceFilterInstance, CurrentFilterArguments, null, FilterGraph);
                 if (result != 0)
                 {
                     throw new MediaContainerException(
-                        $"{nameof(ffmpeg.avfilter_graph_create_filter)} (audio_buffer) failed. Error {result}: {FFInterop.DecodeMessage(result)}");
+                        $"{nameof(ffmpeg.avfilter_graph_create_filter)} ({SourceFilterInstance}) failed. Error {result}: {FFInterop.DecodeMessage(result)}");
                 }
 
-                result = ffmpeg.avfilter_graph_create_filter(&sinkFilterRef, ffmpeg.avfilter_get_by_name("abuffersink"), "audio_buffersink", null, null, FilterGraph);
+                result = ffmpeg.avfilter_graph_create_filter(
+                    &sinkFilterRef, ffmpeg.avfilter_get_by_name(SinkFilterName), SinkFilterInstance, null, null, FilterGraph);
                 if (result != 0)
                 {
                     throw new MediaContainerException(
-                        $"{nameof(ffmpeg.avfilter_graph_create_filter)} (audio_buffersink) failed. Error {result}: {FFInterop.DecodeMessage(result)}");
+                        $"{nameof(ffmpeg.avfilter_graph_create_filter)} ({SinkFilterInstance}) failed. Error {result}: {FFInterop.DecodeMessage(result)}");
                 }
 
                 SourceFilter = sourceFilterRef;

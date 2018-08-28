@@ -624,7 +624,7 @@
         /// </returns>
         public override string ToString()
         {
-            var output = string.Empty;
+            string output;
             var ts = $"{Timestamp.TotalSeconds:0.0000}";
             var channel = Channel == CaptionsChannel.CCP ?
                 ComputeChannel(FieldParity, FieldChannel).ToString() + "*" : Channel.ToString() + " ";
@@ -638,7 +638,7 @@
                 case CaptionsPacketType.Command:
                     output = $"{prefixData} MISC CTRL | {nameof(Command)}: {Command}"; break;
                 case CaptionsPacketType.MidRow:
-                    output = $"{prefixData} MIDROW CD | {nameof(MidRowStyle)}: {MidRowStyle}"; break;
+                    output = $"{prefixData} MID-ROW S | {nameof(MidRowStyle)}: {MidRowStyle}"; break;
                 case CaptionsPacketType.NullPad:
                     output = $"{prefixData} NULL  PAD | (NULL)"; break;
                 case CaptionsPacketType.Preamble:

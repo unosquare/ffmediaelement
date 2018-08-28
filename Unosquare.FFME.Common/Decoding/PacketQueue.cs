@@ -6,9 +6,9 @@
     using System.Collections.Generic;
 
     /// <summary>
-    /// A data structure containing a quque of packets to process.
+    /// A data structure containing a queue of packets to process.
     /// This class is thread safe and disposable.
-    /// Enqueued, unmanaged packets are disposed automatically by this queue.
+    /// Queued, unmanaged packets are disposed automatically by this queue.
     /// Dequeued packets are the responsibility of the calling code.
     /// </summary>
     internal sealed class PacketQueue : IDisposable
@@ -85,7 +85,7 @@
 
         /// <summary>
         /// Pushes the specified packet into the queue.
-        /// In other words, enqueues the packet.
+        /// In other words, queues the packet.
         /// </summary>
         /// <param name="packet">The packet.</param>
         public void Push(MediaPacket packet)
@@ -102,7 +102,7 @@
         }
 
         /// <summary>
-        /// Dequeues a packet from this queue.
+        /// Dequeue a packet from this queue.
         /// </summary>
         /// <returns>The dequeued packet</returns>
         public MediaPacket Dequeue()

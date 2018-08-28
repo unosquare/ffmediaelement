@@ -181,7 +181,7 @@
         }
 
         /// <summary>
-        /// Deallocates the subtitle struct used to create in managed memory.
+        /// De-allocates the subtitle struct used to create in managed memory.
         /// </summary>
         /// <param name="frame">The frame.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

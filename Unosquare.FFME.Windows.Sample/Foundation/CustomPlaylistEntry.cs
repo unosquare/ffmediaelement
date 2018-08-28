@@ -72,7 +72,7 @@
 
         private void SetMappedAttributeValue(string value, [CallerMemberName] string propertyName = null)
         {
-            if (Attributes.SetEntryValue(PropertyMap[propertyName], value))
+            if (Attributes.SetEntryValue(PropertyMap[propertyName ?? throw new ArgumentNullException(nameof(propertyName))], value))
                 OnPropertyChanged(propertyName);
         }
     }

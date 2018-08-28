@@ -126,19 +126,19 @@
         /// Gets the pixel format.
         /// Port of (get_format) method in ffmpeg.c
         /// </summary>
-        /// <param name="avctx">The codec context.</param>
-        /// <param name="pix_fmts">The pixel formats.</param>
+        /// <param name="context">The codec context.</param>
+        /// <param name="pixelFormats">The pixel formats.</param>
         /// <returns>The real pixel format that the codec will be using</returns>
-        private AVPixelFormat GetPixelFormat(AVCodecContext* avctx, AVPixelFormat* pix_fmts)
+        private AVPixelFormat GetPixelFormat(AVCodecContext* context, AVPixelFormat* pixelFormats)
         {
             // The default output is the first pixel format found.
-            var output = *pix_fmts;
+            var output = *pixelFormats;
 
             // Iterate throughout the different pixel formats provided by the codec
-            for (var p = pix_fmts; *p != AVPixelFormat.AV_PIX_FMT_NONE; p++)
+            for (var p = pixelFormats; *p != AVPixelFormat.AV_PIX_FMT_NONE; p++)
             {
                 // Try to select a hardware output pixel format that matches the HW device
-                if (*pix_fmts == PixelFormat)
+                if (*pixelFormats == PixelFormat)
                 {
                     output = PixelFormat;
                     break;

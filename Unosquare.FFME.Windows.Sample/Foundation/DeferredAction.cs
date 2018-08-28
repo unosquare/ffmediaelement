@@ -10,7 +10,7 @@
     /// </summary>
     public sealed class DeferredAction : IDisposable
     {
-        private bool IsDiposed;
+        private bool IsDisposed;
         private Timer DeferTimer;
 
         /// <summary>
@@ -56,12 +56,10 @@
         /// <inheritdoc />
         public void Dispose()
         {
-            if (IsDiposed) return;
-            IsDiposed = true;
+            if (IsDisposed) return;
+            IsDisposed = true;
 
-            if (DeferTimer != null)
-                DeferTimer.Dispose();
-
+            DeferTimer?.Dispose();
             DeferTimer = null;
         }
 

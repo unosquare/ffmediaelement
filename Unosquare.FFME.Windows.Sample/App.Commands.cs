@@ -49,41 +49,36 @@
             {
                 get
                 {
-                    if (m_OpenCommand == null)
+                    return m_OpenCommand ?? (m_OpenCommand = new DelegateCommand(async a =>
                     {
-                        m_OpenCommand = new DelegateCommand(async a =>
+                        try
                         {
-                            try
-                            {
-                                var uriString = a as string;
-                                if (string.IsNullOrWhiteSpace(uriString))
-                                    return;
+                            var uriString = a as string;
+                            if (string.IsNullOrWhiteSpace(uriString))
+                                return;
 
-                                // Current.MediaElement.Source = new Uri(uriString); // you can also set the source to the Uri to open
-                                var target = new Uri(uriString);
-                                if (target.ToString().StartsWith(FileInputStream.Scheme))
-                                {
-                                    await Current.MediaElement.Open(new FileInputStream(target.LocalPath));
-                                }
-                                else
-                                {
-                                    await Current.MediaElement.Open(target);
-                                }
-                            }
-                            catch (Exception ex)
+                            // Current.MediaElement.Source = new Uri(uriString); // you can also set the source to the Uri to open
+                            var target = new Uri(uriString);
+                            if (target.ToString().StartsWith(FileInputStream.Scheme))
                             {
-                                MessageBox.Show(
-                                    Current.MainWindow,
-                                    $"Media Failed: {ex.GetType()}\r\n{ex.Message}",
-                                    $"{nameof(MediaElement)} Error",
-                                    MessageBoxButton.OK,
-                                    MessageBoxImage.Error,
-                                    MessageBoxResult.OK);
+                                await Current.MediaElement.Open(new FileInputStream(target.LocalPath));
                             }
-                        });
-                    }
-
-                    return m_OpenCommand;
+                            else
+                            {
+                                await Current.MediaElement.Open(target);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(
+                                Current.MainWindow,
+                                $"Media Failed: {ex.GetType()}\r\n{ex.Message}",
+                                $"{nameof(MediaElement)} Error",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Error,
+                                MessageBoxResult.OK);
+                        }
+                    }));
                 }
             }
 
@@ -97,17 +92,12 @@
             {
                 get
                 {
-                    if (m_CloseCommand == null)
+                    return m_CloseCommand ?? (m_CloseCommand = new DelegateCommand(async (o) =>
                     {
-                        m_CloseCommand = new DelegateCommand(async (o) =>
-                        {
-                            // Current.MediaElement.Dispose(); // Test the Dispose method uncommenting this line
-                            // Current.MediaElement.Source = null; // You can also set the source to null to close.
-                            await Current.MediaElement.Close();
-                        });
-                    }
-
-                    return m_CloseCommand;
+                        // Current.MediaElement.Dispose(); // Test the Dispose method uncommenting this line
+                        // Current.MediaElement.Source = null; // You can also set the source to null to close.
+                        await Current.MediaElement.Close();
+                    }));
                 }
             }
 
@@ -121,10 +111,10 @@
             {
                 get
                 {
-                    if (m_PauseCommand == null)
-                        m_PauseCommand = new DelegateCommand(async o => { await Current.MediaElement.Pause(); });
-
-                    return m_PauseCommand;
+                    return m_PauseCommand ?? (m_PauseCommand = new DelegateCommand(async o =>
+                    {
+                        await Current.MediaElement.Pause();
+                    }));
                 }
             }
 
@@ -138,10 +128,10 @@
             {
                 get
                 {
-                    if (m_PlayCommand == null)
-                        m_PlayCommand = new DelegateCommand(async o => { await Current.MediaElement.Play(); });
-
-                    return m_PlayCommand;
+                    return m_PlayCommand ?? (m_PlayCommand = new DelegateCommand(async o =>
+                    {
+                        await Current.MediaElement.Play();
+                    }));
                 }
             }
 
@@ -155,10 +145,10 @@
             {
                 get
                 {
-                    if (m_StopCommand == null)
-                        m_StopCommand = new DelegateCommand(async o => { await Current.MediaElement.Stop(); });
-
-                    return m_StopCommand;
+                    return m_StopCommand ?? (m_StopCommand = new DelegateCommand(async o =>
+                    {
+                        await Current.MediaElement.Stop();
+                    }));
                 }
             }
 
@@ -172,30 +162,25 @@
             {
                 get
                 {
-                    if (m_ToggleFullscreenCommand == null)
+                    return m_ToggleFullscreenCommand ?? (m_ToggleFullscreenCommand = new DelegateCommand(o =>
                     {
-                        m_ToggleFullscreenCommand = new DelegateCommand(o =>
+                        // If we are already in fullscreen, go back to normal
+                        if (Current.MainWindow.WindowStyle == WindowStyle.None)
                         {
-                            // If we are already in fullscreen, go back to normal
-                            if (Current.MainWindow.WindowStyle == WindowStyle.None)
-                            {
-                                PreviousWindowStatus.Apply(Current.MainWindow);
-                                WindowStatus.EnableDisplayTimeout();
-                            }
-                            else
-                            {
-                                PreviousWindowStatus.Capture(Current.MainWindow);
-                                Current.MainWindow.WindowStyle = WindowStyle.None;
-                                Current.MainWindow.ResizeMode = ResizeMode.NoResize;
-                                Current.MainWindow.Topmost = true;
-                                Current.MainWindow.WindowState = WindowState.Normal;
-                                Current.MainWindow.WindowState = WindowState.Maximized;
-                                WindowStatus.DisableDisplayTimeout();
-                            }
-                        });
-                    }
-
-                    return m_ToggleFullscreenCommand;
+                            PreviousWindowStatus.Apply(Current.MainWindow);
+                            WindowStatus.EnableDisplayTimeout();
+                        }
+                        else
+                        {
+                            PreviousWindowStatus.Capture(Current.MainWindow);
+                            Current.MainWindow.WindowStyle = WindowStyle.None;
+                            Current.MainWindow.ResizeMode = ResizeMode.NoResize;
+                            Current.MainWindow.Topmost = true;
+                            Current.MainWindow.WindowState = WindowState.Normal;
+                            Current.MainWindow.WindowState = WindowState.Maximized;
+                            WindowStatus.DisableDisplayTimeout();
+                        }
+                    }));
                 }
             }
 
@@ -209,19 +194,14 @@
             {
                 get
                 {
-                    if (m_RemovePlaylistItemCommand == null)
+                    return m_RemovePlaylistItemCommand ?? (m_RemovePlaylistItemCommand = new DelegateCommand((arg) =>
                     {
-                        m_RemovePlaylistItemCommand = new DelegateCommand((arg) =>
-                        {
-                            if (arg is CustomPlaylistEntry == false) return;
-                            var entry = arg as CustomPlaylistEntry;
+                        if (arg is CustomPlaylistEntry == false) return;
+                        var entry = arg as CustomPlaylistEntry;
 
-                            Current.ViewModel.Playlist.Entries.RemoveEntryByMediaUrl(entry.MediaUrl);
-                            Current.ViewModel.Playlist.Entries.SaveEntries();
-                        });
-                    }
-
-                    return m_RemovePlaylistItemCommand;
+                        Current.ViewModel.Playlist.Entries.RemoveEntryByMediaUrl(entry.MediaUrl);
+                        Current.ViewModel.Playlist.Entries.SaveEntries();
+                    }));
                 }
             }
 

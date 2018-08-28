@@ -82,12 +82,12 @@
         /// <summary>
         /// Gets a value indicating whether the audio playback is running.
         /// </summary>
-        public bool IsRunning => (IsDisposed || IsCancellationPending.Value || PlaybackFinished.IsCompleted) ? false : true;
+        public bool IsRunning => !IsDisposed && !IsCancellationPending.Value && !PlaybackFinished.IsCompleted;
 
         /// <summary>
         /// Gets the desired latency in milliseconds
         /// </summary>
-        public int DesiredLatency { get; private set; }
+        public int DesiredLatency { get; }
 
         /// <summary>
         /// Gets a value indicating whether this instance is disposed.

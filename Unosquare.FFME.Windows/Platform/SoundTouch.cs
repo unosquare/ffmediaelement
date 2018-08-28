@@ -185,7 +185,7 @@
         /// <summary>
         /// Gets a value indicating whether the SoundTouch Library (dll) is available
         /// </summary>
-        public static bool IsAvailable { get; private set; }
+        public static bool IsAvailable { get; }
 
         /// <summary>
         /// Returns number of processed samples currently available in SoundTouch for immediate output.

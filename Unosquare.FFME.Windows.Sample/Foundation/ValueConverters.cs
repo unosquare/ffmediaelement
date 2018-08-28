@@ -8,45 +8,24 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
     using System.Windows.Data;
     using System.Windows.Media;
 
-    /// <summary>
-    /// Converts between TimeSpans and double-precision Seconds time measures
-    /// </summary>
-    /// <seealso cref="IValueConverter" />
+    /// <inheritdoc />
     internal class TimeSpanToSecondsConverter : IValueConverter
     {
-        /// <summary>
-        /// Converts a value.
-        /// </summary>
-        /// <param name="value">The value produced by the binding source.</param>
-        /// <param name="targetType">The type of the binding target property.</param>
-        /// <param name="parameter">The converter parameter to use.</param>
-        /// <param name="culture">The culture to use in the converter.</param>
-        /// <returns>
-        /// A converted value. If the method returns null, the valid null value is used.
-        /// </returns>
-        public object Convert(
-            object value,
-            Type targetType,
-            object parameter,
-            CultureInfo culture)
+        /// <inheritdoc />
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is TimeSpan) return ((TimeSpan)value).TotalSeconds;
-            if (value is Duration)
-                return ((Duration)value).HasTimeSpan ? ((Duration)value).TimeSpan.TotalSeconds : 0d;
-
-            return 0d;
+            switch (value)
+            {
+                case TimeSpan span:
+                    return span.TotalSeconds;
+                case Duration duration:
+                    return duration.HasTimeSpan ? duration.TimeSpan.TotalSeconds : 0d;
+                default:
+                    return 0d;
+            }
         }
 
-        /// <summary>
-        /// Converts a value.
-        /// </summary>
-        /// <param name="value">The value that is produced by the binding target.</param>
-        /// <param name="targetType">The type to convert to.</param>
-        /// <param name="parameter">The converter parameter to use.</param>
-        /// <param name="culture">The culture to use in the converter.</param>
-        /// <returns>
-        /// A converted value. If the method returns null, the valid null value is used.
-        /// </returns>
+        /// <inheritdoc />
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var result = TimeSpan.FromTicks(System.Convert.ToInt64(TimeSpan.TicksPerSecond * (double)value));
@@ -59,65 +38,38 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
         }
     }
 
-    /// <summary>
-    /// Formsts timespan time measures as string with 3-decimal milliseconds
-    /// </summary>
-    /// <seealso cref="IValueConverter" />
+    /// <inheritdoc />
     internal class TimeSpanFormatter : IValueConverter
     {
-        /// <summary>
-        /// Converts the specified position.
-        /// </summary>
-        /// <param name="value">The position.</param>
-        /// <param name="targetType">Type of the target.</param>
-        /// <param name="parameter">The duration.</param>
-        /// <param name="culture">The culture.</param>
-        /// <returns>The object converted</returns>
+        /// <inheritdoc />
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             TimeSpan? p = default;
 
-            if (value is TimeSpan position)
-                p = position;
-            else if (value is Duration duration)
-                p = duration.HasTimeSpan ? duration.TimeSpan : default;
+            switch (value)
+            {
+                case TimeSpan position:
+                    p = position;
+                    break;
+                case Duration duration:
+                    p = duration.HasTimeSpan ? duration.TimeSpan : default;
+                    break;
+            }
 
             return p.HasValue ?
                 $"{(int)p.Value.TotalHours:00}:{p.Value.Minutes:00}:{p.Value.Seconds:00}.{p.Value.Milliseconds:000}" :
                 string.Empty;
         }
 
-        /// <summary>
-        /// Converts a value.
-        /// </summary>
-        /// <param name="value">The value that is produced by the binding target.</param>
-        /// <param name="targetType">The type to convert to.</param>
-        /// <param name="parameter">The converter parameter to use.</param>
-        /// <param name="culture">The culture to use in the converter.</param>
-        /// <returns>
-        /// A converted value. If the method returns null, the valid null value is used.
-        /// </returns>
-        /// <exception cref="NotImplementedException">Expected error</exception>
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
+        /// <inheritdoc />
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
             throw new NotImplementedException();
-        }
     }
 
-    /// <summary>
-    /// Formats a byte value to a human-readable value.
-    /// </summary>
-    /// <seealso cref="IValueConverter" />
+    /// <inheritdoc />
     internal class ByteFormatter : IValueConverter
     {
-        /// <summary>
-        /// Converts the specified value.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <param name="targetType">Type of the target.</param>
-        /// <param name="format">The format.</param>
-        /// <param name="culture">The culture.</param>
-        /// <returns>The converted value</returns>
+        /// <inheritdoc />
         public object Convert(object value, Type targetType, object format, CultureInfo culture)
         {
             const double minKiloByte = 1024;
@@ -147,42 +99,20 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
                 output = Math.Round(byteCount / minGigaByte, 2);
             }
 
-            if (suffix == "b")
-                return $"{output:0} {suffix}";
-
-            return $"{output:0.00} {suffix}";
+            return suffix == "b" ?
+                $"{output:0} {suffix}" :
+                $"{output:0.00} {suffix}";
         }
 
-        /// <summary>
-        /// Converts the back.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <param name="targetType">Type of the target.</param>
-        /// <param name="parameter">The parameter.</param>
-        /// <param name="culture">The culture.</param>
-        /// <returns>
-        /// A converted value. If the method returns null, the valid null value is used.
-        /// </returns>
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
+        /// <inheritdoc />
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
             throw new NotImplementedException();
-        }
     }
 
-    /// <summary>
-    /// Formats a bit value to a human-readable value.
-    /// </summary>
-    /// <seealso cref="IValueConverter" />
+    /// <inheritdoc />
     internal class BitFormatter : IValueConverter
     {
-        /// <summary>
-        /// Converts the specified value.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <param name="targetType">Type of the target.</param>
-        /// <param name="format">The format.</param>
-        /// <param name="culture">The culture.</param>
-        /// <returns>The converted value</returns>
+        /// <inheritdoc />
         public object Convert(object value, Type targetType, object format, CultureInfo culture)
         {
             const double minKiloBit = 1000;
@@ -212,42 +142,20 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
                 output = Math.Round(byteCount / minGigaBit, 2);
             }
 
-            if (suffix == "b")
-                return $"{output:0} {suffix}";
-
-            return $"{output:0.00} {suffix}";
+            return suffix == "b" ?
+                $"{output:0} {suffix}" :
+                $"{output:0.00} {suffix}";
         }
 
-        /// <summary>
-        /// Converts the back.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <param name="targetType">Type of the target.</param>
-        /// <param name="parameter">The parameter.</param>
-        /// <param name="culture">The culture.</param>
-        /// <returns>
-        /// A converted value. If the method returns null, the valid null value is used.
-        /// </returns>
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
+        /// <inheritdoc />
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
             throw new NotImplementedException();
-        }
     }
 
-    /// <summary>
-    /// Formats a fractional value as a percentage string.
-    /// </summary>
-    /// <seealso cref="IValueConverter" />
+    /// <inheritdoc />
     internal class PercentageFormatter : IValueConverter
     {
-        /// <summary>
-        /// Converts the specified value.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <param name="targetType">Type of the target.</param>
-        /// <param name="format">The format.</param>
-        /// <param name="culture">The culture.</param>
-        /// <returns>The converted value</returns>
+        /// <inheritdoc />
         public object Convert(object value, Type targetType, object format, CultureInfo culture)
         {
             var percentage = 0d;
@@ -261,28 +169,15 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
             return $"{((percentage > 0d) ? "R " : "L ")} {Math.Abs(percentage),3:0} %".Trim();
         }
 
-        /// <summary>
-        /// Converts the back.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <param name="targetType">Type of the target.</param>
-        /// <param name="parameter">The parameter.</param>
-        /// <param name="culture">The culture.</param>
-        /// <returns>
-        /// A converted value. If the method returns null, the valid null value is used.
-        /// </returns>
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
+        /// <inheritdoc />
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
             throw new NotImplementedException();
-        }
     }
 
-    /// <summary>
-    /// Formsts timespan time measures as string with 3-decimal milliseconds
-    /// </summary>
-    /// <seealso cref="IValueConverter" />
+    /// <inheritdoc />
     internal class PlaylistEntryThumbnailConverter : IValueConverter
     {
+        /// <inheritdoc />
         public object Convert(object value, Type targetType, object format, CultureInfo culture)
         {
             var thumbnailFilename = value as string;
@@ -292,18 +187,15 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
             return ThumbnailGenerator.GetThumbnail(App.Current.ViewModel.Playlist.ThumbsDirectory, thumbnailFilename);
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
+        /// <inheritdoc />
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
             throw new NotImplementedException();
-        }
     }
 
-    /// <summary>
-    /// UI-friendly duration formatter.
-    /// </summary>
-    /// <seealso cref="IValueConverter" />
+    /// <inheritdoc />
     internal class PlaylistDurationFormatter : IValueConverter
     {
+        /// <inheritdoc />
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var duration = value is TimeSpan ? (TimeSpan)value : TimeSpan.FromSeconds(-1);
@@ -311,22 +203,20 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
             if (duration.TotalSeconds <= 0)
                 return "∞";
 
-            if (duration.TotalMinutes >= 100)
-            {
-                return $"{System.Convert.ToInt64(duration.TotalHours)}h {System.Convert.ToInt64(duration.Minutes)}m";
-            }
-
-            return $"{System.Convert.ToInt64(duration.Minutes):00}:{System.Convert.ToInt64(duration.Seconds):00}";
+            return duration.TotalMinutes >= 100 ?
+                $"{System.Convert.ToInt64(duration.TotalHours)}h {System.Convert.ToInt64(duration.Minutes)}m" :
+                $"{System.Convert.ToInt64(duration.Minutes):00}:{System.Convert.ToInt64(duration.Seconds):00}";
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
+        /// <inheritdoc />
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
             throw new NotSupportedException();
-        }
     }
 
+    /// <inheritdoc />
     internal class UtcDateToLocalTimeString : IValueConverter
     {
+        /// <inheritdoc />
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null) return "unknown";
@@ -334,41 +224,40 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
             return utcDate.ToLocalTime().ToString("f");
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
+        /// <inheritdoc />
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
             throw new NotSupportedException();
-        }
     }
 
+    /// <inheritdoc />
     [ValueConversion(typeof(bool), typeof(bool))]
     internal class InverseBooleanConverter : IValueConverter
     {
+        /// <inheritdoc />
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (targetType != typeof(bool))
                 throw new InvalidOperationException("The target must be a boolean");
 
-            return !(bool)value;
+            return value != null && !(bool)value;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
+        /// <inheritdoc />
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
             throw new NotSupportedException();
-        }
     }
 
+    /// <inheritdoc />
     [ValueConversion(typeof(bool), typeof(bool))]
     internal class ClosedCaptionsChannelConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return (CaptionsChannel)value != CaptionsChannel.CCP;
-        }
+        /// <inheritdoc />
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
+            value != null && (CaptionsChannel)value != CaptionsChannel.CCP;
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return (bool)value ? CaptionsChannel.CC1 : CaptionsChannel.CCP;
-        }
+        /// <inheritdoc />
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
+            value != null && (bool)value ? CaptionsChannel.CC1 : CaptionsChannel.CCP;
     }
 }
 #pragma warning restore SA1649 // File name must match first type name

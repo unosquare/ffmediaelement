@@ -3,6 +3,7 @@
     using Platform;
     using Shared;
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Threading;
     using System.Windows;
     using ViewModels;
@@ -33,6 +34,7 @@
         /// <summary>
         /// Gets the current application.
         /// </summary>
+        [SuppressMessage("ReSharper", "ArrangeModifiersOrder", Justification = "StyleCop rule mandates specified order of modifiers")]
         public static new App Current => Application.Current as App;
 
         /// <summary>

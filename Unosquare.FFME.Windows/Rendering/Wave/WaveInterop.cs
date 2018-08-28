@@ -1,4 +1,5 @@
-﻿namespace Unosquare.FFME.Rendering.Wave
+﻿// ReSharper disable UnusedMember.Global
+namespace Unosquare.FFME.Rendering.Wave
 {
     using System;
     using System.Runtime.InteropServices;
@@ -13,10 +14,10 @@
         private const string TimeoutErrorMessage = "Failed to acquire lock on MME interop call on a timely manner.";
         private static readonly object SyncLock = new object();
 
-        // use the userdata as a reference
+        // use the user data as a reference
         // WaveOutProc http://msdn.microsoft.com/en-us/library/dd743869%28VS.85%29.aspx
         // WaveInProc http://msdn.microsoft.com/en-us/library/dd743849%28VS.85%29.aspx
-        public delegate void WaveCallback(IntPtr hWaveOut, WaveMessage message, IntPtr dwInstance, WaveHeader wavhdr, IntPtr dwReserved);
+        public delegate void WaveCallback(IntPtr deviceHandle, WaveMessage message, IntPtr instance, WaveHeader waveHeader, IntPtr reserved);
 
         [Flags]
         public enum WaveInOutOpenFlags
@@ -29,7 +30,7 @@
 
             /// <summary>
             /// CALLBACK_FUNCTION
-            /// dwCallback is a FARPROC
+            /// dwCallback is a FAR PROC
             /// </summary>
             CallbackFunction = 0x30000,
 
@@ -104,10 +105,7 @@
             Monitor.TryEnter(SyncLock, LockTimeout, ref acquired);
             if (acquired == false) throw new TimeoutException(TimeoutErrorMessage);
 
-            try
-            {
-                return NativeMethods.waveOutGetNumDevs();
-            }
+            try { return NativeMethods.waveOutGetNumDevs(); }
             catch { throw; }
             finally { Monitor.Exit(SyncLock); }
         }

@@ -213,11 +213,11 @@
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="value">The value.</param>
-        /// <param name="dontOverwrite">if set to <c>true</c> [don't overwrite].</param>
-        public void Set(string key, string value, bool dontOverwrite)
+        /// <param name="preventOverwrite">if set to <c>true</c> don't overwrite existing value.</param>
+        public void Set(string key, string value, bool preventOverwrite)
         {
             var flags = 0;
-            if (dontOverwrite) flags |= ffmpeg.AV_DICT_DONT_OVERWRITE;
+            if (preventOverwrite) flags |= ffmpeg.AV_DICT_DONT_OVERWRITE;
 
             var reference = Pointer;
             ffmpeg.av_dict_set(&reference, key, value, flags);

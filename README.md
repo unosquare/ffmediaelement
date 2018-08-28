@@ -43,7 +43,7 @@ FFME provides multiple improvements over the standard MediaElement such as:
 - Properties such as Position, Balance, SpeedRatio, IsMuted, and Volume are all Dependency Properties!
 - Additional and extended media events. Extracting (and modifying) video, audio and subtitle frames is very easy.
 - Ability to easily apply FFmpeg video and audio filtergraphs.
-- Ability to extract media metadata and tech specs of a media stream (title, album, bitrate, codecs, FPS, etc).
+- Ability to extract media metadata and tech specs of a media stream (title, album, bit rate, codecs, FPS, etc).
 - Ability to apply volume, balance and speed ratio to media playback.
 - MediaState actually works on this control. The standard WPF MediaElement severely lacks in this area.
 - Ability to pick media streams contained in a file or a URL.

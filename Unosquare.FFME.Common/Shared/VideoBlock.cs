@@ -47,7 +47,7 @@
         /// <summary>
         /// Gets the SMTPE time code.
         /// </summary>
-        public string SmtpeTimecode { get; internal set; }
+        public string SmtpeTimeCode { get; internal set; }
 
         /// <summary>
         /// Gets a value indicating whether this frame was decoded in a hardware context.

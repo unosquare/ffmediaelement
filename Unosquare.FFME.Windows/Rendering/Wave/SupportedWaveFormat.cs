@@ -1,4 +1,5 @@
-﻿namespace Unosquare.FFME.Rendering.Wave
+﻿// ReSharper disable UnusedMember.Global
+namespace Unosquare.FFME.Rendering.Wave
 {
     using System;
 

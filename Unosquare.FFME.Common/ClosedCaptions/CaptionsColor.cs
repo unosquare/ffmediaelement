@@ -1,4 +1,5 @@
-﻿namespace Unosquare.FFME.ClosedCaptions
+﻿// ReSharper disable UnusedMember.Global
+namespace Unosquare.FFME.ClosedCaptions
 {
     /// <summary>
     /// Enumerates the different Closed-Captioning Colors

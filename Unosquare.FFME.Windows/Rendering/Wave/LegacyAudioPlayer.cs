@@ -74,7 +74,7 @@
         /// This must be between -1 and <see>DeviceCount</see> - 1.
         /// -1 means stick to default device even default device is changed
         /// </summary>
-        public int DeviceNumber { get; private set; }
+        public int DeviceNumber { get; }
 
         /// <summary>
         /// Playback State
@@ -84,12 +84,12 @@
         /// <summary>
         /// Gets a value indicating whether the audio playback is running.
         /// </summary>
-        public bool IsRunning => (IsDisposed || IsCancellationPending.Value || PlaybackFinished.IsCompleted) ? false : true;
+        public bool IsRunning => !IsDisposed && !IsCancellationPending.Value && !PlaybackFinished.IsCompleted;
 
         /// <summary>
         /// Gets the capabilities.
         /// </summary>
-        public LegacyAudioDeviceInfo Capabilities { get; private set; }
+        public LegacyAudioDeviceInfo Capabilities { get; }
 
         /// <summary>
         /// Gets a value indicating whether this instance is disposed.

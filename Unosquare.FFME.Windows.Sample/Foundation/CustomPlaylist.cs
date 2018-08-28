@@ -73,11 +73,13 @@
                 if (entry == null)
                 {
                     // Create a new entry with default values
-                    entry = new CustomPlaylistEntry { MediaUrl = mediaUrl };
-                    if (Uri.TryCreate(mediaUrl, UriKind.RelativeOrAbsolute, out Uri entryUri))
-                        entry.Title = Path.GetFileNameWithoutExtension(Uri.UnescapeDataString(entryUri.AbsolutePath));
-                    else
-                        entry.Title = $"Media File {DateTime.Now}";
+                    entry = new CustomPlaylistEntry
+                    {
+                        MediaUrl = mediaUrl,
+                        Title = Uri.TryCreate(mediaUrl, UriKind.RelativeOrAbsolute, out var entryUri)
+                            ? Path.GetFileNameWithoutExtension(Uri.UnescapeDataString(entryUri.AbsolutePath))
+                            : $"Media File {DateTime.Now}"
+                    };
 
                     // Try to get a title from metadata
                     foreach (var meta in info.Metadata)

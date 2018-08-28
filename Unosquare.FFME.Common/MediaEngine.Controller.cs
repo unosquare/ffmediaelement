@@ -13,7 +13,7 @@
         /// <summary>
         /// The command queue to be executed in the order they were sent.
         /// </summary>
-        internal CommandManager Commands { get; private set; }
+        internal CommandManager Commands { get; }
 
         /// <summary>
         /// The underlying media container that provides access to

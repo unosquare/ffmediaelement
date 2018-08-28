@@ -111,6 +111,7 @@
             var isInTag = false;
             char currentChar;
 
+            // ReSharper disable once ForCanBeConvertedToForeach
             for (var i = 0; i < input.Length; i++)
             {
                 currentChar = input[i];
@@ -153,6 +154,7 @@
             var isInStyle = false;
             char currentChar;
 
+            // ReSharper disable once ForCanBeConvertedToForeach
             for (var i = 0; i < normalizedInput.Length; i++)
             {
                 currentChar = normalizedInput[i];

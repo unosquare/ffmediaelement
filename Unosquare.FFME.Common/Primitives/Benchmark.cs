@@ -12,7 +12,7 @@
     public static class Benchmark
     {
         private static readonly object SyncLock = new object();
-        private static Dictionary<string, List<TimeSpan>> Measures = new Dictionary<string, List<TimeSpan>>();
+        private static readonly Dictionary<string, List<TimeSpan>> Measures = new Dictionary<string, List<TimeSpan>>();
 
         /// <summary>
         /// Starts measuring with the given identifier.

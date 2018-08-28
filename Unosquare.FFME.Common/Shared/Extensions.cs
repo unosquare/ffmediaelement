@@ -326,7 +326,7 @@
         /// <param name="frameDuration">The duration.</param>
         /// <param name="frameTimeBase">The time base.</param>
         /// <param name="frameNumber">The display picture number.</param>
-        /// <returns>The FFmpeg computed SMTPE Timecode</returns>
+        /// <returns>The FFmpeg computed SMTPE Time code</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static unsafe string ComputeSmtpeTimeCode(TimeSpan streamStartTime, TimeSpan frameDuration, AVRational frameTimeBase, long frameNumber)
         {
