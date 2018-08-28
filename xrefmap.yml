@@ -768,19 +768,19 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.Events.RenderingVideoEventArgs.PictureNumber
   nameWithType: RenderingVideoEventArgs.PictureNumber
-- uid: Unosquare.FFME.Events.RenderingVideoEventArgs.SmtpeTimecode
-  name: SmtpeTimecode
-  href: api/Unosquare.FFME.Events.RenderingVideoEventArgs.html#Unosquare_FFME_Events_RenderingVideoEventArgs_SmtpeTimecode
-  commentId: P:Unosquare.FFME.Events.RenderingVideoEventArgs.SmtpeTimecode
-  fullName: Unosquare.FFME.Events.RenderingVideoEventArgs.SmtpeTimecode
-  nameWithType: RenderingVideoEventArgs.SmtpeTimecode
-- uid: Unosquare.FFME.Events.RenderingVideoEventArgs.SmtpeTimecode*
-  name: SmtpeTimecode
-  href: api/Unosquare.FFME.Events.RenderingVideoEventArgs.html#Unosquare_FFME_Events_RenderingVideoEventArgs_SmtpeTimecode_
-  commentId: Overload:Unosquare.FFME.Events.RenderingVideoEventArgs.SmtpeTimecode
+- uid: Unosquare.FFME.Events.RenderingVideoEventArgs.SmtpeTimeCode
+  name: SmtpeTimeCode
+  href: api/Unosquare.FFME.Events.RenderingVideoEventArgs.html#Unosquare_FFME_Events_RenderingVideoEventArgs_SmtpeTimeCode
+  commentId: P:Unosquare.FFME.Events.RenderingVideoEventArgs.SmtpeTimeCode
+  fullName: Unosquare.FFME.Events.RenderingVideoEventArgs.SmtpeTimeCode
+  nameWithType: RenderingVideoEventArgs.SmtpeTimeCode
+- uid: Unosquare.FFME.Events.RenderingVideoEventArgs.SmtpeTimeCode*
+  name: SmtpeTimeCode
+  href: api/Unosquare.FFME.Events.RenderingVideoEventArgs.html#Unosquare_FFME_Events_RenderingVideoEventArgs_SmtpeTimeCode_
+  commentId: Overload:Unosquare.FFME.Events.RenderingVideoEventArgs.SmtpeTimeCode
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.RenderingVideoEventArgs.SmtpeTimecode
-  nameWithType: RenderingVideoEventArgs.SmtpeTimecode
+  fullName: Unosquare.FFME.Events.RenderingVideoEventArgs.SmtpeTimeCode
+  nameWithType: RenderingVideoEventArgs.SmtpeTimeCode
 - uid: Unosquare.FFME.MediaElement
   name: MediaElement
   href: api/Unosquare.FFME.MediaElement.html
@@ -800,19 +800,19 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.MediaElement
   nameWithType: MediaElement.MediaElement
-- uid: Unosquare.FFME.MediaElement.AudioBitrate
-  name: AudioBitrate
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_AudioBitrate
-  commentId: P:Unosquare.FFME.MediaElement.AudioBitrate
-  fullName: Unosquare.FFME.MediaElement.AudioBitrate
-  nameWithType: MediaElement.AudioBitrate
-- uid: Unosquare.FFME.MediaElement.AudioBitrate*
-  name: AudioBitrate
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_AudioBitrate_
-  commentId: Overload:Unosquare.FFME.MediaElement.AudioBitrate
+- uid: Unosquare.FFME.MediaElement.AudioBitRate
+  name: AudioBitRate
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_AudioBitRate
+  commentId: P:Unosquare.FFME.MediaElement.AudioBitRate
+  fullName: Unosquare.FFME.MediaElement.AudioBitRate
+  nameWithType: MediaElement.AudioBitRate
+- uid: Unosquare.FFME.MediaElement.AudioBitRate*
+  name: AudioBitRate
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_AudioBitRate_
+  commentId: Overload:Unosquare.FFME.MediaElement.AudioBitRate
   isSpec: "True"
-  fullName: Unosquare.FFME.MediaElement.AudioBitrate
-  nameWithType: MediaElement.AudioBitrate
+  fullName: Unosquare.FFME.MediaElement.AudioBitRate
+  nameWithType: MediaElement.AudioBitRate
 - uid: Unosquare.FFME.MediaElement.AudioBitsPerSample
   name: AudioBitsPerSample
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_AudioBitsPerSample
@@ -903,19 +903,19 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.BalanceProperty
   fullName: Unosquare.FFME.MediaElement.BalanceProperty
   nameWithType: MediaElement.BalanceProperty
-- uid: Unosquare.FFME.MediaElement.Bitrate
-  name: Bitrate
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Bitrate
-  commentId: P:Unosquare.FFME.MediaElement.Bitrate
-  fullName: Unosquare.FFME.MediaElement.Bitrate
-  nameWithType: MediaElement.Bitrate
-- uid: Unosquare.FFME.MediaElement.Bitrate*
-  name: Bitrate
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Bitrate_
-  commentId: Overload:Unosquare.FFME.MediaElement.Bitrate
+- uid: Unosquare.FFME.MediaElement.BitRate
+  name: BitRate
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_BitRate
+  commentId: P:Unosquare.FFME.MediaElement.BitRate
+  fullName: Unosquare.FFME.MediaElement.BitRate
+  nameWithType: MediaElement.BitRate
+- uid: Unosquare.FFME.MediaElement.BitRate*
+  name: BitRate
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_BitRate_
+  commentId: Overload:Unosquare.FFME.MediaElement.BitRate
   isSpec: "True"
-  fullName: Unosquare.FFME.MediaElement.Bitrate
-  nameWithType: MediaElement.Bitrate
+  fullName: Unosquare.FFME.MediaElement.BitRate
+  nameWithType: MediaElement.BitRate
 - uid: Unosquare.FFME.MediaElement.BufferingEnded
   name: BufferingEnded
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_BufferingEnded
@@ -1011,19 +1011,19 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.ClosedCaptionsChannelProperty
   fullName: Unosquare.FFME.MediaElement.ClosedCaptionsChannelProperty
   nameWithType: MediaElement.ClosedCaptionsChannelProperty
-- uid: Unosquare.FFME.MediaElement.DecodingBitrate
-  name: DecodingBitrate
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_DecodingBitrate
-  commentId: P:Unosquare.FFME.MediaElement.DecodingBitrate
-  fullName: Unosquare.FFME.MediaElement.DecodingBitrate
-  nameWithType: MediaElement.DecodingBitrate
-- uid: Unosquare.FFME.MediaElement.DecodingBitrate*
-  name: DecodingBitrate
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_DecodingBitrate_
-  commentId: Overload:Unosquare.FFME.MediaElement.DecodingBitrate
+- uid: Unosquare.FFME.MediaElement.DecodingBitRate
+  name: DecodingBitRate
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_DecodingBitRate
+  commentId: P:Unosquare.FFME.MediaElement.DecodingBitRate
+  fullName: Unosquare.FFME.MediaElement.DecodingBitRate
+  nameWithType: MediaElement.DecodingBitRate
+- uid: Unosquare.FFME.MediaElement.DecodingBitRate*
+  name: DecodingBitRate
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_DecodingBitRate_
+  commentId: Overload:Unosquare.FFME.MediaElement.DecodingBitRate
   isSpec: "True"
-  fullName: Unosquare.FFME.MediaElement.DecodingBitrate
-  nameWithType: MediaElement.DecodingBitrate
+  fullName: Unosquare.FFME.MediaElement.DecodingBitRate
+  nameWithType: MediaElement.DecodingBitRate
 - uid: Unosquare.FFME.MediaElement.Dispose
   name: Dispose()
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Dispose
@@ -1961,19 +1961,19 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.VideoAspectRatio
   nameWithType: MediaElement.VideoAspectRatio
-- uid: Unosquare.FFME.MediaElement.VideoBitrate
-  name: VideoBitrate
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoBitrate
-  commentId: P:Unosquare.FFME.MediaElement.VideoBitrate
-  fullName: Unosquare.FFME.MediaElement.VideoBitrate
-  nameWithType: MediaElement.VideoBitrate
-- uid: Unosquare.FFME.MediaElement.VideoBitrate*
-  name: VideoBitrate
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoBitrate_
-  commentId: Overload:Unosquare.FFME.MediaElement.VideoBitrate
+- uid: Unosquare.FFME.MediaElement.VideoBitRate
+  name: VideoBitRate
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoBitRate
+  commentId: P:Unosquare.FFME.MediaElement.VideoBitRate
+  fullName: Unosquare.FFME.MediaElement.VideoBitRate
+  nameWithType: MediaElement.VideoBitRate
+- uid: Unosquare.FFME.MediaElement.VideoBitRate*
+  name: VideoBitRate
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoBitRate_
+  commentId: Overload:Unosquare.FFME.MediaElement.VideoBitRate
   isSpec: "True"
-  fullName: Unosquare.FFME.MediaElement.VideoBitrate
-  nameWithType: MediaElement.VideoBitrate
+  fullName: Unosquare.FFME.MediaElement.VideoBitRate
+  nameWithType: MediaElement.VideoBitRate
 - uid: Unosquare.FFME.MediaElement.VideoCodec
   name: VideoCodec
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoCodec
@@ -2026,19 +2026,19 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.VideoRotation
   nameWithType: MediaElement.VideoRotation
-- uid: Unosquare.FFME.MediaElement.VideoSmtpeTimecode
-  name: VideoSmtpeTimecode
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoSmtpeTimecode
-  commentId: P:Unosquare.FFME.MediaElement.VideoSmtpeTimecode
-  fullName: Unosquare.FFME.MediaElement.VideoSmtpeTimecode
-  nameWithType: MediaElement.VideoSmtpeTimecode
-- uid: Unosquare.FFME.MediaElement.VideoSmtpeTimecode*
-  name: VideoSmtpeTimecode
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoSmtpeTimecode_
-  commentId: Overload:Unosquare.FFME.MediaElement.VideoSmtpeTimecode
+- uid: Unosquare.FFME.MediaElement.VideoSmtpeTimeCode
+  name: VideoSmtpeTimeCode
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoSmtpeTimeCode
+  commentId: P:Unosquare.FFME.MediaElement.VideoSmtpeTimeCode
+  fullName: Unosquare.FFME.MediaElement.VideoSmtpeTimeCode
+  nameWithType: MediaElement.VideoSmtpeTimeCode
+- uid: Unosquare.FFME.MediaElement.VideoSmtpeTimeCode*
+  name: VideoSmtpeTimeCode
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoSmtpeTimeCode_
+  commentId: Overload:Unosquare.FFME.MediaElement.VideoSmtpeTimeCode
   isSpec: "True"
-  fullName: Unosquare.FFME.MediaElement.VideoSmtpeTimecode
-  nameWithType: MediaElement.VideoSmtpeTimecode
+  fullName: Unosquare.FFME.MediaElement.VideoSmtpeTimeCode
+  nameWithType: MediaElement.VideoSmtpeTimeCode
 - uid: Unosquare.FFME.MediaElement.VideoStreamIndex
   name: VideoStreamIndex
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoStreamIndex
