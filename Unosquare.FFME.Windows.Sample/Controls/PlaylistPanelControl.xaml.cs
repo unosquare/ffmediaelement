@@ -34,10 +34,10 @@
 
             SearchTextBox.IsEnabledChanged += (s, e) =>
             {
-                if ((bool)e.OldValue == false && (bool)e.NewValue == true)
+                if ((bool)e.OldValue == false && (bool)e.NewValue)
                     FocusSearchBox();
 
-                if ((bool)e.OldValue == true && (bool)e.NewValue == false)
+                if ((bool)e.OldValue && (bool)e.NewValue == false)
                     FocusFileBox();
             };
 
@@ -59,7 +59,7 @@
 
         #endregion
 
-        private void FocusTextBox(TextBoxBase textBox)
+        private static void FocusTextBox(TextBoxBase textBox)
         {
             DeferredAction deferredAction = null;
             deferredAction = DeferredAction.Create(() =>

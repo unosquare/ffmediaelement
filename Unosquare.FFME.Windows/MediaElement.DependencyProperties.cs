@@ -47,8 +47,10 @@ namespace Unosquare.FFME
             return ((double)value).Clamp(Constants.Controller.MinVolume, Constants.Controller.MaxVolume);
         }
 
-        private static void OnVolumePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) =>
-            (d as MediaElement).MediaCore.State.Volume = (double)e.NewValue;
+        private static void OnVolumePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is MediaElement m) m.MediaCore.State.Volume = (double)e.NewValue;
+        }
 
         #endregion
 
@@ -86,8 +88,10 @@ namespace Unosquare.FFME
             return ((double)value).Clamp(Constants.Controller.MinBalance, Constants.Controller.MaxBalance);
         }
 
-        private static void OnBalancePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) =>
-            (d as MediaElement).MediaCore.State.Balance = (double)e.NewValue;
+        private static void OnBalancePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is MediaElement m) m.MediaCore.State.Balance = (double)e.NewValue;
+        }
 
         #endregion
 
@@ -125,8 +129,10 @@ namespace Unosquare.FFME
             return (bool)value;
         }
 
-        private static void OnIsMutedPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) =>
-            (d as MediaElement).MediaCore.State.IsMuted = (bool)e.NewValue;
+        private static void OnIsMutedPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is MediaElement m) m.MediaCore.State.IsMuted = (bool)e.NewValue;
+        }
 
         #endregion
 
@@ -164,8 +170,10 @@ namespace Unosquare.FFME
             return ((double)value).Clamp(Constants.Controller.MinSpeedRatio, Constants.Controller.MaxSpeedRatio);
         }
 
-        private static void OnSpeedRatioPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) =>
-            (d as MediaElement).MediaCore.State.SpeedRatio = (double)e.NewValue;
+        private static void OnSpeedRatioPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is MediaElement m) m.MediaCore.State.SpeedRatio = (double)e.NewValue;
+        }
 
         #endregion
 
@@ -195,8 +203,10 @@ namespace Unosquare.FFME
 
         private static object OnPositionPropertyChanging(DependencyObject d, object value)
         {
-            var element = d as MediaElement;
-            if (element?.MediaCore == null || element.MediaCore.IsDisposed) return TimeSpan.Zero;
+            if (d == null || (d is MediaElement) == false) return value;
+
+            var element = (MediaElement)d;
+            if (element.MediaCore == null || element.MediaCore.IsDisposed || element.MediaCore.MediaInfo == null) return TimeSpan.Zero;
             if (element.MediaCore.State.IsSeekable == false) return element.MediaCore.State.Position;
 
             var valueComingFromEngine = element.PropertyUpdatesWorker.IsExecutingCycle;
@@ -255,7 +265,10 @@ namespace Unosquare.FFME
 
         private static async void OnSourcePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var element = d as MediaElement;
+            if (d == null || d is MediaElement m == false) return;
+
+            var element = (MediaElement)d;
+            if (element.MediaCore == null || element.MediaCore.IsDisposed) return;
 
             if (e.NewValue == null && e.OldValue != null && element.IsOpen)
             {
@@ -265,7 +278,7 @@ namespace Unosquare.FFME
             {
                 // Skip change actions if we are currently opening via the Open command
                 if (element.IsOpeningViaCommand.Value == false)
-                    await element?.MediaCore?.Open(e.NewValue as Uri);
+                    await element.MediaCore?.Open(uri);
 
                 // Reset the opening via command.
                 element.IsOpeningViaCommand.Value = false;

@@ -120,11 +120,10 @@
                 // Iterate through the buffer
                 var isLeftSample = true;
                 var sampleIndex = 0;
-                var samplePercent = 0d;
 
                 for (var i = 0; i < e.BufferLength; i += e.BitsPerSample / 8)
                 {
-                    samplePercent = 100d * e.Buffer.GetAudioSampleLevel(i);
+                    var samplePercent = 100d * e.Buffer.GetAudioSampleLevel(i);
 
                     if (isLeftSample)
                         drawVuMeterLeftSamples[sampleIndex] = samplePercent;

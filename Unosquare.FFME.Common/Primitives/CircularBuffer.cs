@@ -253,7 +253,7 @@
         {
             lock (SyncLock)
             {
-                if (m_IsDisposed == true) return;
+                if (m_IsDisposed) return;
 
                 Clear();
                 Marshal.FreeHGlobal(Buffer);

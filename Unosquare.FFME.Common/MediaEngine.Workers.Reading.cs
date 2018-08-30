@@ -13,7 +13,7 @@
         internal void RunPacketReadingWorker()
         {
             var delay = TimeSpan.FromMilliseconds(10);
-            var needsMorePackets = false;
+            bool needsMorePackets;
             IsSyncBuffering = false;
 
             try
@@ -54,7 +54,7 @@
                                 break;
 
                             // we are sync-buffering but we don't need more packets
-                            if (IsSyncBuffering && needsMorePackets == false)
+                            if (IsSyncBuffering)
                                 break;
 
                             // We detected a change in buffered packets
@@ -71,7 +71,6 @@
                     PacketReadingCycle.Complete();
                 }
             }
-            catch { throw; }
             finally
             {
                 // Always exit notifying the reading cycle is done.

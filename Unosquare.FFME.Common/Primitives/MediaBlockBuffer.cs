@@ -348,7 +348,7 @@
         {
             lock (SyncLock)
             {
-                if (m_IsDisposed == true) return;
+                if (m_IsDisposed) return;
                 m_IsDisposed = true;
 
                 while (PoolBlocks.Count > 0)
@@ -447,7 +447,6 @@
                     // return the new target block
                     return targetBlock;
                 }
-                catch { throw; }
                 finally { UpdateCollectionProperties(); }
             }
         }

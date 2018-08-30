@@ -55,7 +55,7 @@
             CodedPictureNumber = frame->coded_picture_number;
             SmtpeTimeCode = Extensions.ComputeSmtpeTimeCode(component.StartTimeOffset, Duration, timeBase, DisplayPictureNumber);
             IsHardwareFrame = component.IsUsingHardwareDecoding;
-            HardwareAcceleratorName = component.HardwareAccelerator?.Name ?? null;
+            HardwareAcceleratorName = component.HardwareAccelerator?.Name;
 
             // Process side data such as CC packets
             for (var i = 0; i < frame->nb_side_data; i++)

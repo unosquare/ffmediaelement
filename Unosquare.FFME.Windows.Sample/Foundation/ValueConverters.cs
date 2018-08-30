@@ -45,21 +45,21 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
         /// <inheritdoc />
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            TimeSpan? p = default;
+            TimeSpan? p;
 
             switch (value)
             {
                 case TimeSpan position:
                     p = position;
                     break;
-                case Duration duration:
-                    p = duration.HasTimeSpan ? duration.TimeSpan : default;
+                case Duration duration when duration.HasTimeSpan:
+                    p = duration.TimeSpan;
                     break;
+                default:
+                    return string.Empty;
             }
 
-            return p.HasValue ?
-                $"{(int)p.Value.TotalHours:00}:{p.Value.Minutes:00}:{p.Value.Seconds:00}.{p.Value.Milliseconds:000}" :
-                string.Empty;
+            return $"{(int)p.Value.TotalHours:00}:{p.Value.Minutes:00}:{p.Value.Seconds:00}.{p.Value.Milliseconds:000}";
         }
 
         /// <inheritdoc />
@@ -181,11 +181,13 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
         /// <inheritdoc />
         public object Convert(object value, Type targetType, object format, CultureInfo culture)
         {
-            var thumbnailFilename = value as string;
-            if (thumbnailFilename == null) return default(ImageSource);
-            if (Platform.GuiContext.Current.IsInDesignTime) return default(ImageSource);
+            if (value is string thumbnailFilename && Platform.GuiContext.Current.IsInDesignTime == false)
+            {
+                return ThumbnailGenerator.GetThumbnail(
+                    App.Current.ViewModel.Playlist.ThumbsDirectory, thumbnailFilename);
+            }
 
-            return ThumbnailGenerator.GetThumbnail(App.Current.ViewModel.Playlist.ThumbsDirectory, thumbnailFilename);
+            return default(ImageSource);
         }
 
         /// <inheritdoc />

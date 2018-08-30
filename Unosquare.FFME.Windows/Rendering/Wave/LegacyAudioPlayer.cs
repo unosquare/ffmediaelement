@@ -182,7 +182,7 @@
         /// </summary>
         private void PerformContinuousPlayback()
         {
-            var queued = 0;
+            int queued;
             PlaybackState = PlaybackState.Playing;
 
             try

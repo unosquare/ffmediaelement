@@ -110,7 +110,7 @@
                     continue;
                 }
 
-                if (currentChar == '>' && isInTag == true)
+                if (currentChar == '>' && isInTag)
                 {
                     isInTag = false;
                     continue;
@@ -153,7 +153,7 @@
                     continue;
                 }
 
-                if (currentChar == '}' && isInStyle == true)
+                if (currentChar == '}' && isInStyle)
                 {
                     isInStyle = false;
                     continue;
@@ -169,7 +169,7 @@
         #endregion
 
         /// <inheritdoc />
-        protected override unsafe MediaFrame CreateFrameSource(IntPtr framePointer)
+        protected override MediaFrame CreateFrameSource(IntPtr framePointer)
         {
             var frame = (AVSubtitle*)framePointer;
             var frameHolder = new SubtitleFrame(frame, this);

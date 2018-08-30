@@ -119,7 +119,7 @@
                 throw new MediaContainerException(errorMessage);
             }
 
-            var codecCandidates = new AVCodec*[] { forcedCodec, defaultCodec };
+            var codecCandidates = new[] { forcedCodec, defaultCodec };
             AVCodec* selectedCodec = null;
             var codecOpenResult = 0;
 
@@ -517,7 +517,7 @@
         private int FeedPacketsToDecoder(bool fillDecoderBuffer)
         {
             var packetCount = 0;
-            var sendPacketResult = 0;
+            int sendPacketResult;
 
             while (Packets.Count > 0)
             {
@@ -571,7 +571,6 @@
             receiveFrameResult = 0;
 
             var outputFrame = MediaFrame.CreateAVFrame();
-            managedFrame = null;
             receiveFrameResult = ffmpeg.avcodec_receive_frame(CodecContext, outputFrame);
 
             if (receiveFrameResult >= 0)

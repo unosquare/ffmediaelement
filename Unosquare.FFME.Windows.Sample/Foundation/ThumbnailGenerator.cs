@@ -110,18 +110,15 @@
         /// <returns>A proportional size structure</returns>
         private static Size ComputeProportionalSize(Size maxSize, Size currentSize)
         {
-            var maxScaleRatio = 0d;
-            var currentScaleRatio = 0d;
-
             if (maxSize.Width < 1 || maxSize.Height < 1 || currentSize.Width < 1 || currentSize.Height < 1)
                 return Size.Empty;
 
-            maxScaleRatio = maxSize.Width / (double)maxSize.Height;
-            currentScaleRatio = currentSize.Width / (double)currentSize.Height;
+            var maxScaleRatio = maxSize.Width / (double)maxSize.Height;
+            var currentScaleRatio = currentSize.Width / (double)currentSize.Height;
 
             // Prepare the output
-            var outputWidth = 0;
-            var outputHeight = 0;
+            int outputWidth;
+            int outputHeight;
 
             if (maxScaleRatio < currentScaleRatio)
             {

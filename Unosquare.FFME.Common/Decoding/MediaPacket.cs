@@ -1,10 +1,10 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
+    using Core;
     using FFmpeg.AutoGen;
     using Primitives;
     using System;
     using System.Runtime.CompilerServices;
-    using Unosquare.FFME.Core;
 
     /// <summary>
     /// Represents a managed packet wrapper for the <see cref="AVPacket"/> struct.
@@ -137,7 +137,7 @@
         /// <inheritdoc />
         public void Dispose()
         {
-            if (m_IsDisposed.Value == true) return;
+            if (m_IsDisposed.Value) return;
             m_IsDisposed.Value = true;
 
             if (m_Pointer == IntPtr.Zero) return;

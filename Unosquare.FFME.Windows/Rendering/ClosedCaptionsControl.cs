@@ -151,9 +151,9 @@
         /// </summary>
         private void PaintBuffer()
         {
-            TextBlock block = null;
-            ClosedCaptionsCellState cell = null;
-            Border border = null;
+            TextBlock block;
+            ClosedCaptionsCellState cell;
+            Border border;
 
             for (var r = 0; r < ClosedCaptionsBuffer.RowCount; r++)
             {
@@ -163,6 +163,8 @@
                     cell = Buffer.State[r][c].Display;
 
                     border = block.Parent as Border;
+                    if (border == null) continue;
+
                     border.Visibility = string.IsNullOrEmpty(cell.Text) ?
                         Visibility.Hidden : Visibility.Visible;
 

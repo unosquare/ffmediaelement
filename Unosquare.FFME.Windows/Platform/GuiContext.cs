@@ -166,15 +166,11 @@
                 case GuiContextType.WinForms:
                     {
                         var doneEvent = WaitEventFactory.Create(isCompleted: false, useSlim: true);
-                        ThreadContext.Post((args) =>
+                        ThreadContext.Post((a) =>
                         {
-                            try
-                            {
-                                callback.DynamicInvoke(args as object[]);
-                            }
-                            catch { throw; }
+                            try { callback.DynamicInvoke(arguments); }
                             finally { doneEvent.Complete(); }
-                        }, arguments);
+                        }, null);
 
                         var waitingTask = new Task(() =>
                         {
@@ -189,7 +185,6 @@
                         return;
                     }
 
-                case GuiContextType.None:
                 default:
                     {
                         var runnerTask = new Task(() => { callback.DynamicInvoke(arguments); });

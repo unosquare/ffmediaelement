@@ -153,8 +153,7 @@
                 var accelerator = new HardwareAccelerator(this, selectedConfig);
 
                 AVBufferRef* devContextRef = null;
-                var initResultCode = 0;
-                initResultCode = ffmpeg.av_hwdevice_ctx_create(&devContextRef, accelerator.DeviceType, null, null, 0);
+                var initResultCode = ffmpeg.av_hwdevice_ctx_create(&devContextRef, accelerator.DeviceType, null, null, 0);
                 if (initResultCode < 0)
                     throw new MediaContainerException($"Unable to initialize hardware context for device {accelerator.Name}");
 
@@ -230,7 +229,7 @@
             {
                 using (writeLock)
                 {
-                    var targetStride = new int[] { target.PictureBufferStride };
+                    var targetStride = new[] { target.PictureBufferStride };
                     var targetScan = default(byte_ptrArray8);
                     targetScan[0] = (byte*)target.Buffer;
 
@@ -314,7 +313,7 @@
         }
 
         /// <inheritdoc />
-        protected override unsafe MediaFrame CreateFrameSource(IntPtr framePointer)
+        protected override MediaFrame CreateFrameSource(IntPtr framePointer)
         {
             // Validate the video frame
             var frame = (AVFrame*)framePointer;
@@ -527,14 +526,12 @@
 
             try
             {
-                var result = 0;
-
                 // Get a couple of pointers for source and sink buffers
                 AVFilterContext* sourceFilterRef = null;
                 AVFilterContext* sinkFilterRef = null;
 
                 // Create the source filter
-                result = ffmpeg.avfilter_graph_create_filter(
+                var result = ffmpeg.avfilter_graph_create_filter(
                     &sourceFilterRef, ffmpeg.avfilter_get_by_name(SourceFilterName), SourceFilterInstance, CurrentFilterArguments, null, FilterGraph);
 
                 // Check filter creation

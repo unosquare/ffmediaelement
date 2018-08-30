@@ -5,7 +5,6 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.Linq;
     using System.Runtime.CompilerServices;
 
     /// <summary>
@@ -234,7 +233,7 @@
         /// </summary>
         /// <param name="packet">The packet.</param>
         /// <returns>The media type</returns>
-        public unsafe MediaType SendPacket(MediaPacket packet)
+        public MediaType SendPacket(MediaPacket packet)
         {
             if (packet == null)
                 return MediaType.None;
@@ -320,7 +319,7 @@
         internal void RunQuickBuffering(MediaEngine m)
         {
             // We need to perform some packet reading and decoding
-            MediaFrame frame = null;
+            MediaFrame frame;
             var main = MainMediaType;
             var auxiliaries = MediaTypes.Except(main);
             var mediaTypes = MediaTypes;

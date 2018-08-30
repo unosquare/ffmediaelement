@@ -201,7 +201,7 @@
 
             // Open a file if it is specified in the arguments
             var args = Environment.GetCommandLineArgs();
-            if (args != null && args.Length > 1)
+            if (args.Length > 1)
             {
                 App.Current.Commands.OpenCommand.Execute(args[1].Trim());
             }
@@ -355,7 +355,9 @@
         /// <param name="e">The <see cref="MouseButtonEventArgs"/> instance containing the event data.</param>
         private async void OnMediaDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (sender != Media) return;
+            if ((sender?.Equals(Media) ?? false) == false)
+                return;
+
             e.Handled = true;
             await App.Current.Commands.ToggleFullscreenCommand.ExecuteAsync();
         }

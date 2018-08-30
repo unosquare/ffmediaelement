@@ -462,7 +462,7 @@
         /// <exception cref="ArgumentException">input
         /// or
         /// input</exception>
-        public bool Convert(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings, bool releaseInput = true)
+        public bool Convert(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings, bool releaseInput)
         {
             lock (ConvertSyncRoot)
             {
@@ -495,10 +495,6 @@
                         default:
                             throw new MediaContainerException($"Unable to materialize frame of {nameof(MediaType)} {input.MediaType}");
                     }
-                }
-                catch
-                {
-                    throw;
                 }
                 finally
                 {
@@ -1134,10 +1130,6 @@
                         seekTarget = main.StartTimeOffset.ToLong(main.Stream->time_base);
                         streamIndex = main.StreamIndex;
                         isAtStartOfStream = true;
-                    }
-                    else
-                    {
-                        isAtStartOfStream = false;
                     }
 
                     seekResult = ffmpeg.av_seek_frame(InputContext, streamIndex, seekTarget, seekFlags);

@@ -49,7 +49,7 @@
         {
             lock (SyncRoot)
             {
-                var lookupMediaUrl = mediaUrl.ToLowerInvariant() ?? string.Empty;
+                var lookupMediaUrl = mediaUrl?.ToLowerInvariant() ?? string.Empty;
                 foreach (var entry in this)
                 {
                     if (Equals(entry.MediaUrl?.ToLowerInvariant(), lookupMediaUrl))
@@ -84,7 +84,7 @@
                     // Try to get a title from metadata
                     foreach (var meta in info.Metadata)
                     {
-                        if (meta.Key?.ToLowerInvariant()?.Trim()?.Equals("title") ?? false)
+                        if (meta.Key?.ToLowerInvariant().Trim().Equals("title") ?? false)
                         {
                             entry.Title = meta.Value;
                             break;

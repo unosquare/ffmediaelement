@@ -495,19 +495,28 @@
                                     ParserStateMode.None : ParserStateMode.XDS;
                                 break;
                             }
-
-                        case CaptionsPacketType.PrivateCharset:
-                        case CaptionsPacketType.Unrecognized:
-                        case CaptionsPacketType.NullPad:
-                        default:
-                            {
-                                break;
-                            }
                     }
                 }
 
                 return needsRepaint;
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static List<ClosedCaptionPacket> DequeuePackets(Dictionary<long, ClosedCaptionPacket> buffer, long upToTicks)
+        {
+            var result = new List<ClosedCaptionPacket>(buffer.Count);
+            var linearBufferKeys = buffer.Keys.OrderBy(k => k).ToArray();
+            foreach (var bufferKey in linearBufferKeys)
+            {
+                if (bufferKey > upToTicks)
+                    break;
+
+                result.Add(buffer[bufferKey]);
+                buffer.Remove(bufferKey);
+            }
+
+            return result;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -697,17 +706,17 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessPreamblePacket(ClosedCaptionPacket packet)
         {
-            if (StateMode == ParserStateMode.Scrolling || StateMode == ParserStateMode.Buffered)
-            {
-                ScrollBaseRowIndex = packet.PreambleRow - 1;
-                if (ScrollBaseRowIndex < 0) ScrollBaseRowIndex = 0;
-                if (ScrollBaseRowIndex >= RowCount) ScrollBaseRowIndex = RowCount - 1;
+            if (StateMode != ParserStateMode.Scrolling && StateMode != ParserStateMode.Buffered)
+                return;
 
-                CursorRowIndex = ScrollBaseRowIndex;
-                CursorColumnIndex = packet.PreambleIndent;
-                IsItalics = packet.IsItalics;
-                IsUnderlined = packet.IsUnderlined;
-            }
+            ScrollBaseRowIndex = packet.PreambleRow - 1;
+            if (ScrollBaseRowIndex < 0) ScrollBaseRowIndex = 0;
+            if (ScrollBaseRowIndex >= RowCount) ScrollBaseRowIndex = RowCount - 1;
+
+            CursorRowIndex = ScrollBaseRowIndex;
+            CursorColumnIndex = packet.PreambleIndent;
+            IsItalics = packet.IsItalics;
+            IsUnderlined = packet.IsUnderlined;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -768,28 +777,6 @@
             // Remove the target keys
             foreach (var key in keysToRemove)
                 buffer.Remove(key);
-        }
-
-        /// <summary>
-        /// De-queues the packets from the buffer.
-        /// </summary>
-        /// <param name="buffer">The buffer.</param>
-        /// <param name="upToTicks">Up to ticks.</param>
-        /// <returns>The dequeued packets, in order.</returns>
-        private List<ClosedCaptionPacket> DequeuePackets(Dictionary<long, ClosedCaptionPacket> buffer, long upToTicks)
-        {
-            var result = new List<ClosedCaptionPacket>(buffer.Count);
-            var linearBufferKeys = buffer.Keys.OrderBy(k => k).ToArray();
-            foreach (var bufferKey in linearBufferKeys)
-            {
-                if (bufferKey > upToTicks)
-                    break;
-
-                result.Add(buffer[bufferKey]);
-                buffer.Remove(bufferKey);
-            }
-
-            return result;
         }
 
         #endregion

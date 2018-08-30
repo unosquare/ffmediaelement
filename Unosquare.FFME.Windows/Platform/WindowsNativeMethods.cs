@@ -88,7 +88,6 @@
                         break;
                     }
 
-                case MemoryCopyStrategy.Buffer:
                 default:
                     {
                         Buffer.MemoryCopy((void*)sourceAddress, (void*)targetAddress, copyLength, copyLength);

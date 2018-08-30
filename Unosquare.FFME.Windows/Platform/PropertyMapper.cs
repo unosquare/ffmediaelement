@@ -39,7 +39,7 @@
                 RetrieveProperties(typeof(MediaElement), false)
                     .Where(p => enginePropertyNames.Contains(p.Name)
                         && dependencyPropertyNames.Contains(p.Name) == false
-                        && p.CanRead == true && p.CanWrite == false)
+                        && p.CanRead && p.CanWrite == false)
                     .ToDictionary((p) => p.Name, (p) => p));
 
             var allMediaElementPropertyNames = dependencyPropertyNames.Union(MediaElementNotificationProperties.Keys.ToArray()).ToArray();
@@ -104,8 +104,8 @@
         public static Dictionary<DependencyProperty, object> DetectDependencyPropertyChanges(this MediaElement m)
         {
             var result = new Dictionary<DependencyProperty, object>(PropertyMaxCount);
-            object engineValue = null; // The current value of the media engine state property
-            object propertyValue = null; // The current value of the dependency property
+            object engineValue; // The current value of the media engine state property
+            object propertyValue; // The current value of the dependency property
 
             foreach (var targetProperty in MediaElementDependencyProperties)
             {

@@ -89,7 +89,6 @@
                 AllowContentChange = true;
                 InitializeComponent();
             }
-            catch { throw; }
             finally
             {
                 AllowContentChange = false;
@@ -539,17 +538,17 @@
                 var targetHeight = VideoView.ActualHeight / 9d;
                 var targetWidth = VideoView.ActualWidth * 0.90;
 
-                if (SubtitlesView.Height != targetHeight)
+                if (Math.Abs(SubtitlesView.Height - targetHeight) > double.Epsilon)
                     SubtitlesView.Height = targetHeight;
 
-                if (SubtitlesView.Width != targetWidth)
+                if (Math.Abs(SubtitlesView.Width - targetWidth) > double.Epsilon)
                     SubtitlesView.Width = targetWidth;
 
                 var verticalOffset = ContentGrid.ActualHeight - (videoViewPosition.Y + VideoView.ActualHeight);
                 var verticalOffsetPadding = targetHeight * 0.75d;
                 var marginBottom = verticalOffset + verticalOffsetPadding;
 
-                if (SubtitlesView.Margin.Bottom != marginBottom)
+                if (Math.Abs(SubtitlesView.Margin.Bottom - marginBottom) > double.Epsilon)
                     SubtitlesView.Margin = new Thickness(0, 0, 0, marginBottom);
             }
         }

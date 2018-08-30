@@ -48,17 +48,19 @@
             PlaylistFilePath = Path.Combine(root.AppDataDirectory, "ffme.m3u8");
 
             Entries = new CustomPlaylist(this);
-            EntriesView = CollectionViewSource.GetDefaultView(Entries) as ICollectionView;
+            EntriesView = CollectionViewSource.GetDefaultView(Entries);
             EntriesView.Filter = (item) =>
             {
-                if (item is CustomPlaylistEntry == false) return false;
-                var entry = item as CustomPlaylistEntry;
-
                 if (string.IsNullOrWhiteSpace(PlaylistSearchString) || PlaylistSearchString.Trim().Length < MinimumSearchLength)
                     return true;
 
-                return (entry.Title?.ToLowerInvariant().Contains(PlaylistSearchString) ?? false) ||
-                       (entry.MediaUrl?.ToLowerInvariant().Contains(PlaylistSearchString) ?? false);
+                if (item is CustomPlaylistEntry entry)
+                {
+                    return (entry.Title?.ToLowerInvariant().Contains(PlaylistSearchString) ?? false) ||
+                           (entry.MediaUrl?.ToLowerInvariant().Contains(PlaylistSearchString) ?? false);
+                }
+
+                return false;
             };
 
             NotifyPropertyChanged(nameof(EntriesView));
@@ -106,7 +108,7 @@
                         if (futureSearch.Length < MinimumSearchLength && currentSearch.Length < MinimumSearchLength) return;
 
                         EntriesView.Refresh();
-                        FilterString = string.Copy(m_PlaylistSearchString) ?? string.Empty;
+                        FilterString = string.Copy(m_PlaylistSearchString);
                     });
                 }
 

@@ -144,7 +144,7 @@
         {
             var block = mediaBlock as VideoBlock;
             if (block == null) return;
-            if (IsRenderingInProgress.Value == true)
+            if (IsRenderingInProgress.Value)
             {
                 if (MediaCore?.State.IsPlaying ?? false)
                 {
@@ -219,7 +219,7 @@
                     {
                         try
                         {
-                            foregroundTask?.Wait();
+                            foregroundTask.Wait();
                         }
                         catch (Exception ex)
                         {
@@ -312,7 +312,7 @@
                 MediaElement.VideoView.Source = TargetBitmap;
 
             // Don't set the result
-            if (TargetBitmap == null) return result;
+            if (TargetBitmap == null) return null;
 
             // Lock the back-buffer and create a pointer to it
             TargetBitmap.Lock();
@@ -351,11 +351,15 @@
         {
             if (MediaElement?.VideoView == null) return;
 
-            var layoutTransforms = MediaElement.VideoView.LayoutTransform as TransformGroup;
-            ScaleTransform scaleTransform = null;
-            RotateTransform rotateTransform = null;
+            ScaleTransform scaleTransform;
+            RotateTransform rotateTransform;
 
-            if (layoutTransforms == null)
+            if (MediaElement.VideoView.LayoutTransform is TransformGroup layoutTransforms)
+            {
+                scaleTransform = layoutTransforms.Children[0] as ScaleTransform;
+                rotateTransform = layoutTransforms.Children[1] as RotateTransform;
+            }
+            else
             {
                 layoutTransforms = new TransformGroup();
                 scaleTransform = new ScaleTransform(1, 1);
@@ -365,11 +369,10 @@
 
                 MediaElement.VideoView.LayoutTransform = layoutTransforms;
             }
-            else
-            {
-                scaleTransform = layoutTransforms.Children[0] as ScaleTransform;
-                rotateTransform = layoutTransforms.Children[1] as RotateTransform;
-            }
+
+            // return if no proper transforms were found
+            if (scaleTransform == null || rotateTransform == null)
+                return;
 
             // Process Aspect Ratio according to block.
             if (b.PixelAspectWidth != b.PixelAspectHeight)
@@ -377,7 +380,8 @@
                 var scaleX = b.PixelAspectWidth > b.PixelAspectHeight ? Convert.ToDouble(b.PixelAspectWidth) / Convert.ToDouble(b.PixelAspectHeight) : 1d;
                 var scaleY = b.PixelAspectHeight > b.PixelAspectWidth ? Convert.ToDouble(b.PixelAspectHeight) / Convert.ToDouble(b.PixelAspectWidth) : 1d;
 
-                if (scaleTransform.ScaleX != scaleX || scaleTransform.ScaleY != scaleY)
+                if (Math.Abs(scaleTransform.ScaleX - scaleX) > double.Epsilon ||
+                    Math.Abs(scaleTransform.ScaleY - scaleY) > double.Epsilon)
                 {
                     scaleTransform.ScaleX = scaleX;
                     scaleTransform.ScaleY = scaleY;
@@ -385,7 +389,8 @@
             }
             else
             {
-                if (scaleTransform.ScaleX != 1d || scaleTransform.ScaleY != 1d)
+                if (Math.Abs(scaleTransform.ScaleX - 1d) > double.Epsilon ||
+                    Math.Abs(scaleTransform.ScaleY - 1d) > double.Epsilon)
                 {
                     scaleTransform.ScaleX = 1d;
                     scaleTransform.ScaleY = 1d;
@@ -393,7 +398,7 @@
             }
 
             // Process Rotation
-            if (MediaCore.State.VideoRotation != rotateTransform.Angle)
+            if (Math.Abs(MediaCore.State.VideoRotation - rotateTransform.Angle) > double.Epsilon)
                 rotateTransform.Angle = MediaCore.State.VideoRotation;
         }
     }

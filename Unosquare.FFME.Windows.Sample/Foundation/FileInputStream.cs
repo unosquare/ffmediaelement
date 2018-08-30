@@ -61,7 +61,7 @@
         /// <returns>
         /// The number of bytes that have been read
         /// </returns>
-        public unsafe int Read(void* opaque, byte* targetBuffer, int targetBufferLength)
+        public int Read(void* opaque, byte* targetBuffer, int targetBufferLength)
         {
             lock (ReadLock)
             {

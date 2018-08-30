@@ -277,7 +277,7 @@
                 if (m_IsDisposed == true) throw new ObjectDisposedException(nameof(ISyncLocker));
 
                 releaser = SyncLockReleaser.Empty;
-                var result = false;
+                bool result;
 
                 if (Locker?.IsReadLockHeld ?? false)
                 {

@@ -35,7 +35,7 @@
         /// <param name="pointer">The pointer.</param>
         /// <param name="component">The component.</param>
         protected MediaFrame(AVSubtitle* pointer, MediaComponent component)
-            : this((void*)pointer, component, MediaType.Subtitle)
+            : this(pointer, component, MediaType.Subtitle)
         {
             // TODO: Compressed size is simply an estimate
             CompressedSize = (int)pointer->num_rects * 256;

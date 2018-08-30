@@ -2,13 +2,13 @@
 {
     using Platform;
     using Primitives;
-    using Rendering.Wave;
     using Shared;
     using System;
     using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Windows;
     using System.Windows.Threading;
+    using Wave;
 
     /// <summary>
     /// Provides Audio Output capabilities by writing samples to the default audio output device.
@@ -53,7 +53,7 @@
         /// <param name="mediaCore">The core media engine.</param>
         public AudioRenderer(MediaEngine mediaCore)
         {
-            MediaCore = mediaCore;
+            MediaCore = mediaCore ?? throw new ArgumentNullException(nameof(mediaCore));
 
             WaveFormat = new WaveFormat(
                 Constants.Audio.SampleRate,
@@ -82,7 +82,7 @@
         /// <summary>
         /// Gets the parent media element (platform specific).
         /// </summary>
-        public MediaElement MediaElement => MediaCore?.Parent as MediaElement;
+        public MediaElement MediaElement => MediaCore.Parent as MediaElement;
 
         /// <inheritdoc />
         public MediaEngine MediaCore { get; }
@@ -171,8 +171,7 @@
 
                 // Capture Media Block Reference
                 if (mediaBlock is AudioBlock == false) return;
-                var audioBlock = mediaBlock as AudioBlock;
-                if (audioBlock == null) return;
+                var audioBlock = (AudioBlock)mediaBlock;
                 var audioBlocks = MediaCore.Blocks[MediaType.Audio];
 
                 while (audioBlock != null)
@@ -197,7 +196,7 @@
             }
             catch (Exception ex)
             {
-                MediaCore?.Log(MediaLogMessageType.Error,
+                MediaCore.Log(MediaLogMessageType.Error,
                     $"{ex.GetType()} in {nameof(AudioRenderer)}.{nameof(Read)}: {ex.Message}. Stack Trace:\r\n{ex.StackTrace}");
             }
             finally
@@ -210,7 +209,7 @@
         public void Update(TimeSpan clockPosition)
         {
             // We don't need to keep track of syncs for seekable media
-            if (MediaCore?.State?.IsSeekable ?? true)
+            if (MediaCore.State.IsSeekable)
                 return;
 
             // Detect state changes to reset give up sync conditions.
@@ -311,7 +310,7 @@
             try
             {
                 WaitForReadyEvent.Complete();
-                var speedRatio = MediaCore?.State.SpeedRatio ?? 0;
+                var speedRatio = MediaCore.State.SpeedRatio;
 
                 // Render silence if we don't need to output samples
                 if (MediaCore.State.IsPlaying == false || speedRatio <= 0d || MediaCore.State.HasAudio == false || AudioBuffer.ReadableCount <= 0)
@@ -362,7 +361,7 @@
             }
             catch (Exception ex)
             {
-                MediaCore?.Log(MediaLogMessageType.Error,
+                MediaCore.Log(MediaLogMessageType.Error,
                     $"{ex.GetType()} in {nameof(AudioRenderer)}.{nameof(Read)}: {ex.Message}. Stack Trace:\r\n{ex.StackTrace}");
                 Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
             }
@@ -413,9 +412,7 @@
             if (hasAudioDevices == false)
             {
                 WaitForReadyEvent.Complete();
-                MediaCore.Log(MediaLogMessageType.Warning,
-                    $"AUDIO OUT: No audio device found for output.");
-
+                MediaCore.Log(MediaLogMessageType.Warning, "AUDIO OUT: No audio device found for output.");
                 return;
             }
 
@@ -527,7 +524,7 @@
             // Some live, non-seekable streams will send out-of-sync audio packets
             // and after trying too many times we simply give up.
             // The Sync conditions are reset in the Update method.
-            if ((MediaCore?.State?.IsSeekable ?? true) == false && PlaySyncGaveUp.Value == false)
+            if (MediaCore.State.IsSeekable == false && PlaySyncGaveUp.Value == false)
             {
                 // 1. Determine if a sync is required
                 if (audioLatencyMs > SyncThresholdLagging ||
@@ -552,7 +549,7 @@
             }
 
             // Detect if we have given up
-            if (PlaySyncGaveUp.Value == true)
+            if (PlaySyncGaveUp == true)
                 return true;
 
             #endregion
@@ -609,20 +606,19 @@
 
             #region Small Latency Handling
 
-            // Perform minor adjustments until the delay is less than 10ms in either direction
-            if (MediaCore.State.HasVideo &&
-                Math.Abs(speedRatio - 1.0) <= double.Epsilon &&
-                isBeyondThreshold == false &&
-                Math.Abs(audioLatencyMs) > SyncThresholdPerfect)
-            {
-                var stepDurationMillis = Convert.ToInt32(Math.Min(SyncThresholdMaxStep, Math.Abs(audioLatencyMs)));
-                var stepDurationBytes = WaveFormat.ConvertMillisToByteSize(stepDurationMillis);
+            // Check if minor adjustment is necessary
+            if (MediaCore.State.HasVideo == false || Math.Abs(speedRatio - 1.0) > double.Epsilon ||
+                isBeyondThreshold || Math.Abs(audioLatencyMs) <= SyncThresholdPerfect)
+                return true;
 
-                if (audioLatencyMs > SyncThresholdPerfect)
-                    AudioBuffer.Skip(Math.Min(stepDurationBytes, readableCount));
-                else if (audioLatencyMs < -SyncThresholdPerfect)
-                    AudioBuffer.Rewind(Math.Min(stepDurationBytes, rewindableCount));
-            }
+            // Perform minor adjustments until the delay is less than 10ms in either direction
+            var stepDurationMillis = Convert.ToInt32(Math.Min(SyncThresholdMaxStep, Math.Abs(audioLatencyMs)));
+            var stepDurationBytes = WaveFormat.ConvertMillisToByteSize(stepDurationMillis);
+
+            if (audioLatencyMs > SyncThresholdPerfect)
+                AudioBuffer.Skip(Math.Min(stepDurationBytes, readableCount));
+            else if (audioLatencyMs < -SyncThresholdPerfect)
+                AudioBuffer.Rewind(Math.Min(stepDurationBytes, rewindableCount));
 
             #endregion
 
@@ -693,11 +689,11 @@
             var targetOffset = 0;
             var currentGroupSizeW = Convert.ToInt32(groupSize);
             var currentGroupSizeF = groupSize - currentGroupSizeW;
-            var leftSamples = 0d;
-            var rightSamples = 0d;
+            double leftSamples;
+            double rightSamples;
             var isLeftSample = true;
-            short sample = 0;
-            var samplesToAverage = 0;
+            short sample;
+            int samplesToAverage;
 
             while (targetOffset < requestedBytes)
             {
@@ -801,7 +797,7 @@
         private void ApplyVolumeAndBalance(byte[] targetBuffer, int targetBufferOffset, int requestedBytes)
         {
             // Check if we are muted. We don't need process volume and balance
-            var isMuted = MediaCore?.State.IsMuted ?? true;
+            var isMuted = MediaCore.State.IsMuted;
             if (isMuted)
             {
                 for (var sourceBufferOffset = 0; sourceBufferOffset < requestedBytes; sourceBufferOffset++)
@@ -811,8 +807,8 @@
             }
 
             // Capture and adjust volume and balance
-            var volume = MediaCore?.State.Volume ?? default;
-            var balance = MediaCore?.State.Balance ?? Constants.Controller.DefaultBalance;
+            var volume = MediaCore.State.Volume;
+            var balance = MediaCore.State.Balance;
 
             volume = volume.Clamp(Constants.Controller.MinVolume, Constants.Controller.MaxVolume);
             balance = balance.Clamp(Constants.Controller.MinBalance, Constants.Controller.MaxBalance);
@@ -823,7 +819,7 @@
             // Initialize the samples counter
             // Samples are interleaved (left and right in 16-bit signed integers each)
             var isLeftSample = true;
-            short currentSample = 0;
+            short currentSample;
 
             for (var sourceBufferOffset = 0;
                 sourceBufferOffset < requestedBytes;
@@ -833,17 +829,10 @@
                 // This holds true for little endian architecture
                 currentSample = ReadBuffer.GetAudioSample(sourceBufferOffset);
 
-                if (isMuted)
-                {
-                    currentSample = 0;
-                }
-                else
-                {
-                    if (isLeftSample && leftVolume != 1.0)
-                        currentSample = Convert.ToInt16(currentSample * leftVolume);
-                    else if (isLeftSample == false && rightVolume != 1.0)
-                        currentSample = Convert.ToInt16(currentSample * rightVolume);
-                }
+                if (isLeftSample && Math.Abs(leftVolume - 1.0) > double.Epsilon)
+                    currentSample = Convert.ToInt16(currentSample * leftVolume);
+                else if (isLeftSample == false && Math.Abs(leftVolume - 1.0) > double.Epsilon)
+                    currentSample = Convert.ToInt16(currentSample * rightVolume);
 
                 targetBuffer.PutAudioSample(targetBufferOffset + sourceBufferOffset, currentSample);
                 isLeftSample = !isLeftSample;

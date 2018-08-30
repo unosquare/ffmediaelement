@@ -112,7 +112,7 @@
                 }
 
                 // Find out what the final, best-effort position was
-                var resultPosition = TargetPosition;
+                TimeSpan resultPosition;
                 if (mainBlocks.IsInRange(TargetPosition) == false)
                 {
                     // We don't have a a valid main range

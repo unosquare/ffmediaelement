@@ -51,7 +51,6 @@
                         break;
                     }
 
-                case GuiContextType.None:
                 default:
                     {
                         ThreadingTimer = CreateThreadingTimer();
@@ -158,10 +157,6 @@
                 // Call the configured timer callback
                 TimerCallback();
             }
-            catch
-            {
-                throw;
-            }
             finally
             {
                 // Finalize the cycle
@@ -176,7 +171,7 @@
         private Timer CreateThreadingTimer()
         {
             var timer = new Timer(
-                new TimerCallback(RunTimerCycle),
+                RunTimerCycle,
                 this,
                 Convert.ToInt32(Interval.TotalMilliseconds),
                 Convert.ToInt32(Interval.TotalMilliseconds));

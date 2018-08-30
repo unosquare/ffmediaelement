@@ -316,7 +316,7 @@ namespace Unosquare.FFME.Rendering
             if (element == null) return;
 
             var value = e.NewValue as string;
-            if (string.IsNullOrWhiteSpace(value)) value = $" \r\n ";
+            if (string.IsNullOrWhiteSpace(value)) value = " \r\n ";
             if (value.Contains("\n") == false) value = $"{value}\r\n ";
             foreach (var t in element.TextBlocks)
                 t.Value.Text = value;

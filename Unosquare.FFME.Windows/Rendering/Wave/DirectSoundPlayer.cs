@@ -198,11 +198,11 @@
             bufferDesc.AlgorithmId = Guid.Empty;
 
             // Create PrimaryBuffer
-            DirectSoundDriver.CreateSoundBuffer(bufferDesc, out object soundBufferObj, IntPtr.Zero);
+            DirectSoundDriver.CreateSoundBuffer(bufferDesc, out var soundBufferObj, IntPtr.Zero);
             AudioPlaybackBuffer = soundBufferObj as DirectSound.IDirectSoundBuffer;
 
             // Play & Loop on the PrimarySound Buffer
-            AudioPlaybackBuffer.Play(0, 0, DirectSound.DirectSoundPlayFlags.Looping);
+            AudioPlaybackBuffer?.Play(0, 0, DirectSound.DirectSoundPlayFlags.Looping);
 
             // -------------------------------------------------------------------------------------
             // Create SecondaryBuffer
@@ -235,7 +235,7 @@
             // Get effective SecondaryBuffer size
             var dsbCaps = new DirectSound.BufferCaps();
             dsbCaps.Size = Marshal.SizeOf(dsbCaps);
-            AudioBackBuffer.GetCaps(dsbCaps);
+            AudioBackBuffer?.GetCaps(dsbCaps);
 
             NextSamplesWriteIndex = 0;
             SamplesTotalSize = dsbCaps.BufferBytes;
@@ -270,7 +270,7 @@
                 NotifyHandle = EndEventWaitHandle.SafeWaitHandle.DangerousGetHandle()
             };
 
-            notify.SetNotificationPositions(3, notifies);
+            notify?.SetNotificationPositions(3, notifies);
         }
 
         /// <summary>
@@ -284,7 +284,7 @@
                 AudioBackBuffer.SetCurrentPosition(0);
                 NextSamplesWriteIndex = 0;
 
-                var handleIndex = -1;
+                int handleIndex;
                 var waitHandles = new WaitHandle[] { FrameEventWaitHandle1, FrameEventWaitHandle2, EndEventWaitHandle, CancelEvent };
 
                 // Give the buffer initial samples to work with

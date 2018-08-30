@@ -304,7 +304,6 @@
                 // Execute the command synchronously
                 command.Execute();
             }
-            catch { throw; }
             finally
             {
                 lock (QueueLock)
@@ -451,7 +450,6 @@
             command.BeginExecute();
 
             try { return await command.Awaiter; }
-            catch { throw; }
             finally { FinalizeDirectCommand(command); }
         }
 

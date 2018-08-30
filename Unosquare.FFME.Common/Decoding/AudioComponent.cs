@@ -112,7 +112,7 @@
             }
 
             // Allocate the unmanaged output buffer and convert to stereo.
-            var outputSamplesPerChannel = 0;
+            int outputSamplesPerChannel;
             if (target.Allocate(targetSpec.BufferLength) &&
                 target.TryAcquireWriterLock(out var writeLock))
             {
@@ -323,12 +323,10 @@
 
             try
             {
-                var result = 0;
-
                 AVFilterContext* sourceFilterRef = null;
                 AVFilterContext* sinkFilterRef = null;
 
-                result = ffmpeg.avfilter_graph_create_filter(
+                var result = ffmpeg.avfilter_graph_create_filter(
                     &sourceFilterRef, ffmpeg.avfilter_get_by_name(SourceFilterName), SourceFilterInstance, CurrentFilterArguments, null, FilterGraph);
                 if (result != 0)
                 {

@@ -140,7 +140,7 @@
             if (Thread.CurrentThread != ElementDispatcher?.Thread)
                 return ElementDispatcher?.BeginInvoke(action, priority).Task;
 
-            action?.Invoke();
+            action();
             return Task.CompletedTask;
         }
 

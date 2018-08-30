@@ -123,7 +123,6 @@
                     AwaiterTask.Start();
                     PerformActions();
                 }
-                catch { throw; }
                 finally
                 {
                     CompletedEvent.Set();
@@ -151,7 +150,6 @@
                     if (waitForExit)
                         Awaiter.GetAwaiter().GetResult();
                 }
-                catch { throw; }
                 finally { Dispose(); }
             }
         }

@@ -76,7 +76,7 @@
             if (e.Url.StartsWith("http://") || e.Url.StartsWith("https://"))
             {
                 e.Configuration.PrivateOptions["user_agent"] = $"{typeof(ContainerConfiguration).Namespace}/{typeof(ContainerConfiguration).Assembly.GetName().Version}";
-                e.Configuration.PrivateOptions["headers"] = $"Referer:https://www.unosquare.com";
+                e.Configuration.PrivateOptions["headers"] = "Referer:https://www.unosquare.com";
                 e.Configuration.PrivateOptions["multiple_requests"] = "1";
                 e.Configuration.PrivateOptions["reconnect"] = "1";
                 e.Configuration.PrivateOptions["reconnect_streamed"] = "1";
@@ -154,7 +154,7 @@
             if (videoStream != null)
             {
                 // Hardware device priorities
-                var deviceCandidates = new AVHWDeviceType[]
+                var deviceCandidates = new[]
                 {
                     AVHWDeviceType.AV_HWDEVICE_TYPE_CUDA,
                     AVHWDeviceType.AV_HWDEVICE_TYPE_D3D11VA,
@@ -189,7 +189,7 @@
                 if (videoStream.PixelHeight > 1080)
                 {
                     // e.Options.VideoHardwareDevice = null;
-                    videoFilter.Append($"scale=-1:1080,");
+                    videoFilter.Append("scale=-1:1080,");
                 }
 
                 e.Options.VideoFilter = videoFilter.ToString().TrimEnd(',');
@@ -237,7 +237,7 @@
             if (StreamCycleMediaType != MediaType.Video)
                 availableStreams.Add(null);
 
-            var currentIndex = -1;
+            int currentIndex;
 
             switch (StreamCycleMediaType)
             {
@@ -297,8 +297,10 @@
         /// </summary>
         /// <param name="sender">The sender.</param>
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        private async void OnAudioDeviceStopped(object sender, EventArgs e) =>
-            await Media?.ChangeMedia();
+        private async void OnAudioDeviceStopped(object sender, EventArgs e)
+        {
+            if (Media != null) await Media?.ChangeMedia();
+        }
 
         #endregion
 

@@ -1,11 +1,11 @@
 ﻿namespace Unosquare.FFME
 {
+    using Platform;
     using Shared;
     using System;
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
     using System.Threading;
-    using Unosquare.FFME.Platform;
 
     /*
      * This file contains the Property Updates Worker.

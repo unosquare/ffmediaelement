@@ -106,7 +106,6 @@ namespace Unosquare.FFME.Rendering.Wave
             if (acquired == false) throw new TimeoutException(TimeoutErrorMessage);
 
             try { return NativeMethods.waveOutGetNumDevs(); }
-            catch { throw; }
             finally { Monitor.Exit(SyncLock); }
         }
 
@@ -131,7 +130,6 @@ namespace Unosquare.FFME.Rendering.Wave
                     NativeMethods.waveOutPrepareHeader(deviceHandle, header, Marshal.SizeOf(header)),
                     nameof(NativeMethods.waveOutPrepareHeader));
             }
-            catch { throw; }
             finally { Monitor.Exit(SyncLock); }
         }
 
@@ -156,7 +154,6 @@ namespace Unosquare.FFME.Rendering.Wave
                     NativeMethods.waveOutUnprepareHeader(deviceHandle, header, Marshal.SizeOf(header)),
                     nameof(NativeMethods.waveOutUnprepareHeader));
             }
-            catch { throw; }
             finally { Monitor.Exit(SyncLock); }
         }
 
@@ -181,7 +178,6 @@ namespace Unosquare.FFME.Rendering.Wave
                     NativeMethods.waveOutWrite(deviceHandle, header, Marshal.SizeOf(header)),
                     nameof(NativeMethods.waveOutWrite));
             }
-            catch { throw; }
             finally { Monitor.Exit(SyncLock); }
         }
 
@@ -211,7 +207,6 @@ namespace Unosquare.FFME.Rendering.Wave
 
                 return hWaveOut;
             }
-            catch { throw; }
             finally { Monitor.Exit(SyncLock); }
         }
 
@@ -241,7 +236,6 @@ namespace Unosquare.FFME.Rendering.Wave
 
                 return hWaveOut;
             }
-            catch { throw; }
             finally { Monitor.Exit(SyncLock); }
         }
 
@@ -264,7 +258,6 @@ namespace Unosquare.FFME.Rendering.Wave
                     NativeMethods.waveOutReset(deviceHandle),
                     nameof(NativeMethods.waveOutReset));
             }
-            catch { throw; }
             finally { Monitor.Exit(SyncLock); }
         }
 
@@ -287,7 +280,6 @@ namespace Unosquare.FFME.Rendering.Wave
                     NativeMethods.waveOutClose(deviceHandle),
                     nameof(NativeMethods.waveOutClose));
             }
-            catch { throw; }
             finally { Monitor.Exit(SyncLock); }
         }
 
@@ -310,7 +302,6 @@ namespace Unosquare.FFME.Rendering.Wave
                     NativeMethods.waveOutPause(deviceHandle),
                     nameof(NativeMethods.waveOutPause));
             }
-            catch { throw; }
             finally { Monitor.Exit(SyncLock); }
         }
 
@@ -333,7 +324,6 @@ namespace Unosquare.FFME.Rendering.Wave
                     NativeMethods.waveOutRestart(deviceHandle),
                     nameof(NativeMethods.waveOutRestart));
             }
-            catch { throw; }
             finally { Monitor.Exit(SyncLock); }
         }
 
@@ -369,7 +359,6 @@ namespace Unosquare.FFME.Rendering.Wave
 
                 return time.CB;
             }
-            catch { throw; }
             finally { Monitor.Exit(SyncLock); }
         }
 
@@ -397,7 +386,6 @@ namespace Unosquare.FFME.Rendering.Wave
 
                 return waveOutCaps;
             }
-            catch { throw; }
             finally { Monitor.Exit(SyncLock); }
         }
 

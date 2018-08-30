@@ -1,10 +1,10 @@
 ﻿namespace Unosquare.FFME
 {
+    using Primitives;
+    using Shared;
     using System;
     using System.Linq;
     using System.Runtime.CompilerServices;
-    using Unosquare.FFME.Primitives;
-    using Unosquare.FFME.Shared;
 
     public partial class MediaEngine
     {
@@ -22,11 +22,11 @@
             // State variables
             var wasSyncBuffering = false;
             var delay = new DelayProvider(); // The delay provider prevents 100% core usage
-            var decodedFrameCount = 0;
-            var rangePercent = 0d;
+            int decodedFrameCount;
+            double rangePercent;
             MediaType main; // Holds the main media type
             var resumeSyncBufferingClock = false;
-            MediaBlockBuffer blocks = null;
+            MediaBlockBuffer blocks;
 
             try
             {
@@ -73,7 +73,7 @@
                             resumeSyncBufferingClock = Clock.IsRunning;
                             Clock.Pause();
                             State.UpdateMediaState(PlaybackStatus.Manual);
-                            Log(MediaLogMessageType.Debug, $"SYNC-BUFFER: Started.");
+                            Log(MediaLogMessageType.Debug, "SYNC-BUFFER: Started.");
                         }
 
                         #endregion
@@ -172,7 +172,6 @@
                     #endregion
                 }
             }
-            catch { throw; }
             finally
             {
                 // Reset decoding stats
