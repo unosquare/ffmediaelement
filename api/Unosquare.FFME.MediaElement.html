@@ -1047,8 +1047,8 @@ Range is from 0 to 1</p>
   </table>
   
   
-  <a id="Unosquare_FFME_MediaElement_EnableWpfMultithreadedVideo_" data-uid="Unosquare.FFME.MediaElement.EnableWpfMultithreadedVideo*"></a>
-  <h4 id="Unosquare_FFME_MediaElement_EnableWpfMultithreadedVideo" data-uid="Unosquare.FFME.MediaElement.EnableWpfMultithreadedVideo">EnableWpfMultithreadedVideo</h4>
+  <a id="Unosquare_FFME_MediaElement_EnableWpfMultiThreadedVideo_" data-uid="Unosquare.FFME.MediaElement.EnableWpfMultiThreadedVideo*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_EnableWpfMultiThreadedVideo" data-uid="Unosquare.FFME.MediaElement.EnableWpfMultiThreadedVideo">EnableWpfMultiThreadedVideo</h4>
   <div class="markdown level1 summary"><p>Gets or sets a value indicating whether the video visualization control
 creates its own dispatcher thread to handle rendering of video frames.
 This is an experimental feature and it is useful when creating video walls.
@@ -1059,7 +1059,7 @@ a WPF context.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static bool EnableWpfMultithreadedVideo { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public static bool EnableWpfMultiThreadedVideo { get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2229,8 +2229,8 @@ The Stretch property determines how large the MediaElement will be drawn.</p>
   
   <a id="Unosquare_FFME_MediaElement_StretchDirection_" data-uid="Unosquare.FFME.MediaElement.StretchDirection*"></a>
   <h4 id="Unosquare_FFME_MediaElement_StretchDirection" data-uid="Unosquare.FFME.MediaElement.StretchDirection">StretchDirection</h4>
-  <div class="markdown level1 summary"><p>Gets/Sets the stretch direction of the Viewbox, which determines the restrictions on
-scaling that are applied to the content inside the Viewbox.  For instance, this property
+  <div class="markdown level1 summary"><p>Gets/Sets the stretch direction of the ViewBox, which determines the restrictions on
+scaling that are applied to the content inside the ViewBox.  For instance, this property
 can be used to prevent the content from being smaller than its native size or larger than
 its native size.</p>
 </div>
@@ -2621,9 +2621,9 @@ Handle the <a class="xref" href="Unosquare.FFME.MediaElement.html#Unosquare_FFME
   
   <a id="Unosquare_FFME_MediaElement_LoadFFmpeg_" data-uid="Unosquare.FFME.MediaElement.LoadFFmpeg*"></a>
   <h4 id="Unosquare_FFME_MediaElement_LoadFFmpeg" data-uid="Unosquare.FFME.MediaElement.LoadFFmpeg">LoadFFmpeg()</h4>
-  <div class="markdown level1 summary"><p>Forces the preloading of the FFmpeg libraries according to the values of the
+  <div class="markdown level1 summary"><p>Forces the pre-loading of the FFmpeg libraries according to the values of the
 <a class="xref" href="Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_FFmpegDirectory">FFmpegDirectory</a> and <a class="xref" href="Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_FFmpegLoadModeFlags">FFmpegLoadModeFlags</a>
-Also, sets the <a class="xref" href="Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_FFmpegVersionInfo">FFmpegVersionInfo</a> property. Thorws an exception
+Also, sets the <a class="xref" href="Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_FFmpegVersionInfo">FFmpegVersionInfo</a> property. Throws an exception
 if the libraries cannot be loaded.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
@@ -3252,7 +3252,7 @@ All interaction with UI elements requires calls on their corresponding dispatche
   
   <h4 id="Unosquare_FFME_MediaElement_RenderingAudio" data-uid="Unosquare.FFME.MediaElement.RenderingAudio">RenderingAudio</h4>
   <div class="markdown level1 summary"><p>Occurs right before the audio is added to the audio buffer.
-You can update the bytes before they are enqueued.
+You can update the bytes before they are queued.
 Ensure you handle this quickly before you get choppy audio.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
@@ -3306,8 +3306,8 @@ Ensure you handle this quickly before you get choppy subtitles.</p>
   
   <h4 id="Unosquare_FFME_MediaElement_RenderingVideo" data-uid="Unosquare.FFME.MediaElement.RenderingVideo">RenderingVideo</h4>
   <div class="markdown level1 summary"><p>Occurs right before the video is presented on the screen.
-You can update the pizels on the bitmap before it is rendered on the screen.
-Or you could take a screenshot.
+You can update the pixels on the bitmap before it is rendered on the screen.
+Or you could take a screen shot.
 Ensure you handle this very quickly as it runs on the UI thread.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
