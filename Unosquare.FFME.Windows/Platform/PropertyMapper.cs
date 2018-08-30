@@ -97,10 +97,10 @@
         }
 
         /// <summary>
-        /// Detects which dependendy properties are out of sync with the Media Engine State properties
+        /// Detects which dependency properties are out of sync with the Media Engine State properties
         /// </summary>
         /// <param name="m">The m.</param>
-        /// <returns>A dictionary of dependency properties to synchonize along with the engine values.</returns>
+        /// <returns>A dictionary of dependency properties to synchronize along with the engine values.</returns>
         public static Dictionary<DependencyProperty, object> DetectDependencyPropertyChanges(this MediaElement m)
         {
             var result = new Dictionary<DependencyProperty, object>(PropertyMaxCount);

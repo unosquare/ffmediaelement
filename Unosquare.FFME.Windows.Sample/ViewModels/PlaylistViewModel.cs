@@ -75,7 +75,7 @@
         public ICollectionView EntriesView { get; }
 
         /// <summary>
-        /// Gets the full path wehre thumbnails are stored.
+        /// Gets the full path where thumbnails are stored.
         /// </summary>
         public string ThumbsDirectory { get; }
 

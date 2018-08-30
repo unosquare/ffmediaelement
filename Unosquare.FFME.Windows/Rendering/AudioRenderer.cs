@@ -649,21 +649,21 @@
             AudioBuffer.Read(bytesToRead, ReadBuffer, sourceOffset);
 
             var targetOffset = 0;
-            var repeatAccum = 0d;
+            var repeatCount = 0d;
 
             while (targetOffset < requestedBytes)
             {
                 // When we are done repeating, advance 1 block in the source position
-                if (repeatAccum >= repeatFactor)
+                if (repeatCount >= repeatFactor)
                 {
-                    repeatAccum = repeatAccum % repeatFactor;
+                    repeatCount = repeatCount % repeatFactor;
                     sourceOffset += SampleBlockSize;
                 }
 
                 // Copy data from read data to the final 0-offset data of the same read buffer.
                 Buffer.BlockCopy(ReadBuffer, sourceOffset, ReadBuffer, targetOffset, SampleBlockSize);
                 targetOffset += SampleBlockSize;
-                repeatAccum += 1d;
+                repeatCount += 1d;
             }
         }
 

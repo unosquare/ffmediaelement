@@ -5,107 +5,107 @@
     /// </summary>
     internal enum MmResult
     {
-        /// <summary>no error, MMSYSERR_NOERROR</summary>
+        /// <summary>no error</summary>
         NoError = 0,
 
-        /// <summary>unspecified error, MMSYSERR_ERROR</summary>
+        /// <summary>unspecified error</summary>
         UnspecifiedError = 1,
 
-        /// <summary>device ID out of range, MMSYSERR_BADDEVICEID</summary>
+        /// <summary>device ID out of range</summary>
         BadDeviceId = 2,
 
-        /// <summary>driver failed enable, MMSYSERR_NOTENABLED</summary>
+        /// <summary>driver failed enable</summary>
         NotEnabled = 3,
 
-        /// <summary>device already allocated, MMSYSERR_ALLOCATED</summary>
+        /// <summary>device already allocated</summary>
         AlreadyAllocated = 4,
 
-        /// <summary>device handle is invalid, MMSYSERR_INVALHANDLE</summary>
+        /// <summary>device handle is invalid</summary>
         InvalidHandle = 5,
 
-        /// <summary>no device driver present, MMSYSERR_NODRIVER</summary>
+        /// <summary>no device driver present</summary>
         NoDriver = 6,
 
-        /// <summary>memory allocation error, MMSYSERR_NOMEM</summary>
+        /// <summary>memory allocation error</summary>
         MemoryAllocationError = 7,
 
-        /// <summary>function isn't supported, MMSYSERR_NOTSUPPORTED</summary>
+        /// <summary>function isn't supported</summary>
         NotSupported = 8,
 
-        /// <summary>error value out of range, MMSYSERR_BADERRNUM</summary>
+        /// <summary>error value out of range</summary>
         BadErrorNumber = 9,
 
-        /// <summary>invalid flag passed, MMSYSERR_INVALFLAG</summary>
+        /// <summary>invalid flag passed</summary>
         InvalidFlag = 10,
 
-        /// <summary>invalid parameter passed, MMSYSERR_INVALPARAM</summary>
+        /// <summary>invalid parameter passed</summary>
         InvalidParameter = 11,
 
-        /// <summary>handle being used simultaneously on another thread (eg callback),MMSYSERR_HANDLEBUSY</summary>
+        /// <summary>handle being used simultaneously on another thread (eg callback)</summary>
         HandleBusy = 12,
 
-        /// <summary>specified alias not found, MMSYSERR_INVALIDALIAS</summary>
+        /// <summary>specified alias not found</summary>
         InvalidAlias = 13,
 
-        /// <summary>bad registry database, MMSYSERR_BADDB</summary>
+        /// <summary>bad registry database</summary>
         BadRegistryDatabase = 14,
 
-        /// <summary>registry key not found, MMSYSERR_KEYNOTFOUND</summary>
+        /// <summary>registry key not found</summary>
         RegistryKeyNotFound = 15,
 
-        /// <summary>registry read error, MMSYSERR_READERROR</summary>
+        /// <summary>registry read error</summary>
         RegistryReadError = 16,
 
-        /// <summary>registry write error, MMSYSERR_WRITEERROR</summary>
+        /// <summary>registry write error</summary>
         RegistryWriteError = 17,
 
-        /// <summary>registry delete error, MMSYSERR_DELETEERROR</summary>
+        /// <summary>registry delete error</summary>
         RegistryDeleteError = 18,
 
-        /// <summary>registry value not found, MMSYSERR_VALNOTFOUND</summary>
+        /// <summary>registry value not found</summary>
         RegistryValueNotFound = 19,
 
-        /// <summary>driver does not call DriverCallback, MMSYSERR_NODRIVERCB</summary>
+        /// <summary>driver does not call DriverCallback</summary>
         NoDriverCallback = 20,
 
-        /// <summary>more data to be returned, MMSYSERR_MOREDATA</summary>
+        /// <summary>more data to be returned</summary>
         MoreData = 21,
 
-        /// <summary>unsupported wave format, WAVERR_BADFORMAT</summary>
+        /// <summary>unsupported wave format</summary>
         WaveBadFormat = 32,
 
-        /// <summary>still something playing, WAVERR_STILLPLAYING</summary>
+        /// <summary>still something playing</summary>
         WaveStillPlaying = 33,
 
-        /// <summary>header not prepared, WAVERR_UNPREPARED</summary>
+        /// <summary>header not prepared</summary>
         WaveHeaderUnprepared = 34,
 
-        /// <summary>device is synchronous, WAVERR_SYNC</summary>
+        /// <summary>device is synchronous</summary>
         WaveSync = 35,
 
         // ACM error codes, found in msacm.h
 
-        /// <summary>Conversion not possible (ACMERR_NOTPOSSIBLE)</summary>
+        /// <summary>Conversion not possible</summary>
         AcmNotPossible = 512,
 
-        /// <summary>Busy (ACMERR_BUSY)</summary>
+        /// <summary>Busy</summary>
         AcmBusy = 513,
 
-        /// <summary>Header Unprepared (ACMERR_UNPREPARED)</summary>
+        /// <summary>Header Unprepared</summary>
         AcmHeaderUnprepared = 514,
 
-        /// <summary>Cancelled (ACMERR_CANCELED)</summary>
+        /// <summary>Cancelled</summary>
         AcmCancelled = 515,
 
         // Mixer error codes, found in mmresult.h
 
-        /// <summary>invalid line (MIXERR_INVALLINE)</summary>
+        /// <summary>invalid line</summary>
         MixerInvalidLine = 1024,
 
-        /// <summary>invalid control (MIXERR_INVALCONTROL)</summary>
+        /// <summary>invalid control</summary>
         MixerInvalidControl = 1025,
 
-        /// <summary>invalid value (MIXERR_INVALVALUE)</summary>
+        /// <summary>invalid value</summary>
         MixerInvalidValue = 1026,
     }
 }

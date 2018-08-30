@@ -5,9 +5,9 @@
     using System;
 
     /// <summary>
-    /// A base class for blocks of the deifferent MediaTypes.
+    /// A base class for blocks of the different MediaTypes.
     /// Blocks are the result of decoding and scaling a frame.
-    /// Blocks have preallocated buffers wich makes them memory and CPU efficient.
+    /// Blocks have pre-allocated buffers which makes them memory and CPU efficient.
     /// Reuse blocks as much as possible. Once you create a block from a frame,
     /// you don't need the frame anymore so make sure you dispose the frame.
     /// </summary>
@@ -232,7 +232,7 @@
         }
 
         /// <summary>
-        /// Deallocates the picture buffer and resets the related buffer properties
+        /// De-allocates the picture buffer and resets the related buffer properties
         /// </summary>
         protected virtual unsafe void Deallocate()
         {

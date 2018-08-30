@@ -3,7 +3,7 @@
     using System;
 
     /// <summary>
-    /// Connects handlers between the Media Engine event signals and a platfrom-secific implementation
+    /// Connects handlers between the Media Engine event signals and a platform-specific implementation
     /// </summary>
     public interface IMediaConnector
     {

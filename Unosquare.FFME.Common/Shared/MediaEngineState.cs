@@ -434,7 +434,7 @@
         }
 
         /// <summary>
-        /// Updates the position related properies.
+        /// Updates the position related properties.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void UpdatePosition() => UpdatePosition(MediaCore.WallClock);
@@ -496,7 +496,7 @@
         }
 
         /// <summary>
-        /// Resets the controller properies.
+        /// Resets the controller properties.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void ResetMediaProperties()
@@ -531,7 +531,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void InitializeBufferingStatistics()
         {
-            const long MinimumValidFileSize = 1024 * 1024; // 1 Mbytes
+            const long MinimumValidFileSize = 1024 * 1024; // 1 MB
 
             // Start with default values
             ResetBufferingStatistics();

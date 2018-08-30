@@ -660,7 +660,6 @@
                     var inputContextPtr = InputContext;
 
                     // Open the input file
-                    int openResult;
 
                     // Prepare the open Url
                     var prefix = string.IsNullOrWhiteSpace(Configuration.ProtocolPrefix) ?
@@ -696,7 +695,7 @@
                     var privateOptionsRef = privateOptions.Pointer;
 
                     // Open the input and pass the private options dictionary
-                    openResult = ffmpeg.avformat_open_input(&inputContextPtr, openUrl, inputFormat, &privateOptionsRef);
+                    var openResult = ffmpeg.avformat_open_input(&inputContextPtr, openUrl, inputFormat, &privateOptionsRef);
                     privateOptions.UpdateReference(privateOptionsRef);
                     InputContext = inputContextPtr;
 

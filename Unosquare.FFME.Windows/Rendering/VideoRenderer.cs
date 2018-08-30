@@ -24,7 +24,7 @@
         private const double DefaultDpi = 96.0;
 
         /// <summary>
-        /// Contains an equivalence lookup of FFmpeg pixel fromat and WPF pixel formats.
+        /// Contains an equivalence lookup of FFmpeg pixel format and WPF pixel formats.
         /// </summary>
         private static readonly Dictionary<AVPixelFormat, PixelFormat> MediaPixelFormats = new Dictionary<AVPixelFormat, PixelFormat>
         {
@@ -56,7 +56,7 @@
 
             // Check that the renderer supports the passed in Pixel format
             if (MediaPixelFormats.ContainsKey(Constants.Video.VideoPixelFormat) == false)
-                throw new NotSupportedException($"Unable to get equivalent pixel fromat from source: {Constants.Video.VideoPixelFormat}");
+                throw new NotSupportedException($"Unable to get equivalent pixel format from source: {Constants.Video.VideoPixelFormat}");
 
             // Set the DPI
             GuiContext.Current.EnqueueInvoke(() =>

@@ -25,7 +25,7 @@
         public List<string> Text { get; } = new List<string>(16);
 
         /// <summary>
-        /// Gets the original text in SRT or ASS fromat.
+        /// Gets the original text in SRT or ASS format.
         /// </summary>
         public List<string> OriginalText { get; } = new List<string>(16);
 

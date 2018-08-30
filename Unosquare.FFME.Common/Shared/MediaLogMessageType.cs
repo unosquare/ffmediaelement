@@ -6,32 +6,32 @@
     public enum MediaLogMessageType
     {
         /// <summary>
-        /// The none messge type
+        /// The none message type
         /// </summary>
         None = 0,
 
         /// <summary>
-        /// The information messge type
+        /// The information message type
         /// </summary>
         Info = 1,
 
         /// <summary>
-        /// The debug messge type
+        /// The debug message type
         /// </summary>
         Debug = 2,
 
         /// <summary>
-        /// The trace messge type
+        /// The trace message type
         /// </summary>
         Trace = 4,
 
         /// <summary>
-        /// The error messge type
+        /// The error message type
         /// </summary>
         Error = 8,
 
         /// <summary>
-        /// The warning messge type
+        /// The warning message type
         /// </summary>
         Warning = 16,
     }

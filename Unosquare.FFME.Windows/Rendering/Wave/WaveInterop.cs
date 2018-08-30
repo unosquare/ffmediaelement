@@ -191,12 +191,12 @@ namespace Unosquare.FFME.Rendering.Wave
         /// <param name="deviceId">The device identifier.</param>
         /// <param name="format">The format.</param>
         /// <param name="callback">The callback.</param>
-        /// <param name="intanceHandle">The intance handle.</param>
+        /// <param name="instanceHandle">The instance handle.</param>
         /// <param name="openFlags">The open flags.</param>
         /// <returns>The audio device handle</returns>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
         /// <exception cref="MmException">Occurs when the MME interop call fails</exception>
-        public static IntPtr OpenAudioDevice(int deviceId, WaveFormat format, WaveCallback callback, IntPtr intanceHandle, WaveInOutOpenFlags openFlags)
+        public static IntPtr OpenAudioDevice(int deviceId, WaveFormat format, WaveCallback callback, IntPtr instanceHandle, WaveInOutOpenFlags openFlags)
         {
             if (deviceId < -1) throw new ArgumentException($"Invalid Device ID {deviceId}", nameof(deviceId));
             var acquired = false;
@@ -206,7 +206,7 @@ namespace Unosquare.FFME.Rendering.Wave
             try
             {
                 MmException.Try(
-                    NativeMethods.waveOutOpen(out IntPtr hWaveOut, deviceId, format, callback, intanceHandle, openFlags),
+                    NativeMethods.waveOutOpen(out IntPtr hWaveOut, deviceId, format, callback, instanceHandle, openFlags),
                     nameof(NativeMethods.waveOutOpen));
 
                 return hWaveOut;
@@ -354,17 +354,17 @@ namespace Unosquare.FFME.Rendering.Wave
 
             try
             {
-                var time = new MmTime { Type = MmTime.TIME_BYTES };
+                var time = new MmTime { Type = MmTime.TimeBytes };
                 var structSize = Marshal.SizeOf(time);
 
                 MmException.Try(
                     NativeMethods.waveOutGetPosition(deviceHandle, out time, structSize),
                     nameof(NativeMethods.waveOutGetPosition));
 
-                if (time.Type != MmTime.TIME_BYTES)
+                if (time.Type != MmTime.TimeBytes)
                 {
                     throw new ArgumentException($"{nameof(NativeMethods.waveOutGetPosition)}: "
-                        + $"wType -> Expected {nameof(MmTime.TIME_BYTES)}, Received {time.Type}");
+                        + $"wType -> Expected {nameof(MmTime.TimeBytes)}, Received {time.Type}");
                 }
 
                 return time.CB;

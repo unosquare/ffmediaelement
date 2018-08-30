@@ -28,7 +28,7 @@
             if (Directory.Exists(AppDataDirectory) == false)
                 Directory.CreateDirectory(AppDataDirectory);
 
-            // Attached ViewModel Inistialization
+            // Attached ViewModel Initialization
             Playlist = new PlaylistViewModel(this);
             Controller = new ControllerViewModel(this);
         }

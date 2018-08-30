@@ -5,7 +5,7 @@
     using System.ComponentModel;
 
     /// <summary>
-    /// A very simple set of extensions to more easily hanlde UI state changes based on
+    /// A very simple set of extensions to more easily handle UI state changes based on
     /// notification properties
     /// </summary>
     internal static class ReactiveExtensions

@@ -8,7 +8,7 @@
     using System.Runtime.CompilerServices;
 
     /// <summary>
-    /// Represents a set of preallocated media blocks of the same media type.
+    /// Represents a set of pre-allocated media blocks of the same media type.
     /// A block buffer contains playback and pool blocks. Pool blocks are blocks that
     /// can be reused. Playback blocks are blocks that have been filled.
     /// This class is thread safe.
@@ -290,7 +290,7 @@
 
         /// <summary>
         /// Retrieves the index of the playback block corresponding to the specified
-        /// render time. This uses very fast binary and linear search commbinations.
+        /// render time. This uses very fast binary and linear search combinations.
         /// If there are no playback blocks it returns -1.
         /// If the render time is greater than the range end time, it returns the last playback block index.
         /// If the render time is less than the range start time, it returns the first playback block index.
@@ -387,11 +387,11 @@
                     // Check if we already have a block at the given time
                     if (IsInRange(source.StartTime) && source.HasValidStartTime)
                     {
-                        var reapeatedBlock = PlaybackBlocks.FirstOrDefault(f => f.StartTime.Ticks == source.StartTime.Ticks);
-                        if (reapeatedBlock != null)
+                        var repeatedBlock = PlaybackBlocks.FirstOrDefault(f => f.StartTime.Ticks == source.StartTime.Ticks);
+                        if (repeatedBlock != null)
                         {
-                            PlaybackBlocks.Remove(reapeatedBlock);
-                            PoolBlocks.Enqueue(reapeatedBlock);
+                            PlaybackBlocks.Remove(repeatedBlock);
+                            PoolBlocks.Enqueue(repeatedBlock);
                         }
                     }
 

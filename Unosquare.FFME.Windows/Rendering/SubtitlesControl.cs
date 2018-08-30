@@ -11,7 +11,7 @@ namespace Unosquare.FFME.Rendering
 
     /// <summary>
     /// A control suitable for displaying subtitles.
-    /// Layout is: UserControl:Viewbox:Grid:TextBlocks
+    /// Layout is: UserControl:ViewBox:Grid:TextBlocks
     /// </summary>
     /// <seealso cref="UserControl" />
     internal class SubtitlesControl : UserControl
@@ -27,9 +27,9 @@ namespace Unosquare.FFME.Rendering
         private const double DefaultFontSize = 56;
 
         /// <summary>
-        /// The default text foregound
+        /// The default text foreground
         /// </summary>
-        private static readonly Brush DefaultTextForegound = Brushes.WhiteSmoke;
+        private static readonly Brush DefaultTextForeground = Brushes.WhiteSmoke;
 
         /// <summary>
         /// The default text outline
@@ -61,7 +61,7 @@ namespace Unosquare.FFME.Rendering
             nameof(TextForeground),
             typeof(Brush),
             typeof(SubtitlesControl),
-            new FrameworkPropertyMetadata(DefaultTextForegound, AffectsMeasureAndRender, OnTextForegroundPropertyChanged));
+            new FrameworkPropertyMetadata(DefaultTextForeground, AffectsMeasureAndRender, OnTextForegroundPropertyChanged));
 
         /// <summary>
         /// The text foreground effect dependency property
@@ -141,7 +141,7 @@ namespace Unosquare.FFME.Rendering
                 if (blockType == Block.Foreground)
                 {
                     textBlock.Effect = GetDefaultTextForegroundEffect();
-                    textBlock.Foreground = DefaultTextForegound;
+                    textBlock.Foreground = DefaultTextForeground;
                     textBlock.Margin = new Thickness(0);
                 }
                 else
@@ -295,7 +295,7 @@ namespace Unosquare.FFME.Rendering
         /// <summary>
         /// Gets the default text foreground effect
         /// </summary>
-        /// <returns>A new instance of a foregraound effect.</returns>
+        /// <returns>A new instance of a foreground effect.</returns>
         private static Effect GetDefaultTextForegroundEffect() => new DropShadowEffect
         {
             BlurRadius = 4,

@@ -320,7 +320,7 @@
                     var channel = ClosedCaptionPacket.ComputeChannel(
                         packet.FieldParity, (packet.FieldParity == 1) ? Field1LastChannel : Field2LastChannel);
 
-                    // Demux the packet to the correspnding channel buffer so the channels are independent
+                    // Demux the packet to the corresponding channel buffer so the channels are independent
                     ChannelPacketBuffer[channel][position] = packet;
                 }
 
@@ -771,7 +771,7 @@
         }
 
         /// <summary>
-        /// Dequeues the packets from the buffer.
+        /// De-queues the packets from the buffer.
         /// </summary>
         /// <param name="buffer">The buffer.</param>
         /// <param name="upToTicks">Up to ticks.</param>

@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.Shared
 {
     /// <summary>
-    /// Enumerates the different low reolution divider indices.
+    /// Enumerates the different low resolution divider indices.
     /// </summary>
     public enum ResolutionDivider
     {

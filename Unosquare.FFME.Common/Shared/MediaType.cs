@@ -9,7 +9,7 @@
     public enum MediaType
     {
         /// <summary>
-        /// Represents an unexisting media type (-1)
+        /// Represents an un-existing media type (-1)
         /// </summary>
         None = AVMediaType.AVMEDIA_TYPE_UNKNOWN,
 

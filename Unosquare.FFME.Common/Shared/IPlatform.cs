@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.Shared
 {
     /// <summary>
-    /// Contains factory methods and properties containing platfrom-specific implementations
+    /// Contains factory methods and properties containing platform-specific implementations
     /// of the functionality that is required by an instance of the Media Engine
     /// </summary>
     public interface IPlatform

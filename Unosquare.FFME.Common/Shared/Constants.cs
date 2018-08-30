@@ -17,7 +17,8 @@
         /// </summary>
         static Constants()
         {
-            FFmpegSearchPath = Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
+            var entryAssemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            FFmpegSearchPath = Path.GetFullPath(entryAssemblyPath ?? ".");
         }
 
         /// <summary>

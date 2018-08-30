@@ -22,7 +22,7 @@
         }
 
         /// <summary>
-        /// Gets the intance of the MediaElement that generated this message.
+        /// Gets the instance of the MediaElement that generated this message.
         /// When null, it means FFmpeg generated this message.
         /// </summary>
         public MediaEngine Source { get; }

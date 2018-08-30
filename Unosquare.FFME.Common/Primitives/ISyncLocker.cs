@@ -20,7 +20,7 @@
         IDisposable AcquireWriterLock();
 
         /// <summary>
-        /// Tries to acquire a writer lock with a tiemout.
+        /// Tries to acquire a writer lock with a timeout.
         /// </summary>
         /// <param name="timeoutMilliseconds">The timeout milliseconds.</param>
         /// <param name="locker">The locker.</param>
@@ -28,7 +28,7 @@
         bool TryAcquireWriterLock(int timeoutMilliseconds, out IDisposable locker);
 
         /// <summary>
-        /// Tries to acquire a writer lock with a default tiemout.
+        /// Tries to acquire a writer lock with a default timeout.
         /// </summary>
         /// <param name="locker">The locker.</param>
         /// /// <returns>True if the lock was acquired</returns>

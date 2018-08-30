@@ -81,7 +81,7 @@
         }
 
         /// <summary>
-        /// Gets the task that awits the promise. Do not await on this but use the <see cref="Awaiter"/> property instead.
+        /// Gets the task that awaits the promise. Do not await on this but use the <see cref="Awaiter"/> property instead.
         /// </summary>
         private Task<bool> AwaiterTask { get; }
 
@@ -133,7 +133,7 @@
         }
 
         /// <summary>
-        /// Prevents the actions from being run and sets the awiter as completed.
+        /// Prevents the actions from being run and sets the awaiter as completed.
         /// </summary>
         /// <param name="waitForExit">if set to <c>true</c> it waits for the awaiter to complete synchronously.</param>
         public void Cancel(bool waitForExit)

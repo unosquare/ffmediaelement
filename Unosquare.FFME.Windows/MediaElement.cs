@@ -193,7 +193,7 @@
         /// use time from the main UI thread. This feature is only valid if we are in
         /// a WPF context.
         /// </summary>
-        public static bool EnableWpfMultithreadedVideo { get; set; }
+        public static bool EnableWpfMultiThreadedVideo { get; set; }
 
         /// <inheritdoc />
         Uri IUriContext.BaseUri { get; set; }
@@ -221,7 +221,7 @@
         /// GUI context, it runs on its own dispatcher (multi-threaded UI)
         /// </summary>
         internal ImageHost VideoView { get; } = new ImageHost(
-            GuiContext.Current.Type == GuiContextType.WPF && EnableWpfMultithreadedVideo)
+            GuiContext.Current.Type == GuiContextType.WPF && EnableWpfMultiThreadedVideo)
         { Name = nameof(VideoView) };
 
         /// <summary>
@@ -230,7 +230,7 @@
         internal ClosedCaptionsControl CaptionsView { get; } = new ClosedCaptionsControl { Name = nameof(CaptionsView) };
 
         /// <summary>
-        /// A viewbox holding the subtitle text blocks
+        /// A ViewBox holding the subtitle text blocks
         /// </summary>
         internal SubtitlesControl SubtitlesView { get; } = new SubtitlesControl { Name = nameof(SubtitlesView) };
 
@@ -244,9 +244,9 @@
         #region Public API
 
         /// <summary>
-        /// Forces the preloading of the FFmpeg libraries according to the values of the
+        /// Forces the pre-loading of the FFmpeg libraries according to the values of the
         /// <see cref="FFmpegDirectory"/> and <see cref="FFmpegLoadModeFlags"/>
-        /// Also, sets the <see cref="FFmpegVersionInfo"/> property. Thorws an exception
+        /// Also, sets the <see cref="FFmpegVersionInfo"/> property. Throws an exception
         /// if the libraries cannot be loaded.
         /// </summary>
         /// <returns>true if libraries were loaded, false if libraries were already loaded.</returns>
@@ -370,7 +370,7 @@
                 // Make sure we perform GUI operations on the GUI thread.
                 GuiContext.Current?.EnqueueInvoke(() =>
                 {
-                    // Remove ebent handlers
+                    // Remove event handlers
                     try { VideoView.LayoutUpdated -= HandleVideoViewLayoutUpdates; }
                     catch { /* Ignore if VideoView is already null by now. */ }
 
@@ -429,7 +429,7 @@
         private void InitializeComponent()
         {
             // Synchronize initial property values to the MediaElement properties.
-            // This is because the hosted element gets greated after the MEdiaElement properties
+            // This is because the hosted element gets created after the MediaElement properties
             // might have been set.
             VideoView.ElementLoaded += (vs, ve) =>
             {

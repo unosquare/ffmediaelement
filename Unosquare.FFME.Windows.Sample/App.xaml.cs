@@ -11,7 +11,7 @@
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public partial class App : Application
+    public partial class App
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="App" /> class.
@@ -28,7 +28,7 @@
 
             // Multi-threaded video enables the creation of independent
             // dispatcher threads to render video frames.
-            MediaElement.EnableWpfMultithreadedVideo = GuiContext.Current.IsInDebugMode == false;
+            MediaElement.EnableWpfMultiThreadedVideo = GuiContext.Current.IsInDebugMode == false;
         }
 
         /// <summary>

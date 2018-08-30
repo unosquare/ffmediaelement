@@ -32,7 +32,7 @@
         /// <summary>
         /// Enumerates memory copy methods
         /// </summary>
-        private enum MemoryCopyStartegy
+        private enum MemoryCopyStrategy
         {
             /// <summary>
             /// The native
@@ -61,7 +61,7 @@
         /// <summary>
         /// Gets or sets a value indicating whether Parallel Copy is enabled.
         /// </summary>
-        private MemoryCopyStartegy CopyStrategy { get; } = MemoryCopyStartegy.ParallelNative;
+        private MemoryCopyStrategy CopyStrategy { get; } = MemoryCopyStrategy.ParallelNative;
 
         /// <inheritdoc />
         public void FillMemory(IntPtr startAddress, uint length, byte value) =>
@@ -76,19 +76,19 @@
         {
             switch (CopyStrategy)
             {
-                case MemoryCopyStartegy.Native:
+                case MemoryCopyStrategy.Native:
                     {
                         NativeMethods.CopyMemory(targetAddress, sourceAddress, copyLength);
                         break;
                     }
 
-                case MemoryCopyStartegy.ParallelNative:
+                case MemoryCopyStrategy.ParallelNative:
                     {
                         CopyMemoryParallel(targetAddress, sourceAddress, copyLength);
                         break;
                     }
 
-                case MemoryCopyStartegy.Buffer:
+                case MemoryCopyStrategy.Buffer:
                 default:
                     {
                         Buffer.MemoryCopy((void*)sourceAddress, (void*)targetAddress, copyLength, copyLength);

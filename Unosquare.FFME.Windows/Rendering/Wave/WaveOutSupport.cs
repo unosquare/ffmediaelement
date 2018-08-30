@@ -8,22 +8,22 @@
     [Flags]
     internal enum WaveOutSupport
     {
-        /// <summary>supports pitch control (WAVECAPS_PITCH)</summary>
+        /// <summary>supports pitch control</summary>
         Pitch = 0x0001,
 
-        /// <summary>supports playback rate control (WAVECAPS_PLAYBACKRATE)</summary>
+        /// <summary>supports playback rate control</summary>
         PlaybackRate = 0x0002,
 
         /// <summary>supports volume control (WAVECAPS_VOLUME)</summary>
         Volume = 0x0004,
 
-        /// <summary>supports separate left-right volume control (WAVECAPS_LRVOLUME)</summary>
+        /// <summary>supports separate left-right volume control</summary>
         LRVolume = 0x0008,
 
-        /// <summary>(WAVECAPS_SYNC)</summary>
+        /// <summary>Sync</summary>
         Sync = 0x0010,
 
-        /// <summary>(WAVECAPS_SAMPLEACCURATE)</summary>
+        /// <summary>Sample-Accurate</summary>
         SampleAccurate = 0x0020,
     }
 }

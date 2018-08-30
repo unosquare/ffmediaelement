@@ -22,8 +22,8 @@
 
         /// <summary>
         /// Gets or sets a value indicating whether [enable low resource].
-        /// In theroy this should be 0,1,2,3 for 1, 1/2, 1,4 and 1/8 resolutions.
-        /// Port of lowres.
+        /// In theory this should be 0,1,2,3 for 1, 1/2, 1,4 and 1/8 resolutions.
+        /// Port of low-res.
         /// </summary>
         public ResolutionDivider LowResolutionIndex { get; set; } = ResolutionDivider.Full;
 

@@ -4,7 +4,7 @@
     using System.Runtime.CompilerServices;
 
     /// <summary>
-    /// Represets a base class for notification-enabled view-models
+    /// Represents a base class for notification-enabled view-models
     /// </summary>
     /// <seealso cref="INotifyPropertyChanged" />
     public abstract class ViewModelBase : INotifyPropertyChanged

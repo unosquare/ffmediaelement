@@ -111,12 +111,12 @@
             // Write the media engine state property state to the dependency properties
             foreach (var change in changes)
             {
-                // Do not upstream the Source porperty
+                // Do not upstream the Source property
                 // This causes unintended Open/Close commands to be run
                 if (change.Key == SourceProperty)
                     continue;
 
-                // Update the dependency porperty value
+                // Update the dependency property value
                 SetValue(change.Key, change.Value);
 
                 // Update the remaining duration

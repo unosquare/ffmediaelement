@@ -29,7 +29,7 @@
         /// Gets the thumbnail.
         /// </summary>
         /// <param name="targetPath">The target path.</param>
-        /// <param name="thumbnailFilename">The thumnail filename.</param>
+        /// <param name="thumbnailFilename">The thumbnail filename.</param>
         /// <returns>
         /// An image Source
         /// </returns>
@@ -107,7 +107,7 @@
         /// </summary>
         /// <param name="maxSize">The maximum size.</param>
         /// <param name="currentSize">Size of the current.</param>
-        /// <returns>A propertional size structure</returns>
+        /// <returns>A proportional size structure</returns>
         private static Size ComputeProportionalSize(Size maxSize, Size currentSize)
         {
             var maxScaleRatio = 0d;

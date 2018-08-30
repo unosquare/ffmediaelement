@@ -5,7 +5,7 @@
     using System.Web;
 
     /// <summary>
-    /// Heklper methods for parsing m3u8 playlists
+    /// Helper methods for parsing m3u8 playlists
     /// </summary>
     internal static class PlaylistExtensions
     {

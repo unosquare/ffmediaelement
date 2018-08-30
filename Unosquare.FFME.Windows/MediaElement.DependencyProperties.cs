@@ -306,8 +306,8 @@ namespace Unosquare.FFME
         #region StretchDirection Dependency Property
 
         /// <summary>
-        /// Gets/Sets the stretch direction of the Viewbox, which determines the restrictions on
-        /// scaling that are applied to the content inside the Viewbox.  For instance, this property
+        /// Gets/Sets the stretch direction of the ViewBox, which determines the restrictions on
+        /// scaling that are applied to the content inside the ViewBox.  For instance, this property
         /// can be used to prevent the content from being smaller than its native size or larger than
         /// its native size.
         /// </summary>

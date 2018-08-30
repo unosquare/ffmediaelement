@@ -64,7 +64,7 @@
             TaskDelay,
 
             /// <summary>
-            /// Using a wait event that completes in a background threadpool thread.
+            /// Using a wait event that completes in a background thread pool thread.
             /// </summary>
             ThreadPool
         }

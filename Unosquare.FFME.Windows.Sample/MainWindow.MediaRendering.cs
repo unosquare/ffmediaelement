@@ -32,7 +32,7 @@
             var drawVuMeterLeftValue = 0d;
             var drawVuMeterRightValue = 0d;
             double[] drawVuMeterLeftSamples = null;
-            double[] rdrawVuMeterRightSamples = null;
+            double[] drawVuMeterRightSamples = null;
 
             const float drawVuMeterLeftOffset = 36;
             const float drawVuMeterTopSpacing = 21;
@@ -114,8 +114,8 @@
                 if (drawVuMeterLeftSamples == null || drawVuMeterLeftSamples.Length != e.SamplesPerChannel)
                     drawVuMeterLeftSamples = new double[e.SamplesPerChannel];
 
-                if (rdrawVuMeterRightSamples == null || rdrawVuMeterRightSamples.Length != e.SamplesPerChannel)
-                    rdrawVuMeterRightSamples = new double[e.SamplesPerChannel];
+                if (drawVuMeterRightSamples == null || drawVuMeterRightSamples.Length != e.SamplesPerChannel)
+                    drawVuMeterRightSamples = new double[e.SamplesPerChannel];
 
                 // Iterate through the buffer
                 var isLeftSample = true;
@@ -129,7 +129,7 @@
                     if (isLeftSample)
                         drawVuMeterLeftSamples[sampleIndex] = samplePercent;
                     else
-                        rdrawVuMeterRightSamples[sampleIndex] = samplePercent;
+                        drawVuMeterRightSamples[sampleIndex] = samplePercent;
 
                     sampleIndex += !isLeftSample ? 1 : 0;
                     isLeftSample = !isLeftSample;
@@ -141,7 +141,7 @@
                     // The VU meter should show the audio RMS, we compute it and save it in a dictionary.
                     drawVuMeterClock = TimeSpan.FromTicks(e.StartTime.Ticks + (e.Duration.Ticks / 2));
                     drawVuMeterLeftValue = Math.Sqrt((1d / drawVuMeterLeftSamples.Length) * drawVuMeterLeftSamples.Sum(n => n));
-                    drawVuMeterRightValue = Math.Sqrt((1d / rdrawVuMeterRightSamples.Length) * rdrawVuMeterRightSamples.Sum(n => n));
+                    drawVuMeterRightValue = Math.Sqrt((1d / drawVuMeterRightSamples.Length) * drawVuMeterRightSamples.Sum(n => n));
                 }
             };
 
@@ -155,7 +155,7 @@
             Media.AudioDeviceStopped += async (s, e) =>
             {
                 // If we detect that the audio device has stopped, simply
-                // call the changemedia command so the default audio device gets selected
+                // call the ChangeMedia command so the default audio device gets selected
                 // and reopened. See issue #93
                 await Media.ChangeMedia();
             };

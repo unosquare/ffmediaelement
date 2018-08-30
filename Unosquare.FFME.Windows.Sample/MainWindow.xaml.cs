@@ -151,7 +151,7 @@
             Media.MediaFailed += OnMediaFailed;
             Media.MessageLogged += OnMediaMessageLogged;
 
-            // Complex examples of MEdia Rendering Events
+            // Complex examples of Media Rendering Events
             BindMediaRenderingEvents();
         }
 
@@ -170,8 +170,9 @@
             Loaded -= OnWindowLoaded;
 
             // Compute and Apply Sizing Properties
+            if (Content is UIElement contentElement &&
+                VisualTreeHelper.GetParent(contentElement) is ContentPresenter presenter)
             {
-                var presenter = VisualTreeHelper.GetParent(Content as UIElement) as ContentPresenter;
                 presenter.MinWidth = MinWidth;
                 presenter.MinHeight = MinHeight;
 
@@ -187,8 +188,8 @@
                 var screenWidth = SystemParameters.PrimaryScreenWidth;
                 var screenHeight = SystemParameters.PrimaryScreenHeight;
 
-                if (SystemParameters.VirtualScreenWidth != SystemParameters.FullPrimaryScreenWidth &&
-                    SystemParameters.VirtualScreenLeft == 0 && SystemParameters.VirtualScreenTop == 0)
+                if ((int)SystemParameters.VirtualScreenWidth != (int)SystemParameters.FullPrimaryScreenWidth &&
+                    (int)SystemParameters.VirtualScreenLeft == 0 && (int)SystemParameters.VirtualScreenTop == 0)
                 {
                     screenOffsetX = SystemParameters.PrimaryScreenWidth;
                     screenWidth = SystemParameters.VirtualScreenWidth - SystemParameters.PrimaryScreenWidth;

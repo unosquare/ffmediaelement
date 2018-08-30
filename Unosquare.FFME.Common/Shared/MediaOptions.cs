@@ -4,7 +4,7 @@
     using System.Collections.Generic;
 
     /// <summary>
-    /// Represetnts options that applied creating the individual media stream components.
+    /// Represents options that applied creating the individual media stream components.
     /// Once the container has created the media components, changing these options will have no effect.
     /// See: https://www.ffmpeg.org/ffmpeg-all.html#Main-options
     /// Partly a port of https://github.com/FFmpeg/FFmpeg/blob/master/fftools/ffmpeg_opt.c
@@ -94,7 +94,7 @@
         public StreamInfo AudioStream { get; set; }
 
         /// <summary>
-        /// Initially contains the best suitable subititle stream.
+        /// Initially contains the best suitable subtitle stream.
         /// Can be changed to a different stream reference.
         /// </summary>
         public StreamInfo SubtitleStream { get; set; }

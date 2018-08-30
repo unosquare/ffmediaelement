@@ -82,7 +82,7 @@
                 e.Configuration.PrivateOptions["reconnect_streamed"] = "1";
                 e.Configuration.PrivateOptions["reconnect_delay_max"] = "10"; // in seconds
 
-                // e.Configuration.PrivateOptions["reconnect_at_eof"] = "1"; // This prevents some HLS stresm from opening properly
+                // e.Configuration.PrivateOptions["reconnect_at_eof"] = "1"; // This prevents some HLS stream from opening properly
             }
 
             // Example of forcing tcp transport on rtsp feeds
@@ -133,7 +133,7 @@
             // see: https://github.com/unosquare/ffmediaelement/issues/212
             // e.Options.VideoForcedFps = 25;
 
-            // An example of specifcally selecting a subtitle stream
+            // An example of specifically selecting a subtitle stream
             var subtitleStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_SUBTITLE).Select(kvp => kvp.Value);
             var englishSubtitleStream = subtitleStreams.FirstOrDefault(s => s.Language != null && s.Language.ToLowerInvariant().StartsWith("en"));
             if (englishSubtitleStream != null)
@@ -141,7 +141,7 @@
                 e.Options.SubtitleStream = englishSubtitleStream;
             }
 
-            // An example of specifcally selecting an audio stream
+            // An example of specifically selecting an audio stream
             var audioStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_AUDIO).Select(kvp => kvp.Value);
             var englishAudioStream = audioStreams.FirstOrDefault(s => s.Language != null && s.Language.ToLowerInvariant().StartsWith("en"));
             if (englishAudioStream != null)
@@ -153,7 +153,7 @@
             var videoStream = e.Options.VideoStream;
             if (videoStream != null)
             {
-                // Hardwrae device priorities
+                // Hardware device priorities
                 var deviceCandidates = new AVHWDeviceType[]
                 {
                     AVHWDeviceType.AV_HWDEVICE_TYPE_CUDA,
@@ -180,8 +180,8 @@
                 // Start building a video filter
                 var videoFilter = new StringBuilder();
 
-                // The yadif filter deinterlaces the video; we check the field order if we need
-                // to deinterlace the video automatically
+                // The yadif filter de-interlaces the video; we check the field order if we need
+                // to de-interlace the video automatically
                 if (videoStream.IsInterlaced)
                     videoFilter.Append("yadif,");
 
@@ -232,7 +232,7 @@
 
             if (availableStreams.Count <= 0) return;
 
-            // Allow cyclling though a null stream (means removing the stream)
+            // Allow cycling though a null stream (means removing the stream)
             // Except for video streams.
             if (StreamCycleMediaType != MediaType.Video)
                 availableStreams.Add(null);
@@ -311,7 +311,7 @@
         /// <param name="e">The <see cref="PositionChangedRoutedEventArgs"/> instance containing the event data.</param>
         private void OnMediaPositionChanged(object sender, PositionChangedRoutedEventArgs e)
         {
-            // Hanlde position change notifications
+            // Handle position change notifications
         }
 
         #endregion

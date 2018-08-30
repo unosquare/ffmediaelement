@@ -71,7 +71,7 @@
         public Thread Thread { get; }
 
         /// <summary>
-        /// Gets a value indicating whetherthe context is in design time
+        /// Gets a value indicating whether the context is in design time
         /// </summary>
         public bool IsInDesignTime { get; }
 

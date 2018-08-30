@@ -36,7 +36,7 @@
         }
 
         /// <summary>
-        /// Gets the a signed 16 bit integer at the guven offset.
+        /// Gets the a signed 16 bit integer at the given offset.
         /// </summary>
         /// <param name="buffer">The buffer.</param>
         /// <param name="offset">The offset.</param>
@@ -104,7 +104,7 @@
         }
 
         /// <summary>
-        /// Returns a fromatted string, dividing by the specified
+        /// Returns a formatted string, dividing by the specified
         /// factor. Useful for debugging longs with byte positions or sizes.
         /// </summary>
         /// <param name="ts">The timestamp.</param>
@@ -115,7 +115,7 @@
             Math.Abs(divideBy - 1d) <= double.Epsilon ? $"{ts,10:#,##0}" : $"{ts / divideBy,10:#,##0.000}";
 
         /// <summary>
-        /// Returns a fromatted string.
+        /// Returns a formatted string.
         /// Useful for debugging longs with byte positions or sizes.
         /// </summary>
         /// <param name="ts">The timestamp.</param>
@@ -248,7 +248,7 @@
         /// Normalizes precision of the TimeSpan to the nearest whole millisecond.
         /// </summary>
         /// <param name="source">The source.</param>
-        /// <returns>The normalized, whole-milliscond timespan</returns>
+        /// <returns>The normalized, whole-millisecond timespan</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TimeSpan Normalize(this TimeSpan source)
         {

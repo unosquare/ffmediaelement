@@ -103,7 +103,7 @@
         public int WritableCount { get { lock (SyncLock) return m_Length - m_ReadableCount; } }
 
         /// <summary>
-        /// Gets percentage of used bytes (readbale/available, from 0.0 to 1.0).
+        /// Gets percentage of used bytes (readable/available, from 0.0 to 1.0).
         /// </summary>
         public double CapacityPercent { get { lock (SyncLock) return (double)m_ReadableCount / m_Length; } }
 
@@ -163,7 +163,7 @@
         /// <param name="requestedBytes">The requested bytes.</param>
         /// <param name="target">The target.</param>
         /// <param name="targetOffset">The target offset.</param>
-        /// <exception cref="InvalidOperationException">When requested bytes is greater than readble count</exception>
+        /// <exception cref="InvalidOperationException">When requested bytes is greater than readable count</exception>
         public void Read(int requestedBytes, byte[] target, int targetOffset)
         {
             lock (SyncLock)

@@ -121,7 +121,7 @@
                 ffmpeg.avcodec_parameters_to_context(codecContext, s->codecpar);
 
                 // Fields which are missing from AVCodecParameters need to be taken
-                // from the strem's AVCodecContext
+                // from the stream's AVCodecContext
                 codecContext->properties = s->codec->properties;
                 codecContext->codec = s->codec->codec;
                 codecContext->qmin = s->codec->qmin;
@@ -220,7 +220,7 @@
 
             // Find best streams for each component
             // if we passed null instead of the requestedCodec pointer, then
-            // find_best_stream would not validate whether a valid decoder is registed.
+            // find_best_stream would not validate whether a valid decoder is registered.
             AVCodec* requestedCodec = null;
 
             streamIndexes[AVMediaType.AVMEDIA_TYPE_VIDEO] =
@@ -419,7 +419,7 @@
         public bool IsLossless { get; internal set; }
 
         /// <summary>
-        /// Gets the pixel format. Only valid for Vide streams.
+        /// Gets the pixel format. Only valid for Video streams.
         /// </summary>
         public AVPixelFormat PixelFormat { get; internal set; }
 
@@ -435,7 +435,7 @@
 
         /// <summary>
         /// Gets the field order. This is useful to determine
-        /// if the video needs deinterlacing
+        /// if the video needs de-interlacing
         /// </summary>
         public AVFieldOrder FieldOrder { get; internal set; }
 
@@ -500,7 +500,7 @@
         public double FPS { get; internal set; }
 
         /// <summary>
-        /// Gets the real (base) framerate of the stream
+        /// Gets the real (base) frame rate of the stream
         /// </summary>
         public double TBR { get; internal set; }
 
@@ -510,7 +510,7 @@
         public double TBN { get; internal set; }
 
         /// <summary>
-        /// Gets the fundamental unit of time in 1/seconds used to represent timestamps in the stream ,accoring to the codec
+        /// Gets the fundamental unit of time in 1/seconds used to represent timestamps in the stream ,according to the codec
         /// </summary>
         public double TBC { get; internal set; }
 

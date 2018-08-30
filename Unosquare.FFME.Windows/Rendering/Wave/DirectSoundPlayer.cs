@@ -242,10 +242,9 @@
             Samples = new byte[SamplesTotalSize];
             Debug.Assert(SamplesTotalSize == (2 * SamplesFrameSize), "Invalid SamplesTotalSize vs SamplesFrameSize");
 
-            // -------------------------------------------------------------------------------------
             // Create double buffering notification.
+            // ReSharper disable once CommentTypo
             // Use DirectSoundNotify at Position [0, 1/2] and Stop Position (0xFFFFFFFF)
-            // -------------------------------------------------------------------------------------
             var notify = soundBufferObj as DirectSound.IDirectSoundNotify;
 
             FrameEventWaitHandle1 = new EventWaitHandle(false, EventResetMode.AutoReset);
@@ -658,6 +657,7 @@
             }
 
 #pragma warning disable SA1401 // Fields must be private
+#pragma warning disable 649 // Field is never assigned
 
             [StructLayout(LayoutKind.Sequential, Pack = 2)]
             public class BufferDescription
@@ -686,6 +686,7 @@
                 public int PlayCpuOverhead;
             }
 
+#pragma warning restore 649 // Field is never assigned
 #pragma warning restore SA1401 // Fields must be private
         }
 
