@@ -65,10 +65,8 @@
             }
         }
 
-        private string GetMappedAttributeValue([CallerMemberName] string propertyName = null)
-        {
-            return Attributes.GetEntryValue(PropertyMap[propertyName ?? throw new ArgumentNullException(nameof(propertyName))]);
-        }
+        private string GetMappedAttributeValue([CallerMemberName] string propertyName = null) =>
+            Attributes.GetEntryValue(PropertyMap[propertyName ?? throw new ArgumentNullException(nameof(propertyName))]);
 
         private void SetMappedAttributeValue(string value, [CallerMemberName] string propertyName = null)
         {

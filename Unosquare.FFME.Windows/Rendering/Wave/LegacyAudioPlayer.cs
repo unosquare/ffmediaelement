@@ -128,7 +128,7 @@
             DeviceHandle = WaveInterop.OpenAudioDevice(
                 DeviceNumber,
                 Renderer.WaveFormat,
-                DriverCallbackEvent.SafeWaitHandle.DangerousGetHandle(),
+                DriverCallbackEvent.SafeWaitHandle,
                 IntPtr.Zero,
                 WaveInterop.WaveInOutOpenFlags.CallbackEvent);
 

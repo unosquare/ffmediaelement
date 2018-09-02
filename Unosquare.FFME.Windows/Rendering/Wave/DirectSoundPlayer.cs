@@ -247,9 +247,9 @@
             // Use DirectSoundNotify at Position [0, 1/2] and Stop Position (0xFFFFFFFF)
             var notify = soundBufferObj as DirectSound.IDirectSoundNotify;
 
-            FrameEventWaitHandle1 = new EventWaitHandle(false, EventResetMode.AutoReset);
-            FrameEventWaitHandle2 = new EventWaitHandle(false, EventResetMode.AutoReset);
-            EndEventWaitHandle = new EventWaitHandle(false, EventResetMode.AutoReset);
+            FrameEventWaitHandle1 = new AutoResetEvent(false);
+            FrameEventWaitHandle2 = new AutoResetEvent(false);
+            EndEventWaitHandle = new AutoResetEvent(false);
 
             var notifies = new DirectSound.DirectSoundBufferPositionNotify[3];
             notifies[0] = new DirectSound.DirectSoundBufferPositionNotify
@@ -649,6 +649,7 @@
             public struct DirectSoundBufferPositionNotify : IEquatable<DirectSoundBufferPositionNotify>
             {
                 public uint Offset;
+
                 public IntPtr NotifyHandle;
 
                 /// <inheritdoc />
