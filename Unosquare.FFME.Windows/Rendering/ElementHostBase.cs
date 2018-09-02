@@ -294,11 +294,11 @@
         {
             Loaded -= HandleLoadedEvent;
 
-            var doneCreating = new ManualResetEvent(false);
+            var doneCreating = WaitEventFactory.Create(isCompleted: false, useSlim: true);
             var thread = new Thread(() =>
             {
                 PresentationSource = new HostedPresentationSource(Host);
-                doneCreating.Set();
+                doneCreating.Complete();
                 Element = CreateHostedElement();
                 PresentationSource.RootVisual = Element;
                 Element.SizeChanged += (snd, eva) =>
@@ -307,7 +307,12 @@
                         Dispatcher.Invoke(InvalidateMeasure);
                 };
 
+                // Running the dispatcher makes it run on its own thread
+                // and blocks until dispatcher is requested an exit.
                 Dispatcher.Run();
+
+                // After the dispatcher is done, dispose the objects
+                doneCreating.Dispose();
                 PresentationSource.Dispose();
             });
 
@@ -315,8 +320,7 @@
             thread.IsBackground = true;
             thread.Priority = ThreadPriority.Highest;
             thread.Start();
-            doneCreating.WaitOne();
-            doneCreating.Dispose();
+            doneCreating.Wait();
 
             while (Dispatcher.FromThread(thread) == null)
                 Thread.Sleep(50);
