@@ -1,9 +1,9 @@
 ﻿namespace Unosquare.FFME.Platform
 {
+    using Shared;
     using System;
     using System.Runtime.InteropServices;
     using System.Threading.Tasks;
-    using Shared;
 
     /// <summary>
     /// Windows-specific native methods
@@ -47,7 +47,7 @@
             /// <summary>
             /// The buffer
             /// </summary>
-            Buffer,
+            Buffer
         }
 
         /// <summary>
@@ -66,6 +66,14 @@
         /// <inheritdoc />
         public void FillMemory(IntPtr startAddress, uint length, byte value) =>
             NativeMethods.FillMemory(startAddress, length, value);
+
+        /// <summary>
+        /// Zeroes the memory.
+        /// </summary>
+        /// <param name="destination">The destination.</param>
+        /// <param name="length">The length.</param>
+        public void ZeroMemory(IntPtr destination, int length) =>
+            NativeMethods.ZeroMemory(destination, length);
 
         /// <inheritdoc />
         public bool SetDllDirectory(string path) =>
@@ -129,10 +137,10 @@
             }
 
             // Start the copy operation in the thread pool
-            Parallel.For(0, blockCount, (blockIndex) =>
+            Parallel.For(0, blockCount, blockIndex =>
             {
                 var offset = blockIndex * (int)blockSize;
-                var chunkSize = (blockIndex == lastBlockIndex) ? lastBlockSize : blockSize;
+                var chunkSize = blockIndex == lastBlockIndex ? lastBlockSize : blockSize;
                 NativeMethods.CopyMemory(targetAddress + offset, sourceAddress + offset, chunkSize);
             });
         }
@@ -169,6 +177,14 @@
             /// <param name="fill">The fill.</param>
             [DllImport(Kernel32, EntryPoint = "RtlFillMemory", SetLastError = false)]
             public static extern void FillMemory(IntPtr destination, uint length, byte fill);
+
+            /// <summary>
+            /// Zeroes the memory.
+            /// </summary>
+            /// <param name="dest">The dest.</param>
+            /// <param name="length">The length.</param>
+            [DllImport(Kernel32, EntryPoint = "RtlZeroMemory", SetLastError = false)]
+            public static extern void ZeroMemory(IntPtr dest, int length);
         }
     }
 }

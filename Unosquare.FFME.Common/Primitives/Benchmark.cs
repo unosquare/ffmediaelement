@@ -93,12 +93,10 @@
             {
                 if (IsDisposed == true) return;
                 IsDisposed.Value = true;
+                if (!alsoManaged) return;
 
-                if (alsoManaged)
-                {
-                    Add(Identifier, Stopwatch.Elapsed);
-                    Stopwatch.Stop();
-                }
+                Add(Identifier, Stopwatch.Elapsed);
+                Stopwatch.Stop();
             }
         }
     }

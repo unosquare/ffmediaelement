@@ -81,11 +81,11 @@
         public override bool MaterializeFrame(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings)
         {
             if (output == null) output = new AudioBlock();
-            var source = input as AudioFrame;
-            var target = output as AudioBlock;
-
-            if (source == null || target == null)
+            if (input is AudioFrame == false || output is AudioBlock == false)
                 throw new ArgumentNullException($"{nameof(input)} and {nameof(output)} are either null or not of a compatible media type '{MediaType}'");
+
+            var source = (AudioFrame)input;
+            var target = (AudioBlock)output;
 
             // Create the source and target audio specs. We might need to scale from
             // the source to the target
@@ -249,16 +249,14 @@
         /// </summary>
         private void DestroyFilterGraph()
         {
-            if (FilterGraph != null)
-            {
-                RC.Current.Remove(FilterGraph);
-                var filterGraphRef = FilterGraph;
-                ffmpeg.avfilter_graph_free(&filterGraphRef);
+            if (FilterGraph == null) return;
+            RC.Current.Remove(FilterGraph);
+            var filterGraphRef = FilterGraph;
+            ffmpeg.avfilter_graph_free(&filterGraphRef);
 
-                FilterGraph = null;
-                SinkInput = null;
-                SourceOutput = null;
-            }
+            FilterGraph = null;
+            SinkInput = null;
+            SourceOutput = null;
         }
 
         /// <summary>

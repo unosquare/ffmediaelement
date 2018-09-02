@@ -116,7 +116,7 @@
                         HorizontalAlignment = HorizontalAlignment.Center,
                         VerticalAlignment = VerticalAlignment.Center,
                         FontSize = DefaultFontSize,
-                        FontWeight = FontWeights.Medium,
+                        FontWeight = FontWeights.Medium
                     };
 
                     letterBorder.Child = letterText;
@@ -133,16 +133,16 @@
             }
 
             // Show some preview of the text
-            if (GuiContext.Current.IsInDesignTime)
-            {
-                // Line 11 (index 10) preview
-                Buffer.SetText(10, "L11: Closed Captions (preview)");
+            if (!GuiContext.Current.IsInDesignTime)
+                return;
 
-                // Line 12 (index 11) preview
-                Buffer.SetText(11, "L12: Closed Captions (preview)");
+            // Line 11 (index 10) preview
+            Buffer.SetText(10, "L11: Closed Captions (preview)");
 
-                PaintBuffer();
-            }
+            // Line 12 (index 11) preview
+            Buffer.SetText(11, "L12: Closed Captions (preview)");
+
+            PaintBuffer();
         }
 
         /// <summary>

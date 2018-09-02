@@ -91,8 +91,10 @@
         {
             lock (SyncLock)
             {
-                var subtitleBlock = mediaBlock as SubtitleBlock;
-                if (subtitleBlock == null) return;
+                if (mediaBlock is SubtitleBlock == false) return;
+
+                // Get a reference to the subtitle block
+                var subtitleBlock = (SubtitleBlock)mediaBlock;
 
                 // Raise the subtitles event and keep track of the text.
                 var cancelRender = MediaElement.RaiseRenderingSubtitlesEvent(subtitleBlock, clockPosition);

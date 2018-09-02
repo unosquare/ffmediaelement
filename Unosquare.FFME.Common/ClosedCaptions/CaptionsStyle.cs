@@ -169,6 +169,6 @@ namespace Unosquare.FFME.ClosedCaptions
         /// <summary>
         /// The white indent28 underline style
         /// </summary>
-        WhiteIndent28Underline = 0x3F,
+        WhiteIndent28Underline = 0x3F
     }
 }

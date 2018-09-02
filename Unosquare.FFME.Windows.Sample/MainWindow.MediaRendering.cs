@@ -2,6 +2,9 @@
 {
     using Shared;
     using System;
+    using System.Diagnostics;
+    using System.Drawing;
+    using System.Drawing.Drawing2D;
     using System.Linq;
 
     public partial class MainWindow
@@ -11,21 +14,21 @@
         /// </summary>
         private void BindMediaRenderingEvents()
         {
-            if (System.Diagnostics.Debugger.IsAttached == false)
+            if (Debugger.IsAttached == false)
                 return;
 
             #region Audio and Video Frame Rendering Variables
 
             // Setup GDI+ graphics
-            System.Drawing.Bitmap overlayBitmap = null;
-            System.Drawing.Graphics overlayGraphics = null;
-            var overlayTextFont = new System.Drawing.Font("Courier New", 14, System.Drawing.FontStyle.Bold);
-            var overlayTextFontBrush = System.Drawing.Brushes.WhiteSmoke;
-            var overlayTextOffset = new System.Drawing.PointF(12, 8);
+            Bitmap overlayBitmap = null;
+            Graphics overlayGraphics = null;
+            var overlayTextFont = new Font("Courier New", 14, System.Drawing.FontStyle.Bold);
+            var overlayTextFontBrush = Brushes.WhiteSmoke;
+            var overlayTextOffset = new PointF(12, 8);
             var overlayBackBuffer = IntPtr.Zero;
 
-            var drawVuMeterLeftPen = new System.Drawing.Pen(System.Drawing.Color.OrangeRed, 12);
-            var drawVuMeterRightPen = new System.Drawing.Pen(System.Drawing.Color.GreenYellow, 12);
+            var drawVuMeterLeftPen = new Pen(Color.OrangeRed, 12);
+            var drawVuMeterRightPen = new Pen(Color.GreenYellow, 12);
             var drawVuMeterClock = TimeSpan.Zero;
             var drawVuMeterRmsLock = new object();
 
@@ -62,8 +65,8 @@
                     overlayBitmap = e.Bitmap.CreateDrawingBitmap();
 
                     overlayBackBuffer = e.Bitmap.Scan0;
-                    overlayGraphics = System.Drawing.Graphics.FromImage(overlayBitmap);
-                    overlayGraphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
+                    overlayGraphics = Graphics.FromImage(overlayBitmap);
+                    overlayGraphics.InterpolationMode = InterpolationMode.Default;
                 }
 
                 #endregion

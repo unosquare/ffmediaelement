@@ -31,7 +31,7 @@
             { 0x3C, "ê" },
             { 0x3D, "î" },
             { 0x3E, "ô" },
-            { 0x3F, "û" },
+            { 0x3F, "û" }
         };
 
         private static readonly Dictionary<byte, string> Spanish = new Dictionary<byte, string>
@@ -51,7 +51,7 @@
             { 0x2C, "S" },
             { 0x2D, "·" },
             { 0x2E, "\"" },
-            { 0x2F, "\"" },
+            { 0x2F, "\"" }
         };
 
         private static readonly Dictionary<byte, string> Portuguese = new Dictionary<byte, string>
@@ -71,7 +71,7 @@
             { 0x2C, "^" },
             { 0x2D, "_" },
             { 0x2E, "|" },
-            { 0x2F, "~" },
+            { 0x2F, "~" }
         };
 
         private static readonly Dictionary<byte, string> French = new Dictionary<byte, string>
@@ -91,7 +91,7 @@
             { 0x3C, "ù" },
             { 0x3D, "Û" },
             { 0x3E, "«" },
-            { 0x3F, "»" },
+            { 0x3F, "»" }
         };
 
         private static readonly Dictionary<byte, string> German = new Dictionary<byte, string>
@@ -111,7 +111,7 @@
             { 0x3C, "+" },
             { 0x3D, "+" },
             { 0x3E, "+" },
-            { 0x3F, "+" },
+            { 0x3F, "+" }
         };
 
         private static readonly Dictionary<byte, int> Base40PreambleRows = new Dictionary<byte, int>
@@ -131,7 +131,7 @@
             { 0x13, 12 },
             { 0x1B, 12 },
             { 0x14, 14 },
-            { 0x1C, 14 },
+            { 0x1C, 14 }
         };
 
         private static readonly Dictionary<byte, int> Base60PreambleRows = new Dictionary<byte, int>
@@ -149,7 +149,7 @@
             { 0x13, 13 },
             { 0x1B, 13 },
             { 0x14, 15 },
-            { 0x1C, 15 },
+            { 0x1C, 15 }
         };
 
         private static readonly Dictionary<CaptionsStyle, int> PreambleStyleIndents = new Dictionary<CaptionsStyle, int>
@@ -169,10 +169,10 @@
             { CaptionsStyle.WhiteIndent16Underline, 16 },
             { CaptionsStyle.WhiteIndent20Underline, 20 },
             { CaptionsStyle.WhiteIndent24Underline, 24 },
-            { CaptionsStyle.WhiteIndent28Underline, 28 },
+            { CaptionsStyle.WhiteIndent28Underline, 28 }
         };
 
-        private static readonly CaptionsStyle[] UnderlineCaptionStyles = new CaptionsStyle[]
+        private static readonly CaptionsStyle[] UnderlineCaptionStyles =
         {
             CaptionsStyle.BlueUnderline,
             CaptionsStyle.CyanUnderline,
@@ -189,13 +189,13 @@
             CaptionsStyle.WhiteIndent8Underline,
             CaptionsStyle.WhiteItalicsUnderline,
             CaptionsStyle.WhiteUnderline,
-            CaptionsStyle.YellowUnderline,
+            CaptionsStyle.YellowUnderline
         };
 
-        private static readonly CaptionsStyle[] ItalicsCaptionStyles = new CaptionsStyle[]
+        private static readonly CaptionsStyle[] ItalicsCaptionStyles =
         {
             CaptionsStyle.WhiteItalics,
-            CaptionsStyle.WhiteItalicsUnderline,
+            CaptionsStyle.WhiteItalicsUnderline
         };
 
         #endregion
@@ -238,7 +238,7 @@
 
                 if (HeaderHasMarkers(header) == false
                     || IsHeaderValidFlagSet(header) == false
-                    || (FieldParity == 0)
+                    || FieldParity == 0
                     || (D0 == 0x00 && D1 == 0x00))
                 {
                     PacketType = CaptionsPacketType.NullPad;
@@ -265,7 +265,7 @@
 
                 if ((D0 == 0x10 || D0 == 0x18) && (D1 >= 0x20 && D1 <= 0x2F))
                 {
-                    FieldChannel = (D0 == 0x10) ? 1 : 2;
+                    FieldChannel = D0 == 0x10 ? 1 : 2;
                     PacketType = CaptionsPacketType.Color;
                     Color = (CaptionsColor)D1;
                     return;
@@ -273,7 +273,7 @@
 
                 if ((D0 == 0x17 || D0 == 0x1F) && (D1 >= 0x2D && D1 <= 0x2F))
                 {
-                    FieldChannel = (D0 == 0x17) ? 1 : 2;
+                    FieldChannel = D0 == 0x17 ? 1 : 2;
                     PacketType = CaptionsPacketType.Color;
                     var colorValue = D1 << 16;
                     Color = (CaptionsColor)colorValue;
@@ -287,7 +287,7 @@
 
                 if ((D0 == 0x17 || D0 == 0x1F) && (D1 >= 0x24 && D1 <= 0x2A))
                 {
-                    FieldChannel = (D0 == 0x17) ? 1 : 2;
+                    FieldChannel = D0 == 0x17 ? 1 : 2;
                     PacketType = CaptionsPacketType.PrivateCharset;
                     return;
                 }
@@ -402,7 +402,7 @@
                 {
                     if (SpecialNorthAmerican.ContainsKey(D1))
                     {
-                        FieldChannel = (D0 == 0x11) ? 1 : 2;
+                        FieldChannel = D0 == 0x11 ? 1 : 2;
                         Text = SpecialNorthAmerican[D1];
                         return;
                     }
@@ -600,8 +600,8 @@
 
             if (parity == 1)
                 return channel == 1 ? CaptionsChannel.CC1 : CaptionsChannel.CC2;
-            else
-                return channel == 1 ? CaptionsChannel.CC3 : CaptionsChannel.CC4;
+
+            return channel == 1 ? CaptionsChannel.CC3 : CaptionsChannel.CC4;
         }
 
         /// <summary>
@@ -628,8 +628,10 @@
             string output;
             var ts = $"{Timestamp.TotalSeconds:0.0000}";
             var channel = Channel == CaptionsChannel.CCP ?
-                ComputeChannel(FieldParity, FieldChannel).ToString() + "*" : Channel.ToString() + " ";
+                ComputeChannel(FieldParity, FieldChannel) + "*" : Channel + " ";
             var prefixData = $"{ts} | {channel} | P: {FieldParity} D: {FieldChannel} | {D0:x2}h {D1:x2}h |";
+
+            // ReSharper disable once SwitchStatementMissingSomeCases
             switch (PacketType)
             {
                 case CaptionsPacketType.PrivateCharset:

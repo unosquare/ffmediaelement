@@ -7,10 +7,10 @@
     using Shared;
     using System;
     using System.Diagnostics;
+    using System.IO;
     using System.Linq;
     using System.Text;
     using System.Windows;
-    using System.Windows.Controls;
 
     public partial class MainWindow
     {
@@ -122,8 +122,8 @@
                 var url = new Uri(inputUrl);
                 if (url.IsFile || url.IsUnc)
                 {
-                    inputUrl = System.IO.Path.ChangeExtension(url.LocalPath, "srt");
-                    if (System.IO.File.Exists(inputUrl))
+                    inputUrl = Path.ChangeExtension(url.LocalPath, "srt");
+                    if (File.Exists(inputUrl))
                         e.Options.SubtitlesUrl = inputUrl;
                 }
             }
@@ -150,8 +150,8 @@
             }
 
             // Setting Advanced Video Stream Options is also possible
-            var videoStream = e.Options.VideoStream;
-            if (videoStream != null)
+            // ReSharper disable once InvertIf
+            if (e.Options.VideoStream is StreamInfo videoStream)
             {
                 // Hardware device priorities
                 var deviceCandidates = new[]
@@ -167,13 +167,11 @@
                     foreach (var deviceType in deviceCandidates)
                     {
                         var accelerator = videoStream.HardwareDevices.FirstOrDefault(d => d.DeviceType == deviceType);
-                        if (accelerator != null)
-                        {
-                            if (GuiContext.Current.IsInDebugMode)
-                                e.Options.VideoHardwareDevice = accelerator;
+                        if (accelerator == null) continue;
+                        if (GuiContext.Current.IsInDebugMode)
+                            e.Options.VideoHardwareDevice = accelerator;
 
-                            break;
-                        }
+                        break;
                     }
                 }
 
@@ -293,7 +291,7 @@
 
         /// <summary>
         /// Called when the current audio device changes.
-        /// Call <see cref="FFME.MediaElement.ChangeMedia"/> so the new default audio device gets selected.
+        /// Call <see cref="MediaElement.ChangeMedia"/> so the new default audio device gets selected.
         /// </summary>
         /// <param name="sender">The sender.</param>
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>

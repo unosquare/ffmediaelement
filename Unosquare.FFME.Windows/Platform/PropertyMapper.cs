@@ -24,14 +24,14 @@
         static PropertyMapper()
         {
             MediaEngineStateProperties = new ReadOnlyDictionary<string, PropertyInfo>(
-                RetrieveProperties(typeof(IMediaEngineState), false).ToDictionary((p) => p.Name, (p) => p));
+                RetrieveProperties(typeof(IMediaEngineState), false).ToDictionary(p => p.Name, p => p));
 
             var enginePropertyNames = MediaEngineStateProperties.Keys.ToArray();
 
             MediaElementDependencyProperties = new ReadOnlyDictionary<string, DependencyProperty>(
                 RetrieveDependencyProperties(typeof(MediaElement))
                     .Where(p => enginePropertyNames.Contains(p.Name))
-                    .ToDictionary((p) => p.Name, (p) => p));
+                    .ToDictionary(p => p.Name, p => p));
 
             var dependencyPropertyNames = MediaElementDependencyProperties.Keys.ToArray();
 
@@ -40,7 +40,7 @@
                     .Where(p => enginePropertyNames.Contains(p.Name)
                         && dependencyPropertyNames.Contains(p.Name) == false
                         && p.CanRead && p.CanWrite == false)
-                    .ToDictionary((p) => p.Name, (p) => p));
+                    .ToDictionary(p => p.Name, p => p));
 
             var allMediaElementPropertyNames = dependencyPropertyNames.Union(MediaElementNotificationProperties.Keys.ToArray()).ToArray();
             var missingMediaElementPropertyNames = MediaEngineStateProperties.Keys
@@ -86,11 +86,11 @@
 
             foreach (var kvp in currentState)
             {
-                if (initLastSnapshot || Equals(lastSnapshot[kvp.Key], kvp.Value) == false)
-                {
-                    result.Add(kvp.Key);
-                    lastSnapshot[kvp.Key] = kvp.Value;
-                }
+                if (!initLastSnapshot && Equals(lastSnapshot[kvp.Key], kvp.Value))
+                    continue;
+
+                result.Add(kvp.Key);
+                lastSnapshot[kvp.Key] = kvp.Value;
             }
 
             return result.ToArray();

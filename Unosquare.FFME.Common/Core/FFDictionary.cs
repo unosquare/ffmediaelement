@@ -57,14 +57,7 @@
         /// <value>
         /// The count.
         /// </value>
-        public int Count
-        {
-            get
-            {
-                if (m_Pointer == IntPtr.Zero) return 0;
-                return ffmpeg.av_dict_count(Pointer);
-            }
-        }
+        public int Count => m_Pointer == IntPtr.Zero ? 0 : ffmpeg.av_dict_count(Pointer);
 
         /// <summary>
         /// Gets or sets the value with the specified key.
@@ -116,8 +109,7 @@
                 return null;
 
             var entryPointer = ffmpeg.av_dict_get(dictionary, key, null, matchCase ? ffmpeg.AV_DICT_MATCH_CASE : 0);
-            if (entryPointer == null) return null;
-            return new FFDictionaryEntry(entryPointer);
+            return entryPointer == null ? null : new FFDictionaryEntry(entryPointer);
         }
 
         /// <summary>

@@ -9,14 +9,6 @@
     /// <seealso cref="INotifyPropertyChanged" />
     public abstract class ViewModelBase : INotifyPropertyChanged
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ViewModelBase"/> class.
-        /// </summary>
-        protected ViewModelBase()
-        {
-            // placeholder
-        }
-
         /// <inheritdoc />
         public event PropertyChangedEventHandler PropertyChanged;
 

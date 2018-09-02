@@ -39,12 +39,14 @@ namespace Unosquare.FFME
 
         private static object OnVolumePropertyChanging(DependencyObject d, object value)
         {
-            var element = d as MediaElement;
-            if (element?.MediaCore == null || element.MediaCore.IsDisposed) return Constants.Controller.DefaultVolume;
-            if (element.PropertyUpdatesWorker.IsExecutingCycle) return value;
-            if (element.HasAudio == false) return Constants.Controller.DefaultVolume;
+            if (d is MediaElement == false) return Constants.Controller.DefaultVolume;
 
-            return ((double)value).Clamp(Constants.Controller.MinVolume, Constants.Controller.MaxVolume);
+            var element = (MediaElement)d;
+            if (element.MediaCore == null || element.MediaCore.IsDisposed) return Constants.Controller.DefaultVolume;
+            if (element.PropertyUpdatesWorker.IsExecutingCycle) return value;
+            return element.HasAudio == false ?
+                Constants.Controller.DefaultVolume :
+                ((double)value).Clamp(Constants.Controller.MinVolume, Constants.Controller.MaxVolume);
         }
 
         private static void OnVolumePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -80,12 +82,15 @@ namespace Unosquare.FFME
 
         private static object OnBalancePropertyChanging(DependencyObject d, object value)
         {
-            var element = d as MediaElement;
-            if (element?.MediaCore == null || element.MediaCore.IsDisposed) return Constants.Controller.DefaultBalance;
-            if (element.PropertyUpdatesWorker.IsExecutingCycle) return value;
-            if (element.HasAudio == false) return Constants.Controller.DefaultBalance;
+            if (d is MediaElement == false) return Constants.Controller.DefaultBalance;
 
-            return ((double)value).Clamp(Constants.Controller.MinBalance, Constants.Controller.MaxBalance);
+            var element = (MediaElement)d;
+            if (element.MediaCore == null || element.MediaCore.IsDisposed) return Constants.Controller.DefaultBalance;
+            if (element.PropertyUpdatesWorker.IsExecutingCycle) return value;
+
+            return element.HasAudio == false ?
+                Constants.Controller.DefaultBalance :
+                ((double)value).Clamp(Constants.Controller.MinBalance, Constants.Controller.MaxBalance);
         }
 
         private static void OnBalancePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -121,8 +126,10 @@ namespace Unosquare.FFME
 
         private static object OnIsMutedPropertyChanging(DependencyObject d, object value)
         {
-            var element = d as MediaElement;
-            if (element?.MediaCore == null || element.MediaCore.IsDisposed) return false;
+            if (d is MediaElement == false) return false;
+
+            var element = (MediaElement)d;
+            if (element.MediaCore == null || element.MediaCore.IsDisposed) return false;
             if (element.PropertyUpdatesWorker.IsExecutingCycle) return value;
             if (element.HasAudio == false) return false;
 
@@ -162,12 +169,15 @@ namespace Unosquare.FFME
 
         private static object OnSpeedRatioPropertyChanging(DependencyObject d, object value)
         {
-            var element = d as MediaElement;
-            if (element?.MediaCore == null || element.MediaCore.IsDisposed) return Constants.Controller.DefaultSpeedRatio;
-            if (element.PropertyUpdatesWorker.IsExecutingCycle) return value;
-            if (element.IsSeekable == false) return Constants.Controller.DefaultSpeedRatio;
+            if (d is MediaElement == false) return Constants.Controller.DefaultSpeedRatio;
 
-            return ((double)value).Clamp(Constants.Controller.MinSpeedRatio, Constants.Controller.MaxSpeedRatio);
+            var element = (MediaElement)d;
+            if (element.MediaCore == null || element.MediaCore.IsDisposed) return Constants.Controller.DefaultSpeedRatio;
+            if (element.PropertyUpdatesWorker.IsExecutingCycle) return value;
+
+            return element.IsSeekable == false ?
+                Constants.Controller.DefaultSpeedRatio :
+                ((double)value).Clamp(Constants.Controller.MinSpeedRatio, Constants.Controller.MaxSpeedRatio);
         }
 
         private static void OnSpeedRatioPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -203,11 +213,14 @@ namespace Unosquare.FFME
 
         private static object OnPositionPropertyChanging(DependencyObject d, object value)
         {
-            if (d == null || (d is MediaElement) == false) return value;
+            if (d == null || d is MediaElement == false) return value;
 
             var element = (MediaElement)d;
-            if (element.MediaCore == null || element.MediaCore.IsDisposed || element.MediaCore.MediaInfo == null) return TimeSpan.Zero;
-            if (element.MediaCore.State.IsSeekable == false) return element.MediaCore.State.Position;
+            if (element.MediaCore == null || element.MediaCore.IsDisposed || element.MediaCore.MediaInfo == null)
+                return TimeSpan.Zero;
+
+            if (element.MediaCore.State.IsSeekable == false)
+                return element.MediaCore.State.Position;
 
             var valueComingFromEngine = element.PropertyUpdatesWorker.IsExecutingCycle;
 
@@ -216,7 +229,7 @@ namespace Unosquare.FFME
 
             // Clamp from 0 to duration
             var targetSeek = (TimeSpan)value;
-            if ((element.MediaCore?.MediaInfo?.Duration ?? TimeSpan.Zero) != TimeSpan.Zero)
+            if (element.MediaCore.MediaInfo.Duration != TimeSpan.Zero)
                 targetSeek = ((TimeSpan)value).Clamp(TimeSpan.Zero, element.MediaCore.MediaInfo.Duration);
 
             if (valueComingFromEngine)
@@ -265,7 +278,7 @@ namespace Unosquare.FFME
 
         private static async void OnSourcePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d == null || d is MediaElement m == false) return;
+            if (d == null || d is MediaElement == false) return;
 
             var element = (MediaElement)d;
             if (element.MediaCore == null || element.MediaCore.IsDisposed) return;
@@ -308,10 +321,8 @@ namespace Unosquare.FFME
 
         private static void OnStretchPropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
         {
-            var element = dependencyObject as MediaElement;
-            if (element == null) return;
-
-            element.VideoView.Stretch = (Stretch)e.NewValue;
+            if (dependencyObject is MediaElement element)
+                element.VideoView.Stretch = (Stretch)e.NewValue;
         }
 
         #endregion
@@ -339,10 +350,8 @@ namespace Unosquare.FFME
 
         private static void OnStretchDirectionPropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
         {
-            var element = dependencyObject as MediaElement;
-            if (element == null) return;
-
-            element.VideoView.StretchDirection = (StretchDirection)e.NewValue;
+            if (dependencyObject is MediaElement element)
+                element.VideoView.StretchDirection = (StretchDirection)e.NewValue;
         }
 
         #endregion

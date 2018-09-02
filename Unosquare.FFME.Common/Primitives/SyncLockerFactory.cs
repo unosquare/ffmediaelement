@@ -19,7 +19,7 @@
         private enum LockHolderType
         {
             Read,
-            Write,
+            Write
         }
 
         /// <summary>
@@ -150,10 +150,10 @@
                 TryAcquireReaderLock(DefaultTimeout, out locker);
 
             /// <inheritdoc />
-            public void ReleaseWriterLock() => Locker?.ReleaseWriterLock();
+            public void ReleaseWriterLock() => Locker.ReleaseWriterLock();
 
             /// <inheritdoc />
-            public void ReleaseReaderLock() => Locker?.ReleaseReaderLock();
+            public void ReleaseReaderLock() => Locker.ReleaseReaderLock();
 
             /// <inheritdoc />
             public void Dispose()
@@ -178,16 +178,16 @@
                 {
                     Locker.AcquireReaderLock(timeoutMilliseconds);
                     releaser = new SyncLockReleaser(this, LockHolderType.Read);
-                    return Locker?.IsReaderLockHeld ?? false;
+                    return Locker.IsReaderLockHeld;
                 }
 
                 Locker.AcquireWriterLock(timeoutMilliseconds);
-                if (Locker?.IsWriterLockHeld ?? false)
+                if (Locker.IsWriterLockHeld)
                 {
                     releaser = new SyncLockReleaser(this, LockHolderType.Write);
                 }
 
-                return Locker?.IsWriterLockHeld ?? false;
+                return Locker.IsWriterLockHeld;
             }
 
             /// <summary>
@@ -216,8 +216,7 @@
         private sealed class SyncLockerSlim : ISyncLocker, ISyncReleasable
         {
             private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
-            private readonly ReaderWriterLockSlim Locker
-                = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+            private readonly ReaderWriterLockSlim Locker = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
             /// <inheritdoc />
             public bool IsDisposed => m_IsDisposed.Value;
@@ -253,10 +252,10 @@
                 TryAcquireReaderLock(DefaultTimeout, out locker);
 
             /// <inheritdoc />
-            public void ReleaseWriterLock() => Locker?.ExitWriteLock();
+            public void ReleaseWriterLock() => Locker.ExitWriteLock();
 
             /// <inheritdoc />
-            public void ReleaseReaderLock() => Locker?.ExitReadLock();
+            public void ReleaseReaderLock() => Locker.ExitReadLock();
 
             /// <inheritdoc />
             public void Dispose()
@@ -279,16 +278,16 @@
                 releaser = SyncLockReleaser.Empty;
                 bool result;
 
-                if (Locker?.IsReadLockHeld ?? false)
+                if (Locker.IsReadLockHeld)
                 {
-                    result = Locker?.TryEnterReadLock(timeoutMilliseconds) ?? false;
+                    result = Locker.TryEnterReadLock(timeoutMilliseconds);
                     if (result)
                         releaser = new SyncLockReleaser(this, LockHolderType.Read);
 
                     return result;
                 }
 
-                result = Locker?.TryEnterWriteLock(timeoutMilliseconds) ?? false;
+                result = Locker.TryEnterWriteLock(timeoutMilliseconds);
                 if (result)
                     releaser = new SyncLockReleaser(this, LockHolderType.Write);
 
@@ -306,7 +305,7 @@
                 if (m_IsDisposed == true) throw new ObjectDisposedException(nameof(ISyncLocker));
 
                 releaser = SyncLockReleaser.Empty;
-                var result = Locker?.TryEnterReadLock(timeoutMilliseconds) ?? false;
+                var result = Locker.TryEnterReadLock(timeoutMilliseconds);
                 if (result)
                     releaser = new SyncLockReleaser(this, LockHolderType.Read);
 

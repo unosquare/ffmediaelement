@@ -50,7 +50,7 @@ namespace Unosquare.FFME.Rendering.Wave
             /// CALLBACK_THREAD
             /// callback is a thread ID
             /// </summary>
-            CallbackThread = 0x20000,
+            CallbackThread = 0x20000
 
             /*
             WAVE_FORMAT_QUERY = 1,
@@ -202,7 +202,7 @@ namespace Unosquare.FFME.Rendering.Wave
             try
             {
                 MmException.Try(
-                    NativeMethods.waveOutOpen(out IntPtr hWaveOut, deviceId, format, callback, instanceHandle, openFlags),
+                    NativeMethods.waveOutOpen(out var hWaveOut, deviceId, format, callback, instanceHandle, openFlags),
                     nameof(NativeMethods.waveOutOpen));
 
                 return hWaveOut;
@@ -231,7 +231,7 @@ namespace Unosquare.FFME.Rendering.Wave
             try
             {
                 MmException.Try(
-                    NativeMethods.waveOutOpenWindow(out IntPtr hWaveOut, deviceId, format, callbackWindowHandle, instanceHandle, openFlags),
+                    NativeMethods.waveOutOpenWindow(out var hWaveOut, deviceId, format, callbackWindowHandle, instanceHandle, openFlags),
                     nameof(NativeMethods.waveOutOpenWindow));
 
                 return hWaveOut;
@@ -380,7 +380,7 @@ namespace Unosquare.FFME.Rendering.Wave
             {
                 MmException.Try(
                     NativeMethods.waveOutGetDevCaps((IntPtr)deviceId,
-                        out LegacyAudioDeviceInfo waveOutCaps,
+                        out var waveOutCaps,
                         Marshal.SizeOf(typeof(LegacyAudioDeviceInfo))),
                     nameof(NativeMethods.waveOutGetDevCaps));
 

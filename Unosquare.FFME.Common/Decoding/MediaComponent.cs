@@ -457,17 +457,15 @@
         /// </summary>
         protected void CloseComponent()
         {
-            if (m_CodecContext != IntPtr.Zero)
-            {
-                RC.Current.Remove(m_CodecContext);
-                var codecContext = CodecContext;
-                ffmpeg.avcodec_free_context(&codecContext);
-                m_CodecContext = IntPtr.Zero;
+            if (m_CodecContext == IntPtr.Zero) return;
+            RC.Current.Remove(m_CodecContext);
+            var codecContext = CodecContext;
+            ffmpeg.avcodec_free_context(&codecContext);
+            m_CodecContext = IntPtr.Zero;
 
-                // free all the pending and sent packets
-                ClearQueuedPackets(true);
-                Packets.Dispose();
-            }
+            // free all the pending and sent packets
+            ClearQueuedPackets(true);
+            Packets.Dispose();
         }
 
         /// <summary>

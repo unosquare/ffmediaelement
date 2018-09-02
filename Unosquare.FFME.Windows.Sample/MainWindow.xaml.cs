@@ -16,11 +16,11 @@
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
         #region Fields
 
-        private static readonly Key[] TogglePlayPauseKeys = new[] { Key.Play, Key.MediaPlayPause, Key.Space };
+        private static readonly Key[] TogglePlayPauseKeys = { Key.Play, Key.MediaPlayPause, Key.Space };
         private DateTime LastMouseMoveTime;
         private Point LastMousePosition;
         private DispatcherTimer MouseMoveTimer;
@@ -107,6 +107,7 @@
                     if (!(Math.Abs(ControllerPanel.Opacity) > double.Epsilon)) return;
                     Cursor = Cursors.None;
 
+                    // ReSharper disable once InvertIf
                     if (FindResource("HideControlOpacity") is Storyboard sb)
                     {
                         Storyboard.SetTarget(sb, ControllerPanel);
@@ -118,6 +119,7 @@
                     if (!(Math.Abs(ControllerPanel.Opacity - 1d) > double.Epsilon)) return;
                     Cursor = Cursors.Arrow;
 
+                    // ReSharper disable once InvertIf
                     if (FindResource("ShowControlOpacity") is Storyboard sb)
                     {
                         Storyboard.SetTarget(sb, ControllerPanel);

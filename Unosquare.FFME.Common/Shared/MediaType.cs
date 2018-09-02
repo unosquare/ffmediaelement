@@ -26,6 +26,6 @@
         /// <summary>
         /// The subtitle media type (3)
         /// </summary>
-        Subtitle = AVMediaType.AVMEDIA_TYPE_SUBTITLE,
+        Subtitle = AVMediaType.AVMEDIA_TYPE_SUBTITLE
     }
 }

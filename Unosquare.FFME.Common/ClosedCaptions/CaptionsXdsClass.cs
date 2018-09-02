@@ -84,6 +84,6 @@ namespace Unosquare.FFME.ClosedCaptions
         /// <summary>
         /// The end all XDS Class
         /// </summary>
-        EndAll = 0x0F,
+        EndAll = 0x0F
     }
 }

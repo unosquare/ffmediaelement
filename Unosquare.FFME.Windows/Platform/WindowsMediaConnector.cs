@@ -37,35 +37,25 @@
         /// <inheritdoc />
         public void OnMediaEnded(MediaEngine sender)
         {
-            if (Parent == null) return;
+            if (Parent == null || sender == null) return;
 
-            GuiContext.Current.EnqueueInvoke(() =>
+            GuiContext.Current.EnqueueInvoke(async () =>
             {
-                Parent?.PostMediaEndedEvent();
-                switch (Parent?.UnloadedBehavior ?? System.Windows.Controls.MediaState.Manual)
+                Parent.PostMediaEndedEvent();
+
+                // ReSharper disable once ConvertIfStatementToSwitchStatement
+                if (Parent.UnloadedBehavior == System.Windows.Controls.MediaState.Close)
                 {
-                    case System.Windows.Controls.MediaState.Close:
-                        {
-                            sender?.Close();
-                            break;
-                        }
-
-                    case System.Windows.Controls.MediaState.Play:
-                        {
-                            sender?.Stop().ContinueWith((t) => sender?.Play());
-                            break;
-                        }
-
-                    case System.Windows.Controls.MediaState.Stop:
-                        {
-                            sender?.Stop();
-                            break;
-                        }
-
-                    default:
-                        {
-                            break;
-                        }
+                    await sender.Close();
+                }
+                else if (Parent.UnloadedBehavior == System.Windows.Controls.MediaState.Play)
+                {
+                    await sender.Stop();
+                    await sender.Play();
+                }
+                else if (Parent.UnloadedBehavior == System.Windows.Controls.MediaState.Stop)
+                {
+                    await sender.Stop();
                 }
             });
         }
@@ -77,36 +67,22 @@
         /// <inheritdoc />
         public void OnMediaOpened(MediaEngine sender, MediaInfo mediaInfo)
         {
-            if (Parent == null) return;
+            if (Parent == null || sender == null) return;
 
-            GuiContext.Current.EnqueueInvoke(() =>
+            GuiContext.Current.EnqueueInvoke(async () =>
             {
-                Parent?.PostMediaOpenedEvent(mediaInfo);
-                if ((sender?.State.CanPause ?? true) == false)
+                Parent.PostMediaOpenedEvent(mediaInfo);
+                if (sender.State.CanPause == false)
                 {
-                    sender?.Play();
+                    await sender.Play();
                     return;
                 }
 
-                switch (Parent?.LoadedBehavior ?? System.Windows.Controls.MediaState.Manual)
-                {
-                    case System.Windows.Controls.MediaState.Play:
-                        {
-                            sender?.Play();
-                            break;
-                        }
-
-                    case System.Windows.Controls.MediaState.Pause:
-                        {
-                            sender?.Pause();
-                            break;
-                        }
-
-                    default:
-                        {
-                            break;
-                        }
-                }
+                // ReSharper disable once ConvertIfStatementToSwitchStatement
+                if (Parent.LoadedBehavior == System.Windows.Controls.MediaState.Play)
+                    await sender.Play();
+                else if (Parent.LoadedBehavior == System.Windows.Controls.MediaState.Pause)
+                    await sender.Pause();
             });
         }
 

@@ -106,11 +106,9 @@
                     }
 
                     // Remove the block buffer for the component
-                    if (m.Blocks.ContainsKey(t))
-                    {
-                        m.Blocks[t]?.Dispose();
-                        m.Blocks.Remove(t);
-                    }
+                    if (!m.Blocks.ContainsKey(t)) continue;
+                    m.Blocks[t]?.Dispose();
+                    m.Blocks.Remove(t);
                 }
 
                 // Create the block buffers and renderers as necessary

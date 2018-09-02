@@ -12,7 +12,7 @@
     /// <seealso cref="MediaComponent" />
     internal sealed unsafe class SubtitleComponent : MediaComponent
     {
-        private static readonly char[] SeparatorChars = new[] { ',' };
+        private static readonly char[] SeparatorChars = { ',' };
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SubtitleComponent"/> class.
@@ -35,11 +35,11 @@
         public override bool MaterializeFrame(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings)
         {
             if (output == null) output = new SubtitleBlock();
-            var source = input as SubtitleFrame;
-            var target = output as SubtitleBlock;
-
-            if (source == null || target == null)
+            if (input is SubtitleFrame == false || output is SubtitleBlock == false)
                 throw new ArgumentNullException($"{nameof(input)} and {nameof(output)} are either null or not of a compatible media type '{MediaType}'");
+
+            var source = (SubtitleFrame)input;
+            var target = (SubtitleBlock)output;
 
             // Set the target data
             target.EndTime = source.EndTime;

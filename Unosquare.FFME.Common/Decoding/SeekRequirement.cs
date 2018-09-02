@@ -25,6 +25,6 @@
         /// This is NOT recommended as it forces large amounts of
         /// frames to get decoded in subtitle files.
         /// </summary>
-        AllComponents,
+        AllComponents
     }
 }

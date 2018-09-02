@@ -183,7 +183,7 @@
                     FPS = s->avg_frame_rate.ToDouble(),
                     TBR = s->r_frame_rate.ToDouble(),
                     TBN = 1d / s->time_base.ToDouble(),
-                    TBC = 1d / s->codec->time_base.ToDouble(),
+                    TBC = 1d / s->codec->time_base.ToDouble()
                 };
 
                 // Extract valid hardware configurations
@@ -309,7 +309,7 @@
                 {
                     Metadata = new ReadOnlyDictionary<string, string>(FFDictionary.ToDictionary(p->metadata)),
                     ProgramId = p->id,
-                    ProgramNumber = p->program_num,
+                    ProgramNumber = p->program_num
                 };
 
                 var associatedStreams = new List<StreamInfo>(32);
@@ -553,14 +553,8 @@
         /// <summary>
         /// Gets the language string from the stream's metadata.
         /// </summary>
-        public string Language
-        {
-            get
-            {
-                if (Metadata.ContainsKey("language")) return Metadata["language"];
-                return string.Empty;
-            }
-        }
+        public string Language => Metadata.ContainsKey("language") ?
+            Metadata["language"] : string.Empty;
     }
 
     /// <summary>
@@ -622,13 +616,7 @@
         /// <summary>
         /// Gets the name of the program. Empty if unavailable.
         /// </summary>
-        public string Name
-        {
-            get
-            {
-                if (Metadata.ContainsKey("name")) return Metadata["name"];
-                return string.Empty;
-            }
-        }
+        public string Name => Metadata.ContainsKey("name") ?
+            Metadata["name"] : string.Empty;
     }
 }

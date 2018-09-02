@@ -1,4 +1,5 @@
-﻿namespace Unosquare.FFME
+﻿#pragma warning disable 67 // Event is never invoked
+namespace Unosquare.FFME
 {
     using Events;
     using Platform;
@@ -15,6 +16,7 @@
     using System.Windows.Markup;
     using System.Windows.Media;
     using System.Windows.Media.Imaging;
+    using System.Windows.Threading;
 
     /// <summary>
     /// Represents a control that contains audio and/or video.
@@ -213,7 +215,7 @@
         /// Provides access to the underlying media engine driving this control.
         /// This property is intended for advance usages only.
         /// </summary>
-        internal MediaEngine MediaCore { get; private set; } = null;
+        internal MediaEngine MediaCore { get; private set; }
 
         /// <summary>
         /// This is the image that holds video bitmaps. It is a Hosted Image which means that in a WPF
@@ -380,7 +382,7 @@
 
                     // Force Refresh
                     ContentGrid?.Dispatcher?.InvokeAsync(() => { },
-                        System.Windows.Threading.DispatcherPriority.Render);
+                        DispatcherPriority.Render);
                 });
             }
         }
@@ -401,7 +403,7 @@
                 Source = source,
                 Path = new PropertyPath(sourcePath),
                 Mode = mode,
-                UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged,
+                UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
             };
 
             BindingOperations.SetBinding(target, targetProperty, binding);
@@ -556,3 +558,4 @@
         #endregion
     }
 }
+#pragma warning restore 67 // Event is never invoked

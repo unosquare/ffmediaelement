@@ -67,7 +67,7 @@
         /// Gets a safe timestamp the the block can be displayed.
         /// Returns StartTime if the duration is Zero or negative.
         /// </summary>
-        public TimeSpan SnapTime => (Duration.Ticks <= 0) ?
+        public TimeSpan SnapTime => Duration.Ticks <= 0 ?
             StartTime : TimeSpan.FromTicks(StartTime.Ticks + TimeSpan.TicksPerMillisecond);
 
         /// <summary>
@@ -124,10 +124,7 @@
         {
             locker = null;
             lock (SyncLock)
-            {
-                if (IsDisposed) return false;
-                return Locker.TryAcquireReaderLock(out locker);
-            }
+                return !IsDisposed && Locker.TryAcquireReaderLock(out locker);
         }
 
         /// <summary>
@@ -140,10 +137,7 @@
         {
             locker = null;
             lock (SyncLock)
-            {
-                if (IsDisposed) return false;
-                return Locker.TryAcquireWriterLock(out locker);
-            }
+                return !IsDisposed && Locker.TryAcquireWriterLock(out locker);
         }
 
         /// <summary>
@@ -196,18 +190,16 @@
                 if (m_BufferLength == bufferLength)
                     return true;
 
-                if (Locker.TryAcquireWriterLock(out var writeLock))
+                if (!Locker.TryAcquireWriterLock(out var writeLock))
+                    return false;
+
+                using (writeLock)
                 {
-                    using (writeLock)
-                    {
-                        m_Buffer = (IntPtr)ffmpeg.av_malloc((ulong)bufferLength);
-                        m_BufferLength = bufferLength;
-                        return true;
-                    }
+                    m_Buffer = (IntPtr)ffmpeg.av_malloc((ulong)bufferLength);
+                    m_BufferLength = bufferLength;
+                    return true;
                 }
             }
-
-            return false;
         }
 
         /// <summary>

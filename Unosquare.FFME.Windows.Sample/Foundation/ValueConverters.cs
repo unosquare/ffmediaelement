@@ -2,6 +2,7 @@
 namespace Unosquare.FFME.Windows.Sample.Foundation
 {
     using ClosedCaptions;
+    using Platform;
     using System;
     using System.Globalization;
     using System.Windows;
@@ -33,9 +34,8 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
 
             // Do the conversion from visibility to bool
             if (targetType == typeof(TimeSpan)) return result;
-            if (targetType == typeof(Duration)) return new Duration(result);
-
-            return Activator.CreateInstance(targetType);
+            return targetType == typeof(Duration) ?
+                new Duration(result) : Activator.CreateInstance(targetType);
         }
     }
 
@@ -94,6 +94,7 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
                 output = Math.Round(byteCount / minMegaByte, 2);
             }
 
+            // ReSharper disable once InvertIf
             if (byteCount >= minGigaByte)
             {
                 suffix = "GB";
@@ -137,6 +138,7 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
                 output = Math.Round(byteCount / minMegaBit, 2);
             }
 
+            // ReSharper disable once InvertIf
             if (byteCount >= minGigaBit)
             {
                 suffix = "Gbits/s";
@@ -167,7 +169,7 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
             if (format == null || Math.Abs(percentage) <= double.Epsilon)
                 return $"{percentage,3:0} %".Trim();
 
-            return $"{((percentage > 0d) ? "R " : "L ")} {Math.Abs(percentage),3:0} %".Trim();
+            return $"{(percentage > 0d ? "R " : "L ")} {Math.Abs(percentage),3:0} %".Trim();
         }
 
         /// <inheritdoc />
@@ -181,7 +183,7 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
         /// <inheritdoc />
         public object Convert(object value, Type targetType, object format, CultureInfo culture)
         {
-            if (value is string thumbnailFilename && Platform.GuiContext.Current.IsInDesignTime == false)
+            if (value is string thumbnailFilename && GuiContext.Current.IsInDesignTime == false)
             {
                 return ThumbnailGenerator.GetThumbnail(
                     App.Current.ViewModel.Playlist.ThumbsDirectory, thumbnailFilename);

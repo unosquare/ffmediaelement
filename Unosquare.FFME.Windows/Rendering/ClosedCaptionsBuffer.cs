@@ -318,7 +318,7 @@
 
                     // Compute the channel using the packet's field parity and the last available channel state
                     var channel = ClosedCaptionPacket.ComputeChannel(
-                        packet.FieldParity, (packet.FieldParity == 1) ? Field1LastChannel : Field2LastChannel);
+                        packet.FieldParity, packet.FieldParity == 1 ? Field1LastChannel : Field2LastChannel);
 
                     // Demux the packet to the corresponding channel buffer so the channels are independent
                     ChannelPacketBuffer[channel][position] = packet;
@@ -722,29 +722,28 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool ProcessTextPacket(ClosedCaptionPacket packet)
         {
-            var needsRepaint = false;
-            if (StateMode == ParserStateMode.Scrolling || StateMode == ParserStateMode.Buffered)
+            if (StateMode != ParserStateMode.Scrolling && StateMode != ParserStateMode.Buffered)
+                return false;
+
+            var offset = 0;
+            ClosedCaptionsCellState cell;
+            for (var c = CursorColumnIndex; c < ColumnCount; c++)
             {
-                var offset = 0;
-                ClosedCaptionsCellState cell;
-                for (var c = CursorColumnIndex; c < ColumnCount; c++)
-                {
-                    if (offset > packet.Text.Length - 1) break;
+                if (offset > packet.Text.Length - 1) break;
 
-                    cell = StateMode == ParserStateMode.Scrolling ?
-                        State[CursorRowIndex][c].Display : State[CursorRowIndex][c].Buffer;
-                    cell.Character = packet.Text[offset];
-                    cell.IsItalics = IsItalics;
-                    cell.IsUnderlined = IsUnderlined;
+                cell = StateMode == ParserStateMode.Scrolling ?
+                    State[CursorRowIndex][c].Display : State[CursorRowIndex][c].Buffer;
+                cell.Character = packet.Text[offset];
+                cell.IsItalics = IsItalics;
+                cell.IsUnderlined = IsUnderlined;
 
-                    offset++;
-                }
-
-                needsRepaint = StateMode == ParserStateMode.Scrolling;
-                CursorColumnIndex += offset;
+                offset++;
             }
 
-            return needsRepaint;
+            CursorColumnIndex += offset;
+
+            // needs repaint if state is scrolling
+            return StateMode == ParserStateMode.Scrolling;
         }
 
         /// <summary>

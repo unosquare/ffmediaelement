@@ -127,7 +127,7 @@
                 }
                 else
                 {
-                    resultPosition = (mainBlocks.Count == 0 && TargetPosition != TimeSpan.Zero) ?
+                    resultPosition = mainBlocks.Count == 0 && TargetPosition != TimeSpan.Zero ?
                         initialPosition : // Unsuccessful. This initial position is simply what the clock was :(
                         TargetPosition; // Successful seek with main blocks in range
                 }

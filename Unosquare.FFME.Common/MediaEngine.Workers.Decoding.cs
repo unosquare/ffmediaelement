@@ -232,28 +232,28 @@
                 && CanReadMoreFramesOf(main) == false
                 && Blocks[main].IndexOf(WallClock) >= Blocks[main].Count - 1)
             {
-                if (State.HasMediaEnded == false)
+                if (State.HasMediaEnded)
+                    return State.HasMediaEnded;
+
+                // Rendered all and nothing else to read
+                Clock.Pause();
+                ChangePosition(Blocks[main].RangeEndTime);
+
+                if (State.NaturalDuration != null &&
+                    State.NaturalDuration != TimeSpan.MinValue &&
+                    State.NaturalDuration < WallClock)
                 {
-                    // Rendered all and nothing else to read
-                    Clock.Pause();
-                    ChangePosition(Blocks[main].RangeEndTime);
-
-                    if (State.NaturalDuration != null &&
-                        State.NaturalDuration != TimeSpan.MinValue &&
-                        State.NaturalDuration < WallClock)
-                    {
-                        Log(MediaLogMessageType.Warning,
-                            $"{nameof(State.HasMediaEnded)} conditions met at {WallClock.Format()} but " +
-                            $"{nameof(State.NaturalDuration)} reports {State.NaturalDuration.Value.Format()}");
-                    }
-
-                    State.UpdateMediaEnded(true);
-                    State.UpdateMediaState(PlaybackStatus.Stop);
-                    foreach (var mt in Container.Components.MediaTypes)
-                        InvalidateRenderer(mt);
-
-                    SendOnMediaEnded();
+                    Log(MediaLogMessageType.Warning,
+                        $"{nameof(State.HasMediaEnded)} conditions met at {WallClock.Format()} but " +
+                        $"{nameof(State.NaturalDuration)} reports {State.NaturalDuration.Value.Format()}");
                 }
+
+                State.UpdateMediaEnded(true);
+                State.UpdateMediaState(PlaybackStatus.Stop);
+                foreach (var mt in Container.Components.MediaTypes)
+                    InvalidateRenderer(mt);
+
+                SendOnMediaEnded();
             }
             else
             {

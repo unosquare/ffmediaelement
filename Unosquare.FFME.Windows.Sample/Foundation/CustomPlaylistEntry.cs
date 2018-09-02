@@ -16,7 +16,7 @@
         {
             { nameof(Thumbnail), "ffme-thumbnail" },
             { nameof(Format), "info-format" },
-            { nameof(LastOpenedUtc), "ffme-lastopened" },
+            { nameof(LastOpenedUtc), "ffme-lastopened" }
         };
 
         /// <summary>

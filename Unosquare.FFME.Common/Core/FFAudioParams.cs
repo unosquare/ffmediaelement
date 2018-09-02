@@ -149,9 +149,7 @@
             if (a.Format != b.Format) return false;
             if (a.ChannelCount != b.ChannelCount) return false;
             if (a.ChannelLayout != b.ChannelLayout) return false;
-            if (a.SampleRate != b.SampleRate) return false;
-
-            return true;
+            return a.SampleRate == b.SampleRate;
         }
 
         #endregion

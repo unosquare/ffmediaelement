@@ -3,16 +3,16 @@
     using ClosedCaptions;
     using Decoding;
     using FFmpeg.AutoGen;
-    using System;
     using System.Collections.ObjectModel;
 
+    /// <inheritdoc />
     /// <summary>
     /// A pre-allocated, scaled video block. The buffer is in BGR, 24-bit format
     /// </summary>
-    public sealed class VideoBlock : MediaBlock, IDisposable
+    public sealed class VideoBlock : MediaBlock
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="VideoBlock"/> class.
+        /// Initializes a new instance of the <see cref="VideoBlock" /> class.
         /// </summary>
         internal VideoBlock()
             : base(MediaType.Video)
@@ -98,17 +98,15 @@
             // If there is a size mismatch between the wanted buffer length and the existing one,
             // then let's reallocate the buffer and set the new size (dispose of the existing one if any)
             var targetLength = ffmpeg.av_image_get_buffer_size(pixelFormat, source.Pointer->width, source.Pointer->height, 1);
-            if (Allocate(targetLength))
-            {
-                // Update related properties
-                PictureBufferStride = ffmpeg.av_image_get_linesize(pixelFormat, source.Pointer->width, 0);
-                PixelWidth = source.Pointer->width;
-                PixelHeight = source.Pointer->height;
+            if (!Allocate(targetLength))
+                return false;
 
-                return true;
-            }
+            // Update related properties
+            PictureBufferStride = ffmpeg.av_image_get_linesize(pixelFormat, source.Pointer->width, 0);
+            PixelWidth = source.Pointer->width;
+            PixelHeight = source.Pointer->height;
 
-            return false;
+            return true;
         }
 
         /// <inheritdoc />

@@ -5,6 +5,9 @@
     using System.Drawing.Drawing2D;
     using System.Drawing.Imaging;
     using System.IO;
+    using System.Windows.Media;
+    using System.Windows.Media.Imaging;
+    using Color = System.Drawing.Color;
 
     /// <summary>
     /// A class for creating, saving, and loading thumbnails.
@@ -33,7 +36,7 @@
         /// <returns>
         /// An image Source
         /// </returns>
-        public static System.Windows.Media.ImageSource GetThumbnail(string targetPath, string thumbnailFilename)
+        public static ImageSource GetThumbnail(string targetPath, string thumbnailFilename)
         {
             var sourcePath = Path.Combine(targetPath, thumbnailFilename);
             if (string.IsNullOrWhiteSpace(thumbnailFilename) || File.Exists(sourcePath) == false)
@@ -41,9 +44,9 @@
 
             try
             {
-                var thumbnail = new System.Windows.Media.Imaging.BitmapImage();
+                var thumbnail = new BitmapImage();
                 thumbnail.BeginInit();
-                thumbnail.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+                thumbnail.CacheOption = BitmapCacheOption.OnLoad;
                 thumbnail.UriSource = new Uri(sourcePath);
                 thumbnail.EndInit();
                 thumbnail.Freeze();

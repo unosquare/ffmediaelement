@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
+    using ClosedCaptions;
     using Core;
     using FFmpeg.AutoGen;
     using Shared;
@@ -188,11 +189,11 @@
         public override bool MaterializeFrame(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings)
         {
             if (output == null) output = new VideoBlock();
-            var source = input as VideoFrame;
-            var target = output as VideoBlock;
-
-            if (source == null || target == null)
+            if (input is VideoFrame == false || output is VideoBlock == false)
                 throw new ArgumentNullException($"{nameof(input)} and {nameof(output)} are either null or not of a compatible media type '{MediaType}'");
+
+            var source = (VideoFrame)input;
+            var target = (VideoBlock)output;
 
             // Retrieve a suitable scaler or create it on the fly
             var newScaler = ffmpeg.sws_getCachedContext(
@@ -290,7 +291,7 @@
             target.CompressedSize = source.CompressedSize;
             target.CodedPictureNumber = source.CodedPictureNumber;
             target.StreamIndex = source.StreamIndex;
-            target.ClosedCaptions = new ReadOnlyCollection<ClosedCaptions.ClosedCaptionPacket>(source.ClosedCaptions);
+            target.ClosedCaptions = new ReadOnlyCollection<ClosedCaptionPacket>(source.ClosedCaptions);
 
             // Update the stream info object if we get Closed Caption Data
             if (StreamInfo.HasClosedCaptions == false && target.ClosedCaptions.Count > 0)
@@ -324,7 +325,7 @@
             // Move the frame from hardware (GPU) memory to RAM (CPU)
             if (HardwareAccelerator != null)
             {
-                frame = HardwareAccelerator.ExchangeFrame(CodecContext, frame, out bool isHardwareFrame);
+                frame = HardwareAccelerator.ExchangeFrame(CodecContext, frame, out var isHardwareFrame);
                 IsUsingHardwareDecoding = isHardwareFrame;
             }
 
@@ -619,16 +620,14 @@
         /// </summary>
         private void DestroyFilterGraph()
         {
-            if (FilterGraph != null)
-            {
-                RC.Current.Remove(FilterGraph);
-                var filterGraphRef = FilterGraph;
-                ffmpeg.avfilter_graph_free(&filterGraphRef);
+            if (FilterGraph == null) return;
+            RC.Current.Remove(FilterGraph);
+            var filterGraphRef = FilterGraph;
+            ffmpeg.avfilter_graph_free(&filterGraphRef);
 
-                FilterGraph = null;
-                SinkInput = null;
-                SourceOutput = null;
-            }
+            FilterGraph = null;
+            SinkInput = null;
+            SourceOutput = null;
         }
 
         #endregion

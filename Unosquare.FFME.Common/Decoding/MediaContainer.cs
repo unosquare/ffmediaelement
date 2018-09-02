@@ -846,11 +846,9 @@
 
             // Verify the stream input start offset. This is the zero measure for all sub-streams.
             var minOffset = Components.Count > 0 ? Components.All.Min(c => c.StartTimeOffset) : MediaStartTimeOffset;
-            if (minOffset != MediaStartTimeOffset)
-            {
-                Parent?.Log(MediaLogMessageType.Warning, $"Input Start: {MediaStartTimeOffset.Format()} Comp. Start: {minOffset.Format()}. Input start will be updated.");
-                MediaStartTimeOffset = minOffset;
-            }
+            if (minOffset == MediaStartTimeOffset) return;
+            Parent?.Log(MediaLogMessageType.Warning, $"Input Start: {MediaStartTimeOffset.Format()} Comp. Start: {minOffset.Format()}. Input start will be updated.");
+            MediaStartTimeOffset = minOffset;
         }
 
         /// <summary>
@@ -979,11 +977,9 @@
                     IsAtEndOfStream = true;
                     return MediaType.None;
                 }
-                else
-                {
-                    if (InputContext->pb != null && InputContext->pb->error != 0)
-                        throw new MediaContainerException($"Input has produced an error. Error Code {readResult}, {FFInterop.DecodeMessage(readResult)}");
-                }
+
+                if (InputContext->pb != null && InputContext->pb->error != 0)
+                    throw new MediaContainerException($"Input has produced an error. Error Code {readResult}, {FFInterop.DecodeMessage(readResult)}");
             }
             else
             {
@@ -991,16 +987,14 @@
             }
 
             // Check if we were able to feed the packet. If not, simply discard it
-            if (readPacket != null)
-            {
-                var componentType = Components.SendPacket(readPacket);
+            if (readPacket == null) return MediaType.None;
+            var componentType = Components.SendPacket(readPacket);
 
-                // Discard the packet -- it was not accepted by any component
-                if (componentType == MediaType.None)
-                    readPacket.Dispose();
-                else
-                    return componentType;
-            }
+            // Discard the packet -- it was not accepted by any component
+            if (componentType == MediaType.None)
+                readPacket.Dispose();
+            else
+                return componentType;
 
             return MediaType.None;
         }
@@ -1031,13 +1025,11 @@
             var start = StreamReadInterruptStartTime.Value;
             var timeDifference = TimeSpan.FromTicks(nowTicks - start.Ticks);
 
-            if (Configuration.ReadTimeout.Ticks >= 0 && timeDifference.Ticks > Configuration.ReadTimeout.Ticks)
-            {
-                Parent?.Log(MediaLogMessageType.Error, $"{nameof(OnStreamReadInterrupt)} timed out with  {timeDifference.Format()}");
-                return ErrorResult;
-            }
+            if (Configuration.ReadTimeout.Ticks < 0 || timeDifference.Ticks <= Configuration.ReadTimeout.Ticks)
+                return OkResult;
 
-            return OkResult;
+            Parent?.Log(MediaLogMessageType.Error, $"{nameof(OnStreamReadInterrupt)} timed out with  {timeDifference.Format()}");
+            return ErrorResult;
         }
 
         /// <summary>
@@ -1211,14 +1203,11 @@
             StateRequiresPictureAttachments = true;
             IsAtEndOfStream = false;
 
-            if (seekResult < 0)
-            {
-                Parent?.Log(MediaLogMessageType.Warning,
-                    $"SEEK 0: {nameof(StreamSeekToStart)} operation failed. Error code {seekResult}: {FFInterop.DecodeMessage(seekResult)}");
-                return 0;
-            }
+            if (seekResult >= 0) return StreamSeekDecode(result, TimeSpan.Zero, seekRequirement);
 
-            return StreamSeekDecode(result, TimeSpan.Zero, seekRequirement);
+            Parent?.Log(MediaLogMessageType.Warning,
+                $"SEEK 0: {nameof(StreamSeekToStart)} operation failed. Error code {seekResult}: {FFInterop.DecodeMessage(seekResult)}");
+            return 0;
         }
 
         /// <summary>

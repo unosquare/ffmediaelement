@@ -171,6 +171,7 @@
                 var m = Root.App.MediaElement;
                 if (m == null) return;
 
+                // ReSharper disable once UseNegatedPatternMatching
                 var transform = m.RenderTransform as ScaleTransform;
                 if (transform == null)
                 {

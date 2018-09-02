@@ -78,8 +78,7 @@
         {
             lock (SyncLock)
             {
-                if (Packets.Count <= 0) return null;
-                return Packets[0];
+                return Packets.Count <= 0 ? null : Packets[0];
             }
         }
 

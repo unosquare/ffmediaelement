@@ -155,15 +155,11 @@
 
                 var result = LibraryLoader.LoadNativeLibrary(basePath, Name, Version);
 
-                if (result != IntPtr.Zero)
-                {
-                    Reference = result;
-                    BasePath = basePath;
-                    LoadErrorCode = 0;
-                    return true;
-                }
-
-                return false;
+                if (result == IntPtr.Zero) return false;
+                Reference = result;
+                BasePath = basePath;
+                LoadErrorCode = 0;
+                return true;
             }
         }
 

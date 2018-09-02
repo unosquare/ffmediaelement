@@ -240,11 +240,11 @@
 
             foreach (var component in All)
             {
-                if (component.StreamIndex == packet.StreamIndex)
-                {
-                    component.SendPacket(packet);
-                    return component.MediaType;
-                }
+                if (component.StreamIndex != packet.StreamIndex)
+                    continue;
+
+                component.SendPacket(packet);
+                return component.MediaType;
             }
 
             return MediaType.None;

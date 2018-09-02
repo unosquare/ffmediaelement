@@ -87,10 +87,8 @@
             {
                 try
                 {
-                    if (whence == ffmpeg.AVSEEK_SIZE)
-                        return BackingStream.Length;
-
-                    return BackingStream.Seek(offset, SeekOrigin.Begin);
+                    return whence == ffmpeg.AVSEEK_SIZE ?
+                        BackingStream.Length : BackingStream.Seek(offset, SeekOrigin.Begin);
                 }
                 catch
                 {

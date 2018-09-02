@@ -62,7 +62,7 @@
             /// <summary>
             /// The SWS context
             /// </summary>
-            SwsContext,
+            SwsContext
         }
 
         /// <summary>

@@ -170,7 +170,7 @@
             /// - This parameter value is not constant but change depending on
             ///   tempo/pitch/rate/sample rate settings.
             /// </summary>
-            InitialLatency = 8,
+            InitialLatency = 8
         }
 
         #endregion

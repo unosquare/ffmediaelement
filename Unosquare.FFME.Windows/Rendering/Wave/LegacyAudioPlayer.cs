@@ -10,7 +10,7 @@
     /// A wave player that opens an audio device and continuously feeds it
     /// with audio samples using a wave provider.
     /// </summary>
-    internal sealed class LegacyAudioPlayer : IWavePlayer, IDisposable
+    internal sealed class LegacyAudioPlayer : IWavePlayer
     {
         #region State Variables
 

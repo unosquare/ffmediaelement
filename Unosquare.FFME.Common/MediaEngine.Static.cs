@@ -153,17 +153,17 @@
                     if (IsInitialized == false)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
-                    if (m_InputFormatOptions == null)
-                    {
-                        var result = new Dictionary<string, ReadOnlyCollection<OptionMeta>>(InputFormatNames.Count);
-                        foreach (var formatName in InputFormatNames)
-                        {
-                            var optionsInfo = FFInterop.RetrieveInputFormatOptions(formatName);
-                            result[formatName] = new ReadOnlyCollection<OptionMeta>(optionsInfo);
-                        }
+                    if (m_InputFormatOptions != null)
+                        return m_InputFormatOptions;
 
-                        m_InputFormatOptions = new ReadOnlyDictionary<string, ReadOnlyCollection<OptionMeta>>(result);
+                    var result = new Dictionary<string, ReadOnlyCollection<OptionMeta>>(InputFormatNames.Count);
+                    foreach (var formatName in InputFormatNames)
+                    {
+                        var optionsInfo = FFInterop.RetrieveInputFormatOptions(formatName);
+                        result[formatName] = new ReadOnlyCollection<OptionMeta>(optionsInfo);
                     }
+
+                    m_InputFormatOptions = new ReadOnlyDictionary<string, ReadOnlyCollection<OptionMeta>>(result);
 
                     return m_InputFormatOptions;
                 }
@@ -221,20 +221,20 @@
                     if (IsInitialized == false)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
-                    if (m_DecoderOptions == null)
+                    if (m_DecoderOptions != null)
+                        return m_DecoderOptions;
+
+                    var result = new Dictionary<string, ReadOnlyCollection<OptionMeta>>(DecoderNames.Count);
+                    foreach (var c in AllCodecs)
                     {
-                        var result = new Dictionary<string, ReadOnlyCollection<OptionMeta>>(DecoderNames.Count);
-                        foreach (var c in AllCodecs)
-                        {
-                            if (c->decode.Pointer == IntPtr.Zero)
-                                continue;
+                        if (c->decode.Pointer == IntPtr.Zero)
+                            continue;
 
-                            result[FFInterop.PtrToStringUTF8(c->name)] =
-                                new ReadOnlyCollection<OptionMeta>(FFInterop.RetrieveCodecOptions(c));
-                        }
-
-                        m_DecoderOptions = new ReadOnlyDictionary<string, ReadOnlyCollection<OptionMeta>>(result);
+                        result[FFInterop.PtrToStringUTF8(c->name)] =
+                            new ReadOnlyCollection<OptionMeta>(FFInterop.RetrieveCodecOptions(c));
                     }
+
+                    m_DecoderOptions = new ReadOnlyDictionary<string, ReadOnlyCollection<OptionMeta>>(result);
 
                     return m_DecoderOptions;
                 }
@@ -288,16 +288,14 @@
         /// <returns>true if libraries were loaded, false if libraries were already loaded.</returns>
         public static bool LoadFFmpeg()
         {
-            if (FFInterop.Initialize(FFmpegDirectory, FFmpegLoadModeFlags))
-            {
-                // Set the folders and lib identifiers
-                FFmpegDirectory = FFInterop.LibrariesPath;
-                FFmpegLoadModeFlags = FFInterop.LibraryIdentifiers;
-                FFmpegVersionInfo = ffmpeg.av_version_info();
-                return true;
-            }
+            if (!FFInterop.Initialize(FFmpegDirectory, FFmpegLoadModeFlags))
+                return false;
 
-            return false;
+            // Set the folders and lib identifiers
+            FFmpegDirectory = FFInterop.LibrariesPath;
+            FFmpegLoadModeFlags = FFInterop.LibraryIdentifiers;
+            FFmpegVersionInfo = ffmpeg.av_version_info();
+            return true;
         }
 
         /// <summary>

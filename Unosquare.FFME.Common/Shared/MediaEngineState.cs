@@ -150,7 +150,7 @@
         public bool IsPlaying => IsOpen && MediaCore.Clock.IsRunning;
 
         /// <inheritdoc />
-        public bool IsPaused => IsOpen && (MediaCore.Clock.IsRunning == false);
+        public bool IsPaused => IsOpen && !MediaCore.Clock.IsRunning;
 
         /// <inheritdoc />
         public bool IsSeeking => MediaCore.Commands?.IsSeeking ?? false;
@@ -319,7 +319,7 @@
         internal void UpdateFixedContainerProperties()
         {
             BitRate = MediaCore.Container?.MediaBitRate ?? default;
-            IsOpen = (IsOpening == false) && (MediaCore.Container?.IsOpen ?? default);
+            IsOpen = !IsOpening && (MediaCore.Container?.IsOpen ?? default);
             Metadata = MediaCore.Container?.Metadata ?? EmptyDictionary;
             MediaFormat = MediaCore.Container?.MediaFormatName;
             MediaStreamSize = MediaCore.Container?.MediaStreamSize ?? default;
@@ -346,7 +346,7 @@
             IsLiveStream = MediaCore.Container?.IsLiveStream ?? default;
             IsNetworkStream = MediaCore.Container?.IsNetworkStream ?? default;
             IsSeekable = MediaCore.Container?.IsStreamSeekable ?? default;
-            CanPause = IsOpen ? (IsLiveStream == false) : default;
+            CanPause = IsOpen ? !IsLiveStream : default;
 
             var videoAspectWidth = MediaCore.Container?.Components.Video?.DisplayAspectWidth ?? default;
             var videoAspectHeight = MediaCore.Container?.Components.Video?.DisplayAspectHeight ?? default;
@@ -392,28 +392,30 @@
                 PositionCurrent = block.StartTime;
                 var neighbors = buffer.Neighbors(block);
                 PositionNext = neighbors[1]?.StartTime ?? TimeSpan.FromTicks(
-                    block.EndTime.Ticks + (block.Duration.Ticks / 2));
+                    block.EndTime.Ticks + Convert.ToInt64(block.Duration.Ticks / 2d));
                 PositionPrevious = neighbors[0]?.StartTime ?? TimeSpan.FromTicks(
-                    block.StartTime.Ticks - (block.Duration.Ticks / 2));
+                    block.StartTime.Ticks - Convert.ToInt64(block.Duration.Ticks / 2d));
             }
 
             // Update video block properties
-            if (block is VideoBlock videoBlock)
-            {
-                // I don't know of any codecs changing the width and the height dynamically
-                // but we update the properties just to be safe.
-                NaturalVideoWidth = videoBlock.PixelWidth;
-                NaturalVideoHeight = videoBlock.PixelHeight;
+            if (block is VideoBlock == false) return;
 
-                // Update the has closed captions state as it might come in later
-                // as frames are decoded
-                if (HasClosedCaptions == false && videoBlock.ClosedCaptions.Count > 0)
-                    HasClosedCaptions = true;
+            // Capture the video block
+            var videoBlock = (VideoBlock)block;
 
-                VideoSmtpeTimeCode = videoBlock.SmtpeTimeCode;
-                VideoHardwareDecoder = videoBlock.IsHardwareFrame ?
-                    videoBlock.HardwareAcceleratorName : string.Empty;
-            }
+            // I don't know of any codecs changing the width and the height dynamically
+            // but we update the properties just to be safe.
+            NaturalVideoWidth = videoBlock.PixelWidth;
+            NaturalVideoHeight = videoBlock.PixelHeight;
+
+            // Update the has closed captions state as it might come in later
+            // as frames are decoded
+            if (HasClosedCaptions == false && videoBlock.ClosedCaptions.Count > 0)
+                HasClosedCaptions = true;
+
+            VideoSmtpeTimeCode = videoBlock.SmtpeTimeCode;
+            VideoHardwareDecoder = videoBlock.IsHardwareFrame ?
+                videoBlock.HardwareAcceleratorName : string.Empty;
         }
 
         /// <summary>
@@ -544,8 +546,8 @@
             }
 
             // Try to get a valid stream size
+            MediaStreamSize = MediaCore.Container.MediaStreamSize;
             var durationSeconds = NaturalDuration?.TotalSeconds ?? 0d;
-            MediaStreamSize = MediaCore.Container?.MediaStreamSize ?? default;
 
             // Compute the bit rate and buffering properties based on media byte size
             if (MediaStreamSize >= MinimumValidFileSize && IsSeekable && durationSeconds > 0)
@@ -583,14 +585,14 @@
                 && (MediaCore.IsSyncBuffering || BufferingProgress < 1d);
 
             // Detect and notify a change in buffering state
-            if (isCurrentlyBuffering != IsBuffering)
-            {
-                IsBuffering = isCurrentlyBuffering;
-                if (isCurrentlyBuffering)
-                    MediaCore.SendOnBufferingStarted();
-                else
-                    MediaCore.SendOnBufferingEnded();
-            }
+            if (isCurrentlyBuffering == IsBuffering)
+                return;
+
+            IsBuffering = isCurrentlyBuffering;
+            if (isCurrentlyBuffering)
+                MediaCore.SendOnBufferingStarted();
+            else
+                MediaCore.SendOnBufferingEnded();
         }
 
         /// <summary>

@@ -15,7 +15,6 @@
     {
         #region Property backing fields
 
-        private readonly Action<object> m_Execute;
         private readonly Func<object, bool> m_CanExecute;
         private readonly Action<object> ExecuteAction;
         private readonly AtomicBoolean IsExecuting = new AtomicBoolean(false);
@@ -30,7 +29,7 @@
         /// <exception cref="ArgumentNullException">execute</exception>
         public DelegateCommand(Action<object> execute, Func<object, bool> canExecute)
         {
-            m_Execute = execute ?? throw new ArgumentNullException(nameof(execute));
+            var callback = execute ?? throw new ArgumentNullException(nameof(execute));
             m_CanExecute = canExecute;
 
             ExecuteAction = parameter =>
@@ -38,7 +37,7 @@
                 var canExecuteAction = m_CanExecute?.Invoke(parameter) ?? true;
 
                 if (canExecuteAction)
-                    m_Execute(parameter);
+                    callback(parameter);
             };
         }
 

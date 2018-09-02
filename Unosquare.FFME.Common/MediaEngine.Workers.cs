@@ -90,10 +90,7 @@
                 if (Container.Components.HasEnoughPackets)
                     return true;
 
-                if (Container.IsLiveStream && Blocks.Main(Container).IsFull)
-                    return true;
-
-                return false;
+                return Container.IsLiveStream && Blocks.Main(Container).IsFull;
             }
         }
 
@@ -385,9 +382,7 @@
         {
             // Decode the frames
             var block = Blocks[t].Add(Container.Components[t].ReceiveNextFrame(), Container);
-            if (block != null) return true;
-
-            return false;
+            return block != null;
         }
 
         #endregion

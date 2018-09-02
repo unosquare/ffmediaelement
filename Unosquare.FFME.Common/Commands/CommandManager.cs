@@ -190,10 +190,9 @@
 
             if (currentCommand != null)
                 return await currentCommand.Awaiter;
-            else if (IsExecutingDirectCommand)
-                return false;
-            else
-                return await ExecuteDirectCommand(new DirectCloseCommand(MediaCore)).ConfigureAwait(false);
+
+            return !IsExecutingDirectCommand &&
+                   await ExecuteDirectCommand(new DirectCloseCommand(MediaCore)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -209,10 +208,9 @@
 
             if (currentCommand != null)
                 return await currentCommand.Awaiter;
-            else if (IsExecutingDirectCommand)
-                return false;
-            else
-                return await ExecuteDirectCommand(new DirectChangeCommand(MediaCore)).ConfigureAwait(false);
+
+            return !IsExecutingDirectCommand &&
+                   await ExecuteDirectCommand(new DirectChangeCommand(MediaCore)).ConfigureAwait(false);
         }
 
         /// <summary>

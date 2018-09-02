@@ -69,8 +69,7 @@
                 {
                     if (IsDisposed) return false;
                     if (Event.SafeWaitHandle?.IsClosed ?? true) return false;
-                    if (Event.SafeWaitHandle?.IsInvalid ?? true) return false;
-                    return true;
+                    return !(Event.SafeWaitHandle?.IsInvalid ?? true);
                 }
             }
 
@@ -136,13 +135,8 @@
                 {
                     if (IsDisposed) return false;
                     if (Event.WaitHandle == null) return false;
-                    if (Event.WaitHandle.SafeWaitHandle != null
-                        && (Event.WaitHandle.SafeWaitHandle.IsClosed || Event.WaitHandle.SafeWaitHandle.IsInvalid))
-                    {
-                        return false;
-                    }
-
-                    return true;
+                    return Event.WaitHandle.SafeWaitHandle == null ||
+                           (!Event.WaitHandle.SafeWaitHandle.IsClosed && !Event.WaitHandle.SafeWaitHandle.IsInvalid);
                 }
             }
 

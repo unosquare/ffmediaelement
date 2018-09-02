@@ -8,13 +8,12 @@
     using System.Linq;
     using System.Text;
 
+    /// <inheritdoc cref="ObservableCollection{T}"/>
     /// <summary>
     /// Represents an observable collection of playlist entries.
     /// General guidelines taken from http://xmtvplayer.com/build-m3u-file
     /// </summary>
     /// <typeparam name="T">The type of playlist items</typeparam>
-    /// <seealso cref="System.Collections.ObjectModel.ObservableCollection{T}" />
-    /// <seealso cref="ObservableCollection{PlaylistEntry}" />
     public class Playlist<T> : ObservableCollection<T>
         where T : PlaylistEntry, new()
     {

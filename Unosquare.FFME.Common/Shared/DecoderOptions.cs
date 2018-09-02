@@ -92,8 +92,8 @@
             get
             {
                 if (PrivateOptions.ContainsKey(streamIndex) == false) return null;
-                if (PrivateOptions[streamIndex].ContainsKey(privateOptionName) == false) return null;
-                return PrivateOptions[streamIndex][privateOptionName];
+                return PrivateOptions[streamIndex].ContainsKey(privateOptionName) ?
+                    PrivateOptions[streamIndex][privateOptionName] : null;
             }
             set
             {
@@ -112,13 +112,11 @@
         internal FFDictionary GetStreamCodecOptions(int streamIndex)
         {
             var result = new Dictionary<string, string>(GlobalOptions);
-            if (PrivateOptions.ContainsKey(streamIndex))
-            {
-                foreach (var kvp in PrivateOptions[streamIndex])
-                {
-                    result[kvp.Key] = kvp.Value;
-                }
-            }
+            if (!PrivateOptions.ContainsKey(streamIndex))
+                return new FFDictionary(result);
+
+            foreach (var kvp in PrivateOptions[streamIndex])
+                result[kvp.Key] = kvp.Value;
 
             return new FFDictionary(result);
         }

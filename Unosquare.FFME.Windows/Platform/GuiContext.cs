@@ -10,6 +10,7 @@
     using System.Windows;
     using System.Windows.Forms;
     using System.Windows.Threading;
+    using Application = System.Windows.Application;
 
     /// <summary>
     /// Provides properties and methods for the
@@ -32,7 +33,7 @@
         {
             Thread = Thread.CurrentThread;
             ThreadContext = SynchronizationContext.Current;
-            try { GuiDispatcher = System.Windows.Application.Current.Dispatcher; }
+            try { GuiDispatcher = Application.Current.Dispatcher; }
             catch { /* Ignore error as app might not be available or context is not WPF */ }
 
             Type = GuiContextType.None;
@@ -166,7 +167,7 @@
                 case GuiContextType.WinForms:
                     {
                         var doneEvent = WaitEventFactory.Create(isCompleted: false, useSlim: true);
-                        ThreadContext.Post((a) =>
+                        ThreadContext.Post(a =>
                         {
                             try { callback.DynamicInvoke(arguments); }
                             finally { doneEvent.Complete(); }

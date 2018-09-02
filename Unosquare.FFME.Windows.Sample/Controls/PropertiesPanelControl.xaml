@@ -6,6 +6,7 @@
              xmlns:ffme="clr-namespace:Unosquare.FFME;assembly=ffme.win"
              mc:Ignorable="d" d:DesignHeight="700"
              d:DataContext="{StaticResource ViewModel}">
+    <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
     <Border Name="PropertyExplorerPanel" Width="280" Style="{StaticResource SidePanelContainerBorderStyle}" 
             d:DataContext="{d:DesignInstance ffme:MediaElement, IsDesignTimeCreatable=True}"
             DataContext="{Binding Path=App.MediaElement}">

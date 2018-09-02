@@ -6,6 +6,7 @@
     using System;
     using System.ComponentModel;
     using System.IO;
+    using System.Windows;
     using System.Windows.Data;
 
     /// <summary>
@@ -49,7 +50,7 @@
 
             Entries = new CustomPlaylist(this);
             EntriesView = CollectionViewSource.GetDefaultView(Entries);
-            EntriesView.Filter = (item) =>
+            EntriesView.Filter = item =>
             {
                 if (string.IsNullOrWhiteSpace(PlaylistSearchString) || PlaylistSearchString.Trim().Length < MinimumSearchLength)
                     return true;
@@ -99,7 +100,7 @@
 
                 if (SearchAction == null)
                 {
-                    SearchAction = DeferredAction.Create(() =>
+                    SearchAction = DeferredAction.Create(context =>
                     {
                         var futureSearch = PlaylistSearchString ?? string.Empty;
                         var currentSearch = FilterString ?? string.Empty;
@@ -162,8 +163,8 @@
         /// Called when Media is opened
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="System.Windows.RoutedEventArgs"/> instance containing the event data.</param>
-        private void OnMediaOpened(object sender, System.Windows.RoutedEventArgs e)
+        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
+        private void OnMediaOpened(object sender, RoutedEventArgs e)
         {
             HasTakenThumbnail = false;
             Entries.AddOrUpdateEntry(
@@ -189,14 +190,13 @@
             if (string.IsNullOrWhiteSpace(sourceUrl))
                 return;
 
-            if (state.HasMediaEnded
-                || state.Position.TotalSeconds >= snapPosition
-                || (state.NaturalDuration.HasValue && state.NaturalDuration.Value.TotalSeconds <= snapPosition))
-            {
-                HasTakenThumbnail = true;
-                Entries.AddOrUpdateEntryThumbnail(sourceUrl, e.Bitmap);
-                Entries.SaveEntries();
-            }
+            if (!state.HasMediaEnded && !(state.Position.TotalSeconds >= snapPosition) &&
+                (!state.NaturalDuration.HasValue || !(state.NaturalDuration.Value.TotalSeconds <= snapPosition)))
+                return;
+
+            HasTakenThumbnail = true;
+            Entries.AddOrUpdateEntryThumbnail(sourceUrl, e.Bitmap);
+            Entries.SaveEntries();
         }
     }
 }

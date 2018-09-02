@@ -312,9 +312,9 @@ namespace Unosquare.FFME.Rendering
 
         private static void OnTextPropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
         {
-            var element = dependencyObject as SubtitlesControl;
-            if (element == null) return;
+            if (dependencyObject is SubtitlesControl == false) return;
 
+            var element = (SubtitlesControl)dependencyObject;
             var value = e.NewValue as string;
             if (string.IsNullOrWhiteSpace(value)) value = " \r\n ";
             if (value.Contains("\n") == false) value = $"{value}\r\n ";
@@ -324,18 +324,18 @@ namespace Unosquare.FFME.Rendering
 
         private static void OnTextForegroundPropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
         {
-            var element = dependencyObject as SubtitlesControl;
-            if (element == null) return;
+            if (dependencyObject is SubtitlesControl == false) return;
 
+            var element = (SubtitlesControl)dependencyObject;
             var value = e.NewValue as Brush;
             element.TextBlocks[Block.Foreground].Foreground = value;
         }
 
         private static void OnTextOutlinePropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
         {
-            var element = dependencyObject as SubtitlesControl;
-            if (element == null) return;
+            if (dependencyObject is SubtitlesControl == false) return;
 
+            var element = (SubtitlesControl)dependencyObject;
             var value = e.NewValue as Brush;
             foreach (var t in element.TextBlocks)
             {
@@ -346,9 +346,9 @@ namespace Unosquare.FFME.Rendering
 
         private static void OnTextOutlineWidthPropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
         {
-            var element = dependencyObject as SubtitlesControl;
-            if (element == null) return;
+            if (dependencyObject is SubtitlesControl == false) return;
 
+            var element = (SubtitlesControl)dependencyObject;
             var value = (Thickness)e.NewValue;
             foreach (var t in element.TextBlocks)
                 t.Value.Margin = ComputeMargin(t.Key, value);
@@ -356,9 +356,9 @@ namespace Unosquare.FFME.Rendering
 
         private static void OnTextForegroundEffectPropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
         {
-            var element = dependencyObject as SubtitlesControl;
-            if (element == null) return;
+            if (dependencyObject is SubtitlesControl == false) return;
 
+            var element = (SubtitlesControl)dependencyObject;
             var value = e.NewValue as Effect;
             element.TextBlocks[Block.Foreground].Effect = value;
         }

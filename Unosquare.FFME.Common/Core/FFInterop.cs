@@ -193,7 +193,7 @@
             var result = new List<OptionMeta>(128);
             if (avClass == null) return result;
 
-            AVOption* option = avClass->option;
+            var option = avClass->option;
 
             while (option != null)
             {
@@ -285,9 +285,7 @@
         public static unsafe List<OptionMeta> RetrieveInputFormatOptions(string formatName)
         {
             var item = ffmpeg.av_find_input_format(formatName);
-            if (item == null) return EmptyOptionMetaList;
-
-            return RetrieveOptions(item->priv_class);
+            return item == null ? EmptyOptionMetaList : RetrieveOptions(item->priv_class);
         }
 
         /// <summary>

@@ -39,7 +39,7 @@
                 Renderers[t]?.WaitForReadyState();
 
             // The Render timer is responsible for sending frames to renders
-            BlockRenderingWorker = new Timer((s) =>
+            BlockRenderingWorker = new Timer(s =>
             {
                 #region Detect Exit/Skip Conditions
 
@@ -88,7 +88,7 @@
                     foreach (var t in all)
                     {
                         // Get the audio, video, or subtitle block to render
-                        currentBlock[t] = (t == MediaType.Subtitle && PreloadedSubtitles != null) ?
+                        currentBlock[t] = t == MediaType.Subtitle && PreloadedSubtitles != null ?
                             PreloadedSubtitles[wallClock] :
                             Blocks[t][wallClock];
                     }

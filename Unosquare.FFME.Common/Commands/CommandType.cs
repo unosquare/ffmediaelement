@@ -43,6 +43,6 @@
         /// <summary>
         /// The change media command id
         /// </summary>
-        ChangeMedia,
+        ChangeMedia
     }
 }

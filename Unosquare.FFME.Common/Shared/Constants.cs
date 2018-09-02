@@ -37,7 +37,7 @@
         /// <summary>
         /// Gets all media types in an array.
         /// </summary>
-        internal static MediaType[] MediaTypes { get; } = new MediaType[] { MediaType.Video, MediaType.Audio, MediaType.Subtitle };
+        internal static MediaType[] MediaTypes { get; } = { MediaType.Video, MediaType.Audio, MediaType.Subtitle };
 
         /// <summary>
         /// Defines Controller Value Defaults

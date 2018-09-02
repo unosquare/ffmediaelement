@@ -45,8 +45,9 @@
             get
             {
                 if (NaturalDuration.HasTimeSpan == false) return Duration.Forever;
-                if (NaturalDuration.TimeSpan.Ticks < Position.Ticks) return new Duration(NaturalDuration.TimeSpan);
-                return new Duration(TimeSpan.FromTicks(NaturalDuration.TimeSpan.Ticks - Position.Ticks));
+                return NaturalDuration.TimeSpan.Ticks < Position.Ticks ?
+                    new Duration(NaturalDuration.TimeSpan) :
+                    new Duration(TimeSpan.FromTicks(NaturalDuration.TimeSpan.Ticks - Position.Ticks));
             }
         }
 

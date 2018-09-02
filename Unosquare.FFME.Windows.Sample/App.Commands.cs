@@ -84,7 +84,7 @@
             /// The close command.
             /// </value>
             public DelegateCommand CloseCommand => m_CloseCommand ??
-                (m_CloseCommand = new DelegateCommand(async (o) =>
+                (m_CloseCommand = new DelegateCommand(async o =>
                 {
                     // Current.MediaElement.Dispose(); // Test the Dispose method uncommenting this line
                     // Current.MediaElement.Source = null; // You can also set the source to null to close.
@@ -161,7 +161,7 @@
             /// The remove playlist item command.
             /// </value>
             public DelegateCommand RemovePlaylistItemCommand => m_RemovePlaylistItemCommand ??
-                (m_RemovePlaylistItemCommand = new DelegateCommand((arg) =>
+                (m_RemovePlaylistItemCommand = new DelegateCommand(arg =>
                 {
                   if (arg is CustomPlaylistEntry == false) return;
                   var entry = (CustomPlaylistEntry)arg;

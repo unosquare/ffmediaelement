@@ -251,10 +251,7 @@
                     TimeSpan.FromTicks(current.Duration.Ticks / 2) :
                     TimeSpan.FromMilliseconds(1);
 
-                if (discontinuity.Ticks > discontinuityThreshold.Ticks)
-                    return null;
-
-                return next;
+                return discontinuity.Ticks > discontinuityThreshold.Ticks ? null : next;
             }
         }
 
@@ -503,10 +500,7 @@
                     return block.StartTime;
 
                 var nextBlock = Next(block);
-                if (nextBlock == null)
-                    return block.StartTime;
-
-                return nextBlock.StartTime;
+                return nextBlock?.StartTime ?? block.StartTime;
             }
         }
 

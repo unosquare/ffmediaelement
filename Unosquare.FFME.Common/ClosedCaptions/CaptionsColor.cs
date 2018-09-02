@@ -104,6 +104,6 @@ namespace Unosquare.FFME.ClosedCaptions
         /// <summary>
         /// The foreground black underline color
         /// </summary>
-        ForegroundBlackUnderline = 0x2F00,
+        ForegroundBlackUnderline = 0x2F00
     }
 }

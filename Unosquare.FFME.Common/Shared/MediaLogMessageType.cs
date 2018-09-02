@@ -33,6 +33,6 @@
         /// <summary>
         /// The warning message type
         /// </summary>
-        Warning = 16,
+        Warning = 16
     }
 }

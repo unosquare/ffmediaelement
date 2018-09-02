@@ -14,7 +14,7 @@
     /// Contact author: Alexandre Mutel - alexandre_mutel at yahoo.fr
     /// Modified by: Graham "Gee" Plumb
     /// </summary>
-    internal sealed class DirectSoundPlayer : IWavePlayer, IDisposable
+    internal sealed class DirectSoundPlayer : IWavePlayer
     {
         #region Fields
 
@@ -304,10 +304,9 @@
 
                     if (handleIndex >= 3)
                         break;
-                    else if (handleIndex == 2 || handleIndex == WaitHandle.WaitTimeout)
+                    if (handleIndex == 2 || handleIndex == WaitHandle.WaitTimeout)
                         throw new TimeoutException("DirectSound notification timed out");
-                    else
-                        NextSamplesWriteIndex = handleIndex == 0 ? SamplesFrameSize : 0;
+                    NextSamplesWriteIndex = handleIndex == 0 ? SamplesFrameSize : 0;
 
                     // Only carry on playing if we can read more samples
                     if (FeedBackBuffer(SamplesFrameSize) <= 0)
@@ -397,15 +396,15 @@
             if (AudioBackBuffer == null)
                 return;
 
-            byte[] silence = new byte[SamplesTotalSize];
+            var silence = new byte[SamplesTotalSize];
 
             // Lock the SecondaryBuffer
             AudioBackBuffer.Lock(0,
                 (uint)SamplesTotalSize,
-                out IntPtr wavBuffer1,
-                out int nbSamples1,
-                out IntPtr wavBuffer2,
-                out int nbSamples2,
+                out var wavBuffer1,
+                out var nbSamples1,
+                out var wavBuffer2,
+                out var nbSamples2,
                 DirectSound.DirectSoundBufferLockFlag.None);
 
             // Copy silence data to the SecondaryBuffer
@@ -446,10 +445,10 @@
             // Lock a portion of the SecondaryBuffer (starting from 0 or 1/2 the buffer)
             AudioBackBuffer.Lock(NextSamplesWriteIndex,
                 (uint)bytesRead,  // (uint)bytesToCopy,
-                out IntPtr wavBuffer1,
-                out int nbSamples1,
-                out IntPtr wavBuffer2,
-                out int nbSamples2,
+                out var wavBuffer1,
+                out var nbSamples1,
+                out var wavBuffer2,
+                out var nbSamples2,
                 DirectSound.DirectSoundBufferLockFlag.None);
 
             // Copy back to the SecondaryBuffer
@@ -656,6 +655,7 @@
                 public bool Equals(DirectSoundBufferPositionNotify other) => NotifyHandle == other.NotifyHandle;
             }
 
+            // ReSharper disable NotAccessedField.Local
 #pragma warning disable SA1401 // Fields must be private
 #pragma warning disable 649 // Field is never assigned
 
@@ -686,6 +686,7 @@
                 public int PlayCpuOverhead;
             }
 
+            // ReSharper restore NotAccessedField.Local
 #pragma warning restore 649 // Field is never assigned
 #pragma warning restore SA1401 // Fields must be private
         }

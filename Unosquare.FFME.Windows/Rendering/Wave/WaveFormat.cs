@@ -1,4 +1,7 @@
-﻿#pragma warning disable IDE0032 // Use auto property
+﻿// ReSharper disable ConvertToAutoPropertyWhenPossible
+#pragma warning disable IDE0032 // Use auto property
+#pragma warning disable 414 // Field is assigned but its value is never used
+
 namespace Unosquare.FFME.Rendering.Wave
 {
     using System;
@@ -10,10 +13,8 @@ namespace Unosquare.FFME.Rendering.Wave
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 2)]
     internal class WaveFormat : IEquatable<WaveFormat>
     {
-#pragma warning disable 414 // Field is assigned but its value is never used
         /// <summary>The format tag -- always 0x0001 PCM</summary>
         private readonly short formatTag = 0x0001;
-#pragma warning restore 414 // Field is assigned but its value is never used
 
         /// <summary>number of channels</summary>
         private readonly short channels;
@@ -120,7 +121,7 @@ namespace Unosquare.FFME.Rendering.Wave
         public int ConvertMillisToByteSize(int milliseconds)
         {
             var byteCount = Convert.ToInt32((AverageBytesPerSecond / 1000.0d) * milliseconds);
-            if ((byteCount % BlockAlign) != 0)
+            if (byteCount % BlockAlign != 0)
             {
                 // Return the upper BlockAligned
                 byteCount = byteCount + BlockAlign - (byteCount % BlockAlign);
@@ -184,4 +185,5 @@ namespace Unosquare.FFME.Rendering.Wave
         public bool Equals(WaveFormat other) => other != null && GetHashCode() == other.GetHashCode();
     }
 }
+#pragma warning restore 414 // Field is assigned but its value is never used
 #pragma warning restore IDE0032 // Use auto property

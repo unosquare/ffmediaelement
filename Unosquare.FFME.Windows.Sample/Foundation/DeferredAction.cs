@@ -17,9 +17,9 @@
         /// Initializes a new instance of the <see cref="DeferredAction"/> class.
         /// </summary>
         /// <param name="action">The action.</param>
-        private DeferredAction(Action action)
+        private DeferredAction(Action<DeferredAction> action)
         {
-            DeferTimer = new Timer(s => Application.Current?.Dispatcher?.Invoke(action));
+            DeferTimer = new Timer(s => Application.Current?.Dispatcher?.Invoke(() => action(this)));
         }
 
         /// <summary>
@@ -29,7 +29,7 @@
         /// The action that will be deferred.  It is not performed until after <see cref="Defer"/> is called.
         /// </param>
         /// <returns>The Deferred Action</returns>
-        public static DeferredAction Create(Action action)
+        public static DeferredAction Create(Action<DeferredAction> action)
         {
             if (action == null)
                 throw new ArgumentNullException(nameof(action));

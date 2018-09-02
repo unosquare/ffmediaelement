@@ -24,6 +24,6 @@
         Sync = 0x0010,
 
         /// <summary>Sample-Accurate</summary>
-        SampleAccurate = 0x0020,
+        SampleAccurate = 0x0020
     }
 }

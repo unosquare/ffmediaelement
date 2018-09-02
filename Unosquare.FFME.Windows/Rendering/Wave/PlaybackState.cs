@@ -13,6 +13,6 @@
         /// <summary>
         /// Playing
         /// </summary>
-        Playing,
+        Playing
     }
 }

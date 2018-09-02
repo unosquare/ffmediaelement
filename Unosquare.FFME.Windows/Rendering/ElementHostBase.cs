@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Rendering
 {
+    using Primitives;
     using System;
     using System.Collections;
     using System.ComponentModel;
@@ -82,8 +83,7 @@
             {
                 if (HasOwnDispatcher)
                     return Host == null ? 0 : 1;
-                else
-                    return Element == null ? 0 : 1;
+                return Element == null ? 0 : 1;
             }
         }
 
@@ -249,21 +249,19 @@
         /// <returns>The value</returns>
         protected V GetElementProperty<V>(DependencyProperty property)
         {
-            if (HasOwnDispatcher)
-            {
-                var result = default(V);
-                if (Element != null)
-                {
-                    InvokeAsync(DispatcherPriority.DataBind, () =>
-                    {
-                        result = (V)Element.GetValue(property);
-                    })?.Wait();
-                }
+            if (!HasOwnDispatcher)
+                return (V)Element.GetValue(property);
 
-                return result;
+            var result = default(V);
+            if (Element != null)
+            {
+                InvokeAsync(DispatcherPriority.DataBind, () =>
+                {
+                    result = (V)Element.GetValue(property);
+                })?.Wait();
             }
 
-            return (V)Element.GetValue(property);
+            return result;
         }
 
         /// <summary>
@@ -335,16 +333,13 @@
         private sealed class HostedPresentationSource : PresentationSource, IDisposable
         {
             private readonly VisualTarget HostConnector;
-            private bool m_IsDisposed;
+            private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
 
             /// <summary>
             /// Initializes a new instance of the <see cref="HostedPresentationSource"/> class.
             /// </summary>
             /// <param name="host">The host.</param>
-            public HostedPresentationSource(HostVisual host)
-            {
-                HostConnector = new VisualTarget(host);
-            }
+            public HostedPresentationSource(HostVisual host) => HostConnector = new VisualTarget(host);
 
             /// <inheritdoc />
             public override Visual RootVisual
@@ -364,16 +359,16 @@
                     RootChanged(oldRoot, value);
 
                     // Kickoff layout...
-                    if (value is UIElement rootElement)
-                    {
-                        rootElement.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-                        rootElement.Arrange(new Rect(rootElement.DesiredSize));
-                    }
+                    if (value is UIElement == false) return;
+
+                    var rootElement = (UIElement)value;
+                    rootElement.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                    rootElement.Arrange(new Rect(rootElement.DesiredSize));
                 }
             }
 
             /// <inheritdoc />
-            public override bool IsDisposed => m_IsDisposed;
+            public override bool IsDisposed => m_IsDisposed.Value;
 
             /// <inheritdoc />
             public void Dispose() => Dispose(true);
@@ -387,12 +382,11 @@
             /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
             private void Dispose(bool alsoManaged)
             {
-                if (m_IsDisposed) return;
-                if (alsoManaged)
-                {
-                    m_IsDisposed = true;
-                    HostConnector?.Dispose();
-                }
+                if (m_IsDisposed.Value) return;
+                if (!alsoManaged) return;
+
+                m_IsDisposed.Value = true;
+                HostConnector?.Dispose();
             }
         }
     }

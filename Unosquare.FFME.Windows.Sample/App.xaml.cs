@@ -68,7 +68,7 @@
             // Pre-load FFmpeg libraries in the background. This is optional.
             // FFmpeg will be automatically loaded if not already loaded when you try to open
             // a new stream or file. See issue #242
-            ThreadPool.QueueUserWorkItem((s) =>
+            ThreadPool.QueueUserWorkItem(s =>
             {
                 try
                 {

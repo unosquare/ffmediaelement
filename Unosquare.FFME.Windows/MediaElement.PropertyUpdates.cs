@@ -61,7 +61,7 @@
         private void HandledAsynchronousDispose()
         {
             // Dispose outside of the current thread to avoid deadlocks
-            ThreadPool.QueueUserWorkItem((s) =>
+            ThreadPool.QueueUserWorkItem(s =>
             {
                 MediaCore.Dispose();
 

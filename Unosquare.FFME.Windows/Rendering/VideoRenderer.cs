@@ -142,8 +142,9 @@
         /// <inheritdoc />
         public void Render(MediaBlock mediaBlock, TimeSpan clockPosition)
         {
-            var block = mediaBlock as VideoBlock;
-            if (block == null) return;
+            if (mediaBlock is VideoBlock == false) return;
+
+            var block = (VideoBlock)mediaBlock;
             if (IsRenderingInProgress.Value)
             {
                 if (MediaCore?.State.IsPlaying ?? false)
@@ -200,12 +201,11 @@
                 {
                     // Render the bitmap data
                     var bitmapData = LockTargetBitmap(block);
-                    if (bitmapData != null)
-                    {
-                        LoadTargetBitmapBuffer(bitmapData, block);
-                        MediaElement.RaiseRenderingVideoEvent(block, bitmapData, clockPosition);
-                        RenderTargetBitmap(bitmapData);
-                    }
+                    if (bitmapData == null) return;
+
+                    LoadTargetBitmapBuffer(bitmapData, block);
+                    MediaElement.RaiseRenderingVideoEvent(block, bitmapData, clockPosition);
+                    RenderTargetBitmap(bitmapData);
                 }
                 catch (Exception ex)
                 {
@@ -281,9 +281,6 @@
         /// </returns>
         private BitmapDataBuffer LockTargetBitmap(VideoBlock block)
         {
-            // Result will be set on the GUI thread
-            BitmapDataBuffer result = null;
-
             // TODO: Evaluate if we need to skip the locking if scrubbing is not enabled
             // if (MediaElement.ScrubbingEnabled == false && (MediaElement.IsPlaying == false || MediaElement.IsSeeking))
             //     return result;
@@ -311,14 +308,11 @@
             if (MediaElement.VideoView.Source != TargetBitmap)
                 MediaElement.VideoView.Source = TargetBitmap;
 
-            // Don't set the result
-            if (TargetBitmap == null) return null;
-
             // Lock the back-buffer and create a pointer to it
-            TargetBitmap.Lock();
-            result = new BitmapDataBuffer(TargetBitmap);
+            TargetBitmap?.Lock();
 
-            return result;
+            // Return the appropriate buffer result
+            return TargetBitmap != null ? new BitmapDataBuffer(TargetBitmap) : null;
         }
 
         /// <summary>
@@ -328,17 +322,17 @@
         /// <param name="source">The source.</param>
         private void LoadTargetBitmapBuffer(BitmapDataBuffer target, VideoBlock source)
         {
-            if (source != null && source.TryAcquireReaderLock(out var readLock))
-            {
-                using (readLock)
-                {
-                    // Compute a safe number of bytes to copy
-                    // At this point, we it is assumed the strides are equal
-                    var bufferLength = Convert.ToUInt32(Math.Min(source.BufferLength, target.BufferLength));
+            if (source == null || !source.TryAcquireReaderLock(out var readLock))
+                return;
 
-                    // Copy the block data into the back buffer of the target bitmap.
-                    WindowsNativeMethods.Instance.CopyMemory(target.Scan0, source.Buffer, bufferLength);
-                }
+            using (readLock)
+            {
+                // Compute a safe number of bytes to copy
+                // At this point, we it is assumed the strides are equal
+                var bufferLength = Convert.ToUInt32(Math.Min(source.BufferLength, target.BufferLength));
+
+                // Copy the block data into the back buffer of the target bitmap.
+                WindowsNativeMethods.Instance.CopyMemory(target.Scan0, source.Buffer, bufferLength);
             }
         }
 

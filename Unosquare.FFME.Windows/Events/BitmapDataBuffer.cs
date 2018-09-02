@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME.Events
 {
     using System;
+    using System.Drawing;
     using System.Windows;
     using System.Windows.Media;
     using System.Windows.Media.Imaging;
@@ -130,9 +131,9 @@
         /// Creates a Drawing Bitmap from this data buffer.
         /// </summary>
         /// <returns>The bitmap</returns>
-        public System.Drawing.Bitmap CreateDrawingBitmap()
+        public Bitmap CreateDrawingBitmap()
         {
-            var result = new System.Drawing.Bitmap(
+            var result = new Bitmap(
                 PixelWidth,
                 PixelHeight,
                 Stride,

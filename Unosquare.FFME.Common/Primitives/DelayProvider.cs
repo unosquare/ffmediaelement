@@ -137,7 +137,7 @@
             }
 
             DelayEvent.Begin();
-            ThreadPool.QueueUserWorkItem((s) =>
+            ThreadPool.QueueUserWorkItem(s =>
             {
                 DelaySleep();
                 DelayEvent.Complete();

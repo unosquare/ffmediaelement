@@ -31,7 +31,7 @@
                     { ffmpeg.AV_LOG_INFO, MediaLogMessageType.Info },
                     { ffmpeg.AV_LOG_PANIC, MediaLogMessageType.Error },
                     { ffmpeg.AV_LOG_TRACE, MediaLogMessageType.Trace },
-                    { ffmpeg.AV_LOG_WARNING, MediaLogMessageType.Warning },
+                    { ffmpeg.AV_LOG_WARNING, MediaLogMessageType.Warning }
                 });
 
         private static readonly Timer LogOutputWorker;
@@ -46,7 +46,7 @@
         /// </summary>
         static LoggingWorker()
         {
-            LogOutputWorker = new Timer((s) =>
+            LogOutputWorker = new Timer(s =>
             {
                 if (IsOutputtingLog == true) return;
                 IsOutputtingLog.Value = true;
@@ -54,7 +54,7 @@
                 {
                     const int MaxMessagesPerCycle = 10;
                     var messageCount = 0;
-                    while (messageCount <= MaxMessagesPerCycle && LogQueue.TryDequeue(out MediaLogMessage message))
+                    while (messageCount <= MaxMessagesPerCycle && LogQueue.TryDequeue(out var message))
                     {
                         if (message.Source != null)
                             message.Source.SendOnMessageLogged(message);
@@ -182,13 +182,11 @@
                 if (FFmpegLogLevels.ContainsKey(level))
                     messageType = FFmpegLogLevels[level];
 
-                if (line.EndsWith("\n"))
-                {
-                    line = string.Join(string.Empty, FFmpegLogBuffer);
-                    line = line.TrimEnd();
-                    FFmpegLogBuffer.Clear();
-                    LogGlobal(messageType, line);
-                }
+                if (!line.EndsWith("\n")) return;
+                line = string.Join(string.Empty, FFmpegLogBuffer);
+                line = line.TrimEnd();
+                FFmpegLogBuffer.Clear();
+                LogGlobal(messageType, line);
             }
         }
 

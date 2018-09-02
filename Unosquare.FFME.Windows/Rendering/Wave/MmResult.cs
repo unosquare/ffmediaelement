@@ -106,6 +106,6 @@
         MixerInvalidControl = 1025,
 
         /// <summary>invalid value</summary>
-        MixerInvalidValue = 1026,
+        MixerInvalidValue = 1026
     }
 }

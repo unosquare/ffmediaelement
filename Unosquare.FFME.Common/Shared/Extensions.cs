@@ -55,10 +55,7 @@
         public static short GetAudioSampleAmplitude(this byte[] buffer, int offset)
         {
             var value = buffer.GetAudioSample(offset);
-            if (value == short.MinValue)
-                return short.MaxValue;
-
-            return Math.Abs(value);
+            return value == short.MinValue ? short.MaxValue : Math.Abs(value);
         }
 
         /// <summary>
@@ -85,10 +82,9 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string Format(this TimeSpan ts)
         {
-            if (ts == TimeSpan.MinValue)
-                return $"{"N/A",10}";
-            else
-                return $"{ts.TotalSeconds,10:0.000}";
+            return ts == TimeSpan.MinValue ?
+                $"{"N/A",10}" :
+                $"{ts.TotalSeconds,10:0.000}";
         }
 
         /// <summary>

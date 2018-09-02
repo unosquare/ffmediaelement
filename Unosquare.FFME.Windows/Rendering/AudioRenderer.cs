@@ -158,11 +158,9 @@
             {
                 if ((AudioDevice?.IsRunning ?? false) == false)
                 {
-                    if (HasFiredAudioDeviceStopped == false)
-                    {
-                        MediaElement.RaiseAudioDeviceStoppedEvent();
-                        HasFiredAudioDeviceStopped = true;
-                    }
+                    if (HasFiredAudioDeviceStopped) return;
+                    MediaElement.RaiseAudioDeviceStoppedEvent();
+                    HasFiredAudioDeviceStopped = true;
 
                     return;
                 }
@@ -223,12 +221,12 @@
                     return;
                 }
 
-                if (MediaCore.State.IsPaused && PlaySyncStartTime != null)
-                {
-                    PlaySyncStartTime = null;
-                    PlaySyncCount = 0;
-                    PlaySyncGaveUp.Value = false;
-                }
+                if (!MediaCore.State.IsPaused || PlaySyncStartTime == null)
+                    return;
+
+                PlaySyncStartTime = null;
+                PlaySyncCount = 0;
+                PlaySyncGaveUp.Value = false;
             }
         }
 
@@ -456,11 +454,11 @@
                     AudioBuffer = null;
                 }
 
-                if (AudioProcessor != null)
-                {
-                    AudioProcessor.Dispose();
-                    AudioProcessor = null;
-                }
+                if (AudioProcessor == null)
+                    return;
+
+                AudioProcessor.Dispose();
+                AudioProcessor = null;
             }
         }
 
@@ -781,7 +779,7 @@
             }
 
             // Receiving samples from the processor
-            uint numSamples = AudioProcessor.ReceiveSamplesI16(AudioProcessorBuffer, Convert.ToUInt32(samplesToRequest));
+            var numSamples = AudioProcessor.ReceiveSamplesI16(AudioProcessorBuffer, Convert.ToUInt32(samplesToRequest));
             Array.Clear(ReadBuffer, 0, ReadBuffer.Length);
             Buffer.BlockCopy(AudioProcessorBuffer, 0, ReadBuffer, 0, Convert.ToInt32(numSamples * SampleBlockSize));
         }

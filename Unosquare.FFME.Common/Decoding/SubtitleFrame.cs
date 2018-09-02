@@ -49,26 +49,21 @@
 
                 if (rect->type == AVSubtitleType.SUBTITLE_TEXT)
                 {
-                    if (rect->text != null)
-                    {
-                        Text.Add(FFInterop.PtrToStringUTF8(rect->text));
-                        TextType = AVSubtitleType.SUBTITLE_TEXT;
-                        break;
-                    }
+                    if (rect->text == null) continue;
+                    Text.Add(FFInterop.PtrToStringUTF8(rect->text));
+                    TextType = AVSubtitleType.SUBTITLE_TEXT;
+                    break;
                 }
-                else if (rect->type == AVSubtitleType.SUBTITLE_ASS)
+
+                if (rect->type == AVSubtitleType.SUBTITLE_ASS)
                 {
-                    if (rect->ass != null)
-                    {
-                        Text.Add(FFInterop.PtrToStringUTF8(rect->ass));
-                        TextType = AVSubtitleType.SUBTITLE_ASS;
-                        break;
-                    }
+                    if (rect->ass == null) continue;
+                    Text.Add(FFInterop.PtrToStringUTF8(rect->ass));
+                    TextType = AVSubtitleType.SUBTITLE_ASS;
+                    break;
                 }
-                else
-                {
-                    TextType = rect->type;
-                }
+
+                TextType = rect->type;
             }
         }
 

@@ -144,11 +144,9 @@
             {
                 foreach (var kvp in App.Current.MediaElement.Metadata)
                 {
-                    if (kvp.Key.ToLowerInvariant().Equals("title"))
-                    {
-                        title = kvp.Value;
-                        break;
-                    }
+                    if (!kvp.Key.ToLowerInvariant().Equals("title")) continue;
+                    title = kvp.Value;
+                    break;
                 }
             }
             else if (App.MediaElement?.IsOpening ?? false)

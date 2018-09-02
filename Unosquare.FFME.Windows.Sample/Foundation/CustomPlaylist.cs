@@ -84,11 +84,11 @@
                     // Try to get a title from metadata
                     foreach (var meta in info.Metadata)
                     {
-                        if (meta.Key?.ToLowerInvariant().Trim().Equals("title") ?? false)
-                        {
-                            entry.Title = meta.Value;
-                            break;
-                        }
+                        if (!(meta.Key?.ToLowerInvariant().Trim().Equals("title") ?? false))
+                            continue;
+
+                        entry.Title = meta.Value;
+                        break;
                     }
 
                     if (string.IsNullOrWhiteSpace(entry.Title))
