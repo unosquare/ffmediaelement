@@ -114,14 +114,14 @@ namespace Unosquare.FFME.Rendering.Wave
         /// <param name="deviceHandle">The device handle.</param>
         /// <param name="header">The header.</param>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="MmException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
         public static void AllocateHeader(IntPtr deviceHandle, WaveHeader header)
         {
             if (header == null || !TryEnterWaveOperation(deviceHandle)) return;
 
             try
             {
-                MmException.Try(
+                LegacyAudioException.Try(
                     NativeMethods.PrepareWaveHeader(deviceHandle, header, Marshal.SizeOf(header)),
                     nameof(NativeMethods.PrepareWaveHeader));
             }
@@ -134,14 +134,14 @@ namespace Unosquare.FFME.Rendering.Wave
         /// <param name="deviceHandle">The device handle.</param>
         /// <param name="header">The header.</param>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="MmException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
         public static void ReleaseHeader(IntPtr deviceHandle, WaveHeader header)
         {
             if (header == null || !TryEnterWaveOperation(deviceHandle)) return;
 
             try
             {
-                MmException.Try(
+                LegacyAudioException.Try(
                     NativeMethods.ReleaseWaveHeader(deviceHandle, header, Marshal.SizeOf(header)),
                     nameof(NativeMethods.ReleaseWaveHeader));
             }
@@ -154,14 +154,14 @@ namespace Unosquare.FFME.Rendering.Wave
         /// <param name="deviceHandle">The device handle.</param>
         /// <param name="header">The header.</param>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="MmException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
         public static void WriteAudioData(IntPtr deviceHandle, WaveHeader header)
         {
             if (header == null || !TryEnterWaveOperation(deviceHandle)) return;
 
             try
             {
-                MmException.Try(
+                LegacyAudioException.Try(
                     NativeMethods.WriteWaveAudioData(deviceHandle, header, Marshal.SizeOf(header)),
                     nameof(NativeMethods.WriteWaveAudioData));
             }
@@ -178,7 +178,7 @@ namespace Unosquare.FFME.Rendering.Wave
         /// <param name="openFlags">The open flags.</param>
         /// <returns>The audio device handle</returns>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="MmException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
         public static IntPtr OpenAudioDevice(int deviceId, WaveFormat format, WaveCallback callback, IntPtr instanceHandle, WaveInOutOpenFlags openFlags)
         {
             if (deviceId < -1) throw new ArgumentException($"Invalid Device ID {deviceId}", nameof(deviceId));
@@ -187,7 +187,7 @@ namespace Unosquare.FFME.Rendering.Wave
 
             try
             {
-                MmException.Try(
+                LegacyAudioException.Try(
                     NativeMethods.OpenDevice(out var hWaveOut, deviceId, format, callback, instanceHandle, openFlags),
                     nameof(NativeMethods.OpenDevice));
 
@@ -206,7 +206,7 @@ namespace Unosquare.FFME.Rendering.Wave
         /// <param name="openFlags">The open flags.</param>
         /// <returns>The audio device handle</returns>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="MmException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
         public static IntPtr OpenAudioDevice(int deviceId, WaveFormat format, SafeWaitHandle callbackHandle, IntPtr instanceHandle, WaveInOutOpenFlags openFlags)
         {
             if (deviceId < -1) throw new ArgumentException($"Invalid Device ID {deviceId}", nameof(deviceId));
@@ -215,7 +215,7 @@ namespace Unosquare.FFME.Rendering.Wave
 
             try
             {
-                MmException.Try(
+                LegacyAudioException.Try(
                     NativeMethods.OpenDeviceOnWindow(out var hWaveOut, deviceId, format, callbackHandle, instanceHandle, openFlags),
                     nameof(NativeMethods.OpenDeviceOnWindow));
 
@@ -229,14 +229,14 @@ namespace Unosquare.FFME.Rendering.Wave
         /// </summary>
         /// <param name="deviceHandle">The device handle.</param>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="MmException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
         public static void ResetAudioDevice(IntPtr deviceHandle)
         {
             if (!TryEnterWaveOperation(deviceHandle)) return;
 
             try
             {
-                MmException.Try(
+                LegacyAudioException.Try(
                     NativeMethods.ResetDevice(deviceHandle),
                     nameof(NativeMethods.ResetDevice));
             }
@@ -248,14 +248,14 @@ namespace Unosquare.FFME.Rendering.Wave
         /// </summary>
         /// <param name="deviceHandle">The device handle.</param>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="MmException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
         public static void CloseAudioDevice(IntPtr deviceHandle)
         {
             if (!TryEnterWaveOperation(deviceHandle)) return;
 
             try
             {
-                MmException.Try(
+                LegacyAudioException.Try(
                     NativeMethods.CloseDevice(deviceHandle),
                     nameof(NativeMethods.CloseDevice));
             }
@@ -267,14 +267,14 @@ namespace Unosquare.FFME.Rendering.Wave
         /// </summary>
         /// <param name="deviceHandle">The device handle.</param>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="MmException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
         public static void PauseAudioDevice(IntPtr deviceHandle)
         {
             if (!TryEnterWaveOperation(deviceHandle)) return;
 
             try
             {
-                MmException.Try(
+                LegacyAudioException.Try(
                     NativeMethods.PausePlayback(deviceHandle),
                     nameof(NativeMethods.PausePlayback));
             }
@@ -286,14 +286,14 @@ namespace Unosquare.FFME.Rendering.Wave
         /// </summary>
         /// <param name="deviceHandle">The device handle.</param>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="MmException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
         public static void RestartAudioDevice(IntPtr deviceHandle)
         {
             if (!TryEnterWaveOperation(deviceHandle)) return;
 
             try
             {
-                MmException.Try(
+                LegacyAudioException.Try(
                     NativeMethods.RestartPlayback(deviceHandle),
                     nameof(NativeMethods.RestartPlayback));
             }
@@ -306,7 +306,7 @@ namespace Unosquare.FFME.Rendering.Wave
         /// <param name="deviceHandle">The device handle.</param>
         /// <returns>The number of bytes played during this session</returns>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="MmException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
         /// <exception cref="ArgumentException">Occurs when the device does not return a byte count.</exception>
         public static long GetPlaybackBytesCount(IntPtr deviceHandle)
         {
@@ -317,7 +317,7 @@ namespace Unosquare.FFME.Rendering.Wave
                 var time = new MmTime { Type = MmTime.TimeBytes };
                 var structSize = Marshal.SizeOf(time);
 
-                MmException.Try(
+                LegacyAudioException.Try(
                     NativeMethods.GetPlaybackPosition(deviceHandle, out time, structSize),
                     nameof(NativeMethods.GetPlaybackPosition));
 
@@ -338,7 +338,7 @@ namespace Unosquare.FFME.Rendering.Wave
         /// <param name="deviceId">The device identifier.</param>
         /// <returns>The audio device capabilities and metadata</returns>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="MmException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
         public static LegacyAudioDeviceInfo RetrieveAudioDeviceInfo(int deviceId)
         {
             if (deviceId < -1) throw new ArgumentException($"Invalid Device ID {deviceId}", nameof(deviceId));
@@ -347,7 +347,7 @@ namespace Unosquare.FFME.Rendering.Wave
 
             try
             {
-                MmException.Try(
+                LegacyAudioException.Try(
                     NativeMethods.RetrieveDeviceCapabilities((IntPtr)deviceId,
                         out var waveOutCaps,
                         Marshal.SizeOf(typeof(LegacyAudioDeviceInfo))),
@@ -388,42 +388,42 @@ namespace Unosquare.FFME.Rendering.Wave
             public static extern int GetDeviceCount();
 
             [DllImport(WinMM, EntryPoint = "waveOutPrepareHeader")]
-            public static extern MmResult PrepareWaveHeader(IntPtr deviceHandle, WaveHeader header, int headerSize);
+            public static extern LegacyAudioResult PrepareWaveHeader(IntPtr deviceHandle, WaveHeader header, int headerSize);
 
             [DllImport(WinMM, EntryPoint = "waveOutUnprepareHeader")]
-            public static extern MmResult ReleaseWaveHeader(IntPtr deviceHandle, WaveHeader header, int headerSize);
+            public static extern LegacyAudioResult ReleaseWaveHeader(IntPtr deviceHandle, WaveHeader header, int headerSize);
 
             [DllImport(WinMM, EntryPoint = "waveOutWrite")]
-            public static extern MmResult WriteWaveAudioData(IntPtr deviceHandle, WaveHeader header, int headerSize);
+            public static extern LegacyAudioResult WriteWaveAudioData(IntPtr deviceHandle, WaveHeader header, int headerSize);
 
             // http://msdn.microsoft.com/en-us/library/dd743866%28VS.85%29.aspx
             [DllImport(WinMM, EntryPoint = "waveOutOpen")]
-            public static extern MmResult OpenDevice(
+            public static extern LegacyAudioResult OpenDevice(
                 out IntPtr deviceHandle, int deviceId, WaveFormat waveFormat, WaveCallback callbackMethod, IntPtr instanceHandle, WaveInOutOpenFlags openFlags);
 
             [DllImport(WinMM, EntryPoint = "waveOutOpen")]
-            public static extern MmResult OpenDeviceOnWindow(
+            public static extern LegacyAudioResult OpenDeviceOnWindow(
                 out IntPtr deviceHandle, int deviceId, WaveFormat waveFormat, SafeWaitHandle callbackHandle, IntPtr instanceHandle, WaveInOutOpenFlags openFlags);
 
             [DllImport(WinMM, EntryPoint = "waveOutReset")]
-            public static extern MmResult ResetDevice(IntPtr deviceHandle);
+            public static extern LegacyAudioResult ResetDevice(IntPtr deviceHandle);
 
             [DllImport(WinMM, EntryPoint = "waveOutClose")]
-            public static extern MmResult CloseDevice(IntPtr deviceHandle);
+            public static extern LegacyAudioResult CloseDevice(IntPtr deviceHandle);
 
             [DllImport(WinMM, EntryPoint = "waveOutPause")]
-            public static extern MmResult PausePlayback(IntPtr deviceHandle);
+            public static extern LegacyAudioResult PausePlayback(IntPtr deviceHandle);
 
             [DllImport(WinMM, EntryPoint = "waveOutRestart")]
-            public static extern MmResult RestartPlayback(IntPtr deviceHandle);
+            public static extern LegacyAudioResult RestartPlayback(IntPtr deviceHandle);
 
             // http://msdn.microsoft.com/en-us/library/dd743863%28VS.85%29.aspx
             [DllImport(WinMM, EntryPoint = "waveOutGetPosition")]
-            public static extern MmResult GetPlaybackPosition(IntPtr deviceHandle, out MmTime mmTime, int mmTimeSize);
+            public static extern LegacyAudioResult GetPlaybackPosition(IntPtr deviceHandle, out MmTime mmTime, int mmTimeSize);
 
             // http://msdn.microsoft.com/en-us/library/dd743857%28VS.85%29.aspx
             [DllImport(WinMM, EntryPoint = "waveOutGetDevCaps", CharSet = CharSet.Auto)]
-            public static extern MmResult RetrieveDeviceCapabilities(IntPtr deviceId, out LegacyAudioDeviceInfo waveOutCaps, int waveOutCapsSize);
+            public static extern LegacyAudioResult RetrieveDeviceCapabilities(IntPtr deviceId, out LegacyAudioDeviceInfo waveOutCaps, int waveOutCapsSize);
         }
     }
 }

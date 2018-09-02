@@ -1,9 +1,9 @@
-﻿namespace Unosquare.FFME.Rendering.Wave
+﻿namespace Unosquare.FFME.Rendering
 {
     /// <summary>
     /// Windows multimedia error codes from mmsystem.h.
     /// </summary>
-    internal enum MmResult
+    public enum LegacyAudioResult
     {
         /// <summary>no error</summary>
         NoError = 0,

@@ -82,7 +82,7 @@
     <Compile Include="Rendering\Wave\DirectSoundDeviceInfo.cs" />
     <Compile Include="Rendering\Wave\DirectSoundPlayer.cs" />
     <Compile Include="Rendering\Wave\IWavePlayer.cs" />
-    <Compile Include="Rendering\Wave\MmException.cs" />
+    <Compile Include="Rendering\LegacyAudioException.cs" />
     <Compile Include="Subtitles.cs" />
     <Compile Include="Platform\WindowsMediaConnector.cs" />
     <Compile Include="Platform\WindowsNativeMethods.cs" />
@@ -94,7 +94,7 @@
     <Compile Include="Platform\SoundTouch.cs" />
     <Compile Include="Rendering\SubtitlesControl.cs" />
     <Compile Include="Rendering\Wave\IWaveProvider.cs" />
-    <Compile Include="Rendering\Wave\MmResult.cs" />
+    <Compile Include="Rendering\LegacyAudioResult.cs" />
     <Compile Include="Rendering\Wave\MmTime.cs" />
     <Compile Include="Rendering\Wave\PlaybackState.cs" />
     <Compile Include="Rendering\Wave\SupportedWaveFormat.cs" />
