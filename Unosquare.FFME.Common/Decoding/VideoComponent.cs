@@ -559,7 +559,7 @@
                 SourceFilter = sourceFilterRef;
                 SinkFilter = sinkFilterRef;
 
-                // TODO: from ffplay, ffmpeg.av_opt_set_int_list(sink, "pixel_formats", (byte*)&f0, 1, ffmpeg.AV_OPT_SEARCH_CHILDREN);
+                // TODO: from ffplay, ffmpeg.av_opt_set_int_list(sink, "pixel_formats", (byte*)&f0, 1, ffmpeg.AV_OPT_SEARCH_CHILDREN)
                 if (string.IsNullOrWhiteSpace(FilterString))
                 {
                     result = ffmpeg.avfilter_link(SourceFilter, 0, SinkFilter, 0);

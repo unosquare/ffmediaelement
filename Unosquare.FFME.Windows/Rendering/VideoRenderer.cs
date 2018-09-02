@@ -282,8 +282,7 @@
         private BitmapDataBuffer LockTargetBitmap(VideoBlock block)
         {
             // TODO: Evaluate if we need to skip the locking if scrubbing is not enabled
-            // if (MediaElement.ScrubbingEnabled == false && (MediaElement.IsPlaying == false || MediaElement.IsSeeking))
-            //     return result;
+            // Example: if (!MediaElement.ScrubbingEnabled && (!MediaElement.IsPlaying || MediaElement.IsSeeking)) return result
 
             // Figure out what we need to do
             var needsCreation = TargetBitmap == null && MediaElement.HasVideo;

@@ -13,11 +13,6 @@
     /// <seealso cref="IMediaInputStream" />
     public sealed unsafe class FileInputStream : IMediaInputStream
     {
-        /// <summary>
-        /// The custom file scheme (URL prefix) including ://
-        /// </summary>
-        public const string Scheme = "customfile://";
-
         private readonly FileStream BackingStream;
         private readonly object ReadLock = new object();
         private readonly byte[] ReadBuffer;
@@ -35,6 +30,11 @@
             CanSeek = true;
             ReadBuffer = new byte[ReadBufferLength];
         }
+
+        /// <summary>
+        /// The custom file scheme (URL prefix) including ://
+        /// </summary>
+        public static string Scheme => "customfile://";
 
         /// <inheritdoc />
         public Uri StreamUri { get; }
