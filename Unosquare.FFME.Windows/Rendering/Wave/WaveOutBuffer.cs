@@ -61,14 +61,20 @@
             if (m_IsDisposed.Value) return;
             m_IsDisposed.Value = true;
 
+            // Release the wave header
+            WaveInterop.ReleaseHeader(DeviceHandle, header);
+
+            // Unpin The header
             if (HeaderHandle.IsAllocated)
                 HeaderHandle.Free();
 
+            // Unpin the buffer
             if (BufferHandle.IsAllocated)
                 BufferHandle.Free();
 
-            if (DeviceHandle == IntPtr.Zero) return;
-            WaveInterop.ReleaseHeader(DeviceHandle, header);
+            // Reset the struct fields
+            HeaderHandle = default;
+            BufferHandle = default;
             DeviceHandle = IntPtr.Zero;
         }
 
