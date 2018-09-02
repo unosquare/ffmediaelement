@@ -122,8 +122,8 @@ namespace Unosquare.FFME.Rendering.Wave
             try
             {
                 MmException.Try(
-                    NativeMethods.PrepareHeader(deviceHandle, header, Marshal.SizeOf(header)),
-                    nameof(NativeMethods.PrepareHeader));
+                    NativeMethods.PrepareWaveHeader(deviceHandle, header, Marshal.SizeOf(header)),
+                    nameof(NativeMethods.PrepareWaveHeader));
             }
             finally { Monitor.Exit(SyncLock); }
         }
@@ -142,8 +142,8 @@ namespace Unosquare.FFME.Rendering.Wave
             try
             {
                 MmException.Try(
-                    NativeMethods.ReleaseHeader(deviceHandle, header, Marshal.SizeOf(header)),
-                    nameof(NativeMethods.ReleaseHeader));
+                    NativeMethods.ReleaseWaveHeader(deviceHandle, header, Marshal.SizeOf(header)),
+                    nameof(NativeMethods.ReleaseWaveHeader));
             }
             finally { Monitor.Exit(SyncLock); }
         }
@@ -162,8 +162,8 @@ namespace Unosquare.FFME.Rendering.Wave
             try
             {
                 MmException.Try(
-                    NativeMethods.WriteAudioData(deviceHandle, header, Marshal.SizeOf(header)),
-                    nameof(NativeMethods.WriteAudioData));
+                    NativeMethods.WriteWaveAudioData(deviceHandle, header, Marshal.SizeOf(header)),
+                    nameof(NativeMethods.WriteWaveAudioData));
             }
             finally { Monitor.Exit(SyncLock); }
         }
@@ -388,13 +388,13 @@ namespace Unosquare.FFME.Rendering.Wave
             public static extern int GetDeviceCount();
 
             [DllImport(WinMM, EntryPoint = "waveOutPrepareHeader")]
-            public static extern MmResult PrepareHeader(IntPtr deviceHandle, WaveHeader header, int headerSize);
+            public static extern MmResult PrepareWaveHeader(IntPtr deviceHandle, WaveHeader header, int headerSize);
 
             [DllImport(WinMM, EntryPoint = "waveOutUnprepareHeader")]
-            public static extern MmResult ReleaseHeader(IntPtr deviceHandle, WaveHeader header, int headerSize);
+            public static extern MmResult ReleaseWaveHeader(IntPtr deviceHandle, WaveHeader header, int headerSize);
 
             [DllImport(WinMM, EntryPoint = "waveOutWrite")]
-            public static extern MmResult WriteAudioData(IntPtr deviceHandle, WaveHeader header, int headerSize);
+            public static extern MmResult WriteWaveAudioData(IntPtr deviceHandle, WaveHeader header, int headerSize);
 
             // http://msdn.microsoft.com/en-us/library/dd743866%28VS.85%29.aspx
             [DllImport(WinMM, EntryPoint = "waveOutOpen")]
