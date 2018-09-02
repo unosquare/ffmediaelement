@@ -50,20 +50,17 @@
                 {
                     try
                     {
-                        var uriString = a as string;
+                        if (a is string == false) return;
+                        var uriString = (string)a;
                         if (string.IsNullOrWhiteSpace(uriString))
                             return;
 
                         // Current.MediaElement.Source = new Uri(uriString); // you can also set the source to the Uri to open
                         var target = new Uri(uriString);
                         if (target.ToString().StartsWith(FileInputStream.Scheme))
-                        {
                             await Current.MediaElement.Open(new FileInputStream(target.LocalPath));
-                        }
                         else
-                        {
                             await Current.MediaElement.Open(target);
-                        }
                     }
                     catch (Exception ex)
                     {

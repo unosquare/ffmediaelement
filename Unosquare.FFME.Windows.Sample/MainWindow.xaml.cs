@@ -104,7 +104,7 @@
                 if (elapsedSinceMouseMove.TotalMilliseconds >= 3000 && Media.IsOpen && ControllerPanel.IsMouseOver == false
                     && PropertiesPanel.Visibility != Visibility.Visible && ControllerPanel.SoundMenuPopup.IsOpen == false)
                 {
-                    if (!(Math.Abs(ControllerPanel.Opacity) > double.Epsilon)) return;
+                    if (Math.Abs(ControllerPanel.Opacity) <= double.Epsilon) return;
                     Cursor = Cursors.None;
 
                     // ReSharper disable once InvertIf
@@ -116,7 +116,7 @@
                 }
                 else
                 {
-                    if (!(Math.Abs(ControllerPanel.Opacity - 1d) > double.Epsilon)) return;
+                    if (Math.Abs(ControllerPanel.Opacity - 1d) <= double.Epsilon) return;
                     Cursor = Cursors.Arrow;
 
                     // ReSharper disable once InvertIf

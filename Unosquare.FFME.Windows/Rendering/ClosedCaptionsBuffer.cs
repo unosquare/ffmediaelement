@@ -431,6 +431,7 @@
                     CurrentPacket = packet;
 
                     // Now, go ahead and process the packet updating the state
+                    // ReSharper disable once SwitchStatementMissingSomeCases
                     switch (packet.PacketType)
                     {
                         case CaptionsPacketType.Color:
@@ -534,6 +535,7 @@
                 ScrollSize = 4;
 
             // Process the command
+            // ReSharper disable once SwitchStatementMissingSomeCases
             switch (command)
             {
                 case CaptionsCommand.StartCaption:

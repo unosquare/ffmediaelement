@@ -180,7 +180,7 @@
         /// <param name="e">The <see cref="RenderingVideoEventArgs"/> instance containing the event data.</param>
         private void OnRenderingVideo(object sender, RenderingVideoEventArgs e)
         {
-            const double snapPosition = 3;
+            const double snapshotPosition = 3;
 
             var state = e.EngineState;
             if (HasTakenThumbnail || state.Source == null)
@@ -190,8 +190,8 @@
             if (string.IsNullOrWhiteSpace(sourceUrl))
                 return;
 
-            if (!state.HasMediaEnded && !(state.Position.TotalSeconds >= snapPosition) &&
-                (!state.NaturalDuration.HasValue || !(state.NaturalDuration.Value.TotalSeconds <= snapPosition)))
+            if (!state.HasMediaEnded && state.Position.TotalSeconds < snapshotPosition &&
+                (!state.NaturalDuration.HasValue || state.NaturalDuration.Value.TotalSeconds > snapshotPosition))
                 return;
 
             HasTakenThumbnail = true;
