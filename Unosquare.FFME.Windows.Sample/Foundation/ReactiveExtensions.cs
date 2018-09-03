@@ -29,10 +29,8 @@
         /// <param name="callback">The callback.</param>
         /// <param name="publisher">The publisher.</param>
         /// <param name="propertyNames">The property names.</param>
-        internal static void WhenChanged(this Action callback, INotifyPropertyChanged publisher, params string[] propertyNames)
-        {
+        internal static void WhenChanged(this Action callback, INotifyPropertyChanged publisher, params string[] propertyNames) =>
             callback.WhenChanged(true, publisher, propertyNames);
-        }
 
         internal static void WhenChanged(this Action callback, bool pinned, INotifyPropertyChanged publisher, params string[] propertyNames)
         {
