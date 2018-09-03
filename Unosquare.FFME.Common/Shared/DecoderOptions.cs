@@ -22,8 +22,8 @@
 
         /// <summary>
         /// Gets or sets a value indicating whether [enable low resource].
-        /// In theroy this should be 0,1,2,3 for 1, 1/2, 1,4 and 1/8 resolutions.
-        /// Port of lowres.
+        /// In theory this should be 0,1,2,3 for 1, 1/2, 1,4 and 1/8 resolutions.
+        /// Port of low-res.
         /// </summary>
         public ResolutionDivider LowResolutionIndex { get; set; } = ResolutionDivider.Full;
 
@@ -31,7 +31,7 @@
         /// Gets or sets a value indicating whether to enable fast decoding.
         /// Port of fast
         /// </summary>
-        public bool EnableFastDecoding { get; set; } = false;
+        public bool EnableFastDecoding { get; set; }
 
         /// <summary>
         /// Enables low_delay flag for no delay in frame decoding.
@@ -39,7 +39,7 @@
         /// This flag is not of much use because the decoder pre-caches and pre-orders a set of decoded
         /// frames internally.
         /// </summary>
-        public bool EnableLowDelayDecoding { get; set; } = false;
+        public bool EnableLowDelayDecoding { get; set; }
 
         /// <summary>
         /// Gets or sets the threads.
@@ -92,8 +92,8 @@
             get
             {
                 if (PrivateOptions.ContainsKey(streamIndex) == false) return null;
-                if (PrivateOptions[streamIndex].ContainsKey(privateOptionName) == false) return null;
-                return PrivateOptions[streamIndex][privateOptionName];
+                return PrivateOptions[streamIndex].ContainsKey(privateOptionName) ?
+                    PrivateOptions[streamIndex][privateOptionName] : null;
             }
             set
             {
@@ -112,13 +112,11 @@
         internal FFDictionary GetStreamCodecOptions(int streamIndex)
         {
             var result = new Dictionary<string, string>(GlobalOptions);
-            if (PrivateOptions.ContainsKey(streamIndex))
-            {
-                foreach (var kvp in PrivateOptions[streamIndex])
-                {
-                    result[kvp.Key] = kvp.Value;
-                }
-            }
+            if (!PrivateOptions.ContainsKey(streamIndex))
+                return new FFDictionary(result);
+
+            foreach (var kvp in PrivateOptions[streamIndex])
+                result[kvp.Key] = kvp.Value;
 
             return new FFDictionary(result);
         }

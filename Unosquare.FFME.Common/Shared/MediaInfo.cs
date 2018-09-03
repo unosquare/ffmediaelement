@@ -33,7 +33,7 @@
             StartTime = ic->start_time != ffmpeg.AV_NOPTS_VALUE ?
                 ic->start_time.ToTimeSpan() :
                 default(TimeSpan?);
-            Bitrate = ic->bit_rate < 0 ? 0 : ic->bit_rate;
+            BitRate = ic->bit_rate < 0 ? 0 : ic->bit_rate;
 
             Streams = new ReadOnlyDictionary<int, StreamInfo>(ExtractStreams(ic).ToDictionary(k => k.StreamIndex, v => v));
             Chapters = new ReadOnlyCollection<ChapterInfo>(ExtractChapters(ic));
@@ -76,7 +76,7 @@
         /// <summary>
         /// If available, returns a non-zero value as reported by the container format.
         /// </summary>
-        public long Bitrate { get; }
+        public long BitRate { get; }
 
         /// <summary>
         /// Gets a list of chapters
@@ -121,7 +121,7 @@
                 ffmpeg.avcodec_parameters_to_context(codecContext, s->codecpar);
 
                 // Fields which are missing from AVCodecParameters need to be taken
-                // from the strem's AVCodecContext
+                // from the stream's AVCodecContext
                 codecContext->properties = s->codec->properties;
                 codecContext->codec = s->codec->codec;
                 codecContext->qmin = s->codec->qmin;
@@ -160,6 +160,8 @@
                     CodecTag = codecContext->codec_tag,
                     PixelFormat = codecContext->pix_fmt,
                     FieldOrder = codecContext->field_order,
+                    IsInterlaced = codecContext->field_order != AVFieldOrder.AV_FIELD_PROGRESSIVE
+                        && codecContext->field_order != AVFieldOrder.AV_FIELD_UNKNOWN,
                     ColorRange = codecContext->color_range,
                     PixelWidth = codecContext->width,
                     PixelHeight = codecContext->height,
@@ -181,7 +183,7 @@
                     FPS = s->avg_frame_rate.ToDouble(),
                     TBR = s->r_frame_rate.ToDouble(),
                     TBN = 1d / s->time_base.ToDouble(),
-                    TBC = 1d / s->codec->time_base.ToDouble(),
+                    TBC = 1d / s->codec->time_base.ToDouble()
                 };
 
                 // Extract valid hardware configurations
@@ -218,7 +220,7 @@
 
             // Find best streams for each component
             // if we passed null instead of the requestedCodec pointer, then
-            // find_best_stream would not validate whether a valid decoder is registed.
+            // find_best_stream would not validate whether a valid decoder is registered.
             AVCodec* requestedCodec = null;
 
             streamIndexes[AVMediaType.AVMEDIA_TYPE_VIDEO] =
@@ -307,7 +309,7 @@
                 {
                     Metadata = new ReadOnlyDictionary<string, string>(FFDictionary.ToDictionary(p->metadata)),
                     ProgramId = p->id,
-                    ProgramNumber = p->program_num,
+                    ProgramNumber = p->program_num
                 };
 
                 var associatedStreams = new List<StreamInfo>(32);
@@ -417,7 +419,7 @@
         public bool IsLossless { get; internal set; }
 
         /// <summary>
-        /// Gets the pixel format. Only valid for Vide streams.
+        /// Gets the pixel format. Only valid for Video streams.
         /// </summary>
         public AVPixelFormat PixelFormat { get; internal set; }
 
@@ -433,9 +435,14 @@
 
         /// <summary>
         /// Gets the field order. This is useful to determine
-        /// if the video needs deinterlacing
+        /// if the video needs de-interlacing
         /// </summary>
         public AVFieldOrder FieldOrder { get; internal set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the video frames are interlaced
+        /// </summary>
+        public bool IsInterlaced { get; internal set; }
 
         /// <summary>
         /// Gets the video color range.
@@ -468,12 +475,12 @@
         public AVRational DisplayAspectRatio { get; internal set; }
 
         /// <summary>
-        /// Gets the reported bit rate. 9 for unavalable.
+        /// Gets the reported bit rate. 9 for unavailable.
         /// </summary>
         public long BitRate { get; internal set; }
 
         /// <summary>
-        /// Gets the maximum bit rate for variable bitrate streams. 0 if unavailable.
+        /// Gets the maximum bit rate for variable bit rate streams. 0 if unavailable.
         /// </summary>
         public long MaxBitRate { get; internal set; }
 
@@ -493,7 +500,7 @@
         public double FPS { get; internal set; }
 
         /// <summary>
-        /// Gets the real (base) framerate of the stream
+        /// Gets the real (base) frame rate of the stream
         /// </summary>
         public double TBR { get; internal set; }
 
@@ -503,7 +510,7 @@
         public double TBN { get; internal set; }
 
         /// <summary>
-        /// Gets the fundamental unit of time in 1/seconds used to represent timestamps in the stream ,accoring to the codec
+        /// Gets the fundamental unit of time in 1/seconds used to represent timestamps in the stream ,according to the codec
         /// </summary>
         public double TBC { get; internal set; }
 
@@ -546,14 +553,8 @@
         /// <summary>
         /// Gets the language string from the stream's metadata.
         /// </summary>
-        public string Language
-        {
-            get
-            {
-                if (Metadata.ContainsKey("language")) return Metadata["language"];
-                return string.Empty;
-            }
-        }
+        public string Language => Metadata.ContainsKey("language") ?
+            Metadata["language"] : string.Empty;
     }
 
     /// <summary>
@@ -615,13 +616,7 @@
         /// <summary>
         /// Gets the name of the program. Empty if unavailable.
         /// </summary>
-        public string Name
-        {
-            get
-            {
-                if (Metadata.ContainsKey("name")) return Metadata["name"];
-                return string.Empty;
-            }
-        }
+        public string Name => Metadata.ContainsKey("name") ?
+            Metadata["name"] : string.Empty;
     }
 }

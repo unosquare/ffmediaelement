@@ -1,7 +1,5 @@
 ﻿namespace Unosquare.FFME.Rendering.Wave
 {
-#pragma warning disable SA1310 // Field names must not contain underscore
-
     using System;
     using System.Runtime.InteropServices;
 
@@ -11,9 +9,9 @@
     [StructLayout(LayoutKind.Explicit)]
     internal struct MmTime : IEquatable<MmTime>
     {
-        public const int TIME_MS = 0x0001;
-        public const int TIME_SAMPLES = 0x0002;
-        public const int TIME_BYTES = 0x0004;
+        public const int TimeMs = 0x0001;
+        public const int TimeSamples = 0x0002;
+        public const int TimeBytes = 0x0004;
 
         [FieldOffset(0)]
         public uint Type;
@@ -59,6 +57,4 @@
                 CB == other.CB;
         }
     }
-
-#pragma warning restore SA1310 // Field names must not contain underscore
 }

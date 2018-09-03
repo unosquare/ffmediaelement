@@ -134,8 +134,8 @@
         /// </summary>
         public event RoutedEventHandler BufferingStarted
         {
-            add { AddHandler(BufferingStartedEvent, value); }
-            remove { RemoveHandler(BufferingStartedEvent, value); }
+            add => AddHandler(BufferingStartedEvent, value);
+            remove => RemoveHandler(BufferingStartedEvent, value);
         }
 
         /// <summary>
@@ -143,8 +143,8 @@
         /// </summary>
         public event RoutedEventHandler BufferingEnded
         {
-            add { AddHandler(BufferingEndedEvent, value); }
-            remove { RemoveHandler(BufferingEndedEvent, value); }
+            add => AddHandler(BufferingEndedEvent, value);
+            remove => RemoveHandler(BufferingEndedEvent, value);
         }
 
         /// <summary>
@@ -152,8 +152,8 @@
         /// </summary>
         public event RoutedEventHandler SeekingStarted
         {
-            add { AddHandler(SeekingStartedEvent, value); }
-            remove { RemoveHandler(SeekingStartedEvent, value); }
+            add => AddHandler(SeekingStartedEvent, value);
+            remove => RemoveHandler(SeekingStartedEvent, value);
         }
 
         /// <summary>
@@ -161,8 +161,8 @@
         /// </summary>
         public event RoutedEventHandler SeekingEnded
         {
-            add { AddHandler(SeekingEndedEvent, value); }
-            remove { RemoveHandler(SeekingEndedEvent, value); }
+            add => AddHandler(SeekingEndedEvent, value);
+            remove => RemoveHandler(SeekingEndedEvent, value);
         }
 
         /// <summary>
@@ -170,8 +170,8 @@
         /// </summary>
         public event EventHandler<MediaOpenedRoutedEventArgs> MediaOpened
         {
-            add { AddHandler(MediaOpenedEvent, value); }
-            remove { RemoveHandler(MediaOpenedEvent, value); }
+            add => AddHandler(MediaOpenedEvent, value);
+            remove => RemoveHandler(MediaOpenedEvent, value);
         }
 
         /// <summary>
@@ -179,8 +179,8 @@
         /// </summary>
         public event EventHandler<MediaOpenedRoutedEventArgs> MediaChanged
         {
-            add { AddHandler(MediaChangedEvent, value); }
-            remove { RemoveHandler(MediaChangedEvent, value); }
+            add => AddHandler(MediaChangedEvent, value);
+            remove => RemoveHandler(MediaChangedEvent, value);
         }
 
         /// <summary>
@@ -188,8 +188,8 @@
         /// </summary>
         public event RoutedEventHandler MediaClosed
         {
-            add { AddHandler(MediaClosedEvent, value); }
-            remove { RemoveHandler(MediaClosedEvent, value); }
+            add => AddHandler(MediaClosedEvent, value);
+            remove => RemoveHandler(MediaClosedEvent, value);
         }
 
         /// <summary>
@@ -197,8 +197,8 @@
         /// </summary>
         public event RoutedEventHandler MediaEnded
         {
-            add { AddHandler(MediaEndedEvent, value); }
-            remove { RemoveHandler(MediaEndedEvent, value); }
+            add => AddHandler(MediaEndedEvent, value);
+            remove => RemoveHandler(MediaEndedEvent, value);
         }
 
         /// <summary>
@@ -206,8 +206,8 @@
         /// </summary>
         public event EventHandler<PositionChangedRoutedEventArgs> PositionChanged
         {
-            add { AddHandler(PositionChangedEvent, value); }
-            remove { RemoveHandler(PositionChangedEvent, value); }
+            add => AddHandler(PositionChangedEvent, value);
+            remove => RemoveHandler(PositionChangedEvent, value);
         }
 
         /// <summary>
@@ -215,8 +215,8 @@
         /// </summary>
         public event EventHandler<MediaStateChangedRoutedEventArgs> MediaStateChanged
         {
-            add { AddHandler(MediaStateChangedEvent, value); }
-            remove { RemoveHandler(MediaStateChangedEvent, value); }
+            add => AddHandler(MediaStateChangedEvent, value);
+            remove => RemoveHandler(MediaStateChangedEvent, value);
         }
 
         /// <summary>
@@ -224,8 +224,8 @@
         /// </summary>
         public event EventHandler<ExceptionRoutedEventArgs> MediaFailed
         {
-            add { AddHandler(MediaFailedEvent, value); }
-            remove { RemoveHandler(MediaFailedEvent, value); }
+            add => AddHandler(MediaFailedEvent, value);
+            remove => RemoveHandler(MediaFailedEvent, value);
         }
 
         #endregion
@@ -243,8 +243,8 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static ExceptionRoutedEventArgs CreateExceptionRoutedEventArgs(RoutedEvent routedEvent, object sender, Exception errorException)
         {
-            var constructor = (typeof(ExceptionRoutedEventArgs) as TypeInfo).DeclaredConstructors.First();
-            return constructor.Invoke(new object[] { routedEvent, sender, errorException }) as ExceptionRoutedEventArgs;
+            var constructor = (typeof(ExceptionRoutedEventArgs) as TypeInfo)?.DeclaredConstructors.First();
+            return constructor?.Invoke(new[] { routedEvent, sender, errorException }) as ExceptionRoutedEventArgs;
         }
 
         #endregion

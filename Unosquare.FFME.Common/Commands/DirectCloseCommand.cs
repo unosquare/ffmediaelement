@@ -20,15 +20,10 @@
             CommandType = CommandType.Close;
         }
 
-        /// <summary>
-        /// Gets the command type identifier.
-        /// </summary>
+        /// <inheritdoc />
         public override CommandType CommandType { get; }
 
-        /// <summary>
-        /// Performs actions when the command has been executed.
-        /// This is useful to notify exceptions or update the state of the media.
-        /// </summary>
+        /// <inheritdoc />
         public override void PostProcess()
         {
             var m = MediaCore;
@@ -46,9 +41,7 @@
             MediaCore.Log(MediaLogMessageType.Debug, $"Command {CommandType}: Completed");
         }
 
-        /// <summary>
-        /// Performs the actions represented by this deferred task.
-        /// </summary>
+        /// <inheritdoc />
         protected override void PerformActions()
         {
             var m = MediaCore;

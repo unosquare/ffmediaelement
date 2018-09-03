@@ -9,9 +9,11 @@
         WindowStartupLocation="Manual" MinHeight="720" Height="0" MinWidth="1280" Width="0"
         Title="{Binding WindowTitle}" Background="Black">
     <Window.Resources>
+        <!-- ReSharper disable once Xaml.RedundantResource -->
         <Storyboard x:Key="ShowControlOpacity" Storyboard.TargetProperty="(UIElement.Opacity)">
             <DoubleAnimation To="1" Duration="0:0:0.100" FillBehavior="HoldEnd" />
         </Storyboard>
+        <!-- ReSharper disable once Xaml.RedundantResource -->
         <Storyboard x:Key="HideControlOpacity" Storyboard.TargetProperty="(UIElement.Opacity)">
             <DoubleAnimation To="0" Duration="0:0:0.300" FillBehavior="HoldEnd" />
         </Storyboard>

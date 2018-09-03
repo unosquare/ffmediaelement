@@ -24,7 +24,7 @@
         private const double DefaultDpi = 96.0;
 
         /// <summary>
-        /// Contains an equivalence lookup of FFmpeg pixel fromat and WPF pixel formats.
+        /// Contains an equivalence lookup of FFmpeg pixel format and WPF pixel formats.
         /// </summary>
         private static readonly Dictionary<AVPixelFormat, PixelFormat> MediaPixelFormats = new Dictionary<AVPixelFormat, PixelFormat>
         {
@@ -40,7 +40,7 @@
         /// <summary>
         /// The bitmap that is presented to the user.
         /// </summary>
-        private WriteableBitmap TargetBitmap = null;
+        private WriteableBitmap TargetBitmap;
 
         #endregion
 
@@ -56,7 +56,7 @@
 
             // Check that the renderer supports the passed in Pixel format
             if (MediaPixelFormats.ContainsKey(Constants.Video.VideoPixelFormat) == false)
-                throw new NotSupportedException($"Unable to get equivalent pixel fromat from source: {Constants.Video.VideoPixelFormat}");
+                throw new NotSupportedException($"Unable to get equivalent pixel format from source: {Constants.Video.VideoPixelFormat}");
 
             // Set the DPI
             GuiContext.Current.EnqueueInvoke(() =>
@@ -72,9 +72,7 @@
         /// </summary>
         public MediaElement MediaElement => MediaCore?.Parent as MediaElement;
 
-        /// <summary>
-        /// Gets the core platform independent player component.
-        /// </summary>
+        /// <inheritdoc />
         public MediaEngine MediaCore { get; }
 
         #endregion
@@ -95,25 +93,19 @@
 
         #region Unused Media Renderer Methods
 
-        /// <summary>
-        /// Executed when the Play method is called on the parent MediaElement
-        /// </summary>
+        /// <inheritdoc />
         public void Play()
         {
             // placeholder
         }
 
-        /// <summary>
-        /// Executed when the Pause method is called on the parent MediaElement
-        /// </summary>
+        /// <inheritdoc />
         public void Pause()
         {
             // placeholder
         }
 
-        /// <summary>
-        /// Executed when the Stop method is called on the parent MediaElement
-        /// </summary>
+        /// <inheritdoc />
         public void Stop()
         {
             GuiContext.Current.EnqueueInvoke(() =>
@@ -122,9 +114,7 @@
             });
         }
 
-        /// <summary>
-        /// Executed after a Seek operation is performed on the parent MediaElement
-        /// </summary>
+        /// <inheritdoc />
         public void Seek()
         {
             GuiContext.Current.EnqueueInvoke(() =>
@@ -133,19 +123,13 @@
             });
         }
 
-        /// <summary>
-        /// Waits for the renderer to be ready to render.
-        /// </summary>
+        /// <inheritdoc />
         public void WaitForReadyState()
         {
             // placeholder
         }
 
-        /// <summary>
-        /// Called on every block rendering clock cycle just in case some update operation needs to be performed.
-        /// This needs to return immediately so the calling thread is not disturbed.
-        /// </summary>
-        /// <param name="clockPosition">The clock position.</param>
+        /// <inheritdoc />
         public void Update(TimeSpan clockPosition)
         {
             // placeholder
@@ -155,17 +139,13 @@
 
         #region MediaRenderer Methods
 
-        /// <summary>
-        /// Renders the specified media block.
-        /// This needs to return immediately so the calling thread is not disturbed.
-        /// </summary>
-        /// <param name="mediaBlock">The media block.</param>
-        /// <param name="clockPosition">The clock position.</param>
+        /// <inheritdoc />
         public void Render(MediaBlock mediaBlock, TimeSpan clockPosition)
         {
-            var block = mediaBlock as VideoBlock;
-            if (block == null) return;
-            if (IsRenderingInProgress.Value == true)
+            if (mediaBlock is VideoBlock == false) return;
+
+            var block = (VideoBlock)mediaBlock;
+            if (IsRenderingInProgress.Value)
             {
                 if (MediaCore?.State.IsPlaying ?? false)
                 {
@@ -221,12 +201,11 @@
                 {
                     // Render the bitmap data
                     var bitmapData = LockTargetBitmap(block);
-                    if (bitmapData != null)
-                    {
-                        LoadTargetBitmapBuffer(bitmapData, block);
-                        MediaElement.RaiseRenderingVideoEvent(block, bitmapData, clockPosition);
-                        RenderTargetBitmap(bitmapData, clockPosition);
-                    }
+                    if (bitmapData == null) return;
+
+                    LoadTargetBitmapBuffer(bitmapData, block);
+                    MediaElement.RaiseRenderingVideoEvent(block, bitmapData, clockPosition);
+                    RenderTargetBitmap(bitmapData);
                 }
                 catch (Exception ex)
                 {
@@ -240,7 +219,7 @@
                     {
                         try
                         {
-                            foregroundTask?.Wait();
+                            foregroundTask.Wait();
                         }
                         catch (Exception ex)
                         {
@@ -256,9 +235,7 @@
             });
         }
 
-        /// <summary>
-        /// Executed when the Close method is called on the parent MediaElement
-        /// </summary>
+        /// <inheritdoc />
         public void Close()
         {
             GuiContext.Current.EnqueueInvoke(() =>
@@ -278,8 +255,7 @@
         /// Renders the target bitmap.
         /// </summary>
         /// <param name="bitmapData">The bitmap data.</param>
-        /// <param name="clockPosition">The clock position.</param>
-        private void RenderTargetBitmap(BitmapDataBuffer bitmapData, TimeSpan clockPosition)
+        private void RenderTargetBitmap(BitmapDataBuffer bitmapData)
         {
             try
             {
@@ -305,12 +281,8 @@
         /// </returns>
         private BitmapDataBuffer LockTargetBitmap(VideoBlock block)
         {
-            // Result will be set on the GUI thread
-            BitmapDataBuffer result = null;
-
-            // Skip the locking if scrubbing is not enabled
-            // if (MediaElement.ScrubbingEnabled == false && (MediaElement.IsPlaying == false || MediaElement.IsSeeking))
-            //     return result;
+            // TODO: Evaluate if we need to skip the locking if scrubbing is not enabled
+            // Example: if (!MediaElement.ScrubbingEnabled && (!MediaElement.IsPlaying || MediaElement.IsSeeking)) return result
 
             // Figure out what we need to do
             var needsCreation = TargetBitmap == null && MediaElement.HasVideo;
@@ -335,14 +307,11 @@
             if (MediaElement.VideoView.Source != TargetBitmap)
                 MediaElement.VideoView.Source = TargetBitmap;
 
-            // Don't set the result
-            if (TargetBitmap == null) return result;
-
             // Lock the back-buffer and create a pointer to it
-            TargetBitmap.Lock();
-            result = BitmapDataBuffer.FromWriteableBitmap(TargetBitmap);
+            TargetBitmap?.Lock();
 
-            return result;
+            // Return the appropriate buffer result
+            return TargetBitmap != null ? new BitmapDataBuffer(TargetBitmap) : null;
         }
 
         /// <summary>
@@ -352,17 +321,17 @@
         /// <param name="source">The source.</param>
         private void LoadTargetBitmapBuffer(BitmapDataBuffer target, VideoBlock source)
         {
-            if (source != null && source.TryAcquireReaderLock(out var readLock))
-            {
-                using (readLock)
-                {
-                    // Compute a safe number of bytes to copy
-                    // At this point, we it is assumed the strides are equal
-                    var bufferLength = Convert.ToUInt32(Math.Min(source.BufferLength, target.BufferLength));
+            if (source == null || !source.TryAcquireReaderLock(out var readLock))
+                return;
 
-                    // Copy the block data into the back buffer of the target bitmap.
-                    WindowsNativeMethods.Instance.CopyMemory(target.Scan0, source.Buffer, bufferLength);
-                }
+            using (readLock)
+            {
+                // Compute a safe number of bytes to copy
+                // At this point, we it is assumed the strides are equal
+                var bufferLength = Convert.ToUInt32(Math.Min(source.BufferLength, target.BufferLength));
+
+                // Copy the block data into the back buffer of the target bitmap.
+                WindowsNativeMethods.Instance.CopyMemory(target.Scan0, source.Buffer, bufferLength);
             }
         }
 
@@ -373,13 +342,17 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ApplyLayoutTransforms(VideoBlock b)
         {
-            if (MediaElement == null || MediaElement.VideoView == null) return;
+            if (MediaElement?.VideoView == null) return;
 
-            var layoutTransforms = MediaElement.VideoView.LayoutTransform as TransformGroup;
-            ScaleTransform scaleTransform = null;
-            RotateTransform rotateTransform = null;
+            ScaleTransform scaleTransform;
+            RotateTransform rotateTransform;
 
-            if (layoutTransforms == null)
+            if (MediaElement.VideoView.LayoutTransform is TransformGroup layoutTransforms)
+            {
+                scaleTransform = layoutTransforms.Children[0] as ScaleTransform;
+                rotateTransform = layoutTransforms.Children[1] as RotateTransform;
+            }
+            else
             {
                 layoutTransforms = new TransformGroup();
                 scaleTransform = new ScaleTransform(1, 1);
@@ -389,11 +362,10 @@
 
                 MediaElement.VideoView.LayoutTransform = layoutTransforms;
             }
-            else
-            {
-                scaleTransform = layoutTransforms.Children[0] as ScaleTransform;
-                rotateTransform = layoutTransforms.Children[1] as RotateTransform;
-            }
+
+            // return if no proper transforms were found
+            if (scaleTransform == null || rotateTransform == null)
+                return;
 
             // Process Aspect Ratio according to block.
             if (b.PixelAspectWidth != b.PixelAspectHeight)
@@ -401,7 +373,8 @@
                 var scaleX = b.PixelAspectWidth > b.PixelAspectHeight ? Convert.ToDouble(b.PixelAspectWidth) / Convert.ToDouble(b.PixelAspectHeight) : 1d;
                 var scaleY = b.PixelAspectHeight > b.PixelAspectWidth ? Convert.ToDouble(b.PixelAspectHeight) / Convert.ToDouble(b.PixelAspectWidth) : 1d;
 
-                if (scaleTransform.ScaleX != scaleX || scaleTransform.ScaleY != scaleY)
+                if (Math.Abs(scaleTransform.ScaleX - scaleX) > double.Epsilon ||
+                    Math.Abs(scaleTransform.ScaleY - scaleY) > double.Epsilon)
                 {
                     scaleTransform.ScaleX = scaleX;
                     scaleTransform.ScaleY = scaleY;
@@ -409,7 +382,8 @@
             }
             else
             {
-                if (scaleTransform.ScaleX != 1d || scaleTransform.ScaleY != 1d)
+                if (Math.Abs(scaleTransform.ScaleX - 1d) > double.Epsilon ||
+                    Math.Abs(scaleTransform.ScaleY - 1d) > double.Epsilon)
                 {
                     scaleTransform.ScaleX = 1d;
                     scaleTransform.ScaleY = 1d;
@@ -417,7 +391,7 @@
             }
 
             // Process Rotation
-            if (MediaCore.State.VideoRotation != rotateTransform.Angle)
+            if (Math.Abs(MediaCore.State.VideoRotation - rotateTransform.Angle) > double.Epsilon)
                 rotateTransform.Angle = MediaCore.State.VideoRotation;
         }
     }

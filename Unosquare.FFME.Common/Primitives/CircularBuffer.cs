@@ -6,7 +6,7 @@
     /// <summary>
     /// A fixed-size buffer that acts as an infinite length one.
     /// This buffer is backed by unmanaged, very fast memory so ensure you call
-    /// the dispose method when you are donde using it.
+    /// the dispose method when you are done using it.
     /// </summary>
     /// <seealso cref="IDisposable" />
     public sealed class CircularBuffer : IDisposable
@@ -21,15 +21,15 @@
         /// <summary>
         /// The unmanaged buffer
         /// </summary>
-        private IntPtr Buffer = IntPtr.Zero;
+        private IntPtr Buffer;
 
         // Property backing
-        private bool m_IsDisposed = false;
-        private int m_ReadableCount = default;
+        private bool m_IsDisposed;
+        private int m_ReadableCount;
         private TimeSpan m_WriteTag = TimeSpan.MinValue;
-        private int m_WriteIndex = default;
-        private int m_ReadIndex = default;
-        private int m_Length = default;
+        private int m_WriteIndex;
+        private int m_ReadIndex;
+        private int m_Length;
 
         #endregion
 
@@ -103,7 +103,7 @@
         public int WritableCount { get { lock (SyncLock) return m_Length - m_ReadableCount; } }
 
         /// <summary>
-        /// Gets percentage of used bytes (readbale/available, from 0.0 to 1.0).
+        /// Gets percentage of used bytes (readable/available, from 0.0 to 1.0).
         /// </summary>
         public double CapacityPercent { get { lock (SyncLock) return (double)m_ReadableCount / m_Length; } }
 
@@ -163,7 +163,7 @@
         /// <param name="requestedBytes">The requested bytes.</param>
         /// <param name="target">The target.</param>
         /// <param name="targetOffset">The target offset.</param>
-        /// <exception cref="InvalidOperationException">When requested bytes is greater than readble count</exception>
+        /// <exception cref="InvalidOperationException">When requested bytes is greater than readable count</exception>
         public void Read(int requestedBytes, byte[] target, int targetOffset)
         {
             lock (SyncLock)
@@ -248,20 +248,12 @@
 
         #region IDisposable Support
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose() => Dispose(true);
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool alsoManaged)
+        /// <inheritdoc />
+        public void Dispose()
         {
             lock (SyncLock)
             {
-                if (m_IsDisposed == true) return;
+                if (m_IsDisposed) return;
 
                 Clear();
                 Marshal.FreeHGlobal(Buffer);

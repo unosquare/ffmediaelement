@@ -7,10 +7,10 @@
     using Shared;
     using System;
     using System.Diagnostics;
+    using System.IO;
     using System.Linq;
     using System.Text;
     using System.Windows;
-    using System.Windows.Controls;
 
     public partial class MainWindow
     {
@@ -76,13 +76,13 @@
             if (e.Url.StartsWith("http://") || e.Url.StartsWith("https://"))
             {
                 e.Configuration.PrivateOptions["user_agent"] = $"{typeof(ContainerConfiguration).Namespace}/{typeof(ContainerConfiguration).Assembly.GetName().Version}";
-                e.Configuration.PrivateOptions["headers"] = $"Referer:https://www.unosquare.com";
+                e.Configuration.PrivateOptions["headers"] = "Referer:https://www.unosquare.com";
                 e.Configuration.PrivateOptions["multiple_requests"] = "1";
                 e.Configuration.PrivateOptions["reconnect"] = "1";
                 e.Configuration.PrivateOptions["reconnect_streamed"] = "1";
                 e.Configuration.PrivateOptions["reconnect_delay_max"] = "10"; // in seconds
 
-                // e.Configuration.PrivateOptions["reconnect_at_eof"] = "1"; // This prevents some HLS stresm from opening properly
+                // e.Configuration.PrivateOptions["reconnect_at_eof"] = "1"; // This prevents some HLS stream from opening properly
             }
 
             // Example of forcing tcp transport on rtsp feeds
@@ -122,18 +122,18 @@
                 var url = new Uri(inputUrl);
                 if (url.IsFile || url.IsUnc)
                 {
-                    inputUrl = System.IO.Path.ChangeExtension(url.LocalPath, "srt");
-                    if (System.IO.File.Exists(inputUrl))
+                    inputUrl = Path.ChangeExtension(url.LocalPath, "srt");
+                    if (File.Exists(inputUrl))
                         e.Options.SubtitlesUrl = inputUrl;
                 }
             }
-            catch { }
+            catch { /* Ignore exception and continue */ }
 
             // You can force video FPS if necessary
             // see: https://github.com/unosquare/ffmediaelement/issues/212
             // e.Options.VideoForcedFps = 25;
 
-            // An example of specifcally selecting a subtitle stream
+            // An example of specifically selecting a subtitle stream
             var subtitleStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_SUBTITLE).Select(kvp => kvp.Value);
             var englishSubtitleStream = subtitleStreams.FirstOrDefault(s => s.Language != null && s.Language.ToLowerInvariant().StartsWith("en"));
             if (englishSubtitleStream != null)
@@ -141,7 +141,7 @@
                 e.Options.SubtitleStream = englishSubtitleStream;
             }
 
-            // An example of specifcally selecting an audio stream
+            // An example of specifically selecting an audio stream
             var audioStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_AUDIO).Select(kvp => kvp.Value);
             var englishAudioStream = audioStreams.FirstOrDefault(s => s.Language != null && s.Language.ToLowerInvariant().StartsWith("en"));
             if (englishAudioStream != null)
@@ -150,15 +150,11 @@
             }
 
             // Setting Advanced Video Stream Options is also possible
-            var videoStream = e.Options.VideoStream;
-            if (videoStream != null)
+            // ReSharper disable once InvertIf
+            if (e.Options.VideoStream is StreamInfo videoStream)
             {
-                // Check if the video requires deinterlacing
-                var requiresDeinterlace = videoStream.FieldOrder != AVFieldOrder.AV_FIELD_PROGRESSIVE
-                    && videoStream.FieldOrder != AVFieldOrder.AV_FIELD_UNKNOWN;
-
-                // Hardwrae device priorities
-                var deviceCandidates = new AVHWDeviceType[]
+                // Hardware device priorities
+                var deviceCandidates = new[]
                 {
                     AVHWDeviceType.AV_HWDEVICE_TYPE_CUDA,
                     AVHWDeviceType.AV_HWDEVICE_TYPE_D3D11VA,
@@ -171,29 +167,27 @@
                     foreach (var deviceType in deviceCandidates)
                     {
                         var accelerator = videoStream.HardwareDevices.FirstOrDefault(d => d.DeviceType == deviceType);
-                        if (accelerator != null)
-                        {
-                            if (GuiContext.Current.IsInDebugMode)
-                                e.Options.VideoHardwareDevice = accelerator;
+                        if (accelerator == null) continue;
+                        if (GuiContext.Current.IsInDebugMode)
+                            e.Options.VideoHardwareDevice = accelerator;
 
-                            break;
-                        }
+                        break;
                     }
                 }
 
                 // Start building a video filter
                 var videoFilter = new StringBuilder();
 
-                // The yadif filter deinterlaces the video; we check the field order if we need
-                // to deinterlace the video automatically
-                if (requiresDeinterlace)
+                // The yadif filter de-interlaces the video; we check the field order if we need
+                // to de-interlace the video automatically
+                if (videoStream.IsInterlaced)
                     videoFilter.Append("yadif,");
 
                 // Scale down to maximum 1080p screen resolution.
                 if (videoStream.PixelHeight > 1080)
                 {
                     // e.Options.VideoHardwareDevice = null;
-                    videoFilter.Append($"scale=-1:1080,");
+                    videoFilter.Append("scale=-1:1080,");
                 }
 
                 e.Options.VideoFilter = videoFilter.ToString().TrimEnd(',');
@@ -236,12 +230,12 @@
 
             if (availableStreams.Count <= 0) return;
 
-            // Allow cyclling though a null stream (means removing the stream)
+            // Allow cycling though a null stream (means removing the stream)
             // Except for video streams.
             if (StreamCycleMediaType != MediaType.Video)
                 availableStreams.Add(null);
 
-            var currentIndex = -1;
+            int currentIndex;
 
             switch (StreamCycleMediaType)
             {
@@ -297,12 +291,14 @@
 
         /// <summary>
         /// Called when the current audio device changes.
-        /// Call <see cref="FFME.MediaElement.ChangeMedia"/> so the new default audio device gets selected.
+        /// Call <see cref="MediaElement.ChangeMedia"/> so the new default audio device gets selected.
         /// </summary>
         /// <param name="sender">The sender.</param>
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        private async void OnAudioDeviceStopped(object sender, EventArgs e) =>
-            await Media?.ChangeMedia();
+        private async void OnAudioDeviceStopped(object sender, EventArgs e)
+        {
+            if (Media != null) await Media?.ChangeMedia();
+        }
 
         #endregion
 
@@ -315,7 +311,7 @@
         /// <param name="e">The <see cref="PositionChangedRoutedEventArgs"/> instance containing the event data.</param>
         private void OnMediaPositionChanged(object sender, PositionChangedRoutedEventArgs e)
         {
-            // Hanlde position change notifications
+            // Handle position change notifications
         }
 
         #endregion

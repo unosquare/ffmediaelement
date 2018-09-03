@@ -1,4 +1,5 @@
-﻿namespace Unosquare.FFME.ClosedCaptions
+﻿// ReSharper disable UnusedMember.Global
+namespace Unosquare.FFME.ClosedCaptions
 {
     /// <summary>
     /// Enumerates the different Closed-Captioning Colors
@@ -103,6 +104,6 @@
         /// <summary>
         /// The foreground black underline color
         /// </summary>
-        ForegroundBlackUnderline = 0x2F00,
+        ForegroundBlackUnderline = 0x2F00
     }
 }

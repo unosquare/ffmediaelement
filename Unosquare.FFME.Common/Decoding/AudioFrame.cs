@@ -4,17 +4,18 @@
     using Shared;
     using System;
 
+    /// <inheritdoc />
     /// <summary>
     /// Represents a wrapper from an unmanaged FFmpeg audio frame
     /// </summary>
-    /// <seealso cref="MediaFrame" />
-    /// <seealso cref="IDisposable" />
-    internal sealed unsafe class AudioFrame : MediaFrame, IDisposable
+    /// <seealso cref="T:Unosquare.FFME.Decoding.MediaFrame" />
+    /// <seealso cref="T:System.IDisposable" />
+    internal sealed unsafe class AudioFrame : MediaFrame
     {
         #region Private Members
 
         private readonly object DisposeLock = new object();
-        private bool IsDisposed = false;
+        private bool IsDisposed;
 
         #endregion
 
@@ -36,10 +37,9 @@
                 TimeSpan.FromTicks(frame->pts.ToTimeSpan(StreamTimeBase).Ticks - component.Container.MediaStartTimeOffset.Ticks);
 
             // Compute the audio frame duration
-            if (frame->pkt_duration != 0)
-                Duration = frame->pkt_duration.ToTimeSpan(StreamTimeBase);
-            else
-                Duration = TimeSpan.FromTicks(Convert.ToInt64(TimeSpan.TicksPerMillisecond * 1000d * frame->nb_samples / frame->sample_rate));
+            Duration = frame->pkt_duration != 0 ?
+                frame->pkt_duration.ToTimeSpan(StreamTimeBase) :
+                TimeSpan.FromTicks(Convert.ToInt64(TimeSpan.TicksPerMillisecond * 1000d * frame->nb_samples / frame->sample_rate));
 
             // Compute the audio frame end time
             EndTime = TimeSpan.FromTicks(StartTime.Ticks + Duration.Ticks);
@@ -58,21 +58,13 @@
 
         #region IDisposable Support
 
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        public override void Dispose() =>
-            Dispose(true);
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool alsoManaged)
+        /// <inheritdoc />
+        public override void Dispose()
         {
             lock (DisposeLock)
             {
-                if (IsDisposed) return;
+                if (IsDisposed)
+                    return;
 
                 if (InternalPointer != IntPtr.Zero)
                     ReleaseAVFrame(Pointer);

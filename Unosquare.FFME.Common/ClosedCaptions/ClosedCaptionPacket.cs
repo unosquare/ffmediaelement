@@ -5,11 +5,12 @@
     using System.Collections.Generic;
     using System.Linq;
 
+    /// <inheritdoc />
     /// <summary>
     /// Represents a 3-byte packet of closed-captioning data in EIA-608 format.
     /// See: http://jackyjung.tistory.com/attachment/499e14e28c347DB.pdf
     /// </summary>
-    public sealed class ClosedCaptionPacket : IComparable
+    public sealed class ClosedCaptionPacket : IComparable<ClosedCaptionPacket>
     {
         #region Dictionaries
 
@@ -30,7 +31,7 @@
             { 0x3C, "ê" },
             { 0x3D, "î" },
             { 0x3E, "ô" },
-            { 0x3F, "û" },
+            { 0x3F, "û" }
         };
 
         private static readonly Dictionary<byte, string> Spanish = new Dictionary<byte, string>
@@ -50,7 +51,7 @@
             { 0x2C, "S" },
             { 0x2D, "·" },
             { 0x2E, "\"" },
-            { 0x2F, "\"" },
+            { 0x2F, "\"" }
         };
 
         private static readonly Dictionary<byte, string> Portuguese = new Dictionary<byte, string>
@@ -70,7 +71,7 @@
             { 0x2C, "^" },
             { 0x2D, "_" },
             { 0x2E, "|" },
-            { 0x2F, "~" },
+            { 0x2F, "~" }
         };
 
         private static readonly Dictionary<byte, string> French = new Dictionary<byte, string>
@@ -90,7 +91,7 @@
             { 0x3C, "ù" },
             { 0x3D, "Û" },
             { 0x3E, "«" },
-            { 0x3F, "»" },
+            { 0x3F, "»" }
         };
 
         private static readonly Dictionary<byte, string> German = new Dictionary<byte, string>
@@ -110,7 +111,7 @@
             { 0x3C, "+" },
             { 0x3D, "+" },
             { 0x3E, "+" },
-            { 0x3F, "+" },
+            { 0x3F, "+" }
         };
 
         private static readonly Dictionary<byte, int> Base40PreambleRows = new Dictionary<byte, int>
@@ -130,7 +131,7 @@
             { 0x13, 12 },
             { 0x1B, 12 },
             { 0x14, 14 },
-            { 0x1C, 14 },
+            { 0x1C, 14 }
         };
 
         private static readonly Dictionary<byte, int> Base60PreambleRows = new Dictionary<byte, int>
@@ -148,7 +149,7 @@
             { 0x13, 13 },
             { 0x1B, 13 },
             { 0x14, 15 },
-            { 0x1C, 15 },
+            { 0x1C, 15 }
         };
 
         private static readonly Dictionary<CaptionsStyle, int> PreambleStyleIndents = new Dictionary<CaptionsStyle, int>
@@ -168,10 +169,10 @@
             { CaptionsStyle.WhiteIndent16Underline, 16 },
             { CaptionsStyle.WhiteIndent20Underline, 20 },
             { CaptionsStyle.WhiteIndent24Underline, 24 },
-            { CaptionsStyle.WhiteIndent28Underline, 28 },
+            { CaptionsStyle.WhiteIndent28Underline, 28 }
         };
 
-        private static readonly CaptionsStyle[] UnderlineCaptionStyles = new CaptionsStyle[]
+        private static readonly CaptionsStyle[] UnderlineCaptionStyles =
         {
             CaptionsStyle.BlueUnderline,
             CaptionsStyle.CyanUnderline,
@@ -188,13 +189,13 @@
             CaptionsStyle.WhiteIndent8Underline,
             CaptionsStyle.WhiteItalicsUnderline,
             CaptionsStyle.WhiteUnderline,
-            CaptionsStyle.YellowUnderline,
+            CaptionsStyle.YellowUnderline
         };
 
-        private static readonly CaptionsStyle[] ItalicsCaptionStyles = new CaptionsStyle[]
+        private static readonly CaptionsStyle[] ItalicsCaptionStyles =
         {
             CaptionsStyle.WhiteItalics,
-            CaptionsStyle.WhiteItalicsUnderline,
+            CaptionsStyle.WhiteItalicsUnderline
         };
 
         #endregion
@@ -202,7 +203,7 @@
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ClosedCaptionPacket"/> class.
+        /// Initializes a new instance of the <see cref="ClosedCaptionPacket" /> class.
         /// </summary>
         /// <param name="timestamp">The timestamp.</param>
         /// <param name="source">The source.</param>
@@ -222,7 +223,7 @@
         /// <param name="d1">The d1.</param>
         internal ClosedCaptionPacket(TimeSpan timestamp, byte header, byte d0, byte d1)
         {
-            Data = new byte[] { header, d0, d1 };
+            Data = new[] { header, d0, d1 };
 
             D0 = DropParityBit(d0);
             D1 = DropParityBit(d1);
@@ -236,8 +237,8 @@
                 #region Header Checking
 
                 if (HeaderHasMarkers(header) == false
-                    || IsHeaderValidFalgSet(header) == false
-                    || (FieldParity == 0)
+                    || IsHeaderValidFlagSet(header) == false
+                    || FieldParity == 0
                     || (D0 == 0x00 && D1 == 0x00))
                 {
                     PacketType = CaptionsPacketType.NullPad;
@@ -264,7 +265,7 @@
 
                 if ((D0 == 0x10 || D0 == 0x18) && (D1 >= 0x20 && D1 <= 0x2F))
                 {
-                    FieldChannel = (D0 == 0x10) ? 1 : 2;
+                    FieldChannel = D0 == 0x10 ? 1 : 2;
                     PacketType = CaptionsPacketType.Color;
                     Color = (CaptionsColor)D1;
                     return;
@@ -272,7 +273,7 @@
 
                 if ((D0 == 0x17 || D0 == 0x1F) && (D1 >= 0x2D && D1 <= 0x2F))
                 {
-                    FieldChannel = (D0 == 0x17) ? 1 : 2;
+                    FieldChannel = D0 == 0x17 ? 1 : 2;
                     PacketType = CaptionsPacketType.Color;
                     var colorValue = D1 << 16;
                     Color = (CaptionsColor)colorValue;
@@ -286,7 +287,7 @@
 
                 if ((D0 == 0x17 || D0 == 0x1F) && (D1 >= 0x24 && D1 <= 0x2A))
                 {
-                    FieldChannel = (D0 == 0x17) ? 1 : 2;
+                    FieldChannel = D0 == 0x17 ? 1 : 2;
                     PacketType = CaptionsPacketType.PrivateCharset;
                     return;
                 }
@@ -295,7 +296,7 @@
 
                 #region MidRow Code Detection (Table 69)
 
-                // Midrow Code Parsing
+                // Mid-row Code Parsing
                 if ((D0 == 0x11 || D0 == 0x19) && (D1 >= 0x20 && D1 <= 0x2F))
                 {
                     PacketType = CaptionsPacketType.MidRow;
@@ -401,7 +402,7 @@
                 {
                     if (SpecialNorthAmerican.ContainsKey(D1))
                     {
-                        FieldChannel = (D0 == 0x11) ? 1 : 2;
+                        FieldChannel = D0 == 0x11 ? 1 : 2;
                         Text = SpecialNorthAmerican[D1];
                         return;
                     }
@@ -475,8 +476,8 @@
         /// </summary>
         public byte D0
         {
-            get { return Data[1]; }
-            private set { Data[1] = value; }
+            get => Data[1];
+            private set => Data[1] = value;
         }
 
         /// <summary>
@@ -484,8 +485,8 @@
         /// </summary>
         public byte D1
         {
-            get { return Data[2]; }
-            private set { Data[2] = value; }
+            get => Data[2];
+            private set => Data[2] = value;
         }
 
         /// <summary>
@@ -544,7 +545,7 @@
         /// <summary>
         /// Gets the Preamble Row Number (1 through 15), if the packet type is of Preamble
         /// </summary>
-        public int PreambleRow { get; } = default;
+        public int PreambleRow { get; }
 
         /// <summary>
         /// Gets the Style, if the packet type is of Preamble
@@ -554,7 +555,7 @@
         /// <summary>
         /// Gets the Indent Style, if the packet type is of Preamble
         /// </summary>
-        public int PreambleIndent { get; } = default;
+        public int PreambleIndent { get; }
 
         /// <summary>
         /// Gets the text, if the packet type is of text.
@@ -570,13 +571,13 @@
         /// Gets a value indicating whether the current and following
         /// caption text packets are underlined; only valid for preamble or mid-row packets
         /// </summary>
-        public bool IsUnderlined { get; } = default;
+        public bool IsUnderlined { get; }
 
         /// <summary>
         /// Gets a value indicating whether the current and following
         /// caption text packets are italicized; only valid for preamble or mid-row packets
         /// </summary>
-        public bool IsItalics { get; } = default;
+        public bool IsItalics { get; }
 
         #endregion
 
@@ -585,22 +586,22 @@
         /// <summary>
         /// Computes the CC channel.
         /// </summary>
-        /// <param name="fieldPartity">The field partity.</param>
+        /// <param name="fieldParity">The field parity.</param>
         /// <param name="fieldChannel">The field channel.</param>
         /// <returns>The CC channel according to the parity and channel</returns>
-        public static CaptionsChannel ComputeChannel(int fieldPartity, int fieldChannel)
+        public static CaptionsChannel ComputeChannel(int fieldParity, int fieldChannel)
         {
-            // packets with 0 field partiy are null or unkown
-            if (fieldPartity <= 0)
+            // packets with 0 field parity are null or unknown
+            if (fieldParity <= 0)
                 return CaptionsChannel.CCP;
 
-            fieldPartity = fieldPartity.Clamp(1, 2);
-            fieldChannel = fieldChannel.Clamp(1, 2);
+            var parity = fieldParity.Clamp(1, 2);
+            var channel = fieldChannel.Clamp(1, 2);
 
-            if (fieldPartity == 1)
-                return fieldChannel == 1 ? CaptionsChannel.CC1 : CaptionsChannel.CC2;
-            else
-                return fieldChannel == 1 ? CaptionsChannel.CC3 : CaptionsChannel.CC4;
+            if (parity == 1)
+                return channel == 1 ? CaptionsChannel.CC1 : CaptionsChannel.CC2;
+
+            return channel == 1 ? CaptionsChannel.CC3 : CaptionsChannel.CC4;
         }
 
         /// <summary>
@@ -624,11 +625,13 @@
         /// </returns>
         public override string ToString()
         {
-            var output = string.Empty;
+            string output;
             var ts = $"{Timestamp.TotalSeconds:0.0000}";
             var channel = Channel == CaptionsChannel.CCP ?
-                ComputeChannel(FieldParity, FieldChannel).ToString() + "*" : Channel.ToString() + " ";
+                ComputeChannel(FieldParity, FieldChannel) + "*" : Channel + " ";
             var prefixData = $"{ts} | {channel} | P: {FieldParity} D: {FieldChannel} | {D0:x2}h {D1:x2}h |";
+
+            // ReSharper disable once SwitchStatementMissingSomeCases
             switch (PacketType)
             {
                 case CaptionsPacketType.PrivateCharset:
@@ -638,7 +641,7 @@
                 case CaptionsPacketType.Command:
                     output = $"{prefixData} MISC CTRL | {nameof(Command)}: {Command}"; break;
                 case CaptionsPacketType.MidRow:
-                    output = $"{prefixData} MIDROW CD | {nameof(MidRowStyle)}: {MidRowStyle}"; break;
+                    output = $"{prefixData} MID-ROW S | {nameof(MidRowStyle)}: {MidRowStyle}"; break;
                 case CaptionsPacketType.NullPad:
                     output = $"{prefixData} NULL  PAD | (NULL)"; break;
                 case CaptionsPacketType.Preamble:
@@ -649,7 +652,6 @@
                     output = $"{prefixData} TEXT DATA | '{Text}'"; break;
                 case CaptionsPacketType.XdsClass:
                     output = $"{prefixData} XDS DATA  | {nameof(XdsClass)}: {XdsClass}"; break;
-                case CaptionsPacketType.Unrecognized:
                 default:
                     output = $"{prefixData} INVALID   | N/A"; break;
             }
@@ -657,23 +659,11 @@
             return output;
         }
 
-        #endregion
-
-        #region IComparable Support
-
-        /// <summary>
-        /// Compares the current instance with another object of the same type and returns an integer that indicates whether the current instance precedes, follows, or occurs in the same position in the sort order as the other object.
-        /// </summary>
-        /// <param name="obj">An object to compare with this instance.</param>
-        /// <returns>
-        /// A value that indicates the relative order of the objects being compared. The return value has these meanings: Value Meaning Less than zero This instance precedes <paramref name="obj" /> in the sort order. Zero This instance occurs in the same position in the sort order as <paramref name="obj" />. Greater than zero This instance follows <paramref name="obj" /> in the sort order.
-        /// </returns>
-        public int CompareTo(object obj)
+        /// <inheritdoc />
+        public int CompareTo(ClosedCaptionPacket other)
         {
-            if (obj is null || obj is ClosedCaptionPacket == false)
-                throw new InvalidOperationException("Types must be compatible and non-null.");
-
-            return Timestamp.Ticks.CompareTo((obj as ClosedCaptionPacket).Timestamp.Ticks);
+            if (other == null) throw new ArgumentNullException(nameof(other));
+            return Timestamp.Ticks.CompareTo(other.Timestamp.Ticks);
         }
 
         #endregion
@@ -695,12 +685,9 @@
         /// </summary>
         /// <param name="data">The data.</param>
         /// <returns>
-        ///   <c>true</c> if [is header valid falg set] [the specified data]; otherwise, <c>false</c>.
+        ///   <c>true</c> if [is header valid flag set] [the specified data]; otherwise, <c>false</c>.
         /// </returns>
-        private static bool IsHeaderValidFalgSet(byte data)
-        {
-            return (data & 0x04) == 0x04;
-        }
+        private static bool IsHeaderValidFlagSet(byte data) => (data & 0x04) == 0x04;
 
         /// <summary>
         /// Gets the NTSC field type (1 or 2).
@@ -725,7 +712,7 @@
         }
 
         /// <summary>
-        /// Converst an ASCII character code to an EIA-608 char (in Unicode)
+        /// Converts an ASCII character code to an EIA-608 char (in Unicode)
         /// </summary>
         /// <param name="input">The input.</param>
         /// <returns>The charset char.</returns>

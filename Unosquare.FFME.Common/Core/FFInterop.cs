@@ -10,7 +10,7 @@
     using System.Text;
 
     /// <summary>
-    /// Provides a set of utilities to perfrom logging, text formatting,
+    /// Provides a set of utilities to perform logging, text formatting,
     /// conversion and other handy calculations.
     /// </summary>
     internal static class FFInterop
@@ -19,11 +19,11 @@
 
         private static readonly object SyncLock = new object();
         private static readonly List<OptionMeta> EmptyOptionMetaList = new List<OptionMeta>(0);
-        private static bool m_IsInitialized = false;
+        private static bool m_IsInitialized;
         private static string m_LibrariesPath = string.Empty;
-        private static int m_LibraryIdentifiers = 0;
+        private static int m_LibraryIdentifiers;
         private static byte[] TempStringBuffer = new byte[512 * 1024]; // a temp buffer of 512kB
-        private static int TempByteLength = 0;
+        private static int TempByteLength;
 
         #endregion
 
@@ -64,13 +64,13 @@
         /// This method is thread-safe.
         /// </summary>
         /// <param name="overridePath">The override path.</param>
-        /// <param name="libIdentifiers">The bitwaise flag identifiers corresponding to the libraries.</param>
+        /// <param name="libIdentifiers">The bit-wise flag identifiers corresponding to the libraries.</param>
         /// <returns>
         /// Returns true if it was a new initialization and it succeeded. False if there was no need to initialize
         /// as there is already a valid initialization.
         /// </returns>
         /// <exception cref="FileNotFoundException">When ffmpeg libraries are not found</exception>
-        public static unsafe bool Initialize(string overridePath, int libIdentifiers)
+        public static bool Initialize(string overridePath, int libIdentifiers)
         {
             lock (SyncLock)
             {
@@ -107,12 +107,6 @@
                     // Additional library initialization
                     if (FFLibrary.LibAVDevice.IsLoaded) ffmpeg.avdevice_register_all();
 
-                    // Standard set initialization -- not needed anymore starting FFmpeg 4
-                    // if (FFLibrary.LibAVFilter.IsLoaded) ffmpeg.avfilter_register_all();
-                    // ffmpeg.av_register_all();
-                    // ffmpeg.avcodec_register_all();
-                    // ffmpeg.avformat_network_init();
-
                     // Logging and locking
                     LoggingWorker.ConnectToFFmpeg();
 
@@ -145,7 +139,7 @@
         #region Interop Helper Methods
 
         /// <summary>
-        /// Gets the FFmpeg error mesage based on the error code
+        /// Gets the FFmpeg error message based on the error code
         /// </summary>
         /// <param name="errorCode">The code.</param>
         /// <returns>The decoded error message</returns>
@@ -199,7 +193,7 @@
             var result = new List<OptionMeta>(128);
             if (avClass == null) return result;
 
-            AVOption* option = avClass->option;
+            var option = avClass->option;
 
             while (option != null)
             {
@@ -213,10 +207,10 @@
         }
 
         /// <summary>
-        /// Retrives the codecs.
+        /// Retrieves the codecs.
         /// </summary>
         /// <returns>The codecs</returns>
-        public static unsafe AVCodec*[] RetriveCodecs()
+        public static unsafe AVCodec*[] RetrieveCodecs()
         {
             var result = new List<IntPtr>(1024);
             void* iterator;
@@ -291,9 +285,7 @@
         public static unsafe List<OptionMeta> RetrieveInputFormatOptions(string formatName)
         {
             var item = ffmpeg.av_find_input_format(formatName);
-            if (item == null) return EmptyOptionMetaList;
-
-            return RetrieveOptions(item->priv_class);
+            return item == null ? EmptyOptionMetaList : RetrieveOptions(item->priv_class);
         }
 
         /// <summary>

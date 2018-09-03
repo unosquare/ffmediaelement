@@ -19,7 +19,7 @@
         private readonly AtomicBoolean IsCancellationPending = new AtomicBoolean(false);
         private readonly IWaitEvent PlaybackFinished = WaitEventFactory.Create(isCompleted: true, useSlim: true);
         private readonly AutoResetEvent DriverCallbackEvent = new AutoResetEvent(false);
-        private volatile bool IsDisposed = false;
+        private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
 
         private IntPtr DeviceHandle;
         private WaveOutBuffer[] Buffers;
@@ -37,10 +37,11 @@
         public LegacyAudioPlayer(AudioRenderer renderer, int deviceNumber)
         {
             // Initialize the default values
-            if (deviceNumber < -1) deviceNumber = -1;
+            var deviceId = deviceNumber;
+            if (deviceId < -1) deviceId = -1;
 
             Renderer = renderer;
-            DeviceNumber = deviceNumber;
+            DeviceNumber = deviceId;
             DesiredLatency = 200;
             NumberOfBuffers = 2;
             Capabilities = WaveInterop.RetrieveAudioDeviceInfo(DeviceNumber);
@@ -50,15 +51,10 @@
 
         #region Properties
 
-        /// <summary>
-        /// Gets the renderer that owns this wave player.
-        /// </summary>
+        /// <inheritdoc />
         public AudioRenderer Renderer { get; }
 
-        /// <summary>
-        /// Gets or sets the desired latency in milliseconds
-        /// Should be set before a call to Init
-        /// </summary>
+        /// <inheritdoc />
         public int DesiredLatency { get; }
 
         /// <summary>
@@ -73,22 +69,30 @@
         /// This must be between -1 and <see>DeviceCount</see> - 1.
         /// -1 means stick to default device even default device is changed
         /// </summary>
-        public int DeviceNumber { get; private set; }
+        public int DeviceNumber { get; }
 
-        /// <summary>
-        /// Playback State
-        /// </summary>
+        /// <inheritdoc />
         public PlaybackState PlaybackState { get; private set; } = PlaybackState.Stopped;
 
-        /// <summary>
-        /// Gets a value indicating whether the audio playback is running.
-        /// </summary>
-        public bool IsRunning => (IsDisposed || IsCancellationPending.Value || PlaybackFinished.IsCompleted) ? false : true;
+        /// <inheritdoc />
+        public bool IsRunning => !IsDisposed && !IsCancellationPending.Value && !PlaybackFinished.IsCompleted;
 
         /// <summary>
         /// Gets the capabilities.
         /// </summary>
-        public LegacyAudioDeviceInfo Capabilities { get; private set; }
+        public LegacyAudioDeviceInfo Capabilities { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is disposed.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is disposed; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsDisposed
+        {
+            get => m_IsDisposed.Value;
+            private set => m_IsDisposed.Value = value;
+        }
 
         #endregion
 
@@ -111,9 +115,7 @@
             }
         }
 
-        /// <summary>
-        /// Begin playback
-        /// </summary>
+        /// <inheritdoc />
         public void Start()
         {
             if (DeviceHandle != IntPtr.Zero || IsDisposed)
@@ -126,7 +128,7 @@
             DeviceHandle = WaveInterop.OpenAudioDevice(
                 DeviceNumber,
                 Renderer.WaveFormat,
-                DriverCallbackEvent.SafeWaitHandle.DangerousGetHandle(),
+                DriverCallbackEvent.SafeWaitHandle,
                 IntPtr.Zero,
                 WaveInterop.WaveInOutOpenFlags.CallbackEvent);
 
@@ -150,9 +152,7 @@
             AudioPlaybackThread.Start();
         }
 
-        /// <summary>
-        /// Clears the internal audio data with silence data.
-        /// </summary>
+        /// <inheritdoc />
         public void Clear()
         {
             if (IsDisposed) return;
@@ -160,10 +160,18 @@
                 buffer.Clear();
         }
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose() => Dispose(true);
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            if (IsDisposed) return;
+
+            IsCancellationPending.Value = true; // Causes the playback loop to exit
+            DriverCallbackEvent.Set(); // causes the WaitOne to exit
+            PlaybackFinished.Wait(); // waits for the playback loop to finish
+            DriverCallbackEvent.Dispose();
+            PlaybackFinished.Dispose();
+            IsDisposed = true;
+        }
 
         #endregion
 
@@ -174,7 +182,7 @@
         /// </summary>
         private void PerformContinuousPlayback()
         {
-            var queued = 0;
+            int queued;
             PlaybackState = PlaybackState.Playing;
 
             try
@@ -233,26 +241,6 @@
                 DeviceHandle = IntPtr.Zero;
                 PlaybackFinished.Complete();
             }
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool alsoManaged)
-        {
-            if (IsDisposed) return;
-
-            if (alsoManaged)
-            {
-                IsCancellationPending.Value = true; // Causes the playback loop to exit
-                DriverCallbackEvent.Set(); // causes the WaitOne to exit
-                PlaybackFinished.Wait(); // waits for the playback loop to finish
-                DriverCallbackEvent.Dispose();
-                PlaybackFinished.Dispose();
-            }
-
-            IsDisposed = true;
         }
 
         #endregion

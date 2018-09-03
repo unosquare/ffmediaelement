@@ -14,7 +14,7 @@
     /// <seealso cref="IDisposable" />
     public partial class MediaEngine : IDisposable, IMediaLogger
     {
-        private AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
+        private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
 
         #region Constructors
 
@@ -38,7 +38,7 @@
             // Check initialization has taken place
             lock (InitLock)
             {
-                if (IsIntialized == false)
+                if (IsInitialized == false)
                 {
                     throw new InvalidOperationException(
                         $"{nameof(MediaEngine)} not initialized. Call the static method {nameof(Initialize)}");
@@ -71,7 +71,7 @@
         /// <summary>
         /// Gets a value indicating whether this instance is disposed.
         /// </summary>
-        public bool IsDisposed { get => m_IsDisposed.Value; }
+        public bool IsDisposed => m_IsDisposed.Value;
 
         /// <summary>
         /// Gets the associated parent object.
@@ -93,22 +93,31 @@
 
         #region Methods
 
-        /// <summary>
-        /// Logs the specified message into the logger queue.
-        /// </summary>
-        /// <param name="messageType">Type of the message.</param>
-        /// <param name="message">The message.</param>
+        /// <inheritdoc />
         public void Log(MediaLogMessageType messageType, string message) =>
             LoggingWorker.Log(this, messageType, message);
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose() => Dispose(true);
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            if (m_IsDisposed == true) return;
+            m_IsDisposed.Value = true;
 
-        #endregion
+            // Dispose of commands. This closes the
+            // Media automatically and signals an exit
+            // This also causes the Container to get disposed.
+            Commands.Dispose();
 
-        #region IDisposable Implementation
+            // Reset the RTC
+            ResetPosition();
+
+            // Dispose the Wait Event objects as they are
+            // backed by unmanaged code
+            PacketReadingCycle.Dispose();
+            FrameDecodingCycle.Dispose();
+            BlockRenderingCycle.Dispose();
+            BufferChangedEvent.Dispose();
+        }
 
         /// <summary>
         /// Disposes the preloaded subtitles.
@@ -117,36 +126,6 @@
         {
             PreloadedSubtitles?.Dispose();
             PreloadedSubtitles = null;
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// Please not that this call is non-blocking/asynchronous.
-        /// </summary>
-        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool alsoManaged)
-        {
-            if (m_IsDisposed == true) return;
-            m_IsDisposed.Value = true;
-
-            try
-            {
-                // Dispose of commands. This closes the
-                // Media automatically and signals an exit
-                // This also causes the Container to get disposed.
-                Commands.Dispose();
-
-                // Reset the RTC
-                ResetPosition();
-
-                // Dispose the Wait Event objects as they are
-                // backed by unmanaged code
-                PacketReadingCycle.Dispose();
-                FrameDecodingCycle.Dispose();
-                BlockRenderingCycle.Dispose();
-                BufferChangedEvent.Dispose();
-            }
-            catch { throw; }
         }
 
         #endregion

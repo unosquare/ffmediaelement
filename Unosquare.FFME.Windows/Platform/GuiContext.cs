@@ -10,6 +10,7 @@
     using System.Windows;
     using System.Windows.Forms;
     using System.Windows.Threading;
+    using Application = System.Windows.Application;
 
     /// <summary>
     /// Provides properties and methods for the
@@ -32,8 +33,8 @@
         {
             Thread = Thread.CurrentThread;
             ThreadContext = SynchronizationContext.Current;
-            try { GuiDispatcher = System.Windows.Application.Current.Dispatcher; }
-            catch { }
+            try { GuiDispatcher = Application.Current.Dispatcher; }
+            catch { /* Ignore error as app might not be available or context is not WPF */ }
 
             Type = GuiContextType.None;
             if (GuiDispatcher != null) Type = GuiContextType.WPF;
@@ -71,7 +72,7 @@
         public Thread Thread { get; }
 
         /// <summary>
-        /// Gets a value indicating whetherthe context is in design time
+        /// Gets a value indicating whether the context is in design time
         /// </summary>
         public bool IsInDesignTime { get; }
 
@@ -121,7 +122,9 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void EnqueueInvoke(Action callback)
         {
-            var postedTask = InvokeAsync(callback);
+#pragma warning disable 4014
+            InvokeAsync(callback).ConfigureAwait(false);
+#pragma warning restore 4014
         }
 
         /// <summary>
@@ -132,7 +135,9 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void EnqueueInvoke(DispatcherPriority priority, Action callback)
         {
-            var postedTask = InvokeAsync(priority, callback);
+#pragma warning disable 4014
+            InvokeAsync(priority, callback).ConfigureAwait(false);
+#pragma warning restore 4014
         }
 
         /// <summary>
@@ -162,15 +167,11 @@
                 case GuiContextType.WinForms:
                     {
                         var doneEvent = WaitEventFactory.Create(isCompleted: false, useSlim: true);
-                        ThreadContext.Post((args) =>
+                        ThreadContext.Post(a =>
                         {
-                            try
-                            {
-                                callback.DynamicInvoke(args as object[]);
-                            }
-                            catch { throw; }
+                            try { callback.DynamicInvoke(arguments); }
                             finally { doneEvent.Complete(); }
-                        }, arguments);
+                        }, null);
 
                         var waitingTask = new Task(() =>
                         {
@@ -185,7 +186,6 @@
                         return;
                     }
 
-                case GuiContextType.None:
                 default:
                     {
                         var runnerTask = new Task(() => { callback.DynamicInvoke(arguments); });

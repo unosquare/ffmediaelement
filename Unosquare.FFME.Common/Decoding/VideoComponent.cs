@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
+    using ClosedCaptions;
     using Core;
     using FFmpeg.AutoGen;
     using Shared;
@@ -15,18 +16,16 @@
     {
         #region Private State Variables
 
-        private readonly string FilterString = null;
-
+        private readonly string FilterString;
         private readonly AVRational BaseFrameRateQ;
-        private SwsContext* Scaler = null;
+        private string CurrentFilterArguments;
 
+        private SwsContext* Scaler = null;
         private AVFilterGraph* FilterGraph = null;
         private AVFilterContext* SourceFilter = null;
         private AVFilterContext* SinkFilter = null;
         private AVFilterInOut* SinkInput = null;
         private AVFilterInOut* SourceOutput = null;
-
-        private string CurrentFilterArguments = null;
         private AVBufferRef* HardwareDeviceContext = null;
 
         #endregion
@@ -50,7 +49,7 @@
             if (BaseFrameRateQ.den == 0 || BaseFrameRateQ.num == 0)
             {
                 container.Parent.Log(MediaLogMessageType.Warning,
-                    $"{nameof(VideoComponent)} - Unable to extract valid framerate. Will use 25fps (40ms)");
+                    $"{nameof(VideoComponent)} - Unable to extract valid frame rate. Will use 25fps (40ms)");
                 BaseFrameRateQ.num = 25;
                 BaseFrameRateQ.den = 1;
             }
@@ -79,7 +78,7 @@
         #region Properties
 
         /// <summary>
-        /// Gets the video scaler flags used to perfom colorspace conversion (if needed).
+        /// Gets the video scaler flags used to perform color space conversion (if needed).
         /// Point / nearest-neighbor is the default and it is the cheapest. This is by design as
         /// we don't change the dimensions of the image. We only do color conversion.
         /// </summary>
@@ -87,14 +86,14 @@
 
         /// <summary>
         /// Gets the base frame rate as reported by the stream component.
-        /// All discrete timestamps can be represented in this framerate.
+        /// All discrete timestamps can be represented in this frame rate.
         /// </summary>
-        public double BaseFrameRate { get; private set; }
+        public double BaseFrameRate { get; }
 
         /// <summary>
-        /// Gets the stream's average framerate
+        /// Gets the stream's average frame rate
         /// </summary>
-        public double AverageFrameRate { get; private set; }
+        public double AverageFrameRate { get; }
 
         /// <summary>
         /// Gets the width of the picture frame.
@@ -155,8 +154,7 @@
                 var accelerator = new HardwareAccelerator(this, selectedConfig);
 
                 AVBufferRef* devContextRef = null;
-                var initResultCode = 0;
-                initResultCode = ffmpeg.av_hwdevice_ctx_create(&devContextRef, accelerator.DeviceType, null, null, 0);
+                var initResultCode = ffmpeg.av_hwdevice_ctx_create(&devContextRef, accelerator.DeviceType, null, null, 0);
                 if (initResultCode < 0)
                     throw new MediaContainerException($"Unable to initialize hardware context for device {accelerator.Name}");
 
@@ -181,32 +179,21 @@
         {
             if (HardwareDeviceContext == null) return;
 
-            var hwdc = HardwareDeviceContext;
-            ffmpeg.av_buffer_unref(&hwdc);
+            var context = HardwareDeviceContext;
+            ffmpeg.av_buffer_unref(&context);
             HardwareDeviceContext = null;
             HardwareAccelerator = null;
         }
 
-        /// <summary>
-        /// Converts decoded, raw frame data in the frame source into a a usable frame. <br />
-        /// The process includes performing picture, samples or text conversions
-        /// so that the decoded source frame data is easily usable in multimedia applications
-        /// </summary>
-        /// <param name="input">The source frame to use as an input.</param>
-        /// <param name="output">The target frame that will be updated with the source frame. If null is passed the frame will be instantiated.</param>
-        /// <param name="siblings">The siblings to help guess additional frame parameters.</param>
-        /// <returns>
-        /// Returns True if successful. False otherwise.
-        /// </returns>
-        /// <exception cref="ArgumentNullException">input</exception>
+        /// <inheritdoc />
         public override bool MaterializeFrame(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings)
         {
             if (output == null) output = new VideoBlock();
-            var source = input as VideoFrame;
-            var target = output as VideoBlock;
-
-            if (source == null || target == null)
+            if (input is VideoFrame == false || output is VideoBlock == false)
                 throw new ArgumentNullException($"{nameof(input)} and {nameof(output)} are either null or not of a compatible media type '{MediaType}'");
+
+            var source = (VideoFrame)input;
+            var target = (VideoBlock)output;
 
             // Retrieve a suitable scaler or create it on the fly
             var newScaler = ffmpeg.sws_getCachedContext(
@@ -243,7 +230,7 @@
             {
                 using (writeLock)
                 {
-                    var targetStride = new int[] { target.PictureBufferStride };
+                    var targetStride = new[] { target.PictureBufferStride };
                     var targetScan = default(byte_ptrArray8);
                     targetScan[0] = (byte*)target.Buffer;
 
@@ -256,6 +243,9 @@
                         source.Pointer->height,
                         targetScan,
                         targetStride);
+
+                    if (outputHeight <= 0)
+                        return false;
                 }
             }
             else
@@ -281,7 +271,7 @@
                 // Guess picture number and SMTPE
                 var timeBase = ffmpeg.av_guess_frame_rate(Container.InputContext, Stream, source.Pointer);
                 target.DisplayPictureNumber = Extensions.ComputePictureNumber(target.StartTime, target.Duration, 1);
-                target.SmtpeTimecode = Extensions.ComputeSmtpeTimeCode(StartTimeOffset, target.Duration, timeBase, target.DisplayPictureNumber);
+                target.SmtpeTimeCode = Extensions.ComputeSmtpeTimeCode(StartTimeOffset, target.Duration, timeBase, target.DisplayPictureNumber);
             }
             else
             {
@@ -292,7 +282,7 @@
 
                 // Copy picture number and SMTPE
                 target.DisplayPictureNumber = source.DisplayPictureNumber;
-                target.SmtpeTimecode = source.SmtpeTimecode;
+                target.SmtpeTimeCode = source.SmtpeTimeCode;
             }
 
             // Fill out other properties
@@ -301,7 +291,7 @@
             target.CompressedSize = source.CompressedSize;
             target.CodedPictureNumber = source.CodedPictureNumber;
             target.StreamIndex = source.StreamIndex;
-            target.ClosedCaptions = new ReadOnlyCollection<ClosedCaptions.ClosedCaptionPacket>(source.ClosedCaptions);
+            target.ClosedCaptions = new ReadOnlyCollection<ClosedCaptionPacket>(source.ClosedCaptions);
 
             // Update the stream info object if we get Closed Caption Data
             if (StreamInfo.HasClosedCaptions == false && target.ClosedCaptions.Count > 0)
@@ -323,33 +313,29 @@
             return true;
         }
 
-        /// <summary>
-        /// Creates a frame source object given the raw FFmpeg frame reference.
-        /// </summary>
-        /// <param name="framePointer">The raw FFmpeg frame pointer.</param>
-        /// <returns>Create a managed fraome from an unmanaged one.</returns>
-        protected override unsafe MediaFrame CreateFrameSource(IntPtr framePointer)
+        /// <inheritdoc />
+        protected override MediaFrame CreateFrameSource(IntPtr framePointer)
         {
             // Validate the video frame
             var frame = (AVFrame*)framePointer;
 
-            if (frame == null || frame->width <= 0 || frame->height <= 0)
+            if (framePointer == IntPtr.Zero || frame->width <= 0 || frame->height <= 0)
                 return null;
 
             // Move the frame from hardware (GPU) memory to RAM (CPU)
             if (HardwareAccelerator != null)
             {
-                frame = HardwareAccelerator.ExchangeFrame(CodecContext, frame, out bool isHardwareFrame);
+                frame = HardwareAccelerator.ExchangeFrame(CodecContext, frame, out var isHardwareFrame);
                 IsUsingHardwareDecoding = isHardwareFrame;
             }
 
-            // Init the filtergraph for the frame
+            // Init the filter graph for the frame
             if (string.IsNullOrWhiteSpace(FilterString) == false)
                 InitializeFilterGraph(frame);
 
             AVFrame* outputFrame;
 
-            // Changes in the filtergraph can be applied by calling the ChangeMedia command
+            // Changes in the filter graph can be applied by calling the ChangeMedia command
             if (FilterGraph != null)
             {
                 // Allocate the output frame
@@ -369,7 +355,7 @@
                 else
                 {
                     // the output frame is the new valid frame (output frame).
-                    // threfore, we need to release the original
+                    // therefore, we need to release the original
                     MediaFrame.ReleaseAVFrame(frame);
                 }
             }
@@ -386,13 +372,7 @@
             return new VideoFrame(outputFrame, this);
         }
 
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="alsoManaged">
-        /// <c>true</c> to release both managed and unmanaged resources;
-        /// <c>false</c> to release only unmanaged resources.
-        /// </param>
+        /// <inheritdoc />
         protected override void Dispose(bool alsoManaged)
         {
             if (Scaler != null)
@@ -402,7 +382,7 @@
                 Scaler = null;
             }
 
-            DestroyFiltergraph();
+            DestroyFilterGraph();
             ReleaseHardwareDevice();
             base.Dispose(alsoManaged);
         }
@@ -445,7 +425,7 @@
 
             for (var i = 0; i < displayMatrixLength * sizeof(int); i += sizeof(int))
             {
-                matrix.Add(BitConverter.ToInt32(new byte[]
+                matrix.Add(BitConverter.ToInt32(new[]
                 {
                     matrixArrayRef[i + 0],
                     matrixArrayRef[i + 1],
@@ -459,8 +439,8 @@
                 scale[0] = ComputeHypotenuse(Convert.ToDouble(matrix[0]), Convert.ToDouble(matrix[3]));
                 scale[1] = ComputeHypotenuse(Convert.ToDouble(matrix[1]), Convert.ToDouble(matrix[4]));
 
-                scale[0] = scale[0] == 0 ? 1 : scale[0];
-                scale[1] = scale[1] == 0 ? 1 : scale[1];
+                scale[0] = Math.Abs(scale[0]) <= double.Epsilon ? 1 : scale[0];
+                scale[1] = Math.Abs(scale[1]) <= double.Epsilon ? 1 : scale[1];
 
                 rotation = Math.Atan2(
                     Convert.ToDouble(matrix[1]) / scale[1],
@@ -505,7 +485,7 @@
         }
 
         /// <summary>
-        /// If necessary, disposes the existing filtergraph and creates a new one based on the frame arguments.
+        /// If necessary, disposes the existing filter graph and creates a new one based on the frame arguments.
         /// </summary>
         /// <param name="frame">The frame.</param>
         /// <exception cref="MediaContainerException">
@@ -528,9 +508,16 @@
              * https://raw.githubusercontent.com/FFmpeg/FFmpeg/release/3.2/ffplay.c
              */
 
+            // ReSharper disable StringLiteralTypo
+            const string SourceFilterName = "buffer";
+            const string SourceFilterInstance = "video_buffer";
+            const string SinkFilterName = "buffersink";
+            const string SinkFilterInstance = "video_buffersink";
+
+            // ReSharper restore StringLiteralTypo
             var frameArguments = ComputeFilterArguments(frame);
             if (string.IsNullOrWhiteSpace(CurrentFilterArguments) || frameArguments.Equals(CurrentFilterArguments) == false)
-                DestroyFiltergraph();
+                DestroyFilterGraph();
             else
                 return;
 
@@ -540,41 +527,39 @@
 
             try
             {
-                var result = 0;
-
                 // Get a couple of pointers for source and sink buffers
-                AVFilterContext* sourceFileterRef = null;
+                AVFilterContext* sourceFilterRef = null;
                 AVFilterContext* sinkFilterRef = null;
 
                 // Create the source filter
-                result = ffmpeg.avfilter_graph_create_filter(
-                    &sourceFileterRef, ffmpeg.avfilter_get_by_name("buffer"), "video_buffer", CurrentFilterArguments, null, FilterGraph);
+                var result = ffmpeg.avfilter_graph_create_filter(
+                    &sourceFilterRef, ffmpeg.avfilter_get_by_name(SourceFilterName), SourceFilterInstance, CurrentFilterArguments, null, FilterGraph);
 
                 // Check filter creation
                 if (result != 0)
                 {
                     throw new MediaContainerException(
-                        $"{nameof(ffmpeg.avfilter_graph_create_filter)} (buffer) failed. " +
+                        $"{nameof(ffmpeg.avfilter_graph_create_filter)} ({SourceFilterName}) failed. " +
                         $"Error {result}: {FFInterop.DecodeMessage(result)}");
                 }
 
                 // Create the sink filter
                 result = ffmpeg.avfilter_graph_create_filter(
-                    &sinkFilterRef, ffmpeg.avfilter_get_by_name("buffersink"), "video_buffersink", null, null, FilterGraph);
+                    &sinkFilterRef, ffmpeg.avfilter_get_by_name(SinkFilterName), SinkFilterInstance, null, null, FilterGraph);
 
                 // Check filter creation
                 if (result != 0)
                 {
                     throw new MediaContainerException(
-                        $"{nameof(ffmpeg.avfilter_graph_create_filter)} (buffersink) failed. " +
+                        $"{nameof(ffmpeg.avfilter_graph_create_filter)} ({SinkFilterName}) failed. " +
                         $"Error {result}: {FFInterop.DecodeMessage(result)}");
                 }
 
                 // Save the filter references
-                SourceFilter = sourceFileterRef;
+                SourceFilter = sourceFilterRef;
                 SinkFilter = sinkFilterRef;
 
-                // TODO: from ffplay, ffmpeg.av_opt_set_int_list(sink, "pix_fmts", (byte*)&f0, 1, ffmpeg.AV_OPT_SEARCH_CHILDREN);
+                // TODO: from ffplay, ffmpeg.av_opt_set_int_list(sink, "pixel_formats", (byte*)&f0, 1, ffmpeg.AV_OPT_SEARCH_CHILDREN)
                 if (string.IsNullOrWhiteSpace(FilterString))
                 {
                     result = ffmpeg.avfilter_link(SourceFilter, 0, SinkFilter, 0);
@@ -622,7 +607,7 @@
             catch (Exception ex)
             {
                 Container.Parent?.Log(MediaLogMessageType.Error, $"Video filter graph could not be built: {FilterString}.\r\n{ex.Message}");
-                DestroyFiltergraph();
+                DestroyFilterGraph();
             }
         }
 
@@ -631,20 +616,18 @@
         #region IDisposable Support
 
         /// <summary>
-        /// Destroys the filtergraph releasing unmanaged resources.
+        /// Destroys the filter graph releasing unmanaged resources.
         /// </summary>
-        private void DestroyFiltergraph()
+        private void DestroyFilterGraph()
         {
-            if (FilterGraph != null)
-            {
-                RC.Current.Remove(FilterGraph);
-                fixed (AVFilterGraph** filterGraph = &FilterGraph)
-                    ffmpeg.avfilter_graph_free(filterGraph);
+            if (FilterGraph == null) return;
+            RC.Current.Remove(FilterGraph);
+            var filterGraphRef = FilterGraph;
+            ffmpeg.avfilter_graph_free(&filterGraphRef);
 
-                FilterGraph = null;
-                SinkInput = null;
-                SourceOutput = null;
-            }
+            FilterGraph = null;
+            SinkInput = null;
+            SourceOutput = null;
         }
 
         #endregion

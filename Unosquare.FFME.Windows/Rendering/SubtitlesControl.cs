@@ -1,4 +1,5 @@
-﻿namespace Unosquare.FFME.Rendering
+﻿#pragma warning disable SA1202
+namespace Unosquare.FFME.Rendering
 {
     using Platform;
     using System.Collections.Generic;
@@ -10,11 +11,38 @@
 
     /// <summary>
     /// A control suitable for displaying subtitles.
-    /// Layout is: UserControl:Viewbox:Grid:TextBlocks
+    /// Layout is: UserControl:ViewBox:Grid:TextBlocks
     /// </summary>
     /// <seealso cref="UserControl" />
     internal class SubtitlesControl : UserControl
     {
+        #region Constants and Defaults
+
+        private const FrameworkPropertyMetadataOptions AffectsMeasureAndRender
+            = FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender;
+
+        /// <summary>
+        /// The default font size
+        /// </summary>
+        private const double DefaultFontSize = 56;
+
+        /// <summary>
+        /// The default text foreground
+        /// </summary>
+        private static readonly Brush DefaultTextForeground = Brushes.WhiteSmoke;
+
+        /// <summary>
+        /// The default text outline
+        /// </summary>
+        private static readonly Brush DefaultTextOutline = Brushes.Black;
+
+        /// <summary>
+        /// The default text outline width
+        /// </summary>
+        private static readonly Thickness DefaultTextOutlineWidth = new Thickness(1);
+
+        #endregion
+
         #region Dependency Property Registrations
 
         /// <summary>
@@ -33,7 +61,7 @@
             nameof(TextForeground),
             typeof(Brush),
             typeof(SubtitlesControl),
-            new FrameworkPropertyMetadata(DefaultTextForegound, AffectsMeasureAndRender, OnTextForegroundPropertyChanged));
+            new FrameworkPropertyMetadata(DefaultTextForeground, AffectsMeasureAndRender, OnTextForegroundPropertyChanged));
 
         /// <summary>
         /// The text foreground effect dependency property
@@ -42,7 +70,7 @@
             nameof(TextForegroundEffect),
             typeof(Effect),
             typeof(SubtitlesControl),
-            new FrameworkPropertyMetadata(DefaultTextForegroundEffect, AffectsMeasureAndRender, OnTextForegroundEffectPropertyChanged));
+            new FrameworkPropertyMetadata(GetDefaultTextForegroundEffect(), AffectsMeasureAndRender, OnTextForegroundEffectPropertyChanged));
 
         /// <summary>
         /// The text outline width dependency property
@@ -67,42 +95,6 @@
         #region Private State Backing
 
         /// <summary>
-        /// The default font size
-        /// </summary>
-        private const double DefaultFontSize = 56;
-
-        private const FrameworkPropertyMetadataOptions AffectsMeasureAndRender
-            = FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender;
-
-        /// <summary>
-        /// The default text foregound
-        /// </summary>
-        private static Brush DefaultTextForegound = Brushes.WhiteSmoke;
-
-        /// <summary>
-        /// The default text outline
-        /// </summary>
-        private static Brush DefaultTextOutline = Brushes.Black;
-
-        /// <summary>
-        /// The default text outline width
-        /// </summary>
-        private static Thickness DefaultTextOutlineWidth = new Thickness(1);
-
-        /// <summary>
-        /// The default text foreground effect
-        /// </summary>
-        private static Effect DefaultTextForegroundEffect = new DropShadowEffect
-        {
-            BlurRadius = 4,
-            Color = Colors.Black,
-            Direction = 315,
-            Opacity = 0.75,
-            RenderingBias = RenderingBias.Performance,
-            ShadowDepth = 6
-        };
-
-        /// <summary>
         /// Holds the text blocks that together create an outlined subtitle text display.
         /// </summary>
         private readonly Dictionary<Block, TextBlock> TextBlocks = new Dictionary<Block, TextBlock>(5);
@@ -123,7 +115,6 @@
         /// Initializes a new instance of the <see cref="SubtitlesControl"/> class.
         /// </summary>
         public SubtitlesControl()
-            : base()
         {
             var layoutElement = new Grid
             {
@@ -134,7 +125,7 @@
 
             for (var i = (int)Block.Bottom; i >= (int)Block.Foreground; i--)
             {
-                var textBlock = new TextBlock()
+                var textBlock = new TextBlock
                 {
                     Name = $"{nameof(SubtitlesControl)}_{(Block)i}",
                     TextWrapping = TextWrapping.NoWrap,
@@ -149,8 +140,8 @@
                 var blockType = (Block)i;
                 if (blockType == Block.Foreground)
                 {
-                    textBlock.Effect = DefaultTextForegroundEffect;
-                    textBlock.Foreground = DefaultTextForegound;
+                    textBlock.Effect = GetDefaultTextForegroundEffect();
+                    textBlock.Foreground = DefaultTextForeground;
                     textBlock.Margin = new Thickness(0);
                 }
                 else
@@ -199,8 +190,8 @@
         [Description("Gets or sets the text contents of this text block.")]
         public string Text
         {
-            get { return GetValue(TextProperty) as string; }
-            set { SetValue(TextProperty, value); }
+            get => GetValue(TextProperty) as string;
+            set => SetValue(TextProperty, value);
         }
 
         /// <summary>
@@ -210,8 +201,8 @@
         [Description("Gets or sets the text contents of this text block.")]
         public Brush TextForeground
         {
-            get { return GetValue(TextForegroundProperty) as Brush; }
-            set { SetValue(TextForegroundProperty, value); }
+            get => GetValue(TextForegroundProperty) as Brush;
+            set => SetValue(TextForegroundProperty, value);
         }
 
         /// <summary>
@@ -221,8 +212,8 @@
         [Description("Gets or sets the text outline brush.")]
         public Brush TextOutline
         {
-            get { return GetValue(TextOutlineProperty) as Brush; }
-            set { SetValue(TextOutlineProperty, value); }
+            get => GetValue(TextOutlineProperty) as Brush;
+            set => SetValue(TextOutlineProperty, value);
         }
 
         /// <summary>
@@ -232,8 +223,8 @@
         [Description("Gets or sets the text outline width.")]
         public Thickness TextOutlineWidth
         {
-            get { return (Thickness)GetValue(TextOutlineWidthProperty); }
-            set { SetValue(TextOutlineWidthProperty, value); }
+            get => (Thickness)GetValue(TextOutlineWidthProperty);
+            set => SetValue(TextOutlineWidthProperty, value);
         }
 
         /// <summary>
@@ -243,18 +234,15 @@
         [Description("Gets or sets the text foreground effect. It's a smooth drop shadow by default.")]
         public Effect TextForegroundEffect
         {
-            get { return GetValue(TextForegroundEffectProperty) as Effect; }
-            set { SetValue(TextForegroundEffectProperty, value); }
+            get => GetValue(TextForegroundEffectProperty) as Effect;
+            set => SetValue(TextForegroundEffectProperty, value);
         }
 
         #endregion
 
         #region Helper Methods
 
-        /// <summary>
-        /// Invoked whenever the effective value of any dependency property on this <see cref="T:System.Windows.FrameworkElement" /> has been updated. The specific dependency property that changed is reported in the arguments parameter. Overrides <see cref="M:System.Windows.DependencyObject.OnPropertyChanged(System.Windows.DependencyPropertyChangedEventArgs)" />.
-        /// </summary>
-        /// <param name="e">The event data that describes the property that changed, as well as old and new values.</param>
+        /// <inheritdoc />
         protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
         {
             if (e.Property.Name == nameof(FontSize))
@@ -304,17 +292,31 @@
             return new Thickness(leftMargin, topMargin, 0, 0);
         }
 
+        /// <summary>
+        /// Gets the default text foreground effect
+        /// </summary>
+        /// <returns>A new instance of a foreground effect.</returns>
+        private static Effect GetDefaultTextForegroundEffect() => new DropShadowEffect
+        {
+            BlurRadius = 4,
+            Color = Colors.Black,
+            Direction = 315,
+            Opacity = 0.75,
+            RenderingBias = RenderingBias.Performance,
+            ShadowDepth = 6
+        };
+
         #endregion
 
         #region Dependency Property Change Handlers
 
         private static void OnTextPropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
         {
-            var element = dependencyObject as SubtitlesControl;
-            if (element == null) return;
+            if (dependencyObject is SubtitlesControl == false) return;
 
+            var element = (SubtitlesControl)dependencyObject;
             var value = e.NewValue as string;
-            if (string.IsNullOrWhiteSpace(value)) value = $" \r\n ";
+            if (string.IsNullOrWhiteSpace(value)) value = " \r\n ";
             if (value.Contains("\n") == false) value = $"{value}\r\n ";
             foreach (var t in element.TextBlocks)
                 t.Value.Text = value;
@@ -322,18 +324,18 @@
 
         private static void OnTextForegroundPropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
         {
-            var element = dependencyObject as SubtitlesControl;
-            if (element == null) return;
+            if (dependencyObject is SubtitlesControl == false) return;
 
+            var element = (SubtitlesControl)dependencyObject;
             var value = e.NewValue as Brush;
             element.TextBlocks[Block.Foreground].Foreground = value;
         }
 
         private static void OnTextOutlinePropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
         {
-            var element = dependencyObject as SubtitlesControl;
-            if (element == null) return;
+            if (dependencyObject is SubtitlesControl == false) return;
 
+            var element = (SubtitlesControl)dependencyObject;
             var value = e.NewValue as Brush;
             foreach (var t in element.TextBlocks)
             {
@@ -344,9 +346,9 @@
 
         private static void OnTextOutlineWidthPropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
         {
-            var element = dependencyObject as SubtitlesControl;
-            if (element == null) return;
+            if (dependencyObject is SubtitlesControl == false) return;
 
+            var element = (SubtitlesControl)dependencyObject;
             var value = (Thickness)e.NewValue;
             foreach (var t in element.TextBlocks)
                 t.Value.Margin = ComputeMargin(t.Key, value);
@@ -354,9 +356,9 @@
 
         private static void OnTextForegroundEffectPropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
         {
-            var element = dependencyObject as SubtitlesControl;
-            if (element == null) return;
+            if (dependencyObject is SubtitlesControl == false) return;
 
+            var element = (SubtitlesControl)dependencyObject;
             var value = e.NewValue as Effect;
             element.TextBlocks[Block.Foreground].Effect = value;
         }
@@ -364,3 +366,4 @@
         #endregion
     }
 }
+#pragma warning restore SA1202

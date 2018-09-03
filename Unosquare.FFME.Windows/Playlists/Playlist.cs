@@ -8,13 +8,12 @@
     using System.Linq;
     using System.Text;
 
+    /// <inheritdoc cref="ObservableCollection{T}"/>
     /// <summary>
     /// Represents an observable collection of playlist entries.
     /// General guidelines taken from http://xmtvplayer.com/build-m3u-file
     /// </summary>
     /// <typeparam name="T">The type of playlist items</typeparam>
-    /// <seealso cref="System.Collections.ObjectModel.ObservableCollection{T}" />
-    /// <seealso cref="ObservableCollection{PlaylistEntry}" />
     public class Playlist<T> : ObservableCollection<T>
         where T : PlaylistEntry, new()
     {
@@ -23,7 +22,7 @@
         internal const string HeaderPrefix = "#EXTM3U";
         internal const string EntryPrefix = "#EXTINF";
 
-        private string m_Name = null;
+        private string m_Name;
 
         #endregion
 
@@ -56,10 +55,7 @@
         /// </summary>
         public string Name
         {
-            get
-            {
-                return m_Name;
-            }
+            get => m_Name;
             set
             {
                 m_Name = value;
@@ -276,9 +272,9 @@
         /// <param name="duration">The duration.</param>
         /// <param name="url">The URL.</param>
         /// <param name="attributes">The attributes.</param>
-        public void Add(string title, TimeSpan duration, string url, Dictionary<string, string> attributes = null)
+        public void Add(string title, TimeSpan duration, string url, Dictionary<string, string> attributes)
         {
-            var entry = new T()
+            var entry = new T
             {
                 Duration = duration,
                 MediaUrl = url,
@@ -295,6 +291,14 @@
 
             Add(entry);
         }
+
+        /// <summary>
+        /// Adds an entry to the playlist without extended attributes.
+        /// </summary>
+        /// <param name="title">The title.</param>
+        /// <param name="duration">The duration.</param>
+        /// <param name="url">The URL.</param>
+        public void Add(string title, TimeSpan duration, string url) => Add(title, duration, url, null);
 
         #endregion
     }

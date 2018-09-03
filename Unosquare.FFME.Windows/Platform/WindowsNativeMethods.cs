@@ -1,16 +1,16 @@
 ﻿namespace Unosquare.FFME.Platform
 {
+    using Shared;
     using System;
     using System.Runtime.InteropServices;
     using System.Threading.Tasks;
-    using Shared;
 
     /// <summary>
     /// Windows-specific native methods
     /// </summary>
     internal class WindowsNativeMethods : INativeMethods
     {
-        private static readonly int Parallelism = 1;
+        private static readonly int Parallelism;
 
         /// <summary>
         /// Initializes static members of the <see cref="WindowsNativeMethods"/> class.
@@ -26,13 +26,13 @@
         /// </summary>
         private WindowsNativeMethods()
         {
-            // Placeholder;
+            // placeholder
         }
 
         /// <summary>
         /// Enumerates memory copy methods
         /// </summary>
-        private enum MemoryCopyStartegy
+        private enum MemoryCopyStrategy
         {
             /// <summary>
             /// The native
@@ -47,7 +47,7 @@
             /// <summary>
             /// The buffer
             /// </summary>
-            Buffer,
+            Buffer
         }
 
         /// <summary>
@@ -61,54 +61,41 @@
         /// <summary>
         /// Gets or sets a value indicating whether Parallel Copy is enabled.
         /// </summary>
-        private MemoryCopyStartegy CopyStrategy { get; set; } = MemoryCopyStartegy.ParallelNative;
+        private MemoryCopyStrategy CopyStrategy { get; } = MemoryCopyStrategy.ParallelNative;
 
-        /// <summary>
-        /// Fills the memory with the specified value repeated.
-        /// </summary>
-        /// <param name="startAddress">The start address.</param>
-        /// <param name="length">The length.</param>
-        /// <param name="value">The value.</param>
-        public void FillMemory(IntPtr startAddress, uint length, byte value)
-        {
+        /// <inheritdoc />
+        public void FillMemory(IntPtr startAddress, uint length, byte value) =>
             NativeMethods.FillMemory(startAddress, length, value);
-        }
 
         /// <summary>
-        /// Sets the DLL directory in which external dependencies can be located.
+        /// Zeroes the memory.
         /// </summary>
-        /// <param name="path">The path.</param>
-        /// <returns>
-        /// True for success. False for failure
-        /// </returns>
-        public bool SetDllDirectory(string path)
-        {
-            return NativeMethods.SetDllDirectory(path);
-        }
+        /// <param name="destination">The destination.</param>
+        /// <param name="length">The length.</param>
+        public void ZeroMemory(IntPtr destination, int length) =>
+            NativeMethods.ZeroMemory(destination, length);
 
-        /// <summary>
-        /// Fast pointer memory block copy function
-        /// </summary>
-        /// <param name="targetAddress">The target address.</param>
-        /// <param name="sourceAddress">The source address.</param>
-        /// <param name="copyLength">Length of the copy.</param>
+        /// <inheritdoc />
+        public bool SetDllDirectory(string path) =>
+            NativeMethods.SetDllDirectory(path);
+
+        /// <inheritdoc />
         public unsafe void CopyMemory(IntPtr targetAddress, IntPtr sourceAddress, uint copyLength)
         {
             switch (CopyStrategy)
             {
-                case MemoryCopyStartegy.Native:
+                case MemoryCopyStrategy.Native:
                     {
                         NativeMethods.CopyMemory(targetAddress, sourceAddress, copyLength);
                         break;
                     }
 
-                case MemoryCopyStartegy.ParallelNative:
+                case MemoryCopyStrategy.ParallelNative:
                     {
                         CopyMemoryParallel(targetAddress, sourceAddress, copyLength);
                         break;
                     }
 
-                case MemoryCopyStartegy.Buffer:
                 default:
                     {
                         Buffer.MemoryCopy((void*)sourceAddress, (void*)targetAddress, copyLength, copyLength);
@@ -118,15 +105,15 @@
         }
 
         /// <summary>
-        /// An experimetal method of copying large chunks of memory in parallel.
+        /// An experimental method of copying large chunks of memory in parallel.
         /// Does not seem to have any advantages of the native CopyMemory direct call.
         /// </summary>
         /// <param name="targetAddress">The target address.</param>
         /// <param name="sourceAddress">The source address.</param>
         /// <param name="copyLength">Length of the copy.</param>
-        private unsafe void CopyMemoryParallel(IntPtr targetAddress, IntPtr sourceAddress, uint copyLength)
+        private void CopyMemoryParallel(IntPtr targetAddress, IntPtr sourceAddress, uint copyLength)
         {
-            const int optimalBlockSize = 1024 * 1024 * 2; // 2MB per thread;
+            const int optimalBlockSize = 1024 * 1024 * 2; // 2MB per thread
             const int maxParallelism = 4;
 
             // Don't run parallelism for smaller chunks -- it's not worth it
@@ -149,11 +136,11 @@
                 return;
             }
 
-            // Start the copy operation in the threadpool
-            Parallel.For(0, blockCount, (blockIndex) =>
+            // Start the copy operation in the thread pool
+            Parallel.For(0, blockCount, blockIndex =>
             {
                 var offset = blockIndex * (int)blockSize;
-                var chunkSize = (blockIndex == lastBlockIndex) ? lastBlockSize : blockSize;
+                var chunkSize = blockIndex == lastBlockIndex ? lastBlockSize : blockSize;
                 NativeMethods.CopyMemory(targetAddress + offset, sourceAddress + offset, chunkSize);
             });
         }
@@ -190,6 +177,14 @@
             /// <param name="fill">The fill.</param>
             [DllImport(Kernel32, EntryPoint = "RtlFillMemory", SetLastError = false)]
             public static extern void FillMemory(IntPtr destination, uint length, byte fill);
+
+            /// <summary>
+            /// Zeroes the memory.
+            /// </summary>
+            /// <param name="dest">The dest.</param>
+            /// <param name="length">The length.</param>
+            [DllImport(Kernel32, EntryPoint = "RtlZeroMemory", SetLastError = false)]
+            public static extern void ZeroMemory(IntPtr dest, int length);
         }
     }
 }

@@ -1,21 +1,24 @@
 ﻿namespace Unosquare.FFME.Rendering.Wave
 {
+    using Primitives;
     using System;
     using System.Runtime.InteropServices;
 
+    /// <inheritdoc/>
     /// <summary>
     /// A buffer of Wave samples for streaming to a Wave Output device
     /// </summary>
-    internal class WaveOutBuffer : IDisposable
+    internal sealed class WaveOutBuffer : IDisposable
     {
-        private readonly object DisposeLock = new object();
+        private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
         private readonly WaveHeader header;
         private readonly byte[] Buffer;
         private readonly IWaveProvider WaveStream;
 
-        private IntPtr DeviceHandle;
+        // Structs
         private GCHandle BufferHandle;
         private GCHandle HeaderHandle; // we need to pin the header structure
+        private IntPtr DeviceHandle;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WaveOutBuffer"/> class.
@@ -52,21 +55,36 @@
         /// </summary>
         public int BufferSize { get; }
 
-        /// <summary>
-        /// Releases resources held by this WaveBuffer
-        /// </summary>
-        public void Dispose() => Dispose(true);
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            if (m_IsDisposed.Value) return;
+            m_IsDisposed.Value = true;
+
+            // Release the wave header
+            WaveInterop.ReleaseHeader(DeviceHandle, header);
+
+            // Unpin The header
+            if (HeaderHandle.IsAllocated)
+                HeaderHandle.Free();
+
+            // Unpin the buffer
+            if (BufferHandle.IsAllocated)
+                BufferHandle.Free();
+
+            // Reset the struct fields
+            HeaderHandle = default;
+            BufferHandle = default;
+            DeviceHandle = IntPtr.Zero;
+        }
 
         /// <summary>
         /// Clears the internal buffer data.
         /// </summary>
         public void Clear()
         {
-            lock (DisposeLock)
-            {
-                if (Buffer != null)
-                    Array.Clear(Buffer, 0, Buffer.Length);
-            }
+            if (Buffer != null)
+                Array.Clear(Buffer, 0, Buffer.Length);
         }
 
         /// <summary>
@@ -84,28 +102,6 @@
 
             WaveInterop.WriteAudioData(DeviceHandle, header);
             return true;
-        }
-
-        /// <summary>
-        /// Releases resources held by this WaveBuffer
-        /// </summary>
-        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected void Dispose(bool alsoManaged)
-        {
-            lock (DisposeLock)
-            {
-                if (HeaderHandle.IsAllocated)
-                    HeaderHandle.Free();
-
-                if (BufferHandle.IsAllocated)
-                    BufferHandle.Free();
-
-                if (DeviceHandle != IntPtr.Zero)
-                {
-                    WaveInterop.ReleaseHeader(DeviceHandle, header);
-                    DeviceHandle = IntPtr.Zero;
-                }
-            }
         }
     }
 }

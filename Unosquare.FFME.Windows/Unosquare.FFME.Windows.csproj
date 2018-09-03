@@ -40,8 +40,8 @@
     <ApplicationIcon />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FFmpeg.AutoGen, Version=4.0.0.2, Culture=neutral, PublicKeyToken=9b7632533a381715, processorArchitecture=MSIL">
-      <HintPath>..\packages\FFmpeg.AutoGen.4.0.0.2\lib\net45\FFmpeg.AutoGen.dll</HintPath>
+    <Reference Include="FFmpeg.AutoGen, Version=4.0.0.4, Culture=neutral, PublicKeyToken=9b7632533a381715, processorArchitecture=MSIL">
+      <HintPath>..\packages\FFmpeg.AutoGen.4.0.0.4\lib\net45\FFmpeg.AutoGen.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -82,7 +82,7 @@
     <Compile Include="Rendering\Wave\DirectSoundDeviceInfo.cs" />
     <Compile Include="Rendering\Wave\DirectSoundPlayer.cs" />
     <Compile Include="Rendering\Wave\IWavePlayer.cs" />
-    <Compile Include="Rendering\Wave\MmException.cs" />
+    <Compile Include="Rendering\LegacyAudioException.cs" />
     <Compile Include="Subtitles.cs" />
     <Compile Include="Platform\WindowsMediaConnector.cs" />
     <Compile Include="Platform\WindowsNativeMethods.cs" />
@@ -94,7 +94,7 @@
     <Compile Include="Platform\SoundTouch.cs" />
     <Compile Include="Rendering\SubtitlesControl.cs" />
     <Compile Include="Rendering\Wave\IWaveProvider.cs" />
-    <Compile Include="Rendering\Wave\MmResult.cs" />
+    <Compile Include="Rendering\LegacyAudioResult.cs" />
     <Compile Include="Rendering\Wave\MmTime.cs" />
     <Compile Include="Rendering\Wave\PlaybackState.cs" />
     <Compile Include="Rendering\Wave\SupportedWaveFormat.cs" />
@@ -137,14 +137,15 @@
     <EmbeddedResource Include="MediaElement.png" />
   </ItemGroup>
   <ItemGroup>
-    <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
-    <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Unosquare.FFME.Common\Unosquare.FFME.Common.csproj">
       <Project>{76b2db70-c8ab-4517-8afb-051383e496b7}</Project>
       <Name>Unosquare.FFME.Common</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.0\analyzers\dotnet\cs\Newtonsoft.Json.dll" />
+    <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.0\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
+    <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.0\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

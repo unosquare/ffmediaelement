@@ -77,7 +77,7 @@
         public static FFLibrary LibAVUtil { get; } = new FFLibrary(Names.AVUtil, 56, 4);
 
         /// <summary>
-        /// Gets the SWResample library.
+        /// Gets the SW Resample library.
         /// </summary>
         public static FFLibrary LibSWResample { get; } = new FFLibrary(Names.SWResample, 3, 8);
 
@@ -155,15 +155,11 @@
 
                 var result = LibraryLoader.LoadNativeLibrary(basePath, Name, Version);
 
-                if (result != IntPtr.Zero)
-                {
-                    Reference = result;
-                    BasePath = basePath;
-                    LoadErrorCode = 0;
-                    return true;
-                }
-
-                return false;
+                if (result == IntPtr.Zero) return false;
+                Reference = result;
+                BasePath = basePath;
+                LoadErrorCode = 0;
+                return true;
             }
         }
 

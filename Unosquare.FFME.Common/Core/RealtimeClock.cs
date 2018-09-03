@@ -9,9 +9,9 @@
     /// </summary>
     internal sealed class RealTimeClock
     {
-        private readonly Stopwatch Chrono = new Stopwatch();
+        private readonly Stopwatch Chronometer = new Stopwatch();
         private readonly object SyncLock = new object();
-        private long OffsetTicks = 0;
+        private long OffsetTicks;
         private double m_SpeedRatio = Constants.Controller.DefaultSpeedRatio;
 
         /// <summary>
@@ -30,7 +30,7 @@
                 lock (SyncLock)
                 {
                     return TimeSpan.FromTicks(
-                        OffsetTicks + Convert.ToInt64(Chrono.Elapsed.Ticks * SpeedRatio));
+                        OffsetTicks + Convert.ToInt64(Chronometer.Elapsed.Ticks * SpeedRatio));
                 }
             }
         }
@@ -38,7 +38,7 @@
         /// <summary>
         /// Gets a value indicating whether the clock is running.
         /// </summary>
-        public bool IsRunning => Chrono.IsRunning;
+        public bool IsRunning => Chronometer.IsRunning;
 
         /// <summary>
         /// Gets or sets the speed ratio at which the clock runs.
@@ -56,12 +56,10 @@
             {
                 lock (SyncLock)
                 {
-                    if (value < 0d) value = 0d;
-
-                    // Capture the initial position se we set it even after the speedratio has changed
+                    // Capture the initial position se we set it even after the speed ratio has changed
                     // this ensures a smooth position transition
                     var initialPosition = Position;
-                    m_SpeedRatio = value;
+                    m_SpeedRatio = value < 0d ? 0d : value;
                     Update(initialPosition);
                 }
             }
@@ -70,15 +68,15 @@
         /// <summary>
         /// Sets a new position value atomically
         /// </summary>
-        /// <param name="value">The new value that the position porperty will hold.</param>
+        /// <param name="value">The new value that the position property will hold.</param>
         public void Update(TimeSpan value)
         {
             lock (SyncLock)
             {
-                var resume = Chrono.IsRunning;
-                Chrono.Reset();
+                var resume = Chronometer.IsRunning;
+                Chronometer.Reset();
                 OffsetTicks = value.Ticks;
-                if (resume) Chrono.Start();
+                if (resume) Chronometer.Start();
             }
         }
 
@@ -89,8 +87,8 @@
         {
             lock (SyncLock)
             {
-                if (Chrono.IsRunning) return;
-                Chrono.Start();
+                if (Chronometer.IsRunning) return;
+                Chronometer.Start();
             }
         }
 
@@ -100,7 +98,7 @@
         public void Pause()
         {
             lock (SyncLock)
-                Chrono.Stop();
+                Chronometer.Stop();
         }
 
         /// <summary>
@@ -112,7 +110,7 @@
             lock (SyncLock)
             {
                 OffsetTicks = 0;
-                Chrono.Reset();
+                Chronometer.Reset();
             }
         }
     }

@@ -6,6 +6,7 @@
              xmlns:ffme="clr-namespace:Unosquare.FFME;assembly=ffme.win"
              mc:Ignorable="d" d:DesignHeight="700"
              d:DataContext="{StaticResource ViewModel}">
+    <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
     <Border Name="PropertyExplorerPanel" Width="280" Style="{StaticResource SidePanelContainerBorderStyle}" 
             d:DataContext="{d:DesignInstance ffme:MediaElement, IsDesignTimeCreatable=True}"
             DataContext="{Binding Path=App.MediaElement}">
@@ -53,8 +54,8 @@
                         </DockPanel>
 
                         <DockPanel>
-                            <TextBlock Style="{StaticResource Key}">Bitrate</TextBlock>
-                            <TextBlock Style="{StaticResource Value}" Text="{Binding Bitrate, Mode=OneWay, Converter={StaticResource BitFormatter}}" />
+                            <TextBlock Style="{StaticResource Key}">Bit Rate</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding BitRate, Mode=OneWay, Converter={StaticResource BitFormatter}}" />
                         </DockPanel>
 
                         <DockPanel>
@@ -128,8 +129,8 @@
                         </DockPanel>
 
                         <DockPanel>
-                            <TextBlock Style="{StaticResource Key}">Decoding Bitrate</TextBlock>
-                            <TextBlock Style="{StaticResource Value}" Text="{Binding DecodingBitrate, Mode=OneWay, Converter={StaticResource BitFormatter}}" />
+                            <TextBlock Style="{StaticResource Key}">Decoding Bit Rate</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding DecodingBitRate, Mode=OneWay, Converter={StaticResource BitFormatter}}" />
                         </DockPanel>
 
                         <DockPanel>
@@ -173,8 +174,8 @@
                         </DockPanel>
 
                         <DockPanel>
-                            <TextBlock Style="{StaticResource Key}">Video Bitrate</TextBlock>
-                            <TextBlock Style="{StaticResource Value}" Text="{Binding VideoBitrate, Mode=OneWay, Converter={StaticResource BitFormatter}}" />
+                            <TextBlock Style="{StaticResource Key}">Video Bit Rate</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding VideoBitRate, Mode=OneWay, Converter={StaticResource BitFormatter}}" />
                         </DockPanel>
 
                         <DockPanel>
@@ -199,7 +200,7 @@
 
                         <DockPanel>
                             <TextBlock Style="{StaticResource Key}">Video SMTPE</TextBlock>
-                            <TextBlock Style="{StaticResource Value}" Text="{Binding VideoSmtpeTimecode, Mode=OneWay}" />
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding VideoSmtpeTimeCode, Mode=OneWay}" />
                         </DockPanel>
 
                         <DockPanel>
@@ -223,8 +224,8 @@
                         </DockPanel>
 
                         <DockPanel>
-                            <TextBlock Style="{StaticResource Key}">Audio Bitrate</TextBlock>
-                            <TextBlock Style="{StaticResource Value}" Text="{Binding AudioBitrate, Mode=OneWay, Converter={StaticResource BitFormatter}}" />
+                            <TextBlock Style="{StaticResource Key}">Audio Bit Rate</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding AudioBitRate, Mode=OneWay, Converter={StaticResource BitFormatter}}" />
                         </DockPanel>
 
                         <DockPanel>

@@ -21,7 +21,7 @@
             Name = selectedConfig.DeviceTypeName;
             DeviceType = selectedConfig.DeviceType;
             PixelFormat = selectedConfig.PixelFormat;
-            GetFormatCallback = new AVCodecContext_get_format(GetPixelFormat);
+            GetFormatCallback = GetPixelFormat;
         }
 
         /// <summary>
@@ -90,7 +90,7 @@
         /// </summary>
         /// <param name="codecContext">The codec context.</param>
         /// <param name="input">The input frame coming from the decoder (may or may not be hardware).</param>
-        /// <param name="isHardwareFrame">if set to <c>true</c> [comes from hardware] otherwise, hardware decoding was not perfomred.</param>
+        /// <param name="isHardwareFrame">if set to <c>true</c> [comes from hardware] otherwise, hardware decoding was not performed.</param>
         /// <returns>
         /// The frame downloaded from the device into RAM
         /// </returns>
@@ -126,19 +126,19 @@
         /// Gets the pixel format.
         /// Port of (get_format) method in ffmpeg.c
         /// </summary>
-        /// <param name="avctx">The codec context.</param>
-        /// <param name="pix_fmts">The pixel formats.</param>
+        /// <param name="context">The codec context.</param>
+        /// <param name="pixelFormats">The pixel formats.</param>
         /// <returns>The real pixel format that the codec will be using</returns>
-        private AVPixelFormat GetPixelFormat(AVCodecContext* avctx, AVPixelFormat* pix_fmts)
+        private AVPixelFormat GetPixelFormat(AVCodecContext* context, AVPixelFormat* pixelFormats)
         {
             // The default output is the first pixel format found.
-            var output = *pix_fmts;
+            var output = *pixelFormats;
 
-            // Iterate throught the different pixel formats provided by the codec
-            for (var p = pix_fmts; *p != AVPixelFormat.AV_PIX_FMT_NONE; p++)
+            // Iterate throughout the different pixel formats provided by the codec
+            for (var p = pixelFormats; *p != AVPixelFormat.AV_PIX_FMT_NONE; p++)
             {
                 // Try to select a hardware output pixel format that matches the HW device
-                if (*pix_fmts == PixelFormat)
+                if (*pixelFormats == PixelFormat)
                 {
                     output = PixelFormat;
                     break;

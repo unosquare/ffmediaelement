@@ -11,7 +11,7 @@
         Clear = 0,
 
         /// <summary>
-        /// The packet queue enqueued a packet
+        /// The packet queue queued a packet
         /// </summary>
         Queued = 1,
 

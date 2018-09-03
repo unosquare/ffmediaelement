@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Commands
 {
+    using Shared;
     using System;
 
     /// <summary>
@@ -16,22 +17,12 @@
             : base(mediaCore, TimeSpan.Zero)
         {
             CommandType = CommandType.Stop;
-            Category = CommandCategory.Priority;
         }
 
-        /// <summary>
-        /// Gets the command type identifier.
-        /// </summary>
+        /// <inheritdoc />
         public override CommandType CommandType { get; }
 
-        /// <summary>
-        /// Gets the command category.
-        /// </summary>
-        public override CommandCategory Category { get; }
-
-        /// <summary>
-        /// Performs the actions represented by this deferred task.
-        /// </summary>
+        /// <inheritdoc />
         protected override void PerformActions()
         {
             var m = MediaCore;
@@ -40,7 +31,7 @@
             foreach (var renderer in m.Renderers.Values)
                 renderer.Stop();
 
-            m.State.UpdateMediaState(Shared.PlaybackStatus.Stop);
+            m.State.UpdateMediaState(PlaybackStatus.Stop);
         }
     }
 }

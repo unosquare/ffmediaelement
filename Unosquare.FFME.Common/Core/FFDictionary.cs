@@ -4,10 +4,11 @@
     using System;
     using System.Collections.Generic;
 
+    /// <inheritdoc />
     /// <summary>
     /// An AVDictionary management class
     /// </summary>
-    internal unsafe class FFDictionary : IDisposable
+    internal sealed unsafe class FFDictionary : IDisposable
     {
         #region Unmanaged Fields
 
@@ -18,7 +19,7 @@
         /// <summary>
         /// To detect redundant Dispose calls
         /// </summary>
-        private bool IsDisposed = false;
+        private bool IsDisposed;
 
         #endregion
 
@@ -56,14 +57,7 @@
         /// <value>
         /// The count.
         /// </value>
-        public int Count
-        {
-            get
-            {
-                if (m_Pointer == IntPtr.Zero) return 0;
-                return ffmpeg.av_dict_count(Pointer);
-            }
-        }
+        public int Count => m_Pointer == IntPtr.Zero ? 0 : ffmpeg.av_dict_count(Pointer);
 
         /// <summary>
         /// Gets or sets the value with the specified key.
@@ -87,7 +81,7 @@
         /// Converts the AVDictionary to a regular dictionary.
         /// </summary>
         /// <param name="dictionary">The dictionary to convert from.</param>
-        /// <returns>the converterd dictionary</returns>
+        /// <returns>the converted dictionary</returns>
         public static Dictionary<string, string> ToDictionary(AVDictionary* dictionary)
         {
             var result = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
@@ -115,8 +109,7 @@
                 return null;
 
             var entryPointer = ffmpeg.av_dict_get(dictionary, key, null, matchCase ? ffmpeg.AV_DICT_MATCH_CASE : 0);
-            if (entryPointer == null) return null;
-            return new FFDictionaryEntry(entryPointer);
+            return entryPointer == null ? null : new FFDictionaryEntry(entryPointer);
         }
 
         /// <summary>
@@ -212,11 +205,11 @@
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="value">The value.</param>
-        /// <param name="dontOverwrite">if set to <c>true</c> [dont overwrite].</param>
-        public void Set(string key, string value, bool dontOverwrite)
+        /// <param name="preventOverwrite">if set to <c>true</c> don't overwrite existing value.</param>
+        public void Set(string key, string value, bool preventOverwrite)
         {
             var flags = 0;
-            if (dontOverwrite) flags |= ffmpeg.AV_DICT_DONT_OVERWRITE;
+            if (preventOverwrite) flags |= ffmpeg.AV_DICT_DONT_OVERWRITE;
 
             var reference = Pointer;
             ffmpeg.av_dict_set(&reference, key, value, flags);
@@ -233,38 +226,16 @@
                 Set(key, null, false);
         }
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose()
         {
-            Dispose(true);
+            if (IsDisposed) return;
+            IsDisposed = true;
+            var reference = Pointer;
+            ffmpeg.av_dict_free(&reference);
+            m_Pointer = IntPtr.Zero;
         }
 
         #endregion
-
-        #region IDisposable Support
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool alsoManaged)
-        {
-            if (!IsDisposed)
-            {
-                if (alsoManaged)
-                {
-                    var reference = Pointer;
-                    ffmpeg.av_dict_free(&reference);
-                    m_Pointer = IntPtr.Zero;
-                }
-
-                IsDisposed = true;
-            }
-        }
-
-        #endregion
-
     }
 }

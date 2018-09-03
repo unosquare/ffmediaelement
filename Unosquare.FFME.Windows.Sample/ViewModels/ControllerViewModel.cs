@@ -171,6 +171,7 @@
                 var m = Root.App.MediaElement;
                 if (m == null) return;
 
+                // ReSharper disable once UseNegatedPatternMatching
                 var transform = m.RenderTransform as ScaleTransform;
                 if (transform == null)
                 {
@@ -197,9 +198,7 @@
             }
         }
 
-        /// <summary>
-        /// Called by the root ViewModel when the application is loaded and fully available
-        /// </summary>
+        /// <inheritdoc />
         internal override void OnApplicationLoaded()
         {
             base.OnApplicationLoaded();

@@ -5,6 +5,7 @@
     using System;
     using System.Linq;
 
+    /// <inheritdoc />
     /// <summary>
     /// Change Media Command Implementation
     /// </summary>
@@ -24,20 +25,15 @@
             PlayWhenCompleted = mediaCore.Clock.IsRunning;
         }
 
-        /// <summary>
-        /// Gets the command type identifier.
-        /// </summary>
+        /// <inheritdoc />
         public override CommandType CommandType { get; }
 
         /// <summary>
-        /// Gets a value indicating whetherthe media resumes playback when postprocessing.
+        /// Gets a value indicating whether the media resumes playback when postprocessing.
         /// </summary>
         public bool PlayWhenCompleted { get; }
 
-        /// <summary>
-        /// Performs actions when the command has been executed.
-        /// This is useful to notify exceptions or update the state of the media.
-        /// </summary>
+        /// <inheritdoc />
         public override void PostProcess()
         {
             MediaCore.State.UpdateFixedContainerProperties();
@@ -61,9 +57,7 @@
             MediaCore.Log(MediaLogMessageType.Debug, $"Command {CommandType}: Completed");
         }
 
-        /// <summary>
-        /// Performs the actions represented by this deferred task.
-        /// </summary>
+        /// <inheritdoc />
         protected override void PerformActions()
         {
             var m = MediaCore;
@@ -75,7 +69,7 @@
                 m.Clock.Pause();
 
                 // Wait for the cycles to complete
-                var workerEvents = new IWaitEvent[] { m.BlockRenderingCycle, m.PacketReadingCycle };
+                var workerEvents = new[] { m.BlockRenderingCycle, m.PacketReadingCycle };
                 foreach (var workerEvent in workerEvents)
                     workerEvent.Wait();
 
@@ -84,7 +78,7 @@
                 m.SendOnMediaChanging();
 
                 // Side load subtitles
-                m.PreloadSubtitles();
+                m.PreLoadSubtitles();
 
                 // Capture the current media types before components change
                 var oldMediaTypes = m.Container.Components.MediaTypes.ToArray();
@@ -112,11 +106,9 @@
                     }
 
                     // Remove the block buffer for the component
-                    if (m.Blocks.ContainsKey(t))
-                    {
-                        m.Blocks[t]?.Dispose();
-                        m.Blocks.Remove(t);
-                    }
+                    if (!m.Blocks.ContainsKey(t)) continue;
+                    m.Blocks[t]?.Dispose();
+                    m.Blocks.Remove(t);
                 }
 
                 // Create the block buffers and renderers as necessary
@@ -139,7 +131,6 @@
                     // Let's simply do an automated seek
                     var seekCommand = new SeekCommand(m, m.WallClock);
                     seekCommand.Execute();
-                    return;
                 }
                 else
                 {

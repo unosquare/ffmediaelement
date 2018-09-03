@@ -19,11 +19,10 @@
         #region State Management
 
         private readonly AtomicBoolean m_IsSyncBuffering = new AtomicBoolean(false);
-
-        private Thread PacketReadingTask = null;
-        private Thread FrameDecodingTask = null;
-        private Timer BlockRenderingWorker = null;
-        private IWaitEvent BlockRenderingWorkerExit = null;
+        private IWaitEvent BlockRenderingWorkerExit;
+        private Thread PacketReadingTask;
+        private Thread FrameDecodingTask;
+        private Timer BlockRenderingWorker;
 
         /// <summary>
         /// Holds the materialized block cache for each media type.
@@ -33,10 +32,10 @@
         /// <summary>
         /// Gets the preloaded subtitle blocks.
         /// </summary>
-        public MediaBlockBuffer PreloadedSubtitles { get; private set; } = null;
+        public MediaBlockBuffer PreloadedSubtitles { get; private set; }
 
         /// <summary>
-        /// Gets the packet reading cycle control evenet.
+        /// Gets the packet reading cycle control event.
         /// </summary>
         internal IWaitEvent PacketReadingCycle { get; } = WaitEventFactory.Create(isCompleted: false, useSlim: true);
 
@@ -91,10 +90,7 @@
                 if (Container.Components.HasEnoughPackets)
                     return true;
 
-                if (Container.IsLiveStream && Blocks.Main(Container).IsFull)
-                    return true;
-
-                return false;
+                return Container.IsLiveStream && Blocks.Main(Container).IsFull;
             }
         }
 
@@ -112,7 +108,7 @@
         {
             get
             {
-                if (Commands.IsStopWorkersPending || Container == null || Container.Components == null)
+                if (Commands.IsStopWorkersPending || Container?.Components == null)
                     return false;
 
                 if (Container.IsReadAborted || Container.IsAtEndOfStream)
@@ -142,16 +138,10 @@
         /// Gets a value indicating whether a worker interrupt has been requested by the command manager.
         /// This instructs potentially long loops in workers to immediately exit.
         /// </summary>
-        private bool IsWorkerInterruptRequested
-        {
-            get
-            {
-                return Commands.IsSeeking ||
+        private bool IsWorkerInterruptRequested => Commands.IsSeeking ||
                     Commands.IsChanging ||
                     Commands.IsClosing ||
                     Commands.IsStopWorkersPending;
-            }
-        }
 
         #endregion
 
@@ -224,12 +214,11 @@
 
             // Stop the rest of the workers
             // i.e. wait for worker threads to finish
-            var wrokers = new[] { PacketReadingTask, FrameDecodingTask };
-            foreach (var w in wrokers)
+            var workers = new[] { PacketReadingTask, FrameDecodingTask };
+            foreach (var w in workers)
             {
-                // Abort causes memory leaks bacause packets and frames might not
+                // w.Abort causes memory leaks because packets and frames might not
                 // get disposed by the corresponding workers. We use Join instead.
-                // w.Abort();
                 w?.Join();
             }
 
@@ -245,9 +234,9 @@
         }
 
         /// <summary>
-        /// Preloads the subtitles from the MediaOptions.SubtitlesUrl.
+        /// Pre-loads the subtitles from the MediaOptions.SubtitlesUrl.
         /// </summary>
-        internal void PreloadSubtitles()
+        internal void PreLoadSubtitles()
         {
             DisposePreloadedSubtitles();
             var subtitlesUrl = Container.MediaOptions.SubtitlesUrl;
@@ -284,7 +273,7 @@
         }
 
         /// <summary>
-        /// Returns the value of a discrete frame position of themain media component if possible.
+        /// Returns the value of a discrete frame position of the main media component if possible.
         /// Otherwise, it simply rounds the position to the nearest millisecond.
         /// </summary>
         /// <param name="position">The position.</param>
@@ -292,7 +281,6 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal TimeSpan SnapPositionToBlockPosition(TimeSpan position)
         {
-            // return position;
             if (Container == null)
                 return position.Normalize();
 
@@ -317,7 +305,7 @@
         /// position to the <see cref="State" />.
         /// </summary>
         /// <param name="position">The position.</param>
-        /// <returns>The newly set postion</returns>
+        /// <returns>The newly set position</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal TimeSpan ChangePosition(TimeSpan position)
         {
@@ -330,7 +318,7 @@
         /// Resets the clock to the zero position and notifies the new
         /// position to rhe <see cref="State"/>.
         /// </summary>
-        /// <returns>The newly set postion</returns>
+        /// <returns>The newly set position</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal TimeSpan ResetPosition()
         {
@@ -385,7 +373,7 @@
         /// <summary>
         /// Tries to receive the next frame from the decoder by decoding queued
         /// Packets and converting the decoded frame into a Media Block which gets
-        /// enqueued into the playback block buffer.
+        /// queued into the playback block buffer.
         /// </summary>
         /// <param name="t">The MediaType.</param>
         /// <returns>True if a block could be added. False otherwise.</returns>
@@ -394,9 +382,7 @@
         {
             // Decode the frames
             var block = Blocks[t].Add(Container.Components[t].ReceiveNextFrame(), Container);
-            if (block != null) return true;
-
-            return false;
+            return block != null;
         }
 
         #endregion

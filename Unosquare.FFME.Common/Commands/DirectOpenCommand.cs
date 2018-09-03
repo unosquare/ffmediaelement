@@ -11,7 +11,7 @@
     /// <seealso cref="DirectCommandBase" />
     internal sealed class DirectOpenCommand : DirectCommandBase
     {
-        private Exception ExceptionResult = null;
+        private Exception ExceptionResult;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DirectOpenCommand" /> class.
@@ -38,9 +38,7 @@
             CommandType = CommandType.Open;
         }
 
-        /// <summary>
-        /// Gets the command type identifier.
-        /// </summary>
+        /// <inheritdoc />
         public override CommandType CommandType { get; }
 
         /// <summary>
@@ -54,10 +52,7 @@
         /// </summary>
         public IMediaInputStream InputStream { get; }
 
-        /// <summary>
-        /// Performs actions when the command has been executed.
-        /// This is useful to notify exceptions or update the state of the media.
-        /// </summary>
+        /// <inheritdoc />
         public override void PostProcess()
         {
             MediaCore.State.UpdateFixedContainerProperties();
@@ -77,9 +72,7 @@
             MediaCore.Log(MediaLogMessageType.Debug, $"Command {CommandType}: Completed");
         }
 
-        /// <summary>
-        /// Performs the actions represented by this deferred task.
-        /// </summary>
+        /// <inheritdoc />
         protected override void PerformActions()
         {
             var m = MediaCore;
@@ -110,7 +103,7 @@
                 // Convert the URI object to something the Media Container understands (Uri to String)
                 var mediaUrl = Source.ToString();
 
-                // When opening via URL (and not via custom input stream), fixup the protocols and stuff
+                // When opening via URL (and not via custom input stream), fix up the protocols and stuff
                 if (InputStream == null)
                 {
                     try
@@ -124,10 +117,10 @@
                             containerConfig.ProtocolPrefix = "async";
                         }
                     }
-                    catch { }
+                    catch { /* Ignore exception and continue */ }
 
                     // Support device URLs
-                    // GDIGRAB: Example URI: device://gdigrab?desktop
+                    // GDI GRAB: Example URI: device://gdigrab?desktop
                     if (string.IsNullOrWhiteSpace(Source.Scheme) == false
                         && (Source.Scheme.Equals("format") || Source.Scheme.Equals("device"))
                         && string.IsNullOrWhiteSpace(Source.Host) == false
@@ -136,6 +129,7 @@
                     {
                         // Update the Input format and container input URL
                         // It is also possible to set some input options as follows:
+                        // ReSharper disable once CommentTypo
                         // streamOptions.PrivateOptions["framerate"] = "20";
                         containerConfig.ForcedInputFormat = Source.Host;
                         mediaUrl = Uri.UnescapeDataString(Source.Query).TrimStart('?');
@@ -147,10 +141,9 @@
                 m.SendOnMediaInitializing(containerConfig, mediaUrl);
 
                 // Instantiate the internal container using either a URL (default) or a custom input stream.
-                if (InputStream == null)
-                    m.Container = new MediaContainer(mediaUrl, containerConfig, m);
-                else
-                    m.Container = new MediaContainer(InputStream, containerConfig, m);
+                m.Container = InputStream == null ?
+                    new MediaContainer(mediaUrl, containerConfig, m) :
+                    new MediaContainer(InputStream, containerConfig, m);
 
                 // Notify the user media is opening and allow for media options to be modified
                 // Stuff like audio and video filters and stream selection can be performed here.
@@ -158,7 +151,7 @@
                 m.SendOnMediaOpening();
 
                 // Side-load subtitles if requested
-                m.PreloadSubtitles();
+                m.PreLoadSubtitles();
 
                 // Get the main container open
                 m.Container.Open();
@@ -176,15 +169,15 @@
 
                 // Check if we have at least audio or video here
                 if (m.State.HasAudio == false && m.State.HasVideo == false)
-                    throw new MediaContainerException($"Unable to initialize at least one audio or video component fron the input stream.");
+                    throw new MediaContainerException("Unable to initialize at least one audio or video component from the input stream.");
 
                 // Charge! We are good to go, fire up the worker threads!
                 m.StartWorkers();
             }
             catch (Exception ex)
             {
-                try { m.StopWorkers(); } catch { }
-                try { m.Container?.Dispose(); } catch { }
+                try { m.StopWorkers(); } catch { /* Ignore any exceptions and continue */ }
+                try { m.Container?.Dispose(); } catch { /* Ignore any exceptions and continue */ }
                 m.DisposePreloadedSubtitles();
                 m.Container = null;
                 ExceptionResult = ex;

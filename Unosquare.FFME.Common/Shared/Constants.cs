@@ -17,7 +17,8 @@
         /// </summary>
         static Constants()
         {
-            FFmpegSearchPath = Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
+            var entryAssemblyPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            FFmpegSearchPath = Path.GetFullPath(entryAssemblyPath ?? ".");
         }
 
         /// <summary>
@@ -25,7 +26,7 @@
         /// </summary>
         public static string FFmpegSearchPath { get; }
 
-        // TODO: (Floyd) Make this configurable. Maybe part of Media Options? See frame cahing policy issue #139.
+        // TODO: (Floyd) Make this configurable. Maybe part of Media Options? See frame caching policy issue #139.
         internal static Dictionary<MediaType, int> MaxBlocks { get; } = new Dictionary<MediaType, int>
         {
             { MediaType.Video, 12 },
@@ -36,7 +37,7 @@
         /// <summary>
         /// Gets all media types in an array.
         /// </summary>
-        internal static MediaType[] MediaTypes { get; } = new MediaType[] { MediaType.Video, MediaType.Audio, MediaType.Subtitle };
+        internal static MediaType[] MediaTypes { get; } = { MediaType.Video, MediaType.Audio, MediaType.Subtitle };
 
         /// <summary>
         /// Defines Controller Value Defaults

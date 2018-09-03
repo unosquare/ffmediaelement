@@ -15,8 +15,8 @@
         /// The synchronize lock
         /// </summary>
         private readonly object SyncLock = new object();
-        private TimeSpan? StartTime = default;
-        private TimeSpan? EndTime = default;
+        private TimeSpan? StartTime;
+        private TimeSpan? EndTime;
 
         /// <summary>
         /// Holds the text to be rendered when the Update method is called.
@@ -42,51 +42,37 @@
         /// </summary>
         public MediaElement MediaElement => MediaCore?.Parent as MediaElement;
 
-        /// <summary>
-        /// Gets the core platform independent player component.
-        /// </summary>
+        /// <inheritdoc />
         public MediaEngine MediaCore { get; }
 
-        /// <summary>
-        /// Executed when the Close method is called on the parent MediaElement
-        /// </summary>
+        /// <inheritdoc />
         public void Close()
         {
             SetText(string.Empty);
         }
 
-        /// <summary>
-        /// Executed when the Pause method is called on the parent MediaElement
-        /// </summary>
+        /// <inheritdoc />
         public void Pause()
         {
             // Placeholder
         }
 
-        /// <summary>
-        /// Executed when the Play method is called on the parent MediaElement
-        /// </summary>
+        /// <inheritdoc />
         public void Play()
         {
             // placeholder
         }
 
-        /// <summary>
-        /// Executed when the Pause method is called on the parent MediaElement
-        /// </summary>
+        /// <inheritdoc />
         public void Stop() => WaitForReadyState();
 
-        /// <summary>
-        /// Executed after a Seek operation is performed on the parent MediaElement
-        /// </summary>
+        /// <inheritdoc />
         public void Seek()
         {
             // placeholder
         }
 
-        /// <summary>
-        /// Waits for the renderer to be ready to render.
-        /// </summary>
+        /// <inheritdoc />
         public void WaitForReadyState()
         {
             lock (SyncLock)
@@ -100,17 +86,15 @@
             }
         }
 
-        /// <summary>
-        /// Renders the specified media block.
-        /// </summary>
-        /// <param name="mediaBlock">The media block.</param>
-        /// <param name="clockPosition">The clock position.</param>
+        /// <inheritdoc />
         public void Render(MediaBlock mediaBlock, TimeSpan clockPosition)
         {
             lock (SyncLock)
             {
-                var subtitleBlock = mediaBlock as SubtitleBlock;
-                if (subtitleBlock == null) return;
+                if (mediaBlock is SubtitleBlock == false) return;
+
+                // Get a reference to the subtitle block
+                var subtitleBlock = (SubtitleBlock)mediaBlock;
 
                 // Raise the subtitles event and keep track of the text.
                 var cancelRender = MediaElement.RaiseRenderingSubtitlesEvent(subtitleBlock, clockPosition);
@@ -137,11 +121,7 @@
             }
         }
 
-        /// <summary>
-        /// Called when a media block must stop being rendered.
-        /// This needs to return immediately so the calling thread is not disturbed.
-        /// </summary>
-        /// <param name="clockPosition">The clock position.</param>
+        /// <inheritdoc />
         public void Update(TimeSpan clockPosition)
         {
             // Check if we have received a start and end time value.
@@ -165,7 +145,7 @@
 
         /// <summary>
         /// Sets the text to be rendered on the text blocks.
-        /// Returns immediately because it enqueues the action on the UI thread.
+        /// Returns immediately because it queues the action on the UI thread.
         /// </summary>
         /// <param name="text">The text.</param>
         private void SetText(string text)

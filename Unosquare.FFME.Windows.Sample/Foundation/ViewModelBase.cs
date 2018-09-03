@@ -4,22 +4,12 @@
     using System.Runtime.CompilerServices;
 
     /// <summary>
-    /// Represets a base class for notification-enabled view-models
+    /// Represents a base class for notification-enabled view-models
     /// </summary>
     /// <seealso cref="INotifyPropertyChanged" />
     public abstract class ViewModelBase : INotifyPropertyChanged
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ViewModelBase"/> class.
-        /// </summary>
-        protected ViewModelBase()
-        {
-            // placeholder
-        }
-
-        /// <summary>
-        /// Occurs when a property value changes.
-        /// </summary>
+        /// <inheritdoc />
         public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>

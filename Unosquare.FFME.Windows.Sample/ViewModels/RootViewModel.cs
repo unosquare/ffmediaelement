@@ -28,7 +28,7 @@
             if (Directory.Exists(AppDataDirectory) == false)
                 Directory.CreateDirectory(AppDataDirectory);
 
-            // Attached ViewModel Inistialization
+            // Attached ViewModel Initialization
             Playlist = new PlaylistViewModel(this);
             Controller = new ControllerViewModel(this);
         }
@@ -144,11 +144,9 @@
             {
                 foreach (var kvp in App.Current.MediaElement.Metadata)
                 {
-                    if (kvp.Key.ToLowerInvariant().Equals("title"))
-                    {
-                        title = kvp.Value;
-                        break;
-                    }
+                    if (!kvp.Key.ToLowerInvariant().Equals("title")) continue;
+                    title = kvp.Value;
+                    break;
                 }
             }
             else if (App.MediaElement?.IsOpening ?? false)

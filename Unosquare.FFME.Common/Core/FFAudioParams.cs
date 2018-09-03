@@ -6,7 +6,7 @@
 
     /// <summary>
     /// Contains audio format properties essential
-    /// to audio processing and resampling in FFmpeg libraries
+    /// to audio processing and re-sampling in FFmpeg libraries
     /// </summary>
     internal sealed unsafe class FFAudioParams
     {
@@ -143,15 +143,13 @@
         /// </summary>
         /// <param name="a">a.</param>
         /// <param name="b">The b.</param>
-        /// <returns>True if the params are compatible, flase otherwise.</returns>
+        /// <returns>True if the params are compatible, false otherwise.</returns>
         internal static bool AreCompatible(FFAudioParams a, FFAudioParams b)
         {
             if (a.Format != b.Format) return false;
             if (a.ChannelCount != b.ChannelCount) return false;
             if (a.ChannelLayout != b.ChannelLayout) return false;
-            if (a.SampleRate != b.SampleRate) return false;
-
-            return true;
+            return a.SampleRate == b.SampleRate;
         }
 
         #endregion

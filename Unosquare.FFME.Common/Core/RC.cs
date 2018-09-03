@@ -62,7 +62,7 @@
             /// <summary>
             /// The SWS context
             /// </summary>
-            SwsContext,
+            SwsContext
         }
 
         /// <summary>
@@ -114,7 +114,7 @@
             if (MediaEngine.Platform.IsInDebugMode == false) return;
 
             lock (SyncLock) Instances[ptr] =
-                new ReferenceEntry() { Instance = ptr, Type = t, Location = location };
+                new ReferenceEntry { Instance = ptr, Type = t, Location = location };
         }
 
         /// <summary>
@@ -179,12 +179,12 @@
             Add(UnmanagedType.Frame, (IntPtr)frame, location);
 
         /// <summary>
-        /// Adds the specified filtergraph.
+        /// Adds the specified filter graph.
         /// </summary>
-        /// <param name="filtergraph">The filtergraph.</param>
+        /// <param name="filterGraph">The filter graph.</param>
         /// <param name="location">The location.</param>
-        public void Add(AVFilterGraph* filtergraph, string location) =>
-            Add(UnmanagedType.FilterGraph, (IntPtr)filtergraph, location);
+        public void Add(AVFilterGraph* filterGraph, string location) =>
+            Add(UnmanagedType.FilterGraph, (IntPtr)filterGraph, location);
 
         /// <summary>
         /// A reference entry
@@ -192,7 +192,7 @@
         public class ReferenceEntry
         {
             public UnmanagedType Type { get; set; } = UnmanagedType.None;
-            public string Location { get; set; } = null;
+            public string Location { get; set; }
             public IntPtr Instance { get; set; } = IntPtr.Zero;
         }
     }

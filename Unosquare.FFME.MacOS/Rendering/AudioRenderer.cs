@@ -25,34 +25,42 @@
 
         public void Close()
         {
+            // placeholder
         }
 
         public void Pause()
         {
+            // placeholder
         }
 
         public void Play()
         {
+            // placeholder
         }
 
         public void Render(MediaBlock mediaBlock, TimeSpan clockPosition)
         {
+            // placeholder
         }
 
         public void Seek()
         {
+            // placeholder
         }
 
         public void Stop()
         {
+            // placeholder
         }
 
         public void Update(TimeSpan clockPosition)
         {
+            // placeholder
         }
 
         public void WaitForReadyState()
         {
+            // placeholder
         }
     }
 }

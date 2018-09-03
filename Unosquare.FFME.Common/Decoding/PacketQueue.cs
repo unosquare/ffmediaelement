@@ -6,19 +6,19 @@
     using System.Collections.Generic;
 
     /// <summary>
-    /// A data structure containing a quque of packets to process.
+    /// A data structure containing a queue of packets to process.
     /// This class is thread safe and disposable.
-    /// Enqueued, unmanaged packets are disposed automatically by this queue.
+    /// Queued, unmanaged packets are disposed automatically by this queue.
     /// Dequeued packets are the responsibility of the calling code.
     /// </summary>
-    internal sealed unsafe class PacketQueue : IDisposable
+    internal sealed class PacketQueue : IDisposable
     {
         #region Private Declarations
 
         private readonly List<MediaPacket> Packets = new List<MediaPacket>(2048);
         private readonly object SyncLock = new object();
-        private long m_BufferLength = default;
-        private long m_Duration = default;
+        private long m_BufferLength;
+        private long m_Duration;
 
         #endregion
 
@@ -78,14 +78,13 @@
         {
             lock (SyncLock)
             {
-                if (Packets.Count <= 0) return null;
-                return Packets[0];
+                return Packets.Count <= 0 ? null : Packets[0];
             }
         }
 
         /// <summary>
         /// Pushes the specified packet into the queue.
-        /// In other words, enqueues the packet.
+        /// In other words, queues the packet.
         /// </summary>
         /// <param name="packet">The packet.</param>
         public void Push(MediaPacket packet)
@@ -102,7 +101,7 @@
         }
 
         /// <summary>
-        /// Dequeues a packet from this queue.
+        /// Dequeue a packet from this queue.
         /// </summary>
         /// <returns>The dequeued packet</returns>
         public MediaPacket Dequeue()
@@ -142,16 +141,21 @@
 
         #region IDisposable Support
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose() => Dispose(true);
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool alsoManaged) { lock (SyncLock) Clear(); }
+        private void Dispose(bool alsoManaged)
+        {
+            if (alsoManaged == false)
+                return;
+
+            lock (SyncLock)
+                Clear();
+        }
 
         #endregion
     }

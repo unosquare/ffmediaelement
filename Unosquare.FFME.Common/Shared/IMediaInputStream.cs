@@ -35,7 +35,7 @@
         int Read(void* opaque, byte* targetBuffer, int targetBufferLength);
 
         /// <summary>
-        /// Seeks to the specified offset. The offsect can be in byte position or in time units.
+        /// Seeks to the specified offset. The offset can be in byte position or in time units.
         /// This is specified by the whence parameter which is one of the AVSEEK prefixed constants.
         /// </summary>
         /// <param name="opaque">The opaque.</param>

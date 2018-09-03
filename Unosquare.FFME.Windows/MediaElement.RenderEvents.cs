@@ -11,15 +11,15 @@
 
         /// <summary>
         /// Occurs right before the video is presented on the screen.
-        /// You can update the pizels on the bitmap before it is rendered on the screen.
-        /// Or you could take a screenshot.
+        /// You can update the pixels on the bitmap before it is rendered on the screen.
+        /// Or you could take a screen shot.
         /// Ensure you handle this very quickly as it runs on the UI thread.
         /// </summary>
         public event EventHandler<RenderingVideoEventArgs> RenderingVideo;
 
         /// <summary>
         /// Occurs right before the audio is added to the audio buffer.
-        /// You can update the bytes before they are enqueued.
+        /// You can update the bytes before they are queued.
         /// Ensure you handle this quickly before you get choppy audio.
         /// </summary>
         public event EventHandler<RenderingAudioEventArgs> RenderingAudio;
@@ -56,7 +56,7 @@
             var e = new RenderingVideoEventArgs(
                 bitmap,
                 videoBlock.ClosedCaptions,
-                videoBlock.SmtpeTimecode,
+                videoBlock.SmtpeTimeCode,
                 videoBlock.DisplayPictureNumber,
                 MediaCore.State,
                 MediaCore.MediaInfo.Streams[videoBlock.StreamIndex],

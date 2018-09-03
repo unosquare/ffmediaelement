@@ -5,9 +5,9 @@
     using System;
 
     /// <summary>
-    /// A base class for blocks of the deifferent MediaTypes.
+    /// A base class for blocks of the different MediaTypes.
     /// Blocks are the result of decoding and scaling a frame.
-    /// Blocks have preallocated buffers wich makes them memory and CPU efficient.
+    /// Blocks have pre-allocated buffers which makes them memory and CPU efficient.
     /// Reuse blocks as much as possible. Once you create a block from a frame,
     /// you don't need the frame anymore so make sure you dispose the frame.
     /// </summary>
@@ -16,7 +16,7 @@
         private readonly object SyncLock = new object();
         private readonly ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
         private IntPtr m_Buffer = IntPtr.Zero;
-        private int m_BufferLength = default;
+        private int m_BufferLength;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MediaBlock" /> class.
@@ -67,7 +67,7 @@
         /// Gets a safe timestamp the the block can be displayed.
         /// Returns StartTime if the duration is Zero or negative.
         /// </summary>
-        public TimeSpan SnapTime => (Duration.Ticks <= 0) ?
+        public TimeSpan SnapTime => Duration.Ticks <= 0 ?
             StartTime : TimeSpan.FromTicks(StartTime.Ticks + TimeSpan.TicksPerMillisecond);
 
         /// <summary>
@@ -124,10 +124,7 @@
         {
             locker = null;
             lock (SyncLock)
-            {
-                if (IsDisposed) return false;
-                return Locker.TryAcquireReaderLock(out locker);
-            }
+                return !IsDisposed && Locker.TryAcquireReaderLock(out locker);
         }
 
         /// <summary>
@@ -140,10 +137,7 @@
         {
             locker = null;
             lock (SyncLock)
-            {
-                if (IsDisposed) return false;
-                return Locker.TryAcquireWriterLock(out locker);
-            }
+                return !IsDisposed && Locker.TryAcquireWriterLock(out locker);
         }
 
         /// <summary>
@@ -170,11 +164,13 @@
         /// <returns>
         /// A value that indicates the relative order of the objects being compared. The return value has these meanings: Value Meaning Less than zero This instance precedes <paramref name="other" /> in the sort order.  Zero This instance occurs in the same position in the sort order as <paramref name="other" />. Greater than zero This instance follows <paramref name="other" /> in the sort order.
         /// </returns>
-        public int CompareTo(MediaBlock other) => StartTime.CompareTo(other.StartTime);
+        public int CompareTo(MediaBlock other)
+        {
+            if (other == null) throw new ArgumentNullException(nameof(other));
+            return StartTime.Ticks.CompareTo(other.StartTime.Ticks);
+        }
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose() => Dispose(true);
 
         /// <summary>
@@ -194,18 +190,16 @@
                 if (m_BufferLength == bufferLength)
                     return true;
 
-                if (Locker.TryAcquireWriterLock(out var writeLock))
+                if (!Locker.TryAcquireWriterLock(out var writeLock))
+                    return false;
+
+                using (writeLock)
                 {
-                    using (writeLock)
-                    {
-                        m_Buffer = (IntPtr)ffmpeg.av_malloc((ulong)bufferLength);
-                        m_BufferLength = bufferLength;
-                        return true;
-                    }
+                    m_Buffer = (IntPtr)ffmpeg.av_malloc((ulong)bufferLength);
+                    m_BufferLength = bufferLength;
+                    return true;
                 }
             }
-
-            return false;
         }
 
         /// <summary>
@@ -230,7 +224,7 @@
         }
 
         /// <summary>
-        /// Deallocates the picture buffer and resets the related buffer properties
+        /// De-allocates the picture buffer and resets the related buffer properties
         /// </summary>
         protected virtual unsafe void Deallocate()
         {

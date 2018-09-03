@@ -15,7 +15,7 @@
         #region Private Members
 
         private readonly object DisposeLock = new object();
-        private bool IsDisposed = false;
+        private bool IsDisposed;
 
         #endregion
 
@@ -53,9 +53,9 @@
                 frame->display_picture_number;
 
             CodedPictureNumber = frame->coded_picture_number;
-            SmtpeTimecode = Extensions.ComputeSmtpeTimeCode(component.StartTimeOffset, Duration, timeBase, DisplayPictureNumber);
+            SmtpeTimeCode = Extensions.ComputeSmtpeTimeCode(component.StartTimeOffset, Duration, timeBase, DisplayPictureNumber);
             IsHardwareFrame = component.IsUsingHardwareDecoding;
-            HardwareAcceleratorName = component.HardwareAccelerator?.Name ?? null;
+            HardwareAcceleratorName = component.HardwareAccelerator?.Name;
 
             // Process side data such as CC packets
             for (var i = 0; i < frame->nb_side_data; i++)
@@ -63,20 +63,18 @@
                 var sideData = frame->side_data[i];
 
                 // Get the Closed-Caption packets
-                if (sideData->type == AVFrameSideDataType.AV_FRAME_DATA_A53_CC)
-                {
-                    // Parse 3 bytes at a time
-                    for (var p = 0; p < sideData->size; p += 3)
-                    {
-                        var packet = new ClosedCaptionPacket(TimeSpan.FromTicks(StartTime.Ticks + p), sideData->data, p);
-                        if (packet.PacketType == CaptionsPacketType.NullPad || packet.PacketType == CaptionsPacketType.Unrecognized)
-                            continue;
-
-                        // at this point, we have valid CC data
-                        ClosedCaptions.Add(packet);
-                    }
-
+                if (sideData->type != AVFrameSideDataType.AV_FRAME_DATA_A53_CC)
                     continue;
+
+                // Parse 3 bytes at a time
+                for (var p = 0; p < sideData->size; p += 3)
+                {
+                    var packet = new ClosedCaptionPacket(TimeSpan.FromTicks(StartTime.Ticks + p), sideData->data, p);
+                    if (packet.PacketType == CaptionsPacketType.NullPad || packet.PacketType == CaptionsPacketType.Unrecognized)
+                        continue;
+
+                    // at this point, we have valid CC data
+                    ClosedCaptions.Add(packet);
                 }
             }
         }
@@ -105,7 +103,7 @@
         /// <summary>
         /// Gets the SMTPE time code.
         /// </summary>
-        public string SmtpeTimecode { get; }
+        public string SmtpeTimeCode { get; }
 
         /// <summary>
         /// Gets a value indicating whether this frame was decoded in a hardware context.
@@ -126,16 +124,8 @@
 
         #region Methods
 
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        public override void Dispose() => Dispose(true);
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool alsoManaged)
+        /// <inheritdoc />
+        public override void Dispose()
         {
             lock (DisposeLock)
             {

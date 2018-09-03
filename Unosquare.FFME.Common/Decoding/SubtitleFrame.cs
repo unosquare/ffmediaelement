@@ -17,7 +17,7 @@
         #region Private Members
 
         private readonly object DisposeLock = new object();
-        private bool IsDisposed = false;
+        private bool IsDisposed;
 
         #endregion
 
@@ -49,26 +49,21 @@
 
                 if (rect->type == AVSubtitleType.SUBTITLE_TEXT)
                 {
-                    if (rect->text != null)
-                    {
-                        Text.Add(FFInterop.PtrToStringUTF8(rect->text));
-                        TextType = AVSubtitleType.SUBTITLE_TEXT;
-                        break;
-                    }
+                    if (rect->text == null) continue;
+                    Text.Add(FFInterop.PtrToStringUTF8(rect->text));
+                    TextType = AVSubtitleType.SUBTITLE_TEXT;
+                    break;
                 }
-                else if (rect->type == AVSubtitleType.SUBTITLE_ASS)
+
+                if (rect->type == AVSubtitleType.SUBTITLE_ASS)
                 {
-                    if (rect->ass != null)
-                    {
-                        Text.Add(FFInterop.PtrToStringUTF8(rect->ass));
-                        TextType = AVSubtitleType.SUBTITLE_ASS;
-                        break;
-                    }
+                    if (rect->ass == null) continue;
+                    Text.Add(FFInterop.PtrToStringUTF8(rect->ass));
+                    TextType = AVSubtitleType.SUBTITLE_ASS;
+                    break;
                 }
-                else
-                {
-                    TextType = rect->type;
-                }
+
+                TextType = rect->type;
             }
         }
 
@@ -87,7 +82,7 @@
         /// <value>
         /// The type of the text.
         /// </value>
-        public AVSubtitleType TextType { get; } = AVSubtitleType.SUBTITLE_NONE;
+        public AVSubtitleType TextType { get; }
 
         /// <summary>
         /// Gets the pointer to the unmanaged subtitle struct
@@ -98,27 +93,15 @@
 
         #region Static Methods
 
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        public override void Dispose() =>
-            Dispose(true);
-
-        #endregion
-
-        #region IDisposable Support
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool alsoManaged)
+        /// <inheritdoc />
+        public override void Dispose()
         {
             lock (DisposeLock)
             {
-                if (IsDisposed) return;
+                if (IsDisposed)
+                    return;
 
-                if (InternalPointer != null)
+                if (InternalPointer != IntPtr.Zero)
                     ReleaseAVSubtitle(Pointer);
 
                 InternalPointer = IntPtr.Zero;

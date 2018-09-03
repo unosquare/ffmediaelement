@@ -28,6 +28,6 @@
         /// <summary>
         /// Field 2, Channel 2
         /// </summary>
-        CC4 = 4,
+        CC4 = 4
     }
 }

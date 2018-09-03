@@ -3,14 +3,14 @@
     using Foundation;
     using Platform;
     using System;
-    using System.Windows.Controls;
+    using System.Windows.Controls.Primitives;
     using System.Windows.Input;
     using ViewModels;
 
     /// <summary>
     /// Interaction logic for PlaylistPanelControl.xaml
     /// </summary>
-    public partial class PlaylistPanelControl : UserControl
+    public partial class PlaylistPanelControl
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PlaylistPanelControl"/> class.
@@ -33,10 +33,10 @@
 
             SearchTextBox.IsEnabledChanged += (s, e) =>
             {
-                if ((bool)e.OldValue == false && (bool)e.NewValue == true)
+                if ((bool)e.OldValue == false && (bool)e.NewValue)
                     FocusSearchBox();
 
-                if ((bool)e.OldValue == true && (bool)e.NewValue == false)
+                if ((bool)e.OldValue && (bool)e.NewValue == false)
                     FocusFileBox();
             };
 
@@ -58,10 +58,9 @@
 
         #endregion
 
-        private void FocusTextBox(TextBox textBox)
+        private static void FocusTextBox(TextBoxBase textBox)
         {
-            DeferredAction deferredAction = null;
-            deferredAction = DeferredAction.Create(() =>
+            DeferredAction.Create(context =>
             {
                 if (textBox == null || App.Current == null || App.Current.MainWindow == null)
                     return;
@@ -72,12 +71,10 @@
                 Keyboard.Focus(textBox);
 
                 if (textBox.IsVisible == false || textBox.IsKeyboardFocused)
-                    deferredAction.Dispose();
+                    context?.Dispose();
                 else
-                    deferredAction.Defer(TimeSpan.FromSeconds(0.25));
-            });
-
-            deferredAction.Defer(TimeSpan.FromSeconds(0.25));
+                    context?.Defer(TimeSpan.FromSeconds(0.25));
+            }).Defer(TimeSpan.FromSeconds(0.25));
         }
 
         /// <summary>

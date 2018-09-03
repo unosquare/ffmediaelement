@@ -8,7 +8,7 @@
     /// <seealso cref="PromiseBase" />
     public class Promise : PromiseBase
     {
-        private readonly Action DeferredAction = null;
+        private readonly Action DeferredAction;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Promise"/> class.
@@ -18,7 +18,10 @@
         /// if set to <c>true</c> configures the awaiter to continue on the captured context.
         /// </param>
         public Promise(Action deferredAction, bool continueOnCapturedContext)
-            : base(continueOnCapturedContext) => DeferredAction = deferredAction;
+            : base(continueOnCapturedContext)
+        {
+            DeferredAction = deferredAction;
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Promise"/> class.
@@ -33,9 +36,7 @@
         public Promise()
             : this(() => { }, true) { }
 
-        /// <summary>
-        /// Performs the actions represented by this deferred task.
-        /// </summary>
+        /// <inheritdoc />
         protected override void PerformActions() => DeferredAction();
     }
 }

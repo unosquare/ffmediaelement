@@ -36,13 +36,15 @@
 
         #region Backing Classes
 
+        /// <inheritdoc />
         /// <summary>
         /// Defines a WaitEvent backed by a ManualResetEvent
         /// </summary>
         /// <seealso cref="IWaitEvent" />
         private class WaitEvent : IWaitEvent
         {
-            private ManualResetEvent Event = null;
+            private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
+            private readonly ManualResetEvent Event;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="WaitEvent"/> class.
@@ -53,97 +55,62 @@
                 Event = new ManualResetEvent(isCompleted);
             }
 
-            /// <summary>
-            /// Gets a value indicating whether this instance is disposed.
-            /// </summary>
-            public bool IsDisposed { get; private set; }
+            /// <inheritdoc />
+            public bool IsDisposed
+            {
+                get => m_IsDisposed.Value;
+                private set => m_IsDisposed.Value = value;
+            }
 
-            /// <summary>
-            /// Returns true if the underlying handle is not closed and it is still valid.
-            /// </summary>
+            /// <inheritdoc />
             public bool IsValid
             {
                 get
                 {
-                    if (IsDisposed || Event == null) return false;
-                    if (Event?.SafeWaitHandle?.IsClosed ?? true) return false;
-                    if (Event?.SafeWaitHandle?.IsInvalid ?? true) return false;
-                    return true;
+                    if (IsDisposed) return false;
+                    if (Event.SafeWaitHandle?.IsClosed ?? true) return false;
+                    return !(Event.SafeWaitHandle?.IsInvalid ?? true);
                 }
             }
 
-            /// <summary>
-            /// Gets a value indicating whether this instance is done.
-            /// </summary>
-            public bool IsCompleted
-            {
-                get
-                {
-                    if (IsValid == false) return true;
-                    return Event?.WaitOne(0) ?? true;
-                }
-            }
+            /// <inheritdoc />
+            public bool IsCompleted => IsValid == false || Event.WaitOne(0);
 
-            /// <summary>
-            /// Gets a value indicating whether the Begin method has been called.
-            /// It returns false after the Complete method is called
-            /// </summary>
+            /// <inheritdoc />
             public bool IsInProgress => !IsCompleted;
 
-            /// <summary>
-            /// Enters the state in which waiters need to wait.
-            /// All future waiters will block when they call the Wait method
-            /// </summary>
-            public void Begin() => Event?.Reset();
+            /// <inheritdoc />
+            public void Begin() { if (IsDisposed) Event.Reset(); }
 
-            /// <summary>
-            /// Leaves the state in which waiters need to wait.
-            /// All current waiters will continue.
-            /// </summary>
-            public void Complete() => Event?.Set();
+            /// <inheritdoc />
+            public void Complete() { if (IsDisposed) Event.Set(); }
 
-            /// <summary>
-            /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-            /// </summary>
-            public void Dispose() => Dispose(true);
-
-            /// <summary>
-            /// Waits for the event to be completed
-            /// </summary>
-            public void Wait() => Event?.WaitOne();
-
-            /// <summary>
-            /// Waits for the event to be completed.
-            /// Returns True when there was no timeout. False if the tiemout was reached
-            /// </summary>
-            /// <param name="timeout">The maximum amount of time to wait for.</param>
-            /// <returns>
-            /// True when there was no timeout. False if the tiemout was reached
-            /// </returns>
-            public bool Wait(TimeSpan timeout) => Event?.WaitOne(timeout) ?? true;
-
-            /// <summary>
-            /// Releases unmanaged and - optionally - managed resources.
-            /// </summary>
-            /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-            private void Dispose(bool alsoManaged)
+            /// <inheritdoc />
+            public void Dispose()
             {
                 if (IsDisposed) return;
                 IsDisposed = true;
 
-                Event?.Set();
-                Event?.Dispose();
-                Event = null;
+                Event.Set();
+                Event.Dispose();
             }
+
+            /// <inheritdoc />
+            public void Wait() { if (IsDisposed) Event.WaitOne(); }
+
+            /// <inheritdoc />
+            public bool Wait(TimeSpan timeout) => IsDisposed || Event.WaitOne(timeout);
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Defines a WaitEvent backed by a ManualResetEventSlim
         /// </summary>
         /// <seealso cref="IWaitEvent" />
         private class WaitEventSlim : IWaitEvent
         {
-            private ManualResetEventSlim Event = null;
+            private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
+            private readonly ManualResetEventSlim Event;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="WaitEventSlim"/> class.
@@ -154,93 +121,52 @@
                 Event = new ManualResetEventSlim(isCompleted);
             }
 
-            /// <summary>
-            /// Gets a value indicating whether this instance is disposed.
-            /// </summary>
-            public bool IsDisposed { get; private set; }
+            /// <inheritdoc />
+            public bool IsDisposed
+            {
+                get => m_IsDisposed.Value;
+                private set => m_IsDisposed.Value = value;
+            }
 
-            /// <summary>
-            /// Returns true if the underlying handle is not closed and it is still valid.
-            /// </summary>
+            /// <inheritdoc />
             public bool IsValid
             {
                 get
                 {
-                    if (IsDisposed || Event == null) return false;
+                    if (IsDisposed) return false;
                     if (Event.WaitHandle == null) return false;
-                    if (Event.WaitHandle.SafeWaitHandle != null
-                        && (Event.WaitHandle.SafeWaitHandle.IsClosed || Event.WaitHandle.SafeWaitHandle.IsInvalid))
-                    {
-                        return false;
-                    }
-
-                    return true;
+                    return Event.WaitHandle.SafeWaitHandle == null ||
+                           (!Event.WaitHandle.SafeWaitHandle.IsClosed && !Event.WaitHandle.SafeWaitHandle.IsInvalid);
                 }
             }
 
-            /// <summary>
-            /// Gets a value indicating whether this instance is done.
-            /// </summary>
-            public bool IsCompleted
-            {
-                get
-                {
-                    if (IsValid == false) return true;
-                    return Event.IsSet;
-                }
-            }
+            /// <inheritdoc />
+            public bool IsCompleted => IsValid == false || Event.IsSet;
 
-            /// <summary>
-            /// Gets a value indicating whether the Begin method has been called.
-            /// It returns false after the Complete method is called
-            /// </summary>
+            /// <inheritdoc />
             public bool IsInProgress => !IsCompleted;
 
-            /// <summary>
-            /// Enters the state in which waiters need to wait.
-            /// All future waiters will block when they call the Wait method
-            /// </summary>
-            public void Begin() => Event?.Reset();
+            /// <inheritdoc />
+            public void Begin() { if (IsDisposed == false) Event.Reset(); }
 
-            /// <summary>
-            /// Leaves the state in which waiters need to wait.
-            /// All current waiters will continue.
-            /// </summary>
-            public void Complete() => Event?.Set();
+            /// <inheritdoc />
+            public void Complete() { if (IsDisposed == false) Event.Set(); }
 
-            /// <summary>
-            /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-            /// </summary>
-            public void Dispose() => Dispose(true);
-
-            /// <summary>
-            /// Waits for the event to be completed
-            /// </summary>
-            public void Wait() => Event?.Wait();
-
-            /// <summary>
-            /// Waits for the event to be completed.
-            /// Returns True when there was no timeout. False if the tiemout was reached
-            /// </summary>
-            /// <param name="timeout">The maximum amount of time to wait for.</param>
-            /// <returns>
-            /// True when there was no timeout. False if the tiemout was reached
-            /// </returns>
-            public bool Wait(TimeSpan timeout) => Event?.Wait(timeout) ?? true;
-
-            /// <summary>
-            /// Releases unmanaged and - optionally - managed resources.
-            /// </summary>
-            /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-            private void Dispose(bool alsoManaged)
+            /// <inheritdoc />
+            public void Dispose()
             {
                 if (IsDisposed) return;
                 IsDisposed = true;
 
-                Event?.Set();
-                Event?.Dispose();
-                Event = null;
+                Event.Set();
+                Event.Dispose();
             }
+
+            /// <inheritdoc />
+            public void Wait() { if (IsDisposed == false) Event.Wait(); }
+
+            /// <inheritdoc />
+            public bool Wait(TimeSpan timeout) => IsDisposed || Event.Wait(timeout);
         }
 
         #endregion

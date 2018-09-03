@@ -9,7 +9,7 @@
     internal class MacPlatform : IPlatform
     {
         private static readonly object SyncLock = new object();
-        private static MacPlatform m_Instance = null;
+        private static MacPlatform m_Instance;
 
         /// <summary>
         /// Prevents a default instance of the <see cref="MacPlatform"/> class from being created.
@@ -56,7 +56,7 @@
         public void HandleFFmpegLogMessage(MediaLogMessage message)
         {
             if (message.MessageType == MediaLogMessageType.Trace) return;
-            Console.WriteLine($"{message.MessageType,10} - {message.Message}");
+            Debug.WriteLine($"{message.MessageType,10} - {message.Message}");
         }
 
         public void GuiInvoke(Action action)

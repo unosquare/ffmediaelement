@@ -6,6 +6,7 @@
     using System;
     using System.ComponentModel;
     using System.IO;
+    using System.Windows;
     using System.Windows.Data;
 
     /// <summary>
@@ -21,8 +22,8 @@
 
         // Private state management
         private readonly TimeSpan SearchActionDelay = TimeSpan.FromSeconds(0.25);
-        private bool HasTakenThumbnail = false;
-        private DeferredAction SearchAction = null;
+        private bool HasTakenThumbnail;
+        private DeferredAction SearchAction;
         private string FilterString = string.Empty;
 
         // Property Backing
@@ -48,18 +49,17 @@
             PlaylistFilePath = Path.Combine(root.AppDataDirectory, "ffme.m3u8");
 
             Entries = new CustomPlaylist(this);
-            EntriesView = CollectionViewSource.GetDefaultView(Entries) as ICollectionView;
-            EntriesView.Filter = (item) =>
+            EntriesView = CollectionViewSource.GetDefaultView(Entries);
+            EntriesView.Filter = item =>
             {
-                if (item is CustomPlaylistEntry == false) return false;
-                var entry = item as CustomPlaylistEntry;
-
                 if (string.IsNullOrWhiteSpace(PlaylistSearchString) || PlaylistSearchString.Trim().Length < MinimumSearchLength)
                     return true;
 
-                if ((entry.Title?.ToLowerInvariant().Contains(PlaylistSearchString) ?? false) ||
-                    (entry.MediaUrl?.ToLowerInvariant().Contains(PlaylistSearchString) ?? false))
-                    return true;
+                if (item is CustomPlaylistEntry entry)
+                {
+                    return (entry.Title?.ToLowerInvariant().Contains(PlaylistSearchString) ?? false) ||
+                           (entry.MediaUrl?.ToLowerInvariant().Contains(PlaylistSearchString) ?? false);
+                }
 
                 return false;
             };
@@ -73,12 +73,12 @@
         public CustomPlaylist Entries { get; }
 
         /// <summary>
-        /// Gets the custom playlist entries as a view that can be uased in data binding scenarios.
+        /// Gets the custom playlist entries as a view that can be used in data binding scenarios.
         /// </summary>
-        public ICollectionView EntriesView { get; private set; }
+        public ICollectionView EntriesView { get; }
 
         /// <summary>
-        /// Gets the full path wehre thumbnails are stored.
+        /// Gets the full path where thumbnails are stored.
         /// </summary>
         public string ThumbsDirectory { get; }
 
@@ -100,7 +100,7 @@
 
                 if (SearchAction == null)
                 {
-                    SearchAction = DeferredAction.Create(() =>
+                    SearchAction = DeferredAction.Create(context =>
                     {
                         var futureSearch = PlaylistSearchString ?? string.Empty;
                         var currentSearch = FilterString ?? string.Empty;
@@ -109,7 +109,7 @@
                         if (futureSearch.Length < MinimumSearchLength && currentSearch.Length < MinimumSearchLength) return;
 
                         EntriesView.Refresh();
-                        FilterString = string.Copy(m_PlaylistSearchString) ?? string.Empty;
+                        FilterString = string.Copy(m_PlaylistSearchString);
                     });
                 }
 
@@ -144,9 +144,7 @@
             set => SetProperty(ref m_OpenTargetUrl, value);
         }
 
-        /// <summary>
-        /// Called by the root ViewModel when the application is loaded and fully available
-        /// </summary>
+        /// <inheritdoc />
         internal override void OnApplicationLoaded()
         {
             base.OnApplicationLoaded();
@@ -165,8 +163,8 @@
         /// Called when Media is opened
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="System.Windows.RoutedEventArgs"/> instance containing the event data.</param>
-        private void OnMediaOpened(object sender, System.Windows.RoutedEventArgs e)
+        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
+        private void OnMediaOpened(object sender, RoutedEventArgs e)
         {
             HasTakenThumbnail = false;
             Entries.AddOrUpdateEntry(
@@ -182,7 +180,7 @@
         /// <param name="e">The <see cref="RenderingVideoEventArgs"/> instance containing the event data.</param>
         private void OnRenderingVideo(object sender, RenderingVideoEventArgs e)
         {
-            const double snapPosition = 3;
+            const double snapshotPosition = 3;
 
             var state = e.EngineState;
             if (HasTakenThumbnail || state.Source == null)
@@ -192,14 +190,13 @@
             if (string.IsNullOrWhiteSpace(sourceUrl))
                 return;
 
-            if (state.HasMediaEnded
-                || state.Position.TotalSeconds >= snapPosition
-                || (state.NaturalDuration.HasValue && state.NaturalDuration.Value.TotalSeconds <= snapPosition))
-            {
-                HasTakenThumbnail = true;
-                Entries.AddOrUpdateEntryThumbnail(sourceUrl, e.Bitmap);
-                Entries.SaveEntries();
-            }
+            if (!state.HasMediaEnded && state.Position.TotalSeconds < snapshotPosition &&
+                (!state.NaturalDuration.HasValue || state.NaturalDuration.Value.TotalSeconds > snapshotPosition))
+                return;
+
+            HasTakenThumbnail = true;
+            Entries.AddOrUpdateEntryThumbnail(sourceUrl, e.Bitmap);
+            Entries.SaveEntries();
         }
     }
 }

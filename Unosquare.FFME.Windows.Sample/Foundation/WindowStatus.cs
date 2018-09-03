@@ -104,7 +104,7 @@
         }
 
         /// <summary>
-        /// Provides access to disable or enable screen tiemput. Original idea taken from:
+        /// Provides access to disable or enable screen timeout. Original idea taken from:
         /// http://www.blackwasp.co.uk/DisableScreensaver.aspx
         /// </summary>
         private static class NativeMethods

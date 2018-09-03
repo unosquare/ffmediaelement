@@ -1,26 +1,22 @@
 ﻿namespace Unosquare.FFME.Platform
 {
-#pragma warning disable SA1311
-
     using System;
     using System.Runtime.InteropServices;
 
+    /// <inheritdoc />
     /// <summary>
     /// SoundTouch audio processing library wrapper (SoundTouch.cs)
-    ///
     /// Original code by
     /// Copyright (c) Olli Parviainen
     /// http://www.surina.net/soundtouch
     /// LGPL License
-    ///
     /// Modified Code by:
     /// Mario Di Vece
-    ///
     /// Changes:
     /// Set-prefixed methods to property setters
     /// Native wrappers to NativeMethods class name
     /// Adding enum with settings as defined in the header file
-    /// Setttings getters and setters as indexers
+    /// Settings getters and setters as indexers
     /// Implemented Dispose pattern correctly.
     /// </summary>
     internal sealed class SoundTouch : IDisposable
@@ -29,7 +25,7 @@
 
         private const string SoundTouchLibrary = "SoundTouch.dll";
         private readonly object SyncRoot = new object();
-        private bool IsDisposed = false;
+        private bool IsDisposed;
         private IntPtr handle;
 
         #endregion
@@ -69,7 +65,7 @@
         /// </summary>
         ~SoundTouch()
         {
-            Dispose(false);
+            DisposeInternal();
         }
 
         /// <summary>
@@ -129,19 +125,19 @@
             /// Notices:
             /// - This is read-only parameter, i.e. setSetting ignores this parameter
             /// - This parameter value is not constant but change depending on
-            ///   tempo/pitch/rate/samplerate settings.
+            ///   tempo/pitch/rate/sample rate settings.
             /// </summary>
             NominalInputSequence = 6,
 
             /// <summary>
             /// Call "getSetting" with this ID to query nominal average processing output
-            /// size in samples. This value tells approcimate value how many output samples
+            /// size in samples. This value tells approximate value how many output samples
             /// SoundTouch outputs once it does DSP processing run for a batch of input samples.
             ///
             /// Notices:
             /// - This is read-only parameter, i.e. setSetting ignores this parameter
             /// - This parameter value is not constant but change depending on
-            ///   tempo/pitch/rate/samplerate settings.
+            ///   tempo/pitch/rate/sample rate settings.
             /// </summary>
             NominalOutputSequence = 7,
 
@@ -172,9 +168,9 @@
             /// Notices:
             /// - This is read-only parameter, i.e. setSetting ignores this parameter
             /// - This parameter value is not constant but change depending on
-            ///   tempo/pitch/rate/samplerate settings.
+            ///   tempo/pitch/rate/sample rate settings.
             /// </summary>
-            InitialLatency = 8,
+            InitialLatency = 8
         }
 
         #endregion
@@ -184,19 +180,12 @@
         /// <summary>
         /// Get SoundTouch version string
         /// </summary>
-        public static string Version
-        {
-            get
-            {
-                // convert "char *" data to c# string
-                return Marshal.PtrToStringAnsi(NativeMethods.GetVersionString());
-            }
-        }
+        public static string Version => Marshal.PtrToStringAnsi(NativeMethods.GetVersionString());
 
         /// <summary>
         /// Gets a value indicating whether the SoundTouch Library (dll) is available
         /// </summary>
-        public static bool IsAvailable { get; private set; }
+        public static bool IsAvailable { get; }
 
         /// <summary>
         /// Returns number of processed samples currently available in SoundTouch for immediate output.
@@ -225,99 +214,6 @@
         }
 
         /// <summary>
-        /// Sets the number of channels
-        /// Value: 1 = mono, 2 = stereo, n = multichannel
-        /// </summary>
-        public uint Channels
-        {
-            set { lock (SyncRoot) { NativeMethods.SetChannels(handle, value); } }
-        }
-
-        /// <summary>
-        /// Sets sample rate.
-        /// Value: Sample rate, e.g. 44100
-        /// </summary>
-        public uint SampleRate
-        {
-            set { lock (SyncRoot) { NativeMethods.SetSampleRate(handle, value); } }
-        }
-
-        /// <summary>
-        /// Sets new tempo control value.
-        /// Value: Tempo setting. Normal tempo = 1.0, smaller values
-        /// represent slower tempo, larger faster tempo.
-        /// </summary>
-        public float Tempo
-        {
-            set
-            {
-                lock (SyncRoot)
-                {
-                    NativeMethods.SetTempo(handle, value);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Sets new tempo control value as a difference in percents compared
-        /// to the original tempo (-50 .. +100 %);
-        /// </summary>
-        public float TempoChange
-        {
-            set { lock (SyncRoot) { NativeMethods.SetTempoChange(handle, value); } }
-        }
-
-        /// <summary>
-        /// Sets new rate control value.
-        /// Rate setting. Normal rate = 1.0, smaller values
-        /// represent slower rate, larger faster rate.
-        /// </summary>
-        public float Rate
-        {
-            set { lock (SyncRoot) { NativeMethods.SetTempo(handle, value); } }
-        }
-
-        /// <summary>
-        /// Sets new rate control value as a difference in percents compared
-        /// to the original rate (-50 .. +100 %);
-        /// Value: Rate setting is in %
-        /// </summary>
-        public float RateChange
-        {
-            set { lock (SyncRoot) { NativeMethods.SetRateChange(handle, value); } }
-        }
-
-        /// <summary>
-        /// Sets new pitch control value.
-        /// Value: Pitch setting. Original pitch = 1.0, smaller values
-        /// represent lower pitches, larger values higher pitch.
-        /// </summary>
-        public float Pitch
-        {
-            set { lock (SyncRoot) { NativeMethods.SetPitch(handle, value); } }
-        }
-
-        /// <summary>
-        /// Sets pitch change in octaves compared to the original pitch
-        /// (-1.00 .. +1.00 for +- one octave);
-        /// Value: Pitch setting in octaves
-        /// </summary>
-        public float PitchOctaves
-        {
-            set { lock (SyncRoot) { NativeMethods.SetPitchOctaves(handle, value); } }
-        }
-
-        /// <summary>
-        /// Sets pitch change in semi-tones compared to the original pitch
-        /// (-12 .. +12 for +- one octave);
-        /// Value: Pitch setting in semitones
-        /// </summary>
-        public float PitchSemiTones
-        {
-            set { lock (SyncRoot) { NativeMethods.SetPitchSemiTones(handle, value); } }
-        }
-
-        /// <summary>
         /// Changes or gets a setting controlling the processing system behaviour. See the
         /// 'SETTING_...' defines for available setting ID's.
         /// </summary>
@@ -341,6 +237,111 @@
         #endregion
 
         #region Sample Stream Methods
+
+        /// <summary>
+        /// Sets sample rate.
+        /// Value: Sample rate, e.g. 44100
+        /// </summary>
+        /// <param name="value">The sample rate value.</param>
+        public void SetSampleRate(uint value)
+        {
+            lock (SyncRoot)
+                NativeMethods.SetSampleRate(handle, value);
+        }
+
+        /// <summary>
+        /// Sets the number of channels
+        /// Value: 1 = mono, 2 = stereo, n = multichannel
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public void SetChannels(uint value)
+        {
+            lock (SyncRoot)
+                NativeMethods.SetChannels(handle, value);
+        }
+
+        /// <summary>
+        /// Sets new tempo control value.
+        /// Value: Tempo setting. Normal tempo = 1.0, smaller values
+        /// represent slower tempo, larger faster tempo.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public void SetTempo(float value)
+        {
+            lock (SyncRoot)
+                NativeMethods.SetTempo(handle, value);
+        }
+
+        /// <summary>
+        /// Sets new tempo control value as a difference in percents compared
+        /// to the original tempo (-50 .. +100 %);
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public void SetTempoChange(float value)
+        {
+            lock (SyncRoot)
+                NativeMethods.SetTempoChange(handle, value);
+        }
+
+        /// <summary>
+        /// Sets new rate control value.
+        /// Rate setting. Normal rate = 1.0, smaller values
+        /// represent slower rate, larger faster rate.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public void SetRate(float value)
+        {
+            lock (SyncRoot)
+                NativeMethods.SetRate(handle, value);
+        }
+
+        /// <summary>
+        /// Sets new rate control value as a difference in percents compared
+        /// to the original rate (-50 .. +100 %);
+        /// Value: Rate setting is in %
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public void SetRateChange(float value)
+        {
+            lock (SyncRoot)
+                NativeMethods.SetRateChange(handle, value);
+        }
+
+        /// <summary>
+        /// Sets new pitch control value.
+        /// Value: Pitch setting. Original pitch = 1.0, smaller values
+        /// represent lower pitches, larger values higher pitch.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public void SetPitch(float value)
+        {
+            lock (SyncRoot)
+                NativeMethods.SetPitch(handle, value);
+        }
+
+        /// <summary>
+        /// Sets pitch change in octaves compared to the original pitch
+        /// (-1.00 .. +1.00 for +- one octave);
+        /// Value: Pitch setting in octaves
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public void SetPitchOctaves(float value)
+        {
+            lock (SyncRoot)
+                NativeMethods.SetPitchOctaves(handle, value);
+        }
+
+        /// <summary>
+        /// Sets pitch change in semi-tones compared to the original pitch
+        /// (-12 .. +12 for +- one octave);
+        /// Value: Pitch setting in semitones
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public void SetPitchSemiTones(float value)
+        {
+            lock (SyncRoot)
+                NativeMethods.SetPitchSemiTones(handle, value);
+        }
 
         /// <summary>
         /// Flushes the last samples from the processing pipeline to the output.
@@ -418,20 +419,17 @@
 
         #region IDisposable Support
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose()
         {
-            Dispose(true);
+            DisposeInternal();
             GC.SuppressFinalize(this);
         }
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
-        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool alsoManaged)
+        private void DisposeInternal()
         {
             lock (SyncRoot)
             {
@@ -491,7 +489,7 @@
             public static extern void SetChannels(IntPtr h, uint numChannels);
 
             [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_setSampleRate")]
-            public static extern void SetSampleRate(IntPtr h, uint srate);
+            public static extern void SetSampleRate(IntPtr h, uint sampleRate);
 
             [DllImport(SoundTouchLibrary, CallingConvention = CallingConvention.Cdecl, EntryPoint = "soundtouch_flush")]
             public static extern void Flush(IntPtr h);
@@ -529,6 +527,4 @@
 
         #endregion
     }
-
-#pragma warning restore SA1311
 }

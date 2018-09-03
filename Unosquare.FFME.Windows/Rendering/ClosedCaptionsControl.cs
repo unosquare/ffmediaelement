@@ -5,7 +5,6 @@
     using Shared;
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Media;
@@ -26,13 +25,12 @@
         private readonly Dictionary<int, Dictionary<int, TextBlock>> CharacterLookup
             = new Dictionary<int, Dictionary<int, TextBlock>>(ClosedCaptionsBuffer.RowCount);
 
-        private Grid CaptionsGrid = null;
+        private Grid CaptionsGrid;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClosedCaptionsControl"/> class.
         /// </summary>
         public ClosedCaptionsControl()
-            : base()
         {
             Width = 0;
             Height = 0;
@@ -89,7 +87,6 @@
             for (var columnIndex = 0; columnIndex < ClosedCaptionsBuffer.RowCount; columnIndex++)
                 CaptionsGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ClosedCaptionsBuffer.RowCount, GridUnitType.Star) });
 
-            var textProperty = DependencyPropertyDescriptor.FromProperty(TextBlock.TextProperty, typeof(TextBlock));
             for (var rowIndex = 0; rowIndex < ClosedCaptionsBuffer.RowCount; rowIndex++)
             {
                 for (var columnIndex = 0; columnIndex < ClosedCaptionsBuffer.ColumnCount; columnIndex++)
@@ -119,7 +116,7 @@
                         HorizontalAlignment = HorizontalAlignment.Center,
                         VerticalAlignment = VerticalAlignment.Center,
                         FontSize = DefaultFontSize,
-                        FontWeight = FontWeights.Medium,
+                        FontWeight = FontWeights.Medium
                     };
 
                     letterBorder.Child = letterText;
@@ -136,16 +133,16 @@
             }
 
             // Show some preview of the text
-            if (GuiContext.Current.IsInDesignTime)
-            {
-                // Line 11 (index 10) preview
-                Buffer.SetText(10, "L11: Closed Captions (preview)");
+            if (!GuiContext.Current.IsInDesignTime)
+                return;
 
-                // Line 12 (index 11) preview
-                Buffer.SetText(11, "L12: Closed Captions (preview)");
+            // Line 11 (index 10) preview
+            Buffer.SetText(10, "L11: Closed Captions (preview)");
 
-                PaintBuffer();
-            }
+            // Line 12 (index 11) preview
+            Buffer.SetText(11, "L12: Closed Captions (preview)");
+
+            PaintBuffer();
         }
 
         /// <summary>
@@ -154,9 +151,9 @@
         /// </summary>
         private void PaintBuffer()
         {
-            TextBlock block = null;
-            ClosedCaptionsCellState cell = null;
-            Border border = null;
+            TextBlock block;
+            ClosedCaptionsCellState cell;
+            Border border;
 
             for (var r = 0; r < ClosedCaptionsBuffer.RowCount; r++)
             {
@@ -166,6 +163,8 @@
                     cell = Buffer.State[r][c].Display;
 
                     border = block.Parent as Border;
+                    if (border == null) continue;
+
                     border.Visibility = string.IsNullOrEmpty(cell.Text) ?
                         Visibility.Hidden : Visibility.Visible;
 

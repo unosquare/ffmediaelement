@@ -39,17 +39,17 @@
         /// </returns>
         public override string ToString()
         {
-            var attribs = new List<string>(Count);
+            var attributes = new List<string>(Count);
             foreach (var kvp in this)
             {
                 if (string.IsNullOrWhiteSpace(kvp.Key))
                     continue;
 
                 var value = string.IsNullOrWhiteSpace(kvp.Value) ? string.Empty : kvp.Value;
-                attribs.Add($"{HttpUtility.UrlEncode(kvp.Key)}=\"{HttpUtility.UrlEncode(kvp.Value)}\"");
+                attributes.Add($"{HttpUtility.UrlEncode(kvp.Key)}=\"{HttpUtility.UrlEncode(value)}\"");
             }
 
-            return string.Join(" ", attribs);
+            return string.Join(" ", attributes);
         }
 
         /// <summary>

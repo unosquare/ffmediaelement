@@ -23,18 +23,11 @@
         public int CountThreshold;
 
         /// <summary>
-        /// Thether the packet buffer has enough packets
+        /// Whether the packet buffer has enough packets
         /// </summary>
         public bool HasEnoughPackets;
 
-        /// <summary>
-        /// Indicates whether the current object is equal to another object of the same type.
-        /// </summary>
-        /// <param name="other">An object to compare with this object.</param>
-        /// <returns>
-        ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter;
-        ///   otherwise, <see langword="false" />.
-        /// </returns>
+        /// <inheritdoc />
         public bool Equals(PacketBufferState other) =>
                     Length == other.Length &&
                     Count == other.Count &&

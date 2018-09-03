@@ -1,4 +1,5 @@
-﻿namespace Unosquare.FFME
+﻿#pragma warning disable 67 // Event is never invoked
+namespace Unosquare.FFME
 {
     using Events;
     using Platform;
@@ -15,6 +16,7 @@
     using System.Windows.Markup;
     using System.Windows.Media;
     using System.Windows.Media.Imaging;
+    using System.Windows.Threading;
 
     /// <summary>
     /// Represents a control that contains audio and/or video.
@@ -46,22 +48,17 @@
         /// Signals whether the open task was called via the open command
         /// so that the source property changing handler does not re-run the open command.
         /// </summary>
-        private AtomicBoolean IsOpeningViaCommand = new AtomicBoolean(false);
+        private readonly AtomicBoolean IsOpeningViaCommand = new AtomicBoolean(false);
+
+        /// <summary>
+        /// To detect redundant calls
+        /// </summary>
+        private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
 
         /// <summary>
         /// The allow content change flag
         /// </summary>
-        private bool AllowContentChange = false;
-
-        /// <summary>
-        /// IUriContext BaseUri backing
-        /// </summary>
-        private Uri m_BaseUri = null;
-
-        /// <summary>
-        /// TO detect redundant calls
-        /// </summary>
-        private volatile bool IsDisposed = false;
+        private readonly bool AllowContentChange;
 
         #endregion
 
@@ -88,14 +85,12 @@
         /// Initializes a new instance of the <see cref="MediaElement" /> class.
         /// </summary>
         public MediaElement()
-            : base()
         {
             try
             {
                 AllowContentChange = true;
                 InitializeComponent();
             }
-            catch { throw; }
             finally
             {
                 AllowContentChange = false;
@@ -156,10 +151,7 @@
         /// </remarks>
         public event EventHandler<MediaOpeningEventArgs> MediaChanging;
 
-        /// <summary>
-        /// Multicast event for property change notifications.
-        /// This event runs on the UI thread.
-        /// </summary>
+        /// <inheritdoc />
         public event PropertyChangedEventHandler PropertyChanged;
 
         #endregion
@@ -169,7 +161,7 @@
         /// <summary>
         /// Gets or sets the FFmpeg path from which to load the FFmpeg binaries.
         /// You must set this path before setting the Source property for the first time on any instance of this control.
-        /// Settng this property when FFmpeg binaries have been registered will throw an exception.
+        /// Setting this property when FFmpeg binaries have been registered will throw an exception.
         /// </summary>
         public static string FFmpegDirectory
         {
@@ -192,42 +184,45 @@
         /// Gets the FFmpeg version information. Returns null
         /// when the libraries have not been loaded.
         /// </summary>
-        public static string FFmpegVersionInfo
-        {
-            get => MediaEngine.FFmpegVersionInfo;
-        }
+        public static string FFmpegVersionInfo => MediaEngine.FFmpegVersionInfo;
 
         /// <summary>
         /// Gets or sets a value indicating whether the video visualization control
-        /// creates its own dispatcher thread to hanlde rendering of video frames.
+        /// creates its own dispatcher thread to handle rendering of video frames.
         /// This is an experimental feature and it is useful when creating video walls.
         /// For example if you want to display multiple videos at a time and don't want to
         /// use time from the main UI thread. This feature is only valid if we are in
         /// a WPF context.
         /// </summary>
-        public static bool EnableWpfMultithreadedVideo { get; set; } = false;
+        public static bool EnableWpfMultiThreadedVideo { get; set; }
+
+        /// <inheritdoc />
+        Uri IUriContext.BaseUri { get; set; }
 
         /// <summary>
-        /// Gets or sets the base URI of the current application context.
+        /// Gets a value indicating whether this instance is disposed.
         /// </summary>
-        Uri IUriContext.BaseUri
+        /// <value>
+        ///   <c>true</c> if this instance is disposed; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsDisposed
         {
-            get => m_BaseUri;
-            set => m_BaseUri = value;
+            get => m_IsDisposed.Value;
+            private set => m_IsDisposed.Value = value;
         }
 
         /// <summary>
         /// Provides access to the underlying media engine driving this control.
         /// This property is intended for advance usages only.
         /// </summary>
-        internal MediaEngine MediaCore { get; private set; } = null;
+        internal MediaEngine MediaCore { get; private set; }
 
         /// <summary>
         /// This is the image that holds video bitmaps. It is a Hosted Image which means that in a WPF
-        /// GUI context, it runs on its own dispatcher (multhreaded UI)
+        /// GUI context, it runs on its own dispatcher (multi-threaded UI)
         /// </summary>
         internal ImageHost VideoView { get; } = new ImageHost(
-            GuiContext.Current.Type == GuiContextType.WPF && EnableWpfMultithreadedVideo)
+            GuiContext.Current.Type == GuiContextType.WPF && EnableWpfMultiThreadedVideo)
         { Name = nameof(VideoView) };
 
         /// <summary>
@@ -236,7 +231,7 @@
         internal ClosedCaptionsControl CaptionsView { get; } = new ClosedCaptionsControl { Name = nameof(CaptionsView) };
 
         /// <summary>
-        /// A viewbox holding the subtitle text blocks
+        /// A ViewBox holding the subtitle text blocks
         /// </summary>
         internal SubtitlesControl SubtitlesView { get; } = new SubtitlesControl { Name = nameof(SubtitlesView) };
 
@@ -250,9 +245,9 @@
         #region Public API
 
         /// <summary>
-        /// Forces the preloading of the FFmpeg libraries according to the values of the
+        /// Forces the pre-loading of the FFmpeg libraries according to the values of the
         /// <see cref="FFmpegDirectory"/> and <see cref="FFmpegLoadModeFlags"/>
-        /// Also, sets the <see cref="FFmpegVersionInfo"/> property. Thorws an exception
+        /// Also, sets the <see cref="FFmpegVersionInfo"/> property. Throws an exception
         /// if the libraries cannot be loaded.
         /// </summary>
         /// <returns>true if libraries were loaded, false if libraries were already loaded.</returns>
@@ -362,9 +357,7 @@
 
         #region Methods
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose()
         {
             lock (DisposeLock)
@@ -378,7 +371,7 @@
                 // Make sure we perform GUI operations on the GUI thread.
                 GuiContext.Current?.EnqueueInvoke(() =>
                 {
-                    // Remove ebent handlers
+                    // Remove event handlers
                     try { VideoView.LayoutUpdated -= HandleVideoViewLayoutUpdates; }
                     catch { /* Ignore if VideoView is already null by now. */ }
 
@@ -389,7 +382,7 @@
 
                     // Force Refresh
                     ContentGrid?.Dispatcher?.InvokeAsync(() => { },
-                        System.Windows.Threading.DispatcherPriority.Render);
+                        DispatcherPriority.Render);
                 });
             }
         }
@@ -410,7 +403,7 @@
                 Source = source,
                 Path = new PropertyPath(sourcePath),
                 Mode = mode,
-                UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged,
+                UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
             };
 
             BindingOperations.SetBinding(target, targetProperty, binding);
@@ -437,7 +430,7 @@
         private void InitializeComponent()
         {
             // Synchronize initial property values to the MediaElement properties.
-            // This is because the hosted element gets greated after the MEdiaElement properties
+            // This is because the hosted element gets created after the MediaElement properties
             // might have been set.
             VideoView.ElementLoaded += (vs, ve) =>
             {
@@ -547,17 +540,17 @@
                 var targetHeight = VideoView.ActualHeight / 9d;
                 var targetWidth = VideoView.ActualWidth * 0.90;
 
-                if (SubtitlesView.Height != targetHeight)
+                if (Math.Abs(SubtitlesView.Height - targetHeight) > double.Epsilon)
                     SubtitlesView.Height = targetHeight;
 
-                if (SubtitlesView.Width != targetWidth)
+                if (Math.Abs(SubtitlesView.Width - targetWidth) > double.Epsilon)
                     SubtitlesView.Width = targetWidth;
 
                 var verticalOffset = ContentGrid.ActualHeight - (videoViewPosition.Y + VideoView.ActualHeight);
                 var verticalOffsetPadding = targetHeight * 0.75d;
                 var marginBottom = verticalOffset + verticalOffsetPadding;
 
-                if (SubtitlesView.Margin.Bottom != marginBottom)
+                if (Math.Abs(SubtitlesView.Margin.Bottom - marginBottom) > double.Epsilon)
                     SubtitlesView.Margin = new Thickness(0, 0, 0, marginBottom);
             }
         }
@@ -565,3 +558,4 @@
         #endregion
     }
 }
+#pragma warning restore 67 // Event is never invoked

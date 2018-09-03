@@ -5,6 +5,7 @@
 [![NuGet version](https://badge.fury.io/nu/FFME.Windows.svg)](https://badge.fury.io/nu/FFME.Windows)
 [![NuGet](https://img.shields.io/nuget/dt/FFME.Windows.svg)](https://www.nuget.org/packages/FFME.Windows)
 [![Build status](https://ci.appveyor.com/api/projects/status/ppqeayanucj1hadj?svg=true)](https://ci.appveyor.com/project/geoperez/ffmediaelement)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c439ad57c68e43f796401467bca06e9e)](https://www.codacy.com/app/UnosquareLabs/ffmediaelement?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=unosquare/ffmediaelement&amp;utm_campaign=Badge_Grade)
 
 :star: *Please star this project if you like it and show your appreciation via* **[PayPal.Me](https://www.paypal.me/mariodivece/50usd)**
 
@@ -42,7 +43,7 @@ FFME provides multiple improvements over the standard MediaElement such as:
 - Properties such as Position, Balance, SpeedRatio, IsMuted, and Volume are all Dependency Properties!
 - Additional and extended media events. Extracting (and modifying) video, audio and subtitle frames is very easy.
 - Ability to easily apply FFmpeg video and audio filtergraphs.
-- Ability to extract media metadata and tech specs of a media stream (title, album, bitrate, codecs, FPS, etc).
+- Ability to extract media metadata and tech specs of a media stream (title, album, bit rate, codecs, FPS, etc).
 - Ability to apply volume, balance and speed ratio to media playback.
 - MediaState actually works on this control. The standard WPF MediaElement severely lacks in this area.
 - Ability to pick media streams contained in a file or a URL.

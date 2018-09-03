@@ -3,6 +3,7 @@
     using Platform;
     using Shared;
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Threading;
     using System.Windows;
     using ViewModels;
@@ -10,13 +11,12 @@
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public partial class App : Application
+    public partial class App
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="App" /> class.
         /// </summary>
         public App()
-            : base()
         {
             // Change the default location of the ffmpeg binaries
             // You can get the binaries here: https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.0-win32-shared.zip
@@ -26,14 +26,15 @@
             // Full Features is already the default.
             MediaElement.FFmpegLoadModeFlags = FFmpegLoadMode.FullFeatures;
 
-            // Multithreaded video enables the creation of independent
+            // Multi-threaded video enables the creation of independent
             // dispatcher threads to render video frames.
-            MediaElement.EnableWpfMultithreadedVideo = GuiContext.Current.IsInDebugMode == false;
+            MediaElement.EnableWpfMultiThreadedVideo = GuiContext.Current.IsInDebugMode == false;
         }
 
         /// <summary>
         /// Gets the current application.
         /// </summary>
+        [SuppressMessage("ReSharper", "ArrangeModifiersOrder", Justification = "StyleCop rule mandates specified order of modifiers")]
         public static new App Current => Application.Current as App;
 
         /// <summary>
@@ -47,7 +48,7 @@
         public MediaElement MediaElement => MainWindow?.Media;
 
         /// <summary>
-        /// Provides access to tthe root-level, application-wide VM
+        /// Provides access to the root-level, application-wide VM
         /// </summary>
         public RootViewModel ViewModel => Application.Current.Resources[nameof(ViewModel)] as RootViewModel;
 
@@ -56,10 +57,7 @@
         /// </summary>
         public AppCommands Commands { get; } = new AppCommands();
 
-        /// <summary>
-        /// Raises the <see cref="E:System.Windows.Application.Startup" /> event.
-        /// </summary>
-        /// <param name="e">A <see cref="T:System.Windows.StartupEventArgs" /> that contains the event data.</param>
+        /// <inheritdoc />
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -67,10 +65,10 @@
             Application.Current.MainWindow.Loaded += (snd, eva) => ViewModel.OnApplicationLoaded();
             Application.Current.MainWindow.Show();
 
-            // Preload FFmpeg libraries in the background. This is optional.
+            // Pre-load FFmpeg libraries in the background. This is optional.
             // FFmpeg will be automatically loaded if not already loaded when you try to open
             // a new stream or file. See issue #242
-            ThreadPool.QueueUserWorkItem((s) =>
+            ThreadPool.QueueUserWorkItem(s =>
             {
                 try
                 {

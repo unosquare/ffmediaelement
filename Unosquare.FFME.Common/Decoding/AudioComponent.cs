@@ -15,25 +15,26 @@
     {
         #region Private Declarations
 
+        private readonly string FilterString;
+
         /// <summary>
-        /// Holds a reference to the audio resampler
-        /// This resampler gets disposed upon disposal of this object.
+        /// Holds a reference to the audio re-sampler
+        /// This re-sampler gets disposed upon disposal of this object.
         /// </summary>
-        private SwrContext* Scaler = null;
+        private SwrContext* Scaler;
 
         /// <summary>
         /// Used to determine if we have to reset the scaler parameters
         /// </summary>
-        private FFAudioParams LastSourceSpec = null;
+        private FFAudioParams LastSourceSpec;
 
-        private AVFilterGraph* FilterGraph = null;
-        private AVFilterContext* SourceFilter = null;
-        private AVFilterContext* SinkFilter = null;
-        private AVFilterInOut* SinkInput = null;
-        private AVFilterInOut* SourceOutput = null;
+        private AVFilterGraph* FilterGraph;
+        private AVFilterContext* SourceFilter;
+        private AVFilterContext* SinkFilter;
+        private AVFilterInOut* SinkInput;
+        private AVFilterInOut* SourceOutput;
 
-        private string CurrentFilterArguments = null;
-        private string FilterString = null;
+        private string CurrentFilterArguments;
 
         #endregion
 
@@ -76,28 +77,17 @@
 
         #region Methods
 
-        /// <summary>
-        /// Converts decoded, raw frame data in the frame source into a a usable frame. <br />
-        /// The process includes performing picture, samples or text conversions
-        /// so that the decoded source frame data is easily usable in multimedia applications
-        /// </summary>
-        /// <param name="input">The source frame to use as an input.</param>
-        /// <param name="output">The target frame that will be updated with the source frame. If null is passed the frame will be instantiated.</param>
-        /// <param name="siblings">The sibling blocks that may help guess some additional parameters for the input frame.</param>
-        /// <returns>
-        /// Return the updated output frame
-        /// </returns>
-        /// <exception cref="ArgumentNullException">input</exception>
+        /// <inheritdoc />
         public override bool MaterializeFrame(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings)
         {
             if (output == null) output = new AudioBlock();
-            var source = input as AudioFrame;
-            var target = output as AudioBlock;
-
-            if (source == null || target == null)
+            if (input is AudioFrame == false || output is AudioBlock == false)
                 throw new ArgumentNullException($"{nameof(input)} and {nameof(output)} are either null or not of a compatible media type '{MediaType}'");
 
-            // Create the source and target ausio specs. We might need to scale from
+            var source = (AudioFrame)input;
+            var target = (AudioBlock)output;
+
+            // Create the source and target audio specs. We might need to scale from
             // the source to the target
             var sourceSpec = FFAudioParams.CreateSource(source.Pointer);
             var targetSpec = FFAudioParams.CreateTarget(source.Pointer);
@@ -122,7 +112,7 @@
             }
 
             // Allocate the unmanaged output buffer and convert to stereo.
-            var outputSamplesPerChannel = 0;
+            int outputSamplesPerChannel;
             if (target.Allocate(targetSpec.BufferLength) &&
                 target.TryAcquireWriterLock(out var writeLock))
             {
@@ -181,27 +171,20 @@
             return true;
         }
 
-        /// <summary>
-        /// Creates a frame source object given the raw FFmpeg frame reference.
-        /// </summary>
-        /// <param name="framePointer">The raw FFmpeg frame pointer.</param>
-        /// <returns>The media frame</returns>
-        protected override unsafe MediaFrame CreateFrameSource(IntPtr framePointer)
+        /// <inheritdoc />
+        protected override MediaFrame CreateFrameSource(IntPtr framePointer)
         {
             // Validate the audio frame
             var frame = (AVFrame*)framePointer;
-            if (frame == null || (*frame).extended_data == null || frame->channels <= 0 ||
-                frame->nb_samples <= 0 || frame->sample_rate <= 0)
-            {
+            if (framePointer == IntPtr.Zero || frame->channels <= 0 || frame->nb_samples <= 0 || frame->sample_rate <= 0)
                 return null;
-            }
 
             if (string.IsNullOrWhiteSpace(FilterString) == false)
                 InitializeFilterGraph(frame);
 
-            AVFrame* outputFrame = null;
+            AVFrame* outputFrame;
 
-            // Filtergraph can be changed by issuing a ChangeMedia command
+            // Filter Graph can be changed by issuing a ChangeMedia command
             if (FilterGraph != null)
             {
                 // Allocate the output frame
@@ -221,7 +204,7 @@
                 else
                 {
                     // the output frame is the new valid frame (output frame).
-                    // threfore, we need to release the original
+                    // theretofore, we need to release the original
                     MediaFrame.ReleaseAVFrame(frame);
                 }
             }
@@ -242,20 +225,18 @@
 
         #region IDisposable Support
 
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources.
-        /// </summary>
-        /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <inheritdoc />
         protected override void Dispose(bool alsoManaged)
         {
             RC.Current.Remove(Scaler);
             if (Scaler != null)
             {
-                fixed (SwrContext** scaler = &Scaler)
-                    ffmpeg.swr_free(scaler);
+                var scalerRef = Scaler;
+                ffmpeg.swr_free(&scalerRef);
+                Scaler = null;
             }
 
-            DestroyFiltergraph();
+            DestroyFilterGraph();
             base.Dispose(alsoManaged);
         }
 
@@ -264,20 +245,18 @@
         #region Filtering Methods
 
         /// <summary>
-        /// Destroys the filtergraph releasing unmanaged resources.
+        /// Destroys the filter graph releasing unmanaged resources.
         /// </summary>
-        private void DestroyFiltergraph()
+        private void DestroyFilterGraph()
         {
-            if (FilterGraph != null)
-            {
-                RC.Current.Remove(FilterGraph);
-                fixed (AVFilterGraph** filterGraph = &FilterGraph)
-                    ffmpeg.avfilter_graph_free(filterGraph);
+            if (FilterGraph == null) return;
+            RC.Current.Remove(FilterGraph);
+            var filterGraphRef = FilterGraph;
+            ffmpeg.avfilter_graph_free(&filterGraphRef);
 
-                FilterGraph = null;
-                SinkInput = null;
-                SourceOutput = null;
-            }
+            FilterGraph = null;
+            SinkInput = null;
+            SourceOutput = null;
         }
 
         /// <summary>
@@ -302,7 +281,7 @@
         }
 
         /// <summary>
-        /// If necessary, disposes the existing filtergraph and creates a new one based on the frame arguments.
+        /// If necessary, disposes the existing filter graph and creates a new one based on the frame arguments.
         /// </summary>
         /// <param name="frame">The frame.</param>
         /// <exception cref="MediaContainerException">
@@ -323,9 +302,16 @@
              * https://www.ffmpeg.org/doxygen/2.0/doc_2examples_2filtering_audio_8c-example.html
              */
 
+            // ReSharper disable StringLiteralTypo
+            const string SourceFilterName = "abuffer";
+            const string SourceFilterInstance = "audio_buffer";
+            const string SinkFilterName = "abuffersink";
+            const string SinkFilterInstance = "audio_buffersink";
+
+            // ReSharper restore StringLiteralTypo
             var frameArguments = ComputeFilterArguments(frame);
             if (string.IsNullOrWhiteSpace(CurrentFilterArguments) || frameArguments.Equals(CurrentFilterArguments) == false)
-                DestroyFiltergraph();
+                DestroyFilterGraph();
             else
                 return;
 
@@ -335,25 +321,27 @@
 
             try
             {
-                var result = 0;
+                AVFilterContext* sourceFilterRef = null;
+                AVFilterContext* sinkFilterRef = null;
 
-                fixed (AVFilterContext** source = &SourceFilter)
-                fixed (AVFilterContext** sink = &SinkFilter)
+                var result = ffmpeg.avfilter_graph_create_filter(
+                    &sourceFilterRef, ffmpeg.avfilter_get_by_name(SourceFilterName), SourceFilterInstance, CurrentFilterArguments, null, FilterGraph);
+                if (result != 0)
                 {
-                    result = ffmpeg.avfilter_graph_create_filter(source, ffmpeg.avfilter_get_by_name("abuffer"), "audio_buffer", CurrentFilterArguments, null, FilterGraph);
-                    if (result != 0)
-                    {
-                        throw new MediaContainerException(
-                            $"{nameof(ffmpeg.avfilter_graph_create_filter)} (audio_buffer) failed. Error {result}: {FFInterop.DecodeMessage(result)}");
-                    }
-
-                    result = ffmpeg.avfilter_graph_create_filter(sink, ffmpeg.avfilter_get_by_name("abuffersink"), "audio_buffersink", null, null, FilterGraph);
-                    if (result != 0)
-                    {
-                        throw new MediaContainerException(
-                            $"{nameof(ffmpeg.avfilter_graph_create_filter)} (audio_buffersink) failed. Error {result}: {FFInterop.DecodeMessage(result)}");
-                    }
+                    throw new MediaContainerException(
+                        $"{nameof(ffmpeg.avfilter_graph_create_filter)} ({SourceFilterInstance}) failed. Error {result}: {FFInterop.DecodeMessage(result)}");
                 }
+
+                result = ffmpeg.avfilter_graph_create_filter(
+                    &sinkFilterRef, ffmpeg.avfilter_get_by_name(SinkFilterName), SinkFilterInstance, null, null, FilterGraph);
+                if (result != 0)
+                {
+                    throw new MediaContainerException(
+                        $"{nameof(ffmpeg.avfilter_graph_create_filter)} ({SinkFilterInstance}) failed. Error {result}: {FFInterop.DecodeMessage(result)}");
+                }
+
+                SourceFilter = sourceFilterRef;
+                SinkFilter = sinkFilterRef;
 
                 if (string.IsNullOrWhiteSpace(FilterString))
                 {
@@ -398,7 +386,7 @@
             catch (Exception ex)
             {
                 Container.Parent?.Log(MediaLogMessageType.Error, $"Audio filter graph could not be built: {FilterString}.\r\n{ex.Message}");
-                DestroyFiltergraph();
+                DestroyFilterGraph();
             }
         }
 

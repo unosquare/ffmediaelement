@@ -1,11 +1,11 @@
 ﻿namespace Unosquare.FFME
 {
+    using Platform;
     using Shared;
     using System;
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
     using System.Threading;
-    using Unosquare.FFME.Platform;
 
     /*
      * This file contains the Property Updates Worker.
@@ -24,7 +24,7 @@
         /// <summary>
         /// The property updates worker timer
         /// </summary>
-        private GuiTimer PropertyUpdatesWorker = null;
+        private GuiTimer PropertyUpdatesWorker;
 
         /// <summary>
         /// Starts the property updates worker.
@@ -61,7 +61,7 @@
         private void HandledAsynchronousDispose()
         {
             // Dispose outside of the current thread to avoid deadlocks
-            ThreadPool.QueueUserWorkItem((s) =>
+            ThreadPool.QueueUserWorkItem(s =>
             {
                 MediaCore.Dispose();
 
@@ -111,12 +111,12 @@
             // Write the media engine state property state to the dependency properties
             foreach (var change in changes)
             {
-                // Do not upstream the Source porperty
+                // Do not upstream the Source property
                 // This causes unintended Open/Close commands to be run
                 if (change.Key == SourceProperty)
                     continue;
 
-                // Update the dependency porperty value
+                // Update the dependency property value
                 SetValue(change.Key, change.Value);
 
                 // Update the remaining duration

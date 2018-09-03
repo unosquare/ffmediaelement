@@ -8,14 +8,6 @@
     internal class DirectSoundDeviceInfo
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="DirectSoundDeviceInfo"/> class.
-        /// </summary>
-        internal DirectSoundDeviceInfo()
-        {
-            // placeholder
-        }
-
-        /// <summary>
         /// The device identifier
         /// </summary>
         public Guid Guid { get; internal set; }

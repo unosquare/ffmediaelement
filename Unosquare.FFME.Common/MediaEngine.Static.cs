@@ -22,9 +22,9 @@
         private static readonly object InitLock = new object();
 
         /// <summary>
-        /// The has intialized flag
+        /// The has initialized flag
         /// </summary>
-        private static bool IsIntialized = default;
+        private static bool IsInitialized;
 
         /// <summary>
         /// The ffmpeg directory
@@ -62,7 +62,7 @@
         /// <summary>
         /// Gets or sets the FFmpeg path from which to load the FFmpeg binaries.
         /// You must set this path before setting the Source property for the first time on any instance of this control.
-        /// Settng this property when FFmpeg binaries have been registered will have no effect.
+        /// Setting this property when FFmpeg binaries have been registered will have no effect.
         /// </summary>
         public static string FFmpegDirectory
         {
@@ -92,10 +92,7 @@
         /// </summary>
         public static int FFmpegLoadModeFlags
         {
-            get
-            {
-                return m_FFmpegLoadModeFlags;
-            }
+            get => m_FFmpegLoadModeFlags;
             set
             {
                 if (FFInterop.IsInitialized)
@@ -115,13 +112,11 @@
             {
                 lock (InitLock)
                 {
-                    if (IsIntialized == false)
+                    if (IsInitialized == false)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
-                    if (m_InputFormatNames == null)
-                        m_InputFormatNames = new ReadOnlyCollection<string>(FFInterop.RetrieveInputFormatNames());
-
-                    return m_InputFormatNames;
+                    return m_InputFormatNames ?? (m_InputFormatNames =
+                        new ReadOnlyCollection<string>(FFInterop.RetrieveInputFormatNames()));
                 }
             }
         }
@@ -136,16 +131,11 @@
             {
                 lock (InitLock)
                 {
-                    if (IsIntialized == false)
+                    if (IsInitialized == false)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
-                    if (m_GlobalInputFormatOptions == null)
-                    {
-                        m_GlobalInputFormatOptions = new ReadOnlyCollection<OptionMeta>(
-                            FFInterop.RetrieveGlobalFormatOptions().ToArray());
-                    }
-
-                    return m_GlobalInputFormatOptions;
+                    return m_GlobalInputFormatOptions ?? (m_GlobalInputFormatOptions =
+                        new ReadOnlyCollection<OptionMeta>(FFInterop.RetrieveGlobalFormatOptions().ToArray()));
                 }
             }
         }
@@ -160,20 +150,20 @@
             {
                 lock (InitLock)
                 {
-                    if (IsIntialized == false)
+                    if (IsInitialized == false)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
-                    if (m_InputFormatOptions == null)
-                    {
-                        var result = new Dictionary<string, ReadOnlyCollection<OptionMeta>>(InputFormatNames.Count);
-                        foreach (var formatName in InputFormatNames)
-                        {
-                            var optionsInfo = FFInterop.RetrieveInputFormatOptions(formatName);
-                            result[formatName] = new ReadOnlyCollection<OptionMeta>(optionsInfo);
-                        }
+                    if (m_InputFormatOptions != null)
+                        return m_InputFormatOptions;
 
-                        m_InputFormatOptions = new ReadOnlyDictionary<string, ReadOnlyCollection<OptionMeta>>(result);
+                    var result = new Dictionary<string, ReadOnlyCollection<OptionMeta>>(InputFormatNames.Count);
+                    foreach (var formatName in InputFormatNames)
+                    {
+                        var optionsInfo = FFInterop.RetrieveInputFormatOptions(formatName);
+                        result[formatName] = new ReadOnlyCollection<OptionMeta>(optionsInfo);
                     }
+
+                    m_InputFormatOptions = new ReadOnlyDictionary<string, ReadOnlyCollection<OptionMeta>>(result);
 
                     return m_InputFormatOptions;
                 }
@@ -190,13 +180,11 @@
             {
                 lock (InitLock)
                 {
-                    if (IsIntialized == false)
+                    if (IsInitialized == false)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
-                    if (m_DecoderNames == null)
-                        m_DecoderNames = new ReadOnlyCollection<string>(FFInterop.RetrieveDecoderNames(AllCodecs));
-
-                    return m_DecoderNames;
+                    return m_DecoderNames ?? (m_DecoderNames =
+                        new ReadOnlyCollection<string>(FFInterop.RetrieveDecoderNames(AllCodecs)));
                 }
             }
         }
@@ -211,16 +199,11 @@
             {
                 lock (InitLock)
                 {
-                    if (IsIntialized == false)
+                    if (IsInitialized == false)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
-                    if (m_GlobalDecoderOptions == null)
-                    {
-                        m_GlobalDecoderOptions = new ReadOnlyCollection<OptionMeta>(
-                            FFInterop.RetrieveGlobalCodecOptions().Where(o => o.IsDecodingOption).ToArray());
-                    }
-
-                    return m_GlobalDecoderOptions;
+                    return m_GlobalDecoderOptions ?? (m_GlobalDecoderOptions = new ReadOnlyCollection<OptionMeta>(
+                        FFInterop.RetrieveGlobalCodecOptions().Where(o => o.IsDecodingOption).ToArray()));
                 }
             }
         }
@@ -235,23 +218,23 @@
             {
                 lock (InitLock)
                 {
-                    if (IsIntialized == false)
+                    if (IsInitialized == false)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
-                    if (m_DecoderOptions == null)
+                    if (m_DecoderOptions != null)
+                        return m_DecoderOptions;
+
+                    var result = new Dictionary<string, ReadOnlyCollection<OptionMeta>>(DecoderNames.Count);
+                    foreach (var c in AllCodecs)
                     {
-                        var result = new Dictionary<string, ReadOnlyCollection<OptionMeta>>(DecoderNames.Count);
-                        foreach (var c in AllCodecs)
-                        {
-                            if (c->decode.Pointer == IntPtr.Zero)
-                                continue;
+                        if (c->decode.Pointer == IntPtr.Zero)
+                            continue;
 
-                            result[FFInterop.PtrToStringUTF8(c->name)] =
-                                new ReadOnlyCollection<OptionMeta>(FFInterop.RetrieveCodecOptions(c));
-                        }
-
-                        m_DecoderOptions = new ReadOnlyDictionary<string, ReadOnlyCollection<OptionMeta>>(result);
+                        result[FFInterop.PtrToStringUTF8(c->name)] =
+                            new ReadOnlyCollection<OptionMeta>(FFInterop.RetrieveCodecOptions(c));
                     }
+
+                    m_DecoderOptions = new ReadOnlyDictionary<string, ReadOnlyCollection<OptionMeta>>(result);
 
                     return m_DecoderOptions;
                 }
@@ -268,13 +251,10 @@
             {
                 lock (InitLock)
                 {
-                    if (IsIntialized == false)
+                    if (IsInitialized == false)
                         throw new InvalidOperationException(NotInitializedErrorMessage);
 
-                    if (m_AllCodecs == null)
-                        m_AllCodecs = FFInterop.RetriveCodecs();
-
-                    return m_AllCodecs;
+                    return m_AllCodecs ?? (m_AllCodecs = FFInterop.RetrieveCodecs());
                 }
             }
         }
@@ -284,53 +264,49 @@
         #region Methods
 
         /// <summary>
-        /// Initializes the MedieElementCore.
+        /// Initializes the Media Element Core.
         /// </summary>
         /// <param name="platform">The platform-specific implementation.</param>
         public static void Initialize(IPlatform platform)
         {
             lock (InitLock)
             {
-                if (IsIntialized)
+                if (IsInitialized)
                     return;
 
                 Platform = platform;
-                IsIntialized = true;
+                IsInitialized = true;
             }
         }
 
         /// <summary>
-        /// Forces the preloading of the FFmpeg libraries according to the values of the
+        /// Forces the pre-loading of the FFmpeg libraries according to the values of the
         /// <see cref="FFmpegDirectory"/> and <see cref="FFmpegLoadModeFlags"/>
-        /// Also, sets the <see cref="FFmpegVersionInfo"/> property. Thorws an exception
+        /// Also, sets the <see cref="FFmpegVersionInfo"/> property. Throws an exception
         /// if the libraries cannot be loaded.
         /// </summary>
         /// <returns>true if libraries were loaded, false if libraries were already loaded.</returns>
         public static bool LoadFFmpeg()
         {
-            if (FFInterop.Initialize(FFmpegDirectory, FFmpegLoadModeFlags))
-            {
-                // Set the folders and lib identifiers
-                FFmpegDirectory = FFInterop.LibrariesPath;
-                FFmpegLoadModeFlags = FFInterop.LibraryIdentifiers;
-                FFmpegVersionInfo = ffmpeg.av_version_info();
-                return true;
-            }
+            if (!FFInterop.Initialize(FFmpegDirectory, FFmpegLoadModeFlags))
+                return false;
 
-            return false;
+            // Set the folders and lib identifiers
+            FFmpegDirectory = FFInterop.LibrariesPath;
+            FFmpegLoadModeFlags = FFInterop.LibraryIdentifiers;
+            FFmpegVersionInfo = ffmpeg.av_version_info();
+            return true;
         }
 
         /// <summary>
         /// Retrieves the media information including all streams, chapters and programs.
         /// </summary>
         /// <param name="sourceUrl">The source URL.</param>
-        /// <returns>The contants of the media information.</returns>
+        /// <returns>The contents of the media information.</returns>
         public static MediaInfo RetrieveMediaInfo(string sourceUrl)
         {
             using (var container = new MediaContainer(sourceUrl, null, null))
-            {
                 return container.MediaInfo;
-            }
         }
 
         /// <summary>

@@ -7,7 +7,7 @@
 
     public class MediaElement
     {
-        private MediaEngine MediaCore;
+        private readonly MediaEngine MediaCore;
 
         #region Constructors
 

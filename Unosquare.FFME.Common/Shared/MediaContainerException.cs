@@ -2,10 +2,10 @@
 {
     using System;
 
+    /// <inheritdoc cref="Exception"/>
     /// <summary>
     /// A Media Container Exception
     /// </summary>
-    /// <seealso cref="Exception" />
     [Serializable]
     public class MediaContainerException : Exception
     {

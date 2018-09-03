@@ -3,7 +3,7 @@
     using System;
 
     /// <summary>
-    /// Represents an atomically readabl;e or writable integer.
+    /// Represents an atomically readable or writable integer.
     /// </summary>
     public class AtomicInteger : AtomicTypeBase<int>
     {
@@ -26,28 +26,10 @@
             // placeholder
         }
 
-        /// <summary>
-        /// COnverts froma long value to the target type.
-        /// </summary>
-        /// <param name="backingValue">The backing value.</param>
-        /// <returns>
-        /// The value converted form a long value
-        /// </returns>
-        protected override int FromLong(long backingValue)
-        {
-            return Convert.ToInt32(backingValue);
-        }
+        /// <inheritdoc />
+        protected override int FromLong(long backingValue) => Convert.ToInt32(backingValue);
 
-        /// <summary>
-        /// Converts from the target type to a long value
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>
-        /// The value converted to a long value
-        /// </returns>
-        protected override long ToLong(int value)
-        {
-            return Convert.ToInt64(value);
-        }
+        /// <inheritdoc />
+        protected override long ToLong(int value) => Convert.ToInt64(value);
     }
 }

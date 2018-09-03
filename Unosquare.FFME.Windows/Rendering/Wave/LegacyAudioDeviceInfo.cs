@@ -1,4 +1,8 @@
-﻿namespace Unosquare.FFME.Rendering.Wave
+﻿// ReSharper disable UnusedMember.Global
+// ReSharper disable ConvertToAutoProperty
+// ReSharper disable ConvertToAutoPropertyWhenPossible
+// ReSharper disable FieldCanBeMadeReadOnly.Local
+namespace Unosquare.FFME.Rendering.Wave
 {
 #pragma warning disable SA1202 // Elements must be ordered by access
 #pragma warning disable SA1307 // Accessible fields must begin with upper-case letter
@@ -10,7 +14,6 @@
 
     /// <summary>
     /// WaveOutCapabilities structure (based on WAVEOUTCAPS2 from mmsystem.h)
-    /// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/multimed/htm/_win32_waveoutcaps_str.asp
     /// </summary>
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
     internal struct LegacyAudioDeviceInfo : IEquatable<LegacyAudioDeviceInfo>
@@ -35,7 +38,7 @@
         private int driverVersion;
 
         /// <summary>
-        /// Product Name (szPname)
+        /// Product Name
         /// </summary>
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = MaxProductNameLength)]
         private string productName;
@@ -59,7 +62,7 @@
         /// <summary>
         /// Optional functionality supported by the device
         /// </summary>
-        private WaveOutSupport support; // = new WaveOutSupport();
+        private WaveOutSupport support;
 
         // extra WAVEOUTCAPS2 members
         private Guid manufacturerGuid;

@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME.Primitives
 {
     using System;
+    using System.Runtime.CompilerServices;
     using System.Threading;
 
     /// <summary>
@@ -10,7 +11,7 @@
     public abstract class AtomicTypeBase<T> : IComparable, IComparable<T>, IComparable<AtomicTypeBase<T>>, IEquatable<T>, IEquatable<AtomicTypeBase<T>>
         where T : struct, IComparable, IComparable<T>, IEquatable<T>
     {
-        private long backingValue = default;
+        private long backingValue;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AtomicTypeBase{T}"/> class.
@@ -40,72 +41,154 @@
         }
 
         /// <summary>
-        /// Implements the operator ==.
+        /// Implements the operator.
         /// </summary>
-        /// <param name="a">a.</param>
-        /// <param name="b">The b.</param>
-        /// <returns>
-        /// The result of the operator.
-        /// </returns>
-        public static bool operator ==(AtomicTypeBase<T> a, T b) => a.Equals(b);
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator ==(AtomicTypeBase<T> left, AtomicTypeBase<T> right) => Equals(left, right);
 
         /// <summary>
-        /// Implements the operator !=.
+        /// Implements the operator.
         /// </summary>
-        /// <param name="a">a.</param>
-        /// <param name="b">The b.</param>
-        /// <returns>
-        /// The result of the operator.
-        /// </returns>
-        public static bool operator !=(AtomicTypeBase<T> a, T b) => a.Equals(b) == false;
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator ==(AtomicTypeBase<T> left, T right) => Equals(left, right);
 
         /// <summary>
-        /// Implements the operator &gt;.
+        /// Implements the operator.
         /// </summary>
-        /// <param name="a">a.</param>
-        /// <param name="b">The b.</param>
-        /// <returns>
-        /// The result of the operator.
-        /// </returns>
-        public static bool operator >(AtomicTypeBase<T> a, T b) => a.CompareTo(b) > 0;
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator ==(T left, AtomicTypeBase<T> right) => Equals(left, right);
 
         /// <summary>
-        /// Implements the operator &lt;.
+        /// Implements the operator.
         /// </summary>
-        /// <param name="a">a.</param>
-        /// <param name="b">The b.</param>
-        /// <returns>
-        /// The result of the operator.
-        /// </returns>
-        public static bool operator <(AtomicTypeBase<T> a, T b) => a.CompareTo(b) < 0;
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator !=(AtomicTypeBase<T> left, AtomicTypeBase<T> right) => !Equals(left, right);
 
         /// <summary>
-        /// Implements the operator &gt;=.
+        /// Implements the operator.
         /// </summary>
-        /// <param name="a">a.</param>
-        /// <param name="b">The b.</param>
-        /// <returns>
-        /// The result of the operator.
-        /// </returns>
-        public static bool operator >=(AtomicTypeBase<T> a, T b) => a.CompareTo(b) >= 0;
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator !=(AtomicTypeBase<T> left, T right) => !Equals(left, right);
 
         /// <summary>
-        /// Implements the operator &lt;=.
+        /// Implements the operator.
         /// </summary>
-        /// <param name="a">a.</param>
-        /// <param name="b">The b.</param>
-        /// <returns>
-        /// The result of the operator.
-        /// </returns>
-        public static bool operator <=(AtomicTypeBase<T> a, T b) => a.CompareTo(b) <= 0;
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator !=(T left, AtomicTypeBase<T> right) => !Equals(left, right);
 
         /// <summary>
-        /// Implements the operator ++.
+        /// Implements the operator.
         /// </summary>
-        /// <param name="instance">The instance.</param>
-        /// <returns>
-        /// The result of the operator.
-        /// </returns>
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator >(AtomicTypeBase<T> left, T right) => CompareTo(left, right) > 0;
+
+        /// <summary>
+        /// Implements the operator.
+        /// </summary>
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator >(AtomicTypeBase<T> left, AtomicTypeBase<T> right) => CompareTo(left, right) > 0;
+
+        /// <summary>
+        /// Implements the operator.
+        /// </summary>
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator >(T left, AtomicTypeBase<T> right) => CompareTo(left, right) > 0;
+
+        /// <summary>
+        /// Implements the operator.
+        /// </summary>
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator <(AtomicTypeBase<T> left, T right) => CompareTo(left, right) < 0;
+
+        /// <summary>
+        /// Implements the operator.
+        /// </summary>
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator <(AtomicTypeBase<T> left, AtomicTypeBase<T> right) => CompareTo(left, right) < 0;
+
+        /// <summary>
+        /// Implements the operator.
+        /// </summary>
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator <(T left, AtomicTypeBase<T> right) => CompareTo(left, right) < 0;
+
+        /// <summary>
+        /// Implements the operator.
+        /// </summary>
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator >=(AtomicTypeBase<T> left, T right) => CompareTo(left, right) >= 0;
+
+        /// <summary>
+        /// Implements the operator.
+        /// </summary>
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator >=(AtomicTypeBase<T> left, AtomicTypeBase<T> right) => CompareTo(left, right) >= 0;
+
+        /// <summary>
+        /// Implements the operator.
+        /// </summary>
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator >=(T left, AtomicTypeBase<T> right) => CompareTo(left, right) >= 0;
+
+        /// <summary>
+        /// Implements the operator.
+        /// </summary>
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator <=(AtomicTypeBase<T> left, T right) => CompareTo(left, right) <= 0;
+
+        /// <summary>
+        /// Implements the operator.
+        /// </summary>
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator <=(AtomicTypeBase<T> left, AtomicTypeBase<T> right) => CompareTo(left, right) <= 0;
+
+        /// <summary>
+        /// Implements the operator.
+        /// </summary>
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator <=(T left, AtomicTypeBase<T> right) => CompareTo(left, right) <= 0;
+
+        /// <summary>
+        /// Implements the operator.
+        /// </summary>
+        /// <param name="instance">The operand.</param>
+        /// <returns>The result of the operation.</returns>
         public static AtomicTypeBase<T> operator ++(AtomicTypeBase<T> instance)
         {
             Interlocked.Increment(ref instance.backingValue);
@@ -113,125 +196,65 @@
         }
 
         /// <summary>
-        /// Implements the operator --.
+        /// Implements the operator.
         /// </summary>
-        /// <param name="instance">The instance.</param>
-        /// <returns>
-        /// The result of the operator.
-        /// </returns>
+        /// <param name="instance">The operand.</param>
+        /// <returns>The result of the operation.</returns>
         public static AtomicTypeBase<T> operator --(AtomicTypeBase<T> instance)
         {
             Interlocked.Decrement(ref instance.backingValue);
             return instance;
         }
 
-        /// <summary>
-        /// Implements the operator -&lt;.
-        /// </summary>
-        /// <param name="instance">The instance.</param>
-        /// <param name="operand">The operand.</param>
-        /// <returns>
-        /// The result of the operator.
-        /// </returns>
-        public static AtomicTypeBase<T> operator +(AtomicTypeBase<T> instance, long operand)
-        {
-            instance.BackingValue = instance.BackingValue + operand;
-            return instance;
-        }
-
-        /// <summary>
-        /// Implements the operator -.
-        /// </summary>
-        /// <param name="instance">The instance.</param>
-        /// <param name="operand">The operand.</param>
-        /// <returns>
-        /// The result of the operator.
-        /// </returns>
-        public static AtomicTypeBase<T> operator -(AtomicTypeBase<T> instance, long operand)
-        {
-            instance.BackingValue = instance.BackingValue - operand;
-            return instance;
-        }
-
-        /// <summary>
-        /// Compares the value to the other instance
-        /// </summary>
-        /// <param name="other">The other instance.</param>
-        /// <returns>0 if equal, 1 if this instance is greater, -1 if this instance is less than</returns>
-        /// <exception cref="ArgumentException">When types are incompatible</exception>
+        /// <inheritdoc />
         public int CompareTo(object other)
         {
-            if (other == null)
-                return 1;
-
-            if (other is AtomicTypeBase<T>)
-                return BackingValue.CompareTo((other as AtomicTypeBase<T>).BackingValue);
-
-            if (other is T)
-                return Value.CompareTo((T)other);
-
-            throw new ArgumentException($"Incompatible comparison types");
+            switch (other)
+            {
+                case null:
+                    return 1;
+                case AtomicTypeBase<T> atomicType:
+                    return CompareTo(this, atomicType);
+                case T variable:
+                    return CompareTo(this, variable);
+                default:
+                    throw new ArgumentException("Incompatible comparison types");
+            }
         }
 
-        /// <summary>
-        /// Compares the value to the other instance
-        /// </summary>
-        /// <param name="other">The other instance.</param>
-        /// <returns>0 if equal, 1 if this instance is greater, -1 if this instance is less than</returns>
-        public int CompareTo(T other) => Value.CompareTo(other);
+        /// <inheritdoc />
+        public int CompareTo(T other) => CompareTo(this, other);
 
-        /// <summary>
-        /// Compares the value to the other instance
-        /// </summary>
-        /// <param name="other">The other instance.</param>
-        /// <returns>0 if equal, 1 if this instance is greater, -1 if this instance is less than</returns>
-        public int CompareTo(AtomicTypeBase<T> other) =>
-            BackingValue.CompareTo(other?.BackingValue ?? default);
+        /// <inheritdoc />
+        public int CompareTo(AtomicTypeBase<T> other) => CompareTo(this, other);
 
-        /// <summary>
-        /// Determines whether the specified <see cref="object" />, is equal to this instance.
-        /// </summary>
-        /// <param name="other">The <see cref="object" /> to compare with this instance.</param>
-        /// <returns>
-        ///   <c>true</c> if the specified <see cref="object" /> is equal to this instance; otherwise, <c>false</c>.
-        /// </returns>
+        /// <inheritdoc />
         public override bool Equals(object other)
         {
-            if (other is AtomicTypeBase<T>) return Equals(other as AtomicTypeBase<T>);
-            if (other is T) return Equals((T)other);
-
-            return false;
+            switch (other)
+            {
+                case null:
+                    return false;
+                case AtomicTypeBase<T> atomicType:
+                    return Equals(this, atomicType);
+                case T variable:
+                    return Equals(this, variable);
+                default:
+                    return false;
+            }
         }
 
-        /// <summary>
-        /// Returns a hash code for this instance.
-        /// </summary>
-        /// <returns>
-        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
-        /// </returns>
+        /// <inheritdoc />
         public override int GetHashCode() => BackingValue.GetHashCode();
 
-        /// <summary>
-        /// Indicates whether the current object is equal to another object of the same type.
-        /// </summary>
-        /// <param name="other">An object to compare with this object.</param>
-        /// <returns>
-        /// true if the current object is equal to the <paramref name="other">other</paramref> parameter; otherwise, false.
-        /// </returns>
-        public bool Equals(AtomicTypeBase<T> other) =>
-            BackingValue == (other?.BackingValue ?? default);
+        /// <inheritdoc />
+        public bool Equals(AtomicTypeBase<T> other) => Equals(this, other);
 
-        /// <summary>
-        /// Indicates whether the current object is equal to another object of the same type.
-        /// </summary>
-        /// <param name="other">An object to compare with this object.</param>
-        /// <returns>
-        /// true if the current object is equal to the <paramref name="other">other</paramref> parameter; otherwise, false.
-        /// </returns>
+        /// <inheritdoc />
         public bool Equals(T other) => Equals(Value, other);
 
         /// <summary>
-        /// Converts froma long value to the target type.
+        /// Converts from a long value to the target type.
         /// </summary>
         /// <param name="backingValue">The backing value.</param>
         /// <returns>The value converted form a long value</returns>
@@ -243,5 +266,43 @@
         /// <param name="value">The value.</param>
         /// <returns>The value converted to a long value</returns>
         protected abstract long ToLong(T value);
+
+        #region Comparison Logic
+#pragma warning disable IDE0041 // Use 'is null' check
+
+        // ReSharper disable MergeConditionalExpression
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int CompareTo(AtomicTypeBase<T> left, AtomicTypeBase<T> right)
+        {
+            switch (left)
+            {
+                case null when ReferenceEquals(right, null):
+                    return 0;
+                case null:
+                    return -1;
+                default:
+                    return ReferenceEquals(right, null) ? 1 :
+                        left.BackingValue.CompareTo(right.BackingValue);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int CompareTo(AtomicTypeBase<T> left, T right) => ReferenceEquals(left, null) ? -1 : left.Value.CompareTo(right);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int CompareTo(T left, AtomicTypeBase<T> right) => ReferenceEquals(right, null) ? 1 : left.CompareTo(right.Value);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool Equals(AtomicTypeBase<T> left, AtomicTypeBase<T> right) => CompareTo(left, right) == 0;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool Equals(AtomicTypeBase<T> left, T right) => CompareTo(left, right) == 0;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool Equals(T left, AtomicTypeBase<T> right) => CompareTo(left, right) == 0;
+
+        // ReSharper restore MergeConditionalExpression
+#pragma warning restore IDE0041 // Use 'is null' check
+        #endregion
     }
 }

@@ -1,4 +1,5 @@
-﻿namespace Unosquare.FFME.ClosedCaptions
+﻿// ReSharper disable UnusedMember.Global
+namespace Unosquare.FFME.ClosedCaptions
 {
     /// <summary>
     /// Defines Closed-Captioning XDS Packet Classes
@@ -83,6 +84,6 @@
         /// <summary>
         /// The end all XDS Class
         /// </summary>
-        EndAll = 0x0F,
+        EndAll = 0x0F
     }
 }

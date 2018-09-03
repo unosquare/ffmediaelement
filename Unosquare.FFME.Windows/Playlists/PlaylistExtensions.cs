@@ -5,7 +5,7 @@
     using System.Web;
 
     /// <summary>
-    /// Heklper methods for parsing m3u8 playlists
+    /// Helper methods for parsing m3u8 playlists
     /// </summary>
     internal static class PlaylistExtensions
     {
@@ -38,7 +38,6 @@
         /// <param name="line">The line.</param>
         public static void BeginExtendedInfoLine(this PlaylistEntry target, string line)
         {
-            var result = new PlaylistEntry();
             var lineData = line.Substring($"{Playlist.EntryPrefix}:".Length).Trim();
             var attributes = lineData.ParseAttributes();
 
@@ -50,7 +49,7 @@
 
             lineData = lineData.Trim();
             var headerFields = lineData.Split(',');
-            if (headerFields.Length >= 1 && long.TryParse(headerFields[0].Trim(), out long duration))
+            if (headerFields.Length >= 1 && long.TryParse(headerFields[0].Trim(), out var duration))
                 target.Duration = TimeSpan.FromSeconds(Convert.ToDouble(duration));
 
             if (headerFields.Length >= 2)
@@ -86,8 +85,8 @@
         private static ParsedAttribute ParseNextAttribute(string headerData, ParsedAttribute lastAttribute)
         {
             char c;
-            var startIndex = lastAttribute == null ? 0 : lastAttribute.EndIndex;
-            var attributePivotIndex = headerData.IndexOf("=\"", startIndex);
+            var startIndex = lastAttribute?.EndIndex ?? 0;
+            var attributePivotIndex = headerData.IndexOf("=\"", startIndex, StringComparison.InvariantCulture);
             var attributeStartIndex = -1;
             var attributeEndIndex = -1;
 
@@ -95,11 +94,9 @@
             for (var i = attributePivotIndex - 1; i >= 0; i--)
             {
                 c = headerData[i];
-                if (char.IsWhiteSpace(c))
-                {
-                    attributeStartIndex = i + 1;
-                    break;
-                }
+                if (!char.IsWhiteSpace(c)) continue;
+                attributeStartIndex = i + 1;
+                break;
             }
 
             // find the attribute value
@@ -108,11 +105,9 @@
                 for (var i = attributePivotIndex + 2; i < headerData.Length; i++)
                 {
                     c = headerData[i];
-                    if (c == '"')
-                    {
-                        attributeEndIndex = i;
-                        break;
-                    }
+                    if (c != '"') continue;
+                    attributeEndIndex = i;
+                    break;
                 }
 
                 if (attributeEndIndex == -1)
@@ -137,11 +132,14 @@
         /// </summary>
         private class ParsedAttribute
         {
+            // ReSharper disable UnusedAutoPropertyAccessor.Local
             public string Key { get; set; }
             public string Value { get; set; }
             public string Substring { get; set; }
             public int StartIndex { get; set; }
             public int EndIndex { get; set; }
+
+            // ReSharper restore UnusedAutoPropertyAccessor.Local
         }
     }
 }

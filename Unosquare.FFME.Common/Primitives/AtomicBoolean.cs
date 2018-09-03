@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.Primitives
 {
     /// <summary>
-    /// Fast, atomioc boolean combining interlocked to write value and volatile to read values
+    /// Fast, atomic boolean combining interlocked to write value and volatile to read values
     /// Idea taken from Memory model and .NET operations in article:
     /// http://igoro.com/archive/volatile-keyword-in-c-memory-model-explained/
     /// </summary>
@@ -26,28 +26,10 @@
             // placeholder
         }
 
-        /// <summary>
-        /// COnverts froma long value to the target type.
-        /// </summary>
-        /// <param name="backingValue">The backing value.</param>
-        /// <returns>
-        /// The value converted form a long value
-        /// </returns>
-        protected override bool FromLong(long backingValue)
-        {
-            return backingValue == 0 ? false : true;
-        }
+        /// <inheritdoc />
+        protected override bool FromLong(long backingValue) => backingValue != 0;
 
-        /// <summary>
-        /// Converts from the target type to a long value
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>
-        /// The value converted to a long value
-        /// </returns>
-        protected override long ToLong(bool value)
-        {
-            return value ? 1 : 0;
-        }
+        /// <inheritdoc />
+        protected override long ToLong(bool value) => value ? 1 : 0;
     }
 }

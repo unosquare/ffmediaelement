@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Rendering
 {
+    using Primitives;
     using System;
     using System.Collections;
     using System.ComponentModel;
@@ -11,9 +12,9 @@
     using System.Windows.Threading;
 
     /// <summary>
-    /// Provides a base class for a frameowrk element that is capable of
-    /// being hosted on its own dispatcher. This allows for mutithreaded
-    /// UI compistion.
+    /// Provides a base class for a framework element that is capable of
+    /// being hosted on its own dispatcher. This allows for multi threaded
+    /// UI composition.
     /// </summary>
     /// <typeparam name="T">The contained framework element</typeparam>
     /// <seealso cref="FrameworkElement" />
@@ -36,7 +37,7 @@
         protected ElementHostBase(bool hasOwnDispatcher)
         {
             var isInDesignMode = DesignerProperties.GetIsInDesignMode(this);
-            HasOwnDispatcher = isInDesignMode ? false : hasOwnDispatcher;
+            HasOwnDispatcher = !isInDesignMode && hasOwnDispatcher;
         }
 
         /// <summary>
@@ -44,8 +45,8 @@
         /// </summary>
         public event RoutedEventHandler ElementLoaded
         {
-            add { AddHandler(ElementLoadedEvent, value); }
-            remove { RemoveHandler(ElementLoadedEvent, value); }
+            add => AddHandler(ElementLoadedEvent, value);
+            remove => RemoveHandler(ElementLoadedEvent, value);
         }
 
         /// <summary>
@@ -59,7 +60,7 @@
         public Dispatcher ElementDispatcher { get; private set; }
 
         /// <summary>
-        /// PRovides access to the framework element hosted within this element
+        /// Provides access to the framework element hosted within this element
         /// </summary>
         public T Element { get; private set; }
 
@@ -75,23 +76,18 @@
         /// </summary>
         protected HostVisual Host { get; private set; }
 
-        /// <summary>
-        /// Gets the number of visual child elements within this element.
-        /// </summary>
+        /// <inheritdoc />
         protected override int VisualChildrenCount
         {
             get
             {
                 if (HasOwnDispatcher)
                     return Host == null ? 0 : 1;
-                else
-                    return Element == null ? 0 : 1;
+                return Element == null ? 0 : 1;
             }
         }
 
-        /// <summary>
-        /// Gets an enumerator for logical child elements of this element.
-        /// </summary>
+        /// <inheritdoc />
         protected override IEnumerator LogicalChildren
         {
             get
@@ -144,15 +140,11 @@
             if (Thread.CurrentThread != ElementDispatcher?.Thread)
                 return ElementDispatcher?.BeginInvoke(action, priority).Task;
 
-            action?.Invoke();
+            action();
             return Task.CompletedTask;
         }
 
-        /// <summary>
-        /// Raises the <see cref="E:System.Windows.FrameworkElement.Initialized" /> event.
-        /// This method is invoked whenever <see cref="P:System.Windows.FrameworkElement.IsInitialized" /> is set to true internally.
-        /// </summary>
-        /// <param name="e">The <see cref="T:System.Windows.RoutedEventArgs" /> that contains the event data.</param>
+        /// <inheritdoc />
         protected override void OnInitialized(EventArgs e)
         {
             if (HasOwnDispatcher)
@@ -180,20 +172,8 @@
             base.OnInitialized(e);
         }
 
-        /// <summary>
-        /// Overrides <see cref="M:System.Windows.Media.Visual.GetVisualChild(System.Int32)" />, and returns a child at the specified index from a collection of child elements.
-        /// </summary>
-        /// <param name="index">The zero-based index of the requested child element in the collection.</param>
-        /// <returns>
-        /// The requested child element. This should not return null; if the provided index is out of range, an exception is thrown.
-        /// </returns>
-        protected override Visual GetVisualChild(int index)
-        {
-            if (HasOwnDispatcher)
-                return Host;
-            else
-                return Element;
-        }
+        /// <inheritdoc />
+        protected override Visual GetVisualChild(int index) => HasOwnDispatcher ? Host : (Visual)Element;
 
         /// <summary>
         /// Creates the element contained by this host
@@ -201,13 +181,6 @@
         /// <returns>An instance of the framework element to be hosted</returns>
         protected abstract T CreateHostedElement();
 
-        /// <summary>
-        /// When overridden in a derived class, positions child elements and determines a size for a <see cref="T:System.Windows.FrameworkElement" /> derived class.
-        /// </summary>
-        /// <param name="finalSize">The final area within the parent that this element should use to arrange itself and its children.</param>
-        /// <returns>
-        /// The actual size used.
-        /// </returns>
         /// <inheritdoc />
         protected override Size ArrangeOverride(Size finalSize)
         {
@@ -221,13 +194,7 @@
             return finalSize;
         }
 
-        /// <summary>
-        /// When overridden in a derived class, measures the size in layout required for child elements and determines a size for the <see cref="T:System.Windows.FrameworkElement" />-derived class.
-        /// </summary>
-        /// <param name="newAvailableSize">The available size that this element can give to child elements. Infinity can be specified as a value to indicate that the element will size to whatever content is available.</param>
-        /// <returns>
-        /// The size that this element determines it needs during layout, based on its calculations of child element sizes.
-        /// </returns>
+        /// <inheritdoc />
         protected override Size MeasureOverride(Size newAvailableSize)
         {
             var previousAvailableSize = AvailableSize;
@@ -247,7 +214,7 @@
                     var desiredSizeChanged = previousDesiredSize != (Element?.DesiredSize ?? default);
 
                     if (availableSizeChanged || desiredSizeChanged)
-                        Dispatcher.InvokeAsync(() => InvalidateMeasure(), DispatcherPriority.Render);
+                        Dispatcher.InvokeAsync(InvalidateMeasure, DispatcherPriority.Render);
                 });
 
                 if (availableSizeChanged)
@@ -282,21 +249,19 @@
         /// <returns>The value</returns>
         protected V GetElementProperty<V>(DependencyProperty property)
         {
-            if (HasOwnDispatcher)
-            {
-                var result = default(V);
-                if (Element != null)
-                {
-                    InvokeAsync(DispatcherPriority.DataBind, () =>
-                    {
-                        result = (V)Element.GetValue(property);
-                    })?.Wait();
-                }
+            if (!HasOwnDispatcher)
+                return (V)Element.GetValue(property);
 
-                return result;
+            var result = default(V);
+            if (Element != null)
+            {
+                InvokeAsync(DispatcherPriority.DataBind, () =>
+                {
+                    result = (V)Element.GetValue(property);
+                })?.Wait();
             }
 
-            return (V)Element.GetValue(property);
+            return result;
         }
 
         /// <summary>
@@ -329,20 +294,25 @@
         {
             Loaded -= HandleLoadedEvent;
 
-            var doneCreating = new ManualResetEvent(false);
+            var doneCreating = WaitEventFactory.Create(isCompleted: false, useSlim: true);
             var thread = new Thread(() =>
             {
                 PresentationSource = new HostedPresentationSource(Host);
-                doneCreating.Set();
+                doneCreating.Complete();
                 Element = CreateHostedElement();
                 PresentationSource.RootVisual = Element;
                 Element.SizeChanged += (snd, eva) =>
                 {
                     if (eva.PreviousSize == default || eva.NewSize == default)
-                        Dispatcher.Invoke(() => InvalidateMeasure());
+                        Dispatcher.Invoke(InvalidateMeasure);
                 };
 
+                // Running the dispatcher makes it run on its own thread
+                // and blocks until dispatcher is requested an exit.
                 Dispatcher.Run();
+
+                // After the dispatcher is done, dispose the objects
+                doneCreating.Dispose();
                 PresentationSource.Dispose();
             });
 
@@ -350,14 +320,13 @@
             thread.IsBackground = true;
             thread.Priority = ThreadPriority.Highest;
             thread.Start();
-            doneCreating.WaitOne();
-            doneCreating.Dispose();
+            doneCreating.Wait();
 
             while (Dispatcher.FromThread(thread) == null)
                 Thread.Sleep(50);
 
             ElementDispatcher = Dispatcher.FromThread(thread);
-            Dispatcher.BeginInvoke(new Action(() => { InvalidateMeasure(); }));
+            Dispatcher.BeginInvoke(new Action(InvalidateMeasure));
             RaiseEvent(new RoutedEventArgs(ElementLoadedEvent, this));
         }
 
@@ -368,26 +337,18 @@
         private sealed class HostedPresentationSource : PresentationSource, IDisposable
         {
             private readonly VisualTarget HostConnector;
-            private bool m_IsDisposed = false;
+            private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
 
             /// <summary>
             /// Initializes a new instance of the <see cref="HostedPresentationSource"/> class.
             /// </summary>
             /// <param name="host">The host.</param>
-            public HostedPresentationSource(HostVisual host)
-            {
-                HostConnector = new VisualTarget(host);
-            }
+            public HostedPresentationSource(HostVisual host) => HostConnector = new VisualTarget(host);
 
-            /// <summary>
-            /// When overridden in a derived class, gets or sets the root visual being presented in the source.
-            /// </summary>
+            /// <inheritdoc />
             public override Visual RootVisual
             {
-                get
-                {
-                    return HostConnector.RootVisual;
-                }
+                get => HostConnector.RootVisual;
                 set
                 {
                     var oldRoot = HostConnector.RootVisual;
@@ -402,30 +363,21 @@
                     RootChanged(oldRoot, value);
 
                     // Kickoff layout...
-                    if (value is UIElement rootElement)
-                    {
-                        rootElement.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-                        rootElement.Arrange(new Rect(rootElement.DesiredSize));
-                    }
+                    if (value is UIElement == false) return;
+
+                    var rootElement = (UIElement)value;
+                    rootElement.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                    rootElement.Arrange(new Rect(rootElement.DesiredSize));
                 }
             }
 
-            /// <summary>
-            /// When overridden in a derived class, gets a value that declares whether the object is disposed.
-            /// </summary>
-            public override bool IsDisposed => m_IsDisposed;
+            /// <inheritdoc />
+            public override bool IsDisposed => m_IsDisposed.Value;
 
-            /// <summary>
-            /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-            /// </summary>
+            /// <inheritdoc />
             public void Dispose() => Dispose(true);
 
-            /// <summary>
-            /// When overridden in a derived class, returns a visual target for the given source.
-            /// </summary>
-            /// <returns>
-            /// Returns a <see cref="T:System.Windows.Media.CompositionTarget" /> that is target for rendering the visual.
-            /// </returns>
+            /// <inheritdoc />
             protected override CompositionTarget GetCompositionTargetCore() => HostConnector;
 
             /// <summary>
@@ -434,12 +386,11 @@
             /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
             private void Dispose(bool alsoManaged)
             {
-                if (m_IsDisposed) return;
-                if (alsoManaged)
-                {
-                    m_IsDisposed = true;
-                    HostConnector?.Dispose();
-                }
+                if (m_IsDisposed.Value) return;
+                if (!alsoManaged) return;
+
+                m_IsDisposed.Value = true;
+                HostConnector?.Dispose();
             }
         }
     }

@@ -12,7 +12,7 @@
     public static class Benchmark
     {
         private static readonly object SyncLock = new object();
-        private static Dictionary<string, List<TimeSpan>> Measures = new Dictionary<string, List<TimeSpan>>();
+        private static readonly Dictionary<string, List<TimeSpan>> Measures = new Dictionary<string, List<TimeSpan>>();
 
         /// <summary>
         /// Starts measuring with the given identifier.
@@ -58,6 +58,7 @@
                     Measures[identifier] = new List<TimeSpan>(1024 * 1024);
             }
 
+            // ReSharper disable once InconsistentlySynchronizedField
             Measures[identifier].Add(elapsed);
         }
 
@@ -67,9 +68,9 @@
         /// <seealso cref="IDisposable" />
         private sealed class BenchmarkUnit : IDisposable
         {
-            private readonly string Identifier = null;
-            private AtomicBoolean IsDisposed = new AtomicBoolean(false); // To detect redundant calls
-            private Stopwatch Stopwatch = new Stopwatch();
+            private readonly string Identifier;
+            private readonly AtomicBoolean IsDisposed = new AtomicBoolean(false); // To detect redundant calls
+            private readonly Stopwatch Stopwatch = new Stopwatch();
 
             /// <summary>
             /// Initializes a new instance of the <see cref="BenchmarkUnit" /> class.
@@ -81,9 +82,7 @@
                 Stopwatch.Start();
             }
 
-            /// <summary>
-            /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-            /// </summary>
+            /// <inheritdoc />
             public void Dispose() => Dispose(true);
 
             /// <summary>
@@ -94,14 +93,10 @@
             {
                 if (IsDisposed == true) return;
                 IsDisposed.Value = true;
+                if (!alsoManaged) return;
 
-                if (alsoManaged)
-                {
-                    Add(Identifier, Stopwatch.Elapsed);
-                    Stopwatch?.Stop();
-                }
-
-                Stopwatch = null;
+                Add(Identifier, Stopwatch.Elapsed);
+                Stopwatch.Stop();
             }
         }
     }

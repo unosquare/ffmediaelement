@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.Shared
 {
     /// <summary>
-    /// A scaled, preallocated audio frame container.
+    /// A scaled, pre-allocated audio frame container.
     /// The buffer is in 16-bit signed, interleaved sample data
     /// </summary>
     public sealed class AudioBlock : MediaBlock
@@ -45,9 +45,7 @@
 
         #region Methods
 
-        /// <summary>
-        /// Deallocates the buffer and resets the related buffer properties
-        /// </summary>
+        /// <inheritdoc />
         protected override void Deallocate()
         {
             base.Deallocate();

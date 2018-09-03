@@ -2,10 +2,11 @@
 {
     using Shared;
     using System;
+    using System.Diagnostics;
 
     internal class MacMediaConnector : IMediaConnector
     {
-        private readonly MediaElement Control = null;
+        private readonly MediaElement Control;
 
         public MacMediaConnector(MediaElement control)
         {
@@ -15,35 +16,35 @@
         public void OnMessageLogged(MediaEngine sender, MediaLogMessage e)
         {
             if (e.MessageType == MediaLogMessageType.Trace) return;
-            Console.WriteLine($"{e.MessageType,10} - {e.Message}");
+            Debug.WriteLine($"{e.MessageType,10} - {e.Message}");
         }
 
-        public void OnBufferingEnded(MediaEngine sender) { }
+        public void OnBufferingEnded(MediaEngine sender) { /* Placeholder */ }
 
-        public void OnBufferingStarted(MediaEngine sender) { }
+        public void OnBufferingStarted(MediaEngine sender) { /* Placeholder */ }
 
-        public void OnMediaClosed(MediaEngine sender) { }
+        public void OnMediaClosed(MediaEngine sender) { /* Placeholder */ }
 
-        public void OnMediaEnded(MediaEngine sender) { }
+        public void OnMediaEnded(MediaEngine sender) { /* Placeholder */ }
 
-        public void OnMediaFailed(MediaEngine sender, Exception e) { }
+        public void OnMediaFailed(MediaEngine sender, Exception e) { /* Placeholder */ }
 
-        public void OnMediaOpened(MediaEngine sender, MediaInfo info) { }
+        public void OnMediaOpened(MediaEngine sender, MediaInfo info) { /* Placeholder */ }
 
-        public void OnMediaOpening(MediaEngine sender, MediaOptions options, MediaInfo mediaInfo) { }
+        public void OnMediaOpening(MediaEngine sender, MediaOptions options, MediaInfo mediaInfo) { /* Placeholder */ }
 
-        public void OnMediaInitializing(MediaEngine sender, ContainerConfiguration config, string url) { }
+        public void OnMediaInitializing(MediaEngine sender, ContainerConfiguration config, string url) { /* Placeholder */ }
 
-        public void OnSeekingEnded(MediaEngine sender) { }
+        public void OnSeekingEnded(MediaEngine sender) { /* Placeholder */ }
 
-        public void OnSeekingStarted(MediaEngine sender) { }
+        public void OnSeekingStarted(MediaEngine sender) { /* Placeholder */ }
 
-        public void OnPositionChanged(MediaEngine sender, TimeSpan oldValue, TimeSpan newValue) { }
+        public void OnPositionChanged(MediaEngine sender, TimeSpan oldValue, TimeSpan newValue) { /* Placeholder */ }
 
-        public void OnMediaStateChanged(MediaEngine sender, PlaybackStatus oldValue, PlaybackStatus newValue) { }
+        public void OnMediaStateChanged(MediaEngine sender, PlaybackStatus oldValue, PlaybackStatus newValue) { /* Placeholder */ }
 
-        public void OnMediaChanging(MediaEngine sender, MediaOptions mediaOptions, MediaInfo mediaInfo) { }
+        public void OnMediaChanging(MediaEngine sender, MediaOptions mediaOptions, MediaInfo mediaInfo) { /* Placeholder */ }
 
-        public void OnMediaChanged(MediaEngine sender, MediaInfo info) { }
+        public void OnMediaChanged(MediaEngine sender, MediaInfo info) { /* Placeholder */ }
     }
 }

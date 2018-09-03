@@ -1,11 +1,13 @@
 ﻿namespace Unosquare.FFME.Core
 {
     using FFmpeg.AutoGen;
+    using Primitives;
     using Shared;
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Diagnostics;
     using System.Threading;
 
     /// <summary>
@@ -29,11 +31,11 @@
                     { ffmpeg.AV_LOG_INFO, MediaLogMessageType.Info },
                     { ffmpeg.AV_LOG_PANIC, MediaLogMessageType.Error },
                     { ffmpeg.AV_LOG_TRACE, MediaLogMessageType.Trace },
-                    { ffmpeg.AV_LOG_WARNING, MediaLogMessageType.Warning },
+                    { ffmpeg.AV_LOG_WARNING, MediaLogMessageType.Warning }
                 });
 
-        private static readonly Timer LogOutputter = null;
-        private static bool IsOutputingLog = false;
+        private static readonly Timer LogOutputWorker;
+        private static readonly AtomicBoolean IsOutputtingLog = new AtomicBoolean(false);
 
         #endregion
 
@@ -44,15 +46,15 @@
         /// </summary>
         static LoggingWorker()
         {
-            LogOutputter = new Timer((s) =>
+            LogOutputWorker = new Timer(s =>
             {
-                if (IsOutputingLog) return;
-                IsOutputingLog = true;
+                if (IsOutputtingLog == true) return;
+                IsOutputtingLog.Value = true;
                 try
                 {
                     const int MaxMessagesPerCycle = 10;
                     var messageCount = 0;
-                    while (messageCount <= MaxMessagesPerCycle && LogQueue.TryDequeue(out MediaLogMessage message))
+                    while (messageCount <= MaxMessagesPerCycle && LogQueue.TryDequeue(out var message))
                     {
                         if (message.Source != null)
                             message.Source.SendOnMessageLogged(message);
@@ -62,13 +64,13 @@
                         messageCount += 1;
                     }
                 }
-                catch
+                catch(Exception ex)
                 {
-                    throw;
+                    Debug.WriteLine($"{nameof(LoggingWorker)}.{nameof(LogOutputWorker)} - {ex.GetType()}: {ex.Message}");
                 }
                 finally
                 {
-                    IsOutputingLog = false;
+                    IsOutputtingLog.Value = false;
                 }
             },
             LogQueue, // the state argument passed on to the ticker
@@ -102,7 +104,7 @@
         }
 
         /// <summary>
-        /// Logs the specified message. This the genric logging mechanism available to all classes.
+        /// Logs the specified message. This the generic logging mechanism available to all classes.
         /// </summary>
         /// <param name="sender">The sender.</param>
         /// <param name="messageType">Type of the message.</param>
@@ -112,7 +114,7 @@
         public static void Log(MediaEngine sender, MediaLogMessageType messageType, string message)
         {
             if (sender == null) throw new ArgumentNullException(nameof(sender));
-            var eventArgs = new MediaLogMessage(sender as MediaEngine, messageType, message);
+            var eventArgs = new MediaLogMessage(sender, messageType, message);
             LogQueue.Enqueue(eventArgs);
         }
 
@@ -180,13 +182,11 @@
                 if (FFmpegLogLevels.ContainsKey(level))
                     messageType = FFmpegLogLevels[level];
 
-                if (line.EndsWith("\n"))
-                {
-                    line = string.Join(string.Empty, FFmpegLogBuffer);
-                    line = line.TrimEnd();
-                    FFmpegLogBuffer.Clear();
-                    LogGlobal(messageType, line);
-                }
+                if (!line.EndsWith("\n")) return;
+                line = string.Join(string.Empty, FFmpegLogBuffer);
+                line = line.TrimEnd();
+                FFmpegLogBuffer.Clear();
+                LogGlobal(messageType, line);
             }
         }
 

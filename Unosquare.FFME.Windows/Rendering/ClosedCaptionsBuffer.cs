@@ -71,12 +71,12 @@
             = new Dictionary<CaptionsChannel, Dictionary<long, ClosedCaptionPacket>>();
 
         /// <summary>
-        /// Prevents Writing and reseting at the same time, causing the keys to become
+        /// Prevents Writing and resetting at the same time, causing the keys to become
         /// invalid when processing packets.
         /// </summary>
         private readonly object SyncLock = new object();
 
-        private int m_CursorColumnIndex = default;
+        private int m_CursorColumnIndex;
         private int m_CursorRowIndex = DefaultBaseRowIndex;
 
         #endregion
@@ -163,13 +163,13 @@
         /// Gets a value indicating whether the current and following
         /// caption text packets are underlined
         /// </summary>
-        public bool IsUnderlined { get; private set; } = default;
+        public bool IsUnderlined { get; private set; }
 
         /// <summary>
         /// Gets a value indicating whether the current and following
         /// caption text packets are italicized
         /// </summary>
-        public bool IsItalics { get; private set; } = default;
+        public bool IsItalics { get; private set; }
 
         /// <summary>
         /// Gets a value indicating whether this instance is in buffered mode.
@@ -184,17 +184,8 @@
         /// </summary>
         public int CursorRowIndex
         {
-            get
-            {
-                return m_CursorRowIndex;
-            }
-
-            private set
-            {
-                if (value < 0) value = 0;
-                if (value >= RowCount) value = RowCount - 1;
-                m_CursorRowIndex = value;
-            }
+            get => m_CursorRowIndex;
+            private set => m_CursorRowIndex = value.Clamp(0, RowCount - 1);
         }
 
         /// <summary>
@@ -202,30 +193,21 @@
         /// </summary>
         public int CursorColumnIndex
         {
-            get
-            {
-                return m_CursorColumnIndex;
-            }
-
-            private set
-            {
-                if (value < 0) value = 0;
-                if (value >= ColumnCount) value = ColumnCount - 1;
-                m_CursorColumnIndex = value;
-            }
+            get => m_CursorColumnIndex;
+            private set => m_CursorColumnIndex = value.Clamp(0, ColumnCount - 1);
         }
 
         /// <summary>
         /// Gets the currently active packet.
         /// </summary>
-        public ClosedCaptionPacket CurrentPacket { get; private set; } = default;
+        public ClosedCaptionPacket CurrentPacket { get; private set; }
 
         #endregion
 
         #region Write State Properties
 
         /// <summary>
-        /// Gets the last start time position of the video block cntaining the CC packets.
+        /// Gets the last start time position of the video block containing the CC packets.
         /// </summary>
         public TimeSpan WriteTag { get; private set; } = TimeSpan.MinValue;
 
@@ -317,7 +299,7 @@
                     // Stop demuxing packets beyond the current video block
                     if (position > maxPosition) break;
 
-                    // Update the last processed psoition
+                    // Update the last processed position
                     lastDemuxedKey = position;
 
                     // Skip packets that don't have a valid field parity or that are null
@@ -336,9 +318,9 @@
 
                     // Compute the channel using the packet's field parity and the last available channel state
                     var channel = ClosedCaptionPacket.ComputeChannel(
-                        packet.FieldParity, (packet.FieldParity == 1) ? Field1LastChannel : Field2LastChannel);
+                        packet.FieldParity, packet.FieldParity == 1 ? Field1LastChannel : Field2LastChannel);
 
-                    // Demux the packet to the correspnding channel buffer so the channels are independent
+                    // Demux the packet to the corresponding channel buffer so the channels are independent
                     ChannelPacketBuffer[channel][position] = packet;
                 }
 
@@ -449,6 +431,7 @@
                     CurrentPacket = packet;
 
                     // Now, go ahead and process the packet updating the state
+                    // ReSharper disable once SwitchStatementMissingSomeCases
                     switch (packet.PacketType)
                     {
                         case CaptionsPacketType.Color:
@@ -513,19 +496,28 @@
                                     ParserStateMode.None : ParserStateMode.XDS;
                                 break;
                             }
-
-                        case CaptionsPacketType.PrivateCharset:
-                        case CaptionsPacketType.Unrecognized:
-                        case CaptionsPacketType.NullPad:
-                        default:
-                            {
-                                break;
-                            }
                     }
                 }
 
                 return needsRepaint;
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static List<ClosedCaptionPacket> DequeuePackets(Dictionary<long, ClosedCaptionPacket> buffer, long upToTicks)
+        {
+            var result = new List<ClosedCaptionPacket>(buffer.Count);
+            var linearBufferKeys = buffer.Keys.OrderBy(k => k).ToArray();
+            foreach (var bufferKey in linearBufferKeys)
+            {
+                if (bufferKey > upToTicks)
+                    break;
+
+                result.Add(buffer[bufferKey]);
+                buffer.Remove(bufferKey);
+            }
+
+            return result;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -535,14 +527,15 @@
             var command = packet.Command;
 
             // Set the scroll size if we have a rollup command
-            switch (command)
-            {
-                case CaptionsCommand.RollUp2: ScrollSize = 2; break;
-                case CaptionsCommand.RollUp3: ScrollSize = 3; break;
-                case CaptionsCommand.RollUp4: ScrollSize = 4; break;
-                default: break;
-            }
+            if (command == CaptionsCommand.RollUp2)
+                ScrollSize = 2;
+            else if (command == CaptionsCommand.RollUp3)
+                ScrollSize = 3;
+            else if (command == CaptionsCommand.RollUp4)
+                ScrollSize = 4;
 
+            // Process the command
+            // ReSharper disable once SwitchStatementMissingSomeCases
             switch (command)
             {
                 case CaptionsCommand.StartCaption:
@@ -707,14 +700,6 @@
 
                         break;
                     }
-
-                case CaptionsCommand.AlarmOff:
-                case CaptionsCommand.AlarmOn:
-                case CaptionsCommand.None:
-                default:
-                    {
-                        break;
-                    }
             }
 
             return needsRepaint;
@@ -723,45 +708,44 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessPreamblePacket(ClosedCaptionPacket packet)
         {
-            if (StateMode == ParserStateMode.Scrolling || StateMode == ParserStateMode.Buffered)
-            {
-                ScrollBaseRowIndex = packet.PreambleRow - 1;
-                if (ScrollBaseRowIndex < 0) ScrollBaseRowIndex = 0;
-                if (ScrollBaseRowIndex >= RowCount) ScrollBaseRowIndex = RowCount - 1;
+            if (StateMode != ParserStateMode.Scrolling && StateMode != ParserStateMode.Buffered)
+                return;
 
-                CursorRowIndex = ScrollBaseRowIndex;
-                CursorColumnIndex = packet.PreambleIndent;
-                IsItalics = packet.IsItalics;
-                IsUnderlined = packet.IsUnderlined;
-            }
+            ScrollBaseRowIndex = packet.PreambleRow - 1;
+            if (ScrollBaseRowIndex < 0) ScrollBaseRowIndex = 0;
+            if (ScrollBaseRowIndex >= RowCount) ScrollBaseRowIndex = RowCount - 1;
+
+            CursorRowIndex = ScrollBaseRowIndex;
+            CursorColumnIndex = packet.PreambleIndent;
+            IsItalics = packet.IsItalics;
+            IsUnderlined = packet.IsUnderlined;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool ProcessTextPacket(ClosedCaptionPacket packet)
         {
-            var needsRepaint = false;
-            if (StateMode == ParserStateMode.Scrolling || StateMode == ParserStateMode.Buffered)
+            if (StateMode != ParserStateMode.Scrolling && StateMode != ParserStateMode.Buffered)
+                return false;
+
+            var offset = 0;
+            ClosedCaptionsCellState cell;
+            for (var c = CursorColumnIndex; c < ColumnCount; c++)
             {
-                var offset = 0;
-                ClosedCaptionsCellState cell;
-                for (var c = CursorColumnIndex; c < ColumnCount; c++)
-                {
-                    if (offset > packet.Text.Length - 1) break;
+                if (offset > packet.Text.Length - 1) break;
 
-                    cell = StateMode == ParserStateMode.Scrolling ?
-                        State[CursorRowIndex][c].Display : State[CursorRowIndex][c].Buffer;
-                    cell.Character = packet.Text[offset];
-                    cell.IsItalics = IsItalics;
-                    cell.IsUnderlined = IsUnderlined;
+                cell = StateMode == ParserStateMode.Scrolling ?
+                    State[CursorRowIndex][c].Display : State[CursorRowIndex][c].Buffer;
+                cell.Character = packet.Text[offset];
+                cell.IsItalics = IsItalics;
+                cell.IsUnderlined = IsUnderlined;
 
-                    offset++;
-                }
-
-                needsRepaint = StateMode == ParserStateMode.Scrolling;
-                CursorColumnIndex += offset;
+                offset++;
             }
 
-            return needsRepaint;
+            CursorColumnIndex += offset;
+
+            // needs repaint if state is scrolling
+            return StateMode == ParserStateMode.Scrolling;
         }
 
         /// <summary>
@@ -794,28 +778,6 @@
             // Remove the target keys
             foreach (var key in keysToRemove)
                 buffer.Remove(key);
-        }
-
-        /// <summary>
-        /// Dequeues the packets from the buffer.
-        /// </summary>
-        /// <param name="buffer">The buffer.</param>
-        /// <param name="upToTicks">Up to ticks.</param>
-        /// <returns>The dequeued packets, in order.</returns>
-        private List<ClosedCaptionPacket> DequeuePackets(Dictionary<long, ClosedCaptionPacket> buffer, long upToTicks)
-        {
-            var result = new List<ClosedCaptionPacket>(buffer.Count);
-            var linearBufferKeys = buffer.Keys.OrderBy(k => k).ToArray();
-            foreach (var bufferKey in linearBufferKeys)
-            {
-                if (bufferKey > upToTicks)
-                    break;
-
-                result.Add(buffer[bufferKey]);
-                buffer.Remove(bufferKey);
-            }
-
-            return result;
         }
 
         #endregion

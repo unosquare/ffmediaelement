@@ -9,7 +9,7 @@
     using ViewModels;
 
     /// <summary>
-    /// A class exposing usage of custom playlists
+    /// A class exposing usage of custom play lists
     /// </summary>
     public class CustomPlaylist : Playlist<CustomPlaylistEntry>
     {
@@ -49,7 +49,7 @@
         {
             lock (SyncRoot)
             {
-                var lookupMediaUrl = mediaUrl.ToLowerInvariant() ?? string.Empty;
+                var lookupMediaUrl = mediaUrl?.ToLowerInvariant() ?? string.Empty;
                 foreach (var entry in this)
                 {
                     if (Equals(entry.MediaUrl?.ToLowerInvariant(), lookupMediaUrl))
@@ -73,20 +73,22 @@
                 if (entry == null)
                 {
                     // Create a new entry with default values
-                    entry = new CustomPlaylistEntry { MediaUrl = mediaUrl };
-                    if (Uri.TryCreate(mediaUrl, UriKind.RelativeOrAbsolute, out Uri entryUri))
-                        entry.Title = Path.GetFileNameWithoutExtension(Uri.UnescapeDataString(entryUri.AbsolutePath));
-                    else
-                        entry.Title = $"Media File {DateTime.Now}";
+                    entry = new CustomPlaylistEntry
+                    {
+                        MediaUrl = mediaUrl,
+                        Title = Uri.TryCreate(mediaUrl, UriKind.RelativeOrAbsolute, out var entryUri)
+                            ? Path.GetFileNameWithoutExtension(Uri.UnescapeDataString(entryUri.AbsolutePath))
+                            : $"Media File {DateTime.Now}"
+                    };
 
                     // Try to get a title from metadata
                     foreach (var meta in info.Metadata)
                     {
-                        if (meta.Key?.ToLowerInvariant()?.Trim()?.Equals("title") ?? false)
-                        {
-                            entry.Title = meta.Value;
-                            break;
-                        }
+                        if (!(meta.Key?.ToLowerInvariant().Trim().Equals("title") ?? false))
+                            continue;
+
+                        entry.Title = meta.Value;
+                        break;
                     }
 
                     if (string.IsNullOrWhiteSpace(entry.Title))

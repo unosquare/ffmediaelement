@@ -12,6 +12,8 @@
     /// <seealso cref="MediaComponent" />
     internal sealed unsafe class SubtitleComponent : MediaComponent
     {
+        private static readonly char[] SeparatorChars = { ',' };
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SubtitleComponent"/> class.
         /// </summary>
@@ -27,28 +29,17 @@
         /// <summary>
         /// Gets the amount of time to offset the subtitles by for this component
         /// </summary>
-        public TimeSpan Delay { get; } = TimeSpan.Zero;
+        public TimeSpan Delay { get; }
 
-        /// <summary>
-        /// Converts decoded, raw frame data in the frame source into a a usable frame. <br />
-        /// The process includes performing picture, samples or text conversions
-        /// so that the decoded source frame data is easily usable in multimedia applications
-        /// </summary>
-        /// <param name="input">The source frame to use as an input.</param>
-        /// <param name="output">The target frame that will be updated with the source frame. If null is passed the frame will be instantiated.</param>
-        /// <param name="siblings">The sibling blocks that may help guess some additional parameters for the input frame.</param>
-        /// <returns>
-        /// Returns true if successful. False otherwise
-        /// </returns>
-        /// <exception cref="ArgumentNullException">input cannot be null</exception>
+        /// <inheritdoc />
         public override bool MaterializeFrame(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings)
         {
             if (output == null) output = new SubtitleBlock();
-            var source = input as SubtitleFrame;
-            var target = output as SubtitleBlock;
-
-            if (source == null || target == null)
+            if (input is SubtitleFrame == false || output is SubtitleBlock == false)
                 throw new ArgumentNullException($"{nameof(input)} and {nameof(output)} are either null or not of a compatible media type '{MediaType}'");
+
+            var source = (SubtitleFrame)input;
+            var target = (SubtitleBlock)output;
 
             // Set the target data
             target.EndTime = source.EndTime;
@@ -109,6 +100,7 @@
             var isInTag = false;
             char currentChar;
 
+            // ReSharper disable once ForCanBeConvertedToForeach
             for (var i = 0; i < input.Length; i++)
             {
                 currentChar = input[i];
@@ -118,7 +110,7 @@
                     continue;
                 }
 
-                if (currentChar == '>' && isInTag == true)
+                if (currentChar == '>' && isInTag)
                 {
                     isInTag = false;
                     continue;
@@ -142,25 +134,26 @@
             if (input.Substring(0, DialoguePrefix.Length).ToLowerInvariant().Equals(DialoguePrefix) == false)
                 return string.Empty;
 
-            var inputParts = input.Split(new char[] { ',' }, 10);
+            var inputParts = input.Split(SeparatorChars, 10);
             if (inputParts.Length != 10)
                 return string.Empty;
 
-            input = inputParts[inputParts.Length - 1].Replace("\\n", " ").Replace("\\N", "\r\n");
-            var builder = new StringBuilder(input.Length);
+            var normalizedInput = inputParts[inputParts.Length - 1].Replace("\\n", " ").Replace("\\N", "\r\n");
+            var builder = new StringBuilder(normalizedInput.Length);
             var isInStyle = false;
             char currentChar;
 
-            for (var i = 0; i < input.Length; i++)
+            // ReSharper disable once ForCanBeConvertedToForeach
+            for (var i = 0; i < normalizedInput.Length; i++)
             {
-                currentChar = input[i];
+                currentChar = normalizedInput[i];
                 if (currentChar == '{' && isInStyle == false)
                 {
                     isInStyle = true;
                     continue;
                 }
 
-                if (currentChar == '}' && isInStyle == true)
+                if (currentChar == '}' && isInStyle)
                 {
                     isInStyle = false;
                     continue;
@@ -175,12 +168,8 @@
 
         #endregion
 
-        /// <summary>
-        /// Creates a frame source object given the raw FFmpeg subtitle reference.
-        /// </summary>
-        /// <param name="framePointer">The raw FFmpeg subtitle pointer.</param>
-        /// <returns>The managed frame</returns>
-        protected override unsafe MediaFrame CreateFrameSource(IntPtr framePointer)
+        /// <inheritdoc />
+        protected override MediaFrame CreateFrameSource(IntPtr framePointer)
         {
             var frame = (AVSubtitle*)framePointer;
             var frameHolder = new SubtitleFrame(frame, this);

@@ -13,13 +13,13 @@
         /// <summary>
         /// The command queue to be executed in the order they were sent.
         /// </summary>
-        internal CommandManager Commands { get; private set; }
+        internal CommandManager Commands { get; }
 
         /// <summary>
         /// The underlying media container that provides access to
         /// individual media component streams
         /// </summary>
-        internal MediaContainer Container { get; set; } = null;
+        internal MediaContainer Container { get; set; }
 
         #endregion
 

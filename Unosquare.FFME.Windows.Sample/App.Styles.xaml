@@ -15,7 +15,7 @@
         </GradientStopCollection>
     </LinearGradientBrush>
 
-    <!-- Postion Slider Control -->
+    <!-- Position Slider Control -->
     <ControlTemplate x:Key="PositionSliderThumbTemplate" TargetType="{x:Type Thumb}">
         <Grid HorizontalAlignment="Center" UseLayoutRounding="True" VerticalAlignment="Center">
             <Path x:Name="grip" Data="M 0,0 A 180,180 180 1 1 1,1 Z" Fill="Transparent" Stretch="Fill"

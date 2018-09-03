@@ -25,7 +25,7 @@
         /// By default, the audio renderer will skip or wait for samples to
         /// synchronize to video.
         /// </summary>
-        public bool AudioDisableSync { get; set; } = false;
+        public bool AudioDisableSync { get; set; }
 
         /// <summary>
         /// Gets or sets the DirectSound device identifier. It is the default playback device by default.
@@ -43,7 +43,7 @@
         /// Gets or sets a value indicating whether the legacy MME (WinMM) should be used
         /// as an audio output device as opposed to DirectSound. This defaults to false.
         /// </summary>
-        public bool UseLegacyAudioOut { get; set; } = false;
+        public bool UseLegacyAudioOut { get; set; }
 
         /// <summary>
         /// Enumerates the DirectSound devices.

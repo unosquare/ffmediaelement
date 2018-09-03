@@ -33,7 +33,7 @@
         /// Gets the protocol prefix.
         /// Typically async for local files and empty for other types.
         /// </summary>
-        public string ProtocolPrefix { get; set; } = null;
+        public string ProtocolPrefix { get; set; }
 
         /// <summary>
         /// Gets or sets the amount of time to wait for a an open or read

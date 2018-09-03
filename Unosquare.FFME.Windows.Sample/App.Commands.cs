@@ -15,13 +15,13 @@
 
             private readonly WindowStatus PreviousWindowStatus = new WindowStatus();
 
-            private DelegateCommand m_OpenCommand = null;
-            private DelegateCommand m_PauseCommand = null;
-            private DelegateCommand m_PlayCommand = null;
-            private DelegateCommand m_StopCommand = null;
-            private DelegateCommand m_CloseCommand = null;
-            private DelegateCommand m_ToggleFullscreenCommand = null;
-            private DelegateCommand m_RemovePlaylistItemCommand = null;
+            private DelegateCommand m_OpenCommand;
+            private DelegateCommand m_PauseCommand;
+            private DelegateCommand m_PlayCommand;
+            private DelegateCommand m_StopCommand;
+            private DelegateCommand m_CloseCommand;
+            private DelegateCommand m_ToggleFullscreenCommand;
+            private DelegateCommand m_RemovePlaylistItemCommand;
 
             #endregion
 
@@ -45,47 +45,34 @@
             /// <value>
             /// The open command.
             /// </value>
-            public DelegateCommand OpenCommand
-            {
-                get
+            public DelegateCommand OpenCommand => m_OpenCommand ??
+                (m_OpenCommand = new DelegateCommand(async a =>
                 {
-                    if (m_OpenCommand == null)
+                    try
                     {
-                        m_OpenCommand = new DelegateCommand(async a =>
-                        {
-                            try
-                            {
-                                var uriString = a as string;
-                                if (string.IsNullOrWhiteSpace(uriString))
-                                    return;
+                        if (a is string == false) return;
+                        var uriString = (string)a;
+                        if (string.IsNullOrWhiteSpace(uriString))
+                            return;
 
-                                // Current.MediaElement.Source = new Uri(uriString); // you can also set the source to the Uri to open
-                                var target = new Uri(uriString);
-                                if (target.ToString().StartsWith(FileInputStream.Scheme))
-                                {
-                                    await Current.MediaElement.Open(new FileInputStream(target.LocalPath));
-                                }
-                                else
-                                {
-                                    await Current.MediaElement.Open(target);
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show(
-                                    Current.MainWindow,
-                                    $"Media Failed: {ex.GetType()}\r\n{ex.Message}",
-                                    $"{nameof(MediaElement)} Error",
-                                    MessageBoxButton.OK,
-                                    MessageBoxImage.Error,
-                                    MessageBoxResult.OK);
-                            }
-                        });
+                        // Current.MediaElement.Source = new Uri(uriString); // you can also set the source to the Uri to open
+                        var target = new Uri(uriString);
+                        if (target.ToString().StartsWith(FileInputStream.Scheme))
+                            await Current.MediaElement.Open(new FileInputStream(target.LocalPath));
+                        else
+                            await Current.MediaElement.Open(target);
                     }
-
-                    return m_OpenCommand;
-                }
-            }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(
+                            Current.MainWindow,
+                            $"Media Failed: {ex.GetType()}\r\n{ex.Message}",
+                            $"{nameof(MediaElement)} Error",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error,
+                            MessageBoxResult.OK);
+                    }
+                }));
 
             /// <summary>
             /// Gets the close command.
@@ -93,23 +80,13 @@
             /// <value>
             /// The close command.
             /// </value>
-            public DelegateCommand CloseCommand
-            {
-                get
+            public DelegateCommand CloseCommand => m_CloseCommand ??
+                (m_CloseCommand = new DelegateCommand(async o =>
                 {
-                    if (m_CloseCommand == null)
-                    {
-                        m_CloseCommand = new DelegateCommand(async (o) =>
-                        {
-                            // Current.MediaElement.Dispose(); // Test the Dispose method uncommenting this line
-                            // Current.MediaElement.Source = null; // You can also set the source to null to close.
-                            await Current.MediaElement.Close();
-                        });
-                    }
-
-                    return m_CloseCommand;
-                }
-            }
+                    // Current.MediaElement.Dispose(); // Test the Dispose method uncommenting this line
+                    // Current.MediaElement.Source = null; // You can also set the source to null to close.
+                    await Current.MediaElement.Close();
+                }));
 
             /// <summary>
             /// Gets the pause command.
@@ -117,16 +94,11 @@
             /// <value>
             /// The pause command.
             /// </value>
-            public DelegateCommand PauseCommand
-            {
-                get
+            public DelegateCommand PauseCommand => m_PauseCommand ??
+                (m_PauseCommand = new DelegateCommand(async o =>
                 {
-                    if (m_PauseCommand == null)
-                        m_PauseCommand = new DelegateCommand(async o => { await Current.MediaElement.Pause(); });
-
-                    return m_PauseCommand;
-                }
-            }
+                    await Current.MediaElement.Pause();
+                }));
 
             /// <summary>
             /// Gets the play command.
@@ -134,16 +106,11 @@
             /// <value>
             /// The play command.
             /// </value>
-            public DelegateCommand PlayCommand
-            {
-                get
+            public DelegateCommand PlayCommand => m_PlayCommand ??
+                (m_PlayCommand = new DelegateCommand(async o =>
                 {
-                    if (m_PlayCommand == null)
-                        m_PlayCommand = new DelegateCommand(async o => { await Current.MediaElement.Play(); });
-
-                    return m_PlayCommand;
-                }
-            }
+                    await Current.MediaElement.Play();
+                }));
 
             /// <summary>
             /// Gets the stop command.
@@ -151,16 +118,11 @@
             /// <value>
             /// The stop command.
             /// </value>
-            public DelegateCommand StopCommand
-            {
-                get
+            public DelegateCommand StopCommand => m_StopCommand ??
+                (m_StopCommand = new DelegateCommand(async o =>
                 {
-                    if (m_StopCommand == null)
-                        m_StopCommand = new DelegateCommand(async o => { await Current.MediaElement.Stop(); });
-
-                    return m_StopCommand;
-                }
-            }
+                    await Current.MediaElement.Stop();
+                }));
 
             /// <summary>
             /// Gets the toggle fullscreen command.
@@ -168,36 +130,26 @@
             /// <value>
             /// The toggle fullscreen command.
             /// </value>
-            public DelegateCommand ToggleFullscreenCommand
-            {
-                get
+            public DelegateCommand ToggleFullscreenCommand => m_ToggleFullscreenCommand ??
+                (m_ToggleFullscreenCommand = new DelegateCommand(o =>
                 {
-                    if (m_ToggleFullscreenCommand == null)
+                    // If we are already in fullscreen, go back to normal
+                    if (Current.MainWindow.WindowStyle == WindowStyle.None)
                     {
-                        m_ToggleFullscreenCommand = new DelegateCommand(o =>
-                        {
-                            // If we are already in fullscreen, go back to normal
-                            if (Current.MainWindow.WindowStyle == WindowStyle.None)
-                            {
-                                PreviousWindowStatus.Apply(Current.MainWindow);
-                                WindowStatus.EnableDisplayTimeout();
-                            }
-                            else
-                            {
-                                PreviousWindowStatus.Capture(Current.MainWindow);
-                                Current.MainWindow.WindowStyle = WindowStyle.None;
-                                Current.MainWindow.ResizeMode = ResizeMode.NoResize;
-                                Current.MainWindow.Topmost = true;
-                                Current.MainWindow.WindowState = WindowState.Normal;
-                                Current.MainWindow.WindowState = WindowState.Maximized;
-                                WindowStatus.DisableDisplayTimeout();
-                            }
-                        });
+                        PreviousWindowStatus.Apply(Current.MainWindow);
+                        WindowStatus.EnableDisplayTimeout();
                     }
-
-                    return m_ToggleFullscreenCommand;
-                }
-            }
+                    else
+                    {
+                        PreviousWindowStatus.Capture(Current.MainWindow);
+                        Current.MainWindow.WindowStyle = WindowStyle.None;
+                        Current.MainWindow.ResizeMode = ResizeMode.NoResize;
+                        Current.MainWindow.Topmost = true;
+                        Current.MainWindow.WindowState = WindowState.Normal;
+                        Current.MainWindow.WindowState = WindowState.Maximized;
+                        WindowStatus.DisableDisplayTimeout();
+                    }
+                }));
 
             /// <summary>
             /// Gets the remove playlist item command.
@@ -205,25 +157,15 @@
             /// <value>
             /// The remove playlist item command.
             /// </value>
-            public DelegateCommand RemovePlaylistItemCommand
-            {
-                get
+            public DelegateCommand RemovePlaylistItemCommand => m_RemovePlaylistItemCommand ??
+                (m_RemovePlaylistItemCommand = new DelegateCommand(arg =>
                 {
-                    if (m_RemovePlaylistItemCommand == null)
-                    {
-                        m_RemovePlaylistItemCommand = new DelegateCommand((arg) =>
-                        {
-                            if (arg is CustomPlaylistEntry == false) return;
-                            var entry = arg as CustomPlaylistEntry;
+                  if (arg is CustomPlaylistEntry == false) return;
+                  var entry = (CustomPlaylistEntry)arg;
 
-                            Current.ViewModel.Playlist.Entries.RemoveEntryByMediaUrl(entry.MediaUrl);
-                            Current.ViewModel.Playlist.Entries.SaveEntries();
-                        });
-                    }
-
-                    return m_RemovePlaylistItemCommand;
-                }
-            }
+                  Current.ViewModel.Playlist.Entries.RemoveEntryByMediaUrl(entry.MediaUrl);
+                  Current.ViewModel.Playlist.Entries.SaveEntries();
+                }));
 
             #endregion
         }

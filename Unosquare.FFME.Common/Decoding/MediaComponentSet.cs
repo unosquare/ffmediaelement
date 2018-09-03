@@ -5,7 +5,6 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.Linq;
     using System.Runtime.CompilerServices;
 
     /// <summary>
@@ -26,25 +25,13 @@
         private ReadOnlyCollection<MediaComponent> m_All = new ReadOnlyCollection<MediaComponent>(new List<MediaComponent>(0));
         private ReadOnlyCollection<MediaType> m_MediaTypes = new ReadOnlyCollection<MediaType>(new List<MediaType>(0));
 
-        private int m_Count = default;
+        private int m_Count;
         private MediaType m_MainMediaType = MediaType.None;
-        private MediaComponent m_Main = null;
-        private AudioComponent m_Audio = null;
-        private VideoComponent m_Video = null;
-        private SubtitleComponent m_Subtitle = null;
-        private PacketBufferState BufferState = default;
-
-        #endregion
-
-        #region Constructor
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MediaComponentSet"/> class.
-        /// </summary>
-        internal MediaComponentSet()
-        {
-            // prevent external initialization
-        }
+        private MediaComponent m_Main;
+        private AudioComponent m_Audio;
+        private VideoComponent m_Video;
+        private SubtitleComponent m_Subtitle;
+        private PacketBufferState BufferState;
 
         #endregion
 
@@ -54,7 +41,7 @@
             PacketQueueOp operation, MediaPacket avPacket, MediaType mediaType, PacketBufferState bufferState);
 
         public delegate void OnFrameDecodedDelegate(IntPtr avFrame, MediaType mediaType);
-        public delegate void OnSubtitleDecodedDelegate(IntPtr avSubititle);
+        public delegate void OnSubtitleDecodedDelegate(IntPtr avSubtitle);
 
         #endregion
 
@@ -81,7 +68,7 @@
         public bool IsDisposed => m_IsDisposed.Value;
 
         /// <summary>
-        /// Gets the registred component count.
+        /// Gets the registered component count.
         /// </summary>
         public int Count
         {
@@ -232,9 +219,7 @@
             }
         }
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose() => Dispose(true);
 
         #endregion
@@ -248,18 +233,18 @@
         /// </summary>
         /// <param name="packet">The packet.</param>
         /// <returns>The media type</returns>
-        public unsafe MediaType SendPacket(MediaPacket packet)
+        public MediaType SendPacket(MediaPacket packet)
         {
             if (packet == null)
                 return MediaType.None;
 
             foreach (var component in All)
             {
-                if (component.StreamIndex == packet.StreamIndex)
-                {
-                    component.SendPacket(packet);
-                    return component.MediaType;
-                }
+                if (component.StreamIndex != packet.StreamIndex)
+                    continue;
+
+                component.SendPacket(packet);
+                return component.MediaType;
             }
 
             return MediaType.None;
@@ -268,7 +253,7 @@
         /// <summary>
         /// Sends an empty packet to all media components.
         /// When an EOF/EOS situation is encountered, this forces
-        /// the decoders to enter drainig mode until all frames are decoded.
+        /// the decoders to enter draining mode until all frames are decoded.
         /// </summary>
         public void SendEmptyPackets()
         {
@@ -321,7 +306,7 @@
             lock (BufferSyncLock)
                 BufferState = state;
 
-            // Send the callabck
+            // Send the callback
             OnPacketQueueChanged?.Invoke(operation, packet, mediaType, state);
         }
 
@@ -334,9 +319,9 @@
         internal void RunQuickBuffering(MediaEngine m)
         {
             // We need to perform some packet reading and decoding
-            MediaFrame frame = null;
+            MediaFrame frame;
             var main = MainMediaType;
-            var auxs = MediaTypes.Except(main);
+            var auxiliaries = MediaTypes.Except(main);
             var mediaTypes = MediaTypes;
             var mainBlocks = m.Blocks[main];
 
@@ -363,7 +348,7 @@
                 m.ChangePosition(mainBlocks.RangeStartTime);
 
             // Have the other components catch up
-            foreach (var t in auxs)
+            foreach (var t in auxiliaries)
             {
                 if (mainBlocks.Count <= 0) break;
                 if (t != MediaType.Audio && t != MediaType.Video)
@@ -436,22 +421,20 @@
             lock (ComponentSyncLock)
             {
                 var component = default(MediaComponent);
-                switch (mediaType)
+                if (mediaType == MediaType.Audio)
                 {
-                    case MediaType.Audio:
-                        component = m_Audio;
-                        m_Audio = null;
-                        break;
-                    case MediaType.Video:
-                        component = m_Video;
-                        m_Video = null;
-                        break;
-                    case MediaType.Subtitle:
-                        component = m_Subtitle;
-                        m_Subtitle = null;
-                        break;
-                    default:
-                        break;
+                    component = m_Audio;
+                    m_Audio = null;
+                }
+                else if (mediaType == MediaType.Video)
+                {
+                    component = m_Video;
+                    m_Video = null;
+                }
+                else if (mediaType == MediaType.Subtitle)
+                {
+                    component = m_Subtitle;
+                    m_Subtitle = null;
                 }
 
                 component?.Dispose();
@@ -497,7 +480,7 @@
                 return;
             }
 
-            // If it was not vide, then it has to be audio (if it has audio)
+            // If it was not video, then it has to be audio (if it has audio)
             if (m_Audio != null)
             {
                 m_Main = m_Audio;
@@ -521,7 +504,7 @@
                 return;
             }
 
-            // We whould never really hit this line
+            // We should never really hit this line
             m_Main = null;
             m_MainMediaType = MediaType.None;
         }

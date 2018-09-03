@@ -1,6 +1,9 @@
-﻿namespace Unosquare.FFME.Rendering.Wave
+﻿// ReSharper disable UnusedMember.Global
+namespace Unosquare.FFME.Rendering.Wave
 {
+    using Microsoft.Win32.SafeHandles;
     using System;
+    using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
     using System.Threading;
 
@@ -13,10 +16,10 @@
         private const string TimeoutErrorMessage = "Failed to acquire lock on MME interop call on a timely manner.";
         private static readonly object SyncLock = new object();
 
-        // use the userdata as a reference
+        // use the user data as a reference
         // WaveOutProc http://msdn.microsoft.com/en-us/library/dd743869%28VS.85%29.aspx
         // WaveInProc http://msdn.microsoft.com/en-us/library/dd743849%28VS.85%29.aspx
-        public delegate void WaveCallback(IntPtr hWaveOut, WaveMessage message, IntPtr dwInstance, WaveHeader wavhdr, IntPtr dwReserved);
+        public delegate void WaveCallback(IntPtr deviceHandle, WaveMessage message, IntPtr instance, WaveHeader waveHeader, IntPtr reserved);
 
         [Flags]
         public enum WaveInOutOpenFlags
@@ -29,7 +32,7 @@
 
             /// <summary>
             /// CALLBACK_FUNCTION
-            /// dwCallback is a FARPROC
+            /// dwCallback is a FAR PROC
             /// </summary>
             CallbackFunction = 0x30000,
 
@@ -49,7 +52,7 @@
             /// CALLBACK_THREAD
             /// callback is a thread ID
             /// </summary>
-            CallbackThread = 0x20000,
+            CallbackThread = 0x20000
 
             /*
             WAVE_FORMAT_QUERY = 1,
@@ -100,15 +103,8 @@
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
         public static int RetrieveAudioDeviceCount()
         {
-            var acquired = false;
-            Monitor.TryEnter(SyncLock, LockTimeout, ref acquired);
-            if (acquired == false) throw new TimeoutException(TimeoutErrorMessage);
-
-            try
-            {
-                return NativeMethods.waveOutGetNumDevs();
-            }
-            catch { throw; }
+            if (!TryEnterDeviceOperation()) return 0;
+            try { return NativeMethods.GetDeviceCount(); }
             finally { Monitor.Exit(SyncLock); }
         }
 
@@ -118,22 +114,17 @@
         /// <param name="deviceHandle">The device handle.</param>
         /// <param name="header">The header.</param>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="MmException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
         public static void AllocateHeader(IntPtr deviceHandle, WaveHeader header)
         {
-            if (deviceHandle == IntPtr.Zero) return;
-            if (header == null) return;
-            var acquired = false;
-            Monitor.TryEnter(SyncLock, LockTimeout, ref acquired);
-            if (acquired == false) throw new TimeoutException(TimeoutErrorMessage);
+            if (header == null || !TryEnterWaveOperation(deviceHandle)) return;
 
             try
             {
-                MmException.Try(
-                    NativeMethods.waveOutPrepareHeader(deviceHandle, header, Marshal.SizeOf(header)),
-                    nameof(NativeMethods.waveOutPrepareHeader));
+                LegacyAudioException.Try(
+                    NativeMethods.PrepareWaveHeader(deviceHandle, header, Marshal.SizeOf(header)),
+                    nameof(NativeMethods.PrepareWaveHeader));
             }
-            catch { throw; }
             finally { Monitor.Exit(SyncLock); }
         }
 
@@ -143,22 +134,17 @@
         /// <param name="deviceHandle">The device handle.</param>
         /// <param name="header">The header.</param>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="MmException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
         public static void ReleaseHeader(IntPtr deviceHandle, WaveHeader header)
         {
-            if (deviceHandle == IntPtr.Zero) return;
-            if (header == null) return;
-            var acquired = false;
-            Monitor.TryEnter(SyncLock, LockTimeout, ref acquired);
-            if (acquired == false) throw new TimeoutException(TimeoutErrorMessage);
+            if (header == null || !TryEnterWaveOperation(deviceHandle)) return;
 
             try
             {
-                MmException.Try(
-                    NativeMethods.waveOutUnprepareHeader(deviceHandle, header, Marshal.SizeOf(header)),
-                    nameof(NativeMethods.waveOutUnprepareHeader));
+                LegacyAudioException.Try(
+                    NativeMethods.ReleaseWaveHeader(deviceHandle, header, Marshal.SizeOf(header)),
+                    nameof(NativeMethods.ReleaseWaveHeader));
             }
-            catch { throw; }
             finally { Monitor.Exit(SyncLock); }
         }
 
@@ -168,22 +154,17 @@
         /// <param name="deviceHandle">The device handle.</param>
         /// <param name="header">The header.</param>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="MmException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
         public static void WriteAudioData(IntPtr deviceHandle, WaveHeader header)
         {
-            if (deviceHandle == IntPtr.Zero) return;
-            if (header == null) return;
-            var acquired = false;
-            Monitor.TryEnter(SyncLock, LockTimeout, ref acquired);
-            if (acquired == false) throw new TimeoutException(TimeoutErrorMessage);
+            if (header == null || !TryEnterWaveOperation(deviceHandle)) return;
 
             try
             {
-                MmException.Try(
-                    NativeMethods.waveOutWrite(deviceHandle, header, Marshal.SizeOf(header)),
-                    nameof(NativeMethods.waveOutWrite));
+                LegacyAudioException.Try(
+                    NativeMethods.WriteWaveAudioData(deviceHandle, header, Marshal.SizeOf(header)),
+                    nameof(NativeMethods.WriteWaveAudioData));
             }
-            catch { throw; }
             finally { Monitor.Exit(SyncLock); }
         }
 
@@ -193,27 +174,25 @@
         /// <param name="deviceId">The device identifier.</param>
         /// <param name="format">The format.</param>
         /// <param name="callback">The callback.</param>
-        /// <param name="intanceHandle">The intance handle.</param>
+        /// <param name="instanceHandle">The instance handle.</param>
         /// <param name="openFlags">The open flags.</param>
         /// <returns>The audio device handle</returns>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="MmException">Occurs when the MME interop call fails</exception>
-        public static IntPtr OpenAudioDevice(int deviceId, WaveFormat format, WaveCallback callback, IntPtr intanceHandle, WaveInOutOpenFlags openFlags)
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
+        public static IntPtr OpenAudioDevice(int deviceId, WaveFormat format, WaveCallback callback, IntPtr instanceHandle, WaveInOutOpenFlags openFlags)
         {
-            if (deviceId < -1) deviceId = -1;
-            var acquired = false;
-            Monitor.TryEnter(SyncLock, LockTimeout, ref acquired);
-            if (acquired == false) throw new TimeoutException(TimeoutErrorMessage);
+            if (deviceId < -1) throw new ArgumentException($"Invalid Device ID {deviceId}", nameof(deviceId));
+            if (!TryEnterDeviceOperation())
+                return IntPtr.Zero;
 
             try
             {
-                MmException.Try(
-                    NativeMethods.waveOutOpen(out IntPtr hWaveOut, deviceId, format, callback, intanceHandle, openFlags),
-                    nameof(NativeMethods.waveOutOpen));
+                LegacyAudioException.Try(
+                    NativeMethods.OpenDevice(out var hWaveOut, deviceId, format, callback, instanceHandle, openFlags),
+                    nameof(NativeMethods.OpenDevice));
 
                 return hWaveOut;
             }
-            catch { throw; }
             finally { Monitor.Exit(SyncLock); }
         }
 
@@ -222,28 +201,26 @@
         /// </summary>
         /// <param name="deviceId">The device identifier.</param>
         /// <param name="format">The format.</param>
-        /// <param name="callbackWindowHandle">The callback window handle.</param>
+        /// <param name="callbackHandle">The callback window handle.</param>
         /// <param name="instanceHandle">The instance handle.</param>
         /// <param name="openFlags">The open flags.</param>
         /// <returns>The audio device handle</returns>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="MmException">Occurs when the MME interop call fails</exception>
-        public static IntPtr OpenAudioDevice(int deviceId, WaveFormat format, IntPtr callbackWindowHandle, IntPtr instanceHandle, WaveInOutOpenFlags openFlags)
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
+        public static IntPtr OpenAudioDevice(int deviceId, WaveFormat format, SafeWaitHandle callbackHandle, IntPtr instanceHandle, WaveInOutOpenFlags openFlags)
         {
-            if (deviceId < -1) deviceId = -1;
-            var acquired = false;
-            Monitor.TryEnter(SyncLock, LockTimeout, ref acquired);
-            if (acquired == false) throw new TimeoutException(TimeoutErrorMessage);
+            if (deviceId < -1) throw new ArgumentException($"Invalid Device ID {deviceId}", nameof(deviceId));
+            if (!TryEnterDeviceOperation())
+                return IntPtr.Zero;
 
             try
             {
-                MmException.Try(
-                    NativeMethods.waveOutOpenWindow(out IntPtr hWaveOut, deviceId, format, callbackWindowHandle, instanceHandle, openFlags),
-                    nameof(NativeMethods.waveOutOpenWindow));
+                LegacyAudioException.Try(
+                    NativeMethods.OpenDeviceOnWindow(out var hWaveOut, deviceId, format, callbackHandle, instanceHandle, openFlags),
+                    nameof(NativeMethods.OpenDeviceOnWindow));
 
                 return hWaveOut;
             }
-            catch { throw; }
             finally { Monitor.Exit(SyncLock); }
         }
 
@@ -252,21 +229,17 @@
         /// </summary>
         /// <param name="deviceHandle">The device handle.</param>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="MmException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
         public static void ResetAudioDevice(IntPtr deviceHandle)
         {
-            if (deviceHandle == IntPtr.Zero) return;
-            var acquired = false;
-            Monitor.TryEnter(SyncLock, LockTimeout, ref acquired);
-            if (acquired == false) throw new TimeoutException(TimeoutErrorMessage);
+            if (!TryEnterWaveOperation(deviceHandle)) return;
 
             try
             {
-                MmException.Try(
-                    NativeMethods.waveOutReset(deviceHandle),
-                    nameof(NativeMethods.waveOutReset));
+                LegacyAudioException.Try(
+                    NativeMethods.ResetDevice(deviceHandle),
+                    nameof(NativeMethods.ResetDevice));
             }
-            catch { throw; }
             finally { Monitor.Exit(SyncLock); }
         }
 
@@ -275,21 +248,17 @@
         /// </summary>
         /// <param name="deviceHandle">The device handle.</param>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="MmException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
         public static void CloseAudioDevice(IntPtr deviceHandle)
         {
-            if (deviceHandle == IntPtr.Zero) return;
-            var acquired = false;
-            Monitor.TryEnter(SyncLock, LockTimeout, ref acquired);
-            if (acquired == false) throw new TimeoutException(TimeoutErrorMessage);
+            if (!TryEnterWaveOperation(deviceHandle)) return;
 
             try
             {
-                MmException.Try(
-                    NativeMethods.waveOutClose(deviceHandle),
-                    nameof(NativeMethods.waveOutClose));
+                LegacyAudioException.Try(
+                    NativeMethods.CloseDevice(deviceHandle),
+                    nameof(NativeMethods.CloseDevice));
             }
-            catch { throw; }
             finally { Monitor.Exit(SyncLock); }
         }
 
@@ -298,21 +267,17 @@
         /// </summary>
         /// <param name="deviceHandle">The device handle.</param>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="MmException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
         public static void PauseAudioDevice(IntPtr deviceHandle)
         {
-            if (deviceHandle == IntPtr.Zero) return;
-            var acquired = false;
-            Monitor.TryEnter(SyncLock, LockTimeout, ref acquired);
-            if (acquired == false) throw new TimeoutException(TimeoutErrorMessage);
+            if (!TryEnterWaveOperation(deviceHandle)) return;
 
             try
             {
-                MmException.Try(
-                    NativeMethods.waveOutPause(deviceHandle),
-                    nameof(NativeMethods.waveOutPause));
+                LegacyAudioException.Try(
+                    NativeMethods.PausePlayback(deviceHandle),
+                    nameof(NativeMethods.PausePlayback));
             }
-            catch { throw; }
             finally { Monitor.Exit(SyncLock); }
         }
 
@@ -321,21 +286,17 @@
         /// </summary>
         /// <param name="deviceHandle">The device handle.</param>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="MmException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
         public static void RestartAudioDevice(IntPtr deviceHandle)
         {
-            if (deviceHandle == IntPtr.Zero) return;
-            var acquired = false;
-            Monitor.TryEnter(SyncLock, LockTimeout, ref acquired);
-            if (acquired == false) throw new TimeoutException(TimeoutErrorMessage);
+            if (!TryEnterWaveOperation(deviceHandle)) return;
 
             try
             {
-                MmException.Try(
-                    NativeMethods.waveOutRestart(deviceHandle),
-                    nameof(NativeMethods.waveOutRestart));
+                LegacyAudioException.Try(
+                    NativeMethods.RestartPlayback(deviceHandle),
+                    nameof(NativeMethods.RestartPlayback));
             }
-            catch { throw; }
             finally { Monitor.Exit(SyncLock); }
         }
 
@@ -345,33 +306,29 @@
         /// <param name="deviceHandle">The device handle.</param>
         /// <returns>The number of bytes played during this session</returns>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="MmException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
         /// <exception cref="ArgumentException">Occurs when the device does not return a byte count.</exception>
         public static long GetPlaybackBytesCount(IntPtr deviceHandle)
         {
-            if (deviceHandle == IntPtr.Zero) return 0;
-            var acquired = false;
-            Monitor.TryEnter(SyncLock, LockTimeout, ref acquired);
-            if (acquired == false) throw new TimeoutException(TimeoutErrorMessage);
+            if (!TryEnterWaveOperation(deviceHandle)) return 0;
 
             try
             {
-                var time = new MmTime() { Type = MmTime.TIME_BYTES };
+                var time = new MmTime { Type = MmTime.TimeBytes };
                 var structSize = Marshal.SizeOf(time);
 
-                MmException.Try(
-                    NativeMethods.waveOutGetPosition(deviceHandle, out time, structSize),
-                    nameof(NativeMethods.waveOutGetPosition));
+                LegacyAudioException.Try(
+                    NativeMethods.GetPlaybackPosition(deviceHandle, out time, structSize),
+                    nameof(NativeMethods.GetPlaybackPosition));
 
-                if (time.Type != MmTime.TIME_BYTES)
+                if (time.Type != MmTime.TimeBytes)
                 {
-                    throw new ArgumentException($"{nameof(NativeMethods.waveOutGetPosition)}: "
-                        + $"wType -> Expected {nameof(MmTime.TIME_BYTES)}, Received {time.Type}");
+                    throw new ArgumentException($"{nameof(NativeMethods.GetPlaybackPosition)}: "
+                        + $"wType -> Expected {nameof(MmTime.TimeBytes)}, Received {time.Type}");
                 }
 
                 return time.CB;
             }
-            catch { throw; }
             finally { Monitor.Exit(SyncLock); }
         }
 
@@ -381,26 +338,41 @@
         /// <param name="deviceId">The device identifier.</param>
         /// <returns>The audio device capabilities and metadata</returns>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="MmException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
         public static LegacyAudioDeviceInfo RetrieveAudioDeviceInfo(int deviceId)
         {
-            if (deviceId < -1) deviceId = -1;
-            var acquired = false;
-            Monitor.TryEnter(SyncLock, LockTimeout, ref acquired);
-            if (acquired == false) throw new TimeoutException(TimeoutErrorMessage);
+            if (deviceId < -1) throw new ArgumentException($"Invalid Device ID {deviceId}", nameof(deviceId));
+            if (!TryEnterDeviceOperation())
+                return default;
 
             try
             {
-                MmException.Try(
-                    NativeMethods.waveOutGetDevCaps((IntPtr)deviceId,
-                        out LegacyAudioDeviceInfo waveOutCaps,
+                LegacyAudioException.Try(
+                    NativeMethods.RetrieveDeviceCapabilities((IntPtr)deviceId,
+                        out var waveOutCaps,
                         Marshal.SizeOf(typeof(LegacyAudioDeviceInfo))),
-                    nameof(NativeMethods.waveOutGetDevCaps));
+                    nameof(NativeMethods.RetrieveDeviceCapabilities));
 
                 return waveOutCaps;
             }
-            catch { throw; }
             finally { Monitor.Exit(SyncLock); }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool TryEnterWaveOperation(IntPtr deviceHandle)
+        {
+            if (deviceHandle == IntPtr.Zero) return false;
+            var acquired = false;
+            Monitor.TryEnter(SyncLock, LockTimeout, ref acquired);
+            return acquired ? true : throw new TimeoutException(TimeoutErrorMessage);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool TryEnterDeviceOperation()
+        {
+            var acquired = false;
+            Monitor.TryEnter(SyncLock, LockTimeout, ref acquired);
+            return acquired ? true : throw new TimeoutException(TimeoutErrorMessage);
         }
 
         #endregion
@@ -410,50 +382,48 @@
         /// </summary>
         private static class NativeMethods
         {
-#pragma warning disable IDE1006 // Naming Styles
-
             private const string WinMM = "winmm.dll";
 
-            [DllImport(WinMM)]
-            public static extern int waveOutGetNumDevs();
+            [DllImport(WinMM, EntryPoint = "waveOutGetNumDevs")]
+            public static extern int GetDeviceCount();
 
-            [DllImport(WinMM)]
-            public static extern MmResult waveOutPrepareHeader(IntPtr hWaveOut, WaveHeader lpWaveOutHdr, int uSize);
+            [DllImport(WinMM, EntryPoint = "waveOutPrepareHeader")]
+            public static extern LegacyAudioResult PrepareWaveHeader(IntPtr deviceHandle, WaveHeader header, int headerSize);
 
-            [DllImport(WinMM)]
-            public static extern MmResult waveOutUnprepareHeader(IntPtr hWaveOut, WaveHeader lpWaveOutHdr, int uSize);
+            [DllImport(WinMM, EntryPoint = "waveOutUnprepareHeader")]
+            public static extern LegacyAudioResult ReleaseWaveHeader(IntPtr deviceHandle, WaveHeader header, int headerSize);
 
-            [DllImport(WinMM)]
-            public static extern MmResult waveOutWrite(IntPtr hWaveOut, WaveHeader lpWaveOutHdr, int uSize);
+            [DllImport(WinMM, EntryPoint = "waveOutWrite")]
+            public static extern LegacyAudioResult WriteWaveAudioData(IntPtr deviceHandle, WaveHeader header, int headerSize);
 
             // http://msdn.microsoft.com/en-us/library/dd743866%28VS.85%29.aspx
-            [DllImport(WinMM)]
-            public static extern MmResult waveOutOpen(out IntPtr hWaveOut, int uDeviceID, WaveFormat lpFormat, WaveCallback dwCallback, IntPtr dwInstance, WaveInOutOpenFlags dwFlags);
+            [DllImport(WinMM, EntryPoint = "waveOutOpen")]
+            public static extern LegacyAudioResult OpenDevice(
+                out IntPtr deviceHandle, int deviceId, WaveFormat waveFormat, WaveCallback callbackMethod, IntPtr instanceHandle, WaveInOutOpenFlags openFlags);
 
-            [DllImport(WinMM, EntryPoint = nameof(waveOutOpen))]
-            public static extern MmResult waveOutOpenWindow(out IntPtr hWaveOut, int uDeviceID, WaveFormat lpFormat, IntPtr callbackWindowHandle, IntPtr dwInstance, WaveInOutOpenFlags dwFlags);
+            [DllImport(WinMM, EntryPoint = "waveOutOpen")]
+            public static extern LegacyAudioResult OpenDeviceOnWindow(
+                out IntPtr deviceHandle, int deviceId, WaveFormat waveFormat, SafeWaitHandle callbackHandle, IntPtr instanceHandle, WaveInOutOpenFlags openFlags);
 
-            [DllImport(WinMM)]
-            public static extern MmResult waveOutReset(IntPtr hWaveOut);
+            [DllImport(WinMM, EntryPoint = "waveOutReset")]
+            public static extern LegacyAudioResult ResetDevice(IntPtr deviceHandle);
 
-            [DllImport(WinMM)]
-            public static extern MmResult waveOutClose(IntPtr hWaveOut);
+            [DllImport(WinMM, EntryPoint = "waveOutClose")]
+            public static extern LegacyAudioResult CloseDevice(IntPtr deviceHandle);
 
-            [DllImport(WinMM)]
-            public static extern MmResult waveOutPause(IntPtr hWaveOut);
+            [DllImport(WinMM, EntryPoint = "waveOutPause")]
+            public static extern LegacyAudioResult PausePlayback(IntPtr deviceHandle);
 
-            [DllImport(WinMM)]
-            public static extern MmResult waveOutRestart(IntPtr hWaveOut);
+            [DllImport(WinMM, EntryPoint = "waveOutRestart")]
+            public static extern LegacyAudioResult RestartPlayback(IntPtr deviceHandle);
 
             // http://msdn.microsoft.com/en-us/library/dd743863%28VS.85%29.aspx
-            [DllImport(WinMM)]
-            public static extern MmResult waveOutGetPosition(IntPtr hWaveOut, out MmTime mmTime, int uSize);
+            [DllImport(WinMM, EntryPoint = "waveOutGetPosition")]
+            public static extern LegacyAudioResult GetPlaybackPosition(IntPtr deviceHandle, out MmTime mmTime, int mmTimeSize);
 
             // http://msdn.microsoft.com/en-us/library/dd743857%28VS.85%29.aspx
-            [DllImport(WinMM, CharSet = CharSet.Auto)]
-            public static extern MmResult waveOutGetDevCaps(IntPtr deviceID, out LegacyAudioDeviceInfo waveOutCaps, int waveOutCapsSize);
-
-#pragma warning restore IDE1006 // Naming Styles
+            [DllImport(WinMM, EntryPoint = "waveOutGetDevCaps", CharSet = CharSet.Auto)]
+            public static extern LegacyAudioResult RetrieveDeviceCapabilities(IntPtr deviceId, out LegacyAudioDeviceInfo waveOutCaps, int waveOutCapsSize);
         }
     }
 }

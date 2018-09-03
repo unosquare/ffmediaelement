@@ -1,7 +1,8 @@
-﻿namespace Unosquare.FFME.ClosedCaptions
+﻿// ReSharper disable UnusedMember.Global
+namespace Unosquare.FFME.ClosedCaptions
 {
     /// <summary>
-    /// Enumerates the differen Closed-Captioning Styles
+    /// Enumerates the different Closed-Captioning Styles
     /// </summary>
     public enum CaptionsStyle
     {
@@ -168,6 +169,6 @@
         /// <summary>
         /// The white indent28 underline style
         /// </summary>
-        WhiteIndent28Underline = 0x3F,
+        WhiteIndent28Underline = 0x3F
     }
 }

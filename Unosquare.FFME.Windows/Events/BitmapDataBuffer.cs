@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME.Events
 {
     using System;
+    using System.Drawing;
     using System.Windows;
     using System.Windows.Media;
     using System.Windows.Media.Imaging;
@@ -11,6 +12,16 @@
     public sealed class BitmapDataBuffer
     {
         #region Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BitmapDataBuffer"/> class.
+        /// </summary>
+        /// <param name="w">The w.</param>
+        internal BitmapDataBuffer(WriteableBitmap w)
+            : this(w.BackBuffer, w.BackBufferStride, w.Format.BitsPerPixel / 8, w.PixelWidth, w.PixelHeight, w.DpiX, w.DpiY, w.Palette, w.Format)
+        {
+            // placeholder
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BitmapDataBuffer" /> class.
@@ -120,9 +131,9 @@
         /// Creates a Drawing Bitmap from this data buffer.
         /// </summary>
         /// <returns>The bitmap</returns>
-        public System.Drawing.Bitmap CreateDrawingBitmap()
+        public Bitmap CreateDrawingBitmap()
         {
-            var result = new System.Drawing.Bitmap(
+            var result = new Bitmap(
                 PixelWidth,
                 PixelHeight,
                 Stride,
@@ -137,30 +148,5 @@
 
             return result;
         }
-
-        #region Factory Methods
-
-        /// <summary>
-        /// Creates a buffer reference from the bitmap. Please Lock the bitmap before calling this method.
-        /// </summary>
-        /// <param name="w">The w.</param>
-        /// <returns>The corresponding buffer</returns>
-        internal static BitmapDataBuffer FromWriteableBitmap(WriteableBitmap w)
-        {
-            var result = new BitmapDataBuffer(
-                w.BackBuffer,
-                w.BackBufferStride,
-                w.Format.BitsPerPixel / 8,
-                w.PixelWidth,
-                w.PixelHeight,
-                w.DpiX,
-                w.DpiY,
-                w.Palette,
-                w.Format);
-
-            return result;
-        }
-
-        #endregion
     }
 }

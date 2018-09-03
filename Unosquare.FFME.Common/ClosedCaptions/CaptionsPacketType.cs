@@ -54,6 +54,6 @@
         /// The tabs packet type
         /// Section B.4 Tab Offsets
         /// </summary>
-        Tabs,
+        Tabs
     }
 }

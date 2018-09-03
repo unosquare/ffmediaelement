@@ -38,7 +38,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ApplicationIcon>ffmpeg.ico</ApplicationIcon>
-	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -52,8 +52,8 @@
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FFmpeg.AutoGen, Version=4.0.0.2, Culture=neutral, PublicKeyToken=9b7632533a381715, processorArchitecture=MSIL">
-      <HintPath>..\packages\FFmpeg.AutoGen.4.0.0.2\lib\net45\FFmpeg.AutoGen.dll</HintPath>
+    <Reference Include="FFmpeg.AutoGen, Version=4.0.0.4, Culture=neutral, PublicKeyToken=9b7632533a381715, processorArchitecture=MSIL">
+      <HintPath>..\packages\FFmpeg.AutoGen.4.0.0.4\lib\net45\FFmpeg.AutoGen.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -180,10 +180,6 @@
     <Resource Include="ffmpeg.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
-    <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Unosquare.FFME.Common\Unosquare.FFME.Common.csproj">
       <Project>{76b2db70-c8ab-4517-8afb-051383e496b7}</Project>
       <Name>Unosquare.FFME.Common</Name>
@@ -192,6 +188,11 @@
       <Project>{a6eb99a6-aae2-4e6e-ab9e-93992ce5b84d}</Project>
       <Name>Unosquare.FFME.Windows</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.0\analyzers\dotnet\cs\Newtonsoft.Json.dll" />
+    <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.0\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
+    <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.0\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -16,7 +16,7 @@
         /// </summary>
         /// <param name="bitmap">The bitmap.</param>
         /// <param name="closedCaptions">The closed captions.</param>
-        /// <param name="smtpeTimecode">The smtpe timecode.</param>
+        /// <param name="smtpeTimeCode">The smtpe time code.</param>
         /// <param name="pictureNumber">The picture number.</param>
         /// <param name="engineState">The engine.</param>
         /// <param name="stream">The stream.</param>
@@ -26,7 +26,7 @@
         internal RenderingVideoEventArgs(
             BitmapDataBuffer bitmap,
             ReadOnlyCollection<ClosedCaptionPacket> closedCaptions,
-            string smtpeTimecode,
+            string smtpeTimeCode,
             long pictureNumber,
             MediaEngineState engineState,
             StreamInfo stream,
@@ -37,7 +37,7 @@
         {
             PictureNumber = pictureNumber;
             Bitmap = bitmap;
-            SmtpeTimecode = smtpeTimecode;
+            SmtpeTimeCode = smtpeTimeCode;
             ClosedCaptions = closedCaptions;
         }
 
@@ -62,6 +62,6 @@
         /// <summary>
         /// Gets the SMTPE time code.
         /// </summary>
-        public string SmtpeTimecode { get; }
+        public string SmtpeTimeCode { get; }
     }
 }

@@ -102,11 +102,5 @@
   <ItemGroup>
     <InterfaceDefinition Include="Main.storyboard" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Unosquare.FFME.MacOS\Unosquare.FFME.MacOS.csproj">
-      <Project>{b1422238-50b9-4b01-a513-ffcb8631f1b2}</Project>
-      <Name>Unosquare.FFME.MacOS</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
 </Project>

@@ -9,6 +9,7 @@
     using System.Globalization;
     using System.Runtime.CompilerServices;
 
+    /// <inheritdoc />
     /// <summary>
     /// Represents a media component of a given media type within a
     /// media container. Derived classes must implement frame handling
@@ -68,7 +69,6 @@
         protected MediaComponent(MediaContainer container, int streamIndex)
         {
             // Ported from: https://github.com/FFmpeg/FFmpeg/blob/master/fftools/ffplay.c#L2559
-            // avctx = avcodec_alloc_context3(NULL);
             Container = container ?? throw new ArgumentNullException(nameof(container));
             m_CodecContext = new IntPtr(ffmpeg.avcodec_alloc_context3(null));
             RC.Current.Add(CodecContext, $"134: {nameof(MediaComponent)}[{MediaType}].ctor()");
@@ -82,7 +82,7 @@
             if (setCodecParamsResult < 0)
                 Container.Parent?.Log(MediaLogMessageType.Warning, $"Could not set codec parameters. Error code: {setCodecParamsResult}");
 
-            // We set the packet timebase in the same timebase as the stream as opposed to the tpyical AV_TIME_BASE
+            // We set the packet timebase in the same timebase as the stream as opposed to the typical AV_TIME_BASE
             if (this is VideoComponent && Container.MediaOptions.VideoForcedFps > 0)
             {
                 var fpsRational = ffmpeg.av_d2q(Container.MediaOptions.VideoForcedFps, 1000000);
@@ -119,7 +119,7 @@
                 throw new MediaContainerException(errorMessage);
             }
 
-            var codecCandidates = new AVCodec*[] { forcedCodec, defaultCodec };
+            var codecCandidates = new[] { forcedCodec, defaultCodec };
             AVCodec* selectedCodec = null;
             var codecOpenResult = 0;
 
@@ -128,15 +128,8 @@
                 if (codec == null)
                     continue;
 
-                // Pass default codec stuff to the codec contect
+                // Pass default codec stuff to the codec context
                 CodecContext->codec_id = codec->id;
-
-                /*
-                 * Legacy code from ffplay.c (v < 4.0) befor the send packet/receive frame logic, this used to be required.
-                 * Now it only corrupts frame decoding. See issue #251
-                 * if ((codec->capabilities & ffmpeg.AV_CODEC_CAP_TRUNCATED) != 0) CodecContext->flags |= ffmpeg.AV_CODEC_FLAG_TRUNCATED;
-                 * if ((codec->capabilities & ffmpeg.AV_CODEC_FLAG2_CHUNKS) != 0) CodecContext->flags |= ffmpeg.AV_CODEC_FLAG2_CHUNKS;
-                 */
 
                 // Process the decoder options
                 {
@@ -185,7 +178,7 @@
 
                 // If there are any codec options left over from passing them, it means they were not consumed
                 var currentEntry = codecOptions.First();
-                while (currentEntry != null && currentEntry?.Key != null)
+                while (currentEntry?.Key != null)
                 {
                     Container.Parent?.Log(MediaLogMessageType.Warning,
                         $"Invalid codec option: '{currentEntry.Key}' for codec '{FFInterop.PtrToStringUTF8(codec->name)}', stream {streamIndex}");
@@ -220,7 +213,7 @@
                     DecodePacketFunction = DecodeNextAVSubtitle;
                     break;
                 default:
-                    throw new NotSupportedException($"A compoenent of MediaType '{MediaType}' is not supported");
+                    throw new NotSupportedException($"A component of MediaType '{MediaType}' is not supported");
             }
 
             if (StreamInfo.IsAttachedPictureDisposition)
@@ -230,10 +223,9 @@
             }
 
             // Compute the start time
-            if (Stream->start_time == ffmpeg.AV_NOPTS_VALUE)
-                StartTimeOffset = Container.MediaStartTimeOffset;
-            else
-                StartTimeOffset = Stream->start_time.ToTimeSpan(Stream->time_base);
+            StartTimeOffset = Stream->start_time == ffmpeg.AV_NOPTS_VALUE ?
+                Container.MediaStartTimeOffset :
+                Stream->start_time.ToTimeSpan(Stream->time_base);
 
             // compute the duration
             if (Stream->duration == ffmpeg.AV_NOPTS_VALUE || Stream->duration == 0)
@@ -243,7 +235,7 @@
 
             CodecId = Stream->codec->codec_id;
             CodecName = FFInterop.PtrToStringUTF8(selectedCodec->name);
-            Bitrate = Stream->codec->bit_rate < 0 ? 0 : Stream->codec->bit_rate;
+            BitRate = Stream->codec->bit_rate < 0 ? 0 : Stream->codec->bit_rate;
             Container.Parent?.Log(MediaLogMessageType.Debug,
                 $"COMP {MediaType.ToString().ToUpperInvariant()}: Start Offset: {StartTimeOffset.Format()}; Duration: {Duration.Format()}");
 
@@ -354,10 +346,10 @@
         public string CodecName { get; }
 
         /// <summary>
-        /// Gets the bitrate of this component as reported by the codec context.
+        /// Gets the bit rate of this component as reported by the codec context.
         /// Returns 0 for unknown.
         /// </summary>
-        public long Bitrate { get; }
+        public long BitRate { get; }
 
         /// <summary>
         /// Gets the stream information.
@@ -450,9 +442,7 @@
         /// </returns>
         public abstract bool MaterializeFrame(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings);
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose() => Dispose(true);
 
         /// <summary>
@@ -467,17 +457,15 @@
         /// </summary>
         protected void CloseComponent()
         {
-            if (m_CodecContext != IntPtr.Zero)
-            {
-                RC.Current.Remove(m_CodecContext);
-                var codecContext = CodecContext;
-                ffmpeg.avcodec_free_context(&codecContext);
-                m_CodecContext = IntPtr.Zero;
+            if (m_CodecContext == IntPtr.Zero) return;
+            RC.Current.Remove(m_CodecContext);
+            var codecContext = CodecContext;
+            ffmpeg.avcodec_free_context(&codecContext);
+            m_CodecContext = IntPtr.Zero;
 
-                // free all the pending and sent packets
-                ClearQueuedPackets(true);
-                Packets.Dispose();
-            }
+            // free all the pending and sent packets
+            ClearQueuedPackets(true);
+            Packets.Dispose();
         }
 
         /// <summary>
@@ -527,7 +515,7 @@
         private int FeedPacketsToDecoder(bool fillDecoderBuffer)
         {
             var packetCount = 0;
-            var sendPacketResult = 0;
+            int sendPacketResult;
 
             while (Packets.Count > 0)
             {
@@ -581,7 +569,6 @@
             receiveFrameResult = 0;
 
             var outputFrame = MediaFrame.CreateAVFrame();
-            managedFrame = null;
             receiveFrameResult = ffmpeg.avcodec_receive_frame(CodecContext, outputFrame);
 
             if (receiveFrameResult >= 0)
@@ -603,7 +590,7 @@
         /// Decodes the next Audio or Video frame.
         /// Reference: https://www.ffmpeg.org/doxygen/4.0/group__lavc__encdec.html
         /// </summary>
-        /// <returns>A deocder result containing the decoder frames (if any)</returns>
+        /// <returns>A decoder result containing the decoder frames (if any)</returns>
         private MediaFrame DecodeNextAVFrame()
         {
             var frame = ReceiveFrameFromDecoder(out var receiveFrameResult);
@@ -620,13 +607,13 @@
                     break;
             }
 
-            if (frame != null && Container.Components.OnFrameDecoded != null)
-            {
-                if (MediaType == MediaType.Audio)
-                    Container.Components.OnFrameDecoded?.Invoke((IntPtr)(frame as AudioFrame).Pointer, MediaType);
-                else if (MediaType == MediaType.Video)
-                    Container.Components.OnFrameDecoded?.Invoke((IntPtr)(frame as VideoFrame).Pointer, MediaType);
-            }
+            if (frame == null || Container.Components.OnFrameDecoded == null)
+                return frame;
+
+            if (MediaType == MediaType.Audio && frame is AudioFrame audioFrame)
+                Container.Components.OnFrameDecoded?.Invoke((IntPtr)audioFrame.Pointer, MediaType);
+            else if (MediaType == MediaType.Video && frame is VideoFrame videoFrame)
+                Container.Components.OnFrameDecoded?.Invoke((IntPtr)videoFrame.Pointer, MediaType);
 
             return frame;
         }

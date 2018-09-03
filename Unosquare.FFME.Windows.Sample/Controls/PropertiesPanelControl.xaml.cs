@@ -1,11 +1,9 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.Controls
 {
-    using System.Windows.Controls;
-
     /// <summary>
     /// Interaction logic for MediaPropertyPanelControl.xaml
     /// </summary>
-    public partial class PropertiesPanelControl : UserControl
+    public partial class PropertiesPanelControl
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PropertiesPanelControl"/> class.

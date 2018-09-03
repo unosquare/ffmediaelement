@@ -5,11 +5,14 @@
     using System.Drawing.Drawing2D;
     using System.Drawing.Imaging;
     using System.IO;
+    using System.Windows.Media;
+    using System.Windows.Media.Imaging;
+    using Color = System.Drawing.Color;
 
     /// <summary>
     /// A class for creating, saving, and loading thumbnails.
     /// </summary>
-    internal class ThumbnailGenerator
+    internal static class ThumbnailGenerator
     {
         /// <summary>
         /// Snaps the thumbnail.
@@ -29,11 +32,11 @@
         /// Gets the thumbnail.
         /// </summary>
         /// <param name="targetPath">The target path.</param>
-        /// <param name="thumbnailFilename">The thumnail filename.</param>
+        /// <param name="thumbnailFilename">The thumbnail filename.</param>
         /// <returns>
         /// An image Source
         /// </returns>
-        public static System.Windows.Media.ImageSource GetThumbnail(string targetPath, string thumbnailFilename)
+        public static ImageSource GetThumbnail(string targetPath, string thumbnailFilename)
         {
             var sourcePath = Path.Combine(targetPath, thumbnailFilename);
             if (string.IsNullOrWhiteSpace(thumbnailFilename) || File.Exists(sourcePath) == false)
@@ -41,15 +44,15 @@
 
             try
             {
-                var thumbnail = new System.Windows.Media.Imaging.BitmapImage();
+                var thumbnail = new BitmapImage();
                 thumbnail.BeginInit();
-                thumbnail.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+                thumbnail.CacheOption = BitmapCacheOption.OnLoad;
                 thumbnail.UriSource = new Uri(sourcePath);
                 thumbnail.EndInit();
                 thumbnail.Freeze();
                 return thumbnail;
             }
-            catch { }
+            catch { /* Ignore exception and continue */ }
 
             return null;
         }
@@ -107,21 +110,18 @@
         /// </summary>
         /// <param name="maxSize">The maximum size.</param>
         /// <param name="currentSize">Size of the current.</param>
-        /// <returns>A propertional size structure</returns>
+        /// <returns>A proportional size structure</returns>
         private static Size ComputeProportionalSize(Size maxSize, Size currentSize)
         {
-            var maxScaleRatio = 0d;
-            var currentScaleRatio = 0d;
-
             if (maxSize.Width < 1 || maxSize.Height < 1 || currentSize.Width < 1 || currentSize.Height < 1)
                 return Size.Empty;
 
-            maxScaleRatio = maxSize.Width / (double)maxSize.Height;
-            currentScaleRatio = currentSize.Width / (double)currentSize.Height;
+            var maxScaleRatio = maxSize.Width / (double)maxSize.Height;
+            var currentScaleRatio = currentSize.Width / (double)currentSize.Height;
 
             // Prepare the output
-            var outputWidth = 0;
-            var outputHeight = 0;
+            int outputWidth;
+            int outputHeight;
 
             if (maxScaleRatio < currentScaleRatio)
             {

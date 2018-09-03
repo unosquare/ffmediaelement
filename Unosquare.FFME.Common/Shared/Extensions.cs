@@ -36,17 +36,14 @@
         }
 
         /// <summary>
-        /// Gets the a signed 16 bit integer at the guven offset.
+        /// Gets the a signed 16 bit integer at the given offset.
         /// </summary>
         /// <param name="buffer">The buffer.</param>
         /// <param name="offset">The offset.</param>
         /// <returns>The signed integer.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static short GetAudioSample(this byte[] buffer, int offset)
-        {
-            // return (short)(buffer[offset] | (buffer[offset + 1] << 8));
-            return BitConverter.ToInt16(buffer, offset);
-        }
+        public static short GetAudioSample(this byte[] buffer, int offset) =>
+            BitConverter.ToInt16(buffer, offset);
 
         /// <summary>
         /// Gets the audio sample amplitude (absolute value of the sample).
@@ -58,10 +55,7 @@
         public static short GetAudioSampleAmplitude(this byte[] buffer, int offset)
         {
             var value = buffer.GetAudioSample(offset);
-            if (value == short.MinValue)
-                return short.MaxValue;
-
-            return Math.Abs(value);
+            return value == short.MinValue ? short.MaxValue : Math.Abs(value);
         }
 
         /// <summary>
@@ -88,10 +82,9 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string Format(this TimeSpan ts)
         {
-            if (ts == TimeSpan.MinValue)
-                return $"{"N/A",10}";
-            else
-                return $"{ts.TotalSeconds,10:0.000}";
+            return ts == TimeSpan.MinValue ?
+                $"{"N/A",10}" :
+                $"{ts.TotalSeconds,10:0.000}";
         }
 
         /// <summary>
@@ -107,20 +100,18 @@
         }
 
         /// <summary>
-        /// Returns a fromatted string, dividing by the specified
+        /// Returns a formatted string, dividing by the specified
         /// factor. Useful for debugging longs with byte positions or sizes.
         /// </summary>
         /// <param name="ts">The timestamp.</param>
         /// <param name="divideBy">The divide by.</param>
         /// <returns>The formatted string</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string Format(this long ts, double divideBy)
-        {
-            return divideBy == 1 ? $"{ts,10:#,##0}" : $"{ts / divideBy,10:#,##0.000}";
-        }
+        public static string Format(this long ts, double divideBy) =>
+            Math.Abs(divideBy - 1d) <= double.Epsilon ? $"{ts,10:#,##0}" : $"{ts / divideBy,10:#,##0.000}";
 
         /// <summary>
-        /// Returns a fromatted string.
+        /// Returns a formatted string.
         /// Useful for debugging longs with byte positions or sizes.
         /// </summary>
         /// <param name="ts">The timestamp.</param>
@@ -154,13 +145,12 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TimeSpan ToTimeSpan(this double pts, AVRational timeBase)
         {
-            if (double.IsNaN(pts) || pts == ffmpeg.AV_NOPTS_VALUE)
+            if (double.IsNaN(pts) || Math.Abs(pts - ffmpeg.AV_NOPTS_VALUE) <= double.Epsilon)
                 return TimeSpan.MinValue;
 
-            if (timeBase.den == 0)
-                return TimeSpan.FromTicks(Convert.ToInt64(TimeSpan.TicksPerMillisecond * 1000 * pts / ffmpeg.AV_TIME_BASE));
-
-            return TimeSpan.FromTicks(Convert.ToInt64(TimeSpan.TicksPerMillisecond * 1000 * pts * timeBase.num / timeBase.den));
+            return TimeSpan.FromTicks(timeBase.den == 0 ?
+                Convert.ToInt64(TimeSpan.TicksPerMillisecond * 1000 * pts / ffmpeg.AV_TIME_BASE) :
+                Convert.ToInt64(TimeSpan.TicksPerMillisecond * 1000 * pts * timeBase.num / timeBase.den));
         }
 
         /// <summary>
@@ -198,7 +188,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TimeSpan ToTimeSpan(this double pts, double timeBase)
         {
-            if (double.IsNaN(pts) || pts == ffmpeg.AV_NOPTS_VALUE)
+            if (double.IsNaN(pts) || Math.Abs(pts - ffmpeg.AV_NOPTS_VALUE) <= double.Epsilon)
                 return TimeSpan.MinValue;
 
             return TimeSpan.FromTicks(Convert.ToInt64(TimeSpan.TicksPerMillisecond * 1000 * pts / timeBase));
@@ -254,7 +244,7 @@
         /// Normalizes precision of the TimeSpan to the nearest whole millisecond.
         /// </summary>
         /// <param name="source">The source.</param>
-        /// <returns>The normalized, whole-milliscond timespan</returns>
+        /// <returns>The normalized, whole-millisecond timespan</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TimeSpan Normalize(this TimeSpan source)
         {
@@ -331,21 +321,22 @@
         /// <param name="frameDuration">The duration.</param>
         /// <param name="frameTimeBase">The time base.</param>
         /// <param name="frameNumber">The display picture number.</param>
-        /// <returns>The FFmpeg computed SMTPE Timecode</returns>
+        /// <returns>The FFmpeg computed SMTPE Time code</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static unsafe string ComputeSmtpeTimeCode(TimeSpan streamStartTime, TimeSpan frameDuration, AVRational frameTimeBase, long frameNumber)
         {
             // Drop the days in the stream start time
-            if (streamStartTime.Days > 0)
-                streamStartTime = streamStartTime.Subtract(TimeSpan.FromDays(streamStartTime.Days));
+            var startTime = streamStartTime.Days > 0 ?
+                streamStartTime.Subtract(TimeSpan.FromDays(streamStartTime.Days)) :
+                streamStartTime;
 
-            // Adjust to int value
-            if (frameNumber > int.MaxValue)
-                frameNumber = frameNumber % int.MaxValue;
+            // Adjust to int value and turn picture number into picture index.
+            var frameIndex = frameNumber > int.MaxValue ?
+                Convert.ToInt32(frameNumber % int.MaxValue) - 1 :
+                Convert.ToInt32(frameNumber - 1);
 
-            frameNumber--; // tun picture number into picture index.
             var timeCodeInfo = (AVTimecode*)ffmpeg.av_malloc((ulong)Marshal.SizeOf(typeof(AVTimecode)));
-            var startFrameNumber = ComputePictureNumber(streamStartTime, frameDuration, 0);
+            var startFrameNumber = ComputePictureNumber(startTime, frameDuration, 0);
 
             // Adjust to int value
             if (startFrameNumber > int.MaxValue)
@@ -354,8 +345,8 @@
             ffmpeg.av_timecode_init(timeCodeInfo, frameTimeBase, 0, Convert.ToInt32(startFrameNumber), null);
             var isNtsc = frameTimeBase.num == 30000 && frameTimeBase.den == 1001;
             var adjustedFrameNumber = isNtsc ?
-                ffmpeg.av_timecode_adjust_ntsc_framenum2(Convert.ToInt32(frameNumber), Convert.ToInt32(timeCodeInfo->fps)) :
-                Convert.ToInt32(frameNumber);
+                ffmpeg.av_timecode_adjust_ntsc_framenum2(frameIndex, Convert.ToInt32(timeCodeInfo->fps)) :
+                frameIndex;
 
             var timeCode = ffmpeg.av_timecode_get_smpte_from_framenum(timeCodeInfo, adjustedFrameNumber);
             var timeCodeBuffer = (byte*)ffmpeg.av_malloc(ffmpeg.AV_TIMECODE_STR_SIZE);

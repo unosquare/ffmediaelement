@@ -24,14 +24,14 @@
         static PropertyMapper()
         {
             MediaEngineStateProperties = new ReadOnlyDictionary<string, PropertyInfo>(
-                RetrieveProperties(typeof(IMediaEngineState), false).ToDictionary((p) => p.Name, (p) => p));
+                RetrieveProperties(typeof(IMediaEngineState), false).ToDictionary(p => p.Name, p => p));
 
             var enginePropertyNames = MediaEngineStateProperties.Keys.ToArray();
 
             MediaElementDependencyProperties = new ReadOnlyDictionary<string, DependencyProperty>(
                 RetrieveDependencyProperties(typeof(MediaElement))
                     .Where(p => enginePropertyNames.Contains(p.Name))
-                    .ToDictionary((p) => p.Name, (p) => p));
+                    .ToDictionary(p => p.Name, p => p));
 
             var dependencyPropertyNames = MediaElementDependencyProperties.Keys.ToArray();
 
@@ -39,8 +39,8 @@
                 RetrieveProperties(typeof(MediaElement), false)
                     .Where(p => enginePropertyNames.Contains(p.Name)
                         && dependencyPropertyNames.Contains(p.Name) == false
-                        && p.CanRead == true && p.CanWrite == false)
-                    .ToDictionary((p) => p.Name, (p) => p));
+                        && p.CanRead && p.CanWrite == false)
+                    .ToDictionary(p => p.Name, p => p));
 
             var allMediaElementPropertyNames = dependencyPropertyNames.Union(MediaElementNotificationProperties.Keys.ToArray()).ToArray();
             var missingMediaElementPropertyNames = MediaEngineStateProperties.Keys
@@ -86,26 +86,26 @@
 
             foreach (var kvp in currentState)
             {
-                if (initLastSnapshot || Equals(lastSnapshot[kvp.Key], kvp.Value) == false)
-                {
-                    result.Add(kvp.Key);
-                    lastSnapshot[kvp.Key] = kvp.Value;
-                }
+                if (!initLastSnapshot && Equals(lastSnapshot[kvp.Key], kvp.Value))
+                    continue;
+
+                result.Add(kvp.Key);
+                lastSnapshot[kvp.Key] = kvp.Value;
             }
 
             return result.ToArray();
         }
 
         /// <summary>
-        /// Detects which dependendy properties are out of sync with the Media Engine State properties
+        /// Detects which dependency properties are out of sync with the Media Engine State properties
         /// </summary>
         /// <param name="m">The m.</param>
-        /// <returns>A dictionary of dependency properties to synchonize along with the engine values.</returns>
+        /// <returns>A dictionary of dependency properties to synchronize along with the engine values.</returns>
         public static Dictionary<DependencyProperty, object> DetectDependencyPropertyChanges(this MediaElement m)
         {
             var result = new Dictionary<DependencyProperty, object>(PropertyMaxCount);
-            object engineValue = null; // The current value of the media engine state property
-            object propertyValue = null; // The current value of the dependency property
+            object engineValue; // The current value of the media engine state property
+            object propertyValue; // The current value of the dependency property
 
             foreach (var targetProperty in MediaElementDependencyProperties)
             {
@@ -114,10 +114,9 @@
 
                 if (targetProperty.Value.PropertyType != MediaEngineStateProperties[targetProperty.Key].PropertyType)
                 {
-                    if (targetProperty.Value.PropertyType.IsEnum)
-                        engineValue = Enum.ToObject(targetProperty.Value.PropertyType, engineValue);
-                    else
-                        engineValue = Convert.ChangeType(engineValue, targetProperty.Value.PropertyType);
+                    engineValue = targetProperty.Value.PropertyType.IsEnum ?
+                        Enum.ToObject(targetProperty.Value.PropertyType, engineValue) :
+                        Convert.ChangeType(engineValue, targetProperty.Value.PropertyType);
                 }
 
                 if (Equals(engineValue, propertyValue) == false)

@@ -7,13 +7,13 @@
     {
         /// <summary>
         /// Runs the read task which keeps a packet buffer as full as possible.
-        /// It reports on DownloadProgress by enqueueing an update to the property
+        /// It reports on DownloadProgress by queueing an update to the property
         /// in order to avoid any kind of disruption to this thread caused by the UI thread.
         /// </summary>
         internal void RunPacketReadingWorker()
         {
             var delay = TimeSpan.FromMilliseconds(10);
-            var needsMorePackets = false;
+            bool needsMorePackets;
             IsSyncBuffering = false;
 
             try
@@ -54,7 +54,7 @@
                                 break;
 
                             // we are sync-buffering but we don't need more packets
-                            if (IsSyncBuffering && needsMorePackets == false)
+                            if (IsSyncBuffering)
                                 break;
 
                             // We detected a change in buffered packets
@@ -71,7 +71,6 @@
                     PacketReadingCycle.Complete();
                 }
             }
-            catch { throw; }
             finally
             {
                 // Always exit notifying the reading cycle is done.

@@ -16,14 +16,14 @@
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
         #region Fields
 
-        private static readonly Key[] TogglePlayPauseKeys = new[] { Key.Play, Key.MediaPlayPause, Key.Space };
+        private static readonly Key[] TogglePlayPauseKeys = { Key.Play, Key.MediaPlayPause, Key.Space };
         private DateTime LastMouseMoveTime;
         private Point LastMousePosition;
-        private DispatcherTimer MouseMoveTimer = null;
+        private DispatcherTimer MouseMoveTimer;
         private MediaType StreamCycleMediaType = MediaType.None;
 
         #endregion
@@ -80,7 +80,8 @@
             MouseMove += (s, e) =>
             {
                 var currentPosition = e.GetPosition(window);
-                if (currentPosition.X != LastMousePosition.X || currentPosition.Y != LastMousePosition.Y)
+                if (Math.Abs(currentPosition.X - LastMousePosition.X) > double.Epsilon ||
+                    Math.Abs(currentPosition.Y - LastMousePosition.Y) > double.Epsilon)
                     LastMouseMoveTime = DateTime.UtcNow;
 
                 LastMousePosition = currentPosition;
@@ -103,20 +104,24 @@
                 if (elapsedSinceMouseMove.TotalMilliseconds >= 3000 && Media.IsOpen && ControllerPanel.IsMouseOver == false
                     && PropertiesPanel.Visibility != Visibility.Visible && ControllerPanel.SoundMenuPopup.IsOpen == false)
                 {
-                    if (ControllerPanel.Opacity != 0d)
+                    if (Math.Abs(ControllerPanel.Opacity) <= double.Epsilon) return;
+                    Cursor = Cursors.None;
+
+                    // ReSharper disable once InvertIf
+                    if (FindResource("HideControlOpacity") is Storyboard sb)
                     {
-                        Cursor = Cursors.None;
-                        var sb = FindResource("HideControlOpacity") as Storyboard;
                         Storyboard.SetTarget(sb, ControllerPanel);
                         sb.Begin();
                     }
                 }
                 else
                 {
-                    if (ControllerPanel.Opacity != 1d)
+                    if (Math.Abs(ControllerPanel.Opacity - 1d) <= double.Epsilon) return;
+                    Cursor = Cursors.Arrow;
+
+                    // ReSharper disable once InvertIf
+                    if (FindResource("ShowControlOpacity") is Storyboard sb)
                     {
-                        Cursor = Cursors.Arrow;
-                        var sb = FindResource("ShowControlOpacity") as Storyboard;
                         Storyboard.SetTarget(sb, ControllerPanel);
                         sb.Begin();
                     }
@@ -148,7 +153,7 @@
             Media.MediaFailed += OnMediaFailed;
             Media.MessageLogged += OnMediaMessageLogged;
 
-            // Complex examples of MEdia Rendering Events
+            // Complex examples of Media Rendering Events
             BindMediaRenderingEvents();
         }
 
@@ -167,8 +172,9 @@
             Loaded -= OnWindowLoaded;
 
             // Compute and Apply Sizing Properties
+            if (Content is UIElement contentElement &&
+                VisualTreeHelper.GetParent(contentElement) is ContentPresenter presenter)
             {
-                var presenter = VisualTreeHelper.GetParent(Content as UIElement) as ContentPresenter;
                 presenter.MinWidth = MinWidth;
                 presenter.MinHeight = MinHeight;
 
@@ -184,8 +190,8 @@
                 var screenWidth = SystemParameters.PrimaryScreenWidth;
                 var screenHeight = SystemParameters.PrimaryScreenHeight;
 
-                if (SystemParameters.VirtualScreenWidth != SystemParameters.FullPrimaryScreenWidth &&
-                    SystemParameters.VirtualScreenLeft == 0 && SystemParameters.VirtualScreenTop == 0)
+                if ((int)SystemParameters.VirtualScreenWidth != (int)SystemParameters.FullPrimaryScreenWidth &&
+                    (int)SystemParameters.VirtualScreenLeft == 0 && (int)SystemParameters.VirtualScreenTop == 0)
                 {
                     screenOffsetX = SystemParameters.PrimaryScreenWidth;
                     screenWidth = SystemParameters.VirtualScreenWidth - SystemParameters.PrimaryScreenWidth;
@@ -197,7 +203,7 @@
 
             // Open a file if it is specified in the arguments
             var args = Environment.GetCommandLineArgs();
-            if (args != null && args.Length > 1)
+            if (args.Length > 1)
             {
                 App.Current.Commands.OpenCommand.Execute(args[1].Trim());
             }
@@ -221,11 +227,8 @@
             if (e.Key == Key.G)
             {
                 // Example of toggling subtitle color
-                if (Subtitles.GetForeground(Media) == Brushes.LightYellow)
-                    Subtitles.SetForeground(Media, Brushes.Yellow);
-                else
-                    Subtitles.SetForeground(Media, Brushes.LightYellow);
-
+                Subtitles.SetForeground(Media,
+                    Subtitles.GetForeground(Media) == Brushes.LightYellow ? Brushes.Yellow : Brushes.LightYellow);
                 return;
             }
 
@@ -344,7 +347,6 @@
             if (e.Key == Key.Escape && WindowStyle == WindowStyle.None)
             {
                 await App.Current.Commands.ToggleFullscreenCommand.ExecuteAsync();
-                return;
             }
         }
 
@@ -355,7 +357,9 @@
         /// <param name="e">The <see cref="MouseButtonEventArgs"/> instance containing the event data.</param>
         private async void OnMediaDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (sender != Media) return;
+            if ((sender?.Equals(Media) ?? false) == false)
+                return;
+
             e.Handled = true;
             await App.Current.Commands.ToggleFullscreenCommand.ExecuteAsync();
         }

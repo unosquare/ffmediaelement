@@ -18,8 +18,8 @@
         private readonly object PropertyLock = new object();
         private readonly ManualResetEventSlim CompletedEvent = new ManualResetEventSlim(false);
         private readonly CancellationTokenSource CancelToken = new CancellationTokenSource();
-        private bool m_IsDisposed = false;
-        private bool m_IsExecuting = false;
+        private bool m_IsDisposed;
+        private bool m_IsExecuting;
 
         #endregion
 
@@ -81,7 +81,7 @@
         }
 
         /// <summary>
-        /// Gets the task that awits the promise. Do not await on this but use the <see cref="Awaiter"/> property instead.
+        /// Gets the task that awaits the promise. Do not await on this but use the <see cref="Awaiter"/> property instead.
         /// </summary>
         private Task<bool> AwaiterTask { get; }
 
@@ -90,7 +90,7 @@
         #region Methods
 
         /// <summary>
-        /// Starts to run the promise in a threadpool thread.
+        /// Starts to run the promise in a thread pool thread.
         /// </summary>
         public void BeginExecute()
         {
@@ -123,7 +123,6 @@
                     AwaiterTask.Start();
                     PerformActions();
                 }
-                catch { throw; }
                 finally
                 {
                     CompletedEvent.Set();
@@ -133,10 +132,10 @@
         }
 
         /// <summary>
-        /// Prevents the actions from being run and sets the awiter as completed.
+        /// Prevents the actions from being run and sets the awaiter as completed.
         /// </summary>
         /// <param name="waitForExit">if set to <c>true</c> it waits for the awaiter to complete synchronously.</param>
-        public void Cancel(bool waitForExit = false)
+        public void Cancel(bool waitForExit)
         {
             lock (MethodLock)
             {
@@ -151,14 +150,11 @@
                     if (waitForExit)
                         Awaiter.GetAwaiter().GetResult();
                 }
-                catch { throw; }
                 finally { Dispose(); }
             }
         }
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose() => Dispose(true);
 
         /// <summary>

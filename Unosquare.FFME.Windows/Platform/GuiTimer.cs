@@ -19,9 +19,9 @@
         private readonly Action TimerCallback;
         private readonly Action DisposeCallback;
 
-        private Timer ThreadingTimer = null;
-        private DispatcherTimer DispatcherTimer = null;
-        private System.Windows.Forms.Timer FormsTimer = null;
+        private Timer ThreadingTimer;
+        private DispatcherTimer DispatcherTimer;
+        private System.Windows.Forms.Timer FormsTimer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GuiTimer" /> class.
@@ -51,7 +51,6 @@
                         break;
                     }
 
-                case GuiContextType.None:
                 default:
                     {
                         ThreadingTimer = CreateThreadingTimer();
@@ -95,13 +94,7 @@
         /// <summary>
         /// Gets a value indicating whether this instance is executing a cycle.
         /// </summary>
-        public bool IsExecutingCycle
-        {
-            get
-            {
-                return (IsCycleDone?.IsCompleted ?? true) == false;
-            }
-        }
+        public bool IsExecutingCycle => (IsCycleDone?.IsCompleted ?? true) == false;
 
         /// <summary>
         /// Waits for one cycle to be completed.
@@ -112,9 +105,7 @@
             IsCycleDone.Wait();
         }
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose()
         {
             if (IsDisposing == true) return;
@@ -166,10 +157,6 @@
                 // Call the configured timer callback
                 TimerCallback();
             }
-            catch
-            {
-                throw;
-            }
             finally
             {
                 // Finalize the cycle
@@ -184,7 +171,7 @@
         private Timer CreateThreadingTimer()
         {
             var timer = new Timer(
-                new TimerCallback(RunTimerCycle),
+                RunTimerCycle,
                 this,
                 Convert.ToInt32(Interval.TotalMilliseconds),
                 Convert.ToInt32(Interval.TotalMilliseconds));

@@ -8,7 +8,7 @@
     using System.Runtime.CompilerServices;
 
     /// <summary>
-    /// Represents a set of preallocated media blocks of the same media type.
+    /// Represents a set of pre-allocated media blocks of the same media type.
     /// A block buffer contains playback and pool blocks. Pool blocks are blocks that
     /// can be reused. Playback blocks are blocks that have been filled.
     /// This class is thread safe.
@@ -39,7 +39,7 @@
         private TimeSpan m_AverageBlockDuration;
         private TimeSpan m_MonotonicDuration;
         private int m_Count;
-        private long m_RangeBitrate;
+        private long m_RangeBitRate;
         private double m_CapacityPercent;
         private bool m_IsMonotonic;
         private bool m_IsFull;
@@ -105,9 +105,9 @@
         public TimeSpan RangeDuration { get { lock (SyncLock) return m_RangeDuration; } }
 
         /// <summary>
-        /// Gets the compressed data bitrate from which media blocks were created.
+        /// Gets the compressed data bit rate from which media blocks were created.
         /// </summary>
-        public long RangeBitrate { get { lock (SyncLock) return m_RangeBitrate; } }
+        public long RangeBitRate { get { lock (SyncLock) return m_RangeBitRate; } }
 
         /// <summary>
         /// Gets the average duration of the currently available playback blocks.
@@ -195,21 +195,22 @@
         }
 
         /// <summary>
-        /// Gets the neighboring blocks in an atomic operation
+        /// Gets the neighboring blocks in an atomic operation.
+        /// The first item in the array is the previous block. The second is the next block.
         /// </summary>
-        /// <param name="current">The current.</param>
-        /// <param name="previous">The previous.</param>
-        /// <param name="next">The next.</param>
-        public void Neighbors(MediaBlock current, out MediaBlock previous, out MediaBlock next)
+        /// <param name="current">The current block to get neighbors from.</param>
+        /// <returns>The previous (if any) and next (if any) blocks.</returns>
+        public MediaBlock[] Neighbors(MediaBlock current)
         {
             lock (SyncLock)
             {
-                previous = null;
-                next = null;
-                if (current == null) return;
+                var result = new MediaBlock[2];
+                if (current == null) return result;
 
-                previous = current.Previous;
-                next = current.Next;
+                result[0] = current.Previous;
+                result[1] = current.Next;
+
+                return result;
             }
         }
 
@@ -250,10 +251,7 @@
                     TimeSpan.FromTicks(current.Duration.Ticks / 2) :
                     TimeSpan.FromMilliseconds(1);
 
-                if (discontinuity.Ticks > discontinuityThreshold.Ticks)
-                    return null;
-
-                return next;
+                return discontinuity.Ticks > discontinuityThreshold.Ticks ? null : next;
             }
         }
 
@@ -289,7 +287,7 @@
 
         /// <summary>
         /// Retrieves the index of the playback block corresponding to the specified
-        /// render time. This uses very fast binary and linear search commbinations.
+        /// render time. This uses very fast binary and linear search combinations.
         /// If there are no playback blocks it returns -1.
         /// If the render time is greater than the range end time, it returns the last playback block index.
         /// If the render time is less than the range start time, it returns the first playback block index.
@@ -342,14 +340,12 @@
             }
         }
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose()
         {
             lock (SyncLock)
             {
-                if (m_IsDisposed == true) return;
+                if (m_IsDisposed) return;
                 m_IsDisposed = true;
 
                 while (PoolBlocks.Count > 0)
@@ -388,11 +384,11 @@
                     // Check if we already have a block at the given time
                     if (IsInRange(source.StartTime) && source.HasValidStartTime)
                     {
-                        var reapeatedBlock = PlaybackBlocks.FirstOrDefault(f => f.StartTime.Ticks == source.StartTime.Ticks);
-                        if (reapeatedBlock != null)
+                        var repeatedBlock = PlaybackBlocks.FirstOrDefault(f => f.StartTime.Ticks == source.StartTime.Ticks);
+                        if (repeatedBlock != null)
                         {
-                            PlaybackBlocks.Remove(reapeatedBlock);
-                            PoolBlocks.Enqueue(reapeatedBlock);
+                            PlaybackBlocks.Remove(repeatedBlock);
+                            PoolBlocks.Enqueue(repeatedBlock);
                         }
                     }
 
@@ -448,7 +444,6 @@
                     // return the new target block
                     return targetBlock;
                 }
-                catch { throw; }
                 finally { UpdateCollectionProperties(); }
             }
         }
@@ -505,10 +500,7 @@
                     return block.StartTime;
 
                 var nextBlock = Next(block);
-                if (nextBlock == null)
-                    return block.StartTime;
-
-                return nextBlock.StartTime;
+                return nextBlock?.StartTime ?? block.StartTime;
             }
         }
 
@@ -542,7 +534,7 @@
             m_RangeDuration = TimeSpan.FromTicks(RangeEndTime.Ticks - RangeStartTime.Ticks);
             m_CapacityPercent = Convert.ToDouble(m_Count) / Capacity;
             m_IsFull = m_Count >= Capacity;
-            m_RangeBitrate = m_RangeDuration.TotalSeconds <= 0 || m_Count <= 1 ? 0 :
+            m_RangeBitRate = m_RangeDuration.TotalSeconds <= 0 || m_Count <= 1 ? 0 :
                 Convert.ToInt64(8d * PlaybackBlocks.Sum(m => m.CompressedSize) / m_RangeDuration.TotalSeconds);
 
             // don't compute an average if we don't have blocks

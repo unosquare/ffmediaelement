@@ -1,10 +1,10 @@
 ﻿namespace Unosquare.FFME
 {
+    using Primitives;
+    using Shared;
     using System;
     using System.Linq;
     using System.Runtime.CompilerServices;
-    using Unosquare.FFME.Primitives;
-    using Unosquare.FFME.Shared;
 
     public partial class MediaEngine
     {
@@ -17,16 +17,16 @@
         {
             // TODO: Don't use State properties in workers as they are only for
             // TODO: Check the use of wall clock. Maybe it's be more consistent
-            // to use a single atomic wallclock value per cycle. Check other workers as well.
+            // to use a single atomic wall clock value per cycle. Check other workers as well.
             // state notification purposes.
             // State variables
             var wasSyncBuffering = false;
             var delay = new DelayProvider(); // The delay provider prevents 100% core usage
-            var decodedFrameCount = 0;
-            var rangePercent = 0d;
-            var main = Container.Components.MainMediaType; // Holds the main media type
+            int decodedFrameCount;
+            double rangePercent;
+            MediaType main; // Holds the main media type
             var resumeSyncBufferingClock = false;
-            MediaBlockBuffer blocks = null;
+            MediaBlockBuffer blocks;
 
             try
             {
@@ -48,7 +48,7 @@
                     // Signal a Seek starting operation and set the initial state
                     FrameDecodingCycle.Begin();
 
-                    // Update state properties -- this must be after processing commanmds as
+                    // Update state properties -- this must be after processing commands as
                     // a direct command might have changed the components
                     main = Container.Components.MainMediaType;
                     decodedFrameCount = 0;
@@ -73,7 +73,7 @@
                             resumeSyncBufferingClock = Clock.IsRunning;
                             Clock.Pause();
                             State.UpdateMediaState(PlaybackStatus.Manual);
-                            Log(MediaLogMessageType.Debug, $"SYNC-BUFFER: Started.");
+                            Log(MediaLogMessageType.Debug, "SYNC-BUFFER: Started.");
                         }
 
                         #endregion
@@ -138,7 +138,7 @@
                         blocks = Blocks[main];
 
                         // Unfortunately at this point we will need to adjust the clock after creating the frames.
-                        // to ensure tha mian component is within the clock range if the decoded
+                        // to ensure tha main component is within the clock range if the decoded
                         // frames are not with range. This is normal while buffering though.
                         if (blocks.IsInRange(WallClock) == false)
                         {
@@ -160,8 +160,8 @@
                     }
 
                     // Provide updates to decoding stats
-                    State.UpdateDecodingBitrate(
-                        Blocks.Values.Sum(b => b.IsInRange(WallClock) ? b.RangeBitrate : 0));
+                    State.UpdateDecodingBitRate(
+                        Blocks.Values.Sum(b => b.IsInRange(WallClock) ? b.RangeBitRate : 0));
 
                     // Complete the frame decoding cycle
                     FrameDecodingCycle.Complete();
@@ -172,11 +172,10 @@
                     #endregion
                 }
             }
-            catch { throw; }
             finally
             {
                 // Reset decoding stats
-                State.UpdateDecodingBitrate(0);
+                State.UpdateDecodingBitRate(0);
 
                 // Always exit notifying the cycle is done.
                 FrameDecodingCycle.Complete();
@@ -233,28 +232,28 @@
                 && CanReadMoreFramesOf(main) == false
                 && Blocks[main].IndexOf(WallClock) >= Blocks[main].Count - 1)
             {
-                if (State.HasMediaEnded == false)
+                if (State.HasMediaEnded)
+                    return State.HasMediaEnded;
+
+                // Rendered all and nothing else to read
+                Clock.Pause();
+                ChangePosition(Blocks[main].RangeEndTime);
+
+                if (State.NaturalDuration != null &&
+                    State.NaturalDuration != TimeSpan.MinValue &&
+                    State.NaturalDuration < WallClock)
                 {
-                    // Rendered all and nothing else to read
-                    Clock.Pause();
-                    ChangePosition(Blocks[main].RangeEndTime);
-
-                    if (State.NaturalDuration != null &&
-                        State.NaturalDuration != TimeSpan.MinValue &&
-                        State.NaturalDuration < WallClock)
-                    {
-                        Log(MediaLogMessageType.Warning,
-                            $"{nameof(State.HasMediaEnded)} conditions met at {WallClock.Format()} but " +
-                            $"{nameof(State.NaturalDuration)} reports {State.NaturalDuration.Value.Format()}");
-                    }
-
-                    State.UpdateMediaEnded(true);
-                    State.UpdateMediaState(PlaybackStatus.Stop);
-                    foreach (var mt in Container.Components.MediaTypes)
-                        InvalidateRenderer(mt);
-
-                    SendOnMediaEnded();
+                    Log(MediaLogMessageType.Warning,
+                        $"{nameof(State.HasMediaEnded)} conditions met at {WallClock.Format()} but " +
+                        $"{nameof(State.NaturalDuration)} reports {State.NaturalDuration.Value.Format()}");
                 }
+
+                State.UpdateMediaEnded(true);
+                State.UpdateMediaState(PlaybackStatus.Stop);
+                foreach (var mt in Container.Components.MediaTypes)
+                    InvalidateRenderer(mt);
+
+                SendOnMediaEnded();
             }
             else
             {

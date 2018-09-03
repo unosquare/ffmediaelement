@@ -1,8 +1,8 @@
 ﻿namespace Unosquare.FFME.Events
 {
+    using Shared;
     using System;
     using System.Windows;
-    using Shared;
 
     /// <summary>
     /// Contains the position changed routed event args

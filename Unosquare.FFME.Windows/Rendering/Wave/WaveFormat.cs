@@ -1,4 +1,8 @@
-﻿namespace Unosquare.FFME.Rendering.Wave
+﻿// ReSharper disable ConvertToAutoPropertyWhenPossible
+#pragma warning disable IDE0032 // Use auto property
+#pragma warning disable 414 // Field is assigned but its value is never used
+
+namespace Unosquare.FFME.Rendering.Wave
 {
     using System;
     using System.Runtime.InteropServices;
@@ -7,28 +11,28 @@
     /// Represents a Wave file format
     /// </summary>
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 2)]
-    internal class WaveFormat
+    internal class WaveFormat : IEquatable<WaveFormat>
     {
         /// <summary>The format tag -- always 0x0001 PCM</summary>
-        private short formatTag = 0x0001;
+        private readonly short formatTag = 0x0001;
 
         /// <summary>number of channels</summary>
-        private short channels;
+        private readonly short channels;
 
         /// <summary>sample rate</summary>
-        private int sampleRate;
+        private readonly int sampleRate;
 
         /// <summary>for buffer estimation</summary>
-        private int averageBytesPerSecond;
+        private readonly int averageBytesPerSecond;
 
         /// <summary>block size of data</summary>
-        private short blockAlign;
+        private readonly short blockAlign;
 
         /// <summary>number of bits per sample of mono data</summary>
-        private short bitsPerSample;
+        private readonly short bitsPerSample;
 
         /// <summary>number of following bytes</summary>
-        private short extraSize;
+        private readonly short extraSize;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WaveFormat"/> class.
@@ -102,7 +106,7 @@
         public int BitsPerSample => bitsPerSample;
 
         /// <summary>
-        /// Returns the number of extra bytes used by this waveformat. Often 0,
+        /// Returns the number of extra bytes used by this wave format. Often 0,
         /// except for compressed formats which store extra data after the WAVEFORMATEX header
         /// </summary>
         public int ExtraSize => extraSize;
@@ -117,7 +121,7 @@
         public int ConvertMillisToByteSize(int milliseconds)
         {
             var byteCount = Convert.ToInt32((AverageBytesPerSecond / 1000.0d) * milliseconds);
-            if ((byteCount % BlockAlign) != 0)
+            if (byteCount % BlockAlign != 0)
             {
                 // Return the upper BlockAligned
                 byteCount = byteCount + BlockAlign - (byteCount % BlockAlign);
@@ -176,5 +180,10 @@
                 blockAlign ^
                 bitsPerSample;
         }
+
+        /// <inheritdoc />
+        public bool Equals(WaveFormat other) => other != null && GetHashCode() == other.GetHashCode();
     }
 }
+#pragma warning restore 414 // Field is assigned but its value is never used
+#pragma warning restore IDE0032 // Use auto property

@@ -14,14 +14,6 @@
         private TimeSpan m_Duration;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PlaylistEntry"/> class.
-        /// </summary>
-        public PlaylistEntry()
-        {
-            // placeholder
-        }
-
-        /// <summary>
         /// Occurs when a property value changes.
         /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;

@@ -12,7 +12,7 @@
     /// Derived classes implement the specifics of each media type.
     /// </summary>
     /// <seealso cref="IDisposable" />
-    internal abstract unsafe class MediaFrame : IDisposable, IComparable<MediaFrame>
+    internal abstract unsafe class MediaFrame : IComparable<MediaFrame>, IDisposable
     {
         #region Constructor
 
@@ -22,7 +22,7 @@
         /// <param name="pointer">The pointer.</param>
         /// <param name="component">The component.</param>
         /// <param name="mediaType">Type of the media.</param>
-        internal MediaFrame(AVFrame* pointer, MediaComponent component, MediaType mediaType)
+        protected MediaFrame(AVFrame* pointer, MediaComponent component, MediaType mediaType)
             : this((void*)pointer, component, mediaType)
         {
             var packetSize = pointer->pkt_size;
@@ -34,8 +34,8 @@
         /// </summary>
         /// <param name="pointer">The pointer.</param>
         /// <param name="component">The component.</param>
-        internal MediaFrame(AVSubtitle* pointer, MediaComponent component)
-            : this((void*)pointer, component, MediaType.Subtitle)
+        protected MediaFrame(AVSubtitle* pointer, MediaComponent component)
+            : this(pointer, component, MediaType.Subtitle)
         {
             // TODO: Compressed size is simply an estimate
             CompressedSize = (int)pointer->num_rects * 256;
@@ -118,21 +118,14 @@
 
         #region Methods
 
-        /// <summary>
-        /// Compares the current instance with another object of the same type and returns an integer that indicates whether the current instance precedes, follows, or occurs in the same position in the sort order as the other object.
-        /// </summary>
-        /// <param name="other">An object to compare with this instance.</param>
-        /// <returns>
-        /// A value that indicates the relative order of the objects being compared. The return value has these meanings: Value Meaning Less than zero This instance precedes <paramref name="other" /> in the sort order.  Zero This instance occurs in the same position in the sort order as <paramref name="other" />. Greater than zero This instance follows <paramref name="other" /> in the sort order.
-        /// </returns>
+        /// <inheritdoc />
         public int CompareTo(MediaFrame other)
         {
-            return StartTime.CompareTo(other.StartTime);
+            if (other == null) throw new ArgumentNullException(nameof(other));
+            return StartTime.Ticks.CompareTo(other.StartTime.Ticks);
         }
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        /// <inheritdoc />
         public abstract void Dispose();
 
         /// <summary>
@@ -182,7 +175,7 @@
         }
 
         /// <summary>
-        /// Deallocates the subtitle struct used to create in managed memory.
+        /// De-allocates the subtitle struct used to create in managed memory.
         /// </summary>
         /// <param name="frame">The frame.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
