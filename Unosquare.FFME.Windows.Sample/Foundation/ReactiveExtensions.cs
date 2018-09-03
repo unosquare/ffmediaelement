@@ -18,9 +18,8 @@
 
         private static readonly object SyncLock = new object();
 
-        /// <summary>
-        /// The pinned actions (action that don't get remove if the weak reference is lost.
-        /// </summary>
+        // The pinned actions (action that don't get remove if the weak reference is lost.
+        // ReSharper disable once CollectionNeverQueried.Local
         private static readonly Dictionary<Action, bool> PinnedActions = new Dictionary<Action, bool>();
 
         /// <summary>
@@ -29,10 +28,7 @@
         /// <param name="callback">The callback.</param>
         /// <param name="publisher">The publisher.</param>
         /// <param name="propertyNames">The property names.</param>
-        internal static void WhenChanged(this Action callback, INotifyPropertyChanged publisher, params string[] propertyNames) =>
-            callback.WhenChanged(true, publisher, propertyNames);
-
-        internal static void WhenChanged(this Action callback, bool pinned, INotifyPropertyChanged publisher, params string[] propertyNames)
+        internal static void WhenChanged(this Action callback, INotifyPropertyChanged publisher, params string[] propertyNames)
         {
             var bindPropertyChanged = false;
 
@@ -45,7 +41,7 @@
                 }
 
                 // Save the Action reference so that the weak reference is not lost
-                if (pinned) PinnedActions[callback] = true;
+                PinnedActions[callback] = true;
 
                 foreach (var propertyName in propertyNames)
                 {
@@ -61,14 +57,14 @@
             // Finally, bind to property changed
             publisher.PropertyChanged += (s, e) =>
             {
-                if (Subscriptions[publisher].ContainsKey(e.PropertyName) == false)
-                    return;
-
                 var deadCallbacks = new CallbackReferenceSet();
                 var aliveCallbacks = new CallbackReferenceSet();
 
                 lock (SyncLock)
                 {
+                    if (Subscriptions[publisher].ContainsKey(e.PropertyName) == false)
+                        return;
+
                     aliveCallbacks.AddRange(Subscriptions[publisher][e.PropertyName]);
                 }
 
