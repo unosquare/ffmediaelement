@@ -10,50 +10,55 @@
     internal static class PlaylistExtensions
     {
         /// <summary>
-        /// Parses the header line.
+        /// Parses the header line of a playlist.
         /// </summary>
         /// <typeparam name="T">The type of playlist items</typeparam>
-        /// <param name="target">The target.</param>
+        /// <param name="playlist">The playlist to parse data attributes into.</param>
         /// <param name="line">The line.</param>
-        public static void ParseHeaderLine<T>(this Playlist<T> target, string line)
+        public static void ParseHeaderLine<T>(this Playlist<T> playlist, string line)
             where T : PlaylistEntry, new()
         {
-            var lineData = line.Substring($"{Playlist<T>.HeaderPrefix} ".Length).Trim();
-            var attributes = lineData.ParseAttributes();
+            // Get the line of text removing the start of the line data
+            var headerAttributesText = line.Substring($"{Playlist<T>.HeaderPrefix} ".Length).Trim();
+            var headerAttributes = headerAttributesText.ParseAttributes();
 
-            foreach (var attribute in attributes)
-            {
-                lineData = lineData.Replace(attribute.Substring, string.Empty);
-                target.Attributes[attribute.Key] = attribute.Value;
-            }
+            foreach (var attribute in headerAttributes)
+                playlist.Attributes[attribute.Key] = attribute.Value;
 
-            lineData = lineData.Trim();
-            target.Name = lineData;
+            playlist.Name = headerAttributesText;
         }
 
         /// <summary>
         /// Parses the extended information line into a Playlist entry.
         /// </summary>
-        /// <param name="target">The target.</param>
-        /// <param name="line">The line.</param>
-        public static void BeginExtendedInfoLine(this PlaylistEntry target, string line)
+        /// <param name="entry">The playlist entry item to parse data into.</param>
+        /// <param name="line">The line of text.</param>
+        public static void BeginExtendedInfoLine(this PlaylistEntry entry, string line)
         {
-            var lineData = line.Substring($"{Playlist.EntryPrefix}:".Length).Trim();
-            var attributes = lineData.ParseAttributes();
+            // Get the line of text removing the start of the line data
+            var entryAttributesText = line.Substring($"{Playlist.EntryPrefix}:".Length).Trim();
+            var entryAttributes = entryAttributesText.ParseAttributes();
 
-            foreach (var attribute in attributes)
+            foreach (var attribute in entryAttributes)
             {
-                lineData = lineData.Replace(attribute.Substring, string.Empty);
-                target.Attributes[attribute.Key] = attribute.Value;
+                entryAttributesText = entryAttributesText.Replace(attribute.Substring, string.Empty);
+                entry.Attributes[attribute.Key] = attribute.Value;
             }
 
-            lineData = lineData.Trim();
-            var headerFields = lineData.Split(',');
-            if (headerFields.Length >= 1 && long.TryParse(headerFields[0].Trim(), out var duration))
-                target.Duration = TimeSpan.FromSeconds(Convert.ToDouble(duration));
+            // We need to further parse the data beyond the attributes
+            // so we parse the left-over text.
+            entryAttributesText = entryAttributesText.Trim();
 
+            // The extra fields are comma-separated
+            var headerFields = entryAttributesText.Split(',');
+
+            // The first field is the duration
+            if (headerFields.Length >= 1 && long.TryParse(headerFields[0].Trim(), out var duration))
+                entry.Duration = TimeSpan.FromSeconds(Convert.ToDouble(duration));
+
+            // The next field is the title
             if (headerFields.Length >= 2)
-                target.Title = headerFields[1].Trim();
+                entry.Title = headerFields[1].Trim();
         }
 
         /// <summary>
