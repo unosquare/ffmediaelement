@@ -1803,6 +1803,19 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.ScrubbingEnabledProperty
   fullName: Unosquare.FFME.MediaElement.ScrubbingEnabledProperty
   nameWithType: MediaElement.ScrubbingEnabledProperty
+- uid: Unosquare.FFME.MediaElement.Seek(System.TimeSpan)
+  name: Seek(TimeSpan)
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Seek_System_TimeSpan_
+  commentId: M:Unosquare.FFME.MediaElement.Seek(System.TimeSpan)
+  fullName: Unosquare.FFME.MediaElement.Seek(System.TimeSpan)
+  nameWithType: MediaElement.Seek(TimeSpan)
+- uid: Unosquare.FFME.MediaElement.Seek*
+  name: Seek
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Seek_
+  commentId: Overload:Unosquare.FFME.MediaElement.Seek
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.Seek
+  nameWithType: MediaElement.Seek
 - uid: Unosquare.FFME.MediaElement.SeekingEnded
   name: SeekingEnded
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_SeekingEnded
