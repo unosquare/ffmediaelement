@@ -310,6 +310,18 @@ namespace Unosquare.FFME
         }
 
         /// <summary>
+        /// Seeks to the specified target position.
+        /// This is an alternative to using the <see cref="Position"/> dependency property.
+        /// </summary>
+        /// <param name="target">The target time to seek to.</param>
+        /// <returns>The awaitable command</returns>
+        public async Task Seek(TimeSpan target)
+        {
+            try { await MediaCore.Seek(target); }
+            catch (Exception ex) { PostMediaFailedEvent(ex); }
+        }
+
+        /// <summary>
         /// Opens the specified URI.
         /// This is an alternative method of opening media vs using the
         /// <see cref="Source"/> Dependency Property.

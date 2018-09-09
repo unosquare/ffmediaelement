@@ -109,6 +109,7 @@
             public DelegateCommand PlayCommand => m_PlayCommand ??
                 (m_PlayCommand = new DelegateCommand(async o =>
                 {
+                    // await Current.MediaElement.Seek(TimeSpan.Zero)
                     await Current.MediaElement.Play();
                 }));
 
