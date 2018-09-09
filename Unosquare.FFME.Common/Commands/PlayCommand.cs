@@ -21,18 +21,33 @@
         /// <inheritdoc />
         public override CommandType CommandType { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether the media can play.
+        /// </summary>
+        private bool CanPlay
+        {
+            get
+            {
+                var m = MediaCore;
+                if (m.State.HasMediaEnded)
+                    return false;
+
+                if (m.State.IsLiveStream)
+                    return true;
+
+                return !m.State.NaturalDuration.HasValue
+                       || m.State.NaturalDuration == TimeSpan.MinValue
+                       || m.WallClock < m.State.NaturalDuration.Value;
+            }
+        }
+
         /// <inheritdoc />
         protected override void PerformActions()
         {
-            var m = MediaCore;
-            if (m.State.HasMediaEnded
-                || (m.State.NaturalDuration.HasValue
-                && m.State.NaturalDuration != TimeSpan.MinValue
-                && m.WallClock >= m.State.NaturalDuration.Value))
-            {
+            if (!CanPlay)
                 return;
-            }
 
+            var m = MediaCore;
             foreach (var renderer in m.Renderers.Values)
                 renderer.Play();
 
