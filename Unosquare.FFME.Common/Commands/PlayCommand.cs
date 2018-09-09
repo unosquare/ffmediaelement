@@ -1,7 +1,5 @@
 ﻿namespace Unosquare.FFME.Commands
 {
-    using System;
-
     /// <summary>
     /// The Play Command Implementation
     /// </summary>
@@ -35,9 +33,10 @@
                 if (m.State.IsLiveStream)
                     return true;
 
-                return !m.State.NaturalDuration.HasValue
-                       || m.State.NaturalDuration == TimeSpan.MinValue
-                       || m.WallClock < m.State.NaturalDuration.Value;
+                if (!m.State.IsSeekable)
+                    return true;
+
+                return m.State.IsSeekable && m.WallClock < m.State.Position;
             }
         }
 
