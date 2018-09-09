@@ -1,4 +1,6 @@
-﻿namespace Unosquare.FFME.Commands
+﻿using System;
+
+namespace Unosquare.FFME.Commands
 {
     /// <summary>
     /// The Play Command Implementation
@@ -36,7 +38,13 @@
                 if (!m.State.IsSeekable)
                     return true;
 
-                return m.State.IsSeekable && m.WallClock < m.State.Position;
+                if (!m.State.NaturalDuration.HasValue)
+                    return true;
+
+                if (m.State.NaturalDuration == TimeSpan.MinValue)
+                    return true;
+
+                return m.WallClock < m.State.NaturalDuration;
             }
         }
 
