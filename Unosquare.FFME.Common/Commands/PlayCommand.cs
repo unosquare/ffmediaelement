@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace Unosquare.FFME.Commands
+﻿namespace Unosquare.FFME.Commands
 {
+    using System;
+
     /// <summary>
     /// The Play Command Implementation
     /// </summary>
