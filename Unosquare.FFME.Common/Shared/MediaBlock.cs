@@ -15,6 +15,7 @@
     {
         private readonly object SyncLock = new object();
         private readonly ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
+        private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
         private IntPtr m_Buffer = IntPtr.Zero;
         private int m_BufferLength;
 
@@ -88,16 +89,18 @@
             get
             {
                 lock (SyncLock)
-                {
-                    return IsDisposed == false && m_Buffer != IntPtr.Zero;
-                }
+                    return !IsDisposed && m_Buffer != IntPtr.Zero;
             }
         }
 
         /// <summary>
         /// Gets a value indicating whether this block is disposed
         /// </summary>
-        public bool IsDisposed => Locker.IsDisposed;
+        public bool IsDisposed
+        {
+            get => m_IsDisposed.Value;
+            private set => m_IsDisposed.Value = value;
+        }
 
         /// <summary>
         /// Gets or sets the index within the block buffer.
@@ -150,7 +153,7 @@
         /// </returns>
         public bool Contains(TimeSpan position)
         {
-            if (Duration <= TimeSpan.Zero)
+            if (!IsDisposed && Duration <= TimeSpan.Zero)
                 return false;
 
             return position.Ticks >= StartTime.Ticks
@@ -185,7 +188,8 @@
 
             lock (SyncLock)
             {
-                if (IsDisposed) return false;
+                if (IsDisposed)
+                    return false;
 
                 if (m_BufferLength == bufferLength)
                     return true;
@@ -208,10 +212,11 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool alsoManaged)
         {
-            if (IsDisposed) return;
-
             lock (SyncLock)
             {
+                if (IsDisposed) return;
+                IsDisposed = true;
+
                 // Free unmanaged resources (unmanaged objects) and override a finalizer below.
                 using (Locker.AcquireWriterLock())
                 {
