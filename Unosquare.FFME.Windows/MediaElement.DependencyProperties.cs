@@ -37,17 +37,8 @@ namespace Unosquare.FFME
                 OnVolumePropertyChanged,
                 OnVolumePropertyChanging));
 
-        private static object OnVolumePropertyChanging(DependencyObject d, object value)
-        {
-            if (d is MediaElement == false) return Constants.Controller.DefaultVolume;
-
-            var element = (MediaElement)d;
-            if (element.MediaCore == null || element.MediaCore.IsDisposed) return Constants.Controller.DefaultVolume;
-            if (element.PropertyUpdatesWorker.IsExecutingCycle) return value;
-            return element.HasAudio == false ?
-                Constants.Controller.DefaultVolume :
-                ((double)value).Clamp(Constants.Controller.MinVolume, Constants.Controller.MaxVolume);
-        }
+        private static object OnVolumePropertyChanging(DependencyObject d, object value) =>
+            ((double)value).Clamp(Constants.Controller.MinVolume, Constants.Controller.MaxVolume);
 
         private static void OnVolumePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -80,18 +71,8 @@ namespace Unosquare.FFME
                 OnBalancePropertyChanged,
                 OnBalancePropertyChanging));
 
-        private static object OnBalancePropertyChanging(DependencyObject d, object value)
-        {
-            if (d is MediaElement == false) return Constants.Controller.DefaultBalance;
-
-            var element = (MediaElement)d;
-            if (element.MediaCore == null || element.MediaCore.IsDisposed) return Constants.Controller.DefaultBalance;
-            if (element.PropertyUpdatesWorker.IsExecutingCycle) return value;
-
-            return element.HasAudio == false ?
-                Constants.Controller.DefaultBalance :
-                ((double)value).Clamp(Constants.Controller.MinBalance, Constants.Controller.MaxBalance);
-        }
+        private static object OnBalancePropertyChanging(DependencyObject d, object value) =>
+            ((double)value).Clamp(Constants.Controller.MinBalance, Constants.Controller.MaxBalance);
 
         private static void OnBalancePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -124,17 +105,8 @@ namespace Unosquare.FFME
                 OnIsMutedPropertyChanged,
                 OnIsMutedPropertyChanging));
 
-        private static object OnIsMutedPropertyChanging(DependencyObject d, object value)
-        {
-            if (d is MediaElement == false) return false;
-
-            var element = (MediaElement)d;
-            if (element.MediaCore == null || element.MediaCore.IsDisposed) return false;
-            if (element.PropertyUpdatesWorker.IsExecutingCycle) return value;
-            if (element.HasAudio == false) return false;
-
-            return (bool)value;
-        }
+        private static object OnIsMutedPropertyChanging(DependencyObject d, object value) =>
+            (bool)value;
 
         private static void OnIsMutedPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -243,7 +215,7 @@ namespace Unosquare.FFME
 
         private static void OnPositionPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            // placeholder: nothing to do one we have changed the position.
+            // placeholder: nothing to do once we have changed the position.
         }
 
         #endregion

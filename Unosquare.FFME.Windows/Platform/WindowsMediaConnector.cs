@@ -71,7 +71,16 @@
 
             GuiContext.Current.EnqueueInvoke(async () =>
             {
+                // Set initial controller properties
+                // Has to be on the GUI thread as we are reading dependency properties
+                sender.State.Volume = Parent.Volume;
+                sender.State.IsMuted = Parent.IsMuted;
+                sender.State.Balance = Parent.Balance;
+
+                // Notify the end user media has opened successfully
                 Parent.PostMediaOpenedEvent(mediaInfo);
+
+                // Start playback if we don't support pausing
                 if (sender.State.CanPause == false)
                 {
                     await sender.Play();
