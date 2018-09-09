@@ -156,15 +156,18 @@
                 return;
             }
 
-            switch (Type)
+            try
             {
-                case GuiContextType.WPF:
+                // We try here because we'd like to catch cancellations and ignore then
+                switch (Type)
+                {
+                    case GuiContextType.WPF:
                     {
                         await GuiDispatcher.InvokeAsync(() => { callback.DynamicInvoke(arguments); }, priority);
                         return;
                     }
 
-                case GuiContextType.WinForms:
+                    case GuiContextType.WinForms:
                     {
                         var doneEvent = WaitEventFactory.Create(isCompleted: false, useSlim: true);
                         ThreadContext.Post(a =>
@@ -186,7 +189,7 @@
                         return;
                     }
 
-                default:
+                    default:
                     {
                         var runnerTask = new Task(() => { callback.DynamicInvoke(arguments); });
                         var awaiter = runnerTask.ConfigureAwait(false);
@@ -195,6 +198,12 @@
                         await awaiter;
                         return;
                     }
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // Ignore cancellation
+                Debug.WriteLine($"FFME {nameof(GuiContext)}.{nameof(InvokeAsyncInternal)}: Operation was cancelled");
             }
         }
     }
