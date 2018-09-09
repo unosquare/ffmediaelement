@@ -65,14 +65,6 @@
 
             if (MediaCore.State.HasAudio)
                 Initialize();
-
-            if (Application.Current != null)
-            {
-                GuiContext.Current.EnqueueInvoke(DispatcherPriority.Render, () =>
-                {
-                    Application.Current.Exit += OnApplicationExit;
-                });
-            }
         }
 
         #endregion
@@ -251,6 +243,13 @@
         /// <inheritdoc />
         public void Close()
         {
+            // Self-disconnect
+            if (Application.Current != null)
+            {
+                GuiContext.Current.EnqueueInvoke(DispatcherPriority.Render, () =>
+                    Application.Current.Exit -= OnApplicationExit);
+            }
+
             // Yes, seek and destroy... coincidentally.
             lock (SyncLock)
             {
@@ -384,12 +383,6 @@
         {
             try { Dispose(); }
             catch { /* Ignore exception and continue */ }
-            finally
-            {
-                // Self-disconnect
-                if (Application.Current != null)
-                    Application.Current.Exit -= OnApplicationExit;
-            }
         }
 
         /// <summary>
@@ -399,6 +392,13 @@
         private void Initialize()
         {
             Destroy();
+
+            // Release the audio device always upon exiting
+            if (Application.Current != null)
+            {
+                GuiContext.Current.EnqueueInvoke(DispatcherPriority.Render, () =>
+                    Application.Current.Exit += OnApplicationExit);
+            }
 
             // Enumerate devices. The default device is the first one so we check
             // that we have more than 1 device (other than the default stub)
