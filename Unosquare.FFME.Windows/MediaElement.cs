@@ -222,8 +222,7 @@ namespace Unosquare.FFME
         /// GUI context, it runs on its own dispatcher (multi-threaded UI)
         /// </summary>
         internal ImageHost VideoView { get; } = new ImageHost(
-            GuiContext.Current.Type == GuiContextType.WPF && EnableWpfMultiThreadedVideo)
-        { Name = nameof(VideoView) };
+            GuiContext.Current.Type == GuiContextType.WPF && EnableWpfMultiThreadedVideo) { Name = nameof(VideoView) };
 
         /// <summary>
         /// Gets the closed captions view control.
@@ -446,22 +445,25 @@ namespace Unosquare.FFME
             // might have been set.
             VideoView.ElementLoaded += (vs, ve) =>
             {
-                VideoView.Stretch = Stretch;
-                VideoView.StretchDirection = StretchDirection;
                 VideoView.UseLayoutRounding = true;
                 VideoView.SnapsToDevicePixels = true;
                 VideoView.Focusable = false;
                 VideoView.IsHitTestVisible = false;
+                VideoView.Stretch = Stretch;
+                VideoView.StretchDirection = StretchDirection;
+
+                // Wire up the layout updates
+                VideoView.LayoutUpdated += HandleVideoViewLayoutUpdates;
             };
 
-            // Set some default properties. Centering the content allows for video-aligned subtitles
-            VerticalContentAlignment = VerticalAlignment.Center;
-            HorizontalContentAlignment = HorizontalAlignment.Center;
+            // Set some default layout properties.
             UseLayoutRounding = true;
             SnapsToDevicePixels = true;
 
             // Setup the content grid and add it as part of the user control
             Content = ContentGrid;
+
+            // Set some layout defaults
             ContentGrid.HorizontalAlignment = HorizontalAlignment.Stretch;
             ContentGrid.VerticalAlignment = VerticalAlignment.Stretch;
             ContentGrid.UseLayoutRounding = true;
@@ -480,6 +482,8 @@ namespace Unosquare.FFME
             SubtitlesView.SnapsToDevicePixels = true;
             SubtitlesView.IsHitTestVisible = false;
             SubtitlesView.Focusable = false;
+            SubtitlesView.HorizontalAlignment = HorizontalAlignment.Left;
+            SubtitlesView.VerticalAlignment = VerticalAlignment.Top;
 
             // Add the subtitles control and bind the attached properties
             Subtitles.SetForeground(this, SubtitlesView.TextForeground);
@@ -491,6 +495,10 @@ namespace Unosquare.FFME
             BindProperty(this, Subtitles.FontWeightProperty, SubtitlesView, nameof(SubtitlesView.FontWeight), BindingMode.TwoWay);
             BindProperty(this, Subtitles.FontFamilyProperty, SubtitlesView, nameof(SubtitlesView.FontFamily), BindingMode.TwoWay);
             BindProperty(this, Subtitles.TextProperty, SubtitlesView, nameof(SubtitlesView.Text), BindingMode.TwoWay);
+
+            // Position the Captions View
+            CaptionsView.HorizontalAlignment = HorizontalAlignment.Left;
+            CaptionsView.VerticalAlignment = VerticalAlignment.Top;
 
             // Compose the control by adding overlapping children
             ContentGrid.Children.Add(VideoView);
@@ -513,8 +521,9 @@ namespace Unosquare.FFME
                 VideoView.Source = controlBitmap;
             }
 
-            // Update as the VideoView updates but check if there are valid dimensions and it actually has video
-            VideoView.LayoutUpdated += HandleVideoViewLayoutUpdates;
+            // Bind Content View Properties
+            BindProperty(VideoView, HorizontalAlignmentProperty, this, nameof(HorizontalContentAlignment), BindingMode.OneWay);
+            BindProperty(VideoView, VerticalAlignmentProperty, this, nameof(VerticalContentAlignment), BindingMode.OneWay);
         }
 
         /// <summary>
@@ -527,43 +536,59 @@ namespace Unosquare.FFME
             // Prevent running the code
             lock (DisposeLock)
             {
-                if (IsDisposed || ContentGrid.Children.IndexOf(VideoView) < 0)
+                if (IsDisposed || ContentGrid.Children.IndexOf(VideoView) < 0 || VideoView.Element == null)
                     return;
 
-                // When video dimensions are invalid, let's not do any layout.
-                if (VideoView.ActualWidth <= 0 || VideoView.ActualHeight <= 0)
+                // Compute the position offset of the video
+                var videoPosition = VideoView.HasOwnDispatcher ?
+                    VideoView.TransformToAncestor(ContentGrid).Transform(new Point(0, 0)) :
+                    VideoView.Element.TransformToAncestor(ContentGrid).Transform(new Point(0, 0));
+
+                // Compute the dimensions of the video
+                var videoSize = VideoView.HasOwnDispatcher ?
+                    VideoView.RenderSize :
+                    VideoView.Element.DesiredSize;
+
+                // Validate the dimensions; avoid layout operations with invalid values
+                if (videoSize.Width <= 0 || double.IsNaN(videoSize.Width) ||
+                    videoSize.Height <= 0 || double.IsNaN(videoSize.Height))
+                {
                     return;
+                }
 
                 if (HasVideo || GuiContext.Current.IsInDesignTime)
                 {
-                    CaptionsView.Width = VideoView.ActualWidth;
-                    CaptionsView.Height = VideoView.ActualHeight * .80; // FCC Safe Caption Area Dimensions
+                    // Position and Size the Captions View
+                    CaptionsView.Width = Math.Floor(videoSize.Width);
+                    CaptionsView.Height = Math.Floor(videoSize.Height * .80); // FCC Safe Caption Area Dimensions
+                    CaptionsView.Margin = new Thickness(
+                        Math.Floor(videoPosition.X + ((videoSize.Width - CaptionsView.RenderSize.Width) / 2d)),
+                        Math.Floor(videoPosition.Y + ((videoSize.Height - CaptionsView.RenderSize.Height) / 2d)),
+                        0,
+                        0);
                     CaptionsView.Visibility = Visibility.Visible;
+
+                    // Position and Size the Subtitles View
+                    SubtitlesView.Width = Math.Floor(videoSize.Width * 0.9d);
+                    SubtitlesView.Height = Math.Floor(videoSize.Height / 8d);
+                    SubtitlesView.Margin = new Thickness(
+                        Math.Floor(videoPosition.X + ((videoSize.Width - SubtitlesView.RenderSize.Width) / 2d)),
+                        Math.Floor(videoPosition.Y + videoSize.Height - (1.8 * SubtitlesView.RenderSize.Height)),
+                        0,
+                        0);
+
+                    SubtitlesView.Visibility = Visibility.Visible;
                 }
                 else
                 {
                     CaptionsView.Width = 0;
                     CaptionsView.Height = 0;
                     CaptionsView.Visibility = Visibility.Collapsed;
+
+                    SubtitlesView.Width = 0;
+                    SubtitlesView.Height = 0;
+                    SubtitlesView.Visibility = Visibility.Collapsed;
                 }
-
-                // Compute the position of the subtitles view based on the Video View
-                var videoViewPosition = VideoView.TransformToAncestor(ContentGrid).Transform(new Point(0, 0));
-                var targetHeight = VideoView.ActualHeight / 9d;
-                var targetWidth = VideoView.ActualWidth * 0.90;
-
-                if (Math.Abs(SubtitlesView.Height - targetHeight) > double.Epsilon)
-                    SubtitlesView.Height = targetHeight;
-
-                if (Math.Abs(SubtitlesView.Width - targetWidth) > double.Epsilon)
-                    SubtitlesView.Width = targetWidth;
-
-                var verticalOffset = ContentGrid.ActualHeight - (videoViewPosition.Y + VideoView.ActualHeight);
-                var verticalOffsetPadding = targetHeight * 0.75d;
-                var marginBottom = verticalOffset + verticalOffsetPadding;
-
-                if (Math.Abs(SubtitlesView.Margin.Bottom - marginBottom) > double.Epsilon)
-                    SubtitlesView.Margin = new Thickness(0, 0, 0, marginBottom);
             }
         }
 

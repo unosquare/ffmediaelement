@@ -42,7 +42,8 @@ namespace Unosquare.FFME
 
         private static void OnVolumePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is MediaElement m) m.MediaCore.State.Volume = (double)e.NewValue;
+            if (d is MediaElement m && m.MediaCore != null && e.NewValue is double v)
+                m.MediaCore.State.Volume = v;
         }
 
         #endregion
@@ -76,7 +77,8 @@ namespace Unosquare.FFME
 
         private static void OnBalancePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is MediaElement m) m.MediaCore.State.Balance = (double)e.NewValue;
+            if (d is MediaElement m && m.MediaCore != null && e.NewValue is double v)
+                m.MediaCore.State.Balance = v;
         }
 
         #endregion
@@ -102,15 +104,12 @@ namespace Unosquare.FFME
             new FrameworkPropertyMetadata(
                 false,
                 FrameworkPropertyMetadataOptions.None,
-                OnIsMutedPropertyChanged,
-                OnIsMutedPropertyChanging));
-
-        private static object OnIsMutedPropertyChanging(DependencyObject d, object value) =>
-            (bool)value;
+                OnIsMutedPropertyChanged));
 
         private static void OnIsMutedPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is MediaElement m) m.MediaCore.State.IsMuted = (bool)e.NewValue;
+            if (d is MediaElement m && m.MediaCore != null && e.NewValue is bool v)
+                m.MediaCore.State.IsMuted = v;
         }
 
         #endregion
@@ -154,7 +153,8 @@ namespace Unosquare.FFME
 
         private static void OnSpeedRatioPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is MediaElement m) m.MediaCore.State.SpeedRatio = (double)e.NewValue;
+            if (d is MediaElement m && m.MediaCore != null && e.NewValue is double v)
+                m.MediaCore.State.SpeedRatio = v;
         }
 
         #endregion
@@ -291,10 +291,10 @@ namespace Unosquare.FFME
             nameof(Stretch), typeof(Stretch), typeof(MediaElement),
             new FrameworkPropertyMetadata(Stretch.Uniform, AffectsMeasureAndRender, OnStretchPropertyChanged));
 
-        private static void OnStretchPropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
+        private static void OnStretchPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (dependencyObject is MediaElement element)
-                element.VideoView.Stretch = (Stretch)e.NewValue;
+            if (d is MediaElement m && m.VideoView != null && m.VideoView.IsLoaded && e.NewValue is Stretch v)
+                m.VideoView.Stretch = v;
         }
 
         #endregion
@@ -320,10 +320,10 @@ namespace Unosquare.FFME
             nameof(StretchDirection), typeof(StretchDirection), typeof(MediaElement),
             new FrameworkPropertyMetadata(StretchDirection.Both, AffectsMeasureAndRender, OnStretchDirectionPropertyChanged));
 
-        private static void OnStretchDirectionPropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
+        private static void OnStretchDirectionPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (dependencyObject is MediaElement element)
-                element.VideoView.StretchDirection = (StretchDirection)e.NewValue;
+            if (d is MediaElement m && m.VideoView != null && m.VideoView.IsLoaded && e.NewValue is StretchDirection v)
+                m.VideoView.StretchDirection = v;
         }
 
         #endregion
@@ -427,8 +427,7 @@ namespace Unosquare.FFME
 
         private static void OnClosedCaptionsChannelPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var element = d as MediaElement;
-            element?.CaptionsView.Reset();
+            if (d is MediaElement m) m.CaptionsView.Reset();
         }
 
         #endregion
