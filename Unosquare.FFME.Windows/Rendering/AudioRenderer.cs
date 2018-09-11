@@ -410,6 +410,7 @@
             if (hasAudioDevices == false)
             {
                 WaitForReadyEvent.Complete();
+                HasFiredAudioDeviceStopped = true;
                 MediaCore.Log(MediaLogMessageType.Warning, "AUDIO OUT: No audio device found for output.");
                 return;
             }
