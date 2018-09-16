@@ -111,8 +111,8 @@
                         if (Source.IsFile || Source.IsUnc)
                         {
                             // Set the default protocol Prefix
+                            // containerConfig.ProtocolPrefix = "async";
                             mediaUrl = Source.LocalPath;
-                            containerConfig.ProtocolPrefix = "async";
                         }
                     }
                     catch { /* Ignore exception and continue */ }

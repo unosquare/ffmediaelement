@@ -214,6 +214,7 @@
         {
             // Set a start position (see issue #66)
             // Media.Position = TimeSpan.FromSeconds(5);
+            // await Media.Seek(TimeSpan.FromSeconds(5));
         }
 
         /// <summary>
