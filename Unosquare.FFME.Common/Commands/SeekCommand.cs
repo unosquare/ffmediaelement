@@ -10,19 +10,44 @@
     internal class SeekCommand : CommandBase
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SeekCommand"/> class.
+        /// Initializes a new instance of the <see cref="SeekCommand" /> class.
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
         /// <param name="targetPosition">The target position.</param>
-        public SeekCommand(MediaEngine mediaCore, TimeSpan targetPosition)
+        /// <param name="targetSeekMode">The target seek mode.</param>
+        public SeekCommand(MediaEngine mediaCore, TimeSpan targetPosition, SeekMode targetSeekMode)
             : base(mediaCore)
         {
             TargetPosition = targetPosition;
+            TargetSeekMode = targetSeekMode;
             CommandType = CommandType.Seek;
+        }
+
+        /// <summary>
+        /// Enumerates sepcial seek modes
+        /// </summary>
+        public enum SeekMode
+        {
+            /// <summary>Normal seek mode</summary>
+            Normal,
+
+            /// <summary>Stop seek mode</summary>
+            Stop,
+
+            /// <summary>Frame step forward</summary>
+            StepForward,
+
+            /// <summary>Frame step backward</summary>
+            StepBackward
         }
 
         /// <inheritdoc />
         public override CommandType CommandType { get; }
+
+        /// <summary>
+        /// Gets or sets the target seek mode.
+        /// </summary>
+        public SeekMode TargetSeekMode { get; }
 
         /// <summary>
         /// Gets or sets the target seek position.
@@ -43,6 +68,17 @@
                 var main = m.Container.Components.MainMediaType;
                 var all = m.Container.Components.MediaTypes;
                 var mainBlocks = m.Blocks[main];
+
+                if (TargetSeekMode == SeekMode.StepBackward || TargetSeekMode == SeekMode.StepForward)
+                {
+                    var neighbors = mainBlocks.Neighbors(initialPosition);
+                    TargetPosition = neighbors[TargetSeekMode == SeekMode.StepBackward ? 0 : 1]?.StartTime ??
+                        TimeSpan.FromTicks(neighbors[2].StartTime.Ticks - Convert.ToInt64(neighbors[2].Duration.Ticks / 2d));
+                }
+                else if (TargetSeekMode == SeekMode.Stop)
+                {
+                    TargetPosition = TimeSpan.Zero;
+                }
 
                 // Check if we already have the block. If we do, simply set the clock position to the target position
                 // we don't need anything else. This implements frame-by frame seeking and we need to snap to a discrete

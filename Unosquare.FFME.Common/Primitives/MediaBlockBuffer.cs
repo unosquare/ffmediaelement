@@ -196,7 +196,7 @@
 
         /// <summary>
         /// Gets the neighboring blocks in an atomic operation.
-        /// The first item in the array is the previous block. The second is the next block.
+        /// The first item in the array is the previous block. The second is the next block. The third is the current block.
         /// </summary>
         /// <param name="current">The current block to get neighbors from.</param>
         /// <returns>The previous (if any) and next (if any) blocks.</returns>
@@ -204,13 +204,29 @@
         {
             lock (SyncLock)
             {
-                var result = new MediaBlock[2];
+                var result = new MediaBlock[3];
                 if (current == null) return result;
 
                 result[0] = current.Previous;
                 result[1] = current.Next;
+                result[2] = current;
 
                 return result;
+            }
+        }
+
+        /// <summary>
+        /// Gets the neighboring blocks in an atomic operation.
+        /// The first item in the array is the previous block. The second is the next block. The third is the current block.
+        /// </summary>
+        /// <param name="position">The current block position to get neighbors from.</param>
+        /// <returns>The previous (if any) and next (if any) blocks.</returns>
+        public MediaBlock[] Neighbors(TimeSpan position)
+        {
+            lock (SyncLock)
+            {
+                var current = this[position];
+                return Neighbors(current);
             }
         }
 
@@ -395,9 +411,14 @@
                     // if there are no available blocks, make room!
                     if (PoolBlocks.Count <= 0)
                     {
+                        // Remove the first block from playback
                         var firstBlock = PlaybackBlocks[0];
                         PlaybackBlocks.RemoveAt(0);
                         PoolBlocks.Enqueue(firstBlock);
+
+                        // The new zeroth block can't have a previous block.
+                        if (PlaybackBlocks.Count > 0)
+                            PlaybackBlocks[0].Previous = null;
                     }
 
                     // Get a block reference from the pool and convert it!

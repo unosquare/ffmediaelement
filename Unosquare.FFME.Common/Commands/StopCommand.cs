@@ -14,7 +14,7 @@
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
         public StopCommand(MediaEngine mediaCore)
-            : base(mediaCore, TimeSpan.Zero)
+            : base(mediaCore, TimeSpan.Zero, SeekMode.Stop)
         {
             CommandType = CommandType.Stop;
         }

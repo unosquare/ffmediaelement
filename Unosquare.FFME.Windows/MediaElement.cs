@@ -324,6 +324,26 @@ namespace Unosquare.FFME
         }
 
         /// <summary>
+        /// Seeks a single frame forward.
+        /// </summary>
+        /// <returns>The awaitable command</returns>
+        public async Task StepForward()
+        {
+            try { await MediaCore.StepForward(); }
+            catch (Exception ex) { PostMediaFailedEvent(ex); }
+        }
+
+        /// <summary>
+        /// Seeks a single frame backward.
+        /// </summary>
+        /// <returns>The awaitable command</returns>
+        public async Task StepBackward()
+        {
+            try { await MediaCore.StepBackward(); }
+            catch (Exception ex) { PostMediaFailedEvent(ex); }
+        }
+
+        /// <summary>
         /// Opens the specified URI.
         /// This is an alternative method of opening media vs using the
         /// <see cref="Source"/> Dependency Property.

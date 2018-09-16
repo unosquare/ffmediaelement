@@ -106,6 +106,20 @@
         public async Task Seek(TimeSpan position) =>
             await Commands.SeekAsync(position);
 
+        /// <summary>
+        /// Seeks a single frame forward.
+        /// </summary>
+        /// <returns>The awaitable command</returns>
+        public async Task StepForward() =>
+            await Commands.StepForwardAsync();
+
+        /// <summary>
+        /// Seeks a single frame backward.
+        /// </summary>
+        /// <returns>The awaitable command</returns>
+        public async Task StepBackward() =>
+            await Commands.StepBackwardAsync();
+
         #endregion
     }
 }

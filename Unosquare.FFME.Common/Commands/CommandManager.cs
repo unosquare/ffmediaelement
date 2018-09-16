@@ -245,7 +245,30 @@
         public async Task<bool> SeekAsync(TimeSpan target)
         {
             IncrementPendingSeeks();
-            return await ExecuteDelayedSeekCommand(target).ConfigureAwait(false);
+            return await ExecuteDelayedSeekCommand(
+                target, SeekCommand.SeekMode.Normal).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Seeks a single frame forward.
+        /// </summary>
+        /// <returns>The awaitable task. The task result determines if the command was successfully started</returns>
+        public async Task<bool> StepForwardAsync()
+        {
+            IncrementPendingSeeks();
+            return await ExecuteDelayedSeekCommand(
+                TimeSpan.Zero, SeekCommand.SeekMode.StepForward).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Seeks a single frame backward.
+        /// </summary>
+        /// <returns>The awaitable task. The task result determines if the command was successfully started</returns>
+        public async Task<bool> StepBackwardAsync()
+        {
+            IncrementPendingSeeks();
+            return await ExecuteDelayedSeekCommand(
+                TimeSpan.Zero, SeekCommand.SeekMode.StepBackward).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -293,8 +316,9 @@
                     if (HasSeekingStarted == false)
                     {
                         HasSeekingStarted.Value = true;
-                        PlayAfterSeek.Value = MediaCore.Clock.IsRunning &&
-                            command.CommandType != CommandType.Stop;
+                        PlayAfterSeek.Value = MediaCore.Clock.IsRunning && command is SeekCommand seekCommand &&
+                             seekCommand.TargetSeekMode == SeekCommand.SeekMode.Normal;
+
                         MediaCore.SendOnSeekingStarted();
                     }
                 }
@@ -516,8 +540,11 @@
         /// Executes the specified delayed command.
         /// </summary>
         /// <param name="argument">The argument.</param>
-        /// <returns>The awaitable task handle</returns>
-        private async Task<bool> ExecuteDelayedSeekCommand(TimeSpan argument)
+        /// <param name="seekMode">The seek mode.</param>
+        /// <returns>
+        /// The awaitable task handle
+        /// </returns>
+        private async Task<bool> ExecuteDelayedSeekCommand(TimeSpan argument, SeekCommand.SeekMode seekMode)
         {
             if (CanExecuteQueuedCommands == false)
             {
@@ -541,7 +568,7 @@
                 return await currentCommand.Awaiter;
             }
 
-            var command = new SeekCommand(MediaCore, argument);
+            var command = new SeekCommand(MediaCore, argument, seekMode);
             lock (QueueLock)
                 CommandQueue.Add(command);
 

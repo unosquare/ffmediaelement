@@ -129,7 +129,7 @@
                 if (m.State.IsSeekable)
                 {
                     // Let's simply do an automated seek
-                    var seekCommand = new SeekCommand(m, m.WallClock);
+                    var seekCommand = new SeekCommand(m, m.WallClock, SeekCommand.SeekMode.Normal);
                     seekCommand.Execute();
                 }
                 else

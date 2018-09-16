@@ -29,10 +29,6 @@
         private readonly AtomicInteger m_PacketBufferCount = new AtomicInteger(default);
 
         private readonly AtomicTimeSpan m_Position = new AtomicTimeSpan(default);
-        private readonly AtomicTimeSpan m_PositionNext = new AtomicTimeSpan(default);
-        private readonly AtomicTimeSpan m_PositionCurrent = new AtomicTimeSpan(default);
-        private readonly AtomicTimeSpan m_PositionPrevious = new AtomicTimeSpan(default);
-
         private readonly AtomicDouble m_SpeedRatio = new AtomicDouble(Constants.Controller.DefaultSpeedRatio);
         private readonly AtomicDouble m_Volume = new AtomicDouble(Constants.Controller.DefaultVolume);
         private readonly AtomicDouble m_Balance = new AtomicDouble(Constants.Controller.DefaultBalance);
@@ -120,27 +116,6 @@
 
         /// <inheritdoc />
         public bool HasClosedCaptions { get; private set; }
-
-        /// <inheritdoc />
-        public TimeSpan PositionNext
-        {
-            get => m_PositionNext.Value;
-            private set => m_PositionNext.Value = value;
-        }
-
-        /// <inheritdoc />
-        public TimeSpan PositionCurrent
-        {
-            get => m_PositionCurrent.Value;
-            private set => m_PositionCurrent.Value = value;
-        }
-
-        /// <inheritdoc />
-        public TimeSpan PositionPrevious
-        {
-            get => m_PositionPrevious.Value;
-            private set => m_PositionPrevious.Value = value;
-        }
 
         #endregion
 
@@ -380,22 +355,10 @@
         /// </summary>
         /// <param name="block">The block.</param>
         /// <param name="buffer">The buffer.</param>
-        /// <param name="main">The main MediaType</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdateDynamicBlockProperties(MediaBlock block, MediaBlockBuffer buffer, MediaType main)
+        internal void UpdateDynamicBlockProperties(MediaBlock block, MediaBlockBuffer buffer)
         {
             if (block == null) return;
-
-            // Update PositionCurrent, PositionNext and PositionPrevious
-            if (block.MediaType == main)
-            {
-                PositionCurrent = block.StartTime;
-                var neighbors = buffer.Neighbors(block);
-                PositionNext = neighbors[1]?.StartTime ?? TimeSpan.FromTicks(
-                    block.EndTime.Ticks + Convert.ToInt64(block.Duration.Ticks / 2d));
-                PositionPrevious = neighbors[0]?.StartTime ?? TimeSpan.FromTicks(
-                    block.StartTime.Ticks - Convert.ToInt64(block.Duration.Ticks / 2d));
-            }
 
             // Update video block properties
             if (block is VideoBlock == false) return;
@@ -459,15 +422,6 @@
                 return;
 
             Position = newPosition;
-
-            var blockCount = MediaCore.Blocks.Main(MediaCore.Container)?.Count ?? 0;
-            if (blockCount <= 0)
-            {
-                PositionCurrent = default;
-                PositionNext = default;
-                PositionPrevious = default;
-            }
-
             MediaCore.SendOnPositionChanged(oldPosition, newPosition);
         }
 
@@ -509,9 +463,6 @@
             // Reset Method-controlled properties
             MediaState = newMediaState;
             Position = default;
-            PositionCurrent = default;
-            PositionNext = default;
-            PositionPrevious = default;
             HasMediaEnded = default;
 
             // Reset decoder and buffering

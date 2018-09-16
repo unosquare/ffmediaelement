@@ -347,18 +347,17 @@
         /// </summary>
         /// <param name="block">The block.</param>
         /// <param name="clockPosition">The clock position.</param>
-        /// <param name="main">The main component media type.</param>
         /// <returns>
         /// The number of blocks sent to the renderer
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int SendBlockToRenderer(MediaBlock block, TimeSpan clockPosition, MediaType main)
+        private int SendBlockToRenderer(MediaBlock block, TimeSpan clockPosition)
         {
             // No blocks were rendered
             if (block == null) return 0;
 
             // Process property changes coming from video blocks
-            State.UpdateDynamicBlockProperties(block, Blocks[block.MediaType], main);
+            State.UpdateDynamicBlockProperties(block, Blocks[block.MediaType]);
 
             // Send the block to its corresponding renderer
             Renderers[block.MediaType]?.Render(block, clockPosition);

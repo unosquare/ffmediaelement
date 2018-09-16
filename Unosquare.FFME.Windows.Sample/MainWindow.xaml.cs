@@ -249,18 +249,14 @@
             // Seek to left
             if (e.Key == Key.Left)
             {
-                if (Media.IsPlaying) await Media.Pause();
-                Media.Position = Media.PositionPrevious;
-
+                await Media.StepBackward();
                 return;
             }
 
             // Seek to right
             if (e.Key == Key.Right)
             {
-                if (Media.IsPlaying) await Media.Pause();
-                Media.Position = Media.PositionNext;
-
+                await Media.StepForward();
                 return;
             }
 
