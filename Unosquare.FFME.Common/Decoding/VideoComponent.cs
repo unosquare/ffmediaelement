@@ -48,8 +48,9 @@
 
             if (BaseFrameRateQ.den == 0 || BaseFrameRateQ.num == 0)
             {
-                container.Parent.Log(MediaLogMessageType.Warning,
-                    $"{nameof(VideoComponent)} - Unable to extract valid frame rate. Will use 25fps (40ms)");
+                this.LogWarning(Aspects.Component,
+                    $"{nameof(VideoComponent)} was unable to extract valid frame rate. Will use 25fps (40ms)");
+
                 BaseFrameRateQ.num = 25;
                 BaseFrameRateQ.den = 1;
             }
@@ -167,7 +168,7 @@
             }
             catch (Exception ex)
             {
-                Container.Parent?.Log(MediaLogMessageType.Error, $"Could not attach hardware decoder. {ex.Message}");
+                this.LogError(Aspects.Component, "Could not attach hardware decoder.", ex);
                 return false;
             }
         }
@@ -213,7 +214,7 @@
             if (Scaler == null)
             {
                 Scaler = newScaler;
-                RC.Current.Add(Scaler, $"311: {nameof(VideoComponent)}.{nameof(MaterializeFrame)}()");
+                RC.Current.Add(Scaler);
             }
 
             // Reassign to the new scaler and remove the reference to the existing one
@@ -522,7 +523,7 @@
                 return;
 
             FilterGraph = ffmpeg.avfilter_graph_alloc();
-            RC.Current.Add(FilterGraph, $"144: {nameof(VideoComponent)}.{nameof(InitializeFilterGraph)}()");
+            RC.Current.Add(FilterGraph);
             CurrentFilterArguments = frameArguments;
 
             try
@@ -606,8 +607,7 @@
             }
             catch (Exception ex)
             {
-                Container.Parent?.Log(MediaLogMessageType.Error, $"Video filter graph could not be built: {FilterString}.\r\n{ex.Message}");
-                DestroyFilterGraph();
+                this.LogError(Aspects.Component, $"Video filter graph could not be built: {FilterString}.", ex);
             }
         }
 

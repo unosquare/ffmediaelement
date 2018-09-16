@@ -63,6 +63,7 @@
     <Compile Include="Events\RenderingEventArgs.cs" />
     <Compile Include="Events\RenderingSubtitlesEventArgs.cs" />
     <Compile Include="Events\RenderingVideoEventArgs.cs" />
+    <Compile Include="Aspects.cs" />
     <Compile Include="MediaElement.PropertyUpdates.cs" />
     <Compile Include="Platform\GuiTimer.cs" />
     <Compile Include="Platform\PropertyMapper.cs" />

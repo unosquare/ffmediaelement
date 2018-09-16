@@ -5,27 +5,28 @@
     /// <summary>
     /// Represents the contents of a logging message that was sent to the log manager.
     /// </summary>
-    public class MediaLogMessage
+    public sealed class MediaLogMessage
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="MediaLogMessage" /> class.
         /// </summary>
-        /// <param name="mediaElement">The media element.</param>
+        /// <param name="loggingHandler">The object that shall handle the message when it is output by the queue.</param>
         /// <param name="messageType">Type of the message.</param>
-        /// <param name="message">The message.</param>
-        public MediaLogMessage(MediaEngine mediaElement, MediaLogMessageType messageType, string message)
+        /// <param name="messageText">The message text.</param>
+        /// <param name="aspectName">Name of the code aspect the message came from.</param>
+        internal MediaLogMessage(ILoggingHandler loggingHandler, MediaLogMessageType messageType, string messageText, string aspectName)
         {
             MessageType = messageType;
-            Message = message;
+            Message = messageText;
             TimestampUtc = DateTime.UtcNow;
-            Source = mediaElement;
+            Handler = loggingHandler;
+            AspectName = aspectName;
         }
 
         /// <summary>
-        /// Gets the instance of the MediaElement that generated this message.
-        /// When null, it means FFmpeg generated this message.
+        /// Gets the object that shall handle the message when it is output by the queue.
         /// </summary>
-        public MediaEngine Source { get; }
+        public ILoggingHandler Handler { get; }
 
         /// <summary>
         /// Gets the timestamp.
@@ -41,5 +42,11 @@
         /// Gets the contents of the message.
         /// </summary>
         public string Message { get; }
+
+        /// <summary>
+        /// Gets the aspect or feature that sent the logged message.
+        /// May or may not be available.
+        /// </summary>
+        public string AspectName { get; }
     }
 }

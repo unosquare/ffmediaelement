@@ -26,7 +26,7 @@
             if (e.MessageType == MediaLogMessageType.Trace)
                 return;
 
-            Debug.WriteLine($"{e.MessageType,10} - {e.Message}");
+            Debug.WriteLine(e);
         }
 
         /// <summary>
@@ -42,7 +42,7 @@
             if (string.IsNullOrWhiteSpace(e.Message) == false && e.Message.Contains("Using non-standard frame rate"))
                 return;
 
-            Debug.WriteLine($"{e.MessageType,10} - {e.Message}");
+            Debug.WriteLine(e);
         }
 
         /// <summary>

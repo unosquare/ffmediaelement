@@ -21,7 +21,7 @@
     /// 4. Perform continuous block materialization
     /// </summary>
     /// <seealso cref="IDisposable" />
-    internal sealed unsafe class MediaContainer : IDisposable
+    internal sealed unsafe class MediaContainer : IDisposable, ILoggingSource
     {
         #region Private Fields
 
@@ -29,6 +29,11 @@
         /// The exception message no input context
         /// </summary>
         private const string ExceptionMessageNoInputContext = "Stream InputContext has not been initialized.";
+
+        /// <summary>
+        /// The logging handler
+        /// </summary>
+        private readonly ILoggingHandler m_LoggingHandler;
 
         /// <summary>
         /// The read synchronize root
@@ -104,9 +109,9 @@
         /// </summary>
         /// <param name="mediaUrl">The media URL.</param>
         /// <param name="config">The container configuration options.</param>
-        /// <param name="parent">The logger.</param>
+        /// <param name="loggingHandler">The logger.</param>
         /// <exception cref="ArgumentNullException">mediaUrl</exception>
-        public MediaContainer(string mediaUrl, ContainerConfiguration config, IMediaLogger parent)
+        public MediaContainer(string mediaUrl, ContainerConfiguration config, ILoggingHandler loggingHandler)
         {
             // Argument Validation
             if (string.IsNullOrWhiteSpace(mediaUrl))
@@ -116,7 +121,7 @@
             FFInterop.Initialize(null, FFmpegLoadMode.FullFeatures);
 
             // Create the options object and setup some initial properties
-            Parent = parent;
+            m_LoggingHandler = loggingHandler;
             MediaUrl = mediaUrl;
             Configuration = config ?? new ContainerConfiguration();
             StreamReadInterruptCallback = OnStreamReadInterrupt;
@@ -139,7 +144,7 @@
         /// <param name="inputStream">The input stream.</param>
         /// <param name="config">The configuration.</param>
         /// <param name="parent">The parent.</param>
-        public MediaContainer(IMediaInputStream inputStream, ContainerConfiguration config, IMediaLogger parent)
+        public MediaContainer(IMediaInputStream inputStream, ContainerConfiguration config, ILoggingHandler parent)
         {
             // Argument Validation
             if (inputStream == null)
@@ -154,7 +159,7 @@
             FFInterop.Initialize(null, FFmpegLoadMode.FullFeatures);
 
             // Create the options object
-            Parent = parent;
+            m_LoggingHandler = parent;
             MediaUrl = mediaUrl;
             CustomInputStream = inputStream;
             Configuration = config ?? new ContainerConfiguration();
@@ -167,15 +172,13 @@
 
         #region Properties
 
+        /// <inheritdoc />
+        ILoggingHandler ILoggingSource.LoggingHandler => m_LoggingHandler;
+
         /// <summary>
         /// To detect redundant Dispose calls
         /// </summary>
         public bool IsDisposed { get; private set; }
-
-        /// <summary>
-        /// Logging Messages will be sent to this parent object.
-        /// </summary>
-        public IMediaLogger Parent { get; }
 
         /// <summary>
         /// Gets the media URL. This is the input url, file or device that is read
@@ -636,7 +639,7 @@
                 inputFormat = ffmpeg.av_find_input_format(Configuration.ForcedInputFormat);
                 if (inputFormat == null)
                 {
-                    Parent?.Log(MediaLogMessageType.Warning,
+                    this.LogWarning(Aspects.Container,
                         $"Format '{Configuration.ForcedInputFormat}' not found. Will use automatic format detection.");
                 }
             }
@@ -711,7 +714,9 @@
                     var currentEntry = privateOptions.First();
                     while (currentEntry?.Key != null)
                     {
-                        Parent?.Log(MediaLogMessageType.Warning, $"Invalid input option: '{currentEntry.Key}'");
+                        this.LogWarning(Aspects.Container,
+                            $"Invalid input option: '{currentEntry.Key}'");
+
                         currentEntry = privateOptions.Next(currentEntry);
                     }
                 }
@@ -721,7 +726,10 @@
                 // This is useful for file formats with no headers such as MPEG. This function also computes
                 // the real frame-rate in case of MPEG-2 repeat frame mode.
                 if (ffmpeg.avformat_find_stream_info(InputContext, null) < 0)
-                    Parent?.Log(MediaLogMessageType.Warning, $"{MediaUrl}: could not read stream information.");
+                {
+                    this.LogWarning(Aspects.Container,
+                        $"{MediaUrl}: could not read stream information.");
+                }
 
                 // HACK: From ffplay.c: maybe should not use avio_feof() to test for the end
                 if (InputContext->pb != null) InputContext->pb->eof_reached = 0;
@@ -751,7 +759,7 @@
                 if (MediaStartTimeOffset == TimeSpan.MinValue)
                 {
                     MediaStartTimeOffset = TimeSpan.Zero;
-                    Parent?.Log(MediaLogMessageType.Warning,
+                    this.LogWarning(Aspects.Container,
                         "Unable to determine the media start time offset. " +
                         $"Media start time offset will be assumed to start at {TimeSpan.Zero}.");
                 }
@@ -778,8 +786,7 @@
             }
             catch (Exception ex)
             {
-                Parent?.Log(MediaLogMessageType.Error,
-                    $"Fatal error initializing {nameof(MediaContainer)} instance. {ex.Message}");
+                this.LogError(Aspects.Container, $"Fatal error initializing {nameof(MediaContainer)} instance.", ex);
                 Close();
                 throw;
             }
@@ -847,7 +854,8 @@
             // Verify the stream input start offset. This is the zero measure for all sub-streams.
             var minOffset = Components.Count > 0 ? Components.All.Min(c => c.StartTimeOffset) : MediaStartTimeOffset;
             if (minOffset == MediaStartTimeOffset) return;
-            Parent?.Log(MediaLogMessageType.Warning, $"Input Start: {MediaStartTimeOffset.Format()} Comp. Start: {minOffset.Format()}. Input start will be updated.");
+            this.LogWarning(Aspects.Container,
+                $"Input Start: {MediaStartTimeOffset.Format()} Comp. Start: {minOffset.Format()}. Input start will be updated.");
             MediaStartTimeOffset = minOffset;
         }
 
@@ -896,7 +904,7 @@
             }
             catch (Exception ex)
             {
-                Parent?.Log(MediaLogMessageType.Error, $"Unable to initialize {t} component. {ex.Message}");
+                this.LogError(Aspects.Component, $"Unable to initialize {t} component.", ex);
             }
 
             return Components[t] != null ? t : MediaType.None;
@@ -1012,7 +1020,9 @@
             // Check if a forced quit was triggered
             if (SignalAbortReadsRequested.Value)
             {
-                Parent?.Log(MediaLogMessageType.Info, $"{nameof(OnStreamReadInterrupt)} was requested an immediate read exit.");
+                this.LogInfo(Aspects.Container,
+                    $"{nameof(OnStreamReadInterrupt)} was requested an immediate read exit.");
+
                 if (SignalAbortReadsAutoReset.Value)
                     SignalAbortReadsRequested.Value = false;
 
@@ -1028,7 +1038,7 @@
             if (Configuration.ReadTimeout.Ticks < 0 || timeDifference.Ticks <= Configuration.ReadTimeout.Ticks)
                 return OkResult;
 
-            Parent?.Log(MediaLogMessageType.Error, $"{nameof(OnStreamReadInterrupt)} timed out with  {timeDifference.Format()}");
+            this.LogError(Aspects.Container, $"{nameof(OnStreamReadInterrupt)} timed out with  {timeDifference.Format()}");
             return ErrorResult;
         }
 
@@ -1063,7 +1073,9 @@
             // Cancel the seek operation if the stream does not support it.
             if (IsStreamSeekable == false)
             {
-                Parent?.Log(MediaLogMessageType.Warning, "Unable to seek. Underlying stream does not support seeking.");
+                this.LogWarning(Aspects.EngineCommand,
+                    "Unable to seek. Underlying stream does not support seeking.");
+
                 return result;
             }
 
@@ -1125,8 +1137,9 @@
                     }
 
                     seekResult = ffmpeg.av_seek_frame(InputContext, streamIndex, seekTarget, seekFlags);
-                    Parent?.Log(MediaLogMessageType.Trace,
-                        $"SEEK L: Elapsed: {startTime.FormatElapsed()} | Target: {streamSeekRelativeTime.Format()} | Seek: {seekTarget.Format()} | P0: {startPos.Format(1024)} | P1: {StreamPosition.Format(1024)} ");
+                    this.LogTrace(Aspects.Container,
+                        $"SEEK L: Elapsed: {startTime.FormatElapsed()} | Target: {streamSeekRelativeTime.Format()} " +
+                        $"| Seek: {seekTarget.Format()} | P0: {startPos.Format(1024)} | P1: {StreamPosition.Format(1024)} ");
                 }
 
                 // Flush the buffered packets and codec on every seek.
@@ -1137,7 +1150,9 @@
                 // Ensure we had a successful seek operation
                 if (seekResult < 0)
                 {
-                    Parent?.Log(MediaLogMessageType.Error, $"SEEK R: Elapsed: {startTime.FormatElapsed()} | Seek operation failed. Error code {seekResult}, {FFInterop.DecodeMessage(seekResult)}");
+                    this.LogError(Aspects.Container,
+                        $"SEEK R: Elapsed: {startTime.FormatElapsed()} | Seek operation failed. " +
+                        $"Error code {seekResult}, {FFInterop.DecodeMessage(seekResult)}");
                     break;
                 }
 
@@ -1169,8 +1184,9 @@
                 streamSeekRelativeTime = streamSeekRelativeTime.Subtract(TimeSpan.FromSeconds(1));
             }
 
-            Parent?.Log(MediaLogMessageType.Trace,
-                $"SEEK R: Elapsed: {startTime.FormatElapsed()} | Target: {streamSeekRelativeTime.Format()} | Seek: {default(long).Format()} | P0: {startPos.Format(1024)} | P1: {StreamPosition.Format(1024)} ");
+            this.LogTrace(Aspects.Container,
+                $"SEEK R: Elapsed: {startTime.FormatElapsed()} | Target: {streamSeekRelativeTime.Format()} " +
+                $"| Seek: {default(long).Format()} | P0: {startPos.Format(1024)} | P1: {StreamPosition.Format(1024)} ");
             return result;
 
             #endregion
@@ -1205,8 +1221,9 @@
 
             if (seekResult >= 0) return StreamSeekDecode(result, TimeSpan.Zero, seekRequirement);
 
-            Parent?.Log(MediaLogMessageType.Warning,
+            this.LogWarning(Aspects.EngineCommand,
                 $"SEEK 0: {nameof(StreamSeekToStart)} operation failed. Error code {seekResult}: {FFInterop.DecodeMessage(seekResult)}");
+
             return 0;
         }
 

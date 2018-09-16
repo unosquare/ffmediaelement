@@ -1,16 +1,16 @@
 ﻿namespace Unosquare.FFME.Rendering.Wave
 {
-    using Primitives;
-    using Shared;
     using System;
     using System.Collections.Generic;
     using System.Threading;
+    using Primitives;
+    using Shared;
 
     /// <summary>
     /// A wave player that opens an audio device and continuously feeds it
     /// with audio samples using a wave provider.
     /// </summary>
-    internal sealed class LegacyAudioPlayer : IWavePlayer
+    internal sealed class LegacyAudioPlayer : IWavePlayer, ILoggingSource
     {
         #region State Variables
 
@@ -50,6 +50,9 @@
         #endregion
 
         #region Properties
+
+        /// <inheritdoc />
+        ILoggingHandler ILoggingSource.LoggingHandler => Renderer?.MediaCore;
 
         /// <inheritdoc />
         public AudioRenderer Renderer { get; }
@@ -193,8 +196,9 @@
                     {
                         if (IsCancellationPending == true) break;
 
-                        Renderer?.MediaCore?.Log(MediaLogMessageType.Warning,
+                        this.LogWarning(Aspects.AudioRenderer,
                             $"{nameof(AudioPlaybackThread)}:{nameof(DriverCallbackEvent)} timed out. Desired Latency: {DesiredLatency}ms");
+
                         continue;
                     }
 
@@ -216,8 +220,7 @@
             }
             catch (Exception ex)
             {
-                Renderer?.MediaCore?.Log(MediaLogMessageType.Error,
-                    $"{nameof(LegacyAudioPlayer)} faulted. {ex.GetType().Name}: {ex.Message}");
+                this.LogError(Aspects.AudioRenderer, $"{nameof(LegacyAudioPlayer)} faulted.", ex);
                 throw;
             }
             finally

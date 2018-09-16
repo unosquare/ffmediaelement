@@ -21,7 +21,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void SendOnMediaFailed(Exception ex)
         {
-            Log(MediaLogMessageType.Error, $"Media Failure - {ex?.GetType()}: {ex?.Message}");
+            this.LogError(Aspects.Connector, "Media Failure", ex);
             Connector?.OnMediaFailed(this, ex);
         }
 

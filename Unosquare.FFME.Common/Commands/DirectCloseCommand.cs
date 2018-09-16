@@ -2,6 +2,7 @@
 {
     using Core;
     using Shared;
+    using System.Runtime.CompilerServices;
     using System.Text;
 
     /// <summary>
@@ -37,15 +38,15 @@
 
             // Notify media has closed
             MediaCore.SendOnMediaClosed();
-            LogReferenceCounter(MediaCore);
-            MediaCore.Log(MediaLogMessageType.Debug, $"Command {CommandType}: Completed");
+            LogReferenceCounter();
+            this.LogDebug(Aspects.EngineCommand, $"{CommandType} Completed");
         }
 
         /// <inheritdoc />
         protected override void PerformActions()
         {
+            this.LogDebug(Aspects.EngineCommand, $"{CommandType} Entered");
             var m = MediaCore;
-            m.Log(MediaLogMessageType.Debug, $"Command {CommandType}: Entered");
 
             // Wait for the workers to stop
             m.StopWorkers();
@@ -68,18 +69,18 @@
         /// <summary>
         /// Outputs Reference Counter Results
         /// </summary>
-        /// <param name="m">The underlying media engine.</param>
-        private static void LogReferenceCounter(MediaEngine m)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void LogReferenceCounter()
         {
-            if (MediaEngine.Platform.IsInDebugMode) return;
+            if (MediaEngine.Platform?.IsInDebugMode ?? true) return;
             if (RC.Current.InstancesByLocation.Count <= 0) return;
 
             var builder = new StringBuilder();
             builder.AppendLine("Unmanaged references were left alive. This is an indication that there is a memory leak.");
             foreach (var kvp in RC.Current.InstancesByLocation)
-                builder.AppendLine($"    {kvp.Key,30}: {kvp.Value}");
+                builder.AppendLine($"    {kvp.Key,30} - Instances: {kvp.Value}");
 
-            m.Log(MediaLogMessageType.Error, builder.ToString());
+            this.LogError(Aspects.ReferenceCounter, builder.ToString());
         }
     }
 }

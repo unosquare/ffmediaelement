@@ -16,7 +16,7 @@
     /// <seealso cref="IMediaRenderer" />
     /// <seealso cref="IWaveProvider" />
     /// <seealso cref="IDisposable" />
-    internal sealed class AudioRenderer : IDisposable, IMediaRenderer, IWaveProvider
+    internal sealed class AudioRenderer : IDisposable, IMediaRenderer, IWaveProvider, ILoggingSource
     {
         #region Private Members
 
@@ -70,6 +70,9 @@
         #endregion
 
         #region Properties
+
+        /// <inheritdoc />
+        ILoggingHandler ILoggingSource.LoggingHandler => MediaCore;
 
         /// <summary>
         /// Gets the parent media element (platform specific).
@@ -186,8 +189,7 @@
             }
             catch (Exception ex)
             {
-                MediaCore.Log(MediaLogMessageType.Error,
-                    $"{ex.GetType()} in {nameof(AudioRenderer)}.{nameof(Read)}: {ex.Message}. Stack Trace:\r\n{ex.StackTrace}");
+                this.LogError(Aspects.AudioRenderer, $"{nameof(AudioRenderer)}.{nameof(Read)} has faulted.", ex);
             }
             finally
             {
@@ -358,8 +360,7 @@
             }
             catch (Exception ex)
             {
-                MediaCore.Log(MediaLogMessageType.Error,
-                    $"{ex.GetType()} in {nameof(AudioRenderer)}.{nameof(Read)}: {ex.Message}. Stack Trace:\r\n{ex.StackTrace}");
+                this.LogError(Aspects.AudioRenderer, $"{nameof(AudioRenderer)}.{nameof(Read)} has faulted.", ex);
                 Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
             }
             finally
@@ -411,7 +412,9 @@
             {
                 WaitForReadyEvent.Complete();
                 HasFiredAudioDeviceStopped = true;
-                MediaCore.Log(MediaLogMessageType.Warning, "AUDIO OUT: No audio device found for output.");
+                this.LogWarning(Aspects.AudioRenderer,
+                    "No audio device found for output.");
+
                 return;
             }
 
@@ -541,8 +544,9 @@
                 // 3. Determine if we need to give up
                 if (playbackElapsedSeconds >= 3 && syncsPerSecond >= 3)
                 {
-                    MediaCore.Log(MediaLogMessageType.Warning,
-                        $"SYNC AUDIO: GIVE UP | SECS: {playbackElapsedSeconds:0.00}; SYN: {PlaySyncCount}; RATE: {syncsPerSecond:0.00} SYN/s; LAT: {audioLatencyMs} ms.");
+                    this.LogWarning(Aspects.AudioRenderer,
+                        $"SYNC AUDIO: GIVE UP | SECS: {playbackElapsedSeconds:0.00}; " +
+                        $"SYN: {PlaySyncCount}; RATE: {syncsPerSecond:0.00} SYN/s; LAT: {audioLatencyMs} ms.");
                     PlaySyncGaveUp.Value = true;
                 }
             }
@@ -563,7 +567,7 @@
                 // and therefore we need to advance the buffer before we read from it.
                 if (Math.Abs(speedRatio - 1.0) <= double.Epsilon)
                 {
-                    MediaCore.Log(MediaLogMessageType.Warning,
+                    this.LogWarning(Aspects.AudioRenderer,
                         $"SYNC AUDIO: LATENCY: {audioLatencyMs} ms. | SKIP (samples being rendered too late)");
                 }
 
@@ -591,7 +595,7 @@
                     // and therefore we need to render some silence until the clock catches up
                     if (Math.Abs(speedRatio - 1.0) <= double.Epsilon)
                     {
-                        MediaCore.Log(MediaLogMessageType.Warning,
+                        this.LogWarning(Aspects.AudioRenderer,
                             $"SYNC AUDIO: LATENCY: {audioLatencyMs} ms. | WAIT (samples being rendered too early)");
                     }
 

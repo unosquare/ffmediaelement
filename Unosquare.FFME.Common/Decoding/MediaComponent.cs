@@ -16,7 +16,7 @@
     /// logic.
     /// </summary>
     /// <seealso cref="IDisposable" />
-    internal abstract unsafe class MediaComponent : IDisposable
+    internal abstract unsafe class MediaComponent : IDisposable, ILoggingSource
     {
         #region Private Declarations
 
@@ -24,6 +24,11 @@
         /// Related to issue 94, looks like FFmpeg requires exclusive access when calling avcodec_open2()
         /// </summary>
         private static readonly object CodecLock = new object();
+
+        /// <summary>
+        /// The logging handler
+        /// </summary>
+        private readonly ILoggingHandler m_LoggingHandler;
 
         /// <summary>
         /// Contains the packets pending to be sent to the decoder
@@ -70,8 +75,9 @@
         {
             // Ported from: https://github.com/FFmpeg/FFmpeg/blob/master/fftools/ffplay.c#L2559
             Container = container ?? throw new ArgumentNullException(nameof(container));
+            m_LoggingHandler = ((ILoggingSource)Container).LoggingHandler;
             m_CodecContext = new IntPtr(ffmpeg.avcodec_alloc_context3(null));
-            RC.Current.Add(CodecContext, $"134: {nameof(MediaComponent)}[{MediaType}].ctor()");
+            RC.Current.Add(CodecContext);
             StreamIndex = streamIndex;
             m_Stream = new IntPtr(container.InputContext->streams[streamIndex]);
             StreamInfo = container.MediaInfo.Streams[streamIndex];
@@ -80,7 +86,10 @@
             var setCodecParamsResult = ffmpeg.avcodec_parameters_to_context(CodecContext, Stream->codecpar);
 
             if (setCodecParamsResult < 0)
-                Container.Parent?.Log(MediaLogMessageType.Warning, $"Could not set codec parameters. Error code: {setCodecParamsResult}");
+            {
+                this.LogWarning(Aspects.Component,
+                    $"Could not set codec parameters. Error code: {setCodecParamsResult}");
+            }
 
             // We set the packet timebase in the same timebase as the stream as opposed to the typical AV_TIME_BASE
             if (this is VideoComponent && Container.MediaOptions.VideoForcedFps > 0)
@@ -106,8 +115,9 @@
                 forcedCodec = ffmpeg.avcodec_find_decoder_by_name(forcedCodecName);
                 if (forcedCodec == null)
                 {
-                    Container.Parent?.Log(MediaLogMessageType.Warning,
-                        $"COMP {MediaType.ToString().ToUpperInvariant()}: Unable to set decoder codec to '{forcedCodecName}' on stream index {StreamIndex}");
+                    this.LogWarning(Aspects.Component,
+                        $"COMP {MediaType.ToString().ToUpperInvariant()}: " +
+                        $"Unable to set decoder codec to '{forcedCodecName}' on stream index {StreamIndex}");
                 }
             }
 
@@ -170,7 +180,7 @@
                 // Check if the codec opened successfully
                 if (codecOpenResult < 0)
                 {
-                    Container.Parent?.Log(MediaLogMessageType.Warning,
+                    this.LogWarning(Aspects.Component,
                         $"Unable to open codec '{FFInterop.PtrToStringUTF8(codec->name)}' on stream {streamIndex}");
 
                     continue;
@@ -180,7 +190,7 @@
                 var currentEntry = codecOptions.First();
                 while (currentEntry?.Key != null)
                 {
-                    Container.Parent?.Log(MediaLogMessageType.Warning,
+                    this.LogWarning(Aspects.Component,
                         $"Invalid codec option: '{currentEntry.Key}' for codec '{FFInterop.PtrToStringUTF8(codec->name)}', stream {streamIndex}");
                     currentEntry = codecOptions.Next(currentEntry);
                 }
@@ -236,8 +246,8 @@
             CodecId = Stream->codec->codec_id;
             CodecName = FFInterop.PtrToStringUTF8(selectedCodec->name);
             BitRate = Stream->codec->bit_rate < 0 ? 0 : Stream->codec->bit_rate;
-            Container.Parent?.Log(MediaLogMessageType.Debug,
-                $"COMP {MediaType.ToString().ToUpperInvariant()}: Start Offset: {StartTimeOffset.Format()}; Duration: {Duration.Format()}");
+            this.LogDebug(Aspects.Component,
+                $"{MediaType.ToString().ToUpperInvariant()}: Start Offset: {StartTimeOffset.Format()}; Duration: {Duration.Format()}");
 
             // Begin processing with a flush packet
             SendFlushPacket();
@@ -246,6 +256,9 @@
         #endregion
 
         #region Properties
+
+        /// <inheritdoc />
+        ILoggingHandler ILoggingSource.LoggingHandler => m_LoggingHandler;
 
         /// <summary>
         /// Gets the pointer to the codec context.

@@ -106,7 +106,7 @@
                     0,
                     null);
 
-                RC.Current.Add(Scaler, $"109: {nameof(AudioComponent)}.{nameof(MaterializeFrame)}()");
+                RC.Current.Add(Scaler);
                 ffmpeg.swr_init(Scaler);
                 LastSourceSpec = sourceSpec;
             }
@@ -316,7 +316,7 @@
                 return;
 
             FilterGraph = ffmpeg.avfilter_graph_alloc();
-            RC.Current.Add(FilterGraph, $"264: {nameof(AudioComponent)}.{nameof(InitializeFilterGraph)}()");
+            RC.Current.Add(FilterGraph);
             CurrentFilterArguments = frameArguments;
 
             try
@@ -385,7 +385,7 @@
             }
             catch (Exception ex)
             {
-                Container.Parent?.Log(MediaLogMessageType.Error, $"Audio filter graph could not be built: {FilterString}.\r\n{ex.Message}");
+                this.LogError(Aspects.Component, $"Audio filter graph could not be built: {FilterString}.", ex);
                 DestroyFilterGraph();
             }
         }

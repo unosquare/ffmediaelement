@@ -307,7 +307,6 @@
         internal void PostMediaFailedEvent(Exception ex)
         {
             LogEventStart(MediaFailedEvent);
-            MediaCore?.Log(MediaLogMessageType.Error, $"Media Failure - {ex?.GetType()}: {ex?.Message}");
             GuiContext.Current.EnqueueInvoke(() =>
             {
                 RaiseEvent(CreateExceptionRoutedEventArgs(
@@ -487,7 +486,7 @@
         private void LogEventStart(RoutedEvent e)
         {
             if (WindowsPlatform.Instance.IsInDebugMode)
-                MediaCore?.Log(MediaLogMessageType.Trace, $"EVENT START: {e.Name}");
+                this.LogTrace(Aspects.Events, $"EVENT START: {e.Name}");
         }
 
         /// <summary>
@@ -498,7 +497,7 @@
         private void LogEventDone(RoutedEvent e)
         {
             if (WindowsPlatform.Instance.IsInDebugMode)
-                MediaCore?.Log(MediaLogMessageType.Trace, $"EVENT DONE : {e.Name}");
+                this.LogTrace(Aspects.Events, $"EVENT DONE : {e.Name}");
         }
 
         #endregion

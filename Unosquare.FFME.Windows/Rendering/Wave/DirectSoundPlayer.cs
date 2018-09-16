@@ -14,7 +14,7 @@
     /// Contact author: Alexandre Mutel - alexandre_mutel at yahoo.fr
     /// Modified by: Graham "Gee" Plumb
     /// </summary>
-    internal sealed class DirectSoundPlayer : IWavePlayer
+    internal sealed class DirectSoundPlayer : IWavePlayer, ILoggingSource
     {
         #region Fields
 
@@ -68,6 +68,9 @@
         #endregion
 
         #region Properties
+
+        /// <inheritdoc />
+        ILoggingHandler ILoggingSource.LoggingHandler => Renderer?.MediaCore;
 
         /// <inheritdoc />
         public AudioRenderer Renderer { get; }
@@ -311,11 +314,10 @@
                         throw new InvalidOperationException($"Method {nameof(FeedBackBuffer)} could not write samples.");
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
                 // Do nothing (except report error)
-                Renderer?.MediaCore?.Log(MediaLogMessageType.Error,
-                    $"{nameof(DirectSoundPlayer)} faulted. - {e.GetType().Name}: {e.Message}");
+                this.LogError(Aspects.AudioRenderer, $"{nameof(DirectSoundPlayer)} faulted.", ex);
             }
             finally
             {

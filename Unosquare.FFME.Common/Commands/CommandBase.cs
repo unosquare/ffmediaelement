@@ -1,13 +1,14 @@
 ﻿namespace Unosquare.FFME.Commands
 {
     using Primitives;
+    using Shared;
 
     /// <inheritdoc />
     /// <summary>
     /// Represents a promise-style command executed in a queue.
     /// </summary>
     /// <seealso cref="PromiseBase" />
-    internal abstract class CommandBase : PromiseBase
+    internal abstract class CommandBase : PromiseBase, ILoggingSource
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandBase"/> class.
@@ -18,6 +19,9 @@
         {
             MediaCore = mediaCore;
         }
+
+        /// <inheritdoc />
+        ILoggingHandler ILoggingSource.LoggingHandler => MediaCore;
 
         /// <summary>
         /// Contains a reference to the media engine associated with this command

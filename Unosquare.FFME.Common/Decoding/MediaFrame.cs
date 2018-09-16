@@ -136,7 +136,7 @@
         internal static AVFrame* CreateAVFrame()
         {
             var frame = ffmpeg.av_frame_alloc();
-            RC.Current.Add(frame, $"119: {nameof(MediaFrame)}.{nameof(CreateAVFrame)}()");
+            RC.Current.Add(frame);
             return frame;
         }
 
@@ -160,7 +160,7 @@
         internal static AVFrame* CloneAVFrame(AVFrame* source)
         {
             var frame = ffmpeg.av_frame_clone(source);
-            RC.Current.Add(frame, $"119: {nameof(MediaFrame)}.{nameof(CloneAVFrame)}()");
+            RC.Current.Add(frame);
             return frame;
         }
 

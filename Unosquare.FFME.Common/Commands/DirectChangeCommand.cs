@@ -54,14 +54,14 @@
                 MediaCore.State.UpdateMediaState(PlaybackStatus.Pause);
             }
 
-            MediaCore.Log(MediaLogMessageType.Debug, $"Command {CommandType}: Completed");
+            this.LogDebug(Aspects.EngineCommand, $"{CommandType} Completed");
         }
 
         /// <inheritdoc />
         protected override void PerformActions()
         {
+            this.LogDebug(Aspects.EngineCommand, $"{CommandType} Entered");
             var m = MediaCore;
-            m.Log(MediaLogMessageType.Debug, $"Command {CommandType}: Entered");
 
             try
             {

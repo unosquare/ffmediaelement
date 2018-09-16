@@ -29,7 +29,7 @@ namespace Unosquare.FFME
     /// <seealso cref="IUriContext" />
     [Localizability(LocalizationCategory.NeverLocalize)]
     [DefaultProperty(nameof(Source))]
-    public sealed partial class MediaElement : UserControl, IDisposable, INotifyPropertyChanged, IUriContext
+    public sealed partial class MediaElement : UserControl, IDisposable, INotifyPropertyChanged, IUriContext, ILoggingHandler, ILoggingSource
     {
         #region Fields and Property Backing
 
@@ -199,6 +199,9 @@ namespace Unosquare.FFME
         /// <inheritdoc />
         Uri IUriContext.BaseUri { get; set; }
 
+        /// <inheritdoc />
+        ILoggingHandler ILoggingSource.LoggingHandler => this;
+
         /// <summary>
         /// Gets a value indicating whether this instance is disposed.
         /// </summary>
@@ -367,6 +370,10 @@ namespace Unosquare.FFME
         #endregion
 
         #region Methods
+
+        /// <inheritdoc />
+        void ILoggingHandler.HandleLogMessage(MediaLogMessage message) =>
+            RaiseMessageLoggedEvent(message);
 
         /// <inheritdoc />
         public void Dispose()

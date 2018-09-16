@@ -80,7 +80,7 @@
         public static MediaPacket CreateReadPacket()
         {
             var packet = new MediaPacket(ffmpeg.av_packet_alloc());
-            RC.Current.Add(packet.Pointer, $"174: {nameof(MediaPacket)}.{nameof(CreateReadPacket)}()");
+            RC.Current.Add(packet.Pointer);
             return packet;
         }
 
@@ -95,7 +95,7 @@
         public static MediaPacket CreateEmptyPacket(int streamIndex)
         {
             var packet = new MediaPacket(ffmpeg.av_packet_alloc());
-            RC.Current.Add(packet.Pointer, $"184: {nameof(MediaPacket)}.{nameof(CreateEmptyPacket)}({streamIndex})");
+            RC.Current.Add(packet.Pointer);
             ffmpeg.av_init_packet(packet.Pointer);
             packet.Pointer->data = null;
             packet.Pointer->size = 0;
@@ -112,7 +112,7 @@
         public static MediaPacket CreateFlushPacket(int streamIndex)
         {
             var packet = new MediaPacket(ffmpeg.av_packet_alloc());
-            RC.Current.Add(packet.Pointer, $"202: {nameof(MediaPacket)}.{nameof(CreateFlushPacket)}({streamIndex})");
+            RC.Current.Add(packet.Pointer);
             ffmpeg.av_init_packet(packet.Pointer);
             packet.Pointer->data = (byte*)FlushPacketData;
             packet.Pointer->size = 0;
@@ -130,7 +130,7 @@
         public static MediaPacket ClonePacket(AVPacket* source)
         {
             var packet = new MediaPacket(ffmpeg.av_packet_clone(source));
-            RC.Current.Add(packet.Pointer, $"160: {nameof(MediaPacket)}.{nameof(ClonePacket)}()");
+            RC.Current.Add(packet.Pointer);
             return packet;
         }
 

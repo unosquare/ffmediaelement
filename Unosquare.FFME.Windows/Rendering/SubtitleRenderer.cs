@@ -9,7 +9,7 @@
     /// Subtitle Renderer - Does nothing at this point.
     /// </summary>
     /// <seealso cref="IMediaRenderer" />
-    internal class SubtitleRenderer : IMediaRenderer
+    internal class SubtitleRenderer : IMediaRenderer, ILoggingSource
     {
         /// <summary>
         /// The synchronize lock
@@ -36,6 +36,9 @@
         {
             MediaCore = mediaCore;
         }
+
+        /// <inheritdoc />
+        ILoggingHandler ILoggingSource.LoggingHandler => MediaCore;
 
         /// <summary>
         /// Gets the parent media element (platform specific).

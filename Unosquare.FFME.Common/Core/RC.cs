@@ -3,6 +3,8 @@
     using FFmpeg.AutoGen;
     using System;
     using System.Collections.Generic;
+    using System.IO;
+    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// A reference counter to keep track of unmanaged objects
@@ -88,10 +90,10 @@
             {
                 lock (SyncLock)
                 {
-                    var result = new Dictionary<string, int>();
+                    var result = new Dictionary<string, int>(256);
                     foreach (var kvp in Instances)
                     {
-                        var loc = $"T: {kvp.Value.Type} | L: {kvp.Value.Location}";
+                        var loc = $"{kvp.Value}";
                         if (result.ContainsKey(loc) == false)
                             result[loc] = 1;
                         else
@@ -101,20 +103,6 @@
                     return result;
                 }
             }
-        }
-
-        /// <summary>
-        /// Adds the specified unmanaged object reference.
-        /// </summary>
-        /// <param name="t">The t.</param>
-        /// <param name="ptr">The r.</param>
-        /// <param name="location">The location.</param>
-        public void Add(UnmanagedType t, IntPtr ptr, string location)
-        {
-            if (MediaEngine.Platform.IsInDebugMode == false) return;
-
-            lock (SyncLock) Instances[ptr] =
-                new ReferenceEntry { Instance = ptr, Type = t, Location = location };
         }
 
         /// <summary>
@@ -139,61 +127,156 @@
         }
 
         /// <summary>
-        /// Adds the specified packet.
+        /// Adds the specified pointer.
         /// </summary>
-        /// <param name="packet">The packet.</param>
-        /// <param name="location">The location.</param>
-        public void Add(AVPacket* packet, string location) =>
-            Add(UnmanagedType.Packet, (IntPtr)packet, location);
+        /// <param name="pointer">The pointer.</param>
+        /// <param name="memberName">Name of the member.</param>
+        /// <param name="filePath">The file path.</param>
+        /// <param name="lineNumber">The line number.</param>
+        public void Add(AVPacket* pointer,
+            [CallerMemberName] string memberName = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int lineNumber = 0) =>
+            AddInternal(UnmanagedType.Packet, (IntPtr)pointer, memberName, filePath, lineNumber);
 
         /// <summary>
-        /// Adds the specified context.
+        /// Adds the specified pointer.
         /// </summary>
-        /// <param name="context">The context.</param>
-        /// <param name="location">The location.</param>
-        public void Add(SwrContext* context, string location) =>
-            Add(UnmanagedType.SwrContext, (IntPtr)context, location);
+        /// <param name="pointer">The pointer.</param>
+        /// <param name="memberName">Name of the member.</param>
+        /// <param name="filePath">The file path.</param>
+        /// <param name="lineNumber">The line number.</param>
+        public void Add(SwrContext* pointer,
+            [CallerMemberName] string memberName = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int lineNumber = 0) =>
+            AddInternal(UnmanagedType.SwrContext, (IntPtr)pointer, memberName, filePath, lineNumber);
 
         /// <summary>
-        /// Adds the specified context.
+        /// Adds the specified pointer.
         /// </summary>
-        /// <param name="context">The context.</param>
-        /// <param name="location">The location.</param>
-        public void Add(SwsContext* context, string location) =>
-            Add(UnmanagedType.SwsContext, (IntPtr)context, location);
+        /// <param name="pointer">The pointer.</param>
+        /// <param name="memberName">Name of the member.</param>
+        /// <param name="filePath">The file path.</param>
+        /// <param name="lineNumber">The line number.</param>
+        public void Add(SwsContext* pointer,
+            [CallerMemberName] string memberName = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int lineNumber = 0) =>
+            AddInternal(UnmanagedType.SwsContext, (IntPtr)pointer, memberName, filePath, lineNumber);
 
         /// <summary>
-        /// Adds the specified codec.
+        /// Adds the specified pointer.
         /// </summary>
-        /// <param name="codec">The codec.</param>
-        /// <param name="location">The location.</param>
-        public void Add(AVCodecContext* codec, string location) =>
-            Add(UnmanagedType.CodecContext, (IntPtr)codec, location);
+        /// <param name="pointer">The pointer.</param>
+        /// <param name="memberName">Name of the member.</param>
+        /// <param name="filePath">The file path.</param>
+        /// <param name="lineNumber">The line number.</param>
+        public void Add(AVCodecContext* pointer,
+            [CallerMemberName] string memberName = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int lineNumber = 0) =>
+            AddInternal(UnmanagedType.CodecContext, (IntPtr)pointer, memberName, filePath, lineNumber);
 
         /// <summary>
-        /// Adds the specified frame.
+        /// Adds the specified pointer.
         /// </summary>
-        /// <param name="frame">The frame.</param>
-        /// <param name="location">The location.</param>
-        public void Add(AVFrame* frame, string location) =>
-            Add(UnmanagedType.Frame, (IntPtr)frame, location);
+        /// <param name="pointer">The pointer.</param>
+        /// <param name="memberName">Name of the member.</param>
+        /// <param name="filePath">The file path.</param>
+        /// <param name="lineNumber">The line number.</param>
+        public void Add(AVFrame* pointer,
+            [CallerMemberName] string memberName = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int lineNumber = 0) =>
+            AddInternal(UnmanagedType.Frame, (IntPtr)pointer, memberName, filePath, lineNumber);
 
         /// <summary>
-        /// Adds the specified filter graph.
+        /// Adds the specified pointer.
         /// </summary>
-        /// <param name="filterGraph">The filter graph.</param>
-        /// <param name="location">The location.</param>
-        public void Add(AVFilterGraph* filterGraph, string location) =>
-            Add(UnmanagedType.FilterGraph, (IntPtr)filterGraph, location);
+        /// <param name="pointer">The pointer.</param>
+        /// <param name="memberName">Name of the member.</param>
+        /// <param name="filePath">The file path.</param>
+        /// <param name="lineNumber">The line number.</param>
+        public void Add(AVFilterGraph* pointer,
+            [CallerMemberName] string memberName = null,
+            [CallerFilePath] string filePath = null,
+            [CallerLineNumber] int lineNumber = 0) =>
+            AddInternal(UnmanagedType.FilterGraph, (IntPtr)pointer, memberName, filePath, lineNumber);
+
+        /// <summary>
+        /// Adds the specified unmanaged object reference.
+        /// </summary>
+        /// <param name="unmanagedType">Type of the unmanaged.</param>
+        /// <param name="pointer">The pointer.</param>
+        /// <param name="memberName">Name of the member.</param>
+        /// <param name="filePath">The file path.</param>
+        /// <param name="lineNumber">The line number.</param>
+        private void AddInternal(UnmanagedType unmanagedType, IntPtr pointer, string memberName, string filePath, int lineNumber)
+        {
+            if (MediaEngine.Platform.IsInDebugMode == false) return;
+
+            lock (SyncLock) Instances[pointer] =
+                new ReferenceEntry(unmanagedType, pointer, memberName, filePath, lineNumber);
+        }
 
         /// <summary>
         /// A reference entry
         /// </summary>
         public class ReferenceEntry
         {
-            public UnmanagedType Type { get; set; } = UnmanagedType.None;
-            public string Location { get; set; }
-            public IntPtr Instance { get; set; } = IntPtr.Zero;
+            /// <summary>
+            /// Initializes a new instance of the <see cref="ReferenceEntry"/> class.
+            /// </summary>
+            /// <param name="unmanagedType">Type of the unmanaged.</param>
+            /// <param name="pointer">The pointer.</param>
+            /// <param name="memberName">Name of the member.</param>
+            /// <param name="filePath">The file path.</param>
+            /// <param name="lineNumber">The line number.</param>
+            public ReferenceEntry(UnmanagedType unmanagedType, IntPtr pointer, string memberName, string filePath, int lineNumber)
+            {
+                Type = unmanagedType;
+                Pointer = pointer;
+                MemberName = memberName;
+                FilePath = filePath;
+                LineNumber = lineNumber;
+                FileName = (string.IsNullOrWhiteSpace(filePath) == false) ?
+                    Path.GetFileName(filePath) : string.Empty;
+            }
+
+            /// <summary>
+            /// Gets the unmanaged type.
+            /// </summary>
+            public UnmanagedType Type { get; }
+
+            /// <summary>
+            /// Gets the pointer to the memory location of the unmanaged object.
+            /// </summary>
+            public IntPtr Pointer { get; }
+
+            /// <summary>
+            /// Gets the name of the member that created the unmanaged object.
+            /// </summary>
+            public string MemberName { get; }
+
+            /// <summary>
+            /// Gets the file path of the code that created the unmanaged object.
+            /// </summary>
+            public string FilePath { get; }
+
+            /// <summary>
+            /// Gets the file name of the code that created the unmanaged object.
+            /// </summary>
+            public string FileName { get; }
+
+            /// <summary>
+            /// Gets the line number of the code that created the unmanaged object.
+            /// </summary>
+            public int LineNumber { get; }
+
+            /// <inheritdoc />
+            public override string ToString() =>
+                $"{Type} - {FileName}; Line: {LineNumber}, Member: {MemberName}";
         }
     }
 }

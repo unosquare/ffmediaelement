@@ -4,6 +4,7 @@
     using Shared;
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.IO;
     using System.Linq;
     using System.Runtime.InteropServices;
@@ -17,8 +18,25 @@
     {
         #region Private Declarations
 
+        private static readonly object FFmpegLogBufferSyncLock = new object();
+        private static readonly List<string> FFmpegLogBuffer = new List<string>(1024);
+        private static readonly ReadOnlyDictionary<int, MediaLogMessageType> FFmpegLogLevels =
+            new ReadOnlyDictionary<int, MediaLogMessageType>(
+                new Dictionary<int, MediaLogMessageType>
+                {
+                    { ffmpeg.AV_LOG_DEBUG, MediaLogMessageType.Debug },
+                    { ffmpeg.AV_LOG_ERROR, MediaLogMessageType.Error },
+                    { ffmpeg.AV_LOG_FATAL, MediaLogMessageType.Error },
+                    { ffmpeg.AV_LOG_INFO, MediaLogMessageType.Info },
+                    { ffmpeg.AV_LOG_PANIC, MediaLogMessageType.Error },
+                    { ffmpeg.AV_LOG_TRACE, MediaLogMessageType.Trace },
+                    { ffmpeg.AV_LOG_WARNING, MediaLogMessageType.Warning }
+                });
+
         private static readonly object SyncLock = new object();
         private static readonly List<OptionMeta> EmptyOptionMetaList = new List<OptionMeta>(0);
+        private static readonly av_log_set_callback_callback FFmpegLogCallback;
+        private static readonly ILoggingHandler LoggingHandler = new FFLoggingHandler();
         private static bool m_IsInitialized;
         private static string m_LibrariesPath = string.Empty;
         private static int m_LibraryIdentifiers;
@@ -26,6 +44,17 @@
         private static int TempByteLength;
 
         #endregion
+
+        /// <summary>
+        /// Initializes static members of the <see cref="FFInterop"/> class.
+        /// </summary>
+        static FFInterop()
+        {
+            unsafe
+            {
+                FFmpegLogCallback = OnFFmpegMessageLogged;
+            }
+        }
 
         #region Properties
 
@@ -107,8 +136,10 @@
                     // Additional library initialization
                     if (FFLibrary.LibAVDevice.IsLoaded) ffmpeg.avdevice_register_all();
 
-                    // Logging and locking
-                    LoggingWorker.ConnectToFFmpeg();
+                    // Set logging levels and callbacks
+                    ffmpeg.av_log_set_flags(ffmpeg.AV_LOG_SKIP_REPEATED);
+                    ffmpeg.av_log_set_level(MediaEngine.Platform.IsInDebugMode ? ffmpeg.AV_LOG_VERBOSE : ffmpeg.AV_LOG_WARNING);
+                    ffmpeg.av_log_set_callback(FFmpegLogCallback);
 
                     // set the static environment properties
                     m_LibrariesPath = ffmpegPath;
@@ -295,6 +326,52 @@
         /// <returns>The collection of option infos</returns>
         public static unsafe List<OptionMeta> RetrieveCodecOptions(AVCodec* codec) =>
             RetrieveOptions(codec->priv_class);
+
+        /// <summary>
+        /// Log message callback from ffmpeg library.
+        /// </summary>
+        /// <param name="p0">The p0.</param>
+        /// <param name="level">The level.</param>
+        /// <param name="format">The format.</param>
+        /// <param name="vl">The vl.</param>
+        private static unsafe void OnFFmpegMessageLogged(void* p0, int level, string format, byte* vl)
+        {
+            const int lineSize = 1024;
+            lock (FFmpegLogBufferSyncLock)
+            {
+                if (level > ffmpeg.av_log_get_level()) return;
+                var lineBuffer = stackalloc byte[lineSize];
+                var printPrefix = 1;
+                ffmpeg.av_log_format_line(p0, level, format, vl, lineBuffer, lineSize, &printPrefix);
+                var line = PtrToStringUTF8(lineBuffer);
+                FFmpegLogBuffer.Add(line);
+
+                var messageType = MediaLogMessageType.Debug;
+                if (FFmpegLogLevels.ContainsKey(level))
+                    messageType = FFmpegLogLevels[level];
+
+                if (!line.EndsWith("\n")) return;
+                line = string.Join(string.Empty, FFmpegLogBuffer);
+                line = line.TrimEnd();
+                FFmpegLogBuffer.Clear();
+                Logging.Log(LoggingHandler, messageType, Aspects.FFmpegLog, line);
+            }
+        }
+
+        #endregion
+
+        #region Supporting Classes
+
+        /// <summary>
+        /// Handles FFmpeg library messages
+        /// </summary>
+        /// <seealso cref="ILoggingHandler" />
+        internal class FFLoggingHandler : ILoggingHandler
+        {
+            /// <inheritdoc />
+            void ILoggingHandler.HandleLogMessage(MediaLogMessage message) =>
+                MediaEngine.Platform?.HandleFFmpegLogMessage(message);
+        }
 
         #endregion
     }

@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME
 {
-    using Core;
     using Primitives;
     using Shared;
     using System;
@@ -267,7 +266,7 @@
             catch (MediaContainerException mex)
             {
                 DisposePreloadedSubtitles();
-                Log(MediaLogMessageType.Warning,
+                this.LogWarning(Aspects.Component,
                     $"No subtitles to side-load found in media '{subtitlesUrl}'. {mex.Message}");
             }
         }
@@ -365,8 +364,11 @@
             Renderers[block.MediaType]?.Render(block, clockPosition);
             LastRenderTime[block.MediaType] = block.StartTime;
 
-            // Extension method for logging
-            this.LogRenderBlock(block, clockPosition, block.Index);
+            // Log the block statistics for debugging
+            LogRenderBlock(block, clockPosition, block.Index);
+
+            // At this point, we are certain that a blocl has been
+            // sent to its corresponding renderer.
             return 1;
         }
 

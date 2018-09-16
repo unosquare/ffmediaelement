@@ -119,7 +119,7 @@
                     var minStartTimeTicks = mainBlocks.RangeStartTime.Ticks;
                     var maxStartTimeTicks = mainBlocks.RangeEndTime.Ticks;
 
-                    m.Log(MediaLogMessageType.Warning,
+                    this.LogWarning(Aspects.EngineCommand,
                         $"SEEK TP: Target Pos {TargetPosition.Format()} not between {mainBlocks.RangeStartTime.TotalSeconds:0.000} " +
                         $"and {mainBlocks.RangeEndTime.TotalSeconds:0.000}");
 
@@ -138,14 +138,13 @@
             catch (Exception ex)
             {
                 // Log the exception
-                m.Log(MediaLogMessageType.Error,
-                    $"SEEK E: {ex.GetType()} - {ex.Message}. Stack Trace:\r\n{ex.StackTrace}");
+                this.LogError(Aspects.EngineCommand, "SEEK ERROR", ex);
             }
             finally
             {
                 if (hasDecoderSeeked)
                 {
-                    m.Log(MediaLogMessageType.Trace,
+                    this.LogTrace(Aspects.EngineCommand,
                         $"SEEK D: Elapsed: {startTime.FormatElapsed()} | Target: {TargetPosition.Format()}");
                 }
             }

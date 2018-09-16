@@ -52,7 +52,9 @@
                 // Skip the cycle if it's already running
                 if (BlockRenderingCycle.IsInProgress)
                 {
-                    Log(MediaLogMessageType.Trace, $"SKIP: {nameof(BlockRenderingWorker)} already in a cycle. {WallClock}");
+                    this.LogTrace(Aspects.RenderingWorker,
+                        $"SKIP: {nameof(BlockRenderingWorker)} already in a cycle. {WallClock}");
+
                     return;
                 }
 
@@ -118,7 +120,7 @@
                 }
                 catch (Exception ex)
                 {
-                    Container.Parent.Log(MediaLogMessageType.Error, $"{ex.GetType()}: {ex.Message}\r\nStack Trace:\r\n{ex.StackTrace}");
+                    this.LogError(Aspects.RenderingWorker, "Error while in rendering worker cycle", ex);
                     throw;
                 }
                 finally

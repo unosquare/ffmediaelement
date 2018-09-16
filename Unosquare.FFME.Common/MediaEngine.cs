@@ -10,9 +10,9 @@
     /// Represents a Media Engine that contains underlying streams of audio and/or video.
     /// It uses the fantastic FFmpeg library to perform reading and decoding of media streams.
     /// </summary>
-    /// <seealso cref="IMediaLogger" />
+    /// <seealso cref="ILoggingHandler" />
     /// <seealso cref="IDisposable" />
-    public partial class MediaEngine : IDisposable, IMediaLogger
+    public partial class MediaEngine : IDisposable, ILoggingSource, ILoggingHandler
     {
         private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
 
@@ -49,6 +49,9 @@
         #endregion
 
         #region Properties
+
+        /// <inheritdoc />
+        ILoggingHandler ILoggingSource.LoggingHandler => this;
 
         /// <summary>
         /// Contains the Media Status
@@ -94,8 +97,8 @@
         #region Methods
 
         /// <inheritdoc />
-        public void Log(MediaLogMessageType messageType, string message) =>
-            LoggingWorker.Log(this, messageType, message);
+        void ILoggingHandler.HandleLogMessage(MediaLogMessage message) =>
+            SendOnMessageLogged(message);
 
         /// <inheritdoc />
         public void Dispose()

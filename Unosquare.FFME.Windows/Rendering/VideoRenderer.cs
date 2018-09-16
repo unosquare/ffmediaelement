@@ -17,7 +17,7 @@
     /// Provides Video Image Rendering via a WPF Writable Bitmap
     /// </summary>
     /// <seealso cref="IMediaRenderer" />
-    internal sealed class VideoRenderer : IMediaRenderer
+    internal sealed class VideoRenderer : IMediaRenderer, ILoggingSource
     {
         #region Private State
 
@@ -67,6 +67,13 @@
             });
         }
 
+        #endregion
+
+        #region Properties
+
+        /// <inheritdoc />
+        ILoggingHandler ILoggingSource.LoggingHandler => MediaCore;
+
         /// <summary>
         /// Gets the parent media element (platform specific).
         /// </summary>
@@ -74,10 +81,6 @@
 
         /// <inheritdoc />
         public MediaEngine MediaCore { get; }
-
-        #endregion
-
-        #region Properties
 
         /// <summary>
         /// Gets the DPI along the X axis.
@@ -148,10 +151,7 @@
             if (IsRenderingInProgress.Value)
             {
                 if (MediaCore?.State.IsPlaying ?? false)
-                {
-                    MediaCore?.Log(MediaLogMessageType.Debug,
-                        $"{nameof(VideoRenderer)}: Frame skipped at {mediaBlock.StartTime}");
-                }
+                    this.LogDebug(Aspects.VideoRenderer, $"{nameof(VideoRenderer)} frame skipped at {mediaBlock.StartTime}");
 
                 return;
             }
@@ -191,9 +191,7 @@
                     }
                     catch (Exception ex)
                     {
-                        MediaElement?.MediaCore?.Log(
-                            MediaLogMessageType.Error,
-                            $"{nameof(VideoRenderer)} {ex.GetType()}: {nameof(Render)} layout/CC failed. {ex.Message}.");
+                        this.LogError(Aspects.VideoRenderer, $"{nameof(VideoRenderer)}.{nameof(Render)} layout/CC failed.", ex);
                     }
                 }
 
@@ -209,9 +207,7 @@
                 }
                 catch (Exception ex)
                 {
-                    MediaElement?.MediaCore?.Log(
-                        MediaLogMessageType.Error,
-                        $"{nameof(VideoRenderer)} {ex.GetType()}: {nameof(Render)} bitmap failed. {ex.Message}.");
+                    this.LogError(Aspects.VideoRenderer, $"{nameof(VideoRenderer)}.{nameof(Render)} bitmap failed.", ex);
                 }
                 finally
                 {
@@ -223,9 +219,7 @@
                         }
                         catch (Exception ex)
                         {
-                            MediaElement?.MediaCore?.Log(
-                                MediaLogMessageType.Error,
-                                $"{nameof(VideoRenderer)} {ex.GetType()}: {nameof(Render)} layout/CC failed. {ex.Message}.");
+                            this.LogError(Aspects.VideoRenderer, $"{nameof(VideoRenderer)}.{nameof(Render)} layout/CC failed.", ex);
                         }
                     }
 
@@ -265,9 +259,7 @@
             }
             catch (Exception ex)
             {
-                MediaElement?.MediaCore?.Log(
-                    MediaLogMessageType.Error,
-                    $"{nameof(VideoRenderer)} {ex.GetType()}: {ex.Message}. Stack Trace:\r\n{ex.StackTrace}");
+                this.LogError(Aspects.VideoRenderer, $"{nameof(VideoRenderer)}.{nameof(RenderTargetBitmap)}", ex);
             }
         }
 

@@ -73,7 +73,7 @@
                             resumeSyncBufferingClock = Clock.IsRunning;
                             Clock.Pause();
                             State.UpdateMediaState(PlaybackStatus.Manual);
-                            Log(MediaLogMessageType.Debug, "SYNC-BUFFER: Started.");
+                            this.LogDebug(Aspects.DecodingWorker, "Decoder sync-buffering started.");
                         }
 
                         #endregion
@@ -150,7 +150,8 @@
                         }
 
                         // log some message and resume the clock if it was playing
-                        Log(MediaLogMessageType.Debug, $"SYNC-BUFFER: Finished. Clock set to {WallClock.Format()}");
+                        this.LogDebug(Aspects.DecodingWorker,
+                            $"Decoder sync-buffering finished. Clock set to {WallClock.Format()}");
 
                         if (resumeSyncBufferingClock && State.HasMediaEnded == false)
                             ResumePlayback();
@@ -243,7 +244,7 @@
                     State.NaturalDuration != TimeSpan.MinValue &&
                     State.NaturalDuration < WallClock)
                 {
-                    Log(MediaLogMessageType.Warning,
+                    this.LogWarning(Aspects.DecodingWorker,
                         $"{nameof(State.HasMediaEnded)} conditions met at {WallClock.Format()} but " +
                         $"{nameof(State.NaturalDuration)} reports {State.NaturalDuration.Value.Format()}");
                 }

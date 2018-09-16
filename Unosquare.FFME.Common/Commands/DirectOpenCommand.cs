@@ -69,17 +69,15 @@
                 MediaCore.SendOnMediaFailed(ExceptionResult);
             }
 
-            MediaCore.Log(MediaLogMessageType.Debug, $"Command {CommandType}: Completed");
+            this.LogDebug(Aspects.EngineCommand, $"{CommandType} Completed");
         }
 
         /// <inheritdoc />
         protected override void PerformActions()
         {
-            var m = MediaCore;
-
             // Notify Media will start opening
-            m.Log(MediaLogMessageType.Debug, $"Command {CommandType}: Entered");
-
+            this.LogDebug(Aspects.EngineCommand, $"{CommandType} Entered");
+            var m = MediaCore;
             try
             {
                 // TODO: Sometimes when the stream can't be read, the sample player stays as if it were trying to open
@@ -93,7 +91,7 @@
                 if (MediaEngine.LoadFFmpeg())
                 {
                     // Log an init message
-                    m.Log(MediaLogMessageType.Info,
+                    this.LogInfo(Aspects.EngineCommand,
                         $"{nameof(FFInterop)}.{nameof(FFInterop.Initialize)}: FFmpeg v{MediaEngine.FFmpegVersionInfo}");
                 }
 
@@ -133,7 +131,8 @@
                         // streamOptions.PrivateOptions["framerate"] = "20";
                         containerConfig.ForcedInputFormat = Source.Host;
                         mediaUrl = Uri.UnescapeDataString(Source.Query).TrimStart('?');
-                        m.Log(MediaLogMessageType.Info, $"Media URI will be updated. Input Format: {Source.Host}, Input Argument: {mediaUrl}");
+                        this.LogInfo(Aspects.EngineCommand,
+                            $"Media URI will be updated. Input Format: {Source.Host}, Input Argument: {mediaUrl}");
                     }
                 }
 
