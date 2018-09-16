@@ -97,11 +97,13 @@ the FFmpeg library to perform reading and decoding of media streams.</p>
     <div><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.idisposable">IDisposable</a></div>
     <div><span class="xref">INotifyPropertyChanged</span></div>
     <div><span class="xref">IUriContext</span></div>
+    <div><span class="xref">ILoggingHandler</span></div>
+    <div><span class="xref">ILoggingSource</span></div>
   </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Unosquare.FFME.html">Unosquare.FFME</a></h6>
   <h5 id="Unosquare_FFME_MediaElement_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public sealed class MediaElement : UserControl, IDisposable, INotifyPropertyChanged, IUriContext</code></pre>
+    <pre><code class="lang-csharp hljs">public sealed class MediaElement : UserControl, IDisposable, INotifyPropertyChanged, IUriContext, ILoggingHandler, ILoggingSource</code></pre>
   </div>
   <h3 id="constructors">Constructors
   </h3>
@@ -3435,6 +3437,12 @@ Ensure you handle this very quickly as it runs on the UI thread.</p>
   </div>
   <div>
       <span class="xref">IUriContext</span>
+  </div>
+  <div>
+      <span class="xref">ILoggingHandler</span>
+  </div>
+  <div>
+      <span class="xref">ILoggingSource</span>
   </div>
   <h3 id="seealso">See Also</h3>
   <div class="seealso">

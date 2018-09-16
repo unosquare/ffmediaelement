@@ -252,6 +252,19 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.Events.MediaLogMessageEventArgs.MediaLogMessageEventArgs
   nameWithType: MediaLogMessageEventArgs.MediaLogMessageEventArgs
+- uid: Unosquare.FFME.Events.MediaLogMessageEventArgs.AspectName
+  name: AspectName
+  href: api/Unosquare.FFME.Events.MediaLogMessageEventArgs.html#Unosquare_FFME_Events_MediaLogMessageEventArgs_AspectName
+  commentId: P:Unosquare.FFME.Events.MediaLogMessageEventArgs.AspectName
+  fullName: Unosquare.FFME.Events.MediaLogMessageEventArgs.AspectName
+  nameWithType: MediaLogMessageEventArgs.AspectName
+- uid: Unosquare.FFME.Events.MediaLogMessageEventArgs.AspectName*
+  name: AspectName
+  href: api/Unosquare.FFME.Events.MediaLogMessageEventArgs.html#Unosquare_FFME_Events_MediaLogMessageEventArgs_AspectName_
+  commentId: Overload:Unosquare.FFME.Events.MediaLogMessageEventArgs.AspectName
+  isSpec: "True"
+  fullName: Unosquare.FFME.Events.MediaLogMessageEventArgs.AspectName
+  nameWithType: MediaLogMessageEventArgs.AspectName
 - uid: Unosquare.FFME.Events.MediaLogMessageEventArgs.Message
   name: Message
   href: api/Unosquare.FFME.Events.MediaLogMessageEventArgs.html#Unosquare_FFME_Events_MediaLogMessageEventArgs_Message
@@ -278,19 +291,6 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.Events.MediaLogMessageEventArgs.MessageType
   nameWithType: MediaLogMessageEventArgs.MessageType
-- uid: Unosquare.FFME.Events.MediaLogMessageEventArgs.Source
-  name: Source
-  href: api/Unosquare.FFME.Events.MediaLogMessageEventArgs.html#Unosquare_FFME_Events_MediaLogMessageEventArgs_Source
-  commentId: P:Unosquare.FFME.Events.MediaLogMessageEventArgs.Source
-  fullName: Unosquare.FFME.Events.MediaLogMessageEventArgs.Source
-  nameWithType: MediaLogMessageEventArgs.Source
-- uid: Unosquare.FFME.Events.MediaLogMessageEventArgs.Source*
-  name: Source
-  href: api/Unosquare.FFME.Events.MediaLogMessageEventArgs.html#Unosquare_FFME_Events_MediaLogMessageEventArgs_Source_
-  commentId: Overload:Unosquare.FFME.Events.MediaLogMessageEventArgs.Source
-  isSpec: "True"
-  fullName: Unosquare.FFME.Events.MediaLogMessageEventArgs.Source
-  nameWithType: MediaLogMessageEventArgs.Source
 - uid: Unosquare.FFME.Events.MediaLogMessageEventArgs.TimestampUtc
   name: TimestampUtc
   href: api/Unosquare.FFME.Events.MediaLogMessageEventArgs.html#Unosquare_FFME_Events_MediaLogMessageEventArgs_TimestampUtc
@@ -304,6 +304,19 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.Events.MediaLogMessageEventArgs.TimestampUtc
   nameWithType: MediaLogMessageEventArgs.TimestampUtc
+- uid: Unosquare.FFME.Events.MediaLogMessageEventArgs.ToString
+  name: ToString()
+  href: api/Unosquare.FFME.Events.MediaLogMessageEventArgs.html#Unosquare_FFME_Events_MediaLogMessageEventArgs_ToString
+  commentId: M:Unosquare.FFME.Events.MediaLogMessageEventArgs.ToString
+  fullName: Unosquare.FFME.Events.MediaLogMessageEventArgs.ToString()
+  nameWithType: MediaLogMessageEventArgs.ToString()
+- uid: Unosquare.FFME.Events.MediaLogMessageEventArgs.ToString*
+  name: ToString
+  href: api/Unosquare.FFME.Events.MediaLogMessageEventArgs.html#Unosquare_FFME_Events_MediaLogMessageEventArgs_ToString_
+  commentId: Overload:Unosquare.FFME.Events.MediaLogMessageEventArgs.ToString
+  isSpec: "True"
+  fullName: Unosquare.FFME.Events.MediaLogMessageEventArgs.ToString
+  nameWithType: MediaLogMessageEventArgs.ToString
 - uid: Unosquare.FFME.Events.MediaOpenedRoutedEventArgs
   name: MediaOpenedRoutedEventArgs
   href: api/Unosquare.FFME.Events.MediaOpenedRoutedEventArgs.html
