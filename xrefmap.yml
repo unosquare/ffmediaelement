@@ -1689,45 +1689,6 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.PositionChangedEvent
   fullName: Unosquare.FFME.MediaElement.PositionChangedEvent
   nameWithType: MediaElement.PositionChangedEvent
-- uid: Unosquare.FFME.MediaElement.PositionCurrent
-  name: PositionCurrent
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_PositionCurrent
-  commentId: P:Unosquare.FFME.MediaElement.PositionCurrent
-  fullName: Unosquare.FFME.MediaElement.PositionCurrent
-  nameWithType: MediaElement.PositionCurrent
-- uid: Unosquare.FFME.MediaElement.PositionCurrent*
-  name: PositionCurrent
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_PositionCurrent_
-  commentId: Overload:Unosquare.FFME.MediaElement.PositionCurrent
-  isSpec: "True"
-  fullName: Unosquare.FFME.MediaElement.PositionCurrent
-  nameWithType: MediaElement.PositionCurrent
-- uid: Unosquare.FFME.MediaElement.PositionNext
-  name: PositionNext
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_PositionNext
-  commentId: P:Unosquare.FFME.MediaElement.PositionNext
-  fullName: Unosquare.FFME.MediaElement.PositionNext
-  nameWithType: MediaElement.PositionNext
-- uid: Unosquare.FFME.MediaElement.PositionNext*
-  name: PositionNext
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_PositionNext_
-  commentId: Overload:Unosquare.FFME.MediaElement.PositionNext
-  isSpec: "True"
-  fullName: Unosquare.FFME.MediaElement.PositionNext
-  nameWithType: MediaElement.PositionNext
-- uid: Unosquare.FFME.MediaElement.PositionPrevious
-  name: PositionPrevious
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_PositionPrevious
-  commentId: P:Unosquare.FFME.MediaElement.PositionPrevious
-  fullName: Unosquare.FFME.MediaElement.PositionPrevious
-  nameWithType: MediaElement.PositionPrevious
-- uid: Unosquare.FFME.MediaElement.PositionPrevious*
-  name: PositionPrevious
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_PositionPrevious_
-  commentId: Overload:Unosquare.FFME.MediaElement.PositionPrevious
-  isSpec: "True"
-  fullName: Unosquare.FFME.MediaElement.PositionPrevious
-  nameWithType: MediaElement.PositionPrevious
 - uid: Unosquare.FFME.MediaElement.PositionProperty
   name: PositionProperty
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_PositionProperty
@@ -1891,6 +1852,32 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.SpeedRatioProperty
   fullName: Unosquare.FFME.MediaElement.SpeedRatioProperty
   nameWithType: MediaElement.SpeedRatioProperty
+- uid: Unosquare.FFME.MediaElement.StepBackward
+  name: StepBackward()
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_StepBackward
+  commentId: M:Unosquare.FFME.MediaElement.StepBackward
+  fullName: Unosquare.FFME.MediaElement.StepBackward()
+  nameWithType: MediaElement.StepBackward()
+- uid: Unosquare.FFME.MediaElement.StepBackward*
+  name: StepBackward
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_StepBackward_
+  commentId: Overload:Unosquare.FFME.MediaElement.StepBackward
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.StepBackward
+  nameWithType: MediaElement.StepBackward
+- uid: Unosquare.FFME.MediaElement.StepForward
+  name: StepForward()
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_StepForward
+  commentId: M:Unosquare.FFME.MediaElement.StepForward
+  fullName: Unosquare.FFME.MediaElement.StepForward()
+  nameWithType: MediaElement.StepForward()
+- uid: Unosquare.FFME.MediaElement.StepForward*
+  name: StepForward
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_StepForward_
+  commentId: Overload:Unosquare.FFME.MediaElement.StepForward
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.StepForward
+  nameWithType: MediaElement.StepForward
 - uid: Unosquare.FFME.MediaElement.Stop
   name: Stop()
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Stop

@@ -1961,84 +1961,6 @@ Only valid after the MediaOpened event has fired.</p>
   </table>
   
   
-  <a id="Unosquare_FFME_MediaElement_PositionCurrent_" data-uid="Unosquare.FFME.MediaElement.PositionCurrent*"></a>
-  <h4 id="Unosquare_FFME_MediaElement_PositionCurrent" data-uid="Unosquare.FFME.MediaElement.PositionCurrent">PositionCurrent</h4>
-  <div class="markdown level1 summary"><p>Gets the discrete timestamp of the current frame.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public TimeSpan PositionCurrent { get; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
-  <a id="Unosquare_FFME_MediaElement_PositionNext_" data-uid="Unosquare.FFME.MediaElement.PositionNext*"></a>
-  <h4 id="Unosquare_FFME_MediaElement_PositionNext" data-uid="Unosquare.FFME.MediaElement.PositionNext">PositionNext</h4>
-  <div class="markdown level1 summary"><p>Gets the discrete timestamp of the next frame.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public TimeSpan PositionNext { get; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
-  <a id="Unosquare_FFME_MediaElement_PositionPrevious_" data-uid="Unosquare.FFME.MediaElement.PositionPrevious*"></a>
-  <h4 id="Unosquare_FFME_MediaElement_PositionPrevious" data-uid="Unosquare.FFME.MediaElement.PositionPrevious">PositionPrevious</h4>
-  <div class="markdown level1 summary"><p>Gets the discrete timestamp of the previous frame.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public TimeSpan PositionPrevious { get; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
   <a id="Unosquare_FFME_MediaElement_PositionStep_" data-uid="Unosquare.FFME.MediaElement.PositionStep*"></a>
   <h4 id="Unosquare_FFME_MediaElement_PositionStep" data-uid="Unosquare.FFME.MediaElement.PositionStep">PositionStep</h4>
   <div class="markdown level1 summary"><p>Gets the duration of a single frame step.
@@ -2825,6 +2747,60 @@ This is an alternative to using the <a class="xref" href="Unosquare.FFME.MediaEl
       </tr>
     </tbody>
   </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.task">Task</a></td>
+        <td><p>The awaitable command</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_StepBackward_" data-uid="Unosquare.FFME.MediaElement.StepBackward*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_StepBackward" data-uid="Unosquare.FFME.MediaElement.StepBackward">StepBackward()</h4>
+  <div class="markdown level1 summary"><p>Seeks a single frame backward.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Task StepBackward()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.task">Task</a></td>
+        <td><p>The awaitable command</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_MediaElement_StepForward_" data-uid="Unosquare.FFME.MediaElement.StepForward*"></a>
+  <h4 id="Unosquare_FFME_MediaElement_StepForward" data-uid="Unosquare.FFME.MediaElement.StepForward">StepForward()</h4>
+  <div class="markdown level1 summary"><p>Seeks a single frame forward.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Task StepForward()</code></pre>
+  </div>
   <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">
     <thead>
