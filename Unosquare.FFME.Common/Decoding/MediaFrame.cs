@@ -27,6 +27,7 @@
         {
             var packetSize = pointer->pkt_size;
             CompressedSize = packetSize > 0 ? packetSize : 0;
+            PresentationTimestamp = pointer->pts.ToTimeSpan(StreamTimeBase);
         }
 
         /// <summary>
@@ -39,6 +40,7 @@
         {
             // TODO: Compressed size is simply an estimate
             CompressedSize = (int)pointer->num_rects * 256;
+            PresentationTimestamp = Convert.ToInt64(pointer->start_display_time).ToTimeSpan(StreamTimeBase);
         }
 
         /// <summary>
@@ -71,6 +73,11 @@
         /// Gets the size of the compressed packets that created this frame.
         /// </summary>
         public int CompressedSize { get; }
+
+        /// <summary>
+        /// Gets the unadjusted, original presentation timestamp of the frame.
+        /// </summary>
+        public TimeSpan PresentationTimestamp { get; }
 
         /// <summary>
         /// Gets the start time of the frame.

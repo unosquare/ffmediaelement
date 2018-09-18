@@ -850,13 +850,6 @@
         {
             // Open the best suitable streams. Throw if no audio and/or video streams are found
             StreamCreateComponents();
-
-            // Verify the stream input start offset. This is the zero measure for all sub-streams.
-            var minOffset = Components.Count > 0 ? Components.All.Min(c => c.StartTimeOffset) : MediaStartTimeOffset;
-            if (minOffset == MediaStartTimeOffset) return;
-            this.LogWarning(Aspects.Container,
-                $"Input Start: {MediaStartTimeOffset.Format()} Comp. Start: {minOffset.Format()}. Input start will be updated.");
-            MediaStartTimeOffset = minOffset;
         }
 
         /// <summary>
@@ -930,6 +923,14 @@
             // Initially and depending on the video component, require picture attachments.
             // Picture attachments are only required after the first read or after a seek.
             StateRequiresPictureAttachments = true;
+
+            // Output start time offsets.
+            this.LogInfo(Aspects.Container,
+                $"Timing Offsets - Container: {MediaStartTimeOffset.Format()}; Main Type: {Components.MainMediaType}; " +
+                $"Main Offset: {Components.MainStartTimeOffset}; " +
+                $"Video: {(Components.Video == null ? "N/A" : Components.Video.StartTimeOffset.Format())}; " +
+                $"Audio: {(Components.Audio == null ? "N/A" : Components.Audio.StartTimeOffset.Format())}; " +
+                $"Subs: {(Components.Subtitles == null ? "N/A" : Components.Subtitles.StartTimeOffset.Format())}; ");
 
             // Return the registered component types
             return Components.MediaTypes.ToArray();

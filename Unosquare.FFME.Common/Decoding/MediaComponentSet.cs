@@ -76,6 +76,14 @@
         }
 
         /// <summary>
+        /// Gets the start time offset of the main component.
+        /// </summary>
+        public TimeSpan MainStartTimeOffset
+        {
+            get { lock (ComponentSyncLock) return m_Main?.StartTimeOffset ?? TimeSpan.Zero; }
+        }
+
+        /// <summary>
         /// Gets the available component media types.
         /// </summary>
         public ReadOnlyCollection<MediaType> MediaTypes
@@ -383,23 +391,24 @@
                 if (component == null)
                     throw new ArgumentNullException(nameof(component));
 
+                var errorMessage = $"A component for '{component.MediaType}' is already registered.";
                 switch (component.MediaType)
                 {
                     case MediaType.Audio:
                         if (m_Audio != null)
-                            throw new ArgumentException($"A component for '{component.MediaType}' is already registered.");
+                            throw new ArgumentException(errorMessage);
 
                         m_Audio = component as AudioComponent;
                         break;
                     case MediaType.Video:
                         if (m_Video != null)
-                            throw new ArgumentException($"A component for '{component.MediaType}' is already registered.");
+                            throw new ArgumentException(errorMessage);
 
                         m_Video = component as VideoComponent;
                         break;
                     case MediaType.Subtitle:
                         if (m_Subtitle != null)
-                            throw new ArgumentException($"A component for '{component.MediaType}' is already registered.");
+                            throw new ArgumentException(errorMessage);
 
                         m_Subtitle = component as SubtitleComponent;
                         break;
