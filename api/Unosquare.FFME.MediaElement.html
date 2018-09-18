@@ -397,6 +397,31 @@ the FFmpeg library to perform reading and decoding of media streams.</p>
   </table>
   
   
+  <h4 id="Unosquare_FFME_MediaElement_MediaReadyEvent" data-uid="Unosquare.FFME.MediaElement.MediaReadyEvent">MediaReadyEvent</h4>
+  <div class="markdown level1 summary"><p>MediaOpened is a routed event.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static readonly RoutedEvent MediaReadyEvent</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEvent</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <h4 id="Unosquare_FFME_MediaElement_MediaStateChangedEvent" data-uid="Unosquare.FFME.MediaElement.MediaStateChangedEvent">MediaStateChangedEvent</h4>
   <div class="markdown level1 summary"><p>MediaStateChanged is a routed event</p>
 </div>
@@ -3168,6 +3193,32 @@ Use this method to modify the media options and select streams.</p>
   <div class="markdown level1 remarks"><p>This event is raised on a background thread.
 All interaction with UI elements requires calls on their corresponding dispatcher.</p>
 </div>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_MediaReady" data-uid="Unosquare.FFME.MediaElement.MediaReady">MediaReady</h4>
+  <div class="markdown level1 summary"><p>Raised after the media is opened and ready to receive commands
+such as <a class="xref" href="Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Seek_System_TimeSpan_">Seek(TimeSpan)</a></p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event RoutedEventHandler MediaReady</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">RoutedEventHandler</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
   
   
   <h4 id="Unosquare_FFME_MediaElement_MediaStateChanged" data-uid="Unosquare.FFME.MediaElement.MediaStateChanged">MediaStateChanged</h4>

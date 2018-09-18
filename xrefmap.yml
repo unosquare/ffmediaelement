@@ -1497,6 +1497,18 @@ references:
   commentId: E:Unosquare.FFME.MediaElement.MediaOpening
   fullName: Unosquare.FFME.MediaElement.MediaOpening
   nameWithType: MediaElement.MediaOpening
+- uid: Unosquare.FFME.MediaElement.MediaReady
+  name: MediaReady
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaReady
+  commentId: E:Unosquare.FFME.MediaElement.MediaReady
+  fullName: Unosquare.FFME.MediaElement.MediaReady
+  nameWithType: MediaElement.MediaReady
+- uid: Unosquare.FFME.MediaElement.MediaReadyEvent
+  name: MediaReadyEvent
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaReadyEvent
+  commentId: F:Unosquare.FFME.MediaElement.MediaReadyEvent
+  fullName: Unosquare.FFME.MediaElement.MediaReadyEvent
+  nameWithType: MediaElement.MediaReadyEvent
 - uid: Unosquare.FFME.MediaElement.MediaState
   name: MediaState
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaState
