@@ -1121,6 +1121,19 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.FFmpegVersionInfo
   nameWithType: MediaElement.FFmpegVersionInfo
+- uid: Unosquare.FFME.MediaElement.FramePosition
+  name: FramePosition
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_FramePosition
+  commentId: P:Unosquare.FFME.MediaElement.FramePosition
+  fullName: Unosquare.FFME.MediaElement.FramePosition
+  nameWithType: MediaElement.FramePosition
+- uid: Unosquare.FFME.MediaElement.FramePosition*
+  name: FramePosition
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_FramePosition_
+  commentId: Overload:Unosquare.FFME.MediaElement.FramePosition
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.FramePosition
+  nameWithType: MediaElement.FramePosition
 - uid: Unosquare.FFME.MediaElement.HasAudio
   name: HasAudio
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_HasAudio
