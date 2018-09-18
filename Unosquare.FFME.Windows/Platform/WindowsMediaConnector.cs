@@ -92,6 +92,8 @@
                     await sender.Play();
                 else if (Parent.LoadedBehavior == System.Windows.Controls.MediaState.Pause)
                     await sender.Pause();
+
+                Parent.PostMediaReadyEvent();
             });
         }
 

@@ -146,6 +146,7 @@
             Media.MediaInitializing += OnMediaInitializing;
             Media.MediaOpening += OnMediaOpening;
             Media.MediaOpened += OnMediaOpened;
+            Media.MediaReady += OnMediaReady;
             Media.MediaChanging += OnMediaChanging;
             Media.AudioDeviceStopped += OnAudioDeviceStopped;
             Media.MediaChanged += OnMediaChanged;

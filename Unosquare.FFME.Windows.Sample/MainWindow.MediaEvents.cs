@@ -212,7 +212,17 @@
         /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
         private void OnMediaOpened(object sender, MediaOpenedRoutedEventArgs e)
         {
-            // Set a start position (see issue #66)
+            // Perform some notification or status change when the media opened
+        }
+
+        /// <summary>
+        /// Handles the MediaReady event of the Media control.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
+        private void OnMediaReady(object sender, RoutedEventArgs e)
+        {
+            // Set a start position (see issue #66 or issue #277)
             // Media.Position = TimeSpan.FromSeconds(5);
             // await Media.Seek(TimeSpan.FromSeconds(5));
         }

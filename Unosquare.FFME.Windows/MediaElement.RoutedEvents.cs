@@ -76,6 +76,16 @@
                             typeof(MediaElement));
 
         /// <summary>
+        /// MediaOpened is a routed event.
+        /// </summary>
+        public static readonly RoutedEvent MediaReadyEvent =
+            EventManager.RegisterRoutedEvent(
+                            nameof(MediaReady),
+                            RoutingStrategy.Bubble,
+                            typeof(RoutedEventHandler),
+                            typeof(MediaElement));
+
+        /// <summary>
         /// MediaClosed is a routed event.
         /// </summary>
         public static readonly RoutedEvent MediaClosedEvent =
@@ -172,6 +182,16 @@
         {
             add => AddHandler(MediaOpenedEvent, value);
             remove => RemoveHandler(MediaOpenedEvent, value);
+        }
+
+        /// <summary>
+        /// Raised after the media is opened and ready to receive commands
+        /// such as <see cref="Seek(TimeSpan)"/>
+        /// </summary>
+        public event RoutedEventHandler MediaReady
+        {
+            add => AddHandler(MediaReadyEvent, value);
+            remove => RemoveHandler(MediaReadyEvent, value);
         }
 
         /// <summary>
@@ -328,6 +348,20 @@
                 RaiseEvent(new MediaOpenedRoutedEventArgs(
                     MediaOpenedEvent, this, mediaInfo));
                 LogEventDone(MediaOpenedEvent);
+            });
+        }
+
+        /// <summary>
+        /// Raises the media ready event.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void PostMediaReadyEvent()
+        {
+            LogEventStart(MediaReadyEvent);
+            GuiContext.Current.EnqueueInvoke(() =>
+            {
+                RaiseEvent(new RoutedEventArgs(MediaReadyEvent, this));
+                LogEventDone(MediaReadyEvent);
             });
         }
 

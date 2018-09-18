@@ -13,7 +13,7 @@
     /// Provides centralized access to playback controls
     /// </summary>
     /// <seealso cref="IDisposable" />
-    internal sealed class CommandManager : IDisposable
+    internal sealed class CommandManager : IDisposable, ILoggingSource
     {
         #region Private Members
 
@@ -56,6 +56,9 @@
         #endregion
 
         #region Properties
+
+        /// <inheritdoc />
+        ILoggingHandler ILoggingSource.LoggingHandler => MediaCore;
 
         /// <summary>
         /// Gets a value indicating whether a direct command is currently executing.
@@ -427,6 +430,7 @@
                 {
                     var command = CommandQueue[i];
                     command.Dispose();
+                    this.LogTrace(Aspects.EngineCommand, $"{nameof(ClearCommandQueue)} - Command Disposed: {command.CommandType}");
 
                     if (command.AffectsSeekingState)
                         DecrementPendingSeeks();
@@ -531,6 +535,7 @@
             {
                 ClearCommandQueue();
                 CommandQueue.Add(command);
+                this.LogTrace(Aspects.EngineCommand, $"{nameof(ExecutePriorityCommand)} - Command: {command.CommandType}");
             }
 
             return await command.Awaiter;
