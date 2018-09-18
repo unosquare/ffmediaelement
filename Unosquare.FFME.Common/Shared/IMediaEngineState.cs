@@ -222,6 +222,12 @@ namespace Unosquare.FFME.Shared
         TimeSpan Position { get; }
 
         /// <summary>
+        /// Gets the discrete time position of the start of the current
+        /// frame of the main component.
+        /// </summary>
+        TimeSpan FramePosition { get; }
+
+        /// <summary>
         /// Gets the URL of the open or opening media.
         /// </summary>
         Uri Source { get; }

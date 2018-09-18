@@ -29,6 +29,7 @@
         private readonly AtomicInteger m_PacketBufferCount = new AtomicInteger(default);
 
         private readonly AtomicTimeSpan m_Position = new AtomicTimeSpan(default);
+        private readonly AtomicTimeSpan m_FramePosition = new AtomicTimeSpan(default);
         private readonly AtomicDouble m_SpeedRatio = new AtomicDouble(Constants.Controller.DefaultSpeedRatio);
         private readonly AtomicDouble m_Volume = new AtomicDouble(Constants.Controller.DefaultVolume);
         private readonly AtomicDouble m_Balance = new AtomicDouble(Constants.Controller.DefaultBalance);
@@ -99,6 +100,13 @@
         {
             get => m_Position.Value;
             private set => m_Position.Value = value;
+        }
+
+        /// <inheritdoc />
+        public TimeSpan FramePosition
+        {
+            get => m_FramePosition.Value;
+            private set => m_FramePosition.Value = value;
         }
 
         /// <inheritdoc />
@@ -360,6 +368,10 @@
         {
             if (block == null) return;
 
+            // Update the discrete frame position upon rendering
+            if (block.MediaType == (MediaCore.Container?.Components.MainMediaType ?? MediaType.None))
+                FramePosition = block.StartTime;
+
             // Update video block properties
             if (block is VideoBlock == false) return;
 
@@ -463,6 +475,7 @@
             // Reset Method-controlled properties
             MediaState = newMediaState;
             Position = default;
+            FramePosition = default;
             HasMediaEnded = default;
 
             // Reset decoder and buffering

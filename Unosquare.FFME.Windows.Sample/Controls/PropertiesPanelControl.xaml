@@ -94,6 +94,11 @@
                         </DockPanel>
 
                         <DockPanel>
+                            <TextBlock Style="{StaticResource Key}">Frame Position</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding FramePosition, Mode=OneWay}" />
+                        </DockPanel>
+
+                        <DockPanel>
                             <TextBlock Style="{StaticResource Key}">Is Open</TextBlock>
                             <TextBlock Style="{StaticResource Value}" Text="{Binding IsOpen, Mode=OneWay}" />
                         </DockPanel>

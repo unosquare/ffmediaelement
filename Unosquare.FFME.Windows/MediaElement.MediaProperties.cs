@@ -52,6 +52,12 @@
         }
 
         /// <summary>
+        /// Gets the discrete time position of the start of the current
+        /// frame of the main component.
+        /// </summary>
+        public TimeSpan FramePosition => MediaCore?.State.FramePosition ?? default;
+
+        /// <summary>
         /// Gets the stream's total bit rate as reported by the container.
         /// Returns 0 if unavailable.
         /// </summary>
