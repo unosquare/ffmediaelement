@@ -4,7 +4,6 @@
     using FFmpeg.AutoGen;
     using Shared;
     using System;
-    using System.Collections.Generic;
     using System.Linq;
 
     /// <summary>
@@ -78,7 +77,7 @@
         #region Methods
 
         /// <inheritdoc />
-        public override bool MaterializeFrame(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings)
+        public override bool MaterializeFrame(MediaFrame input, ref MediaBlock output, MediaBlock previousBlock)
         {
             if (output == null) output = new AudioBlock();
             if (input is AudioFrame == false || output is AudioBlock == false)
@@ -142,14 +141,11 @@
             target.IsStartTimeGuessed = source.HasValidStartTime == false;
 
             // Try to fix the start time, duration and End time if we don't have valid data
-            if (source.HasValidStartTime == false && siblings != null && siblings.Count > 0)
+            if (source.HasValidStartTime == false && previousBlock != null)
             {
-                // Get timing information from the last sibling
-                var lastSibling = siblings[siblings.Count - 1];
-
-                // We set the target properties
-                target.StartTime = lastSibling.EndTime;
-                target.Duration = source.Duration.Ticks > 0 ? source.Duration : lastSibling.Duration;
+                // Get timing information from the previous block
+                target.StartTime = TimeSpan.FromTicks(previousBlock.EndTime.Ticks + 1);
+                target.Duration = source.Duration.Ticks > 0 ? source.Duration : previousBlock.Duration;
                 target.EndTime = TimeSpan.FromTicks(target.StartTime.Ticks + target.Duration.Ticks);
             }
             else

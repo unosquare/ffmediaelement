@@ -454,8 +454,8 @@
         /// </summary>
         /// <param name="input">The raw frame source. Has to be compatible with the target. (e.g. use VideoFrameSource to convert to VideoFrame)</param>
         /// <param name="output">The target frame. Has to be compatible with the source.</param>
-        /// <param name="siblings">The siblings that may help guess additional output parameters.</param>
         /// <param name="releaseInput">if set to <c>true</c> releases the raw frame source from unmanaged memory.</param>
+        /// <param name="previousBlock">The previous block from which to extract timing information in case it is missing.</param>
         /// <returns>
         /// True if successful. False otherwise.
         /// </returns>
@@ -465,7 +465,7 @@
         /// <exception cref="ArgumentException">input
         /// or
         /// input</exception>
-        public bool Convert(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings, bool releaseInput)
+        public bool Convert(MediaFrame input, ref MediaBlock output, bool releaseInput, MediaBlock previousBlock)
         {
             lock (ConvertSyncRoot)
             {
@@ -487,13 +487,13 @@
                     switch (input.MediaType)
                     {
                         case MediaType.Video:
-                            return Components.HasVideo && Components.Video.MaterializeFrame(input, ref output, siblings);
+                            return Components.HasVideo && Components.Video.MaterializeFrame(input, ref output, previousBlock);
 
                         case MediaType.Audio:
-                            return Components.HasAudio && Components.Audio.MaterializeFrame(input, ref output, siblings);
+                            return Components.HasAudio && Components.Audio.MaterializeFrame(input, ref output, previousBlock);
 
                         case MediaType.Subtitle:
-                            return Components.HasSubtitles && Components.Subtitles.MaterializeFrame(input, ref output, siblings);
+                            return Components.HasSubtitles && Components.Subtitles.MaterializeFrame(input, ref output, previousBlock);
 
                         default:
                             throw new MediaContainerException($"Unable to materialize frame of {nameof(MediaType)} {input.MediaType}");
@@ -927,7 +927,7 @@
             // Output start time offsets.
             this.LogInfo(Aspects.Container,
                 $"Timing Offsets - Container: {MediaStartTimeOffset.Format()}; Main Type: {Components.MainMediaType}; " +
-                $"Main Offset: {Components.MainStartTimeOffset}; " +
+                $"Main Offset: {Components.MainStartTimeOffset.Format()}; " +
                 $"Video: {(Components.Video == null ? "N/A" : Components.Video.StartTimeOffset.Format())}; " +
                 $"Audio: {(Components.Audio == null ? "N/A" : Components.Audio.StartTimeOffset.Format())}; " +
                 $"Subs: {(Components.Subtitles == null ? "N/A" : Components.Subtitles.StartTimeOffset.Format())}; ");
@@ -1203,8 +1203,6 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int StreamSeekToStart(List<MediaFrame> result, SeekRequirement seekRequirement)
         {
-            if (MediaStartTimeOffset == TimeSpan.MinValue) return 0;
-
             var main = Components.Main;
             var seekTarget = main.StartTimeOffset.ToLong(main.Stream->time_base);
             var streamIndex = main.StreamIndex;

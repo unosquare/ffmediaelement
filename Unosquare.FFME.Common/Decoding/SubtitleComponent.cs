@@ -3,7 +3,6 @@
     using FFmpeg.AutoGen;
     using Shared;
     using System;
-    using System.Collections.Generic;
     using System.Text;
 
     /// <summary>
@@ -32,7 +31,7 @@
         public TimeSpan Delay { get; }
 
         /// <inheritdoc />
-        public override bool MaterializeFrame(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings)
+        public override bool MaterializeFrame(MediaFrame input, ref MediaBlock output, MediaBlock previousBlock)
         {
             if (output == null) output = new SubtitleBlock();
             if (input is SubtitleFrame == false || output is SubtitleBlock == false)

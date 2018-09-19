@@ -5,7 +5,6 @@
     using Primitives;
     using Shared;
     using System;
-    using System.Collections.Generic;
     using System.Globalization;
     using System.Runtime.CompilerServices;
 
@@ -449,11 +448,11 @@
         /// </summary>
         /// <param name="input">The source frame to use as an input.</param>
         /// <param name="output">The target frame that will be updated with the source frame. If null is passed the frame will be instantiated.</param>
-        /// <param name="siblings">The sibling blocks that may help guess some additional parameters for the input frame.</param>
+        /// <param name="previousBlock">The previous block from which to derive information in case the current frame contains invalid data.</param>
         /// <returns>
         /// Returns true of the operation succeeded. False otherwise.
         /// </returns>
-        public abstract bool MaterializeFrame(MediaFrame input, ref MediaBlock output, List<MediaBlock> siblings);
+        public abstract bool MaterializeFrame(MediaFrame input, ref MediaBlock output, MediaBlock previousBlock);
 
         /// <inheritdoc />
         public void Dispose() => Dispose(true);

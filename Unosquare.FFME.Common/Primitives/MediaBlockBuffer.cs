@@ -423,7 +423,9 @@
 
                     // Get a block reference from the pool and convert it!
                     var targetBlock = PoolBlocks.Dequeue();
-                    if (container.Convert(source, ref targetBlock, PlaybackBlocks, true) == false)
+                    var lastBlock = PlaybackBlocks.Count > 0 ? PlaybackBlocks[PlaybackBlocks.Count - 1] : null;
+
+                    if (container.Convert(source, ref targetBlock, true, lastBlock) == false)
                     {
                         // return the converted block to the pool
                         PoolBlocks.Enqueue(targetBlock);
@@ -431,7 +433,6 @@
                     }
 
                     // Add the converted block to the playback list and sort it if we have to.
-                    var lastBlock = PlaybackBlocks.Count > 0 ? PlaybackBlocks[PlaybackBlocks.Count - 1] : null;
                     var requiresSorting = lastBlock != null && targetBlock.StartTime < lastBlock.StartTime;
 
                     PlaybackBlocks.Add(targetBlock);
