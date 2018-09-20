@@ -39,7 +39,6 @@
             // for video frames, we always get the best effort timestamp as dts and pts might
             // contain different times.
             frame->pts = frame->best_effort_timestamp;
-
             HasValidStartTime = frame->pts != ffmpeg.AV_NOPTS_VALUE;
             StartTime = frame->pts == ffmpeg.AV_NOPTS_VALUE ?
                 TimeSpan.FromTicks(0) :
@@ -47,7 +46,8 @@
 
             EndTime = TimeSpan.FromTicks(StartTime.Ticks + Duration.Ticks);
 
-            // Picture Number and SMTPE TimeCode
+            // Picture Type, Number and SMTPE TimeCode
+            PictureType = frame->pict_type;
             DisplayPictureNumber = frame->display_picture_number == 0 ?
                 Extensions.ComputePictureNumber(StartTime, Duration, 1) :
                 frame->display_picture_number;
@@ -94,6 +94,11 @@
         /// frame duration
         /// </summary>
         public long DisplayPictureNumber { get; }
+
+        /// <summary>
+        /// Gets the video picture type. I frames are key frames.
+        /// </summary>
+        public AVPictureType PictureType { get; }
 
         /// <summary>
         /// Gets the coded picture number set by the decoder.
