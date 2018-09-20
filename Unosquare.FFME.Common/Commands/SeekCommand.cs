@@ -121,7 +121,7 @@
 
                 // Populate frame queues with after-seek operation
                 var frames = m.Container.Seek(adjustedSeekTarget);
-                m.State.UpdateMediaEnded(false);
+                m.State.UpdateMediaEnded(false, TimeSpan.Zero);
 
                 // Clear all the blocks. We don't need them
                 foreach (var kvp in m.Blocks)

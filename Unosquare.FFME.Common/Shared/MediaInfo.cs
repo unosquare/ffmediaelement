@@ -27,12 +27,8 @@
             InputUrl = container.MediaUrl;
             Format = FFInterop.PtrToStringUTF8(ic->iformat->name);
             Metadata = container.Metadata;
-            Duration = ic->duration != ffmpeg.AV_NOPTS_VALUE ?
-                ic->duration.ToTimeSpan() :
-                TimeSpan.MinValue;
-            StartTime = ic->start_time != ffmpeg.AV_NOPTS_VALUE ?
-                ic->start_time.ToTimeSpan() :
-                default(TimeSpan?);
+            StartTime = ic->start_time != ffmpeg.AV_NOPTS_VALUE ? ic->start_time.ToTimeSpan() : TimeSpan.MinValue;
+            Duration = ic->duration != ffmpeg.AV_NOPTS_VALUE ? ic->duration.ToTimeSpan() : TimeSpan.MinValue;
             BitRate = ic->bit_rate < 0 ? 0 : ic->bit_rate;
 
             Streams = new ReadOnlyDictionary<int, StreamInfo>(ExtractStreams(ic).ToDictionary(k => k.StreamIndex, v => v));
@@ -63,15 +59,17 @@
 
         /// <summary>
         /// Gets the duration of the input as reported by the container format.
-        /// Individual stream components may have different values
+        /// Individual stream components may have different values.
+        /// Returns TimeSpan.MinValue if unknown.
         /// </summary>
         public TimeSpan Duration { get; }
 
         /// <summary>
         /// Gets the start timestamp of the input as reported by the container format.
-        /// Individual stream components may have different values
+        /// Individual stream components may have different values.
+        /// Returns TimeSpan.MinValue if unknown.
         /// </summary>
-        public TimeSpan? StartTime { get; }
+        public TimeSpan StartTime { get; }
 
         /// <summary>
         /// If available, returns a non-zero value as reported by the container format.

@@ -415,10 +415,6 @@
                         var firstBlock = PlaybackBlocks[0];
                         PlaybackBlocks.RemoveAt(0);
                         PoolBlocks.Enqueue(firstBlock);
-
-                        // The new zeroth block can't have a previous block.
-                        if (PlaybackBlocks.Count > 0)
-                            PlaybackBlocks[0].Previous = null;
                     }
 
                     // Get a block reference from the pool and convert it!
@@ -432,41 +428,30 @@
                         return null;
                     }
 
-                    // Add the converted block to the playback list and sort it if we have to.
-                    var requiresSorting = lastBlock != null && targetBlock.StartTime < lastBlock.StartTime;
-
                     PlaybackBlocks.Add(targetBlock);
                     var maxBlockIndex = PlaybackBlocks.Count - 1;
 
                     // Perform the sorting and assignment of Previous and Next blocks
-                    if (requiresSorting)
-                    {
-                        PlaybackBlocks.Sort();
-                        PlaybackBlocks[0].Index = 0;
-                        PlaybackBlocks[0].Previous = null;
-                        PlaybackBlocks[0].Next = maxBlockIndex > 0 ? PlaybackBlocks[1] : null;
+                    PlaybackBlocks.Sort();
+                    PlaybackBlocks[0].Index = 0;
+                    PlaybackBlocks[0].Previous = null;
+                    PlaybackBlocks[0].Next = maxBlockIndex > 0 ? PlaybackBlocks[1] : null;
 
-                        for (var blockIndex = 1; blockIndex <= maxBlockIndex; blockIndex++)
-                        {
-                            PlaybackBlocks[blockIndex].Index = blockIndex;
-                            PlaybackBlocks[blockIndex].Previous = PlaybackBlocks[blockIndex - 1];
-                            PlaybackBlocks[blockIndex].Next = blockIndex + 1 <= maxBlockIndex ? PlaybackBlocks[blockIndex + 1] : null;
-                        }
-                    }
-                    else
+                    for (var blockIndex = 1; blockIndex <= maxBlockIndex; blockIndex++)
                     {
-                        targetBlock.Previous = maxBlockIndex >= 1 ? PlaybackBlocks[maxBlockIndex - 1] : null;
-                        targetBlock.Next = null;
-                        targetBlock.Index = PlaybackBlocks.Count - 1;
-
-                        if (targetBlock.Previous != null)
-                            targetBlock.Previous.Next = targetBlock;
+                        PlaybackBlocks[blockIndex].Index = blockIndex;
+                        PlaybackBlocks[blockIndex].Previous = PlaybackBlocks[blockIndex - 1];
+                        PlaybackBlocks[blockIndex].Next = blockIndex + 1 <= maxBlockIndex ? PlaybackBlocks[blockIndex + 1] : null;
                     }
 
                     // return the new target block
                     return targetBlock;
                 }
-                finally { UpdateCollectionProperties(); }
+                finally
+                {
+                    // update collection-wide properties
+                    UpdateCollectionProperties();
+                }
             }
         }
 

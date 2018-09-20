@@ -397,11 +397,13 @@
         /// Updates the media ended state and notifies the parent if there is a change from false to true.
         /// </summary>
         /// <param name="hasEnded">if set to <c>true</c> [has ended].</param>
+        /// <param name="endTime">The time span to update the <see cref="NaturalDuration"/> with.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdateMediaEnded(bool hasEnded)
+        internal void UpdateMediaEnded(bool hasEnded, TimeSpan endTime)
         {
             if (HasMediaEnded == false && hasEnded)
             {
+                if (IsSeekable) NaturalDuration = endTime;
                 HasMediaEnded = true;
                 MediaCore.SendOnMediaEnded();
                 return;

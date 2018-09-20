@@ -57,7 +57,7 @@
 
                     // The 2-part logic blocks detect a sync-buffering scenario
                     // and then decodes the necessary frames.
-                    if (State.HasMediaEnded == false && IsWorkerInterruptRequested == false)
+                    if (HasDecodingEnded == false && IsWorkerInterruptRequested == false)
                     {
                         #region Sync-Buffering
 
@@ -128,9 +128,6 @@
 
                     #region Finish the Cycle
 
-                    // Detect End of Media Scenarios
-                    DetectEndOfMedia(decodedFrameCount, main);
-
                     // Resume sync-buffering clock
                     if (wasSyncBuffering && IsSyncBuffering == false)
                     {
@@ -163,6 +160,11 @@
                     // Provide updates to decoding stats
                     State.UpdateDecodingBitRate(
                         Blocks.Values.Sum(b => b.IsInRange(WallClock) ? b.RangeBitRate : 0));
+
+                    // Detect End of Decoding Scenarios
+                    // The Rendering will check for end of media when this
+                    // condition is set.
+                    HasDecodingEnded = DetectHasDecodingEnded(decodedFrameCount, main);
 
                     // Complete the frame decoding cycle
                     FrameDecodingCycle.Complete();
@@ -218,50 +220,16 @@
         }
 
         /// <summary>
-        /// Detects the end of media.
+        /// Detects the end of media in the decoding worker.
         /// </summary>
         /// <param name="decodedFrameCount">The decoded frame count.</param>
         /// <param name="main">The main.</param>
         /// <returns>True if media ended</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool DetectEndOfMedia(int decodedFrameCount, MediaType main)
-        {
-            // Detect end of block rendering
-            // TODO: Maybe this detection should be performed on the BlockRendering worker?
-            if (decodedFrameCount <= 0
+        private bool DetectHasDecodingEnded(int decodedFrameCount, MediaType main) =>
+                decodedFrameCount <= 0
                 && IsWorkerInterruptRequested == false
                 && CanReadMoreFramesOf(main) == false
-                && Blocks[main].IndexOf(WallClock) >= Blocks[main].Count - 1)
-            {
-                if (State.HasMediaEnded)
-                    return State.HasMediaEnded;
-
-                // Rendered all and nothing else to read
-                Clock.Pause();
-                ChangePosition(Blocks[main].RangeEndTime);
-
-                if (State.NaturalDuration != null &&
-                    State.NaturalDuration != TimeSpan.MinValue &&
-                    State.NaturalDuration < WallClock)
-                {
-                    this.LogWarning(Aspects.DecodingWorker,
-                        $"{nameof(State.HasMediaEnded)} conditions met at {WallClock.Format()} but " +
-                        $"{nameof(State.NaturalDuration)} reports {State.NaturalDuration.Value.Format()}");
-                }
-
-                State.UpdateMediaEnded(true);
-                State.UpdateMediaState(PlaybackStatus.Stop);
-                foreach (var mt in Container.Components.MediaTypes)
-                    InvalidateRenderer(mt);
-
-                SendOnMediaEnded();
-            }
-            else
-            {
-                State.UpdateMediaEnded(false);
-            }
-
-            return State.HasMediaEnded;
-        }
+                && Blocks[main].IndexOf(WallClock) >= Blocks[main].Count - 1;
     }
 }

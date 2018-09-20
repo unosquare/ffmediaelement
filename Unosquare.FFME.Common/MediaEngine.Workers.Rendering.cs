@@ -4,6 +4,7 @@
     using Shared;
     using System;
     using System.Linq;
+    using System.Runtime.CompilerServices;
     using System.Threading;
 
     public partial class MediaEngine
@@ -125,9 +126,33 @@
                 }
                 finally
                 {
+                    // Check End of Media Scenarios
+                    if (HasDecodingEnded
+                    && Commands.IsSeeking == false
+                    && WallClock >= LastRenderTime[main]
+                    && WallClock >= Blocks[main].RangeEndTime)
+                    {
+                        // Rendered all and nothing else to render
+                        if (State.HasMediaEnded == false)
+                        {
+                            Clock.Pause();
+                            var endPosition = ChangePosition(Blocks[main].RangeEndTime);
+                            State.UpdateMediaEnded(true, endPosition);
+                            State.UpdateMediaState(PlaybackStatus.Stop);
+                            foreach (var mt in Container.Components.MediaTypes)
+                                InvalidateRenderer(mt);
+
+                            SendOnMediaEnded();
+                        }
+                    }
+                    else
+                    {
+                        State.UpdateMediaEnded(false, TimeSpan.Zero);
+                    }
+
                     // Update the Position
                     if (IsWorkerInterruptRequested == false && IsSyncBuffering == false)
-                        State.UpdatePosition(Clock.IsRunning ? wallClock : Clock.Position);
+                        State.UpdatePosition();
 
                     // Always exit notifying the cycle is done.
                     BlockRenderingCycle.Complete();
@@ -144,6 +169,7 @@
         /// <summary>
         /// Stops the block rendering worker.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void StopBlockRenderingWorker()
         {
             if (BlockRenderingWorkerExit == null)

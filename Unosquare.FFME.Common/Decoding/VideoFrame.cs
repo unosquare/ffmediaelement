@@ -43,7 +43,7 @@
             HasValidStartTime = frame->pts != ffmpeg.AV_NOPTS_VALUE;
             StartTime = frame->pts == ffmpeg.AV_NOPTS_VALUE ?
                 TimeSpan.FromTicks(0) :
-                TimeSpan.FromTicks(frame->pts.ToTimeSpan(StreamTimeBase).Ticks - component.Container.MediaStartTimeOffset.Ticks);
+                TimeSpan.FromTicks(frame->pts.ToTimeSpan(StreamTimeBase).Ticks - component.Container.MediaStartTime.Ticks);
 
             EndTime = TimeSpan.FromTicks(StartTime.Ticks + Duration.Ticks);
 
@@ -53,7 +53,7 @@
                 frame->display_picture_number;
 
             CodedPictureNumber = frame->coded_picture_number;
-            SmtpeTimeCode = Extensions.ComputeSmtpeTimeCode(component.StartTimeOffset, Duration, timeBase, DisplayPictureNumber);
+            SmtpeTimeCode = Extensions.ComputeSmtpeTimeCode(component.StartTime, Duration, timeBase, DisplayPictureNumber);
             IsHardwareFrame = component.IsUsingHardwareDecoding;
             HardwareAcceleratorName = component.HardwareAccelerator?.Name;
 

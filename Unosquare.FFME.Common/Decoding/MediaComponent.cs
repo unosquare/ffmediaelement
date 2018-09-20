@@ -232,8 +232,8 @@
             }
 
             // Compute the start time
-            StartTimeOffset = Stream->start_time == ffmpeg.AV_NOPTS_VALUE ?
-                Container.MediaStartTimeOffset :
+            StartTime = Stream->start_time == ffmpeg.AV_NOPTS_VALUE ?
+                Container.MediaStartTime :
                 Stream->start_time.ToTimeSpan(Stream->time_base);
 
             // compute the duration
@@ -246,7 +246,7 @@
             CodecName = FFInterop.PtrToStringUTF8(selectedCodec->name);
             BitRate = Stream->codec->bit_rate < 0 ? 0 : Stream->codec->bit_rate;
             this.LogDebug(Aspects.Component,
-                $"{MediaType.ToString().ToUpperInvariant()}: Start Offset: {StartTimeOffset.Format()}; Duration: {Duration.Format()}");
+                $"{MediaType.ToString().ToUpperInvariant()}: Start Offset: {StartTime.Format()}; Duration: {Duration.Format()}");
 
             // Begin processing with a flush packet
             SendFlushPacket();
@@ -287,8 +287,9 @@
         /// <summary>
         /// Gets the component's stream start timestamp as reported
         /// by the start time of the stream.
+        /// Returns TimeSpan.MinValue when unknown.
         /// </summary>
-        public TimeSpan StartTimeOffset { get; }
+        public TimeSpan StartTime { get; }
 
         /// <summary>
         /// Gets the duration of this stream component.

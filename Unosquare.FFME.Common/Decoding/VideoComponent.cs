@@ -269,7 +269,7 @@
                 // Guess picture number and SMTPE
                 var timeBase = ffmpeg.av_guess_frame_rate(Container.InputContext, Stream, source.Pointer);
                 target.DisplayPictureNumber = Extensions.ComputePictureNumber(target.StartTime, target.Duration, 1);
-                target.SmtpeTimeCode = Extensions.ComputeSmtpeTimeCode(StartTimeOffset, target.Duration, timeBase, target.DisplayPictureNumber);
+                target.SmtpeTimeCode = Extensions.ComputeSmtpeTimeCode(StartTime, target.Duration, timeBase, target.DisplayPictureNumber);
             }
             else
             {

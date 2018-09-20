@@ -15,6 +15,7 @@
         private readonly Stopwatch DelayStopwatch = new Stopwatch();
         private bool IsDisposed;
         private IWaitEvent DelayEvent;
+        private Timer DelayTimer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DelayProvider"/> class.
@@ -33,6 +34,9 @@
                     break;
                 case DelayStrategy.ThreadPool:
                     DelayAction = DelayThreadPool;
+                    break;
+                case DelayStrategy.TimerEvent:
+                    DelayAction = DelayTimerEvent;
                     break;
                 default:
                     throw new ArgumentException($"{nameof(strategy)} is invalid");
@@ -66,7 +70,12 @@
             /// <summary>
             /// Using a wait event that completes in a background thread pool thread.
             /// </summary>
-            ThreadPool
+            ThreadPool,
+
+            /// <summary>
+            /// Using a wait event that completes in a background thread timer.
+            /// </summary>
+            TimerEvent
         }
 
         /// <summary>
@@ -100,6 +109,7 @@
                 if (IsDisposed) return;
                 IsDisposed = true;
                 DelayEvent?.Dispose();
+                DelayTimer?.Dispose();
                 DelayStopwatch.Stop();
             }
         }
@@ -144,6 +154,26 @@
             });
 
             DelayEvent.Wait();
+        }
+
+        /// <summary>
+        /// Implementation using a Timer with a wait event.
+        /// </summary>
+        private void DelayTimerEvent()
+        {
+            const int timeoutMilliseconds = 15;
+
+            lock (SyncRoot)
+            {
+                if (DelayEvent == null)
+                    DelayEvent = WaitEventFactory.Create(isCompleted: false, useSlim: false);
+
+                if (DelayTimer == null)
+                    DelayTimer = new Timer((s) => DelayEvent.Complete(), DelayEvent, timeoutMilliseconds, timeoutMilliseconds);
+
+                DelayEvent.Wait(TimeSpan.FromMilliseconds(timeoutMilliseconds));
+                DelayEvent.Begin();
+            }
         }
 
         #endregion

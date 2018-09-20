@@ -18,6 +18,7 @@
         #region State Management
 
         private readonly AtomicBoolean m_IsSyncBuffering = new AtomicBoolean(false);
+        private readonly AtomicBoolean m_HasDecodingEnded = new AtomicBoolean(false);
         private IWaitEvent BlockRenderingWorkerExit;
         private Thread PacketReadingTask;
         private Thread FrameDecodingTask;
@@ -71,6 +72,16 @@
         {
             get => m_IsSyncBuffering.Value;
             set => m_IsSyncBuffering.Value = value;
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the decoder worker has decoded all frames.
+        /// This is an indication that the rendering worker should probe for end of media scenarios
+        /// </summary>
+        internal bool HasDecodingEnded
+        {
+            get => m_HasDecodingEnded.Value;
+            set => m_HasDecodingEnded.Value = value;
         }
 
         /// <summary>

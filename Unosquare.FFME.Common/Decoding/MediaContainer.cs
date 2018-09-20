@@ -232,13 +232,6 @@
         public bool IsOpen => IsInitialized && Components.Count > 0;
 
         /// <summary>
-        /// Gets the duration of the media.
-        /// If this information is not available (i.e. realtime media) it will
-        /// be set to TimeSpan.MinValue
-        /// </summary>
-        public TimeSpan MediaDuration => MediaInfo?.Duration ?? TimeSpan.MinValue;
-
-        /// <summary>
         /// Will be set to true whenever an End Of File situation is reached.
         /// </summary>
         /// <value>
@@ -305,8 +298,17 @@
         /// <summary>
         /// Gets the media start time by which all component streams are offset.
         /// Typically 0 but it could be something other than 0.
+        /// If this information is not available (i.e. realtime media) it will
+        /// be set to TimeSpan.MinValue
         /// </summary>
-        public TimeSpan MediaStartTimeOffset { get; private set; }
+        public TimeSpan MediaStartTime { get; private set; }
+
+        /// <summary>
+        /// Gets the duration of the media.
+        /// If this information is not available (i.e. realtime media) it will
+        /// be set to TimeSpan.MinValue
+        /// </summary>
+        public TimeSpan MediaDuration { get; private set; }
 
         #endregion
 
@@ -755,14 +757,9 @@
                 MediaInfo = new MediaInfo(this);
 
                 // Compute start time and duration (if possible)
-                MediaStartTimeOffset = InputContext->start_time.ToTimeSpan();
-                if (MediaStartTimeOffset == TimeSpan.MinValue)
-                {
-                    MediaStartTimeOffset = TimeSpan.Zero;
-                    this.LogWarning(Aspects.Container,
-                        "Unable to determine the media start time offset. " +
-                        $"Media start time offset will be assumed to start at {TimeSpan.Zero}.");
-                }
+                // We will later recompute these values using stream components.
+                MediaDuration = MediaInfo.Duration;
+                MediaStartTime = MediaInfo.StartTime;
 
                 // Extract detailed media information and set the default streams to the
                 // best available ones.
@@ -924,13 +921,15 @@
             // Picture attachments are only required after the first read or after a seek.
             StateRequiresPictureAttachments = true;
 
+            // Update start time and duration based on main component
+            MediaStartTime = Components.Main.StartTime;
+            MediaDuration = Components.Main.Duration;
+
             // Output start time offsets.
             this.LogInfo(Aspects.Container,
-                $"Timing Offsets - Container: {MediaStartTimeOffset.Format()}; Main Type: {Components.MainMediaType}; " +
-                $"Main Offset: {Components.MainStartTimeOffset.Format()}; " +
-                $"Video: {(Components.Video == null ? "N/A" : Components.Video.StartTimeOffset.Format())}; " +
-                $"Audio: {(Components.Audio == null ? "N/A" : Components.Audio.StartTimeOffset.Format())}; " +
-                $"Subs: {(Components.Subtitles == null ? "N/A" : Components.Subtitles.StartTimeOffset.Format())}; ");
+                $"Timing Offsets - Main Component: {Components.MainMediaType}; " +
+                $"Start Time: {MediaStartTime.Format()}; " +
+                $"Duration: {MediaDuration.Format()}; ");
 
             // Return the registered component types
             return Components.MediaTypes.ToArray();
@@ -1085,7 +1084,7 @@
             if (main == null) return result;
 
             // clamp the minimum time to zero (can't be less than 0)
-            if (targetTime.Ticks + main.StartTimeOffset.Ticks < main.StartTimeOffset.Ticks)
+            if (targetTime.Ticks + main.StartTime.Ticks < main.StartTime.Ticks)
                 targetTime = TimeSpan.Zero;
 
             // Clamp the maximum seek value to main component's duration (can't be more than duration)
@@ -1110,7 +1109,7 @@
             // if the seeking is not successful we decrement this time and try the seek
             // again by subtracting 1 second from it.
             var startTime = DateTime.UtcNow;
-            var streamSeekRelativeTime = TimeSpan.FromTicks(targetTime.Ticks + main.StartTimeOffset.Ticks); // Offset by start time
+            var streamSeekRelativeTime = TimeSpan.FromTicks(targetTime.Ticks + main.StartTime.Ticks); // Offset by start time
 
             // Perform long seeks until we end up with a relative target time where decoding
             // of frames before or on target time is possible.
@@ -1130,9 +1129,9 @@
                 else
                 {
                     StreamReadInterruptStartTime.Value = DateTime.UtcNow;
-                    if (streamSeekRelativeTime.Ticks <= main.StartTimeOffset.Ticks)
+                    if (streamSeekRelativeTime.Ticks <= main.StartTime.Ticks)
                     {
-                        seekTarget = main.StartTimeOffset.ToLong(main.Stream->time_base);
+                        seekTarget = main.StartTime.ToLong(main.Stream->time_base);
                         streamIndex = main.StreamIndex;
                         isAtStartOfStream = true;
                     }
@@ -1204,7 +1203,7 @@
         private int StreamSeekToStart(List<MediaFrame> result, SeekRequirement seekRequirement)
         {
             var main = Components.Main;
-            var seekTarget = main.StartTimeOffset.ToLong(main.Stream->time_base);
+            var seekTarget = main.StartTime.ToLong(main.Stream->time_base);
             var streamIndex = main.StreamIndex;
             var seekFlags = ffmpeg.AVSEEK_FLAG_BACKWARD;
 

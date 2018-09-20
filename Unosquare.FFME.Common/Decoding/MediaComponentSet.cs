@@ -76,14 +76,6 @@
         }
 
         /// <summary>
-        /// Gets the start time offset of the main component.
-        /// </summary>
-        public TimeSpan MainStartTimeOffset
-        {
-            get { lock (ComponentSyncLock) return m_Main?.StartTimeOffset ?? TimeSpan.Zero; }
-        }
-
-        /// <summary>
         /// Gets the available component media types.
         /// </summary>
         public ReadOnlyCollection<MediaType> MediaTypes
