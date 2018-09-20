@@ -82,6 +82,7 @@
         {
             // Detect changes
             var notificationProperties = this.DetectNotificationPropertyChanges(NotificationPropertyCache);
+            var notifyRemainingDuration = false;
 
             // Handling of Notification Properties
             foreach (var p in notificationProperties)
@@ -89,9 +90,14 @@
                 // Notify the changed properties
                 NotifyPropertyChangedEvent(p);
 
-                if (p.Equals(nameof(NaturalDuration)))
-                    NotifyPropertyChangedEvent(nameof(RemainingDuration));
+                // Check if we need to notify the remaining duration
+                if (p.Equals(nameof(NaturalDuration)) || p.Equals(nameof(IsSeekable)))
+                    notifyRemainingDuration = true;
             }
+
+            // Always notify a change in remaining duration if natural duration changes
+            if (notifyRemainingDuration)
+                NotifyPropertyChangedEvent(nameof(RemainingDuration));
         }
 
         /// <summary>
@@ -105,8 +111,17 @@
 
             // Remove the position property updates if we are not allowed to
             // report changes from the engine
-            if ((MediaCore?.State.IsSeeking ?? false) && changes.ContainsKey(PositionProperty))
+            var preventPositionNotification = (MediaCore?.State.IsSeeking ?? false) &&
+                changes.ContainsKey(PositionProperty);
+
+            if (preventPositionNotification)
+            {
                 changes.Remove(PositionProperty);
+
+                // Only notify remaining duration if we have seekable media.
+                if (IsSeekable)
+                    NotifyPropertyChangedEvent(nameof(RemainingDuration));
+            }
 
             // Write the media engine state property state to the dependency properties
             foreach (var change in changes)
@@ -119,8 +134,8 @@
                 // Update the dependency property value
                 SetValue(change.Key, change.Value);
 
-                // Update the remaining duration
-                if (change.Key == PositionProperty)
+                // Update the remaining duration if we have seekable media
+                if (change.Key == PositionProperty && IsSeekable)
                     NotifyPropertyChangedEvent(nameof(RemainingDuration));
             }
         }
