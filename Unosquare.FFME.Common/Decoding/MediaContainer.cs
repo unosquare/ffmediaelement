@@ -759,7 +759,8 @@
                 // Compute start time and duration (if possible)
                 // We will later recompute these values using stream components.
                 MediaDuration = MediaInfo.Duration;
-                MediaStartTime = MediaInfo.StartTime;
+                MediaStartTime = MediaInfo.StartTime == TimeSpan.MinValue ?
+                    TimeSpan.Zero : MediaInfo.StartTime;
 
                 // Extract detailed media information and set the default streams to the
                 // best available ones.
@@ -922,8 +923,9 @@
             StateRequiresPictureAttachments = true;
 
             // Update start time and duration based on main component
-            MediaStartTime = Components.Main.StartTime;
             MediaDuration = Components.Main.Duration;
+            MediaStartTime = Components.Main.StartTime == TimeSpan.MinValue ?
+                TimeSpan.Zero : Components.Main.StartTime;
 
             // Output start time offsets.
             this.LogInfo(Aspects.Container,

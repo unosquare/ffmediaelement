@@ -233,12 +233,12 @@
 
             // Compute the start time
             StartTime = Stream->start_time == ffmpeg.AV_NOPTS_VALUE ?
-                Container.MediaInfo.StartTime :
+                Container.MediaStartTime :
                 Stream->start_time.ToTimeSpan(Stream->time_base);
 
             // compute the duration
             Duration = (Stream->duration == ffmpeg.AV_NOPTS_VALUE || Stream->duration <= 0) ?
-                Container.MediaInfo.Duration :
+                Container.MediaDuration :
                 Stream->duration.ToTimeSpan(Stream->time_base);
 
             CodecId = Stream->codec->codec_id;
