@@ -397,6 +397,37 @@
             return block != null;
         }
 
+        /// <summary>
+        /// Logs a block rendering operation as a Trace Message
+        /// if the debugger is attached.
+        /// </summary>
+        /// <param name="block">The block.</param>
+        /// <param name="clockPosition">The clock position.</param>
+        /// <param name="renderIndex">Index of the render.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void LogRenderBlock(MediaBlock block, TimeSpan clockPosition, int renderIndex)
+        {
+            // Prevent logging for production use
+            if (Platform.IsInDebugMode == false) return;
+
+            try
+            {
+                var drift = TimeSpan.FromTicks(clockPosition.Ticks - block.StartTime.Ticks);
+                this.LogTrace(Aspects.RenderingWorker,
+                    $"{block.MediaType.ToString().Substring(0, 1)} "
+                    + $"BLK: {block.StartTime.Format()} | "
+                    + $"CLK: {clockPosition.Format()} | "
+                    + $"DFT: {drift.TotalMilliseconds,4:0} | "
+                    + $"IX: {renderIndex,3} | "
+                    + $"PQ: {Container?.Components[block.MediaType]?.BufferLength / 1024d,7:0.0}k | "
+                    + $"TQ: {Container?.Components.BufferLength / 1024d,7:0.0}k");
+            }
+            catch
+            {
+                // swallow
+            }
+        }
+
         #endregion
     }
 }

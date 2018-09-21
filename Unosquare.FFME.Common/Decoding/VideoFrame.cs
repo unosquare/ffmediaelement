@@ -42,7 +42,7 @@
             HasValidStartTime = frame->pts != ffmpeg.AV_NOPTS_VALUE;
             StartTime = frame->pts == ffmpeg.AV_NOPTS_VALUE ?
                 TimeSpan.FromTicks(0) :
-                TimeSpan.FromTicks(frame->pts.ToTimeSpan(StreamTimeBase).Ticks - component.Container.MediaStartTime.Ticks);
+                TimeSpan.FromTicks(frame->pts.ToTimeSpan(StreamTimeBase).Ticks - component.StartTime.Ticks);
 
             EndTime = TimeSpan.FromTicks(StartTime.Ticks + Duration.Ticks);
 

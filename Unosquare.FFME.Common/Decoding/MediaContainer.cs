@@ -270,7 +270,7 @@
         /// <summary>
         /// Gets a value indicating whether the underlying media is seekable.
         /// </summary>
-        public bool IsStreamSeekable => MediaDuration.TotalSeconds > 0 && MediaDuration != TimeSpan.MinValue;
+        public bool IsStreamSeekable => MediaDuration.Ticks > 0;
 
         /// <summary>
         /// Gets a value indicating whether this container represents live media.
@@ -921,11 +921,6 @@
             // Initially and depending on the video component, require picture attachments.
             // Picture attachments are only required after the first read or after a seek.
             StateRequiresPictureAttachments = true;
-
-            // Update start time and duration based on main component
-            MediaDuration = Components.Main.Duration;
-            MediaStartTime = Components.Main.StartTime == TimeSpan.MinValue ?
-                TimeSpan.Zero : Components.Main.StartTime;
 
             // Output start time offsets.
             this.LogInfo(Aspects.Container,

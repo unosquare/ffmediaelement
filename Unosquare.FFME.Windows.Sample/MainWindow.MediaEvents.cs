@@ -72,6 +72,7 @@
         /// <param name="e">The <see cref="MediaInitializingEventArgs"/> instance containing the event data.</param>
         private void OnMediaInitializing(object sender, MediaInitializingEventArgs e)
         {
+            // var seekIndex = MediaEngine.CreateVideoSeekIndex(e.Url.ToString());
             // An example of injecting input options for http/https streams
             if (e.Url.StartsWith("http://") || e.Url.StartsWith("https://"))
             {

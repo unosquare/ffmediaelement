@@ -18,7 +18,6 @@
 
         private readonly string FilterString;
         private readonly AVRational BaseFrameRateQ;
-        private readonly SeekIndexEntryComparer SeekIndexComparer = new SeekIndexEntryComparer();
         private string CurrentFilterArguments;
 
         private SwsContext* Scaler = null;
@@ -133,11 +132,6 @@
         /// Gets a value indicating whether this component is using hardware-assisted decoding.
         /// </summary>
         public bool IsUsingHardwareDecoding { get; private set; }
-
-        /// <summary>
-        /// Gets the seek entries index.
-        /// </summary>
-        public List<SeekIndexEntry> SeekIndex { get; } = new List<SeekIndexEntry>(1024);
 
         #endregion
 
@@ -373,20 +367,7 @@
                 return null;
 
             // Create the frame holder object and return it.
-            var managedFrame = new VideoFrame(outputFrame, this);
-
-            // Update the Seek index
-            if (managedFrame.PictureType == AVPictureType.AV_PICTURE_TYPE_I && Container.IsStreamSeekable)
-            {
-                var seekEntry = new SeekIndexEntry(managedFrame);
-                if (SeekIndex.BinarySearch(seekEntry, SeekIndexComparer) < 0)
-                {
-                    SeekIndex.Add(seekEntry);
-                    SeekIndex.Sort(SeekIndexComparer);
-                }
-            }
-
-            return managedFrame;
+            return new VideoFrame(outputFrame, this);
         }
 
         /// <inheritdoc />

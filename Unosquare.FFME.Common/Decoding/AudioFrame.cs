@@ -34,10 +34,10 @@
             HasValidStartTime = frame->pts != ffmpeg.AV_NOPTS_VALUE;
             StartTime = frame->pts == ffmpeg.AV_NOPTS_VALUE ?
                 TimeSpan.FromTicks(0) :
-                TimeSpan.FromTicks(frame->pts.ToTimeSpan(StreamTimeBase).Ticks - component.Container.MediaStartTime.Ticks);
+                TimeSpan.FromTicks(frame->pts.ToTimeSpan(StreamTimeBase).Ticks - component.StartTime.Ticks);
 
             // Compute the audio frame duration
-            Duration = frame->pkt_duration != 0 ?
+            Duration = frame->pkt_duration > 0 ?
                 frame->pkt_duration.ToTimeSpan(StreamTimeBase) :
                 TimeSpan.FromTicks(Convert.ToInt64(TimeSpan.TicksPerMillisecond * 1000d * frame->nb_samples / frame->sample_rate));
 
