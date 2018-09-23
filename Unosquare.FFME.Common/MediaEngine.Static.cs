@@ -313,16 +313,10 @@
         /// Creates a viedo seek index.
         /// </summary>
         /// <param name="sourceUrl">The source URL.</param>
-        /// <returns>The seek index object</returns>
-        public static VideoSeekIndex CreateVideoSeekIndex(string sourceUrl) =>
-            CreateVideoSeekIndex(sourceUrl, -1);
-
-        /// <summary>
-        /// Creates a viedo seek index.
-        /// </summary>
-        /// <param name="sourceUrl">The source URL.</param>
         /// <param name="streamIndex">Index of the stream. Use -1 for automatic stream selection.</param>
-        /// <returns>The seek index object</returns>
+        /// <returns>
+        /// The seek index object
+        /// </returns>
         public static VideoSeekIndex CreateVideoSeekIndex(string sourceUrl, int streamIndex)
         {
             var result = new VideoSeekIndex(sourceUrl, -1);
@@ -349,6 +343,7 @@
                             if (frame.MediaType != MediaType.Video)
                                 continue;
 
+                            // Check if the frame is a key frame and add it to the index.
                             result.TryAdd(frame as VideoFrame);
                         }
                         finally
@@ -357,6 +352,7 @@
                         }
                     }
 
+                    // We have reached the end of the stream.
                     if (frames.Count <= 0 && container.IsAtEndOfStream)
                         break;
                 }

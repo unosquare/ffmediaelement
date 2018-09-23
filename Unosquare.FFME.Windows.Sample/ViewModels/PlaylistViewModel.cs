@@ -46,6 +46,11 @@
             if (Directory.Exists(ThumbsDirectory) == false)
                 Directory.CreateDirectory(ThumbsDirectory);
 
+            // Set and create a index directory
+            IndexDirectory = Path.Combine(root.AppDataDirectory, "SeekIndexes");
+            if (Directory.Exists(IndexDirectory) == false)
+                Directory.CreateDirectory(IndexDirectory);
+
             PlaylistFilePath = Path.Combine(root.AppDataDirectory, "ffme.m3u8");
 
             Entries = new CustomPlaylist(this);
@@ -81,6 +86,11 @@
         /// Gets the full path where thumbnails are stored.
         /// </summary>
         public string ThumbsDirectory { get; }
+
+        /// <summary>
+        /// Gets the seek index base directory.
+        /// </summary>
+        public string IndexDirectory { get; }
 
         /// <summary>
         /// Gets the playlist file path.

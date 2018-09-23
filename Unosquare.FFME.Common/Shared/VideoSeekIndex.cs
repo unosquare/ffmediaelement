@@ -14,14 +14,14 @@
     /// </summary>
     public sealed class VideoSeekIndex
     {
-        private const string VersionPrefix = "v1";
+        private const string VersionPrefix = "FILE-SECTION-V01";
         private static readonly string SectionHeaderText = $"{VersionPrefix}:{nameof(VideoSeekIndex)}.{nameof(Entries)}";
         private static readonly string SectionHeaderFields = $"{nameof(StreamIndex)},{nameof(SourceUrl)}";
         private static readonly string SectionDataText = $"{VersionPrefix}:{nameof(VideoSeekIndex)}.{nameof(Entries)}";
         private static readonly string SectionDataFields =
             $"{nameof(VideoSeekIndexEntry.StreamIndex)}" +
-            $"{nameof(VideoSeekIndexEntry.StreamTimeBase)}Num" +
-            $"{nameof(VideoSeekIndexEntry.StreamTimeBase)}Den" +
+            $",{nameof(VideoSeekIndexEntry.StreamTimeBase)}Num" +
+            $",{nameof(VideoSeekIndexEntry.StreamTimeBase)}Den" +
             $",{nameof(VideoSeekIndexEntry.StartTime)}" +
             $",{nameof(VideoSeekIndexEntry.PresentationTime)}" +
             $",{nameof(VideoSeekIndexEntry.DecodingTime)}";
@@ -113,20 +113,8 @@
 
                     if (state == 5 && string.IsNullOrWhiteSpace(line) == false)
                     {
-                        var parts = line.Split(separator);
-                        if (parts.Length >= 6 &&
-                            int.TryParse(parts[0], out var streamIndex) &&
-                            int.TryParse(parts[1], out var timeBaseNum) &&
-                            int.TryParse(parts[2], out var timeBaseDen) &&
-                            long.TryParse(parts[3], out var startTimeTicks) &&
-                            long.TryParse(parts[4], out var presentationTime) &&
-                            long.TryParse(parts[5], out var decodingTime))
-                        {
-                            var entry = new VideoSeekIndexEntry(
-                                streamIndex, timeBaseNum, timeBaseDen, startTimeTicks, presentationTime, decodingTime);
-
+                        if (VideoSeekIndexEntry.FromCsvString(line) is VideoSeekIndexEntry entry)
                             result.Entries.Add(entry);
-                        }
                     }
                 }
             }
@@ -148,7 +136,7 @@
 
                 writer.WriteLine(SectionDataText);
                 writer.WriteLine(SectionDataFields);
-                foreach (var entry in Entries) writer.WriteLine(entry);
+                foreach (var entry in Entries) writer.WriteLine(entry.ToCsvString());
             }
         }
 
@@ -159,17 +147,9 @@
         /// <returns>The seek entry or null of not found</returns>
         public VideoSeekIndexEntry Find(TimeSpan seekTarget)
         {
-            VideoSeekIndexEntry result = null;
-            for (var i = 0; i < Entries.Count; i++)
-            {
-                // if we are past the seek target, we are done.
-                if (Entries[i].StartTime.Ticks > seekTarget.Ticks)
-                    break;
-
-                result = Entries[i];
-            }
-
-            return result;
+            var index = Entries.StartIndexOf(seekTarget);
+            if (index < 0) return null;
+            return Entries[index];
         }
 
         /// <summary>
@@ -197,6 +177,67 @@
             Entries.Add(seekEntry);
             Entries.Sort(LookupComparer);
             return true;
+        }
+
+        /// <summary>
+        /// Adds the monotonic entries up to a stream duration.
+        /// </summary>
+        /// <param name="streamDuration">Duration of the stream.</param>
+        internal void AddMonotonicEntries(TimeSpan streamDuration)
+        {
+            if (Entries.Count < 2) return;
+
+            while (true)
+            {
+                var lastEntry = Entries[Entries.Count - 1];
+                var prevEntry = Entries[Entries.Count - 2];
+
+                var presentationTime = lastEntry.PresentationTime == ffmpeg.AV_NOPTS_VALUE ?
+                    ffmpeg.AV_NOPTS_VALUE :
+                    lastEntry.PresentationTime + (lastEntry.PresentationTime - prevEntry.PresentationTime);
+
+                var decodingTime = lastEntry.DecodingTime == ffmpeg.AV_NOPTS_VALUE ?
+                    ffmpeg.AV_NOPTS_VALUE :
+                    lastEntry.DecodingTime + (lastEntry.DecodingTime - prevEntry.DecodingTime);
+
+                var startTimeTicks = lastEntry.StartTime.Ticks + (lastEntry.StartTime.Ticks - prevEntry.StartTime.Ticks);
+
+                var entry = new VideoSeekIndexEntry(
+                    lastEntry.StreamIndex,
+                    lastEntry.StreamTimeBase.num,
+                    lastEntry.StreamTimeBase.den,
+                    startTimeTicks,
+                    presentationTime,
+                    decodingTime);
+
+                if (entry.StartTime.Ticks > streamDuration.Ticks)
+                    return;
+
+                Entries.Add(entry);
+            }
+        }
+
+        /// <summary>
+        /// Gets the monotonic presentation distance units that separate the last entries in the index.
+        /// Returns -1 if there are less than 2 entries or if the entries are not monotonic.
+        /// </summary>
+        /// <returns>-1 if the entries are not monotonic</returns>
+        internal long ComputeMonotonicDistance()
+        {
+            if (Entries.Count < 2) return -1L;
+            var lastDistance = -1L;
+            var currentDistance = -1L;
+
+            for (var i = Entries.Count - 1; i > 0; i--)
+            {
+                currentDistance = Entries[i].PresentationTime - Entries[i - 1].PresentationTime;
+                if (lastDistance != -1L && lastDistance != currentDistance)
+                    return -1L;
+
+                lastDistance = currentDistance;
+            }
+
+            return currentDistance;
         }
 
         /// <summary>

@@ -11,7 +11,7 @@
     /// Reuse blocks as much as possible. Once you create a block from a frame,
     /// you don't need the frame anymore so make sure you dispose the frame.
     /// </summary>
-    public abstract class MediaBlock : IComparable<MediaBlock>, IDisposable
+    public abstract class MediaBlock : IComparable<MediaBlock>, IComparable<TimeSpan>, IDisposable
     {
         private readonly object SyncLock = new object();
         private readonly ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
@@ -160,17 +160,17 @@
                 && position.Ticks <= EndTime.Ticks;
         }
 
-        /// <summary>
-        /// Compares the current instance with another object of the same type and returns an integer that indicates whether the current instance precedes, follows, or occurs in the same position in the sort order as the other object.
-        /// </summary>
-        /// <param name="other">An object to compare with this instance.</param>
-        /// <returns>
-        /// A value that indicates the relative order of the objects being compared. The return value has these meanings: Value Meaning Less than zero This instance precedes <paramref name="other" /> in the sort order.  Zero This instance occurs in the same position in the sort order as <paramref name="other" />. Greater than zero This instance follows <paramref name="other" /> in the sort order.
-        /// </returns>
+        /// <inheritdoc />
         public int CompareTo(MediaBlock other)
         {
             if (other == null) throw new ArgumentNullException(nameof(other));
             return StartTime.Ticks.CompareTo(other.StartTime.Ticks);
+        }
+
+        /// <inheritdoc />
+        public int CompareTo(TimeSpan other)
+        {
+            return StartTime.Ticks.CompareTo(other.Ticks);
         }
 
         /// <inheritdoc />
