@@ -165,8 +165,7 @@
                     {
                         // Try to Create or Load a Seek Index
                         var durationSeconds = e.Info.Duration.TotalSeconds > 0 ? e.Info.Duration.TotalSeconds : 0;
-                        var seekIndex = GuiContext.Current.IsInDebugMode && durationSeconds > 0 && durationSeconds <= 60 ?
-                            LoadOrCreateVideoSeekIndex(mediaFilePath, videoStream.StreamIndex) : null;
+                        var seekIndex = LoadOrCreateVideoSeekIndex(mediaFilePath, videoStream.StreamIndex, durationSeconds);
 
                         // Make sure the seek index belongs to the media file path
                         if (seekIndex != null &&
@@ -362,10 +361,11 @@
         /// </summary>
         /// <param name="mediaFilePath">The URL.</param>
         /// <param name="streamIndex">The associated stream index.</param>
+        /// <param name="durationSeconds">The duration in seconds.</param>
         /// <returns>
         /// The seek index
         /// </returns>
-        private VideoSeekIndex LoadOrCreateVideoSeekIndex(string mediaFilePath, int streamIndex)
+        private VideoSeekIndex LoadOrCreateVideoSeekIndex(string mediaFilePath, int streamIndex, double durationSeconds)
         {
             var seekFileName = $"{Path.GetFileNameWithoutExtension(mediaFilePath)}.six";
             var seekFilePath = Path.Combine(App.Current.ViewModel.Playlist.IndexDirectory, seekFileName);
@@ -378,6 +378,9 @@
             }
             else
             {
+                if (GuiContext.Current.IsInDebugMode == false || durationSeconds <= 0 || durationSeconds >= 60)
+                    return null;
+
                 var seekIndex = MediaEngine.CreateVideoSeekIndex(mediaFilePath, streamIndex);
                 if (seekIndex.Entries.Count <= 0) return null;
 
