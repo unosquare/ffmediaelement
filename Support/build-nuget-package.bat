@@ -1,6 +1,6 @@
 @echo off
 SET enableextensions
-SET PackagePath="%UserProfile%\Desktop\ffme.windows-4.0.270\"
+SET PackagePath="%UserProfile%\Desktop\ffme.windows-4.0.280\"
 SET ProjectPath="C:\projects\ffmediaelement\"
 SET ReleasePath="%ProjectPath%Unosquare.FFME.Windows.Sample\bin\Release\"
 
