@@ -1101,7 +1101,13 @@
             {
                 var entryIndex = videoComponent.SeekIndex.StartIndexOf(targetPosition);
                 if (entryIndex >= 0)
-                    indexTimestamp = videoComponent.SeekIndex[entryIndex].PresentationTime;
+                {
+                    var entry = videoComponent.SeekIndex[entryIndex];
+                    this.LogDebug(Aspects.Container,
+                        $"SEEK IX: Seek index entry {entryIndex} found. " +
+                        $"Entry Position: {entry.StartTime.Format()} | Target: {targetPosition.Format()}");
+                    indexTimestamp = entry.PresentationTime;
+                }
             }
 
             // Perform long seeks until we end up with a relative target time where decoding
