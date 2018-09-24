@@ -30,6 +30,7 @@
             : base(frame, component, MediaType.Video)
         {
             var timeBase = ffmpeg.av_guess_frame_rate(component.Container.InputContext, component.Stream, frame);
+            var mainOffset = component.Container.Components.Main.StartTime;
             var repeatFactor = 1d + (0.5d * frame->repeat_pict);
 
             Duration = frame->pkt_duration <= 0 ?
@@ -42,7 +43,7 @@
             HasValidStartTime = frame->pts != ffmpeg.AV_NOPTS_VALUE;
             StartTime = frame->pts == ffmpeg.AV_NOPTS_VALUE ?
                 TimeSpan.FromTicks(0) :
-                TimeSpan.FromTicks(frame->pts.ToTimeSpan(StreamTimeBase).Ticks - component.StartTime.Ticks);
+                TimeSpan.FromTicks(frame->pts.ToTimeSpan(StreamTimeBase).Ticks - mainOffset.Ticks);
 
             EndTime = TimeSpan.FromTicks(StartTime.Ticks + Duration.Ticks);
 

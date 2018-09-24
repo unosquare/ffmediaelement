@@ -1093,7 +1093,8 @@
             // if the seeking is not successful we decrement this time and try the seek
             // again by subtracting 1 second from it.
             var startTime = DateTime.UtcNow;
-            var streamSeekRelativeTime = TimeSpan.FromTicks(targetPosition.Ticks + main.StartTime.Ticks); // Offset by start time
+            var mainOffset = main.StartTime;
+            var streamSeekRelativeTime = TimeSpan.FromTicks(targetPosition.Ticks + mainOffset.Ticks); // Offset by start time
             var indexTimestamp = ffmpeg.AV_NOPTS_VALUE;
 
             // Help the initial position seek time.
@@ -1135,9 +1136,9 @@
                 else
                 {
                     StreamReadInterruptStartTime.Value = DateTime.UtcNow;
-                    if (streamSeekRelativeTime.Ticks <= main.StartTime.Ticks)
+                    if (streamSeekRelativeTime.Ticks <= mainOffset.Ticks)
                     {
-                        seekTimestamp = main.StartTime.ToLong(main.Stream->time_base);
+                        seekTimestamp = mainOffset.ToLong(main.Stream->time_base);
                         isAtStartOfStream = true;
                     }
 
