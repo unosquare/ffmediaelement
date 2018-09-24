@@ -112,49 +112,49 @@
                         adjustedSeekTarget = TimeSpan.FromTicks(adjustedSeekTarget.Ticks - targetSkewTicks);
                 }
 
-                // Clear Blocks and frames, reset the render times
-                foreach (var mt in all)
-                {
-                    m.Blocks[mt].Clear();
-                    m.InvalidateRenderer(mt);
-                }
-
                 // Populate frame queues with after-seek operation
                 var firstFrame = m.Container.Seek(adjustedSeekTarget);
-                m.State.UpdateMediaEnded(false, TimeSpan.Zero);
-
-                // Clear all the blocks. We don't need them
-                foreach (var kvp in m.Blocks)
-                    kvp.Value.Clear();
-
-                // Create the blocks from the obtained seek frames
-                m.Blocks[firstFrame.MediaType]?.Add(firstFrame, m.Container);
-
-                // Decode all available queued packets into the media component blocks
-                foreach (var mt in all)
+                if (firstFrame != null)
                 {
-                    while (m.Blocks[mt].IsFull == false)
+                    // Ensure we signal media has not ended
+                    m.State.UpdateMediaEnded(false, TimeSpan.Zero);
+
+                    // Clear Blocks and frames, reset the render times
+                    foreach (var mt in all)
                     {
-                        var frame = m.Container.Components[mt].ReceiveNextFrame();
-                        if (frame == null) break;
-                        m.Blocks[mt].Add(frame, m.Container);
+                        m.Blocks[mt].Clear();
+                        m.InvalidateRenderer(mt);
                     }
-                }
 
-                // Align to the exact requested position on the main component
-                while (m.ShouldReadMorePackets)
-                {
-                    // Check if we are already in range
-                    if (mainBlocks.IsInRange(TargetPosition)) break;
+                    // Create the blocks from the obtained seek frames
+                    m.Blocks[firstFrame.MediaType]?.Add(firstFrame, m.Container);
 
-                    // Read the next packet
-                    var packetType = m.Container.Read();
-                    var blocks = m.Blocks[packetType];
-                    if (blocks == null) continue;
+                    // Decode all available queued packets into the media component blocks
+                    foreach (var mt in all)
+                    {
+                        while (m.Blocks[mt].IsFull == false)
+                        {
+                            var frame = m.Container.Components[mt].ReceiveNextFrame();
+                            if (frame == null) break;
+                            m.Blocks[mt].Add(frame, m.Container);
+                        }
+                    }
 
-                    // Get the next frame
-                    if (blocks.RangeEndTime.Ticks < TargetPosition.Ticks || blocks.IsFull == false)
-                        blocks.Add(m.Container.Components[packetType].ReceiveNextFrame(), m.Container);
+                    // Align to the exact requested position on the main component
+                    while (m.ShouldReadMorePackets)
+                    {
+                        // Check if we are already in range
+                        if (mainBlocks.IsInRange(TargetPosition)) break;
+
+                        // Read the next packet
+                        var packetType = m.Container.Read();
+                        var blocks = m.Blocks[packetType];
+                        if (blocks == null) continue;
+
+                        // Get the next frame
+                        if (blocks.RangeEndTime.Ticks < TargetPosition.Ticks || blocks.IsFull == false)
+                            blocks.Add(m.Container.Components[packetType].ReceiveNextFrame(), m.Container);
+                    }
                 }
 
                 // Find out what the final, best-effort position was

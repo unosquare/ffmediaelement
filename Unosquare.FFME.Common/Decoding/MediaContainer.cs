@@ -1165,10 +1165,12 @@
                 {
                     streamSeekRelativeTime = streamSeekRelativeTime.Subtract(TimeSpan.FromSeconds(1));
                     frame?.Dispose();
+                    frame = null;
                     continue;
                 }
 
-                // we are done. We have the prior key frame
+                // At this point frame contains the
+                // prior keyframe to the seek target
                 break;
             }
 
