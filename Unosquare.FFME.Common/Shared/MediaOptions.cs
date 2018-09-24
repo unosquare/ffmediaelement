@@ -82,6 +82,13 @@
         public StreamInfo VideoStream { get; set; }
 
         /// <summary>
+        /// Gets or sets the video seek index.
+        /// Use <see cref="MediaEngine.CreateVideoSeekIndex"/> and set this
+        /// field while loading the options.
+        /// </summary>
+        public VideoSeekIndex VideoSeekIndex { get; set; }
+
+        /// <summary>
         /// Allows for a custom audio filter string.
         /// Please see: https://ffmpeg.org/ffmpeg-filters.html#Audio-Filters
         /// </summary>

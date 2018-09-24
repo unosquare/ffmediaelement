@@ -112,22 +112,27 @@
         /// <param name="e">The <see cref="MediaOpeningEventArgs"/> instance containing the event data.</param>
         private void OnMediaOpening(object sender, MediaOpeningEventArgs e)
         {
+            const string SideLoadAspect = "Client.SideLoad";
+
             // You can start off by adjusting subtitles delay
             // e.Options.SubtitlesDelay = TimeSpan.FromSeconds(7); // See issue #216
 
-            // Example of automatically side-loading SRT subs
+            // Get the local file path from the URL (if possible)
+            var mediaFilePath = string.Empty;
             try
             {
-                var inputUrl = e.Info.InputUrl;
-                var url = new Uri(inputUrl);
-                if (url.IsFile || url.IsUnc)
-                {
-                    inputUrl = Path.ChangeExtension(url.LocalPath, "srt");
-                    if (File.Exists(inputUrl))
-                        e.Options.SubtitlesUrl = inputUrl;
-                }
+                var url = new Uri(e.Info.InputUrl);
+                mediaFilePath = url.IsFile || url.IsUnc ? Path.GetFullPath(url.LocalPath) : string.Empty;
             }
-            catch { /* Ignore exception and continue */ }
+            catch { /* Ignore Exceptions */ }
+
+            // Example of automatically side-loading SRT subs
+            if (string.IsNullOrWhiteSpace(mediaFilePath) == false)
+            {
+                var srtFilePath = Path.ChangeExtension(mediaFilePath, "srt");
+                if (File.Exists(srtFilePath))
+                    e.Options.SubtitlesUrl = srtFilePath;
+            }
 
             // You can force video FPS if necessary
             // see: https://github.com/unosquare/ffmediaelement/issues/212
@@ -153,6 +158,32 @@
             // ReSharper disable once InvertIf
             if (e.Options.VideoStream is StreamInfo videoStream)
             {
+                // If we have a valid seek index let's use it!
+                if (string.IsNullOrWhiteSpace(mediaFilePath) == false)
+                {
+                    try
+                    {
+                        // Try to Create or Load a Seek Index
+                        var durationSeconds = e.Info.Duration.TotalSeconds > 0 ? e.Info.Duration.TotalSeconds : 0;
+                        var seekIndex = LoadOrCreateVideoSeekIndex(mediaFilePath, videoStream.StreamIndex, durationSeconds);
+
+                        // Make sure the seek index belongs to the media file path
+                        if (seekIndex != null &&
+                            string.IsNullOrWhiteSpace(seekIndex.SourceUrl) == false &&
+                            seekIndex.SourceUrl.Equals(mediaFilePath) &&
+                            seekIndex.StreamIndex == videoStream.StreamIndex)
+                        {
+                            // Set the index on the options object.
+                            e.Options.VideoSeekIndex = seekIndex;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log the exception, and ignore it. Continue execution.
+                        Media?.LogError(SideLoadAspect, "Error loading seek index data.", ex);
+                    }
+                }
+
                 // Hardware device priorities
                 var deviceCandidates = new[]
                 {
@@ -313,7 +344,7 @@
 
         #endregion
 
-        #region Other Media Event Handlers
+        #region Other Media Event Handlers and Methods
 
         /// <summary>
         /// Handles the PositionChanged event of the Media control.
@@ -323,6 +354,41 @@
         private void OnMediaPositionChanged(object sender, PositionChangedRoutedEventArgs e)
         {
             // Handle position change notifications
+        }
+
+        /// <summary>
+        /// Loads the index of the or create media seek.
+        /// </summary>
+        /// <param name="mediaFilePath">The URL.</param>
+        /// <param name="streamIndex">The associated stream index.</param>
+        /// <param name="durationSeconds">The duration in seconds.</param>
+        /// <returns>
+        /// The seek index
+        /// </returns>
+        private VideoSeekIndex LoadOrCreateVideoSeekIndex(string mediaFilePath, int streamIndex, double durationSeconds)
+        {
+            var seekFileName = $"{Path.GetFileNameWithoutExtension(mediaFilePath)}.six";
+            var seekFilePath = Path.Combine(App.Current.ViewModel.Playlist.IndexDirectory, seekFileName);
+            if (string.IsNullOrWhiteSpace(seekFilePath)) return null;
+
+            if (File.Exists(seekFilePath))
+            {
+                using (var stream = File.OpenRead(seekFilePath))
+                    return VideoSeekIndex.Load(stream);
+            }
+            else
+            {
+                if (GuiContext.Current.IsInDebugMode == false || durationSeconds <= 0 || durationSeconds >= 60)
+                    return null;
+
+                var seekIndex = MediaEngine.CreateVideoSeekIndex(mediaFilePath, streamIndex);
+                if (seekIndex.Entries.Count <= 0) return null;
+
+                using (var stream = File.OpenWrite(seekFilePath))
+                    seekIndex.Save(stream);
+
+                return seekIndex;
+            }
         }
 
         #endregion

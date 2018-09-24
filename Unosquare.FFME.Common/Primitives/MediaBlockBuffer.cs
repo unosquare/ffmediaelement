@@ -45,6 +45,10 @@
         private bool m_IsFull;
         private bool m_IsDisposed;
 
+        // Fast Last Lookup.
+        private TimeSpan LastLookupTime = TimeSpan.MinValue;
+        private int LastLookupIndex = -1;
+
         #endregion
 
         #region Constructor
@@ -314,45 +318,14 @@
         {
             lock (SyncLock)
             {
-                var blockCount = PlaybackBlocks.Count;
+                if (LastLookupTime != TimeSpan.MinValue && renderTime.Ticks == LastLookupTime.Ticks)
+                    return LastLookupIndex;
 
-                // fast condition checking
-                if (blockCount <= 0) return -1;
-                if (blockCount == 1) return 0;
+                LastLookupTime = renderTime;
+                LastLookupIndex = PlaybackBlocks.Count > 0 && renderTime.Ticks <= PlaybackBlocks[0].StartTime.Ticks ? 0 :
+                    PlaybackBlocks.StartIndexOf(LastLookupTime);
 
-                // variable setup
-                var lowIndex = 0;
-                var highIndex = blockCount - 1;
-                var midIndex = 1 + lowIndex + ((highIndex - lowIndex) / 2);
-
-                // edge condition checking
-                if (PlaybackBlocks[lowIndex].StartTime >= renderTime) return lowIndex;
-                if (PlaybackBlocks[highIndex].StartTime <= renderTime) return highIndex;
-
-                // First guess, very low cost, very fast
-                if (midIndex < highIndex
-                    && renderTime >= PlaybackBlocks[midIndex].StartTime
-                    && renderTime < PlaybackBlocks[midIndex + 1].StartTime)
-                    return midIndex;
-
-                // binary search
-                while (highIndex - lowIndex > 1)
-                {
-                    midIndex = lowIndex + ((highIndex - lowIndex) / 2);
-                    if (renderTime < PlaybackBlocks[midIndex].StartTime)
-                        highIndex = midIndex;
-                    else
-                        lowIndex = midIndex;
-                }
-
-                // linear search
-                for (var i = highIndex; i >= lowIndex; i--)
-                {
-                    if (PlaybackBlocks[i].StartTime <= renderTime)
-                        return i;
-                }
-
-                return -1;
+                return LastLookupIndex;
             }
         }
 
@@ -535,6 +508,9 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void UpdateCollectionProperties()
         {
+            LastLookupIndex = -1;
+            LastLookupTime = TimeSpan.MinValue;
+
             m_Count = PlaybackBlocks.Count;
             m_RangeStartTime = PlaybackBlocks.Count == 0 ? TimeSpan.Zero : PlaybackBlocks[0].StartTime;
             m_RangeEndTime = PlaybackBlocks.Count == 0 ? TimeSpan.Zero : PlaybackBlocks[PlaybackBlocks.Count - 1].EndTime;

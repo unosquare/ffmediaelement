@@ -72,6 +72,11 @@
             var aspectRatio = ffmpeg.av_d2q((double)FrameWidth / FrameHeight, int.MaxValue);
             DisplayAspectWidth = aspectRatio.num;
             DisplayAspectHeight = aspectRatio.den;
+
+            var seekIndex = container.MediaOptions.VideoSeekIndex;
+            SeekIndex = seekIndex != null && seekIndex.StreamIndex == StreamIndex ?
+                new ReadOnlyCollection<VideoSeekIndexEntry>(seekIndex.Entries) :
+                new ReadOnlyCollection<VideoSeekIndexEntry>(new List<VideoSeekIndexEntry>(0));
         }
 
         #endregion
@@ -132,6 +137,12 @@
         /// Gets a value indicating whether this component is using hardware-assisted decoding.
         /// </summary>
         public bool IsUsingHardwareDecoding { get; private set; }
+
+        /// <summary>
+        /// Gets the video seek index for this component.
+        /// Returns null if it was not set in the media options.
+        /// </summary>
+        public ReadOnlyCollection<VideoSeekIndexEntry> SeekIndex { get; }
 
         #endregion
 

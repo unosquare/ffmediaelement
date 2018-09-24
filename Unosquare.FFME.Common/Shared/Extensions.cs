@@ -264,13 +264,59 @@
             where T : struct, IComparable
         {
             if (value.CompareTo(min) < 0) return min;
-
             return value.CompareTo(max) > 0 ? max : value;
         }
 
         #endregion
 
         #region Faster-than-Linq replacements
+
+        /// <summary>
+        /// Finds the index of the item that is on or greater than the specified search value
+        /// </summary>
+        /// <typeparam name="T">The generic collection type</typeparam>
+        /// <typeparam name="V">The value type to compare to</typeparam>
+        /// <param name="items">The items.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>The find index. Returns -1 if not found.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int StartIndexOf<T, V>(this IList<T> items, V value)
+            where T : IComparable<V>
+        {
+            var itemCount = items.Count;
+
+            // fast condition checking
+            if (itemCount <= 0) return -1;
+            if (itemCount == 1) return 0;
+
+            // variable setup
+            var lowIndex = 0;
+            var highIndex = itemCount - 1;
+            var midIndex = 1 + lowIndex + ((highIndex - lowIndex) / 2);
+
+            // edge condition checking
+            if (items[lowIndex].CompareTo(value) >= 0) return -1;
+            if (items[highIndex].CompareTo(value) <= 0) return highIndex;
+
+            // binary search
+            while (highIndex - lowIndex > 1)
+            {
+                midIndex = lowIndex + ((highIndex - lowIndex) / 2);
+                if (items[midIndex].CompareTo(value) > 0)
+                    highIndex = midIndex;
+                else
+                    lowIndex = midIndex;
+            }
+
+            // linear search
+            for (var i = highIndex; i >= lowIndex; i--)
+            {
+                if (items[i].CompareTo(value) <= 0)
+                    return i;
+            }
+
+            return -1;
+        }
 
         /// <summary>
         /// Gets the <see cref="MediaBlockBuffer"/> for the main media type of the specified media container.

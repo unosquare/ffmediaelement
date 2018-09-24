@@ -9,7 +9,6 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
-    using System.Runtime.CompilerServices;
 
     public partial class MediaEngine
     {
@@ -311,6 +310,58 @@
         }
 
         /// <summary>
+        /// Creates a viedo seek index.
+        /// </summary>
+        /// <param name="sourceUrl">The source URL.</param>
+        /// <param name="streamIndex">Index of the stream. Use -1 for automatic stream selection.</param>
+        /// <returns>
+        /// The seek index object
+        /// </returns>
+        public static VideoSeekIndex CreateVideoSeekIndex(string sourceUrl, int streamIndex)
+        {
+            var result = new VideoSeekIndex(sourceUrl, -1);
+
+            using (var container = new MediaContainer(sourceUrl, null, null))
+            {
+                container.MediaOptions.IsAudioDisabled = true;
+                container.MediaOptions.IsVideoDisabled = false;
+                container.MediaOptions.IsSubtitleDisabled = true;
+
+                if (streamIndex >= 0)
+                    container.MediaOptions.VideoStream = container.MediaInfo.Streams[streamIndex];
+
+                container.Open();
+                result.StreamIndex = container.Components.Video.StreamIndex;
+                while (container.IsStreamSeekable)
+                {
+                    container.Read();
+                    var frames = container.Decode();
+                    foreach (var frame in frames)
+                    {
+                        try
+                        {
+                            if (frame.MediaType != MediaType.Video)
+                                continue;
+
+                            // Check if the frame is a key frame and add it to the index.
+                            result.TryAdd(frame as VideoFrame);
+                        }
+                        finally
+                        {
+                            frame.Dispose();
+                        }
+                    }
+
+                    // We have reached the end of the stream.
+                    if (frames.Count <= 0 && container.IsAtEndOfStream)
+                        break;
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Reads all the blocks of the specified media type from the source url.
         /// </summary>
         /// <param name="sourceUrl">The subtitles URL.</param>
@@ -358,37 +409,6 @@
 
                 tempContainer.Close();
                 return result;
-            }
-        }
-
-        /// <summary>
-        /// Logs a block rendering operation as a Trace Message
-        /// if the debugger is attached.
-        /// </summary>
-        /// <param name="block">The block.</param>
-        /// <param name="clockPosition">The clock position.</param>
-        /// <param name="renderIndex">Index of the render.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void LogRenderBlock(MediaBlock block, TimeSpan clockPosition, int renderIndex)
-        {
-            // Prevent logging for production use
-            if (Platform.IsInDebugMode == false) return;
-
-            try
-            {
-                var drift = TimeSpan.FromTicks(clockPosition.Ticks - block.StartTime.Ticks);
-                this.LogTrace(Aspects.RenderingWorker,
-                    $"{block.MediaType.ToString().Substring(0, 1)} "
-                    + $"BLK: {block.StartTime.Format()} | "
-                    + $"CLK: {clockPosition.Format()} | "
-                    + $"DFT: {drift.TotalMilliseconds,4:0} | "
-                    + $"IX: {renderIndex,3} | "
-                    + $"PQ: {Container?.Components[block.MediaType]?.BufferLength / 1024d,7:0.0}k | "
-                    + $"TQ: {Container?.Components.BufferLength / 1024d,7:0.0}k");
-            }
-            catch
-            {
-                // swallow
             }
         }
 

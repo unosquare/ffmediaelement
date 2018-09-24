@@ -33,7 +33,8 @@
         {
             // Extract timing information (pts for Subtitles is always in AV_TIME_BASE units)
             HasValidStartTime = frame->pts != ffmpeg.AV_NOPTS_VALUE;
-            var timeOffset = TimeSpan.FromTicks(frame->pts.ToTimeSpan(ffmpeg.AV_TIME_BASE).Ticks - component.Container.MediaStartTime.Ticks);
+            var mainOffset = component.Container.Components.Main.StartTime;
+            var timeOffset = TimeSpan.FromTicks(frame->pts.ToTimeSpan(ffmpeg.AV_TIME_BASE).Ticks - mainOffset.Ticks);
 
             // start_display_time and end_display_time are relative to timeOffset
             StartTime = TimeSpan.FromTicks(timeOffset.Ticks + Convert.ToInt64(frame->start_display_time).ToTimeSpan(StreamTimeBase).Ticks);

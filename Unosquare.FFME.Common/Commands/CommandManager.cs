@@ -38,7 +38,7 @@
         private bool m_IsDisposed;
 
         private DirectCommandBase CurrentDirectCommand;
-        private CommandBase CurrentQueueCommand;
+        private CommandBase ExecutingQueueCommand;
 
         #endregion
 
@@ -302,7 +302,7 @@
                 {
                     command = CommandQueue[0];
                     CommandQueue.RemoveAt(0);
-                    CurrentQueueCommand = command;
+                    ExecutingQueueCommand = command;
                 }
             }
 
@@ -339,7 +339,7 @@
                         DecrementPendingSeeks();
                     }
 
-                    CurrentQueueCommand = null;
+                    ExecutingQueueCommand = null;
                 }
             }
 
@@ -497,10 +497,10 @@
             CommandBase currentCommand = null;
             lock (QueueLock)
             {
-                if (CurrentQueueCommand != null &&
-                    CurrentQueueCommand.CommandType == commandType)
+                if (ExecutingQueueCommand != null &&
+                    ExecutingQueueCommand.CommandType == commandType)
                 {
-                    currentCommand = CurrentQueueCommand;
+                    currentCommand = ExecutingQueueCommand;
                 }
 
                 if (currentCommand == null)
