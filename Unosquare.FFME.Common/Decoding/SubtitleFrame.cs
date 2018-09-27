@@ -38,7 +38,10 @@
 
             // start_display_time and end_display_time are relative to timeOffset
             StartTime = TimeSpan.FromTicks(timeOffset.Ticks + Convert.ToInt64(frame->start_display_time).ToTimeSpan(StreamTimeBase).Ticks);
-            EndTime = TimeSpan.FromTicks(timeOffset.Ticks + Convert.ToInt64(frame->end_display_time).ToTimeSpan(StreamTimeBase).Ticks);
+
+            // EndTime = TimeSpan.FromTicks(timeOffset.Ticks + Convert.ToInt64(frame->end_display_time).ToTimeSpan(StreamTimeBase).Ticks);
+            EndTime = TimeSpan.FromMilliseconds(timeOffset.TotalMilliseconds + frame->pts.ToTimeSpan().TotalMilliseconds + frame->end_display_time);
+
             Duration = TimeSpan.FromTicks(EndTime.Ticks - StartTime.Ticks);
 
             // Extract text strings
