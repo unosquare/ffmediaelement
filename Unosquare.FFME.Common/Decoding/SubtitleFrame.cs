@@ -41,7 +41,6 @@
             EndTime = TimeSpan.FromMilliseconds(timeOffset.TotalMilliseconds + frame->end_display_time);
             Duration = TimeSpan.FromMilliseconds(frame->end_display_time - frame->start_display_time);
 
-
             // Extract text strings
             TextType = AVSubtitleType.SUBTITLE_NONE;
 
