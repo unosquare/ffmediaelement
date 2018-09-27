@@ -37,9 +37,9 @@
             var timeOffset = TimeSpan.FromTicks(frame->pts.ToTimeSpan(ffmpeg.AV_TIME_BASE).Ticks - mainOffset.Ticks);
 
             // start_display_time and end_display_time are relative to timeOffset
-            StartTime = TimeSpan.FromTicks(timeOffset.Ticks + Convert.ToInt64(frame->start_display_time).ToTimeSpan(StreamTimeBase).Ticks);
-            EndTime = TimeSpan.FromTicks(timeOffset.Ticks + Convert.ToInt64(frame->end_display_time).ToTimeSpan(StreamTimeBase).Ticks);
-            Duration = TimeSpan.FromTicks(EndTime.Ticks - StartTime.Ticks);
+            StartTime = TimeSpan.FromMilliseconds(timeOffset.TotalMilliseconds + frame->start_display_time);
+            EndTime = TimeSpan.FromMilliseconds(timeOffset.TotalMilliseconds + frame->end_display_time);
+            Duration = TimeSpan.FromMilliseconds(frame->end_display_time - frame->start_display_time);
 
             // Extract text strings
             TextType = AVSubtitleType.SUBTITLE_NONE;
