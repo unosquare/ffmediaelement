@@ -138,7 +138,7 @@
             for (var p = pixelFormats; *p != AVPixelFormat.AV_PIX_FMT_NONE; p++)
             {
                 // Try to select a hardware output pixel format that matches the HW device
-                if (*pixelFormats == PixelFormat)
+                if (*p == PixelFormat)
                 {
                     output = PixelFormat;
                     break;
