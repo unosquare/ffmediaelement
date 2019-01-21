@@ -4,7 +4,7 @@
   <PropertyGroup>
     <TargetFrameworks>net461</TargetFrameworks>
     <RootNamespace>Unosquare.FFME</RootNamespace>
-    <Version>4.0.280</Version>
+    <Version>4.1.280</Version>
     <Authors>Mario Di Vece and Contributors to the FFME project</Authors>
     <Company>Unosquare SA de CV</Company>
     <Product>FFME Cross-Platform Media Engine</Product>
@@ -21,8 +21,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CodeAnalysisRuleSet>..\StyleCop.Analyzers.ruleset</CodeAnalysisRuleSet>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>4.0.280.0</AssemblyVersion>
-    <FileVersion>4.0.280.0</FileVersion>
+    <AssemblyVersion>4.1.280.0</AssemblyVersion>
+    <FileVersion>4.1.280.0</FileVersion>
     <LangVersion>latest</LangVersion>
 	<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
@@ -34,7 +34,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="FFmpeg.AutoGen" Version="4.0.0.4" />
+    <PackageReference Include="FFmpeg.AutoGen" Version="4.1.0.2" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
