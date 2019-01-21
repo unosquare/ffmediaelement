@@ -10,7 +10,6 @@
     <projectUrl>https://github.com/unosquare/ffmediaelement</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/unosquare/ffmediaelement/master/Support/ffme.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <developmentDependency>true</developmentDependency>
     <description>FFME is a close (and I'd like to think better) drop-in replacement for Microsoft's WPF MediaElement Control. While the standard MediaElement uses DirectX (DirectShow) for media playback, FFME uses FFmpeg to read and decode audio and video. This means that for those of you who want to support stuff like HLS playback, or just don't want to go through the hassle of installing codecs on client machines, using FFME might just be the answer.</description>
     <summary>FFmpeg MediaElement Control (FFME)</summary>
     <releaseNotes>
