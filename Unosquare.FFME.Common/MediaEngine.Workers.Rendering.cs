@@ -141,8 +141,6 @@
                             State.UpdateMediaState(PlaybackStatus.Stop);
                             foreach (var mt in Container.Components.MediaTypes)
                                 InvalidateRenderer(mt);
-
-                            SendOnMediaEnded();
                         }
                     }
                     else
