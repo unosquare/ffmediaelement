@@ -234,7 +234,7 @@
 
             // e.Options.AudioFilter = "aecho=0.8:0.9:1000:0.3";
             // e.Options.AudioFilter = "chorus=0.5:0.9:50|60|40:0.4|0.32|0.3:0.25|0.4|0.3:2|2.3|1.3";
-            e.Options.AudioFilter = "aphaser";
+            // e.Options.AudioFilter = "aphaser";
         }
 
         /// <summary>
