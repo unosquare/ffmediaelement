@@ -99,7 +99,7 @@
                 var containerConfig = new ContainerConfiguration();
 
                 // Convert the URI object to something the Media Container understands (Uri to String)
-                var mediaUrl = Source.OriginalString;
+                var mediaUrl = Uri.EscapeUriString(Source.ToString());
 
                 // When opening via URL (and not via custom input stream), fix up the protocols and stuff
                 if (InputStream == null)
