@@ -175,7 +175,9 @@
             if (PreloadedSubtitles != null)
             {
                 var t = PreloadedSubtitles.MediaType;
-                Renderers[t] = Platform.CreateRenderer(t, this);
+                if (Renderers[t] == null)
+                    Renderers[t] = Platform.CreateRenderer(t, this);
+
                 InvalidateRenderer(t);
             }
 
