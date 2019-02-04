@@ -35,10 +35,17 @@
         /// <inheritdoc />
         public MediaEngine MediaCore { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether the reading worker can read packets at the current time.
+        /// This is simply a bit-wise AND of negating <see cref="MediaEngine.IsWorkerInterruptRequested"/> == false
+        /// and <see cref="MediaEngine.ShouldReadMorePackets"/>
+        /// </summary>
+        private bool ShouldWorkerReadPackets => MediaCore.IsWorkerInterruptRequested == false && MediaCore.ShouldReadMorePackets;
+
         /// <inheritdoc />
         protected override void ExecuteCycleLogic(CancellationToken ct)
         {
-            if (MediaCore.ShouldWorkerReadPackets)
+            if (ShouldWorkerReadPackets)
             {
                 try { MediaCore.Container.Read(); }
                 catch (MediaContainerException) { }
@@ -65,7 +72,7 @@
             while (ct.IsCancellationRequested == false)
             {
                 // We now need more packets, we need to stop waiting
-                if (MediaCore.ShouldWorkerReadPackets)
+                if (ShouldWorkerReadPackets)
                     break;
 
                 // we are sync-buffering but we don't need more packets
