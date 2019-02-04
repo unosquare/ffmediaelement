@@ -50,12 +50,6 @@
         internal IWaitEvent BlockRenderingCycle { get; } = WaitEventFactory.Create(isCompleted: false, useSlim: true);
 
         /// <summary>
-        /// Completed whenever a change in the packet buffer is detected.
-        /// This needs to be reset manually and prevents high CPU usage in the packet reading worker.
-        /// </summary>
-        internal IWaitEvent BufferChangedEvent { get; } = WaitEventFactory.Create(isCompleted: true, useSlim: true);
-
-        /// <summary>
         /// Holds the block renderers
         /// </summary>
         internal MediaTypeDictionary<IMediaRenderer> Renderers { get; } = new MediaTypeDictionary<IMediaRenderer>();
@@ -142,13 +136,13 @@
         /// This is simply a bit-wise AND of negating <see cref="IsWorkerInterruptRequested"/> == false
         /// and <see cref="ShouldReadMorePackets"/>
         /// </summary>
-        private bool ShouldWorkerReadPackets => IsWorkerInterruptRequested == false && ShouldReadMorePackets;
+        internal bool ShouldWorkerReadPackets => IsWorkerInterruptRequested == false && ShouldReadMorePackets;
 
         /// <summary>
         /// Gets a value indicating whether a worker interrupt has been requested by the command manager.
         /// This instructs potentially long loops in workers to immediately exit.
         /// </summary>
-        private bool IsWorkerInterruptRequested => Commands.IsSeeking ||
+        internal bool IsWorkerInterruptRequested => Commands.IsSeeking ||
                     Commands.IsChanging ||
                     Commands.IsClosing ||
                     Commands.IsStopWorkersPending;

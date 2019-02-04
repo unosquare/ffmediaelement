@@ -83,6 +83,22 @@
         }
 
         /// <summary>
+        /// Executes the wait part of the cycle. Override this method if you wish to
+        /// control the delay manually or based on an event other than a timeout.
+        /// </summary>
+        /// <param name="wantedDelay">The wanted delay.</param>
+        /// <param name="ct">The cancellation token.</param>
+        protected virtual void Delay(int wantedDelay, CancellationToken ct)
+        {
+            // Perform the wait using an event and cancellation tokens
+            if (wantedDelay != 0)
+            {
+                try { TimeoutElapsed.Wait(CycleDelay, DelayCancellation.Token); }
+                catch (OperationCanceledException) { /* ignore token cancellation */ }
+            }
+        }
+
+        /// <summary>
         /// Runs the thread loop.
         /// </summary>
         private void RunThreadLoop()
@@ -92,12 +108,8 @@
                 // Execute the worker cycle normally
                 ExecuteWorkerCycle();
 
-                // Perform the waits using an event and cancellation tokens
-                if (CycleDelay != 0)
-                {
-                    try { TimeoutElapsed.Wait(CycleDelay, DelayCancellation.Token); }
-                    catch (OperationCanceledException) { /* ignore token cancellation */ }
-                }
+                // Execute the delay
+                Delay(CycleDelay, DelayCancellation.Token);
 
                 lock (SyncLock)
                 {

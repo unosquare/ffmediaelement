@@ -159,13 +159,6 @@
                 m.State.UpdateFixedContainerProperties();
                 m.State.InitializeBufferingStatistics();
 
-                // Packet Buffer Notification Callbacks
-                m.Container.Components.OnPacketQueueChanged = (op, packet, mediaType, state) =>
-                {
-                    m.State.UpdateBufferingStats(state.Length, state.Count, state.CountThreshold);
-                    m.BufferChangedEvent.Complete();
-                };
-
                 // Check if we have at least audio or video here
                 if (m.State.HasAudio == false && m.State.HasVideo == false)
                     throw new MediaContainerException("Unable to initialize at least one audio or video component from the input stream.");

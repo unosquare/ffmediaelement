@@ -118,7 +118,6 @@
             // backed by unmanaged code
             FrameDecodingCycle.Dispose();
             BlockRenderingCycle.Dispose();
-            BufferChangedEvent.Dispose();
         }
 
         /// <summary>
