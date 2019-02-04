@@ -69,7 +69,8 @@
                 m.Clock.Pause();
 
                 // Wait for the cycles to complete
-                var workerEvents = new[] { m.BlockRenderingCycle, m.PacketReadingCycle };
+                m.Workers.Pause(true);
+                var workerEvents = new[] { m.BlockRenderingCycle };
                 foreach (var workerEvent in workerEvents)
                     workerEvent.Wait();
 

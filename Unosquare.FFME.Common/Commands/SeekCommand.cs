@@ -96,7 +96,7 @@
                 // to finish. We don't want to interfere with reading in progress
                 // or decoding in progress. For decoding we already know we are not
                 // in a cycle because the decoding worker called this logic.
-                m.PacketReadingCycle.Wait();
+                m.Workers.Pause(true);
 
                 // Signal the starting state clearing the packet buffer cache
                 m.Container.Components.ClearQueuedPackets(flushBuffers: true);

@@ -1,6 +1,8 @@
 ﻿namespace Unosquare.FFME.Workers
 {
     using Primitives;
+    using Shared;
+    using System;
     using System.Threading;
 
     /// <summary>
@@ -11,9 +13,10 @@
     internal sealed class PacketReadingWorker : ThreadWorkerBase, IMediaWorker
     {
         public PacketReadingWorker(MediaEngine mediaCore)
-            : base(nameof(PacketReadingWorker), ThreadPriority.Normal)
+            : base(nameof(PacketReadingWorker), ThreadPriority.BelowNormal)
         {
             MediaCore = mediaCore;
+            Period = TimeSpan.FromMilliseconds(5);
         }
 
         /// <inheritdoc />
@@ -22,7 +25,21 @@
         /// <inheritdoc />
         protected override void ExecuteCycleLogic(CancellationToken ct)
         {
-            // TODO: Implement
+            while (ct.IsCancellationRequested == false && MediaCore.ShouldReadMorePackets)
+            {
+                try { MediaCore.Container.Read(); }
+                catch (MediaContainerException) { }
+                finally
+                {
+                    // No more sync-buffering if we have enough data
+                    if (MediaCore.CanExitSyncBuffering)
+                        MediaCore.IsSyncBuffering = false;
+                }
+            }
+
+            // No more sync-buffering if we have enough data
+            if (MediaCore.CanExitSyncBuffering)
+                MediaCore.IsSyncBuffering = false;
         }
     }
 }

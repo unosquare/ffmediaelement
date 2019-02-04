@@ -40,7 +40,7 @@
                 Renderers[t]?.WaitForReadyState();
 
             // The Render timer is responsible for sending frames to renders
-            BlockRenderingWorker = new Timer(s =>
+            BlockRenderingTimer = new Timer(s =>
             {
                 #region Detect Exit/Skip Conditions
 
@@ -54,7 +54,7 @@
                 if (BlockRenderingCycle.IsInProgress)
                 {
                     this.LogTrace(Aspects.RenderingWorker,
-                        $"SKIP: {nameof(BlockRenderingWorker)} already in a cycle. {WallClock}");
+                        $"SKIP: {nameof(BlockRenderingTimer)} already in a cycle. {WallClock}");
 
                     return;
                 }
@@ -174,8 +174,8 @@
                 return;
 
             BlockRenderingWorkerExit?.Wait();
-            BlockRenderingWorker?.Dispose();
-            BlockRenderingWorker = null;
+            BlockRenderingTimer?.Dispose();
+            BlockRenderingTimer = null;
             BlockRenderingWorkerExit?.Dispose();
             BlockRenderingWorkerExit = null;
         }

@@ -337,6 +337,7 @@
                     {
                         SeekingCommandEvent.Complete();
                         DecrementPendingSeeks();
+                        MediaCore.Workers.Resume();
                     }
 
                     ExecutingQueueCommand = null;
@@ -645,7 +646,7 @@
             if (!MediaCore.State.IsOpen) return;
 
             MediaCore.FrameDecodingCycle.Wait();
-            MediaCore.PacketReadingCycle.Wait();
+            MediaCore.Workers.Pause(true);
         }
 
         /// <summary>
@@ -666,6 +667,7 @@
             {
                 CurrentDirectCommand = null;
                 DirectCommandEvent.Complete();
+                MediaCore.Workers.Resume();
             }
 
             command.PostProcess();

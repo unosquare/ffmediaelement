@@ -5,6 +5,7 @@
     using System;
     using System.Runtime.CompilerServices;
     using System.Threading;
+    using Workers;
 
     public partial class MediaEngine
     {
@@ -19,10 +20,9 @@
 
         private readonly AtomicBoolean m_IsSyncBuffering = new AtomicBoolean(false);
         private readonly AtomicBoolean m_HasDecodingEnded = new AtomicBoolean(false);
-        private IWaitEvent BlockRenderingWorkerExit;
-        private Thread PacketReadingTask;
-        private Thread FrameDecodingTask;
-        private Timer BlockRenderingWorker;
+        private IWaitEvent BlockRenderingWorkerExit; // TODO: Deprecate
+        private Thread FrameDecodingThread; // TODO: Deprecate
+        private Timer BlockRenderingTimer; // TODO: Deprecate
 
         /// <summary>
         /// Holds the materialized block cache for each media type.
@@ -35,9 +35,9 @@
         public MediaBlockBuffer PreloadedSubtitles { get; private set; }
 
         /// <summary>
-        /// Gets the packet reading cycle control event.
+        /// Gets the worker collection
         /// </summary>
-        internal IWaitEvent PacketReadingCycle { get; } = WaitEventFactory.Create(isCompleted: false, useSlim: true);
+        internal MediaWorkerSet Workers { get; private set; }
 
         /// <summary>
         /// Gets the frame decoding cycle control event.
@@ -185,21 +185,20 @@
             Commands.IsStopWorkersPending = false;
             IsSyncBuffering = true;
 
+            // Instantiate the workers without starting them
+            Workers = new MediaWorkerSet(this);
+
             // Set the initial state of the task cycles.
             BlockRenderingCycle.Complete();
             FrameDecodingCycle.Begin();
-            PacketReadingCycle.Begin();
 
             // Create the thread runners
-            PacketReadingTask = new Thread(RunPacketReadingWorker)
-            { IsBackground = true, Name = nameof(PacketReadingTask), Priority = ThreadPriority.Normal };
-
-            FrameDecodingTask = new Thread(RunFrameDecodingWorker)
-            { IsBackground = true, Name = nameof(FrameDecodingTask), Priority = ThreadPriority.AboveNormal };
+            FrameDecodingThread = new Thread(RunFrameDecodingWorker)
+            { IsBackground = true, Name = nameof(FrameDecodingThread), Priority = ThreadPriority.AboveNormal };
 
             // Fire up the threads
-            PacketReadingTask.Start();
-            FrameDecodingTask.Start();
+            FrameDecodingThread.Start();
+            Workers.Start();
             StartBlockRenderingWorker();
         }
 
@@ -217,6 +216,9 @@
             // Cause an immediate Packet read abort
             Container?.SignalAbortReads(false);
 
+            // Workers = null;
+            Workers.Dispose();
+
             // Stop the rendering worker before anything else
             StopBlockRenderingWorker();
 
@@ -226,7 +228,7 @@
 
             // Stop the rest of the workers
             // i.e. wait for worker threads to finish
-            var workers = new[] { PacketReadingTask, FrameDecodingTask };
+            var workers = new[] { FrameDecodingThread };
             foreach (var w in workers)
             {
                 // w.Abort causes memory leaks because packets and frames might not
@@ -235,8 +237,7 @@
             }
 
             // Set the threads to null
-            FrameDecodingTask = null;
-            PacketReadingTask = null;
+            FrameDecodingThread = null;
 
             // Remove the renderers disposing of them
             Renderers.Clear();
