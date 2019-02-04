@@ -22,7 +22,7 @@
             : base(nameof(PacketReadingWorker), ThreadPriority.BelowNormal)
         {
             MediaCore = mediaCore;
-            Period = TimeSpan.FromMilliseconds(5);
+            Period = TimeSpan.Zero;
 
             // Packet Buffer Notification Callbacks
             MediaCore.Container.Components.OnPacketQueueChanged = (op, packet, mediaType, state) =>
@@ -46,8 +46,21 @@
         }
 
         /// <inheritdoc />
+        protected override void InterruptDelay()
+        {
+            BufferChangedEvent.Set();
+            base.InterruptDelay();
+        }
+
+        /// <inheritdoc />
         protected override void Delay(int wantedDelay, CancellationToken ct)
         {
+            if (wantedDelay < 0)
+            {
+                base.Delay(wantedDelay, ct);
+                return;
+            }
+
             BufferChangedEvent.Reset();
             while (ct.IsCancellationRequested == false)
             {
@@ -62,7 +75,7 @@
                 // We detected a change in buffered packets
                 try
                 {
-                    if (BufferChangedEvent.Wait(wantedDelay, ct))
+                    if (BufferChangedEvent.Wait(15, ct))
                         break;
                 }
                 catch (OperationCanceledException)
@@ -76,6 +89,7 @@
                 MediaCore.IsSyncBuffering = false;
         }
 
+        /// <inheritdoc />
         protected override void DisposeManagedState()
         {
             base.DisposeManagedState();

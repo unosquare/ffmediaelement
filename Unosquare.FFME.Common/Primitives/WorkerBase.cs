@@ -13,9 +13,9 @@
     public abstract class WorkerBase : IWorker
     {
         private readonly object SyncLock = new object();
-        private readonly Dictionary<StateChangeRequest, Task<WorkerState>> StateChangeTasks;
-        private readonly Dictionary<StateChangeRequest, ManualResetEventSlim> StateChangeEvents;
+        private readonly Dictionary<StateChangeRequest, bool> StateChangeRequests;
         private readonly ManualResetEventSlim CycleCompletedEvent = new ManualResetEventSlim(true);
+        private readonly ManualResetEventSlim StateChangedEvent = new ManualResetEventSlim(true);
         private readonly Stopwatch CycleStopwatch = new Stopwatch();
 
         // Since these are API property backers, we use interlocked to read from them
@@ -24,6 +24,7 @@
         private int m_IsDisposed = 0;
         private int m_IsDisposing = 0;
         private int m_WorkerState = (int)WorkerState.Created;
+        private Task<WorkerState> StateChangeTask;
 
         // This will be recreated on demand
         private CancellationTokenSource InterruptTokenSource = new CancellationTokenSource();
@@ -36,20 +37,12 @@
         {
             Period = TimeSpan.FromMilliseconds(15);
 
-            StateChangeTasks = new Dictionary<StateChangeRequest, Task<WorkerState>>(5)
+            StateChangeRequests = new Dictionary<StateChangeRequest, bool>(5)
             {
-                [StateChangeRequest.Start] = null,
-                [StateChangeRequest.Pause] = null,
-                [StateChangeRequest.Resume] = null,
-                [StateChangeRequest.Stop] = null
-            };
-
-            StateChangeEvents = new Dictionary<StateChangeRequest, ManualResetEventSlim>(5)
-            {
-                [StateChangeRequest.Start] = new ManualResetEventSlim(false),
-                [StateChangeRequest.Pause] = new ManualResetEventSlim(true),
-                [StateChangeRequest.Resume] = new ManualResetEventSlim(true),
-                [StateChangeRequest.Stop] = new ManualResetEventSlim(true)
+                [StateChangeRequest.Start] = false,
+                [StateChangeRequest.Pause] = false,
+                [StateChangeRequest.Resume] = false,
+                [StateChangeRequest.Stop] = false
             };
         }
 
@@ -128,7 +121,7 @@
 
                 if (CycleCompletedEvent.IsSet)
                 {
-                    ScheduleCycle(0);
+                    InterruptDelay();
                 }
                 else
                 {
@@ -203,8 +196,26 @@
             }
         }
 
+        /// <summary>
+        /// Waits for cycle.
+        /// </summary>
+        /// <param name="millisecondsTimeout">The milliseconds timeout.</param>
+        /// <returns>True if the wait was successful</returns>
+        public bool Wait(int millisecondsTimeout)
+        {
+            if (IsDisposing || IsDisposed) return false;
+            return CycleCompletedEvent.Wait(millisecondsTimeout);
+        }
+
         /// <inheritdoc />
         public void Dispose() => Dispose(true);
+
+        /// <summary>
+        /// When an interrupt is sent, this causes the scheduled
+        /// next cycle to execute immediately. Override this method
+        /// to control delays.
+        /// </summary>
+        protected virtual void InterruptDelay() => ScheduleCycle(0);
 
         /// <summary>
         /// Schedules a new cycle for execution. The delay is given in
@@ -251,7 +262,7 @@
                 CycleCompletedEvent.Reset();
 
                 // Process the tasks that are awaiting
-                if (ProcessStateChangeQueue())
+                if (ProcessStateChangeRequest())
                     return;
 
                 // Mark the state as Running
@@ -307,65 +318,62 @@
         {
             lock (SyncLock)
             {
-                if (StateChangeTasks[request] != null)
-                    return StateChangeTasks[request];
+                if (StateChangeTask != null)
+                    return StateChangeTask;
 
-                var task = new Task<WorkerState>(() =>
+                var waitingTask = new Task<WorkerState>(() =>
                 {
-                    ManualResetEventSlim changeEvent = null;
-                    lock (SyncLock)
-                        changeEvent = StateChangeEvents[request];
-
-                    changeEvent?.Wait();
+                    StateChangedEvent.Wait();
                     lock (SyncLock)
                     {
-                        StateChangeTasks[request] = null;
+                        StateChangeTask = null;
                         return WorkerState;
                     }
                 });
 
-                task.ConfigureAwait(false);
-                StateChangeTasks[request] = task;
-                StateChangeEvents[request].Reset();
+                waitingTask.ConfigureAwait(false);
+                StateChangeTask = waitingTask;
+                StateChangedEvent.Reset();
+                StateChangeRequests[request] = true;
 
-                task.Start();
-                return task;
+                waitingTask.Start();
+                return waitingTask;
             }
         }
 
         /// <summary>
-        /// Processes the state change queue by checking pending events and scheduling
+        /// Processes the state change request by checking pending events and scheduling
         /// cycle execution accordingly. The <see cref="WorkerState"/> is also updated.
         /// </summary>
         /// <returns>Returns <c>true</c> if the execution should be terminated. <c>false</c> otherwise.</returns>
-        private bool ProcessStateChangeQueue()
+        private bool ProcessStateChangeRequest()
         {
             lock (SyncLock)
             {
                 var changeRequest = StateChangeRequest.None;
 
-                if (StateChangeEvents[StateChangeRequest.Start].IsSet == false)
+                if (StateChangeRequests[StateChangeRequest.Start])
                 {
                     changeRequest = StateChangeRequest.Start;
                     WorkerState = WorkerState.Waiting;
                     CycleCompletedEvent.Set();
                     ScheduleCycle(0);
                 }
-                else if (StateChangeEvents[StateChangeRequest.Pause].IsSet == false)
+                else if (StateChangeRequests[StateChangeRequest.Pause])
                 {
                     changeRequest = StateChangeRequest.Pause;
                     WorkerState = WorkerState.Paused;
                     CycleCompletedEvent.Set();
                     ScheduleCycle(Timeout.Infinite);
                 }
-                else if (StateChangeEvents[StateChangeRequest.Resume].IsSet == false)
+                else if (StateChangeRequests[StateChangeRequest.Resume])
                 {
                     changeRequest = StateChangeRequest.Resume;
                     WorkerState = WorkerState.Waiting;
                     CycleCompletedEvent.Set();
                     ScheduleCycle(0);
                 }
-                else if (StateChangeEvents[StateChangeRequest.Stop].IsSet == false)
+                else if (StateChangeRequests[StateChangeRequest.Stop])
                 {
                     changeRequest = StateChangeRequest.Stop;
                     WorkerState = WorkerState.Stopped;
@@ -388,10 +396,12 @@
         private void ClearStateChangeQueue()
         {
             // Mark all events as completed
-            StateChangeEvents[StateChangeRequest.Start].Set();
-            StateChangeEvents[StateChangeRequest.Pause].Set();
-            StateChangeEvents[StateChangeRequest.Resume].Set();
-            StateChangeEvents[StateChangeRequest.Stop].Set();
+            StateChangeRequests[StateChangeRequest.Start] = false;
+            StateChangeRequests[StateChangeRequest.Pause] = false;
+            StateChangeRequests[StateChangeRequest.Resume] = false;
+            StateChangeRequests[StateChangeRequest.Stop] = false;
+
+            StateChangedEvent.Set();
         }
 
         /// <summary>
@@ -411,15 +421,13 @@
 
             if (alsoManaged)
             {
-                foreach (var kvp in StateChangeEvents)
-                {
-                    kvp.Value.Set();
-                    kvp.Value.Dispose();
-                }
+                StateChangedEvent.Set();
+                StateChangedEvent.Dispose();
 
                 CycleCompletedEvent.Set();
                 CycleCompletedEvent.Dispose();
                 CycleStopwatch.Stop();
+
                 InterruptTokenSource.Dispose();
 
                 DisposeManagedState();

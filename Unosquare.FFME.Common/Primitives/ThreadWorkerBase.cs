@@ -63,7 +63,6 @@
                 if (delay == 0)
                 {
                     TimeoutElapsed.Set();
-                    DelayCancellation.Cancel();
                     return;
                 }
 
@@ -72,14 +71,10 @@
         }
 
         /// <inheritdoc />
-        protected override void DisposeManagedState()
+        protected override void InterruptDelay()
         {
             TimeoutElapsed.Set();
             DelayCancellation.Cancel();
-            try { Thread.Join(); }
-            catch (ThreadStateException) { /* ignore the state */ }
-            TimeoutElapsed.Dispose();
-            DelayCancellation.Dispose();
         }
 
         /// <summary>
@@ -93,9 +88,20 @@
             // Perform the wait using an event and cancellation tokens
             if (wantedDelay != 0)
             {
-                try { TimeoutElapsed.Wait(CycleDelay, DelayCancellation.Token); }
+                try { TimeoutElapsed.Wait(wantedDelay, ct); }
                 catch (OperationCanceledException) { /* ignore token cancellation */ }
             }
+        }
+
+        /// <inheritdoc />
+        protected override void DisposeManagedState()
+        {
+            TimeoutElapsed.Set();
+            DelayCancellation.Cancel();
+            try { Thread.Join(); }
+            catch (ThreadStateException) { /* ignore the state */ }
+            TimeoutElapsed.Dispose();
+            DelayCancellation.Dispose();
         }
 
         /// <summary>

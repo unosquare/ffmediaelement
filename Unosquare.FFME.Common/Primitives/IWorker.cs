@@ -47,6 +47,13 @@
         void Interrupt();
 
         /// <summary>
+        /// Waits the specified milliseconds timeout for a cycle to complete.
+        /// </summary>
+        /// <param name="millisecondsTimeout">The milliseconds timeout.</param>
+        /// <returns>True if the wait was successful</returns>
+        bool Wait(int millisecondsTimeout);
+
+        /// <summary>
         /// Starts execution of worker cycles.
         /// </summary>
         /// <returns>The awaitable task</returns>
