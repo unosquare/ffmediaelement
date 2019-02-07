@@ -41,19 +41,6 @@
         string Name { get; }
 
         /// <summary>
-        /// Sends an interrupt by canceling the execution token
-        /// and immediately scheduling a new execution cycle without waiting.
-        /// </summary>
-        void Interrupt();
-
-        /// <summary>
-        /// Waits the specified milliseconds timeout for a cycle to complete.
-        /// </summary>
-        /// <param name="millisecondsTimeout">The milliseconds timeout.</param>
-        /// <returns>True if the wait was successful</returns>
-        bool Wait(int millisecondsTimeout);
-
-        /// <summary>
         /// Starts execution of worker cycles.
         /// </summary>
         /// <returns>The awaitable task</returns>

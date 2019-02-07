@@ -8,9 +8,9 @@
     /// <summary>
     /// Implement packet reading worker logic
     /// </summary>
-    /// <seealso cref="ThreadWorkerBase" />
+    /// <seealso cref="WorkerBase" />
     /// <seealso cref="IMediaWorker" />
-    internal sealed class PacketReadingWorker : ThreadWorkerBase, IMediaWorker
+    internal sealed class PacketReadingWorker : WorkerBase, IMediaWorker
     {
         /// <summary>
         /// Completed whenever a change in the packet buffer is detected.
@@ -22,7 +22,7 @@
             : base(nameof(PacketReadingWorker), ThreadPriority.BelowNormal)
         {
             MediaCore = mediaCore;
-            Period = TimeSpan.Zero;
+            Period = TimeSpan.MaxValue;
 
             // Packet Buffer Notification Callbacks
             MediaCore.Container.Components.OnPacketQueueChanged = (op, packet, mediaType, state) =>
@@ -45,31 +45,20 @@
         /// <inheritdoc />
         protected override void ExecuteCycleLogic(CancellationToken ct)
         {
-            if (ShouldWorkerReadPackets)
+            while (ShouldWorkerReadPackets && ct.IsCancellationRequested == false)
             {
                 try { MediaCore.Container.Read(); }
                 catch (MediaContainerException) { }
+
+                if (MediaCore.Container.Components.HasEnoughPackets)
+                    break;
             }
         }
 
-        /// <inheritdoc />
-        protected override void InterruptDelay()
+        protected override void ExecuteCycleDelay(int wantedDelay, ManualResetEventSlim waitHandle)
         {
-            BufferChangedEvent.Set();
-            base.InterruptDelay();
-        }
-
-        /// <inheritdoc />
-        protected override void Delay(int wantedDelay, CancellationToken ct)
-        {
-            if (wantedDelay < 0)
-            {
-                base.Delay(wantedDelay, ct);
-                return;
-            }
-
             BufferChangedEvent.Reset();
-            while (ct.IsCancellationRequested == false)
+            while (waitHandle.IsSet == false)
             {
                 // We now need more packets, we need to stop waiting
                 if (ShouldWorkerReadPackets)
@@ -80,15 +69,8 @@
                     break;
 
                 // We detected a change in buffered packets
-                try
-                {
-                    if (BufferChangedEvent.Wait(15, ct))
-                        break;
-                }
-                catch (OperationCanceledException)
-                {
+                if (BufferChangedEvent.Wait(15))
                     break;
-                }
             }
 
             // No more sync-buffering if we have enough data
@@ -96,10 +78,14 @@
                 MediaCore.IsSyncBuffering = false;
         }
 
+        protected override void HandleCycleLogicException(Exception ex)
+        {
+            // TODO: Implement
+        }
+
         /// <inheritdoc />
         protected override void DisposeManagedState()
         {
-            base.DisposeManagedState();
             BufferChangedEvent.Set();
             BufferChangedEvent.Dispose();
         }

@@ -2,21 +2,22 @@
 {
     using Primitives;
     using Shared;
+    using System;
     using System.Threading;
 
     /// <summary>
     /// Implements the block rendering worker.
     /// </summary>
-    /// <seealso cref="TimerWorkerBase" />
+    /// <seealso cref="WorkerBase" />
     /// <seealso cref="IMediaWorker" />
-    internal sealed class BlockRenderingWorker : TimerWorkerBase, IMediaWorker
+    internal sealed class BlockRenderingWorker : WorkerBase, IMediaWorker
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="BlockRenderingWorker"/> class.
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
         public BlockRenderingWorker(MediaEngine mediaCore)
-            : base(nameof(BlockRenderingWorker))
+            : base(nameof(BlockRenderingWorker), ThreadPriority.Normal)
         {
             MediaCore = mediaCore;
             Period = Constants.Interval.HighPriority;
@@ -38,10 +39,14 @@
         }
 
         /// <inheritdoc />
+        protected override void HandleCycleLogicException(Exception ex)
+        {
+            // TODO: Implement
+        }
+
+        /// <inheritdoc />
         protected override void DisposeManagedState()
         {
-            base.DisposeManagedState();
-
             // TODO: Dispose the rednerers here
         }
     }
