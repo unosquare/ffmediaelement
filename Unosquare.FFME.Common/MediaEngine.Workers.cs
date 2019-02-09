@@ -186,7 +186,6 @@
             // Fire up the threads
             FrameDecodingThread.Start();
             Workers.Start();
-            StartBlockRenderingWorker();
         }
 
         /// <summary>
@@ -205,9 +204,6 @@
 
             // Workers = null;
             Workers.Dispose();
-
-            // Stop the rendering worker before anything else
-            StopBlockRenderingWorker();
 
             // Call close on all renderers
             foreach (var renderer in Renderers.Values)
@@ -328,22 +324,6 @@
         }
 
         /// <summary>
-        /// Gets a value indicating whether more frames can be decoded into blocks of the given type.
-        /// </summary>
-        /// <param name="t">The media type.</param>
-        /// <returns>
-        ///   <c>true</c> if more frames can be decoded; otherwise, <c>false</c>.
-        /// </returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool CanReadMoreFramesOf(MediaType t)
-        {
-            return
-                Container.Components[t].BufferLength > 0 ||
-                Container.Components[t].HasPacketsInCodec ||
-                ShouldReadMorePackets;
-        }
-
-        /// <summary>
         /// Sends the given block to its corresponding media renderer.
         /// </summary>
         /// <param name="block">The block.</param>
@@ -352,7 +332,7 @@
         /// The number of blocks sent to the renderer
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int SendBlockToRenderer(MediaBlock block, TimeSpan clockPosition)
+        internal int SendBlockToRenderer(MediaBlock block, TimeSpan clockPosition)
         {
             // No blocks were rendered
             if (block == null) return 0;
@@ -370,6 +350,22 @@
             // At this point, we are certain that a blocl has been
             // sent to its corresponding renderer.
             return 1;
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether more frames can be decoded into blocks of the given type.
+        /// </summary>
+        /// <param name="t">The media type.</param>
+        /// <returns>
+        ///   <c>true</c> if more frames can be decoded; otherwise, <c>false</c>.
+        /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool CanReadMoreFramesOf(MediaType t)
+        {
+            return
+                Container.Components[t].BufferLength > 0 ||
+                Container.Components[t].HasPacketsInCodec ||
+                ShouldReadMorePackets;
         }
 
         /// <summary>

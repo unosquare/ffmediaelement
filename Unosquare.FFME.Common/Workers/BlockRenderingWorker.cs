@@ -1,8 +1,10 @@
 ﻿namespace Unosquare.FFME.Workers
 {
+    using Commands;
     using Primitives;
     using Shared;
     using System;
+    using System.Linq;
     using System.Threading;
 
     /// <summary>
@@ -12,6 +14,8 @@
     /// <seealso cref="IMediaWorker" />
     internal sealed class BlockRenderingWorker : WorkerBase, IMediaWorker
     {
+        private readonly AtomicBoolean HasInitialized = new AtomicBoolean(false);
+
         /// <summary>
         /// Initializes a new instance of the <see cref="BlockRenderingWorker"/> class.
         /// </summary>
@@ -20,22 +24,125 @@
             : base(nameof(BlockRenderingWorker), ThreadPriority.Normal)
         {
             MediaCore = mediaCore;
+            Commands = MediaCore.Commands;
             Period = Constants.Interval.HighPriority;
         }
 
         /// <inheritdoc />
         public MediaEngine MediaCore { get; }
 
-        /// <summary>
-        /// TODO: Renderers should be a property of this worker.
-        /// This worker should own the renderers and the methods to create or replace them
-        /// </summary>
-        private MediaTypeDictionary<IMediaRenderer> Renderers => MediaCore.Renderers;
+        private CommandManager Commands { get; }
 
         /// <inheritdoc />
         protected override void ExecuteCycleLogic(CancellationToken ct)
         {
-            // TODO: Implement
+            // Update Status Properties
+            var main = MediaCore.Container.Components.MainMediaType;
+            var all = MediaCore.Renderers.Keys.ToArray();
+            var currentBlock = new MediaTypeDictionary<MediaBlock>();
+
+            if (HasInitialized == false)
+            {
+                // wait for main component blocks or EOF or cancellation pending
+                if (MediaCore.Blocks[main].Count <= 0)
+                    return;
+
+                // Set the initial clock position
+                MediaCore.ChangePosition(MediaCore.Blocks[main].RangeStartTime);
+
+                // Wait for renderers to be ready
+                foreach (var t in all)
+                    MediaCore.Renderers[t]?.WaitForReadyState();
+
+                // Mark as initialized
+                HasInitialized.Value = true;
+            }
+
+            #region Run the Rendering Cycle
+
+            try
+            {
+                #region 1. Control and Capture
+
+                // Wait for the seek op to finish before we capture blocks
+                Commands.WaitForActiveSeekCommand();
+
+                // Skip the cycle if we are running a priority command
+                if (Commands.IsExecutingDirectCommand) return;
+
+                #endregion
+
+                #region 2. Handle Block Rendering
+
+                // capture the wall clock for this cycle
+                var wallClock = MediaCore.WallClock;
+
+                // Capture the blocks to render
+                foreach (var t in all)
+                {
+                    // Get the audio, video, or subtitle block to render
+                    currentBlock[t] = t == MediaType.Subtitle && MediaCore.PreloadedSubtitles != null ?
+                        MediaCore.PreloadedSubtitles[wallClock] :
+                        MediaCore.Blocks[t][wallClock];
+                }
+
+                // Render each of the Media Types if it is time to do so.
+                foreach (var t in all)
+                {
+                    // Skip rendering for nulls
+                    if (currentBlock[t] == null || currentBlock[t].IsDisposed)
+                        continue;
+
+                    // Render by forced signal (TimeSpan.MinValue) or because simply it is time to do so
+                    if (MediaCore.LastRenderTime[t] == TimeSpan.MinValue || currentBlock[t].StartTime != MediaCore.LastRenderTime[t])
+                        MediaCore.SendBlockToRenderer(currentBlock[t], wallClock);
+                }
+
+                #endregion
+
+                #region 3. Finalize the Rendering Cycle
+
+                // Call the update method on all renderers so they receive what the new wall clock is.
+                foreach (var t in all)
+                    MediaCore.Renderers[t]?.Update(wallClock);
+
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                MediaCore.LogError(Aspects.RenderingWorker, "Error while in rendering worker cycle", ex);
+                throw;
+            }
+            finally
+            {
+                // Check End of Media Scenarios
+                if (MediaCore.HasDecodingEnded
+                && Commands.IsSeeking == false
+                && MediaCore.WallClock >= MediaCore.LastRenderTime[main]
+                && MediaCore.WallClock >= MediaCore.Blocks[main].RangeEndTime)
+                {
+                    // Rendered all and nothing else to render
+                    if (MediaCore.State.HasMediaEnded == false)
+                    {
+                        MediaCore.Clock.Pause();
+                        var endPosition = MediaCore.ChangePosition(MediaCore.Blocks[main].RangeEndTime);
+                        MediaCore.State.UpdateMediaEnded(true, endPosition);
+                        MediaCore.State.UpdateMediaState(PlaybackStatus.Stop);
+                        foreach (var mt in MediaCore.Container.Components.MediaTypes)
+                            MediaCore.InvalidateRenderer(mt);
+                    }
+                }
+                else
+                {
+                    MediaCore.State.UpdateMediaEnded(false, TimeSpan.Zero);
+                }
+
+                // Update the Position
+                if (MediaCore.IsWorkerInterruptRequested == false && MediaCore.IsSyncBuffering == false)
+                    MediaCore.State.UpdatePosition();
+            }
+
+            #endregion
         }
 
         /// <inheritdoc />
