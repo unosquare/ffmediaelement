@@ -20,11 +20,10 @@
         private int decodedFrameCount = 0;
 
         public FrameDecodingWorker(MediaEngine mediaCore)
-            : base(nameof(FrameDecodingWorker), ThreadPriority.Normal)
+            : base(nameof(FrameDecodingWorker), ThreadPriority.Normal, Constants.Interval.MediumPriority, WorkerDelayProvider.Token)
         {
             MediaCore = mediaCore;
             Commands = mediaCore.Commands;
-            Period = Constants.Interval.MediumPriority;
         }
 
         /// <inheritdoc />

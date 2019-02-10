@@ -40,10 +40,13 @@
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="priority">The thread priority</param>
-        protected WorkerBase(string name, ThreadPriority priority)
+        /// <param name="period">The interval of cycle execution</param>
+        /// <param name="delayProvider">The cycle delay provide implementation</param>
+        protected WorkerBase(string name, ThreadPriority priority, TimeSpan period, IWorkerDelayProvider delayProvider)
         {
-            Period = TimeSpan.FromMilliseconds(15);
+            Period = period;
             Name = name;
+            DelayProvider = delayProvider;
 
             StateChangeRequests = new Dictionary<StateChangeRequest, bool>(5)
             {
@@ -122,6 +125,11 @@
             get => Interlocked.CompareExchange(ref m_IsDisposing, 0, 0) != 0;
             private set => Interlocked.Exchange(ref m_IsDisposing, value ? 1 : 0);
         }
+
+        /// <summary>
+        /// Provides an implementation on a cycle delay provider.
+        /// </summary>
+        protected IWorkerDelayProvider DelayProvider { get; }
 
         /// <inheritdoc />
         public Task<WorkerState> StartAsync()
@@ -207,15 +215,8 @@
         /// <param name="wantedDelay">The remaining delay to wait for in the cycle</param>
         /// <param name="delayTask">Contains a reference to a task with the scheduled period delay</param>
         /// <param name="token">The cancellation token to cancel waiting</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected virtual void ExecuteCycleDelay(int wantedDelay, Task delayTask, CancellationToken token)
-        {
-            if (wantedDelay == 0 || wantedDelay < -1)
-                return;
-
-            try { delayTask.Wait(token); } // wantedDelay, token); }
-            catch { /* ignore */ }
-        }
+        protected virtual void ExecuteCycleDelay(int wantedDelay, Task delayTask, CancellationToken token) =>
+            DelayProvider?.ExecuteCycleDelay(wantedDelay, delayTask, token);
 
         /// <summary>
         /// Represents the user defined logic to be executed on a single worker cycle.
@@ -284,7 +285,10 @@
 
                     if (!interruptToken.IsCancellationRequested)
                     {
-                        ExecuteCycleDelay(ComputeCycleDelay(initialWorkerState), delayTask, CycleCancellation.Token);
+                        ExecuteCycleDelay(
+                            ComputeCycleDelay(initialWorkerState),
+                            delayTask,
+                            CycleCancellation.Token);
                     }
                 }
             }

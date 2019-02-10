@@ -21,11 +21,10 @@
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
         public BlockRenderingWorker(MediaEngine mediaCore)
-            : base(nameof(BlockRenderingWorker), ThreadPriority.Normal)
+            : base(nameof(BlockRenderingWorker), ThreadPriority.Normal, Constants.Interval.MediumPriority, WorkerDelayProvider.Token)
         {
             MediaCore = mediaCore;
             Commands = MediaCore.Commands;
-            Period = Constants.Interval.MediumPriority;
         }
 
         /// <inheritdoc />
