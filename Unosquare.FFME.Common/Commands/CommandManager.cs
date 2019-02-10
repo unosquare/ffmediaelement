@@ -645,7 +645,6 @@
             // Cycles must wait for priority commands before continuing
             if (!MediaCore.State.IsOpen) return;
 
-            MediaCore.FrameDecodingCycle.Wait();
             MediaCore.Workers.Pause();
         }
 

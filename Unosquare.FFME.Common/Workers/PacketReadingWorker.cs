@@ -20,7 +20,7 @@
         private readonly ManualResetEventSlim BufferChangedEvent = new ManualResetEventSlim(true);
 
         public PacketReadingWorker(MediaEngine mediaCore)
-            : base(nameof(PacketReadingWorker), ThreadPriority.BelowNormal)
+            : base(nameof(PacketReadingWorker), ThreadPriority.Normal)
         {
             MediaCore = mediaCore;
             Period = TimeSpan.MaxValue;

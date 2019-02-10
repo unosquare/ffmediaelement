@@ -4,7 +4,6 @@
     using Shared;
     using System;
     using System.Runtime.CompilerServices;
-    using System.Threading;
     using Workers;
 
     public partial class MediaEngine
@@ -20,7 +19,6 @@
 
         private readonly AtomicBoolean m_IsSyncBuffering = new AtomicBoolean(false);
         private readonly AtomicBoolean m_HasDecodingEnded = new AtomicBoolean(false);
-        private Thread FrameDecodingThread; // TODO: Deprecate
 
         /// <summary>
         /// Holds the materialized block cache for each media type.
@@ -36,16 +34,6 @@
         /// Gets the worker collection
         /// </summary>
         internal MediaWorkerSet Workers { get; private set; }
-
-        /// <summary>
-        /// Gets the frame decoding cycle control event.
-        /// </summary>
-        internal IWaitEvent FrameDecodingCycle { get; } = WaitEventFactory.Create(isCompleted: false, useSlim: true);
-
-        /// <summary>
-        /// Gets the block rendering cycle control event.
-        /// </summary>
-        internal IWaitEvent BlockRenderingCycle { get; } = WaitEventFactory.Create(isCompleted: false, useSlim: true);
 
         /// <summary>
         /// Holds the block renderers
@@ -170,19 +158,8 @@
             Commands.IsStopWorkersPending = false;
             IsSyncBuffering = true;
 
-            // Instantiate the workers without starting them
+            // Instantiate the workers and fire them up.
             Workers = new MediaWorkerSet(this);
-
-            // Set the initial state of the task cycles.
-            BlockRenderingCycle.Complete();
-            FrameDecodingCycle.Begin();
-
-            // Create the thread runners
-            FrameDecodingThread = new Thread(RunFrameDecodingWorker)
-            { IsBackground = true, Name = nameof(FrameDecodingThread), Priority = ThreadPriority.AboveNormal };
-
-            // Fire up the threads
-            FrameDecodingThread.Start();
             Workers.Start();
         }
 
@@ -206,19 +183,6 @@
             // Call close on all renderers
             foreach (var renderer in Renderers.Values)
                 renderer.Close();
-
-            // Stop the rest of the workers
-            // i.e. wait for worker threads to finish
-            var workers = new[] { FrameDecodingThread };
-            foreach (var w in workers)
-            {
-                // w.Abort causes memory leaks because packets and frames might not
-                // get disposed by the corresponding workers. We use Join instead.
-                w?.Join();
-            }
-
-            // Set the threads to null
-            FrameDecodingThread = null;
 
             // Remove the renderers disposing of them
             Renderers.Clear();
@@ -358,7 +322,7 @@
         ///   <c>true</c> if more frames can be decoded; otherwise, <c>false</c>.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool CanReadMoreFramesOf(MediaType t)
+        internal bool CanReadMoreFramesOf(MediaType t)
         {
             return
                 Container.Components[t].BufferLength > 0 ||
@@ -374,12 +338,39 @@
         /// <param name="t">The MediaType.</param>
         /// <returns>True if a block could be added. False otherwise.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool AddNextBlock(MediaType t)
+        internal bool AddNextBlock(MediaType t)
         {
             // Decode the frames
             var block = Blocks[t].Add(Container.Components[t].ReceiveNextFrame(), Container);
             return block != null;
         }
+
+        /// <summary>
+        /// Invalidates the last render time for the given component.
+        /// Additionally, it calls Seek on the renderer to remove any caches
+        /// </summary>
+        /// <param name="t">The t.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void InvalidateRenderer(MediaType t)
+        {
+            // This forces the rendering worker to send the
+            // corresponding block to its renderer
+            LastRenderTime[t] = TimeSpan.MinValue;
+            Renderers[t]?.Seek();
+        }
+
+        /// <summary>
+        /// Detects the end of media in the decoding worker.
+        /// </summary>
+        /// <param name="decodedFrameCount">The decoded frame count.</param>
+        /// <param name="main">The main.</param>
+        /// <returns>True if media ended</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal bool DetectHasDecodingEnded(int decodedFrameCount, MediaType main) =>
+                decodedFrameCount <= 0
+                && IsWorkerInterruptRequested == false
+                && CanReadMoreFramesOf(main) == false
+                && Blocks[main].IndexOf(WallClock) >= Blocks[main].Count - 1;
 
         /// <summary>
         /// Logs a block rendering operation as a Trace Message

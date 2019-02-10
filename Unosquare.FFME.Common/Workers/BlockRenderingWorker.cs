@@ -25,7 +25,7 @@
         {
             MediaCore = mediaCore;
             Commands = MediaCore.Commands;
-            Period = Constants.Interval.HighPriority;
+            Period = Constants.Interval.MediumPriority;
         }
 
         /// <inheritdoc />

@@ -113,11 +113,6 @@
 
             // Reset the RTC
             ResetPosition();
-
-            // Dispose the Wait Event objects as they are
-            // backed by unmanaged code
-            FrameDecodingCycle.Dispose();
-            BlockRenderingCycle.Dispose();
         }
 
         /// <summary>

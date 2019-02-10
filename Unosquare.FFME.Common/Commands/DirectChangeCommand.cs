@@ -70,9 +70,6 @@
 
                 // Wait for the cycles to complete
                 m.Workers.Pause();
-                var workerEvents = new[] { m.BlockRenderingCycle };
-                foreach (var workerEvent in workerEvents)
-                    workerEvent.Wait();
 
                 // Signal a change so the user get the chance to update
                 // selected streams and options
