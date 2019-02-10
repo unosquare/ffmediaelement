@@ -23,7 +23,6 @@
 
         private readonly Thread Thread;
         private readonly Stopwatch CycleStopwatch = new Stopwatch();
-        private readonly ManualResetEventSlim TimeoutElapsed = new ManualResetEventSlim(true);
 
         // Since these are API property backers, we use interlocked to read from them
         // to avoid deadlocked reads
@@ -135,21 +134,21 @@
                 if (WorkerState != WorkerState.Created)
                     return Task.FromResult(WorkerState);
 
-                var task = QueueStateChange(StateChangeRequest.Start, false);
+                var task = QueueStateChange(StateChangeRequest.Start);
                 Thread.Start();
                 return task;
             }
         }
 
         /// <inheritdoc />
-        public Task<WorkerState> PauseAsync(bool interrupt)
+        public Task<WorkerState> PauseAsync()
         {
             lock (SyncLock)
             {
                 if (WorkerState != WorkerState.Running && WorkerState != WorkerState.Waiting)
                     return Task.FromResult(WorkerState);
 
-                var task = QueueStateChange(StateChangeRequest.Pause, interrupt);
+                var task = QueueStateChange(StateChangeRequest.Pause);
                 return task;
             }
         }
@@ -165,7 +164,7 @@
                 if (WorkerState != WorkerState.Paused && WorkerState != WorkerState.Waiting)
                     return Task.FromResult(WorkerState);
 
-                var task = QueueStateChange(StateChangeRequest.Resume, false);
+                var task = QueueStateChange(StateChangeRequest.Resume);
                 return task;
             }
         }
@@ -181,7 +180,7 @@
                     return Task.FromResult(WorkerState);
                 }
 
-                var task = QueueStateChange(StateChangeRequest.Stop, true);
+                var task = QueueStateChange(StateChangeRequest.Stop);
                 return task;
             }
         }
@@ -205,15 +204,17 @@
         /// milliseconds. When overridden in a derived class the wait handle will be set
         /// whenever an interrupt is received.
         /// </summary>
-        /// <param name="wantedDelay">The wanted delay in milliseconds.</param>
-        /// <param name="waitHandle">The wait handle to wait on.</param>
+        /// <param name="wantedDelay">The remaining delay to wait for in the cycle</param>
+        /// <param name="delayTask">Contains a reference to a task with the scheduled period delay</param>
+        /// <param name="token">The cancellation token to cancel waiting</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected virtual void ExecuteCycleDelay(int wantedDelay, ManualResetEventSlim waitHandle)
+        protected virtual void ExecuteCycleDelay(int wantedDelay, Task delayTask, CancellationToken token)
         {
             if (wantedDelay == 0 || wantedDelay < -1)
                 return;
 
-            waitHandle.Wait(wantedDelay);
+            try { delayTask.Wait(wantedDelay, token); }
+            catch { /* ignore */ }
         }
 
         /// <summary>
@@ -243,11 +244,13 @@
             while (WorkerState != WorkerState.Stopped)
             {
                 CycleStopwatch.Restart();
+                var interruptToken = CycleCancellation.Token;
+                var period = Period.TotalMilliseconds >= int.MaxValue ? -1 : Convert.ToInt32(Math.Floor(Period.TotalMilliseconds));
+                var delayTask = Task.Delay(period, interruptToken);
+                var initialWorkerState = WorkerState;
 
                 // Lock the cycle and capture relevant state valid for this cycle
                 CycleCompletedEvent.Reset();
-                var initialWorkerState = WorkerState;
-                var interruptToken = CycleCancellation.Token;
 
                 // Process the tasks that are awaiting
                 if (ProcessStateChangeRequests())
@@ -256,7 +259,7 @@
                 try
                 {
                     if (initialWorkerState == WorkerState.Waiting &&
-                        interruptToken.IsCancellationRequested == false)
+                        !interruptToken.IsCancellationRequested)
                     {
                         // Mark the state as Running
                         WorkerState = WorkerState.Running;
@@ -279,11 +282,9 @@
                     // Signal the cycle has been completed so new cycles can be executed
                     CycleCompletedEvent.Set();
 
-                    // Delay and schedule new cycle
                     if (!interruptToken.IsCancellationRequested)
                     {
-                        TimeoutElapsed.Reset();
-                        ExecuteCycleDelay(ComputeCycleDelay(initialWorkerState), TimeoutElapsed);
+                        ExecuteCycleDelay(ComputeCycleDelay(initialWorkerState), delayTask, CycleCancellation.Token);
                     }
                 }
             }
@@ -316,9 +317,8 @@
         /// when the operation completes.
         /// </summary>
         /// <param name="request">The request.</param>
-        /// <param name="interrupt">Whether or not an interrupt to the current cycle is sent.</param>
         /// <returns>The awaitable task.</returns>
-        private Task<WorkerState> QueueStateChange(StateChangeRequest request, bool interrupt)
+        private Task<WorkerState> QueueStateChange(StateChangeRequest request)
         {
             lock (SyncLock)
             {
@@ -327,7 +327,6 @@
 
                 var waitingTask = new Task<WorkerState>(() =>
                 {
-                    TimeoutElapsed.Set();
                     StateChangedEvent.Wait();
                     lock (SyncLock)
                     {
@@ -340,11 +339,8 @@
                 StateChangeTask = waitingTask;
                 StateChangedEvent.Reset();
                 StateChangeRequests[request] = true;
-                TimeoutElapsed.Set();
                 waitingTask.Start();
-
-                if (interrupt && !CycleCompletedEvent.IsSet)
-                    CycleCancellation.Cancel();
+                CycleCancellation.Cancel();
 
                 return waitingTask;
             }
@@ -430,7 +426,6 @@
             StateChangedEvent.Dispose();
             CycleCompletedEvent.Dispose();
             CycleCancellation.Dispose();
-            TimeoutElapsed.Dispose();
 
             if ((Thread.ThreadState & ThreadState.Unstarted) != ThreadState.Unstarted)
                 Thread.Join();

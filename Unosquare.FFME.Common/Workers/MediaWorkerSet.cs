@@ -49,14 +49,14 @@
         /// </summary>
         public void Dispose() => Dispose(true);
 
-        public void Pause(bool interrupt)
+        public void Pause()
         {
             if (IsDisposed) return;
 
             var tasks = new Task[Workers.Length];
             for (var i = 0; i < Workers.Length; i++)
             {
-                tasks[i] = Workers[i].PauseAsync(interrupt);
+                tasks[i] = Workers[i].PauseAsync();
             }
 
             Task.WaitAll(tasks);
@@ -101,7 +101,7 @@
 
                 if (alsoManaged == false) return;
 
-                Pause(true);
+                Pause();
                 foreach (var worker in Workers)
                     worker.Dispose();
             }

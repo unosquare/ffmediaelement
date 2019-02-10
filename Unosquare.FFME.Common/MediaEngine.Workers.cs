@@ -20,9 +20,7 @@
 
         private readonly AtomicBoolean m_IsSyncBuffering = new AtomicBoolean(false);
         private readonly AtomicBoolean m_HasDecodingEnded = new AtomicBoolean(false);
-        private IWaitEvent BlockRenderingWorkerExit; // TODO: Deprecate
         private Thread FrameDecodingThread; // TODO: Deprecate
-        private Timer BlockRenderingTimer; // TODO: Deprecate
 
         /// <summary>
         /// Holds the materialized block cache for each media type.

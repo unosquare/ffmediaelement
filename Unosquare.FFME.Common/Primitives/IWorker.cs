@@ -49,9 +49,8 @@
         /// <summary>
         /// Pauses execution of worker cycles.
         /// </summary>
-        /// <param name="interrupt">if set to <c>true</c> an interrupt is sent to the worker.</param>
         /// <returns>The awaitable task</returns>
-        Task<WorkerState> PauseAsync(bool interrupt);
+        Task<WorkerState> PauseAsync();
 
         /// <summary>
         /// Resumes execution of worker cycles.
@@ -62,7 +61,7 @@
         /// <summary>
         /// Permanently stops execution of worker cycles.
         /// An interrupt is always sent to the worker. If you wish to stop
-        /// the worker without interrupting then call the <see cref="PauseAsync(bool)"/>
+        /// the worker without interrupting then call the <see cref="PauseAsync"/>
         /// method, await it, and finally call the <see cref="StopAsync"/> method.
         /// </summary>
         /// <returns>The awaitable task</returns>

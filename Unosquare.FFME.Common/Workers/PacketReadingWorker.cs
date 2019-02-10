@@ -4,6 +4,7 @@
     using Shared;
     using System;
     using System.Threading;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Implement packet reading worker logic
@@ -55,10 +56,10 @@
             }
         }
 
-        protected override void ExecuteCycleDelay(int wantedDelay, ManualResetEventSlim waitHandle)
+        protected override void ExecuteCycleDelay(int wantedDelay, Task delayTask, CancellationToken token)
         {
             BufferChangedEvent.Reset();
-            while (waitHandle.IsSet == false)
+            while (!token.IsCancellationRequested)
             {
                 // We now need more packets, we need to stop waiting
                 if (ShouldWorkerReadPackets)
@@ -69,8 +70,16 @@
                     break;
 
                 // We detected a change in buffered packets
-                if (BufferChangedEvent.Wait(15))
+                try
+                {
+                    if (BufferChangedEvent.Wait(15, token))
+                        break;
+                }
+                catch
+                {
+                    // ignore and break as the task was most likely cancelled
                     break;
+                }
             }
 
             // No more sync-buffering if we have enough data

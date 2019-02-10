@@ -646,7 +646,7 @@
             if (!MediaCore.State.IsOpen) return;
 
             MediaCore.FrameDecodingCycle.Wait();
-            MediaCore.Workers.Pause(true);
+            MediaCore.Workers.Pause();
         }
 
         /// <summary>
