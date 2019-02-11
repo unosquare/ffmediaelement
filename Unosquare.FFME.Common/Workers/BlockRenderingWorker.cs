@@ -12,7 +12,7 @@
     /// </summary>
     /// <seealso cref="WorkerBase" />
     /// <seealso cref="IMediaWorker" />
-    internal sealed class BlockRenderingWorker : WorkerBase, IMediaWorker
+    internal sealed class BlockRenderingWorker : TimerWorkerBase, IMediaWorker
     {
         private readonly AtomicBoolean HasInitialized = new AtomicBoolean(false);
 
@@ -21,7 +21,7 @@
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
         public BlockRenderingWorker(MediaEngine mediaCore)
-            : base(nameof(BlockRenderingWorker), ThreadPriority.Normal, Constants.Interval.MediumPriority, WorkerDelayProvider.Token)
+            : base(nameof(BlockRenderingWorker), Constants.Interval.HighPriority)
         {
             MediaCore = mediaCore;
             Commands = MediaCore.Commands;
@@ -145,13 +145,13 @@
         }
 
         /// <inheritdoc />
-        protected override void HandleCycleLogicException(Exception ex)
+        protected override void OnCycleException(Exception ex)
         {
             // TODO: Implement
         }
 
         /// <inheritdoc />
-        protected override void DisposeManagedState()
+        protected override void OnDisposing()
         {
             // TODO: Dispose the rednerers here
         }

@@ -11,7 +11,7 @@
     /// </summary>
     /// <seealso cref="WorkerBase" />
     /// <seealso cref="IMediaWorker" />
-    internal sealed class PacketReadingWorker : WorkerBase, IMediaWorker
+    internal sealed class PacketReadingWorker : ThreadWorkerBase, IMediaWorker
     {
         /// <summary>
         /// Completed whenever a change in the packet buffer is detected.
@@ -20,10 +20,9 @@
         private readonly ManualResetEventSlim BufferChangedEvent = new ManualResetEventSlim(true);
 
         public PacketReadingWorker(MediaEngine mediaCore)
-            : base(nameof(PacketReadingWorker), ThreadPriority.Normal, TimeSpan.MaxValue, WorkerDelayProvider.Token)
+            : base(nameof(PacketReadingWorker), ThreadPriority.Normal, Constants.Interval.HighPriority, WorkerDelayProvider.Token)
         {
             MediaCore = mediaCore;
-            Period = TimeSpan.MaxValue;
 
             // Packet Buffer Notification Callbacks
             MediaCore.Container.Components.OnPacketQueueChanged = (op, packet, mediaType, state) =>
@@ -56,6 +55,18 @@
             }
         }
 
+        protected override void OnCycleException(Exception ex)
+        {
+            // TODO: Implement
+        }
+
+        /// <inheritdoc />
+        protected override void OnDisposing()
+        {
+            BufferChangedEvent.Set();
+            BufferChangedEvent.Dispose();
+        }
+
         protected override void ExecuteCycleDelay(int wantedDelay, Task delayTask, CancellationToken token)
         {
             BufferChangedEvent.Reset();
@@ -85,18 +96,6 @@
             // No more sync-buffering if we have enough data
             if (MediaCore.CanExitSyncBuffering)
                 MediaCore.IsSyncBuffering = false;
-        }
-
-        protected override void HandleCycleLogicException(Exception ex)
-        {
-            // TODO: Implement
-        }
-
-        /// <inheritdoc />
-        protected override void DisposeManagedState()
-        {
-            BufferChangedEvent.Set();
-            BufferChangedEvent.Dispose();
         }
     }
 }

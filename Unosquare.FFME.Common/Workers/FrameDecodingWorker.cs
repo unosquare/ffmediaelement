@@ -13,14 +13,14 @@
     /// </summary>
     /// <seealso cref="WorkerBase" />
     /// <seealso cref="IMediaWorker" />
-    internal sealed class FrameDecodingWorker : WorkerBase, IMediaWorker
+    internal sealed class FrameDecodingWorker : ThreadWorkerBase, IMediaWorker
     {
         private bool wasSyncBuffering = false;
         private bool resumeSyncBufferingClock = false;
         private int decodedFrameCount = 0;
 
         public FrameDecodingWorker(MediaEngine mediaCore)
-            : base(nameof(FrameDecodingWorker), ThreadPriority.Normal, Constants.Interval.MediumPriority, WorkerDelayProvider.Token)
+            : base(nameof(FrameDecodingWorker), ThreadPriority.Normal, Constants.Interval.HighPriority, WorkerDelayProvider.Token)
         {
             MediaCore = mediaCore;
             Commands = mediaCore.Commands;
@@ -171,13 +171,13 @@
         }
 
         /// <inheritdoc />
-        protected override void HandleCycleLogicException(Exception ex)
+        protected override void OnCycleException(Exception ex)
         {
             // TODO: Implement
         }
 
         /// <inheritdoc />
-        protected override void DisposeManagedState()
+        protected override void OnDisposing()
         {
             // TODO: Dispose the rednerers here
         }
