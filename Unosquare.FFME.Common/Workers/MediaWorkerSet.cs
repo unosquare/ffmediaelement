@@ -13,22 +13,22 @@
         {
             MediaCore = mediaCore;
 
-            ReadingWorker = new PacketReadingWorker(mediaCore);
-            DecodeWorker = new FrameDecodingWorker(mediaCore);
-            RenderWorker = new BlockRenderingWorker(mediaCore);
+            Reading = new PacketReadingWorker(mediaCore);
+            Decoding = new FrameDecodingWorker(mediaCore);
+            Rendering = new BlockRenderingWorker(mediaCore);
 
-            Workers[(int)MediaWorkerType.Read] = ReadingWorker;
-            Workers[(int)MediaWorkerType.Decode] = DecodeWorker;
-            Workers[(int)MediaWorkerType.Render] = RenderWorker;
+            Workers[(int)MediaWorkerType.Read] = Reading;
+            Workers[(int)MediaWorkerType.Decode] = Decoding;
+            Workers[(int)MediaWorkerType.Render] = Rendering;
         }
 
         public MediaEngine MediaCore { get; }
 
-        public PacketReadingWorker ReadingWorker { get; }
+        public PacketReadingWorker Reading { get; }
 
-        public FrameDecodingWorker DecodeWorker { get; }
+        public FrameDecodingWorker Decoding { get; }
 
-        public BlockRenderingWorker RenderWorker { get; }
+        public BlockRenderingWorker Rendering { get; }
 
         /// <summary>
         /// Gets a value indicating whether this instance is disposed.
