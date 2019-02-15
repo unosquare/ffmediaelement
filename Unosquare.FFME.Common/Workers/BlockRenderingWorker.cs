@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME.Workers
 {
-    using Commands;
     using Primitives;
     using Shared;
     using System;
@@ -30,7 +29,7 @@
         /// <inheritdoc />
         public MediaEngine MediaCore { get; }
 
-        private CommandManager Commands { get; }
+        private CommandWorker Commands { get; }
 
         /// <inheritdoc />
         protected override void ExecuteCycleLogic(CancellationToken ct)
@@ -61,16 +60,6 @@
 
             try
             {
-                #region 1. Control and Capture
-
-                // Wait for the seek op to finish before we capture blocks
-                Commands.WaitForActiveSeekCommand();
-
-                // Skip the cycle if we are running a priority command
-                if (Commands.IsExecutingDirectCommand) return;
-
-                #endregion
-
                 #region 2. Handle Block Rendering
 
                 // capture the wall clock for this cycle
@@ -137,7 +126,7 @@
                 }
 
                 // Update the Position
-                if (MediaCore.IsWorkerInterruptRequested == false && MediaCore.IsSyncBuffering == false)
+                if (ct.IsCancellationRequested == false && MediaCore.IsSyncBuffering == false)
                     MediaCore.State.UpdatePosition();
             }
 

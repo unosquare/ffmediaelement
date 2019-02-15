@@ -20,6 +20,11 @@
         private readonly AtomicBoolean m_HasPendingDirectCommands = new AtomicBoolean(false);
         private readonly AtomicInteger m_PendingPriorityCommand = new AtomicInteger(0);
 
+        private readonly AtomicBoolean m_IsOpening = new AtomicBoolean(false);
+        private readonly AtomicBoolean m_IsClosing = new AtomicBoolean(false);
+        private readonly AtomicBoolean m_IsChanging = new AtomicBoolean(false);
+        private readonly AtomicBoolean m_IsSeeking = new AtomicBoolean(false);
+
         private readonly object SyncLock = new object();
 
         private SeekOperation QueuedSeekOperation = null;
@@ -64,6 +69,30 @@
         public MediaEngine MediaCore { get; }
 
         public ILoggingHandler LoggingHandler => MediaCore;
+
+        public bool IsOpening
+        {
+            get => m_IsOpening.Value;
+            private set => m_IsOpening.Value = value;
+        }
+
+        public bool IsClosing
+        {
+            get => m_IsClosing.Value;
+            private set => m_IsClosing.Value = value;
+        }
+
+        public bool IsChanging
+        {
+            get => m_IsChanging.Value;
+            private set => m_IsChanging.Value = value;
+        }
+
+        public bool IsSeeking
+        {
+            get => m_IsSeeking.Value;
+            private set => m_IsSeeking.Value = value;
+        }
 
         private MediaEngineState State => MediaCore.State;
 
@@ -111,7 +140,7 @@
                 if (IsDisposed || IsDisposing || MediaCore.State.IsOpen || HasPendingDirectCommands)
                     return Task.FromResult(false);
 
-                return ExecuteDirectCommand(() => OpenMedia(null, uri));
+                return ExecuteDirectCommand(DirectCommand.Open, () => OpenMedia(null, uri));
             }
         }
 
@@ -122,7 +151,7 @@
                 if (IsDisposed || IsDisposing || MediaCore.State.IsOpen || HasPendingDirectCommands)
                     return Task.FromResult(false);
 
-                return ExecuteDirectCommand(() => OpenMedia(stream, stream.StreamUri));
+                return ExecuteDirectCommand(DirectCommand.Open, () => OpenMedia(stream, stream.StreamUri));
             }
         }
 
@@ -130,10 +159,10 @@
         {
             lock (SyncLock)
             {
-                if (IsDisposed || IsDisposing || MediaCore.State.IsOpen || HasPendingDirectCommands)
+                if (IsDisposed || IsDisposing || !MediaCore.State.IsOpen || HasPendingDirectCommands)
                     return Task.FromResult(false);
 
-                return ExecuteDirectCommand(() => CloseMedia());
+                return ExecuteDirectCommand(DirectCommand.Close, () => CloseMedia());
             }
         }
 
@@ -144,7 +173,7 @@
                 if (IsDisposed || IsDisposing || MediaCore.State.IsOpen == false || HasPendingDirectCommands)
                     return Task.FromResult(false);
 
-                return ExecuteDirectCommand(() => ChangeMedia(MediaCore.Clock.IsRunning));
+                return ExecuteDirectCommand(DirectCommand.Change, () => ChangeMedia(MediaCore.Clock.IsRunning));
             }
         }
 
@@ -188,7 +217,8 @@
                 return;
             }
 
-            while (ct.IsCancellationRequested == false)
+            var handledSeek = false;
+            while (true)
             {
                 SeekOperation seekOperation;
                 lock (SyncLock)
@@ -201,7 +231,16 @@
                 if (seekOperation == null)
                     break;
 
+                handledSeek = true;
                 SeekMedia(seekOperation, ct);
+            }
+
+            lock (SyncLock)
+            {
+                IsSeeking = QueuedSeekOperation != null;
+
+                if (handledSeek)
+                    MediaCore.Workers.Resume();
             }
         }
 
@@ -210,12 +249,18 @@
             throw new NotImplementedException();
         }
 
-        private Task<bool> ExecuteDirectCommand(Func<bool> commandDeleagte)
+        private Task<bool> ExecuteDirectCommand(DirectCommand command, Func<bool> commandDeleagte)
         {
             HasPendingDirectCommands = true;
+            IsOpening = command == DirectCommand.Open;
+            IsClosing = command == DirectCommand.Close;
+            IsChanging = command == DirectCommand.Change;
 
             var commandTask = new Task<bool>(() =>
             {
+                var result = false;
+                Exception commandException = null;
+
                 // pause the queue processor
                 PauseAsync().Wait();
 
@@ -224,7 +269,22 @@
                 ClearSeekCommands();
 
                 // execute the command
-                var result = commandDeleagte.Invoke();
+                try
+                {
+                    result = commandDeleagte.Invoke();
+                }
+                catch (Exception ex)
+                {
+                    commandException = ex;
+                }
+
+                // Update the commanding state
+                IsOpening = false;
+                IsChanging = false;
+                IsClosing = false;
+
+                // Update the sate based on command result
+                PostProcessDirectCommand(command, commandException);
 
                 // reset the pending state
                 HasPendingDirectCommands = false;
@@ -239,6 +299,30 @@
             commandTask.Start();
 
             return commandTask;
+        }
+
+        private void PostProcessDirectCommand(DirectCommand command, Exception commandException)
+        {
+            if (command == DirectCommand.Open)
+            {
+                MediaCore.State.UpdateFixedContainerProperties();
+
+                if (commandException == null)
+                {
+                    MediaCore.State.UpdateMediaState(PlaybackStatus.Stop);
+                    MediaCore.SendOnMediaOpened();
+                }
+                else
+                {
+                    MediaCore.ResetPosition();
+                    MediaCore.State.UpdateMediaState(PlaybackStatus.Close);
+                    MediaCore.SendOnMediaFailed(commandException);
+                }
+
+                this.LogDebug(Aspects.EngineCommand, $"{command} Completed");
+            }
+
+            // TODO: finish implementing command postprocessing
         }
 
         private Task<bool> QueuePriorityCommand(PriorityCommand command)
@@ -272,6 +356,8 @@
                 if (IsDisposed || IsDisposing || MediaCore.State.IsOpen == false ||
                     HasPendingDirectCommands || PendingPriorityCommand != PriorityCommand.None)
                     return Task.FromResult(false);
+
+                IsSeeking = true;
 
                 if (QueuedSeekTask != null)
                 {
@@ -311,6 +397,7 @@
                 QueuedSeekOperation?.Dispose();
                 QueuedSeekOperation = null;
                 QueuedSeekTask = null;
+                IsSeeking = false;
             }
         }
 
@@ -415,21 +502,13 @@
 
                 result = true;
             }
-            catch (Exception ex)
+            catch
             {
                 try { MediaCore.StopWorkers(); } catch { /* Ignore any exceptions and continue */ }
                 try { MediaCore.Container?.Dispose(); } catch { /* Ignore any exceptions and continue */ }
                 MediaCore.DisposePreloadedSubtitles();
                 MediaCore.Container = null;
-
-                MediaCore.ResetPosition();
-                MediaCore.State.UpdateMediaState(PlaybackStatus.Close);
-                MediaCore.SendOnMediaFailed(ex);
-            }
-            finally
-            {
-                State.UpdateFixedContainerProperties();
-                this.LogDebug(Aspects.EngineCommand, $"{DirectCommand.Open} Completed");
+                throw;
             }
 
             return result;

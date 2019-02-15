@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME.Workers
 {
-    using Commands;
     using Primitives;
     using Shared;
     using System;
@@ -29,16 +28,12 @@
         /// <inheritdoc />
         public MediaEngine MediaCore { get; }
 
-        private CommandManager Commands { get; }
+        private CommandWorker Commands { get; }
 
         /// <inheritdoc />
         protected override void ExecuteCycleLogic(CancellationToken ct)
         {
             #region Setup the Decoding Cycle
-
-            // Execute the following command at the beginning of the cycle
-            if (MediaCore.IsSyncBuffering == false)
-                Commands.ExecuteNextQueuedCommand();
 
             // Update state properties -- this must be after processing commands as
             // a direct command might have changed the components
@@ -163,7 +158,7 @@
         {
             // We don't delay if there was output or there is a command
             // or a stop operation pending
-            if (decodedFrameCount > 0 || Commands.IsStopWorkersPending || Commands.HasQueuedCommands)
+            if (decodedFrameCount > 0)
                 return;
 
             // Introduce a delay if the conditions above were not satisfied

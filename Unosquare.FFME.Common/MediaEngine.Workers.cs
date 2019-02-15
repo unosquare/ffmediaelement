@@ -98,7 +98,7 @@
         {
             get
             {
-                if (Commands.IsStopWorkersPending || Container?.Components == null)
+                if (Container?.Components == null)
                     return false;
 
                 if (Container.IsReadAborted || Container.IsAtEndOfStream)
@@ -116,15 +116,6 @@
                 return Container.Components.HasEnoughPackets == false;
             }
         }
-
-        /// <summary>
-        /// Gets a value indicating whether a worker interrupt has been requested by the command manager.
-        /// This instructs potentially long loops in workers to immediately exit.
-        /// </summary>
-        internal bool IsWorkerInterruptRequested => Commands.IsSeeking ||
-                    Commands.IsChanging ||
-                    Commands.IsClosing ||
-                    Commands.IsStopWorkersPending;
 
         #endregion
 
@@ -155,7 +146,6 @@
             }
 
             Clock.SpeedRatio = Constants.Controller.DefaultSpeedRatio;
-            Commands.IsStopWorkersPending = false;
             IsSyncBuffering = true;
 
             // Instantiate the workers and fire them up.
@@ -170,9 +160,6 @@
         {
             // Pause the clock so no further updates are propagated
             Clock.Pause();
-
-            // Let the threads know a cancellation is pending.
-            Commands.IsStopWorkersPending = true;
 
             // Cause an immediate Packet read abort
             Container?.SignalAbortReads(false);
@@ -368,7 +355,6 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool DetectHasDecodingEnded(int decodedFrameCount, MediaType main) =>
                 decodedFrameCount <= 0
-                && IsWorkerInterruptRequested == false
                 && CanReadMoreFramesOf(main) == false
                 && Blocks[main].IndexOf(WallClock) >= Blocks[main].Count - 1;
 

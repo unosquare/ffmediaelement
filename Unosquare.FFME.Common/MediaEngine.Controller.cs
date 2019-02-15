@@ -1,10 +1,10 @@
 ﻿namespace Unosquare.FFME
 {
-    using Commands;
     using Decoding;
     using Shared;
     using System;
     using System.Threading.Tasks;
+    using Workers;
 
     public partial class MediaEngine
     {
@@ -13,7 +13,7 @@
         /// <summary>
         /// The command queue to be executed in the order they were sent.
         /// </summary>
-        internal CommandManager Commands { get; }
+        internal CommandWorker Commands { get; }
 
         /// <summary>
         /// The underlying media container that provides access to
@@ -35,12 +35,12 @@
         {
             if (uri != null)
             {
-                await Commands.CloseAsync();
-                await Commands.OpenAsync(uri);
+                await Commands.CloseMediaAsync();
+                await Commands.OpenMediaAsync(uri);
             }
             else
             {
-                await Commands.CloseAsync();
+                await Commands.CloseMediaAsync();
             }
         }
 
@@ -54,12 +54,12 @@
         {
             if (stream != null)
             {
-                await Commands.CloseAsync();
-                await Commands.OpenAsync(stream);
+                await Commands.CloseMediaAsync();
+                await Commands.OpenMediaAsync(stream);
             }
             else
             {
-                await Commands.CloseAsync();
+                await Commands.CloseMediaAsync();
             }
         }
 
@@ -68,7 +68,7 @@
         /// </summary>
         /// <returns>The awaitable task</returns>
         public async Task Close() =>
-            await Commands.CloseAsync();
+            await Commands.CloseMediaAsync();
 
         /// <summary>
         /// Requests new media options to be applied, including stream component selection.
@@ -82,21 +82,21 @@
         /// </summary>
         /// <returns>The awaitable command</returns>
         public async Task Play() =>
-            await Commands.PlayAsync();
+            await Commands.PlayMediaAsync();
 
         /// <summary>
         /// Pauses playback of the currently loaded media.
         /// </summary>
         /// <returns>The awaitable command</returns>
         public async Task Pause() =>
-            await Commands.PauseAsync();
+            await Commands.PauseMediaAsync();
 
         /// <summary>
         /// Pauses and rewinds the currently loaded media.
         /// </summary>
         /// <returns>The awaitable command</returns>
         public async Task Stop() =>
-            await Commands.StopAsync();
+            await Commands.StopMediaAsync();
 
         /// <summary>
         /// Seeks to the specified position.
@@ -104,7 +104,7 @@
         /// <param name="position">New position for the player.</param>
         /// <returns>The awaitable command</returns>
         public async Task Seek(TimeSpan position) =>
-            await Commands.SeekAsync(position);
+            await Commands.SeekMediaAsync(position);
 
         /// <summary>
         /// Seeks a single frame forward.
