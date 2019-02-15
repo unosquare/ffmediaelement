@@ -72,7 +72,7 @@
                 {
                     Thread.Sleep(5);
 
-                    if (ElapsedWait.ElapsedMilliseconds >= wantedDelay)
+                    if (wantedDelay != Timeout.Infinite && ElapsedWait.ElapsedMilliseconds >= wantedDelay)
                         break;
                 }
             }
@@ -88,6 +88,12 @@
 
                 if (wantedDelay == 0 || wantedDelay < -1)
                     return;
+
+                if (wantedDelay == Timeout.Infinite)
+                {
+                    delayTask.Wait(wantedDelay, token);
+                    return;
+                }
 
                 var remainingWaitTime = 0;
                 while (!token.IsCancellationRequested)

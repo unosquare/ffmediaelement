@@ -15,7 +15,6 @@
     {
         private readonly ManualResetEventSlim DirectCommandCompleted = new ManualResetEventSlim(true);
         private readonly ManualResetEventSlim PriorityCommandCompleted = new ManualResetEventSlim(true);
-        private readonly ManualResetEventSlim SeekCompleted = new ManualResetEventSlim(true);
 
         private readonly AtomicBoolean m_HasPendingDirectCommands = new AtomicBoolean(false);
         private readonly AtomicInteger m_PendingPriorityCommand = new AtomicInteger(0);
@@ -24,6 +23,8 @@
         private readonly AtomicBoolean m_IsClosing = new AtomicBoolean(false);
         private readonly AtomicBoolean m_IsChanging = new AtomicBoolean(false);
         private readonly AtomicBoolean m_IsSeeking = new AtomicBoolean(false);
+
+        private readonly AtomicBoolean m_PlayAfterSeek = new AtomicBoolean(false);
 
         private readonly object SyncLock = new object();
 
@@ -95,6 +96,12 @@
         }
 
         private MediaEngineState State => MediaCore.State;
+
+        private bool PlayAfterSeek
+        {
+            get => m_PlayAfterSeek.Value;
+            set => m_PlayAfterSeek.Value = value;
+        }
 
         private bool HasPendingDirectCommands
         {
@@ -205,6 +212,7 @@
                     break;
                 case PriorityCommand.Stop:
                     StopMedia();
+                    MediaCore.Workers.Resume();
                     break;
                 default:
                     break;
@@ -217,7 +225,6 @@
                 return;
             }
 
-            var handledSeek = false;
             while (true)
             {
                 SeekOperation seekOperation;
@@ -231,16 +238,30 @@
                 if (seekOperation == null)
                     break;
 
-                handledSeek = true;
                 SeekMedia(seekOperation, ct);
             }
 
             lock (SyncLock)
             {
-                IsSeeking = QueuedSeekOperation != null;
+                if (IsSeeking && QueuedSeekOperation == null)
+                {
+                    IsSeeking = false;
 
-                if (handledSeek)
+                    // Resume if requested
+                    if (PlayAfterSeek == true)
+                    {
+                        PlayAfterSeek = false;
+                        MediaCore.ResumePlayback();
+                    }
+                    else
+                    {
+                        if (MediaCore.State.MediaState != PlaybackStatus.Stop)
+                            MediaCore.State.UpdateMediaState(PlaybackStatus.Pause);
+                    }
+
+                    MediaCore.SendOnSeekingEnded();
                     MediaCore.Workers.Resume();
+                }
             }
         }
 
@@ -284,13 +305,16 @@
                 IsClosing = false;
 
                 // Update the sate based on command result
-                PostProcessDirectCommand(command, commandException);
+                result = PostProcessDirectCommand(command, commandException, result);
 
                 // reset the pending state
                 HasPendingDirectCommands = false;
 
                 if (State.IsOpen)
+                {
+                    MediaCore.Workers.Resume();
                     ResumeAsync();
+                }
 
                 return result;
             });
@@ -301,7 +325,7 @@
             return commandTask;
         }
 
-        private void PostProcessDirectCommand(DirectCommand command, Exception commandException)
+        private bool PostProcessDirectCommand(DirectCommand command, Exception commandException, bool commandResult)
         {
             if (command == DirectCommand.Open)
             {
@@ -321,8 +345,42 @@
 
                 this.LogDebug(Aspects.EngineCommand, $"{command} Completed");
             }
+            else if (command == DirectCommand.Close)
+            {
+                // Update notification properties
+                State.ResetAll();
+                MediaCore.ResetPosition();
+                State.UpdateMediaState(PlaybackStatus.Close);
+                State.UpdateSource(null);
 
-            // TODO: finish implementing command postprocessing
+                // Notify media has closed
+                MediaCore.SendOnMediaClosed();
+                LogReferenceCounter();
+                this.LogDebug(Aspects.EngineCommand, $"{DirectCommand.Close} Completed");
+            }
+            else if (command == DirectCommand.Change)
+            {
+                MediaCore.State.UpdateFixedContainerProperties();
+
+                if (commandException == null)
+                {
+                    MediaCore.SendOnMediaChanged();
+
+                    if (commandResult)
+                        MediaCore.Clock.Play();
+
+                    MediaCore.State.UpdateMediaState(
+                        MediaCore.Clock.IsRunning ? PlaybackStatus.Play : PlaybackStatus.Pause);
+                }
+                else
+                {
+                    MediaCore.SendOnMediaFailed(commandException);
+                    MediaCore.State.UpdateMediaState(PlaybackStatus.Pause);
+                }
+            }
+
+            this.LogDebug(Aspects.EngineCommand, $"{command} Completed");
+            return commandException == null;
         }
 
         private Task<bool> QueuePriorityCommand(PriorityCommand command)
@@ -357,8 +415,6 @@
                     HasPendingDirectCommands || PendingPriorityCommand != PriorityCommand.None)
                     return Task.FromResult(false);
 
-                IsSeeking = true;
-
                 if (QueuedSeekTask != null)
                 {
                     QueuedSeekOperation.Mode = seekMode;
@@ -366,7 +422,15 @@
                     return QueuedSeekTask;
                 }
 
-                var seekOperation = new SeekOperation(seekTarget, SeekMode.Normal);
+                if (IsSeeking == false)
+                {
+                    IsSeeking = true;
+                    PlayAfterSeek = MediaCore.Clock.IsRunning && seekMode == SeekMode.Normal;
+                    MediaCore.State.UpdateMediaState(PlaybackStatus.Manual);
+                    MediaCore.SendOnSeekingStarted();
+                }
+
+                var seekOperation = new SeekOperation(seekTarget, seekMode);
                 QueuedSeekOperation = seekOperation;
                 QueuedSeekTask = new Task<bool>(() =>
                 {
@@ -496,10 +560,6 @@
                 // Charge! We are good to go, fire up the worker threads!
                 MediaCore.StartWorkers();
 
-                // Update the media state
-                State.UpdateMediaState(PlaybackStatus.Stop);
-                MediaCore.SendOnMediaOpened();
-
                 result = true;
             }
             catch
@@ -543,20 +603,7 @@
             }
             catch
             {
-                // ignore
-            }
-            finally
-            {
-                // Update notification properties
-                State.ResetAll();
-                MediaCore.ResetPosition();
-                State.UpdateMediaState(PlaybackStatus.Close);
-                State.UpdateSource(null);
-
-                // Notify media has closed
-                MediaCore.SendOnMediaClosed();
-                LogReferenceCounter();
-                this.LogDebug(Aspects.EngineCommand, $"{DirectCommand.Close} Completed");
+                throw;
             }
 
             return result;
@@ -565,7 +612,6 @@
         private bool ChangeMedia(bool playWhenCompleted)
         {
             this.LogDebug(Aspects.EngineCommand, $"{DirectCommand.Change} Entered");
-            var result = false;
 
             try
             {
@@ -642,28 +688,13 @@
                     foreach (var t in mediaTypes)
                         MediaCore.InvalidateRenderer(t);
                 }
-
-                MediaCore.SendOnMediaChanged();
-
-                if (playWhenCompleted)
-                    MediaCore.Clock.Play();
-
-                MediaCore.State.UpdateMediaState(
-                    MediaCore.Clock.IsRunning ? PlaybackStatus.Play : PlaybackStatus.Pause);
-
-                result = true;
             }
-            catch (Exception ex)
+            catch
             {
-                MediaCore.SendOnMediaFailed(ex);
-                MediaCore.State.UpdateMediaState(PlaybackStatus.Pause);
-            }
-            finally
-            {
-                this.LogDebug(Aspects.EngineCommand, $"{DirectCommand.Change} Completed");
+                throw;
             }
 
-            return result;
+            return playWhenCompleted;
         }
 
         private bool PlayMedia()
@@ -708,6 +739,7 @@
 
         private bool SeekMedia(SeekOperation seekOperation, CancellationToken ct)
         {
+            // TODO: Handle Cancellation token ct
             var result = false;
             MediaCore.Clock.Pause();
             var initialPosition = MediaCore.WallClock;

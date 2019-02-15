@@ -168,8 +168,12 @@
 
                     if (!interruptToken.IsCancellationRequested)
                     {
+                        var cycleDelay = ComputeCycleDelay(initialWorkerState);
+                        if (cycleDelay == Timeout.Infinite)
+                            delayTask = Task.Delay(Timeout.Infinite, interruptToken);
+
                         ExecuteCycleDelay(
-                            ComputeCycleDelay(initialWorkerState),
+                            cycleDelay,
                             delayTask,
                             CycleCancellation.Token);
                     }
