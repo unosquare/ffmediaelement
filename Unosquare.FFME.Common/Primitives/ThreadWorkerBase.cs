@@ -224,6 +224,7 @@
             lock (SyncLock)
             {
                 var hasRequest = false;
+                var currentState = WorkerState;
 
                 if (StateChangeRequests[StateChangeRequest.Start])
                 {
@@ -249,7 +250,10 @@
                 // Signals all state changes to continue
                 // as a command has been handled.
                 if (hasRequest)
+                {
                     ClearStateChangeRequests();
+                    OnStateChangeProcessed(currentState, WorkerState);
+                }
 
                 return hasRequest;
             }

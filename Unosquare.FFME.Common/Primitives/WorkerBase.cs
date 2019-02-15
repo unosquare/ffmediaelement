@@ -193,6 +193,16 @@
         protected abstract void OnDisposing();
 
         /// <summary>
+        /// Called when a state change request is processed.
+        /// </summary>
+        /// <param name="previousState">The state befor the change.</param>
+        /// <param name="newState">The new state.</param>
+        protected virtual void OnStateChangeProcessed(WorkerState previousState, WorkerState newState)
+        {
+            // placeholder
+        }
+
+        /// <summary>
         /// Computes the cycle delay.
         /// </summary>
         /// <param name="initialWorkerState">Initial state of the worker.</param>
