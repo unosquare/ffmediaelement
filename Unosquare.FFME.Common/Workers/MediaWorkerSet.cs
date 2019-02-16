@@ -57,19 +57,19 @@
             var index = 0;
             if (read)
             {
-                tasks[index] = this[MediaWorkerType.Read].PauseAsync();
+                tasks[index] = Reading.PauseAsync();
                 index++;
             }
 
             if (decode)
             {
-                tasks[index] = this[MediaWorkerType.Decode].PauseAsync();
+                tasks[index] = Decoding.PauseAsync();
                 index++;
             }
 
             if (render)
             {
-                tasks[index] = this[MediaWorkerType.Render].PauseAsync();
+                tasks[index] = Rendering.PauseAsync();
                 index++;
             }
 
