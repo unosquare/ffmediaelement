@@ -150,10 +150,10 @@
                         if (blocks.Count > 0 && !blocks.IsInRange(wallClock))
                             wallClock = blocks[wallClock].StartTime;
 
-                        MediaCore.Clock.Update(wallClock);
+                        MediaCore.ChangePosition(wallClock);
+                        MediaCore.IsSyncBuffering = false;
                         this.LogInfo(Aspects.DecodingWorker, $"SYNC-BUFFER: Completed in {DateTime.UtcNow.Subtract(SyncBufferStartTime).TotalMilliseconds:0.0} ms");
 
-                        MediaCore.IsSyncBuffering = false;
                         if (State.MediaState == PlaybackStatus.Play)
                             MediaCore.ResumePlayback();
                     }

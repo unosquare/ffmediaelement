@@ -20,7 +20,7 @@
         {
             // Change the default location of the ffmpeg binaries
             // You can get the binaries here: https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.1-win32-shared.zip
-            MediaElement.FFmpegDirectory = @"c:\ffmpeg";
+            MediaElement.FFmpegDirectory = @"c:\ffmpeg" + (Environment.Is64BitProcess ? @"\x64" : string.Empty);
 
             // You can pick which FFmpeg binaries are loaded. See issue #28
             // Full Features is already the default.
@@ -81,6 +81,9 @@
                     {
                         MessageBox.Show(MainWindow,
                             $"Unable to Load FFmpeg Libraries from path:\r\n    {MediaElement.FFmpegDirectory}" +
+                            $"\r\nMake sure the above folder contains FFmpeg shared binaries (dll files) for the " +
+                            $"applicantion's architecture ({(Environment.Is64BitProcess ? "64-bit" : "32-bit")})" +
+                            $"\r\nTIP: You can download builds from https://ffmpeg.zeranoe.com/builds/" +
                             $"\r\n{ex.GetType().Name}: {ex.Message}\r\n\r\nApplication will exit.",
                             "FFmpeg Error",
                             MessageBoxButton.OK,
