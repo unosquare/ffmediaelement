@@ -181,6 +181,8 @@
         /// <inheritdoc />
         protected override void OnDisposing()
         {
+            base.OnDisposing();
+
             // TODO: Dispose the rednerers here
         }
 

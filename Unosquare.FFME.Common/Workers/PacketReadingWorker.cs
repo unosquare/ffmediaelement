@@ -59,6 +59,8 @@
         {
             BufferChangedEvent.Set();
             BufferChangedEvent.Dispose();
+
+            base.OnDisposing();
         }
 
         protected override void ExecuteCycleDelay(int wantedDelay, Task delayTask, CancellationToken token)

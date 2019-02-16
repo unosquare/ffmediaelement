@@ -125,7 +125,7 @@
         /// </summary>
         private void RunWorkerLoop()
         {
-            while (WorkerState != WorkerState.Stopped && !IsDisposing)
+            while (WorkerState != WorkerState.Stopped)
             {
                 CycleStopwatch.Restart();
                 var interruptToken = CycleCancellation.Token;

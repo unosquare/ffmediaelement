@@ -171,6 +171,7 @@
             CycleCancellation.Dispose();
 
             IsDisposed = true;
+            IsDisposing = false;
         }
 
         /// <summary>
