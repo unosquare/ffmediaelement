@@ -91,12 +91,12 @@
 <ol>
 <li>Open Visual Studio (v2017 recommended), and create a new WPF Application. Target Framework must be 4.6.1 or above.</li>
 <li>Install the NuGet Package from your Package Manager Console: <code>PM&gt; Install-Package FFME.Windows</code></li>
-<li>You need FFmpeg binaries now. Build your own or download a compatible build from <a href="https://ffmpeg.zeranoe.com/builds/">Zeranoe FFmpeg Builds site</a>.</li>
+<li>You need FFmpeg shared binaries (64 or 32 bit, depending on your app&#39;s target architecture). Build your own or download a compatible build from <a href="https://ffmpeg.zeranoe.com/builds/">Zeranoe FFmpeg Builds site</a>.</li>
 <li>Your FFmpeg build should have a <code>bin</code> folder with 3 exe files and some dll files. Copy all those files to a folder such as <code>c:\ffmpeg</code></li>
 <li>Within you application&#39;s startup code (<code>Main</code> method), set <code>Unosquare.FFME.MediaElement.FFmpegDirectory = @&quot;c:\ffmpeg&quot;;</code>.</li>
 <li>Use the FFME <code>MediaElement</code> control as any other WPF control.
 For example: In your <code>MainForm.xaml</code>, add the namespace: <code>xmlns:ffme=&quot;clr-namespace:Unosquare.FFME;assembly=ffme.win&quot;</code> and then add the FFME control your window&#39;s XAML: <code>&lt;ffme:MediaElement x:Name=&quot;Media&quot; Background=&quot;Gray&quot; LoadedBehavior=&quot;Play&quot; UnloadedBehavior=&quot;Manual&quot; /&gt;</code> </li>
-<li>To play files or streams, simply set the <code>Source</code> property: <code>Media.Source = new Uri(@&quot;c:\your-file-here&quot;);</code></li>
+<li>To play files or streams, simply set the <code>Source</code> property: <code>Media.Source = new Uri(@&quot;c:\your-file-here&quot;);</code>. Since <code>Source</code> is a dependency property, it need to be set from the GUI thread.</li>
 </ol>
 <h3 id="additional-usage-notes">Additional Usage Notes</h3>
 <ul>
