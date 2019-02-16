@@ -45,7 +45,8 @@
                 if (IsSeeking == false)
                 {
                     IsSeeking = true;
-                    PlayAfterSeek = MediaCore.Clock.IsRunning && seekMode == SeekMode.Normal;
+                    PlayAfterSeek = State.MediaState == PlaybackStatus.Play && seekMode == SeekMode.Normal;
+                    MediaCore.Clock.Pause();
                     MediaCore.State.UpdateMediaState(PlaybackStatus.Manual);
                     MediaCore.SendOnSeekingStarted();
                 }
@@ -80,7 +81,6 @@
         {
             // TODO: Handle Cancellation token ct
             var result = false;
-            MediaCore.Clock.Pause();
             var initialPosition = MediaCore.WallClock;
             var hasDecoderSeeked = false;
             var startTime = DateTime.UtcNow;

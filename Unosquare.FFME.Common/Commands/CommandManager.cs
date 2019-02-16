@@ -74,7 +74,7 @@
                 if (IsDisposed || IsDisposing || MediaCore.State.IsOpen == false || HasPendingDirectCommands)
                     return Task.FromResult(false);
 
-                return ExecuteDirectCommand(DirectCommandType.Change, () => CommandChangeMedia(MediaCore.Clock.IsRunning));
+                return ExecuteDirectCommand(DirectCommandType.Change, () => CommandChangeMedia(State.MediaState == PlaybackStatus.Play));
             }
         }
 
@@ -98,6 +98,11 @@
         {
             var priorityCommand = PendingPriorityCommand;
 
+            if (priorityCommand != PriorityCommandType.None)
+            {
+                MediaCore.Workers.Pause(true);
+            }
+
             switch (priorityCommand)
             {
                 case PriorityCommandType.Play:
@@ -108,7 +113,6 @@
                     break;
                 case PriorityCommandType.Stop:
                     CommandStopMedia();
-                    MediaCore.Workers.Resume(true);
                     break;
                 default:
                     break;
@@ -118,6 +122,7 @@
             {
                 ClearSeekCommands();
                 ClearPriorityCommands();
+                MediaCore.Workers.Resume(true);
                 return;
             }
 

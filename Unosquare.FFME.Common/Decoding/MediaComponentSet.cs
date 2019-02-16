@@ -298,7 +298,7 @@
                 state.Length += c.BufferLength;
                 state.Count += c.BufferCount;
                 state.CountThreshold += c.BufferCountThreshold;
-                if (state.HasEnoughPackets && c.HasEnoughPackets == false)
+                if (c.HasEnoughPackets == false)
                     state.HasEnoughPackets = false;
             }
 
@@ -326,10 +326,13 @@
             var mainBlocks = m.Blocks[main];
 
             // Read and decode blocks until the main component is half full
-            while (m.ShouldReadMorePackets)
+            while (true)
             {
+                var shouldReadMore = m.ShouldReadMorePackets;
+
                 // Read some packets
-                m.Container.Read();
+                if (shouldReadMore)
+                    m.Container.Read();
 
                 // Decode frames and add the blocks
                 foreach (var t in mediaTypes)
@@ -338,14 +341,19 @@
                     m.Blocks[t].Add(frame, m.Container);
                 }
 
+                // Check if we can even decode more frames of main
+                if (Main.BufferLength <= 0 && Main.HasPacketsInCodec == false && shouldReadMore == false)
+                    break;
+
                 // Check if we have at least a half a buffer on main
-                if (mainBlocks.CapacityPercent >= 0.5)
+                var rangePercent = mainBlocks.GetRangePercent(m.WallClock);
+                if (mainBlocks.IsFull || (rangePercent >= 0 && rangePercent <= 0.5))
                     break;
             }
 
             // Check if we have a valid range. If not, just set it what the main component is dictating
             if (mainBlocks.Count > 0 && mainBlocks.IsInRange(m.WallClock) == false)
-                m.ChangePosition(mainBlocks.RangeStartTime);
+                m.ChangePosition(mainBlocks[m.WallClock].StartTime);
 
             // Have the other components catch up
             foreach (var t in auxiliaries)

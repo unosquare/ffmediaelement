@@ -143,10 +143,16 @@
 
                     // command result contains the play after seek.
                     if (commandResult)
-                        MediaCore.Clock.Play();
+                    {
+                        MediaCore.ResumePlayback();
+                    }
+                    else
+                    {
+                        MediaCore.State.UpdateMediaState(PlaybackStatus.Pause);
+                    }
 
                     MediaCore.State.UpdateMediaState(
-                        MediaCore.Clock.IsRunning ? PlaybackStatus.Play : PlaybackStatus.Pause);
+                        commandResult ? PlaybackStatus.Play : PlaybackStatus.Pause);
                 }
                 else
                 {
@@ -382,7 +388,7 @@
                 else
                 {
                     // Let's perform quick-buffering
-                    MediaCore.Container.Components.RunQuickBuffering(MediaCore);
+                    // MediaCore.Container.Components.RunQuickBuffering(MediaCore);
 
                     // Mark the renderers as invalidated
                     foreach (var t in mediaTypes)

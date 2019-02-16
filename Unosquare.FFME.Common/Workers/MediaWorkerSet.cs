@@ -79,19 +79,35 @@
 
         public void Pause(bool wait) => Pause(wait, true, true, true);
 
-        public void Resume(bool wait)
+        public void Resume(bool wait, bool read, bool decode, bool render)
         {
             if (IsDisposed) return;
 
-            var tasks = new Task[Workers.Length];
-            for (var i = 0; i < Workers.Length; i++)
+            var tasks = new Task[(read ? 1 : 0) + (decode ? 1 : 0) + (render ? 1 : 0)];
+            var index = 0;
+            if (read)
             {
-                tasks[i] = Workers[i].ResumeAsync();
+                tasks[index] = Reading.ResumeAsync();
+                index++;
+            }
+
+            if (decode)
+            {
+                tasks[index] = Decoding.ResumeAsync();
+                index++;
+            }
+
+            if (render)
+            {
+                tasks[index] = Rendering.ResumeAsync();
+                index++;
             }
 
             if (wait)
                 Task.WaitAll(tasks);
         }
+
+        public void Resume(bool wait) => Resume(wait, true, true, true);
 
         public void Start()
         {

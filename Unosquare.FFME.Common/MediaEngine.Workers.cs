@@ -65,26 +65,6 @@
         }
 
         /// <summary>
-        /// Gets a value indicating whether the packet reader has finished sync-buffering.
-        /// </summary>
-        internal bool CanExitSyncBuffering
-        {
-            get
-            {
-                if (IsSyncBuffering == false)
-                    return false;
-
-                if (Container.Components.BufferLength > BufferLengthMax)
-                    return true;
-
-                if (Container.Components.HasEnoughPackets)
-                    return true;
-
-                return Container.IsLiveStream && Blocks.Main(Container).IsFull;
-            }
-        }
-
-        /// <summary>
         /// Gets the buffer length maximum.
         /// port of MAX_QUEUE_SIZE (ffplay.c)
         /// </summary>
@@ -146,7 +126,6 @@
             }
 
             Clock.SpeedRatio = Constants.Controller.DefaultSpeedRatio;
-            IsSyncBuffering = true;
 
             // Instantiate the workers and fire them up.
             Workers = new MediaWorkerSet(this);
@@ -184,7 +163,9 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void ResumePlayback()
         {
-            Clock.Play();
+            if (!IsSyncBuffering)
+                Clock.Play();
+
             State.UpdateMediaState(PlaybackStatus.Play);
         }
 

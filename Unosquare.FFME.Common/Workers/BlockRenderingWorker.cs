@@ -141,7 +141,7 @@
                 }
 
                 // Update the Position
-                if (ct.IsCancellationRequested == false && MediaCore.IsSyncBuffering == false)
+                if (!ct.IsCancellationRequested)
                     State.UpdatePosition();
             }
 

@@ -46,13 +46,6 @@
             {
                 try { Container.Read(); }
                 catch (MediaContainerException) { }
-
-                // No more sync-buffering if we have enough data
-                if (MediaCore.CanExitSyncBuffering)
-                    MediaCore.IsSyncBuffering = false;
-
-                if (Container.Components.HasEnoughPackets)
-                    break;
             }
         }
 
@@ -83,10 +76,6 @@
                     if (MediaCore.ShouldReadMorePackets)
                         break;
 
-                    // we are sync-buffering but we don't need more packets
-                    if (MediaCore.IsSyncBuffering)
-                        break;
-
                     // We detected a change in buffered packets
                     try
                     {
@@ -100,10 +89,6 @@
                     }
                 }
             }
-
-            // No more sync-buffering if we have enough data
-            if (MediaCore.CanExitSyncBuffering)
-                MediaCore.IsSyncBuffering = false;
         }
     }
 }

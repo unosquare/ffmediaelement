@@ -160,16 +160,16 @@
             }
 
             // This also ensures the state change queue gets cleared
-            StopAsync().GetAwaiter().GetResult();
+            StopAsync().Wait();
 
             if (alsoManaged == false) return;
 
+            OnDisposing();
             CycleStopwatch.Stop();
             StateChangedEvent.Dispose();
             CycleCompletedEvent.Dispose();
             CycleCancellation.Dispose();
 
-            OnDisposing();
             IsDisposed = true;
         }
 
