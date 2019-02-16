@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Workers
 {
+    using Commands;
     using Primitives;
     using Shared;
     using System;
@@ -28,7 +29,7 @@
         /// <inheritdoc />
         public MediaEngine MediaCore { get; }
 
-        private CommandWorker Commands { get; }
+        private CommandManager Commands { get; }
 
         /// <inheritdoc />
         protected override void ExecuteCycleLogic(CancellationToken ct)

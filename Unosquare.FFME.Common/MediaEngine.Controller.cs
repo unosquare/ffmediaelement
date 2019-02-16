@@ -1,10 +1,10 @@
 ﻿namespace Unosquare.FFME
 {
+    using Commands;
     using Decoding;
     using Shared;
     using System;
     using System.Threading.Tasks;
-    using Workers;
 
     public partial class MediaEngine
     {
@@ -13,7 +13,7 @@
         /// <summary>
         /// The command queue to be executed in the order they were sent.
         /// </summary>
-        internal CommandWorker Commands { get; }
+        internal CommandManager Commands { get; }
 
         /// <summary>
         /// The underlying media container that provides access to

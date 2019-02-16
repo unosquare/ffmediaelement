@@ -1,10 +1,10 @@
 ﻿namespace Unosquare.FFME
 {
+    using Commands;
     using Core;
     using Primitives;
     using Shared;
     using System;
-    using Workers;
 
     /// <summary>
     /// Represents a Media Engine that contains underlying streams of audio and/or video.
@@ -29,7 +29,7 @@
             // Associate the parent as the media connector that implements the callbacks
             Parent = parent;
             Connector = connector;
-            Commands = new CommandWorker(this);
+            Commands = new CommandManager(this);
             State = new MediaEngineState(this);
 
             // Don't start up timers or any other stuff if we are in design-time

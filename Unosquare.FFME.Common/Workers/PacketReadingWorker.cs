@@ -43,6 +43,10 @@
                 try { MediaCore.Container.Read(); }
                 catch (MediaContainerException) { }
 
+                // No more sync-buffering if we have enough data
+                if (MediaCore.CanExitSyncBuffering)
+                    MediaCore.IsSyncBuffering = false;
+
                 if (MediaCore.Container.Components.HasEnoughPackets)
                     break;
             }
@@ -65,30 +69,31 @@
             if (wantedDelay == 0 || wantedDelay == Timeout.Infinite)
             {
                 base.ExecuteCycleDelay(wantedDelay, delayTask, token);
-                return;
             }
-
-            BufferChangedEvent.Reset();
-            while (!token.IsCancellationRequested)
+            else
             {
-                // We now need more packets, we need to stop waiting
-                if (MediaCore.ShouldReadMorePackets)
-                    break;
-
-                // we are sync-buffering but we don't need more packets
-                if (MediaCore.IsSyncBuffering)
-                    break;
-
-                // We detected a change in buffered packets
-                try
+                BufferChangedEvent.Reset();
+                while (!token.IsCancellationRequested)
                 {
-                    if (BufferChangedEvent.Wait(15, token))
+                    // We now need more packets, we need to stop waiting
+                    if (MediaCore.ShouldReadMorePackets)
                         break;
-                }
-                catch
-                {
-                    // ignore and break as the task was most likely cancelled
-                    break;
+
+                    // we are sync-buffering but we don't need more packets
+                    if (MediaCore.IsSyncBuffering)
+                        break;
+
+                    // We detected a change in buffered packets
+                    try
+                    {
+                        if (BufferChangedEvent.Wait(15, token))
+                            break;
+                    }
+                    catch
+                    {
+                        // ignore and break as the task was most likely cancelled
+                        break;
+                    }
                 }
             }
 
