@@ -1,10 +1,12 @@
 ﻿namespace Unosquare.FFME.Workers
 {
     using Commands;
+    using Decoding;
     using Primitives;
     using Shared;
     using System;
     using System.Linq;
+    using System.Runtime.CompilerServices;
     using System.Threading;
 
     /// <summary>
@@ -12,7 +14,7 @@
     /// </summary>
     /// <seealso cref="WorkerBase" />
     /// <seealso cref="IMediaWorker" />
-    internal sealed class BlockRenderingWorker : TimerWorkerBase, IMediaWorker
+    internal sealed class BlockRenderingWorker : TimerWorkerBase, IMediaWorker, ILoggingSource
     {
         private readonly AtomicBoolean HasInitialized = new AtomicBoolean(false);
 
@@ -25,18 +27,26 @@
         {
             MediaCore = mediaCore;
             Commands = MediaCore.Commands;
+            Container = MediaCore.Container;
+            State = MediaCore.State;
         }
 
         /// <inheritdoc />
         public MediaEngine MediaCore { get; }
 
+        ILoggingHandler ILoggingSource.LoggingHandler => MediaCore;
+
         private CommandManager Commands { get; }
+
+        private MediaContainer Container { get; }
+
+        private MediaEngineState State { get; }
 
         /// <inheritdoc />
         protected override void ExecuteCycleLogic(CancellationToken ct)
         {
             // Update Status Properties
-            var main = MediaCore.Container.Components.MainMediaType;
+            var main = Container.Components.MainMediaType;
             var all = MediaCore.Renderers.Keys.ToArray();
             var currentBlock = new MediaTypeDictionary<MediaBlock>();
 
@@ -62,7 +72,8 @@
             try
             {
                 // TODO: wait for active seek command
-                Commands.WaitForSeekBlocks();
+                try { Commands.WaitForSeekBlocks(ct); }
+                catch { return; }
 
                 #region 2. Handle Block Rendering
 
@@ -87,7 +98,7 @@
 
                     // Render by forced signal (TimeSpan.MinValue) or because simply it is time to do so
                     if (MediaCore.LastRenderTime[t] == TimeSpan.MinValue || currentBlock[t].StartTime != MediaCore.LastRenderTime[t])
-                        MediaCore.SendBlockToRenderer(currentBlock[t], wallClock);
+                        SendBlockToRenderer(currentBlock[t], wallClock);
                 }
 
                 #endregion
@@ -114,24 +125,24 @@
                 && MediaCore.WallClock >= MediaCore.Blocks[main].RangeEndTime)
                 {
                     // Rendered all and nothing else to render
-                    if (MediaCore.State.HasMediaEnded == false)
+                    if (State.HasMediaEnded == false)
                     {
                         MediaCore.Clock.Pause();
                         var endPosition = MediaCore.ChangePosition(MediaCore.Blocks[main].RangeEndTime);
-                        MediaCore.State.UpdateMediaEnded(true, endPosition);
-                        MediaCore.State.UpdateMediaState(PlaybackStatus.Stop);
-                        foreach (var mt in MediaCore.Container.Components.MediaTypes)
+                        State.UpdateMediaEnded(true, endPosition);
+                        State.UpdateMediaState(PlaybackStatus.Stop);
+                        foreach (var mt in Container.Components.MediaTypes)
                             MediaCore.InvalidateRenderer(mt);
                     }
                 }
                 else
                 {
-                    MediaCore.State.UpdateMediaEnded(false, TimeSpan.Zero);
+                    State.UpdateMediaEnded(false, TimeSpan.Zero);
                 }
 
                 // Update the Position
                 if (ct.IsCancellationRequested == false && MediaCore.IsSyncBuffering == false)
-                    MediaCore.State.UpdatePosition();
+                    State.UpdatePosition();
             }
 
             #endregion
@@ -147,6 +158,66 @@
         protected override void OnDisposing()
         {
             // TODO: Dispose the rednerers here
+        }
+
+        /// <summary>
+        /// Sends the given block to its corresponding media renderer.
+        /// </summary>
+        /// <param name="block">The block.</param>
+        /// <param name="clockPosition">The clock position.</param>
+        /// <returns>
+        /// The number of blocks sent to the renderer
+        /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private int SendBlockToRenderer(MediaBlock block, TimeSpan clockPosition)
+        {
+            // No blocks were rendered
+            if (block == null) return 0;
+
+            // Process property changes coming from video blocks
+            State.UpdateDynamicBlockProperties(block, MediaCore.Blocks[block.MediaType]);
+
+            // Send the block to its corresponding renderer
+            MediaCore.Renderers[block.MediaType]?.Render(block, clockPosition);
+            MediaCore.LastRenderTime[block.MediaType] = block.StartTime;
+
+            // Log the block statistics for debugging
+            LogRenderBlock(block, clockPosition, block.Index);
+
+            // At this point, we are certain that a blocl has been
+            // sent to its corresponding renderer.
+            return 1;
+        }
+
+        /// <summary>
+        /// Logs a block rendering operation as a Trace Message
+        /// if the debugger is attached.
+        /// </summary>
+        /// <param name="block">The block.</param>
+        /// <param name="clockPosition">The clock position.</param>
+        /// <param name="renderIndex">Index of the render.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void LogRenderBlock(MediaBlock block, TimeSpan clockPosition, int renderIndex)
+        {
+            // Prevent logging for production use
+            if (MediaEngine.Platform.IsInDebugMode == false) return;
+
+            try
+            {
+                var drift = TimeSpan.FromTicks(clockPosition.Ticks - block.StartTime.Ticks);
+                this.LogTrace(Aspects.RenderingWorker,
+                    $"{block.MediaType.ToString().Substring(0, 1)} "
+                    + $"BLK: {block.StartTime.Format()} | "
+                    + $"CLK: {clockPosition.Format()} | "
+                    + $"DFT: {drift.TotalMilliseconds,4:0} | "
+                    + $"IX: {renderIndex,3} | "
+                    + $"PQ: {Container?.Components[block.MediaType]?.BufferLength / 1024d,7:0.0}k | "
+                    + $"TQ: {Container?.Components.BufferLength / 1024d,7:0.0}k");
+            }
+            catch
+            {
+                // swallow
+            }
         }
     }
 }

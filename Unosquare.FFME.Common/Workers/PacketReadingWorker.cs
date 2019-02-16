@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Workers
 {
+    using Decoding;
     using Primitives;
     using Shared;
     using System;
@@ -23,9 +24,10 @@
             : base(nameof(PacketReadingWorker), ThreadPriority.Normal, Constants.Interval.HighPriority, WorkerDelayProvider.Token)
         {
             MediaCore = mediaCore;
+            Container = mediaCore.Container;
 
             // Packet Buffer Notification Callbacks
-            MediaCore.Container.Components.OnPacketQueueChanged = (op, packet, mediaType, state) =>
+            Container.Components.OnPacketQueueChanged = (op, packet, mediaType, state) =>
             {
                 MediaCore.State.UpdateBufferingStats(state.Length, state.Count, state.CountThreshold);
                 BufferChangedEvent.Set();
@@ -35,19 +37,21 @@
         /// <inheritdoc />
         public MediaEngine MediaCore { get; }
 
+        private MediaContainer Container { get; }
+
         /// <inheritdoc />
         protected override void ExecuteCycleLogic(CancellationToken ct)
         {
             while (MediaCore.ShouldReadMorePackets && ct.IsCancellationRequested == false)
             {
-                try { MediaCore.Container.Read(); }
+                try { Container.Read(); }
                 catch (MediaContainerException) { }
 
                 // No more sync-buffering if we have enough data
                 if (MediaCore.CanExitSyncBuffering)
                     MediaCore.IsSyncBuffering = false;
 
-                if (MediaCore.Container.Components.HasEnoughPackets)
+                if (Container.Components.HasEnoughPackets)
                     break;
             }
         }

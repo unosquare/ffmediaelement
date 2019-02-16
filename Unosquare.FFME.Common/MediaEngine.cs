@@ -115,15 +115,6 @@
             ResetPosition();
         }
 
-        /// <summary>
-        /// Disposes the preloaded subtitles.
-        /// </summary>
-        internal void DisposePreloadedSubtitles()
-        {
-            PreloadedSubtitles?.Dispose();
-            PreloadedSubtitles = null;
-        }
-
         #endregion
     }
 }

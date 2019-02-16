@@ -117,9 +117,7 @@
                 // to finish. We don't want to interfere with reading in progress
                 // or decoding in progress. For decoding we already know we are not
                 // in a cycle because the decoding worker called this logic.
-                // TODO: Create a call in workers set to suspend Reading and decoding but not rendering.
-                MediaCore.Workers.Reading.PauseAsync().Wait();
-                MediaCore.Workers.Decoding.PauseAsync().Wait();
+                MediaCore.Workers.Pause(true, true, true, false);
 
                 // Let consumers know main blocks are not avaiable
                 hasDecoderSeeked = true;

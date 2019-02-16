@@ -1,10 +1,12 @@
 ﻿namespace Unosquare.FFME.Workers
 {
     using Commands;
+    using Decoding;
     using Primitives;
     using Shared;
     using System;
     using System.Linq;
+    using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -24,12 +26,18 @@
         {
             MediaCore = mediaCore;
             Commands = mediaCore.Commands;
+            Container = mediaCore.Container;
+            State = mediaCore.State;
         }
 
         /// <inheritdoc />
         public MediaEngine MediaCore { get; }
 
         private CommandManager Commands { get; }
+
+        private MediaContainer Container { get; }
+
+        private MediaEngineState State { get; }
 
         /// <inheritdoc />
         protected override void ExecuteCycleLogic(CancellationToken ct)
@@ -38,7 +46,7 @@
 
             // Update state properties -- this must be after processing commands as
             // a direct command might have changed the components
-            var main = MediaCore.Container.Components.MainMediaType;
+            var main = Container.Components.MainMediaType;
             MediaBlockBuffer blocks;
             decodedFrameCount = 0;
             var rangePercent = 0d;
@@ -62,7 +70,7 @@
                     wasSyncBuffering = true;
                     resumeSyncBufferingClock = MediaCore.Clock.IsRunning;
                     MediaCore.Clock.Pause();
-                    MediaCore.State.UpdateMediaState(PlaybackStatus.Manual);
+                    State.UpdateMediaState(PlaybackStatus.Manual);
                     MediaCore.LogDebug(Aspects.DecodingWorker, "Decoder sync-buffering started.");
                 }
 
@@ -72,7 +80,7 @@
 
                 // We need to add blocks if the wall clock is over 75%
                 // for each of the components so that we have some buffer.
-                foreach (var t in MediaCore.Container.Components.MediaTypes)
+                foreach (var t in Container.Components.MediaTypes)
                 {
                     if (ct.IsCancellationRequested) break;
 
@@ -88,7 +96,7 @@
                         if (MediaCore.IsSyncBuffering && blocks.IsFull)
                             break;
 
-                        if (ct.IsCancellationRequested || MediaCore.AddNextBlock(t) == false)
+                        if (ct.IsCancellationRequested || AddNextBlock(t) == false)
                             break;
 
                         decodedFrameCount += 1;
@@ -136,7 +144,7 @@
                 MediaCore.LogDebug(Aspects.DecodingWorker,
                     $"Decoder sync-buffering finished. Clock set to {MediaCore.WallClock.Format()}");
 
-                if (resumeSyncBufferingClock && MediaCore.State.HasMediaEnded == false)
+                if (resumeSyncBufferingClock && State.HasMediaEnded == false)
                     MediaCore.ResumePlayback();
 
                 wasSyncBuffering = false;
@@ -144,13 +152,13 @@
             }
 
             // Provide updates to decoding stats
-            MediaCore.State.UpdateDecodingBitRate(
+            State.UpdateDecodingBitRate(
                 MediaCore.Blocks.Values.Sum(b => b.IsInRange(MediaCore.WallClock) ? b.RangeBitRate : 0));
 
             // Detect End of Decoding Scenarios
             // The Rendering will check for end of media when this
             // condition is set.
-            MediaCore.HasDecodingEnded = MediaCore.DetectHasDecodingEnded(decodedFrameCount, main);
+            MediaCore.HasDecodingEnded = DetectHasDecodingEnded(decodedFrameCount, main);
 
             #endregion
         }
@@ -176,6 +184,49 @@
         protected override void OnDisposing()
         {
             // TODO: Dispose the rednerers here
+        }
+
+        /// <summary>
+        /// Tries to receive the next frame from the decoder by decoding queued
+        /// Packets and converting the decoded frame into a Media Block which gets
+        /// queued into the playback block buffer.
+        /// </summary>
+        /// <param name="t">The MediaType.</param>
+        /// <returns>True if a block could be added. False otherwise.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool AddNextBlock(MediaType t)
+        {
+            // Decode the frames
+            var block = MediaCore.Blocks[t].Add(Container.Components[t].ReceiveNextFrame(), Container);
+            return block != null;
+        }
+
+        /// <summary>
+        /// Detects the end of media in the decoding worker.
+        /// </summary>
+        /// <param name="decodedFrameCount">The decoded frame count.</param>
+        /// <param name="main">The main.</param>
+        /// <returns>True if media ended</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool DetectHasDecodingEnded(int decodedFrameCount, MediaType main) =>
+                decodedFrameCount <= 0
+                && CanReadMoreFramesOf(main) == false
+                && MediaCore.Blocks[main].IndexOf(MediaCore.WallClock) >= MediaCore.Blocks[main].Count - 1;
+
+        /// <summary>
+        /// Gets a value indicating whether more frames can be decoded into blocks of the given type.
+        /// </summary>
+        /// <param name="t">The media type.</param>
+        /// <returns>
+        ///   <c>true</c> if more frames can be decoded; otherwise, <c>false</c>.
+        /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool CanReadMoreFramesOf(MediaType t)
+        {
+            return
+                Container.Components[t].BufferLength > 0 ||
+                Container.Components[t].HasPacketsInCodec ||
+                MediaCore.ShouldReadMorePackets;
         }
     }
 }

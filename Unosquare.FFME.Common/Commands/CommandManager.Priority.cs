@@ -3,6 +3,7 @@
     using Primitives;
     using Shared;
     using System;
+    using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -96,7 +97,7 @@
             foreach (var renderer in MediaCore.Renderers.Values)
                 renderer.Pause();
 
-            MediaCore.ChangePosition(MediaCore.SnapPositionToBlockPosition(MediaCore.WallClock));
+            MediaCore.ChangePosition(SnapPositionToBlockPosition(MediaCore.WallClock));
             State.UpdateMediaState(PlaybackStatus.Pause);
             return true;
         }
@@ -111,6 +112,28 @@
 
             State.UpdateMediaState(PlaybackStatus.Stop);
             return true;
+        }
+
+        #endregion
+
+        #region Implementation Helpers
+
+        /// <summary>
+        /// Returns the value of a discrete frame position of the main media component if possible.
+        /// Otherwise, it simply rounds the position to the nearest millisecond.
+        /// </summary>
+        /// <param name="position">The position.</param>
+        /// <returns>The snapped, discrete, normalized position</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private TimeSpan SnapPositionToBlockPosition(TimeSpan position)
+        {
+            if (MediaCore.Container == null)
+                return position.Normalize();
+
+            var blocks = MediaCore.Blocks.Main(MediaCore.Container);
+            if (blocks == null) return position.Normalize();
+
+            return blocks.GetSnapPosition(position) ?? position.Normalize();
         }
 
         #endregion

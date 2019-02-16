@@ -90,7 +90,7 @@
 
         public Task<bool> StepBackwardAsync() => QueueSeekCommand(TimeSpan.Zero, SeekMode.StepBackward);
 
-        public void WaitForSeekBlocks() => SeekBlocksAvailable.Wait();
+        public void WaitForSeekBlocks(CancellationToken ct) => SeekBlocksAvailable.Wait(ct);
 
         #endregion
 
@@ -108,7 +108,7 @@
                     break;
                 case PriorityCommandType.Stop:
                     CommandStopMedia();
-                    MediaCore.Workers.Resume();
+                    MediaCore.Workers.Resume(true);
                     break;
                 default:
                     break;
@@ -156,7 +156,7 @@
                     }
 
                     MediaCore.SendOnSeekingEnded();
-                    MediaCore.Workers.Resume();
+                    MediaCore.Workers.Resume(false);
                 }
             }
         }

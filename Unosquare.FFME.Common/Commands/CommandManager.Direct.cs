@@ -90,7 +90,7 @@
 
                 if (State.IsOpen)
                 {
-                    MediaCore.Workers.Resume();
+                    MediaCore.Workers.Resume(false);
                     ResumeAsync();
                 }
 
@@ -244,7 +244,7 @@
                 MediaCore.SendOnMediaOpening();
 
                 // Side-load subtitles if requested
-                MediaCore.PreLoadSubtitles();
+                PreLoadSubtitles();
 
                 // Get the main container open
                 MediaCore.Container.Open();
@@ -266,7 +266,7 @@
             {
                 try { MediaCore.StopWorkers(); } catch { /* Ignore any exceptions and continue */ }
                 try { MediaCore.Container?.Dispose(); } catch { /* Ignore any exceptions and continue */ }
-                MediaCore.DisposePreloadedSubtitles();
+                DisposePreloadedSubtitles();
                 MediaCore.Container = null;
                 throw;
             }
@@ -294,7 +294,7 @@
                     kvp.Value.Dispose();
 
                 MediaCore.Blocks.Clear();
-                MediaCore.DisposePreloadedSubtitles();
+                DisposePreloadedSubtitles();
 
                 // Clear the render times
                 MediaCore.LastRenderTime.Clear();
@@ -319,14 +319,14 @@
                 MediaCore.Clock.Pause();
 
                 // Wait for the cycles to complete
-                MediaCore.Workers.Pause();
+                MediaCore.Workers.Pause(true);
 
                 // Signal a change so the user get the chance to update
                 // selected streams and options
                 MediaCore.SendOnMediaChanging();
 
                 // Side load subtitles
-                MediaCore.PreLoadSubtitles();
+                PreLoadSubtitles();
 
                 // Capture the current media types before components change
                 var oldMediaTypes = MediaCore.Container.Components.MediaTypes.ToArray();
@@ -395,6 +395,58 @@
             }
 
             return playWhenCompleted;
+        }
+
+        #endregion
+
+        #region Implementation Helpers
+
+        /// <summary>
+        /// Pre-loads the subtitles from the MediaOptions.SubtitlesUrl.
+        /// </summary>
+        private void PreLoadSubtitles()
+        {
+            DisposePreloadedSubtitles();
+            var subtitlesUrl = MediaCore.Container.MediaOptions.SubtitlesUrl;
+
+            // Don't load a thing if we don't have to
+            if (string.IsNullOrWhiteSpace(subtitlesUrl))
+                return;
+
+            try
+            {
+                MediaCore.PreloadedSubtitles = MediaEngine.LoadBlocks(subtitlesUrl, MediaType.Subtitle, MediaCore);
+
+                // Process and adjust subtitle delays if necessary
+                if (MediaCore.Container.MediaOptions.SubtitlesDelay != TimeSpan.Zero)
+                {
+                    var delay = MediaCore.Container.MediaOptions.SubtitlesDelay;
+                    for (var i = 0; i < MediaCore.PreloadedSubtitles.Count; i++)
+                    {
+                        var target = MediaCore.PreloadedSubtitles[i];
+                        target.StartTime = TimeSpan.FromTicks(target.StartTime.Ticks + delay.Ticks);
+                        target.EndTime = TimeSpan.FromTicks(target.EndTime.Ticks + delay.Ticks);
+                        target.Duration = TimeSpan.FromTicks(target.EndTime.Ticks - target.StartTime.Ticks);
+                    }
+                }
+
+                MediaCore.Container.MediaOptions.IsSubtitleDisabled = true;
+            }
+            catch (MediaContainerException mex)
+            {
+                DisposePreloadedSubtitles();
+                this.LogWarning(Aspects.Component,
+                    $"No subtitles to side-load found in media '{subtitlesUrl}'. {mex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Disposes the preloaded subtitles.
+        /// </summary>
+        private void DisposePreloadedSubtitles()
+        {
+            MediaCore.PreloadedSubtitles?.Dispose();
+            MediaCore.PreloadedSubtitles = null;
         }
 
         #endregion

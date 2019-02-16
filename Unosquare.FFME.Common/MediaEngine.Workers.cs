@@ -28,7 +28,7 @@
         /// <summary>
         /// Gets the preloaded subtitle blocks.
         /// </summary>
-        public MediaBlockBuffer PreloadedSubtitles { get; private set; }
+        public MediaBlockBuffer PreloadedSubtitles { get; internal set; }
 
         /// <summary>
         /// Gets the worker collection
@@ -179,63 +179,6 @@
         }
 
         /// <summary>
-        /// Pre-loads the subtitles from the MediaOptions.SubtitlesUrl.
-        /// </summary>
-        internal void PreLoadSubtitles()
-        {
-            DisposePreloadedSubtitles();
-            var subtitlesUrl = Container.MediaOptions.SubtitlesUrl;
-
-            // Don't load a thing if we don't have to
-            if (string.IsNullOrWhiteSpace(subtitlesUrl))
-                return;
-
-            try
-            {
-                PreloadedSubtitles = LoadBlocks(subtitlesUrl, MediaType.Subtitle, this);
-
-                // Process and adjust subtitle delays if necessary
-                if (Container.MediaOptions.SubtitlesDelay != TimeSpan.Zero)
-                {
-                    var delay = Container.MediaOptions.SubtitlesDelay;
-                    for (var i = 0; i < PreloadedSubtitles.Count; i++)
-                    {
-                        var target = PreloadedSubtitles[i];
-                        target.StartTime = TimeSpan.FromTicks(target.StartTime.Ticks + delay.Ticks);
-                        target.EndTime = TimeSpan.FromTicks(target.EndTime.Ticks + delay.Ticks);
-                        target.Duration = TimeSpan.FromTicks(target.EndTime.Ticks - target.StartTime.Ticks);
-                    }
-                }
-
-                Container.MediaOptions.IsSubtitleDisabled = true;
-            }
-            catch (MediaContainerException mex)
-            {
-                DisposePreloadedSubtitles();
-                this.LogWarning(Aspects.Component,
-                    $"No subtitles to side-load found in media '{subtitlesUrl}'. {mex.Message}");
-            }
-        }
-
-        /// <summary>
-        /// Returns the value of a discrete frame position of the main media component if possible.
-        /// Otherwise, it simply rounds the position to the nearest millisecond.
-        /// </summary>
-        /// <param name="position">The position.</param>
-        /// <returns>The snapped, discrete, normalized position</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal TimeSpan SnapPositionToBlockPosition(TimeSpan position)
-        {
-            if (Container == null)
-                return position.Normalize();
-
-            var blocks = Blocks.Main(Container);
-            if (blocks == null) return position.Normalize();
-
-            return blocks.GetSnapPosition(position) ?? position.Normalize();
-        }
-
-        /// <summary>
         /// Resumes the playback by resuming the clock and updating the playback state to state.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -273,66 +216,6 @@
         }
 
         /// <summary>
-        /// Sends the given block to its corresponding media renderer.
-        /// </summary>
-        /// <param name="block">The block.</param>
-        /// <param name="clockPosition">The clock position.</param>
-        /// <returns>
-        /// The number of blocks sent to the renderer
-        /// </returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal int SendBlockToRenderer(MediaBlock block, TimeSpan clockPosition)
-        {
-            // No blocks were rendered
-            if (block == null) return 0;
-
-            // Process property changes coming from video blocks
-            State.UpdateDynamicBlockProperties(block, Blocks[block.MediaType]);
-
-            // Send the block to its corresponding renderer
-            Renderers[block.MediaType]?.Render(block, clockPosition);
-            LastRenderTime[block.MediaType] = block.StartTime;
-
-            // Log the block statistics for debugging
-            LogRenderBlock(block, clockPosition, block.Index);
-
-            // At this point, we are certain that a blocl has been
-            // sent to its corresponding renderer.
-            return 1;
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether more frames can be decoded into blocks of the given type.
-        /// </summary>
-        /// <param name="t">The media type.</param>
-        /// <returns>
-        ///   <c>true</c> if more frames can be decoded; otherwise, <c>false</c>.
-        /// </returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal bool CanReadMoreFramesOf(MediaType t)
-        {
-            return
-                Container.Components[t].BufferLength > 0 ||
-                Container.Components[t].HasPacketsInCodec ||
-                ShouldReadMorePackets;
-        }
-
-        /// <summary>
-        /// Tries to receive the next frame from the decoder by decoding queued
-        /// Packets and converting the decoded frame into a Media Block which gets
-        /// queued into the playback block buffer.
-        /// </summary>
-        /// <param name="t">The MediaType.</param>
-        /// <returns>True if a block could be added. False otherwise.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal bool AddNextBlock(MediaType t)
-        {
-            // Decode the frames
-            var block = Blocks[t].Add(Container.Components[t].ReceiveNextFrame(), Container);
-            return block != null;
-        }
-
-        /// <summary>
         /// Invalidates the last render time for the given component.
         /// Additionally, it calls Seek on the renderer to remove any caches
         /// </summary>
@@ -344,49 +227,6 @@
             // corresponding block to its renderer
             LastRenderTime[t] = TimeSpan.MinValue;
             Renderers[t]?.Seek();
-        }
-
-        /// <summary>
-        /// Detects the end of media in the decoding worker.
-        /// </summary>
-        /// <param name="decodedFrameCount">The decoded frame count.</param>
-        /// <param name="main">The main.</param>
-        /// <returns>True if media ended</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal bool DetectHasDecodingEnded(int decodedFrameCount, MediaType main) =>
-                decodedFrameCount <= 0
-                && CanReadMoreFramesOf(main) == false
-                && Blocks[main].IndexOf(WallClock) >= Blocks[main].Count - 1;
-
-        /// <summary>
-        /// Logs a block rendering operation as a Trace Message
-        /// if the debugger is attached.
-        /// </summary>
-        /// <param name="block">The block.</param>
-        /// <param name="clockPosition">The clock position.</param>
-        /// <param name="renderIndex">Index of the render.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void LogRenderBlock(MediaBlock block, TimeSpan clockPosition, int renderIndex)
-        {
-            // Prevent logging for production use
-            if (Platform.IsInDebugMode == false) return;
-
-            try
-            {
-                var drift = TimeSpan.FromTicks(clockPosition.Ticks - block.StartTime.Ticks);
-                this.LogTrace(Aspects.RenderingWorker,
-                    $"{block.MediaType.ToString().Substring(0, 1)} "
-                    + $"BLK: {block.StartTime.Format()} | "
-                    + $"CLK: {clockPosition.Format()} | "
-                    + $"DFT: {drift.TotalMilliseconds,4:0} | "
-                    + $"IX: {renderIndex,3} | "
-                    + $"PQ: {Container?.Components[block.MediaType]?.BufferLength / 1024d,7:0.0}k | "
-                    + $"TQ: {Container?.Components.BufferLength / 1024d,7:0.0}k");
-            }
-            catch
-            {
-                // swallow
-            }
         }
 
         #endregion
