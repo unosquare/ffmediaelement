@@ -64,62 +64,26 @@
         /// </summary>
         /// <param name="uri">The URI.</param>
         /// <returns>An awaitable task which contains a boolean result. True means success. False means failere.</returns>
-        public Task<bool> OpenMediaAsync(Uri uri)
-        {
-            lock (SyncLock)
-            {
-                if (IsDisposed || IsDisposing || MediaCore.State.IsOpen || HasPendingDirectCommands)
-                    return Task.FromResult(false);
-
-                return ExecuteDirectCommand(DirectCommandType.Open, () => CommandOpenMedia(null, uri));
-            }
-        }
+        public Task<bool> OpenMediaAsync(Uri uri) => ExecuteDirectCommand(DirectCommandType.Open, () => CommandOpenMedia(null, uri));
 
         /// <summary>
         /// Opens the media using a custom stream.
         /// </summary>
         /// <param name="stream">The custom input stream.</param>
         /// <returns>An awaitable task which contains a boolean result. True means success. False means failere.</returns>
-        public Task<bool> OpenMediaAsync(IMediaInputStream stream)
-        {
-            lock (SyncLock)
-            {
-                if (IsDisposed || IsDisposing || MediaCore.State.IsOpen || HasPendingDirectCommands)
-                    return Task.FromResult(false);
-
-                return ExecuteDirectCommand(DirectCommandType.Open, () => CommandOpenMedia(stream, stream.StreamUri));
-            }
-        }
+        public Task<bool> OpenMediaAsync(IMediaInputStream stream) => ExecuteDirectCommand(DirectCommandType.Open, () => CommandOpenMedia(stream, null));
 
         /// <summary>
         /// Closes the currently open media.
         /// </summary>
         /// <returns>An awaitable task which contains a boolean result. True means success. False means failere.</returns>
-        public Task<bool> CloseMediaAsync()
-        {
-            lock (SyncLock)
-            {
-                if (IsDisposed || IsDisposing || !MediaCore.State.IsOpen || HasPendingDirectCommands)
-                    return Task.FromResult(false);
-
-                return ExecuteDirectCommand(DirectCommandType.Close, () => CommandCloseMedia());
-            }
-        }
+        public Task<bool> CloseMediaAsync() => ExecuteDirectCommand(DirectCommandType.Close, () => CommandCloseMedia());
 
         /// <summary>
         /// Changes the media components and applies new configuration.
         /// </summary>
         /// <returns>An awaitable task which contains a boolean result. True means success. False means failere.</returns>
-        public Task<bool> ChangeMediaAsync()
-        {
-            lock (SyncLock)
-            {
-                if (IsDisposed || IsDisposing || MediaCore.State.IsOpen == false || HasPendingDirectCommands)
-                    return Task.FromResult(false);
-
-                return ExecuteDirectCommand(DirectCommandType.Change, () => CommandChangeMedia(State.MediaState == PlaybackStatus.Play));
-            }
-        }
+        public Task<bool> ChangeMediaAsync() => ExecuteDirectCommand(DirectCommandType.Change, () => CommandChangeMedia(State.MediaState == PlaybackStatus.Play));
 
         /// <summary>
         /// Plays the currently open media.
@@ -251,12 +215,10 @@
         {
             // TODO: still need to call this from MediaCore.Dispose method.
             base.OnDisposing();
-            DirectCommandCompleted.Set();
             ClearPriorityCommands();
             ClearSeekCommands();
             SeekBlocksAvailable.Set();
 
-            DirectCommandCompleted.Dispose();
             PriorityCommandCompleted.Dispose();
             SeekBlocksAvailable.Dispose();
         }

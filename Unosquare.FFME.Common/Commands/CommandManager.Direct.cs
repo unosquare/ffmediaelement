@@ -13,11 +13,8 @@
     {
         #region State Backing
 
-        private readonly ManualResetEventSlim DirectCommandCompleted = new ManualResetEventSlim(true);
-        private readonly AtomicBoolean m_HasPendingDirectCommands = new AtomicBoolean(false);
-        private readonly AtomicBoolean m_IsOpening = new AtomicBoolean(false);
-        private readonly AtomicBoolean m_IsClosing = new AtomicBoolean(false);
-        private readonly AtomicBoolean m_IsChanging = new AtomicBoolean(false);
+        private readonly AtomicBoolean HasDirectCommandCompleted = new AtomicBoolean(true);
+        private readonly AtomicInteger m_PendingDirectCommand = new AtomicInteger((int)DirectCommandType.None);
 
         #endregion
 
@@ -26,38 +23,31 @@
         /// <summary>
         /// Gets a value indicating whether a <see cref="OpenMediaAsync(Uri)"/> operation is in progress.
         /// </summary>
-        public bool IsOpening
-        {
-            get => m_IsOpening.Value;
-            private set => m_IsOpening.Value = value;
-        }
+        public bool IsOpening => PendingDirectCommand == DirectCommandType.Open;
 
         /// <summary>
         /// Gets a value indicating whether a <see cref="CloseMediaAsync"/> operation is in progress.
         /// </summary>
-        public bool IsClosing
-        {
-            get => m_IsClosing.Value;
-            private set => m_IsClosing.Value = value;
-        }
+        public bool IsClosing => PendingDirectCommand == DirectCommandType.Close;
 
         /// <summary>
         /// Gets a value indicating whether a <see cref="ChangeMediaAsync"/> operation is in progress.
         /// </summary>
-        public bool IsChanging
+        public bool IsChanging => PendingDirectCommand == DirectCommandType.Change;
+
+        /// <summary>
+        /// Gets a value indicating the direct command that is pending or in progress.
+        /// </summary>
+        private DirectCommandType PendingDirectCommand
         {
-            get => m_IsChanging.Value;
-            private set => m_IsChanging.Value = value;
+            get => (DirectCommandType)m_PendingDirectCommand.Value;
+            set => m_PendingDirectCommand.Value = (int)value;
         }
 
         /// <summary>
         /// Gets a value indicating whether a direct command is pending or in progress.
         /// </summary>
-        private bool HasPendingDirectCommands
-        {
-            get => m_HasPendingDirectCommands.Value;
-            set => m_HasPendingDirectCommands.Value = value;
-        }
+        private bool IsDirectCommandPending => PendingDirectCommand != DirectCommandType.None && HasDirectCommandCompleted.Value;
 
         #endregion
 
@@ -71,61 +61,77 @@
         /// <returns>The awaitable task.</returns>
         private Task<bool> ExecuteDirectCommand(DirectCommandType command, Func<bool> commandDeleagte)
         {
-            HasPendingDirectCommands = true;
-            IsOpening = command == DirectCommandType.Open;
-            IsClosing = command == DirectCommandType.Close;
-            IsChanging = command == DirectCommandType.Change;
-
-            var commandTask = new Task<bool>(() =>
+            lock (SyncLock)
             {
-                var result = false;
-                Exception commandException = null;
+                // Check the basic conditions for a direct command to execute
+                if (IsDisposed || IsDisposing || IsDirectCommandPending || command == DirectCommandType.None)
+                    return Task.FromResult(false);
 
-                // pause the queue processor
-                PauseAsync().Wait();
+                // Check if we are already open
+                if (command == DirectCommandType.Open && State.IsOpen)
+                    return Task.FromResult(false);
 
-                // clear the command queue and requests
-                ClearPriorityCommands();
-                ClearSeekCommands();
+                // Close or Change Require the media to be open
+                if ((command == DirectCommandType.Close || command == DirectCommandType.Change) && !State.IsOpen)
+                    return Task.FromResult(false);
 
-                // execute the command
-                try
+                PendingDirectCommand = command;
+                HasDirectCommandCompleted.Value = false;
+
+                var commandTask = new Task<bool>(() =>
                 {
-                    result = commandDeleagte.Invoke();
-                }
-                catch (Exception ex)
-                {
-                    commandException = ex;
-                }
+                    var result = false;
+                    Exception commandException = null;
 
-                // Update the commanding state
-                IsOpening = false;
-                IsChanging = false;
-                IsClosing = false;
+                    // TODO: The below causes issues while performing seeks.
+                    // Cause an immediate Packet read abort if we need to close
+                    if (command == DirectCommandType.Close)
+                        MediaCore.Container.SignalAbortReads(false);
 
-                // Update the sate based on command result
-                result = PostProcessDirectCommand(command, commandException, result);
+                    // pause the queue processor
+                    PauseAsync().Wait();
 
-                // reset the pending state
-                HasPendingDirectCommands = false;
+                    // clear the command queue and requests
+                    ClearPriorityCommands();
+                    ClearSeekCommands();
 
-                if (State.IsOpen)
-                {
-                    MediaCore.Workers.Resume(false);
-                    ResumeAsync();
-                }
+                    // execute the command
+                    try
+                    {
+                        result = commandDeleagte.Invoke();
+                    }
+                    catch (Exception ex)
+                    {
+                        commandException = ex;
+                    }
 
-                return result;
-            });
+                    // We are done executing -- Update the commanding state
+                    // The post-procesor will use the new IsOpening, IsClosing and IsChanging states
+                    PendingDirectCommand = DirectCommandType.None;
 
-            commandTask.ConfigureAwait(false);
-            commandTask.Start();
+                    // Update the sate based on command result
+                    result = PostProcessDirectCommand(command, commandException, result);
 
-            // TODO: The below causes issues while performing seeks.
-            // Cause an immediate Packet read abort if we need to close
-            // if (command == DirectCommandType.Close)
-            //     MediaCore.Container?.SignalAbortReads(false);
-            return commandTask;
+                    // Resume the workers and this processor if we are in the Open state
+                    if (State.IsOpen)
+                    {
+                        // Resume the workers
+                        MediaCore.Workers.Resume(false);
+
+                        // Resume this queue processor
+                        ResumeAsync();
+                    }
+
+                    // Allow for a new direct command to be processed
+                    HasDirectCommandCompleted.Value = true;
+
+                    return result;
+                });
+
+                commandTask.ConfigureAwait(false);
+                commandTask.Start();
+                return commandTask;
+            }
         }
 
         /// <summary>

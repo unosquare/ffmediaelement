@@ -55,7 +55,7 @@
             lock (SyncLock)
             {
                 if (IsDisposed || IsDisposing || MediaCore.State.IsOpen == false ||
-                    HasPendingDirectCommands || PendingPriorityCommand != PriorityCommandType.None)
+                    IsDirectCommandPending || PendingPriorityCommand != PriorityCommandType.None)
                     return Task.FromResult(false);
 
                 if (QueuedSeekTask != null)

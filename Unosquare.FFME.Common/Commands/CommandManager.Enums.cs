@@ -26,6 +26,11 @@
         private enum DirectCommandType
         {
             /// <summary>
+            /// No command Type.
+            /// </summary>
+            None,
+
+            /// <summary>
             /// The open command
             /// </summary>
             Open,

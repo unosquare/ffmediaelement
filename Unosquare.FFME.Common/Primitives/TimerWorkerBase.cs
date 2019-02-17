@@ -12,6 +12,7 @@
     {
         private readonly object SyncLock = new object();
         private readonly Timer Timer;
+        private bool IsTimerAlive = true;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TimerWorkerBase"/> class.
@@ -100,12 +101,24 @@
         /// immediately.
         /// </summary>
         /// <param name="delay">The delay.</param>
-        protected void ScheduleCycle(int delay) => Timer.Change(delay, Timeout.Infinite);
+        protected void ScheduleCycle(int delay)
+        {
+            lock (SyncLock)
+            {
+                if (!IsTimerAlive) return;
+                Timer.Change(delay, Timeout.Infinite);
+            }
+        }
 
         /// <inheritdoc />
         protected override void OnDisposing()
         {
-            Timer.Dispose();
+            lock (SyncLock)
+            {
+                if (!IsTimerAlive) return;
+                IsTimerAlive = false;
+                Timer.Dispose();
+            }
         }
 
         /// <summary>
@@ -132,10 +145,20 @@
         private void ExecuteWorkerCycle()
         {
             CycleStopwatch.Restart();
-            var interruptToken = CycleCancellation.Token;
 
             lock (SyncLock)
             {
+                if (IsDisposing || IsDisposed)
+                {
+                    WorkerState = WorkerState.Stopped;
+
+                    // Cancel any awaiters
+                    try { StateChangedEvent.Set(); }
+                    catch { /* Ignore */ }
+
+                    return;
+                }
+
                 // Prevent running another instance of the cycle
                 if (CycleCompletedEvent.IsSet == false) return;
 
@@ -143,6 +166,7 @@
                 CycleCompletedEvent.Reset();
             }
 
+            var interruptToken = CycleCancellation.Token;
             var initialWorkerState = WorkerState;
 
             // Process the tasks that are awaiting
@@ -238,7 +262,12 @@
                 var hasRequest = false;
                 var schedule = 0;
 
-                if (StateChangeRequests[StateChangeRequest.Start])
+                if (IsDisposing || IsDisposed)
+                {
+                    hasRequest = true;
+                    WorkerState = WorkerState.Stopped;
+                }
+                else if (StateChangeRequests[StateChangeRequest.Start])
                 {
                     hasRequest = true;
                     WorkerState = WorkerState.Waiting;

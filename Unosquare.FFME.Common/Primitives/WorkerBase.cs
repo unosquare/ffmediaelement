@@ -161,10 +161,11 @@
 
             // This also ensures the state change queue gets cleared
             StopAsync().Wait();
-
-            if (alsoManaged == false) return;
+            StateChangedEvent.Set();
+            CycleCompletedEvent.Set();
 
             OnDisposing();
+
             CycleStopwatch.Stop();
             StateChangedEvent.Dispose();
             CycleCompletedEvent.Dispose();

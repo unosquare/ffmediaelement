@@ -62,8 +62,8 @@
         /// <inheritdoc />
         protected override void OnDisposing()
         {
-            base.OnDisposing();
             BufferChangedEvent.Set();
+            base.OnDisposing();
             BufferChangedEvent.Dispose();
         }
 
@@ -81,6 +81,10 @@
                 {
                     // We now need more packets, we need to stop waiting
                     if (MediaCore.ShouldReadMorePackets)
+                        break;
+
+                    // We don't want to keep waiting if reads have been aborted
+                    if (MediaCore.Container.IsReadAborted)
                         break;
 
                     // We detected a change in buffered packets

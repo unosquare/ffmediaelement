@@ -125,7 +125,7 @@
         /// </summary>
         private void RunWorkerLoop()
         {
-            while (WorkerState != WorkerState.Stopped)
+            while (WorkerState != WorkerState.Stopped && !IsDisposing && !IsDisposed)
             {
                 CycleStopwatch.Restart();
                 var interruptToken = CycleCancellation.Token;
@@ -230,7 +230,12 @@
                 var hasRequest = false;
                 var currentState = WorkerState;
 
-                if (StateChangeRequests[StateChangeRequest.Start])
+                if (IsDisposing || IsDisposed)
+                {
+                    hasRequest = true;
+                    WorkerState = WorkerState.Stopped;
+                }
+                else if (StateChangeRequests[StateChangeRequest.Start])
                 {
                     hasRequest = true;
                     WorkerState = WorkerState.Waiting;

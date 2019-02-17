@@ -37,14 +37,27 @@
         /// <inheritdoc />
         public MediaEngine MediaCore { get; }
 
+        /// <inheritdoc />
         ILoggingHandler ILoggingSource.LoggingHandler => MediaCore;
 
+        /// <summary>
+        /// Gets the Media Engine's Command Manager.
+        /// </summary>
         private CommandManager Commands { get; }
 
+        /// <summary>
+        /// Gets the Media Engine's Container.
+        /// </summary>
         private MediaContainer Container { get; }
 
+        /// <summary>
+        /// Gets the Media Engine's State.
+        /// </summary>
         private MediaEngineState State { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether the decoder needs to wait for the reader to receive more packets.
+        /// </summary>
         private bool NeedsMorePackets => MediaCore.ShouldReadMorePackets && !MediaCore.Container.Components.HasEnoughPackets;
 
         /// <inheritdoc />
@@ -52,8 +65,8 @@
         {
             #region Setup the Decoding Cycle
 
-            // Update state properties -- this must be after processing commands as
-            // a direct command might have changed the components
+            // Update state properties -- this must be done on every cycle
+            // because a direct command might have changed the components
             var wallClock = MediaCore.WallClock;
             var main = Container.Components.MainMediaType;
             MediaBlockBuffer blocks;
