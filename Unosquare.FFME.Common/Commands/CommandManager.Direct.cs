@@ -154,7 +154,6 @@
                     return commandResult;
                 });
 
-                commandTask.ConfigureAwait(false);
                 commandTask.Start();
                 return commandTask;
             }

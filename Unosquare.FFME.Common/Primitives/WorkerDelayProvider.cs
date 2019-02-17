@@ -40,7 +40,9 @@
                 if (wantedDelay == 0 || wantedDelay < -1)
                     return;
 
-                try { delayTask.Wait(token); } // wantedDelay, token); }
+                // only wait on the cancellation token
+                // or until the task completes normally
+                try { delayTask.Wait(token); }
                 catch { /* ignore */ }
             }
         }

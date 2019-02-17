@@ -131,8 +131,7 @@
         /// </summary>
         private void DelayTask()
         {
-            Task.Delay(1).ConfigureAwait(continueOnCapturedContext: false)
-                .GetAwaiter().GetResult();
+            Task.Delay(1).Wait();
         }
 
         /// <summary>

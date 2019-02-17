@@ -82,9 +82,7 @@
                     return true;
                 });
 
-                QueuedSeekTask.ConfigureAwait(false);
                 QueuedSeekTask.Start();
-
                 return QueuedSeekTask;
             }
         }

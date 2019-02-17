@@ -104,7 +104,7 @@
         /// <returns>The awaitable task</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public async Task InvokeAsync(DispatcherPriority priority, Action callback) =>
-            await InvokeAsyncInternal(priority, callback, null).ConfigureAwait(false);
+            await InvokeAsyncInternal(priority, callback, null);
 
         /// <summary>
         /// Invokes a task on the GUI thread
@@ -113,7 +113,7 @@
         /// <returns>The awaitable task</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public async Task InvokeAsync(Action callback) =>
-            await InvokeAsyncInternal(DispatcherPriority.DataBind, callback, null).ConfigureAwait(false);
+            await InvokeAsyncInternal(DispatcherPriority.DataBind, callback, null);
 
         /// <summary>
         /// Invokes a task on the GUI thread
@@ -123,7 +123,7 @@
         public void EnqueueInvoke(Action callback)
         {
 #pragma warning disable 4014
-            InvokeAsync(callback).ConfigureAwait(false);
+            InvokeAsync(callback);
 #pragma warning restore 4014
         }
 
@@ -136,7 +136,7 @@
         public void EnqueueInvoke(DispatcherPriority priority, Action callback)
         {
 #pragma warning disable 4014
-            InvokeAsync(priority, callback).ConfigureAwait(false);
+            InvokeAsync(priority, callback);
 #pragma warning restore 4014
         }
 
@@ -182,9 +182,8 @@
                             doneEvent.Dispose();
                         });
 
-                        var awaiter = waitingTask.ConfigureAwait(false);
                         waitingTask.Start();
-                        await awaiter;
+                        await waitingTask;
 
                         return;
                     }
@@ -192,10 +191,9 @@
                     default:
                     {
                         var runnerTask = new Task(() => { callback.DynamicInvoke(arguments); });
-                        var awaiter = runnerTask.ConfigureAwait(false);
                         runnerTask.Start();
 
-                        await awaiter;
+                        await runnerTask;
                         return;
                     }
                 }

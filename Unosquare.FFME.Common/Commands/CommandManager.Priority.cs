@@ -66,9 +66,7 @@
                     return true;
                 });
 
-                commandTask.ConfigureAwait(false);
                 commandTask.Start();
-
                 return commandTask;
             }
         }

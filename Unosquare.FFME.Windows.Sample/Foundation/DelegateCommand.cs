@@ -92,14 +92,12 @@
         public bool CanExecute() => CanExecute(null);
 
         /// <inheritdoc />
-        public void Execute(object parameter) =>
-            ExecuteAsync(parameter).ConfigureAwait(false);
+        public async void Execute(object parameter) => await ExecuteAsync(parameter);
 
         /// <summary>
         /// Executes the command but does not wait for it to complete
         /// </summary>
-        public void Execute() =>
-            ExecuteAsync(null).ConfigureAwait(false);
+        public async void Execute() => await ExecuteAsync(null);
 
         /// <summary>
         /// Executes the command. This call can be awaited.
@@ -131,7 +129,7 @@
         /// Executes the command. This call can be awaited.
         /// </summary>
         /// <returns>The awaitable task</returns>
-        public async Task ExecuteAsync() => await ExecuteAsync(null).ConfigureAwait(false);
+        public async Task ExecuteAsync() => await ExecuteAsync(null);
 
         /// <summary>
         /// Raises the can execute changed.

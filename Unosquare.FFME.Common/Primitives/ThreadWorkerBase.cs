@@ -207,7 +207,6 @@
                     }
                 });
 
-                waitingTask.ConfigureAwait(false);
                 StateChangeTask = waitingTask;
                 StateChangedEvent.Reset();
                 StateChangeRequests[request] = true;

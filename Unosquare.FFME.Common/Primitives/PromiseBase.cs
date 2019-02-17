@@ -1,7 +1,6 @@
 ﻿namespace Unosquare.FFME.Primitives
 {
     using System;
-    using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -44,23 +43,11 @@
 
                 return false;
             });
-
-            // We don't start the awaiter just yet.
-            // It can be awaited in its created state.
-            Awaiter = AwaiterTask.ConfigureAwait(continueOnCapturedContext);
         }
 
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Gets the configured task awaiter.
-        /// You should await this object.
-        /// The task returns true if the actions were run. Returns false
-        /// if the actions were cancelled.
-        /// </summary>
-        public ConfiguredTaskAwaitable<bool> Awaiter { get; }
 
         /// <summary>
         /// Gets a value indicating whether this instance is disposed.
@@ -81,7 +68,7 @@
         }
 
         /// <summary>
-        /// Gets the task that awaits the promise. Do not await on this but use the <see cref="Awaiter"/> property instead.
+        /// Gets the task that awaits the promise.
         /// </summary>
         private Task<bool> AwaiterTask { get; }
 
@@ -100,7 +87,6 @@
                     return;
 
                 var executeTask = new Task(Execute);
-                executeTask.ConfigureAwait(false);
                 executeTask.Start();
             }
         }
@@ -148,7 +134,7 @@
                     AwaiterTask.Start();
 
                     if (waitForExit)
-                        Awaiter.GetAwaiter().GetResult();
+                        AwaiterTask.Wait();
                 }
                 finally { Dispose(); }
             }
@@ -175,7 +161,7 @@
                 if (AwaiterTask.Status == TaskStatus.Created)
                     AwaiterTask.Start();
 
-                Awaiter.GetAwaiter().GetResult();
+                AwaiterTask.Wait();
 
                 CancelToken.Dispose();
                 CompletedEvent.Dispose();
