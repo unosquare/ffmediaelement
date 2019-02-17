@@ -88,7 +88,7 @@
                 if (MediaCore.HasDecodingEnded || ct.IsCancellationRequested)
                     return;
 
-                #region Sync-Buffering
+                #region Sync-Buffering Detection
 
                 // Capture the blocks for easier readability
                 blocks = MediaCore.Blocks[main];
@@ -152,20 +152,14 @@
                 var hasDecodingEnded = DetectHasDecodingEnded(wallClock, DecodedFrameCount, main);
                 MediaCore.HasDecodingEnded = hasDecodingEnded;
 
-                blocks = MediaCore.Blocks[main];
-                var mustExitSyncBuffering = MediaCore.IsSyncBuffering && (ct.IsCancellationRequested || hasDecodingEnded || State.BufferingProgress >= 0.95);
-
-                // We need to introduce a delay. Setting the decoded framew count will
-                // delay the next decoding cycle
-                if (NeedsMorePackets)
-                    DecodedFrameCount = 0;
+                // Detect if an exit from Sync Buffering is required
+                var mustExitSyncBuffering = MediaCore.IsSyncBuffering
+                    && (ct.IsCancellationRequested || hasDecodingEnded || State.BufferingProgress >= 0.95);
 
                 // Detect if we need an immediate exit from sync buffering
                 if (mustExitSyncBuffering || (MediaCore.IsSyncBuffering && !NeedsMorePackets))
                 {
-                    // Setting the Decoded frame count to 1 will force no delays
-                    DecodedFrameCount = 1;
-
+                    blocks = MediaCore.Blocks[main];
                     if (blocks.Count > 0 && !blocks.IsInRange(wallClock))
                         wallClock = blocks[wallClock].StartTime;
 
@@ -181,9 +175,9 @@
 
         protected override void ExecuteCycleDelay(int wantedDelay, Task delayTask, CancellationToken token)
         {
-            // We don't delay if there was output or there is a command
-            // or a stop operation pending
-            if (DecodedFrameCount > 0)
+            // We don't delay if there was at least 1 decoded frame
+            // and we are not sync-buffering
+            if (DecodedFrameCount > 0 && !MediaCore.IsSyncBuffering)
                 return;
 
             // Introduce a delay if the conditions above were not satisfied
