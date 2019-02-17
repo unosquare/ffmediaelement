@@ -14,7 +14,7 @@
         private readonly AtomicBoolean m_IsSeeking = new AtomicBoolean(false);
         private readonly AtomicBoolean m_PlayAfterSeek = new AtomicBoolean(false);
 
-        private SeekOperation QueuedSeekOperation = null;
+        private SeekOperation QueuedSeekOperation;
         private Task<bool> QueuedSeekTask;
 
         #endregion
@@ -271,7 +271,7 @@
         private sealed class SeekOperation : IDisposable
         {
             private readonly object SyncLock = new object();
-            private bool IsDisposed = false;
+            private bool IsDisposed;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="SeekOperation"/> class.

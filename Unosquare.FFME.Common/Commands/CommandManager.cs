@@ -154,8 +154,6 @@
                 case PriorityCommandType.Stop:
                     CommandStopMedia();
                     break;
-                default:
-                    break;
             }
 
             if (priorityCommand != PriorityCommandType.None)

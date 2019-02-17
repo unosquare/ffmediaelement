@@ -20,7 +20,7 @@
         /// <summary>
         /// The decoded frame count for a cycle
         /// </summary>
-        private int DecodedFrameCount = 0;
+        private int DecodedFrameCount;
 
         /// <summary>
         /// The sync-buffering start time to measur ehow long it takes

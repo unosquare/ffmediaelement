@@ -104,7 +104,7 @@
         /// <returns>The awaitable task</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public async Task InvokeAsync(DispatcherPriority priority, Action callback) =>
-            await InvokeAsyncInternal(priority, callback, null);
+            await InvokeAsyncInternal(priority, callback, null).ConfigureAwait(false);
 
         /// <summary>
         /// Invokes a task on the GUI thread
@@ -113,7 +113,7 @@
         /// <returns>The awaitable task</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public async Task InvokeAsync(Action callback) =>
-            await InvokeAsyncInternal(DispatcherPriority.DataBind, callback, null);
+            await InvokeAsyncInternal(DispatcherPriority.DataBind, callback, null).ConfigureAwait(false);
 
         /// <summary>
         /// Invokes a task on the GUI thread
@@ -183,7 +183,7 @@
                         });
 
                         waitingTask.Start();
-                        await waitingTask;
+                        await waitingTask.ConfigureAwait(false);
 
                         return;
                     }
@@ -193,7 +193,7 @@
                         var runnerTask = new Task(() => { callback.DynamicInvoke(arguments); });
                         runnerTask.Start();
 
-                        await runnerTask;
+                        await runnerTask.ConfigureAwait(false);
                         return;
                     }
                 }

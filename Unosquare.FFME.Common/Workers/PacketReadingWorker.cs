@@ -51,7 +51,7 @@
             while (MediaCore.ShouldReadMorePackets && ct.IsCancellationRequested == false)
             {
                 try { Container.Read(); }
-                catch (MediaContainerException) { }
+                catch (MediaContainerException) { /* ignore */ }
             }
         }
 

@@ -221,8 +221,8 @@
                     videoFilter.Append("scale=-1:1080,");
                 }
 
-                // Example of fisheye correction from
-                // videoFilter.Append("lenscorrection=cx=0.5:cy=0.5:k1=-0.85:k2=0.25,");
+                // Example of fisheye correction filter:
+                // videoFilter.Append("lenscorrection=cx=0.5:cy=0.5:k1=-0.85:k2=0.25,")
                 e.Options.VideoFilter = videoFilter.ToString().TrimEnd(',');
 
                 // Since the MediaElement control belongs to a different thread

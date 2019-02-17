@@ -13,14 +13,6 @@
         private CancellationTokenSource TokenSource = new CancellationTokenSource();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CancellationTokenOwner"/> class.
-        /// </summary>
-        public CancellationTokenOwner()
-        {
-            // placeholder
-        }
-
-        /// <summary>
         /// Gets the token of the current.
         /// </summary>
         public CancellationToken Token

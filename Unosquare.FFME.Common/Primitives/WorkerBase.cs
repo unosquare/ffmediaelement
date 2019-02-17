@@ -17,8 +17,8 @@
         // to avoid deadlocked reads
         private readonly object SyncLock = new object();
         private long m_Period;
-        private int m_IsDisposed = 0;
-        private int m_IsDisposing = 0;
+        private int m_IsDisposed;
+        private int m_IsDisposing;
         private int m_WorkerState = (int)WorkerState.Created;
 
         /// <summary>
