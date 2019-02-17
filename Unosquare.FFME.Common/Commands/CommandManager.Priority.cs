@@ -9,9 +9,16 @@
 
     internal partial class CommandManager
     {
+        #region State Backing Fields
+
         private readonly AtomicInteger m_PendingPriorityCommand = new AtomicInteger(0);
         private readonly ManualResetEventSlim PriorityCommandCompleted = new ManualResetEventSlim(true);
 
+        #endregion
+
+        /// <summary>
+        /// Gets a value indicating whether the <see cref="CommandPlayMedia"/> can execute.
+        /// </summary>
         private bool CanResumeMedia
         {
             get
@@ -37,6 +44,11 @@
 
         #region Execution Helpers
 
+        /// <summary>
+        /// Executes boilerplate code that queues priority commands.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        /// <returns>An awaitable task</returns>
         private Task<bool> QueuePriorityCommand(PriorityCommandType command)
         {
             lock (SyncLock)
@@ -61,6 +73,9 @@
             }
         }
 
+        /// <summary>
+        /// Clears the priority commands and marks the completion event as set.
+        /// </summary>
         private void ClearPriorityCommands()
         {
             lock (SyncLock)
@@ -74,6 +89,10 @@
 
         #region Command Implementations
 
+        /// <summary>
+        /// Provides the implementation for the Play Media Command.
+        /// </summary>
+        /// <returns>True if the command was successful</returns>
         private bool CommandPlayMedia()
         {
             if (!CanResumeMedia)
@@ -87,6 +106,10 @@
             return true;
         }
 
+        /// <summary>
+        /// Provides the implementation for the Pause Media Command.
+        /// </summary>
+        /// <returns>True if the command was successful</returns>
         private bool CommandPauseMedia()
         {
             if (State.CanPause == false)
@@ -102,6 +125,10 @@
             return true;
         }
 
+        /// <summary>
+        /// Provides the implementation for the Stop Media Command.
+        /// </summary>
+        /// <returns>True if the command was successful</returns>
         private bool CommandStopMedia()
         {
             MediaCore.Clock.Reset();

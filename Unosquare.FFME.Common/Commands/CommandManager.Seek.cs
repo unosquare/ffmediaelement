@@ -8,6 +8,8 @@
 
     internal partial class CommandManager
     {
+        #region State Backing Fields
+
         private readonly ManualResetEventSlim SeekBlocksAvailable = new ManualResetEventSlim(true);
         private readonly AtomicBoolean m_IsSeeking = new AtomicBoolean(false);
         private readonly AtomicBoolean m_PlayAfterSeek = new AtomicBoolean(false);
@@ -15,18 +17,39 @@
         private SeekOperation QueuedSeekOperation = null;
         private Task<bool> QueuedSeekTask;
 
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Gets a value indicating whether a seek operation is pending or in progress.
+        /// </summary>
         public bool IsSeeking
         {
             get => m_IsSeeking.Value;
             private set => m_IsSeeking.Value = value;
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether playback should be resumed when all
+        /// seek operations complete.
+        /// </summary>
         private bool PlayAfterSeek
         {
             get => m_PlayAfterSeek.Value;
             set => m_PlayAfterSeek.Value = value;
         }
 
+        #endregion
+
+        #region Command Implementations
+
+        /// <summary>
+        /// Executes boilerplate logic to queue a seek operation.
+        /// </summary>
+        /// <param name="seekTarget">The seek target.</param>
+        /// <param name="seekMode">The seek mode.</param>
+        /// <returns>An awaitable task</returns>
         private Task<bool> QueueSeekCommand(TimeSpan seekTarget, SeekMode seekMode)
         {
             lock (SyncLock)
@@ -66,6 +89,9 @@
             }
         }
 
+        /// <summary>
+        /// Clears the queued seek commands.
+        /// </summary>
         private void ClearSeekCommands()
         {
             lock (SyncLock)
@@ -77,6 +103,12 @@
             }
         }
 
+        /// <summary>
+        /// Implements the Seek Media Command.
+        /// </summary>
+        /// <param name="seekOperation">The seek operation.</param>
+        /// <param name="ct">The ct.</param>
+        /// <returns>True if the operation was successful</returns>
         private bool SeekMedia(SeekOperation seekOperation, CancellationToken ct)
         {
             // TODO: Handle Cancellation token ct
@@ -230,23 +262,48 @@
             return result;
         }
 
+        #endregion
+
+        #region Support Classes
+
+        /// <summary>
+        /// Provides parameters and a reset event to reference when the operation completes.
+        /// </summary>
+        /// <seealso cref="IDisposable" />
         private sealed class SeekOperation : IDisposable
         {
             private readonly object SyncLock = new object();
             private bool IsDisposed = false;
 
+            /// <summary>
+            /// Initializes a new instance of the <see cref="SeekOperation"/> class.
+            /// </summary>
+            /// <param name="position">The position.</param>
+            /// <param name="mode">The mode.</param>
             public SeekOperation(TimeSpan position, SeekMode mode)
             {
                 Position = position;
                 Mode = mode;
             }
 
+            /// <summary>
+            /// Gets or sets the target position.
+            /// </summary>
             public TimeSpan Position { get; set; }
 
+            /// <summary>
+            /// Gets or sets the seek mode.
+            /// </summary>
             public SeekMode Mode { get; set; }
 
+            /// <summary>
+            /// Gets the seek completed event.
+            /// </summary>
             private ManualResetEventSlim SeekCompleted { get; } = new ManualResetEventSlim(false);
 
+            /// <summary>
+            /// Waits for the <see cref="SeekCompleted"/> event to be set.
+            /// </summary>
             public void Wait()
             {
                 lock (SyncLock)
@@ -257,8 +314,13 @@
                 SeekCompleted.Wait();
             }
 
+            /// <inheritdoc />
             public void Dispose() => Dispose(true);
 
+            /// <summary>
+            /// Releases unmanaged and - optionally - managed resources.
+            /// </summary>
+            /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
             private void Dispose(bool alsoManaged)
             {
                 lock (SyncLock)
@@ -271,5 +333,7 @@
                 SeekCompleted.Dispose();
             }
         }
+
+        #endregion
     }
 }

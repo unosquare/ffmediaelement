@@ -11,33 +11,48 @@
 
     internal partial class CommandManager
     {
-        private readonly ManualResetEventSlim DirectCommandCompleted = new ManualResetEventSlim(true);
+        #region State Backing
 
+        private readonly ManualResetEventSlim DirectCommandCompleted = new ManualResetEventSlim(true);
         private readonly AtomicBoolean m_HasPendingDirectCommands = new AtomicBoolean(false);
         private readonly AtomicBoolean m_IsOpening = new AtomicBoolean(false);
         private readonly AtomicBoolean m_IsClosing = new AtomicBoolean(false);
         private readonly AtomicBoolean m_IsChanging = new AtomicBoolean(false);
 
+        #endregion
+
         #region Properties
 
+        /// <summary>
+        /// Gets a value indicating whether a <see cref="OpenMediaAsync(Uri)"/> operation is in progress.
+        /// </summary>
         public bool IsOpening
         {
             get => m_IsOpening.Value;
             private set => m_IsOpening.Value = value;
         }
 
+        /// <summary>
+        /// Gets a value indicating whether a <see cref="CloseMediaAsync"/> operation is in progress.
+        /// </summary>
         public bool IsClosing
         {
             get => m_IsClosing.Value;
             private set => m_IsClosing.Value = value;
         }
 
+        /// <summary>
+        /// Gets a value indicating whether a <see cref="ChangeMediaAsync"/> operation is in progress.
+        /// </summary>
         public bool IsChanging
         {
             get => m_IsChanging.Value;
             private set => m_IsChanging.Value = value;
         }
 
+        /// <summary>
+        /// Gets a value indicating whether a direct command is pending or in progress.
+        /// </summary>
         private bool HasPendingDirectCommands
         {
             get => m_HasPendingDirectCommands.Value;
@@ -48,6 +63,12 @@
 
         #region Execution Helpers
 
+        /// <summary>
+        /// Execute boilerplate logic required ofr the execution of direct commands.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        /// <param name="commandDeleagte">The command deleagte.</param>
+        /// <returns>The awaitable task.</returns>
         private Task<bool> ExecuteDirectCommand(DirectCommandType command, Func<bool> commandDeleagte)
         {
             HasPendingDirectCommands = true;
@@ -100,9 +121,20 @@
             commandTask.ConfigureAwait(false);
             commandTask.Start();
 
+            // TODO: The below causes issues while performing seeks.
+            // Cause an immediate Packet read abort if we need to close
+            // if (command == DirectCommandType.Close)
+            //     MediaCore.Container?.SignalAbortReads(false);
             return commandTask;
         }
 
+        /// <summary>
+        /// Executes boilerplate logic required when a direct command finishes executing.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        /// <param name="commandException">The command exception -- can be null.</param>
+        /// <param name="commandResult">Contains the command result.</param>
+        /// <returns>Fasle if there was an exception. True if no exceptions occurred.</returns>
         private bool PostProcessDirectCommand(DirectCommandType command, Exception commandException, bool commandResult)
         {
             if (command == DirectCommandType.Open)
@@ -171,6 +203,13 @@
 
         #region Command Implementations
 
+        /// <summary>
+        /// Provides the implementation for the Open Media Command.
+        /// </summary>
+        /// <param name="inputStream">The input stream.</param>
+        /// <param name="streamUri">The stream URI.</param>
+        /// <returns>True if the command was successful</returns>
+        /// <exception cref="MediaContainerException">Unable to initialize at least one audio or video component from the input stream.</exception>
         private bool CommandOpenMedia(IMediaInputStream inputStream, Uri streamUri)
         {
             // Notify Media will start opening
@@ -280,6 +319,10 @@
             return result;
         }
 
+        /// <summary>
+        /// Provides the implementation for the Close Media Command.
+        /// </summary>
+        /// <returns>True if the command was successful</returns>
         private bool CommandCloseMedia()
         {
             var result = false;
@@ -315,6 +358,11 @@
             return result;
         }
 
+        /// <summary>
+        /// Provides the implementation for the Change Media Command.
+        /// </summary>
+        /// <param name="playWhenCompleted">if set to <c>true</c> [play when completed].</param>
+        /// <returns>True if the command was successful</returns>
         private bool CommandChangeMedia(bool playWhenCompleted)
         {
             this.LogDebug(Aspects.EngineCommand, $"{DirectCommandType.Change} Entered");

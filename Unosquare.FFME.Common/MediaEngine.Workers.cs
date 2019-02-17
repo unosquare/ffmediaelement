@@ -46,7 +46,11 @@
         internal MediaTypeDictionary<TimeSpan> LastRenderTime { get; } = new MediaTypeDictionary<TimeSpan>();
 
         /// <summary>
-        /// Gets or sets a value indicating whether the decoder worker is sync-buffering
+        /// Gets or sets a value indicating whether the decoder worker is sync-buffering.
+        /// Sync-buffering is entered when there are no main blocks for the current clock.
+        /// This in turn pauses the clock (without changing the media state).
+        /// The decoder exits this condition when buffering is no longer needed and
+        /// updates the clock position to what is available in the main block buffer.
         /// </summary>
         internal bool IsSyncBuffering
         {
