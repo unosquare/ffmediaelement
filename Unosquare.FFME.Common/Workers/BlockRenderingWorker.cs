@@ -34,12 +34,22 @@
         /// <inheritdoc />
         public MediaEngine MediaCore { get; }
 
+        /// <inheritdoc />
         ILoggingHandler ILoggingSource.LoggingHandler => MediaCore;
 
+        /// <summary>
+        /// Gets the Media Engine's commands.
+        /// </summary>
         private CommandManager Commands { get; }
 
+        /// <summary>
+        /// Gets the Media Engine's container.
+        /// </summary>
         private MediaContainer Container { get; }
 
+        /// <summary>
+        /// Gets the Media Engine's state.
+        /// </summary>
         private MediaEngineState State { get; }
 
         /// <inheritdoc />
@@ -149,10 +159,8 @@
         }
 
         /// <inheritdoc />
-        protected override void OnCycleException(Exception ex)
-        {
-            // TODO: Implement
-        }
+        protected override void OnCycleException(Exception ex) =>
+            this.LogError(Aspects.RenderingWorker, "Worker Cycle exception thrown", ex);
 
         /// <inheritdoc />
         protected override void OnDisposing()

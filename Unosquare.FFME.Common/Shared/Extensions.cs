@@ -292,7 +292,7 @@
             // variable setup
             var lowIndex = 0;
             var highIndex = itemCount - 1;
-            var midIndex = 1 + lowIndex + ((highIndex - lowIndex) / 2);
+            var midIndex = 0;
 
             // edge condition checking
             if (items[lowIndex].CompareTo(value) >= 0) return -1;

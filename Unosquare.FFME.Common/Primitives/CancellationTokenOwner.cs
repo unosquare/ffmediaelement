@@ -9,7 +9,7 @@
     public sealed class CancellationTokenOwner : IDisposable
     {
         private readonly object SyncLock = new object();
-        private bool m_IsDisposed = false;
+        private bool m_IsDisposed;
         private CancellationTokenSource TokenSource = new CancellationTokenSource();
 
         /// <summary>

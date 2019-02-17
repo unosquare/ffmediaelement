@@ -11,6 +11,8 @@
 
         public static string EngineCommand => "Engine.Commands";
 
+        public static string ReadingWorker => "Engine.Reading";
+
         public static string DecodingWorker => "Engine.Decoding";
 
         public static string RenderingWorker => "Engine.Rendering";

@@ -12,7 +12,7 @@
     /// </summary>
     /// <seealso cref="WorkerBase" />
     /// <seealso cref="IMediaWorker" />
-    internal sealed class PacketReadingWorker : ThreadWorkerBase, IMediaWorker
+    internal sealed class PacketReadingWorker : ThreadWorkerBase, IMediaWorker, ILoggingSource
     {
         /// <summary>
         /// Completed whenever a change in the packet buffer is detected.
@@ -37,6 +37,12 @@
         /// <inheritdoc />
         public MediaEngine MediaCore { get; }
 
+        /// <inheritdoc />
+        ILoggingHandler ILoggingSource.LoggingHandler => throw new NotImplementedException();
+
+        /// <summary>
+        /// Gets the Media Engine's container.
+        /// </summary>
         private MediaContainer Container { get; }
 
         /// <inheritdoc />
@@ -49,10 +55,9 @@
             }
         }
 
-        protected override void OnCycleException(Exception ex)
-        {
-            // TODO: Implement
-        }
+        /// <inheritdoc />
+        protected override void OnCycleException(Exception ex) =>
+            this.LogError(Aspects.ReadingWorker, "Worker Cycle exception thrown", ex);
 
         /// <inheritdoc />
         protected override void OnDisposing()
@@ -62,6 +67,7 @@
             BufferChangedEvent.Dispose();
         }
 
+        /// <inheritdoc />
         protected override void ExecuteCycleDelay(int wantedDelay, Task delayTask, CancellationToken token)
         {
             if (wantedDelay == 0 || wantedDelay == Timeout.Infinite)

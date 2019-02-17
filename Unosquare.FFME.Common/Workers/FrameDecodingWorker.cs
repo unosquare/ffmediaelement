@@ -173,10 +173,8 @@
         }
 
         /// <inheritdoc />
-        protected override void OnCycleException(Exception ex)
-        {
-            // TODO: Implement
-        }
+        protected override void OnCycleException(Exception ex) =>
+            this.LogError(Aspects.DecodingWorker, "Worker Cycle exception thrown", ex);
 
         /// <inheritdoc />
         protected override void OnDisposing()
