@@ -140,7 +140,8 @@
             if (m_IsDisposed.Value) return;
             m_IsDisposed.Value = true;
 
-            if (m_Pointer == IntPtr.Zero) return;
+            if (m_Pointer == IntPtr.Zero)
+                return;
 
             var packetPointer = (AVPacket*)m_Pointer;
             RC.Current.Remove(packetPointer);

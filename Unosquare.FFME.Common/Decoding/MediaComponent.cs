@@ -544,7 +544,10 @@
                     continue;
                 }
 
-                sendPacketResult = ffmpeg.avcodec_send_packet(CodecContext, packet.Pointer);
+                // Send packet to the decoder but prevent null packets to be sent to it
+                // Null packets have never been detected but it's just a safeguard
+                sendPacketResult = packet.SafePointer != IntPtr.Zero
+                    ? ffmpeg.avcodec_send_packet(CodecContext, packet.Pointer) : -ffmpeg.EINVAL;
 
                 // EAGAIN means we have filled the decoder buffer
                 if (sendPacketResult != -ffmpeg.EAGAIN)
