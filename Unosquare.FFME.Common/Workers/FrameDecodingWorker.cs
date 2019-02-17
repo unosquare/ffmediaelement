@@ -22,9 +22,15 @@
         /// </summary>
         private int DecodedFrameCount = 0;
 
+        /// <summary>
+        /// The sync-buffering start time to measur ehow long it takes
+        /// </summary>
         private DateTime SyncBufferStartTime = DateTime.UtcNow;
 
-        // private bool ResumeAfterBuffering = true;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FrameDecodingWorker"/> class.
+        /// </summary>
+        /// <param name="mediaCore">The media core.</param>
         public FrameDecodingWorker(MediaEngine mediaCore)
             : base(nameof(FrameDecodingWorker), ThreadPriority.Normal, Constants.Interval.HighPriority, WorkerDelayProvider.Token)
         {
@@ -72,7 +78,6 @@
             MediaBlockBuffer blocks;
             DecodedFrameCount = 0;
             var rangePercent = 0d;
-            var enteredSyncBuffering = false;
 
             #endregion
 
@@ -94,7 +99,6 @@
                     // Enter sync-buffering scenario
                     MediaCore.Clock.Pause();
                     wallClock = MediaCore.WallClock;
-                    enteredSyncBuffering = true;
                     MediaCore.IsSyncBuffering = true;
                     SyncBufferStartTime = DateTime.UtcNow;
                     this.LogInfo(Aspects.DecodingWorker, $"SYNC-BUFFER: Started. Buffer: {State.BufferingProgress:p}. Clock: {wallClock.Format()}");
@@ -151,25 +155,26 @@
                 blocks = MediaCore.Blocks[main];
                 var mustExitSyncBuffering = MediaCore.IsSyncBuffering && (ct.IsCancellationRequested || hasDecodingEnded || State.BufferingProgress >= 0.95);
 
-                if (enteredSyncBuffering)
-                {
-                    if (NeedsMorePackets)
-                        DecodedFrameCount = 0;
-                }
-                else
-                {
-                    if (mustExitSyncBuffering || (MediaCore.IsSyncBuffering && !NeedsMorePackets))
-                    {
-                        if (blocks.Count > 0 && !blocks.IsInRange(wallClock))
-                            wallClock = blocks[wallClock].StartTime;
+                // We need to introduce a delay. Setting the decoded framew count will
+                // delay the next decoding cycle
+                if (NeedsMorePackets)
+                    DecodedFrameCount = 0;
 
-                        MediaCore.ChangePosition(wallClock);
-                        MediaCore.IsSyncBuffering = false;
-                        this.LogInfo(Aspects.DecodingWorker, $"SYNC-BUFFER: Completed in {DateTime.UtcNow.Subtract(SyncBufferStartTime).TotalMilliseconds:0.0} ms");
+                // Detect if we need an immediate exit from sync buffering
+                if (mustExitSyncBuffering || (MediaCore.IsSyncBuffering && !NeedsMorePackets))
+                {
+                    // Setting the Decoded frame count to 1 will force no delays
+                    DecodedFrameCount = 1;
 
-                        if (State.MediaState == PlaybackStatus.Play)
-                            MediaCore.ResumePlayback();
-                    }
+                    if (blocks.Count > 0 && !blocks.IsInRange(wallClock))
+                        wallClock = blocks[wallClock].StartTime;
+
+                    MediaCore.ChangePosition(wallClock);
+                    MediaCore.IsSyncBuffering = false;
+                    this.LogInfo(Aspects.DecodingWorker, $"SYNC-BUFFER: Completed in {DateTime.UtcNow.Subtract(SyncBufferStartTime).TotalMilliseconds:0.0} ms");
+
+                    if (State.MediaState == PlaybackStatus.Play)
+                        MediaCore.ResumePlayback();
                 }
             }
         }
