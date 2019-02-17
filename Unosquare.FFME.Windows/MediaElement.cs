@@ -261,54 +261,60 @@ namespace Unosquare.FFME
         /// <see cref="MediaInfo"/> properties.
         /// </summary>
         /// <returns>The awaitable command</returns>
-        public async Task ChangeMedia()
+        public async Task<bool> ChangeMedia()
         {
-            try { await MediaCore.ChangeMedia(); }
+            try { return await MediaCore.ChangeMedia(); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
+            return false;
         }
 
         /// <summary>
         /// Begins or resumes playback of the currently loaded media.
         /// </summary>
         /// <returns>The awaitable command</returns>
-        public async Task Play()
+        public async Task<bool> Play()
         {
-            try { await MediaCore.Play(); }
+            try { return await MediaCore.Play(); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
+            return false;
         }
 
         /// <summary>
         /// Pauses playback of the currently loaded media.
         /// </summary>
         /// <returns>The awaitable command</returns>
-        public async Task Pause()
+        public async Task<bool> Pause()
         {
-            try { await MediaCore.Pause(); }
+            try { return await MediaCore.Pause(); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
+            return false;
         }
 
         /// <summary>
         /// Pauses and rewinds the currently loaded media.
         /// </summary>
         /// <returns>The awaitable command</returns>
-        public async Task Stop()
+        public async Task<bool> Stop()
         {
-            try { await MediaCore.Stop(); }
+            try { return await MediaCore.Stop(); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
+            return false;
         }
 
         /// <summary>
         /// Closes the currently loaded media.
         /// </summary>
         /// <returns>The awaitable command</returns>
-        public async Task Close()
+        public async Task<bool> Close()
         {
             try
             {
-                await MediaCore.Close();
+                var result = await MediaCore.Close();
                 Source = null;
+                return result;
             }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
+            return false;
         }
 
         /// <summary>
@@ -317,30 +323,33 @@ namespace Unosquare.FFME
         /// </summary>
         /// <param name="target">The target time to seek to.</param>
         /// <returns>The awaitable command</returns>
-        public async Task Seek(TimeSpan target)
+        public async Task<bool> Seek(TimeSpan target)
         {
-            try { await MediaCore.Seek(target); }
+            try { return await MediaCore.Seek(target); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
+            return false;
         }
 
         /// <summary>
         /// Seeks a single frame forward.
         /// </summary>
         /// <returns>The awaitable command</returns>
-        public async Task StepForward()
+        public async Task<bool> StepForward()
         {
-            try { await MediaCore.StepForward(); }
+            try { return await MediaCore.StepForward(); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
+            return false;
         }
 
         /// <summary>
         /// Seeks a single frame backward.
         /// </summary>
         /// <returns>The awaitable command</returns>
-        public async Task StepBackward()
+        public async Task<bool> StepBackward()
         {
-            try { await MediaCore.StepBackward(); }
+            try { return await MediaCore.StepBackward(); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
+            return false;
         }
 
         /// <summary>
@@ -350,13 +359,13 @@ namespace Unosquare.FFME
         /// </summary>
         /// <param name="uri">The URI.</param>
         /// <returns>The awaitable task.</returns>
-        public async Task Open(Uri uri)
+        public async Task<bool> Open(Uri uri)
         {
             try
             {
                 IsOpeningViaCommand.Value = true;
                 await GuiContext.Current.InvokeAsync(() => Source = uri);
-                await MediaCore.Open(uri);
+                return await MediaCore.Open(uri);
             }
             catch (Exception ex)
             {
@@ -364,6 +373,8 @@ namespace Unosquare.FFME
                 PostMediaFailedEvent(ex);
                 IsOpeningViaCommand.Value = false;
             }
+
+            return false;
         }
 
         /// <summary>
@@ -371,13 +382,13 @@ namespace Unosquare.FFME
         /// </summary>
         /// <param name="stream">The stream.</param>
         /// <returns>The awaitable task</returns>
-        public async Task Open(IMediaInputStream stream)
+        public async Task<bool> Open(IMediaInputStream stream)
         {
             try
             {
                 IsOpeningViaCommand.Value = true;
                 await GuiContext.Current.InvokeAsync(() => Source = stream.StreamUri);
-                await MediaCore.Open(stream);
+                return await MediaCore.Open(stream);
             }
             catch (Exception ex)
             {
@@ -385,6 +396,8 @@ namespace Unosquare.FFME
                 PostMediaFailedEvent(ex);
                 IsOpeningViaCommand.Value = false;
             }
+
+            return false;
         }
 
         #endregion

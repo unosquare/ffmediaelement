@@ -63,26 +63,26 @@
         /// Opens the media using a standard URI.
         /// </summary>
         /// <param name="uri">The URI.</param>
-        /// <returns>An awaitable task which contains a boolean result. True means success. False means failere.</returns>
+        /// <returns>An awaitable task which contains a boolean whether or not to resume media when completed.</returns>
         public Task<bool> OpenMediaAsync(Uri uri) => ExecuteDirectCommand(DirectCommandType.Open, () => CommandOpenMedia(null, uri));
 
         /// <summary>
         /// Opens the media using a custom stream.
         /// </summary>
         /// <param name="stream">The custom input stream.</param>
-        /// <returns>An awaitable task which contains a boolean result. True means success. False means failere.</returns>
+        /// <returns>An awaitable task which contains a boolean whether or not to resume media when completed.</returns>
         public Task<bool> OpenMediaAsync(IMediaInputStream stream) => ExecuteDirectCommand(DirectCommandType.Open, () => CommandOpenMedia(stream, null));
 
         /// <summary>
         /// Closes the currently open media.
         /// </summary>
-        /// <returns>An awaitable task which contains a boolean result. True means success. False means failere.</returns>
+        /// <returns>An awaitable task which contains a boolean whether or not to resume media when completed.</returns>
         public Task<bool> CloseMediaAsync() => ExecuteDirectCommand(DirectCommandType.Close, () => CommandCloseMedia());
 
         /// <summary>
         /// Changes the media components and applies new configuration.
         /// </summary>
-        /// <returns>An awaitable task which contains a boolean result. True means success. False means failere.</returns>
+        /// <returns>An awaitable task which contains a boolean whether or not to resume media when completed.</returns>
         public Task<bool> ChangeMediaAsync() => ExecuteDirectCommand(DirectCommandType.Change, () => CommandChangeMedia(State.MediaState == PlaybackStatus.Play));
 
         /// <summary>
@@ -213,14 +213,34 @@
         /// <inheritdoc />
         protected override void OnDisposing()
         {
-            // TODO: still need to call this from MediaCore.Dispose method.
+            this.LogDebug(Aspects.EngineCommand, "Dispose Entered. Waiting for Command Manager processor to stop.");
             base.OnDisposing();
+
             ClearPriorityCommands();
             ClearSeekCommands();
             SeekBlocksAvailable.Set();
 
+            // wait for any pending direct commands (unlikely)
+            this.LogDebug(Aspects.EngineCommand, "Dispose is waiting for pending direct commands.");
+            while (IsDirectCommandPending)
+                Task.Delay(15).Wait();
+
+            this.LogDebug(Aspects.EngineCommand, "Dispose is closing media.");
+            try
+            {
+                // Execute the close media logic directly
+                CommandCloseMedia();
+                PostProcessDirectCommand(DirectCommandType.Close, null, false);
+            }
+            catch (Exception ex)
+            {
+                this.LogError(Aspects.EngineCommand, "Dispose had issues closing media. This is most likely a bug.", ex);
+            }
+
+            // Dispose unmanged resources
             PriorityCommandCompleted.Dispose();
             SeekBlocksAvailable.Dispose();
+            this.LogDebug(Aspects.EngineCommand, "Dispose has finished successfully.");
         }
 
         #endregion

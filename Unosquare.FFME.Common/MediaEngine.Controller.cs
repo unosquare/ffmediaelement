@@ -31,16 +31,16 @@
         /// <param name="uri">The URI.</param>
         /// <returns>The awaitable task</returns>
         /// <exception cref="InvalidOperationException">Source</exception>
-        public async Task Open(Uri uri)
+        public async Task<bool> Open(Uri uri)
         {
             if (uri != null)
             {
                 await Commands.CloseMediaAsync();
-                await Commands.OpenMediaAsync(uri);
+                return await Commands.OpenMediaAsync(uri);
             }
             else
             {
-                await Commands.CloseMediaAsync();
+                return await Commands.CloseMediaAsync();
             }
         }
 
@@ -50,16 +50,16 @@
         /// <param name="stream">The URI.</param>
         /// <returns>The awaitable task</returns>
         /// <exception cref="InvalidOperationException">Source</exception>
-        public async Task Open(IMediaInputStream stream)
+        public async Task<bool> Open(IMediaInputStream stream)
         {
             if (stream != null)
             {
                 await Commands.CloseMediaAsync();
-                await Commands.OpenMediaAsync(stream);
+                return await Commands.OpenMediaAsync(stream);
             }
             else
             {
-                await Commands.CloseMediaAsync();
+                return await Commands.CloseMediaAsync();
             }
         }
 
@@ -67,35 +67,35 @@
         /// Closes the currently loaded media.
         /// </summary>
         /// <returns>The awaitable task</returns>
-        public async Task Close() =>
+        public async Task<bool> Close() =>
             await Commands.CloseMediaAsync();
 
         /// <summary>
         /// Requests new media options to be applied, including stream component selection.
         /// </summary>
         /// <returns>The awaitable command</returns>
-        public async Task ChangeMedia() =>
+        public async Task<bool> ChangeMedia() =>
             await Commands.ChangeMediaAsync();
 
         /// <summary>
         /// Begins or resumes playback of the currently loaded media.
         /// </summary>
         /// <returns>The awaitable command</returns>
-        public async Task Play() =>
+        public async Task<bool> Play() =>
             await Commands.PlayMediaAsync();
 
         /// <summary>
         /// Pauses playback of the currently loaded media.
         /// </summary>
         /// <returns>The awaitable command</returns>
-        public async Task Pause() =>
+        public async Task<bool> Pause() =>
             await Commands.PauseMediaAsync();
 
         /// <summary>
         /// Pauses and rewinds the currently loaded media.
         /// </summary>
         /// <returns>The awaitable command</returns>
-        public async Task Stop() =>
+        public async Task<bool> Stop() =>
             await Commands.StopMediaAsync();
 
         /// <summary>
@@ -103,21 +103,21 @@
         /// </summary>
         /// <param name="position">New position for the player.</param>
         /// <returns>The awaitable command</returns>
-        public async Task Seek(TimeSpan position) =>
+        public async Task<bool> Seek(TimeSpan position) =>
             await Commands.SeekMediaAsync(position);
 
         /// <summary>
         /// Seeks a single frame forward.
         /// </summary>
         /// <returns>The awaitable command</returns>
-        public async Task StepForward() =>
+        public async Task<bool> StepForward() =>
             await Commands.StepForwardAsync();
 
         /// <summary>
         /// Seeks a single frame backward.
         /// </summary>
         /// <returns>The awaitable command</returns>
-        public async Task StepBackward() =>
+        public async Task<bool> StepBackward() =>
             await Commands.StepBackwardAsync();
 
         #endregion

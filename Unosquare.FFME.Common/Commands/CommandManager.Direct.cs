@@ -65,26 +65,37 @@
             {
                 // Check the basic conditions for a direct command to execute
                 if (IsDisposed || IsDisposing || IsDirectCommandPending || command == DirectCommandType.None)
+                {
+                    this.LogWarning(Aspects.EngineCommand, $"Direct Command '{command}' not accepted. Commanding is disposed or a command is pending completion.");
                     return Task.FromResult(false);
+                }
 
                 // Check if we are already open
                 if (command == DirectCommandType.Open && State.IsOpen)
+                {
+                    this.LogWarning(Aspects.EngineCommand, $"Direct Command '{command}' not accepted. Close the media before calling Open.");
                     return Task.FromResult(false);
+                }
 
                 // Close or Change Require the media to be open
                 if ((command == DirectCommandType.Close || command == DirectCommandType.Change) && !State.IsOpen)
+                {
+                    this.LogWarning(Aspects.EngineCommand, $"Direct Command '{command}' not accepted. Open media before calling Close.");
                     return Task.FromResult(false);
+                }
+
+                this.LogDebug(Aspects.EngineCommand, $"Direct Command '{command}' accepted. Perparing execution.");
 
                 PendingDirectCommand = command;
                 HasDirectCommandCompleted.Value = false;
 
                 var commandTask = new Task<bool>(() =>
                 {
-                    var result = false;
+                    var commandResult = false;
+                    var resumeResult = false;
                     Exception commandException = null;
 
-                    // TODO: The below causes issues while performing seeks.
-                    // Cause an immediate Packet read abort if we need to close
+                    // Cause an immediate packet read abort if we need to close
                     if (command == DirectCommandType.Close)
                         MediaCore.Container.SignalAbortReads(false);
 
@@ -98,34 +109,49 @@
                     // execute the command
                     try
                     {
-                        result = commandDeleagte.Invoke();
+                        this.LogDebug(Aspects.EngineCommand, $"Direct Command '{command}' entered");
+                        resumeResult = commandDeleagte.Invoke();
                     }
                     catch (Exception ex)
                     {
+                        this.LogError(Aspects.EngineCommand, $"Direct Command '{command}' execution error", ex);
                         commandException = ex;
+                        commandResult = false;
                     }
 
                     // We are done executing -- Update the commanding state
                     // The post-procesor will use the new IsOpening, IsClosing and IsChanging states
                     PendingDirectCommand = DirectCommandType.None;
 
-                    // Update the sate based on command result
-                    result = PostProcessDirectCommand(command, commandException, result);
-
-                    // Resume the workers and this processor if we are in the Open state
-                    if (State.IsOpen)
+                    try
                     {
-                        // Resume the workers
-                        MediaCore.Workers.Resume(false);
+                        // Update the sate based on command result
+                        commandResult = PostProcessDirectCommand(command, commandException, resumeResult);
 
-                        // Resume this queue processor
-                        ResumeAsync();
+                        // Resume the workers and this processor if we are in the Open state
+                        if (State.IsOpen && commandResult)
+                        {
+                            // Resume the workers
+                            MediaCore.Workers.Resume(false);
+
+                            // Resume this queue processor
+                            ResumeAsync();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        commandResult = false;
+                        this.LogError(Aspects.EngineCommand, $"Direct Command '{command}' postprocessing error", ex);
+                    }
+                    finally
+                    {
+                        // Allow for a new direct command to be processed
+                        PendingDirectCommand = DirectCommandType.None;
+                        HasDirectCommandCompleted.Value = true;
+                        this.LogDebug(Aspects.EngineCommand, $"Direct Command '{command}' completed. Result: {commandResult}");
                     }
 
-                    // Allow for a new direct command to be processed
-                    HasDirectCommandCompleted.Value = true;
-
-                    return result;
+                    return commandResult;
                 });
 
                 commandTask.ConfigureAwait(false);
@@ -139,9 +165,9 @@
         /// </summary>
         /// <param name="command">The command.</param>
         /// <param name="commandException">The command exception -- can be null.</param>
-        /// <param name="commandResult">Contains the command result.</param>
-        /// <returns>Fasle if there was an exception. True if no exceptions occurred.</returns>
-        private bool PostProcessDirectCommand(DirectCommandType command, Exception commandException, bool commandResult)
+        /// <param name="resumeMedia">Only valid for the change command.</param>
+        /// <returns>Fasle if there was an exception passed as an argument. True if null was passed to command exception.</returns>
+        private bool PostProcessDirectCommand(DirectCommandType command, Exception commandException, bool resumeMedia)
         {
             if (command == DirectCommandType.Open)
             {
@@ -180,7 +206,7 @@
                     MediaCore.SendOnMediaChanged();
 
                     // command result contains the play after seek.
-                    if (commandResult)
+                    if (resumeMedia)
                     {
                         MediaCore.ResumePlayback();
                     }
@@ -190,7 +216,7 @@
                     }
 
                     MediaCore.State.UpdateMediaState(
-                        commandResult ? PlaybackStatus.Play : PlaybackStatus.Pause);
+                        resumeMedia ? PlaybackStatus.Play : PlaybackStatus.Pause);
                 }
                 else
                 {
@@ -198,8 +224,6 @@
                     MediaCore.State.UpdateMediaState(PlaybackStatus.Pause);
                 }
             }
-
-            this.LogDebug(Aspects.EngineCommand, $"{command} Completed");
 
             // return true if there was no exception found running the command.
             return commandException == null;
@@ -214,14 +238,10 @@
         /// </summary>
         /// <param name="inputStream">The input stream.</param>
         /// <param name="streamUri">The stream URI.</param>
-        /// <returns>True if the command was successful</returns>
+        /// <returns>Always returns false because media will not be resumed</returns>
         /// <exception cref="MediaContainerException">Unable to initialize at least one audio or video component from the input stream.</exception>
         private bool CommandOpenMedia(IMediaInputStream inputStream, Uri streamUri)
         {
-            // Notify Media will start opening
-            this.LogDebug(Aspects.EngineCommand, $"{DirectCommandType.Open} Entered");
-            var result = false;
-
             try
             {
                 // TODO: Sometimes when the stream can't be read, the sample player stays as if it were trying to open
@@ -256,7 +276,9 @@
                         if (source.IsFile || source.IsUnc)
                         {
                             // Set the default protocol Prefix
-                            // containerConfig.ProtocolPrefix = "async";
+                            // The async protocol prefix by default does not ssem to provide
+                            // any performance improvements. Just leaving it for future reference below.
+                            // containerConfig.ProtocolPrefix = "async"
                             mediaUrl = source.LocalPath;
                         }
                     }
@@ -273,7 +295,7 @@
                         // Update the Input format and container input URL
                         // It is also possible to set some input options as follows:
                         // ReSharper disable once CommentTypo
-                        // streamOptions.PrivateOptions["framerate"] = "20";
+                        // Example: streamOptions.PrivateOptions["framerate"] = "20"
                         containerConfig.ForcedInputFormat = source.Host;
                         mediaUrl = Uri.UnescapeDataString(source.Query).TrimStart('?');
                         this.LogInfo(Aspects.EngineCommand,
@@ -310,8 +332,6 @@
 
                 // Charge! We are good to go, fire up the worker threads!
                 MediaCore.StartWorkers();
-
-                result = true;
             }
             catch
             {
@@ -322,57 +342,42 @@
                 throw;
             }
 
-            return result;
+            return false;
         }
 
         /// <summary>
         /// Provides the implementation for the Close Media Command.
         /// </summary>
-        /// <returns>True if the command was successful</returns>
+        /// <returns>Always returns false because media will not be resumed</returns>
         private bool CommandCloseMedia()
         {
-            var result = false;
+            // Wait for the workers to stop
+            MediaCore.StopWorkers();
 
-            try
-            {
-                this.LogDebug(Aspects.EngineCommand, $"{DirectCommandType.Close} Entered");
+            // Dispose the container
+            MediaCore.Container?.Dispose();
+            MediaCore.Container = null;
 
-                // Wait for the workers to stop
-                MediaCore.StopWorkers();
+            // Dispose the Blocks for all components
+            foreach (var kvp in MediaCore.Blocks)
+                kvp.Value.Dispose();
 
-                // Dispose the container
-                MediaCore.Container?.Dispose();
-                MediaCore.Container = null;
+            MediaCore.Blocks.Clear();
+            DisposePreloadedSubtitles();
 
-                // Dispose the Blocks for all components
-                foreach (var kvp in MediaCore.Blocks)
-                    kvp.Value.Dispose();
+            // Clear the render times
+            MediaCore.LastRenderTime.Clear();
 
-                MediaCore.Blocks.Clear();
-                DisposePreloadedSubtitles();
-
-                // Clear the render times
-                MediaCore.LastRenderTime.Clear();
-
-                result = true;
-            }
-            catch
-            {
-                throw;
-            }
-
-            return result;
+            return false;
         }
 
         /// <summary>
         /// Provides the implementation for the Change Media Command.
         /// </summary>
-        /// <param name="playWhenCompleted">if set to <c>true</c> [play when completed].</param>
-        /// <returns>True if the command was successful</returns>
+        /// <param name="playWhenCompleted">If media should be resume when the command gets pot processed.</param>
+        /// <returns>Simply return the play when completed boolean if there are no exceptions</returns>
         private bool CommandChangeMedia(bool playWhenCompleted)
         {
-            this.LogDebug(Aspects.EngineCommand, $"{DirectCommandType.Change} Entered");
-
             // Signal the start of a sync-buffering scenario
             MediaCore.Clock.Pause();
 
@@ -439,8 +444,10 @@
             }
             else
             {
-                // Let's perform quick-buffering
-                // MediaCore.Container.Components.RunQuickBuffering(MediaCore);
+                // Quick buffering used to be a good approach
+                // but now the sync-buffering code is much better and this is no loger needed
+                // Still keeping this commented out for future reference.
+                // MediaCore.Container.Components.RunQuickBuffering(MediaCore)
 
                 // Mark the renderers as invalidated
                 foreach (var t in mediaTypes)

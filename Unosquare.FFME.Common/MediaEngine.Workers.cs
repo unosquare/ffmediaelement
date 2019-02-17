@@ -147,7 +147,7 @@
             // Cause an immediate Packet read abort
             Container?.SignalAbortReads(false);
 
-            // Workers = null;
+            // This causes the workers to stop and dispose.
             Workers.Dispose();
 
             // Call close on all renderers
