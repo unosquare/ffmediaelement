@@ -229,7 +229,7 @@
                 var hasRequest = false;
                 var currentState = WorkerState;
 
-                if (IsDisposing || IsDisposed)
+                if (StateChangeRequests[StateChangeRequest.Stop] || IsDisposing || IsDisposed)
                 {
                     hasRequest = true;
                     WorkerState = WorkerState.Stopped;
@@ -248,11 +248,6 @@
                 {
                     hasRequest = true;
                     WorkerState = WorkerState.Waiting;
-                }
-                else if (StateChangeRequests[StateChangeRequest.Stop])
-                {
-                    hasRequest = true;
-                    WorkerState = WorkerState.Stopped;
                 }
 
                 // Signals all state changes to continue
