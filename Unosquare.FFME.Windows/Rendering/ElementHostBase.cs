@@ -117,10 +117,7 @@
         /// <param name="action">The action.</param>
         /// <returns>The awaitable operation</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Task InvokeAsync(Action action)
-        {
-            return InvokeAsync(DispatcherPriority.Normal, action);
-        }
+        public Task InvokeAsync(Action action) => InvokeAsync(DispatcherPriority.Normal, action);
 
         /// <summary>
         /// Invokes the specified action on the hosted visual element's dispatcher.

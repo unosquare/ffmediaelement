@@ -239,7 +239,7 @@
                 MediaElement.CaptionsView.Reset();
 
                 // Force refresh
-                MediaElement.VideoView?.Dispatcher?.Invoke(() => { }, DispatcherPriority.Render);
+                MediaElement.VideoView?.InvokeAsync(DispatcherPriority.Render, () => { });
             });
         }
 

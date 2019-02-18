@@ -350,8 +350,15 @@
                     var bmp = await Media.CaptureBitmapAsync();
                     var pos = Media.FramePosition;
                     var positionString = $"{(int)pos.TotalHours:00}-{pos.Minutes:00}-{pos.Seconds:00}";
-                    var screenshotPath = Path.Combine(
+                    var screenshotFolder = Path.Combine(
                         Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),
+                        "ffmeplay");
+
+                    if (System.IO.Directory.Exists(screenshotFolder) == false)
+                        System.IO.Directory.CreateDirectory(screenshotFolder);
+
+                    var screenshotPath = Path.Combine(
+                        screenshotFolder,
                         $"screenshot {positionString}.png");
 
                     bmp?.Save(screenshotPath, ImageFormat.Png);

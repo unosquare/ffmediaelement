@@ -414,15 +414,6 @@ namespace Unosquare.FFME
         /// <returns>The GDI bitmap copied from the video renderer.</returns>
         public async Task<Bitmap> CaptureBitmapAsync()
         {
-            if (VideoView == null || VideoView.Source == null)
-                return null;
-
-            if (EnableWpfMultiThreadedVideo)
-            {
-                throw new NotSupportedException(
-                    $"{nameof(CaptureBitmapAsync)} is not supported when {nameof(MediaElement)}.{nameof(EnableWpfMultiThreadedVideo)} is enabled. " +
-                    $"Has Own Dispatcher: {VideoView.HasOwnDispatcher}");
-            }
 
             Bitmap retrievedBitmap = null;
 
@@ -430,9 +421,10 @@ namespace Unosquare.FFME
             // we use the custom InvokeAsync method
             await VideoView?.InvokeAsync(() =>
             {
-                var source = VideoView.Source.Clone() as BitmapSource;
+                var source = VideoView?.Source?.Clone() as BitmapSource;
                 if (source == null) return;
 
+                source.Freeze();
                 var encoder = new BmpBitmapEncoder();
                 encoder.Frames.Add(BitmapFrame.Create(source));
                 var stream = new MemoryStream();
