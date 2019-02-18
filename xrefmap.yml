@@ -1986,6 +1986,19 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.UnloadedBehaviorProperty
   fullName: Unosquare.FFME.MediaElement.UnloadedBehaviorProperty
   nameWithType: MediaElement.UnloadedBehaviorProperty
+- uid: Unosquare.FFME.MediaElement.UnloadFFmpeg
+  name: UnloadFFmpeg()
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_UnloadFFmpeg
+  commentId: M:Unosquare.FFME.MediaElement.UnloadFFmpeg
+  fullName: Unosquare.FFME.MediaElement.UnloadFFmpeg()
+  nameWithType: MediaElement.UnloadFFmpeg()
+- uid: Unosquare.FFME.MediaElement.UnloadFFmpeg*
+  name: UnloadFFmpeg
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_UnloadFFmpeg_
+  commentId: Overload:Unosquare.FFME.MediaElement.UnloadFFmpeg
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.UnloadFFmpeg
+  nameWithType: MediaElement.UnloadFFmpeg
 - uid: Unosquare.FFME.MediaElement.VideoAspectRatio
   name: VideoAspectRatio
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoAspectRatio
