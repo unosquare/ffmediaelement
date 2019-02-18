@@ -414,7 +414,6 @@ namespace Unosquare.FFME
         /// <returns>The GDI bitmap copied from the video renderer.</returns>
         public async Task<Bitmap> CaptureBitmapAsync()
         {
-
             Bitmap retrievedBitmap = null;
 
             // Since VideoView might be hosted on a different dispatcher,

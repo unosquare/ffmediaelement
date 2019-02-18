@@ -2,9 +2,11 @@
 {
     using ClosedCaptions;
     using Platform;
+    using Primitives;
     using Shared;
     using System;
     using System.Linq;
+    using System.Threading.Tasks;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Input;
@@ -23,6 +25,7 @@
         #region Fields
 
         private static readonly Key[] TogglePlayPauseKeys = { Key.Play, Key.MediaPlayPause, Key.Space };
+        private readonly AtomicBoolean IsCaptureInProgress = new AtomicBoolean(false);
         private DateTime LastMouseMoveTime;
         private Point LastMousePosition;
         private DispatcherTimer MouseMoveTimer;
@@ -345,34 +348,61 @@
             // Capture Screenshot to desktop
             if (e.Key == Key.T)
             {
-                try
+                // Don't run the capture operation as it is in progress
+                // GDI requires exclusive access to files when writing
+                // so we do this one at a time
+                if (IsCaptureInProgress == true)
+                    return;
+
+                // Immediately set the progress to true.
+                IsCaptureInProgress.Value = true;
+
+                // Send the capture to the background so we don't have frames skipping
+                // on the UI. This prvents frame jittering.
+                var captureTask = Task.Run(() =>
                 {
-                    var bmp = await Media.CaptureBitmapAsync();
-                    var pos = Media.FramePosition;
-                    var positionString = $"{(int)pos.TotalHours:00}-{pos.Minutes:00}-{pos.Seconds:00}";
-                    var screenshotFolder = Path.Combine(
-                        Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),
-                        "ffmeplay");
+                    try
+                    {
+                        // Obtain the bitmap
+                        var bmp = Media.CaptureBitmapAsync().GetAwaiter().GetResult();
 
-                    if (System.IO.Directory.Exists(screenshotFolder) == false)
-                        System.IO.Directory.CreateDirectory(screenshotFolder);
+                        // prevent firther processing if we did not get a bitmap.
+                        if (bmp == null) return;
 
-                    var screenshotPath = Path.Combine(
-                        screenshotFolder,
-                        $"screenshot {positionString}.png");
+                        var pos = Media.FramePosition;
+                        var positionString = $"{(int)pos.TotalHours:00}-{pos.Minutes:00}-{pos.Seconds:00}";
+                        var screenshotFolder = Path.Combine(
+                            Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),
+                            "ffmeplay");
 
-                    bmp?.Save(screenshotPath, ImageFormat.Png);
-                }
-                catch(Exception ex)
-                {
-                    MessageBox.Show(
-                        this,
-                        $"Capturing Video Frame Failed: {ex.GetType()}\r\n{ex.Message}",
-                        $"{nameof(MediaElement)} Error",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error,
-                        MessageBoxResult.OK);
-                }
+                        if (System.IO.Directory.Exists(screenshotFolder) == false)
+                            System.IO.Directory.CreateDirectory(screenshotFolder);
+
+                        var screenshotPath = Path.Combine(
+                            screenshotFolder,
+                            $"screenshot {positionString}.png");
+
+                        bmp?.Save(screenshotPath, ImageFormat.Png);
+                    }
+                    catch (Exception ex)
+                    {
+                        var messageTask = Dispatcher.InvokeAsync(() =>
+                        {
+                            MessageBox.Show(
+                                this,
+                                $"Capturing Video Frame Failed: {ex.GetType()}\r\n{ex.Message}",
+                                $"{nameof(MediaElement)} Error",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Error,
+                                MessageBoxResult.OK);
+                        });
+                    }
+                    finally
+                    {
+                        // unlock for further captures.
+                        IsCaptureInProgress.Value = false;
+                    }
+                });
 
                 return;
             }
