@@ -301,7 +301,7 @@
         /// <summary>
         /// Unloads FFmpeg libraries from memory
         /// </summary>
-        /// <exception cref="System.NotImplementedException">Unloading FFmpeg libraries is not yet supported</exception>
+        /// <exception cref="NotImplementedException">Unloading FFmpeg libraries is not yet supported</exception>
         public static void UnloadFFmpeg() =>
             throw new NotImplementedException("Unloading FFmpeg libraries is not yet supported");
 

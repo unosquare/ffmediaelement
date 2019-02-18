@@ -8,6 +8,7 @@ namespace Unosquare.FFME
     using Shared;
     using System;
     using System.ComponentModel;
+    using System.IO;
     using System.Threading.Tasks;
     using System.Windows;
     using System.Windows.Controls;
@@ -17,6 +18,7 @@ namespace Unosquare.FFME
     using System.Windows.Media;
     using System.Windows.Media.Imaging;
     using System.Windows.Threading;
+    using Bitmap = System.Drawing.Bitmap;
 
     /// <summary>
     /// Represents a control that contains audio and/or video.
@@ -225,7 +227,8 @@ namespace Unosquare.FFME
         /// GUI context, it runs on its own dispatcher (multi-threaded UI)
         /// </summary>
         internal ImageHost VideoView { get; } = new ImageHost(
-            GuiContext.Current.Type == GuiContextType.WPF && EnableWpfMultiThreadedVideo) { Name = nameof(VideoView) };
+            GuiContext.Current.Type == GuiContextType.WPF && EnableWpfMultiThreadedVideo)
+        { Name = nameof(VideoView) };
 
         /// <summary>
         /// Gets the closed captions view control.
@@ -403,6 +406,29 @@ namespace Unosquare.FFME
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Captures the currently displayed video image and returns a GDI bitmap.
+        /// </summary>
+        /// <returns>The GDI bitmap copied from the video renderer.</returns>
+        public async Task<Bitmap> CaptureBitmapAsync()
+        {
+            if (VideoView == null || VideoView.Source == null || VideoView.Dispatcher == null)
+                return null;
+
+            return await VideoView?.Dispatcher?.InvokeAsync(() =>
+            {
+                var source = VideoView.Source.Clone() as BitmapSource;
+                if (source == null) return null;
+
+                var encoder = new BmpBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(source));
+                var stream = new MemoryStream();
+                encoder.Save(stream);
+                stream.Position = 0;
+                return new Bitmap(stream);
+            });
         }
 
         #endregion

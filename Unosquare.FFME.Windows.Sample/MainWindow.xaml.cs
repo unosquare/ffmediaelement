@@ -12,6 +12,8 @@
     using System.Windows.Media.Animation;
     using System.Windows.Threading;
     using ViewModels;
+    using ImageFormat = System.Drawing.Imaging.ImageFormat;
+    using Path = System.IO.Path;
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -337,6 +339,28 @@
                 Media.Balance = 0;
                 Media.IsMuted = false;
                 ViewModel.Controller.MediaElementZoom = 1.0;
+                return;
+            }
+
+            // Capture Screenshot to desktop
+            if (e.Key == Key.T)
+            {
+                try
+                {
+                    var bmp = await Media.CaptureBitmapAsync();
+                    var pos = Media.FramePosition;
+                    var positionString = $"{(int)pos.TotalHours:00}-{pos.Minutes:00}-{pos.Seconds:00}";
+                    var screenshotPath = Path.Combine(
+                        Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),
+                        $"screenshot {positionString}.png");
+
+                    bmp?.Save(screenshotPath, ImageFormat.Png);
+                }
+                catch
+                {
+                    // ignore
+                }
+
                 return;
             }
 
