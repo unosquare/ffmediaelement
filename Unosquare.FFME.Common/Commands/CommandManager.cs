@@ -136,35 +136,31 @@
         /// <inheritdoc />
         protected override void ExecuteCycleLogic(CancellationToken ct)
         {
+            // Before anything, let's process priority commands
             var priorityCommand = PendingPriorityCommand;
-
             if (priorityCommand != PriorityCommandType.None)
             {
+                // Pause all the workers in preparation for execution
                 MediaCore.Workers.Pause(true);
-            }
 
-            // Execute the priority command
-            switch (priorityCommand)
-            {
-                case PriorityCommandType.Play:
+                // Execute the pending priority command
+                if (priorityCommand == PriorityCommandType.Play)
                     CommandPlayMedia();
-                    break;
-                case PriorityCommandType.Pause:
+                else if (priorityCommand == PriorityCommandType.Pause)
                     CommandPauseMedia();
-                    break;
-                case PriorityCommandType.Stop:
+                else if (priorityCommand == PriorityCommandType.Stop)
                     CommandStopMedia();
-                    break;
-            }
+                else
+                    throw new NotSupportedException($"Command '{priorityCommand}' is not supported");
 
-            if (priorityCommand != PriorityCommandType.None)
-            {
+                // Finish the command execution
                 ClearSeekCommands();
                 ClearPriorityCommands();
                 MediaCore.Workers.Resume(true);
                 return;
             }
 
+            // Perform current and queued seeks.
             while (true)
             {
                 SeekOperation seekOperation;
@@ -181,6 +177,7 @@
                 SeekMedia(seekOperation, ct);
             }
 
+            // Handle the case when there is no more seeking needed.
             lock (SyncLock)
             {
                 if (IsSeeking && QueuedSeekOperation == null)
