@@ -41,6 +41,9 @@
                 if (WorkerState != WorkerState.Created)
                     return Task.FromResult(WorkerState);
 
+                if (IsStopRequested)
+                    return Task.FromResult(WorkerState);
+
                 var task = QueueStateChange(StateChangeRequest.Start);
                 Interrupt();
                 return task;
@@ -53,6 +56,9 @@
             lock (SyncLock)
             {
                 if (WorkerState != WorkerState.Running && WorkerState != WorkerState.Waiting)
+                    return Task.FromResult(WorkerState);
+
+                if (IsStopRequested)
                     return Task.FromResult(WorkerState);
 
                 var task = QueueStateChange(StateChangeRequest.Pause);
@@ -70,6 +76,9 @@
                     return StartAsync();
 
                 if (WorkerState != WorkerState.Paused && WorkerState != WorkerState.Waiting)
+                    return Task.FromResult(WorkerState);
+
+                if (IsStopRequested)
                     return Task.FromResult(WorkerState);
 
                 var task = QueueStateChange(StateChangeRequest.Resume);
@@ -263,15 +272,12 @@
                 var hasRequest = false;
                 var schedule = 0;
 
-                if (IsDisposing || IsDisposed)
+                // Update the state according to request priority
+                if (StateChangeRequests[StateChangeRequest.Stop] || IsDisposing || IsDisposed)
                 {
                     hasRequest = true;
                     WorkerState = WorkerState.Stopped;
-                }
-                else if (StateChangeRequests[StateChangeRequest.Start])
-                {
-                    hasRequest = true;
-                    WorkerState = WorkerState.Waiting;
+                    schedule = StateChangeRequests[StateChangeRequest.Stop] ? Timeout.Infinite : 0;
                 }
                 else if (StateChangeRequests[StateChangeRequest.Pause])
                 {
@@ -279,16 +285,10 @@
                     WorkerState = WorkerState.Paused;
                     schedule = Timeout.Infinite;
                 }
-                else if (StateChangeRequests[StateChangeRequest.Resume])
+                else if (StateChangeRequests[StateChangeRequest.Start] || StateChangeRequests[StateChangeRequest.Resume])
                 {
                     hasRequest = true;
                     WorkerState = WorkerState.Waiting;
-                }
-                else if (StateChangeRequests[StateChangeRequest.Stop])
-                {
-                    hasRequest = true;
-                    WorkerState = WorkerState.Stopped;
-                    schedule = Timeout.Infinite;
                 }
 
                 // Signals all state changes to continue

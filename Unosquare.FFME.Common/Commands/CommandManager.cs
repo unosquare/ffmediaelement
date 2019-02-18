@@ -143,6 +143,7 @@
                 MediaCore.Workers.Pause(true);
             }
 
+            // Execute the priority command
             switch (priorityCommand)
             {
                 case PriorityCommandType.Play:
@@ -153,9 +154,6 @@
                     break;
                 case PriorityCommandType.Stop:
                     CommandStopMedia();
-                    break;
-                case PriorityCommandType.None:
-                default:
                     break;
             }
 

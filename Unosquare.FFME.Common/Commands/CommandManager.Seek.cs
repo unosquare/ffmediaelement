@@ -249,11 +249,11 @@
             {
                 if (hasDecoderSeeked)
                 {
-                    SeekBlocksAvailable.Set();
                     this.LogTrace(Aspects.EngineCommand,
                         $"SEEK D: Elapsed: {startTime.FormatElapsed()} | Target: {targetPosition.Format()}");
                 }
 
+                SeekBlocksAvailable.Set();
                 seekOperation.Dispose();
             }
 

@@ -103,6 +103,12 @@
         }
 
         /// <summary>
+        /// Gets a value indicating whether stop has been requested.
+        /// This is useful to prevent more requests from being issued.
+        /// </summary>
+        protected bool IsStopRequested => StateChangeRequests[StateChangeRequest.Stop];
+
+        /// <summary>
         /// Gets the cycle stopwatch.
         /// </summary>
         protected Stopwatch CycleStopwatch { get; } = new Stopwatch();

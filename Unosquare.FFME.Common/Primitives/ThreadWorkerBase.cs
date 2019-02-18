@@ -51,6 +51,9 @@
                 if (WorkerState != WorkerState.Created)
                     return Task.FromResult(WorkerState);
 
+                if (IsStopRequested)
+                    return Task.FromResult(WorkerState);
+
                 var task = QueueStateChange(StateChangeRequest.Start);
                 Thread.Start();
                 return task;
@@ -63,6 +66,9 @@
             lock (SyncLock)
             {
                 if (WorkerState != WorkerState.Running && WorkerState != WorkerState.Waiting)
+                    return Task.FromResult(WorkerState);
+
+                if (IsStopRequested)
                     return Task.FromResult(WorkerState);
 
                 var task = QueueStateChange(StateChangeRequest.Pause);
@@ -79,6 +85,9 @@
                     return StartAsync();
 
                 if (WorkerState != WorkerState.Paused && WorkerState != WorkerState.Waiting)
+                    return Task.FromResult(WorkerState);
+
+                if (IsStopRequested)
                     return Task.FromResult(WorkerState);
 
                 var task = QueueStateChange(StateChangeRequest.Resume);
@@ -229,20 +238,21 @@
                 var hasRequest = false;
                 var currentState = WorkerState;
 
+                // Update the state in the given priority
                 if (StateChangeRequests[StateChangeRequest.Stop] || IsDisposing || IsDisposed)
                 {
                     hasRequest = true;
                     WorkerState = WorkerState.Stopped;
                 }
-                else if (StateChangeRequests[StateChangeRequest.Start] || StateChangeRequests[StateChangeRequest.Resume])
-                {
-                    hasRequest = true;
-                    WorkerState = WorkerState.Waiting;
-                }
                 else if (StateChangeRequests[StateChangeRequest.Pause])
                 {
                     hasRequest = true;
                     WorkerState = WorkerState.Paused;
+                }
+                else if (StateChangeRequests[StateChangeRequest.Start] || StateChangeRequests[StateChangeRequest.Resume])
+                {
+                    hasRequest = true;
+                    WorkerState = WorkerState.Waiting;
                 }
 
                 // Signals all state changes to continue
