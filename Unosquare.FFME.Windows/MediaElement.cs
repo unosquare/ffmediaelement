@@ -417,6 +417,13 @@ namespace Unosquare.FFME
             if (VideoView == null || VideoView.Source == null)
                 return null;
 
+            if (EnableWpfMultiThreadedVideo)
+            {
+                throw new NotSupportedException(
+                    $"{nameof(CaptureBitmapAsync)} is not supported when {nameof(MediaElement)}.{nameof(EnableWpfMultiThreadedVideo)} is enabled. " +
+                    $"Has Own Dispatcher: {VideoView.HasOwnDispatcher}");
+            }
+
             Bitmap retrievedBitmap = null;
 
             // Since VideoView might be hosted on a different dispatcher,

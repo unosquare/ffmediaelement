@@ -356,9 +356,15 @@
 
                     bmp?.Save(screenshotPath, ImageFormat.Png);
                 }
-                catch
+                catch(Exception ex)
                 {
-                    // ignore
+                    MessageBox.Show(
+                        this,
+                        $"Capturing Video Frame Failed: {ex.GetType()}\r\n{ex.Message}",
+                        $"{nameof(MediaElement)} Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error,
+                        MessageBoxResult.OK);
                 }
 
                 return;
