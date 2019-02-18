@@ -173,6 +173,7 @@
             }
         }
 
+        /// <inheritdoc />
         protected override void ExecuteCycleDelay(int wantedDelay, Task delayTask, CancellationToken token)
         {
             // We don't delay if there was at least 1 decoded frame
@@ -187,14 +188,6 @@
         /// <inheritdoc />
         protected override void OnCycleException(Exception ex) =>
             this.LogError(Aspects.DecodingWorker, "Worker Cycle exception thrown", ex);
-
-        /// <inheritdoc />
-        protected override void OnDisposing()
-        {
-            base.OnDisposing();
-
-            // TODO: Dispose the rednerers here
-        }
 
         /// <summary>
         /// Tries to receive the next frame from the decoder by decoding queued

@@ -60,10 +60,10 @@
             this.LogError(Aspects.ReadingWorker, "Worker Cycle exception thrown", ex);
 
         /// <inheritdoc />
-        protected override void OnDisposing()
+        protected override void Dispose(bool alsoManaged)
         {
             BufferChangedEvent.Set();
-            base.OnDisposing();
+            base.Dispose(alsoManaged);
             BufferChangedEvent.Dispose();
         }
 

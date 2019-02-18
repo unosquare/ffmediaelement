@@ -111,8 +111,10 @@
         }
 
         /// <inheritdoc />
-        protected override void OnDisposing()
+        protected override void Dispose(bool alsoManaged)
         {
+            base.Dispose(alsoManaged);
+
             lock (SyncLock)
             {
                 if (!IsTimerAlive) return;

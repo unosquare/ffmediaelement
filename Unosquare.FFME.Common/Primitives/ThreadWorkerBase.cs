@@ -234,7 +234,7 @@
                     hasRequest = true;
                     WorkerState = WorkerState.Stopped;
                 }
-                else if (StateChangeRequests[StateChangeRequest.Start])
+                else if (StateChangeRequests[StateChangeRequest.Start] || StateChangeRequests[StateChangeRequest.Resume])
                 {
                     hasRequest = true;
                     WorkerState = WorkerState.Waiting;
@@ -243,11 +243,6 @@
                 {
                     hasRequest = true;
                     WorkerState = WorkerState.Paused;
-                }
-                else if (StateChangeRequests[StateChangeRequest.Resume])
-                {
-                    hasRequest = true;
-                    WorkerState = WorkerState.Waiting;
                 }
 
                 // Signals all state changes to continue

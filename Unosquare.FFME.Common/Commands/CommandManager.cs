@@ -215,8 +215,6 @@
         protected override void OnDisposing()
         {
             this.LogDebug(Aspects.EngineCommand, "Dispose Entered. Waiting for Command Manager processor to stop.");
-            base.OnDisposing();
-
             ClearPriorityCommands();
             ClearSeekCommands();
             SeekBlocksAvailable.Set();
@@ -237,11 +235,18 @@
             {
                 this.LogError(Aspects.EngineCommand, "Dispose had issues closing media. This is most likely a bug.", ex);
             }
+        }
+
+        /// <inheritdoc />
+        protected override void Dispose(bool alsoManaged)
+        {
+            // Call the base dispose method
+            base.Dispose(alsoManaged);
 
             // Dispose unmanged resources
             PriorityCommandCompleted.Dispose();
             SeekBlocksAvailable.Dispose();
-            this.LogDebug(Aspects.EngineCommand, "Dispose has finished successfully.");
+            this.LogDebug(Aspects.EngineCommand, "Dispose completed.");
         }
 
         #endregion

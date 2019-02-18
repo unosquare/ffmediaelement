@@ -51,15 +51,18 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
-            if (!m_IsDisposed)
+            lock (SyncLock)
             {
-                if (alsoManaged)
+                if (!m_IsDisposed)
                 {
-                    TokenSource.Cancel();
-                    TokenSource.Dispose();
-                }
+                    if (alsoManaged)
+                    {
+                        TokenSource.Cancel();
+                        TokenSource.Dispose();
+                    }
 
-                m_IsDisposed = true;
+                    m_IsDisposed = true;
+                }
             }
         }
     }
