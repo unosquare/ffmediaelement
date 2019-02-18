@@ -256,6 +256,11 @@ namespace Unosquare.FFME
         public static bool LoadFFmpeg() => MediaEngine.LoadFFmpeg();
 
         /// <summary>
+        /// Forces the unloading of FFmpeg libraries.
+        /// </summary>
+        public static void UnloadFFmpeg() => MediaEngine.UnloadFFmpeg();
+
+        /// <summary>
         /// Requests new media options to be applied, including stream component selection.
         /// Handle the <see cref="MediaChanging"/> event to set new <see cref="MediaOptions"/> based on
         /// <see cref="MediaInfo"/> properties.
