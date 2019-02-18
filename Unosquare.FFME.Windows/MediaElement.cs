@@ -414,21 +414,27 @@ namespace Unosquare.FFME
         /// <returns>The GDI bitmap copied from the video renderer.</returns>
         public async Task<Bitmap> CaptureBitmapAsync()
         {
-            if (VideoView == null || VideoView.Source == null || VideoView.Dispatcher == null)
+            if (VideoView == null || VideoView.Source == null)
                 return null;
 
-            return await VideoView?.Dispatcher?.InvokeAsync(() =>
+            Bitmap retrievedBitmap = null;
+
+            // Since VideoView might be hosted on a different dispatcher,
+            // we use the custom InvokeAsync method
+            await VideoView?.InvokeAsync(() =>
             {
                 var source = VideoView.Source.Clone() as BitmapSource;
-                if (source == null) return null;
+                if (source == null) return;
 
                 var encoder = new BmpBitmapEncoder();
                 encoder.Frames.Add(BitmapFrame.Create(source));
                 var stream = new MemoryStream();
                 encoder.Save(stream);
                 stream.Position = 0;
-                return new Bitmap(stream);
+                retrievedBitmap = new Bitmap(stream);
             });
+
+            return retrievedBitmap;
         }
 
         #endregion
