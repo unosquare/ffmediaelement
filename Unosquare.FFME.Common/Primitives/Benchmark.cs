@@ -15,7 +15,22 @@
         private static readonly Dictionary<string, List<TimeSpan>> Measures = new Dictionary<string, List<TimeSpan>>();
 
         /// <summary>
+        /// Gets the identifiers.
+        /// </summary>
+        public static string[] Identifiers
+        {
+            get
+            {
+                lock (SyncLock)
+                {
+                    return Measures.Keys.ToArray();
+                }
+            }
+        }
+
+        /// <summary>
         /// Starts measuring with the given identifier.
+        /// Usage: using (Benchmark.Start(operationName) { your code here }
         /// </summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns>A disposable object that when disposed, adds a benchmark result.</returns>
@@ -34,14 +49,91 @@
             {
                 var builder = new StringBuilder();
                 foreach (var kvp in Measures)
-                {
-                    builder.AppendLine($"BID: {kvp.Key,-30} | CNT: {kvp.Value.Count,6} | " +
-                        $"AVG: {kvp.Value.Average(t => t.TotalMilliseconds),8:0.000} ms. | " +
-                        $"MAX: {kvp.Value.Max(t => t.TotalMilliseconds),8:0.000} ms. | " +
-                        $"MIN: {kvp.Value.Min(t => t.TotalMilliseconds),8:0.000} ms. | ");
-                }
+                    builder.AppendLine(new BenchmarkResult(kvp.Key, kvp.Value).ToString());
 
                 return builder.ToString().TrimEnd();
+            }
+        }
+
+        /// <summary>
+        /// Outputs the benchmark statistics for the given identifier.
+        /// </summary>
+        /// <param name="identifier">The benchmark identifier to dump</param>
+        /// <returns>A string containing human-readable statistics</returns>
+        public static string Dump(string identifier)
+        {
+            lock (SyncLock)
+            {
+                if (!Measures.ContainsKey(identifier)) return string.Empty;
+                return new BenchmarkResult(identifier, Measures[identifier]).ToString();
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the results for all benchmark identifiers
+        /// </summary>
+        /// <returns>The benchmark result collection</returns>
+        public static IEnumerable<BenchmarkResult> Results()
+        {
+            lock (SyncLock)
+            {
+                var builder = new StringBuilder();
+                foreach (var kvp in Measures)
+                    yield return new BenchmarkResult(kvp.Key, kvp.Value);
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the results for the given benchmark identifier
+        /// </summary>
+        /// <param name="identifier">The benchmark identifier</param>
+        /// <returns>The benchmark result</returns>
+        public static BenchmarkResult Results(string identifier)
+        {
+            lock (SyncLock)
+            {
+                if (!Measures.ContainsKey(identifier)) return null;
+                return new BenchmarkResult(identifier, Measures[identifier]);
+            }
+        }
+
+        /// <summary>
+        /// Returns the number of measures available for the given identifier.
+        /// Returns 0 if the identifier does not exist.
+        /// </summary>
+        /// <param name="identifier">The identifier.</param>
+        /// <returns>The number of measures.</returns>
+        public static int Count(string identifier)
+        {
+            lock (SyncLock)
+            {
+                if (Measures.ContainsKey(identifier) == false) return 0;
+                return Measures[identifier].Count;
+            }
+        }
+
+        /// <summary>
+        /// Clears the measures for the specified identifier.
+        /// </summary>
+        /// <param name="identifier">The identifier.</param>
+        public static void Clear(string identifier)
+        {
+            lock (SyncLock)
+            {
+                if (Measures.ContainsKey(identifier) == false) return;
+                Measures[identifier].Clear();
+            }
+        }
+
+        /// <summary>
+        /// Clears the measures for all identifiers.
+        /// </summary>
+        public static void Clear()
+        {
+            lock (SyncLock)
+            {
+                foreach (var kvp in Measures)
+                    kvp.Value.Clear();
             }
         }
 
@@ -60,6 +152,60 @@
 
             // ReSharper disable once InconsistentlySynchronizedField
             Measures[identifier].Add(elapsed);
+        }
+
+        /// <summary>
+        /// Contains benchmark summary data.
+        /// </summary>
+        public sealed class BenchmarkResult
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="BenchmarkResult" /> class.
+            /// </summary>
+            /// <param name="identifier">The identifier.</param>
+            /// <param name="measures">The measures.</param>
+            internal BenchmarkResult(string identifier, List<TimeSpan> measures)
+            {
+                Identifier = identifier;
+                Count = measures.Count;
+                Average = measures.Average(t => t.TotalMilliseconds);
+                Min = measures.Min(t => t.TotalMilliseconds);
+                Max = measures.Max(t => t.TotalMilliseconds);
+            }
+
+            /// <summary>
+            /// Gets the benchmark identifier.
+            /// </summary>
+            public string Identifier { get; }
+
+            /// <summary>
+            /// Gets the measure count
+            /// </summary>
+            public int Count { get; }
+
+            /// <summary>
+            /// Gets the average time in milliseconds.
+            /// </summary>
+            public double Average { get; }
+
+            /// <summary>
+            /// Gets the minimum time in milliseconds.
+            /// </summary>
+            public double Min { get; }
+
+            /// <summary>
+            /// Gets the maximum time in milliseconds.
+            /// </summary>
+            public double Max { get; }
+
+            /// <inheritdoc />
+            public override string ToString()
+            {
+                return $"BID: {Identifier,-30} | CNT: {Count,6} | " +
+                    $"AVG: {Average,8:0.000} ms. | " +
+                    $"MAX: {Max,8:0.000} ms. | " +
+                    $"MIN: {Min,8:0.000} ms. | ";
+            }
         }
 
         /// <summary>
