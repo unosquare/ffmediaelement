@@ -3,6 +3,7 @@
     using Primitives;
     using Shared;
     using System;
+    using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -13,6 +14,7 @@
         private readonly ManualResetEventSlim SeekBlocksAvailable = new ManualResetEventSlim(true);
         private readonly AtomicBoolean m_IsSeeking = new AtomicBoolean(false);
         private readonly AtomicBoolean m_PlayAfterSeek = new AtomicBoolean(false);
+        private readonly AtomicInteger m_ActiveSeekMode = new AtomicInteger((int)SeekMode.Normal);
 
         private SeekOperation QueuedSeekOperation;
         private Task<bool> QueuedSeekTask;
@@ -28,6 +30,20 @@
         {
             get => m_IsSeeking.Value;
             private set => m_IsSeeking.Value = value;
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is actively seeking within a stream.
+        /// </summary>
+        public bool IsActivelySeeking => !SeekBlocksAvailable.IsSet;
+
+        /// <summary>
+        /// When actively seeking, provides the active seek mode.
+        /// </summary>
+        public SeekMode ActiveSeekMode
+        {
+            get => (SeekMode)m_ActiveSeekMode.Value;
+            private set => m_ActiveSeekMode.Value = (int)value;
         }
 
         /// <summary>
@@ -116,6 +132,7 @@
             var startTime = DateTime.UtcNow;
             var targetSeekMode = seekOperation.Mode;
             var targetPosition = seekOperation.Position;
+            var hasSeekBlocks = false;
 
             try
             {
@@ -142,12 +159,6 @@
                     MediaCore.ChangePosition(targetPosition);
                     return true;
                 }
-
-                // wait for the current reading and decoding cycles
-                // to finish. We don't want to interfere with reading in progress
-                // or decoding in progress. For decoding we already know we are not
-                // in a cycle because the decoding worker called this logic.
-                MediaCore.Workers.Pause(true, true, true, false);
 
                 // Let consumers know main blocks are not avaiable
                 hasDecoderSeeked = true;
@@ -183,6 +194,7 @@
 
                     // Create the blocks from the obtained seek frames
                     MediaCore.Blocks[firstFrame.MediaType]?.Add(firstFrame, MediaCore.Container);
+                    hasSeekBlocks = TrySignalBlocksAvailable(main, mainBlocks, targetPosition, hasSeekBlocks);
 
                     // Decode all available queued packets into the media component blocks
                     foreach (var mt in all)
@@ -192,18 +204,15 @@
                             var frame = MediaCore.Container.Components[mt].ReceiveNextFrame();
                             if (frame == null) break;
                             MediaCore.Blocks[mt].Add(frame, MediaCore.Container);
-
-                            // signal that thesere is a main block available
-                            if (mainBlocks.IsInRange(targetPosition))
-                                SeekBlocksAvailable.Set();
+                            hasSeekBlocks = TrySignalBlocksAvailable(main, mainBlocks, targetPosition, hasSeekBlocks);
                         }
                     }
 
                     // Align to the exact requested position on the main component
-                    while (MediaCore.ShouldReadMorePackets && ct.IsCancellationRequested == false)
+                    while (MediaCore.ShouldReadMorePackets && ct.IsCancellationRequested == false && hasSeekBlocks == false)
                     {
                         // Check if we are already in range
-                        if (mainBlocks.IsInRange(targetPosition)) break;
+                        hasSeekBlocks = TrySignalBlocksAvailable(main, mainBlocks, targetPosition, hasSeekBlocks);
 
                         // Read the next packet
                         var packetType = MediaCore.Container.Read();
@@ -212,7 +221,10 @@
 
                         // Get the next frame
                         if (blocks.RangeEndTime.Ticks < targetPosition.Ticks || blocks.IsFull == false)
+                        {
                             blocks.Add(MediaCore.Container.Components[packetType].ReceiveNextFrame(), MediaCore.Container);
+                            hasSeekBlocks = TrySignalBlocksAvailable(main, mainBlocks, targetPosition, hasSeekBlocks);
+                        }
                     }
                 }
 
@@ -238,7 +250,8 @@
                 }
 
                 // Write a new Real-time clock position now.
-                MediaCore.ChangePosition(resultPosition);
+                if (hasSeekBlocks == false)
+                    MediaCore.ChangePosition(resultPosition);
             }
             catch (Exception ex)
             {
@@ -253,11 +266,29 @@
                         $"SEEK D: Elapsed: {startTime.FormatElapsed()} | Target: {targetPosition.Format()}");
                 }
 
-                SeekBlocksAvailable.Set();
+                if (hasSeekBlocks == false)
+                    SeekBlocksAvailable.Set();
+
                 seekOperation.Dispose();
             }
 
             return result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool TrySignalBlocksAvailable(MediaType main, MediaBlockBuffer mainBlocks, TimeSpan targetPosition, bool hasSeekBlocks)
+        {
+            // signal that thesere is a main block available
+            if (hasSeekBlocks == false && main == MediaType.Video && mainBlocks.IsInRange(targetPosition))
+            {
+                // We need to update the clock immediately because
+                // the renderer will need this position
+                MediaCore.ChangePosition(targetPosition);
+                SeekBlocksAvailable.Set();
+                return true;
+            }
+
+            return hasSeekBlocks;
         }
 
         #endregion

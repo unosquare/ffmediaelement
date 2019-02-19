@@ -81,18 +81,41 @@
 
             try
             {
-                // TODO: wait for active seek command
-                try { Commands.WaitForSeekBlocks(ct); }
-                catch { return; }
+                #region 1. Wait for any seek operation to make blocks available in a loop
+
+                while (!ct.IsCancellationRequested
+                    && Commands.IsActivelySeeking
+                    && !MediaCore.Blocks[main].IsInRange(MediaCore.WallClock))
+                {
+                    // Check if we finally have seek blocks available
+                    // if we don't get seek blocks in range and we are not step-seeking,
+                    // then we simply break out of the loop and render whatever it is we have
+                    // to create the illussion of smooth seeking. For precision seeking we
+                    // continue the loop.
+                    if (!Commands.WaitForSeekBlocks(Constants.Interval.HighPriority.Milliseconds)
+                        && Commands.ActiveSeekMode == CommandManager.SeekMode.Normal)
+                    {
+                        break;
+                    }
+                }
+
+                #endregion
 
                 #region 2. Handle Block Rendering
 
-                // capture the wall clock for this cycle
+                // Capture the blocks to render at a fixed wall clock position
+                // so all blocks are aligned to the same timestamp
                 var wallClock = MediaCore.WallClock;
 
-                // Capture the blocks to render
                 foreach (var t in all)
                 {
+                    // skip blocks if we are seeking and they are not video blocks
+                    if (Commands.IsSeeking && t != MediaType.Video)
+                    {
+                        currentBlock[t] = null;
+                        continue;
+                    }
+
                     // Get the audio, video, or subtitle block to render
                     currentBlock[t] = t == MediaType.Subtitle && MediaCore.PreloadedSubtitles != null ?
                         MediaCore.PreloadedSubtitles[wallClock] :
@@ -102,7 +125,7 @@
                 // Render each of the Media Types if it is time to do so.
                 foreach (var t in all)
                 {
-                    // Skip rendering for nulls
+                    // Don't send null blocks to renderer
                     if (currentBlock[t] == null || currentBlock[t].IsDisposed)
                         continue;
 
@@ -129,8 +152,8 @@
             finally
             {
                 // Check End of Media Scenarios
-                if (MediaCore.HasDecodingEnded
-                && Commands.IsSeeking == false
+                if (Commands.IsSeeking == false
+                && MediaCore.HasDecodingEnded
                 && MediaCore.WallClock >= MediaCore.LastRenderTime[main]
                 && MediaCore.WallClock >= MediaCore.Blocks[main].RangeEndTime)
                 {
@@ -151,7 +174,7 @@
                 }
 
                 // Update the Position
-                if (!ct.IsCancellationRequested)
+                if (!ct.IsCancellationRequested && Commands.IsSeeking == false)
                     State.UpdatePosition();
             }
 

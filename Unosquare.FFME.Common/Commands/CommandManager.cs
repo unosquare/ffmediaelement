@@ -126,8 +126,9 @@
         /// When a seek operation is in progress, this method blocks until the first block of the main
         /// component is available.
         /// </summary>
-        /// <param name="ct">The cancellation token.</param>
-        public void WaitForSeekBlocks(CancellationToken ct) => SeekBlocksAvailable.Wait(ct);
+        /// <param name="millisecondsTimeout">The timeout to wait for</param>
+        /// <returns>If the wait completed successully</returns>
+        public bool WaitForSeekBlocks(int millisecondsTimeout) => SeekBlocksAvailable.Wait(millisecondsTimeout);
 
         #endregion
 
@@ -161,6 +162,7 @@
             }
 
             // Perform current and queued seeks.
+            var hasPausedWorkers = false;
             while (true)
             {
                 SeekOperation seekOperation;
@@ -174,6 +176,17 @@
                 if (seekOperation == null)
                     break;
 
+                // wait for the current reading and decoding cycles
+                // to finish. We don't want to interfere with reading in progress
+                // or decoding in progress. For decoding we already know we are not
+                // in a cycle because the decoding worker called this logic.
+                if (!hasPausedWorkers)
+                {
+                    hasPausedWorkers = true;
+                    MediaCore.Workers.Pause(true, true, true, false);
+                }
+
+                ActiveSeekMode = seekOperation.Mode;
                 SeekMedia(seekOperation, ct);
             }
 
@@ -183,6 +196,7 @@
                 if (IsSeeking && QueuedSeekOperation == null)
                 {
                     IsSeeking = false;
+                    MediaCore.Workers.Resume(true, true, true, false);
 
                     // Resume if requested
                     if (PlayAfterSeek == true)
@@ -197,7 +211,6 @@
                     }
 
                     MediaCore.SendOnSeekingEnded();
-                    MediaCore.Workers.Resume(false);
                 }
             }
         }

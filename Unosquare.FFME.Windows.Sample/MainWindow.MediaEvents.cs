@@ -199,7 +199,7 @@
                     {
                         var accelerator = videoStream.HardwareDevices.FirstOrDefault(d => d.DeviceType == deviceType);
                         if (accelerator == null) continue;
-                        if (GuiContext.Current.IsInDebugMode)
+                        if (GuiContext.Current.IsInDebugMode == true)
                             e.Options.VideoHardwareDevice = accelerator;
 
                         break;

@@ -5,7 +5,7 @@
         /// <summary>
         /// Enumerates the different seek modes for the seek command.
         /// </summary>
-        private enum SeekMode
+        public enum SeekMode
         {
             /// <summary>Normal seek mode</summary>
             Normal,
