@@ -77,7 +77,6 @@
         {
             lock (SyncLock)
             {
-                var builder = new StringBuilder();
                 foreach (var kvp in Measures)
                     yield return new BenchmarkResult(kvp.Key, kvp.Value);
             }
