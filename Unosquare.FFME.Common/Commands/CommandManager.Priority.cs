@@ -53,7 +53,7 @@
         {
             lock (SyncLock)
             {
-                if (IsDisposed || IsDisposing || !MediaCore.State.IsOpen || IsDirectCommandPending || !PriorityCommandCompleted.IsSet)
+                if (IsDisposed || IsDisposing || !MediaCore.State.IsOpen || IsDirectCommandPending)
                     return Task.FromResult(false);
 
                 PendingPriorityCommand = command;

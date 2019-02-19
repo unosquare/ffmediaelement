@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Workers
 {
+    using Primitives;
     using System;
     using System.Threading.Tasks;
 
@@ -69,6 +70,48 @@
         /// <returns>The matching worker</returns>
         public IMediaWorker this[MediaWorkerType workerType] => Workers[(int)workerType];
 
+        /// <summary>
+        /// Starts the workers.
+        /// </summary>
+        public void Start()
+        {
+            if (IsDisposed) return;
+
+            var tasks = new Task[Workers.Length];
+            for (var i = 0; i < Workers.Length; i++)
+            {
+                tasks[i] = Workers[i].StartAsync();
+            }
+
+            Task.WaitAll(tasks);
+        }
+
+        /// <summary>
+        /// Pauses all the media core workers and waits for the operation to complete.
+        /// </summary>
+        public void PauseAll() => Pause(true, true, true, true);
+
+        /// <summary>
+        /// Resumes all the media core workers waiting for the operation to complete.
+        /// </summary>
+        public void ResumeAll() => Resume(true, true, true, true);
+
+        /// <summary>
+        /// Pauses the reading and decoding workers waiting for the operation to complete.
+        /// </summary>
+        public void PauseReadDecode() => Pause(true, true, true, false);
+
+        /// <summary>
+        /// Resumes only those workers which are in the paused state.
+        /// This prevents an interrupt being sent to the worker by calling
+        /// its resume method.
+        /// </summary>
+        public void ResumePaused() => Resume(
+            true,
+            Reading.WorkerState == WorkerState.Paused,
+            Decoding.WorkerState == WorkerState.Paused,
+            Rendering.WorkerState == WorkerState.Paused);
+
         /// <inheritdoc />
         public void Dispose() => Dispose(true);
 
@@ -79,7 +122,7 @@
         /// <param name="read">if set to <c>true</c> executes the opration on the reading worker.</param>
         /// <param name="decode">if set to <c>true</c> executes the opration on the decoding worker.</param>
         /// <param name="render">if set to <c>true</c> executes the opration on the rendering worker.</param>
-        public void Pause(bool wait, bool read, bool decode, bool render)
+        private void Pause(bool wait, bool read, bool decode, bool render)
         {
             if (IsDisposed) return;
 
@@ -107,19 +150,13 @@
         }
 
         /// <summary>
-        /// Pauses the specified wait.
-        /// </summary>
-        /// <param name="wait">if set to <c>true</c> waits for the operation to complete.</param>
-        public void Pause(bool wait) => Pause(wait, true, true, true);
-
-        /// <summary>
         /// Resumes the specified wrokers.
         /// </summary>
         /// <param name="wait">if set to <c>true</c> waits for the operation to complete.</param>
         /// <param name="read">if set to <c>true</c> executes the opration on the reading worker.</param>
         /// <param name="decode">if set to <c>true</c> executes the opration on the decoding worker.</param>
         /// <param name="render">if set to <c>true</c> executes the opration on the rendering worker.</param>
-        public void Resume(bool wait, bool read, bool decode, bool render)
+        private void Resume(bool wait, bool read, bool decode, bool render)
         {
             if (IsDisposed) return;
 
@@ -147,28 +184,6 @@
         }
 
         /// <summary>
-        /// Resumes the workers.
-        /// </summary>
-        /// <param name="wait">if set to <c>true</c> waits for the operation to complete.</param>
-        public void Resume(bool wait) => Resume(wait, true, true, true);
-
-        /// <summary>
-        /// Starts the workers.
-        /// </summary>
-        public void Start()
-        {
-            if (IsDisposed) return;
-
-            var tasks = new Task[Workers.Length];
-            for (var i = 0; i < Workers.Length; i++)
-            {
-                tasks[i] = Workers[i].StartAsync();
-            }
-
-            Task.WaitAll(tasks);
-        }
-
-        /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
@@ -181,7 +196,7 @@
 
                 if (alsoManaged == false) return;
 
-                Pause(true);
+                Pause(true, true, true, true);
                 foreach (var worker in Workers)
                     worker.Dispose();
             }

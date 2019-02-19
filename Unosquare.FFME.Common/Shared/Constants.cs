@@ -36,12 +36,18 @@
         /// </summary>
         public static string FFmpegSearchPath { get; }
 
-        // TODO: (Floyd) Make this configurable. Maybe part of Media Options? See frame caching policy issue #139.
-        internal static Dictionary<MediaType, int> MaxBlocks { get; } = new Dictionary<MediaType, int>
-        {
+        /*
+         *  TODO: (Floyd) Make this configurable. Maybe part of Media Options? See frame caching policy issue #139.
             { MediaType.Video, 12 },
             { MediaType.Audio, 120 },
             { MediaType.Subtitle, 120 }
+        */
+
+        internal static Dictionary<MediaType, int> MaxBlocks { get; } = new Dictionary<MediaType, int>
+        {
+            { MediaType.Video, 8 },
+            { MediaType.Audio, 60 },
+            { MediaType.Subtitle, 12 }
         };
 
         /// <summary>
@@ -180,12 +186,12 @@
             /// <summary>
             /// The timer medium priority interval for stuff like property updates
             /// </summary>
-            public static TimeSpan MediumPriority => TimeSpan.FromMilliseconds(25);
+            public static TimeSpan MediumPriority => TimeSpan.FromMilliseconds(30);
 
             /// <summary>
             /// The timer low priority interval for stuff like logging
             /// </summary>
-            public static TimeSpan LowPriority => TimeSpan.FromMilliseconds(40);
+            public static TimeSpan LowPriority => TimeSpan.FromMilliseconds(45);
         }
     }
 }

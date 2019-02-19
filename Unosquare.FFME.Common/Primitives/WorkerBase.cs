@@ -103,6 +103,11 @@
         }
 
         /// <summary>
+        /// Gets the default period of 15 milliseconds which is the default precision for timers.
+        /// </summary>
+        protected static TimeSpan DefaultPeriod { get; } = TimeSpan.FromMilliseconds(15);
+
+        /// <summary>
         /// Gets a value indicating whether stop has been requested.
         /// This is useful to prevent more requests from being issued.
         /// </summary>

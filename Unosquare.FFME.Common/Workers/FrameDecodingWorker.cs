@@ -32,7 +32,7 @@
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
         public FrameDecodingWorker(MediaEngine mediaCore)
-            : base(nameof(FrameDecodingWorker), ThreadPriority.Normal, Constants.Interval.HighPriority, WorkerDelayProvider.Token)
+            : base(nameof(FrameDecodingWorker), ThreadPriority.Normal, DefaultPeriod, WorkerDelayProvider.Default)
         {
             MediaCore = mediaCore;
             Commands = mediaCore.Commands;

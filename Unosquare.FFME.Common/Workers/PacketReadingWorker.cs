@@ -21,7 +21,7 @@
         private readonly ManualResetEventSlim BufferChangedEvent = new ManualResetEventSlim(true);
 
         public PacketReadingWorker(MediaEngine mediaCore)
-            : base(nameof(PacketReadingWorker), ThreadPriority.Normal, Constants.Interval.HighPriority, WorkerDelayProvider.Token)
+            : base(nameof(PacketReadingWorker), ThreadPriority.Normal, DefaultPeriod, WorkerDelayProvider.Default)
         {
             MediaCore = mediaCore;
             Container = mediaCore.Container;

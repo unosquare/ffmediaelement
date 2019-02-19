@@ -28,7 +28,7 @@
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
         public CommandManager(MediaEngine mediaCore)
-            : base(nameof(CommandManager), Constants.Interval.HighPriority)
+            : base(nameof(CommandManager), DefaultPeriod)
         {
             MediaCore = mediaCore;
         }
@@ -142,7 +142,7 @@
             if (priorityCommand != PriorityCommandType.None)
             {
                 // Pause all the workers in preparation for execution
-                MediaCore.Workers.Pause(true);
+                MediaCore.Workers.PauseAll();
 
                 // Execute the pending priority command
                 if (priorityCommand == PriorityCommandType.Play)
@@ -157,12 +157,11 @@
                 // Finish the command execution
                 ClearSeekCommands();
                 ClearPriorityCommands();
-                MediaCore.Workers.Resume(true);
+                MediaCore.Workers.ResumeAll();
                 return;
             }
 
             // Perform current and queued seeks.
-            var hasPausedWorkers = false;
             while (true)
             {
                 SeekOperation seekOperation;
@@ -176,16 +175,6 @@
                 if (seekOperation == null)
                     break;
 
-                // wait for the current reading and decoding cycles
-                // to finish. We don't want to interfere with reading in progress
-                // or decoding in progress. For decoding we already know we are not
-                // in a cycle because the decoding worker called this logic.
-                if (!hasPausedWorkers)
-                {
-                    hasPausedWorkers = true;
-                    MediaCore.Workers.Pause(true, true, true, false);
-                }
-
                 ActiveSeekMode = seekOperation.Mode;
                 SeekMedia(seekOperation, ct);
             }
@@ -196,7 +185,10 @@
                 if (IsSeeking && QueuedSeekOperation == null)
                 {
                     IsSeeking = false;
-                    MediaCore.Workers.Resume(true, true, true, false);
+
+                    // Resume the workers since the seek media operation
+                    // might have required pausing them.
+                    MediaCore.Workers.ResumePaused();
 
                     // Resume if requested
                     if (PlayAfterSeek == true)

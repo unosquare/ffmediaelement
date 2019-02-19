@@ -99,6 +99,9 @@
                     if (command == DirectCommandType.Close)
                         MediaCore.Container.SignalAbortReads(false);
 
+                    // Pause the media core workers
+                    MediaCore.Workers?.PauseReadDecode();
+
                     // pause the queue processor
                     PauseAsync().Wait();
 
@@ -131,8 +134,8 @@
                         // Resume the workers and this processor if we are in the Open state
                         if (State.IsOpen && commandResult)
                         {
-                            // Resume the workers
-                            MediaCore.Workers.Resume(false);
+                            // Resume the media core workers
+                            MediaCore.Workers.ResumePaused();
 
                             // Resume this queue processor
                             ResumeAsync();
@@ -378,10 +381,7 @@
         private bool CommandChangeMedia(bool playWhenCompleted)
         {
             // Signal the start of a sync-buffering scenario
-            MediaCore.Clock.Pause();
-
-            // Wait for the cycles to complete
-            MediaCore.Workers.Pause(true);
+            // MediaCore.Clock.Pause();
 
             // Signal a change so the user get the chance to update
             // selected streams and options

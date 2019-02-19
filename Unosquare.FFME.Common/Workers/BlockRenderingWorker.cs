@@ -23,7 +23,7 @@
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
         public BlockRenderingWorker(MediaEngine mediaCore)
-            : base(nameof(BlockRenderingWorker), Constants.Interval.HighPriority)
+            : base(nameof(BlockRenderingWorker), DefaultPeriod)
         {
             MediaCore = mediaCore;
             Commands = MediaCore.Commands;
@@ -92,7 +92,7 @@
                     // then we simply break out of the loop and render whatever it is we have
                     // to create the illussion of smooth seeking. For precision seeking we
                     // continue the loop.
-                    if (!Commands.WaitForSeekBlocks(Constants.Interval.HighPriority.Milliseconds)
+                    if (!Commands.WaitForSeekBlocks(DefaultPeriod.Milliseconds)
                         && Commands.ActiveSeekMode == CommandManager.SeekMode.Normal)
                     {
                         break;

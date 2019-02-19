@@ -11,6 +11,11 @@
     public static class WorkerDelayProvider
     {
         /// <summary>
+        /// Gets the default delay provider.
+        /// </summary>
+        public static IWorkerDelayProvider Default => TokenTimeout;
+
+        /// <summary>
         /// Provides a delay implementation which simply waits on the task and cancels on
         /// the cancelation token.
         /// </summary>
@@ -28,10 +33,10 @@
         public static IWorkerDelayProvider TokenSleep => new TokenSleepeDelay();
 
         /// <summary>
-        /// Provides a delay implementation which uses short sleep intervals of 5ms and
+        /// Provides a delay implementation which uses short delay intervals of 5ms and
         /// a wait on the delay task in the final loop.
         /// </summary>
-        public static IWorkerDelayProvider PrecisionTokenSleep => new PrecisionTokenSleepeDelay();
+        public static IWorkerDelayProvider SteppedToken => new SteppedTokenDelay();
 
         private class TokenCancellableDelay : IWorkerDelayProvider
         {
@@ -39,6 +44,16 @@
             {
                 if (wantedDelay == 0 || wantedDelay < -1)
                     return;
+
+                // for wanted delays of less than 30ms it is not worth
+                // passing a timeout or a token as it only adds unnecessary
+                // overhead.
+                if (wantedDelay <= 30)
+                {
+                    try { delayTask.Wait(); }
+                    catch { /* ignore */ }
+                    return;
+                }
 
                 // only wait on the cancellation token
                 // or until the task completes normally
@@ -53,6 +68,16 @@
             {
                 if (wantedDelay == 0 || wantedDelay < -1)
                     return;
+
+                // for wanted delays of less than 30ms it is not worth
+                // passing a timeout or a token as it only adds unnecessary
+                // overhead.
+                if (wantedDelay <= 30)
+                {
+                    try { delayTask.Wait(); }
+                    catch { /* ignore */ }
+                    return;
+                }
 
                 try { delayTask.Wait(wantedDelay, token); }
                 catch { /* ignore */ }
@@ -80,8 +105,9 @@
             }
         }
 
-        private class PrecisionTokenSleepeDelay : IWorkerDelayProvider
+        private class SteppedTokenDelay : IWorkerDelayProvider
         {
+            private const int StepMilliseconds = 15;
             private readonly Stopwatch ElapsedWait = new Stopwatch();
 
             public void ExecuteCycleDelay(int wantedDelay, Task delayTask, CancellationToken token)
@@ -93,7 +119,8 @@
 
                 if (wantedDelay == Timeout.Infinite)
                 {
-                    delayTask.Wait(wantedDelay, token);
+                    try { delayTask.Wait(wantedDelay, token); }
+                    catch { /* Ignore cancelled tasks */ }
                     return;
                 }
 
@@ -102,14 +129,18 @@
                 {
                     remainingWaitTime = wantedDelay - Convert.ToInt32(ElapsedWait.ElapsedMilliseconds);
 
-                    if (remainingWaitTime >= 5)
+                    // Exit for no remaining wait time
+                    if (remainingWaitTime <= 0)
+                        break;
+
+                    if (remainingWaitTime >= StepMilliseconds)
                     {
-                        Thread.Sleep(5);
+                        Task.Delay(StepMilliseconds).Wait();
                     }
                     else
                     {
-                        try { delayTask.Wait(token); }
-                        catch { /* ignore */ }
+                        try { delayTask.Wait(remainingWaitTime); }
+                        catch { /* ignore cancellation of task exception */ }
                     }
 
                     if (ElapsedWait.ElapsedMilliseconds >= wantedDelay)
