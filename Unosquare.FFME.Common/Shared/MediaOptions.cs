@@ -121,7 +121,7 @@
 
         /// <summary>
         /// Gets or sets the number of audio blocks to cache in the decoder.
-        /// The minimum is 24. Leave as -1 for auto.
+        /// The minimum is 64. Leave as -1 for auto.
         /// </summary>
         public int AudioBlockCache { get; set; } = -1;
 

@@ -49,7 +49,7 @@
         internal static int GetMaxBlocks(MediaType t, MediaEngine mediaCore)
         {
             const int MinVideoBlocks = 4;
-            const int MinAudioBlocks = 24;
+            const int MinAudioBlocks = 64;
             const int MinSUbtitleBlocks = 12;
 
             var result = 0;
