@@ -3,7 +3,6 @@
     using ClosedCaptions;
     using FFmpeg.AutoGen;
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using System.Reflection;
 
@@ -36,24 +35,43 @@
         /// </summary>
         public static string FFmpegSearchPath { get; }
 
-        /*
-         *  TODO: (Floyd) Make this configurable. Maybe part of Media Options? See frame caching policy issue #139.
-            { MediaType.Video, 12 },
-            { MediaType.Audio, 120 },
-            { MediaType.Subtitle, 120 }
-        */
-
-        internal static Dictionary<MediaType, int> MaxBlocks { get; } = new Dictionary<MediaType, int>
-        {
-            { MediaType.Video, 8 },
-            { MediaType.Audio, 60 },
-            { MediaType.Subtitle, 12 }
-        };
-
         /// <summary>
         /// Gets all media types in an array.
         /// </summary>
         internal static MediaType[] MediaTypes { get; } = { MediaType.Video, MediaType.Audio, MediaType.Subtitle };
+
+        /// <summary>
+        /// Gets the maximum blocks to cache for the given component type.
+        /// </summary>
+        /// <param name="t">The t.</param>
+        /// <param name="mediaCore">The media core.</param>
+        /// <returns>The number of blocks to cache</returns>
+        internal static int GetMaxBlocks(MediaType t, MediaEngine mediaCore)
+        {
+            const int MinVideoBlocks = 4;
+            const int MinAudioBlocks = 24;
+            const int MinSUbtitleBlocks = 12;
+
+            var result = 0;
+
+            if (t == MediaType.Video)
+            {
+                result = mediaCore.Container.MediaOptions.VideoBlockCache;
+                if (result < MinVideoBlocks) result = MinVideoBlocks;
+            }
+            else if (t == MediaType.Audio)
+            {
+                result = mediaCore.Container.MediaOptions.AudioBlockCache;
+                if (result < MinAudioBlocks) result = MinAudioBlocks;
+            }
+            else if (t == MediaType.Subtitle)
+            {
+                result = mediaCore.Container.MediaOptions.SubtitleBlockCache;
+                if (result < MinSUbtitleBlocks) result = MinSUbtitleBlocks;
+            }
+
+            return result;
+        }
 
         /// <summary>
         /// Defines Controller Value Defaults

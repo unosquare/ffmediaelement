@@ -114,7 +114,7 @@
             // Initialize the block buffers
             foreach (var t in Container.Components.MediaTypes)
             {
-                Blocks[t] = new MediaBlockBuffer(Constants.MaxBlocks[t], t);
+                Blocks[t] = new MediaBlockBuffer(Constants.GetMaxBlocks(t, this), t);
                 Renderers[t] = Platform.CreateRenderer(t, this);
                 InvalidateRenderer(t);
             }

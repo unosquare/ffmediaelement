@@ -112,5 +112,23 @@
         /// subtitles (if any) will be ignored.
         /// </summary>
         public string SubtitlesUrl { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of video blocks to cache in the decoder.
+        /// The minimum is 4. Leave as -1 for auto.
+        /// </summary>
+        public int VideoBlockCache { get; set; } = -1;
+
+        /// <summary>
+        /// Gets or sets the number of audio blocks to cache in the decoder.
+        /// The minimum is 24. Leave as -1 for auto.
+        /// </summary>
+        public int AudioBlockCache { get; set; } = -1;
+
+        /// <summary>
+        /// Gets or sets the number of audio blocks to cache in the decoder.
+        /// The minimum is 12. Leave as -1 for auto.
+        /// </summary>
+        public int SubtitleBlockCache { get; set; } = -1;
     }
 }

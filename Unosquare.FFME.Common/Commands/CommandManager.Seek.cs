@@ -287,8 +287,8 @@
                 // We need to update the clock immediately because
                 // the renderer will need this position
                 MediaCore.ChangePosition(mode != SeekMode.Normal && mode != SeekMode.Stop
-                    ? targetPosition
-                    : mainBlocks[targetPosition].StartTime);
+                    ? mainBlocks[targetPosition].StartTime
+                    : targetPosition);
 
                 SeekBlocksAvailable.Set();
                 return true;
