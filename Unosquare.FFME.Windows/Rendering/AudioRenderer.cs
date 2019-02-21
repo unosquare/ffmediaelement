@@ -834,7 +834,7 @@
 
                 if (isLeftSample && Math.Abs(leftVolume - 1.0) > double.Epsilon)
                     currentSample = Convert.ToInt16(currentSample * leftVolume);
-                else if (isLeftSample == false && Math.Abs(leftVolume - 1.0) > double.Epsilon)
+                else if (isLeftSample == false && Math.Abs(rightVolume - 1.0) > double.Epsilon)
                     currentSample = Convert.ToInt16(currentSample * rightVolume);
 
                 targetBuffer.PutAudioSample(targetBufferOffset + sourceBufferOffset, currentSample);
