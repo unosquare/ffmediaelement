@@ -33,7 +33,7 @@
         /// <summary>
         /// Gets the worker collection
         /// </summary>
-        internal MediaWorkerSet Workers { get; private set; }
+        internal MediaWorkerSet Workers { get; set; }
 
         /// <summary>
         /// Holds the block renderers
@@ -104,62 +104,6 @@
         #endregion
 
         #region Methods
-
-        /// <summary>
-        /// Initializes the media block buffers and
-        /// starts packet reader, frame decoder, and block rendering workers.
-        /// </summary>
-        internal void StartWorkers()
-        {
-            // Initialize the block buffers
-            foreach (var t in Container.Components.MediaTypes)
-            {
-                Blocks[t] = new MediaBlockBuffer(Constants.GetMaxBlocks(t, this), t);
-                Renderers[t] = Platform.CreateRenderer(t, this);
-                InvalidateRenderer(t);
-            }
-
-            // Create the renderer for the preloaded subs
-            if (PreloadedSubtitles != null)
-            {
-                var t = PreloadedSubtitles.MediaType;
-                if (Renderers[t] == null)
-                    Renderers[t] = Platform.CreateRenderer(t, this);
-
-                InvalidateRenderer(t);
-            }
-
-            Clock.SpeedRatio = Constants.Controller.DefaultSpeedRatio;
-
-            // Instantiate the workers and fire them up.
-            Workers = new MediaWorkerSet(this);
-            Workers.Start();
-        }
-
-        /// <summary>
-        /// Stops the packet reader, frame decoder, and block renderers
-        /// </summary>
-        internal void StopWorkers()
-        {
-            // Pause the clock so no further updates are propagated
-            Clock.Pause();
-
-            // Cause an immediate Packet read abort
-            Container?.SignalAbortReads(false);
-
-            // This causes the workers to stop and dispose.
-            Workers.Dispose();
-
-            // Call close on all renderers
-            foreach (var renderer in Renderers.Values)
-                renderer.Close();
-
-            // Remove the renderers disposing of them
-            Renderers.Clear();
-
-            // Reset the clock
-            ResetPosition();
-        }
 
         /// <summary>
         /// Resumes the playback by resuming the clock and updating the playback state to state.

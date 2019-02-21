@@ -5,9 +5,12 @@
     using Primitives;
     using Shared;
     using System;
+    using System.Collections.Generic;
     using System.Linq;
+    using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
+    using Workers;
 
     internal partial class CommandManager
     {
@@ -100,7 +103,7 @@
                         MediaCore.Container.SignalAbortReads(false);
 
                     // Pause the media core workers
-                    MediaCore.Workers?.PauseReadDecode();
+                    MediaCore.Workers?.PauseAll();
 
                     // pause the queue processor
                     PauseAsync().Wait();
@@ -333,11 +336,11 @@
                     throw new MediaContainerException("Unable to initialize at least one audio or video component from the input stream.");
 
                 // Charge! We are good to go, fire up the worker threads!
-                MediaCore.StartWorkers();
+                StartWorkers();
             }
             catch
             {
-                try { MediaCore.StopWorkers(); } catch { /* Ignore any exceptions and continue */ }
+                try { StopWorkers(); } catch { /* Ignore any exceptions and continue */ }
                 try { MediaCore.Container?.Dispose(); } catch { /* Ignore any exceptions and continue */ }
                 DisposePreloadedSubtitles();
                 MediaCore.Container = null;
@@ -354,21 +357,11 @@
         private bool CommandCloseMedia()
         {
             // Wait for the workers to stop
-            MediaCore.StopWorkers();
+            StopWorkers();
 
             // Dispose the container
             MediaCore.Container?.Dispose();
             MediaCore.Container = null;
-
-            // Dispose the Blocks for all components
-            foreach (var kvp in MediaCore.Blocks)
-                kvp.Value.Dispose();
-
-            MediaCore.Blocks.Clear();
-            DisposePreloadedSubtitles();
-
-            // Clear the render times
-            MediaCore.LastRenderTime.Clear();
 
             return false;
         }
@@ -380,9 +373,6 @@
         /// <returns>Simply return the play when completed boolean if there are no exceptions</returns>
         private bool CommandChangeMedia(bool playWhenCompleted)
         {
-            // Signal the start of a sync-buffering scenario
-            // MediaCore.Clock.Pause();
-
             // Signal a change so the user get the chance to update
             // selected streams and options
             MediaCore.SendOnMediaChanging();
@@ -390,39 +380,151 @@
             // Side load subtitles
             PreLoadSubtitles();
 
-            // Capture the current media types before components change
-            var oldMediaTypes = MediaCore.Container.Components.MediaTypes.ToArray();
-
             // Recreate selected streams as media components
-            var mediaTypes = MediaCore.Container.UpdateComponents();
+            MediaCore.Container.UpdateComponents();
             MediaCore.State.UpdateFixedContainerProperties();
 
-            // find all existing component blocks and renderers that no longer exist
-            // We always remove the audio component in case there is a change in audio device
-            var removableMediaTypes = oldMediaTypes
-                .Where(t => mediaTypes.Contains(t) == false)
-                .Union(new[] { MediaType.Audio })
-                .Distinct()
-                .ToArray();
+            // Dispose unused rendered and blocks and create new ones
+            InitializeRendering();
 
-            // find all existing component blocks and renderers that no longer exist
-            foreach (var t in removableMediaTypes)
+            // Depending on whether or not the media is seekable
+            // perform either a seek operation or a quick buffering operation.
+            if (State.IsSeekable)
+            {
+                // Let's simply do an automated seek
+                SeekMedia(new SeekOperation(MediaCore.WallClock, SeekMode.Normal), CancellationToken.None);
+            }
+
+            return playWhenCompleted;
+        }
+
+        #endregion
+
+        #region Implementation Helpers
+
+        /// <summary>
+        /// Initializes the media block buffers and
+        /// starts packet reader, frame decoder, and block rendering workers.
+        /// </summary>
+        private void StartWorkers()
+        {
+            MediaCore.Clock.SpeedRatio = Constants.Controller.DefaultSpeedRatio;
+
+            // Ensure renderers and blocks are available
+            InitializeRendering();
+
+            // Instantiate the workers and fire them up.
+            MediaCore.Workers = new MediaWorkerSet(MediaCore);
+            MediaCore.Workers.Start();
+        }
+
+        /// <summary>
+        /// Stops the packet reader, frame decoder, and block renderers
+        /// </summary>
+        private void StopWorkers()
+        {
+            // Pause the clock so no further updates are propagated
+            MediaCore.Clock.Pause();
+
+            // Cause an immediate Packet read abort
+            MediaCore.Container?.SignalAbortReads(false);
+
+            // This causes the workers to stop and dispose.
+            MediaCore.Workers.Dispose();
+
+            // Call close on all renderers
+            foreach (var renderer in MediaCore.Renderers.Values)
+                renderer.Close();
+
+            // Remove the renderers disposing of them
+            MediaCore.Renderers.Clear();
+
+            // Dispose the Blocks for all components
+            foreach (var kvp in MediaCore.Blocks)
+                kvp.Value.Dispose();
+
+            MediaCore.Blocks.Clear();
+            DisposePreloadedSubtitles();
+
+            // Clear the render times
+            MediaCore.LastRenderTime.Clear();
+
+            // Reset the clock
+            MediaCore.ResetPosition();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private MediaType[] GetCurrentComponentTypes()
+        {
+            var result = new List<MediaType>(4);
+            result.AddRange(MediaCore.Container.Components.MediaTypes);
+
+            if (MediaCore.PreloadedSubtitles != null)
+                result.Add(MediaType.Subtitle);
+
+            return result.Distinct().ToArray();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private MediaType[] GetCurrentRenderingTypes()
+        {
+            var currentMediaTypes = new List<MediaType>(8);
+            currentMediaTypes.AddRange(MediaCore?.Renderers?.Keys?.ToArray() ?? new MediaType[] { });
+            currentMediaTypes.AddRange(MediaCore?.Blocks?.Keys?.ToArray() ?? new MediaType[] { });
+
+            return currentMediaTypes.Distinct().ToArray();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void InitializeRendering()
+        {
+            var oldMediaTypes = GetCurrentRenderingTypes();
+
+            // We always remove the audio renderer in case there is a change in audio device.
+            if (MediaCore.Renderers.ContainsKey(MediaType.Audio))
+            {
+                MediaCore.Renderers[MediaType.Audio].Close();
+                MediaCore.Renderers.Remove(MediaType.Audio);
+            }
+
+            // capture the newly selected media types
+            var newMediaTypes = GetCurrentComponentTypes();
+
+            // capture all media types
+            var allMediaTypes = oldMediaTypes.Union(newMediaTypes).Distinct().ToArray();
+
+            // find all existing component blocks and renderers that are no longer needed
+            var removableRenderers = oldMediaTypes.Where(t => !newMediaTypes.Contains(t)).Distinct().ToArray();
+
+            // find all existing component renderers that are no longer needed
+            foreach (var t in removableRenderers)
             {
                 // Remove the renderer for the component
-                if (MediaCore.Renderers.ContainsKey(t))
-                {
-                    MediaCore.Renderers[t].Close();
-                    MediaCore.Renderers.Remove(t);
-                }
+                if (!MediaCore.Renderers.ContainsKey(t))
+                    continue;
 
-                // Remove the block buffer for the component
-                if (!MediaCore.Blocks.ContainsKey(t)) continue;
-                MediaCore.Blocks[t]?.Dispose();
+                MediaCore.Renderers[t].Close();
+                MediaCore.Renderers.Remove(t);
+            }
+
+            // Remove blocks that no longer are required or don't match in cache size
+            foreach (var t in allMediaTypes)
+            {
+                // if blocks don't exist we don't need to remove them
+                if (!MediaCore.Blocks.ContainsKey(t))
+                    continue;
+
+                // if blocks are in the new components and match in block size,
+                // we don't need to remove them.
+                if (newMediaTypes.Contains(t) && MediaCore.Blocks[t].Capacity == Constants.GetMaxBlocks(t, MediaCore))
+                    continue;
+
+                MediaCore.Blocks[t].Dispose();
                 MediaCore.Blocks.Remove(t);
             }
 
             // Create the block buffers and renderers as necessary
-            foreach (var t in mediaTypes)
+            foreach (var t in newMediaTypes)
             {
                 if (MediaCore.Blocks.ContainsKey(t) == false)
                     MediaCore.Blocks[t] = new MediaBlockBuffer(Constants.GetMaxBlocks(t, MediaCore), t);
@@ -432,33 +534,9 @@
 
                 MediaCore.Blocks[t].Clear();
                 MediaCore.Renderers[t].WaitForReadyState();
+                MediaCore.InvalidateRenderer(t);
             }
-
-            // Depending on whether or not the media is seekable
-            // perform either a seek operation or a quick buffering operation.
-            if (State.IsSeekable)
-            {
-                // Let's simply do an automated seek
-                SeekMedia(new SeekOperation(MediaCore.WallClock, SeekMode.Normal), CancellationToken.None);
-            }
-            else
-            {
-                // Quick buffering used to be a good approach
-                // but now the sync-buffering code is much better and this is no loger needed
-                // Still keeping this commented out for future reference.
-                // MediaCore.Container.Components.RunQuickBuffering(MediaCore)
-
-                // Mark the renderers as invalidated
-                foreach (var t in mediaTypes)
-                    MediaCore.InvalidateRenderer(t);
-            }
-
-            return playWhenCompleted;
         }
-
-        #endregion
-
-        #region Implementation Helpers
 
         /// <summary>
         /// Pre-loads the subtitles from the MediaOptions.SubtitlesUrl.
