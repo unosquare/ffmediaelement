@@ -31,6 +31,8 @@ Here is a quick guide on how to get started.
 For example: In your `MainForm.xaml`, add the namespace: `xmlns:ffme="clr-namespace:Unosquare.FFME;assembly=ffme.win"` and then add the FFME control your window's XAML: `<ffme:MediaElement x:Name="Media" Background="Gray" LoadedBehavior="Play" UnloadedBehavior="Manual" />` 
 7. To play files or streams, simply set the `Source` property: `Media.Source = new Uri(@"c:\your-file-here");`. Since `Source` is a dependency property, it need to be set from the GUI thread.
 
+Note: To build your own FFmpeg binaries, I recommend the [Media Autobuild Suite](https://github.com/jb-alvarado/media-autobuild_suite) but please don't ask for help on it here.
+
 ### Additional Usage Notes
 - Remember: The `Unosquare.FFME.Windows.Sample` provides plenty of usage examples
 - The generated API documentation is available [here](http://unosquare.github.io/ffmediaelement/api/Unosquare.FFME.html)
