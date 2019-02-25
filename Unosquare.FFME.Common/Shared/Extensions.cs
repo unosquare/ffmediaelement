@@ -365,11 +365,11 @@
         /// </summary>
         /// <param name="streamStartTime">The start time offset.</param>
         /// <param name="frameDuration">The duration.</param>
-        /// <param name="frameTimeBase">The time base.</param>
+        /// <param name="frameRate">The frame rate.</param>
         /// <param name="frameNumber">The display picture number.</param>
         /// <returns>The FFmpeg computed SMTPE Time code</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static unsafe string ComputeSmtpeTimeCode(TimeSpan streamStartTime, TimeSpan frameDuration, AVRational frameTimeBase, long frameNumber)
+        internal static unsafe string ComputeSmtpeTimeCode(TimeSpan streamStartTime, TimeSpan frameDuration, AVRational frameRate, long frameNumber)
         {
             // Drop the days in the stream start time
             var startTime = streamStartTime.Days > 0 ?
@@ -388,8 +388,8 @@
             if (startFrameNumber > int.MaxValue)
                 startFrameNumber = startFrameNumber % int.MaxValue;
 
-            ffmpeg.av_timecode_init(timeCodeInfo, frameTimeBase, 0, Convert.ToInt32(startFrameNumber), null);
-            var isNtsc = frameTimeBase.num == 30000 && frameTimeBase.den == 1001;
+            ffmpeg.av_timecode_init(timeCodeInfo, frameRate, 0, Convert.ToInt32(startFrameNumber), null);
+            var isNtsc = frameRate.num == 30000 && frameRate.den == 1001;
             var adjustedFrameNumber = isNtsc ?
                 ffmpeg.av_timecode_adjust_ntsc_framenum2(frameIndex, Convert.ToInt32(timeCodeInfo->fps)) :
                 frameIndex;

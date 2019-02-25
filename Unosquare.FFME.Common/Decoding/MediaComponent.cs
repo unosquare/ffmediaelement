@@ -233,19 +233,19 @@
 
             // Compute the start time
             StartTime = Stream->start_time == ffmpeg.AV_NOPTS_VALUE ?
-                Container.MediaStartTime :
+                TimeSpan.MinValue :
                 Stream->start_time.ToTimeSpan(Stream->time_base);
 
             // compute the duration
             Duration = (Stream->duration == ffmpeg.AV_NOPTS_VALUE || Stream->duration <= 0) ?
-                Container.MediaDuration :
+                TimeSpan.MinValue :
                 Stream->duration.ToTimeSpan(Stream->time_base);
 
             CodecId = Stream->codec->codec_id;
             CodecName = FFInterop.PtrToStringUTF8(selectedCodec->name);
             BitRate = Stream->codec->bit_rate < 0 ? 0 : Stream->codec->bit_rate;
             this.LogDebug(Aspects.Component,
-                $"{MediaType.ToString().ToUpperInvariant()}: Start Offset: {StartTime.Format()}; Duration: {Duration.Format()}");
+                $"{MediaType.ToString().ToUpperInvariant()} - Start Time: {StartTime.Format()}; Duration: {Duration.Format()}");
 
             // Begin processing with a flush packet
             SendFlushPacket();
@@ -288,13 +288,22 @@
         /// by the start time of the stream.
         /// Returns TimeSpan.MinValue when unknown.
         /// </summary>
-        public TimeSpan StartTime { get; }
+        public TimeSpan StartTime { get; internal set; }
 
         /// <summary>
         /// Gets the duration of this stream component.
         /// If there is no such information it will return TimeSpan.MinValue
         /// </summary>
-        public TimeSpan Duration { get; }
+        public TimeSpan Duration { get; internal set; }
+
+        /// <summary>
+        /// Gets the component's stream end timestamp as reported
+        /// by the start and duration time of the stream.
+        /// Returns TimeSpan.MinValue when unknown.
+        /// </summary>
+        public TimeSpan EndTime => (StartTime != TimeSpan.MinValue && Duration != TimeSpan.MinValue)
+            ? TimeSpan.FromTicks(StartTime.Ticks + Duration.Ticks)
+            : TimeSpan.MinValue;
 
         /// <summary>
         /// Gets the current length in bytes of the
@@ -386,6 +395,21 @@
             private set => m_IsDisposed.Value = value;
         }
 
+        /// <summary>
+        /// Gets or sets the last frame PTS.
+        /// </summary>
+        internal long? LastFramePts { get; set; }
+
+        /// <summary>
+        /// Gets the start time of the last received frame.
+        /// </summary>
+        internal TimeSpan LastFrameStartTime { get; private set; }
+
+        /// <summary>
+        /// Gets the duration of the last frame that was received.
+        /// </summary>
+        internal TimeSpan LastFrameDuration { get; private set; }
+
         #endregion
 
         #region Methods
@@ -439,7 +463,17 @@
         /// Feeds the decoder buffer and tries to return the next available frame.
         /// </summary>
         /// <returns>The received Media Frame. It is null if no frame could be retrieved.</returns>
-        public MediaFrame ReceiveNextFrame() => DecodePacketFunction();
+        public MediaFrame ReceiveNextFrame()
+        {
+            var frame = DecodePacketFunction();
+            if (frame != null)
+            {
+                LastFrameDuration = frame.Duration;
+                LastFrameStartTime = frame.StartTime;
+            }
+
+            return frame;
+        }
 
         /// <summary>
         /// Converts decoded, raw frame data in the frame source into a a usable frame. <br />

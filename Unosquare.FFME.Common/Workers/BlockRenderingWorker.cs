@@ -14,16 +14,19 @@
     /// </summary>
     /// <seealso cref="WorkerBase" />
     /// <seealso cref="IMediaWorker" />
-    internal sealed class BlockRenderingWorker : TimerWorkerBase, IMediaWorker, ILoggingSource
+    internal sealed class BlockRenderingWorker : ThreadWorkerBase, IMediaWorker, ILoggingSource
     {
         private readonly AtomicBoolean HasInitialized = new AtomicBoolean(false);
+        private readonly MediaTypeDictionary<TimeSpan> LastWallClock = new MediaTypeDictionary<TimeSpan>();
+        private readonly MediaTypeDictionary<TimeSpan> NextWallClock = new MediaTypeDictionary<TimeSpan>();
+        private readonly MediaTypeDictionary<TimeSpan> NextBlockStartTime = new MediaTypeDictionary<TimeSpan>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BlockRenderingWorker"/> class.
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
         public BlockRenderingWorker(MediaEngine mediaCore)
-            : base(nameof(BlockRenderingWorker), DefaultPeriod)
+            : base(nameof(BlockRenderingWorker), ThreadPriority.Lowest, TimeSpan.FromMilliseconds(1), WorkerDelayProvider.Default)
         {
             MediaCore = mediaCore;
             Commands = MediaCore.Commands;
@@ -117,9 +120,25 @@
                     }
 
                     // Get the audio, video, or subtitle block to render
+                    var nextBlockTime = NextBlockStartTime[t] == null
+                        ? TimeSpan.MinValue
+                        : NextBlockStartTime[t];
+
+                    try
+                    {
+                        var elapsed = TimeSpan.FromTicks(MediaCore.WallClock.Ticks - LastWallClock[t].Ticks);
+                        nextBlockTime = TimeSpan.FromTicks(MediaCore.LastRenderTime[t].Ticks + elapsed.Ticks);
+                        if (t == MediaType.Video)
+                            Console.WriteLine($"Elapsed VIDEO ms: {elapsed.TotalMilliseconds:0.000}. Next Elapsed: {nextBlockTime.Format()} Next Block: {NextBlockStartTime[t].Format()}");
+                    }
+                    catch
+                    {
+                        // Ignore
+                    }
+
                     currentBlock[t] = t == MediaType.Subtitle && MediaCore.PreloadedSubtitles != null ?
-                        MediaCore.PreloadedSubtitles[wallClock] :
-                        MediaCore.Blocks[t][wallClock];
+                        MediaCore.PreloadedSubtitles[nextBlockTime] :
+                        MediaCore.Blocks[t][nextBlockTime];
                 }
 
                 // Render each of the Media Types if it is time to do so.
@@ -132,6 +151,9 @@
                     // Render by forced signal (TimeSpan.MinValue) or because simply it is time to do so
                     if (MediaCore.LastRenderTime[t] == TimeSpan.MinValue || currentBlock[t].StartTime != MediaCore.LastRenderTime[t])
                         SendBlockToRenderer(currentBlock[t], wallClock);
+
+                    // TODO: SendBlockToRenderer repeatedly for contiguous audio blocks
+                    // Also remove the logic where the renderer reads the contiguous audio frames
                 }
 
                 #endregion
@@ -154,18 +176,23 @@
                 // Check End of Media Scenarios
                 if (Commands.IsSeeking == false
                 && MediaCore.HasDecodingEnded
-                && MediaCore.WallClock >= MediaCore.LastRenderTime[main]
-                && MediaCore.WallClock >= MediaCore.Blocks[main].RangeEndTime)
+                && MediaCore.WallClock.Ticks >= NextWallClock[main].Ticks)
                 {
                     // Rendered all and nothing else to render
                     if (State.HasMediaEnded == false)
                     {
                         MediaCore.Clock.Pause();
-                        var endPosition = MediaCore.ChangePosition(MediaCore.Blocks[main].RangeEndTime);
+
+                        // TODO: compute end position
+                        // var endPosition = TimeSpan.FromTicks(MediaCore.LastRenderTime[main].Ticks + RenderDuration[main].Ticks);
+                        // endPosition = MediaCore.ChangePosition(endPosition);
+                        // State.UpdateMediaEnded(true, endPosition);
+                        // TODO: The below needs adding the last block durration
+                        var endPosition = MediaCore.ChangePosition(MediaCore.LastRenderTime[main]);
                         State.UpdateMediaEnded(true, endPosition);
+
                         State.UpdateMediaState(PlaybackStatus.Stop);
-                        foreach (var mt in Container.Components.MediaTypes)
-                            MediaCore.InvalidateRenderer(mt);
+                        MediaCore.InvalidateRenderers();
                     }
                 }
                 else
@@ -205,18 +232,32 @@
             // No blocks were rendered
             if (block == null) return 0;
 
+            var t = block.MediaType;
+
+            // Get how long the block needs to be rendered
+            var renderDurationTicks = block.Next != null && block.Next.StartTime.Ticks > block.StartTime.Ticks
+                ? block.Next.StartTime.Ticks - block.StartTime.Ticks
+                : block.Duration.Ticks;
+
+            LastWallClock[t] = MediaCore.WallClock;
+            NextWallClock[t] = TimeSpan.FromTicks(MediaCore.WallClock.Ticks + renderDurationTicks);
+            NextBlockStartTime[t] = TimeSpan.FromTicks(block.StartTime.Ticks + renderDurationTicks);
+            MediaCore.LastRenderTime[t] = block.StartTime;
+
             // Process property changes coming from video blocks
-            State.UpdateDynamicBlockProperties(block, MediaCore.Blocks[block.MediaType]);
+            State.UpdateDynamicBlockProperties(block, MediaCore.Blocks[t]);
 
             // Send the block to its corresponding renderer
-            MediaCore.Renderers[block.MediaType]?.Render(block, clockPosition);
-            MediaCore.LastRenderTime[block.MediaType] = block.StartTime;
+            MediaCore.Renderers[t]?.Render(block, clockPosition);
 
             // Log the block statistics for debugging
             LogRenderBlock(block, clockPosition, block.Index);
 
-            // At this point, we are certain that a blocl has been
+            // At this point, we are certain that a block has been
             // sent to its corresponding renderer.
+            if (MediaCore.Blocks[t].IsFull)
+                MediaCore.Blocks[t].RemoveFirst();
+
             return 1;
         }
 

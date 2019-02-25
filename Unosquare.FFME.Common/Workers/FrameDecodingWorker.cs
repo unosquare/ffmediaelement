@@ -77,7 +77,6 @@
             var main = Container.Components.MainMediaType;
             MediaBlockBuffer blocks;
             DecodedFrameCount = 0;
-            var rangePercent = 0d;
 
             #endregion
 
@@ -96,12 +95,25 @@
                 // If we are not in range then we need to enter the sync-buffering state
                 if (NeedsMorePackets && !MediaCore.IsSyncBuffering && blocks.IsInRange(wallClock) == false)
                 {
-                    // Enter sync-buffering scenario
-                    MediaCore.Clock.Pause();
-                    wallClock = MediaCore.WallClock;
-                    MediaCore.IsSyncBuffering = true;
-                    SyncBufferStartTime = DateTime.UtcNow;
-                    this.LogInfo(Aspects.DecodingWorker, $"SYNC-BUFFER: Started. Buffer: {State.BufferingProgress:p}. Clock: {wallClock.Format()}");
+                    if (State.BufferingProgress >= 0.95 && blocks.Count > 0)
+                    {
+                        // We don't want to enter a sync-buffering scenario
+                        // if we have a full buffer. We just need to decode
+                        // more packets and change the position of the clock to what is available
+                        // MediaCore.InvalidateRenderers();
+                        // wallClock = blocks[wallClock].StartTime;
+                        // MediaCore.ChangePosition(wallClock);
+                    }
+                    else
+                    {
+                        // Enter sync-buffering scenario
+                        MediaCore.Clock.Pause();
+                        wallClock = MediaCore.WallClock;
+                        MediaCore.IsSyncBuffering = true;
+                        SyncBufferStartTime = DateTime.UtcNow;
+                        this.LogInfo(Aspects.DecodingWorker,
+                            $"SYNC-BUFFER: Started. Buffer: {State.BufferingProgress:p}. Clock: {wallClock.Format()}");
+                    }
                 }
 
                 #endregion
@@ -115,26 +127,15 @@
                     if (ct.IsCancellationRequested) break;
 
                     // Capture a reference to the blocks and the current Range Percent
-                    const double rangePercentThreshold = 0.75d;
                     blocks = MediaCore.Blocks[t];
-                    rangePercent = blocks.GetRangePercent(wallClock);
 
-                    // Read as much as we can for this cycle but always within range.
-                    while (blocks.IsFull == false || rangePercent > rangePercentThreshold)
+                    // Read as much as we can for this cycle
+                    while (blocks.IsFull == false)
                     {
                         if (ct.IsCancellationRequested || AddNextBlock(t) == false)
                             break;
 
                         DecodedFrameCount += 1;
-                        rangePercent = blocks.GetRangePercent(wallClock);
-
-                        // Determine break conditions to save CPU time
-                        if (rangePercent > 0 &&
-                            rangePercent <= rangePercentThreshold &&
-                            blocks.IsFull == false &&
-                            blocks.CapacityPercent >= 0.25d &&
-                            blocks.IsInRange(wallClock))
-                            break;
                     }
 
                     #endregion
@@ -144,7 +145,7 @@
             {
                 // Provide updates to decoding stats
                 State.UpdateDecodingBitRate(
-                    MediaCore.Blocks.Values.Sum(b => b.IsInRange(wallClock) ? b.RangeBitRate : 0));
+                    MediaCore.Blocks.Values.Sum(b => b.RangeBitRate));
 
                 // Detect End of Decoding Scenarios
                 // The Rendering will check for end of media when this
@@ -161,11 +162,15 @@
                 {
                     blocks = MediaCore.Blocks[main];
                     if (blocks.Count > 0 && !blocks.IsInRange(wallClock))
+                    {
+                        MediaCore.InvalidateRenderers();
                         wallClock = blocks[wallClock].StartTime;
+                    }
 
                     MediaCore.ChangePosition(wallClock);
                     MediaCore.IsSyncBuffering = false;
-                    this.LogInfo(Aspects.DecodingWorker, $"SYNC-BUFFER: Completed in {DateTime.UtcNow.Subtract(SyncBufferStartTime).TotalMilliseconds:0.0} ms");
+                    this.LogInfo(Aspects.DecodingWorker,
+                        $"SYNC-BUFFER: Completed in {DateTime.UtcNow.Subtract(SyncBufferStartTime).TotalMilliseconds:0.0} ms");
 
                     if (State.MediaState == PlaybackStatus.Play)
                         MediaCore.ResumePlayback();

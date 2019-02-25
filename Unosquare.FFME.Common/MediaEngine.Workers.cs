@@ -3,6 +3,7 @@
     using Primitives;
     using Shared;
     using System;
+    using System.Linq;
     using System.Runtime.CompilerServices;
     using Workers;
 
@@ -156,6 +157,18 @@
             // corresponding block to its renderer
             LastRenderTime[t] = TimeSpan.MinValue;
             Renderers[t]?.Seek();
+        }
+
+        /// <summary>
+        /// Invalidates the last render time for all renderers given component.
+        /// Additionally, it calls Seek on the renderers to remove any caches
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void InvalidateRenderers()
+        {
+            var mediaTypes = Renderers.Keys.ToArray();
+            foreach (var t in mediaTypes)
+                InvalidateRenderer(t);
         }
 
         #endregion

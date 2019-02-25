@@ -30,7 +30,7 @@
             : base(frame, component, MediaType.Audio)
         {
             // Compute the start time.
-            var mainOffset = component.Container.Components.Main.StartTime;
+            var mainOffset = TimeSpan.Zero; // component.Container.Components.Main.StartTime;
             frame->pts = frame->best_effort_timestamp;
             HasValidStartTime = frame->pts != ffmpeg.AV_NOPTS_VALUE;
             StartTime = frame->pts == ffmpeg.AV_NOPTS_VALUE ?

@@ -176,7 +176,10 @@
                     {
                         // Write the block if we have to, avoiding repeated blocks.
                         if (AudioBuffer.WriteTag < audioBlock.StartTime)
+                        {
                             AudioBuffer.Write(audioBlock.Buffer, audioBlock.SamplesBufferLength, audioBlock.StartTime, true);
+                            audioBlocks.Remove(audioBlock);
+                        }
 
                         // Stop adding if we have too much in there.
                         if (AudioBuffer.CapacityPercent >= 0.5)
@@ -519,7 +522,11 @@
 
             #region Sync Give-up Conditions
 
-            if (MediaElement.RendererOptions.AudioDisableSync)
+            // we don't want to perform AV sync if the latency is huge
+            // or if we have simply disabled it
+            if (MediaElement.RendererOptions.AudioDisableSync ||
+                audioLatencyMs < int.MinValue / 2d ||
+                audioLatencyMs > int.MaxValue / 2d)
                 return true;
 
             // Determine if we should continue to perform syncs.

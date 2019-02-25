@@ -32,13 +32,13 @@
                 if (!State.IsSeekable)
                     return true;
 
-                if (!State.NaturalDuration.HasValue)
+                if (!State.PlaybackEndTime.HasValue)
                     return true;
 
-                if (State.NaturalDuration == TimeSpan.MinValue)
+                if (State.PlaybackEndTime.Value == TimeSpan.MinValue)
                     return true;
 
-                return MediaCore.WallClock < State.NaturalDuration;
+                return MediaCore.WallClock < State.PlaybackEndTime.Value;
             }
         }
 

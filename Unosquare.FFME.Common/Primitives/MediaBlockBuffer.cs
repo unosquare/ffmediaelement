@@ -355,6 +355,45 @@
         }
 
         /// <summary>
+        /// Removes the block from the playback buffer and returns the block to the pool.
+        /// </summary>
+        public void RemoveFirst()
+        {
+            lock (SyncLock)
+            {
+                if (PlaybackBlocks.Count > 0)
+                    Remove(PlaybackBlocks[0]);
+            }
+        }
+
+        /// <summary>
+        /// Removes the specified block from the playback set and returns it to the ppol.
+        /// Use this after the block has been rendered to make room for more blocks.
+        /// </summary>
+        /// <param name="block">The block.</param>
+        public void Remove(MediaBlock block)
+        {
+            if (block == null) return;
+
+            lock (SyncLock)
+            {
+                try
+                {
+                    var blockIndex = PlaybackBlocks.IndexOf(block);
+                    if (blockIndex >= 0)
+                    {
+                        PlaybackBlocks.RemoveAt(blockIndex);
+                        PoolBlocks.Enqueue(block);
+                    }
+                }
+                finally
+                {
+                    UpdateCollectionProperties();
+                }
+            }
+        }
+
+        /// <summary>
         /// Adds a block to the playback blocks by converting the given frame.
         /// If there are no more blocks in the pool, the oldest block is returned to the pool
         /// and reused for the new block. The source frame is automatically disposed.
@@ -401,21 +440,8 @@
                         return null;
                     }
 
+                    // Add the target block to the playback blocks
                     PlaybackBlocks.Add(targetBlock);
-                    var maxBlockIndex = PlaybackBlocks.Count - 1;
-
-                    // Perform the sorting and assignment of Previous and Next blocks
-                    PlaybackBlocks.Sort();
-                    PlaybackBlocks[0].Index = 0;
-                    PlaybackBlocks[0].Previous = null;
-                    PlaybackBlocks[0].Next = maxBlockIndex > 0 ? PlaybackBlocks[1] : null;
-
-                    for (var blockIndex = 1; blockIndex <= maxBlockIndex; blockIndex++)
-                    {
-                        PlaybackBlocks[blockIndex].Index = blockIndex;
-                        PlaybackBlocks[blockIndex].Previous = PlaybackBlocks[blockIndex - 1];
-                        PlaybackBlocks[blockIndex].Next = blockIndex + 1 <= maxBlockIndex ? PlaybackBlocks[blockIndex + 1] : null;
-                    }
 
                     // return the new target block
                     return targetBlock;
@@ -508,6 +534,25 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void UpdateCollectionProperties()
         {
+            // Update the playback blocks sorting
+            if (PlaybackBlocks.Count > 0)
+            {
+                var maxBlockIndex = PlaybackBlocks.Count - 1;
+
+                // Perform the sorting and assignment of Previous and Next blocks
+                PlaybackBlocks.Sort();
+                PlaybackBlocks[0].Index = 0;
+                PlaybackBlocks[0].Previous = null;
+                PlaybackBlocks[0].Next = maxBlockIndex > 0 ? PlaybackBlocks[1] : null;
+
+                for (var blockIndex = 1; blockIndex <= maxBlockIndex; blockIndex++)
+                {
+                    PlaybackBlocks[blockIndex].Index = blockIndex;
+                    PlaybackBlocks[blockIndex].Previous = PlaybackBlocks[blockIndex - 1];
+                    PlaybackBlocks[blockIndex].Next = blockIndex + 1 <= maxBlockIndex ? PlaybackBlocks[blockIndex + 1] : null;
+                }
+            }
+
             LastLookupIndex = -1;
             LastLookupTime = TimeSpan.MinValue;
 

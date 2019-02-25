@@ -230,6 +230,12 @@
         public TimeSpan? NaturalDuration { get; private set; }
 
         /// <inheritdoc />
+        public TimeSpan? PlaybackStartTime { get; private set; }
+
+        /// <inheritdoc />
+        public TimeSpan? PlaybackEndTime { get; private set; }
+
+        /// <inheritdoc />
         public bool IsLiveStream { get; private set; }
 
         /// <inheritdoc />
@@ -325,7 +331,9 @@
             AudioChannels = MediaCore.Container?.Components.Audio?.Channels ?? default;
             AudioSampleRate = MediaCore.Container?.Components.Audio?.SampleRate ?? default;
             AudioBitsPerSample = MediaCore.Container?.Components.Audio?.BitsPerSample ?? default;
-            NaturalDuration = MediaCore.Container?.MediaDuration;
+            NaturalDuration = MediaCore.Container?.Components?.PlaybackDuration;
+            PlaybackStartTime = MediaCore.Container?.Components?.PlaybackStartTime;
+            PlaybackEndTime = MediaCore.Container?.Components?.PlaybackEndTime;
             IsLiveStream = MediaCore.Container?.IsLiveStream ?? default;
             IsNetworkStream = MediaCore.Container?.IsNetworkStream ?? default;
             IsSeekable = MediaCore.Container?.IsStreamSeekable ?? default;
@@ -403,7 +411,9 @@
         {
             if (HasMediaEnded == false && hasEnded)
             {
-                if (IsSeekable) NaturalDuration = endTime;
+                if (IsSeekable)
+                    PlaybackEndTime = endTime;
+
                 HasMediaEnded = true;
                 MediaCore.SendOnMediaEnded();
                 return;
