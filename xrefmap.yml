@@ -1702,6 +1702,32 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.Play
   nameWithType: MediaElement.Play
+- uid: Unosquare.FFME.MediaElement.PlaybackEndTime
+  name: PlaybackEndTime
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_PlaybackEndTime
+  commentId: P:Unosquare.FFME.MediaElement.PlaybackEndTime
+  fullName: Unosquare.FFME.MediaElement.PlaybackEndTime
+  nameWithType: MediaElement.PlaybackEndTime
+- uid: Unosquare.FFME.MediaElement.PlaybackEndTime*
+  name: PlaybackEndTime
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_PlaybackEndTime_
+  commentId: Overload:Unosquare.FFME.MediaElement.PlaybackEndTime
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.PlaybackEndTime
+  nameWithType: MediaElement.PlaybackEndTime
+- uid: Unosquare.FFME.MediaElement.PlaybackStartTime
+  name: PlaybackStartTime
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_PlaybackStartTime
+  commentId: P:Unosquare.FFME.MediaElement.PlaybackStartTime
+  fullName: Unosquare.FFME.MediaElement.PlaybackStartTime
+  nameWithType: MediaElement.PlaybackStartTime
+- uid: Unosquare.FFME.MediaElement.PlaybackStartTime*
+  name: PlaybackStartTime
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_PlaybackStartTime_
+  commentId: Overload:Unosquare.FFME.MediaElement.PlaybackStartTime
+  isSpec: "True"
+  fullName: Unosquare.FFME.MediaElement.PlaybackStartTime
+  nameWithType: MediaElement.PlaybackStartTime
 - uid: Unosquare.FFME.MediaElement.Position
   name: Position
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Position
