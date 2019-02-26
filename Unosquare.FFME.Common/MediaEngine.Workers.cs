@@ -127,6 +127,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal TimeSpan ChangePosition(TimeSpan position)
         {
+            // TODO -- we need to fix all occurrences of this. This is the absolute time to compute elapsed time
             Clock.Update(position);
             State.UpdatePosition();
             return position;

@@ -95,8 +95,9 @@
             get
             {
                 // The delay is the clock position minus the current position
+                // TODO: The latency really needs to be the difference between current frame position
                 lock (SyncLock)
-                    return TimeSpan.FromTicks(MediaCore.WallClock.Ticks - Position.Ticks);
+                    return TimeSpan.FromTicks(MediaCore.State.Position.Ticks - Position.Ticks);
             }
         }
 

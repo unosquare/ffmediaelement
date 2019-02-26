@@ -14,7 +14,7 @@
     /// </summary>
     /// <seealso cref="WorkerBase" />
     /// <seealso cref="IMediaWorker" />
-    internal sealed class BlockRenderingWorker : ThreadWorkerBase, IMediaWorker, ILoggingSource
+    internal sealed class BlockRenderingWorker : TimerWorkerBase, IMediaWorker, ILoggingSource
     {
         private readonly AtomicBoolean HasInitialized = new AtomicBoolean(false);
 
@@ -23,7 +23,7 @@
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
         public BlockRenderingWorker(MediaEngine mediaCore)
-            : base(nameof(BlockRenderingWorker), ThreadPriority.Normal, TimeSpan.FromMilliseconds(1), WorkerDelayProvider.Default)
+            : base(nameof(BlockRenderingWorker), DefaultPeriod)
         {
             MediaCore = mediaCore;
             Commands = MediaCore.Commands;
@@ -59,7 +59,7 @@
             var main = Container.Components.MainMediaType;
             var all = MediaCore.Renderers.Keys.ToArray();
             var currentBlock = new MediaTypeDictionary<MediaBlock>();
-            var relativeClock = new MediaTypeDictionary<TimeSpan>();
+            var playbackPosition = new MediaTypeDictionary<TimeSpan>();
 
             if (HasInitialized == false)
             {
@@ -68,7 +68,7 @@
                     return;
 
                 // Set the initial clock position
-                MediaCore.ChangePosition(MediaCore.Blocks[main].RangeStartTime);
+                // MediaCore.ChangePosition(MediaCore.Blocks[main].RangeStartTime);
 
                 // Wait for renderers to be ready
                 foreach (var t in all)
@@ -111,7 +111,7 @@
                 foreach (var t in all)
                 {
                     // Get the timestamp for the component based on the captured wall clock
-                    relativeClock[t] = RelativeComponentClock(t, wallClock);
+                    playbackPosition[t] = GetPlaybackPosition(t, wallClock);
 
                     // skip blocks if we are seeking and they are not video blocks
                     if (Commands.IsSeeking && t != MediaType.Video)
@@ -122,8 +122,8 @@
 
                     // Get the audio, video, or subtitle block to render
                     currentBlock[t] = t == MediaType.Subtitle && MediaCore.PreloadedSubtitles != null ?
-                        MediaCore.PreloadedSubtitles[relativeClock[t]] :
-                        MediaCore.Blocks[t][relativeClock[t]];
+                        MediaCore.PreloadedSubtitles[playbackPosition[t]] :
+                        MediaCore.Blocks[t][playbackPosition[t]];
                 }
 
                 // Render each of the Media Types if it is time to do so.
@@ -135,7 +135,7 @@
 
                     // Render by forced signal (TimeSpan.MinValue) or because simply it is time to do so
                     if (MediaCore.LastRenderTime[t] == TimeSpan.MinValue || currentBlock[t].StartTime != MediaCore.LastRenderTime[t])
-                        SendBlockToRenderer(currentBlock[t], relativeClock[t]);
+                        SendBlockToRenderer(currentBlock[t], playbackPosition[t]);
 
                     // TODO: Maybe SendBlockToRenderer repeatedly for contiguous audio blocks
                     // Also remove the logic where the renderer reads the contiguous audio frames
@@ -147,7 +147,7 @@
 
                 // Call the update method on all renderers so they receive what the new wall clock is.
                 foreach (var t in all)
-                    MediaCore.Renderers[t]?.Update(relativeClock[t]);
+                    MediaCore.Renderers[t]?.Update(playbackPosition[t]);
 
                 #endregion
             }
@@ -189,7 +189,7 @@
 
                 // Update the Position
                 if (!ct.IsCancellationRequested && Commands.IsSeeking == false)
-                    State.UpdatePosition(AbsoluteComponentClock(main, MediaCore.WallClock));
+                    State.UpdatePosition(playbackPosition.ContainsKey(MediaType.Audio) ? playbackPosition[MediaType.Audio] : playbackPosition[main]);
             }
 
             #endregion
@@ -211,7 +211,7 @@
         /// <param name="t">The t.</param>
         /// <param name="wallClock">The wall clock.</param>
         /// <returns>The wall clock timestamp that maps to a corresponding component time</returns>
-        private TimeSpan RelativeComponentClock(MediaType t, TimeSpan wallClock)
+        private TimeSpan GetPlaybackPosition(MediaType t, TimeSpan wallClock)
         {
             var offset = Container.Components[t]?.StartTime ?? TimeSpan.MinValue;
             offset = offset == TimeSpan.MinValue ? TimeSpan.Zero : offset;
@@ -229,12 +229,12 @@
         /// Sends the given block to its corresponding media renderer.
         /// </summary>
         /// <param name="block">The block.</param>
-        /// <param name="clockPosition">The clock position.</param>
+        /// <param name="playbackPosition">The clock position.</param>
         /// <returns>
         /// The number of blocks sent to the renderer
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int SendBlockToRenderer(MediaBlock block, TimeSpan clockPosition)
+        private int SendBlockToRenderer(MediaBlock block, TimeSpan playbackPosition)
         {
             // No blocks were rendered
             if (block == null) return 0;
@@ -248,19 +248,22 @@
             MediaCore.LastRenderTime[t] = block.StartTime;
 
             // Send the block to its corresponding renderer
-            MediaCore.Renderers[t]?.Render(block, clockPosition);
+            MediaCore.Renderers[t]?.Render(block, playbackPosition);
 
             // Log the block statistics for debugging
-            LogRenderBlock(block, clockPosition, block.Index);
+            LogRenderBlock(block, playbackPosition, block.Index);
 
             // At this point, we are certain that a block has been
             // sent to its corresponding renderer. Make room so that the
             // decoder continues decoding frames
-            var range = MediaCore.Blocks[t].GetRangePercent(block.StartTime);
+            var range = MediaCore.Blocks[t].GetRangePercent(playbackPosition);
             while (MediaCore.Blocks[t].Count >= 3 && range >= 0.666d)
             {
+                if (MediaCore.Blocks[t][0] == block)
+                    break;
+
                 MediaCore.Blocks[t].RemoveFirst();
-                range = MediaCore.Blocks[t].GetRangePercent(block.StartTime);
+                range = MediaCore.Blocks[t].GetRangePercent(playbackPosition);
             }
 
             return 1;
