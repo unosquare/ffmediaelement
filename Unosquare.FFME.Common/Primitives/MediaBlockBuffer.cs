@@ -357,7 +357,7 @@
         /// <summary>
         /// Removes the block from the playback buffer and returns the block to the pool.
         /// </summary>
-        public void RemoveFirst()
+        internal void RemoveFirst()
         {
             lock (SyncLock)
             {
@@ -371,7 +371,7 @@
         /// Use this after the block has been rendered to make room for more blocks.
         /// </summary>
         /// <param name="block">The block.</param>
-        public void Remove(MediaBlock block)
+        internal void Remove(MediaBlock block)
         {
             if (block == null) return;
 

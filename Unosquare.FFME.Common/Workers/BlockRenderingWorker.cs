@@ -23,7 +23,7 @@
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
         public BlockRenderingWorker(MediaEngine mediaCore)
-            : base(nameof(BlockRenderingWorker), ThreadPriority.Lowest, TimeSpan.FromMilliseconds(1), WorkerDelayProvider.Default)
+            : base(nameof(BlockRenderingWorker), ThreadPriority.Normal, TimeSpan.FromMilliseconds(1), WorkerDelayProvider.Default)
         {
             MediaCore = mediaCore;
             Commands = MediaCore.Commands;
@@ -59,6 +59,7 @@
             var main = Container.Components.MainMediaType;
             var all = MediaCore.Renderers.Keys.ToArray();
             var currentBlock = new MediaTypeDictionary<MediaBlock>();
+            var relativeClock = new MediaTypeDictionary<TimeSpan>();
 
             if (HasInitialized == false)
             {
@@ -109,6 +110,9 @@
 
                 foreach (var t in all)
                 {
+                    // Get the timestamp for the component based on the captured wall clock
+                    relativeClock[t] = RelativeComponentClock(t, wallClock);
+
                     // skip blocks if we are seeking and they are not video blocks
                     if (Commands.IsSeeking && t != MediaType.Video)
                     {
@@ -117,11 +121,9 @@
                     }
 
                     // Get the audio, video, or subtitle block to render
-                    var blockTime = RelativeComponentClock(t, MediaCore.WallClock);
-
                     currentBlock[t] = t == MediaType.Subtitle && MediaCore.PreloadedSubtitles != null ?
-                        MediaCore.PreloadedSubtitles[blockTime] :
-                        MediaCore.Blocks[t][blockTime];
+                        MediaCore.PreloadedSubtitles[relativeClock[t]] :
+                        MediaCore.Blocks[t][relativeClock[t]];
                 }
 
                 // Render each of the Media Types if it is time to do so.
@@ -133,7 +135,7 @@
 
                     // Render by forced signal (TimeSpan.MinValue) or because simply it is time to do so
                     if (MediaCore.LastRenderTime[t] == TimeSpan.MinValue || currentBlock[t].StartTime != MediaCore.LastRenderTime[t])
-                        SendBlockToRenderer(currentBlock[t], wallClock);
+                        SendBlockToRenderer(currentBlock[t], relativeClock[t]);
 
                     // TODO: Maybe SendBlockToRenderer repeatedly for contiguous audio blocks
                     // Also remove the logic where the renderer reads the contiguous audio frames
@@ -145,7 +147,7 @@
 
                 // Call the update method on all renderers so they receive what the new wall clock is.
                 foreach (var t in all)
-                    MediaCore.Renderers[t]?.Update(wallClock);
+                    MediaCore.Renderers[t]?.Update(relativeClock[t]);
 
                 #endregion
             }
@@ -156,10 +158,12 @@
             }
             finally
             {
+                var playbackEndTime = AbsoluteComponentClock(main, MediaCore.Blocks[main].RangeEndTime);
+
                 // Check End of Media Scenarios
                 if (Commands.IsSeeking == false
                 && MediaCore.HasDecodingEnded
-                && MediaCore.WallClock.Ticks >= NextWallClock[main].Ticks)
+                && MediaCore.WallClock.Ticks >= playbackEndTime.Ticks)
                 {
                     // Rendered all and nothing else to render
                     if (State.HasMediaEnded == false)
@@ -171,7 +175,7 @@
                         // endPosition = MediaCore.ChangePosition(endPosition);
                         // State.UpdateMediaEnded(true, endPosition);
                         // TODO: The below needs adding the last block durration
-                        var endPosition = MediaCore.ChangePosition(MediaCore.LastRenderTime[main]);
+                        var endPosition = MediaCore.ChangePosition(playbackEndTime);
                         State.UpdateMediaEnded(true, endPosition);
 
                         State.UpdateMediaState(PlaybackStatus.Stop);
@@ -185,7 +189,7 @@
 
                 // Update the Position
                 if (!ct.IsCancellationRequested && Commands.IsSeeking == false)
-                    State.UpdatePosition();
+                    State.UpdatePosition(AbsoluteComponentClock(main, MediaCore.WallClock));
             }
 
             #endregion
@@ -201,12 +205,24 @@
             // nothing needed when disposing
         }
 
+        /// <summary>
+        /// Converts from absolute wall clock time to the corresponding component-equivalent time
+        /// </summary>
+        /// <param name="t">The t.</param>
+        /// <param name="wallClock">The wall clock.</param>
+        /// <returns>The wall clock timestamp that maps to a corresponding component time</returns>
         private TimeSpan RelativeComponentClock(MediaType t, TimeSpan wallClock)
         {
             var offset = Container.Components[t]?.StartTime ?? TimeSpan.MinValue;
             offset = offset == TimeSpan.MinValue ? TimeSpan.Zero : offset;
-
             return TimeSpan.FromTicks(wallClock.Ticks + offset.Ticks);
+        }
+
+        private TimeSpan AbsoluteComponentClock(MediaType t, TimeSpan blockTime)
+        {
+            var offset = Container.Components[t]?.StartTime ?? TimeSpan.MinValue;
+            offset = offset == TimeSpan.MinValue ? TimeSpan.Zero : offset;
+            return TimeSpan.FromTicks(blockTime.Ticks - offset.Ticks);
         }
 
         /// <summary>
@@ -240,8 +256,12 @@
             // At this point, we are certain that a block has been
             // sent to its corresponding renderer. Make room so that the
             // decoder continues decoding frames
-            if (MediaCore.Blocks[t].IsFull)
+            var range = MediaCore.Blocks[t].GetRangePercent(block.StartTime);
+            while (MediaCore.Blocks[t].Count >= 3 && range >= 0.666d)
+            {
                 MediaCore.Blocks[t].RemoveFirst();
+                range = MediaCore.Blocks[t].GetRangePercent(block.StartTime);
+            }
 
             return 1;
         }

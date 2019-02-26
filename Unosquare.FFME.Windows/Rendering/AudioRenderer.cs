@@ -175,10 +175,10 @@
                     using (readLock)
                     {
                         // Write the block if we have to, avoiding repeated blocks.
+                        // TODO: Ideally we want to feed the blocks from the renderer itself
                         if (AudioBuffer.WriteTag < audioBlock.StartTime)
                         {
                             AudioBuffer.Write(audioBlock.Buffer, audioBlock.SamplesBufferLength, audioBlock.StartTime, true);
-                            audioBlocks.Remove(audioBlock);
                         }
 
                         // Stop adding if we have too much in there.

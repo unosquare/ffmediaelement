@@ -95,7 +95,8 @@
                 // If we are not in range then we need to enter the sync-buffering state
                 if (NeedsMorePackets && !MediaCore.IsSyncBuffering && blocks.IsInRange(wallClock) == false)
                 {
-                    if (State.BufferingProgress >= 0.95 && blocks.Count > 0)
+                    // TODO: for now we are preventing entering syncbuffering
+                    if (true || (State.BufferingProgress >= 0.95 && blocks.Count > 0))
                     {
                         // We don't want to enter a sync-buffering scenario
                         // if we have a full buffer. We just need to decode
@@ -183,6 +184,9 @@
         {
             // We don't delay if there was at least 1 decoded frame
             // and we are not sync-buffering
+            if (token.IsCancellationRequested)
+                return;
+
             if (DecodedFrameCount > 0 && !MediaCore.IsSyncBuffering)
                 return;
 

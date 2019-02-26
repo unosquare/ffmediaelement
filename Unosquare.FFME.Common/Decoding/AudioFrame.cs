@@ -30,12 +30,11 @@
             : base(frame, component, MediaType.Audio)
         {
             // Compute the start time.
-            var mainOffset = TimeSpan.Zero; // component.Container.Components.Main.StartTime;
             frame->pts = frame->best_effort_timestamp;
             HasValidStartTime = frame->pts != ffmpeg.AV_NOPTS_VALUE;
             StartTime = frame->pts == ffmpeg.AV_NOPTS_VALUE ?
                 TimeSpan.FromTicks(0) :
-                TimeSpan.FromTicks(frame->pts.ToTimeSpan(StreamTimeBase).Ticks - mainOffset.Ticks);
+                TimeSpan.FromTicks(frame->pts.ToTimeSpan(StreamTimeBase).Ticks);
 
             // Compute the audio frame duration
             Duration = frame->pkt_duration > 0 ?
