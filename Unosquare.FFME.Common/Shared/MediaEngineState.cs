@@ -423,17 +423,17 @@
         }
 
         /// <summary>
-        /// Updates the position related properties.
+        /// Updates the playback position and related properties.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdatePosition() => UpdatePosition(MediaCore.WallClock);
+        internal void ReportPlaybackPosition() => ReportPlaybackPosition(MediaCore.PlaybackClock);
 
         /// <summary>
-        /// Updates the position related properties.
+        /// Updates the playback position related properties.
         /// </summary>
-        /// <param name="newPosition">The new position.</param>
+        /// <param name="newPosition">The new playback position.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdatePosition(TimeSpan newPosition)
+        internal void ReportPlaybackPosition(TimeSpan newPosition)
         {
             var oldSpeedRatio = MediaCore.Clock.SpeedRatio;
             var newSpeedRatio = SpeedRatio;

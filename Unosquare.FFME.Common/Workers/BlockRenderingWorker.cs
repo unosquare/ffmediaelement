@@ -59,6 +59,7 @@
             var main = Container.Components.MainMediaType;
             var all = MediaCore.Renderers.Keys.ToArray();
             var currentBlock = new MediaTypeDictionary<MediaBlock>();
+            var renderedBlock = new MediaTypeDictionary<bool>();
             var playbackPosition = new MediaTypeDictionary<TimeSpan>();
 
             if (HasInitialized == false)
@@ -111,7 +112,8 @@
                 foreach (var t in all)
                 {
                     // Get the timestamp for the component based on the captured wall clock
-                    playbackPosition[t] = ConvertClockToPlaybackTime(t, wallClock);
+                    playbackPosition[t] = MediaCore.ConvertClockToPlaybackTime(t, wallClock);
+                    renderedBlock[t] = false;
 
                     // skip blocks if we are seeking and they are not video blocks
                     if (Commands.IsSeeking && t != MediaType.Video)
@@ -135,24 +137,23 @@
 
                     // Render by forced signal (TimeSpan.MinValue) or because simply it is time to do so
                     if (MediaCore.LastRenderTime[t] == TimeSpan.MinValue || currentBlock[t].StartTime != MediaCore.LastRenderTime[t])
-                        SendBlockToRenderer(currentBlock[t], playbackPosition[t]);
-
-                    // Make room for new blocks if we have to
-                    // TODO: this still needs work. What if range is < 0 -- what of blocks is full and clock is running?
-                    // TODO: Seek logic is still needing some work because it is not using avaiable blocks and
-                    // block timing needs conversion
-                    var range = MediaCore.Blocks[t].GetRangePercent(playbackPosition[t]);
-                    while (MediaCore.Clock.IsRunning && MediaCore.Blocks[t].Count >= 3 && range >= 0.666d)
                     {
-                        if (MediaCore.Blocks[t][0] == currentBlock[t])
-                            break;
-
-                        MediaCore.Blocks[t].RemoveFirst();
-                        range = MediaCore.Blocks[t].GetRangePercent(playbackPosition[t]);
+                        SendBlockToRenderer(currentBlock[t], playbackPosition[t]);
+                        renderedBlock[t] = true;
                     }
 
                     // TODO: Maybe SendBlockToRenderer repeatedly for contiguous audio blocks
                     // Also remove the logic where the renderer reads the contiguous audio frames
+                }
+
+                // Make room for new blocks if necessary
+                if (MediaCore.Clock.IsRunning)
+                {
+                    foreach (var t in all)
+                    {
+                        if (MediaCore.Blocks[t].IsFull)
+                            MediaCore.Blocks[t].RemoveFirst();
+                    }
 
                     /*
                     // At this point, we are certain that a block has been
@@ -187,7 +188,7 @@
             }
             finally
             {
-                var playbackEndClock = ConvertPlaybackToClockTime(MediaType.None, MediaCore.Blocks[main].RangeEndTime);
+                var playbackEndClock = MediaCore.ConvertPlaybackToClockTime(MediaType.None, MediaCore.Blocks[main].RangeEndTime);
 
                 // Check End of Media Scenarios
                 if (Commands.IsSeeking == false
@@ -218,7 +219,7 @@
 
                 // Update the Position
                 if (!ct.IsCancellationRequested && Commands.IsSeeking == false)
-                    State.UpdatePosition(playbackPosition.ContainsKey(MediaType.Audio) ? playbackPosition[MediaType.Audio] : playbackPosition[main]);
+                    State.ReportPlaybackPosition(playbackPosition.ContainsKey(MediaType.Audio) ? playbackPosition[MediaType.Audio] : playbackPosition[main]);
             }
 
             #endregion
@@ -233,27 +234,6 @@
         {
             // nothing needed when disposing
         }
-
-        private TimeSpan GetComponentStartOffset(MediaType t)
-        {
-            var offset = t == MediaType.None
-                ? Container?.Components?.PlaybackStartTime ?? TimeSpan.MinValue
-                : Container.Components[t]?.StartTime ?? TimeSpan.MinValue;
-
-            return offset == TimeSpan.MinValue ? TimeSpan.Zero : offset;
-        }
-
-        /// <summary>
-        /// Converts from real-time clock position to the corresponding component-equivalent time
-        /// </summary>
-        /// <param name="t">The t.</param>
-        /// <param name="clockTime">The wall clock.</param>
-        /// <returns>The wall clock timestamp that maps to a corresponding component time</returns>
-        private TimeSpan ConvertClockToPlaybackTime(MediaType t, TimeSpan clockTime) =>
-            TimeSpan.FromTicks(clockTime.Ticks + GetComponentStartOffset(t).Ticks);
-
-        private TimeSpan ConvertPlaybackToClockTime(MediaType t, TimeSpan playbackTime) =>
-            TimeSpan.FromTicks(playbackTime.Ticks - GetComponentStartOffset(t).Ticks);
 
         /// <summary>
         /// Sends the given block to its corresponding media renderer.

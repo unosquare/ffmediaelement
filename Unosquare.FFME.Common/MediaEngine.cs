@@ -66,6 +66,11 @@
         public TimeSpan WallClock => State.IsOpen || State.IsOpening ? Clock.Position : TimeSpan.Zero;
 
         /// <summary>
+        /// Gets the media playback clock position based on the current wall clock.
+        /// </summary>
+        public TimeSpan PlaybackClock => ConvertClockToPlaybackTime();
+
+        /// <summary>
         /// Provides stream, chapter and program info of the underlying media.
         /// Returns null when no media is loaded.
         /// </summary>
