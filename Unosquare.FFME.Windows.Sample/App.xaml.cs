@@ -20,7 +20,7 @@
         {
             // Change the default location of the ffmpeg binaries
             // You can get the binaries here: https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.1-win32-shared.zip
-            MediaElement.FFmpegDirectory = @"c:\ffmpeg\norm32" + (Environment.Is64BitProcess ? @"\x64" : string.Empty);
+            MediaElement.FFmpegDirectory = @"c:\ffmpeg" + (Environment.Is64BitProcess ? @"\x64" : string.Empty);
 
             // You can pick which FFmpeg binaries are loaded. See issue #28
             // Full Features is already the default.

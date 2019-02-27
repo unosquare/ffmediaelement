@@ -111,7 +111,7 @@
                 foreach (var t in all)
                 {
                     // Get the timestamp for the component based on the captured wall clock
-                    playbackPosition[t] = GetPlaybackPosition(t, wallClock);
+                    playbackPosition[t] = ConvertClockToPlaybackTime(t, wallClock);
 
                     // skip blocks if we are seeking and they are not video blocks
                     if (Commands.IsSeeking && t != MediaType.Video)
@@ -158,12 +158,12 @@
             }
             finally
             {
-                var playbackEndTime = AbsoluteComponentClock(main, MediaCore.Blocks[main].RangeEndTime);
+                var playbackEndClock = ConvertPlaybackToClockTime(MediaType.None, MediaCore.Blocks[main].RangeEndTime);
 
                 // Check End of Media Scenarios
                 if (Commands.IsSeeking == false
                 && MediaCore.HasDecodingEnded
-                && MediaCore.WallClock.Ticks >= playbackEndTime.Ticks)
+                && MediaCore.WallClock.Ticks >= playbackEndClock.Ticks)
                 {
                     // Rendered all and nothing else to render
                     if (State.HasMediaEnded == false)
@@ -175,7 +175,7 @@
                         // endPosition = MediaCore.ChangePosition(endPosition);
                         // State.UpdateMediaEnded(true, endPosition);
                         // TODO: The below needs adding the last block durration
-                        var endPosition = MediaCore.ChangePosition(playbackEndTime);
+                        var endPosition = MediaCore.ChangePosition(playbackEndClock);
                         State.UpdateMediaEnded(true, endPosition);
 
                         State.UpdateMediaState(PlaybackStatus.Stop);
@@ -205,25 +205,26 @@
             // nothing needed when disposing
         }
 
-        /// <summary>
-        /// Converts from absolute wall clock time to the corresponding component-equivalent time
-        /// </summary>
-        /// <param name="t">The t.</param>
-        /// <param name="wallClock">The wall clock.</param>
-        /// <returns>The wall clock timestamp that maps to a corresponding component time</returns>
-        private TimeSpan GetPlaybackPosition(MediaType t, TimeSpan wallClock)
+        private TimeSpan GetComponentStartOffset(MediaType t)
         {
-            var offset = Container.Components[t]?.StartTime ?? TimeSpan.MinValue;
-            offset = offset == TimeSpan.MinValue ? TimeSpan.Zero : offset;
-            return TimeSpan.FromTicks(wallClock.Ticks + offset.Ticks);
+            var offset = t == MediaType.None
+                ? Container?.Components?.PlaybackStartTime ?? TimeSpan.MinValue
+                : Container.Components[t]?.StartTime ?? TimeSpan.MinValue;
+
+            return offset == TimeSpan.MinValue ? TimeSpan.Zero : offset;
         }
 
-        private TimeSpan AbsoluteComponentClock(MediaType t, TimeSpan blockTime)
-        {
-            var offset = Container.Components[t]?.StartTime ?? TimeSpan.MinValue;
-            offset = offset == TimeSpan.MinValue ? TimeSpan.Zero : offset;
-            return TimeSpan.FromTicks(blockTime.Ticks - offset.Ticks);
-        }
+        /// <summary>
+        /// Converts from real-time clock position to the corresponding component-equivalent time
+        /// </summary>
+        /// <param name="t">The t.</param>
+        /// <param name="clockTime">The wall clock.</param>
+        /// <returns>The wall clock timestamp that maps to a corresponding component time</returns>
+        private TimeSpan ConvertClockToPlaybackTime(MediaType t, TimeSpan clockTime) =>
+            TimeSpan.FromTicks(clockTime.Ticks + GetComponentStartOffset(t).Ticks);
+
+        private TimeSpan ConvertPlaybackToClockTime(MediaType t, TimeSpan playbackTime) =>
+            TimeSpan.FromTicks(playbackTime.Ticks - GetComponentStartOffset(t).Ticks);
 
         /// <summary>
         /// Sends the given block to its corresponding media renderer.
