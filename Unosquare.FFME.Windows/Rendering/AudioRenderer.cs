@@ -519,6 +519,9 @@
             var readableCount = AudioBuffer.ReadableCount;
             var rewindableCount = AudioBuffer.RewindableCount;
 
+            // TODO: We need to come back to synchronization logic
+            PlaySyncGaveUp.Value = true;
+
             #endregion
 
             #region Sync Give-up Conditions

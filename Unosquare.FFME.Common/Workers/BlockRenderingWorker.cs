@@ -137,8 +137,37 @@
                     if (MediaCore.LastRenderTime[t] == TimeSpan.MinValue || currentBlock[t].StartTime != MediaCore.LastRenderTime[t])
                         SendBlockToRenderer(currentBlock[t], playbackPosition[t]);
 
+                    // Make room for new blocks if we have to
+                    // TODO: this still needs work. What if range is < 0 -- what of blocks is full and clock is running?
+                    // TODO: Seek logic is still needing some work because it is not using avaiable blocks and
+                    // block timing needs conversion
+                    var range = MediaCore.Blocks[t].GetRangePercent(playbackPosition[t]);
+                    while (MediaCore.Clock.IsRunning && MediaCore.Blocks[t].Count >= 3 && range >= 0.666d)
+                    {
+                        if (MediaCore.Blocks[t][0] == currentBlock[t])
+                            break;
+
+                        MediaCore.Blocks[t].RemoveFirst();
+                        range = MediaCore.Blocks[t].GetRangePercent(playbackPosition[t]);
+                    }
+
                     // TODO: Maybe SendBlockToRenderer repeatedly for contiguous audio blocks
                     // Also remove the logic where the renderer reads the contiguous audio frames
+
+                    /*
+                    // At this point, we are certain that a block has been
+                    // sent to its corresponding renderer. Make room so that the
+                    // decoder continues decoding frames
+                    var range = MediaCore.Blocks[t].GetRangePercent(playbackPosition);
+                    while (MediaCore.Blocks[t].Count >= 3 && range >= 0.666d)
+                    {
+                        if (MediaCore.Blocks[t][0] == block)
+                            break;
+
+                        MediaCore.Blocks[t].RemoveFirst();
+                        range = MediaCore.Blocks[t].GetRangePercent(playbackPosition);
+                    }
+                    */
                 }
 
                 #endregion
@@ -253,19 +282,6 @@
 
             // Log the block statistics for debugging
             LogRenderBlock(block, playbackPosition, block.Index);
-
-            // At this point, we are certain that a block has been
-            // sent to its corresponding renderer. Make room so that the
-            // decoder continues decoding frames
-            var range = MediaCore.Blocks[t].GetRangePercent(playbackPosition);
-            while (MediaCore.Blocks[t].Count >= 3 && range >= 0.666d)
-            {
-                if (MediaCore.Blocks[t][0] == block)
-                    break;
-
-                MediaCore.Blocks[t].RemoveFirst();
-                range = MediaCore.Blocks[t].GetRangePercent(playbackPosition);
-            }
 
             return 1;
         }
