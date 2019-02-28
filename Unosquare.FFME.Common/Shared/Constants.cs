@@ -50,7 +50,7 @@
         {
             const int MinVideoBlocks = 12;
             const int MinAudioBlocks = 64;
-            const int MinSUbtitleBlocks = 12;
+            const int MinSubtitleBlocks = 12;
 
             var result = 0;
 
@@ -67,7 +67,7 @@
             else if (t == MediaType.Subtitle)
             {
                 result = mediaCore.Container.MediaOptions.SubtitleBlockCache;
-                if (result < MinSUbtitleBlocks) result = MinSUbtitleBlocks;
+                if (result < MinSubtitleBlocks) result = MinSubtitleBlocks;
             }
 
             return result;

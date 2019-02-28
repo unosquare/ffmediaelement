@@ -38,7 +38,7 @@
                 if (State.PlaybackEndTime.Value == TimeSpan.MinValue)
                     return true;
 
-                return MediaCore.WallClock < State.PlaybackEndTime.Value;
+                return MediaCore.PlaybackClock < State.PlaybackEndTime.Value;
             }
         }
 
@@ -118,7 +118,7 @@
             foreach (var renderer in MediaCore.Renderers.Values)
                 renderer.Pause();
 
-            MediaCore.ChangePosition(SnapPositionToBlockPosition(MediaCore.WallClock));
+            MediaCore.ChangePlaybackPosition(SnapPositionToBlockPosition(MediaCore.PlaybackClock));
             State.UpdateMediaState(PlaybackStatus.Pause);
             return true;
         }
@@ -130,7 +130,7 @@
         private bool CommandStopMedia()
         {
             MediaCore.Clock.Reset();
-            SeekMedia(new SeekOperation(TimeSpan.Zero, SeekMode.Stop), CancellationToken.None);
+            SeekMedia(new SeekOperation(TimeSpan.MinValue, SeekMode.Stop), CancellationToken.None);
 
             foreach (var renderer in MediaCore.Renderers.Values)
                 renderer.Stop();

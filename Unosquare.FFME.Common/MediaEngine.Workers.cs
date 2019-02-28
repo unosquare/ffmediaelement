@@ -18,7 +18,6 @@
 
         #region State Management
 
-        private readonly AtomicBoolean m_IsSyncBuffering = new AtomicBoolean(false);
         private readonly AtomicBoolean m_HasDecodingEnded = new AtomicBoolean(false);
 
         /// <summary>
@@ -45,19 +44,6 @@
         /// Holds the last rendered StartTime for each of the media block types
         /// </summary>
         internal MediaTypeDictionary<TimeSpan> LastRenderTime { get; } = new MediaTypeDictionary<TimeSpan>();
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the decoder worker is sync-buffering.
-        /// Sync-buffering is entered when there are no main blocks for the current clock.
-        /// This in turn pauses the clock (without changing the media state).
-        /// The decoder exits this condition when buffering is no longer needed and
-        /// updates the clock position to what is available in the main block buffer.
-        /// </summary>
-        internal bool IsSyncBuffering
-        {
-            get => m_IsSyncBuffering.Value;
-            set => m_IsSyncBuffering.Value = value;
-        }
 
         /// <summary>
         /// Gets or sets a value indicating whether the decoder worker has decoded all frames.
@@ -115,51 +101,11 @@
         internal TimeSpan GetComponentStartOffset(MediaType t)
         {
             var offset = t == MediaType.None
-                ? Container?.Components?.PlaybackStartTime ?? TimeSpan.MinValue
-                : Container.Components[t]?.StartTime ?? TimeSpan.MinValue;
+                ? State.PlaybackStartTime ?? TimeSpan.MinValue
+                : Container?.Components[t]?.StartTime ?? TimeSpan.MinValue;
 
             return offset == TimeSpan.MinValue ? TimeSpan.Zero : offset;
         }
-
-        /// <summary>
-        /// Converts from wall clock position to the corresponding component-equivalent playback time.
-        /// Pass None to get the general component time
-        /// </summary>
-        /// <param name="t">The media type.</param>
-        /// <param name="clockTime">The wall clock.</param>
-        /// <returns>The wall clock timestamp that maps to a corresponding component time</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal TimeSpan ConvertClockToPlaybackTime(MediaType t, TimeSpan clockTime) =>
-            TimeSpan.FromTicks(clockTime.Ticks + GetComponentStartOffset(t).Ticks);
-
-        /// <summary>
-        /// Converts from wall clock position to the corresponding component-equivalent playback time.
-        /// Pass None to get the general component time
-        /// </summary>
-        /// <param name="clockTime">The wall clock.</param>
-        /// <returns>The wall clock timestamp that maps to a corresponding component time</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal TimeSpan ConvertClockToPlaybackTime(TimeSpan clockTime) =>
-            ConvertClockToPlaybackTime(MediaType.None, clockTime);
-
-        /// <summary>
-        /// Converts from wall clock position to the corresponding component-equivalent playback time.
-        /// Pass None to get the general component time
-        /// </summary>
-        /// <returns>The wall clock timestamp that maps to a corresponding component time</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal TimeSpan ConvertClockToPlaybackTime() =>
-            ConvertClockToPlaybackTime(MediaType.None, WallClock);
-
-        /// <summary>
-        /// Converts from playback time to wall clock time.
-        /// </summary>
-        /// <param name="t">The component media type.</param>
-        /// <param name="playbackTime">The playback time.</param>
-        /// <returns>The wall clock time</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal TimeSpan ConvertPlaybackToClockTime(MediaType t, TimeSpan playbackTime) =>
-            TimeSpan.FromTicks(playbackTime.Ticks - GetComponentStartOffset(t).Ticks);
 
         /// <summary>
         /// Converts from playback time to wall clock time.
@@ -168,26 +114,7 @@
         /// <returns>The wall clock time</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal TimeSpan ConvertPlaybackToClockTime(TimeSpan playbackTime) =>
-            ConvertPlaybackToClockTime(MediaType.None, playbackTime);
-
-        /// <summary>
-        /// Converts from playback time to wall clock time.
-        /// </summary>
-        /// <returns>The wall clock time</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal TimeSpan ConvertPlaybackToClockTime() =>
-            ConvertPlaybackToClockTime(MediaType.None, ConvertClockToPlaybackTime());
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal TimeSpan ConvertPlaybackToComponentClock(MediaType t, TimeSpan playbackClock)
-        {
-            var mainOffset = GetComponentStartOffset(MediaType.None);
-            var componentOffset = GetComponentStartOffset(t);
-            return TimeSpan.FromTicks(playbackClock.Ticks + (componentOffset.Ticks - mainOffset.Ticks));
-        }
-
-        internal TimeSpan ConvertWallClockToComponentClock(MediaType t, TimeSpan wallClock) =>
-            ConvertPlaybackToComponentClock(t, ConvertClockToPlaybackTime(wallClock));
+            TimeSpan.FromTicks(playbackTime.Ticks - GetComponentStartOffset(MediaType.None).Ticks);
 
         /// <summary>
         /// Resumes the playback by resuming the clock and updating the playback state to state.
@@ -195,9 +122,8 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void ResumePlayback()
         {
-            if (!IsSyncBuffering)
-                Clock.Play();
-
+            // TODO: Only the blockrendering worker can update the clock state
+            Clock.Play();
             State.UpdateMediaState(PlaybackStatus.Play);
         }
 
@@ -208,7 +134,7 @@
         /// <param name="playbackPosition">The position.</param>
         /// <returns>The newly set position</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal TimeSpan ChangePosition(TimeSpan playbackPosition)
+        internal TimeSpan ChangePlaybackPosition(TimeSpan playbackPosition)
         {
             // TODO -- we need to fix all occurrences of this. This is the absolute time to compute elapsed time
             Clock.Update(ConvertPlaybackToClockTime(playbackPosition));

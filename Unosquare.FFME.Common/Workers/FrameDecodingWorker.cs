@@ -23,11 +23,6 @@
         private int DecodedFrameCount;
 
         /// <summary>
-        /// The sync-buffering start time to measur ehow long it takes
-        /// </summary>
-        private DateTime SyncBufferStartTime = DateTime.UtcNow;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="FrameDecodingWorker"/> class.
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
@@ -73,9 +68,7 @@
 
             // Update state properties -- this must be done on every cycle
             // because a direct command might have changed the components
-            var wallClock = MediaCore.WallClock;
             var main = Container.Components.MainMediaType;
-            MediaBlockBuffer blocks;
             DecodedFrameCount = 0;
 
             #endregion
@@ -87,70 +80,40 @@
                 if (MediaCore.HasDecodingEnded || ct.IsCancellationRequested)
                     return;
 
-                #region Sync-Buffering Detection
-
-                // Capture the blocks for easier readability
-                blocks = MediaCore.Blocks[main];
-
-                // If we are not in range then we need to enter the sync-buffering state
-                if (NeedsMorePackets && !MediaCore.IsSyncBuffering && blocks.IsInRange(wallClock) == false)
-                {
-                    // TODO: for now we are preventing entering syncbuffering
-                    if (true || (State.BufferingProgress >= 0.95 && blocks.Count > 0))
-                    {
-                        // We don't want to enter a sync-buffering scenario
-                        // if we have a full buffer. We just need to decode
-                        // more packets and change the position of the clock to what is available
-                        // MediaCore.InvalidateRenderers();
-                        // wallClock = blocks[wallClock].StartTime;
-                        // MediaCore.ChangePosition(wallClock);
-                    }
-                    else
-                    {
-                        // Enter sync-buffering scenario
-                        MediaCore.Clock.Pause();
-                        wallClock = MediaCore.WallClock;
-                        MediaCore.IsSyncBuffering = true;
-                        SyncBufferStartTime = DateTime.UtcNow;
-                        this.LogInfo(Aspects.DecodingWorker,
-                            $"SYNC-BUFFER: Started. Buffer: {State.BufferingProgress:p}. Clock: {wallClock.Format()}");
-                    }
-                }
-
-                #endregion
-
                 #region Component Decoding
 
                 // We need to add blocks if the wall clock is over 75%
                 // for each of the components so that we have some buffer.
-                foreach (var t in Container.Components.MediaTypes)
+                Parallel.ForEach(Container.Components.MediaTypes, (t) =>
                 {
                     // Capture a reference to the blocks and the current Range Percent
                     const double rangePercentThreshold = 0.75d;
 
                     var decoderBlocks = MediaCore.Blocks[t];
-                    var componentClock = MediaCore.ConvertWallClockToComponentClock(t, MediaCore.WallClock);
-                    var rangePercent = decoderBlocks.GetRangePercent(componentClock);
+                    var rangePercent = decoderBlocks.GetRangePercent(MediaCore.PlaybackClock);
+                    var addedBlocks = 0;
+                    var maxAddedBlocks = decoderBlocks.Capacity;
 
                     // Read as much as we can for this cycle but always within range.
-                    while (decoderBlocks.IsFull == false || rangePercent > rangePercentThreshold)
+                    while (addedBlocks < maxAddedBlocks && (decoderBlocks.IsFull == false || rangePercent > rangePercentThreshold))
                     {
                         if (ct.IsCancellationRequested || AddNextBlock(t) == false)
                             break;
 
-                        Interlocked.Add(ref DecodedFrameCount, 1);
-                        componentClock = MediaCore.ConvertWallClockToComponentClock(t, MediaCore.WallClock);
-                        rangePercent = decoderBlocks.GetRangePercent(componentClock);
+                        addedBlocks++;
+                        rangePercent = decoderBlocks.GetRangePercent(MediaCore.PlaybackClock);
 
                         // Determine break conditions to save CPU time
                         if (rangePercent > 0 &&
                             rangePercent <= rangePercentThreshold &&
                             decoderBlocks.IsFull == false &&
                             decoderBlocks.CapacityPercent >= 0.25d &&
-                            decoderBlocks.IsInRange(componentClock))
+                            decoderBlocks.IsInRange(MediaCore.PlaybackClock))
                             break;
                     }
-                }
+
+                    Interlocked.Add(ref DecodedFrameCount, addedBlocks);
+                });
 
                 #endregion
             }
@@ -163,31 +126,8 @@
                 // Detect End of Decoding Scenarios
                 // The Rendering will check for end of media when this
                 // condition is set.
-                var hasDecodingEnded = DetectHasDecodingEnded(wallClock, DecodedFrameCount, main);
+                var hasDecodingEnded = DetectHasDecodingEnded(DecodedFrameCount, main);
                 MediaCore.HasDecodingEnded = hasDecodingEnded;
-
-                // Detect if an exit from Sync Buffering is required
-                var mustExitSyncBuffering = MediaCore.IsSyncBuffering
-                    && (ct.IsCancellationRequested || hasDecodingEnded || State.BufferingProgress >= 0.95);
-
-                // Detect if we need an immediate exit from sync buffering
-                if (mustExitSyncBuffering || (MediaCore.IsSyncBuffering && !NeedsMorePackets))
-                {
-                    blocks = MediaCore.Blocks[main];
-                    if (blocks.Count > 0 && !blocks.IsInRange(wallClock))
-                    {
-                        MediaCore.InvalidateRenderers();
-                        wallClock = blocks[wallClock].StartTime;
-                    }
-
-                    MediaCore.ChangePosition(wallClock);
-                    MediaCore.IsSyncBuffering = false;
-                    this.LogInfo(Aspects.DecodingWorker,
-                        $"SYNC-BUFFER: Completed in {DateTime.UtcNow.Subtract(SyncBufferStartTime).TotalMilliseconds:0.0} ms");
-
-                    if (State.MediaState == PlaybackStatus.Play)
-                        MediaCore.ResumePlayback();
-                }
             }
         }
 
@@ -196,10 +136,7 @@
         {
             // We don't delay if there was at least 1 decoded frame
             // and we are not sync-buffering
-            if (token.IsCancellationRequested)
-                return;
-
-            if (DecodedFrameCount > 0 && !MediaCore.IsSyncBuffering)
+            if (token.IsCancellationRequested || DecodedFrameCount > 0)
                 return;
 
             // Introduce a delay if the conditions above were not satisfied
@@ -228,15 +165,14 @@
         /// <summary>
         /// Detects the end of media in the decoding worker.
         /// </summary>
-        /// <param name="wallClock">The clock position</param>
         /// <param name="decodedFrameCount">The decoded frame count.</param>
         /// <param name="main">The main.</param>
         /// <returns>True if media ended</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool DetectHasDecodingEnded(TimeSpan wallClock, int decodedFrameCount, MediaType main) =>
+        private bool DetectHasDecodingEnded(int decodedFrameCount, MediaType main) =>
                 decodedFrameCount <= 0
                 && CanReadMoreFramesOf(main) == false
-                && MediaCore.Blocks[main].IndexOf(wallClock) >= MediaCore.Blocks[main].Count - 1;
+                && MediaCore.Blocks[main].IndexOf(MediaCore.PlaybackClock) >= MediaCore.Blocks[main].Count - 1;
 
         /// <summary>
         /// Gets a value indicating whether more frames can be decoded into blocks of the given type.

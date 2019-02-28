@@ -392,7 +392,7 @@
             if (State.IsSeekable)
             {
                 // Let's simply do an automated seek
-                SeekMedia(new SeekOperation(MediaCore.WallClock, SeekMode.Normal), CancellationToken.None);
+                SeekMedia(new SeekOperation(MediaCore.PlaybackClock, SeekMode.Normal), CancellationToken.None);
             }
 
             return playWhenCompleted;

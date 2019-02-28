@@ -381,14 +381,14 @@
                     break;
 
                 // Check if we have at least a half a buffer on main
-                var rangePercent = mainBlocks.GetRangePercent(m.WallClock);
+                var rangePercent = mainBlocks.GetRangePercent(m.PlaybackClock);
                 if (mainBlocks.IsFull || (rangePercent >= 0 && rangePercent <= 0.5))
                     break;
             }
 
             // Check if we have a valid range. If not, just set it what the main component is dictating
-            if (mainBlocks.Count > 0 && mainBlocks.IsInRange(m.WallClock) == false)
-                m.ChangePosition(mainBlocks[m.WallClock].StartTime);
+            if (mainBlocks.Count > 0 && mainBlocks.IsInRange(m.PlaybackClock) == false)
+                m.ChangePlaybackPosition(mainBlocks[m.PlaybackClock].StartTime);
 
             // Have the other components catch up
             foreach (var t in auxiliaries)

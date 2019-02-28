@@ -423,6 +423,22 @@
         }
 
         /// <summary>
+        /// Updates the media start time. Use this when the first main block arrives
+        /// </summary>
+        /// <param name="playbackStartTime">The playback start time.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void UpdatePlaybackStartTime(TimeSpan playbackStartTime)
+        {
+            if ((PlaybackStartTime?.Ticks ?? 0) != playbackStartTime.Ticks)
+            {
+                MediaCore.LogInfo(Aspects.Container,
+                    $"Container playback start time did not match the first decoded frame. It was updated to {playbackStartTime.Format()}");
+            }
+
+            PlaybackStartTime = playbackStartTime;
+        }
+
+        /// <summary>
         /// Updates the playback position and related properties.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -557,8 +573,7 @@
             DownloadProgress = Math.Min(1d, (double)bufferLength / MediaCore.BufferLengthMax);
 
             // Check if we are currently buffering
-            var isCurrentlyBuffering = MediaCore.ShouldReadMorePackets
-                && (MediaCore.IsSyncBuffering || BufferingProgress < 1d);
+            var isCurrentlyBuffering = MediaCore.ShouldReadMorePackets && BufferingProgress < 1d;
 
             // Detect and notify a change in buffering state
             if (isCurrentlyBuffering == IsBuffering)

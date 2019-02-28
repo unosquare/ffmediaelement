@@ -68,7 +68,7 @@
         /// <summary>
         /// Gets the media playback clock position based on the current wall clock.
         /// </summary>
-        public TimeSpan PlaybackClock => ConvertClockToPlaybackTime();
+        public TimeSpan PlaybackClock => TimeSpan.FromTicks(WallClock.Ticks + GetComponentStartOffset(MediaType.None).Ticks);
 
         /// <summary>
         /// Provides stream, chapter and program info of the underlying media.

@@ -8,6 +8,7 @@
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Threading;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Implements the block rendering worker.
@@ -58,8 +59,6 @@
             // Update Status Properties
             var main = Container.Components.MainMediaType;
             var all = MediaCore.Renderers.Keys.ToArray();
-            var currentBlock = new MediaTypeDictionary<MediaBlock>();
-            var wallClock = MediaCore.WallClock;
             var playbackClock = MediaCore.PlaybackClock;
 
             if (HasInitialized == false)
@@ -68,8 +67,11 @@
                 if (MediaCore.Blocks[main].Count <= 0)
                     return;
 
+                var startTime = MediaCore.Blocks[main].RangeStartTime;
+
                 // Set the initial clock position
-                // MediaCore.ChangePosition(MediaCore.Blocks[main].RangeStartTime);
+                MediaCore.State.UpdatePlaybackStartTime(startTime);
+                MediaCore.ChangePlaybackPosition(startTime);
 
                 // Wait for renderers to be ready
                 foreach (var t in all)
@@ -83,21 +85,23 @@
 
             try
             {
-                #region 1. Clock Control Logic
+                #region 0. Clock Control Logic
 
                 if (MediaCore.State.MediaState == PlaybackStatus.Play)
                 {
-                    var range = MediaCore.Blocks[main].GetRangePercent(MediaCore.PlaybackClock);
-                    if (range > 1d)
+                    var blocks = MediaCore.Blocks[main];
+                    var range = blocks.GetRangePercent(MediaCore.PlaybackClock);
+
+                    if (range >= 1d)
                     {
                         // Don't let the RTC move beyond what is available on the main component
                         MediaCore.Clock.Pause();
-                        MediaCore.Clock.Update(MediaCore.ConvertPlaybackToClockTime(MediaCore.Blocks[main].RangeEndTime));
+                        MediaCore.ChangePlaybackPosition(blocks.RangeEndTime);
                     }
                     else if (range < 0)
                     {
                         // Don't let the RTC lag behind what is available on the main component
-                        MediaCore.Clock.Update(MediaCore.ConvertPlaybackToClockTime(MediaCore.Blocks[main].RangeStartTime));
+                        MediaCore.ChangePlaybackPosition(blocks.RangeStartTime);
                     }
                     else
                     {
@@ -111,7 +115,7 @@
 
                 while (!ct.IsCancellationRequested
                     && Commands.IsActivelySeeking
-                    && !MediaCore.Blocks[main].IsInRange(MediaCore.WallClock))
+                    && !MediaCore.Blocks[main].IsInRange(MediaCore.PlaybackClock))
                 {
                     // Check if we finally have seek blocks available
                     // if we don't get seek blocks in range and we are not step-seeking,
@@ -131,59 +135,37 @@
 
                 // Capture the blocks to render at a fixed wall clock position
                 // so all blocks are aligned to the same timestamp
-                wallClock = MediaCore.WallClock;
-                playbackClock = MediaCore.ConvertClockToPlaybackTime(wallClock);
-
-                if (MediaCore.Clock.IsRunning)
-                {
-                    foreach (var t in all)
-                    {
-                        if (t != MediaType.Video) continue;
-                        var info = new BlockInfo(MediaCore, t, wallClock);
-                        if (info.BlockShouldRender)
-                            Console.WriteLine(info.ToString());
-                    }
-                }
-
-                foreach (var t in all)
-                {
-                    // skip blocks if we are seeking and they are not video blocks
-                    if (Commands.IsSeeking && t != MediaType.Video)
-                    {
-                        currentBlock[t] = null;
-                        continue;
-                    }
-
-                    var componentClock = MediaCore.ConvertPlaybackToComponentClock(t, playbackClock);
-
-                    // Get the audio, video, or subtitle block to render
-                    currentBlock[t] = t == MediaType.Subtitle && MediaCore.PreloadedSubtitles != null ?
-                        MediaCore.PreloadedSubtitles[componentClock] :
-                        MediaCore.Blocks[t][componentClock];
-                }
+                playbackClock = MediaCore.PlaybackClock;
 
                 // Render each of the Media Types if it is time to do so.
-                foreach (var t in all)
+                Parallel.ForEach(all, (t) =>
                 {
-                    // Don't send null or disposed blocks to renderer
-                    if (currentBlock[t] == null || currentBlock[t].IsDisposed)
-                        continue;
+                    try
+                    {
+                        // We don't need non-video blocks if we are seeking
+                        if (Commands.IsSeeking && t != MediaType.Video)
+                            return;
 
-                    // Render by forced signal (TimeSpan.MinValue) or because simply it is time to do so
-                    if (MediaCore.LastRenderTime[t] == TimeSpan.MinValue || currentBlock[t].StartTime != MediaCore.LastRenderTime[t])
-                        SendBlockToRenderer(currentBlock[t], playbackClock);
+                        // Get the audio, video, or subtitle block to render
+                        var currentBlock = t == MediaType.Subtitle && MediaCore.PreloadedSubtitles != null
+                            ? MediaCore.PreloadedSubtitles[playbackClock]
+                            : MediaCore.Blocks[t][playbackClock];
 
-                    // TODO: Maybe SendBlockToRenderer repeatedly for contiguous audio blocks
-                    // Also remove the logic where the renderer reads the contiguous audio frames
-                }
+                        // Don't send null or disposed blocks to renderer
+                        if (currentBlock == null || currentBlock.IsDisposed)
+                            return;
 
-                #endregion
-
-                #region 3. Finalize the Rendering Cycle
-
-                // Call the update method on all renderers so they receive what the new wall clock is.
-                foreach (var t in all)
-                    MediaCore.Renderers[t]?.Update(playbackClock);
+                        // Render by forced signal (TimeSpan.MinValue) or because simply it is time to do so
+                        var lastBlockStartTime = MediaCore.LastRenderTime[t];
+                        if (lastBlockStartTime != currentBlock.StartTime || lastBlockStartTime == TimeSpan.MinValue)
+                            SendBlockToRenderer(currentBlock, playbackClock);
+                    }
+                    finally
+                    {
+                        // Call the update method on all renderers so they receive what the new playback clock is.
+                        MediaCore.Renderers[t]?.Update(playbackClock);
+                    }
+                });
 
                 #endregion
             }
@@ -194,12 +176,14 @@
             }
             finally
             {
-                var playbackEndClock = MediaCore.ConvertPlaybackToClockTime(MediaType.None, MediaCore.Blocks[main].RangeEndTime);
+                var playbackEndClock = MediaCore.Blocks[main].Count > 0
+                    ? MediaCore.Blocks[main].RangeEndTime
+                    : Container.Components.PlaybackEndTime ?? TimeSpan.MaxValue;
 
                 // Check End of Media Scenarios
                 if (Commands.IsSeeking == false
                 && MediaCore.HasDecodingEnded
-                && MediaCore.WallClock.Ticks >= playbackEndClock.Ticks)
+                && MediaCore.PlaybackClock.Ticks >= playbackEndClock.Ticks)
                 {
                     // Rendered all and nothing else to render
                     if (State.HasMediaEnded == false)
@@ -211,7 +195,7 @@
                         // endPosition = MediaCore.ChangePosition(endPosition);
                         // State.UpdateMediaEnded(true, endPosition);
                         // TODO: The below needs adding the last block durration
-                        var endPosition = MediaCore.ChangePosition(playbackEndClock);
+                        var endPosition = MediaCore.ChangePlaybackPosition(playbackEndClock);
                         State.UpdateMediaEnded(true, endPosition);
 
                         State.UpdateMediaState(PlaybackStatus.Stop);
@@ -267,7 +251,7 @@
             MediaCore.Renderers[t]?.Render(block, playbackPosition);
 
             // Log the block statistics for debugging
-            LogRenderBlock(block, playbackPosition, block.Index);
+            LogRenderBlock(block, playbackPosition);
 
             return 1;
         }
@@ -278,9 +262,8 @@
         /// </summary>
         /// <param name="block">The block.</param>
         /// <param name="clockPosition">The clock position.</param>
-        /// <param name="renderIndex">Index of the render.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void LogRenderBlock(MediaBlock block, TimeSpan clockPosition, int renderIndex)
+        private void LogRenderBlock(MediaBlock block, TimeSpan clockPosition)
         {
             // Prevent logging for production use
             if (MediaEngine.Platform.IsInDebugMode == false) return;
@@ -293,90 +276,13 @@
                     + $"BLK: {block.StartTime.Format()} | "
                     + $"CLK: {clockPosition.Format()} | "
                     + $"DFT: {drift.TotalMilliseconds,4:0} | "
-                    + $"IX: {renderIndex,3} | "
+                    + $"IX: {block.Index,3} | "
                     + $"PQ: {Container?.Components[block.MediaType]?.BufferLength / 1024d,7:0.0}k | "
                     + $"TQ: {Container?.Components.BufferLength / 1024d,7:0.0}k");
             }
             catch
             {
                 // swallow
-            }
-        }
-
-        private sealed class BlockInfo
-        {
-            public BlockInfo(MediaEngine mediaCore, MediaType t, TimeSpan wallClock)
-            {
-                MediaType = t;
-                WallClock = wallClock;
-                PlaybackStartTime = mediaCore.GetComponentStartOffset(MediaType.None);
-                PlaybackEndTime = mediaCore.Container.Components.PlaybackEndTime ?? TimeSpan.Zero;
-                PlaybackDuration = mediaCore.Container.Components.PlaybackDuration ?? TimeSpan.Zero;
-                PlaybackClock = mediaCore.ConvertClockToPlaybackTime(MediaType.None, WallClock);
-                ComponentStartTime = mediaCore.GetComponentStartOffset(t);
-                ComponentClock = mediaCore.ConvertPlaybackToComponentClock(t, PlaybackClock);
-
-                var blocks = mediaCore.Blocks[t];
-                var block = blocks[ComponentClock];
-
-                BlockStartTime = block?.StartTime ?? TimeSpan.Zero;
-                BlockIndex = block?.Index ?? -1;
-                BlockRangePercent = blocks.GetRangePercent(PlaybackClock);
-                BlockCapacityPercent = blocks.CapacityPercent;
-                BlockCount = blocks.Count;
-                BlockIsInRange = blocks.IsInRange(PlaybackClock);
-
-                BlockShouldRender = mediaCore.LastRenderTime[t] == null
-                    ? false
-                    : mediaCore.LastRenderTime[t] == TimeSpan.MinValue || mediaCore.LastRenderTime[t] != BlockStartTime ? true : false;
-            }
-
-            public MediaType MediaType { get; }
-
-            public TimeSpan WallClock { get; }
-
-            public TimeSpan PlaybackStartTime { get; }
-
-            public TimeSpan PlaybackEndTime { get; }
-
-            public TimeSpan PlaybackDuration { get; }
-
-            public TimeSpan PlaybackClock { get; }
-
-            public TimeSpan ComponentStartTime { get; }
-
-            public TimeSpan ComponentClock { get; }
-
-            public TimeSpan BlockStartTime { get; }
-
-            public int BlockIndex { get; }
-
-            public double BlockRangePercent { get; }
-
-            public double BlockCapacityPercent { get; }
-
-            public int BlockCount { get; }
-
-            public bool BlockIsInRange { get; }
-
-            public bool BlockShouldRender { get; }
-
-            public override string ToString()
-            {
-                return $"{MediaType,-9} | Wall: {WallClock.Format()}"
-                    + $" | Media Start: {PlaybackStartTime.Format()}"
-                    + $" | Media End: {PlaybackEndTime.Format()}"
-                    + $" | Media Duration: {PlaybackDuration.Format()}"
-                    + $" | Media Current: {PlaybackClock.Format()}"
-                    + $" | Comp Start: {ComponentStartTime.Format()}"
-                    + $" | Comp Current: {ComponentClock.Format()}"
-                    + $" | Block Start: {BlockStartTime.Format()}"
-                    + $" | Block Index: {BlockIndex}"
-                    + $" | Block Range: {BlockRangePercent:p2}"
-                    + $" | Block Fill: {BlockCapacityPercent:p2}"
-                    + $" | Block Count: {BlockCount,-4}"
-                    + $" | Block In Range: {BlockIsInRange}"
-                    + $" | Block Should Render: {BlockShouldRender}";
             }
         }
     }

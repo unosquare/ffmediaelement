@@ -127,7 +127,7 @@
         {
             // TODO: Handle Cancellation token ct
             var result = false;
-            var initialPosition = MediaCore.WallClock;
+            var initialPosition = MediaCore.PlaybackClock;
             var hasDecoderSeeked = false;
             var startTime = DateTime.UtcNow;
             var targetSeekMode = seekOperation.Mode;
@@ -154,7 +154,7 @@
                 // position of the main component so it sticks on it.
                 if (mainBlocks.IsInRange(targetPosition))
                 {
-                    MediaCore.ChangePosition(targetPosition);
+                    MediaCore.ChangePlaybackPosition(targetPosition);
                     return true;
                 }
 
@@ -256,7 +256,7 @@
 
                 // Write a new Real-time clock position now.
                 if (hasSeekBlocks == false)
-                    MediaCore.ChangePosition(resultPosition);
+                    MediaCore.ChangePlaybackPosition(resultPosition);
             }
             catch (Exception ex)
             {
@@ -288,7 +288,7 @@
             {
                 // We need to update the clock immediately because
                 // the renderer will need this position
-                MediaCore.ChangePosition(mode != SeekMode.Normal && mode != SeekMode.Stop
+                MediaCore.ChangePlaybackPosition(mode != SeekMode.Normal && mode != SeekMode.Stop
                     ? mainBlocks[targetPosition].StartTime
                     : targetPosition);
 
