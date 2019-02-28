@@ -372,7 +372,7 @@
         internal static unsafe string ComputeSmtpeTimeCode(TimeSpan streamStartTime, TimeSpan frameDuration, AVRational frameRate, long frameNumber)
         {
             // Drop the days in the stream start time
-            var startTime = streamStartTime.Days > 0 ?
+            var startTime = streamStartTime.Days != 0 ?
                 streamStartTime.Subtract(TimeSpan.FromDays(streamStartTime.Days)) :
                 streamStartTime;
 

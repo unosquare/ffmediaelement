@@ -87,10 +87,11 @@
             {
                 #region 0. Clock Control Logic
 
-                if (MediaCore.State.MediaState == PlaybackStatus.Play)
+                // Control the clock based on
+                if (Commands.IsSeeking == false)
                 {
                     var blocks = MediaCore.Blocks[main];
-                    var range = blocks.GetRangePercent(MediaCore.PlaybackClock);
+                    var range = blocks.GetRangePercent(playbackClock);
 
                     if (range >= 1d)
                     {
@@ -103,10 +104,29 @@
                         // Don't let the RTC lag behind what is available on the main component
                         MediaCore.ChangePlaybackPosition(blocks.RangeStartTime);
                     }
-                    else
+
+                    // TODO: This is anew approach to sync-buffering
+                    if (MediaCore.ShouldReadMorePackets)
                     {
-                        MediaCore.Clock.Play();
+                        foreach (var t in all)
+                        {
+                            if (t == main || t == MediaType.Subtitle)
+                                continue;
+
+                            range = MediaCore.Blocks[t].GetRangePercent(playbackClock);
+
+                            if (State.BufferingProgress < 1 && (range < 0 || range >= 1))
+                            {
+                                MediaCore.Clock.Pause();
+                                return;
+                            }
+                        }
                     }
+
+                    // always ensure we run the clock if we need a play status
+                    // TODO the rendering worker must always control the clock
+                    if (MediaCore.State.MediaState == PlaybackStatus.Play)
+                        MediaCore.Clock.Play();
                 }
 
                 #endregion
@@ -114,8 +134,8 @@
                 #region 1. Wait for any seek operation to make blocks available in a loop
 
                 while (!ct.IsCancellationRequested
-                    && Commands.IsActivelySeeking
-                    && !MediaCore.Blocks[main].IsInRange(MediaCore.PlaybackClock))
+                && Commands.IsActivelySeeking
+                && !MediaCore.Blocks[main].IsInRange(MediaCore.PlaybackClock))
                 {
                     // Check if we finally have seek blocks available
                     // if we don't get seek blocks in range and we are not step-seeking,
@@ -271,12 +291,13 @@
             try
             {
                 var drift = TimeSpan.FromTicks(clockPosition.Ticks - block.StartTime.Ticks);
-                this.LogTrace(Aspects.RenderingWorker,
+                this.LogInfo(Aspects.RenderingWorker,
                     $"{block.MediaType.ToString().Substring(0, 1)} "
                     + $"BLK: {block.StartTime.Format()} | "
                     + $"CLK: {clockPosition.Format()} | "
                     + $"DFT: {drift.TotalMilliseconds,4:0} | "
                     + $"IX: {block.Index,3} | "
+                    + $"RNG: {MediaCore.Blocks[block.MediaType].GetRangePercent(clockPosition):p} | "
                     + $"PQ: {Container?.Components[block.MediaType]?.BufferLength / 1024d,7:0.0}k | "
                     + $"TQ: {Container?.Components.BufferLength / 1024d,7:0.0}k");
             }

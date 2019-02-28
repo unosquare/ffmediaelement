@@ -102,14 +102,6 @@
 
                         addedBlocks++;
                         rangePercent = decoderBlocks.GetRangePercent(MediaCore.PlaybackClock);
-
-                        // Determine break conditions to save CPU time
-                        if (rangePercent > 0 &&
-                            rangePercent <= rangePercentThreshold &&
-                            decoderBlocks.IsFull == false &&
-                            decoderBlocks.CapacityPercent >= 0.25d &&
-                            decoderBlocks.IsInRange(MediaCore.PlaybackClock))
-                            break;
                     }
 
                     Interlocked.Add(ref DecodedFrameCount, addedBlocks);
