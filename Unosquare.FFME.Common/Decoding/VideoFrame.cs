@@ -44,13 +44,10 @@
             component.LastFramePts = frame->pts;
 
             if (previousFramePts != null && previousFramePts.Value == frame->pts)
-            {
-                // TODO: update the pts
-                frame->pts = TimeSpan.FromTicks(
-                    component.LastFrameStartTime.Ticks + component.LastFrameDuration.Ticks).ToLong(StreamTimeBase);
-            }
+                HasValidStartTime = false;
+            else
+                HasValidStartTime = frame->pts != ffmpeg.AV_NOPTS_VALUE;
 
-            HasValidStartTime = frame->pts != ffmpeg.AV_NOPTS_VALUE;
             StartTime = frame->pts == ffmpeg.AV_NOPTS_VALUE ?
                 TimeSpan.FromTicks(0) :
                 frame->pts.ToTimeSpan(StreamTimeBase);

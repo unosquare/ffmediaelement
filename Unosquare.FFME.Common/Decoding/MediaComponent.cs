@@ -400,16 +400,6 @@
         /// </summary>
         internal long? LastFramePts { get; set; }
 
-        /// <summary>
-        /// Gets the start time of the last received frame.
-        /// </summary>
-        internal TimeSpan LastFrameStartTime { get; private set; }
-
-        /// <summary>
-        /// Gets the duration of the last frame that was received.
-        /// </summary>
-        internal TimeSpan LastFrameDuration { get; private set; }
-
         #endregion
 
         #region Methods
@@ -463,17 +453,7 @@
         /// Feeds the decoder buffer and tries to return the next available frame.
         /// </summary>
         /// <returns>The received Media Frame. It is null if no frame could be retrieved.</returns>
-        public MediaFrame ReceiveNextFrame()
-        {
-            var frame = DecodePacketFunction();
-            if (frame != null)
-            {
-                LastFrameDuration = frame.Duration;
-                LastFrameStartTime = frame.StartTime;
-            }
-
-            return frame;
-        }
+        public MediaFrame ReceiveNextFrame() => DecodePacketFunction();
 
         /// <summary>
         /// Converts decoded, raw frame data in the frame source into a a usable frame. <br />

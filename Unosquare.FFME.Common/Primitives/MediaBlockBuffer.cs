@@ -186,6 +186,8 @@
 
         /// <summary>
         /// Gets the percentage of the range for the given time position.
+        /// A value of less than 0 means the position is behind (lagging).
+        /// A value of more than 1 means the position is beyond the range)
         /// </summary>
         /// <param name="position">The position.</param>
         /// <returns>The percent of the range</returns>
@@ -351,45 +353,6 @@
                 }
 
                 UpdateCollectionProperties();
-            }
-        }
-
-        /// <summary>
-        /// Removes the block from the playback buffer and returns the block to the pool.
-        /// </summary>
-        internal void RemoveFirst()
-        {
-            lock (SyncLock)
-            {
-                if (PlaybackBlocks.Count > 0)
-                    Remove(PlaybackBlocks[0]);
-            }
-        }
-
-        /// <summary>
-        /// Removes the specified block from the playback set and returns it to the ppol.
-        /// Use this after the block has been rendered to make room for more blocks.
-        /// </summary>
-        /// <param name="block">The block.</param>
-        internal void Remove(MediaBlock block)
-        {
-            if (block == null) return;
-
-            lock (SyncLock)
-            {
-                try
-                {
-                    var blockIndex = PlaybackBlocks.IndexOf(block);
-                    if (blockIndex >= 0)
-                    {
-                        PlaybackBlocks.RemoveAt(blockIndex);
-                        PoolBlocks.Enqueue(block);
-                    }
-                }
-                finally
-                {
-                    UpdateCollectionProperties();
-                }
             }
         }
 

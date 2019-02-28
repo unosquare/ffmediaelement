@@ -429,6 +429,11 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void UpdatePlaybackStartTime(TimeSpan playbackStartTime)
         {
+            // TODO: the playbackstartime gets reset when updatefixedcontainerproperties is changed
+            // for example, when changemedia is called this gets reset.
+            // Duration and playbackendposition same case
+            // We need to save the computed start and end time somehere. Reset them in the Reset method
+            // and prevent updating them in the updatefixedcontainerproperties.
             if ((PlaybackStartTime?.Ticks ?? 0) != playbackStartTime.Ticks)
             {
                 MediaCore.LogInfo(Aspects.Container,
