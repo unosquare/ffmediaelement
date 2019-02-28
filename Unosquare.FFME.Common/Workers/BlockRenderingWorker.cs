@@ -83,6 +83,30 @@
 
             try
             {
+                #region 1. Clock Control Logic
+
+                if (MediaCore.State.MediaState == PlaybackStatus.Play)
+                {
+                    var range = MediaCore.Blocks[main].GetRangePercent(MediaCore.PlaybackClock);
+                    if (range > 1d)
+                    {
+                        // Don't let the RTC move beyond what is available on the main component
+                        MediaCore.Clock.Pause();
+                        MediaCore.Clock.Update(MediaCore.ConvertPlaybackToClockTime(MediaCore.Blocks[main].RangeEndTime));
+                    }
+                    else if (range < 0)
+                    {
+                        // Don't let the RTC lag behind what is available on the main component
+                        MediaCore.Clock.Update(MediaCore.ConvertPlaybackToClockTime(MediaCore.Blocks[main].RangeStartTime));
+                    }
+                    else
+                    {
+                        MediaCore.Clock.Play();
+                    }
+                }
+
+                #endregion
+
                 #region 1. Wait for any seek operation to make blocks available in a loop
 
                 while (!ct.IsCancellationRequested
@@ -141,7 +165,7 @@
                 // Render each of the Media Types if it is time to do so.
                 foreach (var t in all)
                 {
-                    // Don't send null blocks to renderer
+                    // Don't send null or disposed blocks to renderer
                     if (currentBlock[t] == null || currentBlock[t].IsDisposed)
                         continue;
 
