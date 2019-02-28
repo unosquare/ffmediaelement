@@ -48,7 +48,7 @@
         /// <returns>The number of blocks to cache</returns>
         internal static int GetMaxBlocks(MediaType t, MediaEngine mediaCore)
         {
-            const int MinVideoBlocks = 4;
+            const int MinVideoBlocks = 12;
             const int MinAudioBlocks = 64;
             const int MinSUbtitleBlocks = 12;
 

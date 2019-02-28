@@ -178,6 +178,17 @@
         internal TimeSpan ConvertPlaybackToClockTime() =>
             ConvertPlaybackToClockTime(MediaType.None, ConvertClockToPlaybackTime());
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal TimeSpan ConvertPlaybackToComponentClock(MediaType t, TimeSpan playbackClock)
+        {
+            var mainOffset = GetComponentStartOffset(MediaType.None);
+            var componentOffset = GetComponentStartOffset(t);
+            return TimeSpan.FromTicks(playbackClock.Ticks + (componentOffset.Ticks - mainOffset.Ticks));
+        }
+
+        internal TimeSpan ConvertWallClockToComponentClock(MediaType t, TimeSpan wallClock) =>
+            ConvertPlaybackToComponentClock(t, ConvertClockToPlaybackTime(wallClock));
+
         /// <summary>
         /// Resumes the playback by resuming the clock and updating the playback state to state.
         /// </summary>

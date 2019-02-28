@@ -125,22 +125,34 @@
                 // for each of the components so that we have some buffer.
                 foreach (var t in Container.Components.MediaTypes)
                 {
-                    if (ct.IsCancellationRequested) break;
-
                     // Capture a reference to the blocks and the current Range Percent
-                    blocks = MediaCore.Blocks[t];
+                    const double rangePercentThreshold = 0.75d;
 
-                    // Read as much as we can for this cycle
-                    while (blocks.IsFull == false)
+                    var decoderBlocks = MediaCore.Blocks[t];
+                    var componentClock = MediaCore.ConvertWallClockToComponentClock(t, MediaCore.WallClock);
+                    var rangePercent = decoderBlocks.GetRangePercent(componentClock);
+
+                    // Read as much as we can for this cycle but always within range.
+                    while (decoderBlocks.IsFull == false || rangePercent > rangePercentThreshold)
                     {
                         if (ct.IsCancellationRequested || AddNextBlock(t) == false)
                             break;
 
-                        DecodedFrameCount += 1;
-                    }
+                        Interlocked.Add(ref DecodedFrameCount, 1);
+                        componentClock = MediaCore.ConvertWallClockToComponentClock(t, MediaCore.WallClock);
+                        rangePercent = decoderBlocks.GetRangePercent(componentClock);
 
-                    #endregion
+                        // Determine break conditions to save CPU time
+                        if (rangePercent > 0 &&
+                            rangePercent <= rangePercentThreshold &&
+                            decoderBlocks.IsFull == false &&
+                            decoderBlocks.CapacityPercent >= 0.25d &&
+                            decoderBlocks.IsInRange(componentClock))
+                            break;
+                    }
                 }
+
+                #endregion
             }
             finally
             {
