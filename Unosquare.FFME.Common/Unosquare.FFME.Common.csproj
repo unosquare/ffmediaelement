@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net461</TargetFrameworks>
+    <TargetFrameworks>net461;net472;netcoreapp3.0</TargetFrameworks>
     <RootNamespace>Unosquare.FFME</RootNamespace>
     <Version>4.1.280</Version>
     <Authors>Mario Di Vece and Contributors to the FFME project</Authors>
@@ -17,14 +17,13 @@
     <RepositoryType>GitHub</RepositoryType>
     <PackageTags>FFmpeg, Media, Audio, Video, Decoding</PackageTags>
     <AssemblyName>ffme.common</AssemblyName>
-    <Platforms>AnyCPU</Platforms>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CodeAnalysisRuleSet>..\StyleCop.Analyzers.ruleset</CodeAnalysisRuleSet>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <AssemblyVersion>4.1.280.0</AssemblyVersion>
     <FileVersion>4.1.280.0</FileVersion>
     <LangVersion>latest</LangVersion>
-	<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+	  <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
@@ -41,8 +40,8 @@
     </PackageReference>
   </ItemGroup>
   
-  <ItemGroup Condition="'$(TargetFramework)'=='net461'">
-    <Reference Include="System.Web" />
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
 
 </Project>
