@@ -130,5 +130,11 @@
         /// The minimum is 12. Leave as -1 for auto.
         /// </summary>
         public int SubtitleBlockCache { get; set; } = -1;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether each component needs to run
+        /// its timing independently of the main component.
+        /// </summary>
+        public bool IsTimeSyncDisabled { get; set; }
     }
 }

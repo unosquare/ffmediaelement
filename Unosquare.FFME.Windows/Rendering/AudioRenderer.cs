@@ -96,7 +96,7 @@
             {
                 // The delay is the playback position minus the current audio buffer position
                 lock (SyncLock)
-                    return TimeSpan.FromTicks(MediaCore.PlaybackClock.Ticks - Position.Ticks);
+                    return TimeSpan.FromTicks(MediaCore.PlaybackClock(MediaType.None).Ticks - Position.Ticks);
             }
         }
 

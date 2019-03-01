@@ -126,7 +126,7 @@
             IsSyncBuffering = true;
 
             this.LogInfo(Aspects.RenderingWorker,
-                $"SYNC-BUFFER: Started. Buffer: {State.BufferingProgress:p}. Clock: {PlaybackClock.Format()}");
+                $"SYNC-BUFFER: Started. Buffer: {State.BufferingProgress:p}. Clock: {PlaybackClock(MediaType.None).Format()}");
         }
 
         /// <summary>

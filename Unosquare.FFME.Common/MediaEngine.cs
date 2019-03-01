@@ -66,11 +66,6 @@
         public TimeSpan WallClock => State.IsOpen || State.IsOpening ? Clock.Position : TimeSpan.Zero;
 
         /// <summary>
-        /// Gets the media playback clock position based on the current wall clock.
-        /// </summary>
-        public TimeSpan PlaybackClock => TimeSpan.FromTicks(WallClock.Ticks + GetComponentStartOffset(MediaType.None).Ticks);
-
-        /// <summary>
         /// Provides stream, chapter and program info of the underlying media.
         /// Returns null when no media is loaded.
         /// </summary>
@@ -104,6 +99,17 @@
         /// <inheritdoc />
         void ILoggingHandler.HandleLogMessage(MediaLogMessage message) =>
             SendOnMessageLogged(message);
+
+        /// <summary>
+        /// Gets the playback clock
+        /// </summary>
+        /// <param name="t">The t.</param>
+        /// <returns>The playback clock for the given component</returns>
+        public TimeSpan PlaybackClock(MediaType t)
+        {
+            var mediaType = (Container?.MediaOptions?.IsTimeSyncDisabled ?? false) ? t : MediaType.None;
+            return TimeSpan.FromTicks(WallClock.Ticks + GetComponentStartOffset(mediaType).Ticks);
+        }
 
         /// <inheritdoc />
         public void Dispose()

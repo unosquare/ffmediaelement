@@ -86,29 +86,7 @@
                 // for each of the components so that we have some buffer.
                 Parallel.ForEach(Container.Components.MediaTypes, (t) =>
                 {
-                    // Capture a reference to the blocks and the current Range Percent
-                    const double rangePercentThreshold = 0.75d;
-
-                    var lastRenderTime = MediaCore.LastRenderTime[t];
-                    var decoderBlocks = MediaCore.Blocks[t];
-                    var rangePercent = decoderBlocks.GetRangePercent(lastRenderTime);
-                    var addedBlocks = 0;
-                    var maxAddedBlocks = decoderBlocks.Capacity;
-
-                    if (lastRenderTime == TimeSpan.MinValue && decoderBlocks.IsFull)
-                        return;
-
-                    // Read as much as we can for this cycle but always within range.
-                    while (addedBlocks < maxAddedBlocks && (decoderBlocks.IsFull == false || rangePercent >= rangePercentThreshold))
-                    {
-                        if (ct.IsCancellationRequested || AddNextBlock(t) == false)
-                            break;
-
-                        addedBlocks++;
-                        rangePercent = decoderBlocks.GetRangePercent(lastRenderTime);
-                    }
-
-                    Interlocked.Add(ref DecodedFrameCount, addedBlocks);
+                    Interlocked.Add(ref DecodedFrameCount, DecodeComponentBlocks(t, ct));
                 });
 
                 #endregion
@@ -143,6 +121,29 @@
         protected override void OnCycleException(Exception ex) =>
             this.LogError(Aspects.DecodingWorker, "Worker Cycle exception thrown", ex);
 
+        private int DecodeComponentBlocks(MediaType t, CancellationToken ct)
+        {
+            // Capture a reference to the blocks and the current Range Percent
+            const double rangePercentThreshold = 0.75d;
+
+            var decoderBlocks = MediaCore.Blocks[t];
+            var rangePercent = decoderBlocks.GetRangePercent(MediaCore.PlaybackClock(t));
+            var addedBlocks = 0;
+            var maxAddedBlocks = decoderBlocks.Capacity;
+
+            // Read as much as we can for this cycle but always within range.
+            while (addedBlocks < maxAddedBlocks && (decoderBlocks.IsFull == false || rangePercent >= rangePercentThreshold))
+            {
+                if (ct.IsCancellationRequested || AddNextBlock(t) == false)
+                    break;
+
+                addedBlocks++;
+                rangePercent = decoderBlocks.GetRangePercent(MediaCore.PlaybackClock(t));
+            }
+
+            return addedBlocks;
+        }
+
         /// <summary>
         /// Tries to receive the next frame from the decoder by decoding queued
         /// Packets and converting the decoded frame into a Media Block which gets
@@ -168,7 +169,7 @@
         private bool DetectHasDecodingEnded(int decodedFrameCount, MediaType main) =>
                 decodedFrameCount <= 0
                 && CanReadMoreFramesOf(main) == false
-                && MediaCore.Blocks[main].IndexOf(MediaCore.PlaybackClock) >= MediaCore.Blocks[main].Count - 1;
+                && MediaCore.Blocks[main].IndexOf(MediaCore.PlaybackClock(main)) >= MediaCore.Blocks[main].Count - 1;
 
         /// <summary>
         /// Gets a value indicating whether more frames can be decoded into blocks of the given type.

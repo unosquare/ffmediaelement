@@ -160,7 +160,7 @@
                 return true;
 
             var blocks = MediaCore.Blocks[main];
-            var range = blocks.GetRangePercent(MediaCore.PlaybackClock);
+            var range = blocks.GetRangePercent(MediaCore.PlaybackClock(MediaType.None));
 
             if (range >= 1d)
             {
@@ -190,7 +190,7 @@
                 if (t == main || t == MediaType.Subtitle)
                     continue;
 
-                if (MediaCore.Blocks[t].IsInRange(MediaCore.PlaybackClock))
+                if (MediaCore.Blocks[t].IsInRange(MediaCore.PlaybackClock(t)))
                 {
                     MediaCore.PausePlayback();
                     MediaCore.SignalSyncBufferingEntered();
@@ -219,8 +219,8 @@
                 return false;
 
             var blocks = MediaCore.Blocks[main];
-            if (blocks.Count > 0 && !blocks.IsInRange(MediaCore.PlaybackClock))
-                MediaCore.ChangePlaybackPosition(blocks[MediaCore.PlaybackClock].StartTime);
+            if (blocks.Count > 0 && !blocks.IsInRange(MediaCore.PlaybackClock(main)))
+                MediaCore.ChangePlaybackPosition(blocks[MediaCore.PlaybackClock(main)].StartTime);
 
             MediaCore.SignalSyncBufferingExited();
 
@@ -232,7 +232,7 @@
         {
             while (!ct.IsCancellationRequested
             && Commands.IsActivelySeeking
-            && !MediaCore.Blocks[main].IsInRange(MediaCore.PlaybackClock))
+            && !MediaCore.Blocks[main].IsInRange(MediaCore.PlaybackClock(main)))
             {
                 // Check if we finally have seek blocks available
                 // if we don't get seek blocks in range and we are not step-seeking,
@@ -251,7 +251,7 @@
         private bool RenderBlock(MediaType t)
         {
             var result = 0;
-            var playbackClock = MediaCore.PlaybackClock;
+            var playbackClock = MediaCore.PlaybackClock(t);
 
             try
             {
@@ -287,7 +287,7 @@
             // Check End of Media Scenarios
             if (Commands.IsSeeking == false
                 && MediaCore.HasDecodingEnded
-                && MediaCore.PlaybackClock.Ticks >= playbackEndClock.Ticks)
+                && MediaCore.PlaybackClock(MediaType.None).Ticks >= playbackEndClock.Ticks)
             {
                 // Rendered all and nothing else to render
                 if (State.HasMediaEnded == false)

@@ -127,7 +127,6 @@
         {
             // TODO: Handle Cancellation token ct
             var result = false;
-            var initialPosition = MediaCore.PlaybackClock;
             var hasDecoderSeeked = false;
             var startTime = DateTime.UtcNow;
             var targetSeekMode = seekOperation.Mode;
@@ -139,6 +138,7 @@
                 var main = MediaCore.Container.Components.MainMediaType;
                 var all = MediaCore.Container.Components.MediaTypes;
                 var mainBlocks = MediaCore.Blocks[main];
+                var initialPosition = MediaCore.PlaybackClock(main);
 
                 if (targetSeekMode == SeekMode.StepBackward || targetSeekMode == SeekMode.StepForward)
                 {
