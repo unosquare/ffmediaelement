@@ -194,7 +194,7 @@
                     if (PlayAfterSeek == true)
                     {
                         PlayAfterSeek = false;
-                        MediaCore.ResumePlayback();
+                        MediaCore.State.UpdateMediaState(PlaybackStatus.Play);
                     }
                     else
                     {

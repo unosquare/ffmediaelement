@@ -99,7 +99,7 @@
             foreach (var renderer in MediaCore.Renderers.Values)
                 renderer.Play();
 
-            MediaCore.ResumePlayback();
+            MediaCore.State.UpdateMediaState(PlaybackStatus.Play);
 
             return true;
         }
@@ -113,7 +113,7 @@
             if (State.CanPause == false)
                 return false;
 
-            MediaCore.Clock.Pause();
+            MediaCore.PausePlayback();
 
             foreach (var renderer in MediaCore.Renderers.Values)
                 renderer.Pause();

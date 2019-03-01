@@ -85,7 +85,7 @@
                 {
                     IsSeeking = true;
                     PlayAfterSeek = State.MediaState == PlaybackStatus.Play && seekMode == SeekMode.Normal;
-                    MediaCore.Clock.Pause();
+                    MediaCore.PausePlayback();
                     MediaCore.State.UpdateMediaState(PlaybackStatus.Manual);
                     MediaCore.SendOnSeekingStarted();
                 }
@@ -187,6 +187,10 @@
                 var firstFrame = MediaCore.Container.Seek(adjustedSeekTarget);
                 if (firstFrame != null)
                 {
+                    // if we seeked to minvalue we really meant the first frame start time
+                    if (targetPosition == TimeSpan.MinValue)
+                        targetPosition = firstFrame.StartTime;
+
                     // Ensure we signal media has not ended
                     State.UpdateMediaEnded(false, TimeSpan.Zero);
 

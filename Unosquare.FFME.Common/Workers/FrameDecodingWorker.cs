@@ -89,19 +89,23 @@
                     // Capture a reference to the blocks and the current Range Percent
                     const double rangePercentThreshold = 0.75d;
 
+                    var lastRenderTime = MediaCore.LastRenderTime[t];
                     var decoderBlocks = MediaCore.Blocks[t];
-                    var rangePercent = decoderBlocks.GetRangePercent(MediaCore.PlaybackClock);
+                    var rangePercent = decoderBlocks.GetRangePercent(lastRenderTime);
                     var addedBlocks = 0;
                     var maxAddedBlocks = decoderBlocks.Capacity;
 
+                    if (lastRenderTime == TimeSpan.MinValue && decoderBlocks.IsFull)
+                        return;
+
                     // Read as much as we can for this cycle but always within range.
-                    while (addedBlocks < maxAddedBlocks && (decoderBlocks.IsFull == false || rangePercent > rangePercentThreshold))
+                    while (addedBlocks < maxAddedBlocks && (decoderBlocks.IsFull == false || rangePercent >= rangePercentThreshold))
                     {
                         if (ct.IsCancellationRequested || AddNextBlock(t) == false)
                             break;
 
                         addedBlocks++;
-                        rangePercent = decoderBlocks.GetRangePercent(MediaCore.PlaybackClock);
+                        rangePercent = decoderBlocks.GetRangePercent(lastRenderTime);
                     }
 
                     Interlocked.Add(ref DecodedFrameCount, addedBlocks);

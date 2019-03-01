@@ -91,6 +91,7 @@
 
                 PendingDirectCommand = command;
                 HasDirectCommandCompleted.Value = false;
+                MediaCore.PausePlayback();
 
                 var commandTask = new Task<bool>(() =>
                 {
@@ -185,7 +186,7 @@
                 }
                 else
                 {
-                    MediaCore.ResetPosition();
+                    MediaCore.ResetPlaybackPosition();
                     MediaCore.State.UpdateMediaState(PlaybackStatus.Close);
                     MediaCore.SendOnMediaFailed(commandException);
                 }
@@ -194,7 +195,7 @@
             {
                 // Update notification properties
                 State.ResetAll();
-                MediaCore.ResetPosition();
+                MediaCore.ResetPlaybackPosition();
                 State.UpdateMediaState(PlaybackStatus.Close);
                 State.UpdateSource(null);
 
@@ -213,7 +214,7 @@
                     // command result contains the play after seek.
                     if (resumeMedia)
                     {
-                        MediaCore.ResumePlayback();
+                        MediaCore.State.UpdateMediaState(PlaybackStatus.Play);
                     }
                     else
                     {
@@ -373,6 +374,8 @@
         /// <returns>Simply return the play when completed boolean if there are no exceptions</returns>
         private bool CommandChangeMedia(bool playWhenCompleted)
         {
+            MediaCore.SignalSyncBufferingEntered();
+
             // Signal a change so the user get the chance to update
             // selected streams and options
             MediaCore.SendOnMediaChanging();
@@ -424,7 +427,7 @@
         private void StopWorkers()
         {
             // Pause the clock so no further updates are propagated
-            MediaCore.Clock.Pause();
+            MediaCore.PausePlayback();
 
             // Cause an immediate Packet read abort
             MediaCore.Container?.SignalAbortReads(false);
@@ -450,7 +453,7 @@
             MediaCore.LastRenderTime.Clear();
 
             // Reset the clock
-            MediaCore.ResetPosition();
+            MediaCore.ResetPlaybackPosition();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

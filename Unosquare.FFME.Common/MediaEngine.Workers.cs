@@ -18,7 +18,10 @@
 
         #region State Management
 
+        private readonly AtomicBoolean m_IsSyncBuffering = new AtomicBoolean(false);
         private readonly AtomicBoolean m_HasDecodingEnded = new AtomicBoolean(false);
+
+        private DateTime SyncBufferStartTime = DateTime.UtcNow;
 
         /// <summary>
         /// Holds the materialized block cache for each media type.
@@ -44,6 +47,19 @@
         /// Holds the last rendered StartTime for each of the media block types
         /// </summary>
         internal MediaTypeDictionary<TimeSpan> LastRenderTime { get; } = new MediaTypeDictionary<TimeSpan>();
+
+        /// <summary>
+        /// Gets a value indicating whether the decoder worker is sync-buffering.
+        /// Sync-buffering is entered when there are no main blocks for the current clock.
+        /// This in turn pauses the clock (without changing the media state).
+        /// The decoder exits this condition when buffering is no longer needed and
+        /// updates the clock position to what is available in the main block buffer.
+        /// </summary>
+        internal bool IsSyncBuffering
+        {
+            get => m_IsSyncBuffering.Value;
+            private set => m_IsSyncBuffering.Value = value;
+        }
 
         /// <summary>
         /// Gets or sets a value indicating whether the decoder worker has decoded all frames.
@@ -88,9 +104,44 @@
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the decoder needs to wait for the reader to receive more packets.
+        /// </summary>
+        internal bool NeedsMorePackets => ShouldReadMorePackets && !Container.Components.HasEnoughPackets;
+
         #endregion
 
         #region Methods
+
+        /// <summary>
+        /// Signals that the engine has entered the syn-buffering state.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void SignalSyncBufferingEntered()
+        {
+            if (IsSyncBuffering)
+                return;
+
+            SyncBufferStartTime = DateTime.UtcNow;
+            IsSyncBuffering = true;
+
+            this.LogInfo(Aspects.RenderingWorker,
+                $"SYNC-BUFFER: Started. Buffer: {State.BufferingProgress:p}. Clock: {PlaybackClock.Format()}");
+        }
+
+        /// <summary>
+        /// Signals that the engine has exited the syn-buffering state.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void SignalSyncBufferingExited()
+        {
+            if (!IsSyncBuffering)
+                return;
+
+            IsSyncBuffering = false;
+            this.LogInfo(Aspects.RenderingWorker,
+                $"SYNC-BUFFER: Completed in {DateTime.UtcNow.Subtract(SyncBufferStartTime).Format()}");
+        }
 
         /// <summary>
         /// Gets the component start offset. Pass none to get the media start offset.
@@ -117,17 +168,6 @@
             TimeSpan.FromTicks(playbackTime.Ticks - GetComponentStartOffset(MediaType.None).Ticks);
 
         /// <summary>
-        /// Resumes the playback by resuming the clock and updating the playback state to state.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void ResumePlayback()
-        {
-            // TODO: Only the blockrendering worker can update the clock state
-            Clock.Play();
-            State.UpdateMediaState(PlaybackStatus.Play);
-        }
-
-        /// <summary>
         /// Updates the clock position and notifies the new
         /// position to the <see cref="State" />.
         /// </summary>
@@ -143,12 +183,23 @@
         }
 
         /// <summary>
+        /// Pauses the playback by pausing the RTC.
+        /// This does not change the any state.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void PausePlayback()
+        {
+            Clock.Pause();
+            State.ReportPlaybackPosition();
+        }
+
+        /// <summary>
         /// Resets the clock to the zero position and notifies the new
         /// position to rhe <see cref="State"/>.
         /// </summary>
         /// <returns>The newly set position</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal TimeSpan ResetPosition()
+        internal TimeSpan ResetPlaybackPosition()
         {
             Clock.Reset();
             State.ReportPlaybackPosition();

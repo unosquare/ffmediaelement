@@ -64,6 +64,7 @@
             // Update Status Properties
             var main = Container.Components.MainMediaType;
             var all = MediaCore.Renderers.Keys.ToArray();
+            var hasEnteredSyncBuffering = false;
 
             try
             {
@@ -73,6 +74,8 @@
                 // Ensure we have sufficient blocks on all components
                 // and the clock is in the proper state
                 if (!EnsureBlocksAvailable(main, all)) return;
+
+                hasEnteredSyncBuffering = EnterSyncBuffering(main, all);
 
                 // If we are in the middle of a seek, wait for seek blocks
                 WaitForSeekBlocks(main, ct);
@@ -98,6 +101,14 @@
             }
             finally
             {
+                // always ensure we run the clock if we need a play status
+                // TODO: the rendering worker must always control the clock -- find where this is not the case
+                // all references to updating the clock or resuming playback must be removed
+                if (MediaCore.State.MediaState == PlaybackStatus.Play && !MediaCore.IsSyncBuffering && !Commands.IsSeeking && !hasEnteredSyncBuffering)
+                    MediaCore.Clock.Play();
+
+                ExitSyncBuffering(main, ct);
+
                 // Detect end of media scenarios
                 DetectHasMediaEnded(main);
 
@@ -114,7 +125,8 @@
         /// <inheritdoc />
         protected override void OnDisposing()
         {
-            // nothing needed when disposing
+            // Reset the state to non-sync-buffering
+            MediaCore.SignalSyncBufferingExited();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -153,7 +165,7 @@
             if (range >= 1d)
             {
                 // Don't let the RTC move beyond what is available on the main component
-                MediaCore.Clock.Pause();
+                // MediaCore.PausePlayback();
                 MediaCore.ChangePlaybackPosition(blocks.RangeEndTime);
             }
             else if (range < 0)
@@ -162,30 +174,55 @@
                 MediaCore.ChangePlaybackPosition(blocks.RangeStartTime);
             }
 
+            return true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool EnterSyncBuffering(MediaType main, MediaType[] all)
+        {
             // TODO: This is anew approach to sync-buffering
             // it still needs work -- see prior sync-buffering logic
-            if (MediaCore.ShouldReadMorePackets)
+            if (MediaCore.IsSyncBuffering || !MediaCore.NeedsMorePackets || State.BufferingProgress >= 1d)
+                return false;
+
+            foreach (var t in all)
             {
-                foreach (var t in all)
+                if (t == main || t == MediaType.Subtitle)
+                    continue;
+
+                if (MediaCore.Blocks[t].IsInRange(MediaCore.PlaybackClock))
                 {
-                    if (t == main || t == MediaType.Subtitle)
-                        continue;
-
-                    range = MediaCore.Blocks[t].GetRangePercent(MediaCore.PlaybackClock);
-
-                    if (State.BufferingProgress < 1 && (range <= 0 || range >= 1))
-                    {
-                        MediaCore.Clock.Pause();
-                        return false;
-                    }
+                    MediaCore.PausePlayback();
+                    MediaCore.SignalSyncBufferingEntered();
+                    return true;
                 }
             }
 
-            // always ensure we run the clock if we need a play status
-            // TODO: the rendering worker must always control the clock -- find where this is not the case
-            // all references to updating the clock or resuming playback must be removed
-            if (MediaCore.State.MediaState == PlaybackStatus.Play)
-                MediaCore.Clock.Play();
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool ExitSyncBuffering(MediaType main, CancellationToken ct)
+        {
+            // Don't exit syc-buffering if we are not in syncbuffering
+            if (!MediaCore.IsSyncBuffering)
+                return false;
+
+            // Detect if an exit from Sync Buffering is required
+            var mustExitSyncBuffering =
+                ct.IsCancellationRequested ||
+                MediaCore.HasDecodingEnded ||
+                State.BufferingProgress >= 0.95 ||
+                !MediaCore.NeedsMorePackets;
+
+            if (!mustExitSyncBuffering)
+                return false;
+
+            var blocks = MediaCore.Blocks[main];
+            if (blocks.Count > 0 && !blocks.IsInRange(MediaCore.PlaybackClock))
+                MediaCore.ChangePlaybackPosition(blocks[MediaCore.PlaybackClock].StartTime);
+
+            MediaCore.SignalSyncBufferingExited();
 
             return true;
         }
@@ -255,7 +292,7 @@
                 // Rendered all and nothing else to render
                 if (State.HasMediaEnded == false)
                 {
-                    MediaCore.Clock.Pause();
+                    MediaCore.PausePlayback();
 
                     // TODO: compute end update end position
                     // this will get overwritten when changemedia gets called
