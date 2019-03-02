@@ -64,7 +64,6 @@
             // Update Status Properties
             var main = Container.Components.MainMediaType;
             var all = MediaCore.Renderers.Keys.ToArray();
-            var hasEnteredSyncBuffering = false;
 
             try
             {
@@ -75,7 +74,7 @@
                 // and the clock is in the proper state
                 if (!EnsureBlocksAvailable(main, all)) return;
 
-                hasEnteredSyncBuffering = EnterSyncBuffering(main, all);
+                EnterSyncBuffering(main, all);
 
                 // If we are in the middle of a seek, wait for seek blocks
                 WaitForSeekBlocks(main, ct);
@@ -104,7 +103,7 @@
                 // always ensure we run the clock if we need a play status
                 // TODO: the rendering worker must always control the clock -- find where this is not the case
                 // all references to updating the clock or resuming playback must be removed
-                if (MediaCore.State.MediaState == PlaybackStatus.Play && !MediaCore.IsSyncBuffering && !Commands.IsSeeking && !hasEnteredSyncBuffering)
+                if (HasInitialized.Value && State.MediaState == PlaybackStatus.Play && !MediaCore.IsSyncBuffering && !Commands.IsSeeking)
                     MediaCore.Clock.Play();
 
                 ExitSyncBuffering(main, ct);
@@ -138,10 +137,36 @@
             if (MediaCore.Blocks[main].Count <= 0)
                 return false;
 
+            // Get the main stream's real start time
             var startTime = MediaCore.Blocks[main].RangeStartTime;
 
+            // Check if the streams have related timing information
+            // If they do not then simply forsce the disabling of time synchronization
+            if (!Container.MediaOptions.IsTimeSyncDisabled)
+            {
+                foreach (var t in all)
+                {
+                    if (t == main || t == MediaType.Subtitle)
+                        continue;
+
+                    if (MediaCore.Blocks[t].Count == 0)
+                        return false;
+
+                    var startTimeDifference = MediaCore.Blocks[t][0].StartTime - startTime;
+                    if (Math.Abs(startTimeDifference.TotalSeconds) > 10d)
+                    {
+                        Container.MediaOptions.IsTimeSyncDisabled = true;
+                        this.LogWarning(Aspects.RenderingWorker,
+                            $"{nameof(MediaOptions)}.{nameof(MediaOptions.IsTimeSyncDisabled)} has been set to true because the {main} and {t} " +
+                            $"streams seem to have unrelated timing information. Difference: {startTimeDifference.Format()}");
+
+                        break;
+                    }
+                }
+            }
+
             // Set the initial clock position
-            MediaCore.State.UpdatePlaybackStartTime(startTime);
+            State.UpdatePlaybackStartTime(startTime);
             MediaCore.ChangePlaybackPosition(startTime);
 
             // Wait for renderers to be ready
@@ -156,11 +181,11 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool EnsureBlocksAvailable(MediaType main, MediaType[] all)
         {
-            if (Commands.IsSeeking)
+            if (Commands.IsSeeking || Container.MediaOptions.IsTimeSyncDisabled)
                 return true;
 
             var blocks = MediaCore.Blocks[main];
-            var range = blocks.GetRangePercent(MediaCore.PlaybackClock(MediaType.None));
+            var range = blocks.GetRangePercent(MediaCore.PlaybackClock());
 
             if (range >= 1d)
             {
@@ -182,8 +207,13 @@
         {
             // TODO: This is anew approach to sync-buffering
             // it still needs work -- see prior sync-buffering logic
-            if (MediaCore.IsSyncBuffering || !MediaCore.NeedsMorePackets || State.BufferingProgress >= 1d)
+            if (MediaCore.IsSyncBuffering ||
+                Container.MediaOptions.IsTimeSyncDisabled ||
+                State.BufferingProgress >= 1d ||
+                !MediaCore.NeedsMorePackets)
+            {
                 return false;
+            }
 
             foreach (var t in all)
             {
@@ -287,7 +317,7 @@
             // Check End of Media Scenarios
             if (Commands.IsSeeking == false
                 && MediaCore.HasDecodingEnded
-                && MediaCore.PlaybackClock(MediaType.None).Ticks >= playbackEndClock.Ticks)
+                && MediaCore.PlaybackClock(main).Ticks >= playbackEndClock.Ticks)
             {
                 // Rendered all and nothing else to render
                 if (State.HasMediaEnded == false)

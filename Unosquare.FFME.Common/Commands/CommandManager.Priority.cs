@@ -38,7 +38,7 @@
                 if (State.PlaybackEndTime.Value == TimeSpan.MinValue)
                     return true;
 
-                return MediaCore.PlaybackClock(MediaType.None) < State.PlaybackEndTime.Value;
+                return MediaCore.PlaybackClock() < State.PlaybackEndTime.Value;
             }
         }
 
@@ -118,7 +118,7 @@
             foreach (var renderer in MediaCore.Renderers.Values)
                 renderer.Pause();
 
-            MediaCore.ChangePlaybackPosition(SnapPositionToBlockPosition(MediaCore.PlaybackClock(MediaType.None)));
+            MediaCore.ChangePlaybackPosition(SnapPositionToBlockPosition(MediaCore.PlaybackClock()));
             State.UpdateMediaState(PlaybackStatus.Pause);
             return true;
         }

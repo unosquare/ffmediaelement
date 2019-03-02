@@ -57,6 +57,11 @@
         private MediaEngineState State { get; }
 
         /// <summary>
+        /// Whether or not frames should be decoded in parallel.
+        /// </summary>
+        private bool UseParallelDecoding { get; }
+
+        /// <summary>
         /// Gets a value indicating whether the decoder needs to wait for the reader to receive more packets.
         /// </summary>
         private bool NeedsMorePackets => MediaCore.ShouldReadMorePackets && !MediaCore.Container.Components.HasEnoughPackets;
@@ -80,16 +85,20 @@
                 if (MediaCore.HasDecodingEnded || ct.IsCancellationRequested)
                     return;
 
-                #region Component Decoding
-
                 // We need to add blocks if the wall clock is over 75%
                 // for each of the components so that we have some buffer.
-                Parallel.ForEach(Container.Components.MediaTypes, (t) =>
+                if (UseParallelDecoding)
                 {
-                    Interlocked.Add(ref DecodedFrameCount, DecodeComponentBlocks(t, ct));
-                });
-
-                #endregion
+                    Parallel.ForEach(Container.Components.MediaTypes, (t) =>
+                    {
+                        Interlocked.Add(ref DecodedFrameCount, DecodeComponentBlocks(t, ct));
+                    });
+                }
+                else
+                {
+                    foreach (var t in Container.Components.MediaTypes)
+                        DecodedFrameCount += DecodeComponentBlocks(t, ct);
+                }
             }
             finally
             {
@@ -121,6 +130,7 @@
         protected override void OnCycleException(Exception ex) =>
             this.LogError(Aspects.DecodingWorker, "Worker Cycle exception thrown", ex);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int DecodeComponentBlocks(MediaType t, CancellationToken ct)
         {
             // Capture a reference to the blocks and the current Range Percent
