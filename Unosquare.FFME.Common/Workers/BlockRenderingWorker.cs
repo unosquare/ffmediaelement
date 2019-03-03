@@ -65,19 +65,22 @@
             var main = Container.Components.MainMediaType;
             var all = MediaCore.Renderers.Keys.ToArray();
 
+            // Ensure we have renderers ready and main blocks available
+            if (!Initialize(main, all))
+                return;
+
             try
             {
-                // Ensure we have renderers ready and main blocks available
-                if (!Initialize(main, all)) return;
-
-                // Ensure we have sufficient blocks on all components
-                // and the clock is in the proper state
-                if (!EnsureBlocksAvailable(main, all)) return;
-
-                EnterSyncBuffering(main, all);
-
                 // If we are in the middle of a seek, wait for seek blocks
                 WaitForSeekBlocks(main, ct);
+
+                // Ensure the RTC clock matches the playback position of the
+                // main component -- only if IsTimeSyncDisabled is false
+                if (!AlignWallClockToPlayback(main, all))
+                    return;
+
+                // Check for and enter a sync-buffering scenario
+                EnterSyncBuffering(main, all);
 
                 // Render each of the Media Types if it is time to do so.
                 if (UseParallelRendering)
@@ -100,20 +103,9 @@
             }
             finally
             {
-                // always ensure we run the clock if we need a play status
-                // TODO: the rendering worker must always control the clock -- find where this is not the case
-                // all references to updating the clock or resuming playback must be removed
-                if (HasInitialized.Value && State.MediaState == PlaybackStatus.Play && !MediaCore.IsSyncBuffering && !Commands.IsSeeking)
-                    MediaCore.Clock.Play();
-
-                ExitSyncBuffering(main, ct);
-
-                // Detect end of media scenarios
-                DetectHasMediaEnded(main);
-
-                // Update the Position
-                if (Commands.IsSeeking == false)
-                    State.ReportPlaybackPosition();
+                ExitSyncBuffering(main, all, ct);
+                DetectPlaybackEnded(main);
+                UpdatePlayback(main);
             }
         }
 
@@ -128,10 +120,18 @@
             MediaCore.SignalSyncBufferingExited();
         }
 
+        /// <summary>
+        /// Performs initialization before regular render loops are executed.
+        /// </summary>
+        /// <param name="main">The main renderer media type.</param>
+        /// <param name="all">All renderer media types.</param>
+        /// <returns>If media was initialized successfully.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool Initialize(MediaType main, MediaType[] all)
         {
-            if (HasInitialized == true) return true;
+            // Don't run the cycle if we have already initialized
+            if (HasInitialized == true)
+                return true;
 
             // wait for main component blocks or EOF or cancellation pending
             if (MediaCore.Blocks[main].Count <= 0)
@@ -142,23 +142,31 @@
 
             // Check if the streams have related timing information
             // If they do not then simply forsce the disabling of time synchronization
+            // and have the playback clock be independent for each component
             if (!Container.MediaOptions.IsTimeSyncDisabled)
             {
                 foreach (var t in all)
                 {
-                    if (t == main || t == MediaType.Subtitle)
+                    // Check if the component is applicable to time synchronization to main
+                    if (t == main || t == MediaType.Subtitle || MediaCore.Blocks[t] == null)
                         continue;
 
+                    // If we have not received any blocks yet we con't compare
+                    // start time differences.
                     if (MediaCore.Blocks[t].Count == 0)
                         return false;
 
-                    var startTimeDifference = MediaCore.Blocks[t][0].StartTime - startTime;
-                    if (Math.Abs(startTimeDifference.TotalSeconds) > 10d)
+                    // Compute the offset difference with respect to the main component
+                    var startTimeOffset = TimeSpan.FromTicks(
+                        Math.Abs(MediaCore.Blocks[t][0].StartTime.Ticks - startTime.Ticks));
+
+                    // Disable TimeSync if the streams are unrelated.
+                    if (startTimeOffset > Constants.TimeSyncMaxOffset)
                     {
                         Container.MediaOptions.IsTimeSyncDisabled = true;
                         this.LogWarning(Aspects.RenderingWorker,
                             $"{nameof(MediaOptions)}.{nameof(MediaOptions.IsTimeSyncDisabled)} has been set to true because the {main} and {t} " +
-                            $"streams seem to have unrelated timing information. Difference: {startTimeDifference.Format()}");
+                            $"streams seem to have unrelated timing information. Difference: {startTimeOffset.Format()}");
 
                         break;
                     }
@@ -179,11 +187,13 @@
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool EnsureBlocksAvailable(MediaType main, MediaType[] all)
+        private bool AlignWallClockToPlayback(MediaType main, MediaType[] all)
         {
             if (Commands.IsSeeking || Container.MediaOptions.IsTimeSyncDisabled)
                 return true;
 
+            // Get a reference to the main blocks.
+            // The range will be 0 if there are no blocks.
             var blocks = MediaCore.Blocks[main];
             var range = blocks.GetRangePercent(MediaCore.PlaybackClock());
 
@@ -198,6 +208,11 @@
                 // Don't let the RTC lag behind what is available on the main component
                 MediaCore.ChangePlaybackPosition(blocks.RangeStartTime);
             }
+            else if (range == 0 && blocks.Count == 0)
+            {
+                // We have no main blocks in range. All we can do is pause the clock
+                MediaCore.PausePlayback();
+            }
 
             return true;
         }
@@ -209,6 +224,7 @@
             // it still needs work -- see prior sync-buffering logic
             if (MediaCore.IsSyncBuffering ||
                 Container.MediaOptions.IsTimeSyncDisabled ||
+                Commands.IsSeeking ||
                 State.BufferingProgress >= 1d ||
                 !MediaCore.NeedsMorePackets)
             {
@@ -217,7 +233,7 @@
 
             foreach (var t in all)
             {
-                if (t == main || t == MediaType.Subtitle)
+                if (t == MediaType.Subtitle)
                     continue;
 
                 if (MediaCore.Blocks[t].IsInRange(MediaCore.PlaybackClock(t)))
@@ -232,29 +248,43 @@
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool ExitSyncBuffering(MediaType main, CancellationToken ct)
+        private bool ExitSyncBuffering(MediaType main, MediaType[] all, CancellationToken ct)
         {
             // Don't exit syc-buffering if we are not in syncbuffering
             if (!MediaCore.IsSyncBuffering)
                 return false;
 
             // Detect if an exit from Sync Buffering is required
-            var mustExitSyncBuffering =
-                ct.IsCancellationRequested ||
-                MediaCore.HasDecodingEnded ||
-                State.BufferingProgress >= 0.95 ||
-                !MediaCore.NeedsMorePackets;
+            var mustExitSyncBuffering = ct.IsCancellationRequested || MediaCore.HasDecodingEnded;
+            var canExitSyncBuffering = false;
 
-            if (!mustExitSyncBuffering)
-                return false;
+            if (!mustExitSyncBuffering && (State.BufferingProgress >= 1 || !MediaCore.NeedsMorePackets))
+            {
+                canExitSyncBuffering = true;
+                foreach (var t in all)
+                {
+                    if (t == MediaType.Subtitle)
+                        continue;
 
-            var blocks = MediaCore.Blocks[main];
-            if (blocks.Count > 0 && !blocks.IsInRange(MediaCore.PlaybackClock(main)))
-                MediaCore.ChangePlaybackPosition(blocks[MediaCore.PlaybackClock(main)].StartTime);
+                    if (!MediaCore.Blocks[t].IsInRange(MediaCore.PlaybackClock(t)))
+                    {
+                        canExitSyncBuffering = false;
+                        break;
+                    }
+                }
+            }
 
-            MediaCore.SignalSyncBufferingExited();
+            if (mustExitSyncBuffering || canExitSyncBuffering)
+            {
+                var blocks = MediaCore.Blocks[main];
+                if (blocks.Count > 0 && !blocks.IsInRange(MediaCore.PlaybackClock(main)))
+                    MediaCore.ChangePlaybackPosition(blocks[MediaCore.PlaybackClock(main)].StartTime);
 
-            return true;
+                MediaCore.SignalSyncBufferingExited();
+                return true;
+            }
+
+            return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -308,7 +338,7 @@
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void DetectHasMediaEnded(MediaType main)
+        private void DetectPlaybackEnded(MediaType main)
         {
             var playbackEndClock = MediaCore.Blocks[main].Count > 0
                 ? MediaCore.Blocks[main].RangeEndTime
@@ -338,6 +368,24 @@
             {
                 State.UpdateMediaEnded(false, TimeSpan.Zero);
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void UpdatePlayback(MediaType main)
+        {
+            // Notify a change in playback position
+            if (Commands.IsSeeking == false)
+                State.ReportPlaybackPosition();
+
+            // Resume the RTC if necessary
+            if (State.MediaState != PlaybackStatus.Play || MediaCore.Clock.IsRunning)
+                return;
+
+            if (MediaCore.IsSyncBuffering || Commands.IsSeeking)
+                return;
+
+            if (Container.MediaOptions.IsTimeSyncDisabled || MediaCore.Blocks[main].Count > 0)
+                MediaCore.Clock.Play();
         }
 
         /// <summary>

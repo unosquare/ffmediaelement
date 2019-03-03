@@ -36,9 +36,11 @@
         public static string FFmpegSearchPath { get; }
 
         /// <summary>
-        /// Gets all media types in an array.
+        /// Gets the time synchronize maximum offset.
+        /// Components that are offset more than this time span with respect to the
+        /// main component are deemed unrelated.
         /// </summary>
-        internal static MediaType[] MediaTypes { get; } = { MediaType.Video, MediaType.Audio, MediaType.Subtitle };
+        internal static TimeSpan TimeSyncMaxOffset { get; } = TimeSpan.FromSeconds(10);
 
         /// <summary>
         /// Gets the maximum blocks to cache for the given component type.
