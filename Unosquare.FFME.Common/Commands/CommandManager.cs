@@ -38,6 +38,11 @@
         /// <inheritdoc />
         public MediaEngine MediaCore { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether the command manager is executing commands or has pending commands.
+        /// </summary>
+        public bool HasPendingCommands => IsSeeking || IsDirectCommandPending || IsPriorityCommandPending;
+
         /// <inheritdoc />
         ILoggingHandler ILoggingSource.LoggingHandler => MediaCore;
 

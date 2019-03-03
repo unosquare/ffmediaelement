@@ -17,6 +17,11 @@
         #endregion
 
         /// <summary>
+        /// Gets a value indicating whether a priority command is pending.
+        /// </summary>
+        private bool IsPriorityCommandPending => PendingPriorityCommand != PriorityCommandType.None;
+
+        /// <summary>
         /// Gets a value indicating whether the <see cref="CommandPlayMedia"/> can execute.
         /// </summary>
         private bool CanResumeMedia
@@ -53,7 +58,7 @@
         {
             lock (SyncLock)
             {
-                if (IsDisposed || IsDisposing || !MediaCore.State.IsOpen || IsDirectCommandPending)
+                if (IsDisposed || IsDisposing || !MediaCore.State.IsOpen || IsDirectCommandPending || IsPriorityCommandPending)
                     return Task.FromResult(false);
 
                 PendingPriorityCommand = command;
@@ -129,7 +134,8 @@
         /// <returns>True if the command was successful</returns>
         private bool CommandStopMedia()
         {
-            MediaCore.Clock.Reset();
+            MediaCore.ResetPlaybackPosition();
+
             SeekMedia(new SeekOperation(TimeSpan.MinValue, SeekMode.Stop), CancellationToken.None);
 
             foreach (var renderer in MediaCore.Renderers.Values)

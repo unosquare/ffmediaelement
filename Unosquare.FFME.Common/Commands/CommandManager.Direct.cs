@@ -153,7 +153,6 @@
                     finally
                     {
                         // Allow for a new direct command to be processed
-                        PendingDirectCommand = DirectCommandType.None;
                         HasDirectCommandCompleted.Value = true;
                         this.LogDebug(Aspects.EngineCommand, $"Direct Command '{command}' completed. Result: {commandResult}");
                     }

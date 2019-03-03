@@ -201,6 +201,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal TimeSpan ResetPlaybackPosition()
         {
+            Clock.Pause();
             Clock.Reset();
             State.ReportPlaybackPosition();
             return TimeSpan.Zero;

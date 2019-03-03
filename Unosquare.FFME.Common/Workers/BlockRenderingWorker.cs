@@ -185,7 +185,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void AlignWallClockToPlayback(MediaType main, MediaType[] all)
         {
-            if (Commands.IsSeeking || Container.MediaOptions.IsTimeSyncDisabled)
+            if (Commands.HasPendingCommands || Container.MediaOptions.IsTimeSyncDisabled)
                 return;
 
             // Get a reference to the main blocks.
@@ -214,24 +214,24 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool EnterSyncBuffering(MediaType main, MediaType[] all)
         {
-            // TODO: This is anew approach to sync-buffering
-            // it still needs work -- see prior sync-buffering logic
-            if (MediaCore.IsSyncBuffering ||
-                Container.MediaOptions.IsTimeSyncDisabled ||
-                Commands.IsSeeking ||
-                State.BufferingProgress >= 1d ||
-                !MediaCore.NeedsMorePackets)
+            // Determine if Sync-buffering can be potentially entered.
+            if (MediaCore.IsSyncBuffering || Container.MediaOptions.IsTimeSyncDisabled ||
+                Commands.HasPendingCommands || State.BufferingProgress >= 1d || !MediaCore.NeedsMorePackets)
             {
                 return false;
             }
 
+            // If it can be entered, then let's check if we really need it.
             foreach (var t in all)
             {
                 // We can't enter sync-buffering on main or subtitle components
+                // The playback clock is always reflective of the main component
                 if (t == main || t == MediaType.Subtitle)
                     continue;
 
-                if (MediaCore.Blocks[t].IsInRange(MediaCore.PlaybackClock(t)))
+                // If we are not in range of the non-main component we need to
+                // enter sync-buffering
+                if (!MediaCore.Blocks[t].IsInRange(MediaCore.PlaybackClock(t)))
                 {
                     MediaCore.PausePlayback();
                     MediaCore.SignalSyncBufferingEntered();
@@ -250,18 +250,23 @@
                 return false;
 
             // Detect if an exit from Sync Buffering is required
-            var mustExitSyncBuffering = ct.IsCancellationRequested || MediaCore.HasDecodingEnded;
+            var mustExitSyncBuffering = ct.IsCancellationRequested || MediaCore.HasDecodingEnded || Commands.HasPendingCommands;
             var canExitSyncBuffering = false;
 
             if (!mustExitSyncBuffering && (State.BufferingProgress >= 1 || !MediaCore.NeedsMorePackets))
             {
-                canExitSyncBuffering = true;
+                // In order to exit sync-buffering we at least need 1 main block.
+                canExitSyncBuffering = MediaCore.Blocks[main].Count > 0;
+
                 foreach (var t in all)
                 {
-                    if (t == MediaType.Subtitle)
+                    if (canExitSyncBuffering == false)
+                        break;
+
+                    if (t == MediaType.Subtitle || t == main)
                         continue;
 
-                    if (!MediaCore.Blocks[t].IsInRange(MediaCore.PlaybackClock(t)))
+                    if (MediaCore.Blocks[t].GetRangePercent(MediaCore.PlaybackClock(t)) > 0.75d)
                     {
                         canExitSyncBuffering = false;
                         break;
@@ -311,7 +316,7 @@
             try
             {
                 // We don't need non-video blocks if we are seeking
-                if (Commands.IsSeeking && t != MediaType.Video)
+                if (Commands.HasPendingCommands && t != MediaType.Video)
                     return result > 0;
 
                 // Get the audio, video, or subtitle block to render
@@ -340,7 +345,7 @@
                 : Container.Components.PlaybackEndTime ?? TimeSpan.MaxValue;
 
             // Check End of Media Scenarios
-            if (Commands.IsSeeking == false
+            if (Commands.HasPendingCommands == false
                 && MediaCore.HasDecodingEnded
                 && MediaCore.PlaybackClock(main).Ticks >= playbackEndClock.Ticks)
             {
@@ -369,14 +374,14 @@
         private void UpdatePlayback(MediaType main)
         {
             // Notify a change in playback position
-            if (Commands.IsSeeking == false)
+            if (Commands.HasPendingCommands == false)
                 State.ReportPlaybackPosition();
 
             // Resume the RTC if necessary
             if (State.MediaState != PlaybackStatus.Play || MediaCore.Clock.IsRunning)
                 return;
 
-            if (MediaCore.IsSyncBuffering || Commands.IsSeeking)
+            if (MediaCore.IsSyncBuffering || Commands.HasPendingCommands)
                 return;
 
             if (Container.MediaOptions.IsTimeSyncDisabled || MediaCore.Blocks[main].Count > 0)
