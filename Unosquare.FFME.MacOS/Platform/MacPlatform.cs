@@ -8,39 +8,35 @@
 
     internal class MacPlatform : IPlatform
     {
-        private static readonly object SyncLock = new object();
-        private static MacPlatform m_Instance;
+        /// <summary>
+        /// Initializes static members of the <see cref="MacPlatform"/> class.
+        /// </summary>
+        static MacPlatform()
+        {
+            Instance = new MacPlatform();
+        }
 
         /// <summary>
         /// Prevents a default instance of the <see cref="MacPlatform"/> class from being created.
         /// </summary>
+        /// <exception cref="InvalidOperationException">Unable to get a valid GUI context.</exception>
         private MacPlatform()
         {
-            NativeMethods = new MacNativeMethods();
-            IsInDebugMode = Debugger.IsAttached;
-            IsInDesignTime = false;
+            NativeMethods = MacNativeMethods.Instance;
+            IsInDesignTime = GuiContext.Current.IsInDesignTime;
         }
 
         /// <summary>
-        /// Gets the default Windows-specific implementation
+        /// Gets the instance.
         /// </summary>
-        public static MacPlatform Current
-        {
-            get
-            {
-                lock (SyncLock)
-                {
-                    if (m_Instance == null)
-                        m_Instance = new MacPlatform();
-
-                    return m_Instance;
-                }
-            }
-        }
+        /// <value>
+        /// The instance.
+        /// </value>
+        public static MacPlatform Instance { get; }
 
         public INativeMethods NativeMethods { get; }
 
-        public bool IsInDebugMode { get; }
+        public bool IsInDebugMode { get; } = Debugger.IsAttached;
 
         public bool IsInDesignTime { get; }
 
