@@ -18,6 +18,7 @@
     internal sealed class BlockRenderingWorker : TimerWorkerBase, IMediaWorker, ILoggingSource
     {
         private readonly AtomicBoolean HasInitialized = new AtomicBoolean(false);
+        private readonly Action<MediaType[]> RenderBlocksAction;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BlockRenderingWorker"/> class.
@@ -30,6 +31,11 @@
             Commands = MediaCore.Commands;
             Container = MediaCore.Container;
             State = MediaCore.State;
+
+            if (UseParallelRendering)
+                RenderBlocksAction = (all) => Parallel.ForEach(all, (t) => RenderBlock(t));
+            else
+                RenderBlocksAction = (all) => { foreach (var t in all) RenderBlock(t); };
         }
 
         /// <inheritdoc />
@@ -76,23 +82,13 @@
 
                 // Ensure the RTC clock matches the playback position of the
                 // main component -- only if IsTimeSyncDisabled is false
-                if (!AlignWallClockToPlayback(main, all))
-                    return;
+                AlignWallClockToPlayback(main, all);
 
                 // Check for and enter a sync-buffering scenario
                 EnterSyncBuffering(main, all);
 
                 // Render each of the Media Types if it is time to do so.
-                if (UseParallelRendering)
-                {
-                    Parallel.ForEach(all, (t) =>
-                        RenderBlock(t));
-                }
-                else
-                {
-                    foreach (var t in all)
-                        RenderBlock(t);
-                }
+                RenderBlocksAction.Invoke(all);
             }
             catch (Exception ex)
             {
@@ -187,10 +183,10 @@
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool AlignWallClockToPlayback(MediaType main, MediaType[] all)
+        private void AlignWallClockToPlayback(MediaType main, MediaType[] all)
         {
             if (Commands.IsSeeking || Container.MediaOptions.IsTimeSyncDisabled)
-                return true;
+                return;
 
             // Get a reference to the main blocks.
             // The range will be 0 if there are no blocks.
@@ -213,8 +209,6 @@
                 // We have no main blocks in range. All we can do is pause the clock
                 MediaCore.PausePlayback();
             }
-
-            return true;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
