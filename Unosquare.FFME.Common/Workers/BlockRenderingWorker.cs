@@ -227,7 +227,8 @@
 
             foreach (var t in all)
             {
-                if (t == MediaType.Subtitle)
+                // We can't enter sync-buffering on main or subtitle components
+                if (t == main || t == MediaType.Subtitle)
                     continue;
 
                 if (MediaCore.Blocks[t].IsInRange(MediaCore.PlaybackClock(t)))
