@@ -277,6 +277,7 @@
                 if (hasSeekBlocks == false)
                     SeekBlocksAvailable.Set();
 
+                MediaCore.InvalidateRenderers();
                 seekOperation.Dispose();
             }
 
