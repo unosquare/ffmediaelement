@@ -96,7 +96,11 @@
             {
                 // The delay is the playback position minus the current audio buffer position
                 lock (SyncLock)
-                    return TimeSpan.FromTicks(MediaCore.PlaybackClock(MediaType.None).Ticks - Position.Ticks);
+                {
+                    return TimeSpan.FromTicks(
+                        MediaCore.PlaybackClock().Ticks -
+                        Position.Ticks);
+                }
             }
         }
 
@@ -627,9 +631,6 @@
             var stepDurationMillis = Convert.ToInt32(Math.Min(SyncThresholdMaxStep, Math.Abs(audioLatencyMs)));
             var stepDurationBytes = WaveFormat.ConvertMillisToByteSize(stepDurationMillis);
 
-            // TODO: This creates audio crackling. Maybe we need to do this on an average of say 250ms
-            // worth of samples. We are setting it to 0 for now until we can work on this.
-            audioLatencyMs = 0;
             if (audioLatencyMs > SyncThresholdPerfect)
                 AudioBuffer.Skip(Math.Min(stepDurationBytes, readableCount));
             else if (audioLatencyMs < -SyncThresholdPerfect)

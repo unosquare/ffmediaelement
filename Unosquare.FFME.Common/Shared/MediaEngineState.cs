@@ -423,27 +423,6 @@
         }
 
         /// <summary>
-        /// Updates the media start time. Use this when the first main block arrives
-        /// </summary>
-        /// <param name="playbackStartTime">The playback start time.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdatePlaybackStartTime(TimeSpan playbackStartTime)
-        {
-            // TODO: the playbackstartime gets reset when updatefixedcontainerproperties is changed
-            // for example, when changemedia is called this gets reset.
-            // Duration and playbackendposition same case
-            // We need to save the computed start and end time somehere. Reset them in the Reset method
-            // and prevent updating them in the updatefixedcontainerproperties.
-            if ((PlaybackStartTime?.Ticks ?? 0) != playbackStartTime.Ticks)
-            {
-                MediaCore.LogInfo(Aspects.Container,
-                    $"Container playback start time did not match the first decoded frame. It was updated to {playbackStartTime.Format()}");
-            }
-
-            PlaybackStartTime = playbackStartTime;
-        }
-
-        /// <summary>
         /// Updates the playback position and related properties.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

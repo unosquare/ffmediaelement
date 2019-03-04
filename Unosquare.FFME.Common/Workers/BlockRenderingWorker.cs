@@ -170,7 +170,6 @@
             }
 
             // Set the initial clock position
-            State.UpdatePlaybackStartTime(startTime);
             MediaCore.ChangePlaybackPosition(startTime);
 
             // Wait for renderers to be ready
