@@ -187,7 +187,7 @@
             {
                 lock (ComponentSyncLock)
                 {
-                    return m_PlaybackStartTime != null & m_PlaybackDuration != null
+                    return m_PlaybackStartTime != null && m_PlaybackDuration != null
                       ? TimeSpan.FromTicks(m_PlaybackStartTime.Value.Ticks + m_PlaybackDuration.Value.Ticks)
                       : default(TimeSpan?);
                 }

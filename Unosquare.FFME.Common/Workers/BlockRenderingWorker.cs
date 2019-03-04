@@ -18,7 +18,8 @@
     internal sealed class BlockRenderingWorker : ThreadWorkerBase, IMediaWorker, ILoggingSource
     {
         private readonly AtomicBoolean HasInitialized = new AtomicBoolean(false);
-        private readonly Action<MediaType[]> RenderBlocksAction;
+        private readonly Action<MediaType[]> SerialRenderBlocks;
+        private readonly Action<MediaType[]> ParallelRenderBlocks;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BlockRenderingWorker"/> class.
@@ -31,11 +32,8 @@
             Commands = MediaCore.Commands;
             Container = MediaCore.Container;
             State = MediaCore.State;
-
-            if (UseParallelRendering)
-                RenderBlocksAction = (all) => Parallel.ForEach(all, (t) => RenderBlock(t));
-            else
-                RenderBlocksAction = (all) => { foreach (var t in all) RenderBlock(t); };
+            ParallelRenderBlocks = (all) => Parallel.ForEach(all, (t) => RenderBlock(t));
+            SerialRenderBlocks = (all) => { foreach (var t in all) RenderBlock(t); };
         }
 
         /// <inheritdoc />
@@ -58,11 +56,6 @@
         /// Gets the Media Engine's state.
         /// </summary>
         private MediaEngineState State { get; }
-
-        /// <summary>
-        /// Whether or not blocks should be sent to their renderers in parallel.
-        /// </summary>
-        private bool UseParallelRendering { get; }
 
         /// <inheritdoc />
         protected override void ExecuteCycleLogic(CancellationToken ct)
@@ -88,7 +81,10 @@
                 EnterSyncBuffering(main, all);
 
                 // Render each of the Media Types if it is time to do so.
-                RenderBlocksAction.Invoke(all);
+                if (Container.MediaOptions.UseParallelRendering)
+                    ParallelRenderBlocks.Invoke(all);
+                else
+                    SerialRenderBlocks.Invoke(all);
             }
             catch (Exception ex)
             {
@@ -200,7 +196,6 @@
             if (range >= 1d)
             {
                 // Don't let the RTC move beyond what is available on the main component
-                // MediaCore.PausePlayback();
                 MediaCore.ChangePlaybackPosition(blocks.RangeEndTime);
             }
             else if (range < 0)

@@ -146,7 +146,10 @@
                 {
                     const int MaxMessagesPerCycle = 15;
                     var messageCount = 0;
-                    while (messageCount <= MaxMessagesPerCycle && LogQueue.TryDequeue(out var message))
+
+                    while (!ct.IsCancellationRequested &&
+                        messageCount <= MaxMessagesPerCycle &&
+                        LogQueue.TryDequeue(out var message))
                     {
                         message.Handler?.HandleLogMessage(message);
                         messageCount += 1;

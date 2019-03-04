@@ -18,10 +18,8 @@
     /// <seealso cref="IMediaWorker" />
     internal sealed class FrameDecodingWorker : ThreadWorkerBase, IMediaWorker, ILoggingSource
     {
-        /// <summary>
-        /// Contains the callback that converts decoder frames into blocks
-        /// </summary>
-        private readonly Action<IEnumerable<MediaType>, CancellationToken> DecodeBlocksAction;
+        private readonly Action<IEnumerable<MediaType>, CancellationToken> SerialDecodeBlocks;
+        private readonly Action<IEnumerable<MediaType>, CancellationToken> ParallelDecodeBlocks;
 
         /// <summary>
         /// The decoded frame count for a cycle
@@ -40,25 +38,20 @@
             Container = mediaCore.Container;
             State = mediaCore.State;
 
-            if (UseParallelDecoding)
+            ParallelDecodeBlocks = (all, ct) =>
             {
-                DecodeBlocksAction = (all, ct) =>
-                {
-                    DecodedFrameCount = 0;
-                    Parallel.ForEach(all, (t) =>
-                        Interlocked.Add(ref DecodedFrameCount,
-                        DecodeComponentBlocks(t, ct)));
-                };
-            }
-            else
+                DecodedFrameCount = 0;
+                Parallel.ForEach(all, (t) =>
+                    Interlocked.Add(ref DecodedFrameCount,
+                    DecodeComponentBlocks(t, ct)));
+            };
+
+            SerialDecodeBlocks = (all, ct) =>
             {
-                DecodeBlocksAction = (all, ct) =>
-                {
-                    DecodedFrameCount = 0;
-                    foreach (var t in Container.Components.MediaTypes)
-                        DecodedFrameCount += DecodeComponentBlocks(t, ct);
-                };
-            }
+                DecodedFrameCount = 0;
+                foreach (var t in Container.Components.MediaTypes)
+                    DecodedFrameCount += DecodeComponentBlocks(t, ct);
+            };
         }
 
         /// <inheritdoc />
@@ -83,11 +76,6 @@
         private MediaEngineState State { get; }
 
         /// <summary>
-        /// Whether or not frames should be decoded in parallel.
-        /// </summary>
-        private bool UseParallelDecoding { get; }
-
-        /// <summary>
         /// Gets a value indicating whether the decoder needs to wait for the reader to receive more packets.
         /// </summary>
         private bool NeedsMorePackets => MediaCore.ShouldReadMorePackets && !MediaCore.Container.Components.HasEnoughPackets;
@@ -104,7 +92,10 @@
 
                 // We need to add blocks if the wall clock is over 75%
                 // for each of the components so that we have some buffer.
-                DecodeBlocksAction.Invoke(Container.Components.MediaTypes, ct);
+                if (Container.MediaOptions.UseParallelDecoding)
+                    ParallelDecodeBlocks.Invoke(Container.Components.MediaTypes, ct);
+                else
+                    SerialDecodeBlocks.Invoke(Container.Components.MediaTypes, ct);
             }
             finally
             {

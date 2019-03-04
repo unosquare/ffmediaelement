@@ -142,5 +142,17 @@
         /// between them.
         /// </summary>
         public bool IsTimeSyncDisabled { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether component frames are decoded in
+        /// parallel. This defaults to false.
+        /// </summary>
+        public bool UseParallelDecoding { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether component blocks are sent to their corresponding
+        /// renderers in parallel. This defaults to false.
+        /// </summary>
+        public bool UseParallelRendering { get; set; }
     }
 }
