@@ -186,6 +186,8 @@
 
         /// <summary>
         /// Gets the percentage of the range for the given time position.
+        /// A value of less than 0 means the position is behind (lagging).
+        /// A value of more than 1 means the position is beyond the range)
         /// </summary>
         /// <param name="position">The position.</param>
         /// <returns>The percent of the range</returns>
@@ -401,21 +403,8 @@
                         return null;
                     }
 
+                    // Add the target block to the playback blocks
                     PlaybackBlocks.Add(targetBlock);
-                    var maxBlockIndex = PlaybackBlocks.Count - 1;
-
-                    // Perform the sorting and assignment of Previous and Next blocks
-                    PlaybackBlocks.Sort();
-                    PlaybackBlocks[0].Index = 0;
-                    PlaybackBlocks[0].Previous = null;
-                    PlaybackBlocks[0].Next = maxBlockIndex > 0 ? PlaybackBlocks[1] : null;
-
-                    for (var blockIndex = 1; blockIndex <= maxBlockIndex; blockIndex++)
-                    {
-                        PlaybackBlocks[blockIndex].Index = blockIndex;
-                        PlaybackBlocks[blockIndex].Previous = PlaybackBlocks[blockIndex - 1];
-                        PlaybackBlocks[blockIndex].Next = blockIndex + 1 <= maxBlockIndex ? PlaybackBlocks[blockIndex + 1] : null;
-                    }
 
                     // return the new target block
                     return targetBlock;
@@ -508,6 +497,25 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void UpdateCollectionProperties()
         {
+            // Update the playback blocks sorting
+            if (PlaybackBlocks.Count > 0)
+            {
+                var maxBlockIndex = PlaybackBlocks.Count - 1;
+
+                // Perform the sorting and assignment of Previous and Next blocks
+                PlaybackBlocks.Sort();
+                PlaybackBlocks[0].Index = 0;
+                PlaybackBlocks[0].Previous = null;
+                PlaybackBlocks[0].Next = maxBlockIndex > 0 ? PlaybackBlocks[1] : null;
+
+                for (var blockIndex = 1; blockIndex <= maxBlockIndex; blockIndex++)
+                {
+                    PlaybackBlocks[blockIndex].Index = blockIndex;
+                    PlaybackBlocks[blockIndex].Previous = PlaybackBlocks[blockIndex - 1];
+                    PlaybackBlocks[blockIndex].Next = blockIndex + 1 <= maxBlockIndex ? PlaybackBlocks[blockIndex + 1] : null;
+                }
+            }
+
             LastLookupIndex = -1;
             LastLookupTime = TimeSpan.MinValue;
 

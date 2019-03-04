@@ -201,7 +201,7 @@
                 return;
 
             if (!state.HasMediaEnded && state.Position.TotalSeconds < snapshotPosition &&
-                (!state.NaturalDuration.HasValue || state.NaturalDuration.Value.TotalSeconds > snapshotPosition))
+                (!state.PlaybackEndTime.HasValue || state.PlaybackEndTime.Value.TotalSeconds > snapshotPosition))
                 return;
 
             HasTakenThumbnail = true;

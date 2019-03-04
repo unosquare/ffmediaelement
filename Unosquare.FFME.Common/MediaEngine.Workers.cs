@@ -3,6 +3,7 @@
     using Primitives;
     using Shared;
     using System;
+    using System.Linq;
     using System.Runtime.CompilerServices;
     using Workers;
 
@@ -19,6 +20,8 @@
 
         private readonly AtomicBoolean m_IsSyncBuffering = new AtomicBoolean(false);
         private readonly AtomicBoolean m_HasDecodingEnded = new AtomicBoolean(false);
+
+        private DateTime SyncBufferStartTime = DateTime.UtcNow;
 
         /// <summary>
         /// Holds the materialized block cache for each media type.
@@ -46,7 +49,7 @@
         internal MediaTypeDictionary<TimeSpan> LastRenderTime { get; } = new MediaTypeDictionary<TimeSpan>();
 
         /// <summary>
-        /// Gets or sets a value indicating whether the decoder worker is sync-buffering.
+        /// Gets a value indicating whether the decoder worker is sync-buffering.
         /// Sync-buffering is entered when there are no main blocks for the current clock.
         /// This in turn pauses the clock (without changing the media state).
         /// The decoder exits this condition when buffering is no longer needed and
@@ -55,7 +58,7 @@
         internal bool IsSyncBuffering
         {
             get => m_IsSyncBuffering.Value;
-            set => m_IsSyncBuffering.Value = value;
+            private set => m_IsSyncBuffering.Value = value;
         }
 
         /// <summary>
@@ -101,34 +104,93 @@
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the decoder needs to wait for the reader to receive more packets.
+        /// </summary>
+        internal bool NeedsMorePackets => ShouldReadMorePackets && !Container.Components.HasEnoughPackets;
+
         #endregion
 
         #region Methods
 
         /// <summary>
-        /// Resumes the playback by resuming the clock and updating the playback state to state.
+        /// Signals that the engine has entered the syn-buffering state.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void ResumePlayback()
+        internal void SignalSyncBufferingEntered()
+        {
+            if (IsSyncBuffering)
+                return;
+
+            SyncBufferStartTime = DateTime.UtcNow;
+            IsSyncBuffering = true;
+
+            this.LogInfo(Aspects.RenderingWorker,
+                $"SYNC-BUFFER: Started. Buffer: {State.BufferingProgress:p}. Clock: {PlaybackClock().Format()}");
+        }
+
+        /// <summary>
+        /// Signals that the engine has exited the syn-buffering state.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void SignalSyncBufferingExited()
         {
             if (!IsSyncBuffering)
-                Clock.Play();
+                return;
 
-            State.UpdateMediaState(PlaybackStatus.Play);
+            IsSyncBuffering = false;
+            this.LogInfo(Aspects.RenderingWorker,
+                $"SYNC-BUFFER: Completed in {DateTime.UtcNow.Subtract(SyncBufferStartTime).Format()}");
         }
+
+        /// <summary>
+        /// Gets the component start offset. Pass none to get the media start offset.
+        /// </summary>
+        /// <param name="t">The component media type.</param>
+        /// <returns>The component start time</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal TimeSpan GetComponentStartOffset(MediaType t)
+        {
+            var offset = t == MediaType.None
+                ? State.PlaybackStartTime ?? TimeSpan.MinValue
+                : Container?.Components[t]?.StartTime ?? TimeSpan.MinValue;
+
+            return offset == TimeSpan.MinValue ? TimeSpan.Zero : offset;
+        }
+
+        /// <summary>
+        /// Converts from playback time to wall clock time.
+        /// </summary>
+        /// <param name="playbackTime">The playback time.</param>
+        /// <returns>The wall clock time</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal TimeSpan ConvertPlaybackToClockTime(TimeSpan playbackTime) =>
+            TimeSpan.FromTicks(playbackTime.Ticks - GetComponentStartOffset(MediaType.None).Ticks);
 
         /// <summary>
         /// Updates the clock position and notifies the new
         /// position to the <see cref="State" />.
         /// </summary>
-        /// <param name="position">The position.</param>
+        /// <param name="playbackPosition">The position.</param>
         /// <returns>The newly set position</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal TimeSpan ChangePosition(TimeSpan position)
+        internal TimeSpan ChangePlaybackPosition(TimeSpan playbackPosition)
         {
-            Clock.Update(position);
-            State.UpdatePosition();
-            return position;
+            // TODO -- we need to fix all occurrences of this. This is the absolute time to compute elapsed time
+            Clock.Update(ConvertPlaybackToClockTime(playbackPosition));
+            State.ReportPlaybackPosition();
+            return playbackPosition;
+        }
+
+        /// <summary>
+        /// Pauses the playback by pausing the RTC.
+        /// This does not change the any state.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void PausePlayback()
+        {
+            Clock.Pause();
+            State.ReportPlaybackPosition();
         }
 
         /// <summary>
@@ -137,10 +199,11 @@
         /// </summary>
         /// <returns>The newly set position</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal TimeSpan ResetPosition()
+        internal TimeSpan ResetPlaybackPosition()
         {
+            Clock.Pause();
             Clock.Reset();
-            State.UpdatePosition();
+            State.ReportPlaybackPosition();
             return TimeSpan.Zero;
         }
 
@@ -156,6 +219,18 @@
             // corresponding block to its renderer
             LastRenderTime[t] = TimeSpan.MinValue;
             Renderers[t]?.Seek();
+        }
+
+        /// <summary>
+        /// Invalidates the last render time for all renderers given component.
+        /// Additionally, it calls Seek on the renderers to remove any caches
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void InvalidateRenderers()
+        {
+            var mediaTypes = Renderers.Keys.ToArray();
+            foreach (var t in mediaTypes)
+                InvalidateRenderer(t);
         }
 
         #endregion

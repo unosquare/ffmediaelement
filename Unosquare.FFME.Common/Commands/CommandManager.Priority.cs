@@ -17,6 +17,11 @@
         #endregion
 
         /// <summary>
+        /// Gets a value indicating whether a priority command is pending.
+        /// </summary>
+        private bool IsPriorityCommandPending => PendingPriorityCommand != PriorityCommandType.None;
+
+        /// <summary>
         /// Gets a value indicating whether the <see cref="CommandPlayMedia"/> can execute.
         /// </summary>
         private bool CanResumeMedia
@@ -32,13 +37,13 @@
                 if (!State.IsSeekable)
                     return true;
 
-                if (!State.NaturalDuration.HasValue)
+                if (!State.PlaybackEndTime.HasValue)
                     return true;
 
-                if (State.NaturalDuration == TimeSpan.MinValue)
+                if (State.PlaybackEndTime.Value == TimeSpan.MinValue)
                     return true;
 
-                return MediaCore.WallClock < State.NaturalDuration;
+                return MediaCore.PlaybackClock() < State.PlaybackEndTime.Value;
             }
         }
 
@@ -53,7 +58,7 @@
         {
             lock (SyncLock)
             {
-                if (IsDisposed || IsDisposing || !MediaCore.State.IsOpen || IsDirectCommandPending)
+                if (IsDisposed || IsDisposing || !MediaCore.State.IsOpen || IsDirectCommandPending || IsPriorityCommandPending)
                     return Task.FromResult(false);
 
                 PendingPriorityCommand = command;
@@ -99,7 +104,7 @@
             foreach (var renderer in MediaCore.Renderers.Values)
                 renderer.Play();
 
-            MediaCore.ResumePlayback();
+            MediaCore.State.UpdateMediaState(PlaybackStatus.Play);
 
             return true;
         }
@@ -113,12 +118,12 @@
             if (State.CanPause == false)
                 return false;
 
-            MediaCore.Clock.Pause();
+            MediaCore.PausePlayback();
 
             foreach (var renderer in MediaCore.Renderers.Values)
                 renderer.Pause();
 
-            MediaCore.ChangePosition(SnapPositionToBlockPosition(MediaCore.WallClock));
+            MediaCore.ChangePlaybackPosition(SnapPositionToBlockPosition(MediaCore.PlaybackClock()));
             State.UpdateMediaState(PlaybackStatus.Pause);
             return true;
         }
@@ -129,8 +134,9 @@
         /// <returns>True if the command was successful</returns>
         private bool CommandStopMedia()
         {
-            MediaCore.Clock.Reset();
-            SeekMedia(new SeekOperation(TimeSpan.Zero, SeekMode.Stop), CancellationToken.None);
+            MediaCore.ResetPlaybackPosition();
+
+            SeekMedia(new SeekOperation(TimeSpan.MinValue, SeekMode.Stop), CancellationToken.None);
 
             foreach (var renderer in MediaCore.Renderers.Values)
                 renderer.Stop();

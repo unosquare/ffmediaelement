@@ -36,9 +36,16 @@
         public static string FFmpegSearchPath { get; }
 
         /// <summary>
-        /// Gets all media types in an array.
+        /// Gets the time synchronize maximum offset.
+        /// Components that are offset more than this time span with respect to the
+        /// main component are deemed unrelated.
         /// </summary>
-        internal static MediaType[] MediaTypes { get; } = { MediaType.Video, MediaType.Audio, MediaType.Subtitle };
+        internal static TimeSpan TimeSyncMaxOffset { get; } = TimeSpan.FromSeconds(10);
+
+        /// <summary>
+        /// Gets the thread worker period.
+        /// </summary>
+        internal static TimeSpan ThreadWorkerPeriod => TimeSpan.FromMilliseconds(5);
 
         /// <summary>
         /// Gets the maximum blocks to cache for the given component type.
@@ -48,9 +55,9 @@
         /// <returns>The number of blocks to cache</returns>
         internal static int GetMaxBlocks(MediaType t, MediaEngine mediaCore)
         {
-            const int MinVideoBlocks = 4;
-            const int MinAudioBlocks = 64;
-            const int MinSUbtitleBlocks = 12;
+            const int MinVideoBlocks = 8;
+            const int MinAudioBlocks = 48;
+            const int MinSubtitleBlocks = 8;
 
             var result = 0;
 
@@ -67,7 +74,7 @@
             else if (t == MediaType.Subtitle)
             {
                 result = mediaCore.Container.MediaOptions.SubtitleBlockCache;
-                if (result < MinSUbtitleBlocks) result = MinSUbtitleBlocks;
+                if (result < MinSubtitleBlocks) result = MinSubtitleBlocks;
             }
 
             return result;
@@ -189,27 +196,6 @@
             /// The video pixel format. BGRA, 32bit
             /// </summary>
             public static AVPixelFormat VideoPixelFormat => AVPixelFormat.AV_PIX_FMT_BGRA;
-        }
-
-        /// <summary>
-        /// Defines timespans of different priority intervals
-        /// </summary>
-        public static class Interval
-        {
-            /// <summary>
-            /// The timer high priority interval for stuff like rendering
-            /// </summary>
-            public static TimeSpan HighPriority => TimeSpan.FromMilliseconds(15);
-
-            /// <summary>
-            /// The timer medium priority interval for stuff like property updates
-            /// </summary>
-            public static TimeSpan MediumPriority => TimeSpan.FromMilliseconds(30);
-
-            /// <summary>
-            /// The timer low priority interval for stuff like logging
-            /// </summary>
-            public static TimeSpan LowPriority => TimeSpan.FromMilliseconds(45);
         }
     }
 }

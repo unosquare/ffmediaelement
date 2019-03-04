@@ -95,6 +95,13 @@
                 e.Configuration.GlobalOptions.FlagNoBuffer = true;
             }
 
+            // Example of setting extra IPs for NDI (needs compatible build and Newtek binaries)
+            if (e.Configuration.ForcedInputFormat == "libndi_newtek")
+            {
+                // Sample URL: device://libndi_newtek?HOME-SLIMBIRD%20%28Test%20Pattern%29
+                e.Configuration.PrivateOptions["extra_ips"] = "127.0.0.1";
+            }
+
             // A few WMV files I have tested don't have continuous enough audio packets to support
             // perfect synchronization between audio and video
             Media.RendererOptions.AudioDisableSync = e.Url.EndsWith(".wmv");

@@ -207,6 +207,16 @@ namespace Unosquare.FFME.Shared
         TimeSpan? NaturalDuration { get; }
 
         /// <summary>
+        /// Gets the playback start position of the media.
+        /// </summary>
+        TimeSpan? PlaybackStartTime { get; }
+
+        /// <summary>
+        /// Gets the playback end position of the media.
+        /// </summary>
+        TimeSpan? PlaybackEndTime { get; }
+
+        /// <summary>
         /// Gets the height of the video in pixels.
         /// </summary>
         int NaturalVideoHeight { get; }

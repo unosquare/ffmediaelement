@@ -38,16 +38,26 @@
         }
 
         /// <summary>
+        /// Gets the media playback start time. Useful for slider minimum values.
+        /// </summary>
+        public TimeSpan? PlaybackStartTime => MediaCore?.State.PlaybackStartTime;
+
+        /// <summary>
+        /// Gets the media playback end time. Useful for slider maximum values.
+        /// </summary>
+        public TimeSpan? PlaybackEndTime => MediaCore?.State.PlaybackEndTime;
+
+        /// <summary>
         /// Gets the remaining playback duration. Returns Forever for indeterminate values.
         /// </summary>
         public Duration RemainingDuration
         {
             get
             {
-                if (NaturalDuration.HasTimeSpan == false || IsSeekable == false) return Duration.Forever;
-                return NaturalDuration.TimeSpan.Ticks < Position.Ticks ?
+                if (PlaybackEndTime.HasValue == false || IsSeekable == false) return Duration.Forever;
+                return PlaybackEndTime.Value.Ticks < Position.Ticks ?
                     new Duration(TimeSpan.Zero) :
-                    new Duration(TimeSpan.FromTicks(NaturalDuration.TimeSpan.Ticks - Position.Ticks));
+                    new Duration(TimeSpan.FromTicks(PlaybackEndTime.Value.Ticks - Position.Ticks));
             }
         }
 

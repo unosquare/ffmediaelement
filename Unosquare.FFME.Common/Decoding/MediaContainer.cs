@@ -270,7 +270,7 @@
         /// <summary>
         /// Gets a value indicating whether the underlying media is seekable.
         /// </summary>
-        public bool IsStreamSeekable => MediaDuration.Ticks > 0;
+        public bool IsStreamSeekable => (Components?.PlaybackDuration?.Ticks ?? 0) > 0;
 
         /// <summary>
         /// Gets a value indicating whether this container represents live media.
@@ -294,21 +294,6 @@
         /// Gets a value indicating whether reads are in the aborted state.
         /// </summary>
         public bool IsReadAborted => SignalAbortReadsRequested.Value;
-
-        /// <summary>
-        /// Gets the media start time by which all component streams are offset.
-        /// Typically 0 but it could be something other than 0.
-        /// If this information is not available (i.e. realtime media) it will
-        /// be set to TimeSpan.MinValue
-        /// </summary>
-        public TimeSpan MediaStartTime { get; private set; }
-
-        /// <summary>
-        /// Gets the duration of the media.
-        /// If this information is not available (i.e. realtime media) it will
-        /// be set to TimeSpan.MinValue
-        /// </summary>
-        public TimeSpan MediaDuration { get; private set; }
 
         #endregion
 
@@ -371,7 +356,7 @@
         /// Seeks to the specified position in the main stream component.
         /// Returns the keyframe on or before the specified position. Most of the times
         /// you will need to keep reading packets and receiving frames to reach the exact position.
-        /// Pass TimeSpan.Zero to seek to the beginning of the stream.
+        /// Pass TimeSpan.MinValue to seek to the beginning of the stream.
         /// </summary>
         /// <param name="position">The position.</param>
         /// <returns>
@@ -755,12 +740,6 @@
                 // Extract the Media Info
                 MediaInfo = new MediaInfo(this);
 
-                // Compute start time and duration (if possible)
-                // We will later recompute these values using stream components.
-                MediaDuration = MediaInfo.Duration;
-                MediaStartTime = MediaInfo.StartTime == TimeSpan.MinValue ?
-                    TimeSpan.Zero : MediaInfo.StartTime;
-
                 // Extract detailed media information and set the default streams to the
                 // best available ones.
                 foreach (var s in MediaInfo.BestStreams)
@@ -924,8 +903,8 @@
             // Output start time offsets.
             this.LogInfo(Aspects.Container,
                 $"Timing Offsets - Main Component: {Components.MainMediaType}; " +
-                $"Start Time: {MediaStartTime.Format()}; " +
-                $"Duration: {MediaDuration.Format()}; ");
+                $"Start Time: {Components.PlaybackStartTime?.Format()}; " +
+                $"Duration: {Components.PlaybackDuration?.Format()}; ");
 
             // Return the registered component types
             return Components.MediaTypes.ToArray();
@@ -1040,14 +1019,13 @@
 
         /// <summary>
         /// Seeks to the closest and lesser or equal key frame on the main component
-        /// Target time is in absolute, zero-based time.
         /// </summary>
-        /// <param name="targetTimeAbsolute">The target time in absolute, 0-based time.</param>
+        /// <param name="desiredTargetTime">The target time.</param>
         /// <returns>
         /// The list of media frames
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private MediaFrame StreamSeek(TimeSpan targetTimeAbsolute)
+        private MediaFrame StreamSeek(TimeSpan desiredTargetTime)
         {
             #region Setup
 
@@ -1063,13 +1041,14 @@
             var timeBase = main.Stream->time_base;
 
             // Compute the absolute maximum 0-based target time which is simply the duration.
-            var maxTargetTimeTicks = main.Duration.Ticks > 0 ? main.Duration.Ticks : 0;
+            var maxTargetTimeTicks = main.EndTime.Ticks;
+            var minTargetTimeTicks = main.StartTime.Ticks;
 
             // Adjust 0-based target time and clamp it
-            var targetPosition = TimeSpan.FromTicks(targetTimeAbsolute.Ticks.Clamp(0L, maxTargetTimeTicks));
+            var targetPosition = TimeSpan.FromTicks(desiredTargetTime.Ticks.Clamp(minTargetTimeTicks, maxTargetTimeTicks));
 
             // A special kind of seek is the zero seek. Execute it if requested.
-            if (targetPosition.Ticks <= 0)
+            if (targetPosition.Ticks <= minTargetTimeTicks || desiredTargetTime == TimeSpan.MinValue)
                 return StreamSeekToStart();
 
             // Cancel the seek operation if the stream does not support it.
@@ -1090,11 +1069,10 @@
             #region Perform FFmpeg API Seek
 
             // The relative target time keeps track of where to seek.
-            // if the seeking is not successful we decrement this time and try the seek
+            // if the seeking ends up AFTER the target, we decrement this time and try the seek
             // again by subtracting 1 second from it.
             var startTime = DateTime.UtcNow;
-            var mainOffset = main.StartTime;
-            var streamSeekRelativeTime = TimeSpan.FromTicks(targetPosition.Ticks + mainOffset.Ticks); // Offset by start time
+            var streamSeekRelativeTime = targetPosition;
             var indexTimestamp = ffmpeg.AV_NOPTS_VALUE;
 
             // Help the initial position seek time.
@@ -1135,10 +1113,13 @@
                 }
                 else
                 {
+                    // Reset Interrupt start time
                     StreamReadInterruptStartTime.Value = DateTime.UtcNow;
-                    if (streamSeekRelativeTime.Ticks <= mainOffset.Ticks)
+
+                    // check if we have seeked before the start of the stream
+                    if (streamSeekRelativeTime.Ticks <= main.StartTime.Ticks)
                     {
-                        seekTimestamp = mainOffset.ToLong(main.Stream->time_base);
+                        seekTimestamp = main.StartTime.ToLong(main.Stream->time_base);
                         isAtStartOfStream = true;
                     }
 
@@ -1198,7 +1179,9 @@
         private MediaFrame StreamSeekToStart()
         {
             var main = Components.Main;
-            var seekTarget = main.StartTime.ToLong(main.Stream->time_base);
+            var seekTarget = main.StartTime == TimeSpan.MinValue
+                ? ffmpeg.AV_NOPTS_VALUE
+                : main.StartTime.ToLong(main.Stream->time_base);
             var streamIndex = main.StreamIndex;
             var seekFlags = ffmpeg.AVSEEK_FLAG_BACKWARD;
 

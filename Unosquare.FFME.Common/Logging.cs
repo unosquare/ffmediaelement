@@ -17,8 +17,7 @@
         #region Private Members
 
         private static readonly ConcurrentQueue<MediaLogMessage> LogQueue = new ConcurrentQueue<MediaLogMessage>();
-        private static readonly Timer LogOutputWorker;
-        private static readonly AtomicBoolean IsOutputtingLog = new AtomicBoolean(false);
+        private static readonly LogOutputTimerWorker LogOutputWorker;
 
         #endregion
 
@@ -29,32 +28,8 @@
         /// </summary>
         static Logging()
         {
-            LogOutputWorker = new Timer(s =>
-            {
-                if (IsOutputtingLog == true) return;
-                IsOutputtingLog.Value = true;
-                try
-                {
-                    const int MaxMessagesPerCycle = 10;
-                    var messageCount = 0;
-                    while (messageCount <= MaxMessagesPerCycle && LogQueue.TryDequeue(out var message))
-                    {
-                        message.Handler?.HandleLogMessage(message);
-                        messageCount += 1;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"{nameof(Logging)}.{nameof(LogOutputWorker)} - {ex.GetType()}: {ex.Message}");
-                }
-                finally
-                {
-                    IsOutputtingLog.Value = false;
-                }
-            },
-            LogQueue, // the state argument passed on to the ticker
-            Convert.ToInt32(Constants.Interval.LowPriority.TotalMilliseconds),
-            Convert.ToInt32(Constants.Interval.LowPriority.TotalMilliseconds));
+            LogOutputWorker = new LogOutputTimerWorker();
+            LogOutputWorker.StartAsync();
         }
 
         #endregion
@@ -148,5 +123,52 @@
         }
 
         #endregion
+
+        /// <summary>
+        /// Implements the timer worker that outputs data to the log.
+        /// </summary>
+        /// <seealso cref="TimerWorkerBase" />
+        private sealed class LogOutputTimerWorker : TimerWorkerBase
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="LogOutputTimerWorker"/> class.
+            /// </summary>
+            public LogOutputTimerWorker()
+                : base(nameof(LogOutputWorker), DefaultPeriod)
+            {
+                // placeholder
+            }
+
+            // <inheritdoc />
+            protected override void ExecuteCycleLogic(CancellationToken ct)
+            {
+                try
+                {
+                    const int MaxMessagesPerCycle = 15;
+                    var messageCount = 0;
+                    while (messageCount <= MaxMessagesPerCycle && LogQueue.TryDequeue(out var message))
+                    {
+                        message.Handler?.HandleLogMessage(message);
+                        messageCount += 1;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"{nameof(Logging)}.{nameof(LogOutputWorker)} - {ex.GetType()}: {ex.Message}");
+                }
+            }
+
+            // <inheritdoc />
+            protected override void OnCycleException(Exception ex)
+            {
+                // placeholder
+            }
+
+            // <inheritdoc />
+            protected override void OnDisposing()
+            {
+                // placeholder - nothing to dispose.
+            }
+        }
     }
 }

@@ -29,21 +29,28 @@
         internal VideoFrame(AVFrame* frame, VideoComponent component)
             : base(frame, component, MediaType.Video)
         {
-            var timeBase = ffmpeg.av_guess_frame_rate(component.Container.InputContext, component.Stream, frame);
-            var mainOffset = component.Container.Components.Main.StartTime;
+            var frameRate = ffmpeg.av_guess_frame_rate(component.Container.InputContext, component.Stream, frame);
+            var frameTimeBase = new AVRational { num = frameRate.den, den = frameRate.num };
             var repeatFactor = 1d + (0.5d * frame->repeat_pict);
 
             Duration = frame->pkt_duration <= 0 ?
-                repeatFactor.ToTimeSpan(new AVRational { num = timeBase.den, den = timeBase.num }) :
-                frame->pkt_duration.ToTimeSpan(component.Stream->time_base);
+                repeatFactor.ToTimeSpan(frameTimeBase) :
+                Convert.ToInt64(repeatFactor * frame->pkt_duration).ToTimeSpan(StreamTimeBase);
 
             // for video frames, we always get the best effort timestamp as dts and pts might
             // contain different times.
             frame->pts = frame->best_effort_timestamp;
-            HasValidStartTime = frame->pts != ffmpeg.AV_NOPTS_VALUE;
+            var previousFramePts = component.LastFramePts;
+            component.LastFramePts = frame->pts;
+
+            if (previousFramePts != null && previousFramePts.Value == frame->pts)
+                HasValidStartTime = false;
+            else
+                HasValidStartTime = frame->pts != ffmpeg.AV_NOPTS_VALUE;
+
             StartTime = frame->pts == ffmpeg.AV_NOPTS_VALUE ?
                 TimeSpan.FromTicks(0) :
-                TimeSpan.FromTicks(frame->pts.ToTimeSpan(StreamTimeBase).Ticks - mainOffset.Ticks);
+                frame->pts.ToTimeSpan(StreamTimeBase);
 
             EndTime = TimeSpan.FromTicks(StartTime.Ticks + Duration.Ticks);
 
@@ -54,7 +61,7 @@
                 frame->display_picture_number;
 
             CodedPictureNumber = frame->coded_picture_number;
-            SmtpeTimeCode = Extensions.ComputeSmtpeTimeCode(component.StartTime, Duration, timeBase, DisplayPictureNumber);
+            SmtpeTimeCode = Extensions.ComputeSmtpeTimeCode(component.StartTime, Duration, frameRate, DisplayPictureNumber);
             IsHardwareFrame = component.IsUsingHardwareDecoding;
             HardwareAcceleratorName = component.HardwareAccelerator?.Name;
 

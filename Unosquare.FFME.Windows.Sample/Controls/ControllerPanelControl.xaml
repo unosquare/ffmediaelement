@@ -22,7 +22,8 @@
                 IsSnapToTickEnabled="False"
                 SmallChange="{Binding App.MediaElement.PositionStep, Converter={StaticResource TimeSpanToSecondsConverter}}"
                 LargeChange="{Binding App.MediaElement.PositionStep, Converter={StaticResource TimeSpanToSecondsConverter}}"
-                Maximum="{Binding App.MediaElement.NaturalDuration, Converter={StaticResource TimeSpanToSecondsConverter}}" 
+                Minimum="{Binding App.MediaElement.PlaybackStartTime, Converter={StaticResource TimeSpanToSecondsConverter}}"
+                Maximum="{Binding App.MediaElement.PlaybackEndTime, Converter={StaticResource TimeSpanToSecondsConverter}}" 
                 Value="{Binding App.MediaElement.Position, Converter={StaticResource TimeSpanToSecondsConverter}}" />
 
             <DockPanel Name="ProgressPanel" Grid.Row="1" LastChildFill="True" Margin="20,0">

@@ -5,6 +5,7 @@
     using Primitives;
     using Shared;
     using System;
+    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// Represents a Media Engine that contains underlying streams of audio and/or video.
@@ -100,6 +101,26 @@
         void ILoggingHandler.HandleLogMessage(MediaLogMessage message) =>
             SendOnMessageLogged(message);
 
+        /// <summary>
+        /// Gets the playback clock position. If <see cref="MediaOptions.IsTimeSyncDisabled"/>
+        /// is set to <c>true</c>, then gets the playback clock position for the fgiven component.
+        /// </summary>
+        /// <param name="t">The media type to get the playback clock from.</param>
+        /// <returns>The playback clock for the given component</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public TimeSpan PlaybackClock(MediaType t)
+        {
+            var mediaType = (Container?.MediaOptions.IsTimeSyncDisabled ?? false) ? t : MediaType.None;
+            return TimeSpan.FromTicks(WallClock.Ticks + GetComponentStartOffset(mediaType).Ticks);
+        }
+
+        /// <summary>
+        /// Gets the playback clock position for the main component.
+        /// </summary>
+        /// <returns>The playback clock for the given component</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public TimeSpan PlaybackClock() => PlaybackClock(MediaType.None);
+
         /// <inheritdoc />
         public void Dispose()
         {
@@ -112,7 +133,7 @@
             Commands.Dispose();
 
             // Reset the RTC
-            ResetPosition();
+            ResetPlaybackPosition();
         }
 
         #endregion

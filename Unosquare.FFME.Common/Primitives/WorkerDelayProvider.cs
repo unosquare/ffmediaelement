@@ -74,7 +74,7 @@
                 // overhead.
                 if (wantedDelay <= 30)
                 {
-                    try { delayTask.Wait(token); }
+                    try { delayTask.Wait(); }
                     catch { /* ignore */ }
                     return;
                 }

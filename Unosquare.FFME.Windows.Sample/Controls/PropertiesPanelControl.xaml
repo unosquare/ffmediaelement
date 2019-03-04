@@ -64,6 +64,16 @@
                         </DockPanel>
 
                         <DockPanel>
+                            <TextBlock Style="{StaticResource Key}">Start Time</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding PlaybackStartTime, Mode=OneWay}" />
+                        </DockPanel>
+
+                        <DockPanel>
+                            <TextBlock Style="{StaticResource Key}">End Time</TextBlock>
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding PlaybackEndTime, Mode=OneWay}" />
+                        </DockPanel>
+
+                        <DockPanel>
                             <TextBlock Style="{StaticResource Key}">Is Live Stream</TextBlock>
                             <TextBlock Style="{StaticResource Value}" Text="{Binding IsLiveStream, Mode=OneWay}" />
                         </DockPanel>
