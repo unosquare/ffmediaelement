@@ -1,7 +1,6 @@
 ﻿namespace Unosquare.FFME.Platform
 {
     using Primitives;
-    using Shared;
     using System;
     using System.Threading;
     using System.Windows.Threading;
@@ -14,6 +13,7 @@
     /// <seealso cref="IDisposable" />
     internal sealed class GuiTimer : IDisposable
     {
+        private static readonly TimeSpan DefaultPeriod = TimeSpan.FromMilliseconds(30);
         private readonly AtomicBoolean IsDisposing = new AtomicBoolean();
         private readonly IWaitEvent IsCycleDone = WaitEventFactory.Create(isCompleted: true, useSlim: true);
         private readonly Action TimerCallback;
@@ -70,13 +70,13 @@
         /// </summary>
         /// <param name="callback">The callback.</param>
         public GuiTimer(Action callback)
-            : this(GuiContext.Current.Type, Constants.Interval.MediumPriority, callback, null)
+            : this(GuiContext.Current.Type, DefaultPeriod, callback, null)
         {
             // placeholder
         }
 
         public GuiTimer(Action callback, Action disposeCallback)
-            : this(GuiContext.Current.Type, Constants.Interval.MediumPriority, callback, disposeCallback)
+            : this(GuiContext.Current.Type, DefaultPeriod, callback, disposeCallback)
         {
             // placeholder
         }

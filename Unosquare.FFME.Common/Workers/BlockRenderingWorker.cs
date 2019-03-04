@@ -15,7 +15,7 @@
     /// </summary>
     /// <seealso cref="WorkerBase" />
     /// <seealso cref="IMediaWorker" />
-    internal sealed class BlockRenderingWorker : TimerWorkerBase, IMediaWorker, ILoggingSource
+    internal sealed class BlockRenderingWorker : ThreadWorkerBase, IMediaWorker, ILoggingSource
     {
         private readonly AtomicBoolean HasInitialized = new AtomicBoolean(false);
         private readonly Action<MediaType[]> RenderBlocksAction;
@@ -25,7 +25,7 @@
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
         public BlockRenderingWorker(MediaEngine mediaCore)
-            : base(nameof(BlockRenderingWorker), DefaultPeriod)
+            : base(nameof(BlockRenderingWorker), Constants.ThreadWorkerPeriod)
         {
             MediaCore = mediaCore;
             Commands = MediaCore.Commands;
@@ -119,8 +119,8 @@
         /// <summary>
         /// Performs initialization before regular render loops are executed.
         /// </summary>
-        /// <param name="main">The main renderer media type.</param>
-        /// <param name="all">All renderer media types.</param>
+        /// <param name="main">The main renderer component.</param>
+        /// <param name="all">All the renderer components.</param>
         /// <returns>If media was initialized successfully.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool Initialize(MediaType main, MediaType[] all)
@@ -182,6 +182,11 @@
             return true;
         }
 
+        /// <summary>
+        /// Ensures the real-time clock does lag or move beyond the range of the main blocks
+        /// </summary>
+        /// <param name="main">The main renderer component.</param>
+        /// <param name="all">All the renderer components.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void AlignWallClockToPlayback(MediaType main, MediaType[] all)
         {
@@ -211,10 +216,18 @@
             }
         }
 
+        /// <summary>
+        /// Enters the sync-buffering scenario if needed.
+        /// </summary>
+        /// <param name="main">The main renderer component.</param>
+        /// <param name="all">All the renderer components.</param>
+        /// <returns>Whether sync-buffering was entered</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool EnterSyncBuffering(MediaType main, MediaType[] all)
         {
             // Determine if Sync-buffering can be potentially entered.
+            // Entering the sync-buffering state pauses the RTC and forces the decoder make
+            // components catch up with the main component.
             if (MediaCore.IsSyncBuffering || Container.MediaOptions.IsTimeSyncDisabled ||
                 Commands.HasPendingCommands || State.BufferingProgress >= 1d || !MediaCore.NeedsMorePackets)
             {
@@ -242,6 +255,13 @@
             return false;
         }
 
+        /// <summary>
+        /// Exits the sync-buffering state.
+        /// </summary>
+        /// <param name="main">The main renderer component.</param>
+        /// <param name="all">All the renderer components.</param>
+        /// <param name="ct">The cancellation token.</param>
+        /// <returns>Whether the sync-buffering state was exited.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool ExitSyncBuffering(MediaType main, MediaType[] all, CancellationToken ct)
         {
@@ -274,6 +294,7 @@
                 }
             }
 
+            // Exit sync-buffering state if we can or we must
             if (mustExitSyncBuffering || canExitSyncBuffering)
             {
                 var blocks = MediaCore.Blocks[main];
@@ -287,6 +308,11 @@
             return false;
         }
 
+        /// <summary>
+        /// Waits for seek blocks to become available.
+        /// </summary>
+        /// <param name="main">The main renderer component.</param>
+        /// <param name="ct">The cancellation token.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void WaitForSeekBlocks(MediaType main, CancellationToken ct)
         {
@@ -307,6 +333,11 @@
             }
         }
 
+        /// <summary>
+        /// Renders the available, non-repeated block.
+        /// </summary>
+        /// <param name="t">The media type.</param>
+        /// <returns>Whether a block was sent to its corresponding renderer</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool RenderBlock(MediaType t)
         {
@@ -337,6 +368,10 @@
             return result > 0;
         }
 
+        /// <summary>
+        /// Detects whether the playback has ended.
+        /// </summary>
+        /// <param name="main">The main component type.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void DetectPlaybackEnded(MediaType main)
         {
@@ -370,6 +405,11 @@
             }
         }
 
+        /// <summary>
+        /// Reports the playback position if needed and
+        /// resumes the playback clock if required.
+        /// </summary>
+        /// <param name="main">The main.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void UpdatePlayback(MediaType main)
         {

@@ -5,6 +5,7 @@
     using Primitives;
     using Shared;
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Threading;
@@ -18,6 +19,11 @@
     internal sealed class FrameDecodingWorker : ThreadWorkerBase, IMediaWorker, ILoggingSource
     {
         /// <summary>
+        /// Contains the callback that converts decoder frames into blocks
+        /// </summary>
+        private readonly Action<IEnumerable<MediaType>, CancellationToken> DecodeBlocksAction;
+
+        /// <summary>
         /// The decoded frame count for a cycle
         /// </summary>
         private int DecodedFrameCount;
@@ -27,12 +33,32 @@
         /// </summary>
         /// <param name="mediaCore">The media core.</param>
         public FrameDecodingWorker(MediaEngine mediaCore)
-            : base(nameof(FrameDecodingWorker), ThreadPriority.Normal, DefaultPeriod, WorkerDelayProvider.Default)
+            : base(nameof(FrameDecodingWorker), Constants.ThreadWorkerPeriod)
         {
             MediaCore = mediaCore;
             Commands = mediaCore.Commands;
             Container = mediaCore.Container;
             State = mediaCore.State;
+
+            if (UseParallelDecoding)
+            {
+                DecodeBlocksAction = (all, ct) =>
+                {
+                    DecodedFrameCount = 0;
+                    Parallel.ForEach(all, (t) =>
+                        Interlocked.Add(ref DecodedFrameCount,
+                        DecodeComponentBlocks(t, ct)));
+                };
+            }
+            else
+            {
+                DecodeBlocksAction = (all, ct) =>
+                {
+                    DecodedFrameCount = 0;
+                    foreach (var t in Container.Components.MediaTypes)
+                        DecodedFrameCount += DecodeComponentBlocks(t, ct);
+                };
+            }
         }
 
         /// <inheritdoc />
@@ -69,15 +95,6 @@
         /// <inheritdoc />
         protected override void ExecuteCycleLogic(CancellationToken ct)
         {
-            #region Setup the Decoding Cycle
-
-            // Update state properties -- this must be done on every cycle
-            // because a direct command might have changed the components
-            var main = Container.Components.MainMediaType;
-            DecodedFrameCount = 0;
-
-            #endregion
-
             try
             {
                 // The 2-part logic blocks detect a sync-buffering scenario
@@ -87,43 +104,17 @@
 
                 // We need to add blocks if the wall clock is over 75%
                 // for each of the components so that we have some buffer.
-                if (UseParallelDecoding)
-                {
-                    Parallel.ForEach(Container.Components.MediaTypes, (t) =>
-                    {
-                        Interlocked.Add(ref DecodedFrameCount, DecodeComponentBlocks(t, ct));
-                    });
-                }
-                else
-                {
-                    foreach (var t in Container.Components.MediaTypes)
-                        DecodedFrameCount += DecodeComponentBlocks(t, ct);
-                }
+                DecodeBlocksAction.Invoke(Container.Components.MediaTypes, ct);
             }
             finally
             {
                 // Provide updates to decoding stats
-                State.UpdateDecodingBitRate(
-                    MediaCore.Blocks.Values.Sum(b => b.RangeBitRate));
+                State.UpdateDecodingBitRate(MediaCore.Blocks.Values.Sum(b => b.RangeBitRate));
 
                 // Detect End of Decoding Scenarios
-                // The Rendering will check for end of media when this
-                // condition is set.
-                var hasDecodingEnded = DetectHasDecodingEnded(DecodedFrameCount, main);
-                MediaCore.HasDecodingEnded = hasDecodingEnded;
+                // The Rendering will check for end of media when this condition is set.
+                MediaCore.HasDecodingEnded = DetectHasDecodingEnded();
             }
-        }
-
-        /// <inheritdoc />
-        protected override void ExecuteCycleDelay(int wantedDelay, Task delayTask, CancellationToken token)
-        {
-            // We don't delay if there was at least 1 decoded frame
-            // and we are not sync-buffering
-            if (token.IsCancellationRequested || DecodedFrameCount > 0)
-                return;
-
-            // Introduce a delay if the conditions above were not satisfied
-            base.ExecuteCycleDelay(wantedDelay, delayTask, token);
         }
 
         /// <inheritdoc />
@@ -172,14 +163,15 @@
         /// <summary>
         /// Detects the end of media in the decoding worker.
         /// </summary>
-        /// <param name="decodedFrameCount">The decoded frame count.</param>
-        /// <param name="main">The main.</param>
-        /// <returns>True if media ended</returns>
+        /// <returns>True if media docding has ended</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool DetectHasDecodingEnded(int decodedFrameCount, MediaType main) =>
-                decodedFrameCount <= 0
+        private bool DetectHasDecodingEnded()
+        {
+            var main = Container.Components.MainMediaType;
+            return DecodedFrameCount <= 0
                 && CanReadMoreFramesOf(main) == false
                 && MediaCore.Blocks[main].IndexOf(MediaCore.PlaybackClock(main)) >= MediaCore.Blocks[main].Count - 1;
+        }
 
         /// <summary>
         /// Gets a value indicating whether more frames can be decoded into blocks of the given type.
