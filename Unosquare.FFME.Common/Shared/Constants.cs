@@ -63,17 +63,17 @@
 
             if (t == MediaType.Video)
             {
-                result = mediaCore.Container.MediaOptions.VideoBlockCache;
+                result = mediaCore.MediaOptions.VideoBlockCache;
                 if (result < MinVideoBlocks) result = MinVideoBlocks;
             }
             else if (t == MediaType.Audio)
             {
-                result = mediaCore.Container.MediaOptions.AudioBlockCache;
+                result = mediaCore.MediaOptions.AudioBlockCache;
                 if (result < MinAudioBlocks) result = MinAudioBlocks;
             }
             else if (t == MediaType.Subtitle)
             {
-                result = mediaCore.Container.MediaOptions.SubtitleBlockCache;
+                result = mediaCore.MediaOptions.SubtitleBlockCache;
                 if (result < MinSubtitleBlocks) result = MinSubtitleBlocks;
             }
 

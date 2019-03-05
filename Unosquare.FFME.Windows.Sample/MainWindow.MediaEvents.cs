@@ -124,6 +124,10 @@
             // You can start off by adjusting subtitles delay
             // e.Options.SubtitlesDelay = TimeSpan.FromSeconds(7); // See issue #216
 
+            // For live streams you can also force them to simply render them without synchronization
+            // between audio and video and render the stream as it becomes available.
+            e.Options.DropLateFrames = true;
+
             // Get the local file path from the URL (if possible)
             var mediaFilePath = string.Empty;
             try

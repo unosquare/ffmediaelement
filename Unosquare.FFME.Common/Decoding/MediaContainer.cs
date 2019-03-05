@@ -906,6 +906,9 @@
                 $"Start Time: {Components.PlaybackStartTime?.Format()}; " +
                 $"Duration: {Components.PlaybackDuration?.Format()}; ");
 
+            // Ensure MediaOptions are consistent
+            ApplyMediaOptionsConstraints();
+
             // Return the registered component types
             return Components.MediaTypes.ToArray();
         }
@@ -1222,6 +1225,26 @@
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Applies the media options constraints.
+        /// </summary>
+        private void ApplyMediaOptionsConstraints()
+        {
+            if (!IsLiveStream && MediaOptions.DropLateFrames)
+            {
+                MediaOptions.DropLateFrames = false;
+                this.LogWarning(Aspects.Container,
+                    $"Media options had {nameof(MediaOptions.DropLateFrames)} set to true but this only applies to live streams.");
+            }
+
+            if (MediaOptions.DropLateFrames && !MediaOptions.IsTimeSyncDisabled)
+            {
+                MediaOptions.IsTimeSyncDisabled = true;
+                this.LogWarning(Aspects.Container,
+                    $"Media options had {nameof(MediaOptions.DropLateFrames)} set to true. {nameof(MediaOptions.IsTimeSyncDisabled)} has been forced to true.");
+            }
         }
 
         #endregion

@@ -31,6 +31,7 @@
             MediaCore = mediaCore;
             Commands = MediaCore.Commands;
             Container = MediaCore.Container;
+            MediaOptions = mediaCore.MediaOptions;
             State = MediaCore.State;
             ParallelRenderBlocks = (all) => Parallel.ForEach(all, (t) => RenderBlock(t));
             SerialRenderBlocks = (all) => { foreach (var t in all) RenderBlock(t); };
@@ -51,6 +52,11 @@
         /// Gets the Media Engine's container.
         /// </summary>
         private MediaContainer Container { get; }
+
+        /// <summary>
+        /// Gets the media options.
+        /// </summary>
+        private MediaOptions MediaOptions { get; }
 
         /// <summary>
         /// Gets the Media Engine's state.
@@ -81,7 +87,7 @@
                 EnterSyncBuffering(main, all);
 
                 // Render each of the Media Types if it is time to do so.
-                if (Container.MediaOptions.UseParallelRendering)
+                if (MediaOptions.UseParallelRendering)
                     ParallelRenderBlocks.Invoke(all);
                 else
                     SerialRenderBlocks.Invoke(all);
@@ -135,7 +141,7 @@
             // Check if the streams have related timing information
             // If they do not then simply forsce the disabling of time synchronization
             // and have the playback clock be independent for each component
-            if (!Container.MediaOptions.IsTimeSyncDisabled)
+            if (!MediaOptions.IsTimeSyncDisabled)
             {
                 foreach (var t in all)
                 {
@@ -155,7 +161,7 @@
                     // Disable TimeSync if the streams are unrelated.
                     if (startTimeOffset > Constants.TimeSyncMaxOffset)
                     {
-                        Container.MediaOptions.IsTimeSyncDisabled = true;
+                        MediaOptions.IsTimeSyncDisabled = true;
                         this.LogWarning(Aspects.RenderingWorker,
                             $"{nameof(MediaOptions)}.{nameof(MediaOptions.IsTimeSyncDisabled)} has been set to true because the {main} and {t} " +
                             $"streams seem to have unrelated timing information. Difference: {startTimeOffset.Format()}");
@@ -185,7 +191,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void AlignWallClockToPlayback(MediaType main, MediaType[] all)
         {
-            if (Commands.HasPendingCommands || Container.MediaOptions.IsTimeSyncDisabled)
+            if (Commands.HasPendingCommands || MediaOptions.IsTimeSyncDisabled)
                 return;
 
             // Get a reference to the main blocks.
@@ -222,7 +228,7 @@
             // Determine if Sync-buffering can be potentially entered.
             // Entering the sync-buffering state pauses the RTC and forces the decoder make
             // components catch up with the main component.
-            if (MediaCore.IsSyncBuffering || Container.MediaOptions.IsTimeSyncDisabled ||
+            if (MediaCore.IsSyncBuffering || MediaOptions.IsTimeSyncDisabled ||
                 Commands.HasPendingCommands || State.BufferingProgress >= 1d || !MediaCore.NeedsMorePackets)
             {
                 return false;
@@ -418,7 +424,7 @@
             if (MediaCore.IsSyncBuffering || Commands.HasPendingCommands)
                 return;
 
-            if (Container.MediaOptions.IsTimeSyncDisabled || MediaCore.Blocks[main].Count > 0)
+            if (MediaOptions.IsTimeSyncDisabled || MediaCore.Blocks[main].Count > 0)
                 MediaCore.Clock.Play();
         }
 

@@ -119,9 +119,11 @@
             const double rangePercentThreshold = 0.75d;
 
             var decoderBlocks = MediaCore.Blocks[t];
-            var rangePercent = decoderBlocks.GetRangePercent(MediaCore.PlaybackClock(t));
             var addedBlocks = 0;
             var maxAddedBlocks = decoderBlocks.Capacity;
+            var rangePercent = !Container.MediaOptions.DropLateFrames
+                ? decoderBlocks.GetRangePercent(MediaCore.PlaybackClock(t))
+                : rangePercentThreshold;
 
             // Read as much as we can for this cycle but always within range.
             while (addedBlocks < maxAddedBlocks && (decoderBlocks.IsFull == false || rangePercent >= rangePercentThreshold))
@@ -130,7 +132,9 @@
                     break;
 
                 addedBlocks++;
-                rangePercent = decoderBlocks.GetRangePercent(MediaCore.PlaybackClock(t));
+                rangePercent = !Container.MediaOptions.DropLateFrames
+                    ? decoderBlocks.GetRangePercent(MediaCore.PlaybackClock(t))
+                    : rangePercentThreshold;
             }
 
             return addedBlocks;

@@ -529,6 +529,8 @@
             // we don't want to perform AV sync if the latency is huge
             // or if we have simply disabled it
             if (MediaElement.RendererOptions.AudioDisableSync ||
+                (MediaCore.MediaOptions?.IsTimeSyncDisabled ?? true) ||
+                (MediaCore.MediaOptions?.DropLateFrames ?? true) ||
                 audioLatencyMs < int.MinValue / 2d ||
                 audioLatencyMs > int.MaxValue / 2d)
                 return true;

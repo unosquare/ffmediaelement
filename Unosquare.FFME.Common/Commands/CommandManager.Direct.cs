@@ -546,7 +546,7 @@
         private void PreLoadSubtitles()
         {
             DisposePreloadedSubtitles();
-            var subtitlesUrl = MediaCore.Container.MediaOptions.SubtitlesUrl;
+            var subtitlesUrl = MediaCore.MediaOptions.SubtitlesUrl;
 
             // Don't load a thing if we don't have to
             if (string.IsNullOrWhiteSpace(subtitlesUrl))
@@ -557,9 +557,9 @@
                 MediaCore.PreloadedSubtitles = MediaEngine.LoadBlocks(subtitlesUrl, MediaType.Subtitle, MediaCore);
 
                 // Process and adjust subtitle delays if necessary
-                if (MediaCore.Container.MediaOptions.SubtitlesDelay != TimeSpan.Zero)
+                if (MediaCore.MediaOptions.SubtitlesDelay != TimeSpan.Zero)
                 {
-                    var delay = MediaCore.Container.MediaOptions.SubtitlesDelay;
+                    var delay = MediaCore.MediaOptions.SubtitlesDelay;
                     for (var i = 0; i < MediaCore.PreloadedSubtitles.Count; i++)
                     {
                         var target = MediaCore.PreloadedSubtitles[i];
@@ -569,7 +569,7 @@
                     }
                 }
 
-                MediaCore.Container.MediaOptions.IsSubtitleDisabled = true;
+                MediaCore.MediaOptions.IsSubtitleDisabled = true;
             }
             catch (MediaContainerException mex)
             {
