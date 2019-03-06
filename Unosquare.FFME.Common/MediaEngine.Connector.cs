@@ -53,21 +53,21 @@
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void SendOnMediaOpening() =>
-            Connector?.OnMediaOpening(this, Container.MediaOptions, Container.MediaInfo);
+            Connector?.OnMediaOpening(this, MediaOptions, Container.MediaInfo);
 
         /// <summary>
         /// Raises the media changing event.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void SendOnMediaChanging() =>
-            Connector?.OnMediaChanging(this, Container.MediaOptions, Container.MediaInfo);
+            Connector?.OnMediaChanging(this, MediaOptions, Container.MediaInfo);
 
         /// <summary>
         /// Raises the media changed event.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void SendOnMediaChanged() =>
-            Connector?.OnMediaChanged(this, Container.MediaInfo);
+            Connector?.OnMediaChanged(this, MediaInfo);
 
         /// <summary>
         /// Raises the buffering started event.

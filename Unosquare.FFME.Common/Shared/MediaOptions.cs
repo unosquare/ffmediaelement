@@ -115,20 +115,51 @@
 
         /// <summary>
         /// Gets or sets the number of video blocks to cache in the decoder.
-        /// The minimum is 4. Leave as -1 for auto.
+        /// Leave as -1 for auto. Please note that increasing the amount of
+        /// blocks, significantly increases RAM usage.
         /// </summary>
         public int VideoBlockCache { get; set; } = -1;
 
         /// <summary>
         /// Gets or sets the number of audio blocks to cache in the decoder.
-        /// The minimum is 64. Leave as -1 for auto.
+        /// Leave as -1 for auto. Please note that increasing the amount of
+        /// blocks, significantly increases RAM usage.
         /// </summary>
         public int AudioBlockCache { get; set; } = -1;
 
         /// <summary>
         /// Gets or sets the number of audio blocks to cache in the decoder.
-        /// The minimum is 12. Leave as -1 for auto.
+        /// Leave as -1 for auto. Please note that increasing the amount of
+        /// blocks, significantly increases RAM usage.
         /// </summary>
         public int SubtitleBlockCache { get; set; } = -1;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether each component needs to run
+        /// its timing independently of the main component. Setting this property to
+        /// true will disable sync-buffering. This property is useful when for example
+        /// the audio and the video components of the stream have no timing relationship
+        /// between them.
+        /// </summary>
+        public bool IsTimeSyncDisabled { get; set; }
+
+        /// <summary>
+        /// Setting this to true forces the decoder to keep decoding packets into frames as quickly as possible
+        /// and the blocks sent to their corresponding renderers immediately. This is useful when consuming
+        /// live streams and a low latency is required.
+        /// </summary>
+        public bool DropLateFrames { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether component frames are decoded in
+        /// parallel. This defaults to false.
+        /// </summary>
+        public bool UseParallelDecoding { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether component blocks are sent to their corresponding
+        /// renderers in parallel. This defaults to false.
+        /// </summary>
+        public bool UseParallelRendering { get; set; }
     }
 }

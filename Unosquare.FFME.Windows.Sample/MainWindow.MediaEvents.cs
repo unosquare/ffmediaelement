@@ -95,6 +95,13 @@
                 e.Configuration.GlobalOptions.FlagNoBuffer = true;
             }
 
+            // Example of setting extra IPs for NDI (needs compatible build and Newtek binaries)
+            if (e.Configuration.ForcedInputFormat == "libndi_newtek")
+            {
+                // Sample URL: device://libndi_newtek?HOME-SLIMBIRD%20%28Test%20Pattern%29
+                e.Configuration.PrivateOptions["extra_ips"] = "127.0.0.1";
+            }
+
             // A few WMV files I have tested don't have continuous enough audio packets to support
             // perfect synchronization between audio and video
             Media.RendererOptions.AudioDisableSync = e.Url.EndsWith(".wmv");
@@ -117,6 +124,16 @@
             // You can start off by adjusting subtitles delay
             // e.Options.SubtitlesDelay = TimeSpan.FromSeconds(7); // See issue #216
 
+            // Then, for live streams you typically want to render the stream as it becomes available
+            // as opposed to synchronizing with the real-time playback clock. we drop the late frames
+            // in case something gets stuck
+            e.Options.DropLateFrames = e.Info.Duration == TimeSpan.MinValue;
+
+            // Additionally, we can make the audio and video clocks run independently
+            // of each other. This is only recommended when the audio and video streams
+            // have unrelated timing information
+            e.Options.IsTimeSyncDisabled = e.Info.InputUrl.StartsWith("device://libndi_newtek?");
+
             // Get the local file path from the URL (if possible)
             var mediaFilePath = string.Empty;
             try
@@ -134,7 +151,7 @@
                     e.Options.SubtitlesUrl = srtFilePath;
             }
 
-            // You can force video FPS if necessary
+            // You can also force video FPS if necessary
             // see: https://github.com/unosquare/ffmediaelement/issues/212
             // e.Options.VideoForcedFps = 25;
 

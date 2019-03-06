@@ -70,8 +70,7 @@
         {
             lock (SyncLock)
             {
-                if (IsDisposed || IsDisposing || MediaCore.State.IsOpen == false ||
-                    IsDirectCommandPending || PendingPriorityCommand != PriorityCommandType.None)
+                if (IsDisposed || IsDisposing || !MediaCore.State.IsOpen || IsDirectCommandPending || IsPriorityCommandPending)
                     return Task.FromResult(false);
 
                 if (QueuedSeekTask != null)
@@ -85,7 +84,7 @@
                 {
                     IsSeeking = true;
                     PlayAfterSeek = State.MediaState == PlaybackStatus.Play && seekMode == SeekMode.Normal;
-                    MediaCore.Clock.Pause();
+                    MediaCore.PausePlayback();
                     MediaCore.State.UpdateMediaState(PlaybackStatus.Manual);
                     MediaCore.SendOnSeekingStarted();
                 }
@@ -127,7 +126,6 @@
         {
             // TODO: Handle Cancellation token ct
             var result = false;
-            var initialPosition = MediaCore.WallClock;
             var hasDecoderSeeked = false;
             var startTime = DateTime.UtcNow;
             var targetSeekMode = seekOperation.Mode;
@@ -139,6 +137,7 @@
                 var main = MediaCore.Container.Components.MainMediaType;
                 var all = MediaCore.Container.Components.MediaTypes;
                 var mainBlocks = MediaCore.Blocks[main];
+                var initialPosition = MediaCore.PlaybackClock(main);
 
                 if (targetSeekMode == SeekMode.StepBackward || targetSeekMode == SeekMode.StepForward)
                 {
@@ -146,7 +145,7 @@
                 }
                 else if (targetSeekMode == SeekMode.Stop)
                 {
-                    targetPosition = TimeSpan.Zero;
+                    targetPosition = TimeSpan.MinValue;
                 }
 
                 // Check if we already have the block. If we do, simply set the clock position to the target position
@@ -154,7 +153,7 @@
                 // position of the main component so it sticks on it.
                 if (mainBlocks.IsInRange(targetPosition))
                 {
-                    MediaCore.ChangePosition(targetPosition);
+                    MediaCore.ChangePlaybackPosition(targetPosition);
                     return true;
                 }
 
@@ -168,11 +167,13 @@
                 SeekBlocksAvailable.Reset();
 
                 // Signal the starting state clearing the packet buffer cache
+                // TODO: this may not be necessary because the container does this for us.
+                // explore the possibility of removing this line
                 MediaCore.Container.Components.ClearQueuedPackets(flushBuffers: true);
 
                 // Capture seek target adjustment
                 var adjustedSeekTarget = targetPosition;
-                if (targetPosition != TimeSpan.Zero && mainBlocks.IsMonotonic)
+                if (targetPosition != TimeSpan.MinValue && mainBlocks.IsMonotonic)
                 {
                     var targetSkewTicks = Convert.ToInt64(
                         mainBlocks.MonotonicDuration.Ticks * (mainBlocks.Capacity / 2d));
@@ -185,15 +186,19 @@
                 var firstFrame = MediaCore.Container.Seek(adjustedSeekTarget);
                 if (firstFrame != null)
                 {
+                    // if we seeked to minvalue we really meant the first frame start time
+                    if (targetPosition == TimeSpan.MinValue)
+                        targetPosition = firstFrame.StartTime;
+
                     // Ensure we signal media has not ended
                     State.UpdateMediaEnded(false, TimeSpan.Zero);
 
-                    // Clear Blocks and frames, reset the render times
+                    // Clear Blocks and frames (This does not clear the preloaded subtitles)
                     foreach (var mt in all)
-                    {
                         MediaCore.Blocks[mt].Clear();
-                        MediaCore.InvalidateRenderer(mt);
-                    }
+
+                    // reset the render times
+                    MediaCore.InvalidateRenderers();
 
                     // Create the blocks from the obtained seek frames
                     MediaCore.Blocks[firstFrame.MediaType]?.Add(firstFrame, MediaCore.Container);
@@ -254,7 +259,7 @@
 
                 // Write a new Real-time clock position now.
                 if (hasSeekBlocks == false)
-                    MediaCore.ChangePosition(resultPosition);
+                    MediaCore.ChangePlaybackPosition(resultPosition);
             }
             catch (Exception ex)
             {
@@ -272,6 +277,7 @@
                 if (hasSeekBlocks == false)
                     SeekBlocksAvailable.Set();
 
+                MediaCore.InvalidateRenderers();
                 seekOperation.Dispose();
             }
 
@@ -286,7 +292,7 @@
             {
                 // We need to update the clock immediately because
                 // the renderer will need this position
-                MediaCore.ChangePosition(mode != SeekMode.Normal && mode != SeekMode.Stop
+                MediaCore.ChangePlaybackPosition(mode != SeekMode.Normal && mode != SeekMode.Stop
                     ? mainBlocks[targetPosition].StartTime
                     : targetPosition);
 

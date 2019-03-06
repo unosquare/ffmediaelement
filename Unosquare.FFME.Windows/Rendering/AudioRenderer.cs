@@ -94,9 +94,13 @@
         {
             get
             {
-                // The delay is the clock position minus the current position
+                // The delay is the playback position minus the current audio buffer position
                 lock (SyncLock)
-                    return TimeSpan.FromTicks(MediaCore.WallClock.Ticks - Position.Ticks);
+                {
+                    return TimeSpan.FromTicks(
+                        MediaCore.PlaybackClock().Ticks -
+                        Position.Ticks);
+                }
             }
         }
 
@@ -175,8 +179,11 @@
                     using (readLock)
                     {
                         // Write the block if we have to, avoiding repeated blocks.
+                        // TODO: Ideally we want to feed the blocks from the renderer itself
                         if (AudioBuffer.WriteTag < audioBlock.StartTime)
+                        {
                             AudioBuffer.Write(audioBlock.Buffer, audioBlock.SamplesBufferLength, audioBlock.StartTime, true);
+                        }
 
                         // Stop adding if we have too much in there.
                         if (AudioBuffer.CapacityPercent >= 0.5)
@@ -519,7 +526,15 @@
 
             #region Sync Give-up Conditions
 
-            if (MediaElement.RendererOptions.AudioDisableSync)
+            if (MediaCore.MediaOptions?.DropLateFrames ?? false)
+                speedRatio = 0;
+
+            // we don't want to perform AV sync if the latency is huge
+            // or if we have simply disabled it
+            if (MediaElement.RendererOptions.AudioDisableSync ||
+                (MediaCore.MediaOptions?.IsTimeSyncDisabled ?? true) ||
+                audioLatencyMs < int.MinValue / 2d ||
+                audioLatencyMs > int.MaxValue / 2d)
                 return true;
 
             // Determine if we should continue to perform syncs.

@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
+    using FFmpeg.AutoGen;
     using Primitives;
     using Shared;
     using System;
@@ -26,6 +27,8 @@
         private ReadOnlyCollection<MediaType> m_MediaTypes = new ReadOnlyCollection<MediaType>(new List<MediaType>(0));
 
         private int m_Count;
+        private TimeSpan? m_PlaybackStartTime;
+        private TimeSpan? m_PlaybackDuration;
         private MediaType m_MainMediaType = MediaType.None;
         private MediaComponent m_Main;
         private AudioComponent m_Audio;
@@ -157,6 +160,38 @@
         public bool HasSubtitles
         {
             get { lock (ComponentSyncLock) return m_Subtitle != null; }
+        }
+
+        /// <summary>
+        /// Gets the playback start time.
+        /// </summary>
+        public TimeSpan? PlaybackStartTime
+        {
+            get { lock (ComponentSyncLock) return m_PlaybackStartTime; }
+        }
+
+        /// <summary>
+        /// Gets the playback duration. Could be null.
+        /// </summary>
+        public TimeSpan? PlaybackDuration
+        {
+            get { lock (ComponentSyncLock) return m_PlaybackDuration; }
+        }
+
+        /// <summary>
+        /// Gets the playback end time. Could be null.
+        /// </summary>
+        public TimeSpan? PlaybackEndTime
+        {
+            get
+            {
+                lock (ComponentSyncLock)
+                {
+                    return m_PlaybackStartTime != null && m_PlaybackDuration != null
+                      ? TimeSpan.FromTicks(m_PlaybackStartTime.Value.Ticks + m_PlaybackDuration.Value.Ticks)
+                      : default(TimeSpan?);
+                }
+            }
         }
 
         /// <summary>
@@ -311,73 +346,6 @@
         }
 
         /// <summary>
-        /// Runs quick buffering logic on a single thread.
-        /// This assumes no reading, decoding, or rendering is taking place at the time of the call.
-        /// </summary>
-        /// <param name="m">The media core engine.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RunQuickBuffering(MediaEngine m)
-        {
-            // We need to perform some packet reading and decoding
-            MediaFrame frame;
-            var main = MainMediaType;
-            var auxiliaries = MediaTypes.Except(main);
-            var mediaTypes = MediaTypes;
-            var mainBlocks = m.Blocks[main];
-
-            // Read and decode blocks until the main component is half full
-            while (true)
-            {
-                var shouldReadMore = m.ShouldReadMorePackets;
-
-                // Read some packets
-                if (shouldReadMore)
-                    m.Container.Read();
-
-                // Decode frames and add the blocks
-                foreach (var t in mediaTypes)
-                {
-                    frame = this[t].ReceiveNextFrame();
-                    m.Blocks[t].Add(frame, m.Container);
-                }
-
-                // Check if we can even decode more frames of main
-                if (Main.BufferLength <= 0 && Main.HasPacketsInCodec == false && shouldReadMore == false)
-                    break;
-
-                // Check if we have at least a half a buffer on main
-                var rangePercent = mainBlocks.GetRangePercent(m.WallClock);
-                if (mainBlocks.IsFull || (rangePercent >= 0 && rangePercent <= 0.5))
-                    break;
-            }
-
-            // Check if we have a valid range. If not, just set it what the main component is dictating
-            if (mainBlocks.Count > 0 && mainBlocks.IsInRange(m.WallClock) == false)
-                m.ChangePosition(mainBlocks[m.WallClock].StartTime);
-
-            // Have the other components catch up
-            foreach (var t in auxiliaries)
-            {
-                if (mainBlocks.Count <= 0) break;
-                if (t != MediaType.Audio && t != MediaType.Video)
-                    continue;
-
-                while (m.Blocks[t].RangeEndTime < mainBlocks.RangeEndTime)
-                {
-                    if (m.ShouldReadMorePackets == false)
-                        break;
-
-                    // Read some packets
-                    m.Container.Read();
-
-                    // Decode frames and add the blocks
-                    frame = this[t].ReceiveNextFrame();
-                    m.Blocks[t].Add(frame, m.Container);
-                }
-            }
-        }
-
-        /// <summary>
         /// Registers the component in this component set.
         /// </summary>
         /// <param name="component">The component.</param>
@@ -454,21 +422,23 @@
         /// <summary>
         /// Computes the main component and backing fields.
         /// </summary>
-        private void UpdateComponentBackingFields()
+        private unsafe void UpdateComponentBackingFields()
         {
             var allComponents = new List<MediaComponent>(4);
             var allMediaTypes = new List<MediaType>(4);
+
+            // assign allMediaTypes. IMPORTANT: Order matters because this
+            // establishes the priority in which playback measures are computed
+            if (m_Video != null)
+            {
+                allComponents.Add(m_Video);
+                allMediaTypes.Add(MediaType.Video);
+            }
 
             if (m_Audio != null)
             {
                 allComponents.Add(m_Audio);
                 allMediaTypes.Add(MediaType.Audio);
-            }
-
-            if (m_Video != null)
-            {
-                allComponents.Add(m_Video);
-                allMediaTypes.Add(MediaType.Video);
             }
 
             if (m_Subtitle != null)
@@ -480,6 +450,70 @@
             m_All = new ReadOnlyCollection<MediaComponent>(allComponents);
             m_MediaTypes = new ReadOnlyCollection<MediaType>(allMediaTypes);
             m_Count = allComponents.Count;
+
+            // Start with unknown or default playback times
+            m_PlaybackDuration = null;
+            m_PlaybackStartTime = null;
+
+            // Compute Playback Times -- priority is established by the order
+            // of components in allComponents: audio, video, subtitle
+            // It would be weird to compute playback duration using subtitles
+            foreach (var component in allComponents)
+            {
+                // We don't want this kind of info from subtitles
+                if (component.MediaType == MediaType.Subtitle)
+                    continue;
+
+                var startTime = component.Stream->start_time == ffmpeg.AV_NOPTS_VALUE ?
+                    TimeSpan.MinValue :
+                    component.Stream->start_time.ToTimeSpan(component.Stream->time_base);
+
+                // compute the duration
+                var duration = (component.Stream->duration == ffmpeg.AV_NOPTS_VALUE || component.Stream->duration <= 0) ?
+                    TimeSpan.MinValue :
+                    component.Stream->duration.ToTimeSpan(component.Stream->time_base);
+
+                // Skip the component if not known
+                if (startTime == TimeSpan.MinValue)
+                    continue;
+
+                // Set the start time
+                m_PlaybackStartTime = startTime;
+
+                // Set the duration and end times if we find valid data
+                if (duration != TimeSpan.MinValue && duration.Ticks > 0)
+                    m_PlaybackDuration = component.Duration;
+
+                // no more computing playback times after this point
+                break;
+            }
+
+            // Compute the playback start, end and duration off the media info
+            // if we could not compute it via the components
+            if (m_PlaybackDuration == null && allComponents.Count > 0)
+            {
+                var mediaInfo = allComponents[0].Container?.MediaInfo;
+
+                if (mediaInfo != null && mediaInfo.Duration != TimeSpan.MinValue && mediaInfo.Duration.Ticks > 0)
+                {
+                    m_PlaybackDuration = mediaInfo.Duration;
+
+                    // override the start time if we have valid duration information
+                    if (mediaInfo.StartTime != TimeSpan.MinValue)
+                        m_PlaybackStartTime = mediaInfo.StartTime;
+                }
+            }
+
+            // Update all of the component start and duration times if not set
+            // using the newly computed information if available
+            foreach (var component in allComponents)
+            {
+                if (component.StartTime == TimeSpan.MinValue && m_PlaybackStartTime != null)
+                    component.StartTime = m_PlaybackStartTime.Value;
+
+                if (component.Duration == TimeSpan.MinValue && m_PlaybackDuration != null)
+                    component.Duration = m_PlaybackDuration.Value;
+            }
 
             // Try for the main component to be the video (if it's not stuff like audio album art, that is)
             if (m_Video != null && m_Audio != null && m_Video.StreamInfo.IsAttachedPictureDisposition == false)

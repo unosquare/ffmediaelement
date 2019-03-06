@@ -201,14 +201,19 @@ namespace Unosquare.FFME
 
             // Clamp from 0 to duration
             var targetSeek = (TimeSpan)value;
-            if (element.MediaCore.MediaInfo.Duration != TimeSpan.Zero)
-                targetSeek = ((TimeSpan)value).Clamp(TimeSpan.Zero, element.MediaCore.MediaInfo.Duration);
+            var minTarget = element.MediaCore.State.PlaybackStartTime ?? TimeSpan.Zero;
+            var maxTarget = element.MediaCore.State.PlaybackEndTime ?? TimeSpan.Zero;
+            var hasValidTaget = maxTarget > minTarget;
+
+            if (hasValidTaget)
+                targetSeek = ((TimeSpan)value).Clamp(minTarget, maxTarget);
 
             if (valueComingFromEngine)
                 return targetSeek;
 
             // coming in as a seek from user
-            element.MediaCore?.Seek(targetSeek);
+            if (hasValidTaget)
+                element.MediaCore?.Seek(targetSeek);
 
             return targetSeek;
         }

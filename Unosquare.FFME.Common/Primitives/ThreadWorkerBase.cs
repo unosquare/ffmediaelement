@@ -36,6 +36,17 @@
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="ThreadWorkerBase"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="period">The execution interval.</param>
+        protected ThreadWorkerBase(string name, TimeSpan period)
+            : this(name, ThreadPriority.Normal, period, WorkerDelayProvider.Default)
+        {
+            // placeholder
+        }
+
+        /// <summary>
         /// Provides an implementation on a cycle delay provider.
         /// </summary>
         protected IWorkerDelayProvider DelayProvider { get; }

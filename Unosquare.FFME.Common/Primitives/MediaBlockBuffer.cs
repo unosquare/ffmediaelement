@@ -35,6 +35,7 @@
         private bool IsNonMonotonic;
         private TimeSpan m_RangeStartTime;
         private TimeSpan m_RangeEndTime;
+        private TimeSpan m_RangeMidTime;
         private TimeSpan m_RangeDuration;
         private TimeSpan m_AverageBlockDuration;
         private TimeSpan m_MonotonicDuration;
@@ -97,6 +98,11 @@
         /// Gets the start time of the first block.
         /// </summary>
         public TimeSpan RangeStartTime { get { lock (SyncLock) return m_RangeStartTime; } }
+
+        /// <summary>
+        /// Gets the middle time of the range.
+        /// </summary>
+        public TimeSpan RangeMidTime { get { lock (SyncLock) return m_RangeMidTime; } }
 
         /// <summary>
         /// Gets the end time of the last block.
@@ -186,6 +192,8 @@
 
         /// <summary>
         /// Gets the percentage of the range for the given time position.
+        /// A value of less than 0 means the position is behind (lagging).
+        /// A value of more than 1 means the position is beyond the range)
         /// </summary>
         /// <param name="position">The position.</param>
         /// <returns>The percent of the range</returns>
@@ -401,21 +409,8 @@
                         return null;
                     }
 
+                    // Add the target block to the playback blocks
                     PlaybackBlocks.Add(targetBlock);
-                    var maxBlockIndex = PlaybackBlocks.Count - 1;
-
-                    // Perform the sorting and assignment of Previous and Next blocks
-                    PlaybackBlocks.Sort();
-                    PlaybackBlocks[0].Index = 0;
-                    PlaybackBlocks[0].Previous = null;
-                    PlaybackBlocks[0].Next = maxBlockIndex > 0 ? PlaybackBlocks[1] : null;
-
-                    for (var blockIndex = 1; blockIndex <= maxBlockIndex; blockIndex++)
-                    {
-                        PlaybackBlocks[blockIndex].Index = blockIndex;
-                        PlaybackBlocks[blockIndex].Previous = PlaybackBlocks[blockIndex - 1];
-                        PlaybackBlocks[blockIndex].Next = blockIndex + 1 <= maxBlockIndex ? PlaybackBlocks[blockIndex + 1] : null;
-                    }
 
                     // return the new target block
                     return targetBlock;
@@ -508,6 +503,25 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void UpdateCollectionProperties()
         {
+            // Update the playback blocks sorting
+            if (PlaybackBlocks.Count > 0)
+            {
+                var maxBlockIndex = PlaybackBlocks.Count - 1;
+
+                // Perform the sorting and assignment of Previous and Next blocks
+                PlaybackBlocks.Sort();
+                PlaybackBlocks[0].Index = 0;
+                PlaybackBlocks[0].Previous = null;
+                PlaybackBlocks[0].Next = maxBlockIndex > 0 ? PlaybackBlocks[1] : null;
+
+                for (var blockIndex = 1; blockIndex <= maxBlockIndex; blockIndex++)
+                {
+                    PlaybackBlocks[blockIndex].Index = blockIndex;
+                    PlaybackBlocks[blockIndex].Previous = PlaybackBlocks[blockIndex - 1];
+                    PlaybackBlocks[blockIndex].Next = blockIndex + 1 <= maxBlockIndex ? PlaybackBlocks[blockIndex + 1] : null;
+                }
+            }
+
             LastLookupIndex = -1;
             LastLookupTime = TimeSpan.MinValue;
 
@@ -515,6 +529,7 @@
             m_RangeStartTime = PlaybackBlocks.Count == 0 ? TimeSpan.Zero : PlaybackBlocks[0].StartTime;
             m_RangeEndTime = PlaybackBlocks.Count == 0 ? TimeSpan.Zero : PlaybackBlocks[PlaybackBlocks.Count - 1].EndTime;
             m_RangeDuration = TimeSpan.FromTicks(RangeEndTime.Ticks - RangeStartTime.Ticks);
+            m_RangeMidTime = TimeSpan.FromTicks(m_RangeStartTime.Ticks + (m_RangeDuration.Ticks / 2));
             m_CapacityPercent = Convert.ToDouble(m_Count) / Capacity;
             m_IsFull = m_Count >= Capacity;
             m_RangeBitRate = m_RangeDuration.TotalSeconds <= 0 || m_Count <= 1 ? 0 :

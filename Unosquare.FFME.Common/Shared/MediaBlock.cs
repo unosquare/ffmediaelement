@@ -65,13 +65,6 @@
         public int StreamIndex { get; internal set; }
 
         /// <summary>
-        /// Gets a safe timestamp the the block can be displayed.
-        /// Returns StartTime if the duration is Zero or negative.
-        /// </summary>
-        public TimeSpan SnapTime => Duration.Ticks <= 0 ?
-            StartTime : TimeSpan.FromTicks(StartTime.Ticks + TimeSpan.TicksPerMillisecond);
-
-        /// <summary>
         /// Gets a pointer to the first byte of the unmanaged data buffer.
         /// </summary>
         public IntPtr Buffer { get { lock (SyncLock) return m_Buffer; } }
