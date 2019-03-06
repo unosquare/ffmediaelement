@@ -136,12 +136,16 @@
 
         /// <summary>
         /// Gets or sets a value indicating whether each component needs to run
-        /// its timing independently of the main component. Setting this property to
-        /// true will disable sync-buffering. This property is useful when for example
+        /// its timing independently of the main component. This property is useful when for example
         /// the audio and the video components of the stream have no timing relationship
         /// between them.
         /// </summary>
         public bool IsTimeSyncDisabled { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether sync-buffering is completely disabled.
+        /// </summary>
+        public bool IsSyncBufferingDisabled { get; set; }
 
         /// <summary>
         /// Setting this to true forces the decoder to keep decoding packets into frames as quickly as possible

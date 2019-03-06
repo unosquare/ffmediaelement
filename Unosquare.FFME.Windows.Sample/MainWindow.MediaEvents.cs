@@ -132,7 +132,7 @@
             // Additionally, we can make the audio and video clocks run independently
             // of each other. This is only recommended when the audio and video streams
             // have unrelated timing information
-            e.Options.IsTimeSyncDisabled = e.Info.InputUrl.StartsWith("device://libndi_newtek?");
+            e.Options.IsTimeSyncDisabled = false; // e.Info.InputUrl.StartsWith("device://libndi_newtek?");
 
             // Get the local file path from the URL (if possible)
             var mediaFilePath = string.Empty;

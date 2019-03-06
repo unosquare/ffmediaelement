@@ -126,7 +126,12 @@
             IsSyncBuffering = true;
 
             this.LogInfo(Aspects.RenderingWorker,
-                $"SYNC-BUFFER: Started. Buffer: {State.BufferingProgress:p}. Clock: {PlaybackClock().Format()}");
+                $"SYNC-BUFFER: Entered at {PlaybackClock().TotalSeconds:0.000} s." +
+                $" | Drop Late Frames: {MediaOptions.DropLateFrames}" +
+                $" | Disable Time Sync: {MediaOptions.IsTimeSyncDisabled}" +
+                $" | Buffer Progress: {State.BufferingProgress:p2}" +
+                $" | Buffer Audio: {Container?.Components[MediaType.Audio]?.BufferCount}" +
+                $" | Buffer Video: {Container?.Components[MediaType.Video]?.BufferCount}");
         }
 
         /// <summary>
@@ -140,7 +145,12 @@
 
             IsSyncBuffering = false;
             this.LogInfo(Aspects.RenderingWorker,
-                $"SYNC-BUFFER: Completed in {DateTime.UtcNow.Subtract(SyncBufferStartTime).Format()}");
+                $"SYNC-BUFFER: Exited in {DateTime.UtcNow.Subtract(SyncBufferStartTime).TotalSeconds:0.000} s." +
+                $" | Commands Pending: {Commands.HasPendingCommands}" +
+                $" | Decoding Ended: {HasDecodingEnded}" +
+                $" | Buffer Progress: {State.BufferingProgress:p2}" +
+                $" | Buffer Audio: {Container?.Components[MediaType.Audio]?.BufferCount}" +
+                $" | Buffer Video: {Container?.Components[MediaType.Video]?.BufferCount}");
         }
 
         /// <summary>

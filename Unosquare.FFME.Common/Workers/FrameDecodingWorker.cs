@@ -120,29 +120,37 @@
             var decoderBlocks = MediaCore.Blocks[t];
             var addedBlocks = 0;
             var maxAddedBlocks = decoderBlocks.Capacity;
-            var rangePercent = decoderBlocks.GetRangePercent(MediaCore.PlaybackClock(t));
+            var rangePercent = dropLateFrames ? 0 : decoderBlocks.GetRangePercent(MediaCore.PlaybackClock(t));
 
             while (addedBlocks < maxAddedBlocks)
             {
                 if (dropLateFrames)
                 {
-                    if (!MediaCore.Clock.IsRunning && decoderBlocks.IsFull)
+                    if (MediaCore.IsSyncBuffering)
                         break;
 
+                    // When drop late frames is enabled we want to decode as much as possible as
+                    // long as the playback clock position is beyond the middle range of available block range
                     if (decoderBlocks.IsFull && MediaCore.PlaybackClock(t) < decoderBlocks.RangeMidTime)
                         break;
                 }
                 else
                 {
+                    // When drop late frames is disabled (the default behavior) we want to decode
+                    // if the playback clock is about to get beyond the available block range.
                     if (!(decoderBlocks.IsFull == false || rangePercent >= rangePercentThreshold))
                         break;
                 }
 
+                // Try adding the next block. Stop decoding upon failure or cancellation
                 if (ct.IsCancellationRequested || AddNextBlock(t) == false)
                     break;
 
+                // At this point we notify that we have added the block
                 addedBlocks++;
-                rangePercent = decoderBlocks.GetRangePercent(MediaCore.PlaybackClock(t));
+
+                // We don't need the range percent if drop late frames is enabled
+                rangePercent = dropLateFrames ? 0 : decoderBlocks.GetRangePercent(MediaCore.PlaybackClock(t));
             }
 
             return addedBlocks;
