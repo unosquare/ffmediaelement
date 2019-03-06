@@ -35,6 +35,7 @@
         private bool IsNonMonotonic;
         private TimeSpan m_RangeStartTime;
         private TimeSpan m_RangeEndTime;
+        private TimeSpan m_RangeMidTime;
         private TimeSpan m_RangeDuration;
         private TimeSpan m_AverageBlockDuration;
         private TimeSpan m_MonotonicDuration;
@@ -97,6 +98,11 @@
         /// Gets the start time of the first block.
         /// </summary>
         public TimeSpan RangeStartTime { get { lock (SyncLock) return m_RangeStartTime; } }
+
+        /// <summary>
+        /// Gets the middle time of the range.
+        /// </summary>
+        public TimeSpan RangeMidTime { get { lock (SyncLock) return m_RangeMidTime; } }
 
         /// <summary>
         /// Gets the end time of the last block.
@@ -523,6 +529,7 @@
             m_RangeStartTime = PlaybackBlocks.Count == 0 ? TimeSpan.Zero : PlaybackBlocks[0].StartTime;
             m_RangeEndTime = PlaybackBlocks.Count == 0 ? TimeSpan.Zero : PlaybackBlocks[PlaybackBlocks.Count - 1].EndTime;
             m_RangeDuration = TimeSpan.FromTicks(RangeEndTime.Ticks - RangeStartTime.Ticks);
+            m_RangeMidTime = TimeSpan.FromTicks(m_RangeStartTime.Ticks + (m_RangeDuration.Ticks / 2));
             m_CapacityPercent = Convert.ToDouble(m_Count) / Capacity;
             m_IsFull = m_Count >= Capacity;
             m_RangeBitRate = m_RangeDuration.TotalSeconds <= 0 || m_Count <= 1 ? 0 :

@@ -191,7 +191,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void AlignWallClockToPlayback(MediaType main, MediaType[] all)
         {
-            if (Commands.HasPendingCommands || MediaOptions.IsTimeSyncDisabled)
+            if (Commands.HasPendingCommands || MediaOptions.IsTimeSyncDisabled || MediaOptions.DropLateFrames)
                 return;
 
             // Get a reference to the main blocks.
@@ -229,7 +229,7 @@
             // Entering the sync-buffering state pauses the RTC and forces the decoder make
             // components catch up with the main component.
             if (MediaCore.IsSyncBuffering || MediaOptions.IsTimeSyncDisabled ||
-                Commands.HasPendingCommands || State.BufferingProgress >= 1d || !MediaCore.NeedsMorePackets)
+                Commands.HasPendingCommands || !State.IsBuffering || !MediaCore.NeedsMorePackets)
             {
                 return false;
             }
@@ -273,7 +273,7 @@
             var mustExitSyncBuffering = ct.IsCancellationRequested || MediaCore.HasDecodingEnded || Commands.HasPendingCommands;
             var canExitSyncBuffering = false;
 
-            if (!mustExitSyncBuffering && (State.BufferingProgress >= 1 || !MediaCore.NeedsMorePackets))
+            if (!mustExitSyncBuffering && (!State.IsBuffering || !MediaCore.NeedsMorePackets))
             {
                 // In order to exit sync-buffering we at least need 1 main block.
                 canExitSyncBuffering = MediaCore.Blocks[main].Count > 0;

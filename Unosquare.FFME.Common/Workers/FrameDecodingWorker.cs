@@ -85,8 +85,6 @@
         {
             try
             {
-                // The 2-part logic blocks detect a sync-buffering scenario
-                // and then decodes the necessary frames.
                 if (MediaCore.HasDecodingEnded || ct.IsCancellationRequested)
                     return;
 
@@ -118,23 +116,33 @@
             // Capture a reference to the blocks and the current Range Percent
             const double rangePercentThreshold = 0.75d;
 
+            var dropLateFrames = MediaCore.MediaOptions.DropLateFrames;
             var decoderBlocks = MediaCore.Blocks[t];
             var addedBlocks = 0;
             var maxAddedBlocks = decoderBlocks.Capacity;
-            var rangePercent = !Container.MediaOptions.DropLateFrames
-                ? decoderBlocks.GetRangePercent(MediaCore.PlaybackClock(t))
-                : rangePercentThreshold;
+            var rangePercent = decoderBlocks.GetRangePercent(MediaCore.PlaybackClock(t));
 
-            // Read as much as we can for this cycle but always within range.
-            while (addedBlocks < maxAddedBlocks && (decoderBlocks.IsFull == false || rangePercent >= rangePercentThreshold))
+            while (addedBlocks < maxAddedBlocks)
             {
+                if (dropLateFrames)
+                {
+                    if (!MediaCore.Clock.IsRunning && decoderBlocks.IsFull)
+                        break;
+
+                    if (decoderBlocks.IsFull && MediaCore.PlaybackClock(t) < decoderBlocks.RangeMidTime)
+                        break;
+                }
+                else
+                {
+                    if (!(decoderBlocks.IsFull == false || rangePercent >= rangePercentThreshold))
+                        break;
+                }
+
                 if (ct.IsCancellationRequested || AddNextBlock(t) == false)
                     break;
 
                 addedBlocks++;
-                rangePercent = !Container.MediaOptions.DropLateFrames
-                    ? decoderBlocks.GetRangePercent(MediaCore.PlaybackClock(t))
-                    : rangePercentThreshold;
+                rangePercent = decoderBlocks.GetRangePercent(MediaCore.PlaybackClock(t));
             }
 
             return addedBlocks;

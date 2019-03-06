@@ -144,10 +144,9 @@
         public bool IsTimeSyncDisabled { get; set; }
 
         /// <summary>
-        /// Only applicable to live streams. Setting this to true forces the decoder to keep
-        /// decoding packets into frames as quickly as possible and the blocks sent to their
-        /// corresponding renderers immediately. Setting this to true will also make the <see cref="IsTimeSyncDisabled"/>
-        /// active, regardless of its value.
+        /// Setting this to true forces the decoder to keep decoding packets into frames as quickly as possible
+        /// and the blocks sent to their corresponding renderers immediately. This is useful when consuming
+        /// live streams and a low latency is required.
         /// </summary>
         public bool DropLateFrames { get; set; }
 
