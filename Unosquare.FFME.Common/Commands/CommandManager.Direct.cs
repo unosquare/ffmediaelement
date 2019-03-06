@@ -373,7 +373,8 @@
         /// <returns>Simply return the play when completed boolean if there are no exceptions</returns>
         private bool CommandChangeMedia(bool playWhenCompleted)
         {
-            MediaCore.SignalSyncBufferingEntered();
+            if (MediaCore.MediaOptions.IsTimeSyncDisabled == false)
+                MediaCore.SignalSyncBufferingEntered();
 
             // Signal a change so the user get the chance to update
             // selected streams and options
