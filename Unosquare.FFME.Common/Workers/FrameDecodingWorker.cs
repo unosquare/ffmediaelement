@@ -40,7 +40,6 @@
 
             ParallelDecodeBlocks = (all, ct) =>
             {
-                DecodedFrameCount = 0;
                 Parallel.ForEach(all, (t) =>
                     Interlocked.Add(ref DecodedFrameCount,
                     DecodeComponentBlocks(t, ct)));
@@ -48,7 +47,6 @@
 
             SerialDecodeBlocks = (all, ct) =>
             {
-                DecodedFrameCount = 0;
                 foreach (var t in Container.Components.MediaTypes)
                     DecodedFrameCount += DecodeComponentBlocks(t, ct);
             };
@@ -90,6 +88,7 @@
 
                 // We need to add blocks if the wall clock is over 75%
                 // for each of the components so that we have some buffer.
+                DecodedFrameCount = 0;
                 if (Container.MediaOptions.UseParallelDecoding)
                     ParallelDecodeBlocks.Invoke(Container.Components.MediaTypes, ct);
                 else
@@ -130,9 +129,6 @@
             {
                 if (dropLateFrames)
                 {
-                    if (!Container.IsAtEndOfStream && !Container.IsReadAborted && Container.Components[t].BufferCount <= -1) // TODO: Make this 4 configurable.
-                        break;
-
                     // When drop late frames is enabled we want to decode as much as possible as
                     // long as the playback clock position is beyond the middle range of available block range
                     if (decoderBlocks.IsFull && MediaCore.PlaybackClock(t) < decoderBlocks.RangeMidTime)

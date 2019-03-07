@@ -137,6 +137,7 @@
             if (IsSyncBuffering)
                 return;
 
+            PausePlayback(false);
             SyncBufferStartTime = DateTime.UtcNow;
             IsSyncBuffering = true;
 

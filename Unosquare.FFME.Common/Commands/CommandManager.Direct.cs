@@ -394,6 +394,10 @@
                 // Let's simply do an automated seek
                 SeekMedia(new SeekOperation(MediaCore.PlaybackClock(), SeekMode.Normal), CancellationToken.None);
             }
+            else
+            {
+                MediaCore.InvalidateRenderers();
+            }
 
             return playWhenCompleted;
         }

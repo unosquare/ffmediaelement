@@ -204,6 +204,15 @@
             var blocks = MediaCore.Blocks[main];
             var range = !MediaOptions.DropLateFrames ? blocks.GetRangePercent(MediaCore.PlaybackClock()) : 0;
 
+            if (MediaOptions.DropLateFrames && blocks.Count > 0)
+            {
+                // Don't let the RTC lag behind the blocks
+                if (!blocks.IsInRange(MediaCore.PlaybackClock(main)))
+                    MediaCore.ChangePlaybackPosition(blocks.RangeStartTime, true);
+
+                return;
+            }
+
             if (range >= 1d)
             {
                 // Don't let the RTC move beyond what is available on the main component
@@ -274,7 +283,6 @@
             // pause the playback and signal the new state.
             if (enterSyncBuffring)
             {
-                MediaCore.PausePlayback(false);
                 MediaCore.SignalSyncBufferingEntered();
                 return true;
             }
@@ -309,10 +317,7 @@
                 }
 
                 if (!canExitSyncBuffering)
-                {
-                    this.LogDebug(Aspects.ReadingWorker, $"SYNC-BUFFER: Ubable to exit sync-buffering. {main} has no blocks.");
                     return;
-                }
 
                 foreach (var t in all)
                 {
@@ -457,20 +462,12 @@
             if (Commands.HasPendingCommands == false && !MediaCore.IsSyncBuffering)
                 State.ReportPlaybackPosition();
 
-            // Resume the RTC if necessary
-            if (State.MediaState != PlaybackStatus.Play || Commands.HasPendingCommands)
-                return;
-
-            // Force playback no matter what because clock cannot be paused
-            if (!MediaCore.IsClockPauseable)
+            // We don't want to resume the clock if we are not ready for playback
+            if (State.MediaState != PlaybackStatus.Play || MediaCore.IsSyncBuffering ||
+                Commands.HasPendingCommands || MediaCore.Blocks[main].Count <= 0)
             {
-                MediaCore.Clock.Play();
                 return;
             }
-
-            // We don't want to resume the clock if we are not ready for playback
-            if (MediaCore.IsSyncBuffering || MediaCore.Blocks[main].Count <= 0)
-                return;
 
             // Resume the clock
             MediaCore.Clock.Play();

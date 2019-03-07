@@ -102,10 +102,6 @@
                 e.Configuration.PrivateOptions["extra_ips"] = "127.0.0.1";
             }
 
-            // A few WMV files I have tested don't have continuous enough audio packets to support
-            // perfect synchronization between audio and video
-            Media.RendererOptions.AudioDisableSync = e.Url.EndsWith(".wmv");
-
             // In realtime streams these settings can be used to reduce latency (see example from issue #152)
             // e.Options.GlobalOptions.FlagNoBuffer = true;
             // e.Options.GlobalOptions.ProbeSize = 8192;
@@ -131,7 +127,11 @@
 
             // The downside of enabling time synchronization is that it requires some buffering o match
             // the audio and video playback positions in order for the stream to be rendered consitently.
-            e.Options.IsTimeSyncDisabled = false; // e.Info.InputUrl.StartsWith("device://libndi_newtek?");
+            e.Options.IsTimeSyncDisabled = true; // e.Info.InputUrl.StartsWith("device://libndi_newtek?");
+
+            // A few WMV files I have tested don't have continuous enough audio packets to support
+            // perfect synchronization between audio and video
+            Media.RendererOptions.AudioDisableSync = false; // e.Options.DropLateFrames || e.Options.IsTimeSyncDisabled;
 
             // Get the local file path from the URL (if possible)
             var mediaFilePath = string.Empty;
