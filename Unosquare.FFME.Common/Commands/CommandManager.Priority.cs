@@ -118,12 +118,12 @@
             if (State.CanPause == false)
                 return false;
 
-            MediaCore.PausePlayback();
+            MediaCore.PausePlayback(false);
 
             foreach (var renderer in MediaCore.Renderers.Values)
                 renderer.Pause();
 
-            MediaCore.ChangePlaybackPosition(SnapPositionToBlockPosition(MediaCore.PlaybackClock()));
+            MediaCore.ChangePlaybackPosition(SnapPositionToBlockPosition(MediaCore.PlaybackClock()), false);
             State.UpdateMediaState(PlaybackStatus.Pause);
             return true;
         }
@@ -134,7 +134,10 @@
         /// <returns>True if the command was successful</returns>
         private bool CommandStopMedia()
         {
-            MediaCore.ResetPlaybackPosition();
+            if (State.IsSeekable == false)
+                return false;
+
+            MediaCore.ResetPlaybackPosition(false);
 
             SeekMedia(new SeekOperation(TimeSpan.MinValue, SeekMode.Stop), CancellationToken.None);
 

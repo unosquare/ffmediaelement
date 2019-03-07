@@ -98,7 +98,7 @@
             // Example of setting extra IPs for NDI (needs compatible build and Newtek binaries)
             if (e.Configuration.ForcedInputFormat == "libndi_newtek")
             {
-                // Sample URL: device://libndi_newtek?HOME-SLIMBIRD%20%28Test%20Pattern%29
+                // Sample URL: device://libndi_newtek?HOME-SLIMBIRD (Test Pattern)
                 e.Configuration.PrivateOptions["extra_ips"] = "127.0.0.1";
             }
 
@@ -124,14 +124,13 @@
             // You can start off by adjusting subtitles delay
             // e.Options.SubtitlesDelay = TimeSpan.FromSeconds(7); // See issue #216
 
-            // Then, for live streams you typically want to render the stream as it becomes available
-            // as opposed to synchronizing with the real-time playback clock. we drop the late frames
-            // in case something gets stuck
-            e.Options.DropLateFrames = e.Info.Duration == TimeSpan.MinValue;
+            // For some live streams you want to present audio and video as it becomes available
+            // This will disable audio and video component synchronization (IsTimeSyncDisabled = true).
+            // If you want to render live streams matching up audio and video positions, do not set this to true.
+            e.Options.DropLateFrames = true; // e.Info.InputUrl.StartsWith("device://libndi_newtek?");
 
-            // Additionally, we can make the audio and video clocks run independently
-            // of each other. This is only recommended when the audio and video streams
-            // have unrelated timing information
+            // The downside of enabling time synchronization is that it requires some buffering o match
+            // the audio and video playback positions in order for the stream to be rendered consitently.
             e.Options.IsTimeSyncDisabled = false; // e.Info.InputUrl.StartsWith("device://libndi_newtek?");
 
             // Get the local file path from the URL (if possible)

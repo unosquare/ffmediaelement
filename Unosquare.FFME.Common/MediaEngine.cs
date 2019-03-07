@@ -139,7 +139,7 @@
             Commands.Dispose();
 
             // Reset the RTC
-            ResetPlaybackPosition();
+            ResetPlaybackPosition(true);
         }
 
         #endregion

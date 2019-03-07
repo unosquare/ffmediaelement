@@ -70,7 +70,7 @@
         {
             lock (SyncLock)
             {
-                if (IsDisposed || IsDisposing || !MediaCore.State.IsOpen || IsDirectCommandPending || IsPriorityCommandPending)
+                if (IsDisposed || IsDisposing || !MediaCore.State.IsOpen || IsDirectCommandPending || IsPriorityCommandPending || !MediaCore.State.IsSeekable)
                     return Task.FromResult(false);
 
                 if (QueuedSeekTask != null)
@@ -84,7 +84,7 @@
                 {
                     IsSeeking = true;
                     PlayAfterSeek = State.MediaState == PlaybackStatus.Play && seekMode == SeekMode.Normal;
-                    MediaCore.PausePlayback();
+                    MediaCore.PausePlayback(false);
                     MediaCore.State.UpdateMediaState(PlaybackStatus.Manual);
                     MediaCore.SendOnSeekingStarted();
                 }
@@ -153,7 +153,7 @@
                 // position of the main component so it sticks on it.
                 if (mainBlocks.IsInRange(targetPosition))
                 {
-                    MediaCore.ChangePlaybackPosition(targetPosition);
+                    MediaCore.ChangePlaybackPosition(targetPosition, false);
                     return true;
                 }
 
@@ -259,7 +259,7 @@
 
                 // Write a new Real-time clock position now.
                 if (hasSeekBlocks == false)
-                    MediaCore.ChangePlaybackPosition(resultPosition);
+                    MediaCore.ChangePlaybackPosition(resultPosition, false);
             }
             catch (Exception ex)
             {
@@ -292,9 +292,9 @@
             {
                 // We need to update the clock immediately because
                 // the renderer will need this position
-                MediaCore.ChangePlaybackPosition(mode != SeekMode.Normal && mode != SeekMode.Stop
-                    ? mainBlocks[targetPosition].StartTime
-                    : targetPosition);
+                MediaCore.ChangePlaybackPosition(
+                    mode != SeekMode.Normal && mode != SeekMode.Stop ? mainBlocks[targetPosition].StartTime : targetPosition,
+                    false);
 
                 SeekBlocksAvailable.Set();
                 return true;

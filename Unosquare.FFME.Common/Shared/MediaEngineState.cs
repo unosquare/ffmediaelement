@@ -60,7 +60,7 @@
         public double SpeedRatio
         {
             get => m_SpeedRatio.Value;
-            set => m_SpeedRatio.Value = value;
+            set => m_SpeedRatio.Value = IsLiveStream ? Constants.Controller.DefaultSpeedRatio : value;
         }
 
         /// <inheritdoc />
@@ -130,10 +130,10 @@
         #region Self-Updating Properties
 
         /// <inheritdoc />
-        public bool IsPlaying => IsOpen && MediaCore.Clock.IsRunning;
+        public bool IsPlaying => IsOpen && MediaCore.IsClockRunning && !MediaCore.IsSyncBuffering;
 
         /// <inheritdoc />
-        public bool IsPaused => IsOpen && !MediaCore.Clock.IsRunning;
+        public bool IsPaused => IsOpen && !MediaCore.IsClockRunning;
 
         /// <inheritdoc />
         public bool IsSeeking => MediaCore.Commands?.IsSeeking ?? false;

@@ -91,7 +91,7 @@
 
                 PendingDirectCommand = command;
                 HasDirectCommandCompleted.Value = false;
-                MediaCore.PausePlayback();
+                MediaCore.PausePlayback(true);
 
                 var commandTask = new Task<bool>(() =>
                 {
@@ -185,7 +185,7 @@
                 }
                 else
                 {
-                    MediaCore.ResetPlaybackPosition();
+                    MediaCore.ResetPlaybackPosition(true);
                     MediaCore.State.UpdateMediaState(PlaybackStatus.Close);
                     MediaCore.SendOnMediaFailed(commandException);
                 }
@@ -194,7 +194,7 @@
             {
                 // Update notification properties
                 State.ResetAll();
-                MediaCore.ResetPlaybackPosition();
+                MediaCore.ResetPlaybackPosition(true);
                 State.UpdateMediaState(PlaybackStatus.Close);
                 State.UpdateSource(null);
 
@@ -373,9 +373,6 @@
         /// <returns>Simply return the play when completed boolean if there are no exceptions</returns>
         private bool CommandChangeMedia(bool playWhenCompleted)
         {
-            if (MediaCore.MediaOptions.IsTimeSyncDisabled == false)
-                MediaCore.SignalSyncBufferingEntered();
-
             // Signal a change so the user get the chance to update
             // selected streams and options
             MediaCore.SendOnMediaChanging();
@@ -427,7 +424,7 @@
         private void StopWorkers()
         {
             // Pause the clock so no further updates are propagated
-            MediaCore.PausePlayback();
+            MediaCore.PausePlayback(true);
 
             // Cause an immediate Packet read abort
             MediaCore.Container?.SignalAbortReads(false);
@@ -453,7 +450,7 @@
             MediaCore.LastRenderTime.Clear();
 
             // Reset the clock
-            MediaCore.ResetPlaybackPosition();
+            MediaCore.ResetPlaybackPosition(true);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

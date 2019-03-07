@@ -907,7 +907,7 @@
                 $"Duration: {Components.PlaybackDuration?.Format()}; ");
 
             // Ensure MediaOptions are consistent
-            CheckMediaOptions();
+            ApplyMediaOptionsConstraints();
 
             // Return the registered component types
             return Components.MediaTypes.ToArray();
@@ -1230,12 +1230,30 @@
         /// <summary>
         /// Applies the media options constraints.
         /// </summary>
-        private void CheckMediaOptions()
+        private void ApplyMediaOptionsConstraints()
         {
             if (!IsLiveStream && MediaOptions.DropLateFrames)
             {
                 this.LogWarning(Aspects.Container,
-                    $"Media options had {nameof(MediaOptions.DropLateFrames)} set to true but this is only recommended for live streams.");
+                    $"Media options had {nameof(MediaOptions.DropLateFrames)} set to true but this is only applicable to live streams.");
+
+                MediaOptions.DropLateFrames = false;
+            }
+
+            if (!IsLiveStream && MediaOptions.IsTimeSyncDisabled)
+            {
+                this.LogWarning(Aspects.Container,
+                    $"Media options had {nameof(MediaOptions.IsTimeSyncDisabled)} set to true but this is only applicable to live streams.");
+
+                MediaOptions.IsTimeSyncDisabled = false;
+            }
+
+            if (MediaOptions.DropLateFrames && !MediaOptions.IsTimeSyncDisabled)
+            {
+                this.LogWarning(Aspects.Container,
+                    $"Media options had {nameof(MediaOptions.DropLateFrames)} set to true. {nameof(MediaOptions.IsTimeSyncDisabled)} will also be set to true.");
+
+                MediaOptions.IsTimeSyncDisabled = true;
             }
         }
 

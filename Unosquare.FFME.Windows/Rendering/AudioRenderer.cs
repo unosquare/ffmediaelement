@@ -526,9 +526,6 @@
 
             #region Sync Give-up Conditions
 
-            if (MediaCore.MediaOptions?.DropLateFrames ?? false)
-                speedRatio = 0;
-
             // we don't want to perform AV sync if the latency is huge
             // or if we have simply disabled it
             if (MediaElement.RendererOptions.AudioDisableSync ||

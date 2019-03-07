@@ -109,6 +109,21 @@
         /// </summary>
         internal bool NeedsMorePackets => ShouldReadMorePackets && !Container.Components.HasEnoughPackets;
 
+        /// <summary>
+        /// Gets a value indicating whether the real-time clock can be updated or reset.
+        /// </summary>
+        internal bool IsClockUpdateable => !(MediaOptions?.IsTimeSyncDisabled ?? false);
+
+        /// <summary>
+        /// Gets a value indicating whether the real-time clock can be paused.
+        /// </summary>
+        internal bool IsClockPauseable => !(MediaOptions?.DropLateFrames ?? false);
+
+        /// <summary>
+        /// Gets a value indicating whether the clock is running.
+        /// </summary>
+        internal bool IsClockRunning => Clock.IsRunning;
+
         #endregion
 
         #region Methods
@@ -154,40 +169,18 @@
         }
 
         /// <summary>
-        /// Gets the component start offset. Pass none to get the media start offset.
-        /// </summary>
-        /// <param name="t">The component media type.</param>
-        /// <returns>The component start time</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal TimeSpan GetComponentStartOffset(MediaType t)
-        {
-            var offset = t == MediaType.None
-                ? State.PlaybackStartTime ?? TimeSpan.MinValue
-                : Container?.Components[t]?.StartTime ?? TimeSpan.MinValue;
-
-            return offset == TimeSpan.MinValue ? TimeSpan.Zero : offset;
-        }
-
-        /// <summary>
-        /// Converts from playback time to wall clock time.
-        /// </summary>
-        /// <param name="playbackTime">The playback time.</param>
-        /// <returns>The wall clock time</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal TimeSpan ConvertPlaybackToClockTime(TimeSpan playbackTime) =>
-            TimeSpan.FromTicks(playbackTime.Ticks - GetComponentStartOffset(MediaType.None).Ticks);
-
-        /// <summary>
         /// Updates the clock position and notifies the new
         /// position to the <see cref="State" />.
         /// </summary>
         /// <param name="playbackPosition">The position.</param>
+        /// <param name="forceClockUpdates">When set to true, the clock is latered regardless of the <see cref="MediaOptions.DropLateFrames"/></param>
         /// <returns>The newly set position</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal TimeSpan ChangePlaybackPosition(TimeSpan playbackPosition)
+        internal TimeSpan ChangePlaybackPosition(TimeSpan playbackPosition, bool forceClockUpdates)
         {
-            // TODO -- we need to fix all occurrences of this. This is the absolute time to compute elapsed time
-            Clock.Update(ConvertPlaybackToClockTime(playbackPosition));
+            if (forceClockUpdates || IsClockUpdateable)
+                Clock.Update(ConvertPlaybackToClockTime(playbackPosition));
+
             State.ReportPlaybackPosition();
             return playbackPosition;
         }
@@ -196,10 +189,13 @@
         /// Pauses the playback by pausing the RTC.
         /// This does not change the any state.
         /// </summary>
+        /// <param name="forceClockUpdates">When set to true, the clock is latered regardless of the <see cref="MediaOptions.DropLateFrames"/></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void PausePlayback()
+        internal void PausePlayback(bool forceClockUpdates)
         {
-            Clock.Pause();
+            if (forceClockUpdates || IsClockPauseable)
+                Clock.Pause();
+
             State.ReportPlaybackPosition();
         }
 
@@ -207,12 +203,17 @@
         /// Resets the clock to the zero position and notifies the new
         /// position to rhe <see cref="State"/>.
         /// </summary>
+        /// <param name="forceClockUpdates">When set to true, the clock is latered regardless of the <see cref="MediaOptions.DropLateFrames"/></param>
         /// <returns>The newly set position</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal TimeSpan ResetPlaybackPosition()
+        internal TimeSpan ResetPlaybackPosition(bool forceClockUpdates)
         {
-            Clock.Pause();
-            Clock.Reset();
+            if (forceClockUpdates || IsClockUpdateable)
+            {
+                Clock.Pause();
+                Clock.Reset();
+            }
+
             State.ReportPlaybackPosition();
             return TimeSpan.Zero;
         }
@@ -242,6 +243,30 @@
             foreach (var t in mediaTypes)
                 InvalidateRenderer(t);
         }
+
+        /// <summary>
+        /// Gets the component start offset. Pass none to get the media start offset.
+        /// </summary>
+        /// <param name="t">The component media type.</param>
+        /// <returns>The component start time</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private TimeSpan GetComponentStartOffset(MediaType t)
+        {
+            var offset = t == MediaType.None
+                ? State.PlaybackStartTime ?? TimeSpan.MinValue
+                : Container?.Components[t]?.StartTime ?? TimeSpan.MinValue;
+
+            return offset == TimeSpan.MinValue ? TimeSpan.Zero : offset;
+        }
+
+        /// <summary>
+        /// Converts from playback time to wall clock time.
+        /// </summary>
+        /// <param name="playbackTime">The playback time.</param>
+        /// <returns>The wall clock time</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private TimeSpan ConvertPlaybackToClockTime(TimeSpan playbackTime) =>
+            TimeSpan.FromTicks(playbackTime.Ticks - GetComponentStartOffset(MediaType.None).Ticks);
 
         #endregion
     }
