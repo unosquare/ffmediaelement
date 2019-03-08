@@ -131,7 +131,7 @@
                 {
                     // When drop late frames is enabled we want to decode as much as possible as
                     // long as the playback clock position is beyond the middle range of available block range
-                    if (decoderBlocks.IsFull && MediaCore.PlaybackClock(t) < decoderBlocks.RangeMidTime)
+                    if (decoderBlocks.IsFull && MediaCore.PlaybackClock(t) < decoderBlocks.RangeMidTime && MediaCore.PlaybackClock(t) >= decoderBlocks.RangeStartTime)
                         break;
                 }
                 else

@@ -253,6 +253,9 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private TimeSpan GetComponentStartOffset(MediaType t)
         {
+            t = (t == MediaType.None && Container?.Components[MediaType.Audio] != null)
+                ? MediaType.Audio : MediaType.None;
+
             var offset = t == MediaType.None
                 ? State.PlaybackStartTime ?? TimeSpan.MinValue
                 : Container?.Components[t]?.StartTime ?? TimeSpan.MinValue;
