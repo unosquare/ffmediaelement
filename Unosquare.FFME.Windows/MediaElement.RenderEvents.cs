@@ -89,7 +89,7 @@
                     MediaCore.MediaInfo.Streams[MediaCore.State.AudioStreamIndex],
                     startTime,
                     duration,
-                    MediaCore.PlaybackClock(MediaType.Audio));
+                    MediaCore.PlaybackPosition);
 
             RenderingAudio?.Invoke(this, e);
         }

@@ -130,10 +130,10 @@
         #region Self-Updating Properties
 
         /// <inheritdoc />
-        public bool IsPlaying => IsOpen && MediaCore.IsClockRunning && !MediaCore.IsSyncBuffering;
+        public bool IsPlaying => IsOpen && MediaCore.Clock.IsRunning(MediaCore.Clock.ContinuousType);
 
         /// <inheritdoc />
-        public bool IsPaused => IsOpen && !MediaCore.IsClockRunning;
+        public bool IsPaused => IsOpen && !MediaCore.Clock.IsRunning(MediaCore.Clock.ContinuousType);
 
         /// <inheritdoc />
         public bool IsSeeking => MediaCore.Commands?.IsSeeking ?? false;
@@ -426,7 +426,7 @@
         /// Updates the playback position and related properties.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void ReportPlaybackPosition() => ReportPlaybackPosition(MediaCore.PlaybackClock());
+        internal void ReportPlaybackPosition() => ReportPlaybackPosition(MediaCore.Clock.Position());
 
         /// <summary>
         /// Updates the playback position related properties.

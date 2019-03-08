@@ -508,8 +508,8 @@
             // using the newly computed information if available
             foreach (var component in allComponents)
             {
-                if (component.StartTime == TimeSpan.MinValue && m_PlaybackStartTime != null)
-                    component.StartTime = m_PlaybackStartTime.Value;
+                if (component.StartTime == TimeSpan.MinValue)
+                    component.StartTime = m_PlaybackStartTime ?? TimeSpan.Zero;
 
                 if (component.Duration == TimeSpan.MinValue && m_PlaybackDuration != null)
                     component.Duration = m_PlaybackDuration.Value;

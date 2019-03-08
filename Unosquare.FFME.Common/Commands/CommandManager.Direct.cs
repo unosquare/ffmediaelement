@@ -91,7 +91,7 @@
 
                 PendingDirectCommand = command;
                 HasDirectCommandCompleted.Value = false;
-                MediaCore.PausePlayback(true);
+                MediaCore.PausePlayback(MediaType.None);
 
                 var commandTask = new Task<bool>(() =>
                 {
@@ -185,7 +185,7 @@
                 }
                 else
                 {
-                    MediaCore.ResetPlaybackPosition(true);
+                    MediaCore.ResetPlaybackPosition(MediaType.None);
                     MediaCore.State.UpdateMediaState(PlaybackStatus.Close);
                     MediaCore.SendOnMediaFailed(commandException);
                 }
@@ -194,7 +194,7 @@
             {
                 // Update notification properties
                 State.ResetAll();
-                MediaCore.ResetPlaybackPosition(true);
+                MediaCore.ResetPlaybackPosition(MediaType.None);
                 State.UpdateMediaState(PlaybackStatus.Close);
                 State.UpdateSource(null);
 
@@ -329,6 +329,7 @@
 
                 // Reset buffering properties
                 State.UpdateFixedContainerProperties();
+                MediaCore.Clock.Initialize();
                 State.InitializeBufferingStatistics();
 
                 // Check if we have at least audio or video here
@@ -383,6 +384,7 @@
             // Recreate selected streams as media components
             MediaCore.Container.UpdateComponents();
             MediaCore.State.UpdateFixedContainerProperties();
+            MediaCore.Clock.Initialize();
 
             // Dispose unused rendered and blocks and create new ones
             InitializeRendering();
@@ -392,7 +394,8 @@
             if (State.IsSeekable)
             {
                 // Let's simply do an automated seek
-                SeekMedia(new SeekOperation(MediaCore.PlaybackClock(), SeekMode.Normal), CancellationToken.None);
+                SeekMedia(new SeekOperation(MediaCore.Clock.Position(), SeekMode.Normal),
+                    CancellationToken.None);
             }
             else
             {
@@ -412,8 +415,6 @@
         /// </summary>
         private void StartWorkers()
         {
-            MediaCore.Clock.SpeedRatio = Constants.Controller.DefaultSpeedRatio;
-
             // Ensure renderers and blocks are available
             InitializeRendering();
 
@@ -428,7 +429,7 @@
         private void StopWorkers()
         {
             // Pause the clock so no further updates are propagated
-            MediaCore.PausePlayback(true);
+            MediaCore.PausePlayback(MediaType.None);
 
             // Cause an immediate Packet read abort
             MediaCore.Container?.SignalAbortReads(false);
@@ -454,7 +455,7 @@
             MediaCore.LastRenderTime.Clear();
 
             // Reset the clock
-            MediaCore.ResetPlaybackPosition(true);
+            MediaCore.ResetPlaybackPosition(MediaType.None);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

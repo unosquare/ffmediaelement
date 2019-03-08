@@ -84,7 +84,7 @@
                 {
                     IsSeeking = true;
                     PlayAfterSeek = State.MediaState == PlaybackStatus.Play && seekMode == SeekMode.Normal;
-                    MediaCore.PausePlayback(false);
+                    MediaCore.PausePlayback(MediaType.None);
                     MediaCore.State.UpdateMediaState(PlaybackStatus.Manual);
                     MediaCore.SendOnSeekingStarted();
                 }
@@ -137,7 +137,7 @@
                 var main = MediaCore.Container.Components.MainMediaType;
                 var all = MediaCore.Container.Components.MediaTypes;
                 var mainBlocks = MediaCore.Blocks[main];
-                var initialPosition = MediaCore.PlaybackClock(main);
+                var initialPosition = MediaCore.Clock.Position();
 
                 if (targetSeekMode == SeekMode.StepBackward || targetSeekMode == SeekMode.StepForward)
                 {
@@ -153,7 +153,7 @@
                 // position of the main component so it sticks on it.
                 if (mainBlocks.IsInRange(targetPosition))
                 {
-                    MediaCore.ChangePlaybackPosition(targetPosition, false);
+                    MediaCore.ChangePlaybackPosition(targetPosition, MediaCore.Clock.DiscreteType);
                     return true;
                 }
 
@@ -259,7 +259,7 @@
 
                 // Write a new Real-time clock position now.
                 if (hasSeekBlocks == false)
-                    MediaCore.ChangePlaybackPosition(resultPosition, false);
+                    MediaCore.ChangePlaybackPosition(resultPosition, MediaCore.Clock.DiscreteType);
             }
             catch (Exception ex)
             {
@@ -294,7 +294,7 @@
                 // the renderer will need this position
                 MediaCore.ChangePlaybackPosition(
                     mode != SeekMode.Normal && mode != SeekMode.Stop ? mainBlocks[targetPosition].StartTime : targetPosition,
-                    false);
+                    MediaCore.Clock.DiscreteType);
 
                 SeekBlocksAvailable.Set();
                 return true;

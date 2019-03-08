@@ -98,7 +98,7 @@
                 lock (SyncLock)
                 {
                     return TimeSpan.FromTicks(
-                        MediaCore.PlaybackClock().Ticks -
+                        MediaCore.PlaybackPosition.Ticks -
                         Position.Ticks);
                 }
             }

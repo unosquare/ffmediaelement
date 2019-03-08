@@ -174,7 +174,7 @@
                 }
 
                 // Set the initial clock position
-                MediaCore.ChangePlaybackPosition(startTime, false);
+                MediaCore.ChangePlaybackPosition(startTime, MediaCore.Clock.DiscreteType);
             }
 
             // Wait for renderers to be ready
@@ -202,13 +202,16 @@
             // Get a reference to the main blocks.
             // The range will be 0 if there are no blocks.
             var blocks = MediaCore.Blocks[main];
-            var range = !MediaOptions.DropLateFrames ? blocks.GetRangePercent(MediaCore.PlaybackClock()) : 0;
+            var range = !MediaOptions.DropLateFrames ? blocks.GetRangePercent(MediaCore.Clock.Position()) : 0;
 
             if (MediaOptions.DropLateFrames && blocks.Count > 0)
             {
-                // Don't let the RTC lag behind the blocks
-                if (!blocks.IsInRange(MediaCore.PlaybackClock(main)))
-                    MediaCore.ChangePlaybackPosition(blocks.RangeStartTime, true);
+                foreach (var t in all)
+                {
+                    // Don't let the RTC lag behind the blocks
+                    if (!blocks.IsInRange(MediaCore.Clock.Position(t)))
+                        MediaCore.ChangePlaybackPosition(blocks.RangeStartTime, t);
+                }
 
                 return;
             }
@@ -216,17 +219,17 @@
             if (range >= 1d)
             {
                 // Don't let the RTC move beyond what is available on the main component
-                MediaCore.ChangePlaybackPosition(blocks.RangeEndTime, false);
+                MediaCore.ChangePlaybackPosition(blocks.RangeEndTime, MediaCore.Clock.DiscreteType);
             }
             else if (range < 0)
             {
                 // Don't let the RTC lag behind what is available on the main component
-                MediaCore.ChangePlaybackPosition(blocks.RangeStartTime, false);
+                MediaCore.ChangePlaybackPosition(blocks.RangeStartTime, MediaCore.Clock.DiscreteType);
             }
             else if (range == 0 && blocks.Count == 0)
             {
                 // We have no main blocks in range. All we can do is pause the clock
-                MediaCore.PausePlayback(false);
+                MediaCore.PausePlayback(MediaType.None);
             }
         }
 
@@ -256,7 +259,7 @@
                     continue;
 
                 // We don't need to do a thing if we are in range
-                if (MediaCore.Blocks[t].IsInRange(MediaCore.PlaybackClock()))
+                if (MediaCore.Blocks[t].IsInRange(MediaCore.Clock.Position(t)))
                     continue;
 
                 if (MediaOptions.IsTimeSyncDisabled)
@@ -334,7 +337,7 @@
                     }
                     else
                     {
-                        if (MediaCore.Blocks[t].GetRangePercent(MediaCore.PlaybackClock()) > 0.75d)
+                        if (MediaCore.Blocks[t].GetRangePercent(MediaCore.Clock.Position(t)) > 0.75d)
                         {
                             canExitSyncBuffering = false;
                             break;
@@ -348,9 +351,9 @@
                 if (mustExitSyncBuffering || canExitSyncBuffering)
                 {
                     var blocks = MediaCore.Blocks[main];
-                    var playbackPosition = MediaCore.PlaybackClock(main);
+                    var playbackPosition = MediaCore.Clock.Position();
                     if (blocks.Count > 0 && !blocks.IsInRange(playbackPosition))
-                        MediaCore.ChangePlaybackPosition(blocks[playbackPosition].StartTime, false);
+                        MediaCore.ChangePlaybackPosition(blocks[playbackPosition].StartTime, MediaCore.Clock.DiscreteType);
 
                     MediaCore.SignalSyncBufferingExited();
                 }
@@ -367,7 +370,7 @@
         {
             while (!ct.IsCancellationRequested
             && Commands.IsActivelySeeking
-            && !MediaCore.Blocks[main].IsInRange(MediaCore.PlaybackClock(main)))
+            && !MediaCore.Blocks[main].IsInRange(MediaCore.Clock.Position()))
             {
                 // Check if we finally have seek blocks available
                 // if we don't get seek blocks in range and we are not step-seeking,
@@ -391,7 +394,7 @@
         private bool RenderBlock(MediaType t)
         {
             var result = 0;
-            var playbackClock = MediaCore.PlaybackClock(t);
+            var playbackClock = MediaCore.Clock.Position(t);
 
             try
             {
@@ -431,13 +434,13 @@
             // Check End of Media Scenarios
             if (Commands.HasPendingCommands == false
                 && MediaCore.HasDecodingEnded
-                && MediaCore.PlaybackClock(main).Ticks >= playbackEndClock.Ticks)
+                && MediaCore.Clock.Position().Ticks >= playbackEndClock.Ticks)
             {
                 // Rendered all and nothing else to render
                 if (State.HasMediaEnded == false)
                 {
-                    MediaCore.PausePlayback(true);
-                    var endPosition = MediaCore.ChangePlaybackPosition(playbackEndClock, true);
+                    MediaCore.PausePlayback(MediaType.None);
+                    var endPosition = MediaCore.ChangePlaybackPosition(playbackEndClock, MediaCore.Clock.DiscreteType);
                     State.UpdateMediaEnded(true, endPosition);
 
                     State.UpdateMediaState(PlaybackStatus.Stop);
@@ -470,7 +473,7 @@
             }
 
             // Resume the clock
-            MediaCore.Clock.Play();
+            MediaCore.Clock.Play(MediaType.None);
         }
 
         /// <summary>

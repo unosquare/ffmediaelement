@@ -122,7 +122,7 @@
 
             // We don't need the range percent if drop late frames is enabled
             var rangePercent = !dropLateFrames
-                ? decoderBlocks.GetRangePercent(MediaCore.PlaybackClock(t))
+                ? decoderBlocks.GetRangePercent(MediaCore.Clock.Position(t))
                 : 0;
 
             while (addedBlocks < maxAddedBlocks)
@@ -131,7 +131,7 @@
                 {
                     // When drop late frames is enabled we want to decode as much as possible as
                     // long as the playback clock position is beyond the middle range of available block range
-                    if (decoderBlocks.IsFull && MediaCore.PlaybackClock(t) < decoderBlocks.RangeMidTime && MediaCore.PlaybackClock(t) >= decoderBlocks.RangeStartTime)
+                    if (decoderBlocks.IsFull && MediaCore.Clock.Position(t) < decoderBlocks.RangeMidTime && MediaCore.Clock.Position(t) >= decoderBlocks.RangeStartTime)
                         break;
                 }
                 else
@@ -150,7 +150,7 @@
                 addedBlocks++;
 
                 // We don't need the range percent if drop late frames is enabled
-                rangePercent = dropLateFrames ? 0 : decoderBlocks.GetRangePercent(MediaCore.PlaybackClock(t));
+                rangePercent = dropLateFrames ? 0 : decoderBlocks.GetRangePercent(MediaCore.Clock.Position(t));
             }
 
             return addedBlocks;
@@ -181,7 +181,7 @@
             var main = Container.Components.MainMediaType;
             return DecodedFrameCount <= 0
                 && CanReadMoreFramesOf(main) == false
-                && MediaCore.Blocks[main].IndexOf(MediaCore.PlaybackClock(main)) >= MediaCore.Blocks[main].Count - 1;
+                && MediaCore.Blocks[main].IndexOf(MediaCore.Clock.Position()) >= MediaCore.Blocks[main].Count - 1;
         }
 
         /// <summary>

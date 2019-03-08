@@ -1,11 +1,10 @@
 ﻿namespace Unosquare.FFME
 {
     using Commands;
-    using Core;
     using Primitives;
     using Shared;
     using System;
-    using System.Runtime.CompilerServices;
+    using Workers;
 
     /// <summary>
     /// Represents a Media Engine that contains underlying streams of audio and/or video.
@@ -32,6 +31,7 @@
             Connector = connector;
             Commands = new CommandManager(this);
             State = new MediaEngineState(this);
+            Clock = new ClockController(this);
 
             // Don't start up timers or any other stuff if we are in design-time
             if (Platform.IsInDesignTime) return;
@@ -60,13 +60,6 @@
         public MediaEngineState State { get; }
 
         /// <summary>
-        /// Gets the internal real time clock position.
-        /// This is different from the position property and it is useful
-        /// in computing things like real-time latency in a render cycle.
-        /// </summary>
-        public TimeSpan WallClock => State.IsOpen || State.IsOpening ? Clock.Position : TimeSpan.Zero;
-
-        /// <summary>
         /// Provides stream, chapter and program info of the underlying media.
         /// Returns null when no media is loaded.
         /// </summary>
@@ -89,10 +82,14 @@
         public object Parent { get; }
 
         /// <summary>
-        /// Represents a real-time time measuring device.
-        /// Rendering media should occur as requested by the clock.
+        /// Gets the playback position.
         /// </summary>
-        internal RealTimeClock Clock { get; } = new RealTimeClock();
+        public TimeSpan PlaybackPosition => Clock.Position();
+
+        /// <summary>
+        /// Represents a real-time time clock controller.
+        /// </summary>
+        internal ClockController Clock { get; }
 
         /// <summary>
         /// Gets the event connector (platform specific).
@@ -107,26 +104,6 @@
         void ILoggingHandler.HandleLogMessage(MediaLogMessage message) =>
             SendOnMessageLogged(message);
 
-        /// <summary>
-        /// Gets the playback clock position. If <see cref="MediaOptions.IsTimeSyncDisabled"/>
-        /// is set to <c>true</c>, then gets the playback clock position for the fgiven component.
-        /// </summary>
-        /// <param name="t">The media type to get the playback clock from.</param>
-        /// <returns>The playback clock for the given component</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TimeSpan PlaybackClock(MediaType t)
-        {
-            var mediaType = (Container?.MediaOptions.IsTimeSyncDisabled ?? false) ? t : MediaType.None;
-            return TimeSpan.FromTicks(WallClock.Ticks + GetComponentStartOffset(mediaType).Ticks);
-        }
-
-        /// <summary>
-        /// Gets the playback clock position for the main component.
-        /// </summary>
-        /// <returns>The playback clock for the given component</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TimeSpan PlaybackClock() => PlaybackClock(MediaType.None);
-
         /// <inheritdoc />
         public void Dispose()
         {
@@ -139,7 +116,7 @@
             Commands.Dispose();
 
             // Reset the RTC
-            ResetPlaybackPosition(true);
+            ResetPlaybackPosition(MediaType.None);
         }
 
         #endregion
