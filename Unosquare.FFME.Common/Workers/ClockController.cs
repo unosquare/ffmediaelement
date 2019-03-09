@@ -34,7 +34,7 @@
                 lock (SyncLock)
                 {
                     if (!HasInitialized) return;
-                    if (HasIndependentClocks)
+                    if (HasMultipleClocks)
                     {
                         Clocks[MediaType.Audio].SpeedRatio = value;
                         Clocks[MediaType.Video].SpeedRatio = value;
@@ -47,11 +47,11 @@
             }
         }
 
-        public bool HasIndependentClocks { get; private set; }
+        public MediaType ReferenceType { get; private set; }
 
-        public MediaType ContinuousType { get; private set; }
+        public bool HasMultipleClocks { get; private set; }
 
-        public MediaType DiscreteType { get; private set; }
+        public bool HasDisconnectedClocks { get; private set; }
 
         private MediaEngine MediaCore { get; }
 
@@ -63,18 +63,14 @@
         {
             lock (SyncLock)
             {
-                Offsets.Clear();
-                var needsIndependentClocks = false;
+                // Save the current clocks so they can be recreated with the
+                // same properties (position and speed ratio)
+                var lastClocks = new MediaTypeDictionary<RealTimeClock>();
+                foreach (var kvp in Clocks)
+                    lastClocks[kvp.Key] = kvp.Value;
 
                 try
                 {
-                    if (!Components.HasAudio || !Components.HasVideo)
-                        return;
-
-                    // We don't need independent clocks when the video is just album art
-                    if (Components.MainMediaType == MediaType.Audio)
-                        return;
-
                     if (Options.IsTimeSyncDisabled)
                     {
                         if (!MediaCore.Container.IsLiveStream)
@@ -83,9 +79,11 @@
                                 $"Media options had {nameof(MediaOptions.IsTimeSyncDisabled)} set to true but this is not recommended for non-live streams.");
                         }
 
-                        needsIndependentClocks = true;
                         return;
                     }
+
+                    if (!Components.HasAudio || !Components.HasVideo)
+                        return;
 
                     var audioStartTime = GetComponentStartOffset(MediaType.Audio);
                     var videoStartTime = GetComponentStartOffset(MediaType.Video);
@@ -97,46 +95,56 @@
                             $"{nameof(MediaOptions)}.{nameof(MediaOptions.IsTimeSyncDisabled)} has been ignored because the " +
                             $"streams seem to have unrelated timing information. Time Difference: {startTimeDifference.Format()} s.");
 
-                        needsIndependentClocks = true;
+                        Options.IsTimeSyncDisabled = true;
                     }
                 }
                 finally
                 {
-                    if (needsIndependentClocks)
+                    if (Components.HasAudio && Components.HasVideo)
                     {
-                        Clocks[MediaType.Audio] = Clocks[MediaType.Audio] ?? new RealTimeClock();
-                        Clocks[MediaType.Video] = Clocks[MediaType.Video] ?? new RealTimeClock();
-                        Clocks[MediaType.Subtitle] = Clocks[MediaType.Video];
-                        Clocks[MediaType.None] = Clocks[MediaType.Audio];
+                        Clocks[MediaType.Audio] = new RealTimeClock();
+                        Clocks[MediaType.Video] = new RealTimeClock();
 
                         Offsets[MediaType.Audio] = GetComponentStartOffset(MediaType.Audio);
                         Offsets[MediaType.Video] = GetComponentStartOffset(MediaType.Video);
-                        Offsets[MediaType.Subtitle] = Offsets[MediaType.Video];
-                        Offsets[MediaType.None] = Offsets[MediaType.Audio];
+
+                        HasMultipleClocks = true;
                     }
                     else
                     {
-                        Clocks[MediaType.None] = Clocks[MediaType.None] ?? new RealTimeClock();
-                        Clocks[MediaType.Audio] = Clocks[MediaType.None];
-                        Clocks[MediaType.Video] = Clocks[MediaType.None];
-                        Clocks[MediaType.Subtitle] = Clocks[MediaType.None];
+                        Clocks[MediaType.Audio] = new RealTimeClock();
+                        Clocks[MediaType.Video] = Clocks[MediaType.Audio];
 
                         Offsets[MediaType.Audio] = GetComponentStartOffset(Components.HasAudio ? MediaType.Audio : MediaType.Video);
-                        Offsets[MediaType.Video] = GetComponentStartOffset(Components.HasVideo ? MediaType.Video : MediaType.Audio);
-                        Offsets[MediaType.Subtitle] = Offsets[MediaType.Video];
-                        Offsets[MediaType.None] = Offsets[MediaType.Video];
+                        Offsets[MediaType.Video] = Offsets[MediaType.Audio];
+
+                        HasMultipleClocks = false;
                     }
 
-                    HasIndependentClocks = needsIndependentClocks;
-                    ContinuousType = Components.HasAudio ? MediaType.Audio : MediaType.Video;
+                    // Subtitles will always be whatever the video data is.
+                    Clocks[MediaType.Subtitle] = Clocks[MediaType.Video];
+                    Offsets[MediaType.Subtitle] = Offsets[MediaType.Video];
 
-                    // We always set the continuous type to the main media type
-                    // if the stream is seekable as we don't want to report positions
-                    // or seek over a non-main media type.
-                    if (MediaCore.Container.IsStreamSeekable)
-                        ContinuousType = Components.MainMediaType;
+                    // Update from previous clocks to keep state
+                    foreach (var clock in lastClocks)
+                    {
+                        Clocks[clock.Key].SpeedRatio = clock.Value.SpeedRatio;
+                        Clocks[clock.Key].Update(clock.Value.Position);
+                    }
 
-                    DiscreteType = HasIndependentClocks ? ContinuousType : Components.MainMediaType;
+                    // By default the continuous type is the audio component if it's a live stream
+                    var continuousType = Components.HasAudio && !MediaCore.Container.IsStreamSeekable
+                        ? MediaType.Audio
+                        : Components.MainMediaType;
+
+                    var discreteType = Components.MainMediaType;
+                    HasDisconnectedClocks = Options.IsTimeSyncDisabled && HasMultipleClocks;
+                    ReferenceType = HasDisconnectedClocks ? continuousType : discreteType;
+
+                    // The default data is what the clock reference contains
+                    Clocks[MediaType.None] = Clocks[ReferenceType];
+                    Offsets[MediaType.None] = Offsets[ReferenceType];
+
                     HasInitialized = true;
                 }
             }
@@ -151,25 +159,46 @@
             }
         }
 
+        public bool IsRunning() => IsRunning(ReferenceType);
+
         public TimeSpan Position(MediaType t)
         {
             lock (SyncLock)
             {
-                if (!HasInitialized) return default;
-                var referenceType = HasIndependentClocks ? t : t != ContinuousType ? DiscreteType : ContinuousType;
-                return TimeSpan.FromTicks(Clocks[t].Position.Ticks + Offsets[referenceType].Ticks);
+                if (!HasInitialized)
+                    return default;
+
+                return TimeSpan.FromTicks(
+                    Clocks[t].Position.Ticks +
+                    Offsets[HasDisconnectedClocks ? t : ReferenceType].Ticks);
             }
         }
 
-        public TimeSpan Position() => Position(HasIndependentClocks ? ContinuousType : DiscreteType);
+        public TimeSpan Position() => Position(ReferenceType);
 
         public void Update(TimeSpan position, MediaType t)
         {
             lock (SyncLock)
             {
-                if (!HasInitialized) return;
-                var referenceType = HasIndependentClocks ? t : t != ContinuousType ? DiscreteType : ContinuousType;
-                Clocks[t].Update(TimeSpan.FromTicks(position.Ticks - Offsets[referenceType].Ticks));
+                if (!HasInitialized)
+                    return;
+
+                if (t == MediaType.None)
+                {
+                    Clocks[MediaType.Audio].Update(TimeSpan.FromTicks(
+                        position.Ticks -
+                        Offsets[HasDisconnectedClocks ? MediaType.Audio : ReferenceType].Ticks));
+
+                    Clocks[MediaType.Video].Update(TimeSpan.FromTicks(
+                        position.Ticks -
+                        Offsets[HasDisconnectedClocks ? MediaType.Video : ReferenceType].Ticks));
+
+                    return;
+                }
+
+                Clocks[t].Update(TimeSpan.FromTicks(
+                    position.Ticks -
+                    Offsets[HasDisconnectedClocks ? t : ReferenceType].Ticks));
             }
         }
 

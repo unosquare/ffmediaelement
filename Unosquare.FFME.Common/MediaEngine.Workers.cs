@@ -128,7 +128,7 @@
 
             this.LogInfo(Aspects.RenderingWorker,
                 $"SYNC-BUFFER: Entered at {PlaybackPosition.TotalSeconds:0.000} s." +
-                $" | Separate Clocks: {Clock.HasIndependentClocks}" +
+                $" | Disconnected Clocks: {Timing.HasDisconnectedClocks}" +
                 $" | Buffer Progress: {State.BufferingProgress:p2}" +
                 $" | Buffer Audio: {Container?.Components[MediaType.Audio]?.BufferCount}" +
                 $" | Buffer Video: {Container?.Components[MediaType.Video]?.BufferCount}");
@@ -159,13 +159,11 @@
         /// </summary>
         /// <param name="playbackPosition">The position.</param>
         /// <param name="t">The corresponding media type clock to update</param>
-        /// <returns>The newly set position</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal TimeSpan ChangePlaybackPosition(TimeSpan playbackPosition, MediaType t)
+        internal void ChangePlaybackPosition(TimeSpan playbackPosition, MediaType t)
         {
-            Clock.Update(playbackPosition, t);
+            Timing.Update(playbackPosition, t);
             State.ReportPlaybackPosition();
-            return playbackPosition;
         }
 
         /// <summary>
@@ -173,10 +171,19 @@
         /// position to the <see cref="State" />.
         /// </summary>
         /// <param name="playbackPosition">The position.</param>
-        /// <returns>The newly set position</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal TimeSpan ChangePlaybackPosition(TimeSpan playbackPosition) =>
-            ChangePlaybackPosition(playbackPosition, Clock.DiscreteType);
+        internal void ChangePlaybackPosition(TimeSpan playbackPosition)
+        {
+            if (Timing.HasDisconnectedClocks)
+            {
+                this.LogWarning(Aspects.Container,
+                    $"Changing the playback position on disconnected clocks is not supported." +
+                    $"Plase set the {nameof(MediaOptions.IsTimeSyncDisabled)} to false.");
+            }
+
+            Timing.Update(playbackPosition, MediaType.None);
+            State.ReportPlaybackPosition();
+        }
 
         /// <summary>
         /// Pauses the playback by pausing the RTC.
@@ -186,7 +193,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void PausePlayback(MediaType t)
         {
-            Clock.Pause(t);
+            Timing.Pause(t);
             State.ReportPlaybackPosition();
         }
 
@@ -205,8 +212,8 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal TimeSpan ResetPlaybackPosition()
         {
-            Clock.Pause(MediaType.None);
-            Clock.Reset(MediaType.None);
+            Timing.Pause(MediaType.None);
+            Timing.Reset(MediaType.None);
             State.ReportPlaybackPosition();
             return TimeSpan.Zero;
         }

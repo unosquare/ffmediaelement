@@ -31,7 +31,7 @@
             Connector = connector;
             Commands = new CommandManager(this);
             State = new MediaEngineState(this);
-            Clock = new ClockController(this);
+            Timing = new ClockController(this);
 
             // Don't start up timers or any other stuff if we are in design-time
             if (Platform.IsInDesignTime) return;
@@ -84,12 +84,12 @@
         /// <summary>
         /// Gets the playback position.
         /// </summary>
-        public TimeSpan PlaybackPosition => Clock.Position();
+        public TimeSpan PlaybackPosition => Timing.Position();
 
         /// <summary>
         /// Represents a real-time time clock controller.
         /// </summary>
-        internal ClockController Clock { get; }
+        internal ClockController Timing { get; }
 
         /// <summary>
         /// Gets the event connector (platform specific).

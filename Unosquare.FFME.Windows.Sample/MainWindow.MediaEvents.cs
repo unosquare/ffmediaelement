@@ -120,13 +120,18 @@
             // You can start off by adjusting subtitles delay
             // e.Options.SubtitlesDelay = TimeSpan.FromSeconds(7); // See issue #216
 
-            // The downside of enabling time synchronization is that it requires some buffering o match
-            // the audio and video playback positions in order for the stream to be rendered consitently.
-            e.Options.IsTimeSyncDisabled = true; // e.Info.InputUrl.StartsWith("device://libndi_newtek?");
+            // Sure you can reduce buffering but the downside of disabling time synchronization is that it
+            // will present the frames as they become available and audio will not wait for video and viceversa.
+            // Do not disable Time Sync for streams that need to synchronize audio and video.
+            e.Options.IsTimeSyncDisabled =
+                e.Info.InputUrl.StartsWith("device://libndi_newtek?") ||
+                e.Info.InputUrl.StartsWith("rtsp://uno");
 
             // A few WMV files I have tested don't have continuous enough audio packets to support
-            // perfect synchronization between audio and video
-            Media.RendererOptions.AudioDisableSync = false;
+            // perfect synchronization between audio and video so we simply disable it
+            Media.RendererOptions.AudioDisableSync =
+                e.Options.IsTimeSyncDisabled ||
+                e.Info.InputUrl.EndsWith(".wmv");
 
             // Get the local file path from the URL (if possible)
             var mediaFilePath = string.Empty;

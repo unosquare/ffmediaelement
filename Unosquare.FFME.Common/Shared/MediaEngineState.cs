@@ -130,10 +130,10 @@
         #region Self-Updating Properties
 
         /// <inheritdoc />
-        public bool IsPlaying => IsOpen && MediaCore.Clock.IsRunning(MediaCore.Clock.ContinuousType);
+        public bool IsPlaying => IsOpen && MediaCore.Timing.IsRunning();
 
         /// <inheritdoc />
-        public bool IsPaused => IsOpen && !MediaCore.Clock.IsRunning(MediaCore.Clock.ContinuousType);
+        public bool IsPaused => IsOpen && !MediaCore.Timing.IsRunning();
 
         /// <inheritdoc />
         public bool IsSeeking => MediaCore.Commands?.IsSeeking ?? false;
@@ -435,11 +435,11 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void ReportPlaybackPosition(TimeSpan newPosition)
         {
-            var oldSpeedRatio = MediaCore.Clock.SpeedRatio;
+            var oldSpeedRatio = MediaCore.Timing.SpeedRatio;
             var newSpeedRatio = SpeedRatio;
 
             if (Math.Abs(oldSpeedRatio - newSpeedRatio) > double.Epsilon)
-                MediaCore.Clock.SpeedRatio = SpeedRatio;
+                MediaCore.Timing.SpeedRatio = SpeedRatio;
 
             var oldPosition = Position;
             if (oldPosition.Ticks == newPosition.Ticks)

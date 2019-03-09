@@ -76,7 +76,7 @@
         /// <summary>
         /// Gets a value indicating whether parallel decoding is enabled.
         /// </summary>
-        private bool UseParallelDecoding => MediaCore.Clock.HasIndependentClocks || Container.MediaOptions.UseParallelDecoding;
+        private bool UseParallelDecoding => MediaCore.Timing.HasDisconnectedClocks || Container.MediaOptions.UseParallelDecoding;
 
         /// <inheritdoc />
         protected override void ExecuteCycleLogic(CancellationToken ct)
@@ -119,7 +119,7 @@
             {
                 // We break decoding if we have a full set of blocks and if the
                 // clock is not past the mid range of the available block range
-                if (decoderBlocks.IsFull && MediaCore.Clock.Position(t).Ticks < decoderBlocks.RangeMidTime.Ticks)
+                if (decoderBlocks.IsFull && MediaCore.Timing.Position(t).Ticks < decoderBlocks.RangeMidTime.Ticks)
                     break;
 
                 // Try adding the next block. Stop decoding upon failure or cancellation

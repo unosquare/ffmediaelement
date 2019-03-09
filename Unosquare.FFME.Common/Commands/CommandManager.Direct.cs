@@ -320,7 +320,7 @@
 
                 // Reset buffering properties
                 State.UpdateFixedContainerProperties();
-                MediaCore.Clock.Initialize();
+                MediaCore.Timing.Initialize();
                 State.InitializeBufferingStatistics();
 
                 // Check if we have at least audio or video here
@@ -375,7 +375,7 @@
             // Recreate selected streams as media components
             MediaCore.Container.UpdateComponents();
             MediaCore.State.UpdateFixedContainerProperties();
-            MediaCore.Clock.Initialize();
+            MediaCore.Timing.Initialize();
 
             // Dispose unused rendered and blocks and create new ones
             InitializeRendering();
