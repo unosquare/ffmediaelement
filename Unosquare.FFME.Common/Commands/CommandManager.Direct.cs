@@ -91,7 +91,7 @@
 
                 PendingDirectCommand = command;
                 HasDirectCommandCompleted.Value = false;
-                MediaCore.PausePlayback(MediaType.None);
+                MediaCore.PausePlayback();
 
                 var commandTask = new Task<bool>(() =>
                 {
@@ -185,7 +185,7 @@
                 }
                 else
                 {
-                    MediaCore.ResetPlaybackPosition(MediaType.None);
+                    MediaCore.ResetPlaybackPosition();
                     MediaCore.State.UpdateMediaState(PlaybackStatus.Close);
                     MediaCore.SendOnMediaFailed(commandException);
                 }
@@ -194,7 +194,7 @@
             {
                 // Update notification properties
                 State.ResetAll();
-                MediaCore.ResetPlaybackPosition(MediaType.None);
+                MediaCore.ResetPlaybackPosition();
                 State.UpdateMediaState(PlaybackStatus.Close);
                 State.UpdateSource(null);
 
@@ -394,7 +394,7 @@
             if (State.IsSeekable)
             {
                 // Let's simply do an automated seek
-                SeekMedia(new SeekOperation(MediaCore.Clock.Position(), SeekMode.Normal),
+                SeekMedia(new SeekOperation(MediaCore.PlaybackPosition, SeekMode.Normal),
                     CancellationToken.None);
             }
             else
@@ -429,7 +429,7 @@
         private void StopWorkers()
         {
             // Pause the clock so no further updates are propagated
-            MediaCore.PausePlayback(MediaType.None);
+            MediaCore.PausePlayback();
 
             // Cause an immediate Packet read abort
             MediaCore.Container?.SignalAbortReads(false);
@@ -455,7 +455,7 @@
             MediaCore.LastRenderTime.Clear();
 
             // Reset the clock
-            MediaCore.ResetPlaybackPosition(MediaType.None);
+            MediaCore.ResetPlaybackPosition();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

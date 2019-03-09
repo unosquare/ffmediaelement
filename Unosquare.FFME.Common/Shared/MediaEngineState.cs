@@ -426,7 +426,7 @@
         /// Updates the playback position and related properties.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void ReportPlaybackPosition() => ReportPlaybackPosition(MediaCore.Clock.Position());
+        internal void ReportPlaybackPosition() => ReportPlaybackPosition(MediaCore.PlaybackPosition);
 
         /// <summary>
         /// Updates the playback position related properties.

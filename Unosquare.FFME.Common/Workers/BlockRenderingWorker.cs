@@ -131,7 +131,7 @@
             if (HasInitialized == true)
                 return true;
 
-            if (!MediaOptions.DropLateFrames)
+            if (!MediaOptions.IsTimeSyncDisabled)
             {
                 // wait for main component blocks or EOF or cancellation pending
                 if (MediaCore.Blocks[main].Count <= 0)
@@ -140,41 +140,8 @@
                 // Get the main stream's real start time
                 var startTime = MediaCore.Blocks[main].RangeStartTime;
 
-                // Check if the streams have related timing information
-                // If they do not then simply forsce the disabling of time synchronization
-                // and have the playback clock be independent for each component
-                if (!MediaOptions.IsTimeSyncDisabled)
-                {
-                    foreach (var t in all)
-                    {
-                        // Check if the component is applicable to time synchronization to main
-                        if (t == main || t == MediaType.Subtitle || MediaCore.Blocks[t] == null)
-                            continue;
-
-                        // If we have not received any blocks yet we con't compare
-                        // start time differences.
-                        if (MediaCore.Blocks[t].Count == 0)
-                            return false;
-
-                        // Compute the offset difference with respect to the main component
-                        var startTimeOffset = TimeSpan.FromTicks(
-                            Math.Abs(MediaCore.Blocks[t][0].StartTime.Ticks - startTime.Ticks));
-
-                        // Disable TimeSync if the streams are unrelated.
-                        if (startTimeOffset > Constants.TimeSyncMaxOffset)
-                        {
-                            MediaOptions.IsTimeSyncDisabled = true;
-                            this.LogWarning(Aspects.RenderingWorker,
-                                $"{nameof(MediaOptions)}.{nameof(MediaOptions.IsTimeSyncDisabled)} has been set to true because the {main} and {t} " +
-                                $"streams seem to have unrelated timing information. Time Difference: {startTimeOffset.Format()} s.");
-
-                            break;
-                        }
-                    }
-                }
-
                 // Set the initial clock position
-                MediaCore.ChangePlaybackPosition(startTime, MediaCore.Clock.DiscreteType);
+                MediaCore.ChangePlaybackPosition(startTime);
             }
 
             // Wait for renderers to be ready
@@ -199,37 +166,51 @@
             if (Commands.HasPendingCommands)
                 return;
 
-            // Get a reference to the main blocks.
-            // The range will be 0 if there are no blocks.
-            var blocks = MediaCore.Blocks[main];
-            var range = !MediaOptions.DropLateFrames ? blocks.GetRangePercent(MediaCore.Clock.Position()) : 0;
+            MediaBlockBuffer blocks = null;
 
-            if (MediaOptions.DropLateFrames && blocks.Count > 0)
+            if (MediaOptions.IsTimeSyncDisabled)
             {
                 foreach (var t in all)
                 {
-                    // Don't let the RTC lag behind the blocks
-                    if (!blocks.IsInRange(MediaCore.Clock.Position(t)))
+                    if (t == MediaType.Subtitle)
+                        continue;
+
+                    blocks = MediaCore.Blocks[t];
+                    var position = MediaCore.Clock.Position(t);
+
+                    // if we are not in range, pause component clock
+                    if (!blocks.IsInRange(position))
+                        MediaCore.PausePlayback(t);
+
+                    // Don't let the RTC lag behind the blocks or move beyond them
+                    if (position.Ticks < blocks.RangeStartTime.Ticks)
                         MediaCore.ChangePlaybackPosition(blocks.RangeStartTime, t);
+                    else if (position.Ticks > blocks.RangeEndTime.Ticks)
+                        MediaCore.ChangePlaybackPosition(blocks.RangeEndTime, t);
                 }
 
                 return;
             }
 
+            // Get a reference to the main blocks.
+            // The range will be 0 if there are no blocks.
+            blocks = MediaCore.Blocks[main];
+            var range = !MediaOptions.DropLateFrames ? blocks.GetRangePercent(MediaCore.PlaybackPosition) : 0;
+
             if (range >= 1d)
             {
                 // Don't let the RTC move beyond what is available on the main component
-                MediaCore.ChangePlaybackPosition(blocks.RangeEndTime, MediaCore.Clock.DiscreteType);
+                MediaCore.ChangePlaybackPosition(blocks.RangeEndTime);
             }
             else if (range < 0)
             {
                 // Don't let the RTC lag behind what is available on the main component
-                MediaCore.ChangePlaybackPosition(blocks.RangeStartTime, MediaCore.Clock.DiscreteType);
+                MediaCore.ChangePlaybackPosition(blocks.RangeStartTime);
             }
             else if (range == 0 && blocks.Count == 0)
             {
                 // We have no main blocks in range. All we can do is pause the clock
-                MediaCore.PausePlayback(MediaType.None);
+                MediaCore.PausePlayback();
             }
         }
 
@@ -351,9 +332,9 @@
                 if (mustExitSyncBuffering || canExitSyncBuffering)
                 {
                     var blocks = MediaCore.Blocks[main];
-                    var playbackPosition = MediaCore.Clock.Position();
+                    var playbackPosition = MediaCore.PlaybackPosition;
                     if (blocks.Count > 0 && !blocks.IsInRange(playbackPosition))
-                        MediaCore.ChangePlaybackPosition(blocks[playbackPosition].StartTime, MediaCore.Clock.DiscreteType);
+                        MediaCore.ChangePlaybackPosition(blocks[playbackPosition].StartTime);
 
                     MediaCore.SignalSyncBufferingExited();
                 }
@@ -370,7 +351,7 @@
         {
             while (!ct.IsCancellationRequested
             && Commands.IsActivelySeeking
-            && !MediaCore.Blocks[main].IsInRange(MediaCore.Clock.Position()))
+            && !MediaCore.Blocks[main].IsInRange(MediaCore.PlaybackPosition))
             {
                 // Check if we finally have seek blocks available
                 // if we don't get seek blocks in range and we are not step-seeking,
@@ -434,13 +415,13 @@
             // Check End of Media Scenarios
             if (Commands.HasPendingCommands == false
                 && MediaCore.HasDecodingEnded
-                && MediaCore.Clock.Position().Ticks >= playbackEndClock.Ticks)
+                && MediaCore.PlaybackPosition.Ticks >= playbackEndClock.Ticks)
             {
                 // Rendered all and nothing else to render
                 if (State.HasMediaEnded == false)
                 {
-                    MediaCore.PausePlayback(MediaType.None);
-                    var endPosition = MediaCore.ChangePlaybackPosition(playbackEndClock, MediaCore.Clock.DiscreteType);
+                    MediaCore.PausePlayback();
+                    var endPosition = MediaCore.ChangePlaybackPosition(playbackEndClock);
                     State.UpdateMediaEnded(true, endPosition);
 
                     State.UpdateMediaState(PlaybackStatus.Stop);

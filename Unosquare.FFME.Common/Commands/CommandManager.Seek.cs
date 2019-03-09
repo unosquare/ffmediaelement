@@ -84,7 +84,7 @@
                 {
                     IsSeeking = true;
                     PlayAfterSeek = State.MediaState == PlaybackStatus.Play && seekMode == SeekMode.Normal;
-                    MediaCore.PausePlayback(MediaType.None);
+                    MediaCore.PausePlayback();
                     MediaCore.State.UpdateMediaState(PlaybackStatus.Manual);
                     MediaCore.SendOnSeekingStarted();
                 }
@@ -137,7 +137,7 @@
                 var main = MediaCore.Container.Components.MainMediaType;
                 var all = MediaCore.Container.Components.MediaTypes;
                 var mainBlocks = MediaCore.Blocks[main];
-                var initialPosition = MediaCore.Clock.Position();
+                var initialPosition = MediaCore.PlaybackPosition;
 
                 if (targetSeekMode == SeekMode.StepBackward || targetSeekMode == SeekMode.StepForward)
                 {
@@ -153,7 +153,7 @@
                 // position of the main component so it sticks on it.
                 if (mainBlocks.IsInRange(targetPosition))
                 {
-                    MediaCore.ChangePlaybackPosition(targetPosition, MediaCore.Clock.DiscreteType);
+                    MediaCore.ChangePlaybackPosition(targetPosition);
                     return true;
                 }
 
@@ -259,7 +259,7 @@
 
                 // Write a new Real-time clock position now.
                 if (hasSeekBlocks == false)
-                    MediaCore.ChangePlaybackPosition(resultPosition, MediaCore.Clock.DiscreteType);
+                    MediaCore.ChangePlaybackPosition(resultPosition);
             }
             catch (Exception ex)
             {
@@ -292,9 +292,9 @@
             {
                 // We need to update the clock immediately because
                 // the renderer will need this position
-                MediaCore.ChangePlaybackPosition(
-                    mode != SeekMode.Normal && mode != SeekMode.Stop ? mainBlocks[targetPosition].StartTime : targetPosition,
-                    MediaCore.Clock.DiscreteType);
+                MediaCore.ChangePlaybackPosition(mode != SeekMode.Normal && mode != SeekMode.Stop
+                    ? mainBlocks[targetPosition].StartTime
+                    : targetPosition);
 
                 SeekBlocksAvailable.Set();
                 return true;

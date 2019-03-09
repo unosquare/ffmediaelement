@@ -1255,6 +1255,9 @@
 
                 MediaOptions.IsTimeSyncDisabled = true;
             }
+
+            if (MediaOptions.DropLateFrames)
+                MediaOptions.UseParallelDecoding = true;
         }
 
         #endregion

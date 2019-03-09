@@ -122,12 +122,12 @@
             if (IsSyncBuffering)
                 return;
 
-            PausePlayback(MediaType.None);
+            PausePlayback();
             SyncBufferStartTime = DateTime.UtcNow;
             IsSyncBuffering = true;
 
             this.LogInfo(Aspects.RenderingWorker,
-                $"SYNC-BUFFER: Entered at {Clock.Position().TotalSeconds:0.000} s." +
+                $"SYNC-BUFFER: Entered at {PlaybackPosition.TotalSeconds:0.000} s." +
                 $" | Drop Late Frames: {MediaOptions.DropLateFrames}" +
                 $" | Disable Time Sync: {MediaOptions.IsTimeSyncDisabled}" +
                 $" | Buffer Progress: {State.BufferingProgress:p2}" +
@@ -170,6 +170,16 @@
         }
 
         /// <summary>
+        /// Updates the clock position and notifies the new
+        /// position to the <see cref="State" />.
+        /// </summary>
+        /// <param name="playbackPosition">The position.</param>
+        /// <returns>The newly set position</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal TimeSpan ChangePlaybackPosition(TimeSpan playbackPosition) =>
+            ChangePlaybackPosition(playbackPosition, Clock.DiscreteType);
+
+        /// <summary>
         /// Pauses the playback by pausing the RTC.
         /// This does not change the any state.
         /// </summary>
@@ -182,16 +192,22 @@
         }
 
         /// <summary>
+        /// Pauses the playback by pausing the RTC.
+        /// This does not change the any state.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void PausePlayback() => PausePlayback(MediaType.None);
+
+        /// <summary>
         /// Resets the clock to the zero position and notifies the new
         /// position to rhe <see cref="State"/>.
         /// </summary>
-        /// <param name="t">The media type of the clock to pause</param>
         /// <returns>The newly set position</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal TimeSpan ResetPlaybackPosition(MediaType t)
+        internal TimeSpan ResetPlaybackPosition()
         {
-            Clock.Pause(t);
-            Clock.Reset(t);
+            Clock.Pause(MediaType.None);
+            Clock.Reset(MediaType.None);
             State.ReportPlaybackPosition();
             return TimeSpan.Zero;
         }

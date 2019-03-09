@@ -43,7 +43,7 @@
                 if (State.PlaybackEndTime.Value == TimeSpan.MinValue)
                     return true;
 
-                return MediaCore.Clock.Position() < State.PlaybackEndTime.Value;
+                return MediaCore.PlaybackPosition < State.PlaybackEndTime.Value;
             }
         }
 
@@ -118,12 +118,12 @@
             if (State.CanPause == false)
                 return false;
 
-            MediaCore.PausePlayback(MediaType.None);
+            MediaCore.PausePlayback();
 
             foreach (var renderer in MediaCore.Renderers.Values)
                 renderer.Pause();
 
-            MediaCore.ChangePlaybackPosition(SnapPositionToBlockPosition(MediaCore.Clock.Position()), MediaCore.Clock.DiscreteType);
+            MediaCore.ChangePlaybackPosition(SnapPositionToBlockPosition(MediaCore.PlaybackPosition));
             State.UpdateMediaState(PlaybackStatus.Pause);
             return true;
         }
@@ -137,7 +137,7 @@
             if (State.IsSeekable == false)
                 return false;
 
-            MediaCore.ResetPlaybackPosition(MediaType.None);
+            MediaCore.ResetPlaybackPosition();
 
             SeekMedia(new SeekOperation(TimeSpan.MinValue, SeekMode.Stop), CancellationToken.None);
 

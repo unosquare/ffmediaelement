@@ -116,7 +116,7 @@
             Commands.Dispose();
 
             // Reset the RTC
-            ResetPlaybackPosition(MediaType.None);
+            ResetPlaybackPosition();
         }
 
         #endregion

@@ -115,31 +115,29 @@
             // Capture a reference to the blocks and the current Range Percent
             const double rangePercentThreshold = 0.75d;
 
-            var dropLateFrames = MediaCore.MediaOptions.DropLateFrames; // a reference to the flag
             var decoderBlocks = MediaCore.Blocks[t]; // the blocks reference
             var addedBlocks = 0; // the number of blocks that have been added
             var maxAddedBlocks = decoderBlocks.Capacity; // the max blocks to add for this cycle
 
-            // We don't need the range percent if drop late frames is enabled
-            var rangePercent = !dropLateFrames
-                ? decoderBlocks.GetRangePercent(MediaCore.Clock.Position(t))
-                : 0;
-
             while (addedBlocks < maxAddedBlocks)
             {
-                if (dropLateFrames)
+                // Break decoding conditions can only be met if we have a full set of blocks
+                if (decoderBlocks.IsFull)
                 {
-                    // When drop late frames is enabled we want to decode as much as possible as
-                    // long as the playback clock position is beyond the middle range of available block range
-                    if (decoderBlocks.IsFull && MediaCore.Clock.Position(t) < decoderBlocks.RangeMidTime && MediaCore.Clock.Position(t) >= decoderBlocks.RangeStartTime)
-                        break;
-                }
-                else
-                {
-                    // When drop late frames is disabled (the default behavior) we want to decode
-                    // if the playback clock is about to get beyond the available block range.
-                    if (decoderBlocks.IsFull && rangePercent <= rangePercentThreshold)
-                        break;
+                    if (MediaCore.MediaOptions.DropLateFrames)
+                    {
+                        // When drop late frames is enabled we want to decode as much as possible as
+                        // long as the playback clock position is beyond the middle range of available block range
+                        if (MediaCore.Clock.Position(t).Ticks < decoderBlocks.RangeMidTime.Ticks)
+                            break;
+                    }
+                    else
+                    {
+                        // When drop late frames is disabled (the default behavior) we want to decode
+                        // if the playback clock is about to get beyond the available block range.
+                        if (decoderBlocks.GetRangePercent(MediaCore.Clock.Position(t)) <= rangePercentThreshold)
+                            break;
+                    }
                 }
 
                 // Try adding the next block. Stop decoding upon failure or cancellation
@@ -148,9 +146,6 @@
 
                 // At this point we notify that we have added the block
                 addedBlocks++;
-
-                // We don't need the range percent if drop late frames is enabled
-                rangePercent = dropLateFrames ? 0 : decoderBlocks.GetRangePercent(MediaCore.Clock.Position(t));
             }
 
             return addedBlocks;
@@ -181,7 +176,7 @@
             var main = Container.Components.MainMediaType;
             return DecodedFrameCount <= 0
                 && CanReadMoreFramesOf(main) == false
-                && MediaCore.Blocks[main].IndexOf(MediaCore.Clock.Position()) >= MediaCore.Blocks[main].Count - 1;
+                && MediaCore.Blocks[main].IndexOf(MediaCore.PlaybackPosition) >= MediaCore.Blocks[main].Count - 1;
         }
 
         /// <summary>

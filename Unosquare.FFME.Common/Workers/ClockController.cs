@@ -34,7 +34,7 @@
                 lock (SyncLock)
                 {
                     if (!HasInitialized) return;
-                    if (HasIndependetClocks)
+                    if (HasIndependentClocks)
                     {
                         Clocks[MediaType.Audio].SpeedRatio = value;
                         Clocks[MediaType.Video].SpeedRatio = value;
@@ -59,7 +59,7 @@
 
         private MediaComponentSet Components => Container.Components;
 
-        private bool HasIndependetClocks { get; set; }
+        private bool HasIndependentClocks { get; set; }
 
         public void Initialize()
         {
@@ -91,6 +91,7 @@
                             $"streams seem to have unrelated timing information. Time Difference: {startTimeDifference.Format()} s.");
 
                         needsIndependentClocks = true;
+                        Options.IsTimeSyncDisabled = true;
                     }
                 }
                 finally
@@ -120,9 +121,9 @@
                         Offsets[MediaType.None] = Offsets[MediaType.Video];
                     }
 
-                    HasIndependetClocks = needsIndependentClocks;
+                    HasIndependentClocks = needsIndependentClocks;
                     ContinuousType = Components.HasAudio ? MediaType.Audio : MediaType.Video;
-                    DiscreteType = HasIndependetClocks ? ContinuousType : Components.MainMediaType;
+                    DiscreteType = HasIndependentClocks ? ContinuousType : Components.MainMediaType;
                     HasInitialized = true;
                 }
             }
@@ -142,19 +143,19 @@
             lock (SyncLock)
             {
                 if (!HasInitialized) return default;
-                var referenceType = HasIndependetClocks ? t : t != ContinuousType ? DiscreteType : ContinuousType;
+                var referenceType = HasIndependentClocks ? t : t != ContinuousType ? DiscreteType : ContinuousType;
                 return TimeSpan.FromTicks(Clocks[t].Position.Ticks + Offsets[referenceType].Ticks);
             }
         }
 
-        public TimeSpan Position() => Position(HasIndependetClocks ? ContinuousType : DiscreteType);
+        public TimeSpan Position() => Position(HasIndependentClocks ? ContinuousType : DiscreteType);
 
         public void Update(TimeSpan position, MediaType t)
         {
             lock (SyncLock)
             {
                 if (!HasInitialized) return;
-                var referenceType = HasIndependetClocks ? t : t != ContinuousType ? DiscreteType : ContinuousType;
+                var referenceType = HasIndependentClocks ? t : t != ContinuousType ? DiscreteType : ContinuousType;
                 Clocks[t].Update(TimeSpan.FromTicks(position.Ticks - Offsets[referenceType].Ticks));
             }
         }
