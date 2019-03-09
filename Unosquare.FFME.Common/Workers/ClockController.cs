@@ -47,6 +47,8 @@
             }
         }
 
+        public bool HasIndependentClocks { get; private set; }
+
         public MediaType ContinuousType { get; private set; }
 
         public MediaType DiscreteType { get; private set; }
@@ -55,17 +57,12 @@
 
         private MediaOptions Options => MediaCore.MediaOptions;
 
-        private MediaContainer Container => MediaCore.Container;
-
-        private MediaComponentSet Components => Container.Components;
-
-        private bool HasIndependentClocks { get; set; }
+        private MediaComponentSet Components => MediaCore.Container.Components;
 
         public void Initialize()
         {
             lock (SyncLock)
             {
-                Clocks.Clear();
                 Offsets.Clear();
                 var needsIndependentClocks = false;
 
@@ -74,8 +71,18 @@
                     if (!Components.HasAudio || !Components.HasVideo)
                         return;
 
+                    // We don't need independent clocks when the video is just album art
+                    if (Components.MainMediaType == MediaType.Audio)
+                        return;
+
                     if (Options.IsTimeSyncDisabled)
                     {
+                        if (!MediaCore.Container.IsLiveStream)
+                        {
+                            MediaCore.LogWarning(Aspects.Container,
+                                $"Media options had {nameof(MediaOptions.IsTimeSyncDisabled)} set to true but this is not recommended for non-live streams.");
+                        }
+
                         needsIndependentClocks = true;
                         return;
                     }
@@ -86,20 +93,19 @@
 
                     if (startTimeDifference > Constants.TimeSyncMaxOffset)
                     {
-                        MediaCore.LogWarning(Aspects.RenderingWorker,
-                            $"{nameof(MediaOptions)}.{nameof(MediaOptions.IsTimeSyncDisabled)} has been set to true because the " +
+                        MediaCore.LogWarning(Aspects.Container,
+                            $"{nameof(MediaOptions)}.{nameof(MediaOptions.IsTimeSyncDisabled)} has been ignored because the " +
                             $"streams seem to have unrelated timing information. Time Difference: {startTimeDifference.Format()} s.");
 
                         needsIndependentClocks = true;
-                        Options.IsTimeSyncDisabled = true;
                     }
                 }
                 finally
                 {
                     if (needsIndependentClocks)
                     {
-                        Clocks[MediaType.Audio] = new RealTimeClock();
-                        Clocks[MediaType.Video] = new RealTimeClock();
+                        Clocks[MediaType.Audio] = Clocks[MediaType.Audio] ?? new RealTimeClock();
+                        Clocks[MediaType.Video] = Clocks[MediaType.Video] ?? new RealTimeClock();
                         Clocks[MediaType.Subtitle] = Clocks[MediaType.Video];
                         Clocks[MediaType.None] = Clocks[MediaType.Audio];
 
@@ -110,7 +116,7 @@
                     }
                     else
                     {
-                        Clocks[MediaType.None] = new RealTimeClock();
+                        Clocks[MediaType.None] = Clocks[MediaType.None] ?? new RealTimeClock();
                         Clocks[MediaType.Audio] = Clocks[MediaType.None];
                         Clocks[MediaType.Video] = Clocks[MediaType.None];
                         Clocks[MediaType.Subtitle] = Clocks[MediaType.None];
@@ -123,6 +129,13 @@
 
                     HasIndependentClocks = needsIndependentClocks;
                     ContinuousType = Components.HasAudio ? MediaType.Audio : MediaType.Video;
+
+                    // We always set the continuous type to the main media type
+                    // if the stream is seekable as we don't want to report positions
+                    // or seek over a non-main media type.
+                    if (MediaCore.Container.IsStreamSeekable)
+                        ContinuousType = Components.MainMediaType;
+
                     DiscreteType = HasIndependentClocks ? ContinuousType : Components.MainMediaType;
                     HasInitialized = true;
                 }

@@ -120,18 +120,13 @@
             // You can start off by adjusting subtitles delay
             // e.Options.SubtitlesDelay = TimeSpan.FromSeconds(7); // See issue #216
 
-            // For some live streams you want to present audio and video as it becomes available
-            // This will disable audio and video component synchronization (IsTimeSyncDisabled = true).
-            // If you want to render live streams matching up audio and video positions, do not set this to true.
-            e.Options.DropLateFrames = true; // e.Info.InputUrl.StartsWith("device://libndi_newtek?");
-
             // The downside of enabling time synchronization is that it requires some buffering o match
             // the audio and video playback positions in order for the stream to be rendered consitently.
             e.Options.IsTimeSyncDisabled = true; // e.Info.InputUrl.StartsWith("device://libndi_newtek?");
 
             // A few WMV files I have tested don't have continuous enough audio packets to support
             // perfect synchronization between audio and video
-            Media.RendererOptions.AudioDisableSync = false; // e.Options.DropLateFrames || e.Options.IsTimeSyncDisabled;
+            Media.RendererOptions.AudioDisableSync = false;
 
             // Get the local file path from the URL (if possible)
             var mediaFilePath = string.Empty;

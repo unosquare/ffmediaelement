@@ -135,23 +135,16 @@
         public int SubtitleBlockCache { get; set; } = -1;
 
         /// <summary>
-        /// Only applicable to live streams. Setting this property to true forces the real-time clock to run without interruptions
-        /// and makes the decoder to continue decoding frames until it catches up with the clock. Setting this to true will
-        /// set <see cref="IsTimeSyncDisabled"/> to true as well.
-        /// </summary>
-        public bool DropLateFrames { get; set; }
-
-        /// <summary>
-        /// Only applicable to live streams. Gets or sets a value indicating whether each component needs to run
-        /// its timing independently of the main component. This property is useful when for example
-        /// the audio and the video components of the stream have no timing relationship
-        /// between them.
+        /// Only recommended for live streams. Gets or sets a value indicating whether each component needs to run
+        /// its timing independently. This property is useful when for example
+        /// the audio and the video components of the stream have no timing relationship or when you don't need the
+        /// components to be synchronized between them.
         /// </summary>
         public bool IsTimeSyncDisabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether component frames are decoded in
-        /// parallel. This defaults to false.
+        /// parallel. This defaults to false but it is enabled automatically when <see cref="IsTimeSyncDisabled"/> is enabled.
         /// </summary>
         public bool UseParallelDecoding { get; set; }
 

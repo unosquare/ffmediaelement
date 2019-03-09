@@ -906,9 +906,6 @@
                 $"Start Time: {Components.PlaybackStartTime?.Format()}; " +
                 $"Duration: {Components.PlaybackDuration?.Format()}; ");
 
-            // Ensure MediaOptions are consistent
-            ApplyMediaOptionsConstraints();
-
             // Return the registered component types
             return Components.MediaTypes.ToArray();
         }
@@ -1225,39 +1222,6 @@
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Applies the media options constraints.
-        /// </summary>
-        private void ApplyMediaOptionsConstraints()
-        {
-            if (!IsLiveStream && MediaOptions.DropLateFrames)
-            {
-                this.LogWarning(Aspects.Container,
-                    $"Media options had {nameof(MediaOptions.DropLateFrames)} set to true but this is only applicable to live streams.");
-
-                MediaOptions.DropLateFrames = false;
-            }
-
-            if (!IsLiveStream && MediaOptions.IsTimeSyncDisabled)
-            {
-                this.LogWarning(Aspects.Container,
-                    $"Media options had {nameof(MediaOptions.IsTimeSyncDisabled)} set to true but this is only applicable to live streams.");
-
-                MediaOptions.IsTimeSyncDisabled = false;
-            }
-
-            if (MediaOptions.DropLateFrames && !MediaOptions.IsTimeSyncDisabled)
-            {
-                this.LogWarning(Aspects.Container,
-                    $"Media options had {nameof(MediaOptions.DropLateFrames)} set to true. {nameof(MediaOptions.IsTimeSyncDisabled)} will also be set to true.");
-
-                MediaOptions.IsTimeSyncDisabled = true;
-            }
-
-            if (MediaOptions.DropLateFrames)
-                MediaOptions.UseParallelDecoding = true;
         }
 
         #endregion

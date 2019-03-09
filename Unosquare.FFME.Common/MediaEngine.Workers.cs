@@ -128,8 +128,7 @@
 
             this.LogInfo(Aspects.RenderingWorker,
                 $"SYNC-BUFFER: Entered at {PlaybackPosition.TotalSeconds:0.000} s." +
-                $" | Drop Late Frames: {MediaOptions.DropLateFrames}" +
-                $" | Disable Time Sync: {MediaOptions.IsTimeSyncDisabled}" +
+                $" | Separate Clocks: {Clock.HasIndependentClocks}" +
                 $" | Buffer Progress: {State.BufferingProgress:p2}" +
                 $" | Buffer Audio: {Container?.Components[MediaType.Audio]?.BufferCount}" +
                 $" | Buffer Video: {Container?.Components[MediaType.Video]?.BufferCount}");

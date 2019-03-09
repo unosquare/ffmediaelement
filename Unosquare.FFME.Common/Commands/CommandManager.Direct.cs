@@ -211,15 +211,6 @@
                     MediaCore.SendOnMediaChanged();
 
                     // command result contains the play after seek.
-                    if (resumeMedia)
-                    {
-                        MediaCore.State.UpdateMediaState(PlaybackStatus.Play);
-                    }
-                    else
-                    {
-                        MediaCore.State.UpdateMediaState(PlaybackStatus.Pause);
-                    }
-
                     MediaCore.State.UpdateMediaState(
                         resumeMedia ? PlaybackStatus.Play : PlaybackStatus.Pause);
                 }
