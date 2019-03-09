@@ -21,6 +21,8 @@
 
         public static string Container => "Container";
 
+        public static string Timing => "Timing";
+
         public static string Component => "Container.Component";
 
         public static string ReferenceCounter => "ReferenceCounter";

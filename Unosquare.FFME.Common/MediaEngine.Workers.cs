@@ -187,7 +187,7 @@
 
         /// <summary>
         /// Pauses the playback by pausing the RTC.
-        /// This does not change the any state.
+        /// This does not change the state.
         /// </summary>
         /// <param name="t">The clock to pause</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -199,7 +199,7 @@
 
         /// <summary>
         /// Pauses the playback by pausing the RTC.
-        /// This does not change the any state.
+        /// This does not change the state.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void PausePlayback() => PausePlayback(MediaType.None);

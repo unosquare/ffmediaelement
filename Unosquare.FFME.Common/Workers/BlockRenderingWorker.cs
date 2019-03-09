@@ -165,8 +165,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void AlignClocksToPlayback(MediaType main, MediaType[] all)
         {
-            // we don't want to disturb the clock or align it to the main component if time-sync is disabled
-            // or if drop late frames is enabled
+            // we don't want to disturb the clock or align it if we are not ready
             if (Commands.HasPendingCommands)
                 return;
 
@@ -184,7 +183,7 @@
 
                     // if we are not in range, pause component clock
                     // we don't use the pause playback method to prevent
-                    // reporting the pause position
+                    // reporting the current playback position
                     if (!blocks.IsInRange(position))
                         MediaCore.Timing.Pause(t);
 
@@ -225,20 +224,14 @@
         /// </summary>
         /// <param name="main">The main renderer component.</param>
         /// <param name="all">All the renderer components.</param>
-        /// <returns>Whether sync-buffering was entered</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool EnterSyncBuffering(MediaType main, MediaType[] all)
+        private void EnterSyncBuffering(MediaType main, MediaType[] all)
         {
             // Determine if Sync-buffering can be potentially entered.
             // Entering the sync-buffering state pauses the RTC and forces the decoder make
             // components catch up with the main component.
-            if (MediaCore.IsSyncBuffering || IsSyncBufferingDisabled ||
-                Commands.HasPendingCommands || !State.IsBuffering || !MediaCore.NeedsMorePackets)
-            {
-                return false;
-            }
-
-            var enterSyncBuffring = false;
+            if (MediaCore.IsSyncBuffering || IsSyncBufferingDisabled || Commands.HasPendingCommands)
+                return;
 
             foreach (var t in all)
             {
@@ -251,19 +244,9 @@
 
                 // If we are not in range of the non-main component we need to
                 // enter sync-buffering
-                enterSyncBuffring = true;
-                break;
-            }
-
-            // If we have detected the start of a syncbuffering scenario
-            // pause the playback and signal the new state.
-            if (enterSyncBuffring)
-            {
                 MediaCore.SignalSyncBufferingEntered();
-                return true;
+                return;
             }
-
-            return false;
         }
 
         /// <summary>
@@ -281,8 +264,11 @@
 
             // Detect if an exit from Sync Buffering is required
             var canExitSyncBuffering = MediaCore.Blocks[main].Count > 0;
-            var mustExitSyncBuffering = ct.IsCancellationRequested || MediaCore.HasDecodingEnded ||
-                Commands.HasPendingCommands || IsSyncBufferingDisabled;
+            var mustExitSyncBuffering =
+                ct.IsCancellationRequested ||
+                MediaCore.HasDecodingEnded ||
+                Commands.HasPendingCommands ||
+                IsSyncBufferingDisabled;
 
             try
             {
@@ -297,10 +283,10 @@
 
                 foreach (var t in all)
                 {
-                    if (t == MediaType.Subtitle)
+                    if (t == MediaType.Subtitle || t == main)
                         continue;
 
-                    if (MediaCore.Blocks[t].GetRangePercent(MediaCore.Timing.Position(t)) > 0.75d)
+                    if (MediaCore.Blocks[t].RangeEndTime < MediaCore.Blocks[main].RangeMidTime)
                     {
                         canExitSyncBuffering = false;
                         break;

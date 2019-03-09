@@ -130,10 +130,10 @@
         #region Self-Updating Properties
 
         /// <inheritdoc />
-        public bool IsPlaying => IsOpen && MediaCore.Timing.IsRunning();
+        public bool IsPlaying => IsOpen && MediaCore.Timing.IsRunning;
 
         /// <inheritdoc />
-        public bool IsPaused => IsOpen && !MediaCore.Timing.IsRunning();
+        public bool IsPaused => IsOpen && !MediaCore.Timing.IsRunning;
 
         /// <inheritdoc />
         public bool IsSeeking => MediaCore.Commands?.IsSeeking ?? false;

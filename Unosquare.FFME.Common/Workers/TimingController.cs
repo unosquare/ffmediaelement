@@ -7,25 +7,38 @@
     using System;
     using System.Runtime.CompilerServices;
 
-    internal sealed class ClockController
+    /// <summary>
+    /// Implements a real-time clock controller capable of handling independent
+    /// clocks for each of the components.
+    /// </summary>
+    internal sealed class TimingController
     {
         private readonly object SyncLock = new object();
         private readonly MediaTypeDictionary<RealTimeClock> Clocks = new MediaTypeDictionary<RealTimeClock>();
         private readonly MediaTypeDictionary<TimeSpan> Offsets = new MediaTypeDictionary<TimeSpan>();
-        private bool HasInitialized = false;
+        private bool IsReady = false;
+        private MediaType m_ReferenceType;
+        private bool m_HasDisconnectedClocks;
 
-        public ClockController(MediaEngine mediaCore)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TimingController"/> class.
+        /// </summary>
+        /// <param name="mediaCore">The media core.</param>
+        public TimingController(MediaEngine mediaCore)
         {
             MediaCore = mediaCore;
         }
 
+        /// <summary>
+        /// Gets or sets the speed ratio. All clocks are bound to the same value.
+        /// </summary>
         public double SpeedRatio
         {
             get
             {
                 lock (SyncLock)
                 {
-                    if (!HasInitialized) return Constants.Controller.DefaultSpeedRatio;
+                    if (!IsReady) return Constants.Controller.DefaultSpeedRatio;
                     return Clocks[MediaType.None].SpeedRatio;
                 }
             }
@@ -33,33 +46,65 @@
             {
                 lock (SyncLock)
                 {
-                    if (!HasInitialized) return;
-                    if (HasMultipleClocks)
-                    {
-                        Clocks[MediaType.Audio].SpeedRatio = value;
-                        Clocks[MediaType.Video].SpeedRatio = value;
-                    }
-                    else
-                    {
-                        Clocks[MediaType.None].SpeedRatio = value;
-                    }
+                    if (!IsReady) return;
+                    Clocks[MediaType.Audio].SpeedRatio = value;
+                    Clocks[MediaType.Video].SpeedRatio = value;
                 }
             }
         }
 
-        public MediaType ReferenceType { get; private set; }
+        /// <summary>
+        /// Gets the clock type that positions are offset by.
+        /// </summary>
+        public MediaType ReferenceType
+        {
+            get { lock (SyncLock) return m_ReferenceType; }
+            private set { lock (SyncLock) m_ReferenceType = value; }
+        }
 
-        public bool HasMultipleClocks { get; private set; }
+        /// <summary>
+        /// Gets a value indicating whether the real-time clocks of the components are disconnected clocks.
+        /// </summary>
+        public bool HasDisconnectedClocks
+        {
+            get { lock (SyncLock) return m_HasDisconnectedClocks; }
+            private set { lock (SyncLock) m_HasDisconnectedClocks = value; }
+        }
 
-        public bool HasDisconnectedClocks { get; private set; }
+        /// <summary>
+        /// Gets a value indicating whether the real-time clock of the reference type is running.
+        /// </summary>
+        public bool IsRunning
+        {
+            get
+            {
+                lock (SyncLock)
+                {
+                    if (!IsReady) return default;
+                    return Clocks[ReferenceType].IsRunning;
+                }
+            }
+        }
 
+        /// <summary>
+        /// Gets the media core.
+        /// </summary>
         private MediaEngine MediaCore { get; }
 
+        /// <summary>
+        /// Gets the media options.
+        /// </summary>
         private MediaOptions Options => MediaCore.MediaOptions;
 
+        /// <summary>
+        /// Gets the components.
+        /// </summary>
         private MediaComponentSet Components => MediaCore.Container.Components;
 
-        public void Initialize()
+        /// <summary>
+        /// Sets up timing and clocks. Call this method when media components change.
+        /// </summary>
+        public void Setup()
         {
             lock (SyncLock)
             {
@@ -75,7 +120,7 @@
                     {
                         if (!MediaCore.Container.IsLiveStream)
                         {
-                            MediaCore.LogWarning(Aspects.Container,
+                            MediaCore.LogWarning(Aspects.Timing,
                                 $"Media options had {nameof(MediaOptions.IsTimeSyncDisabled)} set to true but this is not recommended for non-live streams.");
                         }
 
@@ -91,7 +136,7 @@
 
                     if (startTimeDifference > Constants.TimeSyncMaxOffset)
                     {
-                        MediaCore.LogWarning(Aspects.Container,
+                        MediaCore.LogWarning(Aspects.Timing,
                             $"{nameof(MediaOptions)}.{nameof(MediaOptions.IsTimeSyncDisabled)} has been ignored because the " +
                             $"streams seem to have unrelated timing information. Time Difference: {startTimeDifference.Format()} s.");
 
@@ -107,8 +152,6 @@
 
                         Offsets[MediaType.Audio] = GetComponentStartOffset(MediaType.Audio);
                         Offsets[MediaType.Video] = GetComponentStartOffset(MediaType.Video);
-
-                        HasMultipleClocks = true;
                     }
                     else
                     {
@@ -117,8 +160,6 @@
 
                         Offsets[MediaType.Audio] = GetComponentStartOffset(Components.HasAudio ? MediaType.Audio : MediaType.Video);
                         Offsets[MediaType.Video] = Offsets[MediaType.Audio];
-
-                        HasMultipleClocks = false;
                     }
 
                     // Subtitles will always be whatever the video data is.
@@ -138,34 +179,28 @@
                         : Components.MainMediaType;
 
                     var discreteType = Components.MainMediaType;
-                    HasDisconnectedClocks = Options.IsTimeSyncDisabled && HasMultipleClocks;
+                    HasDisconnectedClocks = Options.IsTimeSyncDisabled && Clocks[MediaType.Audio] != Clocks[MediaType.Video];
                     ReferenceType = HasDisconnectedClocks ? continuousType : discreteType;
 
                     // The default data is what the clock reference contains
                     Clocks[MediaType.None] = Clocks[ReferenceType];
                     Offsets[MediaType.None] = Offsets[ReferenceType];
 
-                    HasInitialized = true;
+                    IsReady = true;
                 }
             }
         }
 
-        public bool IsRunning(MediaType t)
-        {
-            lock (SyncLock)
-            {
-                if (!HasInitialized) return default;
-                return Clocks[t].IsRunning;
-            }
-        }
-
-        public bool IsRunning() => IsRunning(ReferenceType);
-
+        /// <summary>
+        /// Gets the playback position of the real-time clock of the given component type.
+        /// </summary>
+        /// <param name="t">The t.</param>
+        /// <returns>The clock position</returns>
         public TimeSpan Position(MediaType t)
         {
             lock (SyncLock)
             {
-                if (!HasInitialized)
+                if (!IsReady)
                     return default;
 
                 return TimeSpan.FromTicks(
@@ -174,13 +209,22 @@
             }
         }
 
+        /// <summary>
+        /// Gets the playback position of the real-time clock of the timing reference component type.
+        /// </summary>
+        /// <returns>The clock position</returns>
         public TimeSpan Position() => Position(ReferenceType);
 
+        /// <summary>
+        /// Updates the position of the component's clock. Pass none to update all clocks to the same postion.
+        /// </summary>
+        /// <param name="position">The position to update to.</param>
+        /// <param name="t">The clock's media type.</param>
         public void Update(TimeSpan position, MediaType t)
         {
             lock (SyncLock)
             {
-                if (!HasInitialized)
+                if (!IsReady)
                     return;
 
                 if (t == MediaType.None)
@@ -202,11 +246,15 @@
             }
         }
 
+        /// <summary>
+        /// Pauses the specified clock. Pass none to pause all clocks.
+        /// </summary>
+        /// <param name="t">The clock type.</param>
         public void Pause(MediaType t)
         {
             lock (SyncLock)
             {
-                if (!HasInitialized) return;
+                if (!IsReady) return;
                 if (t == MediaType.None)
                 {
                     Clocks[MediaType.Audio].Pause();
@@ -218,11 +266,15 @@
             }
         }
 
+        /// <summary>
+        /// Resets the position of the specified clock. Pass none to reset all.
+        /// </summary>
+        /// <param name="t">The media type.</param>
         public void Reset(MediaType t)
         {
             lock (SyncLock)
             {
-                if (!HasInitialized) return;
+                if (!IsReady) return;
                 if (t == MediaType.None)
                 {
                     Clocks[MediaType.Audio].Reset();
@@ -234,11 +286,15 @@
             }
         }
 
+        /// <summary>
+        /// Plays or resumes the specified clock. Pass none to play all.
+        /// </summary>
+        /// <param name="t">The media type.</param>
         public void Play(MediaType t)
         {
             lock (SyncLock)
             {
-                if (!HasInitialized) return;
+                if (!IsReady) return;
                 if (t == MediaType.None)
                 {
                     Clocks[MediaType.Audio].Play();
