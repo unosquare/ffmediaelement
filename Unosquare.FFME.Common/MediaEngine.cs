@@ -66,12 +66,6 @@
         public MediaInfo MediaInfo => Container?.MediaInfo;
 
         /// <summary>
-        /// Gets the media options. Do not modify the properties of this object directly
-        /// as it may cause unstable playback or crashes.
-        /// </summary>
-        public MediaOptions MediaOptions => Container?.MediaOptions;
-
-        /// <summary>
         /// Gets a value indicating whether this instance is disposed.
         /// </summary>
         public bool IsDisposed => m_IsDisposed.Value;
@@ -82,7 +76,7 @@
         public object Parent { get; }
 
         /// <summary>
-        /// Gets the playback position.
+        /// Gets the real-time playback clock position.
         /// </summary>
         public TimeSpan PlaybackPosition => Timing.Position();
 
@@ -90,6 +84,12 @@
         /// Represents a real-time time clock controller.
         /// </summary>
         internal TimingController Timing { get; }
+
+        /// <summary>
+        /// Gets the media options. Do not modify the properties of this object directly
+        /// as it may cause unstable playback or crashes.
+        /// </summary>
+        internal MediaOptions MediaOptions => Container?.MediaOptions;
 
         /// <summary>
         /// Gets the event connector (platform specific).

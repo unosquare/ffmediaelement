@@ -118,16 +118,17 @@ namespace Unosquare.FFME.Rendering.Wave
         /// </summary>
         /// <param name="milliseconds">The milliseconds.</param>
         /// <returns>The size</returns>
-        public int ConvertMillisToByteSize(int milliseconds)
+        public int ConvertMillisToByteSize(double milliseconds)
         {
-            var byteCount = Convert.ToInt32((AverageBytesPerSecond / 1000.0d) * milliseconds);
-            if (byteCount % BlockAlign != 0)
+            var byteCount = Convert.ToUInt64((AverageBytesPerSecond / 1000.0d) * milliseconds);
+            var blockAlign = (ulong)BlockAlign;
+            if (byteCount % blockAlign != 0)
             {
                 // Return the upper BlockAligned
-                byteCount = byteCount + BlockAlign - (byteCount % BlockAlign);
+                byteCount = byteCount + blockAlign - (byteCount % blockAlign);
             }
 
-            return byteCount;
+            return byteCount >= int.MaxValue ? int.MaxValue : Convert.ToInt32(byteCount);
         }
 
         /// <summary>

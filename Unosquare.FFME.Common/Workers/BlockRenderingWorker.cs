@@ -59,9 +59,9 @@
         private MediaOptions MediaOptions { get; }
 
         /// <summary>
-        /// Gets a value indicating whether sync buffering is disabled.
+        /// Gets a value indicating whether the component clocks are not bound together
         /// </summary>
-        private bool IsSyncBufferingDisabled => MediaCore.Timing.HasDisconnectedClocks;
+        private bool HasDisconnectedClocks => MediaCore.Timing.HasDisconnectedClocks;
 
         /// <summary>
         /// Gets the Media Engine's state.
@@ -107,7 +107,7 @@
             {
                 DetectPlaybackEnded(main);
                 ExitSyncBuffering(main, all, ct);
-                UpdatePlayback(main);
+                ReportAndResumePlayback(main);
             }
         }
 
@@ -135,19 +135,6 @@
             if (HasInitialized == true)
                 return true;
 
-            if (!IsSyncBufferingDisabled)
-            {
-                // wait for main component blocks or EOF or cancellation pending
-                if (MediaCore.Blocks[main].Count <= 0)
-                    return false;
-
-                // Get the main stream's real start time
-                var startTime = MediaCore.Blocks[main].RangeStartTime;
-
-                // Set the initial clock position
-                MediaCore.ChangePlaybackPosition(startTime);
-            }
-
             // Wait for renderers to be ready
             foreach (var t in all)
                 MediaCore.Renderers[t]?.WaitForReadyState();
@@ -170,8 +157,9 @@
                 return;
 
             MediaBlockBuffer blocks = null;
+            TimeSpan position = MediaCore.PlaybackPosition;
 
-            if (IsSyncBufferingDisabled)
+            if (HasDisconnectedClocks)
             {
                 foreach (var t in all)
                 {
@@ -179,19 +167,22 @@
                         continue;
 
                     blocks = MediaCore.Blocks[t];
-                    var position = MediaCore.Timing.Position(t);
-
-                    // if we are not in range, pause component clock
-                    // we don't use the pause playback method to prevent
-                    // reporting the current playback position
-                    if (!blocks.IsInRange(position))
-                        MediaCore.Timing.Pause(t);
+                    position = MediaCore.Timing.Position(t);
 
                     // Don't let the RTC lag behind the blocks or move beyond them
                     if (position.Ticks < blocks.RangeStartTime.Ticks)
+                    {
                         MediaCore.ChangePlaybackPosition(blocks.RangeStartTime, t);
+                        this.LogTrace(Aspects.Timing, $"CLOCK BEHIND: {t} clock was {position.Format()}. It was updated to {blocks.RangeStartTime.Format()}");
+                    }
                     else if (position.Ticks > blocks.RangeEndTime.Ticks)
+                    {
+                        // we don't use the pause playback method to prevent
+                        // reporting the current playback position
+                        MediaCore.Timing.Pause(t);
                         MediaCore.ChangePlaybackPosition(blocks.RangeEndTime, t);
+                        this.LogTrace(Aspects.Timing, $"CLOCK AHEAD : {t} clock was {position.Format()}. It was updated to {blocks.RangeEndTime.Format()}");
+                    }
                 }
 
                 return;
@@ -200,21 +191,25 @@
             // Get a reference to the main blocks.
             // The range will be 0 if there are no blocks.
             blocks = MediaCore.Blocks[main];
-            var range = blocks.GetRangePercent(MediaCore.PlaybackPosition);
+            var range = blocks.GetRangePercent(position);
 
-            if (range >= 1d)
-            {
-                // Don't let the RTC move beyond what is available on the main component
-                MediaCore.ChangePlaybackPosition(blocks.RangeEndTime);
-            }
-            else if (range < 0)
+            if (range < 0)
             {
                 // Don't let the RTC lag behind what is available on the main component
                 MediaCore.ChangePlaybackPosition(blocks.RangeStartTime);
+                this.LogTrace(Aspects.Timing, $"CLOCK BEHIND: playback clock was {position.Format()}. It was updated to {blocks.RangeStartTime.Format()}");
             }
-            else if (range == 0 && blocks.Count == 0)
+            else if (range > 1d)
+            {
+                // Don't let the RTC move beyond what is available on the main component
+                MediaCore.PausePlayback();
+                MediaCore.ChangePlaybackPosition(blocks.RangeEndTime);
+                this.LogTrace(Aspects.Timing, $"CLOCK AHEAD : playback clock was {position.Format()}. It was updated to {blocks.RangeEndTime.Format()}");
+            }
+            else if (range == 0 && blocks.Count == 0 && MediaCore.Timing.IsRunning)
             {
                 // We have no main blocks in range. All we can do is pause the clock
+                this.LogTrace(Aspects.Timing, $"CLOCK PAUSED: playback clock was {position.Format()} but no {main} content was found");
                 MediaCore.PausePlayback();
             }
         }
@@ -230,12 +225,16 @@
             // Determine if Sync-buffering can be potentially entered.
             // Entering the sync-buffering state pauses the RTC and forces the decoder make
             // components catch up with the main component.
-            if (MediaCore.IsSyncBuffering || IsSyncBufferingDisabled || Commands.HasPendingCommands || State.MediaState != PlaybackStatus.Play)
+            if (MediaCore.IsSyncBuffering || HasDisconnectedClocks || Commands.HasPendingCommands || State.MediaState != PlaybackStatus.Play)
                 return;
 
             foreach (var t in all)
             {
                 if (t == MediaType.Subtitle || t == main)
+                    continue;
+
+                // We don't want to sync-buffer on attached pictures
+                if (Container.Components[t].StreamInfo.IsAttachedPictureDisposition)
                     continue;
 
                 // We don't need to do a thing if we are in range
@@ -268,7 +267,7 @@
                 ct.IsCancellationRequested ||
                 MediaCore.HasDecodingEnded ||
                 Commands.HasPendingCommands ||
-                IsSyncBufferingDisabled;
+                HasDisconnectedClocks;
 
             try
             {
@@ -286,7 +285,8 @@
                     if (t == MediaType.Subtitle || t == main)
                         continue;
 
-                    if (MediaCore.Blocks[t].RangeEndTime < MediaCore.Blocks[main].RangeMidTime)
+                    if (!MediaCore.Blocks[t].IsInRange(MediaCore.PlaybackPosition) ||
+                        MediaCore.Blocks[t].GetRangePercent(MediaCore.PlaybackPosition) > 0.5)
                     {
                         canExitSyncBuffering = false;
                         break;
@@ -298,11 +298,7 @@
                 // Exit sync-buffering state if we can or we must
                 if (mustExitSyncBuffering || canExitSyncBuffering)
                 {
-                    var blocks = MediaCore.Blocks[main];
-                    var playbackPosition = MediaCore.PlaybackPosition;
-                    if (blocks.Count > 0 && !blocks.IsInRange(playbackPosition))
-                        MediaCore.ChangePlaybackPosition(blocks[playbackPosition].StartTime);
-
+                    AlignClocksToPlayback(main, all);
                     MediaCore.SignalSyncBufferingExited();
                 }
             }
@@ -406,11 +402,11 @@
 
         /// <summary>
         /// Reports the playback position if needed and
-        /// resumes the playback clock if required.
+        /// resumes the playback clock if the conditions allow for it.
         /// </summary>
         /// <param name="main">The main.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void UpdatePlayback(MediaType main)
+        private void ReportAndResumePlayback(MediaType main)
         {
             var hasPendingCommands = Commands.HasPendingCommands;
             var isSyncBuffering = MediaCore.IsSyncBuffering;
@@ -422,6 +418,15 @@
             // We don't want to resume the clock if we are not ready for playback
             if (State.MediaState != PlaybackStatus.Play || isSyncBuffering ||
                 hasPendingCommands || MediaCore.Blocks[main].Count <= 0)
+            {
+                return;
+            }
+
+            // wait for packets
+            if (MediaOptions.MinimumPlaybackBufferPercent > 0 &&
+                MediaCore.ShouldReadMorePackets &&
+                !Container.Components.HasEnoughPackets &&
+                State.BufferingProgress < Math.Min(1, MediaOptions.MinimumPlaybackBufferPercent))
             {
                 return;
             }
@@ -446,10 +451,13 @@
 
             var t = currentBlock.MediaType;
             var lastBlockStartTime = MediaCore.LastRenderTime[t];
+            var isRepeatedBlock = lastBlockStartTime != TimeSpan.MinValue && lastBlockStartTime == currentBlock.StartTime;
+            var requiresRepeatedBlocks = t == MediaType.Audio ||
+                (t == MediaType.Video && Container.Components[t].StreamInfo.IsAttachedPictureDisposition);
 
             // Render by forced signal (TimeSpan.MinValue) or because simply it is time to do so
             // otherwise simply skip block rendering as we have sent the block already.
-            if (lastBlockStartTime != TimeSpan.MinValue && lastBlockStartTime == currentBlock.StartTime)
+            if (isRepeatedBlock && !requiresRepeatedBlocks)
                 return 0;
 
             // Process property changes coming from video blocks

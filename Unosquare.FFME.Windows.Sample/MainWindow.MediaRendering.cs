@@ -30,6 +30,7 @@
             var drawVuMeterLeftPen = new Pen(Color.OrangeRed, 12);
             var drawVuMeterRightPen = new Pen(Color.GreenYellow, 12);
             var drawVuMeterClock = TimeSpan.Zero;
+            var drawVuMeterLatency = TimeSpan.Zero;
             var drawVuMeterRmsLock = new object();
 
             var drawVuMeterLeftValue = 0d;
@@ -39,7 +40,7 @@
 
             const float drawVuMeterLeftOffset = 36;
             const float drawVuMeterTopSpacing = 21;
-            const float drawVuMeterTopOffset = 81;
+            const float drawVuMeterTopOffset = 101;
             const float drawVuMeterMinWidth = 5;
             const float drawVuMeterScaleFactor = 20; // RMS * pixel factor = the length of the VU meter lines
 
@@ -76,7 +77,7 @@
                 var differenceMillis = 0d;
                 var leftChannelWidth = 0f;
                 var rightChannelWidth = 0f;
-
+                var audioLatency = 0d;
                 if (e.EngineState.HasAudio)
                 {
                     lock (drawVuMeterRmsLock)
@@ -84,10 +85,16 @@
                         differenceMillis = Math.Round(TimeSpan.FromTicks(drawVuMeterClock.Ticks - e.StartTime.Ticks).TotalMilliseconds, 0);
                         leftChannelWidth = drawVuMeterMinWidth + (Convert.ToSingle(drawVuMeterLeftValue) * drawVuMeterScaleFactor);
                         rightChannelWidth = drawVuMeterMinWidth + (Convert.ToSingle(drawVuMeterRightValue) * drawVuMeterScaleFactor);
+                        audioLatency = drawVuMeterLatency.TotalMilliseconds;
                     }
                 }
 
-                overlayGraphics?.DrawString($"Clock: {e.Clock.TotalSeconds:00.00}\r\nPN   : {e.PictureNumber}\r\nA/V  : {differenceMillis:+000;-000}\r\nL \r\nR",
+                overlayGraphics?.DrawString(
+                    $"Clock: {e.Clock.TotalSeconds:00.00}\r\n" +
+                    $"PN   : {e.PictureNumber}\r\n" +
+                    $"A/V  : {differenceMillis:+000;-000}\r\n" +
+                    $"A/C  : {audioLatency:+000;-000}\r\n" +
+                    "L \r\nR",
                     overlayTextFont,
                     overlayTextFontBrush,
                     overlayTextOffset);
@@ -141,7 +148,8 @@
                 lock (drawVuMeterRmsLock)
                 {
                     // The VU meter should show the audio RMS, we compute it and save it in a dictionary.
-                    drawVuMeterClock = TimeSpan.FromTicks(e.StartTime.Ticks + (e.Duration.Ticks / 2));
+                    drawVuMeterClock = e.StartTime;
+                    drawVuMeterLatency = e.Latency;
                     drawVuMeterLeftValue = Math.Sqrt((1d / drawVuMeterLeftSamples.Length) * drawVuMeterLeftSamples.Sum(n => n));
                     drawVuMeterRightValue = Math.Sqrt((1d / drawVuMeterRightSamples.Length) * drawVuMeterRightSamples.Sum(n => n));
                 }

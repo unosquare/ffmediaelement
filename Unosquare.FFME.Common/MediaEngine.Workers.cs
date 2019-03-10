@@ -158,6 +158,7 @@
         internal void ChangePlaybackPosition(TimeSpan playbackPosition, MediaType t)
         {
             Timing.Update(playbackPosition, t);
+            InvalidateRenderer(t);
             State.ReportPlaybackPosition();
         }
 
@@ -177,6 +178,7 @@
             }
 
             Timing.Update(playbackPosition, MediaType.None);
+            InvalidateRenderers();
             State.ReportPlaybackPosition();
         }
 

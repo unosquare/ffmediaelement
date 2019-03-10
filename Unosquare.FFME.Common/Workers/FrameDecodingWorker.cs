@@ -153,13 +153,9 @@
         /// </summary>
         /// <returns>True if media docding has ended</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool DetectHasDecodingEnded()
-        {
-            var main = Container.Components.MainMediaType;
-            return DecodedFrameCount <= 0
-                && CanReadMoreFramesOf(main) == false
-                && MediaCore.Blocks[main].IndexOf(MediaCore.PlaybackPosition) >= MediaCore.Blocks[main].Count - 1;
-        }
+        private bool DetectHasDecodingEnded() =>
+            DecodedFrameCount <= 0 &&
+            CanReadMoreFramesOf(Container.Components.MainMediaType) == false;
 
         /// <summary>
         /// Gets a value indicating whether more frames can be decoded into blocks of the given type.

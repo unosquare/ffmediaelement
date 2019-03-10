@@ -127,6 +127,10 @@
                 e.Info.Format == "libndi_newtek" ||
                 e.Info.InputUrl.StartsWith("rtsp://uno");
 
+            // You can disable the requirement of buffering packets by setting the playback
+            // buffer percent to 0. Values of less than 0.5 for live or network streams are not recommended.
+            e.Options.MinimumPlaybackBufferPercent = e.Info.Format == "libndi_newtek" ? 0 : 0.5;
+
             // A few WMV files I have tested don't have continuous enough audio packets to support
             // perfect synchronization between audio and video so we simply disable it
             Media.RendererOptions.AudioDisableSync =

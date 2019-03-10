@@ -121,7 +121,7 @@
                         if (!MediaCore.Container.IsLiveStream)
                         {
                             MediaCore.LogWarning(Aspects.Timing,
-                                $"Media options had {nameof(MediaOptions.IsTimeSyncDisabled)} set to true but this is not recommended for non-live streams.");
+                                $"Media options had {nameof(MediaOptions.IsTimeSyncDisabled)} set to true. This is not recommended for non-live streams.");
                         }
 
                         return;
