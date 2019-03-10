@@ -104,11 +104,6 @@
             }
         }
 
-        /// <summary>
-        /// Gets a value indicating whether the decoder needs to wait for the reader to receive more packets.
-        /// </summary>
-        internal bool NeedsMorePackets => ShouldReadMorePackets && !Container.Components.HasEnoughPackets;
-
         #endregion
 
         #region Methods

@@ -230,7 +230,7 @@
             // Determine if Sync-buffering can be potentially entered.
             // Entering the sync-buffering state pauses the RTC and forces the decoder make
             // components catch up with the main component.
-            if (MediaCore.IsSyncBuffering || IsSyncBufferingDisabled || Commands.HasPendingCommands)
+            if (MediaCore.IsSyncBuffering || IsSyncBufferingDisabled || Commands.HasPendingCommands || State.MediaState != PlaybackStatus.Play)
                 return;
 
             foreach (var t in all)
@@ -239,7 +239,7 @@
                     continue;
 
                 // We don't need to do a thing if we are in range
-                if (MediaCore.Blocks[t].IsInRange(MediaCore.Timing.Position(t)))
+                if (MediaCore.Blocks[t].RangeEndTime >= MediaCore.Blocks[main].RangeStartTime)
                     continue;
 
                 // If we are not in range of the non-main component we need to

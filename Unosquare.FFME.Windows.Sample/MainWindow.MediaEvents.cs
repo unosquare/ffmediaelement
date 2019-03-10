@@ -124,7 +124,7 @@
             // will present the frames as they become available and audio will not wait for video and viceversa.
             // Do not disable Time Sync for streams that need to synchronize audio and video.
             e.Options.IsTimeSyncDisabled =
-                e.Info.InputUrl.StartsWith("device://libndi_newtek?") ||
+                e.Info.Format == "libndi_newtek" ||
                 e.Info.InputUrl.StartsWith("rtsp://uno");
 
             // A few WMV files I have tested don't have continuous enough audio packets to support
