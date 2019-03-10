@@ -555,6 +555,19 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.Events.RenderingAudioEventArgs.ChannelCount
   nameWithType: RenderingAudioEventArgs.ChannelCount
+- uid: Unosquare.FFME.Events.RenderingAudioEventArgs.Latency
+  name: Latency
+  href: api/Unosquare.FFME.Events.RenderingAudioEventArgs.html#Unosquare_FFME_Events_RenderingAudioEventArgs_Latency
+  commentId: P:Unosquare.FFME.Events.RenderingAudioEventArgs.Latency
+  fullName: Unosquare.FFME.Events.RenderingAudioEventArgs.Latency
+  nameWithType: RenderingAudioEventArgs.Latency
+- uid: Unosquare.FFME.Events.RenderingAudioEventArgs.Latency*
+  name: Latency
+  href: api/Unosquare.FFME.Events.RenderingAudioEventArgs.html#Unosquare_FFME_Events_RenderingAudioEventArgs_Latency_
+  commentId: Overload:Unosquare.FFME.Events.RenderingAudioEventArgs.Latency
+  isSpec: "True"
+  fullName: Unosquare.FFME.Events.RenderingAudioEventArgs.Latency
+  nameWithType: RenderingAudioEventArgs.Latency
 - uid: Unosquare.FFME.Events.RenderingAudioEventArgs.SampleRate
   name: SampleRate
   href: api/Unosquare.FFME.Events.RenderingAudioEventArgs.html#Unosquare_FFME_Events_RenderingAudioEventArgs_SampleRate
