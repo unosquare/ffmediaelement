@@ -35,6 +35,7 @@
         /// <summary>
         /// Gets or sets the amount of time to offset the subtitles by
         /// This is an FFME-only property -- Not a port of ffmpeg.
+        /// TODO: Consider moving this property to RendererOptions
         /// </summary>
         public TimeSpan SubtitlesDelay { get; set; } = TimeSpan.Zero;
 

@@ -120,8 +120,8 @@
             // You can start off by adjusting subtitles delay
             // e.Options.SubtitlesDelay = TimeSpan.FromSeconds(7); // See issue #216
 
-            // Sure you can reduce buffering but the downside of disabling time synchronization is that it
-            // will present the frames as they become available and audio will not wait for video and viceversa.
+            // Sure you can render audio and video as it becomes available but the downside of disabling time
+            // synchronization is that it will not wait for video and viceversa.
             // Do not disable Time Sync for streams that need to synchronize audio and video.
             e.Options.IsTimeSyncDisabled =
                 e.Info.Format == "libndi_newtek" ||
@@ -136,6 +136,10 @@
             Media.RendererOptions.AudioDisableSync =
                 e.Options.IsTimeSyncDisabled ||
                 e.Info.InputUrl.EndsWith(".wmv");
+
+            // In order to reduce CPU usage, you can limit how often the video
+            // renderer updates the picture. We keep it as 0 for native stream framerate.
+            Media.RendererOptions.VideoRefreshRateLimit = 0;
 
             // Get the local file path from the URL (if possible)
             var mediaFilePath = string.Empty;

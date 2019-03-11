@@ -46,6 +46,12 @@
         public bool UseLegacyAudioOut { get; set; }
 
         /// <summary>
+        /// Gets or sets the frame refresh rate limit for the video renderer.
+        /// Defaults to 0 and means no limit. Units are in frames per second.
+        /// </summary>
+        public int VideoRefreshRateLimit { get; set; }
+
+        /// <summary>
         /// Enumerates the DirectSound devices.
         /// </summary>
         /// <returns>The available DirectSound devices</returns>
