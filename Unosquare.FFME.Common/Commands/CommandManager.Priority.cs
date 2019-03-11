@@ -21,32 +21,6 @@
         /// </summary>
         private bool IsPriorityCommandPending => PendingPriorityCommand != PriorityCommandType.None;
 
-        /// <summary>
-        /// Gets a value indicating whether the <see cref="CommandPlayMedia"/> can execute.
-        /// </summary>
-        private bool CanResumeMedia
-        {
-            get
-            {
-                if (MediaCore.State.HasMediaEnded)
-                    return false;
-
-                if (State.IsLiveStream)
-                    return true;
-
-                if (!State.IsSeekable)
-                    return true;
-
-                if (!State.PlaybackEndTime.HasValue)
-                    return true;
-
-                if (State.PlaybackEndTime.Value == TimeSpan.MinValue)
-                    return true;
-
-                return MediaCore.PlaybackPosition < State.PlaybackEndTime.Value;
-            }
-        }
-
         #region Execution Helpers
 
         /// <summary>
@@ -98,9 +72,6 @@
         /// <returns>True if the command was successful</returns>
         private bool CommandPlayMedia()
         {
-            if (!CanResumeMedia)
-                return false;
-
             foreach (var renderer in MediaCore.Renderers.Values)
                 renderer.Play();
 
