@@ -118,8 +118,11 @@
             while (addedBlocks < maxAddedBlocks)
             {
                 // We break decoding if we have a full set of blocks and if the
-                // clock is not past the mid range of the available block range
-                if (decoderBlocks.IsFull && MediaCore.Timing.Position(t).Ticks < decoderBlocks.RangeMidTime.Ticks)
+                // clock is not past the first half of the available block range
+                var position = MediaCore.Timing.Position(t).Ticks;
+                var rangeStart = decoderBlocks.RangeStartTime.Ticks;
+                var rangeHalf = decoderBlocks.RangeMidTime.Ticks;
+                if (decoderBlocks.IsFull && position >= rangeStart && position < rangeHalf)
                     break;
 
                 // Try adding the next block. Stop decoding upon failure or cancellation

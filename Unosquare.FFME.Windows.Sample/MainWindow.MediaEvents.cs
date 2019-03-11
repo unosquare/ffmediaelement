@@ -137,6 +137,10 @@
                 e.Options.IsTimeSyncDisabled ||
                 e.Info.InputUrl.EndsWith(".wmv");
 
+            // Legacy audio out is the use of the WinMM api as opposed to using DirectSound
+            // Enable legacy audio out if you are having issues with the DirectSound driver.
+            Media.RendererOptions.UseLegacyAudioOut = e.Info.InputUrl.EndsWith(".wmv");
+
             // In order to reduce CPU usage, you can limit how often the video
             // renderer updates the picture. We keep it as 0 for native stream framerate.
             Media.RendererOptions.VideoRefreshRateLimit = 0;
