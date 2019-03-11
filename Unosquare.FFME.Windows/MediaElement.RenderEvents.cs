@@ -74,9 +74,10 @@
         /// <param name="bufferLength">Length of the buffer.</param>
         /// <param name="startTime">The start time.</param>
         /// <param name="duration">The duration.</param>
+        /// <param name="latency">The latency between the current buffer position and the real-time playback clock.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RaiseRenderingAudioEvent(
-            byte[] buffer, int bufferLength, TimeSpan startTime, TimeSpan duration)
+            byte[] buffer, int bufferLength, TimeSpan startTime, TimeSpan duration, TimeSpan latency)
         {
             if (RenderingAudio == null) return;
             if (MediaCore == null || MediaCore.IsDisposed) return;
@@ -89,7 +90,8 @@
                     MediaCore.MediaInfo.Streams[MediaCore.State.AudioStreamIndex],
                     startTime,
                     duration,
-                    MediaCore.PlaybackClock(MediaType.Audio));
+                    MediaCore.PlaybackPosition,
+                    latency);
 
             RenderingAudio?.Invoke(this, e);
         }

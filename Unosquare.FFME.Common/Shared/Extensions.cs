@@ -269,7 +269,7 @@
 
         #endregion
 
-        #region Faster-than-Linq replacements
+        #region Other Methods
 
         /// <summary>
         /// Finds the index of the item that is on or greater than the specified search value

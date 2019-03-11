@@ -7,6 +7,7 @@
     using Shared;
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Runtime.CompilerServices;
     using System.Windows;
     using System.Windows.Media;
@@ -36,6 +37,12 @@
         /// Set when a bitmap is being written to the target bitmap
         /// </summary>
         private readonly AtomicBoolean IsRenderingInProgress = new AtomicBoolean(false);
+
+        /// <summary>
+        /// Keeps track of the elapsed time since the last frame was displayed
+        /// for frame limiting purposes.
+        /// </summary>
+        private readonly Stopwatch RenderStopwatch = new Stopwatch();
 
         /// <summary>
         /// The bitmap that is presented to the user.
@@ -197,10 +204,16 @@
 
                 try
                 {
+                    var frameRateLimit = MediaElement.RendererOptions.VideoRefreshRateLimit;
+                    var isRenderTime = frameRateLimit <= 0 || !RenderStopwatch.IsRunning || RenderStopwatch.ElapsedMilliseconds >= 1000d / frameRateLimit;
+                    if (!isRenderTime)
+                        return;
+
+                    RenderStopwatch.Restart();
+
                     // Render the bitmap data
                     var bitmapData = LockTargetBitmap(block);
                     if (bitmapData == null) return;
-
                     LoadTargetBitmapBuffer(bitmapData, block);
                     MediaElement.RaiseRenderingVideoEvent(block, bitmapData, clockPosition);
                     RenderTargetBitmap(bitmapData);

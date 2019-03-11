@@ -43,7 +43,7 @@
                 if (State.PlaybackEndTime.Value == TimeSpan.MinValue)
                     return true;
 
-                return MediaCore.PlaybackClock() < State.PlaybackEndTime.Value;
+                return MediaCore.PlaybackPosition < State.PlaybackEndTime.Value;
             }
         }
 
@@ -123,7 +123,7 @@
             foreach (var renderer in MediaCore.Renderers.Values)
                 renderer.Pause();
 
-            MediaCore.ChangePlaybackPosition(SnapPositionToBlockPosition(MediaCore.PlaybackClock()));
+            MediaCore.ChangePlaybackPosition(SnapPositionToBlockPosition(MediaCore.PlaybackPosition));
             State.UpdateMediaState(PlaybackStatus.Pause);
             return true;
         }
@@ -134,6 +134,9 @@
         /// <returns>True if the command was successful</returns>
         private bool CommandStopMedia()
         {
+            if (State.IsSeekable == false)
+                return false;
+
             MediaCore.ResetPlaybackPosition();
 
             SeekMedia(new SeekOperation(TimeSpan.MinValue, SeekMode.Stop), CancellationToken.None);

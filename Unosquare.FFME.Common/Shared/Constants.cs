@@ -57,7 +57,7 @@
         {
             const int MinVideoBlocks = 8;
             const int MinAudioBlocks = 48;
-            const int MinSubtitleBlocks = 8;
+            const int MinSubtitleBlocks = 4;
 
             var result = 0;
 

@@ -20,15 +20,10 @@
     {
         #region Private Members
 
-        private const double SyncThresholdPerfect = 10;
-        private const double SyncThresholdLagging = 100;
-        private const double SyncThresholdLeading = -25;
-        private const int SyncThresholdMaxStep = 25;
         private const int SyncLockTimeout = 100;
 
         private readonly IWaitEvent WaitForReadyEvent = WaitEventFactory.Create(isCompleted: false, useSlim: true);
         private readonly object SyncLock = new object();
-        private readonly AtomicBoolean PlaySyncGaveUp = new AtomicBoolean(false);
 
         private IWavePlayer AudioDevice;
         private SoundTouch AudioProcessor;
@@ -39,9 +34,7 @@
 
         private byte[] ReadBuffer;
         private int SampleBlockSize;
-
-        private DateTime? PlaySyncStartTime;
-        private int PlaySyncCount;
+        private TimeSpan RealTimeLatency;
 
         #endregion
 
@@ -86,11 +79,11 @@
         public WaveFormat WaveFormat { get; }
 
         /// <summary>
-        /// Gets the realtime latency of the audio relative to the internal wall clock.
+        /// Gets the realtime latency of the audio buffer relative to the internal wall clock.
         /// A negative value means audio is ahead of the wall clock.
         /// A positive value means audio is behind of the wall clock.
         /// </summary>
-        public TimeSpan Latency
+        public TimeSpan BufferLatency
         {
             get
             {
@@ -98,7 +91,7 @@
                 lock (SyncLock)
                 {
                     return TimeSpan.FromTicks(
-                        MediaCore.PlaybackClock().Ticks -
+                        MediaCore.PlaybackPosition.Ticks -
                         Position.Ticks);
                 }
             }
@@ -180,9 +173,9 @@
                     {
                         // Write the block if we have to, avoiding repeated blocks.
                         // TODO: Ideally we want to feed the blocks from the renderer itself
-                        if (AudioBuffer.WriteTag < audioBlock.StartTime)
+                        if (AudioBuffer.WriteTag.Ticks < audioBlock.EndTime.Ticks)
                         {
-                            AudioBuffer.Write(audioBlock.Buffer, audioBlock.SamplesBufferLength, audioBlock.StartTime, true);
+                            AudioBuffer.Write(audioBlock.Buffer, audioBlock.SamplesBufferLength, audioBlock.EndTime, true);
                         }
 
                         // Stop adding if we have too much in there.
@@ -190,7 +183,7 @@
                             break;
 
                         // Retrieve the following block
-                        audioBlock = audioBlocks.ContinuousNext(audioBlock) as AudioBlock;
+                        audioBlock = audioBlocks.Next(audioBlock) as AudioBlock;
                     }
                 }
             }
@@ -207,28 +200,7 @@
         /// <inheritdoc />
         public void Update(TimeSpan clockPosition)
         {
-            // We don't need to keep track of syncs for seekable media
-            if (MediaCore.State.IsSeekable)
-                return;
-
-            // Detect state changes to reset give up sync conditions.
-            lock (SyncLock)
-            {
-                if (MediaCore.State.IsPlaying && PlaySyncStartTime == null)
-                {
-                    PlaySyncStartTime = DateTime.UtcNow;
-                    PlaySyncCount = 0;
-                    PlaySyncGaveUp.Value = false;
-                    return;
-                }
-
-                if (!MediaCore.State.IsPaused || PlaySyncStartTime == null)
-                    return;
-
-                PlaySyncStartTime = null;
-                PlaySyncCount = 0;
-                PlaySyncGaveUp.Value = false;
-            }
+            // placeholder
         }
 
         /// <inheritdoc />
@@ -330,7 +302,7 @@
                     ReadBuffer = new byte[Convert.ToInt32(requestedBytes * Constants.Controller.MaxSpeedRatio)];
 
                 // First part of DSP: Perform AV Synchronization if needed
-                if (MediaCore.State.HasVideo && Synchronize(targetBuffer, targetBufferOffset, requestedBytes, speedRatio) == false)
+                if (!Synchronize(targetBuffer, targetBufferOffset, requestedBytes, speedRatio))
                     return requestedBytes;
 
                 var startPosition = Position;
@@ -363,7 +335,7 @@
 
                 ApplyVolumeAndBalance(targetBuffer, targetBufferOffset, requestedBytes);
                 MediaElement.RaiseRenderingAudioEvent(
-                    targetBuffer, requestedBytes, startPosition, WaveFormat.ConvertByteSizeToDuration(requestedBytes));
+                    targetBuffer, requestedBytes, startPosition, WaveFormat.ConvertByteSizeToDuration(requestedBytes), RealTimeLatency);
             }
             catch (Exception ex)
             {
@@ -515,130 +487,77 @@
 
             #endregion
 
-            #region Private State
+            var hardwareLatencyMs = WaveFormat.ConvertByteSizeToDuration(requestedBytes).TotalMilliseconds;
+            var bufferLatencyMs = BufferLatency.TotalMilliseconds; // we want the buffer latency to be the negative of the device latency
+            var minAcceptableLeadMs = -1.5 * hardwareLatencyMs; // less than this and we need to rewind samples
+            var maxAcceptableLagMs = -0.5 * hardwareLatencyMs; // more than this and we need to skip samples
+            var isLoggingEnabled = Math.Abs(speedRatio - 1.0) <= double.Epsilon;
+            var operationName = string.Empty;
 
-            var audioLatencyMs = Latency.TotalMilliseconds;
-            var isBeyondThreshold = false;
-            var readableCount = AudioBuffer.ReadableCount;
-            var rewindableCount = AudioBuffer.RewindableCount;
-
-            #endregion
-
-            #region Sync Give-up Conditions
-
-            if (MediaCore.MediaOptions?.DropLateFrames ?? false)
-                speedRatio = 0;
-
-            // we don't want to perform AV sync if the latency is huge
-            // or if we have simply disabled it
-            if (MediaElement.RendererOptions.AudioDisableSync ||
-                (MediaCore.MediaOptions?.IsTimeSyncDisabled ?? true) ||
-                audioLatencyMs < int.MinValue / 2d ||
-                audioLatencyMs > int.MaxValue / 2d)
-                return true;
-
-            // Determine if we should continue to perform syncs.
-            // Some live, non-seekable streams will send out-of-sync audio packets
-            // and after trying too many times we simply give up.
-            // The Sync conditions are reset in the Update method.
-            if (MediaCore.State.IsSeekable == false && PlaySyncGaveUp.Value == false)
+            try
             {
-                // 1. Determine if a sync is required
-                if (audioLatencyMs > SyncThresholdLagging ||
-                    audioLatencyMs < SyncThresholdLeading ||
-                    Math.Abs(audioLatencyMs) > SyncThresholdPerfect)
+                RealTimeLatency = default;
+
+                // we don't want to perform AV sync if the latency is huge
+                // or if we have simply disabled it
+                if (MediaElement.RendererOptions.AudioDisableSync)
+                    return true;
+
+                // The ideal target latency is the negative of the audio device's desired latency.
+                // this is approximately -40ms (i.e. have the buffer position 40ms ahead (negative lag) of the playback clock
+                // so that samples are rendered right on time.)
+                if (bufferLatencyMs >= minAcceptableLeadMs && bufferLatencyMs <= maxAcceptableLagMs)
+                    return true;
+
+                if (bufferLatencyMs > maxAcceptableLagMs)
                 {
-                    PlaySyncCount++;
-                }
+                    // this is the case where the buffer latency is too positive (i.e. buffer is lagging by too much)
+                    // the goal is to skip some samples to make the buffer latency approximately that of the hardware latency
+                    // so that the buffer leads by the hardware lag and we get sync-perferct results.
+                    var audioLatencyBytes = WaveFormat.ConvertMillisToByteSize(bufferLatencyMs + hardwareLatencyMs);
 
-                // 2. Compute the variables to determine give-up conditions
-                var playbackElapsedSeconds = PlaySyncStartTime.HasValue == false ?
-                    0 : DateTime.UtcNow.Subtract(PlaySyncStartTime.Value).TotalSeconds;
-                var syncsPerSecond = PlaySyncCount / playbackElapsedSeconds;
-
-                // 3. Determine if we need to give up
-                if (playbackElapsedSeconds >= 3 && syncsPerSecond >= 3)
-                {
-                    this.LogWarning(Aspects.AudioRenderer,
-                        $"SYNC AUDIO: GIVE UP | SECS: {playbackElapsedSeconds:0.00}; " +
-                        $"SYN: {PlaySyncCount}; RATE: {syncsPerSecond:0.00} SYN/s; LAT: {audioLatencyMs} ms.");
-                    PlaySyncGaveUp.Value = true;
-                }
-            }
-
-            // Detect if we have given up
-            if (PlaySyncGaveUp == true)
-                return true;
-
-            #endregion
-
-            #region Large Latency Handling
-
-            if (audioLatencyMs > SyncThresholdLagging)
-            {
-                isBeyondThreshold = true;
-
-                // a positive audio latency means we are rendering audio behind (after) the clock (skip some samples)
-                // and therefore we need to advance the buffer before we read from it.
-                if (Math.Abs(speedRatio - 1.0) <= double.Epsilon)
-                {
-                    this.LogWarning(Aspects.AudioRenderer,
-                        $"SYNC AUDIO: LATENCY: {audioLatencyMs} ms. | SKIP (samples being rendered too late)");
-                }
-
-                // skip some samples from the buffer.
-                var audioLatencyBytes = WaveFormat.ConvertMillisToByteSize(Convert.ToInt32(Math.Ceiling(audioLatencyMs)));
-                AudioBuffer.Skip(Math.Min(audioLatencyBytes, readableCount));
-            }
-            else if (audioLatencyMs < SyncThresholdLeading)
-            {
-                isBeyondThreshold = true;
-
-                // Compute the latency in bytes
-                var audioLatencyBytes = WaveFormat.ConvertMillisToByteSize(Convert.ToInt32(Math.Ceiling(Math.Abs(audioLatencyMs))));
-
-                // audioLatencyBytes = requestedBytes; // uncomment this line to enable rewinding.
-                if (audioLatencyBytes > requestedBytes && audioLatencyBytes < rewindableCount)
-                {
-                    // This means we have the audio pointer a little too ahead of time and we need to
-                    // rewind it the requested amount of bytes.
-                    AudioBuffer.Rewind(Math.Min(audioLatencyBytes, rewindableCount));
-                }
-                else
-                {
-                    // a negative audio latency means we are rendering audio ahead (before) the clock
-                    // and therefore we need to render some silence until the clock catches up
-                    if (Math.Abs(speedRatio - 1.0) <= double.Epsilon)
+                    if (AudioBuffer.ReadableCount > audioLatencyBytes)
                     {
-                        this.LogWarning(Aspects.AudioRenderer,
-                            $"SYNC AUDIO: LATENCY: {audioLatencyMs} ms. | WAIT (samples being rendered too early)");
+                        operationName = "SKIP OK ";
+                        AudioBuffer.Skip(audioLatencyBytes);
+                        return true;
                     }
 
-                    // render silence for the wait time and return
+                    // render silence and return
+                    operationName = "SKIP ERR";
+                    Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
+                    return false;
+                }
+                else if (bufferLatencyMs < minAcceptableLeadMs)
+                {
+                    // this is the case where the buffer latency is too negative (i.e. buffer is leading by too much)
+                    // the goal is to rewind some samples to make the buffer latency approximately that of the hardware latency
+                    // so that the buffer leads by the hardware lag and we get sync-perferct results.
+                    var audioLatencyBytes = WaveFormat.ConvertMillisToByteSize(Math.Abs(bufferLatencyMs) + hardwareLatencyMs);
+                    var rewindableCount = AudioBuffer.RewindableCount;
+
+                    if (AudioBuffer.RewindableCount > audioLatencyBytes)
+                    {
+                        operationName = "RWND OK ";
+                        AudioBuffer.Rewind(audioLatencyBytes);
+                        return true;
+                    }
+
+                    // render silence and return
+                    operationName = "RWND ERR";
                     Array.Clear(targetBuffer, targetBufferOffset, requestedBytes);
                     return false;
                 }
             }
-
-            #endregion
-
-            #region Small Latency Handling
-
-            // Check if minor adjustment is necessary
-            if (MediaCore.State.HasVideo == false || Math.Abs(speedRatio - 1.0) > double.Epsilon ||
-                isBeyondThreshold || Math.Abs(audioLatencyMs) <= SyncThresholdPerfect)
-                return true;
-
-            // Perform minor adjustments until the delay is less than 10ms in either direction
-            var stepDurationMillis = Convert.ToInt32(Math.Min(SyncThresholdMaxStep, Math.Abs(audioLatencyMs)));
-            var stepDurationBytes = WaveFormat.ConvertMillisToByteSize(stepDurationMillis);
-
-            if (audioLatencyMs > SyncThresholdPerfect)
-                AudioBuffer.Skip(Math.Min(stepDurationBytes, readableCount));
-            else if (audioLatencyMs < -SyncThresholdPerfect)
-                AudioBuffer.Rewind(Math.Min(stepDurationBytes, rewindableCount));
-
-            #endregion
+            finally
+            {
+                RealTimeLatency = BufferLatency + TimeSpan.FromMilliseconds(hardwareLatencyMs);
+                if (isLoggingEnabled && !string.IsNullOrWhiteSpace(operationName))
+                {
+                    this.LogWarning(Aspects.AudioRenderer,
+                        $"SYNC AUDIO: {operationName} | Initial: {bufferLatencyMs:0} ms. Current: {BufferLatency.TotalMilliseconds:0} ms. Device: {hardwareLatencyMs:0} ms.");
+                }
+            }
 
             return true;
         }

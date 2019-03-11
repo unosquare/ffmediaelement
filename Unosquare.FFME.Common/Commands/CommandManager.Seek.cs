@@ -70,7 +70,7 @@
         {
             lock (SyncLock)
             {
-                if (IsDisposed || IsDisposing || !MediaCore.State.IsOpen || IsDirectCommandPending || IsPriorityCommandPending)
+                if (IsDisposed || IsDisposing || !MediaCore.State.IsOpen || IsDirectCommandPending || IsPriorityCommandPending || !MediaCore.State.IsSeekable)
                     return Task.FromResult(false);
 
                 if (QueuedSeekTask != null)
@@ -137,7 +137,7 @@
                 var main = MediaCore.Container.Components.MainMediaType;
                 var all = MediaCore.Container.Components.MediaTypes;
                 var mainBlocks = MediaCore.Blocks[main];
-                var initialPosition = MediaCore.PlaybackClock(main);
+                var initialPosition = MediaCore.PlaybackPosition;
 
                 if (targetSeekMode == SeekMode.StepBackward || targetSeekMode == SeekMode.StepForward)
                 {

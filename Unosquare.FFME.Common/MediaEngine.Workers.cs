@@ -104,11 +104,6 @@
             }
         }
 
-        /// <summary>
-        /// Gets a value indicating whether the decoder needs to wait for the reader to receive more packets.
-        /// </summary>
-        internal bool NeedsMorePackets => ShouldReadMorePackets && !Container.Components.HasEnoughPackets;
-
         #endregion
 
         #region Methods
@@ -122,11 +117,16 @@
             if (IsSyncBuffering)
                 return;
 
+            PausePlayback();
             SyncBufferStartTime = DateTime.UtcNow;
             IsSyncBuffering = true;
 
             this.LogInfo(Aspects.RenderingWorker,
-                $"SYNC-BUFFER: Started. Buffer: {State.BufferingProgress:p}. Clock: {PlaybackClock().Format()}");
+                $"SYNC-BUFFER: Entered at {PlaybackPosition.TotalSeconds:0.000} s." +
+                $" | Disconnected Clocks: {Timing.HasDisconnectedClocks}" +
+                $" | Buffer Progress: {State.BufferingProgress:p2}" +
+                $" | Buffer Audio: {Container?.Components[MediaType.Audio]?.BufferCount}" +
+                $" | Buffer Video: {Container?.Components[MediaType.Video]?.BufferCount}");
         }
 
         /// <summary>
@@ -140,58 +140,66 @@
 
             IsSyncBuffering = false;
             this.LogInfo(Aspects.RenderingWorker,
-                $"SYNC-BUFFER: Completed in {DateTime.UtcNow.Subtract(SyncBufferStartTime).Format()}");
+                $"SYNC-BUFFER: Exited in {DateTime.UtcNow.Subtract(SyncBufferStartTime).TotalSeconds:0.000} s." +
+                $" | Commands Pending: {Commands.HasPendingCommands}" +
+                $" | Decoding Ended: {HasDecodingEnded}" +
+                $" | Buffer Progress: {State.BufferingProgress:p2}" +
+                $" | Buffer Audio: {Container?.Components[MediaType.Audio]?.BufferCount}" +
+                $" | Buffer Video: {Container?.Components[MediaType.Video]?.BufferCount}");
         }
-
-        /// <summary>
-        /// Gets the component start offset. Pass none to get the media start offset.
-        /// </summary>
-        /// <param name="t">The component media type.</param>
-        /// <returns>The component start time</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal TimeSpan GetComponentStartOffset(MediaType t)
-        {
-            var offset = t == MediaType.None
-                ? State.PlaybackStartTime ?? TimeSpan.MinValue
-                : Container?.Components[t]?.StartTime ?? TimeSpan.MinValue;
-
-            return offset == TimeSpan.MinValue ? TimeSpan.Zero : offset;
-        }
-
-        /// <summary>
-        /// Converts from playback time to wall clock time.
-        /// </summary>
-        /// <param name="playbackTime">The playback time.</param>
-        /// <returns>The wall clock time</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal TimeSpan ConvertPlaybackToClockTime(TimeSpan playbackTime) =>
-            TimeSpan.FromTicks(playbackTime.Ticks - GetComponentStartOffset(MediaType.None).Ticks);
 
         /// <summary>
         /// Updates the clock position and notifies the new
         /// position to the <see cref="State" />.
         /// </summary>
         /// <param name="playbackPosition">The position.</param>
-        /// <returns>The newly set position</returns>
+        /// <param name="t">The corresponding media type clock to update</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal TimeSpan ChangePlaybackPosition(TimeSpan playbackPosition)
+        internal void ChangePlaybackPosition(TimeSpan playbackPosition, MediaType t)
         {
-            // TODO -- we need to fix all occurrences of this. This is the absolute time to compute elapsed time
-            Clock.Update(ConvertPlaybackToClockTime(playbackPosition));
+            Timing.Update(playbackPosition, t);
+            InvalidateRenderer(t);
             State.ReportPlaybackPosition();
-            return playbackPosition;
+        }
+
+        /// <summary>
+        /// Updates the clock position and notifies the new
+        /// position to the <see cref="State" />.
+        /// </summary>
+        /// <param name="playbackPosition">The position.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void ChangePlaybackPosition(TimeSpan playbackPosition)
+        {
+            if (Timing.HasDisconnectedClocks)
+            {
+                this.LogWarning(Aspects.Container,
+                    $"Changing the playback position on disconnected clocks is not supported." +
+                    $"Plase set the {nameof(MediaOptions.IsTimeSyncDisabled)} to false.");
+            }
+
+            Timing.Update(playbackPosition, MediaType.None);
+            InvalidateRenderers();
+            State.ReportPlaybackPosition();
         }
 
         /// <summary>
         /// Pauses the playback by pausing the RTC.
-        /// This does not change the any state.
+        /// This does not change the state.
         /// </summary>
+        /// <param name="t">The clock to pause</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void PausePlayback()
+        internal void PausePlayback(MediaType t)
         {
-            Clock.Pause();
+            Timing.Pause(t);
             State.ReportPlaybackPosition();
         }
+
+        /// <summary>
+        /// Pauses the playback by pausing the RTC.
+        /// This does not change the state.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void PausePlayback() => PausePlayback(MediaType.None);
 
         /// <summary>
         /// Resets the clock to the zero position and notifies the new
@@ -201,8 +209,8 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal TimeSpan ResetPlaybackPosition()
         {
-            Clock.Pause();
-            Clock.Reset();
+            Timing.Pause(MediaType.None);
+            Timing.Reset(MediaType.None);
             State.ReportPlaybackPosition();
             return TimeSpan.Zero;
         }
@@ -231,6 +239,24 @@
             var mediaTypes = Renderers.Keys.ToArray();
             foreach (var t in mediaTypes)
                 InvalidateRenderer(t);
+        }
+
+        /// <summary>
+        /// Gets the component start offset. Pass none to get the media start offset.
+        /// </summary>
+        /// <param name="t">The component media type.</param>
+        /// <returns>The component start time</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private TimeSpan GetComponentStartOffset(MediaType t)
+        {
+            t = (t == MediaType.None && Container?.Components[MediaType.Audio] != null)
+                ? MediaType.Audio : MediaType.None;
+
+            var offset = t == MediaType.None
+                ? State.PlaybackStartTime ?? TimeSpan.MinValue
+                : Container?.Components[t]?.StartTime ?? TimeSpan.MinValue;
+
+            return offset == TimeSpan.MinValue ? TimeSpan.Zero : offset;
         }
 
         #endregion

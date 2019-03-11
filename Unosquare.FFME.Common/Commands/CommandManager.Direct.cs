@@ -211,15 +211,6 @@
                     MediaCore.SendOnMediaChanged();
 
                     // command result contains the play after seek.
-                    if (resumeMedia)
-                    {
-                        MediaCore.State.UpdateMediaState(PlaybackStatus.Play);
-                    }
-                    else
-                    {
-                        MediaCore.State.UpdateMediaState(PlaybackStatus.Pause);
-                    }
-
                     MediaCore.State.UpdateMediaState(
                         resumeMedia ? PlaybackStatus.Play : PlaybackStatus.Pause);
                 }
@@ -329,6 +320,7 @@
 
                 // Reset buffering properties
                 State.UpdateFixedContainerProperties();
+                MediaCore.Timing.Setup();
                 State.InitializeBufferingStatistics();
 
                 // Check if we have at least audio or video here
@@ -373,9 +365,6 @@
         /// <returns>Simply return the play when completed boolean if there are no exceptions</returns>
         private bool CommandChangeMedia(bool playWhenCompleted)
         {
-            if (MediaCore.MediaOptions.IsTimeSyncDisabled == false)
-                MediaCore.SignalSyncBufferingEntered();
-
             // Signal a change so the user get the chance to update
             // selected streams and options
             MediaCore.SendOnMediaChanging();
@@ -386,6 +375,7 @@
             // Recreate selected streams as media components
             MediaCore.Container.UpdateComponents();
             MediaCore.State.UpdateFixedContainerProperties();
+            MediaCore.Timing.Setup();
 
             // Dispose unused rendered and blocks and create new ones
             InitializeRendering();
@@ -395,7 +385,12 @@
             if (State.IsSeekable)
             {
                 // Let's simply do an automated seek
-                SeekMedia(new SeekOperation(MediaCore.PlaybackClock(), SeekMode.Normal), CancellationToken.None);
+                SeekMedia(new SeekOperation(MediaCore.PlaybackPosition, SeekMode.Normal),
+                    CancellationToken.None);
+            }
+            else
+            {
+                MediaCore.InvalidateRenderers();
             }
 
             return playWhenCompleted;
@@ -411,8 +406,6 @@
         /// </summary>
         private void StartWorkers()
         {
-            MediaCore.Clock.SpeedRatio = Constants.Controller.DefaultSpeedRatio;
-
             // Ensure renderers and blocks are available
             InitializeRendering();
 

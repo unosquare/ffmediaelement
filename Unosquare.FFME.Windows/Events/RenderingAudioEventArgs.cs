@@ -19,8 +19,9 @@
         /// <param name="startTime">The start time.</param>
         /// <param name="duration">The duration.</param>
         /// <param name="clock">The clock.</param>
+        /// <param name="latency">The latency between the buffer position and the real-time playback clock.</param>
         internal RenderingAudioEventArgs(
-            byte[] buffer, int length, MediaEngineState engineState, StreamInfo stream, TimeSpan startTime, TimeSpan duration, TimeSpan clock)
+            byte[] buffer, int length, MediaEngineState engineState, StreamInfo stream, TimeSpan startTime, TimeSpan duration, TimeSpan clock, TimeSpan latency)
             : base(engineState, stream, startTime, duration, clock)
         {
             Buffer = buffer;
@@ -28,7 +29,13 @@
             SampleRate = Constants.Audio.SampleRate;
             ChannelCount = Constants.Audio.ChannelCount;
             BitsPerSample = Constants.Audio.BitsPerSample;
+            Latency = latency;
         }
+
+        /// <summary>
+        /// Gets the latency between the audio buffer position and the real-time playback clock.
+        /// </summary>
+        public TimeSpan Latency { get; }
 
         /// <summary>
         /// Gets a the raw data buffer going into the audio device.

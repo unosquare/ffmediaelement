@@ -22,7 +22,7 @@
         private readonly Action<IEnumerable<MediaType>, CancellationToken> ParallelDecodeBlocks;
 
         /// <summary>
-        /// The decoded frame count for a cycle
+        /// The decoded frame count for a cycle. This is used to detect end of decoding scenarios
         /// </summary>
         private int DecodedFrameCount;
 
@@ -40,7 +40,6 @@
 
             ParallelDecodeBlocks = (all, ct) =>
             {
-                DecodedFrameCount = 0;
                 Parallel.ForEach(all, (t) =>
                     Interlocked.Add(ref DecodedFrameCount,
                     DecodeComponentBlocks(t, ct)));
@@ -48,7 +47,6 @@
 
             SerialDecodeBlocks = (all, ct) =>
             {
-                DecodedFrameCount = 0;
                 foreach (var t in Container.Components.MediaTypes)
                     DecodedFrameCount += DecodeComponentBlocks(t, ct);
             };
@@ -76,9 +74,9 @@
         private MediaEngineState State { get; }
 
         /// <summary>
-        /// Gets a value indicating whether the decoder needs to wait for the reader to receive more packets.
+        /// Gets a value indicating whether parallel decoding is enabled.
         /// </summary>
-        private bool NeedsMorePackets => MediaCore.ShouldReadMorePackets && !MediaCore.Container.Components.HasEnoughPackets;
+        private bool UseParallelDecoding => MediaCore.Timing.HasDisconnectedClocks || Container.MediaOptions.UseParallelDecoding;
 
         /// <inheritdoc />
         protected override void ExecuteCycleLogic(CancellationToken ct)
@@ -88,9 +86,9 @@
                 if (MediaCore.HasDecodingEnded || ct.IsCancellationRequested)
                     return;
 
-                // We need to add blocks if the wall clock is over 75%
-                // for each of the components so that we have some buffer.
-                if (Container.MediaOptions.UseParallelDecoding)
+                // Call the frame decoding logic
+                DecodedFrameCount = 0;
+                if (UseParallelDecoding)
                     ParallelDecodeBlocks.Invoke(Container.Components.MediaTypes, ct);
                 else
                     SerialDecodeBlocks.Invoke(Container.Components.MediaTypes, ct);
@@ -113,36 +111,26 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int DecodeComponentBlocks(MediaType t, CancellationToken ct)
         {
-            // Capture a reference to the blocks and the current Range Percent
-            const double rangePercentThreshold = 0.75d;
-
-            var dropLateFrames = MediaCore.MediaOptions.DropLateFrames;
-            var decoderBlocks = MediaCore.Blocks[t];
-            var addedBlocks = 0;
-            var maxAddedBlocks = decoderBlocks.Capacity;
-            var rangePercent = decoderBlocks.GetRangePercent(MediaCore.PlaybackClock(t));
+            var decoderBlocks = MediaCore.Blocks[t]; // the blocks reference
+            var addedBlocks = 0; // the number of blocks that have been added
+            var maxAddedBlocks = decoderBlocks.Capacity; // the max blocks to add for this cycle
 
             while (addedBlocks < maxAddedBlocks)
             {
-                if (dropLateFrames)
-                {
-                    if (!MediaCore.Clock.IsRunning && decoderBlocks.IsFull)
-                        break;
+                var position = MediaCore.Timing.Position(t).Ticks;
+                var rangeHalf = decoderBlocks.RangeMidTime.Ticks;
 
-                    if (decoderBlocks.IsFull && MediaCore.PlaybackClock(t) < decoderBlocks.RangeMidTime)
-                        break;
-                }
-                else
-                {
-                    if (!(decoderBlocks.IsFull == false || rangePercent >= rangePercentThreshold))
-                        break;
-                }
+                // We break decoding if we have a full set of blocks and if the
+                // clock is not past the first half of the available block range
+                if (decoderBlocks.IsFull && position < rangeHalf)
+                    break;
 
+                // Try adding the next block. Stop decoding upon failure or cancellation
                 if (ct.IsCancellationRequested || AddNextBlock(t) == false)
                     break;
 
+                // At this point we notify that we have added the block
                 addedBlocks++;
-                rangePercent = decoderBlocks.GetRangePercent(MediaCore.PlaybackClock(t));
             }
 
             return addedBlocks;
@@ -168,13 +156,9 @@
         /// </summary>
         /// <returns>True if media docding has ended</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool DetectHasDecodingEnded()
-        {
-            var main = Container.Components.MainMediaType;
-            return DecodedFrameCount <= 0
-                && CanReadMoreFramesOf(main) == false
-                && MediaCore.Blocks[main].IndexOf(MediaCore.PlaybackClock(main)) >= MediaCore.Blocks[main].Count - 1;
-        }
+        private bool DetectHasDecodingEnded() =>
+            DecodedFrameCount <= 0 &&
+            CanReadMoreFramesOf(Container.Components.MainMediaType) == false;
 
         /// <summary>
         /// Gets a value indicating whether more frames can be decoded into blocks of the given type.

@@ -98,13 +98,9 @@
             // Example of setting extra IPs for NDI (needs compatible build and Newtek binaries)
             if (e.Configuration.ForcedInputFormat == "libndi_newtek")
             {
-                // Sample URL: device://libndi_newtek?HOME-SLIMBIRD%20%28Test%20Pattern%29
+                // Sample URL: device://libndi_newtek?HOME-SLIMBIRD (Test Pattern)
                 e.Configuration.PrivateOptions["extra_ips"] = "127.0.0.1";
             }
-
-            // A few WMV files I have tested don't have continuous enough audio packets to support
-            // perfect synchronization between audio and video
-            Media.RendererOptions.AudioDisableSync = e.Url.EndsWith(".wmv");
 
             // In realtime streams these settings can be used to reduce latency (see example from issue #152)
             // e.Options.GlobalOptions.FlagNoBuffer = true;
@@ -124,15 +120,30 @@
             // You can start off by adjusting subtitles delay
             // e.Options.SubtitlesDelay = TimeSpan.FromSeconds(7); // See issue #216
 
-            // Then, for live streams you typically want to render the stream as it becomes available
-            // as opposed to synchronizing with the real-time playback clock. we drop the late frames
-            // in case something gets stuck
-            e.Options.DropLateFrames = e.Info.Duration == TimeSpan.MinValue;
+            // Sure you can render audio and video as it becomes available but the downside of disabling time
+            // synchronization is that it will not wait for video and viceversa.
+            // Do not disable Time Sync for streams that need to synchronize audio and video.
+            e.Options.IsTimeSyncDisabled =
+                e.Info.Format == "libndi_newtek" ||
+                e.Info.InputUrl.StartsWith("rtsp://uno");
 
-            // Additionally, we can make the audio and video clocks run independently
-            // of each other. This is only recommended when the audio and video streams
-            // have unrelated timing information
-            e.Options.IsTimeSyncDisabled = e.Info.InputUrl.StartsWith("device://libndi_newtek?");
+            // You can disable the requirement of buffering packets by setting the playback
+            // buffer percent to 0. Values of less than 0.5 for live or network streams are not recommended.
+            e.Options.MinimumPlaybackBufferPercent = e.Info.Format == "libndi_newtek" ? 0 : 0.5;
+
+            // A few WMV files I have tested don't have continuous enough audio packets to support
+            // perfect synchronization between audio and video so we simply disable it
+            Media.RendererOptions.AudioDisableSync =
+                e.Options.IsTimeSyncDisabled ||
+                e.Info.InputUrl.EndsWith(".wmv");
+
+            // Legacy audio out is the use of the WinMM api as opposed to using DirectSound
+            // Enable legacy audio out if you are having issues with the DirectSound driver.
+            Media.RendererOptions.UseLegacyAudioOut = e.Info.InputUrl.EndsWith(".wmv");
+
+            // In order to reduce CPU usage, you can limit how often the video
+            // renderer updates the picture. We keep it as 0 for native stream framerate.
+            Media.RendererOptions.VideoRefreshRateLimit = 0;
 
             // Get the local file path from the URL (if possible)
             var mediaFilePath = string.Empty;

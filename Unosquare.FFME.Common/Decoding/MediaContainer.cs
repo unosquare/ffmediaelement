@@ -906,9 +906,6 @@
                 $"Start Time: {Components.PlaybackStartTime?.Format()}; " +
                 $"Duration: {Components.PlaybackDuration?.Format()}; ");
 
-            // Ensure MediaOptions are consistent
-            CheckMediaOptions();
-
             // Return the registered component types
             return Components.MediaTypes.ToArray();
         }
@@ -1225,18 +1222,6 @@
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Applies the media options constraints.
-        /// </summary>
-        private void CheckMediaOptions()
-        {
-            if (!IsLiveStream && MediaOptions.DropLateFrames)
-            {
-                this.LogWarning(Aspects.Container,
-                    $"Media options had {nameof(MediaOptions.DropLateFrames)} set to true but this is only recommended for live streams.");
-            }
         }
 
         #endregion

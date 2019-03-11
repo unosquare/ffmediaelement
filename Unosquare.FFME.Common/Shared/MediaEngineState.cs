@@ -60,7 +60,7 @@
         public double SpeedRatio
         {
             get => m_SpeedRatio.Value;
-            set => m_SpeedRatio.Value = value;
+            set => m_SpeedRatio.Value = IsLiveStream ? Constants.Controller.DefaultSpeedRatio : value;
         }
 
         /// <inheritdoc />
@@ -130,10 +130,10 @@
         #region Self-Updating Properties
 
         /// <inheritdoc />
-        public bool IsPlaying => IsOpen && MediaCore.Clock.IsRunning;
+        public bool IsPlaying => IsOpen && MediaCore.Timing.IsRunning;
 
         /// <inheritdoc />
-        public bool IsPaused => IsOpen && !MediaCore.Clock.IsRunning;
+        public bool IsPaused => IsOpen && !MediaCore.Timing.IsRunning;
 
         /// <inheritdoc />
         public bool IsSeeking => MediaCore.Commands?.IsSeeking ?? false;
@@ -426,7 +426,7 @@
         /// Updates the playback position and related properties.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void ReportPlaybackPosition() => ReportPlaybackPosition(MediaCore.PlaybackClock());
+        internal void ReportPlaybackPosition() => ReportPlaybackPosition(MediaCore.PlaybackPosition);
 
         /// <summary>
         /// Updates the playback position related properties.
@@ -435,11 +435,11 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void ReportPlaybackPosition(TimeSpan newPosition)
         {
-            var oldSpeedRatio = MediaCore.Clock.SpeedRatio;
+            var oldSpeedRatio = MediaCore.Timing.SpeedRatio;
             var newSpeedRatio = SpeedRatio;
 
             if (Math.Abs(oldSpeedRatio - newSpeedRatio) > double.Epsilon)
-                MediaCore.Clock.SpeedRatio = SpeedRatio;
+                MediaCore.Timing.SpeedRatio = SpeedRatio;
 
             var oldPosition = Position;
             if (oldPosition.Ticks == newPosition.Ticks)

@@ -35,6 +35,7 @@
         /// <summary>
         /// Gets or sets the amount of time to offset the subtitles by
         /// This is an FFME-only property -- Not a port of ffmpeg.
+        /// TODO: Consider moving this property to RendererOptions
         /// </summary>
         public TimeSpan SubtitlesDelay { get; set; } = TimeSpan.Zero;
 
@@ -135,24 +136,24 @@
         public int SubtitleBlockCache { get; set; } = -1;
 
         /// <summary>
-        /// Gets or sets a value indicating whether each component needs to run
-        /// its timing independently of the main component. Setting this property to
-        /// true will disable sync-buffering. This property is useful when for example
-        /// the audio and the video components of the stream have no timing relationship
-        /// between them.
+        /// Only recommended for live streams. Gets or sets a value indicating whether each component needs to run
+        /// its timing independently. This property is useful when for example when
+        /// the audio and the video components of the stream have no timing relationship or when you don't need the
+        /// components to be synchronized between them.
         /// </summary>
         public bool IsTimeSyncDisabled { get; set; }
 
         /// <summary>
-        /// Setting this to true forces the decoder to keep decoding packets into frames as quickly as possible
-        /// and the blocks sent to their corresponding renderers immediately. This is useful when consuming
-        /// live streams and a low latency is required.
+        /// Typically, and especially for live streams, you want to wait for some packet data to become available before resuming
+        /// playback. The buffer percent represents 1 second of data for each component -- excluding subtitles.
+        /// Valid range is from 0.0 (do not wait for packet data) to 1.0 (wait for 1 second on each component.
+        /// This defaults to 0.5 which is suitable for most live streams.
         /// </summary>
-        public bool DropLateFrames { get; set; }
+        public double MinimumPlaybackBufferPercent { get; set; } = 0.5;
 
         /// <summary>
         /// Gets or sets a value indicating whether component frames are decoded in
-        /// parallel. This defaults to false.
+        /// parallel. This defaults to false but it is enabled automatically when <see cref="IsTimeSyncDisabled"/> is enabled.
         /// </summary>
         public bool UseParallelDecoding { get; set; }
 
