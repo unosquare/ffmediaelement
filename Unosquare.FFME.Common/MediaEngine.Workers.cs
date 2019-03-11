@@ -241,24 +241,6 @@
                 InvalidateRenderer(t);
         }
 
-        /// <summary>
-        /// Gets the component start offset. Pass none to get the media start offset.
-        /// </summary>
-        /// <param name="t">The component media type.</param>
-        /// <returns>The component start time</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private TimeSpan GetComponentStartOffset(MediaType t)
-        {
-            t = (t == MediaType.None && Container?.Components[MediaType.Audio] != null)
-                ? MediaType.Audio : MediaType.None;
-
-            var offset = t == MediaType.None
-                ? State.PlaybackStartTime ?? TimeSpan.MinValue
-                : Container?.Components[t]?.StartTime ?? TimeSpan.MinValue;
-
-            return offset == TimeSpan.MinValue ? TimeSpan.Zero : offset;
-        }
-
         #endregion
     }
 }

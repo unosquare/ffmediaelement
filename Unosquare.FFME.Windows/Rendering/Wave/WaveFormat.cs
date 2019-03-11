@@ -121,11 +121,11 @@ namespace Unosquare.FFME.Rendering.Wave
         public int ConvertMillisToByteSize(double milliseconds)
         {
             var byteCount = Convert.ToUInt64((AverageBytesPerSecond / 1000.0d) * milliseconds);
-            var blockAlign = (ulong)BlockAlign;
-            if (byteCount % blockAlign != 0)
+            var byteBlockAlign = (ulong)BlockAlign;
+            if (byteCount % byteBlockAlign != 0)
             {
                 // Return the upper BlockAligned
-                byteCount = byteCount + blockAlign - (byteCount % blockAlign);
+                byteCount = byteCount + byteBlockAlign - (byteCount % byteBlockAlign);
             }
 
             return byteCount >= int.MaxValue ? int.MaxValue : Convert.ToInt32(byteCount);

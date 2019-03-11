@@ -534,7 +534,6 @@
                     // the goal is to rewind some samples to make the buffer latency approximately that of the hardware latency
                     // so that the buffer leads by the hardware lag and we get sync-perferct results.
                     var audioLatencyBytes = WaveFormat.ConvertMillisToByteSize(Math.Abs(bufferLatencyMs) + hardwareLatencyMs);
-                    var rewindableCount = AudioBuffer.RewindableCount;
 
                     if (AudioBuffer.RewindableCount > audioLatencyBytes)
                     {

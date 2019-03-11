@@ -16,7 +16,7 @@
         private readonly object SyncLock = new object();
         private readonly MediaTypeDictionary<RealTimeClock> Clocks = new MediaTypeDictionary<RealTimeClock>();
         private readonly MediaTypeDictionary<TimeSpan> Offsets = new MediaTypeDictionary<TimeSpan>();
-        private bool IsReady = false;
+        private bool IsReady;
         private MediaType m_ReferenceType;
         private bool m_HasDisconnectedClocks;
 
