@@ -237,7 +237,8 @@
                 if (Container.Components[t].StreamInfo.IsAttachedPictureDisposition)
                     continue;
 
-                // We don't need to do a thing if we are in range
+                // If we have data on the t component beyond the start time of the main
+                // we don't need to enter sync-buffering.
                 if (MediaCore.Blocks[t].RangeEndTime >= MediaCore.Blocks[main].RangeStartTime)
                     continue;
 
@@ -285,6 +286,12 @@
                     if (t == MediaType.Subtitle || t == main)
                         continue;
 
+                    // We don't want to consider sync-buffer on attached pictures
+                    if (Container.Components[t].StreamInfo.IsAttachedPictureDisposition)
+                        continue;
+
+                    // If we don't have data on the t component beyond the mid time of the main
+                    // we can't exit sync-buffering.
                     if (MediaCore.Blocks[t].RangeEndTime < MediaCore.Blocks[main].RangeMidTime)
                     {
                         canExitSyncBuffering = false;
