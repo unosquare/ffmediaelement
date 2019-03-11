@@ -3162,6 +3162,19 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.Rendering.RendererOptions.UseLegacyAudioOut
   nameWithType: RendererOptions.UseLegacyAudioOut
+- uid: Unosquare.FFME.Rendering.RendererOptions.VideoRefreshRateLimit
+  name: VideoRefreshRateLimit
+  href: api/Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_VideoRefreshRateLimit
+  commentId: P:Unosquare.FFME.Rendering.RendererOptions.VideoRefreshRateLimit
+  fullName: Unosquare.FFME.Rendering.RendererOptions.VideoRefreshRateLimit
+  nameWithType: RendererOptions.VideoRefreshRateLimit
+- uid: Unosquare.FFME.Rendering.RendererOptions.VideoRefreshRateLimit*
+  name: VideoRefreshRateLimit
+  href: api/Unosquare.FFME.Rendering.RendererOptions.html#Unosquare_FFME_Rendering_RendererOptions_VideoRefreshRateLimit_
+  commentId: Overload:Unosquare.FFME.Rendering.RendererOptions.VideoRefreshRateLimit
+  isSpec: "True"
+  fullName: Unosquare.FFME.Rendering.RendererOptions.VideoRefreshRateLimit
+  nameWithType: RendererOptions.VideoRefreshRateLimit
 - uid: Unosquare.FFME.Subtitles
   name: Subtitles
   href: api/Unosquare.FFME.Subtitles.html
