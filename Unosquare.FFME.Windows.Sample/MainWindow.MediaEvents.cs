@@ -93,12 +93,16 @@
             {
                 e.Configuration.PrivateOptions["rtsp_transport"] = "tcp";
                 e.Configuration.GlobalOptions.FlagNoBuffer = true;
+
+                // You can change the open/read timeout before the packet reading
+                // operation fails.
+                e.Configuration.ReadTimeout = TimeSpan.FromSeconds(10);
             }
 
             // Example of setting extra IPs for NDI (needs compatible build and Newtek binaries)
             if (e.Configuration.ForcedInputFormat == "libndi_newtek")
             {
-                // Sample URL: device://libndi_newtek?HOME-SLIMBIRD (Test Pattern)
+                // Sample URL: device://libndi_newtek?COMPUTERNAME-HERE (Test Pattern)
                 e.Configuration.PrivateOptions["extra_ips"] = "127.0.0.1";
             }
 
@@ -118,11 +122,13 @@
             const string SideLoadAspect = "Client.SideLoad";
 
             // You can start off by adjusting subtitles delay
-            // e.Options.SubtitlesDelay = TimeSpan.FromSeconds(7); // See issue #216
+            // This defaults to 0 but you can delay (or advance with a negative delay)
+            // the subtitle timestamps.
+            e.Options.SubtitlesDelay = TimeSpan.Zero; // See issue #216
 
-            // Sure you can render audio and video as it becomes available but the downside of disabling time
-            // synchronization is that it will not wait for video and viceversa.
-            // Do not disable Time Sync for streams that need to synchronize audio and video.
+            // You can render audio and video as it becomes available but the downside of disabling time
+            // synchronization is that video and audio will run on their own independent clocks.
+            // Do not disable Time Sync for streams that need synchronized audio and video.
             e.Options.IsTimeSyncDisabled =
                 e.Info.Format == "libndi_newtek" ||
                 e.Info.InputUrl.StartsWith("rtsp://uno");
@@ -131,8 +137,11 @@
             // buffer percent to 0. Values of less than 0.5 for live or network streams are not recommended.
             e.Options.MinimumPlaybackBufferPercent = e.Info.Format == "libndi_newtek" ? 0 : 0.5;
 
+            // The audio renderer will try to keep the audio hardware synchronized
+            // to the playback position by default.
             // A few WMV files I have tested don't have continuous enough audio packets to support
-            // perfect synchronization between audio and video so we simply disable it
+            // perfect synchronization between audio and video so we simply disable it.
+            // Also if time synchronization is disabled, the recommendation is to also disable audio synchronization.
             Media.RendererOptions.AudioDisableSync =
                 e.Options.IsTimeSyncDisabled ||
                 e.Info.InputUrl.EndsWith(".wmv");
@@ -141,8 +150,8 @@
             // Enable legacy audio out if you are having issues with the DirectSound driver.
             Media.RendererOptions.UseLegacyAudioOut = e.Info.InputUrl.EndsWith(".wmv");
 
-            // In order to reduce CPU usage, you can limit how often the video
-            // renderer updates the picture. We keep it as 0 for native stream framerate.
+            // You can limit how often the video renderer updates the picture.
+            // We keep it as 0 to refresh the video according to the native stream specification.
             Media.RendererOptions.VideoRefreshRateLimit = 0;
 
             // Get the local file path from the URL (if possible)
@@ -166,7 +175,7 @@
             // see: https://github.com/unosquare/ffmediaelement/issues/212
             // e.Options.VideoForcedFps = 25;
 
-            // An example of specifically selecting a subtitle stream
+            // An example of selecting a specific subtitle stream
             var subtitleStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_SUBTITLE).Select(kvp => kvp.Value);
             var englishSubtitleStream = subtitleStreams.FirstOrDefault(s => s.Language != null && s.Language.ToLowerInvariant().StartsWith("en"));
             if (englishSubtitleStream != null)
@@ -174,7 +183,7 @@
                 e.Options.SubtitleStream = englishSubtitleStream;
             }
 
-            // An example of specifically selecting an audio stream
+            // An example of selecting a specific audio stream
             var audioStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_AUDIO).Select(kvp => kvp.Value);
             var englishAudioStream = audioStreams.FirstOrDefault(s => s.Language != null && s.Language.ToLowerInvariant().StartsWith("en"));
             if (englishAudioStream != null)
@@ -253,8 +262,9 @@
                 // videoFilter.Append("lenscorrection=cx=0.5:cy=0.5:k1=-0.85:k2=0.25,")
                 e.Options.VideoFilter = videoFilter.ToString().TrimEnd(',');
 
-                // Since the MediaElement control belongs to a different thread
-                // we have to set properties on its UI thread.
+                // Since the MediaElement control belongs to the GUI thread
+                // and the closed captions channel property is a dependency
+                // property, we need to set it on the GUI thread.
                 GuiContext.Current.EnqueueInvoke(() =>
                 {
                     Media.ClosedCaptionsChannel = videoStream.HasClosedCaptions ?
@@ -262,6 +272,7 @@
                 });
             }
 
+            // Examples of setting audio filters.
             // e.Options.AudioFilter = "aecho=0.8:0.9:1000:0.3";
             // e.Options.AudioFilter = "chorus=0.5:0.9:50|60|40:0.4|0.32|0.3:0.25|0.4|0.3:2|2.3|1.3";
             // e.Options.AudioFilter = "aphaser";

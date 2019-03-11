@@ -153,20 +153,6 @@
         /// position to the <see cref="State" />.
         /// </summary>
         /// <param name="playbackPosition">The position.</param>
-        /// <param name="t">The corresponding media type clock to update</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void ChangePlaybackPosition(TimeSpan playbackPosition, MediaType t)
-        {
-            Timing.Update(playbackPosition, t);
-            InvalidateRenderer(t);
-            State.ReportPlaybackPosition();
-        }
-
-        /// <summary>
-        /// Updates the clock position and notifies the new
-        /// position to the <see cref="State" />.
-        /// </summary>
-        /// <param name="playbackPosition">The position.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void ChangePlaybackPosition(TimeSpan playbackPosition)
         {

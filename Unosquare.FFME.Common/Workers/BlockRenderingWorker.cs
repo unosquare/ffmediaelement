@@ -169,19 +169,26 @@
                     blocks = MediaCore.Blocks[t];
                     position = MediaCore.Timing.Position(t);
 
+                    if (blocks.Count <= 0)
+                    {
+                        MediaCore.Timing.Pause(t);
+                        this.LogDebug(Aspects.Timing, $"CLOCK PAUSED: {t} clock was paused at {position.Format()} because no decoded {t} content was found");
+                        continue;
+                    }
+
                     // Don't let the RTC lag behind the blocks or move beyond them
                     if (position.Ticks < blocks.RangeStartTime.Ticks)
                     {
-                        MediaCore.ChangePlaybackPosition(blocks.RangeStartTime, t);
-                        this.LogTrace(Aspects.Timing, $"CLOCK BEHIND: {t} clock was {position.Format()}. It was updated to {blocks.RangeStartTime.Format()}");
+                        MediaCore.Timing.Update(blocks.RangeStartTime, t);
+                        this.LogDebug(Aspects.Timing, $"CLOCK BEHIND: {t} clock was {position.Format()}. It was updated to {blocks.RangeStartTime.Format()}");
                     }
                     else if (position.Ticks > blocks.RangeEndTime.Ticks)
                     {
                         // we don't use the pause playback method to prevent
                         // reporting the current playback position
                         MediaCore.Timing.Pause(t);
-                        MediaCore.ChangePlaybackPosition(blocks.RangeEndTime, t);
-                        this.LogTrace(Aspects.Timing, $"CLOCK AHEAD : {t} clock was {position.Format()}. It was updated to {blocks.RangeEndTime.Format()}");
+                        MediaCore.Timing.Update(blocks.RangeEndTime, t);
+                        this.LogDebug(Aspects.Timing, $"CLOCK AHEAD : {t} clock was {position.Format()}. It was updated to {blocks.RangeEndTime.Format()}");
                     }
                 }
 
@@ -209,7 +216,7 @@
             else if (range == 0 && blocks.Count == 0 && MediaCore.Timing.IsRunning)
             {
                 // We have no main blocks in range. All we can do is pause the clock
-                this.LogTrace(Aspects.Timing, $"CLOCK PAUSED: playback clock was {position.Format()} but no {main} content was found");
+                this.LogTrace(Aspects.Timing, $"CLOCK PAUSED: playback clock was paused at {position.Format()} because no decoded {main} content was found");
                 MediaCore.PausePlayback();
             }
         }
