@@ -285,8 +285,7 @@
                     if (t == MediaType.Subtitle || t == main)
                         continue;
 
-                    if (!MediaCore.Blocks[t].IsInRange(MediaCore.PlaybackPosition) ||
-                        MediaCore.Blocks[t].GetRangePercent(MediaCore.PlaybackPosition) > 0.5)
+                    if (MediaCore.Blocks[t].RangeEndTime < MediaCore.Blocks[main].RangeMidTime)
                     {
                         canExitSyncBuffering = false;
                         break;
