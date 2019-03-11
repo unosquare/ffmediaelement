@@ -186,7 +186,9 @@
                     {
                         // we don't use the pause playback method to prevent
                         // reporting the current playback position
-                        MediaCore.Timing.Pause(t);
+                        if (t != MediaType.Audio)
+                            MediaCore.Timing.Pause(t);
+
                         MediaCore.Timing.Update(blocks.RangeEndTime, t);
                         this.LogDebug(Aspects.Timing, $"CLOCK AHEAD : {t} clock was {position.Format()}. It was updated to {blocks.RangeEndTime.Format()}");
                     }
