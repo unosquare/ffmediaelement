@@ -165,6 +165,7 @@
             Configuration = config ?? new ContainerConfiguration();
 
             // Initialize the Input Format Context and Input Stream Context
+            inputStream.OnInitializing?.Invoke(Configuration, MediaUrl);
             StreamInitialize();
         }
 
@@ -759,6 +760,8 @@
 
                 if (FFLibrary.LibSWResample.IsLoaded == false)
                     MediaOptions.IsAudioDisabled = true;
+
+                CustomInputStream?.OnInitialized?.Invoke(inputFormat, InputContext, MediaInfo);
             }
             catch (Exception ex)
             {

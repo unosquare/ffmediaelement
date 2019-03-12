@@ -46,6 +46,12 @@
         public int ReadBufferLength => 1024 * 16;
 
         /// <inheritdoc />
+        public InputStreamInitializing OnInitializing { get; } = null;
+
+        /// <inheritdoc />
+        public InputStreamInitialized OnInitialized { get; } = null;
+
+        /// <inheritdoc />
         public void Dispose()
         {
             BackingStream?.Dispose();

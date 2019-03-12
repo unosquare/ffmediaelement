@@ -1,6 +1,22 @@
 ﻿namespace Unosquare.FFME.Shared
 {
     using System;
+    using FFmpeg.AutoGen;
+
+    /// <summary>
+    /// A callback that gets called before the media container's input context gets initialized for the <see cref="IMediaInputStream"/>.
+    /// </summary>
+    /// <param name="containerConfig">The container configuration.</param>
+    /// <param name="mediaUrl">The media URL.</param>
+    public unsafe delegate void InputStreamInitializing(ContainerConfiguration containerConfig, string mediaUrl);
+
+    /// <summary>
+    /// A callback that gets called when the media container's input format context has been initialized for the <see cref="IMediaInputStream"/>
+    /// </summary>
+    /// <param name="inputFormat">The unmanaged input format pointer</param>
+    /// <param name="formatContext">The unmanaged format context.</param>
+    /// <param name="mediaInfo">The detected media info</param>
+    public unsafe delegate void InputStreamInitialized(AVInputFormat* inputFormat, AVFormatContext* formatContext, MediaInfo mediaInfo);
 
     /// <summary>
     /// Defines the properties and methods necessary for implementing a
@@ -25,10 +41,20 @@
         int ReadBufferLength { get; }
 
         /// <summary>
+        /// Gets the callback that gets called before the media container's input context gets initialized for the <see cref="IMediaInputStream"/>.
+        /// </summary>
+        InputStreamInitializing OnInitializing { get; }
+
+        /// <summary>
+        /// Gets the callback that gets called when the media container's input format context has been initialized for the <see cref="IMediaInputStream"/>
+        /// </summary>
+        InputStreamInitialized OnInitialized { get; }
+
+        /// <summary>
         /// Reads from the underlying stream and writes up to <paramref name="targetBufferLength"/> bytes
         /// to the <paramref name="targetBuffer"/>. Returns the number of bytes that were written.
         /// </summary>
-        /// <param name="opaque">The opaque.</param>
+        /// <param name="opaque">An FFmpeg provided opaque reference.</param>
         /// <param name="targetBuffer">The target buffer.</param>
         /// <param name="targetBufferLength">Length of the target buffer.</param>
         /// <returns>The number of bytes that have been read</returns>
