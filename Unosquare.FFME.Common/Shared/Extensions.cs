@@ -350,45 +350,36 @@
         /// <summary>
         /// Computes the picture number.
         /// </summary>
-        /// <param name="startTime">The start time.</param>
-        /// <param name="duration">The duration.</param>
-        /// <param name="startNumber">The start number.</param>
+        /// <param name="streamStartTime">The Stream Start time</param>
+        /// <param name="pictureStartTime">The picture Start Time</param>
+        /// <param name="frameRate">The stream's average framerate (not time base)</param>
         /// <returns>
         /// The serial picture number
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static long ComputePictureNumber(TimeSpan startTime, TimeSpan duration, long startNumber) =>
-            startNumber + Convert.ToInt64(Convert.ToDouble(startTime.Ticks) / duration.Ticks);
+        internal static long ComputePictureNumber(TimeSpan streamStartTime, TimeSpan pictureStartTime, AVRational frameRate)
+        {
+            var streamTicks = streamStartTime == TimeSpan.MinValue ? 0 : streamStartTime.Ticks;
+            var frameTicks = pictureStartTime == TimeSpan.MinValue ? 0 : pictureStartTime.Ticks;
+
+            if (frameTicks < streamTicks)
+                frameTicks = streamTicks;
+
+            return 1L + (long)(TimeSpan.FromTicks(frameTicks - streamTicks).TotalSeconds * frameRate.num / frameRate.den);
+        }
 
         /// <summary>
         /// Computes the smtpe time code.
         /// </summary>
-        /// <param name="streamStartTime">The start time offset.</param>
-        /// <param name="frameDuration">The duration.</param>
+        /// <param name="pictureNumber">The picture number</param>
         /// <param name="frameRate">The frame rate.</param>
-        /// <param name="frameNumber">The display picture number.</param>
         /// <returns>The FFmpeg computed SMTPE Time code</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static unsafe string ComputeSmtpeTimeCode(TimeSpan streamStartTime, TimeSpan frameDuration, AVRational frameRate, long frameNumber)
+        internal static unsafe string ComputeSmtpeTimeCode(long pictureNumber, AVRational frameRate)
         {
-            // Drop the days in the stream start time
-            var startTime = streamStartTime.Days != 0 ?
-                streamStartTime.Subtract(TimeSpan.FromDays(streamStartTime.Days)) :
-                streamStartTime;
-
-            // Adjust to int value and turn picture number into picture index.
-            var frameIndex = frameNumber > int.MaxValue ?
-                Convert.ToInt32(frameNumber % int.MaxValue) - 1 :
-                Convert.ToInt32(frameNumber - 1);
-
+            var frameIndex = Convert.ToInt32(pictureNumber >= int.MaxValue ? pictureNumber % int.MaxValue : pictureNumber);
             var timeCodeInfo = (AVTimecode*)ffmpeg.av_malloc((ulong)Marshal.SizeOf(typeof(AVTimecode)));
-            var startFrameNumber = ComputePictureNumber(startTime, frameDuration, 0);
-
-            // Adjust to int value
-            if (startFrameNumber > int.MaxValue)
-                startFrameNumber = startFrameNumber % int.MaxValue;
-
-            ffmpeg.av_timecode_init(timeCodeInfo, frameRate, 0, Convert.ToInt32(startFrameNumber), null);
+            ffmpeg.av_timecode_init(timeCodeInfo, frameRate, 0, 0, null);
             var isNtsc = frameRate.num == 30000 && frameRate.den == 1001;
             var adjustedFrameNumber = isNtsc ?
                 ffmpeg.av_timecode_adjust_ntsc_framenum2(frameIndex, Convert.ToInt32(timeCodeInfo->fps)) :

@@ -278,9 +278,9 @@
                 target.EndTime = TimeSpan.FromTicks(target.StartTime.Ticks + target.Duration.Ticks);
 
                 // Guess picture number and SMTPE
-                var timeBase = ffmpeg.av_guess_frame_rate(Container.InputContext, Stream, source.Pointer);
-                target.DisplayPictureNumber = Extensions.ComputePictureNumber(target.StartTime, target.Duration, 1);
-                target.SmtpeTimeCode = Extensions.ComputeSmtpeTimeCode(StartTime, target.Duration, timeBase, target.DisplayPictureNumber);
+                var frameRate = ffmpeg.av_guess_frame_rate(Container.InputContext, Stream, source.Pointer);
+                target.DisplayPictureNumber = Extensions.ComputePictureNumber(StartTime, target.StartTime, frameRate);
+                target.SmtpeTimeCode = Extensions.ComputeSmtpeTimeCode(target.DisplayPictureNumber, frameRate);
             }
             else
             {

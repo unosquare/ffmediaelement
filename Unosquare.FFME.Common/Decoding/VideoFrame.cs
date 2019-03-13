@@ -57,11 +57,11 @@
             // Picture Type, Number and SMTPE TimeCode
             PictureType = frame->pict_type;
             DisplayPictureNumber = frame->display_picture_number == 0 ?
-                Extensions.ComputePictureNumber(StartTime, Duration, 1) :
+                Extensions.ComputePictureNumber(component.StartTime, StartTime, frameRate) :
                 frame->display_picture_number;
 
             CodedPictureNumber = frame->coded_picture_number;
-            SmtpeTimeCode = Extensions.ComputeSmtpeTimeCode(component.StartTime, Duration, frameRate, DisplayPictureNumber);
+            SmtpeTimeCode = Extensions.ComputeSmtpeTimeCode(DisplayPictureNumber, frameRate);
             IsHardwareFrame = component.IsUsingHardwareDecoding;
             HardwareAcceleratorName = component.HardwareAccelerator?.Name;
 
