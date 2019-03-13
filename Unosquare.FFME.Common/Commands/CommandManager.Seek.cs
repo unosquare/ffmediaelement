@@ -313,7 +313,7 @@
 
             var defaultOffsetTicks = seekMode == SeekMode.StepForward
                 ? blockDuration.Ticks > 0 ? (long)(blockDuration.Ticks * 1.5) : TimeSpan.FromSeconds(0.5).Ticks
-                : -(blockDuration.Ticks > 0 ? blockDuration.Ticks : TimeSpan.FromSeconds(0.5).Ticks);
+                : -(blockDuration.Ticks > 0 ? Convert.ToInt64(blockDuration.Ticks * 0.8) : TimeSpan.FromSeconds(0.5).Ticks);
 
             if (currentBlock == null)
                 return TimeSpan.FromTicks(currentPosition.Ticks + defaultOffsetTicks);

@@ -365,7 +365,7 @@
             if (frameTicks < streamTicks)
                 frameTicks = streamTicks;
 
-            return 1L + (long)(TimeSpan.FromTicks(frameTicks - streamTicks).TotalSeconds * frameRate.num / frameRate.den);
+            return 1L + (long)Math.Round(TimeSpan.FromTicks(frameTicks - streamTicks).TotalSeconds * frameRate.num / frameRate.den, 0, MidpointRounding.ToEven);
         }
 
         /// <summary>
@@ -377,7 +377,8 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static unsafe string ComputeSmtpeTimeCode(long pictureNumber, AVRational frameRate)
         {
-            var frameIndex = Convert.ToInt32(pictureNumber >= int.MaxValue ? pictureNumber % int.MaxValue : pictureNumber);
+            var pictureIndex = pictureNumber - 1;
+            var frameIndex = Convert.ToInt32(pictureIndex >= int.MaxValue ? pictureIndex % int.MaxValue : pictureIndex);
             var timeCodeInfo = (AVTimecode*)ffmpeg.av_malloc((ulong)Marshal.SizeOf(typeof(AVTimecode)));
             ffmpeg.av_timecode_init(timeCodeInfo, frameRate, 0, 0, null);
             var isNtsc = frameRate.num == 30000 && frameRate.den == 1001;
