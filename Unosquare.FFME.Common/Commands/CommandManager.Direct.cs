@@ -176,17 +176,17 @@
         {
             if (command == DirectCommandType.Open)
             {
-                MediaCore.State.UpdateFixedContainerProperties();
+                State.UpdateFixedContainerProperties();
 
                 if (commandException == null)
                 {
-                    MediaCore.State.UpdateMediaState(PlaybackStatus.Stop);
+                    State.UpdateMediaState(PlaybackStatus.Stop);
                     MediaCore.SendOnMediaOpened();
                 }
                 else
                 {
                     MediaCore.ResetPlaybackPosition();
-                    MediaCore.State.UpdateMediaState(PlaybackStatus.Close);
+                    State.UpdateMediaState(PlaybackStatus.Close);
                     MediaCore.SendOnMediaFailed(commandException);
                 }
             }
@@ -205,20 +205,20 @@
             }
             else if (command == DirectCommandType.Change)
             {
-                MediaCore.State.UpdateFixedContainerProperties();
+                State.UpdateFixedContainerProperties();
 
                 if (commandException == null)
                 {
                     MediaCore.SendOnMediaChanged();
 
                     // command result contains the play after seek.
-                    MediaCore.State.UpdateMediaState(
+                    State.UpdateMediaState(
                         resumeMedia ? PlaybackStatus.Play : PlaybackStatus.Pause);
                 }
                 else
                 {
                     MediaCore.SendOnMediaFailed(commandException);
-                    MediaCore.State.UpdateMediaState(PlaybackStatus.Pause);
+                    State.UpdateMediaState(PlaybackStatus.Pause);
                 }
             }
 
@@ -376,7 +376,7 @@
 
             // Recreate selected streams as media components
             MediaCore.Container.UpdateComponents();
-            MediaCore.State.UpdateFixedContainerProperties();
+            State.UpdateFixedContainerProperties();
             MediaCore.Timing.Setup();
 
             // Dispose unused rendered and blocks and create new ones

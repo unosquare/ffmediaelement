@@ -70,7 +70,7 @@
         {
             lock (SyncLock)
             {
-                if (IsDisposed || IsDisposing || !MediaCore.State.IsOpen || IsDirectCommandPending || IsPriorityCommandPending || !MediaCore.State.IsSeekable)
+                if (IsDisposed || IsDisposing || !State.IsOpen || IsDirectCommandPending || IsPriorityCommandPending || !State.IsSeekable)
                     return Task.FromResult(false);
 
                 if (QueuedSeekTask != null)
@@ -85,7 +85,7 @@
                     IsSeeking = true;
                     PlayAfterSeek = State.MediaState == PlaybackStatus.Play && seekMode == SeekMode.Normal;
                     MediaCore.PausePlayback();
-                    MediaCore.State.UpdateMediaState(PlaybackStatus.Manual);
+                    State.UpdateMediaState(PlaybackStatus.Manual);
                     MediaCore.SendOnSeekingStarted();
                 }
 

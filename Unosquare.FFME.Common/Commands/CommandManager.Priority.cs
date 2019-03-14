@@ -32,7 +32,7 @@
         {
             lock (SyncLock)
             {
-                if (IsDisposed || IsDisposing || !MediaCore.State.IsOpen || IsDirectCommandPending || IsPriorityCommandPending)
+                if (IsDisposed || IsDisposing || !State.IsOpen || IsDirectCommandPending || IsPriorityCommandPending)
                     return Task.FromResult(false);
 
                 PendingPriorityCommand = command;
@@ -75,7 +75,7 @@
             foreach (var renderer in MediaCore.Renderers.Values)
                 renderer.Play();
 
-            MediaCore.State.UpdateMediaState(PlaybackStatus.Play);
+            State.UpdateMediaState(PlaybackStatus.Play);
 
             return true;
         }
