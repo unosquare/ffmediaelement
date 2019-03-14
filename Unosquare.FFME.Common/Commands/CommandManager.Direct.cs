@@ -193,6 +193,7 @@
             else if (command == DirectCommandType.Close)
             {
                 // Update notification properties
+                MediaCore.Timing.Reset();
                 State.ResetAll();
                 MediaCore.ResetPlaybackPosition();
                 State.UpdateMediaState(PlaybackStatus.Close);
@@ -245,6 +246,7 @@
 
                 // Signal the initial state
                 var source = inputStream == null ? streamUri : inputStream.StreamUri;
+                MediaCore.Timing.Reset();
                 State.ResetAll();
                 State.UpdateSource(source);
 

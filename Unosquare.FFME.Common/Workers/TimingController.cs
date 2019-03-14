@@ -192,6 +192,19 @@
         }
 
         /// <summary>
+        /// Clears all component clocks and timing offsets.
+        /// </summary>
+        public void Reset()
+        {
+            lock (SyncLock)
+            {
+                IsReady = false;
+                Clocks.Clear();
+                Offsets.Clear();
+            }
+        }
+
+        /// <summary>
         /// Gets the playback position of the real-time clock of the given component type.
         /// </summary>
         /// <param name="t">The t.</param>

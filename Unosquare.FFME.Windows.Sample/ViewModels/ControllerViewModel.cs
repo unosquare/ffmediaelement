@@ -241,11 +241,8 @@
             new Action(() => { SeekBarVisibility = m.IsSeekable ? Visibility.Visible : Visibility.Hidden; })
                 .WhenChanged(m, nameof(m.IsSeekable));
 
-            new Action(() => { SeekBarVisibility = m.IsSeekable ? Visibility.Visible : Visibility.Hidden; })
-                .WhenChanged(m, nameof(m.IsSeekable));
-
-            new Action(() => { BufferingProgressVisibility = m.IsOpening || m.IsBuffering ? Visibility.Visible : Visibility.Hidden; })
-                .WhenChanged(m, nameof(m.IsOpening), nameof(m.IsBuffering));
+            new Action(() => { BufferingProgressVisibility = m.IsOpening || (m.IsBuffering && m.BufferingProgress < 0.95) ? Visibility.Visible : Visibility.Hidden; })
+                .WhenChanged(m, nameof(m.IsOpening), nameof(m.IsBuffering), nameof(m.BufferingProgress), nameof(m.Position));
 
             new Action(() => { DownloadProgressVisibility = m.IsOpen && m.HasMediaEnded == false && ((m.DownloadProgress > 0d && m.DownloadProgress < 0.95) || m.IsLiveStream) ? Visibility.Visible : Visibility.Hidden; })
                 .WhenChanged(m, nameof(m.IsOpen), nameof(m.HasMediaEnded), nameof(m.DownloadProgress), nameof(m.IsLiveStream));

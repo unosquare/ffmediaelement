@@ -6,7 +6,9 @@
 
     /// <summary>
     /// A very simple set of extensions to more easily handle UI state changes based on
-    /// notification properties
+    /// notification properties. The main idea is to bind to the PropertyChanged event
+    /// for a publisher only one and add a set of callbacks with matching property names
+    /// when the publisher raises the event.
     /// </summary>
     internal static class ReactiveExtensions
     {
@@ -18,7 +20,7 @@
 
         private static readonly object SyncLock = new object();
 
-        // The pinned actions (action that don't get remove if the weak reference is lost.
+        // The pinned actions (action that don't get removed if the reference is lost.
         // ReSharper disable once CollectionNeverQueried.Local
         private static readonly Dictionary<Action, bool> PinnedActions = new Dictionary<Action, bool>();
 
@@ -34,25 +36,36 @@
 
             lock (SyncLock)
             {
+                // Create the subscription set for the publisher if it does not exist.
                 if (Subscriptions.ContainsKey(publisher) == false)
                 {
                     Subscriptions[publisher] = new SubscriptionSet();
+
+                    // if it did not exist before, we need to bind to the
+                    // PropertyChanged event of the publisher.
                     bindPropertyChanged = true;
                 }
 
                 // Save the Action reference so that the weak reference is not lost
+                // TODO: The references will never be detected as dead if we pin them
+                // but for the purposes of this sample app we don't need to remove the
+                // dead references.
                 PinnedActions[callback] = true;
 
                 foreach (var propertyName in propertyNames)
                 {
+                    // Create the set of callback references for the publisher's property if it does not exist.
                     if (Subscriptions[publisher].ContainsKey(propertyName) == false)
                         Subscriptions[publisher][propertyName] = new CallbackReferenceSet();
 
+                    // Add the callback for the publisher's property changed
                     Subscriptions[publisher][propertyName].Add(new CallbackReference(callback));
                 }
             }
 
-            if (bindPropertyChanged == false) return;
+            // No need to bind to the PropertyChanged event if we are already bound to it.
+            if (bindPropertyChanged == false)
+                return;
 
             // Finally, bind to property changed
             publisher.PropertyChanged += (s, e) =>
@@ -62,25 +75,34 @@
 
                 lock (SyncLock)
                 {
+                    // we don't need to perform any action if there are no subscriptions to
+                    // this property name.
                     if (Subscriptions[publisher].ContainsKey(e.PropertyName) == false)
                         return;
 
+                    // Get the list of alive subscriptions for this property name
                     aliveCallbacks.AddRange(Subscriptions[publisher][e.PropertyName]);
                 }
 
+                // Call the subscription's callbacks
                 foreach (var aliveSubscription in aliveCallbacks)
                 {
+                    // Check if the subscription reference is alive.
                     if (aliveSubscription.IsAlive == false)
                     {
                         deadCallbacks.Add(aliveSubscription);
                         continue;
                     }
 
+                    // if the subscription is alive, invoke the matching action
                     aliveSubscription.Target?.Invoke();
                 }
 
-                if (deadCallbacks.Count == 0) return;
+                // Skip over if we don't have dead subscriptions
+                if (deadCallbacks.Count == 0)
+                    return;
 
+                // Remove dead subscriptions
                 lock (SyncLock)
                 {
                     foreach (var deadSubscriber in deadCallbacks)
