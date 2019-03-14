@@ -76,7 +76,7 @@
             var all = MediaCore.Renderers.Keys.ToArray();
 
             // Ensure we have renderers ready and main blocks available
-            if (!Initialize(main, all))
+            if (!Initialize(all))
                 return;
 
             try
@@ -125,11 +125,10 @@
         /// <summary>
         /// Performs initialization before regular render loops are executed.
         /// </summary>
-        /// <param name="main">The main renderer component.</param>
-        /// <param name="all">All the renderer components.</param>
+        /// <param name="all">All the component renderer types.</param>
         /// <returns>If media was initialized successfully.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool Initialize(MediaType main, MediaType[] all)
+        private bool Initialize(MediaType[] all)
         {
             // Don't run the cycle if we have already initialized
             if (HasInitialized == true)
@@ -156,9 +155,6 @@
             if (Commands.HasPendingCommands)
                 return;
 
-            MediaBlockBuffer blocks = null;
-            TimeSpan position = MediaCore.PlaybackPosition;
-
             if (HasDisconnectedClocks)
             {
                 foreach (var t in all)
@@ -166,31 +162,34 @@
                     if (t == MediaType.Subtitle)
                         continue;
 
-                    blocks = MediaCore.Blocks[t];
-                    position = MediaCore.Timing.Position(t);
+                    var compBlocks = MediaCore.Blocks[t];
+                    var compPosition = MediaCore.Timing.Position(t);
 
-                    if (blocks.Count <= 0)
+                    if (compBlocks.Count <= 0)
                     {
                         MediaCore.Timing.Pause(t);
-                        this.LogDebug(Aspects.Timing, $"CLOCK PAUSED: {t} clock was paused at {position.Format()} because no decoded {t} content was found");
+                        this.LogDebug(Aspects.Timing,
+                            $"CLOCK PAUSED: {t} clock was paused at {compPosition.Format()} because no decoded {t} content was found");
                         continue;
                     }
 
                     // Don't let the RTC lag behind the blocks or move beyond them
-                    if (position.Ticks < blocks.RangeStartTime.Ticks)
+                    if (compPosition.Ticks < compBlocks.RangeStartTime.Ticks)
                     {
-                        MediaCore.Timing.Update(blocks.RangeStartTime, t);
-                        this.LogDebug(Aspects.Timing, $"CLOCK BEHIND: {t} clock was {position.Format()}. It was updated to {blocks.RangeStartTime.Format()}");
+                        MediaCore.Timing.Update(compBlocks.RangeStartTime, t);
+                        this.LogDebug(Aspects.Timing,
+                            $"CLOCK BEHIND: {t} clock was {compPosition.Format()}. It was updated to {compBlocks.RangeStartTime.Format()}");
                     }
-                    else if (position.Ticks > blocks.RangeEndTime.Ticks)
+                    else if (compPosition.Ticks > compBlocks.RangeEndTime.Ticks)
                     {
                         // we don't use the pause playback method to prevent
                         // reporting the current playback position
                         if (t != MediaType.Audio)
                             MediaCore.Timing.Pause(t);
 
-                        MediaCore.Timing.Update(blocks.RangeEndTime, t);
-                        this.LogDebug(Aspects.Timing, $"CLOCK AHEAD : {t} clock was {position.Format()}. It was updated to {blocks.RangeEndTime.Format()}");
+                        MediaCore.Timing.Update(compBlocks.RangeEndTime, t);
+                        this.LogDebug(Aspects.Timing,
+                            $"CLOCK AHEAD : {t} clock was {compPosition.Format()}. It was updated to {compBlocks.RangeEndTime.Format()}");
                     }
                 }
 
@@ -199,26 +198,30 @@
 
             // Get a reference to the main blocks.
             // The range will be 0 if there are no blocks.
-            blocks = MediaCore.Blocks[main];
+            var blocks = MediaCore.Blocks[main];
+            var position = MediaCore.PlaybackPosition;
             var range = blocks.GetRangePercent(position);
 
             if (range < 0)
             {
                 // Don't let the RTC lag behind what is available on the main component
                 MediaCore.ChangePlaybackPosition(blocks.RangeStartTime);
-                this.LogTrace(Aspects.Timing, $"CLOCK BEHIND: playback clock was {position.Format()}. It was updated to {blocks.RangeStartTime.Format()}");
+                this.LogTrace(Aspects.Timing,
+                    $"CLOCK BEHIND: playback clock was {position.Format()}. It was updated to {blocks.RangeStartTime.Format()}");
             }
             else if (range > 1d)
             {
                 // Don't let the RTC move beyond what is available on the main component
                 MediaCore.PausePlayback();
                 MediaCore.ChangePlaybackPosition(blocks.RangeEndTime);
-                this.LogTrace(Aspects.Timing, $"CLOCK AHEAD : playback clock was {position.Format()}. It was updated to {blocks.RangeEndTime.Format()}");
+                this.LogTrace(Aspects.Timing,
+                    $"CLOCK AHEAD : playback clock was {position.Format()}. It was updated to {blocks.RangeEndTime.Format()}");
             }
             else if (range == 0 && blocks.Count == 0 && MediaCore.Timing.IsRunning)
             {
                 // We have no main blocks in range. All we can do is pause the clock
-                this.LogTrace(Aspects.Timing, $"CLOCK PAUSED: playback clock was paused at {position.Format()} because no decoded {main} content was found");
+                this.LogTrace(Aspects.Timing,
+                    $"CLOCK PAUSED: playback clock was paused at {position.Format()} because no decoded {main} content was found");
                 MediaCore.PausePlayback();
             }
         }
