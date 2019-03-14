@@ -41,8 +41,4 @@
     </PackageReference>
   </ItemGroup>
   
-  <ItemGroup Condition="'$(TargetFramework)'=='net461'">
-    <Reference Include="System.Web" />
-  </ItemGroup>
-
 </Project>

@@ -10,8 +10,8 @@
     /// </summary>
     public sealed class DeferredAction : IDisposable
     {
+        private readonly Timer DeferTimer;
         private bool IsDisposed;
-        private Timer DeferTimer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DeferredAction"/> class.
@@ -57,9 +57,7 @@
         {
             if (IsDisposed) return;
             IsDisposed = true;
-
-            DeferTimer?.Dispose();
-            DeferTimer = null;
+            DeferTimer.Dispose();
         }
 
         #endregion
