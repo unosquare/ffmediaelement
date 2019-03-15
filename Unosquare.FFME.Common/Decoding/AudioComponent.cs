@@ -306,7 +306,7 @@
 
             // ReSharper restore StringLiteralTypo
             var frameArguments = ComputeFilterArguments(frame);
-            if (string.IsNullOrWhiteSpace(CurrentFilterArguments) || frameArguments.Equals(CurrentFilterArguments) == false)
+            if (string.IsNullOrWhiteSpace(CurrentFilterArguments) || frameArguments != CurrentFilterArguments)
                 DestroyFilterGraph();
             else
                 return;

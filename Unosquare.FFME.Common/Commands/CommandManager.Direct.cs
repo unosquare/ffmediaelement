@@ -285,7 +285,7 @@
                     // Support device URLs
                     // GDI GRAB: Example URI: device://gdigrab?desktop
                     if (string.IsNullOrWhiteSpace(source.Scheme) == false
-                        && (source.Scheme.Equals("format") || source.Scheme.Equals("device"))
+                        && (source.Scheme == "format" || source.Scheme == "device")
                         && string.IsNullOrWhiteSpace(source.Host) == false
                         && string.IsNullOrWhiteSpace(containerConfig.ForcedInputFormat)
                         && string.IsNullOrWhiteSpace(source.Query) == false)
@@ -467,8 +467,8 @@
         private MediaType[] GetCurrentRenderingTypes()
         {
             var currentMediaTypes = new List<MediaType>(8);
-            currentMediaTypes.AddRange(MediaCore?.Renderers?.Keys?.ToArray() ?? new MediaType[] { });
-            currentMediaTypes.AddRange(MediaCore?.Blocks?.Keys?.ToArray() ?? new MediaType[] { });
+            currentMediaTypes.AddRange(MediaCore?.Renderers?.Keys?.ToArray() ?? Array.Empty<MediaType>());
+            currentMediaTypes.AddRange(MediaCore?.Blocks?.Keys?.ToArray() ?? Array.Empty<MediaType>());
 
             return currentMediaTypes.Distinct().ToArray();
         }

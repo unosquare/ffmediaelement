@@ -17,7 +17,7 @@
       This package does not contain the required FFmpeg binaries. Please refer to the following URL for instructions on how to obtain the binaries: https://github.com/unosquare/ffmediaelement
       Release details: https://github.com/unosquare/ffmediaelement/milestone/9?closed=1
     </releaseNotes>
-    <copyright>Copyright © 2015-2018 Mario Di Vece, Unosquare SA de CV</copyright>
+    <copyright>Copyright © 2015-2019 Mario Di Vece, Unosquare SA de CV</copyright>
     <language>en-US</language>
     <tags>hls wpf ffmpeg mediaelement ffme h264 h265 hevc audio video processing decoding playback frame</tags>
     <dependencies>

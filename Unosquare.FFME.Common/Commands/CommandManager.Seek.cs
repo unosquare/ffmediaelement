@@ -60,6 +60,27 @@
 
         #region Command Implementations
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static TimeSpan ComputeStepTargetPosition(SeekMode seekMode, MediaBlockBuffer mainBlocks, TimeSpan currentPosition)
+        {
+            var neighbors = mainBlocks.Neighbors(currentPosition);
+            var currentBlock = neighbors[2];
+            var neighborBlock = seekMode == SeekMode.StepForward ? neighbors[1] : neighbors[0];
+            var blockDuration = mainBlocks.AverageBlockDuration;
+
+            var defaultOffsetTicks = seekMode == SeekMode.StepForward
+                ? blockDuration.Ticks > 0 ? (long)(blockDuration.Ticks * 1.5) : TimeSpan.FromSeconds(0.5).Ticks
+                : -(blockDuration.Ticks > 0 ? Convert.ToInt64(blockDuration.Ticks * 0.8) : TimeSpan.FromSeconds(0.5).Ticks);
+
+            if (currentBlock == null)
+                return TimeSpan.FromTicks(currentPosition.Ticks + defaultOffsetTicks);
+
+            if (neighborBlock == null)
+                return TimeSpan.FromTicks(currentBlock.StartTime.Ticks + defaultOffsetTicks);
+
+            return neighborBlock.StartTime;
+        }
+
         /// <summary>
         /// Executes boilerplate logic to queue a seek operation.
         /// </summary>
@@ -301,27 +322,6 @@
             }
 
             return hasSeekBlocks;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private TimeSpan ComputeStepTargetPosition(SeekMode seekMode, MediaBlockBuffer mainBlocks, TimeSpan currentPosition)
-        {
-            var neighbors = mainBlocks.Neighbors(currentPosition);
-            var currentBlock = neighbors[2];
-            var neighborBlock = seekMode == SeekMode.StepForward ? neighbors[1] : neighbors[0];
-            var blockDuration = mainBlocks.AverageBlockDuration;
-
-            var defaultOffsetTicks = seekMode == SeekMode.StepForward
-                ? blockDuration.Ticks > 0 ? (long)(blockDuration.Ticks * 1.5) : TimeSpan.FromSeconds(0.5).Ticks
-                : -(blockDuration.Ticks > 0 ? Convert.ToInt64(blockDuration.Ticks * 0.8) : TimeSpan.FromSeconds(0.5).Ticks);
-
-            if (currentBlock == null)
-                return TimeSpan.FromTicks(currentPosition.Ticks + defaultOffsetTicks);
-
-            if (neighborBlock == null)
-                return TimeSpan.FromTicks(currentBlock.StartTime.Ticks + defaultOffsetTicks);
-
-            return neighborBlock.StartTime;
         }
 
         #endregion

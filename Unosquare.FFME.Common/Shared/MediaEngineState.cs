@@ -370,9 +370,8 @@
         /// Updates state properties coming from a new media block.
         /// </summary>
         /// <param name="block">The block.</param>
-        /// <param name="buffer">The buffer.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdateDynamicBlockProperties(MediaBlock block, MediaBlockBuffer buffer)
+        internal void UpdateDynamicBlockProperties(MediaBlock block)
         {
             if (block == null) return;
 

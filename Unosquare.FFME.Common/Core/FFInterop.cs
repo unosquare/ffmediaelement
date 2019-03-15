@@ -14,7 +14,7 @@
     /// Provides a set of utilities to perform logging, text formatting,
     /// conversion and other handy calculations.
     /// </summary>
-    internal static class FFInterop
+    internal static unsafe class FFInterop
     {
         #region Private Declarations
 
@@ -35,7 +35,7 @@
 
         private static readonly object SyncLock = new object();
         private static readonly List<OptionMeta> EmptyOptionMetaList = new List<OptionMeta>(0);
-        private static readonly av_log_set_callback_callback FFmpegLogCallback;
+        private static readonly av_log_set_callback_callback FFmpegLogCallback = OnFFmpegMessageLogged;
         private static readonly ILoggingHandler LoggingHandler = new FFLoggingHandler();
         private static bool m_IsInitialized;
         private static string m_LibrariesPath = string.Empty;
@@ -44,17 +44,6 @@
         private static int TempByteLength;
 
         #endregion
-
-        /// <summary>
-        /// Initializes static members of the <see cref="FFInterop"/> class.
-        /// </summary>
-        static FFInterop()
-        {
-            unsafe
-            {
-                FFmpegLogCallback = OnFFmpegMessageLogged;
-            }
-        }
 
         #region Properties
 
@@ -350,7 +339,7 @@
                 if (FFmpegLogLevels.ContainsKey(level))
                     messageType = FFmpegLogLevels[level];
 
-                if (!line.EndsWith("\n")) return;
+                if (!line.EndsWith("\n", StringComparison.InvariantCulture)) return;
                 line = string.Join(string.Empty, FFmpegLogBuffer);
                 line = line.TrimEnd();
                 FFmpegLogBuffer.Clear();

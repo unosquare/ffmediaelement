@@ -10,7 +10,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Unosquare SA de CV")]
 [assembly: AssemblyProduct("Unosquare.FFME.Windows.Sample")]
-[assembly: AssemblyCopyright("Copyright © 2017-2018 Unosquare SA de CV")]
+[assembly: AssemblyCopyright("Copyright © 2015-2019 Unosquare SA de CV")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -40,5 +40,5 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2019.03.10.*")]
+[assembly: AssemblyVersion("2019.03.15.*")]
 [assembly: AssemblyFileVersion("4.1.280")]

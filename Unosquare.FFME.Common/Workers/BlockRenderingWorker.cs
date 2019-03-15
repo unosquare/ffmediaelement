@@ -479,7 +479,7 @@
                 return 0;
 
             // Process property changes coming from video blocks
-            State.UpdateDynamicBlockProperties(currentBlock, MediaCore.Blocks[t]);
+            State.UpdateDynamicBlockProperties(currentBlock);
 
             // Capture the last render time so we don't repeat the block
             MediaCore.LastRenderTime[t] = currentBlock.StartTime;
