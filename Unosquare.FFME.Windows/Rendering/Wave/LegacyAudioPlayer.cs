@@ -1,10 +1,10 @@
 ﻿namespace Unosquare.FFME.Rendering.Wave
 {
+    using Engine;
+    using Primitives;
     using System;
     using System.Collections.Generic;
     using System.Threading;
-    using Primitives;
-    using Shared;
 
     /// <summary>
     /// A wave player that opens an audio device and continuously feeds it

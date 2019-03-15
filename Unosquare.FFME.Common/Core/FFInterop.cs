@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.Core
 {
+    using Engine;
     using FFmpeg.AutoGen;
-    using Shared;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;

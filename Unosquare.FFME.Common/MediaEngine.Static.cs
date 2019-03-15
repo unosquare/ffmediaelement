@@ -2,9 +2,9 @@
 {
     using Core;
     using Decoding;
+    using Engine;
     using FFmpeg.AutoGen;
     using Primitives;
-    using Shared;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -308,27 +308,27 @@
         /// <summary>
         /// Retrieves the media information including all streams, chapters and programs.
         /// </summary>
-        /// <param name="sourceUrl">The source URL.</param>
+        /// <param name="mediaSource">The source URL.</param>
         /// <returns>The contents of the media information.</returns>
-        public static MediaInfo RetrieveMediaInfo(string sourceUrl)
+        public static MediaInfo RetrieveMediaInfo(string mediaSource)
         {
-            using (var container = new MediaContainer(sourceUrl, null, null))
+            using (var container = new MediaContainer(mediaSource, null, null))
                 return container.MediaInfo;
         }
 
         /// <summary>
         /// Creates a viedo seek index.
         /// </summary>
-        /// <param name="sourceUrl">The source URL.</param>
+        /// <param name="mediaSource">The source URL.</param>
         /// <param name="streamIndex">Index of the stream. Use -1 for automatic stream selection.</param>
         /// <returns>
         /// The seek index object
         /// </returns>
-        public static VideoSeekIndex CreateVideoSeekIndex(string sourceUrl, int streamIndex)
+        public static VideoSeekIndex CreateVideoSeekIndex(string mediaSource, int streamIndex)
         {
-            var result = new VideoSeekIndex(sourceUrl, -1);
+            var result = new VideoSeekIndex(mediaSource, -1);
 
-            using (var container = new MediaContainer(sourceUrl, null, null))
+            using (var container = new MediaContainer(mediaSource, null, null))
             {
                 container.MediaOptions.IsAudioDisabled = true;
                 container.MediaOptions.IsVideoDisabled = false;
@@ -371,13 +371,16 @@
         /// <summary>
         /// Reads all the blocks of the specified media type from the source url.
         /// </summary>
-        /// <param name="sourceUrl">The subtitles URL.</param>
+        /// <param name="mediaSource">The subtitles URL.</param>
         /// <param name="sourceType">Type of the source.</param>
         /// <param name="parent">The parent.</param>
         /// <returns>A buffer containing all the blocks</returns>
-        internal static MediaBlockBuffer LoadBlocks(string sourceUrl, MediaType sourceType, ILoggingHandler parent)
+        internal static MediaBlockBuffer LoadBlocks(string mediaSource, MediaType sourceType, ILoggingHandler parent)
         {
-            using (var tempContainer = new MediaContainer(sourceUrl, null, parent))
+            if (string.IsNullOrWhiteSpace(mediaSource))
+                throw new ArgumentNullException(nameof(mediaSource));
+
+            using (var tempContainer = new MediaContainer(mediaSource, null, parent))
             {
                 // Skip reading and decoding unused blocks
                 tempContainer.MediaOptions.IsAudioDisabled = sourceType != MediaType.Audio;

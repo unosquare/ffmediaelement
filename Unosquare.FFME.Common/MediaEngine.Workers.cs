@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME
 {
+    using Engine;
     using Primitives;
-    using Shared;
     using System;
     using System.Linq;
     using System.Runtime.CompilerServices;
@@ -9,14 +9,13 @@
 
     public partial class MediaEngine
     {
-        /// <summary>
-        /// This partial class implements:
-        /// 1. Packet reading from the Container
-        /// 2. Frame Decoding from packet buffer and Block buffering
-        /// 3. Block Rendering from block buffer
-        /// </summary>
-
         #region State Management
+
+        /// <summary>
+        /// Gets the buffer length maximum.
+        /// port of MAX_QUEUE_SIZE (ffplay.c)
+        /// </summary>
+        internal const long BufferLengthMax = 16 * 1024 * 1024;
 
         private readonly AtomicBoolean m_IsSyncBuffering = new AtomicBoolean(false);
         private readonly AtomicBoolean m_HasDecodingEnded = new AtomicBoolean(false);
@@ -70,12 +69,6 @@
             get => m_HasDecodingEnded.Value;
             set => m_HasDecodingEnded.Value = value;
         }
-
-        /// <summary>
-        /// Gets the buffer length maximum.
-        /// port of MAX_QUEUE_SIZE (ffplay.c)
-        /// </summary>
-        internal long BufferLengthMax => 16 * 1024 * 1024;
 
         /// <summary>
         /// Gets a value indicating whether packets can be read and
@@ -212,7 +205,7 @@
             // This forces the rendering worker to send the
             // corresponding block to its renderer
             LastRenderTime[t] = TimeSpan.MinValue;
-            Renderers[t]?.Seek();
+            Renderers[t]?.OnSeek();
         }
 
         /// <summary>

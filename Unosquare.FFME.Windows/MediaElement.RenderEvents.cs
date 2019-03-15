@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME
 {
+    using Engine;
     using Events;
-    using Shared;
     using System;
     using System.Runtime.CompilerServices;
 

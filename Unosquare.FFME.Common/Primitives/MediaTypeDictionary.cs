@@ -1,13 +1,15 @@
 ﻿namespace Unosquare.FFME.Primitives
 {
-    using Shared;
+    using Engine;
     using System;
     using System.Collections.Generic;
+    using System.Runtime.Serialization;
 
     /// <summary>
     /// Represents a very simple dictionary for MediaType keys
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
+    [Serializable]
     public sealed class MediaTypeDictionary<TValue>
         : Dictionary<MediaType, TValue>
     {
@@ -16,6 +18,12 @@
         /// </summary>
         public MediaTypeDictionary()
             : base(Enum.GetValues(typeof(MediaType)).Length)
+        {
+            // placeholder
+        }
+
+        private MediaTypeDictionary(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
             // placeholder
         }

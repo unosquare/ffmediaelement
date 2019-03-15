@@ -33,5 +33,19 @@
                     Count == other.Count &&
                     CountThreshold == other.CountThreshold &&
                     HasEnoughPackets == other.HasEnoughPackets;
+
+        /// <inheritdoc />
+        public override bool Equals(object obj) =>
+            obj is PacketBufferState && Equals((PacketBufferState)obj);
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return
+                Length.GetHashCode() ^
+                Count ^
+                CountThreshold ^
+                HasEnoughPackets.GetHashCode();
+        }
     }
 }

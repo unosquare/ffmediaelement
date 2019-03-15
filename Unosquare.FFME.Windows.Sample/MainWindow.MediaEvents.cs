@@ -4,7 +4,7 @@
     using Events;
     using FFmpeg.AutoGen;
     using Platform;
-    using Shared;
+    using Engine;
     using System;
     using System.Diagnostics;
     using System.IO;
@@ -73,7 +73,8 @@
         private void OnMediaInitializing(object sender, MediaInitializingEventArgs e)
         {
             // An example of injecting input options for http/https streams
-            if (e.Url.StartsWith("http://") || e.Url.StartsWith("https://"))
+            if (e.MediaSource.StartsWith("http://", StringComparison.InvariantCulture) ||
+                e.MediaSource.StartsWith("https://", StringComparison.InvariantCulture))
             {
                 e.Configuration.PrivateOptions["user_agent"] = $"{typeof(ContainerConfiguration).Namespace}/{typeof(ContainerConfiguration).Assembly.GetName().Version}";
                 e.Configuration.PrivateOptions["headers"] = "Referer:https://www.unosquare.com";
@@ -89,7 +90,7 @@
             // RTSP is similar to HTTP but it only provides metadata about the underlying stream
             // Most RTSP compatible streams expose RTP data over both UDP and TCP.
             // TCP provides reliable communication while UDP does not
-            if (e.Url.StartsWith("rtsp://"))
+            if (e.MediaSource.StartsWith("rtsp://", StringComparison.InvariantCulture))
             {
                 e.Configuration.PrivateOptions["rtsp_transport"] = "tcp";
                 e.Configuration.GlobalOptions.FlagNoBuffer = true;
@@ -131,7 +132,7 @@
             // Do not disable Time Sync for streams that need synchronized audio and video.
             e.Options.IsTimeSyncDisabled =
                 e.Info.Format == "libndi_newtek" ||
-                e.Info.InputUrl.StartsWith("rtsp://uno");
+                e.Info.MediaSource.StartsWith("rtsp://uno");
 
             // You can disable the requirement of buffering packets by setting the playback
             // buffer percent to 0. Values of less than 0.5 for live or network streams are not recommended.
@@ -144,11 +145,11 @@
             // Also if time synchronization is disabled, the recommendation is to also disable audio synchronization.
             Media.RendererOptions.AudioDisableSync =
                 e.Options.IsTimeSyncDisabled ||
-                e.Info.InputUrl.EndsWith(".wmv");
+                e.Info.MediaSource.EndsWith(".wmv", StringComparison.InvariantCulture);
 
             // Legacy audio out is the use of the WinMM api as opposed to using DirectSound
             // Enable legacy audio out if you are having issues with the DirectSound driver.
-            Media.RendererOptions.UseLegacyAudioOut = e.Info.InputUrl.EndsWith(".wmv");
+            Media.RendererOptions.UseLegacyAudioOut = e.Info.MediaSource.EndsWith(".wmv", StringComparison.InvariantCulture);
 
             // You can limit how often the video renderer updates the picture.
             // We keep it as 0 to refresh the video according to the native stream specification.
@@ -158,7 +159,7 @@
             var mediaFilePath = string.Empty;
             try
             {
-                var url = new Uri(e.Info.InputUrl);
+                var url = new Uri(e.Info.MediaSource);
                 mediaFilePath = url.IsFile || url.IsUnc ? Path.GetFullPath(url.LocalPath) : string.Empty;
             }
             catch { /* Ignore Exceptions */ }
@@ -168,7 +169,7 @@
             {
                 var srtFilePath = Path.ChangeExtension(mediaFilePath, "srt");
                 if (File.Exists(srtFilePath))
-                    e.Options.SubtitlesUrl = srtFilePath;
+                    e.Options.SubtitlesSource = srtFilePath;
             }
 
             // You can also force video FPS if necessary
@@ -206,8 +207,8 @@
 
                         // Make sure the seek index belongs to the media file path
                         if (seekIndex != null &&
-                            string.IsNullOrWhiteSpace(seekIndex.SourceUrl) == false &&
-                            seekIndex.SourceUrl.Equals(mediaFilePath) &&
+                            !string.IsNullOrWhiteSpace(seekIndex.MediaSource) &&
+                            seekIndex.MediaSource == mediaFilePath &&
                             seekIndex.StreamIndex == videoStream.StreamIndex)
                         {
                             // Set the index on the options object.

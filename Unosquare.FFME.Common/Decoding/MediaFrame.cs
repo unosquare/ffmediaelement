@@ -1,8 +1,8 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
     using Core;
+    using Engine;
     using FFmpeg.AutoGen;
-    using Shared;
     using System;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;

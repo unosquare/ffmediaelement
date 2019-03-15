@@ -1,8 +1,8 @@
 ﻿namespace Unosquare.FFME.Rendering
 {
+    using Engine;
     using Platform;
     using Primitives;
-    using Shared;
     using System;
     using System.Runtime.CompilerServices;
     using System.Threading;
@@ -49,9 +49,9 @@
             MediaCore = mediaCore ?? throw new ArgumentNullException(nameof(mediaCore));
 
             WaveFormat = new WaveFormat(
-                Constants.Audio.SampleRate,
-                Constants.Audio.BitsPerSample,
-                Constants.Audio.ChannelCount);
+                Constants.AudioSampleRate,
+                Constants.AudioBitsPerSample,
+                Constants.AudioChannelCount);
 
             if (WaveFormat.BitsPerSample != 16 || WaveFormat.Channels != 2)
                 throw new NotSupportedException("Wave Format has to be 16-bit and 2-channel.");
@@ -204,25 +204,25 @@
         }
 
         /// <inheritdoc />
-        public void Play()
+        public void OnPlay()
         {
             // placeholder
         }
 
         /// <inheritdoc />
-        public void Pause()
+        public void OnPause()
         {
             // Placeholder
         }
 
         /// <inheritdoc />
-        public void Stop()
+        public void OnStop()
         {
-            Seek();
+            OnSeek();
         }
 
         /// <inheritdoc />
-        public void Close()
+        public void OnClose()
         {
             // Self-disconnect
             if (Application.Current != null)
@@ -234,13 +234,13 @@
             // Yes, seek and destroy... coincidentally.
             lock (SyncLock)
             {
-                Seek();
+                OnSeek();
                 Destroy();
             }
         }
 
         /// <inheritdoc />
-        public void Seek()
+        public void OnSeek()
         {
             lock (SyncLock)
             {
@@ -253,7 +253,7 @@
         }
 
         /// <inheritdoc />
-        public void WaitForReadyState() => WaitForReadyEvent?.Wait();
+        public void OnStarting() => WaitForReadyEvent?.Wait();
 
         /// <inheritdoc />
         public void Dispose()
@@ -298,8 +298,8 @@
                 }
 
                 // Ensure a pre-allocated ReadBuffer
-                if (ReadBuffer == null || ReadBuffer.Length < Convert.ToInt32(requestedBytes * Constants.Controller.MaxSpeedRatio))
-                    ReadBuffer = new byte[Convert.ToInt32(requestedBytes * Constants.Controller.MaxSpeedRatio)];
+                if (ReadBuffer == null || ReadBuffer.Length < Convert.ToInt32(requestedBytes * Constants.MaxSpeedRatio))
+                    ReadBuffer = new byte[Convert.ToInt32(requestedBytes * Constants.MaxSpeedRatio)];
 
                 // First part of DSP: Perform AV Synchronization if needed
                 if (!Synchronize(targetBuffer, targetBufferOffset, requestedBytes, speedRatio))
@@ -411,7 +411,7 @@
                 new DirectSoundPlayer(this, MediaElement.RendererOptions.DirectSoundDevice?.DeviceId ?? DirectSoundPlayer.DefaultPlaybackDeviceId);
 
             // Create the Audio Buffer
-            SampleBlockSize = Constants.Audio.BytesPerSample * Constants.Audio.ChannelCount;
+            SampleBlockSize = Constants.AudioBytesPerSample * Constants.AudioChannelCount;
             var bufferLength = WaveFormat.ConvertMillisToByteSize(2000); // 2-second buffer
             AudioBuffer = new CircularBuffer(bufferLength);
             AudioDevice.Start();
@@ -588,7 +588,7 @@
                 // When we are done repeating, advance 1 block in the source position
                 if (repeatCount >= repeatFactor)
                 {
-                    repeatCount = repeatCount % repeatFactor;
+                    repeatCount %= repeatFactor;
                     sourceOffset += SampleBlockSize;
                 }
 
@@ -615,7 +615,7 @@
 
             if (bytesToRead > AudioBuffer.ReadableCount)
             {
-                Seek();
+                OnSeek();
                 return;
             }
 
@@ -642,7 +642,7 @@
                 {
                     for (var i = sourceOffset;
                         i < sourceOffset + (currentGroupSizeW * SampleBlockSize);
-                        i += Constants.Audio.BytesPerSample)
+                        i += Constants.AudioBytesPerSample)
                     {
                         sample = ReadBuffer.GetAudioSample(i);
                         if (isLeftSample)
@@ -659,8 +659,8 @@
                     }
 
                     // compute an average of the samples
-                    leftSamples = leftSamples / samplesToAverage;
-                    rightSamples = rightSamples / samplesToAverage;
+                    leftSamples /= samplesToAverage;
+                    rightSamples /= samplesToAverage;
                 }
                 else
                 {
@@ -669,12 +669,12 @@
                     // Another option: currentGroupSizeW * SampleBlockSize / BytesPerSample / 2
                     samplesToAverage = 1;
                     leftSamples = ReadBuffer.GetAudioSample(sourceOffset);
-                    rightSamples = ReadBuffer.GetAudioSample(sourceOffset + Constants.Audio.BytesPerSample);
+                    rightSamples = ReadBuffer.GetAudioSample(sourceOffset + Constants.AudioBytesPerSample);
                 }
 
                 // Write the samples
                 ReadBuffer.PutAudioSample(targetOffset, Convert.ToInt16(leftSamples));
-                ReadBuffer.PutAudioSample(targetOffset + Constants.Audio.BytesPerSample, Convert.ToInt16(rightSamples));
+                ReadBuffer.PutAudioSample(targetOffset + Constants.AudioBytesPerSample, Convert.ToInt16(rightSamples));
 
                 // advance the base source offset
                 currentGroupSizeW = Convert.ToInt32(groupSize + currentGroupSizeF);
@@ -695,8 +695,8 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ReadAndUseAudioProcessor(int requestedBytes, double speedRatio)
         {
-            if (AudioProcessorBuffer == null || AudioProcessorBuffer.Length < Convert.ToInt32(requestedBytes * Constants.Controller.MaxSpeedRatio))
-                AudioProcessorBuffer = new short[Convert.ToInt32(requestedBytes * Constants.Controller.MaxSpeedRatio / Constants.Audio.BytesPerSample)];
+            if (AudioProcessorBuffer == null || AudioProcessorBuffer.Length < Convert.ToInt32(requestedBytes * Constants.MaxSpeedRatio))
+                AudioProcessorBuffer = new short[Convert.ToInt32(requestedBytes * Constants.MaxSpeedRatio / Constants.AudioBytesPerSample)];
 
             var bytesToRead = Convert.ToInt32((requestedBytes * speedRatio).ToMultipleOf(SampleBlockSize));
             var samplesToRequest = requestedBytes / SampleBlockSize;
@@ -746,8 +746,8 @@
             var volume = MediaCore.State.Volume;
             var balance = MediaCore.State.Balance;
 
-            volume = volume.Clamp(Constants.Controller.MinVolume, Constants.Controller.MaxVolume);
-            balance = balance.Clamp(Constants.Controller.MinBalance, Constants.Controller.MaxBalance);
+            volume = volume.Clamp(Constants.MinVolume, Constants.MaxVolume);
+            balance = balance.Clamp(Constants.MinBalance, Constants.MaxBalance);
 
             var leftVolume = volume * (balance > 0 ? 1d - balance : 1d);
             var rightVolume = volume * (balance < 0 ? 1d + balance : 1d);
@@ -759,7 +759,7 @@
 
             for (var sourceBufferOffset = 0;
                 sourceBufferOffset < requestedBytes;
-                sourceBufferOffset += Constants.Audio.BytesPerSample)
+                sourceBufferOffset += Constants.AudioBytesPerSample)
             {
                 // The sample has 2 bytes: at the base index is the LSB and at the baseIndex + 1 is the MSB.
                 // This holds true for little endian architecture

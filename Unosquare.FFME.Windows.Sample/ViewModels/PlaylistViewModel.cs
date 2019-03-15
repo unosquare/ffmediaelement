@@ -178,7 +178,7 @@
         {
             HasTakenThumbnail = false;
             Entries.AddOrUpdateEntry(
-                Root.App.MediaElement.Source?.ToString() ?? Root.App.MediaElement.MediaInfo.InputUrl,
+                Root.App.MediaElement.Source?.ToString() ?? Root.App.MediaElement.MediaInfo.MediaSource,
                 Root.App.MediaElement.MediaInfo);
             Entries.SaveEntries();
         }

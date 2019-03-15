@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
     using Platform;
-    using Shared;
+    using Engine;
     using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Threading;

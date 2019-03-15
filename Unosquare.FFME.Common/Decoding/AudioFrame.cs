@@ -1,15 +1,15 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
+    using Engine;
     using FFmpeg.AutoGen;
-    using Shared;
     using System;
 
     /// <inheritdoc />
     /// <summary>
     /// Represents a wrapper from an unmanaged FFmpeg audio frame
     /// </summary>
-    /// <seealso cref="T:Unosquare.FFME.Decoding.MediaFrame" />
-    /// <seealso cref="T:System.IDisposable" />
+    /// <seealso cref="MediaFrame" />
+    /// <seealso cref="IDisposable" />
     internal sealed unsafe class AudioFrame : MediaFrame
     {
         #region Private Members

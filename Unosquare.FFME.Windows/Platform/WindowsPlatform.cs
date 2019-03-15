@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.Platform
 {
     using Rendering;
-    using Shared;
+    using Engine;
     using System;
     using System.Diagnostics;
 

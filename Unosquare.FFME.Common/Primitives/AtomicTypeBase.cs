@@ -206,6 +206,16 @@
             return instance;
         }
 
+        /// <summary>
+        /// Increments the value of the the backing field.
+        /// </summary>
+        public virtual void Increment() => Interlocked.Increment(ref backingValue);
+
+        /// <summary>
+        /// Decrements the value of the the backing field.
+        /// </summary>
+        public virtual void Decrement() => Interlocked.Decrement(ref backingValue);
+
         /// <inheritdoc />
         public int CompareTo(object other)
         {

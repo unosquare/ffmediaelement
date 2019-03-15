@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
+    using Engine;
     using FFmpeg.AutoGen;
-    using Shared;
     using System;
     using System.Text;
 
@@ -128,9 +128,9 @@
         /// <returns>The formatted string</returns>
         internal static string StripAssFormat(string input)
         {
-            const string DialoguePrefix = "dialogue:";
+            const string DialoguePrefix = "DIALOGUE:";
 
-            if (input.Substring(0, DialoguePrefix.Length).ToLowerInvariant().Equals(DialoguePrefix) == false)
+            if (input.Substring(0, DialoguePrefix.Length).ToUpperInvariant() != DialoguePrefix)
                 return string.Empty;
 
             var inputParts = input.Split(SeparatorChars, 10);

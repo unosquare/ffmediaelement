@@ -1,11 +1,11 @@
 ﻿#pragma warning disable 67 // Event is never invoked
 namespace Unosquare.FFME
 {
+    using Engine;
     using Events;
     using Platform;
     using Primitives;
     using Rendering;
-    using Shared;
     using System;
     using System.ComponentModel;
     using System.IO;
@@ -218,7 +218,7 @@ namespace Unosquare.FFME
 
         /// <summary>
         /// Provides access to the underlying media engine driving this control.
-        /// This property is intended for advance usages only.
+        /// This property is intended for advanced usages only.
         /// </summary>
         internal MediaEngine MediaCore { get; private set; }
 
@@ -271,7 +271,7 @@ namespace Unosquare.FFME
         /// <returns>The awaitable command</returns>
         public async Task<bool> ChangeMedia()
         {
-            try { return await MediaCore.ChangeMedia(); }
+            try { return await MediaCore.ChangeMedia().ConfigureAwait(false); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
             return false;
         }
@@ -282,7 +282,7 @@ namespace Unosquare.FFME
         /// <returns>The awaitable command</returns>
         public async Task<bool> Play()
         {
-            try { return await MediaCore.Play(); }
+            try { return await MediaCore.Play().ConfigureAwait(false); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
             return false;
         }
@@ -293,7 +293,7 @@ namespace Unosquare.FFME
         /// <returns>The awaitable command</returns>
         public async Task<bool> Pause()
         {
-            try { return await MediaCore.Pause(); }
+            try { return await MediaCore.Pause().ConfigureAwait(false); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
             return false;
         }
@@ -304,7 +304,7 @@ namespace Unosquare.FFME
         /// <returns>The awaitable command</returns>
         public async Task<bool> Stop()
         {
-            try { return await MediaCore.Stop(); }
+            try { return await MediaCore.Stop().ConfigureAwait(false); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
             return false;
         }
@@ -317,7 +317,7 @@ namespace Unosquare.FFME
         {
             try
             {
-                var result = await MediaCore.Close();
+                var result = await MediaCore.Close().ConfigureAwait(true);
                 Source = null;
                 return result;
             }
@@ -333,7 +333,7 @@ namespace Unosquare.FFME
         /// <returns>The awaitable command</returns>
         public async Task<bool> Seek(TimeSpan target)
         {
-            try { return await MediaCore.Seek(target); }
+            try { return await MediaCore.Seek(target).ConfigureAwait(false); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
             return false;
         }
@@ -344,7 +344,7 @@ namespace Unosquare.FFME
         /// <returns>The awaitable command</returns>
         public async Task<bool> StepForward()
         {
-            try { return await MediaCore.StepForward(); }
+            try { return await MediaCore.StepForward().ConfigureAwait(false); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
             return false;
         }
@@ -355,7 +355,7 @@ namespace Unosquare.FFME
         /// <returns>The awaitable command</returns>
         public async Task<bool> StepBackward()
         {
-            try { return await MediaCore.StepBackward(); }
+            try { return await MediaCore.StepBackward().ConfigureAwait(false); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
             return false;
         }
@@ -372,12 +372,12 @@ namespace Unosquare.FFME
             try
             {
                 IsOpeningViaCommand.Value = true;
-                await GuiContext.Current.InvokeAsync(() => Source = uri);
-                return await MediaCore.Open(uri);
+                await GuiContext.Current.InvokeAsync(() => Source = uri).ConfigureAwait(false);
+                return await MediaCore.Open(uri).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                await GuiContext.Current.InvokeAsync(() => Source = null);
+                await GuiContext.Current.InvokeAsync(() => Source = null).ConfigureAwait(false);
                 PostMediaFailedEvent(ex);
                 IsOpeningViaCommand.Value = false;
             }
@@ -395,12 +395,12 @@ namespace Unosquare.FFME
             try
             {
                 IsOpeningViaCommand.Value = true;
-                await GuiContext.Current.InvokeAsync(() => Source = stream.StreamUri);
-                return await MediaCore.Open(stream);
+                await GuiContext.Current.InvokeAsync(() => Source = stream.StreamUri).ConfigureAwait(false);
+                return await MediaCore.Open(stream).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                await GuiContext.Current.InvokeAsync(() => Source = null);
+                await GuiContext.Current.InvokeAsync(() => Source = null).ConfigureAwait(false);
                 PostMediaFailedEvent(ex);
                 IsOpeningViaCommand.Value = false;
             }
@@ -418,10 +418,10 @@ namespace Unosquare.FFME
 
             // Since VideoView might be hosted on a different dispatcher,
             // we use the custom InvokeAsync method
-            await VideoView?.InvokeAsync(() =>
+            await VideoView.InvokeAsync(() =>
             {
-                var source = VideoView?.Source?.Clone() as BitmapSource;
-                if (source == null) return;
+                if (!(VideoView?.Source?.Clone() is BitmapSource source))
+                    return;
 
                 source.Freeze();
                 var encoder = new BmpBitmapEncoder();
@@ -430,7 +430,7 @@ namespace Unosquare.FFME
                 encoder.Save(stream);
                 stream.Position = 0;
                 retrievedBitmap = new Bitmap(stream);
-            });
+            }).ConfigureAwait(false);
 
             return retrievedBitmap;
         }

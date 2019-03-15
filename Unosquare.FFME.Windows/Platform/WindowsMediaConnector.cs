@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME.Platform
 {
-    using Shared;
+    using Engine;
     using System;
 
     /// <summary>

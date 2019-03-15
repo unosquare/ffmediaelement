@@ -1,8 +1,8 @@
 ﻿namespace Unosquare.FFME.Workers
 {
     using Decoding;
+    using Engine;
     using Primitives;
-    using Shared;
     using System;
     using System.Threading;
     using System.Threading.Tasks;

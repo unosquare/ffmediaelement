@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME.Rendering
 {
-    using Shared;
+    using Engine;
     using System;
     using System.Runtime.Serialization;
     using System.Security.Permissions;

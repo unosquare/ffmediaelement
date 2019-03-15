@@ -1,9 +1,9 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
     using Core;
+    using Engine;
     using FFmpeg.AutoGen;
     using Primitives;
-    using Shared;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -107,29 +107,29 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="MediaContainer" /> class using a media URL.
         /// </summary>
-        /// <param name="mediaUrl">The media URL.</param>
+        /// <param name="mediaSource">The media URL.</param>
         /// <param name="config">The container configuration options.</param>
         /// <param name="loggingHandler">The logger.</param>
         /// <exception cref="ArgumentNullException">mediaUrl</exception>
-        public MediaContainer(string mediaUrl, ContainerConfiguration config, ILoggingHandler loggingHandler)
+        public MediaContainer(string mediaSource, ContainerConfiguration config, ILoggingHandler loggingHandler)
         {
             // Argument Validation
-            if (string.IsNullOrWhiteSpace(mediaUrl))
-                throw new ArgumentNullException($"{nameof(mediaUrl)}");
+            if (string.IsNullOrWhiteSpace(mediaSource))
+                throw new ArgumentNullException($"{nameof(mediaSource)}");
 
             // Initialize the library (if not already done)
             FFInterop.Initialize(null, FFmpegLoadMode.FullFeatures);
 
             // Create the options object and setup some initial properties
             m_LoggingHandler = loggingHandler;
-            MediaUrl = mediaUrl;
+            MediaSource = mediaSource;
             Configuration = config ?? new ContainerConfiguration();
             StreamReadInterruptCallback = OnStreamReadInterrupt;
 
             // drop the protocol prefix if it is redundant
             var protocolPrefix = Configuration.ProtocolPrefix;
-            if (string.IsNullOrWhiteSpace(MediaUrl) == false && string.IsNullOrWhiteSpace(protocolPrefix) == false
-                && MediaUrl.ToLowerInvariant().Trim().StartsWith(protocolPrefix.ToLowerInvariant() + ":"))
+            if (string.IsNullOrWhiteSpace(MediaSource) == false && string.IsNullOrWhiteSpace(protocolPrefix) == false
+                && MediaSource.ToUpperInvariant().Trim().StartsWith($"{protocolPrefix.ToUpperInvariant()}:", StringComparison.InvariantCulture))
             {
                 protocolPrefix = null;
             }
@@ -160,12 +160,12 @@
 
             // Create the options object
             m_LoggingHandler = parent;
-            MediaUrl = mediaUrl;
+            MediaSource = mediaUrl;
             CustomInputStream = inputStream;
             Configuration = config ?? new ContainerConfiguration();
 
             // Initialize the Input Format Context and Input Stream Context
-            inputStream.OnInitializing?.Invoke(Configuration, MediaUrl);
+            inputStream.OnInitializing?.Invoke(Configuration, MediaSource);
             StreamInitialize();
         }
 
@@ -185,7 +185,7 @@
         /// Gets the media URL. This is the input url, file or device that is read
         /// by this container.
         /// </summary>
-        public string MediaUrl { get; }
+        public string MediaSource { get; }
 
         /// <summary>
         /// The container and demuxer initialization and configuration options.
@@ -532,7 +532,7 @@
         public MediaType[] UpdateComponents()
         {
             if (IsDisposed || InputContext == null)
-                return new MediaType[] { };
+                return Array.Empty<MediaType>();
 
             lock (ReadSyncRoot)
             {
@@ -651,7 +651,7 @@
                     var prefix = string.IsNullOrWhiteSpace(Configuration.ProtocolPrefix) ?
                         string.Empty : $"{Configuration.ProtocolPrefix.Trim()}:";
 
-                    var openUrl = $"{prefix}{MediaUrl}";
+                    var openUrl = $"{prefix}{MediaSource}";
 
                     // If there is a custom input stream, set it up.
                     if (CustomInputStream != null)
@@ -688,7 +688,7 @@
                     // Validate the open operation
                     if (openResult < 0)
                     {
-                        throw new MediaContainerException($"Could not open '{MediaUrl}'. "
+                        throw new MediaContainerException($"Could not open '{MediaSource}'. "
                             + $"Error {openResult}: {FFInterop.DecodeMessage(openResult)}");
                     }
 
@@ -715,7 +715,7 @@
                 if (ffmpeg.avformat_find_stream_info(InputContext, null) < 0)
                 {
                     this.LogWarning(Aspects.Container,
-                        $"{MediaUrl}: could not read stream information.");
+                        $"{MediaSource}: could not read stream information.");
                 }
 
                 // HACK: From ffplay.c: maybe should not use avio_feof() to test for the end
@@ -732,7 +732,7 @@
                     ffmpeg.av_read_play(InputContext);
                 }
 
-                if (IsNetworkStream == false && Uri.TryCreate(MediaUrl, UriKind.RelativeOrAbsolute, out var uri))
+                if (IsNetworkStream == false && Uri.TryCreate(MediaSource, UriKind.RelativeOrAbsolute, out var uri))
                 {
                     try { IsNetworkStream = uri.IsFile == false; }
                     catch { IsNetworkStream = true; }
@@ -897,7 +897,7 @@
 
             // Verify we have at least 1 stream component to work with.
             if (Components.HasVideo == false && Components.HasAudio == false && Components.HasSubtitles == false)
-                throw new MediaContainerException($"{MediaUrl}: No audio, video, or subtitle streams found to decode.");
+                throw new MediaContainerException($"{MediaSource}: No audio, video, or subtitle streams found to decode.");
 
             // Initially and depending on the video component, require picture attachments.
             // Picture attachments are only required after the first read or after a seek.

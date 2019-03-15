@@ -2,8 +2,8 @@
 {
     using Commands;
     using Decoding;
+    using Engine;
     using Primitives;
-    using Shared;
     using System;
     using System.Linq;
     using System.Runtime.CompilerServices;
@@ -136,7 +136,7 @@
 
             // Wait for renderers to be ready
             foreach (var t in all)
-                MediaCore.Renderers[t]?.WaitForReadyState();
+                MediaCore.Renderers[t]?.OnStarting();
 
             // Mark as initialized
             HasInitialized.Value = true;
@@ -366,8 +366,8 @@
 
                 // Get the audio, video, or subtitle block to render
                 var currentBlock = t == MediaType.Subtitle && MediaCore.PreloadedSubtitles != null
-                    ? MediaCore.PreloadedSubtitles[playbackClock]
-                    : MediaCore.Blocks[t][playbackClock];
+                    ? MediaCore.PreloadedSubtitles[playbackClock.Ticks]
+                    : MediaCore.Blocks[t][playbackClock.Ticks];
 
                 // Send the block to the corresponding renderer
                 // this will handle fringe and skip cases

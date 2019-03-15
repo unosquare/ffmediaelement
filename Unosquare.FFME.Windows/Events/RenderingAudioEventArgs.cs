@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME.Events
 {
-    using Shared;
+    using Engine;
     using System;
 
     /// <summary>
@@ -26,9 +26,9 @@
         {
             Buffer = buffer;
             BufferLength = length;
-            SampleRate = Constants.Audio.SampleRate;
-            ChannelCount = Constants.Audio.ChannelCount;
-            BitsPerSample = Constants.Audio.BitsPerSample;
+            SampleRate = Constants.AudioSampleRate;
+            ChannelCount = Constants.AudioChannelCount;
+            BitsPerSample = Constants.AudioBitsPerSample;
             Latency = latency;
         }
 

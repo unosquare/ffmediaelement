@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.Foundation
 {
     using FFmpeg.AutoGen;
-    using Shared;
+    using Engine;
     using System;
     using System.IO;
     using System.Runtime.InteropServices;

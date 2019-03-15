@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME
 {
+    using Engine;
     using Primitives;
-    using Shared;
     using System;
     using System.Collections.Concurrent;
     using System.Diagnostics;
@@ -17,7 +17,7 @@
         #region Private Members
 
         private static readonly ConcurrentQueue<MediaLogMessage> LogQueue = new ConcurrentQueue<MediaLogMessage>();
-        private static readonly LogOutputTimerWorker LogOutputWorker;
+        private static readonly LogOutputTimerWorker LogOutputWorker = new LogOutputTimerWorker();
 
         #endregion
 
@@ -28,7 +28,6 @@
         /// </summary>
         static Logging()
         {
-            LogOutputWorker = new LogOutputTimerWorker();
             LogOutputWorker.StartAsync();
         }
 

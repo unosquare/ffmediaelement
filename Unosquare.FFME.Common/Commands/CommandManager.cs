@@ -1,8 +1,8 @@
 ﻿namespace Unosquare.FFME.Commands
 {
     using Core;
+    using Engine;
     using Primitives;
-    using Shared;
     using System;
     using System.Runtime.CompilerServices;
     using System.Text;

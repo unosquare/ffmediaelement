@@ -2,8 +2,8 @@
 {
     using ClosedCaptions;
     using Core;
+    using Engine;
     using FFmpeg.AutoGen;
-    using Shared;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -215,7 +215,7 @@
                 NormalizePixelFormat(source.Pointer),
                 source.Pointer->width,
                 source.Pointer->height,
-                Constants.Video.VideoPixelFormat,
+                Constants.VideoPixelFormat,
                 ScalerFlags,
                 null,
                 null,
@@ -237,7 +237,7 @@
             }
 
             // Perform scaling and save the data to our unmanaged buffer pointer
-            if (target.Allocate(source, Constants.Video.VideoPixelFormat)
+            if (target.Allocate(source, Constants.VideoPixelFormat)
                 && target.TryAcquireWriterLock(out var writeLock))
             {
                 using (writeLock)
@@ -525,7 +525,7 @@
 
             // ReSharper restore StringLiteralTypo
             var frameArguments = ComputeFilterArguments(frame);
-            if (string.IsNullOrWhiteSpace(CurrentFilterArguments) || frameArguments.Equals(CurrentFilterArguments) == false)
+            if (string.IsNullOrWhiteSpace(CurrentFilterArguments) || frameArguments != CurrentFilterArguments)
                 DestroyFilterGraph();
             else
                 return;
