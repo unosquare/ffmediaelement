@@ -9,7 +9,7 @@
     <Company>Unosquare SA de CV</Company>
     <Product>FFME Cross-Platform Media Engine</Product>
     <Description>Contains all portable, cross platform Media Core engine components</Description>
-    <Copyright>Unosquare SA de CV, Mario Di Vece, and Contributors, (C) 2017-2018</Copyright>
+    <Copyright>Unosquare SA de CV, Mario Di Vece, and Contributors, (C) 2017-2019</Copyright>
     <PackageProjectUrl>https://github.com/unosquare/ffmediaelement</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/unosquare/ffmediaelement/blob/master/LICENSE</PackageLicenseUrl>
     <PackageIconUrl>https://github.com/unosquare/ffmediaelement/blob/master/ffme.png</PackageIconUrl>
@@ -24,7 +24,7 @@
     <AssemblyVersion>4.1.280.0</AssemblyVersion>
     <FileVersion>4.1.280.0</FileVersion>
     <LangVersion>latest</LangVersion>
-	<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
@@ -32,13 +32,13 @@
     <WarningsAsErrors />
     <NoWarn />
   </PropertyGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="FFmpeg.AutoGen" Version="4.1.0.2" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.0.0">
+    <PackageReference Include="StyleCop.Analyzers" Version="1.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-  
+
 </Project>
