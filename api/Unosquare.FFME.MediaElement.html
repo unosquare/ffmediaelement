@@ -2587,7 +2587,7 @@ Note: Valid values are from 0 to 1</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;Drawing.Bitmap&gt; CaptureBitmapAsync()</code></pre>
+    <pre><code class="lang-csharp hljs">public ConfiguredTaskAwaitable&lt;Drawing.Bitmap&gt; CaptureBitmapAsync()</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2599,7 +2599,7 @@ Note: Valid values are from 0 to 1</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.drawing.bitmap">Drawing.Bitmap</a>&gt;</td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.runtime.compilerservices.configuredtaskawaitable-1">ConfiguredTaskAwaitable</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.drawing.bitmap">Drawing.Bitmap</a>&gt;</td>
         <td><p>The GDI bitmap copied from the video renderer.</p>
 </td>
       </tr>
@@ -2616,7 +2616,7 @@ Handle the <a class="xref" href="Unosquare.FFME.MediaElement.html#Unosquare_FFME
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;bool&gt; ChangeMedia()</code></pre>
+    <pre><code class="lang-csharp hljs">public ConfiguredTaskAwaitable&lt;bool&gt; ChangeMedia()</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2628,7 +2628,7 @@ Handle the <a class="xref" href="Unosquare.FFME.MediaElement.html#Unosquare_FFME
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a>&gt;</td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.runtime.compilerservices.configuredtaskawaitable-1">ConfiguredTaskAwaitable</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a>&gt;</td>
         <td><p>The awaitable command</p>
 </td>
       </tr>
@@ -2643,7 +2643,7 @@ Handle the <a class="xref" href="Unosquare.FFME.MediaElement.html#Unosquare_FFME
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;bool&gt; Close()</code></pre>
+    <pre><code class="lang-csharp hljs">public ConfiguredTaskAwaitable&lt;bool&gt; Close()</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2655,7 +2655,7 @@ Handle the <a class="xref" href="Unosquare.FFME.MediaElement.html#Unosquare_FFME
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a>&gt;</td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.runtime.compilerservices.configuredtaskawaitable-1">ConfiguredTaskAwaitable</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a>&gt;</td>
         <td><p>The awaitable command</p>
 </td>
       </tr>
@@ -2710,7 +2710,7 @@ if the libraries cannot be loaded.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;bool&gt; Open(IMediaInputStream stream)</code></pre>
+    <pre><code class="lang-csharp hljs">public ConfiguredTaskAwaitable&lt;bool&gt; Open(IMediaInputStream stream)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2740,7 +2740,7 @@ if the libraries cannot be loaded.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a>&gt;</td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.runtime.compilerservices.configuredtaskawaitable-1">ConfiguredTaskAwaitable</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a>&gt;</td>
         <td><p>The awaitable task</p>
 </td>
       </tr>
@@ -2757,7 +2757,7 @@ This is an alternative method of opening media vs using the
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;bool&gt; Open(Uri uri)</code></pre>
+    <pre><code class="lang-csharp hljs">public ConfiguredTaskAwaitable&lt;bool&gt; Open(Uri uri)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2787,7 +2787,7 @@ This is an alternative method of opening media vs using the
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a>&gt;</td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.runtime.compilerservices.configuredtaskawaitable-1">ConfiguredTaskAwaitable</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a>&gt;</td>
         <td><p>The awaitable task.</p>
 </td>
       </tr>
@@ -2802,7 +2802,7 @@ This is an alternative method of opening media vs using the
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;bool&gt; Pause()</code></pre>
+    <pre><code class="lang-csharp hljs">public ConfiguredTaskAwaitable&lt;bool&gt; Pause()</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2814,7 +2814,7 @@ This is an alternative method of opening media vs using the
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a>&gt;</td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.runtime.compilerservices.configuredtaskawaitable-1">ConfiguredTaskAwaitable</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a>&gt;</td>
         <td><p>The awaitable command</p>
 </td>
       </tr>
@@ -2829,7 +2829,7 @@ This is an alternative method of opening media vs using the
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;bool&gt; Play()</code></pre>
+    <pre><code class="lang-csharp hljs">public ConfiguredTaskAwaitable&lt;bool&gt; Play()</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2841,7 +2841,7 @@ This is an alternative method of opening media vs using the
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a>&gt;</td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.runtime.compilerservices.configuredtaskawaitable-1">ConfiguredTaskAwaitable</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a>&gt;</td>
         <td><p>The awaitable command</p>
 </td>
       </tr>
@@ -2857,7 +2857,7 @@ This is an alternative to using the <a class="xref" href="Unosquare.FFME.MediaEl
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;bool&gt; Seek(TimeSpan target)</code></pre>
+    <pre><code class="lang-csharp hljs">public ConfiguredTaskAwaitable&lt;bool&gt; Seek(TimeSpan target)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2887,7 +2887,7 @@ This is an alternative to using the <a class="xref" href="Unosquare.FFME.MediaEl
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a>&gt;</td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.runtime.compilerservices.configuredtaskawaitable-1">ConfiguredTaskAwaitable</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a>&gt;</td>
         <td><p>The awaitable command</p>
 </td>
       </tr>
@@ -2902,7 +2902,7 @@ This is an alternative to using the <a class="xref" href="Unosquare.FFME.MediaEl
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;bool&gt; StepBackward()</code></pre>
+    <pre><code class="lang-csharp hljs">public ConfiguredTaskAwaitable&lt;bool&gt; StepBackward()</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2914,7 +2914,7 @@ This is an alternative to using the <a class="xref" href="Unosquare.FFME.MediaEl
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a>&gt;</td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.runtime.compilerservices.configuredtaskawaitable-1">ConfiguredTaskAwaitable</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a>&gt;</td>
         <td><p>The awaitable command</p>
 </td>
       </tr>
@@ -2929,7 +2929,7 @@ This is an alternative to using the <a class="xref" href="Unosquare.FFME.MediaEl
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;bool&gt; StepForward()</code></pre>
+    <pre><code class="lang-csharp hljs">public ConfiguredTaskAwaitable&lt;bool&gt; StepForward()</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2941,7 +2941,7 @@ This is an alternative to using the <a class="xref" href="Unosquare.FFME.MediaEl
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a>&gt;</td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.runtime.compilerservices.configuredtaskawaitable-1">ConfiguredTaskAwaitable</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a>&gt;</td>
         <td><p>The awaitable command</p>
 </td>
       </tr>
@@ -2956,7 +2956,7 @@ This is an alternative to using the <a class="xref" href="Unosquare.FFME.MediaEl
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task&lt;bool&gt; Stop()</code></pre>
+    <pre><code class="lang-csharp hljs">public ConfiguredTaskAwaitable&lt;bool&gt; Stop()</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2968,7 +2968,7 @@ This is an alternative to using the <a class="xref" href="Unosquare.FFME.MediaEl
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a>&gt;</td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.runtime.compilerservices.configuredtaskawaitable-1">ConfiguredTaskAwaitable</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a>&gt;</td>
         <td><p>The awaitable command</p>
 </td>
       </tr>

@@ -292,7 +292,7 @@ WPF or Windows Forms GUI Threading context</p>
   
   <a id="Unosquare_FFME_Platform_GuiContext_EnqueueInvoke_" data-uid="Unosquare.FFME.Platform.GuiContext.EnqueueInvoke*"></a>
   <h4 id="Unosquare_FFME_Platform_GuiContext_EnqueueInvoke_System_Action_" data-uid="Unosquare.FFME.Platform.GuiContext.EnqueueInvoke(System.Action)">EnqueueInvoke(Action)</h4>
-  <div class="markdown level1 summary"><p>Invokes a task on the GUI thread</p>
+  <div class="markdown level1 summary"><p>Invokes a task on the GUI thread and does not await it.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -321,12 +321,12 @@ WPF or Windows Forms GUI Threading context</p>
   
   <a id="Unosquare_FFME_Platform_GuiContext_InvokeAsync_" data-uid="Unosquare.FFME.Platform.GuiContext.InvokeAsync*"></a>
   <h4 id="Unosquare_FFME_Platform_GuiContext_InvokeAsync_DispatcherPriority_System_Action_" data-uid="Unosquare.FFME.Platform.GuiContext.InvokeAsync(DispatcherPriority,System.Action)">InvokeAsync(DispatcherPriority, Action)</h4>
-  <div class="markdown level1 summary"><p>Invokes a task on the GUI thread</p>
+  <div class="markdown level1 summary"><p>Invokes a task on the GUI thread with the possibility of awaiting it.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task InvokeAsync(DispatcherPriority priority, Action callback)</code></pre>
+    <pre><code class="lang-csharp hljs">public ConfiguredTaskAwaitable InvokeAsync(DispatcherPriority priority, Action callback)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -362,7 +362,7 @@ WPF or Windows Forms GUI Threading context</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.task">Task</a></td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.runtime.compilerservices.configuredtaskawaitable">ConfiguredTaskAwaitable</a></td>
         <td><p>The awaitable task</p>
 </td>
       </tr>
@@ -372,12 +372,12 @@ WPF or Windows Forms GUI Threading context</p>
   
   <a id="Unosquare_FFME_Platform_GuiContext_InvokeAsync_" data-uid="Unosquare.FFME.Platform.GuiContext.InvokeAsync*"></a>
   <h4 id="Unosquare_FFME_Platform_GuiContext_InvokeAsync_System_Action_" data-uid="Unosquare.FFME.Platform.GuiContext.InvokeAsync(System.Action)">InvokeAsync(Action)</h4>
-  <div class="markdown level1 summary"><p>Invokes a task on the GUI thread</p>
+  <div class="markdown level1 summary"><p>Invokes a task on the GUI thread with the possibility of awaiting it.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Task InvokeAsync(Action callback)</code></pre>
+    <pre><code class="lang-csharp hljs">public ConfiguredTaskAwaitable InvokeAsync(Action callback)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -407,7 +407,7 @@ WPF or Windows Forms GUI Threading context</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.task">Task</a></td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.runtime.compilerservices.configuredtaskawaitable">ConfiguredTaskAwaitable</a></td>
         <td><p>The awaitable task</p>
 </td>
       </tr>

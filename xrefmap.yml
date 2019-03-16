@@ -555,6 +555,19 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.Events.RenderingAudioEventArgs.ChannelCount
   nameWithType: RenderingAudioEventArgs.ChannelCount
+- uid: Unosquare.FFME.Events.RenderingAudioEventArgs.GetBufferData
+  name: GetBufferData()
+  href: api/Unosquare.FFME.Events.RenderingAudioEventArgs.html#Unosquare_FFME_Events_RenderingAudioEventArgs_GetBufferData
+  commentId: M:Unosquare.FFME.Events.RenderingAudioEventArgs.GetBufferData
+  fullName: Unosquare.FFME.Events.RenderingAudioEventArgs.GetBufferData()
+  nameWithType: RenderingAudioEventArgs.GetBufferData()
+- uid: Unosquare.FFME.Events.RenderingAudioEventArgs.GetBufferData*
+  name: GetBufferData
+  href: api/Unosquare.FFME.Events.RenderingAudioEventArgs.html#Unosquare_FFME_Events_RenderingAudioEventArgs_GetBufferData_
+  commentId: Overload:Unosquare.FFME.Events.RenderingAudioEventArgs.GetBufferData
+  isSpec: "True"
+  fullName: Unosquare.FFME.Events.RenderingAudioEventArgs.GetBufferData
+  nameWithType: RenderingAudioEventArgs.GetBufferData
 - uid: Unosquare.FFME.Events.RenderingAudioEventArgs.Latency
   name: Latency
   href: api/Unosquare.FFME.Events.RenderingAudioEventArgs.html#Unosquare_FFME_Events_RenderingAudioEventArgs_Latency
@@ -2639,19 +2652,19 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.Playlists.PlaylistEntry.Duration
   nameWithType: PlaylistEntry.Duration
-- uid: Unosquare.FFME.Playlists.PlaylistEntry.MediaUrl
-  name: MediaUrl
-  href: api/Unosquare.FFME.Playlists.PlaylistEntry.html#Unosquare_FFME_Playlists_PlaylistEntry_MediaUrl
-  commentId: P:Unosquare.FFME.Playlists.PlaylistEntry.MediaUrl
-  fullName: Unosquare.FFME.Playlists.PlaylistEntry.MediaUrl
-  nameWithType: PlaylistEntry.MediaUrl
-- uid: Unosquare.FFME.Playlists.PlaylistEntry.MediaUrl*
-  name: MediaUrl
-  href: api/Unosquare.FFME.Playlists.PlaylistEntry.html#Unosquare_FFME_Playlists_PlaylistEntry_MediaUrl_
-  commentId: Overload:Unosquare.FFME.Playlists.PlaylistEntry.MediaUrl
+- uid: Unosquare.FFME.Playlists.PlaylistEntry.MediaSource
+  name: MediaSource
+  href: api/Unosquare.FFME.Playlists.PlaylistEntry.html#Unosquare_FFME_Playlists_PlaylistEntry_MediaSource
+  commentId: P:Unosquare.FFME.Playlists.PlaylistEntry.MediaSource
+  fullName: Unosquare.FFME.Playlists.PlaylistEntry.MediaSource
+  nameWithType: PlaylistEntry.MediaSource
+- uid: Unosquare.FFME.Playlists.PlaylistEntry.MediaSource*
+  name: MediaSource
+  href: api/Unosquare.FFME.Playlists.PlaylistEntry.html#Unosquare_FFME_Playlists_PlaylistEntry_MediaSource_
+  commentId: Overload:Unosquare.FFME.Playlists.PlaylistEntry.MediaSource
   isSpec: "True"
-  fullName: Unosquare.FFME.Playlists.PlaylistEntry.MediaUrl
-  nameWithType: PlaylistEntry.MediaUrl
+  fullName: Unosquare.FFME.Playlists.PlaylistEntry.MediaSource
+  nameWithType: PlaylistEntry.MediaSource
 - uid: Unosquare.FFME.Playlists.PlaylistEntry.OnPropertyChanged(System.String)
   name: OnPropertyChanged(String)
   href: api/Unosquare.FFME.Playlists.PlaylistEntry.html#Unosquare_FFME_Playlists_PlaylistEntry_OnPropertyChanged_System_String_
