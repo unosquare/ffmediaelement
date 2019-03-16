@@ -97,7 +97,7 @@
                                 </Style>
                             </TextBlock.Style>
                         </TextBlock>
-                        <TextBox x:Name="OpenFileTextBox" Text="{Binding Playlist.OpenTargetUrl}" Grid.Column="0" Background="Transparent" BorderThickness="0" 
+                        <TextBox x:Name="OpenFileTextBox" Text="{Binding Playlist.OpenMediaSource}" Grid.Column="0" Background="Transparent" BorderThickness="0" 
                                  Foreground="#484848" FontSize="16" Padding="2"  FontWeight="Bold" />
                     </Grid>
 
@@ -196,7 +196,7 @@
                                         <Button 
                                                 Cursor="Hand" Width="128" 
                                                 Command="{Binding Source={StaticResource ViewModel}, Path=App.Commands.OpenCommand}" 
-                                                CommandParameter="{Binding MediaUrl}">
+                                                CommandParameter="{Binding MediaSource}">
                                             <Button.Template>
                                                 <ControlTemplate>
                                                     <Grid Background="Transparent">
@@ -217,7 +217,7 @@
                                                     DockPanel.Dock="Top"
                                                     Style="{DynamicResource ModernButtonStyle}" 
                                                     Command="{Binding Source={StaticResource ViewModel}, Path=App.Commands.OpenCommand}" 
-                                                    CommandParameter="{Binding MediaUrl}">
+                                                    CommandParameter="{Binding MediaSource}">
                                                 <Path Stretch="Uniform" Data="{Binding Source={StaticResource PlayIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
                                             </Button>
                                             <TextBlock DockPanel.Dock="Bottom" Text="{Binding Duration, Converter={StaticResource PlaylistDurationFormatter}}" 
@@ -229,8 +229,8 @@
                                                         Background="#00000000" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="12">
                                         </TextBox>
 
-                                        <TextBlock DockPanel.Dock="Top" Text="{Binding MediaUrl}" 
-                                                        FontSize="9" ToolTip="{Binding MediaUrl}" Foreground="#666" TextTrimming="CharacterEllipsis"
+                                        <TextBlock DockPanel.Dock="Top" Text="{Binding MediaSource}" 
+                                                        FontSize="9" ToolTip="{Binding MediaSource}" Foreground="#666" TextTrimming="CharacterEllipsis"
                                                         Margin="4,4,4,0"/>
                                         <TextBlock DockPanel.Dock="Top" 
                                                         FontSize="9" Foreground="#666" TextTrimming="CharacterEllipsis"

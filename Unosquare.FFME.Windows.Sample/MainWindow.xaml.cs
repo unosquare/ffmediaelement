@@ -1,9 +1,9 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
     using ClosedCaptions;
+    using Engine;
     using Platform;
     using Primitives;
-    using Engine;
     using System;
     using System.Linq;
     using System.Threading.Tasks;

@@ -125,7 +125,7 @@
                 // Update the Controls
                 Playlist.IsInOpenMode = false;
                 IsPlaylistPanelOpen = false;
-                Playlist.OpenTargetUrl = m.Source.ToString();
+                Playlist.OpenMediaSource = m.Source.ToString();
             };
 
             IsPlaylistPanelOpen = true;

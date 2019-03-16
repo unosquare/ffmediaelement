@@ -520,6 +520,26 @@
             return result;
         }
 
+        /// <summary>
+        /// Trims the packet buffer to the maximum allowable length
+        /// </summary>
+        /// <param name="buffer">The buffer.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void TrimBuffer(IDictionary<long, ClosedCaptionPacket> buffer)
+        {
+            // Don't trim it if we have not reached a maximum length
+            if (buffer.Count <= MaxBufferLength)
+                return;
+
+            // Find the keys to remove
+            var removalCount = buffer.Count - MaxBufferLength;
+            var keysToRemove = buffer.Keys.Skip(0).Take(removalCount).ToArray();
+
+            // Remove the target keys
+            foreach (var key in keysToRemove)
+                buffer.Remove(key);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool ProcessCommandPacket(ClosedCaptionPacket packet)
         {
@@ -759,25 +779,6 @@
             // Trim the packet buffer
             for (var channel = 1; channel <= 4; channel++)
                 TrimBuffer(ChannelPacketBuffer[(CaptionsChannel)channel]);
-        }
-
-        /// <summary>
-        /// Trims the packet buffer to the maximum allowable length
-        /// </summary>
-        /// <param name="buffer">The buffer.</param>
-        private void TrimBuffer(IDictionary<long, ClosedCaptionPacket> buffer)
-        {
-            // Don't trim it if we have not reached a maximum length
-            if (buffer.Count <= MaxBufferLength)
-                return;
-
-            // Find the keys to remove
-            var removalCount = buffer.Count - MaxBufferLength;
-            var keysToRemove = buffer.Keys.Skip(0).Take(removalCount).ToArray();
-
-            // Remove the target keys
-            foreach (var key in keysToRemove)
-                buffer.Remove(key);
         }
 
         #endregion

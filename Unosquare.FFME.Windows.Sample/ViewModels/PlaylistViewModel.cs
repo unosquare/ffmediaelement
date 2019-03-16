@@ -29,7 +29,7 @@
         // Property Backing
         private bool m_IsInOpenMode = GuiContext.Current.IsInDesignTime;
         private bool m_IsPlaylistEnabled = true;
-        private string m_OpenTargetUrl = string.Empty;
+        private string m_OpenMediaSource = string.Empty;
         private string m_PlaylistSearchString = string.Empty;
 
         #endregion
@@ -62,8 +62,8 @@
 
                 if (item is CustomPlaylistEntry entry)
                 {
-                    return (entry.Title?.ToLowerInvariant().Contains(PlaylistSearchString) ?? false) ||
-                           (entry.MediaUrl?.ToLowerInvariant().Contains(PlaylistSearchString) ?? false);
+                    return (entry.Title?.ToUpperInvariant().Contains(PlaylistSearchString.ToUpperInvariant()) ?? false) ||
+                           (entry.MediaSource?.ToUpperInvariant().Contains(PlaylistSearchString.ToUpperInvariant()) ?? false);
                 }
 
                 return false;
@@ -148,10 +148,10 @@
         /// <summary>
         /// Gets or sets the open model URL.
         /// </summary>
-        public string OpenTargetUrl
+        public string OpenMediaSource
         {
-            get => m_OpenTargetUrl;
-            set => SetProperty(ref m_OpenTargetUrl, value);
+            get => m_OpenMediaSource;
+            set => SetProperty(ref m_OpenMediaSource, value);
         }
 
         /// <inheritdoc />

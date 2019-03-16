@@ -84,7 +84,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="App.Commands.cs" />
+    <Compile Include="AppCommands.cs" />
     <Compile Include="Controls\ControllerPanelControl.xaml.cs">
       <DependentUpon>ControllerPanelControl.xaml</DependentUpon>
     </Compile>

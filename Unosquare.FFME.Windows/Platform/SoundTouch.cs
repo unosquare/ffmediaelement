@@ -230,7 +230,14 @@
             }
             set
             {
-                lock (SyncRoot) { NativeMethods.SetSetting(handle, (int)settingId, value); }
+                lock (SyncRoot)
+                {
+                    var result = NativeMethods.SetSetting(handle, (int)settingId, value);
+                    if (result == 0)
+                        return;
+
+                    throw new ArgumentException($"Unable to set {settingId} with value {value}. Code: {result}.");
+                }
             }
         }
 

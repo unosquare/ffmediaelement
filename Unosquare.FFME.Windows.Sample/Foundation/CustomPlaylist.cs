@@ -1,8 +1,8 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.Foundation
 {
+    using Engine;
     using Events;
     using Playlists;
-    using Engine;
     using System;
     using System.IO;
     using System.Text;
@@ -43,16 +43,16 @@
         /// <summary>
         /// Finds an entry based on the media url.
         /// </summary>
-        /// <param name="mediaUrl">The media URL.</param>
+        /// <param name="mediaSource">The media URL.</param>
         /// <returns>The playlist entry or null if not found</returns>
-        public CustomPlaylistEntry FindEntryByMediaUrl(string mediaUrl)
+        public CustomPlaylistEntry FindEntryByMediaSource(string mediaSource)
         {
             lock (SyncRoot)
             {
-                var lookupMediaUrl = mediaUrl?.ToLowerInvariant() ?? string.Empty;
+                var lookupMediaSource = mediaSource?.ToUpperInvariant() ?? string.Empty;
                 foreach (var entry in this)
                 {
-                    if (Equals(entry.MediaUrl?.ToLowerInvariant(), lookupMediaUrl))
+                    if (Equals(entry.MediaSource?.ToUpperInvariant(), lookupMediaSource))
                         return entry;
                 }
 
@@ -63,20 +63,20 @@
         /// <summary>
         /// Adds or updates an entry.
         /// </summary>
-        /// <param name="mediaUrl">The media URL.</param>
+        /// <param name="mediaSource">The media URL.</param>
         /// <param name="info">The information.</param>
-        public void AddOrUpdateEntry(string mediaUrl, MediaInfo info)
+        public void AddOrUpdateEntry(string mediaSource, MediaInfo info)
         {
             lock (SyncRoot)
             {
-                var entry = FindEntryByMediaUrl(mediaUrl);
+                var entry = FindEntryByMediaSource(mediaSource);
                 if (entry == null)
                 {
                     // Create a new entry with default values
                     entry = new CustomPlaylistEntry
                     {
-                        MediaUrl = mediaUrl,
-                        Title = Uri.TryCreate(mediaUrl, UriKind.RelativeOrAbsolute, out var entryUri)
+                        MediaSource = mediaSource,
+                        Title = Uri.TryCreate(mediaSource, UriKind.RelativeOrAbsolute, out var entryUri)
                             ? Path.GetFileNameWithoutExtension(Uri.UnescapeDataString(entryUri.AbsolutePath))
                             : $"Media File {DateTime.Now}"
                     };
@@ -84,7 +84,7 @@
                     // Try to get a title from metadata
                     foreach (var meta in info.Metadata)
                     {
-                        if (!(meta.Key?.ToLowerInvariant().Trim().Equals("title") ?? false))
+                        if (!(meta.Key?.Trim().Equals("title", StringComparison.OrdinalIgnoreCase) ?? false))
                             continue;
 
                         entry.Title = meta.Value;
@@ -92,7 +92,7 @@
                     }
 
                     if (string.IsNullOrWhiteSpace(entry.Title))
-                        entry.Title = $"(No Name) - {mediaUrl}";
+                        entry.Title = $"(No Name) - {mediaSource}";
                 }
                 else
                 {
@@ -131,13 +131,13 @@
         /// Sets the entry thumbnail.
         /// Deletes the prior thumbnail file is found or previously set.
         /// </summary>
-        /// <param name="mediaUrl">The media URL.</param>
+        /// <param name="mediaSource">The media URL.</param>
         /// <param name="bitmap">The bitmap.</param>
-        public void AddOrUpdateEntryThumbnail(string mediaUrl, BitmapDataBuffer bitmap)
+        public void AddOrUpdateEntryThumbnail(string mediaSource, BitmapDataBuffer bitmap)
         {
             lock (SyncRoot)
             {
-                var entry = FindEntryByMediaUrl(mediaUrl);
+                var entry = FindEntryByMediaSource(mediaSource);
                 if (entry == null) return;
 
                 if (entry.Thumbnail != null)
@@ -159,12 +159,12 @@
         /// <summary>
         /// Removes the entry.
         /// </summary>
-        /// <param name="mediaUrl">The media URL.</param>
-        public void RemoveEntryByMediaUrl(string mediaUrl)
+        /// <param name="mediaSource">The media URL.</param>
+        public void RemoveEntryByMediaSource(string mediaSource)
         {
             lock (SyncRoot)
             {
-                var entry = FindEntryByMediaUrl(mediaUrl);
+                var entry = FindEntryByMediaSource(mediaSource);
                 if (entry == null) return;
                 Remove(entry);
             }

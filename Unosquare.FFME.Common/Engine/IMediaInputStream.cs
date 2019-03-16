@@ -7,8 +7,8 @@
     /// A callback that gets called before the media container's input context gets initialized for the <see cref="IMediaInputStream"/>.
     /// </summary>
     /// <param name="containerConfig">The container configuration.</param>
-    /// <param name="mediaUrl">The media URL.</param>
-    public unsafe delegate void InputStreamInitializing(ContainerConfiguration containerConfig, string mediaUrl);
+    /// <param name="mediaSource">The media source URL.</param>
+    public unsafe delegate void InputStreamInitializing(ContainerConfiguration containerConfig, string mediaSource);
 
     /// <summary>
     /// A callback that gets called when the media container's input format context has been initialized for the <see cref="IMediaInputStream"/>

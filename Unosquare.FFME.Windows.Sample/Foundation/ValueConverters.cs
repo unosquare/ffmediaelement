@@ -77,7 +77,7 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
             const double minMegaByte = 1024 * 1024;
             const double minGigaByte = 1024 * 1024 * 1024;
 
-            var byteCount = System.Convert.ToDouble(value);
+            var byteCount = System.Convert.ToDouble(value, CultureInfo.InvariantCulture);
 
             var suffix = "b";
             var output = 0d;
@@ -121,7 +121,7 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
             const double minMegaBit = 1000 * 1000;
             const double minGigaBit = 1000 * 1000 * 1000;
 
-            var byteCount = System.Convert.ToDouble(value);
+            var byteCount = System.Convert.ToDouble(value, CultureInfo.InvariantCulture);
 
             var suffix = "bits/s";
             var output = 0d;
@@ -226,7 +226,7 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
         {
             if (value == null) return "unknown";
             var utcDate = (DateTime)value;
-            return utcDate.ToLocalTime().ToString("f");
+            return utcDate.ToLocalTime().ToString("f", CultureInfo.InvariantCulture);
         }
 
         /// <inheritdoc />

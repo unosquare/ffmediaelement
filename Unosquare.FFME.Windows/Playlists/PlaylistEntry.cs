@@ -9,7 +9,7 @@
     /// </summary>
     public class PlaylistEntry : INotifyPropertyChanged
     {
-        private string m_MediaUrl;
+        private string m_MediaSource;
         private string m_Title;
         private TimeSpan m_Duration;
 
@@ -19,12 +19,12 @@
         public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
-        /// Gets or sets the media URL.
+        /// Gets or sets the media source URL.
         /// </summary>
-        public string MediaUrl
+        public string MediaSource
         {
-            get => m_MediaUrl;
-            set => SetProperty(ref m_MediaUrl, value);
+            get => m_MediaSource;
+            set => SetProperty(ref m_MediaSource, value);
         }
 
         /// <summary>

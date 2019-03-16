@@ -262,16 +262,14 @@ namespace Unosquare.FFME
 
             if (e.NewValue == null && e.OldValue != null && element.IsOpen)
             {
-                await element.Close().ConfigureAwait(false);
+                await element.Close();
             }
             else if (e.NewValue != null && element.IsOpening == false && e.NewValue is Uri uri)
             {
                 // Skip change actions if we are currently opening via the Open command
-                if (element.IsOpeningViaCommand.Value == false && element.MediaCore != null)
-                    await element.MediaCore.Open(uri).ConfigureAwait(false);
-
-                // Reset the opening via command.
-                element.IsOpeningViaCommand.Value = false;
+                // We configure the await to true because we need to continue on the captured context
+                if (element.IsOpeningViaCommand == false && element.MediaCore != null)
+                    await element.MediaCore.Open(uri).ConfigureAwait(true);
             }
         }
 

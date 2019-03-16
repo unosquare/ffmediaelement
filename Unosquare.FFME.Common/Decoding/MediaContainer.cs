@@ -110,7 +110,7 @@
         /// <param name="mediaSource">The media URL.</param>
         /// <param name="config">The container configuration options.</param>
         /// <param name="loggingHandler">The logger.</param>
-        /// <exception cref="ArgumentNullException">mediaUrl</exception>
+        /// <exception cref="ArgumentNullException">Media Source cannot be null.</exception>
         public MediaContainer(string mediaSource, ContainerConfiguration config, ILoggingHandler loggingHandler)
         {
             // Argument Validation
@@ -151,8 +151,8 @@
                 throw new ArgumentNullException($"{nameof(inputStream)}");
 
             // Validate the stream pseudo Url
-            var mediaUrl = inputStream.StreamUri?.ToString();
-            if (string.IsNullOrWhiteSpace(mediaUrl))
+            var mediaSpurceUrl = inputStream.StreamUri?.ToString();
+            if (string.IsNullOrWhiteSpace(mediaSpurceUrl))
                 throw new ArgumentNullException($"{nameof(inputStream)}.{nameof(inputStream.StreamUri)}");
 
             // Initialize the library (if not already done)
@@ -160,7 +160,7 @@
 
             // Create the options object
             m_LoggingHandler = parent;
-            MediaSource = mediaUrl;
+            MediaSource = mediaSpurceUrl;
             CustomInputStream = inputStream;
             Configuration = config ?? new ContainerConfiguration();
 

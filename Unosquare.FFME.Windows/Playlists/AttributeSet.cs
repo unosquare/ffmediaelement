@@ -23,8 +23,8 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="AttributeSet"/> class.
         /// </summary>
-        /// <param name="info">A <see cref="T:System.Runtime.Serialization.SerializationInfo" /> object containing the information required to serialize the <see cref="T:System.Collections.Generic.Dictionary`2" />.</param>
-        /// <param name="context">A <see cref="T:System.Runtime.Serialization.StreamingContext" /> structure containing the source and destination of the serialized stream associated with the <see cref="T:System.Collections.Generic.Dictionary`2" />.</param>
+        /// <param name="info">The serialization info.</param>
+        /// <param name="context">The streaming context.</param>
         protected AttributeSet(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {

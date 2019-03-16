@@ -9,6 +9,7 @@ namespace Unosquare.FFME
     using System;
     using System.ComponentModel;
     using System.IO;
+    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Windows;
     using System.Windows.Controls;
@@ -269,61 +270,61 @@ namespace Unosquare.FFME
         /// <see cref="MediaInfo"/> properties.
         /// </summary>
         /// <returns>The awaitable command</returns>
-        public async Task<bool> ChangeMedia()
+        public ConfiguredTaskAwaitable<bool> ChangeMedia() => Task.Run(async () =>
         {
-            try { return await MediaCore.ChangeMedia().ConfigureAwait(false); }
+            try { return await MediaCore.ChangeMedia(); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
             return false;
-        }
+        }).ConfigureAwait(true);
 
         /// <summary>
         /// Begins or resumes playback of the currently loaded media.
         /// </summary>
         /// <returns>The awaitable command</returns>
-        public async Task<bool> Play()
+        public ConfiguredTaskAwaitable<bool> Play() => Task.Run(async () =>
         {
-            try { return await MediaCore.Play().ConfigureAwait(false); }
+            try { return await MediaCore.Play(); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
             return false;
-        }
+        }).ConfigureAwait(true);
 
         /// <summary>
         /// Pauses playback of the currently loaded media.
         /// </summary>
         /// <returns>The awaitable command</returns>
-        public async Task<bool> Pause()
+        public ConfiguredTaskAwaitable<bool> Pause() => Task.Run(async () =>
         {
-            try { return await MediaCore.Pause().ConfigureAwait(false); }
+            try { return await MediaCore.Pause(); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
             return false;
-        }
+        }).ConfigureAwait(true);
 
         /// <summary>
         /// Pauses and rewinds the currently loaded media.
         /// </summary>
         /// <returns>The awaitable command</returns>
-        public async Task<bool> Stop()
+        public ConfiguredTaskAwaitable<bool> Stop() => Task.Run(async () =>
         {
-            try { return await MediaCore.Stop().ConfigureAwait(false); }
+            try { return await MediaCore.Stop(); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
             return false;
-        }
+        }).ConfigureAwait(true);
 
         /// <summary>
         /// Closes the currently loaded media.
         /// </summary>
         /// <returns>The awaitable command</returns>
-        public async Task<bool> Close()
+        public ConfiguredTaskAwaitable<bool> Close() => Task.Run(async () =>
         {
             try
             {
-                var result = await MediaCore.Close().ConfigureAwait(true);
-                Source = null;
+                var result = await MediaCore.Close();
+                await GuiContext.Current.InvokeAsync(() => Source = null);
                 return result;
             }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
             return false;
-        }
+        }).ConfigureAwait(true);
 
         /// <summary>
         /// Seeks to the specified target position.
@@ -331,34 +332,34 @@ namespace Unosquare.FFME
         /// </summary>
         /// <param name="target">The target time to seek to.</param>
         /// <returns>The awaitable command</returns>
-        public async Task<bool> Seek(TimeSpan target)
+        public ConfiguredTaskAwaitable<bool> Seek(TimeSpan target) => Task.Run(async () =>
         {
-            try { return await MediaCore.Seek(target).ConfigureAwait(false); }
+            try { return await MediaCore.Seek(target); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
             return false;
-        }
+        }).ConfigureAwait(true);
 
         /// <summary>
         /// Seeks a single frame forward.
         /// </summary>
         /// <returns>The awaitable command</returns>
-        public async Task<bool> StepForward()
+        public ConfiguredTaskAwaitable<bool> StepForward() => Task.Run(async () =>
         {
-            try { return await MediaCore.StepForward().ConfigureAwait(false); }
+            try { return await MediaCore.StepForward(); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
             return false;
-        }
+        }).ConfigureAwait(true);
 
         /// <summary>
         /// Seeks a single frame backward.
         /// </summary>
         /// <returns>The awaitable command</returns>
-        public async Task<bool> StepBackward()
+        public ConfiguredTaskAwaitable<bool> StepBackward() => Task.Run(async () =>
         {
-            try { return await MediaCore.StepBackward().ConfigureAwait(false); }
+            try { return await MediaCore.StepBackward(); }
             catch (Exception ex) { PostMediaFailedEvent(ex); }
             return false;
-        }
+        }).ConfigureAwait(true);
 
         /// <summary>
         /// Opens the specified URI.
@@ -367,60 +368,67 @@ namespace Unosquare.FFME
         /// </summary>
         /// <param name="uri">The URI.</param>
         /// <returns>The awaitable task.</returns>
-        public async Task<bool> Open(Uri uri)
+        public ConfiguredTaskAwaitable<bool> Open(Uri uri) => Task.Run(async () =>
         {
             try
             {
                 IsOpeningViaCommand.Value = true;
-                await GuiContext.Current.InvokeAsync(() => Source = uri).ConfigureAwait(false);
-                return await MediaCore.Open(uri).ConfigureAwait(false);
+                await GuiContext.Current.InvokeAsync(() => Source = uri);
+                return await MediaCore.Open(uri);
             }
             catch (Exception ex)
             {
-                await GuiContext.Current.InvokeAsync(() => Source = null).ConfigureAwait(false);
+                await GuiContext.Current.InvokeAsync(() => Source = null);
                 PostMediaFailedEvent(ex);
+            }
+            finally
+            {
                 IsOpeningViaCommand.Value = false;
             }
 
             return false;
-        }
+        }).ConfigureAwait(true);
 
         /// <summary>
         /// Opens the specified custom input stream.
         /// </summary>
         /// <param name="stream">The stream.</param>
         /// <returns>The awaitable task</returns>
-        public async Task<bool> Open(IMediaInputStream stream)
+        public ConfiguredTaskAwaitable<bool> Open(IMediaInputStream stream) => Task.Run(async () =>
         {
             try
             {
                 IsOpeningViaCommand.Value = true;
-                await GuiContext.Current.InvokeAsync(() => Source = stream.StreamUri).ConfigureAwait(false);
-                return await MediaCore.Open(stream).ConfigureAwait(false);
+                await GuiContext.Current.InvokeAsync(() => Source = stream.StreamUri);
+                return await MediaCore.Open(stream);
             }
             catch (Exception ex)
             {
-                await GuiContext.Current.InvokeAsync(() => Source = null).ConfigureAwait(false);
+                await GuiContext.Current.InvokeAsync(() => Source = null);
                 PostMediaFailedEvent(ex);
+            }
+            finally
+            {
                 IsOpeningViaCommand.Value = false;
             }
 
             return false;
-        }
+        }).ConfigureAwait(true);
 
         /// <summary>
         /// Captures the currently displayed video image and returns a GDI bitmap.
         /// </summary>
         /// <returns>The GDI bitmap copied from the video renderer.</returns>
-        public async Task<Bitmap> CaptureBitmapAsync()
+        public ConfiguredTaskAwaitable<Bitmap> CaptureBitmapAsync() => Task.Run(async () =>
         {
             Bitmap retrievedBitmap = null;
 
             // Since VideoView might be hosted on a different dispatcher,
             // we use the custom InvokeAsync method
-            await VideoView.InvokeAsync(() =>
+            await VideoView?.InvokeAsync(() =>
             {
-                if (!(VideoView?.Source?.Clone() is BitmapSource source))
+                var source = VideoView?.Source?.Clone() as BitmapSource;
+                if (source == null)
                     return;
 
                 source.Freeze();
@@ -430,10 +438,10 @@ namespace Unosquare.FFME
                 encoder.Save(stream);
                 stream.Position = 0;
                 retrievedBitmap = new Bitmap(stream);
-            }).ConfigureAwait(false);
+            });
 
             return retrievedBitmap;
-        }
+        }).ConfigureAwait(true);
 
         #endregion
 

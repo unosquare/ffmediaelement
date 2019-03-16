@@ -1,10 +1,10 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
     using ClosedCaptions;
+    using Engine;
     using Events;
     using FFmpeg.AutoGen;
     using Platform;
-    using Engine;
     using System;
     using System.Diagnostics;
     using System.IO;
@@ -132,7 +132,7 @@
             // Do not disable Time Sync for streams that need synchronized audio and video.
             e.Options.IsTimeSyncDisabled =
                 e.Info.Format == "libndi_newtek" ||
-                e.Info.MediaSource.StartsWith("rtsp://uno");
+                e.Info.MediaSource.StartsWith("rtsp://uno", StringComparison.OrdinalIgnoreCase);
 
             // You can disable the requirement of buffering packets by setting the playback
             // buffer percent to 0. Values of less than 0.5 for live or network streams are not recommended.
@@ -145,7 +145,7 @@
             // Also if time synchronization is disabled, the recommendation is to also disable audio synchronization.
             Media.RendererOptions.AudioDisableSync =
                 e.Options.IsTimeSyncDisabled ||
-                e.Info.MediaSource.EndsWith(".wmv", StringComparison.InvariantCulture);
+                e.Info.MediaSource.EndsWith(".wmv", StringComparison.OrdinalIgnoreCase);
 
             // Legacy audio out is the use of the WinMM api as opposed to using DirectSound
             // Enable legacy audio out if you are having issues with the DirectSound driver.
@@ -178,7 +178,7 @@
 
             // An example of selecting a specific subtitle stream
             var subtitleStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_SUBTITLE).Select(kvp => kvp.Value);
-            var englishSubtitleStream = subtitleStreams.FirstOrDefault(s => s.Language != null && s.Language.ToLowerInvariant().StartsWith("en"));
+            var englishSubtitleStream = subtitleStreams.FirstOrDefault(s => s.Language != null && s.Language.StartsWith("en", StringComparison.OrdinalIgnoreCase));
             if (englishSubtitleStream != null)
             {
                 e.Options.SubtitleStream = englishSubtitleStream;
@@ -186,7 +186,7 @@
 
             // An example of selecting a specific audio stream
             var audioStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_AUDIO).Select(kvp => kvp.Value);
-            var englishAudioStream = audioStreams.FirstOrDefault(s => s.Language != null && s.Language.ToLowerInvariant().StartsWith("en"));
+            var englishAudioStream = audioStreams.FirstOrDefault(s => s.Language != null && s.Language.StartsWith("en", StringComparison.OrdinalIgnoreCase));
             if (englishAudioStream != null)
             {
                 e.Options.AudioStream = englishAudioStream;
@@ -382,7 +382,7 @@
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private async void OnAudioDeviceStopped(object sender, EventArgs e)
         {
-            if (Media != null) await Media?.ChangeMedia();
+            if (Media != null) await Media.ChangeMedia();
         }
 
         #endregion

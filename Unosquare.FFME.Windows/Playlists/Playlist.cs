@@ -128,16 +128,16 @@
                     if (string.IsNullOrWhiteSpace(line))
                         continue;
 
-                    if (line.ToUpperInvariant().StartsWith($"{HeaderPrefix} "))
+                    if (line.ToUpperInvariant().StartsWith($"{HeaderPrefix} ", StringComparison.InvariantCulture))
                     {
                         result.ParseHeaderLine(line);
                     }
-                    else if (line.ToUpperInvariant().StartsWith($"{EntryPrefix}:"))
+                    else if (line.ToUpperInvariant().StartsWith($"{EntryPrefix}:", StringComparison.InvariantCulture))
                     {
                         currentEntry = new T();
                         currentEntry.BeginExtendedInfoLine(line);
                     }
-                    else if (line.StartsWith("#"))
+                    else if (line.StartsWith("#", StringComparison.InvariantCulture))
                     {
                         // This is just a comment. Do nothing.
                     }
@@ -145,7 +145,7 @@
                     {
                         if (currentEntry != null)
                         {
-                            currentEntry.MediaUrl = line.Trim();
+                            currentEntry.MediaSource = line.Trim();
                             result.Add(currentEntry);
                             currentEntry = null;
                         }
@@ -226,7 +226,7 @@
                 {
                     writer.WriteLine();
                     writer.WriteLine($"{EntryPrefix}:{Convert.ToInt64(entry.Duration.TotalSeconds)} {entry.Attributes}, {entry.Title}".Trim());
-                    writer.WriteLine(entry.MediaUrl?.Trim());
+                    writer.WriteLine(entry.MediaSource?.Trim());
                 }
             }
         }
@@ -277,7 +277,7 @@
             var entry = new T
             {
                 Duration = duration,
-                MediaUrl = url,
+                MediaSource = url,
                 Title = title
             };
 

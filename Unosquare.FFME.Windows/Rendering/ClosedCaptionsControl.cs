@@ -1,8 +1,8 @@
 ﻿namespace Unosquare.FFME.Rendering
 {
     using ClosedCaptions;
-    using Platform;
     using Engine;
+    using Platform;
     using System;
     using System.Collections.Generic;
     using System.Windows;
