@@ -97,35 +97,30 @@
         internal Dispatcher GuiDispatcher { get; }
 
         /// <summary>
-        /// Invokes a task on the GUI thread
+        /// Invokes a task on the GUI thread with the possibility of awaiting it.
         /// </summary>
         /// <param name="priority">The priority.</param>
         /// <param name="callback">The callback.</param>
         /// <returns>The awaitable task</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async Task InvokeAsync(DispatcherPriority priority, Action callback) =>
-            await InvokeAsyncInternal(priority, callback, null).ConfigureAwait(false);
+        public ConfiguredTaskAwaitable InvokeAsync(DispatcherPriority priority, Action callback) =>
+            InvokeAsyncInternal(priority, callback, null).ConfigureAwait(true);
 
         /// <summary>
-        /// Invokes a task on the GUI thread
+        /// Invokes a task on the GUI thread with the possibility of awaiting it.
         /// </summary>
         /// <param name="callback">The callback.</param>
         /// <returns>The awaitable task</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async Task InvokeAsync(Action callback) =>
-            await InvokeAsyncInternal(DispatcherPriority.DataBind, callback, null).ConfigureAwait(false);
+        public ConfiguredTaskAwaitable InvokeAsync(Action callback) =>
+            InvokeAsyncInternal(DispatcherPriority.DataBind, callback, null).ConfigureAwait(true);
 
         /// <summary>
-        /// Invokes a task on the GUI thread
+        /// Invokes a task on the GUI thread and does not await it.
         /// </summary>
         /// <param name="callback">The callback.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void EnqueueInvoke(Action callback)
-        {
-#pragma warning disable 4014
-            InvokeAsync(callback);
-#pragma warning restore 4014
-        }
+        public void EnqueueInvoke(Action callback) => InvokeAsync(callback);
 
         /// <summary>
         /// Invokes a task on the GUI thread
@@ -133,12 +128,7 @@
         /// <param name="priority">The priority.</param>
         /// <param name="callback">The callback.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void EnqueueInvoke(DispatcherPriority priority, Action callback)
-        {
-#pragma warning disable 4014
-            InvokeAsync(priority, callback);
-#pragma warning restore 4014
-        }
+        public void EnqueueInvoke(DispatcherPriority priority, Action callback) => InvokeAsync(priority, callback);
 
         /// <summary>
         /// Invokes a task on the GUI thread
@@ -183,7 +173,7 @@
                         });
 
                         waitingTask.Start();
-                        await waitingTask.ConfigureAwait(false);
+                        await waitingTask.ConfigureAwait(true);
 
                         return;
                     }
@@ -193,7 +183,7 @@
                         var runnerTask = new Task(() => { callback.DynamicInvoke(arguments); });
                         runnerTask.Start();
 
-                        await runnerTask.ConfigureAwait(false);
+                        await runnerTask.ConfigureAwait(true);
                         return;
                     }
                 }

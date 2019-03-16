@@ -3,16 +3,17 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="clr-namespace:Unosquare.FFME.Windows.Sample.ViewModels"
              xmlns:ffme="clr-namespace:Unosquare.FFME;assembly=ffme.win"
              mc:Ignorable="d" d:DesignHeight="700"
-             d:DataContext="{StaticResource ViewModel}">
+             d:DataContext="{d:DesignInstance vm:RootViewModel, IsDesignTimeCreatable=True}">
     <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
-    <Border Name="PropertyExplorerPanel" Width="280" Style="{StaticResource SidePanelContainerBorderStyle}" 
-            d:DataContext="{d:DesignInstance ffme:MediaElement, IsDesignTimeCreatable=True}"
-            DataContext="{Binding Path=App.MediaElement}">
+    <Border Name="PropertyExplorerPanel" Width="280" Style="{StaticResource SidePanelContainerBorderStyle}">
         <DockPanel LastChildFill="True">
             <!-- The Content -->
-            <Grid x:Name="PropertyExplorerPanelContent">
+            <Grid x:Name="PropertyExplorerPanelContent"
+                  DataContext="{Binding MediaElement}"
+                  d:DataContext="{d:DesignInstance ffme:MediaElement, IsDesignTimeCreatable=True}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden"
                             Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UIElement}}">
                     <ItemsControl>

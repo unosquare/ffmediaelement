@@ -1,8 +1,8 @@
 ﻿namespace Unosquare.FFME
 {
+    using Engine;
     using Events;
     using Platform;
-    using Shared;
     using System;
     using System.ComponentModel;
     using System.Linq;

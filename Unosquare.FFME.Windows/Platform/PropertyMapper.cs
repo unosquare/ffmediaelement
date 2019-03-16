@@ -1,9 +1,10 @@
 ﻿namespace Unosquare.FFME.Platform
 {
-    using Shared;
+    using Engine;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Globalization;
     using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
@@ -116,7 +117,7 @@
                 {
                     engineValue = targetProperty.Value.PropertyType.IsEnum ?
                         Enum.ToObject(targetProperty.Value.PropertyType, engineValue) :
-                        Convert.ChangeType(engineValue, targetProperty.Value.PropertyType);
+                        Convert.ChangeType(engineValue, targetProperty.Value.PropertyType, CultureInfo.InvariantCulture);
                 }
 
                 if (Equals(engineValue, propertyValue) == false)

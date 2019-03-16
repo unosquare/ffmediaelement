@@ -1,8 +1,8 @@
 ﻿namespace Unosquare.FFME
 {
     using Commands;
+    using Engine;
     using Primitives;
-    using Shared;
     using System;
     using Workers;
 
@@ -12,7 +12,7 @@
     /// </summary>
     /// <seealso cref="ILoggingHandler" />
     /// <seealso cref="IDisposable" />
-    public partial class MediaEngine : IDisposable, ILoggingSource, ILoggingHandler
+    public sealed partial class MediaEngine : IDisposable, ILoggingSource, ILoggingHandler
     {
         private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
 

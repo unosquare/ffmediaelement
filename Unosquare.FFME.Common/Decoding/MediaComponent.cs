@@ -1,9 +1,9 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
     using Core;
+    using Engine;
     using FFmpeg.AutoGen;
     using Primitives;
-    using Shared;
     using System;
     using System.Globalization;
     using System.Runtime.CompilerServices;
@@ -595,8 +595,6 @@
         private MediaFrame ReceiveFrameFromDecoder(out int receiveFrameResult)
         {
             MediaFrame managedFrame = null;
-            receiveFrameResult = 0;
-
             var outputFrame = MediaFrame.CreateAVFrame();
             receiveFrameResult = ffmpeg.avcodec_receive_frame(CodecContext, outputFrame);
 

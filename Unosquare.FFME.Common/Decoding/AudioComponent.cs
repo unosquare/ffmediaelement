@@ -1,8 +1,8 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
     using Core;
+    using Engine;
     using FFmpeg.AutoGen;
-    using Shared;
     using System;
     using System.Linq;
 
@@ -265,7 +265,7 @@
             var hexChannelLayout = BitConverter.ToString(
                 BitConverter.GetBytes(frame->channel_layout).Reverse().ToArray()).Replace("-", string.Empty);
 
-            var channelLayout = $"0x{hexChannelLayout.ToLowerInvariant()}";
+            var channelLayout = $"0x{hexChannelLayout}";
 
             var arguments =
                  $"time_base={Stream->time_base.num}/{Stream->time_base.den}:" +

@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
+    using Engine;
     using FFmpeg.AutoGen;
-    using Shared;
     using System;
     using System.Collections.Generic;
 
@@ -39,20 +39,6 @@
         public long BufferLength
         {
             get { lock (SyncLock) return m_BufferLength; }
-        }
-
-        /// <summary>
-        /// Gets or sets the <see cref="AVPacket"/> at the specified index.
-        /// </summary>
-        /// <value>
-        /// The <see cref="AVPacket"/>.
-        /// </value>
-        /// <param name="index">The index.</param>
-        /// <returns>The packet reference</returns>
-        private MediaPacket this[int index]
-        {
-            get { lock (SyncLock) return Packets[index]; }
-            set { lock (SyncLock) Packets[index] = value; }
         }
 
         #endregion

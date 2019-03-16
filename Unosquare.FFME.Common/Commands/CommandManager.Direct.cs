@@ -2,8 +2,8 @@
 {
     using Core;
     using Decoding;
+    using Engine;
     using Primitives;
-    using Shared;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -262,7 +262,7 @@
                 var containerConfig = new ContainerConfiguration();
 
                 // Convert the URI object to something the Media Container understands (Uri to String)
-                var mediaUrl = Uri.EscapeUriString(source.ToString());
+                var mediaSource = Uri.EscapeUriString(source.ToString());
 
                 // When opening via URL (and not via custom input stream), fix up the protocols and stuff
                 if (inputStream == null)
@@ -277,7 +277,7 @@
                             // The async protocol prefix by default does not ssem to provide
                             // any performance improvements. Just leaving it for future reference below.
                             // containerConfig.ProtocolPrefix = "async"
-                            mediaUrl = source.LocalPath;
+                            mediaSource = source.LocalPath;
                         }
                     }
                     catch { /* Ignore exception and continue */ }
@@ -295,18 +295,18 @@
                         // ReSharper disable once CommentTypo
                         // Example: streamOptions.PrivateOptions["framerate"] = "20"
                         containerConfig.ForcedInputFormat = source.Host;
-                        mediaUrl = Uri.UnescapeDataString(source.Query).TrimStart('?');
+                        mediaSource = Uri.UnescapeDataString(source.Query).TrimStart('?');
                         this.LogInfo(Aspects.EngineCommand,
-                            $"Media URI will be updated. Input Format: {source.Host}, Input Argument: {mediaUrl}");
+                            $"Media URI will be updated. Input Format: {source.Host}, Input Argument: {mediaSource}");
                     }
                 }
 
                 // Allow the stream input options to be changed
-                MediaCore.SendOnMediaInitializing(containerConfig, mediaUrl);
+                MediaCore.SendOnMediaInitializing(containerConfig, mediaSource);
 
                 // Instantiate the internal container using either a URL (default) or a custom input stream.
                 MediaCore.Container = inputStream == null ?
-                    new MediaContainer(mediaUrl, containerConfig, MediaCore) :
+                    new MediaContainer(mediaSource, containerConfig, MediaCore) :
                     new MediaContainer(inputStream, containerConfig, MediaCore);
 
                 // Notify the user media is opening and allow for media options to be modified
@@ -432,7 +432,7 @@
 
             // Call close on all renderers
             foreach (var renderer in MediaCore.Renderers.Values)
-                renderer.Close();
+                renderer.OnClose();
 
             // Remove the renderers disposing of them
             MediaCore.Renderers.Clear();
@@ -481,7 +481,7 @@
             // We always remove the audio renderer in case there is a change in audio device.
             if (MediaCore.Renderers.ContainsKey(MediaType.Audio))
             {
-                MediaCore.Renderers[MediaType.Audio].Close();
+                MediaCore.Renderers[MediaType.Audio].OnClose();
                 MediaCore.Renderers.Remove(MediaType.Audio);
             }
 
@@ -501,7 +501,7 @@
                 if (!MediaCore.Renderers.ContainsKey(t))
                     continue;
 
-                MediaCore.Renderers[t].Close();
+                MediaCore.Renderers[t].OnClose();
                 MediaCore.Renderers.Remove(t);
             }
 
@@ -531,7 +531,7 @@
                     MediaCore.Renderers[t] = MediaEngine.Platform.CreateRenderer(t, MediaCore);
 
                 MediaCore.Blocks[t].Clear();
-                MediaCore.Renderers[t].WaitForReadyState();
+                MediaCore.Renderers[t].OnStarting();
                 MediaCore.InvalidateRenderer(t);
             }
         }
@@ -542,7 +542,7 @@
         private void PreLoadSubtitles()
         {
             DisposePreloadedSubtitles();
-            var subtitlesUrl = MediaCore.MediaOptions.SubtitlesUrl;
+            var subtitlesUrl = MediaCore.MediaOptions.SubtitlesSource;
 
             // Don't load a thing if we don't have to
             if (string.IsNullOrWhiteSpace(subtitlesUrl))

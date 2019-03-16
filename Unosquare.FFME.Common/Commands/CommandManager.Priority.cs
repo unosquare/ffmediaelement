@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.Commands
 {
+    using Engine;
     using Primitives;
-    using Shared;
     using System;
     using System.Runtime.CompilerServices;
     using System.Threading;
@@ -73,7 +73,7 @@
         private bool CommandPlayMedia()
         {
             foreach (var renderer in MediaCore.Renderers.Values)
-                renderer.Play();
+                renderer.OnPlay();
 
             State.UpdateMediaState(PlaybackStatus.Play);
 
@@ -92,7 +92,7 @@
             MediaCore.PausePlayback();
 
             foreach (var renderer in MediaCore.Renderers.Values)
-                renderer.Pause();
+                renderer.OnPause();
 
             MediaCore.ChangePlaybackPosition(SnapPositionToBlockPosition(MediaCore.PlaybackPosition));
             State.UpdateMediaState(PlaybackStatus.Pause);
@@ -113,7 +113,7 @@
             SeekMedia(new SeekOperation(TimeSpan.MinValue, SeekMode.Stop), CancellationToken.None);
 
             foreach (var renderer in MediaCore.Renderers.Values)
-                renderer.Stop();
+                renderer.OnStop();
 
             State.UpdateMediaState(PlaybackStatus.Stop);
             return true;

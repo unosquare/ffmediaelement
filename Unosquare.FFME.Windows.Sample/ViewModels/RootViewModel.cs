@@ -4,6 +4,7 @@
     using Platform;
     using System;
     using System.IO;
+    using System.Windows;
 
     /// <summary>
     /// Represents the application-wide view model
@@ -15,6 +16,7 @@
         private bool m_IsPlaylistPanelOpen = GuiContext.Current.IsInDesignTime;
         private bool m_IsPropertiesPanelOpen = GuiContext.Current.IsInDesignTime;
         private bool m_IsApplicationLoaded = GuiContext.Current.IsInDesignTime;
+        private MediaElement m_MediaElement;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RootViewModel"/> class.
@@ -37,11 +39,6 @@
         /// Gets the product name
         /// </summary>
         public static string ProductName => "Unosquare FFME-Play";
-
-        /// <summary>
-        /// Provides access to the application object owning this View-Model.
-        /// </summary>
-        public App App => App.Current;
 
         /// <summary>
         /// Gets the playlist ViewModel.
@@ -100,6 +97,25 @@
         }
 
         /// <summary>
+        /// Provides access to application-wide commands
+        /// </summary>
+        public AppCommands Commands { get; } = new AppCommands();
+
+        /// <summary>
+        /// Gets the media element hosted by the main window.
+        /// </summary>
+        public MediaElement MediaElement
+        {
+            get
+            {
+                if (m_MediaElement == null)
+                    m_MediaElement = (Application.Current.MainWindow as MainWindow)?.Media;
+
+                return m_MediaElement;
+            }
+        }
+
+        /// <summary>
         /// Called when application has finished loading
         /// </summary>
         internal void OnApplicationLoaded()
@@ -110,7 +126,7 @@
             Playlist.OnApplicationLoaded();
             Controller.OnApplicationLoaded();
 
-            var m = App.MediaElement;
+            var m = MediaElement;
             new Action(UpdateWindowTitle).WhenChanged(m,
                 nameof(m.IsOpen),
                 nameof(m.IsOpening),
@@ -125,7 +141,7 @@
                 // Update the Controls
                 Playlist.IsInOpenMode = false;
                 IsPlaylistPanelOpen = false;
-                Playlist.OpenTargetUrl = m.Source.ToString();
+                Playlist.OpenMediaSource = m.Source.ToString();
             };
 
             IsPlaylistPanelOpen = true;
@@ -137,19 +153,22 @@
         /// </summary>
         private void UpdateWindowTitle()
         {
-            var title = App.MediaElement?.Source?.ToString() ?? "(No media loaded)";
-            var state = App.MediaElement?.MediaState.ToString();
+            var m = MediaElement;
+            var title = m?.Source?.ToString() ?? "(No media loaded)";
+            var state = m?.MediaState.ToString();
 
-            if (App.MediaElement?.IsOpen ?? false)
+            if (m?.IsOpen ?? false)
             {
-                foreach (var kvp in App.Current.MediaElement.Metadata)
+                foreach (var kvp in m.Metadata)
                 {
-                    if (!kvp.Key.ToLowerInvariant().Equals("title")) continue;
+                    if (!kvp.Key.Equals("title", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
                     title = kvp.Value;
                     break;
                 }
             }
-            else if (App.MediaElement?.IsOpening ?? false)
+            else if (m?.IsOpening ?? false)
             {
                 state = "Opening . . .";
             }

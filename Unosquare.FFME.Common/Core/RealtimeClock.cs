@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME.Core
 {
-    using Shared;
+    using Engine;
     using System;
     using System.Diagnostics;
 
@@ -12,7 +12,7 @@
         private readonly Stopwatch Chronometer = new Stopwatch();
         private readonly object SyncLock = new object();
         private long OffsetTicks;
-        private double m_SpeedRatio = Constants.Controller.DefaultSpeedRatio;
+        private double m_SpeedRatio = Constants.DefaultSpeedRatio;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RealTimeClock"/> class.

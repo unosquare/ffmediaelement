@@ -1,4 +1,5 @@
 ﻿#pragma warning disable SA1649 // File name must match first type name
+#pragma warning disable CA1812 // Remove classes that are apparently never instantiated
 namespace Unosquare.FFME.Windows.Sample.Foundation
 {
     using ClosedCaptions;
@@ -77,7 +78,7 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
             const double minMegaByte = 1024 * 1024;
             const double minGigaByte = 1024 * 1024 * 1024;
 
-            var byteCount = System.Convert.ToDouble(value);
+            var byteCount = System.Convert.ToDouble(value, CultureInfo.InvariantCulture);
 
             var suffix = "b";
             var output = 0d;
@@ -121,7 +122,7 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
             const double minMegaBit = 1000 * 1000;
             const double minGigaBit = 1000 * 1000 * 1000;
 
-            var byteCount = System.Convert.ToDouble(value);
+            var byteCount = System.Convert.ToDouble(value, CultureInfo.InvariantCulture);
 
             var suffix = "bits/s";
             var output = 0d;
@@ -186,7 +187,7 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
             if (value is string thumbnailFilename && GuiContext.Current.IsInDesignTime == false)
             {
                 return ThumbnailGenerator.GetThumbnail(
-                    App.Current.ViewModel.Playlist.ThumbsDirectory, thumbnailFilename);
+                    App.ViewModel.Playlist.ThumbsDirectory, thumbnailFilename);
             }
 
             return default(ImageSource);
@@ -226,7 +227,7 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
         {
             if (value == null) return "unknown";
             var utcDate = (DateTime)value;
-            return utcDate.ToLocalTime().ToString("f");
+            return utcDate.ToLocalTime().ToString("f", CultureInfo.InvariantCulture);
         }
 
         /// <inheritdoc />
@@ -265,4 +266,5 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
             value != null && (bool)value ? CaptionsChannel.CC1 : CaptionsChannel.CCP;
     }
 }
+#pragma warning restore CA1812 // Remove classes that are apparently never instantiated
 #pragma warning restore SA1649 // File name must match first type name
