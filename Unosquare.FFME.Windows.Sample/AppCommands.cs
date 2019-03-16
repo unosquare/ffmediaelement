@@ -46,11 +46,11 @@
             {
                 try
                 {
-                    var m = App.ViewModel.MediaElement;
-                    if (a is string == false) return;
-                    var uriString = (string)a;
+                    var uriString = a as string;
                     if (string.IsNullOrWhiteSpace(uriString))
                         return;
+
+                    var m = App.ViewModel.MediaElement;
 
                     // Current.MediaElement.Source = new Uri(uriString); // you can also set the source to the Uri to open
                     var target = new Uri(uriString);
@@ -160,11 +160,11 @@
         public DelegateCommand RemovePlaylistItemCommand => m_RemovePlaylistItemCommand ??
             (m_RemovePlaylistItemCommand = new DelegateCommand(arg =>
             {
-                if (arg is CustomPlaylistEntry == false) return;
-                var entry = (CustomPlaylistEntry)arg;
-
-                App.ViewModel.Playlist.Entries.RemoveEntryByMediaSource(entry.MediaSource);
-                App.ViewModel.Playlist.Entries.SaveEntries();
+                if (arg is CustomPlaylistEntry entry)
+                {
+                    App.ViewModel.Playlist.Entries.RemoveEntryByMediaSource(entry.MediaSource);
+                    App.ViewModel.Playlist.Entries.SaveEntries();
+                }
             }));
     }
 }

@@ -208,7 +208,7 @@
                         // Make sure the seek index belongs to the media file path
                         if (seekIndex != null &&
                             !string.IsNullOrWhiteSpace(seekIndex.MediaSource) &&
-                            seekIndex.MediaSource == mediaFilePath &&
+                            seekIndex.MediaSource.Equals(mediaFilePath, StringComparison.OrdinalIgnoreCase) &&
                             seekIndex.StreamIndex == videoStream.StreamIndex)
                         {
                             // Set the index on the options object.
