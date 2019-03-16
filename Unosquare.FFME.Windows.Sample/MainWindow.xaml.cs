@@ -211,7 +211,7 @@
             var args = Environment.GetCommandLineArgs();
             if (args.Length > 1)
             {
-                App.Instance.Commands.OpenCommand.Execute(args[1].Trim());
+                App.ViewModel.Commands.OpenCommand.Execute(args[1].Trim());
             }
         }
 
@@ -241,14 +241,14 @@
             // Pause
             if (TogglePlayPauseKeys.Contains(e.Key) && Media.IsPlaying)
             {
-                await App.Instance.Commands.PauseCommand.ExecuteAsync();
+                await App.ViewModel.Commands.PauseCommand.ExecuteAsync();
                 return;
             }
 
             // Play
             if (TogglePlayPauseKeys.Contains(e.Key) && Media.IsPlaying == false)
             {
-                await App.Instance.Commands.PlayCommand.ExecuteAsync();
+                await App.ViewModel.Commands.PlayCommand.ExecuteAsync();
                 return;
             }
 
@@ -410,7 +410,7 @@
             // Exit fullscreen
             if (e.Key == Key.Escape && WindowStyle == WindowStyle.None)
             {
-                await App.Instance.Commands.ToggleFullscreenCommand.ExecuteAsync();
+                await App.ViewModel.Commands.ToggleFullscreenCommand.ExecuteAsync();
             }
         }
 
@@ -425,7 +425,7 @@
                 return;
 
             e.Handled = true;
-            await App.Instance.Commands.ToggleFullscreenCommand.ExecuteAsync();
+            await App.ViewModel.Commands.ToggleFullscreenCommand.ExecuteAsync();
         }
 
         /// <summary>
@@ -439,7 +439,7 @@
                 return;
 
             var delta = (e.Delta / 2000d).ToMultipleOf(0.05d);
-            ViewModel.Controller.MediaElementZoom = Math.Round(App.Instance.ViewModel.Controller.MediaElementZoom + delta, 2);
+            ViewModel.Controller.MediaElementZoom = Math.Round(App.ViewModel.Controller.MediaElementZoom + delta, 2);
         }
 
         #endregion

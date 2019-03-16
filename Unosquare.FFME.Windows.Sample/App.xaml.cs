@@ -3,7 +3,6 @@
     using Engine;
     using Platform;
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using System.Threading;
     using System.Windows;
     using ViewModels;
@@ -32,25 +31,9 @@
         }
 
         /// <summary>
-        /// Gets the current application.
-        /// </summary>
-        [SuppressMessage("ReSharper", "ArrangeModifiersOrder", Justification = "StyleCop rule mandates specified order of modifiers")]
-        public static App Instance => Current as App;
-
-        /// <summary>
-        /// Gets the media element hosted by the main window.
-        /// </summary>
-        public MediaElement MediaElement => (MainWindow as MainWindow)?.Media;
-
-        /// <summary>
         /// Provides access to the root-level, application-wide VM
         /// </summary>
-        public RootViewModel ViewModel => Current.Resources[nameof(ViewModel)] as RootViewModel;
-
-        /// <summary>
-        /// Provides access to application-wide commands
-        /// </summary>
-        public AppCommands Commands { get; } = new AppCommands();
+        public static RootViewModel ViewModel => Current.Resources[nameof(ViewModel)] as RootViewModel;
 
         /// <inheritdoc />
         protected override void OnStartup(StartupEventArgs e)

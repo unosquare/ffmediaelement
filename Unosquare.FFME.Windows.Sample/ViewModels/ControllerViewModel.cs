@@ -160,7 +160,7 @@
         {
             get
             {
-                var m = App.Instance.MediaElement;
+                var m = App.ViewModel.MediaElement;
                 if (m == null) return 1d;
 
                 var transform = m.RenderTransform as ScaleTransform;
@@ -168,7 +168,7 @@
             }
             set
             {
-                var m = App.Instance.MediaElement;
+                var m = App.ViewModel.MediaElement;
                 if (m == null) return;
 
                 // ReSharper disable once UseNegatedPatternMatching
@@ -202,7 +202,7 @@
         internal override void OnApplicationLoaded()
         {
             base.OnApplicationLoaded();
-            var m = App.Instance.MediaElement;
+            var m = App.ViewModel.MediaElement;
 
             new Action(() => { IsMediaOpenVisibility = m.IsOpen ? Visibility.Visible : Visibility.Hidden; })
                 .WhenChanged(m, nameof(m.IsOpen));

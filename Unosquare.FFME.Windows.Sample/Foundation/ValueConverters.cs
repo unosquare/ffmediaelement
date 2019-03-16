@@ -187,7 +187,7 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
             if (value is string thumbnailFilename && GuiContext.Current.IsInDesignTime == false)
             {
                 return ThumbnailGenerator.GetThumbnail(
-                    App.Instance.ViewModel.Playlist.ThumbsDirectory, thumbnailFilename);
+                    App.ViewModel.Playlist.ThumbsDirectory, thumbnailFilename);
             }
 
             return default(ImageSource);

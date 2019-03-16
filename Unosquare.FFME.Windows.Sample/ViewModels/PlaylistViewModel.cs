@@ -163,7 +163,7 @@
         internal override void OnApplicationLoaded()
         {
             base.OnApplicationLoaded();
-            var m = App.Instance.MediaElement;
+            var m = App.ViewModel.MediaElement;
 
             new Action(() =>
             {
@@ -182,7 +182,7 @@
         private void OnMediaOpened(object sender, RoutedEventArgs e)
         {
             HasTakenThumbnail = false;
-            var m = App.Instance.MediaElement;
+            var m = App.ViewModel.MediaElement;
 
             Entries.AddOrUpdateEntry(m.Source?.ToString() ?? m.MediaInfo.MediaSource, m.MediaInfo);
             Entries.SaveEntries();

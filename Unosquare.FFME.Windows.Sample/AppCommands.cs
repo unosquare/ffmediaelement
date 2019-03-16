@@ -46,6 +46,7 @@
             {
                 try
                 {
+                    var m = App.ViewModel.MediaElement;
                     if (a is string == false) return;
                     var uriString = (string)a;
                     if (string.IsNullOrWhiteSpace(uriString))
@@ -54,14 +55,14 @@
                     // Current.MediaElement.Source = new Uri(uriString); // you can also set the source to the Uri to open
                     var target = new Uri(uriString);
                     if (target.ToString().StartsWith(FileInputStream.Scheme, StringComparison.OrdinalIgnoreCase))
-                        await MediaElement.Open(new FileInputStream(target.LocalPath));
+                        await m.Open(new FileInputStream(target.LocalPath));
                     else
-                        await MediaElement.Open(target);
+                        await m.Open(target);
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show(
-                        App.Instance.MainWindow,
+                        Application.Current.MainWindow,
                         $"Media Failed: {ex.GetType()}\r\n{ex.Message}",
                         $"{nameof(MediaElement)} Error",
                         MessageBoxButton.OK,
@@ -81,7 +82,7 @@
             {
                 // Current.MediaElement.Dispose(); // Test the Dispose method uncommenting this line
                 // Current.MediaElement.Source = null; // You can also set the source to null to close.
-                await MediaElement.Close();
+                await App.ViewModel.MediaElement.Close();
             }));
 
         /// <summary>
@@ -93,7 +94,7 @@
         public DelegateCommand PauseCommand => m_PauseCommand ??
             (m_PauseCommand = new DelegateCommand(async o =>
             {
-                await MediaElement.Pause();
+                await App.ViewModel.MediaElement.Pause();
             }));
 
         /// <summary>
@@ -106,7 +107,7 @@
             (m_PlayCommand = new DelegateCommand(async o =>
             {
                 // await Current.MediaElement.Seek(TimeSpan.Zero)
-                await MediaElement.Play();
+                await App.ViewModel.MediaElement.Play();
             }));
 
         /// <summary>
@@ -118,7 +119,7 @@
         public DelegateCommand StopCommand => m_StopCommand ??
             (m_StopCommand = new DelegateCommand(async o =>
             {
-                await MediaElement.Stop();
+                await App.ViewModel.MediaElement.Stop();
             }));
 
         /// <summary>
@@ -130,7 +131,7 @@
         public DelegateCommand ToggleFullscreenCommand => m_ToggleFullscreenCommand ??
             (m_ToggleFullscreenCommand = new DelegateCommand(o =>
             {
-                var mainWindow = App.Instance.MainWindow;
+                var mainWindow = Application.Current.MainWindow;
 
                 // If we are already in fullscreen, go back to normal
                 if (mainWindow.WindowStyle == WindowStyle.None)
@@ -162,10 +163,8 @@
                 if (arg is CustomPlaylistEntry == false) return;
                 var entry = (CustomPlaylistEntry)arg;
 
-                App.Instance.ViewModel.Playlist.Entries.RemoveEntryByMediaSource(entry.MediaSource);
-                App.Instance.ViewModel.Playlist.Entries.SaveEntries();
+                App.ViewModel.Playlist.Entries.RemoveEntryByMediaSource(entry.MediaSource);
+                App.ViewModel.Playlist.Entries.SaveEntries();
             }));
-
-        private MediaElement MediaElement => App.Instance.MediaElement;
     }
 }

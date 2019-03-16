@@ -53,7 +53,7 @@
         private void OnMediaFailed(object sender, ExceptionRoutedEventArgs e)
         {
             MessageBox.Show(
-                App.Instance.MainWindow,
+                Application.Current.MainWindow,
                 $"Media Failed: {e.ErrorException.GetType()}\r\n{e.ErrorException.Message}",
                 $"{nameof(MediaElement)} Error",
                 MessageBoxButton.OK,
@@ -411,7 +411,7 @@
         private VideoSeekIndex LoadOrCreateVideoSeekIndex(string mediaFilePath, int streamIndex, double durationSeconds)
         {
             var seekFileName = $"{Path.GetFileNameWithoutExtension(mediaFilePath)}.six";
-            var seekFilePath = Path.Combine(App.Instance.ViewModel.Playlist.IndexDirectory, seekFileName);
+            var seekFilePath = Path.Combine(App.ViewModel.Playlist.IndexDirectory, seekFileName);
             if (string.IsNullOrWhiteSpace(seekFilePath)) return null;
 
             if (File.Exists(seekFilePath))

@@ -3,6 +3,7 @@
     using Foundation;
     using Platform;
     using System;
+    using System.Windows;
     using System.Windows.Controls.Primitives;
     using System.Windows.Input;
     using ViewModels;
@@ -27,7 +28,7 @@
             OpenFileTextBox.KeyDown += async (s, e) =>
             {
                 if (e.Key != Key.Enter) return;
-                await App.Instance.Commands.OpenCommand.ExecuteAsync(OpenFileTextBox.Text);
+                await App.ViewModel.Commands.OpenCommand.ExecuteAsync(OpenFileTextBox.Text);
                 e.Handled = true;
             };
 
@@ -62,12 +63,12 @@
         {
             DeferredAction.Create(context =>
             {
-                if (textBox == null || App.Instance == null || App.Instance.MainWindow == null)
+                if (textBox == null || Application.Current == null || Application.Current.MainWindow == null)
                     return;
 
                 textBox.Focus();
                 textBox.SelectAll();
-                FocusManager.SetFocusedElement(App.Instance.MainWindow, textBox);
+                FocusManager.SetFocusedElement(Application.Current.MainWindow, textBox);
                 Keyboard.Focus(textBox);
 
                 if (textBox.IsVisible == false || textBox.IsKeyboardFocused)
