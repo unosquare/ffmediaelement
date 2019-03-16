@@ -4,12 +4,13 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:ffme="clr-namespace:Unosquare.FFME;assembly=ffme.win"
+             xmlns:local="clr-namespace:Unosquare.FFME.Windows.Sample"
              mc:Ignorable="d" d:DesignHeight="700"
              d:DataContext="{StaticResource ViewModel}">
     <!-- ReSharper disable once Xaml.BindingWithContextNotResolved -->
     <Border Name="PropertyExplorerPanel" Width="280" Style="{StaticResource SidePanelContainerBorderStyle}" 
             d:DataContext="{d:DesignInstance ffme:MediaElement, IsDesignTimeCreatable=True}"
-            DataContext="{Binding Path=App.MediaElement}">
+            DataContext="{Binding Source={x:Static local:App.Instance}, Path=MediaElement}">
         <DockPanel LastChildFill="True">
             <!-- The Content -->
             <Grid x:Name="PropertyExplorerPanelContent">

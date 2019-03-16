@@ -9,23 +9,23 @@
     /// Represents a dictionary of attributes (key-value pairs)
     /// </summary>
     [Serializable]
-    public class AttributeSet : Dictionary<string, string>
+    public class AttributeDictionary : Dictionary<string, string>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="AttributeSet"/> class.
+        /// Initializes a new instance of the <see cref="AttributeDictionary"/> class.
         /// </summary>
-        public AttributeSet()
+        public AttributeDictionary()
             : base(16)
         {
             // placeholder
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AttributeSet"/> class.
+        /// Initializes a new instance of the <see cref="AttributeDictionary"/> class.
         /// </summary>
         /// <param name="info">The serialization info.</param>
         /// <param name="context">The streaming context.</param>
-        protected AttributeSet(SerializationInfo info, StreamingContext context)
+        protected AttributeDictionary(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             // placeholder

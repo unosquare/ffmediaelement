@@ -339,7 +339,7 @@
                 if (FFmpegLogLevels.ContainsKey(level))
                     messageType = FFmpegLogLevels[level];
 
-                if (!line.EndsWith("\n", StringComparison.InvariantCulture)) return;
+                if (!line.EndsWith("\n", StringComparison.Ordinal)) return;
                 line = string.Join(string.Empty, FFmpegLogBuffer);
                 line = line.TrimEnd();
                 FFmpegLogBuffer.Clear();

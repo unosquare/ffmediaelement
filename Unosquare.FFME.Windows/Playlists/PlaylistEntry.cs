@@ -48,7 +48,7 @@
         /// <summary>
         /// Gets the extended attributes.
         /// </summary>
-        public AttributeSet Attributes { get; } = new AttributeSet();
+        public AttributeDictionary Attributes { get; } = new AttributeDictionary();
 
         /// <summary>
         /// Checks if a property already matches a desired value.  Sets the property and

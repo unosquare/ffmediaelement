@@ -53,17 +53,22 @@
 
             PlaylistFilePath = Path.Combine(root.AppDataDirectory, "ffme.m3u8");
 
-            Entries = new CustomPlaylist(this);
+            Entries = new CustomPlaylistEntryCollection(this);
             EntriesView = CollectionViewSource.GetDefaultView(Entries);
             EntriesView.Filter = item =>
             {
-                if (string.IsNullOrWhiteSpace(PlaylistSearchString) || PlaylistSearchString.Trim().Length < MinimumSearchLength)
+                var searchString = PlaylistSearchString;
+
+                if (string.IsNullOrWhiteSpace(searchString) || searchString.Trim().Length < MinimumSearchLength)
                     return true;
 
                 if (item is CustomPlaylistEntry entry)
                 {
-                    return (entry.Title?.ToUpperInvariant().Contains(PlaylistSearchString.ToUpperInvariant()) ?? false) ||
-                           (entry.MediaSource?.ToUpperInvariant().Contains(PlaylistSearchString.ToUpperInvariant()) ?? false);
+                    var title = entry.Title ?? string.Empty;
+                    var source = entry.MediaSource ?? string.Empty;
+
+                    return title.IndexOf(searchString, StringComparison.InvariantCultureIgnoreCase) >= 0 ||
+                        source.IndexOf(searchString, StringComparison.InvariantCultureIgnoreCase) >= 0;
                 }
 
                 return false;
@@ -75,7 +80,7 @@
         /// <summary>
         /// Gets the custom playlist. Do not use for data-binding
         /// </summary>
-        public CustomPlaylist Entries { get; }
+        public CustomPlaylistEntryCollection Entries { get; }
 
         /// <summary>
         /// Gets the custom playlist entries as a view that can be used in data binding scenarios.
@@ -158,7 +163,7 @@
         internal override void OnApplicationLoaded()
         {
             base.OnApplicationLoaded();
-            var m = Root.App.MediaElement;
+            var m = App.Instance.MediaElement;
 
             new Action(() =>
             {
@@ -177,9 +182,9 @@
         private void OnMediaOpened(object sender, RoutedEventArgs e)
         {
             HasTakenThumbnail = false;
-            Entries.AddOrUpdateEntry(
-                Root.App.MediaElement.Source?.ToString() ?? Root.App.MediaElement.MediaInfo.MediaSource,
-                Root.App.MediaElement.MediaInfo);
+            var m = App.Instance.MediaElement;
+
+            Entries.AddOrUpdateEntry(m.Source?.ToString() ?? m.MediaInfo.MediaSource, m.MediaInfo);
             Entries.SaveEntries();
         }
 

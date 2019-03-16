@@ -73,8 +73,8 @@
     <Compile Include="Platform\GuiTimer.cs" />
     <Compile Include="Platform\PropertyMapper.cs" />
     <Compile Include="Platform\GuiContextType.cs" />
-    <Compile Include="Playlists\AttributeSet.cs" />
-    <Compile Include="Playlists\Playlist.cs" />
+    <Compile Include="Playlists\AttributeDictionary.cs" />
+    <Compile Include="Playlists\PlaylistEntryCollection.cs" />
     <Compile Include="Playlists\PlaylistEntry.cs" />
     <Compile Include="Playlists\PlaylistExtensions.cs" />
     <Compile Include="Rendering\AudioDeviceInfo.cs" />

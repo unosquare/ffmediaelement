@@ -128,9 +128,9 @@
         /// <returns>The formatted string</returns>
         internal static string StripAssFormat(string input)
         {
-            const string DialoguePrefix = "DIALOGUE:";
+            const string DialoguePrefix = "dialogue:";
 
-            if (input.Substring(0, DialoguePrefix.Length).ToUpperInvariant() != DialoguePrefix)
+            if (!input.StartsWith(DialoguePrefix, StringComparison.InvariantCultureIgnoreCase))
                 return string.Empty;
 
             var inputParts = input.Split(SeparatorChars, 10);

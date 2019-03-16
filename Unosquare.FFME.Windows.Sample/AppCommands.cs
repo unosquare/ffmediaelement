@@ -54,14 +54,14 @@
                     // Current.MediaElement.Source = new Uri(uriString); // you can also set the source to the Uri to open
                     var target = new Uri(uriString);
                     if (target.ToString().StartsWith(FileInputStream.Scheme, StringComparison.OrdinalIgnoreCase))
-                        await App.Current.MediaElement.Open(new FileInputStream(target.LocalPath));
+                        await MediaElement.Open(new FileInputStream(target.LocalPath));
                     else
-                        await App.Current.MediaElement.Open(target);
+                        await MediaElement.Open(target);
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show(
-                        App.Current.MainWindow,
+                        App.Instance.MainWindow,
                         $"Media Failed: {ex.GetType()}\r\n{ex.Message}",
                         $"{nameof(MediaElement)} Error",
                         MessageBoxButton.OK,
@@ -81,7 +81,7 @@
             {
                 // Current.MediaElement.Dispose(); // Test the Dispose method uncommenting this line
                 // Current.MediaElement.Source = null; // You can also set the source to null to close.
-                await App.Current.MediaElement.Close();
+                await MediaElement.Close();
             }));
 
         /// <summary>
@@ -93,7 +93,7 @@
         public DelegateCommand PauseCommand => m_PauseCommand ??
             (m_PauseCommand = new DelegateCommand(async o =>
             {
-                await App.Current.MediaElement.Pause();
+                await MediaElement.Pause();
             }));
 
         /// <summary>
@@ -106,7 +106,7 @@
             (m_PlayCommand = new DelegateCommand(async o =>
             {
                 // await Current.MediaElement.Seek(TimeSpan.Zero)
-                await App.Current.MediaElement.Play();
+                await MediaElement.Play();
             }));
 
         /// <summary>
@@ -118,7 +118,7 @@
         public DelegateCommand StopCommand => m_StopCommand ??
             (m_StopCommand = new DelegateCommand(async o =>
             {
-                await App.Current.MediaElement.Stop();
+                await MediaElement.Stop();
             }));
 
         /// <summary>
@@ -130,20 +130,22 @@
         public DelegateCommand ToggleFullscreenCommand => m_ToggleFullscreenCommand ??
             (m_ToggleFullscreenCommand = new DelegateCommand(o =>
             {
+                var mainWindow = App.Instance.MainWindow;
+
                 // If we are already in fullscreen, go back to normal
-                if (App.Current.MainWindow.WindowStyle == WindowStyle.None)
+                if (mainWindow.WindowStyle == WindowStyle.None)
                 {
-                    PreviousWindowStatus.Apply(App.Current.MainWindow);
+                    PreviousWindowStatus.Apply(mainWindow);
                     WindowStatus.EnableDisplayTimeout();
                 }
                 else
                 {
-                    PreviousWindowStatus.Capture(App.Current.MainWindow);
-                    App.Current.MainWindow.WindowStyle = WindowStyle.None;
-                    App.Current.MainWindow.ResizeMode = ResizeMode.NoResize;
-                    App.Current.MainWindow.Topmost = true;
-                    App.Current.MainWindow.WindowState = WindowState.Normal;
-                    App.Current.MainWindow.WindowState = WindowState.Maximized;
+                    PreviousWindowStatus.Capture(mainWindow);
+                    mainWindow.WindowStyle = WindowStyle.None;
+                    mainWindow.ResizeMode = ResizeMode.NoResize;
+                    mainWindow.Topmost = true;
+                    mainWindow.WindowState = WindowState.Normal;
+                    mainWindow.WindowState = WindowState.Maximized;
                     WindowStatus.DisableDisplayTimeout();
                 }
             }));
@@ -160,8 +162,10 @@
                 if (arg is CustomPlaylistEntry == false) return;
                 var entry = (CustomPlaylistEntry)arg;
 
-                App.Current.ViewModel.Playlist.Entries.RemoveEntryByMediaSource(entry.MediaSource);
-                App.Current.ViewModel.Playlist.Entries.SaveEntries();
+                App.Instance.ViewModel.Playlist.Entries.RemoveEntryByMediaSource(entry.MediaSource);
+                App.Instance.ViewModel.Playlist.Entries.SaveEntries();
             }));
+
+        private MediaElement MediaElement => App.Instance.MediaElement;
     }
 }

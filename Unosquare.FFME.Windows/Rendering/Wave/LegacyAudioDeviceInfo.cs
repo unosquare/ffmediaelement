@@ -132,13 +132,7 @@ namespace Unosquare.FFME.Rendering.Wave
 
         #region Methods
 
-        /// <summary>
-        /// Indicates whether the current object is equal to another object of the same type.
-        /// </summary>
-        /// <param name="other">An object to compare with this object.</param>
-        /// <returns>
-        ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
-        /// </returns>
+        /// <inheritdoc />
         public bool Equals(LegacyAudioDeviceInfo other)
         {
             return manufacturerGuid == other.manufacturerGuid &&
@@ -146,6 +140,17 @@ namespace Unosquare.FFME.Rendering.Wave
                 driverVersion == other.driverVersion &&
                 channels == other.channels;
         }
+
+        /// <inheritdoc />
+        public override bool Equals(object obj) =>
+            obj is LegacyAudioDeviceInfo && Equals((LegacyAudioDeviceInfo)obj);
+
+        /// <inheritdoc />
+        public override int GetHashCode() =>
+            manufacturerGuid.GetHashCode() ^
+            productGuid.GetHashCode() ^
+            driverVersion ^
+            channels;
 
         /// <summary>
         /// Checks to see if a given SupportedWaveFormat is supported

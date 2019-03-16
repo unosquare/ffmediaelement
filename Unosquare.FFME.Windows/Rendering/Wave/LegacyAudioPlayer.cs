@@ -37,8 +37,7 @@
         public LegacyAudioPlayer(AudioRenderer renderer, int deviceNumber)
         {
             // Initialize the default values
-            var deviceId = deviceNumber;
-            if (deviceId < -1) deviceId = -1;
+            var deviceId = deviceNumber < -1 ? -1 : deviceNumber;
 
             Renderer = renderer;
             DeviceNumber = deviceId;

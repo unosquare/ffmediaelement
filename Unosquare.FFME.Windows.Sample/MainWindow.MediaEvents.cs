@@ -53,7 +53,7 @@
         private void OnMediaFailed(object sender, ExceptionRoutedEventArgs e)
         {
             MessageBox.Show(
-                App.Current.MainWindow,
+                App.Instance.MainWindow,
                 $"Media Failed: {e.ErrorException.GetType()}\r\n{e.ErrorException.Message}",
                 $"{nameof(MediaElement)} Error",
                 MessageBoxButton.OK,
@@ -73,8 +73,8 @@
         private void OnMediaInitializing(object sender, MediaInitializingEventArgs e)
         {
             // An example of injecting input options for http/https streams
-            if (e.MediaSource.StartsWith("http://", StringComparison.InvariantCulture) ||
-                e.MediaSource.StartsWith("https://", StringComparison.InvariantCulture))
+            if (e.MediaSource.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                e.MediaSource.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             {
                 e.Configuration.PrivateOptions["user_agent"] = $"{typeof(ContainerConfiguration).Namespace}/{typeof(ContainerConfiguration).Assembly.GetName().Version}";
                 e.Configuration.PrivateOptions["headers"] = "Referer:https://www.unosquare.com";
@@ -90,7 +90,7 @@
             // RTSP is similar to HTTP but it only provides metadata about the underlying stream
             // Most RTSP compatible streams expose RTP data over both UDP and TCP.
             // TCP provides reliable communication while UDP does not
-            if (e.MediaSource.StartsWith("rtsp://", StringComparison.InvariantCulture))
+            if (e.MediaSource.StartsWith("rtsp://", StringComparison.OrdinalIgnoreCase))
             {
                 e.Configuration.PrivateOptions["rtsp_transport"] = "tcp";
                 e.Configuration.GlobalOptions.FlagNoBuffer = true;
@@ -149,7 +149,7 @@
 
             // Legacy audio out is the use of the WinMM api as opposed to using DirectSound
             // Enable legacy audio out if you are having issues with the DirectSound driver.
-            Media.RendererOptions.UseLegacyAudioOut = e.Info.MediaSource.EndsWith(".wmv", StringComparison.InvariantCulture);
+            Media.RendererOptions.UseLegacyAudioOut = e.Info.MediaSource.EndsWith(".wmv", StringComparison.OrdinalIgnoreCase);
 
             // You can limit how often the video renderer updates the picture.
             // We keep it as 0 to refresh the video according to the native stream specification.
@@ -178,19 +178,19 @@
 
             // An example of selecting a specific subtitle stream
             var subtitleStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_SUBTITLE).Select(kvp => kvp.Value);
-            var englishSubtitleStream = subtitleStreams.FirstOrDefault(s => s.Language != null && s.Language.StartsWith("en", StringComparison.OrdinalIgnoreCase));
+            var englishSubtitleStream = subtitleStreams
+                .FirstOrDefault(s => s.Language != null && s.Language.StartsWith("en", StringComparison.OrdinalIgnoreCase));
+
             if (englishSubtitleStream != null)
-            {
                 e.Options.SubtitleStream = englishSubtitleStream;
-            }
 
             // An example of selecting a specific audio stream
             var audioStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_AUDIO).Select(kvp => kvp.Value);
-            var englishAudioStream = audioStreams.FirstOrDefault(s => s.Language != null && s.Language.StartsWith("en", StringComparison.OrdinalIgnoreCase));
+            var englishAudioStream = audioStreams
+                .FirstOrDefault(s => s.Language != null && s.Language.StartsWith("en", StringComparison.OrdinalIgnoreCase));
+
             if (englishAudioStream != null)
-            {
                 e.Options.AudioStream = englishAudioStream;
-            }
 
             // Setting Advanced Video Stream Options is also possible
             // ReSharper disable once InvertIf
@@ -411,7 +411,7 @@
         private VideoSeekIndex LoadOrCreateVideoSeekIndex(string mediaFilePath, int streamIndex, double durationSeconds)
         {
             var seekFileName = $"{Path.GetFileNameWithoutExtension(mediaFilePath)}.six";
-            var seekFilePath = Path.Combine(App.Current.ViewModel.Playlist.IndexDirectory, seekFileName);
+            var seekFilePath = Path.Combine(App.Instance.ViewModel.Playlist.IndexDirectory, seekFileName);
             if (string.IsNullOrWhiteSpace(seekFilePath)) return null;
 
             if (File.Exists(seekFilePath))

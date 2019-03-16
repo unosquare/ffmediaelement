@@ -15,46 +15,66 @@
 
         [FieldOffset(0)]
         public uint Type;
+
         [FieldOffset(4)]
         public uint Ms;
+
         [FieldOffset(4)]
         public uint Sample;
+
         [FieldOffset(4)]
         public uint CB;
+
         [FieldOffset(4)]
         public uint Ticks;
+
         [FieldOffset(4)]
         public byte SmpteHour;
+
         [FieldOffset(5)]
         public byte SmpteMin;
+
         [FieldOffset(6)]
         public byte SmpteSec;
+
         [FieldOffset(7)]
         public byte SmpteFrame;
+
         [FieldOffset(8)]
         public byte SmpteFps;
+
         [FieldOffset(9)]
         public byte SmpteDummy;
+
         [FieldOffset(10)]
         public byte SmptePad0;
+
         [FieldOffset(11)]
         public byte SmptePad1;
+
         [FieldOffset(4)]
         public uint MidiSongPtrPos;
 
-        /// <summary>
-        /// Indicates whether the current object is equal to another object of the same type.
-        /// </summary>
-        /// <param name="other">An object to compare with this object.</param>
-        /// <returns>
-        ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
-        /// </returns>
+        /// <inheritdoc />
         public bool Equals(MmTime other)
         {
             return Type == other.Type &&
                 Ms == other.Ms &&
                 Sample == other.Sample &&
-                CB == other.CB;
+                CB == other.CB &&
+                Ticks == other.Ticks;
         }
+
+        /// <inheritdoc />
+        public override bool Equals(object obj) =>
+            obj is MmTime && Equals((MmTime)obj);
+
+        /// <inheritdoc />
+        public override int GetHashCode() =>
+            Type.GetHashCode() ^
+            Ms.GetHashCode() ^
+            Sample.GetHashCode() ^
+            CB.GetHashCode() ^
+            Ticks.GetHashCode();
     }
 }

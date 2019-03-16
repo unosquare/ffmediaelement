@@ -17,11 +17,52 @@
         /// </summary>
         /// <param name="result">The result returned by the Windows API call</param>
         /// <param name="functionName">The name of the Windows API that failed</param>
-        internal LegacyAudioException(LegacyAudioResult result, string functionName)
+        public LegacyAudioException(LegacyAudioResult result, string functionName)
             : base(ErrorMessage(result, functionName))
         {
             Result = result;
             FunctionName = functionName;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LegacyAudioException"/> class.
+        /// </summary>
+        public LegacyAudioException()
+            : this(LegacyAudioResult.UnspecifiedError, $"{nameof(LegacyAudioException)}.ctor()")
+        {
+            // placeholder
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LegacyAudioException"/> class.
+        /// </summary>
+        /// <param name="message">The error message</param>
+        public LegacyAudioException(string message)
+            : this(LegacyAudioResult.UnspecifiedError, $"{nameof(LegacyAudioException)}.ctor(): {message}")
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LegacyAudioException"/> class.
+        /// </summary>
+        /// <param name="message">The error message</param>
+        /// <param name="innerException">The inner exception</param>
+        public LegacyAudioException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+            Result = LegacyAudioResult.UnspecifiedError;
+            FunctionName = $"{nameof(LegacyAudioException)}.ctor()";
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LegacyAudioException"/> class.
+        /// </summary>
+        /// <param name="info">The serialization info</param>
+        /// <param name="context">The streaming context</param>
+        private LegacyAudioException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            // placeholder
         }
 
         /// <summary>

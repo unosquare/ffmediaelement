@@ -14,7 +14,7 @@
     /// General guidelines taken from http://xmtvplayer.com/build-m3u-file
     /// </summary>
     /// <typeparam name="T">The type of playlist items</typeparam>
-    public class Playlist<T> : ObservableCollection<T>
+    public class PlaylistEntryCollection<T> : ObservableCollection<T>
         where T : PlaylistEntry, new()
     {
         #region Private state
@@ -29,18 +29,18 @@
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Playlist{T}"/> class.
+        /// Initializes a new instance of the <see cref="PlaylistEntryCollection{T}"/> class.
         /// </summary>
-        public Playlist()
+        public PlaylistEntryCollection()
         {
             // Placeholder
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Playlist{T}"/> class.
+        /// Initializes a new instance of the <see cref="PlaylistEntryCollection{T}"/> class.
         /// </summary>
         /// <param name="name">The name.</param>
-        public Playlist(string name)
+        public PlaylistEntryCollection(string name)
             : this()
         {
             m_Name = name;
@@ -66,99 +66,7 @@
         /// <summary>
         /// Gets the extended attributes key-value pairs.
         /// </summary>
-        public AttributeSet Attributes { get; } = new AttributeSet();
-
-        #endregion
-
-        #region Open Methods
-
-        /// <summary>
-        /// Loads the playlist from the specified path, assuming UTF8 encoding
-        /// </summary>
-        /// <param name="filePath">The text.</param>
-        /// <returns>The loaded playlist</returns>
-        public static Playlist<T> Open(string filePath)
-        {
-            return Open(filePath, Encoding.UTF8);
-        }
-
-        /// <summary>
-        /// Loads the playlist from the specified stream as UTF8.
-        /// </summary>
-        /// <param name="stream">The stream.</param>
-        /// <returns>The loaded playlist</returns>
-        public static Playlist<T> Open(Stream stream)
-        {
-            return Open(stream, Encoding.UTF8);
-        }
-
-        /// <summary>
-        /// Loads the playlist from the specified file path.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <param name="encoding">The encoding.</param>
-        /// <returns>
-        /// The loaded playlist
-        /// </returns>
-        public static Playlist<T> Open(string path, Encoding encoding)
-        {
-            using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
-            {
-                return Open(fileStream, encoding);
-            }
-        }
-
-        /// <summary>
-        /// Loads the playlist from the specified stream.
-        /// </summary>
-        /// <param name="stream">The stream.</param>
-        /// <param name="encoding">The encoding.</param>
-        /// <returns>The loaded playlist.</returns>
-        public static Playlist<T> Open(Stream stream, Encoding encoding)
-        {
-            var result = new Playlist<T>();
-            var currentEntry = default(T);
-            using (var reader = new StreamReader(stream, encoding))
-            {
-                while (reader.EndOfStream == false)
-                {
-                    var line = reader.ReadLine();
-
-                    // skip blank lines
-                    if (string.IsNullOrWhiteSpace(line))
-                        continue;
-
-                    if (line.ToUpperInvariant().StartsWith($"{HeaderPrefix} ", StringComparison.InvariantCulture))
-                    {
-                        result.ParseHeaderLine(line);
-                    }
-                    else if (line.ToUpperInvariant().StartsWith($"{EntryPrefix}:", StringComparison.InvariantCulture))
-                    {
-                        currentEntry = new T();
-                        currentEntry.BeginExtendedInfoLine(line);
-                    }
-                    else if (line.StartsWith("#", StringComparison.InvariantCulture))
-                    {
-                        // This is just a comment. Do nothing.
-                    }
-                    else
-                    {
-                        if (currentEntry != null)
-                        {
-                            currentEntry.MediaSource = line.Trim();
-                            result.Add(currentEntry);
-                            currentEntry = null;
-                        }
-                        else
-                        {
-                            result.Add(string.Empty, TimeSpan.Zero, line.Trim(), null);
-                        }
-                    }
-                }
-            }
-
-            return result;
-        }
+        public AttributeDictionary Attributes { get; } = new AttributeDictionary();
 
         #endregion
 
@@ -270,14 +178,14 @@
         /// </summary>
         /// <param name="title">The title.</param>
         /// <param name="duration">The duration.</param>
-        /// <param name="url">The URL.</param>
+        /// <param name="mediaSource">The media source URL.</param>
         /// <param name="attributes">The attributes.</param>
-        public void Add(string title, TimeSpan duration, string url, Dictionary<string, string> attributes)
+        public void Add(string title, TimeSpan duration, string mediaSource, Dictionary<string, string> attributes)
         {
             var entry = new T
             {
                 Duration = duration,
-                MediaSource = url,
+                MediaSource = mediaSource,
                 Title = title
             };
 
@@ -297,15 +205,68 @@
         /// </summary>
         /// <param name="title">The title.</param>
         /// <param name="duration">The duration.</param>
-        /// <param name="url">The URL.</param>
-        public void Add(string title, TimeSpan duration, string url) => Add(title, duration, url, null);
+        /// <param name="mediaSource">The media source URL.</param>
+        public void Add(string title, TimeSpan duration, string mediaSource) => Add(title, duration, mediaSource, null);
+
+        /// <summary>
+        /// Loads the playlist from the specified stream.
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        /// <param name="encoding">The encoding.</param>
+        /// <returns>The loaded playlist.</returns>
+        protected static PlaylistEntryCollection<T> Open(Stream stream, Encoding encoding)
+        {
+            var result = new PlaylistEntryCollection<T>();
+            var currentEntry = default(T);
+            using (var reader = new StreamReader(stream, encoding))
+            {
+                while (reader.EndOfStream == false)
+                {
+                    var line = reader.ReadLine();
+
+                    // skip blank lines
+                    if (string.IsNullOrWhiteSpace(line))
+                        continue;
+
+                    if (line.StartsWith($"{HeaderPrefix} ", StringComparison.OrdinalIgnoreCase))
+                    {
+                        result.ParseHeaderLine(line);
+                    }
+                    else if (line.StartsWith($"{EntryPrefix}:", StringComparison.OrdinalIgnoreCase))
+                    {
+                        currentEntry = new T();
+                        currentEntry.BeginExtendedInfoLine(line);
+                    }
+                    else if (line.StartsWith("#", StringComparison.Ordinal))
+                    {
+                        // This is just a comment. Do nothing.
+                    }
+                    else
+                    {
+                        if (currentEntry != null)
+                        {
+                            currentEntry.MediaSource = line.Trim();
+                            result.Add(currentEntry);
+                            currentEntry = null;
+                        }
+                        else
+                        {
+                            result.Add(string.Empty, TimeSpan.Zero, line.Trim(), null);
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
 
         #endregion
+
     }
 
     /// <summary>
-    /// A standard Playlist class with regular PlaylistEntry items
+    /// A standard Playlist class with regular <see cref="PlaylistEntry"/> items
     /// </summary>
-    /// <seealso cref="System.Collections.ObjectModel.ObservableCollection{T}" />
-    public class Playlist : Playlist<PlaylistEntry> { }
+    /// <seealso cref="PlaylistEntryCollection{T}" />
+    public class PlaylistEntryCollection : PlaylistEntryCollection<PlaylistEntry> { }
 }

@@ -27,7 +27,7 @@
             OpenFileTextBox.KeyDown += async (s, e) =>
             {
                 if (e.Key != Key.Enter) return;
-                await App.Current.Commands.OpenCommand.ExecuteAsync(OpenFileTextBox.Text);
+                await App.Instance.Commands.OpenCommand.ExecuteAsync(OpenFileTextBox.Text);
                 e.Handled = true;
             };
 
@@ -62,12 +62,12 @@
         {
             DeferredAction.Create(context =>
             {
-                if (textBox == null || App.Current == null || App.Current.MainWindow == null)
+                if (textBox == null || App.Instance == null || App.Instance.MainWindow == null)
                     return;
 
                 textBox.Focus();
                 textBox.SelectAll();
-                FocusManager.SetFocusedElement(App.Current.MainWindow, textBox);
+                FocusManager.SetFocusedElement(App.Instance.MainWindow, textBox);
                 Keyboard.Focus(textBox);
 
                 if (textBox.IsVisible == false || textBox.IsKeyboardFocused)

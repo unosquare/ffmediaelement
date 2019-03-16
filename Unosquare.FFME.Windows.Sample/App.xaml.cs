@@ -35,22 +35,17 @@
         /// Gets the current application.
         /// </summary>
         [SuppressMessage("ReSharper", "ArrangeModifiersOrder", Justification = "StyleCop rule mandates specified order of modifiers")]
-        public static new App Current => Application.Current as App;
-
-        /// <summary>
-        /// Gets the main window of the application.
-        /// </summary>
-        public new MainWindow MainWindow => Application.Current.MainWindow as MainWindow;
+        public static App Instance => Current as App;
 
         /// <summary>
         /// Gets the media element hosted by the main window.
         /// </summary>
-        public MediaElement MediaElement => MainWindow?.Media;
+        public MediaElement MediaElement => (MainWindow as MainWindow)?.Media;
 
         /// <summary>
         /// Provides access to the root-level, application-wide VM
         /// </summary>
-        public RootViewModel ViewModel => Application.Current.Resources[nameof(ViewModel)] as RootViewModel;
+        public RootViewModel ViewModel => Current.Resources[nameof(ViewModel)] as RootViewModel;
 
         /// <summary>
         /// Provides access to application-wide commands
@@ -61,9 +56,9 @@
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-            Application.Current.MainWindow = new MainWindow();
-            Application.Current.MainWindow.Loaded += (snd, eva) => ViewModel.OnApplicationLoaded();
-            Application.Current.MainWindow.Show();
+            Current.MainWindow = new MainWindow();
+            Current.MainWindow.Loaded += (snd, eva) => ViewModel.OnApplicationLoaded();
+            Current.MainWindow.Show();
 
             // Pre-load FFmpeg libraries in the background. This is optional.
             // FFmpeg will be automatically loaded if not already loaded when you try to open
@@ -89,7 +84,7 @@
                             MessageBoxButton.OK,
                             MessageBoxImage.Error);
 
-                        Application.Current?.Shutdown();
+                        Current?.Shutdown();
                     });
                 }
             });

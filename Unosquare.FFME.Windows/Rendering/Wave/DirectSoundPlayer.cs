@@ -195,9 +195,10 @@
             // buffer. We first open the DirectSound driver, create the buffers and start the playback!
             // Open DirectSound
             DirectSoundDriver = null;
-            NativeMethods.DirectSoundCreate(ref DeviceId, out DirectSoundDriver, IntPtr.Zero);
+            var createDriverResult = NativeMethods.DirectSoundCreate(ref DeviceId, out DirectSoundDriver, IntPtr.Zero);
 
-            if (DirectSoundDriver == null) return;
+            if (DirectSoundDriver == null || createDriverResult != 0)
+                return;
 
             // Set Cooperative Level to PRIORITY (priority level can call the SetFormat and Compact methods)
             DirectSoundDriver.SetCooperativeLevel(NativeMethods.GetDesktopWindow(),
@@ -654,6 +655,18 @@
 
                 /// <inheritdoc />
                 public bool Equals(DirectSoundBufferPositionNotify other) => NotifyHandle == other.NotifyHandle;
+
+                /// <inheritdoc />
+                public override bool Equals(object obj)
+                {
+                    if (obj is DirectSoundBufferPositionNotify other)
+                        return Equals(other);
+
+                    return false;
+                }
+
+                /// <inheritdoc />
+                public override int GetHashCode() => NotifyHandle.GetHashCode();
             }
 
             // ReSharper disable NotAccessedField.Local

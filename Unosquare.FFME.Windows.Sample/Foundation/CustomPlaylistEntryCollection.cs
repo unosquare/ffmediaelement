@@ -11,16 +11,16 @@
     /// <summary>
     /// A class exposing usage of custom play lists
     /// </summary>
-    public class CustomPlaylist : Playlist<CustomPlaylistEntry>
+    public class CustomPlaylistEntryCollection : PlaylistEntryCollection<CustomPlaylistEntry>
     {
         private readonly object SyncRoot = new object();
         private readonly PlaylistViewModel ViewModel;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CustomPlaylist" /> class.
+        /// Initializes a new instance of the <see cref="CustomPlaylistEntryCollection" /> class.
         /// </summary>
         /// <param name="viewModel">The view model.</param>
-        public CustomPlaylist(PlaylistViewModel viewModel)
+        public CustomPlaylistEntryCollection(PlaylistViewModel viewModel)
         {
             ViewModel = viewModel;
 
@@ -49,10 +49,10 @@
         {
             lock (SyncRoot)
             {
-                var lookupMediaSource = mediaSource?.ToUpperInvariant() ?? string.Empty;
+                var lookupMediaSource = mediaSource?.Trim() ?? string.Empty;
                 foreach (var entry in this)
                 {
-                    if (Equals(entry.MediaSource?.ToUpperInvariant(), lookupMediaSource))
+                    if (lookupMediaSource.Trim().Equals(entry.MediaSource, StringComparison.OrdinalIgnoreCase))
                         return entry;
                 }
 

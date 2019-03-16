@@ -2,6 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:local="clr-namespace:Unosquare.FFME.Windows.Sample"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" d:DesignHeight="400"  Name="LayoutRoot"
              xmlns:ffmepl="clr-namespace:Unosquare.FFME.Windows.Sample.Foundation"
@@ -195,7 +196,7 @@
                                     <Border>
                                         <Button 
                                                 Cursor="Hand" Width="128" 
-                                                Command="{Binding Source={StaticResource ViewModel}, Path=App.Commands.OpenCommand}" 
+                                                Command="{Binding Source={x:Static local:App.Instance}, Path=Commands.OpenCommand}"
                                                 CommandParameter="{Binding MediaSource}">
                                             <Button.Template>
                                                 <ControlTemplate>
@@ -216,7 +217,7 @@
                                             <Button 
                                                     DockPanel.Dock="Top"
                                                     Style="{DynamicResource ModernButtonStyle}" 
-                                                    Command="{Binding Source={StaticResource ViewModel}, Path=App.Commands.OpenCommand}" 
+                                                    Command="{Binding Source={x:Static local:App.Instance}, Path=Commands.OpenCommand}" 
                                                     CommandParameter="{Binding MediaSource}">
                                                 <Path Stretch="Uniform" Data="{Binding Source={StaticResource PlayIcon}, Path=Data}" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
                                             </Button>
@@ -239,7 +240,7 @@
                                                         <TextBlock FontWeight="Bold" Text="{Binding LastOpenedUtc, Converter={StaticResource UtcDateToLocalTimeString}}" />
                                                         <TextBlock> - </TextBlock>
                                                         <Hyperlink 
-                                                            Command="{Binding Source={StaticResource ViewModel}, Path=App.Commands.RemovePlaylistItemCommand}"
+                                                            Command="{Binding Source={x:Static local:App.Instance}, Path=Commands.RemovePlaylistItemCommand}"
                                                             CommandParameter="{Binding}">REMOVE</Hyperlink>
                                                     </TextBlock>
                                     </DockPanel>

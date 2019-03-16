@@ -1,4 +1,5 @@
 ﻿#pragma warning disable SA1649 // File name must match first type name
+#pragma warning disable CA1812 // Remove classes that are apparently never instantiated
 namespace Unosquare.FFME.Windows.Sample.Foundation
 {
     using ClosedCaptions;
@@ -186,7 +187,7 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
             if (value is string thumbnailFilename && GuiContext.Current.IsInDesignTime == false)
             {
                 return ThumbnailGenerator.GetThumbnail(
-                    App.Current.ViewModel.Playlist.ThumbsDirectory, thumbnailFilename);
+                    App.Instance.ViewModel.Playlist.ThumbsDirectory, thumbnailFilename);
             }
 
             return default(ImageSource);
@@ -265,4 +266,5 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
             value != null && (bool)value ? CaptionsChannel.CC1 : CaptionsChannel.CCP;
     }
 }
+#pragma warning restore CA1812 // Remove classes that are apparently never instantiated
 #pragma warning restore SA1649 // File name must match first type name

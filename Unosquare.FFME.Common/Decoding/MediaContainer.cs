@@ -129,7 +129,7 @@
             // drop the protocol prefix if it is redundant
             var protocolPrefix = Configuration.ProtocolPrefix;
             if (string.IsNullOrWhiteSpace(MediaSource) == false && string.IsNullOrWhiteSpace(protocolPrefix) == false
-                && MediaSource.ToUpperInvariant().Trim().StartsWith($"{protocolPrefix.ToUpperInvariant()}:", StringComparison.InvariantCulture))
+                && MediaSource.Trim().StartsWith($"{protocolPrefix}:", StringComparison.OrdinalIgnoreCase))
             {
                 protocolPrefix = null;
             }

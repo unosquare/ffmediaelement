@@ -39,11 +39,6 @@
         public static string ProductName => "Unosquare FFME-Play";
 
         /// <summary>
-        /// Provides access to the application object owning this View-Model.
-        /// </summary>
-        public App App => App.Current;
-
-        /// <summary>
         /// Gets the playlist ViewModel.
         /// </summary>
         public PlaylistViewModel Playlist { get; }
@@ -110,7 +105,7 @@
             Playlist.OnApplicationLoaded();
             Controller.OnApplicationLoaded();
 
-            var m = App.MediaElement;
+            var m = App.Instance.MediaElement;
             new Action(UpdateWindowTitle).WhenChanged(m,
                 nameof(m.IsOpen),
                 nameof(m.IsOpening),
@@ -137,21 +132,23 @@
         /// </summary>
         private void UpdateWindowTitle()
         {
-            var title = App.MediaElement?.Source?.ToString() ?? "(No media loaded)";
-            var state = App.MediaElement?.MediaState.ToString();
+            var m = App.Instance.MediaElement;
 
-            if (App.MediaElement?.IsOpen ?? false)
+            var title = m?.Source?.ToString() ?? "(No media loaded)";
+            var state = m?.MediaState.ToString();
+
+            if (m?.IsOpen ?? false)
             {
-                foreach (var kvp in App.Current.MediaElement.Metadata)
+                foreach (var kvp in m.Metadata)
                 {
-                    if (kvp.Key.ToUpperInvariant() != "TITLE")
+                    if (!kvp.Key.Equals("title", StringComparison.OrdinalIgnoreCase))
                         continue;
 
                     title = kvp.Value;
                     break;
                 }
             }
-            else if (App.MediaElement?.IsOpening ?? false)
+            else if (m?.IsOpening ?? false)
             {
                 state = "Opening . . .";
             }
