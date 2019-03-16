@@ -2332,294 +2332,70 @@ references:
   commentId: N:Unosquare.FFME.Playlists
   fullName: Unosquare.FFME.Playlists
   nameWithType: Unosquare.FFME.Playlists
-- uid: Unosquare.FFME.Playlists.AttributeSet
-  name: AttributeSet
-  href: api/Unosquare.FFME.Playlists.AttributeSet.html
-  commentId: T:Unosquare.FFME.Playlists.AttributeSet
-  fullName: Unosquare.FFME.Playlists.AttributeSet
-  nameWithType: AttributeSet
-- uid: Unosquare.FFME.Playlists.AttributeSet.#ctor
-  name: AttributeSet()
-  href: api/Unosquare.FFME.Playlists.AttributeSet.html#Unosquare_FFME_Playlists_AttributeSet__ctor
-  commentId: M:Unosquare.FFME.Playlists.AttributeSet.#ctor
-  fullName: Unosquare.FFME.Playlists.AttributeSet.AttributeSet()
-  nameWithType: AttributeSet.AttributeSet()
-- uid: Unosquare.FFME.Playlists.AttributeSet.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)
-  name: AttributeSet(SerializationInfo, StreamingContext)
-  href: api/Unosquare.FFME.Playlists.AttributeSet.html#Unosquare_FFME_Playlists_AttributeSet__ctor_System_Runtime_Serialization_SerializationInfo_System_Runtime_Serialization_StreamingContext_
-  commentId: M:Unosquare.FFME.Playlists.AttributeSet.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)
-  fullName: Unosquare.FFME.Playlists.AttributeSet.AttributeSet(System.Runtime.Serialization.SerializationInfo, System.Runtime.Serialization.StreamingContext)
-  nameWithType: AttributeSet.AttributeSet(SerializationInfo, StreamingContext)
-- uid: Unosquare.FFME.Playlists.AttributeSet.#ctor*
-  name: AttributeSet
-  href: api/Unosquare.FFME.Playlists.AttributeSet.html#Unosquare_FFME_Playlists_AttributeSet__ctor_
-  commentId: Overload:Unosquare.FFME.Playlists.AttributeSet.#ctor
+- uid: Unosquare.FFME.Playlists.AttributeDictionary
+  name: AttributeDictionary
+  href: api/Unosquare.FFME.Playlists.AttributeDictionary.html
+  commentId: T:Unosquare.FFME.Playlists.AttributeDictionary
+  fullName: Unosquare.FFME.Playlists.AttributeDictionary
+  nameWithType: AttributeDictionary
+- uid: Unosquare.FFME.Playlists.AttributeDictionary.#ctor
+  name: AttributeDictionary()
+  href: api/Unosquare.FFME.Playlists.AttributeDictionary.html#Unosquare_FFME_Playlists_AttributeDictionary__ctor
+  commentId: M:Unosquare.FFME.Playlists.AttributeDictionary.#ctor
+  fullName: Unosquare.FFME.Playlists.AttributeDictionary.AttributeDictionary()
+  nameWithType: AttributeDictionary.AttributeDictionary()
+- uid: Unosquare.FFME.Playlists.AttributeDictionary.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)
+  name: AttributeDictionary(SerializationInfo, StreamingContext)
+  href: api/Unosquare.FFME.Playlists.AttributeDictionary.html#Unosquare_FFME_Playlists_AttributeDictionary__ctor_System_Runtime_Serialization_SerializationInfo_System_Runtime_Serialization_StreamingContext_
+  commentId: M:Unosquare.FFME.Playlists.AttributeDictionary.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)
+  fullName: Unosquare.FFME.Playlists.AttributeDictionary.AttributeDictionary(System.Runtime.Serialization.SerializationInfo, System.Runtime.Serialization.StreamingContext)
+  nameWithType: AttributeDictionary.AttributeDictionary(SerializationInfo, StreamingContext)
+- uid: Unosquare.FFME.Playlists.AttributeDictionary.#ctor*
+  name: AttributeDictionary
+  href: api/Unosquare.FFME.Playlists.AttributeDictionary.html#Unosquare_FFME_Playlists_AttributeDictionary__ctor_
+  commentId: Overload:Unosquare.FFME.Playlists.AttributeDictionary.#ctor
   isSpec: "True"
-  fullName: Unosquare.FFME.Playlists.AttributeSet.AttributeSet
-  nameWithType: AttributeSet.AttributeSet
-- uid: Unosquare.FFME.Playlists.AttributeSet.GetEntryValue(System.String)
+  fullName: Unosquare.FFME.Playlists.AttributeDictionary.AttributeDictionary
+  nameWithType: AttributeDictionary.AttributeDictionary
+- uid: Unosquare.FFME.Playlists.AttributeDictionary.GetEntryValue(System.String)
   name: GetEntryValue(String)
-  href: api/Unosquare.FFME.Playlists.AttributeSet.html#Unosquare_FFME_Playlists_AttributeSet_GetEntryValue_System_String_
-  commentId: M:Unosquare.FFME.Playlists.AttributeSet.GetEntryValue(System.String)
-  fullName: Unosquare.FFME.Playlists.AttributeSet.GetEntryValue(System.String)
-  nameWithType: AttributeSet.GetEntryValue(String)
-- uid: Unosquare.FFME.Playlists.AttributeSet.GetEntryValue*
+  href: api/Unosquare.FFME.Playlists.AttributeDictionary.html#Unosquare_FFME_Playlists_AttributeDictionary_GetEntryValue_System_String_
+  commentId: M:Unosquare.FFME.Playlists.AttributeDictionary.GetEntryValue(System.String)
+  fullName: Unosquare.FFME.Playlists.AttributeDictionary.GetEntryValue(System.String)
+  nameWithType: AttributeDictionary.GetEntryValue(String)
+- uid: Unosquare.FFME.Playlists.AttributeDictionary.GetEntryValue*
   name: GetEntryValue
-  href: api/Unosquare.FFME.Playlists.AttributeSet.html#Unosquare_FFME_Playlists_AttributeSet_GetEntryValue_
-  commentId: Overload:Unosquare.FFME.Playlists.AttributeSet.GetEntryValue
+  href: api/Unosquare.FFME.Playlists.AttributeDictionary.html#Unosquare_FFME_Playlists_AttributeDictionary_GetEntryValue_
+  commentId: Overload:Unosquare.FFME.Playlists.AttributeDictionary.GetEntryValue
   isSpec: "True"
-  fullName: Unosquare.FFME.Playlists.AttributeSet.GetEntryValue
-  nameWithType: AttributeSet.GetEntryValue
-- uid: Unosquare.FFME.Playlists.AttributeSet.SetEntryValue(System.String,System.String)
+  fullName: Unosquare.FFME.Playlists.AttributeDictionary.GetEntryValue
+  nameWithType: AttributeDictionary.GetEntryValue
+- uid: Unosquare.FFME.Playlists.AttributeDictionary.SetEntryValue(System.String,System.String)
   name: SetEntryValue(String, String)
-  href: api/Unosquare.FFME.Playlists.AttributeSet.html#Unosquare_FFME_Playlists_AttributeSet_SetEntryValue_System_String_System_String_
-  commentId: M:Unosquare.FFME.Playlists.AttributeSet.SetEntryValue(System.String,System.String)
-  fullName: Unosquare.FFME.Playlists.AttributeSet.SetEntryValue(System.String, System.String)
-  nameWithType: AttributeSet.SetEntryValue(String, String)
-- uid: Unosquare.FFME.Playlists.AttributeSet.SetEntryValue*
+  href: api/Unosquare.FFME.Playlists.AttributeDictionary.html#Unosquare_FFME_Playlists_AttributeDictionary_SetEntryValue_System_String_System_String_
+  commentId: M:Unosquare.FFME.Playlists.AttributeDictionary.SetEntryValue(System.String,System.String)
+  fullName: Unosquare.FFME.Playlists.AttributeDictionary.SetEntryValue(System.String, System.String)
+  nameWithType: AttributeDictionary.SetEntryValue(String, String)
+- uid: Unosquare.FFME.Playlists.AttributeDictionary.SetEntryValue*
   name: SetEntryValue
-  href: api/Unosquare.FFME.Playlists.AttributeSet.html#Unosquare_FFME_Playlists_AttributeSet_SetEntryValue_
-  commentId: Overload:Unosquare.FFME.Playlists.AttributeSet.SetEntryValue
+  href: api/Unosquare.FFME.Playlists.AttributeDictionary.html#Unosquare_FFME_Playlists_AttributeDictionary_SetEntryValue_
+  commentId: Overload:Unosquare.FFME.Playlists.AttributeDictionary.SetEntryValue
   isSpec: "True"
-  fullName: Unosquare.FFME.Playlists.AttributeSet.SetEntryValue
-  nameWithType: AttributeSet.SetEntryValue
-- uid: Unosquare.FFME.Playlists.AttributeSet.ToString
+  fullName: Unosquare.FFME.Playlists.AttributeDictionary.SetEntryValue
+  nameWithType: AttributeDictionary.SetEntryValue
+- uid: Unosquare.FFME.Playlists.AttributeDictionary.ToString
   name: ToString()
-  href: api/Unosquare.FFME.Playlists.AttributeSet.html#Unosquare_FFME_Playlists_AttributeSet_ToString
-  commentId: M:Unosquare.FFME.Playlists.AttributeSet.ToString
-  fullName: Unosquare.FFME.Playlists.AttributeSet.ToString()
-  nameWithType: AttributeSet.ToString()
-- uid: Unosquare.FFME.Playlists.AttributeSet.ToString*
+  href: api/Unosquare.FFME.Playlists.AttributeDictionary.html#Unosquare_FFME_Playlists_AttributeDictionary_ToString
+  commentId: M:Unosquare.FFME.Playlists.AttributeDictionary.ToString
+  fullName: Unosquare.FFME.Playlists.AttributeDictionary.ToString()
+  nameWithType: AttributeDictionary.ToString()
+- uid: Unosquare.FFME.Playlists.AttributeDictionary.ToString*
   name: ToString
-  href: api/Unosquare.FFME.Playlists.AttributeSet.html#Unosquare_FFME_Playlists_AttributeSet_ToString_
-  commentId: Overload:Unosquare.FFME.Playlists.AttributeSet.ToString
+  href: api/Unosquare.FFME.Playlists.AttributeDictionary.html#Unosquare_FFME_Playlists_AttributeDictionary_ToString_
+  commentId: Overload:Unosquare.FFME.Playlists.AttributeDictionary.ToString
   isSpec: "True"
-  fullName: Unosquare.FFME.Playlists.AttributeSet.ToString
-  nameWithType: AttributeSet.ToString
-- uid: Unosquare.FFME.Playlists.Playlist
-  name: Playlist
-  href: api/Unosquare.FFME.Playlists.Playlist.html
-  commentId: T:Unosquare.FFME.Playlists.Playlist
-  fullName: Unosquare.FFME.Playlists.Playlist
-  nameWithType: Playlist
-- uid: Unosquare.FFME.Playlists.Playlist`1
-  name: Playlist<T>
-  href: api/Unosquare.FFME.Playlists.Playlist-1.html
-  commentId: T:Unosquare.FFME.Playlists.Playlist`1
-  name.vb: Playlist(Of T)
-  fullName: Unosquare.FFME.Playlists.Playlist<T>
-  fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T)
-  nameWithType: Playlist<T>
-  nameWithType.vb: Playlist(Of T)
-- uid: Unosquare.FFME.Playlists.Playlist`1.#ctor
-  name: Playlist()
-  href: api/Unosquare.FFME.Playlists.Playlist-1.html#Unosquare_FFME_Playlists_Playlist_1__ctor
-  commentId: M:Unosquare.FFME.Playlists.Playlist`1.#ctor
-  fullName: Unosquare.FFME.Playlists.Playlist<T>.Playlist()
-  fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T).Playlist()
-  nameWithType: Playlist<T>.Playlist()
-  nameWithType.vb: Playlist(Of T).Playlist()
-- uid: Unosquare.FFME.Playlists.Playlist`1.#ctor(System.String)
-  name: Playlist(String)
-  href: api/Unosquare.FFME.Playlists.Playlist-1.html#Unosquare_FFME_Playlists_Playlist_1__ctor_System_String_
-  commentId: M:Unosquare.FFME.Playlists.Playlist`1.#ctor(System.String)
-  fullName: Unosquare.FFME.Playlists.Playlist<T>.Playlist(System.String)
-  fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T).Playlist(System.String)
-  nameWithType: Playlist<T>.Playlist(String)
-  nameWithType.vb: Playlist(Of T).Playlist(String)
-- uid: Unosquare.FFME.Playlists.Playlist`1.#ctor*
-  name: Playlist
-  href: api/Unosquare.FFME.Playlists.Playlist-1.html#Unosquare_FFME_Playlists_Playlist_1__ctor_
-  commentId: Overload:Unosquare.FFME.Playlists.Playlist`1.#ctor
-  isSpec: "True"
-  fullName: Unosquare.FFME.Playlists.Playlist<T>.Playlist
-  fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T).Playlist
-  nameWithType: Playlist<T>.Playlist
-  nameWithType.vb: Playlist(Of T).Playlist
-- uid: Unosquare.FFME.Playlists.Playlist`1.Add(System.String,System.TimeSpan,System.String)
-  name: Add(String, TimeSpan, String)
-  href: api/Unosquare.FFME.Playlists.Playlist-1.html#Unosquare_FFME_Playlists_Playlist_1_Add_System_String_System_TimeSpan_System_String_
-  commentId: M:Unosquare.FFME.Playlists.Playlist`1.Add(System.String,System.TimeSpan,System.String)
-  fullName: Unosquare.FFME.Playlists.Playlist<T>.Add(System.String, System.TimeSpan, System.String)
-  fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T).Add(System.String, System.TimeSpan, System.String)
-  nameWithType: Playlist<T>.Add(String, TimeSpan, String)
-  nameWithType.vb: Playlist(Of T).Add(String, TimeSpan, String)
-- uid: Unosquare.FFME.Playlists.Playlist`1.Add(System.String,System.TimeSpan,System.String,System.Collections.Generic.Dictionary{System.String,System.String})
-  name: Add(String, TimeSpan, String, Dictionary<String, String>)
-  href: api/Unosquare.FFME.Playlists.Playlist-1.html#Unosquare_FFME_Playlists_Playlist_1_Add_System_String_System_TimeSpan_System_String_System_Collections_Generic_Dictionary_System_String_System_String__
-  commentId: M:Unosquare.FFME.Playlists.Playlist`1.Add(System.String,System.TimeSpan,System.String,System.Collections.Generic.Dictionary{System.String,System.String})
-  name.vb: Add(String, TimeSpan, String, Dictionary(Of String, String))
-  fullName: Unosquare.FFME.Playlists.Playlist<T>.Add(System.String, System.TimeSpan, System.String, System.Collections.Generic.Dictionary<System.String, System.String>)
-  fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T).Add(System.String, System.TimeSpan, System.String, System.Collections.Generic.Dictionary(Of System.String, System.String))
-  nameWithType: Playlist<T>.Add(String, TimeSpan, String, Dictionary<String, String>)
-  nameWithType.vb: Playlist(Of T).Add(String, TimeSpan, String, Dictionary(Of String, String))
-- uid: Unosquare.FFME.Playlists.Playlist`1.Add*
-  name: Add
-  href: api/Unosquare.FFME.Playlists.Playlist-1.html#Unosquare_FFME_Playlists_Playlist_1_Add_
-  commentId: Overload:Unosquare.FFME.Playlists.Playlist`1.Add
-  isSpec: "True"
-  fullName: Unosquare.FFME.Playlists.Playlist<T>.Add
-  fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T).Add
-  nameWithType: Playlist<T>.Add
-  nameWithType.vb: Playlist(Of T).Add
-- uid: Unosquare.FFME.Playlists.Playlist`1.Attributes
-  name: Attributes
-  href: api/Unosquare.FFME.Playlists.Playlist-1.html#Unosquare_FFME_Playlists_Playlist_1_Attributes
-  commentId: P:Unosquare.FFME.Playlists.Playlist`1.Attributes
-  fullName: Unosquare.FFME.Playlists.Playlist<T>.Attributes
-  fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T).Attributes
-  nameWithType: Playlist<T>.Attributes
-  nameWithType.vb: Playlist(Of T).Attributes
-- uid: Unosquare.FFME.Playlists.Playlist`1.Attributes*
-  name: Attributes
-  href: api/Unosquare.FFME.Playlists.Playlist-1.html#Unosquare_FFME_Playlists_Playlist_1_Attributes_
-  commentId: Overload:Unosquare.FFME.Playlists.Playlist`1.Attributes
-  isSpec: "True"
-  fullName: Unosquare.FFME.Playlists.Playlist<T>.Attributes
-  fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T).Attributes
-  nameWithType: Playlist<T>.Attributes
-  nameWithType.vb: Playlist(Of T).Attributes
-- uid: Unosquare.FFME.Playlists.Playlist`1.Load(System.IO.Stream,System.Text.Encoding)
-  name: Load(Stream, Encoding)
-  href: api/Unosquare.FFME.Playlists.Playlist-1.html#Unosquare_FFME_Playlists_Playlist_1_Load_System_IO_Stream_System_Text_Encoding_
-  commentId: M:Unosquare.FFME.Playlists.Playlist`1.Load(System.IO.Stream,System.Text.Encoding)
-  fullName: Unosquare.FFME.Playlists.Playlist<T>.Load(System.IO.Stream, System.Text.Encoding)
-  fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T).Load(System.IO.Stream, System.Text.Encoding)
-  nameWithType: Playlist<T>.Load(Stream, Encoding)
-  nameWithType.vb: Playlist(Of T).Load(Stream, Encoding)
-- uid: Unosquare.FFME.Playlists.Playlist`1.Load(System.String)
-  name: Load(String)
-  href: api/Unosquare.FFME.Playlists.Playlist-1.html#Unosquare_FFME_Playlists_Playlist_1_Load_System_String_
-  commentId: M:Unosquare.FFME.Playlists.Playlist`1.Load(System.String)
-  fullName: Unosquare.FFME.Playlists.Playlist<T>.Load(System.String)
-  fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T).Load(System.String)
-  nameWithType: Playlist<T>.Load(String)
-  nameWithType.vb: Playlist(Of T).Load(String)
-- uid: Unosquare.FFME.Playlists.Playlist`1.Load(System.String,System.Text.Encoding)
-  name: Load(String, Encoding)
-  href: api/Unosquare.FFME.Playlists.Playlist-1.html#Unosquare_FFME_Playlists_Playlist_1_Load_System_String_System_Text_Encoding_
-  commentId: M:Unosquare.FFME.Playlists.Playlist`1.Load(System.String,System.Text.Encoding)
-  fullName: Unosquare.FFME.Playlists.Playlist<T>.Load(System.String, System.Text.Encoding)
-  fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T).Load(System.String, System.Text.Encoding)
-  nameWithType: Playlist<T>.Load(String, Encoding)
-  nameWithType.vb: Playlist(Of T).Load(String, Encoding)
-- uid: Unosquare.FFME.Playlists.Playlist`1.Load*
-  name: Load
-  href: api/Unosquare.FFME.Playlists.Playlist-1.html#Unosquare_FFME_Playlists_Playlist_1_Load_
-  commentId: Overload:Unosquare.FFME.Playlists.Playlist`1.Load
-  isSpec: "True"
-  fullName: Unosquare.FFME.Playlists.Playlist<T>.Load
-  fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T).Load
-  nameWithType: Playlist<T>.Load
-  nameWithType.vb: Playlist(Of T).Load
-- uid: Unosquare.FFME.Playlists.Playlist`1.Name
-  name: Name
-  href: api/Unosquare.FFME.Playlists.Playlist-1.html#Unosquare_FFME_Playlists_Playlist_1_Name
-  commentId: P:Unosquare.FFME.Playlists.Playlist`1.Name
-  fullName: Unosquare.FFME.Playlists.Playlist<T>.Name
-  fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T).Name
-  nameWithType: Playlist<T>.Name
-  nameWithType.vb: Playlist(Of T).Name
-- uid: Unosquare.FFME.Playlists.Playlist`1.Name*
-  name: Name
-  href: api/Unosquare.FFME.Playlists.Playlist-1.html#Unosquare_FFME_Playlists_Playlist_1_Name_
-  commentId: Overload:Unosquare.FFME.Playlists.Playlist`1.Name
-  isSpec: "True"
-  fullName: Unosquare.FFME.Playlists.Playlist<T>.Name
-  fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T).Name
-  nameWithType: Playlist<T>.Name
-  nameWithType.vb: Playlist(Of T).Name
-- uid: Unosquare.FFME.Playlists.Playlist`1.NotifyAttributeChangedFor(System.String)
-  name: NotifyAttributeChangedFor(String)
-  href: api/Unosquare.FFME.Playlists.Playlist-1.html#Unosquare_FFME_Playlists_Playlist_1_NotifyAttributeChangedFor_System_String_
-  commentId: M:Unosquare.FFME.Playlists.Playlist`1.NotifyAttributeChangedFor(System.String)
-  fullName: Unosquare.FFME.Playlists.Playlist<T>.NotifyAttributeChangedFor(System.String)
-  fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T).NotifyAttributeChangedFor(System.String)
-  nameWithType: Playlist<T>.NotifyAttributeChangedFor(String)
-  nameWithType.vb: Playlist(Of T).NotifyAttributeChangedFor(String)
-- uid: Unosquare.FFME.Playlists.Playlist`1.NotifyAttributeChangedFor*
-  name: NotifyAttributeChangedFor
-  href: api/Unosquare.FFME.Playlists.Playlist-1.html#Unosquare_FFME_Playlists_Playlist_1_NotifyAttributeChangedFor_
-  commentId: Overload:Unosquare.FFME.Playlists.Playlist`1.NotifyAttributeChangedFor
-  isSpec: "True"
-  fullName: Unosquare.FFME.Playlists.Playlist<T>.NotifyAttributeChangedFor
-  fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T).NotifyAttributeChangedFor
-  nameWithType: Playlist<T>.NotifyAttributeChangedFor
-  nameWithType.vb: Playlist(Of T).NotifyAttributeChangedFor
-- uid: Unosquare.FFME.Playlists.Playlist`1.Open(System.IO.Stream)
-  name: Open(Stream)
-  href: api/Unosquare.FFME.Playlists.Playlist-1.html#Unosquare_FFME_Playlists_Playlist_1_Open_System_IO_Stream_
-  commentId: M:Unosquare.FFME.Playlists.Playlist`1.Open(System.IO.Stream)
-  fullName: Unosquare.FFME.Playlists.Playlist<T>.Open(System.IO.Stream)
-  fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T).Open(System.IO.Stream)
-  nameWithType: Playlist<T>.Open(Stream)
-  nameWithType.vb: Playlist(Of T).Open(Stream)
-- uid: Unosquare.FFME.Playlists.Playlist`1.Open(System.IO.Stream,System.Text.Encoding)
-  name: Open(Stream, Encoding)
-  href: api/Unosquare.FFME.Playlists.Playlist-1.html#Unosquare_FFME_Playlists_Playlist_1_Open_System_IO_Stream_System_Text_Encoding_
-  commentId: M:Unosquare.FFME.Playlists.Playlist`1.Open(System.IO.Stream,System.Text.Encoding)
-  fullName: Unosquare.FFME.Playlists.Playlist<T>.Open(System.IO.Stream, System.Text.Encoding)
-  fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T).Open(System.IO.Stream, System.Text.Encoding)
-  nameWithType: Playlist<T>.Open(Stream, Encoding)
-  nameWithType.vb: Playlist(Of T).Open(Stream, Encoding)
-- uid: Unosquare.FFME.Playlists.Playlist`1.Open(System.String)
-  name: Open(String)
-  href: api/Unosquare.FFME.Playlists.Playlist-1.html#Unosquare_FFME_Playlists_Playlist_1_Open_System_String_
-  commentId: M:Unosquare.FFME.Playlists.Playlist`1.Open(System.String)
-  fullName: Unosquare.FFME.Playlists.Playlist<T>.Open(System.String)
-  fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T).Open(System.String)
-  nameWithType: Playlist<T>.Open(String)
-  nameWithType.vb: Playlist(Of T).Open(String)
-- uid: Unosquare.FFME.Playlists.Playlist`1.Open(System.String,System.Text.Encoding)
-  name: Open(String, Encoding)
-  href: api/Unosquare.FFME.Playlists.Playlist-1.html#Unosquare_FFME_Playlists_Playlist_1_Open_System_String_System_Text_Encoding_
-  commentId: M:Unosquare.FFME.Playlists.Playlist`1.Open(System.String,System.Text.Encoding)
-  fullName: Unosquare.FFME.Playlists.Playlist<T>.Open(System.String, System.Text.Encoding)
-  fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T).Open(System.String, System.Text.Encoding)
-  nameWithType: Playlist<T>.Open(String, Encoding)
-  nameWithType.vb: Playlist(Of T).Open(String, Encoding)
-- uid: Unosquare.FFME.Playlists.Playlist`1.Open*
-  name: Open
-  href: api/Unosquare.FFME.Playlists.Playlist-1.html#Unosquare_FFME_Playlists_Playlist_1_Open_
-  commentId: Overload:Unosquare.FFME.Playlists.Playlist`1.Open
-  isSpec: "True"
-  fullName: Unosquare.FFME.Playlists.Playlist<T>.Open
-  fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T).Open
-  nameWithType: Playlist<T>.Open
-  nameWithType.vb: Playlist(Of T).Open
-- uid: Unosquare.FFME.Playlists.Playlist`1.Save(System.IO.Stream)
-  name: Save(Stream)
-  href: api/Unosquare.FFME.Playlists.Playlist-1.html#Unosquare_FFME_Playlists_Playlist_1_Save_System_IO_Stream_
-  commentId: M:Unosquare.FFME.Playlists.Playlist`1.Save(System.IO.Stream)
-  fullName: Unosquare.FFME.Playlists.Playlist<T>.Save(System.IO.Stream)
-  fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T).Save(System.IO.Stream)
-  nameWithType: Playlist<T>.Save(Stream)
-  nameWithType.vb: Playlist(Of T).Save(Stream)
-- uid: Unosquare.FFME.Playlists.Playlist`1.Save(System.IO.Stream,System.Text.Encoding)
-  name: Save(Stream, Encoding)
-  href: api/Unosquare.FFME.Playlists.Playlist-1.html#Unosquare_FFME_Playlists_Playlist_1_Save_System_IO_Stream_System_Text_Encoding_
-  commentId: M:Unosquare.FFME.Playlists.Playlist`1.Save(System.IO.Stream,System.Text.Encoding)
-  fullName: Unosquare.FFME.Playlists.Playlist<T>.Save(System.IO.Stream, System.Text.Encoding)
-  fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T).Save(System.IO.Stream, System.Text.Encoding)
-  nameWithType: Playlist<T>.Save(Stream, Encoding)
-  nameWithType.vb: Playlist(Of T).Save(Stream, Encoding)
-- uid: Unosquare.FFME.Playlists.Playlist`1.Save(System.String)
-  name: Save(String)
-  href: api/Unosquare.FFME.Playlists.Playlist-1.html#Unosquare_FFME_Playlists_Playlist_1_Save_System_String_
-  commentId: M:Unosquare.FFME.Playlists.Playlist`1.Save(System.String)
-  fullName: Unosquare.FFME.Playlists.Playlist<T>.Save(System.String)
-  fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T).Save(System.String)
-  nameWithType: Playlist<T>.Save(String)
-  nameWithType.vb: Playlist(Of T).Save(String)
-- uid: Unosquare.FFME.Playlists.Playlist`1.Save*
-  name: Save
-  href: api/Unosquare.FFME.Playlists.Playlist-1.html#Unosquare_FFME_Playlists_Playlist_1_Save_
-  commentId: Overload:Unosquare.FFME.Playlists.Playlist`1.Save
-  isSpec: "True"
-  fullName: Unosquare.FFME.Playlists.Playlist<T>.Save
-  fullName.vb: Unosquare.FFME.Playlists.Playlist(Of T).Save
-  nameWithType: Playlist<T>.Save
-  nameWithType.vb: Playlist(Of T).Save
+  fullName: Unosquare.FFME.Playlists.AttributeDictionary.ToString
+  nameWithType: AttributeDictionary.ToString
 - uid: Unosquare.FFME.Playlists.PlaylistEntry
   name: PlaylistEntry
   href: api/Unosquare.FFME.Playlists.PlaylistEntry.html
@@ -2713,6 +2489,206 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.Playlists.PlaylistEntry.Title
   nameWithType: PlaylistEntry.Title
+- uid: Unosquare.FFME.Playlists.PlaylistEntryCollection
+  name: PlaylistEntryCollection
+  href: api/Unosquare.FFME.Playlists.PlaylistEntryCollection.html
+  commentId: T:Unosquare.FFME.Playlists.PlaylistEntryCollection
+  fullName: Unosquare.FFME.Playlists.PlaylistEntryCollection
+  nameWithType: PlaylistEntryCollection
+- uid: Unosquare.FFME.Playlists.PlaylistEntryCollection`1
+  name: PlaylistEntryCollection<T>
+  href: api/Unosquare.FFME.Playlists.PlaylistEntryCollection-1.html
+  commentId: T:Unosquare.FFME.Playlists.PlaylistEntryCollection`1
+  name.vb: PlaylistEntryCollection(Of T)
+  fullName: Unosquare.FFME.Playlists.PlaylistEntryCollection<T>
+  fullName.vb: Unosquare.FFME.Playlists.PlaylistEntryCollection(Of T)
+  nameWithType: PlaylistEntryCollection<T>
+  nameWithType.vb: PlaylistEntryCollection(Of T)
+- uid: Unosquare.FFME.Playlists.PlaylistEntryCollection`1.#ctor
+  name: PlaylistEntryCollection()
+  href: api/Unosquare.FFME.Playlists.PlaylistEntryCollection-1.html#Unosquare_FFME_Playlists_PlaylistEntryCollection_1__ctor
+  commentId: M:Unosquare.FFME.Playlists.PlaylistEntryCollection`1.#ctor
+  fullName: Unosquare.FFME.Playlists.PlaylistEntryCollection<T>.PlaylistEntryCollection()
+  fullName.vb: Unosquare.FFME.Playlists.PlaylistEntryCollection(Of T).PlaylistEntryCollection()
+  nameWithType: PlaylistEntryCollection<T>.PlaylistEntryCollection()
+  nameWithType.vb: PlaylistEntryCollection(Of T).PlaylistEntryCollection()
+- uid: Unosquare.FFME.Playlists.PlaylistEntryCollection`1.#ctor(System.String)
+  name: PlaylistEntryCollection(String)
+  href: api/Unosquare.FFME.Playlists.PlaylistEntryCollection-1.html#Unosquare_FFME_Playlists_PlaylistEntryCollection_1__ctor_System_String_
+  commentId: M:Unosquare.FFME.Playlists.PlaylistEntryCollection`1.#ctor(System.String)
+  fullName: Unosquare.FFME.Playlists.PlaylistEntryCollection<T>.PlaylistEntryCollection(System.String)
+  fullName.vb: Unosquare.FFME.Playlists.PlaylistEntryCollection(Of T).PlaylistEntryCollection(System.String)
+  nameWithType: PlaylistEntryCollection<T>.PlaylistEntryCollection(String)
+  nameWithType.vb: PlaylistEntryCollection(Of T).PlaylistEntryCollection(String)
+- uid: Unosquare.FFME.Playlists.PlaylistEntryCollection`1.#ctor*
+  name: PlaylistEntryCollection
+  href: api/Unosquare.FFME.Playlists.PlaylistEntryCollection-1.html#Unosquare_FFME_Playlists_PlaylistEntryCollection_1__ctor_
+  commentId: Overload:Unosquare.FFME.Playlists.PlaylistEntryCollection`1.#ctor
+  isSpec: "True"
+  fullName: Unosquare.FFME.Playlists.PlaylistEntryCollection<T>.PlaylistEntryCollection
+  fullName.vb: Unosquare.FFME.Playlists.PlaylistEntryCollection(Of T).PlaylistEntryCollection
+  nameWithType: PlaylistEntryCollection<T>.PlaylistEntryCollection
+  nameWithType.vb: PlaylistEntryCollection(Of T).PlaylistEntryCollection
+- uid: Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Add(System.String,System.TimeSpan,System.String)
+  name: Add(String, TimeSpan, String)
+  href: api/Unosquare.FFME.Playlists.PlaylistEntryCollection-1.html#Unosquare_FFME_Playlists_PlaylistEntryCollection_1_Add_System_String_System_TimeSpan_System_String_
+  commentId: M:Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Add(System.String,System.TimeSpan,System.String)
+  fullName: Unosquare.FFME.Playlists.PlaylistEntryCollection<T>.Add(System.String, System.TimeSpan, System.String)
+  fullName.vb: Unosquare.FFME.Playlists.PlaylistEntryCollection(Of T).Add(System.String, System.TimeSpan, System.String)
+  nameWithType: PlaylistEntryCollection<T>.Add(String, TimeSpan, String)
+  nameWithType.vb: PlaylistEntryCollection(Of T).Add(String, TimeSpan, String)
+- uid: Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Add(System.String,System.TimeSpan,System.String,System.Collections.Generic.Dictionary{System.String,System.String})
+  name: Add(String, TimeSpan, String, Dictionary<String, String>)
+  href: api/Unosquare.FFME.Playlists.PlaylistEntryCollection-1.html#Unosquare_FFME_Playlists_PlaylistEntryCollection_1_Add_System_String_System_TimeSpan_System_String_System_Collections_Generic_Dictionary_System_String_System_String__
+  commentId: M:Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Add(System.String,System.TimeSpan,System.String,System.Collections.Generic.Dictionary{System.String,System.String})
+  name.vb: Add(String, TimeSpan, String, Dictionary(Of String, String))
+  fullName: Unosquare.FFME.Playlists.PlaylistEntryCollection<T>.Add(System.String, System.TimeSpan, System.String, System.Collections.Generic.Dictionary<System.String, System.String>)
+  fullName.vb: Unosquare.FFME.Playlists.PlaylistEntryCollection(Of T).Add(System.String, System.TimeSpan, System.String, System.Collections.Generic.Dictionary(Of System.String, System.String))
+  nameWithType: PlaylistEntryCollection<T>.Add(String, TimeSpan, String, Dictionary<String, String>)
+  nameWithType.vb: PlaylistEntryCollection(Of T).Add(String, TimeSpan, String, Dictionary(Of String, String))
+- uid: Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Add*
+  name: Add
+  href: api/Unosquare.FFME.Playlists.PlaylistEntryCollection-1.html#Unosquare_FFME_Playlists_PlaylistEntryCollection_1_Add_
+  commentId: Overload:Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Add
+  isSpec: "True"
+  fullName: Unosquare.FFME.Playlists.PlaylistEntryCollection<T>.Add
+  fullName.vb: Unosquare.FFME.Playlists.PlaylistEntryCollection(Of T).Add
+  nameWithType: PlaylistEntryCollection<T>.Add
+  nameWithType.vb: PlaylistEntryCollection(Of T).Add
+- uid: Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Attributes
+  name: Attributes
+  href: api/Unosquare.FFME.Playlists.PlaylistEntryCollection-1.html#Unosquare_FFME_Playlists_PlaylistEntryCollection_1_Attributes
+  commentId: P:Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Attributes
+  fullName: Unosquare.FFME.Playlists.PlaylistEntryCollection<T>.Attributes
+  fullName.vb: Unosquare.FFME.Playlists.PlaylistEntryCollection(Of T).Attributes
+  nameWithType: PlaylistEntryCollection<T>.Attributes
+  nameWithType.vb: PlaylistEntryCollection(Of T).Attributes
+- uid: Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Attributes*
+  name: Attributes
+  href: api/Unosquare.FFME.Playlists.PlaylistEntryCollection-1.html#Unosquare_FFME_Playlists_PlaylistEntryCollection_1_Attributes_
+  commentId: Overload:Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Attributes
+  isSpec: "True"
+  fullName: Unosquare.FFME.Playlists.PlaylistEntryCollection<T>.Attributes
+  fullName.vb: Unosquare.FFME.Playlists.PlaylistEntryCollection(Of T).Attributes
+  nameWithType: PlaylistEntryCollection<T>.Attributes
+  nameWithType.vb: PlaylistEntryCollection(Of T).Attributes
+- uid: Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Load(System.IO.Stream,System.Text.Encoding)
+  name: Load(Stream, Encoding)
+  href: api/Unosquare.FFME.Playlists.PlaylistEntryCollection-1.html#Unosquare_FFME_Playlists_PlaylistEntryCollection_1_Load_System_IO_Stream_System_Text_Encoding_
+  commentId: M:Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Load(System.IO.Stream,System.Text.Encoding)
+  fullName: Unosquare.FFME.Playlists.PlaylistEntryCollection<T>.Load(System.IO.Stream, System.Text.Encoding)
+  fullName.vb: Unosquare.FFME.Playlists.PlaylistEntryCollection(Of T).Load(System.IO.Stream, System.Text.Encoding)
+  nameWithType: PlaylistEntryCollection<T>.Load(Stream, Encoding)
+  nameWithType.vb: PlaylistEntryCollection(Of T).Load(Stream, Encoding)
+- uid: Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Load(System.String)
+  name: Load(String)
+  href: api/Unosquare.FFME.Playlists.PlaylistEntryCollection-1.html#Unosquare_FFME_Playlists_PlaylistEntryCollection_1_Load_System_String_
+  commentId: M:Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Load(System.String)
+  fullName: Unosquare.FFME.Playlists.PlaylistEntryCollection<T>.Load(System.String)
+  fullName.vb: Unosquare.FFME.Playlists.PlaylistEntryCollection(Of T).Load(System.String)
+  nameWithType: PlaylistEntryCollection<T>.Load(String)
+  nameWithType.vb: PlaylistEntryCollection(Of T).Load(String)
+- uid: Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Load(System.String,System.Text.Encoding)
+  name: Load(String, Encoding)
+  href: api/Unosquare.FFME.Playlists.PlaylistEntryCollection-1.html#Unosquare_FFME_Playlists_PlaylistEntryCollection_1_Load_System_String_System_Text_Encoding_
+  commentId: M:Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Load(System.String,System.Text.Encoding)
+  fullName: Unosquare.FFME.Playlists.PlaylistEntryCollection<T>.Load(System.String, System.Text.Encoding)
+  fullName.vb: Unosquare.FFME.Playlists.PlaylistEntryCollection(Of T).Load(System.String, System.Text.Encoding)
+  nameWithType: PlaylistEntryCollection<T>.Load(String, Encoding)
+  nameWithType.vb: PlaylistEntryCollection(Of T).Load(String, Encoding)
+- uid: Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Load*
+  name: Load
+  href: api/Unosquare.FFME.Playlists.PlaylistEntryCollection-1.html#Unosquare_FFME_Playlists_PlaylistEntryCollection_1_Load_
+  commentId: Overload:Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Load
+  isSpec: "True"
+  fullName: Unosquare.FFME.Playlists.PlaylistEntryCollection<T>.Load
+  fullName.vb: Unosquare.FFME.Playlists.PlaylistEntryCollection(Of T).Load
+  nameWithType: PlaylistEntryCollection<T>.Load
+  nameWithType.vb: PlaylistEntryCollection(Of T).Load
+- uid: Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Name
+  name: Name
+  href: api/Unosquare.FFME.Playlists.PlaylistEntryCollection-1.html#Unosquare_FFME_Playlists_PlaylistEntryCollection_1_Name
+  commentId: P:Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Name
+  fullName: Unosquare.FFME.Playlists.PlaylistEntryCollection<T>.Name
+  fullName.vb: Unosquare.FFME.Playlists.PlaylistEntryCollection(Of T).Name
+  nameWithType: PlaylistEntryCollection<T>.Name
+  nameWithType.vb: PlaylistEntryCollection(Of T).Name
+- uid: Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Name*
+  name: Name
+  href: api/Unosquare.FFME.Playlists.PlaylistEntryCollection-1.html#Unosquare_FFME_Playlists_PlaylistEntryCollection_1_Name_
+  commentId: Overload:Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Name
+  isSpec: "True"
+  fullName: Unosquare.FFME.Playlists.PlaylistEntryCollection<T>.Name
+  fullName.vb: Unosquare.FFME.Playlists.PlaylistEntryCollection(Of T).Name
+  nameWithType: PlaylistEntryCollection<T>.Name
+  nameWithType.vb: PlaylistEntryCollection(Of T).Name
+- uid: Unosquare.FFME.Playlists.PlaylistEntryCollection`1.NotifyAttributeChangedFor(System.String)
+  name: NotifyAttributeChangedFor(String)
+  href: api/Unosquare.FFME.Playlists.PlaylistEntryCollection-1.html#Unosquare_FFME_Playlists_PlaylistEntryCollection_1_NotifyAttributeChangedFor_System_String_
+  commentId: M:Unosquare.FFME.Playlists.PlaylistEntryCollection`1.NotifyAttributeChangedFor(System.String)
+  fullName: Unosquare.FFME.Playlists.PlaylistEntryCollection<T>.NotifyAttributeChangedFor(System.String)
+  fullName.vb: Unosquare.FFME.Playlists.PlaylistEntryCollection(Of T).NotifyAttributeChangedFor(System.String)
+  nameWithType: PlaylistEntryCollection<T>.NotifyAttributeChangedFor(String)
+  nameWithType.vb: PlaylistEntryCollection(Of T).NotifyAttributeChangedFor(String)
+- uid: Unosquare.FFME.Playlists.PlaylistEntryCollection`1.NotifyAttributeChangedFor*
+  name: NotifyAttributeChangedFor
+  href: api/Unosquare.FFME.Playlists.PlaylistEntryCollection-1.html#Unosquare_FFME_Playlists_PlaylistEntryCollection_1_NotifyAttributeChangedFor_
+  commentId: Overload:Unosquare.FFME.Playlists.PlaylistEntryCollection`1.NotifyAttributeChangedFor
+  isSpec: "True"
+  fullName: Unosquare.FFME.Playlists.PlaylistEntryCollection<T>.NotifyAttributeChangedFor
+  fullName.vb: Unosquare.FFME.Playlists.PlaylistEntryCollection(Of T).NotifyAttributeChangedFor
+  nameWithType: PlaylistEntryCollection<T>.NotifyAttributeChangedFor
+  nameWithType.vb: PlaylistEntryCollection(Of T).NotifyAttributeChangedFor
+- uid: Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Open(System.IO.Stream,System.Text.Encoding)
+  name: Open(Stream, Encoding)
+  href: api/Unosquare.FFME.Playlists.PlaylistEntryCollection-1.html#Unosquare_FFME_Playlists_PlaylistEntryCollection_1_Open_System_IO_Stream_System_Text_Encoding_
+  commentId: M:Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Open(System.IO.Stream,System.Text.Encoding)
+  fullName: Unosquare.FFME.Playlists.PlaylistEntryCollection<T>.Open(System.IO.Stream, System.Text.Encoding)
+  fullName.vb: Unosquare.FFME.Playlists.PlaylistEntryCollection(Of T).Open(System.IO.Stream, System.Text.Encoding)
+  nameWithType: PlaylistEntryCollection<T>.Open(Stream, Encoding)
+  nameWithType.vb: PlaylistEntryCollection(Of T).Open(Stream, Encoding)
+- uid: Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Open*
+  name: Open
+  href: api/Unosquare.FFME.Playlists.PlaylistEntryCollection-1.html#Unosquare_FFME_Playlists_PlaylistEntryCollection_1_Open_
+  commentId: Overload:Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Open
+  isSpec: "True"
+  fullName: Unosquare.FFME.Playlists.PlaylistEntryCollection<T>.Open
+  fullName.vb: Unosquare.FFME.Playlists.PlaylistEntryCollection(Of T).Open
+  nameWithType: PlaylistEntryCollection<T>.Open
+  nameWithType.vb: PlaylistEntryCollection(Of T).Open
+- uid: Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Save(System.IO.Stream)
+  name: Save(Stream)
+  href: api/Unosquare.FFME.Playlists.PlaylistEntryCollection-1.html#Unosquare_FFME_Playlists_PlaylistEntryCollection_1_Save_System_IO_Stream_
+  commentId: M:Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Save(System.IO.Stream)
+  fullName: Unosquare.FFME.Playlists.PlaylistEntryCollection<T>.Save(System.IO.Stream)
+  fullName.vb: Unosquare.FFME.Playlists.PlaylistEntryCollection(Of T).Save(System.IO.Stream)
+  nameWithType: PlaylistEntryCollection<T>.Save(Stream)
+  nameWithType.vb: PlaylistEntryCollection(Of T).Save(Stream)
+- uid: Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Save(System.IO.Stream,System.Text.Encoding)
+  name: Save(Stream, Encoding)
+  href: api/Unosquare.FFME.Playlists.PlaylistEntryCollection-1.html#Unosquare_FFME_Playlists_PlaylistEntryCollection_1_Save_System_IO_Stream_System_Text_Encoding_
+  commentId: M:Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Save(System.IO.Stream,System.Text.Encoding)
+  fullName: Unosquare.FFME.Playlists.PlaylistEntryCollection<T>.Save(System.IO.Stream, System.Text.Encoding)
+  fullName.vb: Unosquare.FFME.Playlists.PlaylistEntryCollection(Of T).Save(System.IO.Stream, System.Text.Encoding)
+  nameWithType: PlaylistEntryCollection<T>.Save(Stream, Encoding)
+  nameWithType.vb: PlaylistEntryCollection(Of T).Save(Stream, Encoding)
+- uid: Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Save(System.String)
+  name: Save(String)
+  href: api/Unosquare.FFME.Playlists.PlaylistEntryCollection-1.html#Unosquare_FFME_Playlists_PlaylistEntryCollection_1_Save_System_String_
+  commentId: M:Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Save(System.String)
+  fullName: Unosquare.FFME.Playlists.PlaylistEntryCollection<T>.Save(System.String)
+  fullName.vb: Unosquare.FFME.Playlists.PlaylistEntryCollection(Of T).Save(System.String)
+  nameWithType: PlaylistEntryCollection<T>.Save(String)
+  nameWithType.vb: PlaylistEntryCollection(Of T).Save(String)
+- uid: Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Save*
+  name: Save
+  href: api/Unosquare.FFME.Playlists.PlaylistEntryCollection-1.html#Unosquare_FFME_Playlists_PlaylistEntryCollection_1_Save_
+  commentId: Overload:Unosquare.FFME.Playlists.PlaylistEntryCollection`1.Save
+  isSpec: "True"
+  fullName: Unosquare.FFME.Playlists.PlaylistEntryCollection<T>.Save
+  fullName.vb: Unosquare.FFME.Playlists.PlaylistEntryCollection(Of T).Save
+  nameWithType: PlaylistEntryCollection<T>.Save
+  nameWithType.vb: PlaylistEntryCollection(Of T).Save
 - uid: Unosquare.FFME.Rendering
   name: Unosquare.FFME.Rendering
   href: api/Unosquare.FFME.Rendering.html
@@ -2836,6 +2812,37 @@ references:
   commentId: T:Unosquare.FFME.Rendering.LegacyAudioException
   fullName: Unosquare.FFME.Rendering.LegacyAudioException
   nameWithType: LegacyAudioException
+- uid: Unosquare.FFME.Rendering.LegacyAudioException.#ctor
+  name: LegacyAudioException()
+  href: api/Unosquare.FFME.Rendering.LegacyAudioException.html#Unosquare_FFME_Rendering_LegacyAudioException__ctor
+  commentId: M:Unosquare.FFME.Rendering.LegacyAudioException.#ctor
+  fullName: Unosquare.FFME.Rendering.LegacyAudioException.LegacyAudioException()
+  nameWithType: LegacyAudioException.LegacyAudioException()
+- uid: Unosquare.FFME.Rendering.LegacyAudioException.#ctor(System.String)
+  name: LegacyAudioException(String)
+  href: api/Unosquare.FFME.Rendering.LegacyAudioException.html#Unosquare_FFME_Rendering_LegacyAudioException__ctor_System_String_
+  commentId: M:Unosquare.FFME.Rendering.LegacyAudioException.#ctor(System.String)
+  fullName: Unosquare.FFME.Rendering.LegacyAudioException.LegacyAudioException(System.String)
+  nameWithType: LegacyAudioException.LegacyAudioException(String)
+- uid: Unosquare.FFME.Rendering.LegacyAudioException.#ctor(System.String,System.Exception)
+  name: LegacyAudioException(String, Exception)
+  href: api/Unosquare.FFME.Rendering.LegacyAudioException.html#Unosquare_FFME_Rendering_LegacyAudioException__ctor_System_String_System_Exception_
+  commentId: M:Unosquare.FFME.Rendering.LegacyAudioException.#ctor(System.String,System.Exception)
+  fullName: Unosquare.FFME.Rendering.LegacyAudioException.LegacyAudioException(System.String, System.Exception)
+  nameWithType: LegacyAudioException.LegacyAudioException(String, Exception)
+- uid: Unosquare.FFME.Rendering.LegacyAudioException.#ctor(Unosquare.FFME.Rendering.LegacyAudioResult,System.String)
+  name: LegacyAudioException(LegacyAudioResult, String)
+  href: api/Unosquare.FFME.Rendering.LegacyAudioException.html#Unosquare_FFME_Rendering_LegacyAudioException__ctor_Unosquare_FFME_Rendering_LegacyAudioResult_System_String_
+  commentId: M:Unosquare.FFME.Rendering.LegacyAudioException.#ctor(Unosquare.FFME.Rendering.LegacyAudioResult,System.String)
+  fullName: Unosquare.FFME.Rendering.LegacyAudioException.LegacyAudioException(Unosquare.FFME.Rendering.LegacyAudioResult, System.String)
+  nameWithType: LegacyAudioException.LegacyAudioException(LegacyAudioResult, String)
+- uid: Unosquare.FFME.Rendering.LegacyAudioException.#ctor*
+  name: LegacyAudioException
+  href: api/Unosquare.FFME.Rendering.LegacyAudioException.html#Unosquare_FFME_Rendering_LegacyAudioException__ctor_
+  commentId: Overload:Unosquare.FFME.Rendering.LegacyAudioException.#ctor
+  isSpec: "True"
+  fullName: Unosquare.FFME.Rendering.LegacyAudioException.LegacyAudioException
+  nameWithType: LegacyAudioException.LegacyAudioException
 - uid: Unosquare.FFME.Rendering.LegacyAudioException.FunctionName
   name: FunctionName
   href: api/Unosquare.FFME.Rendering.LegacyAudioException.html#Unosquare_FFME_Rendering_LegacyAudioException_FunctionName

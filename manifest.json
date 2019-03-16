@@ -262,35 +262,11 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Playlists.AttributeSet.yml",
+      "source_relative_path": "obj/api/Unosquare.FFME.Playlists.AttributeDictionary.yml",
       "output": {
         ".html": {
-          "relative_path": "api/Unosquare.FFME.Playlists.AttributeSet.html",
-          "hash": "DZhSgrUu+aTigOvWAp9lMQ=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Playlists.Playlist-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Playlists.Playlist-1.html",
-          "hash": "JvrgVswocpDTetgxkqwcBw=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Playlists.Playlist.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Playlists.Playlist.html",
-          "hash": "Eb7uA4QakQhfR+XLzbu+6w=="
+          "relative_path": "api/Unosquare.FFME.Playlists.AttributeDictionary.html",
+          "hash": "c9MwHoVY2EpMJpHtQ0rtLw=="
         }
       },
       "is_incremental": false,
@@ -302,7 +278,31 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Playlists.PlaylistEntry.html",
-          "hash": "FP6tar0SAxuOlJUziwK6mw=="
+          "hash": "ouFR+gUfumadxJfLrL9MZA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/Unosquare.FFME.Playlists.PlaylistEntryCollection-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Unosquare.FFME.Playlists.PlaylistEntryCollection-1.html",
+          "hash": "4HKCpJ6RI5ruJsBQDdO+YQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/Unosquare.FFME.Playlists.PlaylistEntryCollection.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Unosquare.FFME.Playlists.PlaylistEntryCollection.html",
+          "hash": "heWNKKz3MctAVadlkZUEnQ=="
         }
       },
       "is_incremental": false,
@@ -314,7 +314,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Playlists.html",
-          "hash": "RHUdNAeSH2itzElyr4l1XQ=="
+          "hash": "BHrroM5ucncDT0XIZYxfYQ=="
         }
       },
       "is_incremental": false,
@@ -338,7 +338,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Rendering.LegacyAudioException.html",
-          "hash": "aY1dliLwTURvAPrLCMqa7Q=="
+          "hash": "2xaJ+kcu2cymO3mg6c3XEA=="
         }
       },
       "is_incremental": false,
@@ -410,7 +410,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "43O2cE7QMkxJn3bbmRIG2A=="
+          "hash": "dCAKqp361rbiRQVQ48e1XQ=="
         }
       },
       "is_incremental": false,
@@ -447,12 +447,6 @@
           "total_file_count": 0,
           "skipped_file_count": 0
         },
-        "ConceptualDocumentProcessor": {
-          "can_incremental": false,
-          "incrementalPhase": "build",
-          "total_file_count": 1,
-          "skipped_file_count": 0
-        },
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
@@ -464,6 +458,12 @@
           "details": "Processor ResourceDocumentProcessor cannot support incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
           "incrementalPhase": "build",
           "total_file_count": 0,
+          "skipped_file_count": 0
+        },
+        "ConceptualDocumentProcessor": {
+          "can_incremental": false,
+          "incrementalPhase": "build",
+          "total_file_count": 1,
           "skipped_file_count": 0
         }
       }
