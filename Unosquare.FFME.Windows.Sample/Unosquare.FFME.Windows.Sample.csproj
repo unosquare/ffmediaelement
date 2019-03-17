@@ -14,8 +14,7 @@
     <CodeAnalysisRuleSet>..\StyleCop.Analyzers.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <NeutralLanguage>en</NeutralLanguage>
-    <DefineConstants>TRACE;DEBUG;HANDLE_RENDERING_EVENTS</DefineConstants>
-
+    
     <RepositoryType>GitHub</RepositoryType>
     <RepositoryUrl>https://github.com/unosquare/ffmediaelement</RepositoryUrl>
 
@@ -33,6 +32,10 @@
     <ApplicationIcon>ffmpeg.ico</ApplicationIcon>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DefineConstants>TRACE;DEBUG;HANDLE_RENDERING_EVENTS</DefineConstants>
+  </PropertyGroup>
+  
   <ItemGroup>
     <Page Remove="Controls\ControllerPanelControl.xaml" />
     <Page Remove="Controls\PlaylistPanelControl.xaml" />
