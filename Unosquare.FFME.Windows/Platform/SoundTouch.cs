@@ -1,6 +1,8 @@
 ﻿namespace Unosquare.FFME.Platform
 {
+    using FFmpeg.AutoGen.Native;
     using System;
+    using System.IO;
     using System.Runtime.InteropServices;
 
     /// <inheritdoc />
@@ -32,23 +34,29 @@
 
         #region Constructor
 
+        /// <summary>
+        /// Initializes static members of the <see cref="SoundTouch"/> class.
+        /// </summary>
         static SoundTouch()
         {
             try
             {
                 // Include the ffmpeg directory in the search path
-                WindowsNativeMethods.Instance.SetDllDirectory(MediaElement.FFmpegDirectory);
+                var loadResult = LibraryLoader.LoadNativeLibrary(
+                    Path.Combine(MediaElement.FFmpegDirectory, SoundTouchLibrary));
+
+                if (loadResult == IntPtr.Zero)
+                {
+                    IsAvailable = false;
+                    return;
+                }
+
                 var versionId = NativeMethods.GetVersionId();
                 IsAvailable = versionId != 0;
             }
             catch
             {
                 IsAvailable = false;
-            }
-            finally
-            {
-                // Reset the search path
-                WindowsNativeMethods.Instance.SetDllDirectory(null);
             }
         }
 

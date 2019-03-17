@@ -103,10 +103,6 @@
 
                     var registrationIds = 0;
 
-                    // Sometimes we need to set the DLL directory even if we try to load the
-                    // library from the full path. In some Windows systems we get error 126 if we don't
-                    MediaEngine.Platform.NativeMethods.SetDllDirectory(ffmpegPath);
-
                     // Load FFmpeg binaries by Library ID
                     foreach (var lib in FFLibrary.All)
                     {
@@ -116,14 +112,11 @@
 
                     // Check if libraries were loaded correctly
                     if (FFLibrary.All.All(lib => lib.IsLoaded == false))
-                    {
-                        // Reset the search path
-                        MediaEngine.Platform.NativeMethods.SetDllDirectory(null);
                         throw new FileNotFoundException($"Unable to load FFmpeg binaries from folder '{ffmpegPath}'.");
-                    }
 
                     // Additional library initialization
-                    if (FFLibrary.LibAVDevice.IsLoaded) ffmpeg.avdevice_register_all();
+                    if (FFLibrary.LibAVDevice.IsLoaded)
+                        ffmpeg.avdevice_register_all();
 
                     // Set logging levels and callbacks
                     ffmpeg.av_log_set_flags(ffmpeg.AV_LOG_SKIP_REPEATED);
@@ -143,11 +136,6 @@
 
                     // rethrow the exception with the original stack trace.
                     throw;
-                }
-                finally
-                {
-                    // Reset the search path after registration
-                    MediaEngine.Platform.NativeMethods.SetDllDirectory(null);
                 }
 
                 return m_IsInitialized;

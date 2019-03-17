@@ -25,8 +25,7 @@
         /// <exception cref="InvalidOperationException">Unable to get a valid GUI context.</exception>
         private WindowsPlatform()
         {
-            NativeMethods = WindowsNativeMethods.Instance;
-            IsInDesignTime = GuiContext.Current.IsInDesignTime;
+            // placeholder
         }
 
         /// <summary>
@@ -38,13 +37,10 @@
         public static WindowsPlatform Instance { get; }
 
         /// <inheritdoc />
-        public INativeMethods NativeMethods { get; }
-
-        /// <inheritdoc />
         public bool IsInDebugMode { get; } = Debugger.IsAttached;
 
         /// <inheritdoc />
-        public bool IsInDesignTime { get; }
+        public bool IsInDesignTime { get; } = GuiContext.Current.IsInDesignTime;
 
         /// <inheritdoc />
         public IMediaRenderer CreateRenderer(MediaType mediaType, MediaEngine mediaCore)

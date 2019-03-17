@@ -324,7 +324,7 @@
         /// </summary>
         /// <param name="target">The target.</param>
         /// <param name="source">The source.</param>
-        private void LoadTargetBitmapBuffer(BitmapDataBuffer target, VideoBlock source)
+        private unsafe void LoadTargetBitmapBuffer(BitmapDataBuffer target, VideoBlock source)
         {
             if (source == null || !source.TryAcquireReaderLock(out var readLock))
                 return;
@@ -333,10 +333,14 @@
             {
                 // Compute a safe number of bytes to copy
                 // At this point, we it is assumed the strides are equal
-                var bufferLength = Convert.ToUInt32(Math.Min(source.BufferLength, target.BufferLength));
+                var bufferLength = Math.Min(source.BufferLength, target.BufferLength);
 
                 // Copy the block data into the back buffer of the target bitmap.
-                WindowsNativeMethods.Instance.CopyMemory(target.Scan0, source.Buffer, bufferLength);
+                Buffer.MemoryCopy(
+                    source.Buffer.ToPointer(),
+                    target.Scan0.ToPointer(),
+                    bufferLength,
+                    bufferLength);
             }
         }
 

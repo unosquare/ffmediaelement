@@ -27,14 +27,16 @@
         /// </summary>
         static FFLibrary()
         {
+            // Populate libraries in order of dependency (from least dependent to more dependent)
             All = new ReadOnlyCollection<FFLibrary>(new List<FFLibrary>(16)
             {
-                LibAVCodec,
-                LibAVFilter,
-                LibAVFormat,
                 LibAVUtil,
                 LibSWResample,
                 LibSWScale,
+                LibAVCodec,
+                LibAVFormat,
+                LibPostProc,
+                LibAVFilter,
                 LibAVDevice
             });
         }
@@ -95,6 +97,12 @@
         /// Gets the AVFilter library.
         /// </summary>
         public static FFLibrary LibAVFilter { get; } = new FFLibrary(Names.AVFilter, 7, 64);
+
+        /// <summary>
+        /// Gets the Postprocessing library. The flagId is the same as avfilter
+        /// as this is a dependent library.
+        /// </summary>
+        public static FFLibrary LibPostProc { get; } = new FFLibrary(Names.PostProc, 55, 64);
 
         #endregion
 
@@ -179,6 +187,7 @@
             public const string SWResample = "swresample";
             public const string SWScale = "swscale";
             public const string AVDevice = "avdevice";
+            public const string PostProc = "postproc";
         }
 
         #endregion

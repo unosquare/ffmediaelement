@@ -7,11 +7,6 @@
     public interface IPlatform
     {
         /// <summary>
-        /// Retrieves the platform-specific Native methods
-        /// </summary>
-        INativeMethods NativeMethods { get; }
-
-        /// <summary>
         /// Gets a value indicating whether this instance is in debug mode.
         /// </summary>
         bool IsInDebugMode { get; }

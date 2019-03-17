@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2027
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28711.60
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unosquare.FFME.Windows", "Unosquare.FFME.Windows\Unosquare.FFME.Windows.csproj", "{A6EB99A6-AAE2-4E6E-AB9E-93992CE5B84D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unosquare.FFME.Windows", "Unosquare.FFME.Windows\Unosquare.FFME.Windows.csproj", "{A6EB99A6-AAE2-4E6E-AB9E-93992CE5B84D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unosquare.FFME.Windows.Sample", "Unosquare.FFME.Windows.Sample\Unosquare.FFME.Windows.Sample.csproj", "{DC7D71DA-3D51-4252-BFC8-52CA269A311F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unosquare.FFME.Windows.Sample", "Unosquare.FFME.Windows.Sample\Unosquare.FFME.Windows.Sample.csproj", "{DC7D71DA-3D51-4252-BFC8-52CA269A311F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Support", "Support", "{8BF26916-5094-4A04-B148-C19DCCC53A95}"
 	ProjectSection(SolutionItems) = preProject
@@ -21,8 +21,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Support", "Support", "{8BF2
 		README.md = README.md
 		Support\readme.txt = Support\readme.txt
 		Support\SoundTouch COPYING.TXT = Support\SoundTouch COPYING.TXT
-		Support\SoundTouch.dll = Support\SoundTouch.dll
-		Support\SoundTouch_x64.dll = Support\SoundTouch_x64.dll
 		StyleCop.Analyzers.ruleset = StyleCop.Analyzers.ruleset
 		Support\test-suite.html = Support\test-suite.html
 		toc.yml = toc.yml
@@ -31,9 +29,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unosquare.FFME.Common", "Unosquare.FFME.Common\Unosquare.FFME.Common.csproj", "{76B2DB70-C8AB-4517-8AFB-051383E496B7}"
 EndProject
 Global
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -57,5 +52,8 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7E89E3EA-B5D6-4E75-8B7F-C1ED0D05D7D8}
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal

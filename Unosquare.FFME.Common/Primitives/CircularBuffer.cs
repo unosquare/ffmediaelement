@@ -9,7 +9,7 @@
     /// the dispose method when you are done using it.
     /// </summary>
     /// <seealso cref="IDisposable" />
-    public sealed class CircularBuffer : IDisposable
+    public sealed unsafe class CircularBuffer : IDisposable
     {
         #region Private State Variables
 
@@ -43,7 +43,11 @@
         {
             m_Length = bufferLength;
             Buffer = Marshal.AllocHGlobal(m_Length);
-            MediaEngine.Platform.NativeMethods.FillMemory(Buffer, Convert.ToUInt32(m_Length), 0);
+
+            // Clear the memory as it might be dirty after allocating it.
+            var baseAddress = (byte*)Buffer.ToPointer();
+            for (var i = 0; i < m_Length; i++)
+                baseAddress[i] = 0;
         }
 
         #endregion
@@ -216,7 +220,11 @@
                     var copyLength = Math.Min(m_Length - m_WriteIndex, length - writeCount);
                     var sourcePtr = source + writeCount;
                     var targetPtr = Buffer + m_WriteIndex;
-                    MediaEngine.Platform.NativeMethods.CopyMemory(targetPtr, sourcePtr, Convert.ToUInt32(copyLength));
+                    System.Buffer.MemoryCopy(
+                        sourcePtr.ToPointer(),
+                        targetPtr.ToPointer(),
+                        copyLength,
+                        copyLength);
 
                     writeCount += copyLength;
                     m_WriteIndex += copyLength;
