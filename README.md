@@ -13,7 +13,7 @@
 
 ## Current NuGet Release Status
 - If you would like to support this project, you can show your appreciation via [PayPal.Me](https://www.paypal.me/mariodivece/50usd)
-- Current Status: (2018-09-23) - Release 4.0.270 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
+- Current Status: (2019-03-16) - Release 4.0.280 is now available, (see the <a href="https://github.com/unosquare/ffmediaelement/releases">Releases</a>)
 - NuGet Package available here: https://www.nuget.org/packages/FFME.Windows/
 - FFmpeg Version: <a href="https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-4.0.2-win32-shared.zip">4.1 (32-bit)</a>
 
@@ -22,7 +22,7 @@
 ## Quick Usage Guide for WPF Apps
 
 Here is a quick guide on how to get started.
-1. Open Visual Studio (v2017 recommended), and create a new WPF Application. Target Framework must be 4.6.1 or above.
+1. Open Visual Studio (v2017 or v2019 recommended), and create a new WPF Application. Target Framework must be 4.6.1 or above.
 2. Install the NuGet Package from your Package Manager Console: `PM> Install-Package FFME.Windows`
 3. You need FFmpeg shared binaries (64 or 32 bit, depending on your app's target architecture). Build your own or download a compatible build from [Zeranoe FFmpeg Builds site](https://ffmpeg.zeranoe.com/builds/).
 4. Your FFmpeg build should have a `bin` folder with 3 exe files and some dll files. Copy all those files to a folder such as `c:\ffmpeg`
