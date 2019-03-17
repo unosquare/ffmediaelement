@@ -46,10 +46,10 @@
         public int ReadBufferLength => 1024 * 16;
 
         /// <inheritdoc />
-        public InputStreamInitializing OnInitializing { get; } = null;
+        public InputStreamInitializing OnInitializing { get; }
 
         /// <inheritdoc />
-        public InputStreamInitialized OnInitialized { get; } = null;
+        public InputStreamInitialized OnInitialized { get; }
 
         /// <inheritdoc />
         public void Dispose()
