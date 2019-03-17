@@ -137,7 +137,10 @@
             if (inputParts.Length != 10)
                 return string.Empty;
 
-            var normalizedInput = inputParts[inputParts.Length - 1].Replace("\\n", " ").Replace("\\N", "\r\n");
+            var normalizedInput = inputParts[inputParts.Length - 1]
+                .ReplaceOrdinal("\\n", " ")
+                .ReplaceOrdinal("\\N", "\r\n");
+
             var builder = new StringBuilder(normalizedInput.Length);
             var isInStyle = false;
             char currentChar;

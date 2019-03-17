@@ -92,7 +92,9 @@
                             if (int.TryParse(parts[0], out var index))
                                 result.StreamIndex = index;
 
-                            result.MediaSource = parts[1].Trim(trimQuotes).Replace("\"\"", "\"");
+                            result.MediaSource = parts[1]
+                                .Trim(trimQuotes)
+                                .ReplaceOrdinal("\"\"", "\"");
                         }
 
                         state = 3;
@@ -131,7 +133,7 @@
             {
                 writer.WriteLine(SectionHeaderText);
                 writer.WriteLine(SectionHeaderFields);
-                writer.WriteLine($"{StreamIndex},\"{MediaSource?.Replace("\"", "\"\"")}\"");
+                writer.WriteLine($"{StreamIndex},\"{MediaSource?.ReplaceOrdinal("\"", "\"\"")}\"");
 
                 writer.WriteLine(SectionDataText);
                 writer.WriteLine(SectionDataFields);

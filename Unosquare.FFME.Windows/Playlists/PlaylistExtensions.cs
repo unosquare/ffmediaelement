@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Playlists
 {
+    using Engine;
     using System;
     using System.Collections.Generic;
     using System.Web;
@@ -41,7 +42,7 @@
 
             foreach (var attribute in entryAttributes)
             {
-                entryAttributesText = entryAttributesText.Replace(attribute.Substring, string.Empty);
+                entryAttributesText = entryAttributesText.ReplaceOrdinal(attribute.Substring, string.Empty);
                 entry.Attributes[attribute.Key] = attribute.Value;
             }
 

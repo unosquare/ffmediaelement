@@ -137,7 +137,7 @@
         /// </returns>
         public override string ToString()
         {
-            return $"{Name} {OptionType.ToString().Replace("AV_OPT_TYPE_", string.Empty)}: {HelpText} ";
+            return $"{Name} {OptionType.ToString().ReplaceOrdinal("AV_OPT_TYPE_", string.Empty)}: {HelpText} ";
         }
     }
 }

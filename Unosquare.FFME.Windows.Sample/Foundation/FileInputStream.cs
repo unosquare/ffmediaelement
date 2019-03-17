@@ -26,7 +26,7 @@
             var fullPath = Path.GetFullPath(path);
             BackingStream = File.OpenRead(fullPath);
             var uri = new Uri(fullPath);
-            StreamUri = new Uri(uri.ToString().Replace("file://", Scheme));
+            StreamUri = new Uri(uri.ToString().ReplaceOrdinal("file://", Scheme));
             CanSeek = true;
             ReadBuffer = new byte[ReadBufferLength];
         }

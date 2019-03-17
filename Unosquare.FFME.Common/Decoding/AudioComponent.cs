@@ -263,7 +263,7 @@
         private string ComputeFilterArguments(AVFrame* frame)
         {
             var hexChannelLayout = BitConverter.ToString(
-                BitConverter.GetBytes(frame->channel_layout).Reverse().ToArray()).Replace("-", string.Empty);
+                BitConverter.GetBytes(frame->channel_layout).Reverse().ToArray()).ReplaceOrdinal("-", string.Empty);
 
             var channelLayout = $"0x{hexChannelLayout}";
 

@@ -1,6 +1,7 @@
 ﻿#pragma warning disable SA1202 // Elements must appear in the correct order
 namespace Unosquare.FFME.Rendering
 {
+    using Engine;
     using Platform;
     using System.Collections.Generic;
     using System.ComponentModel;
@@ -317,7 +318,7 @@ namespace Unosquare.FFME.Rendering
             var element = (SubtitlesControl)dependencyObject;
             var value = e.NewValue as string;
             if (string.IsNullOrWhiteSpace(value)) value = " \r\n ";
-            if (value.Contains("\n") == false) value = $"{value}\r\n ";
+            if (value.ContainsOrdinal("\n") == false) value = $"{value}\r\n ";
             foreach (var t in element.TextBlocks)
                 t.Value.Text = value;
         }

@@ -269,6 +269,37 @@
 
         #endregion
 
+        #region DotNet Core Compatibility
+
+        /// <summary>
+        /// A cross-platform implementation of string.Replace.
+        /// </summary>
+        /// <param name="source">The string to search.</param>
+        /// <param name="find">The string to find.</param>
+        /// <param name="replace">The string to replace</param>
+        /// <returns>The string with the replacement.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string ReplaceOrdinal(this string source, string find, string replace)
+        {
+#if NETCOREAPP3_0
+            return source.Replace(find, replace, StringComparison.Ordinal);
+#else
+            return source.Replace(find, replace);
+#endif
+        }
+
+        /// <summary>
+        /// Determines if the string contains the search term in ordinal (binary) comparison.
+        /// </summary>
+        /// <param name="source">The string to search.</param>
+        /// <param name="find">The search term.</param>
+        /// <returns>Thether the search term is contained in the string.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool ContainsOrdinal(this string source, string find) =>
+            source.IndexOf(find, StringComparison.Ordinal) > -1;
+
+        #endregion
+
         #region Other Methods
 
         /// <summary>
