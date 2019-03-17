@@ -165,7 +165,7 @@
             /// <param name="destination">The destination.</param>
             /// <param name="source">The source.</param>
             /// <param name="length">The length.</param>
-            [DllImport(Kernel32, EntryPoint = "CopyMemory", SetLastError = false)]
+            [DllImport(Kernel32, EntryPoint = "RtlCopyMemory", SetLastError = false)]
             public static extern void CopyMemory(IntPtr destination, IntPtr source, uint length);
 
             /// <summary>
