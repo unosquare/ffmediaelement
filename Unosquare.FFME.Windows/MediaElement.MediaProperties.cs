@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME
 {
+    using Engine;
     using Rendering;
-    using Shared;
     using System;
     using System.Collections.ObjectModel;
     using System.Windows;

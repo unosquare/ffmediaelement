@@ -1,7 +1,8 @@
 ﻿namespace Unosquare.FFME.Events
 {
-    using Shared;
+    using Engine;
     using System;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Provides the audio samples rendering payload as event arguments.
@@ -26,9 +27,9 @@
         {
             Buffer = buffer;
             BufferLength = length;
-            SampleRate = Constants.Audio.SampleRate;
-            ChannelCount = Constants.Audio.ChannelCount;
-            BitsPerSample = Constants.Audio.BitsPerSample;
+            SampleRate = Constants.AudioSampleRate;
+            ChannelCount = Constants.AudioChannelCount;
+            BitsPerSample = Constants.AudioBitsPerSample;
             Latency = latency;
         }
 
@@ -41,7 +42,7 @@
         /// Gets a the raw data buffer going into the audio device.
         /// Samples are provided in PCM 16-bit signed, interleaved stereo.
         /// </summary>
-        public byte[] Buffer { get; }
+        public IReadOnlyCollection<byte> Buffer { get; }
 
         /// <summary>
         /// Gets the length in bytes of the samples buffer.
@@ -72,5 +73,12 @@
         /// Gets the number of samples in the buffer per channel.
         /// </summary>
         public int SamplesPerChannel => Samples / ChannelCount;
+
+        /// <summary>
+        /// Gets a the raw data buffer going into the audio device.
+        /// Samples are provided in PCM 16-bit signed, interleaved stereo.
+        /// </summary>
+        /// <returns>The buffer data as an array</returns>
+        public byte[] GetBufferData() => Buffer as byte[];
     }
 }

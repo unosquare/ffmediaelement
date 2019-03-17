@@ -1,10 +1,10 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
     using ClosedCaptions;
+    using Engine;
     using Events;
     using FFmpeg.AutoGen;
     using Platform;
-    using Shared;
     using System;
     using System.Diagnostics;
     using System.IO;
@@ -53,7 +53,7 @@
         private void OnMediaFailed(object sender, ExceptionRoutedEventArgs e)
         {
             MessageBox.Show(
-                App.Current.MainWindow,
+                Application.Current.MainWindow,
                 $"Media Failed: {e.ErrorException.GetType()}\r\n{e.ErrorException.Message}",
                 $"{nameof(MediaElement)} Error",
                 MessageBoxButton.OK,
@@ -73,7 +73,8 @@
         private void OnMediaInitializing(object sender, MediaInitializingEventArgs e)
         {
             // An example of injecting input options for http/https streams
-            if (e.Url.StartsWith("http://") || e.Url.StartsWith("https://"))
+            if (e.MediaSource.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                e.MediaSource.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             {
                 e.Configuration.PrivateOptions["user_agent"] = $"{typeof(ContainerConfiguration).Namespace}/{typeof(ContainerConfiguration).Assembly.GetName().Version}";
                 e.Configuration.PrivateOptions["headers"] = "Referer:https://www.unosquare.com";
@@ -89,7 +90,7 @@
             // RTSP is similar to HTTP but it only provides metadata about the underlying stream
             // Most RTSP compatible streams expose RTP data over both UDP and TCP.
             // TCP provides reliable communication while UDP does not
-            if (e.Url.StartsWith("rtsp://"))
+            if (e.MediaSource.StartsWith("rtsp://", StringComparison.OrdinalIgnoreCase))
             {
                 e.Configuration.PrivateOptions["rtsp_transport"] = "tcp";
                 e.Configuration.GlobalOptions.FlagNoBuffer = true;
@@ -131,7 +132,7 @@
             // Do not disable Time Sync for streams that need synchronized audio and video.
             e.Options.IsTimeSyncDisabled =
                 e.Info.Format == "libndi_newtek" ||
-                e.Info.InputUrl.StartsWith("rtsp://uno");
+                e.Info.MediaSource.StartsWith("rtsp://uno", StringComparison.OrdinalIgnoreCase);
 
             // You can disable the requirement of buffering packets by setting the playback
             // buffer percent to 0. Values of less than 0.5 for live or network streams are not recommended.
@@ -144,11 +145,11 @@
             // Also if time synchronization is disabled, the recommendation is to also disable audio synchronization.
             Media.RendererOptions.AudioDisableSync =
                 e.Options.IsTimeSyncDisabled ||
-                e.Info.InputUrl.EndsWith(".wmv");
+                e.Info.MediaSource.EndsWith(".wmv", StringComparison.OrdinalIgnoreCase);
 
             // Legacy audio out is the use of the WinMM api as opposed to using DirectSound
             // Enable legacy audio out if you are having issues with the DirectSound driver.
-            Media.RendererOptions.UseLegacyAudioOut = e.Info.InputUrl.EndsWith(".wmv");
+            Media.RendererOptions.UseLegacyAudioOut = e.Info.MediaSource.EndsWith(".wmv", StringComparison.OrdinalIgnoreCase);
 
             // You can limit how often the video renderer updates the picture.
             // We keep it as 0 to refresh the video according to the native stream specification.
@@ -158,7 +159,7 @@
             var mediaFilePath = string.Empty;
             try
             {
-                var url = new Uri(e.Info.InputUrl);
+                var url = new Uri(e.Info.MediaSource);
                 mediaFilePath = url.IsFile || url.IsUnc ? Path.GetFullPath(url.LocalPath) : string.Empty;
             }
             catch { /* Ignore Exceptions */ }
@@ -168,7 +169,7 @@
             {
                 var srtFilePath = Path.ChangeExtension(mediaFilePath, "srt");
                 if (File.Exists(srtFilePath))
-                    e.Options.SubtitlesUrl = srtFilePath;
+                    e.Options.SubtitlesSource = srtFilePath;
             }
 
             // You can also force video FPS if necessary
@@ -177,19 +178,19 @@
 
             // An example of selecting a specific subtitle stream
             var subtitleStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_SUBTITLE).Select(kvp => kvp.Value);
-            var englishSubtitleStream = subtitleStreams.FirstOrDefault(s => s.Language != null && s.Language.ToLowerInvariant().StartsWith("en"));
+            var englishSubtitleStream = subtitleStreams
+                .FirstOrDefault(s => s.Language != null && s.Language.StartsWith("en", StringComparison.OrdinalIgnoreCase));
+
             if (englishSubtitleStream != null)
-            {
                 e.Options.SubtitleStream = englishSubtitleStream;
-            }
 
             // An example of selecting a specific audio stream
             var audioStreams = e.Info.Streams.Where(kvp => kvp.Value.CodecType == AVMediaType.AVMEDIA_TYPE_AUDIO).Select(kvp => kvp.Value);
-            var englishAudioStream = audioStreams.FirstOrDefault(s => s.Language != null && s.Language.ToLowerInvariant().StartsWith("en"));
+            var englishAudioStream = audioStreams
+                .FirstOrDefault(s => s.Language != null && s.Language.StartsWith("en", StringComparison.OrdinalIgnoreCase));
+
             if (englishAudioStream != null)
-            {
                 e.Options.AudioStream = englishAudioStream;
-            }
 
             // Setting Advanced Video Stream Options is also possible
             // ReSharper disable once InvertIf
@@ -206,8 +207,8 @@
 
                         // Make sure the seek index belongs to the media file path
                         if (seekIndex != null &&
-                            string.IsNullOrWhiteSpace(seekIndex.SourceUrl) == false &&
-                            seekIndex.SourceUrl.Equals(mediaFilePath) &&
+                            !string.IsNullOrWhiteSpace(seekIndex.MediaSource) &&
+                            seekIndex.MediaSource.Equals(mediaFilePath, StringComparison.OrdinalIgnoreCase) &&
                             seekIndex.StreamIndex == videoStream.StreamIndex)
                         {
                             // Set the index on the options object.
@@ -381,7 +382,7 @@
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private async void OnAudioDeviceStopped(object sender, EventArgs e)
         {
-            if (Media != null) await Media?.ChangeMedia();
+            if (Media != null) await Media.ChangeMedia();
         }
 
         #endregion
@@ -410,7 +411,7 @@
         private VideoSeekIndex LoadOrCreateVideoSeekIndex(string mediaFilePath, int streamIndex, double durationSeconds)
         {
             var seekFileName = $"{Path.GetFileNameWithoutExtension(mediaFilePath)}.six";
-            var seekFilePath = Path.Combine(App.Current.ViewModel.Playlist.IndexDirectory, seekFileName);
+            var seekFilePath = Path.Combine(App.ViewModel.Playlist.IndexDirectory, seekFileName);
             if (string.IsNullOrWhiteSpace(seekFilePath)) return null;
 
             if (File.Exists(seekFilePath))

@@ -2,8 +2,8 @@
 {
     using Core;
     using Decoding;
+    using Engine;
     using Primitives;
-    using Shared;
     using System;
     using System.Runtime.CompilerServices;
 
@@ -38,7 +38,7 @@
             {
                 lock (SyncLock)
                 {
-                    if (!IsReady) return Constants.Controller.DefaultSpeedRatio;
+                    if (!IsReady) return Constants.DefaultSpeedRatio;
                     return Clocks[MediaType.None].SpeedRatio;
                 }
             }

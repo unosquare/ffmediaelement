@@ -3,7 +3,7 @@
 namespace Unosquare.FFME
 {
     using ClosedCaptions;
-    using Shared;
+    using Engine;
     using System;
     using System.ComponentModel;
     using System.Windows;
@@ -32,13 +32,13 @@ namespace Unosquare.FFME
         public static readonly DependencyProperty VolumeProperty = DependencyProperty.Register(
             nameof(Volume), typeof(double), typeof(MediaElement),
             new FrameworkPropertyMetadata(
-                Constants.Controller.DefaultVolume,
+                Constants.DefaultVolume,
                 FrameworkPropertyMetadataOptions.None,
                 OnVolumePropertyChanged,
                 OnVolumePropertyChanging));
 
         private static object OnVolumePropertyChanging(DependencyObject d, object value) =>
-            ((double)value).Clamp(Constants.Controller.MinVolume, Constants.Controller.MaxVolume);
+            ((double)value).Clamp(Constants.MinVolume, Constants.MaxVolume);
 
         private static void OnVolumePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -67,13 +67,13 @@ namespace Unosquare.FFME
         public static readonly DependencyProperty BalanceProperty = DependencyProperty.Register(
             nameof(Balance), typeof(double), typeof(MediaElement),
             new FrameworkPropertyMetadata(
-                Constants.Controller.DefaultBalance,
+                Constants.DefaultBalance,
                 FrameworkPropertyMetadataOptions.None,
                 OnBalancePropertyChanged,
                 OnBalancePropertyChanging));
 
         private static object OnBalancePropertyChanging(DependencyObject d, object value) =>
-            ((double)value).Clamp(Constants.Controller.MinBalance, Constants.Controller.MaxBalance);
+            ((double)value).Clamp(Constants.MinBalance, Constants.MaxBalance);
 
         private static void OnBalancePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -133,22 +133,22 @@ namespace Unosquare.FFME
         public static readonly DependencyProperty SpeedRatioProperty = DependencyProperty.Register(
             nameof(SpeedRatio), typeof(double), typeof(MediaElement),
             new FrameworkPropertyMetadata(
-                Constants.Controller.DefaultSpeedRatio,
+                Constants.DefaultSpeedRatio,
                 FrameworkPropertyMetadataOptions.None,
                 OnSpeedRatioPropertyChanged,
                 OnSpeedRatioPropertyChanging));
 
         private static object OnSpeedRatioPropertyChanging(DependencyObject d, object value)
         {
-            if (d is MediaElement == false) return Constants.Controller.DefaultSpeedRatio;
+            if (d is MediaElement == false) return Constants.DefaultSpeedRatio;
 
             var element = (MediaElement)d;
-            if (element.MediaCore == null || element.MediaCore.IsDisposed) return Constants.Controller.DefaultSpeedRatio;
+            if (element.MediaCore == null || element.MediaCore.IsDisposed) return Constants.DefaultSpeedRatio;
             if (element.PropertyUpdatesWorker.IsExecutingCycle) return value;
 
             return element.IsSeekable == false ?
-                Constants.Controller.DefaultSpeedRatio :
-                ((double)value).Clamp(Constants.Controller.MinSpeedRatio, Constants.Controller.MaxSpeedRatio);
+                Constants.DefaultSpeedRatio :
+                ((double)value).Clamp(Constants.MinSpeedRatio, Constants.MaxSpeedRatio);
         }
 
         private static void OnSpeedRatioPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -267,11 +267,9 @@ namespace Unosquare.FFME
             else if (e.NewValue != null && element.IsOpening == false && e.NewValue is Uri uri)
             {
                 // Skip change actions if we are currently opening via the Open command
-                if (element.IsOpeningViaCommand.Value == false)
-                    await element.MediaCore?.Open(uri);
-
-                // Reset the opening via command.
-                element.IsOpeningViaCommand.Value = false;
+                // We configure the await to true because we need to continue on the captured context
+                if (element.IsOpeningViaCommand == false && element.MediaCore != null)
+                    await element.MediaCore.Open(uri).ConfigureAwait(true);
             }
         }
 
@@ -426,7 +424,7 @@ namespace Unosquare.FFME
         public static readonly DependencyProperty ClosedCaptionsChannelProperty = DependencyProperty.Register(
             nameof(ClosedCaptionsChannel), typeof(CaptionsChannel), typeof(MediaElement),
             new FrameworkPropertyMetadata(
-                Constants.Controller.DefaultClosedCaptionsChannel,
+                Constants.DefaultClosedCaptionsChannel,
                 FrameworkPropertyMetadataOptions.None,
                 OnClosedCaptionsChannelPropertyChanged));
 

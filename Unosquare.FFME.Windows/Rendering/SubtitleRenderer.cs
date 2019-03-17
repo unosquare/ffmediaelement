@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.Rendering
 {
+    using Engine;
     using Platform;
-    using Shared;
     using System;
     using System.Windows.Threading;
 
@@ -49,34 +49,34 @@
         public MediaEngine MediaCore { get; }
 
         /// <inheritdoc />
-        public void Close()
+        public void OnClose()
         {
             SetText(string.Empty);
         }
 
         /// <inheritdoc />
-        public void Pause()
+        public void OnPause()
         {
             // Placeholder
         }
 
         /// <inheritdoc />
-        public void Play()
+        public void OnPlay()
         {
             // placeholder
         }
 
         /// <inheritdoc />
-        public void Stop() => WaitForReadyState();
+        public void OnStop() => OnStarting();
 
         /// <inheritdoc />
-        public void Seek()
+        public void OnSeek()
         {
             // placeholder
         }
 
         /// <inheritdoc />
-        public void WaitForReadyState()
+        public void OnStarting()
         {
             lock (SyncLock)
             {
@@ -155,7 +155,7 @@
         {
             lock (SyncLock)
             {
-                if (RenderedText.Equals(text))
+                if (RenderedText == text)
                     return;
             }
 

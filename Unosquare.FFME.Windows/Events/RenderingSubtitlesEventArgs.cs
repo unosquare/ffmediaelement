@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.Events
 {
+    using Engine;
     using FFmpeg.AutoGen;
-    using Shared;
     using System;
     using System.Collections.Generic;
 

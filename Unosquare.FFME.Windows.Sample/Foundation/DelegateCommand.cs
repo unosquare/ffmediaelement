@@ -3,6 +3,7 @@
     using Primitives;
     using System;
     using System.Diagnostics;
+    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Windows;
     using System.Windows.Input;
@@ -92,52 +93,48 @@
         public bool CanExecute() => CanExecute(null);
 
         /// <inheritdoc />
-        public async void Execute(object parameter) => await ExecuteAsync(parameter).ConfigureAwait(false);
+        public void Execute(object parameter) => ExecuteAsync(parameter);
 
         /// <summary>
         /// Executes the command but does not wait for it to complete
         /// </summary>
-        public async void Execute() => await ExecuteAsync(null).ConfigureAwait(false);
+        public void Execute() => ExecuteAsync(null);
 
         /// <summary>
         /// Executes the command. This call can be awaited.
         /// </summary>
         /// <param name="parameter">Data used by the command.  If the command does not require data to be passed, this object can be set to null.</param>
         /// <returns>The awaitable task</returns>
-        public async Task ExecuteAsync(object parameter)
+        public ConfiguredTaskAwaitable ExecuteAsync(object parameter)
         {
-            if (IsExecuting.Value) return;
+            return Task.Run(async () =>
+            {
+                if (IsExecuting.Value)
+                    return;
 
-            try
-            {
-                IsExecuting.Value = true;
-                await Application.Current.Dispatcher.BeginInvoke(ExecuteAction, DispatcherPriority.Normal, parameter);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Could not execute command. {ex.Message}");
-                throw;
-            }
-            finally
-            {
-                IsExecuting.Value = false;
-                RaiseCanExecuteChanged();
-            }
+                try
+                {
+                    IsExecuting.Value = true;
+                    await Application.Current.Dispatcher.BeginInvoke(ExecuteAction, DispatcherPriority.Normal, parameter);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Could not execute command. {ex.Message}");
+                    throw;
+                }
+                finally
+                {
+                    IsExecuting.Value = false;
+                    CommandManager.InvalidateRequerySuggested();
+                }
+            }).ConfigureAwait(true);
         }
 
         /// <summary>
         /// Executes the command. This call can be awaited.
         /// </summary>
         /// <returns>The awaitable task</returns>
-        public async Task ExecuteAsync() => await ExecuteAsync(null).ConfigureAwait(false);
-
-        /// <summary>
-        /// Raises the can execute changed.
-        /// </summary>
-        public void RaiseCanExecuteChanged()
-        {
-            CommandManager.InvalidateRequerySuggested();
-        }
+        public ConfiguredTaskAwaitable ExecuteAsync() => ExecuteAsync(null);
 
         #endregion
     }

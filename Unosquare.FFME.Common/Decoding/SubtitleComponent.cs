@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
+    using Engine;
     using FFmpeg.AutoGen;
-    using Shared;
     using System;
     using System.Text;
 
@@ -130,7 +130,7 @@
         {
             const string DialoguePrefix = "dialogue:";
 
-            if (input.Substring(0, DialoguePrefix.Length).ToLowerInvariant().Equals(DialoguePrefix) == false)
+            if (!input.StartsWith(DialoguePrefix, StringComparison.InvariantCultureIgnoreCase))
                 return string.Empty;
 
             var inputParts = input.Split(SeparatorChars, 10);

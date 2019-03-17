@@ -41,6 +41,11 @@
         }
 
         /// <summary>
+        /// Finalizes an instance of the <see cref="WorkerBase"/> class.
+        /// </summary>
+        ~WorkerBase() => Dispose(false);
+
+        /// <summary>
         /// Enumerates all the different state change requests
         /// </summary>
         protected enum StateChangeRequest
@@ -156,7 +161,11 @@
         public abstract Task<WorkerState> StopAsync();
 
         /// <inheritdoc />
-        public void Dispose() => Dispose(true);
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
@@ -170,12 +179,15 @@
                 IsDisposing = true;
             }
 
-            // This also ensures the state change queue gets cleared
-            StopAsync().Wait();
-            StateChangedEvent.Set();
-            CycleCompletedEvent.Set();
+            if (alsoManaged)
+            {
+                // This also ensures the state change queue gets cleared
+                StopAsync().Wait();
+                StateChangedEvent.Set();
+                CycleCompletedEvent.Set();
 
-            OnDisposing();
+                OnDisposing();
+            }
 
             CycleStopwatch.Stop();
             StateChangedEvent.Dispose();
@@ -223,20 +235,17 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected int ComputeCycleDelay(WorkerState initialWorkerState)
         {
-            var delay = 0;
             var elapsedMillis = CycleStopwatch.ElapsedMilliseconds;
             var period = Period;
             var periodMillis = period.TotalMilliseconds;
             var delayMillis = periodMillis - elapsedMillis;
 
             if (initialWorkerState == WorkerState.Paused || period == TimeSpan.MaxValue || delayMillis >= int.MaxValue)
-                delay = Timeout.Infinite;
+                return Timeout.Infinite;
             else if (elapsedMillis >= periodMillis)
-                delay = 0;
+                return 0;
             else
-                delay = Convert.ToInt32(Math.Floor(delayMillis));
-
-            return delay;
+                return Convert.ToInt32(Math.Floor(delayMillis));
         }
     }
 }

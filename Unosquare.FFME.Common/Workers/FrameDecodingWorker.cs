@@ -1,9 +1,8 @@
 ﻿namespace Unosquare.FFME.Workers
 {
-    using Commands;
     using Decoding;
+    using Engine;
     using Primitives;
-    using Shared;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -34,7 +33,6 @@
             : base(nameof(FrameDecodingWorker), Constants.ThreadWorkerPeriod)
         {
             MediaCore = mediaCore;
-            Commands = mediaCore.Commands;
             Container = mediaCore.Container;
             State = mediaCore.State;
 
@@ -57,11 +55,6 @@
 
         /// <inheritdoc />
         ILoggingHandler ILoggingSource.LoggingHandler => MediaCore;
-
-        /// <summary>
-        /// Gets the Media Engine's Command Manager.
-        /// </summary>
-        private CommandManager Commands { get; }
 
         /// <summary>
         /// Gets the Media Engine's Container.

@@ -15,11 +15,11 @@
         /// <typeparam name="T">The type of playlist items</typeparam>
         /// <param name="playlist">The playlist to parse data attributes into.</param>
         /// <param name="line">The line.</param>
-        public static void ParseHeaderLine<T>(this Playlist<T> playlist, string line)
+        public static void ParseHeaderLine<T>(this PlaylistEntryCollection<T> playlist, string line)
             where T : PlaylistEntry, new()
         {
             // Get the line of text removing the start of the line data
-            var headerAttributesText = line.Substring($"{Playlist<T>.HeaderPrefix} ".Length).Trim();
+            var headerAttributesText = line.Substring($"{PlaylistEntryCollection<T>.HeaderPrefix} ".Length).Trim();
             var headerAttributes = headerAttributesText.ParseAttributes();
 
             foreach (var attribute in headerAttributes)
@@ -36,7 +36,7 @@
         public static void BeginExtendedInfoLine(this PlaylistEntry entry, string line)
         {
             // Get the line of text removing the start of the line data
-            var entryAttributesText = line.Substring($"{Playlist.EntryPrefix}:".Length).Trim();
+            var entryAttributesText = line.Substring($"{PlaylistEntryCollection.EntryPrefix}:".Length).Trim();
             var entryAttributes = entryAttributesText.ParseAttributes();
 
             foreach (var attribute in entryAttributes)
@@ -91,7 +91,7 @@
         {
             char c;
             var startIndex = lastAttribute?.EndIndex ?? 0;
-            var attributePivotIndex = headerData.IndexOf("=\"", startIndex, StringComparison.InvariantCulture);
+            var attributePivotIndex = headerData.IndexOf("=\"", startIndex, StringComparison.Ordinal);
             var attributeStartIndex = -1;
             var attributeEndIndex = -1;
 

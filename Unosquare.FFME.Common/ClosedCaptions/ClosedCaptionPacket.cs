@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME.ClosedCaptions
 {
-    using Shared;
+    using Engine;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -201,6 +201,8 @@
         #endregion
 
         #region Constructors
+
+        private readonly byte[] Data;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClosedCaptionPacket" /> class.
@@ -458,18 +460,13 @@
             finally
             {
                 Channel = FieldParity != 0 && FieldChannel != 0 ?
-                    ComputeChannel(FieldParity, FieldChannel) : CaptionsChannel.CCP;
+                    ComputeChannel(FieldParity, FieldChannel) : Constants.DefaultClosedCaptionsChannel;
             }
         }
 
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Gets the original packet data.
-        /// </summary>
-        public byte[] Data { get; }
 
         /// <summary>
         /// Gets the first of the two-byte packet data
@@ -581,6 +578,69 @@
 
         #endregion
 
+        #region Operators
+
+        /// <summary>
+        /// Implements the operator.
+        /// </summary>
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator ==(ClosedCaptionPacket left, ClosedCaptionPacket right)
+        {
+            if (left is null)
+                return right is null;
+
+            return left.Equals(right);
+        }
+
+        /// <summary>
+        /// Implements the operator.
+        /// </summary>
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator !=(ClosedCaptionPacket left, ClosedCaptionPacket right) =>
+            !(left == right);
+
+        /// <summary>
+        /// Implements the operator.
+        /// </summary>
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator <(ClosedCaptionPacket left, ClosedCaptionPacket right) =>
+            left == null ? right != null : left.CompareTo(right) < 0;
+
+        /// <summary>
+        /// Implements the operator.
+        /// </summary>
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator <=(ClosedCaptionPacket left, ClosedCaptionPacket right) =>
+            left == null || left.CompareTo(right) <= 0;
+
+        /// <summary>
+        /// Implements the operator.
+        /// </summary>
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator >(ClosedCaptionPacket left, ClosedCaptionPacket right) =>
+            left != null && left.CompareTo(right) > 0;
+
+        /// <summary>
+        /// Implements the operator.
+        /// </summary>
+        /// <param name="left">The left-hand side operand.</param>
+        /// <param name="right">The right-hand side operand.</param>
+        /// <returns>The result of the operation.</returns>
+        public static bool operator >=(ClosedCaptionPacket left, ClosedCaptionPacket right) =>
+            left == null ? right == null : left.CompareTo(right) >= 0;
+
+        #endregion
+
         #region Methods
 
         /// <summary>
@@ -593,7 +653,7 @@
         {
             // packets with 0 field parity are null or unknown
             if (fieldParity <= 0)
-                return CaptionsChannel.CCP;
+                return Constants.DefaultClosedCaptionsChannel;
 
             var parity = fieldParity.Clamp(1, 2);
             var channel = fieldChannel.Clamp(1, 2);
@@ -627,7 +687,7 @@
         {
             string output;
             var ts = $"{Timestamp.TotalSeconds:0.0000}";
-            var channel = Channel == CaptionsChannel.CCP ?
+            var channel = Channel == Constants.DefaultClosedCaptionsChannel ?
                 ComputeChannel(FieldParity, FieldChannel) + "*" : Channel + " ";
             var prefixData = $"{ts} | {channel} | P: {FieldParity} D: {FieldChannel} | {D0:x2}h {D1:x2}h |";
 
@@ -664,6 +724,23 @@
         {
             if (other == null) throw new ArgumentNullException(nameof(other));
             return Timestamp.Ticks.CompareTo(other.Timestamp.Ticks);
+        }
+
+        /// <inheritdoc />
+        public override bool Equals(object obj)
+        {
+            if (obj is ClosedCaptionPacket other)
+                return ReferenceEquals(this, other);
+
+            return false;
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return
+                Timestamp.GetHashCode() ^
+                Data.GetHashCode();
         }
 
         #endregion

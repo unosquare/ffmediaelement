@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME.Platform
 {
-    using Shared;
+    using Engine;
     using System;
     using System.Runtime.InteropServices;
     using System.Threading.Tasks;
@@ -10,14 +10,13 @@
     /// </summary>
     internal class WindowsNativeMethods : INativeMethods
     {
-        private static readonly int Parallelism;
+        private static readonly int Parallelism = (int)Math.Max(1, Environment.ProcessorCount * 0.8);
 
         /// <summary>
         /// Initializes static members of the <see cref="WindowsNativeMethods"/> class.
         /// </summary>
         static WindowsNativeMethods()
         {
-            Parallelism = (int)Math.Max(1, Environment.ProcessorCount * 0.8);
             Instance = new WindowsNativeMethods();
         }
 

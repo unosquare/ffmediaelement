@@ -1,4 +1,4 @@
-﻿#pragma warning disable SA1202
+﻿#pragma warning disable SA1202 // Elements must appear in the correct order
 namespace Unosquare.FFME.Rendering
 {
     using Platform;
@@ -366,4 +366,4 @@ namespace Unosquare.FFME.Rendering
         #endregion
     }
 }
-#pragma warning restore SA1202
+#pragma warning restore SA1202 // Elements must appear in the correct order

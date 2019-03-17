@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME
 {
+    using Engine;
     using Platform;
-    using Shared;
     using System;
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
@@ -91,7 +91,7 @@
                 NotifyPropertyChangedEvent(p);
 
                 // Check if we need to notify the remaining duration
-                if (p.Equals(nameof(NaturalDuration)) || p.Equals(nameof(IsSeekable)))
+                if (p == nameof(NaturalDuration) || p == nameof(IsSeekable))
                     notifyRemainingDuration = true;
             }
 

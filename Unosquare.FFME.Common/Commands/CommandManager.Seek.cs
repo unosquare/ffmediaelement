@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.Commands
 {
+    using Engine;
     using Primitives;
-    using Shared;
     using System;
     using System.Runtime.CompilerServices;
     using System.Threading;
@@ -314,7 +314,7 @@
                 // We need to update the clock immediately because
                 // the renderer will need this position
                 MediaCore.ChangePlaybackPosition(mode != SeekMode.Normal && mode != SeekMode.Stop
-                    ? mainBlocks[targetPosition].StartTime
+                    ? mainBlocks[targetPosition.Ticks].StartTime
                     : targetPosition);
 
                 SeekBlocksAvailable.Set();
@@ -388,11 +388,13 @@
                 lock (SyncLock)
                 {
                     if (IsDisposed) return;
+                    SeekCompleted.Set();
+
+                    if (alsoManaged)
+                        SeekCompleted.Dispose();
+
                     IsDisposed = true;
                 }
-
-                SeekCompleted.Set();
-                SeekCompleted.Dispose();
             }
         }
 

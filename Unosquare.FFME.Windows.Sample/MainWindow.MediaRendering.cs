@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
-    using Shared;
+    using Engine;
     using System;
     using System.Diagnostics;
     using System.Drawing;
@@ -130,10 +130,11 @@
                 // Iterate through the buffer
                 var isLeftSample = true;
                 var sampleIndex = 0;
+                var bufferData = e.GetBufferData();
 
                 for (var i = 0; i < e.BufferLength; i += e.BitsPerSample / 8)
                 {
-                    var samplePercent = 100d * e.Buffer.GetAudioSampleLevel(i);
+                    var samplePercent = 100d * bufferData.GetAudioSampleLevel(i);
 
                     if (isLeftSample)
                         drawVuMeterLeftSamples[sampleIndex] = samplePercent;

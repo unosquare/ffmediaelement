@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.Primitives
 {
     using Decoding;
-    using Shared;
+    using Engine;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -47,7 +47,7 @@
         private bool m_IsDisposed;
 
         // Fast Last Lookup.
-        private TimeSpan LastLookupTime = TimeSpan.MinValue;
+        private long LastLookupTimeTicks = TimeSpan.MinValue.Ticks;
         private int LastLookupIndex = -1;
 
         #endregion
@@ -172,15 +172,15 @@
         /// <value>
         /// The <see cref="MediaBlock"/>.
         /// </value>
-        /// <param name="at">At time.</param>
+        /// <param name="positionTicks">The position to lookup.</param>
         /// <returns>The media block</returns>
-        public MediaBlock this[TimeSpan at]
+        public MediaBlock this[long positionTicks]
         {
             get
             {
                 lock (SyncLock)
                 {
-                    var index = IndexOf(at);
+                    var index = IndexOf(positionTicks);
                     return index >= 0 ? PlaybackBlocks[index] : null;
                 }
             }
@@ -237,7 +237,7 @@
         {
             lock (SyncLock)
             {
-                var current = this[position];
+                var current = this[position.Ticks];
                 return Neighbors(current);
             }
         }
@@ -320,18 +320,18 @@
         /// If the render time is greater than the range end time, it returns the last playback block index.
         /// If the render time is less than the range start time, it returns the first playback block index.
         /// </summary>
-        /// <param name="renderTime">The render time.</param>
+        /// <param name="renderTimeTicks">The render time.</param>
         /// <returns>The media block's index</returns>
-        public int IndexOf(TimeSpan renderTime)
+        public int IndexOf(long renderTimeTicks)
         {
             lock (SyncLock)
             {
-                if (LastLookupTime != TimeSpan.MinValue && renderTime.Ticks == LastLookupTime.Ticks)
+                if (LastLookupTimeTicks != TimeSpan.MinValue.Ticks && renderTimeTicks == LastLookupTimeTicks)
                     return LastLookupIndex;
 
-                LastLookupTime = renderTime;
-                LastLookupIndex = PlaybackBlocks.Count > 0 && renderTime.Ticks <= PlaybackBlocks[0].StartTime.Ticks ? 0 :
-                    PlaybackBlocks.StartIndexOf(LastLookupTime);
+                LastLookupTimeTicks = renderTimeTicks;
+                LastLookupIndex = PlaybackBlocks.Count > 0 && renderTimeTicks <= PlaybackBlocks[0].StartTime.Ticks ? 0 :
+                    PlaybackBlocks.StartIndexOf(LastLookupTimeTicks);
 
                 return LastLookupIndex;
             }
@@ -465,9 +465,9 @@
             lock (SyncLock)
             {
                 if (IsMonotonic == false)
-                    return this[position]?.StartTime;
+                    return this[position.Ticks]?.StartTime;
 
-                var block = this[position];
+                var block = this[position.Ticks];
                 if (block == null)
                     return default;
 
@@ -523,7 +523,7 @@
             }
 
             LastLookupIndex = -1;
-            LastLookupTime = TimeSpan.MinValue;
+            LastLookupTimeTicks = TimeSpan.MinValue.Ticks;
 
             m_Count = PlaybackBlocks.Count;
             m_RangeStartTime = PlaybackBlocks.Count == 0 ? TimeSpan.Zero : PlaybackBlocks[0].StartTime;

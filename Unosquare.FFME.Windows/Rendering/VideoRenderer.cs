@@ -1,10 +1,10 @@
 ﻿namespace Unosquare.FFME.Rendering
 {
+    using Engine;
     using Events;
     using FFmpeg.AutoGen;
     using Platform;
     using Primitives;
-    using Shared;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -62,8 +62,8 @@
             MediaCore = mediaCore;
 
             // Check that the renderer supports the passed in Pixel format
-            if (MediaPixelFormats.ContainsKey(Constants.Video.VideoPixelFormat) == false)
-                throw new NotSupportedException($"Unable to get equivalent pixel format from source: {Constants.Video.VideoPixelFormat}");
+            if (MediaPixelFormats.ContainsKey(Constants.VideoPixelFormat) == false)
+                throw new NotSupportedException($"Unable to get equivalent pixel format from source: {Constants.VideoPixelFormat}");
 
             // Set the DPI
             GuiContext.Current.EnqueueInvoke(() =>
@@ -104,19 +104,19 @@
         #region Unused Media Renderer Methods
 
         /// <inheritdoc />
-        public void Play()
+        public void OnPlay()
         {
             // placeholder
         }
 
         /// <inheritdoc />
-        public void Pause()
+        public void OnPause()
         {
             // placeholder
         }
 
         /// <inheritdoc />
-        public void Stop()
+        public void OnStop()
         {
             GuiContext.Current.EnqueueInvoke(() =>
             {
@@ -125,7 +125,7 @@
         }
 
         /// <inheritdoc />
-        public void Seek()
+        public void OnSeek()
         {
             GuiContext.Current.EnqueueInvoke(() =>
             {
@@ -134,7 +134,7 @@
         }
 
         /// <inheritdoc />
-        public void WaitForReadyState()
+        public void OnStarting()
         {
             // placeholder
         }
@@ -243,7 +243,7 @@
         }
 
         /// <inheritdoc />
-        public void Close()
+        public void OnClose()
         {
             GuiContext.Current.EnqueueInvoke(() =>
             {
@@ -301,7 +301,7 @@
             if ((needsCreation || needsModification) && hasValidDimensions)
             {
                 TargetBitmap = new WriteableBitmap(
-                    block.PixelWidth, block.PixelHeight, DpiX, DpiY, MediaPixelFormats[Constants.Video.VideoPixelFormat], null);
+                    block.PixelWidth, block.PixelHeight, DpiX, DpiY, MediaPixelFormats[Constants.VideoPixelFormat], null);
             }
             else if (hasValidDimensions == false)
             {

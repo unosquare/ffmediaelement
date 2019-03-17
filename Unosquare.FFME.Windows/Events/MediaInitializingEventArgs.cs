@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME.Events
 {
-    using Shared;
+    using Engine;
     using System;
     using System.Windows;
 
@@ -14,11 +14,11 @@
         /// Initializes a new instance of the <see cref="MediaInitializingEventArgs" /> class.
         /// </summary>
         /// <param name="config">The container configuration options.</param>
-        /// <param name="url">The URL.</param>
-        public MediaInitializingEventArgs(ContainerConfiguration config, string url)
+        /// <param name="mediaSource">The URL.</param>
+        public MediaInitializingEventArgs(ContainerConfiguration config, string mediaSource)
         {
             Configuration = config;
-            Url = url;
+            MediaSource = mediaSource;
         }
 
         /// <summary>
@@ -29,6 +29,6 @@
         /// <summary>
         /// Gets the URL.
         /// </summary>
-        public string Url { get; }
+        public string MediaSource { get; }
     }
 }
