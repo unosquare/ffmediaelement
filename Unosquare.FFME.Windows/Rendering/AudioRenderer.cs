@@ -487,10 +487,11 @@
 
             #endregion
 
+            const double latencyStepMs = 10d;
             var hardwareLatencyMs = WaveFormat.ConvertByteSizeToDuration(requestedBytes).TotalMilliseconds;
             var bufferLatencyMs = BufferLatency.TotalMilliseconds; // we want the buffer latency to be the negative of the device latency
-            var minAcceptableLeadMs = -1.5 * hardwareLatencyMs; // less than this and we need to rewind samples
-            var maxAcceptableLagMs = -0.5 * hardwareLatencyMs; // more than this and we need to skip samples
+            var maxAcceptableLagMs = 0d; // more than this and we need to skip samples
+            var minAcceptableLeadMs = -2 * latencyStepMs; // less than this and we need to rewind samples
             var isLoggingEnabled = Math.Abs(speedRatio - 1.0) <= double.Epsilon;
             var operationName = string.Empty;
 
@@ -514,7 +515,7 @@
                     // this is the case where the buffer latency is too positive (i.e. buffer is lagging by too much)
                     // the goal is to skip some samples to make the buffer latency approximately that of the hardware latency
                     // so that the buffer leads by the hardware lag and we get sync-perferct results.
-                    var audioLatencyBytes = WaveFormat.ConvertMillisToByteSize(bufferLatencyMs + hardwareLatencyMs);
+                    var audioLatencyBytes = WaveFormat.ConvertMillisToByteSize(bufferLatencyMs + latencyStepMs);
 
                     if (AudioBuffer.ReadableCount > audioLatencyBytes)
                     {
@@ -533,7 +534,7 @@
                     // this is the case where the buffer latency is too negative (i.e. buffer is leading by too much)
                     // the goal is to rewind some samples to make the buffer latency approximately that of the hardware latency
                     // so that the buffer leads by the hardware lag and we get sync-perferct results.
-                    var audioLatencyBytes = WaveFormat.ConvertMillisToByteSize(Math.Abs(bufferLatencyMs) + hardwareLatencyMs);
+                    var audioLatencyBytes = WaveFormat.ConvertMillisToByteSize(Math.Abs(bufferLatencyMs) - latencyStepMs);
 
                     if (AudioBuffer.RewindableCount > audioLatencyBytes)
                     {
@@ -550,11 +551,11 @@
             }
             finally
             {
-                RealTimeLatency = BufferLatency + TimeSpan.FromMilliseconds(hardwareLatencyMs);
+                RealTimeLatency = BufferLatency;
                 if (isLoggingEnabled && !string.IsNullOrWhiteSpace(operationName))
                 {
                     this.LogWarning(Aspects.AudioRenderer,
-                        $"SYNC AUDIO: {operationName} | Initial: {bufferLatencyMs:0} ms. Current: {BufferLatency.TotalMilliseconds:0} ms. Device: {hardwareLatencyMs:0} ms.");
+                        $"SYNC AUDIO: {operationName} | Initial: {bufferLatencyMs:0} ms. Current: {BufferLatency.TotalMilliseconds:0} ms. Requested: {hardwareLatencyMs:0} ms.");
                 }
             }
 

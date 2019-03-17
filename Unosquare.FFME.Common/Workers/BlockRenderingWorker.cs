@@ -220,7 +220,7 @@
             else if (range == 0 && blocks.Count == 0 && MediaCore.Timing.IsRunning)
             {
                 // We have no main blocks in range. All we can do is pause the clock
-                this.LogTrace(Aspects.Timing,
+                this.LogDebug(Aspects.Timing,
                     $"CLOCK PAUSED: playback clock was paused at {position.Format()} because no decoded {main} content was found");
                 MediaCore.PausePlayback();
             }
@@ -237,8 +237,11 @@
             // Determine if Sync-buffering can be potentially entered.
             // Entering the sync-buffering state pauses the RTC and forces the decoder make
             // components catch up with the main component.
-            if (MediaCore.IsSyncBuffering || HasDisconnectedClocks || Commands.HasPendingCommands || State.MediaState != PlaybackStatus.Play)
+            if (MediaCore.IsSyncBuffering || HasDisconnectedClocks || Commands.HasPendingCommands ||
+                State.MediaState != PlaybackStatus.Play || State.HasMediaEnded || Container.IsAtEndOfStream)
+            {
                 return;
+            }
 
             foreach (var t in all)
             {
@@ -279,6 +282,8 @@
             var mustExitSyncBuffering =
                 ct.IsCancellationRequested ||
                 MediaCore.HasDecodingEnded ||
+                Container.IsAtEndOfStream ||
+                State.HasMediaEnded ||
                 Commands.HasPendingCommands ||
                 HasDisconnectedClocks;
 
@@ -407,10 +412,10 @@
                     MediaCore.PausePlayback();
                     MediaCore.ChangePlaybackPosition(playbackEndClock);
                     State.UpdateMediaEnded(true, playbackEndClock);
-
-                    State.UpdateMediaState(PlaybackStatus.Stop);
                     MediaCore.InvalidateRenderers();
                 }
+
+                State.UpdateMediaState(PlaybackStatus.Stop);
             }
             else
             {
