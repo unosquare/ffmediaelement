@@ -71,10 +71,6 @@
 
         /// <inheritdoc />
         public override int GetHashCode() =>
-            Type.GetHashCode() ^
-            Ms.GetHashCode() ^
-            Sample.GetHashCode() ^
-            CB.GetHashCode() ^
-            Ticks.GetHashCode();
+            throw new NotSupportedException($"{nameof(MmTime)} does not support hashing.");
     }
 }

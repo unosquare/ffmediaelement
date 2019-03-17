@@ -7,7 +7,8 @@
     /// <summary>
     /// Represents a seek entry to a position within the stream
     /// </summary>
-    public sealed class VideoSeekIndexEntry : IComparable<VideoSeekIndexEntry>, IComparable<TimeSpan>
+    public sealed class VideoSeekIndexEntry
+        : IComparable<VideoSeekIndexEntry>, IComparable<TimeSpan>, IEquatable<VideoSeekIndexEntry>
     {
         private static readonly char[] CommaSeparator = new[] { ',' };
 
@@ -151,6 +152,10 @@
 
             return false;
         }
+
+        /// <inheritdoc />
+        public bool Equals(VideoSeekIndexEntry other) =>
+            ReferenceEquals(this, other);
 
         /// <inheritdoc />
         public override int GetHashCode() =>

@@ -654,7 +654,8 @@
                 public IntPtr NotifyHandle;
 
                 /// <inheritdoc />
-                public bool Equals(DirectSoundBufferPositionNotify other) => NotifyHandle == other.NotifyHandle;
+                public bool Equals(DirectSoundBufferPositionNotify other) =>
+                    NotifyHandle == other.NotifyHandle;
 
                 /// <inheritdoc />
                 public override bool Equals(object obj)
@@ -666,7 +667,8 @@
                 }
 
                 /// <inheritdoc />
-                public override int GetHashCode() => NotifyHandle.GetHashCode();
+                public override int GetHashCode() =>
+                    throw new NotSupportedException($"{nameof(DirectSoundBufferPositionNotify)} does not support hashing.");
             }
 
             // ReSharper disable NotAccessedField.Local

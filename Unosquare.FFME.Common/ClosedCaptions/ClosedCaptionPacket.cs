@@ -10,7 +10,7 @@
     /// Represents a 3-byte packet of closed-captioning data in EIA-608 format.
     /// See: http://jackyjung.tistory.com/attachment/499e14e28c347DB.pdf
     /// </summary>
-    public sealed class ClosedCaptionPacket : IComparable<ClosedCaptionPacket>
+    public sealed class ClosedCaptionPacket : IComparable<ClosedCaptionPacket>, IEquatable<ClosedCaptionPacket>
     {
         #region Dictionaries
 
@@ -734,6 +734,10 @@
 
             return false;
         }
+
+        /// <inheritdoc />
+        public bool Equals(ClosedCaptionPacket other) =>
+            ReferenceEquals(this, other);
 
         /// <inheritdoc />
         public override int GetHashCode()

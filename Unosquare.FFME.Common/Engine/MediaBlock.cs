@@ -11,7 +11,8 @@
     /// Reuse blocks as much as possible. Once you create a block from a frame,
     /// you don't need the frame anymore so make sure you dispose the frame.
     /// </summary>
-    public abstract class MediaBlock : IComparable<MediaBlock>, IComparable<TimeSpan>, IComparable<long>, IDisposable
+    public abstract class MediaBlock
+        : IComparable<MediaBlock>, IComparable<TimeSpan>, IComparable<long>, IEquatable<MediaBlock>, IDisposable
     {
         private readonly object SyncLock = new object();
         private readonly ISyncLocker Locker = SyncLockerFactory.Create(useSlim: true);
@@ -250,8 +251,13 @@
         }
 
         /// <inheritdoc />
+        public bool Equals(MediaBlock other) =>
+            ReferenceEquals(this, other);
+
+        /// <inheritdoc />
         public override int GetHashCode() =>
-            StartTime.Ticks.GetHashCode() ^ m_Buffer.GetHashCode();
+            StartTime.Ticks.GetHashCode() ^
+            MediaType.GetHashCode();
 
         /// <inheritdoc />
         public void Dispose()

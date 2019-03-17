@@ -147,10 +147,7 @@ namespace Unosquare.FFME.Rendering.Wave
 
         /// <inheritdoc />
         public override int GetHashCode() =>
-            manufacturerGuid.GetHashCode() ^
-            productGuid.GetHashCode() ^
-            driverVersion ^
-            channels;
+            throw new NotSupportedException($"{nameof(LegacyAudioDeviceInfo)} does not support hashing.");
 
         /// <summary>
         /// Checks to see if a given SupportedWaveFormat is supported

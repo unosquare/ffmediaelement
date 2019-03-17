@@ -36,16 +36,10 @@
 
         /// <inheritdoc />
         public override bool Equals(object obj) =>
-            obj is PacketBufferState && Equals((PacketBufferState)obj);
+            obj is PacketBufferState state && Equals(state);
 
         /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            return
-                Length.GetHashCode() ^
-                Count ^
-                CountThreshold ^
-                HasEnoughPackets.GetHashCode();
-        }
+        public override int GetHashCode() =>
+            throw new NotSupportedException($"{nameof(PacketBufferState)} does not support hashing.");
     }
 }
