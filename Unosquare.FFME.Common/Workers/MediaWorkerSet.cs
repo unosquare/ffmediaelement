@@ -2,6 +2,7 @@
 {
     using Primitives;
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -124,29 +125,11 @@
         /// <param name="render">if set to <c>true</c> executes the opration on the rendering worker.</param>
         private void Pause(bool wait, bool read, bool decode, bool render)
         {
-            if (IsDisposed) return;
+            if (IsDisposed)
+                return;
 
-            var tasks = new Task[(read ? 1 : 0) + (decode ? 1 : 0) + (render ? 1 : 0)];
-            var index = 0;
-            if (read)
-            {
-                tasks[index] = Reading.PauseAsync();
-                index++;
-            }
-
-            if (decode)
-            {
-                tasks[index] = Decoding.PauseAsync();
-                index++;
-            }
-
-            if (render)
-            {
-                tasks[index] = Rendering.PauseAsync();
-            }
-
-            if (wait)
-                Task.WaitAll(tasks);
+            var tasks = CaptureTasks(read, decode, render, WorkerState.Paused);
+            if (wait) Task.WaitAll(tasks);
         }
 
         /// <summary>
@@ -160,27 +143,46 @@
         {
             if (IsDisposed) return;
 
-            var tasks = new Task[(read ? 1 : 0) + (decode ? 1 : 0) + (render ? 1 : 0)];
-            var index = 0;
-            if (read)
+            var tasks = CaptureTasks(read, decode, render, WorkerState.Running);
+            if (wait) Task.WaitAll(tasks);
+        }
+
+        /// <summary>
+        /// Captures the awaitable tasks for the given workers.
+        /// </summary>
+        /// <param name="read">The read worker.</param>
+        /// <param name="decode">The decode worker.</param>
+        /// <param name="render">The render worker.</param>
+        /// <param name="targetState">The target state.</param>
+        /// <returns>The awaitable tasks.</returns>
+        private Task<WorkerState>[] CaptureTasks(bool read, bool decode, bool render, WorkerState targetState)
+        {
+            var tasks = new List<Task<WorkerState>>(3);
+            var workers = new List<IMediaWorker>(3);
+
+            if (read) workers.Add(Reading);
+            if (decode) workers.Add(Decoding);
+            if (render) workers.Add(Rendering);
+
+            foreach (var worker in workers)
             {
-                tasks[index] = Reading.ResumeAsync();
-                index++;
+                switch (targetState)
+                {
+                    case WorkerState.Paused:
+                        tasks.Add(worker.PauseAsync());
+                        break;
+                    case WorkerState.Running:
+                        tasks.Add(worker.ResumeAsync());
+                        break;
+                    case WorkerState.Stopped:
+                        tasks.Add(worker.StopAsync());
+                        break;
+                    default:
+                        throw new NotSupportedException($"{nameof(targetState)} '{targetState}' is not supported.");
+                }
             }
 
-            if (decode)
-            {
-                tasks[index] = Decoding.ResumeAsync();
-                index++;
-            }
-
-            if (render)
-            {
-                tasks[index] = Rendering.ResumeAsync();
-            }
-
-            if (wait)
-                Task.WaitAll(tasks);
+            return tasks.ToArray();
         }
 
         /// <summary>
