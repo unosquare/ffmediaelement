@@ -1,5 +1,5 @@
-version: '1.0.{build}'
-image: Visual Studio 2017
+version: '2.90.{build}'
+image: Visual Studio 2019 Preview
 configuration:
 - Release
 platform: Any CPU
