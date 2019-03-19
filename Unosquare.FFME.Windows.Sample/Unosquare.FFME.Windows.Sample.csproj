@@ -4,9 +4,9 @@
   <PropertyGroup>
     <TargetFrameworks>net472;net461;netcoreapp3.0</TargetFrameworks>
     <OutputType>WinExe</OutputType>
+    <UseWpf>true</UseWpf>
     <Title>FFME Reference Player</Title>
     <AssemblyTitle>FFME Reference Player</AssemblyTitle>
-    <UseWpf>true</UseWpf>
     <AssemblyName>ffmeplay.win</AssemblyName>
     <RootNamespace>Unosquare.FFME.Windows.Sample</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

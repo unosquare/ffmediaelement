@@ -3,6 +3,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net461;netcoreapp3.0</TargetFrameworks>
+    <OutputType>Library</OutputType>
     <RootNamespace>Unosquare.FFME</RootNamespace>
     <Version>4.1.290</Version>
     <Authors>Mario Di Vece and Contributors to the FFME project</Authors>

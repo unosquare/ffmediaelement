@@ -1,8 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="Current">
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop" ToolsVersion="Current">
 
   <PropertyGroup>
-    <TargetFrameworks>net461;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;net461</TargetFrameworks>
+    <OutputType>Library</OutputType>
     <RootNamespace>Unosquare.FFME</RootNamespace>
     <AssemblyName>ffme.win</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -65,12 +66,6 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Web" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
-    <PackageReference Include="Microsoft.WindowsDesktop.App">
-      <Version>3.0.0-alpha-27128-4</Version>
-    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

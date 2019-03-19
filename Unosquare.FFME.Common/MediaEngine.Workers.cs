@@ -142,35 +142,50 @@
         }
 
         /// <summary>
-        /// Updates the clock position and notifies the new
-        /// position to the <see cref="State" />.
+        /// Updates the specified clock type to a new playback position.
         /// </summary>
-        /// <param name="playbackPosition">The position.</param>
+        /// <param name="playbackPosition">The new playback position</param>
+        /// <param name="t">The clock type. Pass none for all clocks</param>
+        /// <param name="reportPosition">If the new playback position should be reported.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void ChangePlaybackPosition(TimeSpan playbackPosition)
+        internal void ChangePlaybackPosition(TimeSpan playbackPosition, MediaType t, bool reportPosition)
         {
-            if (Timing.HasDisconnectedClocks)
+            if (Timing.HasDisconnectedClocks && t == MediaType.None)
             {
                 this.LogWarning(Aspects.Container,
                     $"Changing the playback position on disconnected clocks is not supported." +
                     $"Plase set the {nameof(MediaOptions.IsTimeSyncDisabled)} to false.");
             }
 
-            Timing.Update(playbackPosition, MediaType.None);
+            Timing.Update(playbackPosition, t);
             InvalidateRenderers();
-            State.ReportPlaybackPosition();
+
+            if (reportPosition)
+                State.ReportPlaybackPosition();
         }
+
+        /// <summary>
+        /// Updates the clock position and notifies the new
+        /// position to the <see cref="State" />.
+        /// </summary>
+        /// <param name="playbackPosition">The position.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void ChangePlaybackPosition(TimeSpan playbackPosition) =>
+            ChangePlaybackPosition(playbackPosition, MediaType.None, true);
 
         /// <summary>
         /// Pauses the playback by pausing the RTC.
         /// This does not change the state.
         /// </summary>
         /// <param name="t">The clock to pause</param>
+        /// <param name="reportPosition">If the new playback position should be reported.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void PausePlayback(MediaType t)
+        internal void PausePlayback(MediaType t, bool reportPosition)
         {
             Timing.Pause(t);
-            State.ReportPlaybackPosition();
+
+            if (reportPosition)
+                State.ReportPlaybackPosition();
         }
 
         /// <summary>
@@ -178,7 +193,7 @@
         /// This does not change the state.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void PausePlayback() => PausePlayback(MediaType.None);
+        internal void PausePlayback() => PausePlayback(MediaType.None, true);
 
         /// <summary>
         /// Resets the clock to the zero position and notifies the new
