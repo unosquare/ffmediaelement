@@ -70,7 +70,7 @@
         /// <inheritdoc />
         protected override void ExecuteCycleDelay(int wantedDelay, Task delayTask, CancellationToken token)
         {
-            if (wantedDelay == 0 || wantedDelay == Timeout.Infinite || MediaCore.Container.IsAtEndOfStream)
+            if (wantedDelay <= 0 || Container.IsAtEndOfStream || Container.Components.Count <= 0)
             {
                 base.ExecuteCycleDelay(wantedDelay, delayTask, token);
             }
@@ -84,17 +84,17 @@
                         break;
 
                     // We don't want to keep waiting if reads have been aborted
-                    if (MediaCore.Container.IsReadAborted)
+                    if (Container.IsReadAborted)
                         break;
 
                     // We don't want to wait if we are at the end of the stream
-                    if (MediaCore.Container.IsAtEndOfStream)
+                    if (Container.IsAtEndOfStream)
                         break;
 
                     // We detected a change in buffered packets
                     try
                     {
-                        if (BufferChangedEvent.Wait(15, token))
+                        if (BufferChangedEvent.Wait(5, token))
                             break;
                     }
                     catch
