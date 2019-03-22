@@ -11,9 +11,12 @@
     using System.Linq;
     using System.Text;
     using System.Windows;
+    using Unosquare.FFME.Windows.Sample.Foundation;
 
     public partial class MainWindow
     {
+        private StreamRecorder recorder;
+
         #region Logging Event Handlers
 
         /// <summary>
@@ -287,6 +290,10 @@
         private void OnMediaOpened(object sender, MediaOpenedRoutedEventArgs e)
         {
             // Perform some notification or status change when the media opened
+            if (Media.IsLiveStream && recorder == null)
+            {
+                recorder = new StreamRecorder(@"c:\ffmpeg\text.mp4", Media);
+            }
         }
 
         /// <summary>
@@ -299,6 +306,11 @@
             // Set a start position (see issue #66 or issue #277)
             // Media.Position = TimeSpan.FromSeconds(5);
             // await Media.Seek(TimeSpan.FromSeconds(5));
+        }
+
+        private void OnMediaClosed(object sender, RoutedEventArgs e)
+        {
+            recorder?.Close();
         }
 
         /// <summary>
