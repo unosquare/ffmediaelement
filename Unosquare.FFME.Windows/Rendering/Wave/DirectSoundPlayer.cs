@@ -28,6 +28,7 @@
         private static List<DirectSoundDeviceInfo> EnumeratedDevices;
 
         // Instance fields
+        private readonly object SyncLock = new object();
         private readonly AtomicBoolean IsCancellationPending = new AtomicBoolean(false);
         private readonly IWaitEvent PlaybackFinished = WaitEventFactory.Create(isCompleted: true, useSlim: true);
         private readonly EventWaitHandle CancelEvent = new EventWaitHandle(false, EventResetMode.ManualReset);
@@ -339,22 +340,27 @@
         /// <param name="alsoManaged"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool alsoManaged)
         {
-            if (IsDisposed) return;
-
-            if (alsoManaged)
+            lock (SyncLock)
             {
-                IsCancellationPending.Value = true; // Causes the playback loop to exit
-                CancelEvent.Set(); // causes the WaitAny to exit
-                PlaybackFinished.Wait(); // waits for the playback loop to finish
+                if (IsDisposed) return;
 
-                PlaybackEndedEventWaitHandle.Dispose();
-                FrameStartEventWaitHandle.Dispose();
-                FrameEndEventWaitHandle.Dispose();
-                CancelEvent.Dispose();
-                PlaybackFinished.Dispose();
+                if (alsoManaged)
+                {
+                    IsCancellationPending.Value = true; // Causes the playback loop to exit
+                    CancelEvent.Set(); // causes the WaitAny to exit
+                    PlaybackFinished.Wait(); // waits for the playback loop to finish
+
+                    // Dispose DirectSound buffer wait handles
+                    PlaybackEndedEventWaitHandle?.Dispose();
+                    FrameStartEventWaitHandle?.Dispose();
+                    FrameEndEventWaitHandle?.Dispose();
+
+                    CancelEvent.Dispose();
+                    PlaybackFinished.Dispose();
+                }
+
+                IsDisposed = true;
             }
-
-            IsDisposed = true;
         }
 
         /// <summary>
