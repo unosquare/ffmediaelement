@@ -5,10 +5,10 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Namespace Unosquare.FFME.Events
+    <title>Class PacketReadEventArgs
    | FFME: WPF MediaElement replacement based on FFmpeg </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Namespace Unosquare.FFME.Events
+    <meta name="title" content="Class PacketReadEventArgs
    | FFME: WPF MediaElement replacement based on FFmpeg ">
     <meta name="generator" content="docfx 2.40.12.0">
     
@@ -76,63 +76,121 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="Unosquare.FFME.Events">
+            <article class="content wrap" id="_content" data-uid="Unosquare.FFME.Events.PacketReadEventArgs">
   
-  <h1 id="Unosquare_FFME_Events" data-uid="Unosquare.FFME.Events" class="text-break">Namespace Unosquare.FFME.Events
+  
+  <h1 id="Unosquare_FFME_Events_PacketReadEventArgs" data-uid="Unosquare.FFME.Events.PacketReadEventArgs" class="text-break">Class PacketReadEventArgs
   </h1>
-  <div class="markdown level0 summary"></div>
+  <div class="markdown level0 summary"><p>Event arguments corresponding to the packet reading event. Useful for capturing streams.</p>
+</div>
   <div class="markdown level0 conceptual"></div>
-  <div class="markdown level0 remarks"></div>
-    <h3 id="classes">Classes
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object">Object</a></div>
+    <div class="level1"><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.eventargs">EventArgs</a></div>
+    <div class="level2"><a class="xref" href="Unosquare.FFME.Events.InputFormatEventArgs.html">InputFormatEventArgs</a></div>
+    <div class="level3"><span class="xref">PacketReadEventArgs</span></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <a class="xref" href="Unosquare.FFME.Events.InputFormatEventArgs.html#Unosquare_FFME_Events_InputFormatEventArgs_InputContext">InputFormatEventArgs.InputContext</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.eventargs.empty">EventArgs.Empty</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.tostring#System_Object_ToString">Object.ToString()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.equals#System_Object_Equals_System_Object_">Object.Equals(Object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.equals#System_Object_Equals_System_Object_System_Object_">Object.Equals(Object, Object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.referenceequals#System_Object_ReferenceEquals_System_Object_System_Object_">Object.ReferenceEquals(Object, Object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.gethashcode#System_Object_GetHashCode">Object.GetHashCode()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.gettype#System_Object_GetType">Object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.memberwiseclone#System_Object_MemberwiseClone">Object.MemberwiseClone()</a>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Unosquare.FFME.Events.html">Unosquare.FFME.Events</a></h6>
+  <h5 id="Unosquare_FFME_Events_PacketReadEventArgs_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public sealed class PacketReadEventArgs : InputFormatEventArgs</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
   </h3>
-      <h4><a class="xref" href="Unosquare.FFME.Events.BitmapDataBuffer.html">BitmapDataBuffer</a></h4>
-      <section><p>Contains metadata about a raw bitmap back-buffer</p>
-</section>
-      <h4><a class="xref" href="Unosquare.FFME.Events.FrameDecodedEventArgs.html">FrameDecodedEventArgs</a></h4>
-      <section><p>Event arguments corresponding to the audio or video frame decoded events. Useful for capturing streams.</p>
-</section>
-      <h4><a class="xref" href="Unosquare.FFME.Events.InputFormatEventArgs.html">InputFormatEventArgs</a></h4>
-      <section><p>Generic Input format event arguments. Useful for capturing streams.</p>
-</section>
-      <h4><a class="xref" href="Unosquare.FFME.Events.MediaInitializingEventArgs.html">MediaInitializingEventArgs</a></h4>
-      <section><p>Represents the event arguments of the MediaInitializing routed event.</p>
-</section>
-      <h4><a class="xref" href="Unosquare.FFME.Events.MediaLogMessageEventArgs.html">MediaLogMessageEventArgs</a></h4>
-      <section><p>Contains the Message Logged Event Arguments</p>
-</section>
-      <h4><a class="xref" href="Unosquare.FFME.Events.MediaOpenedRoutedEventArgs.html">MediaOpenedRoutedEventArgs</a></h4>
-      <section><p>Represents the event arguments of the <a class="xref" href="Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaOpened">MediaOpened</a> or
-<a class="xref" href="Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaChanged">MediaChanged</a> routed events.</p>
-</section>
-      <h4><a class="xref" href="Unosquare.FFME.Events.MediaOpeningEventArgs.html">MediaOpeningEventArgs</a></h4>
-      <section><p>Represents the event arguments of the <a class="xref" href="Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaOpening">MediaOpening</a>
-or <a class="xref" href="Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_MediaChanging">MediaChanging</a> routed events.</p>
-</section>
-      <h4><a class="xref" href="Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.html">MediaStateChangedRoutedEventArgs</a></h4>
-      <section><p>Contains the media state changed routed event args</p>
-</section>
-      <h4><a class="xref" href="Unosquare.FFME.Events.PacketReadEventArgs.html">PacketReadEventArgs</a></h4>
-      <section><p>Event arguments corresponding to the packet reading event. Useful for capturing streams.</p>
-</section>
-      <h4><a class="xref" href="Unosquare.FFME.Events.PositionChangedRoutedEventArgs.html">PositionChangedRoutedEventArgs</a></h4>
-      <section><p>Contains the position changed routed event args</p>
-</section>
-      <h4><a class="xref" href="Unosquare.FFME.Events.RenderingAudioEventArgs.html">RenderingAudioEventArgs</a></h4>
-      <section><p>Provides the audio samples rendering payload as event arguments.</p>
-</section>
-      <h4><a class="xref" href="Unosquare.FFME.Events.RenderingEventArgs.html">RenderingEventArgs</a></h4>
-      <section><p>A base class to represent media block
-rendering event arguments.</p>
-</section>
-      <h4><a class="xref" href="Unosquare.FFME.Events.RenderingSubtitlesEventArgs.html">RenderingSubtitlesEventArgs</a></h4>
-      <section><p>Provides the subtitles rendering payload as event arguments.</p>
-</section>
-      <h4><a class="xref" href="Unosquare.FFME.Events.RenderingVideoEventArgs.html">RenderingVideoEventArgs</a></h4>
-      <section><p>The video rendering event arguments</p>
-</section>
-      <h4><a class="xref" href="Unosquare.FFME.Events.SubtitleDecodedEventArgs.html">SubtitleDecodedEventArgs</a></h4>
-      <section><p>Event arguments corresponding to the subtitle decoded event. Useful for capturing streams.</p>
-</section>
+  
+  
+  <a id="Unosquare_FFME_Events_PacketReadEventArgs__ctor_" data-uid="Unosquare.FFME.Events.PacketReadEventArgs.#ctor*"></a>
+  <h4 id="Unosquare_FFME_Events_PacketReadEventArgs__ctor_AVPacket__AVFormatContext__" data-uid="Unosquare.FFME.Events.PacketReadEventArgs.#ctor(AVPacket*,AVFormatContext*)">PacketReadEventArgs(AVPacket*, AVFormatContext*)</h4>
+  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="Unosquare.FFME.Events.PacketReadEventArgs.html">PacketReadEventArgs</a> class.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public PacketReadEventArgs(AVPacket*packet, AVFormatContext*context)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">AVPacket</span>*</td>
+        <td><span class="parametername">packet</span></td>
+        <td><p>The packet pointer</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">AVFormatContext</span>*</td>
+        <td><span class="parametername">context</span></td>
+        <td><p>The input format context</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  
+  
+  <a id="Unosquare_FFME_Events_PacketReadEventArgs_Packet_" data-uid="Unosquare.FFME.Events.PacketReadEventArgs.Packet*"></a>
+  <h4 id="Unosquare_FFME_Events_PacketReadEventArgs_Packet" data-uid="Unosquare.FFME.Events.PacketReadEventArgs.Packet">Packet</h4>
+  <div class="markdown level1 summary"><p>Gets the pointer to the packet that was read.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public AVPacket*Packet { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">AVPacket</span>*</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
 
 <h3 id="disqus_thread">Comments</h3>
 <script>

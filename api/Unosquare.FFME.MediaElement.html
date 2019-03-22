@@ -3016,6 +3016,35 @@ in order to output to a new audio device</p>
   </table>
   
   
+  <h4 id="Unosquare_FFME_MediaElement_AudioFrameDecoded" data-uid="Unosquare.FFME.MediaElement.AudioFrameDecoded">AudioFrameDecoded</h4>
+  <div class="markdown level1 summary"><p>Raised when an audio frame is decoded from input stream. Useful for capturing streams.
+This event is not raised on the UI thread and the pointers in the event arguments
+are only valid for the call. If you need to keep a queue you will need to clone and
+release the allocated memory yourself by using clone and release methods in the native
+FFmpeg API.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event EventHandler&lt;FrameDecodedEventArgs&gt; AudioFrameDecoded</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.eventhandler-1">EventHandler</a>&lt;<a class="xref" href="Unosquare.FFME.Events.FrameDecodedEventArgs.html">FrameDecodedEventArgs</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <h4 id="Unosquare_FFME_MediaElement_BufferingEnded" data-uid="Unosquare.FFME.MediaElement.BufferingEnded">BufferingEnded</h4>
   <div class="markdown level1 summary"><p>Occurs when buffering of packets was Ended</p>
 </div>
@@ -3392,6 +3421,35 @@ All interaction with UI elements requires calls on their corresponding dispatche
 </div>
   
   
+  <h4 id="Unosquare_FFME_MediaElement_PacketRead" data-uid="Unosquare.FFME.MediaElement.PacketRead">PacketRead</h4>
+  <div class="markdown level1 summary"><p>Raised when a packet is read from the input stream. Useful for capturing streams.
+This event is not raised on the UI thread and the pointers in the event arguments
+are only valid for the call. If you need to keep a queue you will need to clone and
+release the allocated memory yourself by using clone and release methods in the native
+FFmpeg API.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event EventHandler&lt;PacketReadEventArgs&gt; PacketRead</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.eventhandler-1">EventHandler</a>&lt;<a class="xref" href="Unosquare.FFME.Events.PacketReadEventArgs.html">PacketReadEventArgs</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <h4 id="Unosquare_FFME_MediaElement_PositionChanged" data-uid="Unosquare.FFME.MediaElement.PositionChanged">PositionChanged</h4>
   <div class="markdown level1 summary"><p>Occurs when media position is changed</p>
 </div>
@@ -3567,6 +3625,64 @@ Ensure you handle this very quickly as it runs on the UI thread.</p>
     <tbody>
       <tr>
         <td><span class="xref">RoutedEventHandler</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_SubtitleDecoded" data-uid="Unosquare.FFME.MediaElement.SubtitleDecoded">SubtitleDecoded</h4>
+  <div class="markdown level1 summary"><p>Raised when a subtitle is decoded from input stream. Useful for capturing streams.
+This event is not raised on the UI thread and the pointers in the event arguments
+are only valid for the call. If you need to keep a queue you will need to clone and
+release the allocated memory yourself by using clone and release methods in the native
+FFmpeg API.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event EventHandler&lt;SubtitleDecodedEventArgs&gt; SubtitleDecoded</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.eventhandler-1">EventHandler</a>&lt;<a class="xref" href="Unosquare.FFME.Events.SubtitleDecodedEventArgs.html">SubtitleDecodedEventArgs</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="Unosquare_FFME_MediaElement_VideoFrameDecoded" data-uid="Unosquare.FFME.MediaElement.VideoFrameDecoded">VideoFrameDecoded</h4>
+  <div class="markdown level1 summary"><p>Raised when a video frame is decoded from input stream. Useful for capturing streams.
+This event is not raised on the UI thread and the pointers in the event arguments
+are only valid for the call. If you need to keep a queue you will need to clone and
+release the allocated memory yourself by using clone and release methods in the native
+FFmpeg API.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event EventHandler&lt;FrameDecodedEventArgs&gt; VideoFrameDecoded</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.eventhandler-1">EventHandler</a>&lt;<a class="xref" href="Unosquare.FFME.Events.FrameDecodedEventArgs.html">FrameDecodedEventArgs</a>&gt;</td>
         <td></td>
       </tr>
     </tbody>

@@ -188,6 +188,70 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.Events.BitmapDataBuffer.UpdateRect
   nameWithType: BitmapDataBuffer.UpdateRect
+- uid: Unosquare.FFME.Events.FrameDecodedEventArgs
+  name: FrameDecodedEventArgs
+  href: api/Unosquare.FFME.Events.FrameDecodedEventArgs.html
+  commentId: T:Unosquare.FFME.Events.FrameDecodedEventArgs
+  fullName: Unosquare.FFME.Events.FrameDecodedEventArgs
+  nameWithType: FrameDecodedEventArgs
+- uid: Unosquare.FFME.Events.FrameDecodedEventArgs.#ctor(AVFrame*,AVFormatContext*)
+  name: FrameDecodedEventArgs(AVFrame*, AVFormatContext*)
+  href: api/Unosquare.FFME.Events.FrameDecodedEventArgs.html#Unosquare_FFME_Events_FrameDecodedEventArgs__ctor_AVFrame__AVFormatContext__
+  commentId: M:Unosquare.FFME.Events.FrameDecodedEventArgs.#ctor(AVFrame*,AVFormatContext*)
+  fullName: Unosquare.FFME.Events.FrameDecodedEventArgs.FrameDecodedEventArgs(AVFrame*, AVFormatContext*)
+  nameWithType: FrameDecodedEventArgs.FrameDecodedEventArgs(AVFrame*, AVFormatContext*)
+- uid: Unosquare.FFME.Events.FrameDecodedEventArgs.#ctor*
+  name: FrameDecodedEventArgs
+  href: api/Unosquare.FFME.Events.FrameDecodedEventArgs.html#Unosquare_FFME_Events_FrameDecodedEventArgs__ctor_
+  commentId: Overload:Unosquare.FFME.Events.FrameDecodedEventArgs.#ctor
+  isSpec: "True"
+  fullName: Unosquare.FFME.Events.FrameDecodedEventArgs.FrameDecodedEventArgs
+  nameWithType: FrameDecodedEventArgs.FrameDecodedEventArgs
+- uid: Unosquare.FFME.Events.FrameDecodedEventArgs.Frame
+  name: Frame
+  href: api/Unosquare.FFME.Events.FrameDecodedEventArgs.html#Unosquare_FFME_Events_FrameDecodedEventArgs_Frame
+  commentId: P:Unosquare.FFME.Events.FrameDecodedEventArgs.Frame
+  fullName: Unosquare.FFME.Events.FrameDecodedEventArgs.Frame
+  nameWithType: FrameDecodedEventArgs.Frame
+- uid: Unosquare.FFME.Events.FrameDecodedEventArgs.Frame*
+  name: Frame
+  href: api/Unosquare.FFME.Events.FrameDecodedEventArgs.html#Unosquare_FFME_Events_FrameDecodedEventArgs_Frame_
+  commentId: Overload:Unosquare.FFME.Events.FrameDecodedEventArgs.Frame
+  isSpec: "True"
+  fullName: Unosquare.FFME.Events.FrameDecodedEventArgs.Frame
+  nameWithType: FrameDecodedEventArgs.Frame
+- uid: Unosquare.FFME.Events.InputFormatEventArgs
+  name: InputFormatEventArgs
+  href: api/Unosquare.FFME.Events.InputFormatEventArgs.html
+  commentId: T:Unosquare.FFME.Events.InputFormatEventArgs
+  fullName: Unosquare.FFME.Events.InputFormatEventArgs
+  nameWithType: InputFormatEventArgs
+- uid: Unosquare.FFME.Events.InputFormatEventArgs.#ctor(AVFormatContext*)
+  name: InputFormatEventArgs(AVFormatContext*)
+  href: api/Unosquare.FFME.Events.InputFormatEventArgs.html#Unosquare_FFME_Events_InputFormatEventArgs__ctor_AVFormatContext__
+  commentId: M:Unosquare.FFME.Events.InputFormatEventArgs.#ctor(AVFormatContext*)
+  fullName: Unosquare.FFME.Events.InputFormatEventArgs.InputFormatEventArgs(AVFormatContext*)
+  nameWithType: InputFormatEventArgs.InputFormatEventArgs(AVFormatContext*)
+- uid: Unosquare.FFME.Events.InputFormatEventArgs.#ctor*
+  name: InputFormatEventArgs
+  href: api/Unosquare.FFME.Events.InputFormatEventArgs.html#Unosquare_FFME_Events_InputFormatEventArgs__ctor_
+  commentId: Overload:Unosquare.FFME.Events.InputFormatEventArgs.#ctor
+  isSpec: "True"
+  fullName: Unosquare.FFME.Events.InputFormatEventArgs.InputFormatEventArgs
+  nameWithType: InputFormatEventArgs.InputFormatEventArgs
+- uid: Unosquare.FFME.Events.InputFormatEventArgs.InputContext
+  name: InputContext
+  href: api/Unosquare.FFME.Events.InputFormatEventArgs.html#Unosquare_FFME_Events_InputFormatEventArgs_InputContext
+  commentId: P:Unosquare.FFME.Events.InputFormatEventArgs.InputContext
+  fullName: Unosquare.FFME.Events.InputFormatEventArgs.InputContext
+  nameWithType: InputFormatEventArgs.InputContext
+- uid: Unosquare.FFME.Events.InputFormatEventArgs.InputContext*
+  name: InputContext
+  href: api/Unosquare.FFME.Events.InputFormatEventArgs.html#Unosquare_FFME_Events_InputFormatEventArgs_InputContext_
+  commentId: Overload:Unosquare.FFME.Events.InputFormatEventArgs.InputContext
+  isSpec: "True"
+  fullName: Unosquare.FFME.Events.InputFormatEventArgs.InputContext
+  nameWithType: InputFormatEventArgs.InputContext
 - uid: Unosquare.FFME.Events.MediaInitializingEventArgs
   name: MediaInitializingEventArgs
   href: api/Unosquare.FFME.Events.MediaInitializingEventArgs.html
@@ -439,6 +503,38 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.OldMediaState
   nameWithType: MediaStateChangedRoutedEventArgs.OldMediaState
+- uid: Unosquare.FFME.Events.PacketReadEventArgs
+  name: PacketReadEventArgs
+  href: api/Unosquare.FFME.Events.PacketReadEventArgs.html
+  commentId: T:Unosquare.FFME.Events.PacketReadEventArgs
+  fullName: Unosquare.FFME.Events.PacketReadEventArgs
+  nameWithType: PacketReadEventArgs
+- uid: Unosquare.FFME.Events.PacketReadEventArgs.#ctor(AVPacket*,AVFormatContext*)
+  name: PacketReadEventArgs(AVPacket*, AVFormatContext*)
+  href: api/Unosquare.FFME.Events.PacketReadEventArgs.html#Unosquare_FFME_Events_PacketReadEventArgs__ctor_AVPacket__AVFormatContext__
+  commentId: M:Unosquare.FFME.Events.PacketReadEventArgs.#ctor(AVPacket*,AVFormatContext*)
+  fullName: Unosquare.FFME.Events.PacketReadEventArgs.PacketReadEventArgs(AVPacket*, AVFormatContext*)
+  nameWithType: PacketReadEventArgs.PacketReadEventArgs(AVPacket*, AVFormatContext*)
+- uid: Unosquare.FFME.Events.PacketReadEventArgs.#ctor*
+  name: PacketReadEventArgs
+  href: api/Unosquare.FFME.Events.PacketReadEventArgs.html#Unosquare_FFME_Events_PacketReadEventArgs__ctor_
+  commentId: Overload:Unosquare.FFME.Events.PacketReadEventArgs.#ctor
+  isSpec: "True"
+  fullName: Unosquare.FFME.Events.PacketReadEventArgs.PacketReadEventArgs
+  nameWithType: PacketReadEventArgs.PacketReadEventArgs
+- uid: Unosquare.FFME.Events.PacketReadEventArgs.Packet
+  name: Packet
+  href: api/Unosquare.FFME.Events.PacketReadEventArgs.html#Unosquare_FFME_Events_PacketReadEventArgs_Packet
+  commentId: P:Unosquare.FFME.Events.PacketReadEventArgs.Packet
+  fullName: Unosquare.FFME.Events.PacketReadEventArgs.Packet
+  nameWithType: PacketReadEventArgs.Packet
+- uid: Unosquare.FFME.Events.PacketReadEventArgs.Packet*
+  name: Packet
+  href: api/Unosquare.FFME.Events.PacketReadEventArgs.html#Unosquare_FFME_Events_PacketReadEventArgs_Packet_
+  commentId: Overload:Unosquare.FFME.Events.PacketReadEventArgs.Packet
+  isSpec: "True"
+  fullName: Unosquare.FFME.Events.PacketReadEventArgs.Packet
+  nameWithType: PacketReadEventArgs.Packet
 - uid: Unosquare.FFME.Events.PositionChangedRoutedEventArgs
   name: PositionChangedRoutedEventArgs
   href: api/Unosquare.FFME.Events.PositionChangedRoutedEventArgs.html
@@ -820,6 +916,38 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.Events.RenderingVideoEventArgs.SmtpeTimeCode
   nameWithType: RenderingVideoEventArgs.SmtpeTimeCode
+- uid: Unosquare.FFME.Events.SubtitleDecodedEventArgs
+  name: SubtitleDecodedEventArgs
+  href: api/Unosquare.FFME.Events.SubtitleDecodedEventArgs.html
+  commentId: T:Unosquare.FFME.Events.SubtitleDecodedEventArgs
+  fullName: Unosquare.FFME.Events.SubtitleDecodedEventArgs
+  nameWithType: SubtitleDecodedEventArgs
+- uid: Unosquare.FFME.Events.SubtitleDecodedEventArgs.#ctor(AVSubtitle*,AVFormatContext*)
+  name: SubtitleDecodedEventArgs(AVSubtitle*, AVFormatContext*)
+  href: api/Unosquare.FFME.Events.SubtitleDecodedEventArgs.html#Unosquare_FFME_Events_SubtitleDecodedEventArgs__ctor_AVSubtitle__AVFormatContext__
+  commentId: M:Unosquare.FFME.Events.SubtitleDecodedEventArgs.#ctor(AVSubtitle*,AVFormatContext*)
+  fullName: Unosquare.FFME.Events.SubtitleDecodedEventArgs.SubtitleDecodedEventArgs(AVSubtitle*, AVFormatContext*)
+  nameWithType: SubtitleDecodedEventArgs.SubtitleDecodedEventArgs(AVSubtitle*, AVFormatContext*)
+- uid: Unosquare.FFME.Events.SubtitleDecodedEventArgs.#ctor*
+  name: SubtitleDecodedEventArgs
+  href: api/Unosquare.FFME.Events.SubtitleDecodedEventArgs.html#Unosquare_FFME_Events_SubtitleDecodedEventArgs__ctor_
+  commentId: Overload:Unosquare.FFME.Events.SubtitleDecodedEventArgs.#ctor
+  isSpec: "True"
+  fullName: Unosquare.FFME.Events.SubtitleDecodedEventArgs.SubtitleDecodedEventArgs
+  nameWithType: SubtitleDecodedEventArgs.SubtitleDecodedEventArgs
+- uid: Unosquare.FFME.Events.SubtitleDecodedEventArgs.Subtitle
+  name: Subtitle
+  href: api/Unosquare.FFME.Events.SubtitleDecodedEventArgs.html#Unosquare_FFME_Events_SubtitleDecodedEventArgs_Subtitle
+  commentId: P:Unosquare.FFME.Events.SubtitleDecodedEventArgs.Subtitle
+  fullName: Unosquare.FFME.Events.SubtitleDecodedEventArgs.Subtitle
+  nameWithType: SubtitleDecodedEventArgs.Subtitle
+- uid: Unosquare.FFME.Events.SubtitleDecodedEventArgs.Subtitle*
+  name: Subtitle
+  href: api/Unosquare.FFME.Events.SubtitleDecodedEventArgs.html#Unosquare_FFME_Events_SubtitleDecodedEventArgs_Subtitle_
+  commentId: Overload:Unosquare.FFME.Events.SubtitleDecodedEventArgs.Subtitle
+  isSpec: "True"
+  fullName: Unosquare.FFME.Events.SubtitleDecodedEventArgs.Subtitle
+  nameWithType: SubtitleDecodedEventArgs.Subtitle
 - uid: Unosquare.FFME.MediaElement
   name: MediaElement
   href: api/Unosquare.FFME.MediaElement.html
@@ -897,6 +1025,12 @@ references:
   commentId: E:Unosquare.FFME.MediaElement.AudioDeviceStopped
   fullName: Unosquare.FFME.MediaElement.AudioDeviceStopped
   nameWithType: MediaElement.AudioDeviceStopped
+- uid: Unosquare.FFME.MediaElement.AudioFrameDecoded
+  name: AudioFrameDecoded
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_AudioFrameDecoded
+  commentId: E:Unosquare.FFME.MediaElement.AudioFrameDecoded
+  fullName: Unosquare.FFME.MediaElement.AudioFrameDecoded
+  nameWithType: MediaElement.AudioFrameDecoded
 - uid: Unosquare.FFME.MediaElement.AudioSampleRate
   name: AudioSampleRate
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_AudioSampleRate
@@ -1702,6 +1836,12 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.PacketBufferLength
   nameWithType: MediaElement.PacketBufferLength
+- uid: Unosquare.FFME.MediaElement.PacketRead
+  name: PacketRead
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_PacketRead
+  commentId: E:Unosquare.FFME.MediaElement.PacketRead
+  fullName: Unosquare.FFME.MediaElement.PacketRead
+  nameWithType: MediaElement.PacketRead
 - uid: Unosquare.FFME.MediaElement.Pause
   name: Pause()
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_Pause
@@ -2019,6 +2159,12 @@ references:
   commentId: F:Unosquare.FFME.MediaElement.StretchProperty
   fullName: Unosquare.FFME.MediaElement.StretchProperty
   nameWithType: MediaElement.StretchProperty
+- uid: Unosquare.FFME.MediaElement.SubtitleDecoded
+  name: SubtitleDecoded
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_SubtitleDecoded
+  commentId: E:Unosquare.FFME.MediaElement.SubtitleDecoded
+  fullName: Unosquare.FFME.MediaElement.SubtitleDecoded
+  nameWithType: MediaElement.SubtitleDecoded
 - uid: Unosquare.FFME.MediaElement.SubtitleStreamIndex
   name: SubtitleStreamIndex
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_SubtitleStreamIndex
@@ -2103,6 +2249,12 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.VideoCodec
   nameWithType: MediaElement.VideoCodec
+- uid: Unosquare.FFME.MediaElement.VideoFrameDecoded
+  name: VideoFrameDecoded
+  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoFrameDecoded
+  commentId: E:Unosquare.FFME.MediaElement.VideoFrameDecoded
+  fullName: Unosquare.FFME.MediaElement.VideoFrameDecoded
+  nameWithType: MediaElement.VideoFrameDecoded
 - uid: Unosquare.FFME.MediaElement.VideoFrameRate
   name: VideoFrameRate
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_VideoFrameRate

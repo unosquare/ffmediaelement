@@ -18,7 +18,7 @@
       "output": {
         ".html": {
           "relative_path": "README.html",
-          "hash": "vFaOagi1WVE2wvG1valhVQ=="
+          "hash": "7WgZaaB89368/8sLov06/w=="
         }
       },
       "is_incremental": false,
@@ -75,6 +75,30 @@
         ".html": {
           "relative_path": "api/Unosquare.FFME.Events.BitmapDataBuffer.html",
           "hash": "+PcbvlFdy+BDjKntDdURYg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/Unosquare.FFME.Events.FrameDecodedEventArgs.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Unosquare.FFME.Events.FrameDecodedEventArgs.html",
+          "hash": "Wa1IBJAdP3Z3HqXtx4R/uA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/Unosquare.FFME.Events.InputFormatEventArgs.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Unosquare.FFME.Events.InputFormatEventArgs.html",
+          "hash": "h2hKDg3G76ihActlZ1NRtw=="
         }
       },
       "is_incremental": false,
@@ -142,6 +166,18 @@
     },
     {
       "type": "ManagedReference",
+      "source_relative_path": "obj/api/Unosquare.FFME.Events.PacketReadEventArgs.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Unosquare.FFME.Events.PacketReadEventArgs.html",
+          "hash": "xy3aYbiXJyBeETxgdM79Rg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
       "source_relative_path": "obj/api/Unosquare.FFME.Events.PositionChangedRoutedEventArgs.yml",
       "output": {
         ".html": {
@@ -202,11 +238,23 @@
     },
     {
       "type": "ManagedReference",
+      "source_relative_path": "obj/api/Unosquare.FFME.Events.SubtitleDecodedEventArgs.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Unosquare.FFME.Events.SubtitleDecodedEventArgs.html",
+          "hash": "lIy8KudAt4FGg1QUHgwFIg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
       "source_relative_path": "obj/api/Unosquare.FFME.Events.yml",
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Events.html",
-          "hash": "3rqCa1qRcY/ID2rrw0oJrw=="
+          "hash": "WYKNSIjEOHDLS4cBEyYkYg=="
         }
       },
       "is_incremental": false,
@@ -218,7 +266,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.MediaElement.html",
-          "hash": "QJYpyAmi1jvobN+yGDskcg=="
+          "hash": "jshKNpiPJU3PfgPvjTAldQ=="
         }
       },
       "is_incremental": false,
@@ -410,7 +458,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "dCAKqp361rbiRQVQ48e1XQ=="
+          "hash": "gwIOBwc3pWxBi4S3w0K1vw=="
         }
       },
       "is_incremental": false,
@@ -456,7 +504,7 @@
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
-          "total_file_count": 28,
+          "total_file_count": 32,
           "skipped_file_count": 0
         },
         "ResourceDocumentProcessor": {
