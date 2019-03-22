@@ -31,6 +31,14 @@
             {
                 MediaCore.State.UpdateBufferingStats(state.Length, state.Count, state.CountThreshold);
                 BufferChangedEvent.Set();
+
+                if (op == PacketQueueOp.Queued)
+                {
+                    unsafe
+                    {
+                        MediaCore.Connector?.OnPacketRead(packet.Pointer, Container.InputContext);
+                    }
+                }
             };
         }
 
