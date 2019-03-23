@@ -1,9 +1,17 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.Foundation
 {
+    using Engine;
     using Events;
     using FFmpeg.AutoGen;
+    using System;
     using System.Collections.Generic;
+    using System.IO;
 
+    /// <summary>
+    /// An recorder that simply copies input packets into an output file.
+    /// Loosely based on the ideas from
+    /// https://github.com/FFmpeg/FFmpeg/blob/5252d594a155cdb0a0e2529961b999cda96f0fa5/doc/examples/remuxing.c#L80
+    /// </summary>
     internal sealed unsafe class TransportStreamRecorder
     {
         private readonly object SyncLock = new object();
@@ -14,6 +22,11 @@
         private bool HasInitialized;
         private bool HasClosed;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TransportStreamRecorder"/> class.
+        /// </summary>
+        /// <param name="outputFilePath">The output file path. The extension will be guessed according to the input</param>
+        /// <param name="media">The parent media element</param>
         public TransportStreamRecorder(string outputFilePath, MediaElement media)
         {
             FilePath = outputFilePath;
@@ -26,34 +39,89 @@
             lock (SyncLock)
             {
                 ffmpeg.av_write_trailer(OutputContext);
-                var outputContext = OutputContext;
-                ffmpeg.avio_closep(&outputContext->pb);
-                ffmpeg.avformat_free_context(outputContext);
-                OutputContext = null;
-                HasInitialized = false;
-                HasClosed = true;
+                Release();
             }
+        }
+
+        private void Release()
+        {
+            var outputContext = OutputContext;
+
+            if (outputContext != null)
+            {
+                var outputFormat = outputContext->oformat;
+                if (outputFormat != null && (outputFormat->flags & ffmpeg.AVFMT_NOFILE) == 0)
+                    ffmpeg.avio_closep(&outputContext->pb);
+
+                ffmpeg.avformat_free_context(outputContext);
+            }
+
+            OutputContext = null;
+            HasInitialized = false;
+            HasClosed = true;
+        }
+
+        private string GuessOutputFilePath(AVFormatContext* inputContext)
+        {
+            var currentExtension = Path.GetExtension(FilePath);
+            var inputFormatExtensions = Extensions.PtrToStringUTF8(inputContext->iformat->extensions);
+            var extension = !string.IsNullOrWhiteSpace(inputFormatExtensions)
+                ? inputFormatExtensions.Split(',')[0]
+                : currentExtension;
+
+            return Path.ChangeExtension(FilePath, extension);
         }
 
         private void Initialize(AVFormatContext* inputContext)
         {
-            AVFormatContext* outputContext;
-            ffmpeg.avformat_alloc_output_context2(&outputContext, null, null, FilePath);
-            OutputContext = outputContext;
-            StreamMappings.Clear();
-
-            foreach (var streamIndex in Media.MediaInfo.Streams.Keys)
+            var result = 0;
+            try
             {
-                var codecParams = inputContext->streams[streamIndex]->codecpar;
-                var stream = ffmpeg.avformat_new_stream(OutputContext, null);
-                ffmpeg.avcodec_parameters_copy(stream->codecpar, codecParams);
-                stream->codecpar->codec_tag = 0;
-                StreamMappings[streamIndex] = stream->index;
-            }
+                var outputFilePath = GuessOutputFilePath(inputContext);
+                AVFormatContext* outputContext;
+                result = ffmpeg.avformat_alloc_output_context2(&outputContext, null, null, outputFilePath);
 
-            ffmpeg.avio_open(&outputContext->pb, FilePath, ffmpeg.AVIO_FLAG_WRITE);
-            ffmpeg.avformat_write_header(OutputContext, null);
-            HasInitialized = true;
+                if (result < 0)
+                    throw new InvalidOperationException("Unable to allocate output context");
+
+                OutputContext = outputContext;
+                StreamMappings.Clear();
+
+                foreach (var streamIndex in Media.MediaInfo.Streams.Keys)
+                {
+                    var codecParams = inputContext->streams[streamIndex]->codecpar;
+                    var stream = ffmpeg.avformat_new_stream(OutputContext, null);
+
+                    if (stream == null)
+                    {
+                        result = -ffmpeg.ENOMEM;
+                        throw new InvalidOperationException($"Unable to create output stream for stream index {streamIndex}");
+                    }
+
+                    result = ffmpeg.avcodec_parameters_copy(stream->codecpar, codecParams);
+
+                    if (result < 0)
+                        throw new InvalidOperationException($"Unable to copy codec parameters to stream index {streamIndex}");
+
+                    stream->codecpar->codec_tag = 0;
+                    StreamMappings[streamIndex] = stream->index;
+                }
+
+                result = ffmpeg.avio_open(&outputContext->pb, outputFilePath, ffmpeg.AVIO_FLAG_WRITE);
+                if (result < 0)
+                    throw new InvalidOperationException($"Could not open output file '{outputFilePath}'");
+
+                result = ffmpeg.avformat_write_header(OutputContext, null);
+                if (result < 0)
+                    throw new InvalidOperationException($"Could not write header to '{outputFilePath}'");
+
+                HasInitialized = true;
+            }
+            catch(Exception ex)
+            {
+                Media.LogError(nameof(TransportStreamRecorder), $"Error Code {result}: {ex.Message}");
+                Release();
+            }
         }
 
         private void PacketRead(object sender, PacketReadEventArgs e)

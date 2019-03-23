@@ -693,7 +693,7 @@
                     }
 
                     // Set some general properties
-                    MediaFormatName = FFInterop.PtrToStringUTF8(InputContext->iformat->name);
+                    MediaFormatName = Extensions.PtrToStringUTF8(InputContext->iformat->name);
 
                     // If there are any options left in the dictionary, it means they did not get used (invalid options).
                     // Output the invalid options as warnings

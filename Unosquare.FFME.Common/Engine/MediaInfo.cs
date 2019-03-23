@@ -25,7 +25,7 @@
             // Reference: https://ffmpeg.org/doxygen/3.2/dump_8c_source.html --
             var ic = container.InputContext;
             MediaSource = container.MediaSource;
-            Format = FFInterop.PtrToStringUTF8(ic->iformat->name);
+            Format = Extensions.PtrToStringUTF8(ic->iformat->name);
             Metadata = container.Metadata;
             StartTime = ic->start_time != ffmpeg.AV_NOPTS_VALUE ? ic->start_time.ToTimeSpan() : TimeSpan.MinValue;
             Duration = ic->duration != ffmpeg.AV_NOPTS_VALUE ? ic->duration.ToTimeSpan() : TimeSpan.MinValue;
@@ -346,7 +346,7 @@
                 if ((c->capabilities & ffmpeg.AV_CODEC_CAP_HARDWARE) != 0
                     || (c->capabilities & ffmpeg.AV_CODEC_CAP_HYBRID) != 0)
                 {
-                    result.Add(FFInterop.PtrToStringUTF8(c->name));
+                    result.Add(Extensions.PtrToStringUTF8(c->name));
                 }
             }
 

@@ -7,6 +7,7 @@
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
+    using System.Text;
 
     /// <summary>
     /// Provides various helpers and extension methods.
@@ -347,6 +348,30 @@
             }
 
             return -1;
+        }
+
+        /// <summary>
+        /// Converts a byte pointer to a UTF8 encoded string.
+        /// </summary>
+        /// <param name="stringAddress">The pointer to the starting character</param>
+        /// <returns>The string</returns>
+        public static unsafe string PtrToStringUTF8(byte* stringAddress)
+        {
+            if (stringAddress == null) return null;
+            if (*stringAddress == 0) return string.Empty;
+
+            var byteLength = 0;
+            while (true)
+            {
+                if (stringAddress[byteLength] == 0)
+                    break;
+
+                byteLength++;
+            }
+
+            var stringBuffer = stackalloc byte[byteLength];
+            Buffer.MemoryCopy(stringAddress, stringBuffer, byteLength, byteLength);
+            return Encoding.UTF8.GetString(stringBuffer, byteLength);
         }
 
         /// <summary>

@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME.Engine
 {
-    using Core;
     using FFmpeg.AutoGen;
 
     /// <summary>
@@ -16,8 +15,8 @@
         {
             OptionType = option->type;
             Flags = option->flags;
-            HelpText = FFInterop.PtrToStringUTF8(option->help);
-            Name = FFInterop.PtrToStringUTF8(option->name);
+            HelpText = Extensions.PtrToStringUTF8(option->help);
+            Name = Extensions.PtrToStringUTF8(option->name);
             Min = option->min;
             Max = option->max;
 
