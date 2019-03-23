@@ -51,6 +51,8 @@ FFME provides multiple improvements over the standard MediaElement such as:
 - Ability to pick media streams contained in a file or a URL.
 - Ability to pass input and codec parameters.
 - Ability to introduce hardware decoding acceleration via devices or via codecs.
+- Ability to capture stream packets, audio, video and subtitle frames
+- Ability to record streams
 
 *... all in a single MediaElement control*
 
