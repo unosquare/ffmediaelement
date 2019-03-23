@@ -11,6 +11,11 @@
     /// An recorder that simply copies input packets into an output file.
     /// Loosely based on the ideas from
     /// https://github.com/FFmpeg/FFmpeg/blob/5252d594a155cdb0a0e2529961b999cda96f0fa5/doc/examples/remuxing.c#L80
+    /// This example does not cover re-encoding. Only re-muxing packets into a file.
+    /// For re-encoding you will need to handle the following events and perform encoding on your own
+    /// <see cref="MediaElement.VideoFrameDecoded"/>
+    /// <see cref="MediaElement.AudioFrameDecoded"/>
+    /// <see cref="MediaElement.SubtitleDecoded"/>
     /// </summary>
     internal sealed unsafe class TransportStreamRecorder
     {
@@ -31,18 +36,26 @@
         {
             FilePath = outputFilePath;
             Media = media;
-            Media.PacketRead += PacketRead;
+            Media.PacketRead += OnMediaPacketRead;
         }
 
+        /// <summary>
+        /// Writes the file trailer and releases the output context and file.
+        /// Make sure you call this method when finishing the capture process.
+        /// </summary>
         public void Close()
         {
             lock (SyncLock)
             {
+                Media.PacketRead -= OnMediaPacketRead;
                 ffmpeg.av_write_trailer(OutputContext);
                 Release();
             }
         }
 
+        /// <summary>
+        /// Releases unmanaged resources and prvents more packets from being handled.
+        /// </summary>
         private void Release()
         {
             var outputContext = OutputContext;
@@ -61,6 +74,11 @@
             HasClosed = true;
         }
 
+        /// <summary>
+        /// Guesses the file path with an appropriate extension according to the input context.
+        /// </summary>
+        /// <param name="inputContext">The input context</param>
+        /// <returns>A suitable file path with appropriate file extension</returns>
         private string GuessOutputFilePath(AVFormatContext* inputContext)
         {
             var currentExtension = Path.GetExtension(FilePath);
@@ -72,6 +90,10 @@
             return Path.ChangeExtension(FilePath, extension);
         }
 
+        /// <summary>
+        /// Initializes the output context and writes the file header.
+        /// </summary>
+        /// <param name="inputContext">The input context</param>
         private void Initialize(AVFormatContext* inputContext)
         {
             var result = 0;
@@ -117,14 +139,19 @@
 
                 HasInitialized = true;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Media.LogError(nameof(TransportStreamRecorder), $"Error Code {result}: {ex.Message}");
                 Release();
             }
         }
 
-        private void PacketRead(object sender, PacketReadEventArgs e)
+        /// <summary>
+        /// Handles the Media.PacketRead event writing the packet to the output context.
+        /// </summary>
+        /// <param name="sender">the media element that sent this event</param>
+        /// <param name="e">The event arguments containing the packet data</param>
+        private void OnMediaPacketRead(object sender, PacketReadEventArgs e)
         {
             lock (SyncLock)
             {
