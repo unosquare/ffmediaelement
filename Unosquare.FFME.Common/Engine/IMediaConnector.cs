@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Engine
 {
+    using FFmpeg.AutoGen;
     using System;
 
     /// <summary>
@@ -110,5 +111,33 @@
         /// <param name="oldValue">The old value.</param>
         /// <param name="newValue">The new value.</param>
         void OnMediaStateChanged(MediaEngine sender, PlaybackStatus oldValue, PlaybackStatus newValue);
+
+        /// <summary>
+        /// Called when a packet is read from the input context.
+        /// </summary>
+        /// <param name="packet">The unmanaged packet pointer</param>
+        /// <param name="context">The unmanaged input format context.</param>
+        unsafe void OnPacketRead(AVPacket* packet, AVFormatContext* context);
+
+        /// <summary>
+        /// Called when a video frame is decoded.
+        /// </summary>
+        /// <param name="videoFrame">The unmanaged video frame pointer</param>
+        /// <param name="context">The unmanaged input format context.</param>
+        unsafe void OnVideoFrameDecoded(AVFrame* videoFrame, AVFormatContext* context);
+
+        /// <summary>
+        /// Called when a video frame is decoded.
+        /// </summary>
+        /// <param name="audioFrame">The unmanaged audio frame pointer</param>
+        /// <param name="context">The unmanaged input format context.</param>
+        unsafe void OnAudioFrameDecoded(AVFrame* audioFrame, AVFormatContext* context);
+
+        /// <summary>
+        /// Called when a subtitle is decoded.
+        /// </summary>
+        /// <param name="subtitle">The unmanaged subtitle pointer</param>
+        /// <param name="context">The unmanaged input format context.</param>
+        unsafe void OnSubtitleDecoded(AVSubtitle* subtitle, AVFormatContext* context);
     }
 }

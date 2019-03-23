@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME.Decoding
 {
-    using Core;
     using Engine;
     using FFmpeg.AutoGen;
     using System;
@@ -50,7 +49,7 @@
                 if (rect->type == AVSubtitleType.SUBTITLE_TEXT)
                 {
                     if (rect->text == null) continue;
-                    Text.Add(FFInterop.PtrToStringUTF8(rect->text));
+                    Text.Add(Extensions.PtrToStringUTF8(rect->text));
                     TextType = AVSubtitleType.SUBTITLE_TEXT;
                     break;
                 }
@@ -58,7 +57,7 @@
                 if (rect->type == AVSubtitleType.SUBTITLE_ASS)
                 {
                     if (rect->ass == null) continue;
-                    Text.Add(FFInterop.PtrToStringUTF8(rect->ass));
+                    Text.Add(Extensions.PtrToStringUTF8(rect->ass));
                     TextType = AVSubtitleType.SUBTITLE_ASS;
                     break;
                 }

@@ -180,7 +180,7 @@
                 if (codecOpenResult < 0)
                 {
                     this.LogWarning(Aspects.Component,
-                        $"Unable to open codec '{FFInterop.PtrToStringUTF8(codec->name)}' on stream {streamIndex}");
+                        $"Unable to open codec '{Extensions.PtrToStringUTF8(codec->name)}' on stream {streamIndex}");
 
                     continue;
                 }
@@ -190,7 +190,7 @@
                 while (currentEntry?.Key != null)
                 {
                     this.LogWarning(Aspects.Component,
-                        $"Invalid codec option: '{currentEntry.Key}' for codec '{FFInterop.PtrToStringUTF8(codec->name)}', stream {streamIndex}");
+                        $"Invalid codec option: '{currentEntry.Key}' for codec '{Extensions.PtrToStringUTF8(codec->name)}', stream {streamIndex}");
                     currentEntry = codecOptions.Next(currentEntry);
                 }
 
@@ -242,7 +242,7 @@
                 Stream->duration.ToTimeSpan(Stream->time_base);
 
             CodecId = Stream->codec->codec_id;
-            CodecName = FFInterop.PtrToStringUTF8(selectedCodec->name);
+            CodecName = Extensions.PtrToStringUTF8(selectedCodec->name);
             BitRate = Stream->codec->bit_rate < 0 ? 0 : Stream->codec->bit_rate;
             this.LogDebug(Aspects.Component,
                 $"{MediaType.ToString().ToUpperInvariant()} - Start Time: {StartTime.Format()}; Duration: {Duration.Format()}");

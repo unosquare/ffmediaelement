@@ -419,7 +419,7 @@
                 {
                     MediaCore.PausePlayback();
                     MediaCore.ChangePlaybackPosition(playbackEndClock);
-                    State.UpdateMediaEnded(true, playbackEndClock);
+                    State.UpdateMediaEnded(true);
                     MediaCore.InvalidateRenderers();
                 }
 
@@ -427,7 +427,7 @@
             }
             else
             {
-                State.UpdateMediaEnded(false, TimeSpan.Zero);
+                State.UpdateMediaEnded(false);
             }
         }
 

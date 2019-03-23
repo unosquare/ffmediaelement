@@ -212,7 +212,7 @@
                         targetPosition = firstFrame.StartTime;
 
                     // Ensure we signal media has not ended
-                    State.UpdateMediaEnded(false, TimeSpan.Zero);
+                    State.UpdateMediaEnded(false);
 
                     // Clear Blocks and frames (This does not clear the preloaded subtitles)
                     foreach (var mt in all)

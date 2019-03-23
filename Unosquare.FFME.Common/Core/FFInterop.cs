@@ -7,8 +7,6 @@
     using System.Collections.ObjectModel;
     using System.IO;
     using System.Linq;
-    using System.Runtime.InteropServices;
-    using System.Text;
 
     /// <summary>
     /// Provides a set of utilities to perform logging, text formatting,
@@ -40,8 +38,6 @@
         private static bool m_IsInitialized;
         private static string m_LibrariesPath = string.Empty;
         private static int m_LibraryIdentifiers;
-        private static byte[] TempStringBuffer = new byte[512 * 1024]; // a temp buffer of 512kB
-        private static int TempByteLength;
 
         #endregion
 
@@ -156,38 +152,8 @@
             var bufferSize = 1024;
             var buffer = stackalloc byte[bufferSize];
             ffmpeg.av_strerror(errorCode, buffer, (ulong)bufferSize);
-            var message = PtrToStringUTF8(buffer);
+            var message = Extensions.PtrToStringUTF8(buffer);
             return message;
-        }
-
-        /// <summary>
-        /// Converts a byte pointer to a UTF8 encoded string.
-        /// </summary>
-        /// <param name="stringAddress">The pointer to the starting character</param>
-        /// <returns>The string</returns>
-        public static unsafe string PtrToStringUTF8(byte* stringAddress)
-        {
-            lock (SyncLock)
-            {
-                if (stringAddress == null) return null;
-                if (*stringAddress == 0) return string.Empty;
-                var stringPointer = (IntPtr)stringAddress;
-
-                TempByteLength = 0;
-                while (true)
-                {
-                    if (Marshal.ReadByte(stringPointer, TempByteLength) == 0)
-                        break;
-
-                    TempByteLength += 1;
-                }
-
-                if (TempStringBuffer == null || TempStringBuffer.Length < TempByteLength)
-                    TempStringBuffer = new byte[TempByteLength];
-
-                Marshal.Copy(stringPointer, TempStringBuffer, 0, TempByteLength);
-                return Encoding.UTF8.GetString(TempStringBuffer, 0, TempByteLength);
-            }
         }
 
         /// <summary>
@@ -248,7 +214,7 @@
             AVInputFormat* item;
             while ((item = ffmpeg.av_demuxer_iterate(&iterator)) != null)
             {
-                result.Add(PtrToStringUTF8(item->name));
+                result.Add(Extensions.PtrToStringUTF8(item->name));
             }
 
             return result;
@@ -265,7 +231,7 @@
             foreach (var c in allCodecs)
             {
                 if (ffmpeg.av_codec_is_decoder(c) != 0)
-                    codecNames.Add(PtrToStringUTF8(c->name));
+                    codecNames.Add(Extensions.PtrToStringUTF8(c->name));
             }
 
             return codecNames;
@@ -320,7 +286,7 @@
                 var lineBuffer = stackalloc byte[lineSize];
                 var printPrefix = 1;
                 ffmpeg.av_log_format_line(p0, level, format, vl, lineBuffer, lineSize, &printPrefix);
-                var line = PtrToStringUTF8(lineBuffer);
+                var line = Extensions.PtrToStringUTF8(lineBuffer);
                 FFmpegLogBuffer.Add(line);
 
                 var messageType = MediaLogMessageType.Debug;

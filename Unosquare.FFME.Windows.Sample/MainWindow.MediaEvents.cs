@@ -286,7 +286,7 @@
         /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
         private void OnMediaOpened(object sender, MediaOpenedRoutedEventArgs e)
         {
-            // Perform some notification or status change when the media opened
+            // Tun the coide you need once the media has opened.
         }
 
         /// <summary>
@@ -299,6 +299,21 @@
             // Set a start position (see issue #66 or issue #277)
             // Media.Position = TimeSpan.FromSeconds(5);
             // await Media.Seek(TimeSpan.FromSeconds(5));
+        }
+
+        /// <summary>
+        /// Handles the MediaClosed event of the Media control
+        /// </summary>
+        /// <param name="sender">The sender</param>
+        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
+        private void OnMediaClosed(object sender, RoutedEventArgs e)
+        {
+            // Always close the recorder so that the file trailer is written.
+            lock (RecorderSyncLock)
+            {
+                StreamRecorder?.Close();
+                StreamRecorder = null;
+            }
         }
 
         /// <summary>

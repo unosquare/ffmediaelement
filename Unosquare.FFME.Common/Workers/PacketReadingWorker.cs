@@ -31,6 +31,14 @@
             {
                 MediaCore.State.UpdateBufferingStats(state.Length, state.Count, state.CountThreshold);
                 BufferChangedEvent.Set();
+
+                if (op == PacketQueueOp.Queued)
+                {
+                    unsafe
+                    {
+                        MediaCore.Connector?.OnPacketRead(packet.Pointer, Container.InputContext);
+                    }
+                }
             };
         }
 
@@ -38,7 +46,7 @@
         public MediaEngine MediaCore { get; }
 
         /// <inheritdoc />
-        ILoggingHandler ILoggingSource.LoggingHandler => throw new NotImplementedException();
+        ILoggingHandler ILoggingSource.LoggingHandler => MediaCore;
 
         /// <summary>
         /// Gets the Media Engine's container.

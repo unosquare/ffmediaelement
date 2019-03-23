@@ -2,6 +2,7 @@
 {
     using Decoding;
     using Engine;
+    using FFmpeg.AutoGen;
     using Primitives;
     using System;
     using System.Collections.Generic;
@@ -47,6 +48,25 @@
             {
                 foreach (var t in Container.Components.MediaTypes)
                     DecodedFrameCount += DecodeComponentBlocks(t, ct);
+            };
+
+            Container.Components.OnFrameDecoded = (frame, type) =>
+            {
+                unsafe
+                {
+                    if (type == MediaType.Audio)
+                        MediaCore.Connector?.OnAudioFrameDecoded((AVFrame*)frame.ToPointer(), Container.InputContext);
+                    else if (type == MediaType.Video)
+                        MediaCore.Connector?.OnAudioFrameDecoded((AVFrame*)frame.ToPointer(), Container.InputContext);
+                }
+            };
+
+            Container.Components.OnSubtitleDecoded = (subtitle) =>
+            {
+                unsafe
+                {
+                    MediaCore.Connector?.OnSubtitleDecoded((AVSubtitle*)subtitle.ToPointer(), Container.InputContext);
+                }
             };
         }
 

@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Core
 {
+    using Engine;
     using FFmpeg.AutoGen;
     using System;
 
@@ -28,11 +29,11 @@
         /// <summary>
         /// Gets the key.
         /// </summary>
-        public string Key => m_Pointer != IntPtr.Zero ? FFInterop.PtrToStringUTF8(Pointer->key) : null;
+        public string Key => m_Pointer != IntPtr.Zero ? Extensions.PtrToStringUTF8(Pointer->key) : null;
 
         /// <summary>
         /// Gets the value.
         /// </summary>
-        public string Value => m_Pointer != IntPtr.Zero ? FFInterop.PtrToStringUTF8(Pointer->value) : null;
+        public string Value => m_Pointer != IntPtr.Zero ? Extensions.PtrToStringUTF8(Pointer->value) : null;
     }
 }

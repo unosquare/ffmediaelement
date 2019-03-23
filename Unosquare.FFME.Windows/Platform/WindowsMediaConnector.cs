@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME.Platform
 {
     using Engine;
+    using FFmpeg.AutoGen;
     using System;
 
     /// <summary>
@@ -138,6 +139,22 @@
                 (System.Windows.Controls.MediaState)oldValue,
                 (System.Windows.Controls.MediaState)newValue);
         }
+
+        /// <inheritdoc />
+        public unsafe void OnPacketRead(AVPacket* packet, AVFormatContext* context) =>
+            Parent?.RaisePacketReadEvent(packet, context);
+
+        /// <inheritdoc />
+        public unsafe void OnVideoFrameDecoded(AVFrame* videoFrame, AVFormatContext* context) =>
+            Parent?.RaiseVideoFrameDecodedEvent(videoFrame, context);
+
+        /// <inheritdoc />
+        public unsafe void OnAudioFrameDecoded(AVFrame* audioFrame, AVFormatContext* context) =>
+            Parent?.RaiseAudioFrameDecodedEvent(audioFrame, context);
+
+        /// <inheritdoc />
+        public unsafe void OnSubtitleDecoded(AVSubtitle* subtitle, AVFormatContext* context) =>
+            Parent?.RaiseSubtitleDecodedEvent(subtitle, context);
 
         #endregion
     }

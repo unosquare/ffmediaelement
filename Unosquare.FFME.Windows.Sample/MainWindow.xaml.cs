@@ -2,6 +2,7 @@
 {
     using ClosedCaptions;
     using Engine;
+    using Foundation;
     using Platform;
     using Primitives;
     using System;
@@ -15,7 +16,6 @@
     using System.Windows.Threading;
     using ViewModels;
     using ImageFormat = System.Drawing.Imaging.ImageFormat;
-    using Path = System.IO.Path;
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -26,6 +26,8 @@
 
         private static readonly Key[] TogglePlayPauseKeys = { Key.Play, Key.MediaPlayPause, Key.Space };
         private readonly AtomicBoolean IsCaptureInProgress = new AtomicBoolean(false);
+        private readonly object RecorderSyncLock = new object();
+        private TransportStreamRecorder StreamRecorder;
         private DateTime LastMouseMoveTime;
         private Point LastMousePosition;
         private DispatcherTimer MouseMoveTimer;
@@ -152,6 +154,7 @@
             Media.MediaOpening += OnMediaOpening;
             Media.MediaOpened += OnMediaOpened;
             Media.MediaReady += OnMediaReady;
+            Media.MediaClosed += OnMediaClosed;
             Media.MediaChanging += OnMediaChanging;
             Media.AudioDeviceStopped += OnAudioDeviceStopped;
             Media.MediaChanged += OnMediaChanged;
@@ -367,22 +370,7 @@
                         var bmp = Media.CaptureBitmapAsync().GetAwaiter().GetResult();
 
                         // prevent firther processing if we did not get a bitmap.
-                        if (bmp == null) return;
-
-                        var pos = Media.FramePosition;
-                        var positionString = $"{(int)pos.TotalHours:00}-{pos.Minutes:00}-{pos.Seconds:00}";
-                        var screenshotFolder = Path.Combine(
-                            Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),
-                            "ffmeplay");
-
-                        if (System.IO.Directory.Exists(screenshotFolder) == false)
-                            System.IO.Directory.CreateDirectory(screenshotFolder);
-
-                        var screenshotPath = Path.Combine(
-                            screenshotFolder,
-                            $"screenshot {positionString}.png");
-
-                        bmp?.Save(screenshotPath, ImageFormat.Png);
+                        bmp?.Save(App.GetCaptureFilePath("Screenshot", "png"), ImageFormat.Png);
                     }
                     catch (Exception ex)
                     {
@@ -403,6 +391,25 @@
                         IsCaptureInProgress.Value = false;
                     }
                 });
+
+                return;
+            }
+
+            if (e.Key == Key.W)
+            {
+                // An example of recording packets (no transcoding) into a transport stream.
+                lock (RecorderSyncLock)
+                {
+                    if (StreamRecorder == null && Media.IsOpen)
+                    {
+                        StreamRecorder = new TransportStreamRecorder(App.GetCaptureFilePath("Capture", "ts"), Media);
+                    }
+                    else
+                    {
+                        StreamRecorder.Close();
+                        StreamRecorder = null;
+                    }
+                }
 
                 return;
             }

@@ -230,7 +230,7 @@
                         if (c->decode.Pointer == IntPtr.Zero)
                             continue;
 
-                        result[FFInterop.PtrToStringUTF8(c->name)] =
+                        result[Extensions.PtrToStringUTF8(c->name)] =
                             new ReadOnlyCollection<OptionMeta>(FFInterop.RetrieveCodecOptions(c));
                     }
 

@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Core
 {
+    using Engine;
     using FFmpeg.AutoGen;
     using System;
     using System.Collections.Generic;
@@ -89,7 +90,7 @@
             var kvpEntry = ffmpeg.av_dict_get(dictionary, string.Empty, null, ffmpeg.AV_DICT_IGNORE_SUFFIX);
             while (kvpEntry != null)
             {
-                result[FFInterop.PtrToStringUTF8(kvpEntry->key)] = FFInterop.PtrToStringUTF8(kvpEntry->value);
+                result[Extensions.PtrToStringUTF8(kvpEntry->key)] = Extensions.PtrToStringUTF8(kvpEntry->value);
                 kvpEntry = ffmpeg.av_dict_get(dictionary, string.Empty, kvpEntry, ffmpeg.AV_DICT_IGNORE_SUFFIX);
             }
 
