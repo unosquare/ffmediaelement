@@ -46,7 +46,7 @@
         public MediaEngine MediaCore { get; }
 
         /// <inheritdoc />
-        ILoggingHandler ILoggingSource.LoggingHandler => throw new NotImplementedException();
+        ILoggingHandler ILoggingSource.LoggingHandler => MediaCore;
 
         /// <summary>
         /// Gets the Media Engine's container.

@@ -11,12 +11,9 @@
     using System.Linq;
     using System.Text;
     using System.Windows;
-    using Unosquare.FFME.Windows.Sample.Foundation;
 
     public partial class MainWindow
     {
-        private StreamRecorder recorder;
-
         #region Logging Event Handlers
 
         /// <summary>
@@ -289,11 +286,7 @@
         /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
         private void OnMediaOpened(object sender, MediaOpenedRoutedEventArgs e)
         {
-            // Perform some notification or status change when the media opened
-            if (Media.IsLiveStream && recorder == null)
-            {
-                recorder = new StreamRecorder(@"c:\ffmpeg\text.mp4", Media);
-            }
+            // Tun the coide you need once the media has opened.
         }
 
         /// <summary>
@@ -308,9 +301,19 @@
             // await Media.Seek(TimeSpan.FromSeconds(5));
         }
 
+        /// <summary>
+        /// Handles the MediaClosed event of the Media control
+        /// </summary>
+        /// <param name="sender">The sender</param>
+        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
         private void OnMediaClosed(object sender, RoutedEventArgs e)
         {
-            recorder?.Close();
+            // Always close the recorder so that the file trailer is written.
+            lock (RecorderSyncLock)
+            {
+                StreamRecorder?.Close();
+                StreamRecorder = null;
+            }
         }
 
         /// <summary>
