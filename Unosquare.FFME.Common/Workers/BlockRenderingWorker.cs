@@ -410,7 +410,7 @@
                 || MediaCore.Timing.HasDisconnectedClocks;
 
             // Check End of Media Scenarios
-            if (Commands.HasPendingCommands == false
+            if (!Commands.HasPendingCommands
                 && MediaCore.HasDecodingEnded
                 && isAtEndOfPlayback)
             {
@@ -419,11 +419,10 @@
                 {
                     MediaCore.PausePlayback();
                     MediaCore.ChangePlaybackPosition(playbackEndClock);
-                    State.UpdateMediaEnded(true);
-                    MediaCore.InvalidateRenderers();
                 }
 
                 State.UpdateMediaState(PlaybackStatus.Stop);
+                State.UpdateMediaEnded(true);
             }
             else
             {
