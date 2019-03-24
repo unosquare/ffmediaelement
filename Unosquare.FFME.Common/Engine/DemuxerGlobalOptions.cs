@@ -5,6 +5,7 @@
     /// <summary>
     /// The libavformat library provides some generic global options, which can be set on all the muxers and demuxers.
     /// For additional information, please see: https://ffmpeg.org/ffmpeg-formats.html#Format-Options
+    /// Geek Stuff: https://github.com/FFmpeg/FFmpeg/blob/a0ac49e38ee1d1011c394d7be67d0f08b2281526/libavformat/options_table.h#L36
     /// </summary>
     public sealed class DemuxerGlobalOptions
     {
