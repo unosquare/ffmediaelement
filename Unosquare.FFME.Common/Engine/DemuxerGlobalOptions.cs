@@ -112,7 +112,7 @@
         public TimeSpan MaxAnalyzeDuration { get; set; }
 
         /// <summary>
-        /// Set decryption key.
+        /// Set decryption key. A hexadecimal string without the prefixes (0x) or suffixes (h) needs to be provided.
         /// </summary>
         public string CryptoKey { get; set; }
     }

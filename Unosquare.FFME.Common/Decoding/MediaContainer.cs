@@ -9,6 +9,7 @@
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Runtime.CompilerServices;
+    using System.Runtime.InteropServices;
 
     /// <summary>
     /// A container capable of opening an input url,
@@ -818,7 +819,13 @@
 
             if (string.IsNullOrEmpty(opts.CryptoKey) == false)
             {
-                // TODO: (Floyd) not yet implemented
+                // TODO: I still need a file that has been encrypted to test this functionality
+                var keyText = opts.CryptoKey.Trim();
+                var keyBytes = keyText.HexToBytes();
+                var decryptionKey = (byte*)ffmpeg.av_mallocz((ulong)keyBytes.Length);
+                Marshal.Copy(keyBytes, 0, new IntPtr(decryptionKey), keyBytes.Length);
+                InputContext->key = decryptionKey;
+                InputContext->keylen = keyBytes.Length;
             }
         }
 

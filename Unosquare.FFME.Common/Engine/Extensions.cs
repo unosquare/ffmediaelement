@@ -5,6 +5,7 @@
     using Primitives;
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
     using System.Text;
@@ -372,6 +373,26 @@
             var stringBuffer = stackalloc byte[byteLength];
             Buffer.MemoryCopy(stringAddress, stringBuffer, byteLength, byteLength);
             return Encoding.UTF8.GetString(stringBuffer, byteLength);
+        }
+
+        /// <summary>
+        /// COnversta  hexadecimal string to a byte array.
+        /// </summary>
+        /// <param name="hexString">The hexadecimal string to convert</param>
+        /// <returns>The byte array with the data of the hexadecimal string</returns>
+        public static byte[] HexToBytes(this string hexString)
+        {
+            if (hexString.Length % 2 != 0)
+                throw new ArgumentException($"The binary key cannot have an odd number of digits: {hexString}");
+
+            var data = new byte[hexString.Length / 2];
+            for (int index = 0; index < data.Length; index++)
+            {
+                var byteValue = hexString.Substring(index * 2, 2);
+                data[index] = byte.Parse(byteValue, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+            }
+
+            return data;
         }
 
         /// <summary>

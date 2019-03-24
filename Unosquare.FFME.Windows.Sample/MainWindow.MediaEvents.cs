@@ -107,6 +107,9 @@
                 e.Configuration.PrivateOptions["extra_ips"] = "127.0.0.1";
             }
 
+            // A decrytion key can be set by specifying a hexadecimal string. Do not add prefixes or suffixes.
+            e.Configuration.GlobalOptions.CryptoKey = "aabbccddeeff00112233445566778899";
+
             // In realtime streams these settings can be used to reduce latency (see example from issue #152)
             // e.Options.GlobalOptions.FlagNoBuffer = true;
             // e.Options.GlobalOptions.ProbeSize = 8192;
