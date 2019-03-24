@@ -817,7 +817,7 @@
                     System.Convert.ToInt64(opts.MaxAnalyzeDuration.TotalSeconds * ffmpeg.AV_TIME_BASE);
             }
 
-            if (string.IsNullOrEmpty(opts.CryptoKey) == false)
+            if (!string.IsNullOrEmpty(opts.CryptoKey))
             {
                 var keyText = opts.CryptoKey.Trim();
                 var keyBytes = keyText.HexToBytes();
@@ -826,6 +826,9 @@
                 InputContext->key = decryptionKey;
                 InputContext->keylen = keyBytes.Length;
             }
+
+            if (!string.IsNullOrWhiteSpace(opts.ProtocolWhitelist))
+                InputContext->protocol_whitelist = FFInterop.StringToBytePointerUTF8(opts.ProtocolWhitelist);
         }
 
         /// <summary>

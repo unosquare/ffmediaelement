@@ -115,5 +115,11 @@
         /// Set decryption key. A hexadecimal string without the prefixes (0x) or suffixes (h) needs to be provided.
         /// </summary>
         public string CryptoKey { get; set; }
+
+        /// <summary>
+        /// Gets or sets the protocol whitelist. The values must be separated by comma.
+        /// Example: file,http,https,tcp,tls
+        /// </summary>
+        public string ProtocolWhitelist { get; set; }
     }
 }

@@ -7,6 +7,8 @@
     using System.Collections.ObjectModel;
     using System.IO;
     using System.Linq;
+    using System.Runtime.InteropServices;
+    using System.Text;
 
     /// <summary>
     /// Provides a set of utilities to perform logging, text formatting,
@@ -141,6 +143,19 @@
         #endregion
 
         #region Interop Helper Methods
+
+        /// <summary>
+        /// Copies the contents of a managed string to an unmanaged, UTF8 encoded string.
+        /// </summary>
+        /// <param name="source">The string to copy</param>
+        /// <returns>A pointer to a string in unmanaged memory</returns>
+        public static byte* StringToBytePointerUTF8(string source)
+        {
+            var sourceBytes = Encoding.UTF8.GetBytes(source);
+            var result = (byte*)ffmpeg.av_mallocz((ulong)sourceBytes.Length + 1);
+            Marshal.Copy(sourceBytes, 0, new IntPtr(result), sourceBytes.Length);
+            return result;
+        }
 
         /// <summary>
         /// Gets the FFmpeg error message based on the error code
