@@ -406,7 +406,7 @@
                     }
                     else
                     {
-                        StreamRecorder.Close();
+                        StreamRecorder?.Close();
                         StreamRecorder = null;
                     }
                 }

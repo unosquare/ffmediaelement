@@ -13,7 +13,6 @@
         /// </summary>
         /// <param name="context">The input format context</param>
         protected InputFormatEventArgs(AVFormatContext* context)
-            : base()
         {
             InputContext = context;
         }
