@@ -819,7 +819,6 @@
 
             if (string.IsNullOrEmpty(opts.CryptoKey) == false)
             {
-                // TODO: I still need a file that has been encrypted to test this functionality
                 var keyText = opts.CryptoKey.Trim();
                 var keyBytes = keyText.HexToBytes();
                 var decryptionKey = (byte*)ffmpeg.av_mallocz((ulong)keyBytes.Length);

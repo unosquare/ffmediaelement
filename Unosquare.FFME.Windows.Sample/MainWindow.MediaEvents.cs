@@ -107,8 +107,11 @@
                 e.Configuration.PrivateOptions["extra_ips"] = "127.0.0.1";
             }
 
-            // A decrytion key can be set by specifying a hexadecimal string. Do not add prefixes or suffixes.
-            e.Configuration.GlobalOptions.CryptoKey = "aabbccddeeff00112233445566778899";
+            // A decryption key can be set by specifying a hexadecimal string.
+            if (e.MediaSource.EndsWith("03-encrypted.mp4", StringComparison.InvariantCultureIgnoreCase))
+            {
+                e.Configuration.PrivateOptions["decryption_key"] = "76a6c65c5ea762046bd749a2e632ccbb";
+            }
 
             // In realtime streams these settings can be used to reduce latency (see example from issue #152)
             // e.Options.GlobalOptions.FlagNoBuffer = true;
