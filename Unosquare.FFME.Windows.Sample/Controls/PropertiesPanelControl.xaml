@@ -68,17 +68,17 @@
 
                         <DockPanel>
                             <TextBlock Style="{StaticResource Key}">Duration</TextBlock>
-                            <TextBlock Style="{StaticResource Value}" Text="{Binding NaturalDuration, Mode=OneWay}" />
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding NaturalDuration, Mode=OneWay, Converter={StaticResource TimeSpanFormatter}}" />
                         </DockPanel>
 
                         <DockPanel>
                             <TextBlock Style="{StaticResource Key}">Start Time</TextBlock>
-                            <TextBlock Style="{StaticResource Value}" Text="{Binding PlaybackStartTime, Mode=OneWay}" />
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding PlaybackStartTime, Mode=OneWay, Converter={StaticResource TimeSpanFormatter}}" />
                         </DockPanel>
 
                         <DockPanel>
                             <TextBlock Style="{StaticResource Key}">End Time</TextBlock>
-                            <TextBlock Style="{StaticResource Value}" Text="{Binding PlaybackEndTime, Mode=OneWay}" />
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding PlaybackEndTime, Mode=OneWay, Converter={StaticResource TimeSpanFormatter}}" />
                         </DockPanel>
 
                         <DockPanel>
@@ -108,12 +108,12 @@
 
                         <DockPanel>
                             <TextBlock Style="{StaticResource Key}">Position</TextBlock>
-                            <TextBlock Style="{StaticResource Value}" Text="{Binding Position, Mode=OneWay}" />
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding Position, Mode=OneWay, Converter={StaticResource TimeSpanFormatter}}" />
                         </DockPanel>
 
                         <DockPanel>
                             <TextBlock Style="{StaticResource Key}">Frame Position</TextBlock>
-                            <TextBlock Style="{StaticResource Value}" Text="{Binding FramePosition, Mode=OneWay}" />
+                            <TextBlock Style="{StaticResource Value}" Text="{Binding FramePosition, Mode=OneWay, Converter={StaticResource TimeSpanFormatter}}" />
                         </DockPanel>
 
                         <DockPanel>

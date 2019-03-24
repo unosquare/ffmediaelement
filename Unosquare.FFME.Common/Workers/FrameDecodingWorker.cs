@@ -108,8 +108,10 @@
             }
             finally
             {
-                // Provide updates to decoding stats
-                State.UpdateDecodingBitRate(MediaCore.Blocks.Values.Sum(b => b.RangeBitRate));
+                // Provide updates to decoding stats -- don't count attached pictures
+                var hasAttachedPictures = Container.Components.Video?.StreamInfo.IsAttachedPictureDisposition ?? false;
+                State.UpdateDecodingBitRate(MediaCore.Blocks.Values
+                    .Sum(b => b.MediaType == MediaType.Video && hasAttachedPictures ? 0 : b.RangeBitRate));
 
                 // Detect End of Decoding Scenarios
                 // The Rendering will check for end of media when this condition is set.

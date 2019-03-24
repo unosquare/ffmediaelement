@@ -73,18 +73,12 @@
         private void OnMediaInitializing(object sender, MediaInitializingEventArgs e)
         {
             // An example of injecting input options for http/https streams
+            // A simple website to get live stream examples: https://pwn.sh/tools/getstream.html
             if (e.MediaSource.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
                 e.MediaSource.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             {
                 e.Configuration.PrivateOptions["user_agent"] = $"{typeof(ContainerConfiguration).Namespace}/{typeof(ContainerConfiguration).Assembly.GetName().Version}";
                 e.Configuration.PrivateOptions["headers"] = "Referer:https://www.unosquare.com";
-
-                // Other configuration options
-                // e.Configuration.PrivateOptions["multiple_requests"] = "1";
-                // e.Configuration.PrivateOptions["reconnect"] = "1";
-                // e.Configuration.PrivateOptions["reconnect_streamed"] = "1";
-                // e.Configuration.PrivateOptions["reconnect_delay_max"] = "10"; // in seconds
-                // e.Configuration.PrivateOptions["reconnect_at_eof"] = "1"; // This prevents some HLS stream from opening properly
             }
 
             // Example of forcing tcp transport on rtsp feeds
