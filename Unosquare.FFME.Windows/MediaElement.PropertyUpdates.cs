@@ -4,6 +4,7 @@
     using Platform;
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Threading;
 
@@ -111,12 +112,13 @@
 
             // Remove the position property updates if we are not allowed to
             // report changes from the engine
-            var preventPositionNotification = (MediaCore?.State.IsSeeking ?? false) &&
-                changes.ContainsKey(PositionProperty);
+            var positionProperty = changes.Keys.FirstOrDefault(p =>
+                !string.IsNullOrWhiteSpace(p.Name) && p.Name == nameof(Position));
+            var preventPositionNotification = (MediaCore?.State.IsSeeking ?? false) && positionProperty != null;
 
             if (preventPositionNotification)
             {
-                changes.Remove(PositionProperty);
+                changes.Remove(positionProperty);
 
                 // Only notify remaining duration if we have seekable media.
                 if (IsSeekable)
@@ -128,14 +130,14 @@
             {
                 // Do not upstream the Source property
                 // This causes unintended Open/Close commands to be run
-                if (change.Key == SourceProperty)
+                if (change.Key.Name == nameof(Source))
                     continue;
 
                 // Update the dependency property value
-                SetValue(change.Key, change.Value);
+                change.Key.SetValue(this, change.Value);
 
                 // Update the remaining duration if we have seekable media
-                if (change.Key == PositionProperty && IsSeekable)
+                if (change.Key.Name == nameof(Position) && IsSeekable)
                     NotifyPropertyChangedEvent(nameof(RemainingDuration));
             }
         }

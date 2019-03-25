@@ -8,7 +8,12 @@
     using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
+
+#if WINDOWS_UWP
+    using Windows.UI.Xaml;
+#else
     using System.Windows;
+#endif
 
     /// <summary>
     /// A helper class to map and process synchronization
@@ -29,7 +34,7 @@
 
             var enginePropertyNames = MediaEngineStateProperties.Keys.ToArray();
 
-            MediaElementDependencyProperties = new ReadOnlyDictionary<string, DependencyProperty>(
+            MediaElementDependencyProperties = new ReadOnlyDictionary<string, PropertyInfo>(
                 RetrieveDependencyProperties(typeof(MediaElement))
                     .Where(p => enginePropertyNames.Contains(p.Name))
                     .ToDictionary(p => p.Name, p => p));
@@ -59,7 +64,7 @@
         /// <summary>
         /// Gets the media element dependency properties.
         /// </summary>
-        public static ReadOnlyDictionary<string, DependencyProperty> MediaElementDependencyProperties { get; }
+        public static ReadOnlyDictionary<string, PropertyInfo> MediaElementDependencyProperties { get; }
 
         /// <summary>
         /// Gets the media element notification properties.
@@ -102,16 +107,16 @@
         /// </summary>
         /// <param name="m">The m.</param>
         /// <returns>A dictionary of dependency properties to synchronize along with the engine values.</returns>
-        public static Dictionary<DependencyProperty, object> DetectDependencyPropertyChanges(this MediaElement m)
+        public static Dictionary<PropertyInfo, object> DetectDependencyPropertyChanges(this MediaElement m)
         {
-            var result = new Dictionary<DependencyProperty, object>(PropertyMaxCount);
+            var result = new Dictionary<PropertyInfo, object>(PropertyMaxCount);
             object engineValue; // The current value of the media engine state property
             object propertyValue; // The current value of the dependency property
 
             foreach (var targetProperty in MediaElementDependencyProperties)
             {
                 engineValue = MediaEngineStateProperties[targetProperty.Key].GetValue(m.MediaCore.State);
-                propertyValue = m.GetValue(targetProperty.Value);
+                propertyValue = targetProperty.Value.GetValue(m);
 
                 if (targetProperty.Value.PropertyType != MediaEngineStateProperties[targetProperty.Key].PropertyType)
                 {
@@ -144,17 +149,27 @@
         /// </summary>
         /// <param name="t">The t.</param>
         /// <returns>A list of dependency properties</returns>
-        private static List<DependencyProperty> RetrieveDependencyProperties(Type t)
+        private static List<PropertyInfo> RetrieveDependencyProperties(Type t)
         {
-            var result = new List<DependencyProperty>(64);
+            const string PropertySuffix = "Property";
+            var result = new List<PropertyInfo>(64);
+            var allProperties = RetrieveProperties(typeof(MediaElement), false);
             var fieldInfos = t.GetFields(BindingFlags.Public | BindingFlags.Static)
                 .Where(x => x.FieldType == typeof(DependencyProperty))
                 .ToArray();
 
             foreach (var fieldInfo in fieldInfos)
             {
-                if (fieldInfo.GetValue(null) is DependencyProperty property)
-                    result.Add(property);
+                if (fieldInfo.GetValue(null) is DependencyProperty property &&
+                    fieldInfo.Name.EndsWith(PropertySuffix, StringComparison.Ordinal))
+                {
+                    var propertyName = fieldInfo.Name.Substring(0, fieldInfo.Name.Length - PropertySuffix.Length);
+                    var matchingProperty = allProperties.FirstOrDefault(p => p.Name == propertyName);
+                    if (matchingProperty == null)
+                        continue;
+
+                    result.Add(matchingProperty);
+                }
             }
 
             return result;

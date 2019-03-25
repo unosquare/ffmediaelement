@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>4f84c6a1-ba3a-4a1e-84ee-7a7aa214f317</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Unosquare.FFME.MediaElement</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Aspects.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Events\FrameDecodedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Events\InputFormatEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Events\MediaInitializingEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Events\MediaLogMessageEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Events\MediaOpenedRoutedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Events\MediaOpeningEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Events\MediaStateChangedRoutedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Events\PacketReadEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Events\PositionChangedRoutedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Events\RenderingEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Events\SubtitleDecodedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MediaElement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MediaElement.DependencyProperties.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MediaElement.MediaProperties.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MediaElement.RoutedEvents.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Platform\PropertyMapper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Playlists\AttributeDictionary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistEntry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistEntryCollection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistExtensions.cs" />
+  </ItemGroup>
+</Project>

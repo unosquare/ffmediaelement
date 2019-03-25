@@ -127,18 +127,12 @@
             Parent?.PostSeekingStartedEvent();
 
         /// <inheritdoc />
-        public void OnPositionChanged(MediaEngine sender, TimeSpan oldValue, TimeSpan newValue)
-        {
+        public void OnPositionChanged(MediaEngine sender, TimeSpan oldValue, TimeSpan newValue) =>
             Parent?.PostPositionChangedEvent(oldValue, newValue);
-        }
 
         /// <inheritdoc />
-        public void OnMediaStateChanged(MediaEngine sender, PlaybackStatus oldValue, PlaybackStatus newValue)
-        {
-            Parent?.PostMediaStateChangedEvent(
-                (System.Windows.Controls.MediaState)oldValue,
-                (System.Windows.Controls.MediaState)newValue);
-        }
+        public void OnMediaStateChanged(MediaEngine sender, PlaybackStatus oldValue, PlaybackStatus newValue) =>
+            Parent?.PostMediaStateChangedEvent(oldValue, newValue);
 
         /// <inheritdoc />
         public unsafe void OnPacketRead(AVPacket* packet, AVFormatContext* context) =>

@@ -9,8 +9,12 @@
     using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
+
+#if WINDOWS_UWP
+    using Windows.UI.Xaml;
+#else
     using System.Windows;
-    using System.Windows.Controls;
+#endif
 
     public partial class MediaElement
     {
@@ -61,80 +65,80 @@
         /// </summary>
         public static readonly RoutedEvent MediaFailedEvent =
             EventManager.RegisterRoutedEvent(
-                            nameof(MediaFailed),
-                            RoutingStrategy.Bubble,
-                            typeof(EventHandler<ExceptionRoutedEventArgs>),
-                            typeof(MediaElement));
+                    nameof(MediaFailed),
+                    RoutingStrategy.Bubble,
+                    typeof(EventHandler<ExceptionRoutedEventArgs>),
+                    typeof(MediaElement));
 
         /// <summary>
         /// MediaOpened is a routed event.
         /// </summary>
         public static readonly RoutedEvent MediaOpenedEvent =
             EventManager.RegisterRoutedEvent(
-                            nameof(MediaOpened),
-                            RoutingStrategy.Bubble,
-                            typeof(EventHandler<MediaOpenedRoutedEventArgs>),
-                            typeof(MediaElement));
+                    nameof(MediaOpened),
+                    RoutingStrategy.Bubble,
+                    typeof(EventHandler<MediaOpenedRoutedEventArgs>),
+                    typeof(MediaElement));
 
         /// <summary>
         /// MediaOpened is a routed event.
         /// </summary>
         public static readonly RoutedEvent MediaReadyEvent =
             EventManager.RegisterRoutedEvent(
-                            nameof(MediaReady),
-                            RoutingStrategy.Bubble,
-                            typeof(RoutedEventHandler),
-                            typeof(MediaElement));
+                    nameof(MediaReady),
+                    RoutingStrategy.Bubble,
+                    typeof(RoutedEventHandler),
+                    typeof(MediaElement));
 
         /// <summary>
         /// MediaClosed is a routed event.
         /// </summary>
         public static readonly RoutedEvent MediaClosedEvent =
             EventManager.RegisterRoutedEvent(
-                            nameof(MediaClosed),
-                            RoutingStrategy.Bubble,
-                            typeof(RoutedEventHandler),
-                            typeof(MediaElement));
+                    nameof(MediaClosed),
+                    RoutingStrategy.Bubble,
+                    typeof(RoutedEventHandler),
+                    typeof(MediaElement));
 
         /// <summary>
         /// MediaChangedEvent is a routed event.
         /// </summary>
         public static readonly RoutedEvent MediaChangedEvent =
             EventManager.RegisterRoutedEvent(
-                            nameof(MediaChanged),
-                            RoutingStrategy.Bubble,
-                            typeof(EventHandler<MediaOpenedRoutedEventArgs>),
-                            typeof(MediaElement));
+                    nameof(MediaChanged),
+                    RoutingStrategy.Bubble,
+                    typeof(EventHandler<MediaOpenedRoutedEventArgs>),
+                    typeof(MediaElement));
 
         /// <summary>
         /// PositionChanged is a routed event
         /// </summary>
         public static readonly RoutedEvent PositionChangedEvent =
             EventManager.RegisterRoutedEvent(
-                            nameof(PositionChanged),
-                            RoutingStrategy.Bubble,
-                            typeof(EventHandler<PositionChangedRoutedEventArgs>),
-                            typeof(MediaElement));
+                    nameof(PositionChanged),
+                    RoutingStrategy.Bubble,
+                    typeof(EventHandler<PositionChangedRoutedEventArgs>),
+                    typeof(MediaElement));
 
         /// <summary>
         /// MediaStateChanged is a routed event
         /// </summary>
         public static readonly RoutedEvent MediaStateChangedEvent =
             EventManager.RegisterRoutedEvent(
-                            nameof(MediaStateChanged),
-                            RoutingStrategy.Bubble,
-                            typeof(EventHandler<MediaStateChangedRoutedEventArgs>),
-                            typeof(MediaElement));
+                    nameof(MediaStateChanged),
+                    RoutingStrategy.Bubble,
+                    typeof(EventHandler<MediaStateChangedRoutedEventArgs>),
+                    typeof(MediaElement));
 
         /// <summary>
         /// MediaEnded is a routed event
         /// </summary>
         public static readonly RoutedEvent MediaEndedEvent =
             EventManager.RegisterRoutedEvent(
-                            nameof(MediaEnded),
-                            RoutingStrategy.Bubble,
-                            typeof(RoutedEventHandler),
-                            typeof(MediaElement));
+                    nameof(MediaEnded),
+                    RoutingStrategy.Bubble,
+                    typeof(RoutedEventHandler),
+                    typeof(MediaElement));
 
         #endregion
 
@@ -454,7 +458,7 @@
         /// <param name="oldValue">The old value.</param>
         /// <param name="newValue">The new value.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void PostMediaStateChangedEvent(MediaState oldValue, MediaState newValue)
+        internal void PostMediaStateChangedEvent(PlaybackStatus oldValue, PlaybackStatus newValue)
         {
             LogEventStart(MediaStateChangedEvent);
             GuiContext.Current.EnqueueInvoke(() =>
@@ -570,6 +574,19 @@
             if (WindowsPlatform.Instance.IsInDebugMode)
                 this.LogTrace(Aspects.Events, $"EVENT DONE : {e.Name}");
         }
+
+#if WINDOWS_UWP
+        /// <summary>
+        /// A UWP compatible way of adding event registrations for routed events.
+        /// </summary>
+        /// <param name="routedEvent"></param>
+        /// <param name="handler"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void AddHandler(RoutedEvent routedEvent, object handler)
+        {
+            AddHandler(routedEvent, handler, true);
+        }
+#endif
 
         #endregion
     }

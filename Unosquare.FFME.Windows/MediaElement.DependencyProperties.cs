@@ -12,42 +12,6 @@ namespace Unosquare.FFME
 
     public partial class MediaElement
     {
-        #region Volume Dependency Property
-
-        /// <summary>
-        /// Gets/Sets the Volume property on the MediaElement.
-        /// Note: Valid values are from 0 to 1
-        /// </summary>
-        [Category(nameof(MediaElement))]
-        [Description("The playback volume. Ranges from 0.0 to 1.0")]
-        public double Volume
-        {
-            get => (double)GetValue(VolumeProperty);
-            set => SetValue(VolumeProperty, value);
-        }
-
-        /// <summary>
-        /// The DependencyProperty for the MediaElement.Volume property.
-        /// </summary>
-        public static readonly DependencyProperty VolumeProperty = DependencyProperty.Register(
-            nameof(Volume), typeof(double), typeof(MediaElement),
-            new FrameworkPropertyMetadata(
-                Constants.DefaultVolume,
-                FrameworkPropertyMetadataOptions.None,
-                OnVolumePropertyChanged,
-                OnVolumePropertyChanging));
-
-        private static object OnVolumePropertyChanging(DependencyObject d, object value) =>
-            ((double)value).Clamp(Constants.MinVolume, Constants.MaxVolume);
-
-        private static void OnVolumePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is MediaElement m && m.MediaCore != null && e.NewValue is double v)
-                m.MediaCore.State.Volume = v;
-        }
-
-        #endregion
-
         #region Balance Dependency Property
 
         /// <summary>

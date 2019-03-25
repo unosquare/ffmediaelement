@@ -1,7 +1,11 @@
 ﻿namespace Unosquare.FFME.Events
 {
     using Engine;
+#if WINDOWS_UWP
+    using Windows.UI.Xaml;
+#else
     using System.Windows;
+#endif
 
     /// <summary>
     /// Represents the event arguments of the <see cref="MediaElement.MediaOpening"/>

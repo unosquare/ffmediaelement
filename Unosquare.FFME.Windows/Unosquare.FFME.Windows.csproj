@@ -71,5 +71,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Unosquare.FFME.Common\Unosquare.FFME.Common.csproj" />
   </ItemGroup>
+
+  <Import Project="..\Unosquare.FFME.MediaElement\Unosquare.FFME.MediaElement.projitems" Label="Shared" />
   
 </Project>

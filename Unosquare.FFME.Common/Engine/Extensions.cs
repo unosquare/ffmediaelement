@@ -281,14 +281,8 @@
         /// <param name="replace">The string to replace</param>
         /// <returns>The string with the replacement.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string ReplaceOrdinal(this string source, string find, string replace)
-        {
-#if NETCOREAPP3_0
-            return source.Replace(find, replace, StringComparison.Ordinal);
-#else
-            return source.Replace(find, replace);
-#endif
-        }
+        public static string ReplaceOrdinal(this string source, string find, string replace) =>
+            source.Replace(find, replace);
 
         /// <summary>
         /// Determines if the string contains the search term in ordinal (binary) comparison.

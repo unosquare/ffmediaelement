@@ -1,7 +1,11 @@
 ﻿namespace Unosquare.FFME.Events
 {
     using Engine;
+#if WINDOWS_UWP
+    using Windows.UI.Xaml;
+#else
     using System.Windows;
+#endif
 
     /// <summary>
     /// Represents the event arguments of the <see cref="MediaElement.MediaOpened"/> or
@@ -10,6 +14,17 @@
     /// <seealso cref="RoutedEventArgs" />
     public class MediaOpenedRoutedEventArgs : RoutedEventArgs
     {
+#if WINDOWS_UWP
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MediaOpenedRoutedEventArgs" /> class.
+        /// </summary>
+        /// <param name="info">The input information.</param>
+        public MediaOpenedRoutedEventArgs(MediaInfo info)
+            : base()
+        {
+            Info = info;
+        }
+#else
         /// <summary>
         /// Initializes a new instance of the <see cref="MediaOpenedRoutedEventArgs" /> class.
         /// </summary>
@@ -21,6 +36,7 @@
         {
             Info = info;
         }
+#endif
 
         /// <summary>
         /// Provides internal details of the media, including its component streams.
