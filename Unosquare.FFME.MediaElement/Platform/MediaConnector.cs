@@ -4,6 +4,12 @@
     using FFmpeg.AutoGen;
     using System;
 
+#if WINDOWS_UWP
+    using MediaState = Engine.PlaybackStatus;
+#else
+    using MediaState = System.Windows.Controls.MediaState;
+#endif
+
     /// <summary>
     /// The Media engine connector
     /// </summary>
@@ -43,16 +49,16 @@
                 Parent.PostMediaEndedEvent();
 
                 // ReSharper disable once ConvertIfStatementToSwitchStatement
-                if (Parent.UnloadedBehavior == System.Windows.Controls.MediaState.Close)
+                if (Parent.UnloadedBehavior == MediaState.Close)
                 {
                     await sender.Close();
                 }
-                else if (Parent.UnloadedBehavior == System.Windows.Controls.MediaState.Play)
+                else if (Parent.UnloadedBehavior == MediaState.Play)
                 {
                     await sender.Stop();
                     await sender.Play();
                 }
-                else if (Parent.UnloadedBehavior == System.Windows.Controls.MediaState.Stop)
+                else if (Parent.UnloadedBehavior == MediaState.Stop)
                 {
                     await sender.Stop();
                 }
@@ -87,9 +93,9 @@
                 }
 
                 // ReSharper disable once ConvertIfStatementToSwitchStatement
-                if (Parent.LoadedBehavior == System.Windows.Controls.MediaState.Play)
+                if (Parent.LoadedBehavior == MediaState.Play)
                     await sender.Play();
-                else if (Parent.LoadedBehavior == System.Windows.Controls.MediaState.Pause)
+                else if (Parent.LoadedBehavior == MediaState.Pause)
                     await sender.Pause();
 
                 Parent.PostMediaReadyEvent();

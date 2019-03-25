@@ -12,117 +12,6 @@ namespace Unosquare.FFME
 
     public partial class MediaElement
     {
-        #region Balance Dependency Property
-
-        /// <summary>
-        /// Gets/Sets the Balance property on the MediaElement.
-        /// </summary>
-        [Category(nameof(MediaElement))]
-        [Description("The audio volume for left and right audio channels. Valid ranges are -1.0 to 1.0")]
-        public double Balance
-        {
-            get => (double)GetValue(BalanceProperty);
-            set => SetValue(BalanceProperty, value);
-        }
-
-        /// <summary>
-        /// The DependencyProperty for the MediaElement.Balance property.
-        /// </summary>
-        public static readonly DependencyProperty BalanceProperty = DependencyProperty.Register(
-            nameof(Balance), typeof(double), typeof(MediaElement),
-            new FrameworkPropertyMetadata(
-                Constants.DefaultBalance,
-                FrameworkPropertyMetadataOptions.None,
-                OnBalancePropertyChanged,
-                OnBalancePropertyChanging));
-
-        private static object OnBalancePropertyChanging(DependencyObject d, object value) =>
-            ((double)value).Clamp(Constants.MinBalance, Constants.MaxBalance);
-
-        private static void OnBalancePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is MediaElement m && m.MediaCore != null && e.NewValue is double v)
-                m.MediaCore.State.Balance = v;
-        }
-
-        #endregion
-
-        #region IsMuted Dependency Property
-
-        /// <summary>
-        /// Gets/Sets the IsMuted property on the MediaElement.
-        /// </summary>
-        [Category(nameof(MediaElement))]
-        [Description("Gets or sets whether audio samples should be rendered.")]
-        public bool IsMuted
-        {
-            get => (bool)GetValue(IsMutedProperty);
-            set => SetValue(IsMutedProperty, value);
-        }
-
-        /// <summary>
-        /// The DependencyProperty for the MediaElement.IsMuted property.
-        /// </summary>
-        public static readonly DependencyProperty IsMutedProperty = DependencyProperty.Register(
-            nameof(IsMuted), typeof(bool), typeof(MediaElement),
-            new FrameworkPropertyMetadata(
-                false,
-                FrameworkPropertyMetadataOptions.None,
-                OnIsMutedPropertyChanged));
-
-        private static void OnIsMutedPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is MediaElement m && m.MediaCore != null && e.NewValue is bool v)
-                m.MediaCore.State.IsMuted = v;
-        }
-
-        #endregion
-
-        #region SpeedRatio Dependency Property
-
-        /// <summary>
-        /// Gets/Sets the SpeedRatio property on the MediaElement.
-        /// </summary>
-        [Category(nameof(MediaElement))]
-        [Description("Specifies how quickly or how slowly the media should be rendered. 1.0 is normal speed. Value must be greater then or equal to 0.0")]
-        public double SpeedRatio
-        {
-            get => (double)GetValue(SpeedRatioProperty);
-            set => SetValue(SpeedRatioProperty, value);
-        }
-
-        /// <summary>
-        /// The DependencyProperty for the MediaElement.SpeedRatio property.
-        /// </summary>
-        public static readonly DependencyProperty SpeedRatioProperty = DependencyProperty.Register(
-            nameof(SpeedRatio), typeof(double), typeof(MediaElement),
-            new FrameworkPropertyMetadata(
-                Constants.DefaultSpeedRatio,
-                FrameworkPropertyMetadataOptions.None,
-                OnSpeedRatioPropertyChanged,
-                OnSpeedRatioPropertyChanging));
-
-        private static object OnSpeedRatioPropertyChanging(DependencyObject d, object value)
-        {
-            if (d is MediaElement == false) return Constants.DefaultSpeedRatio;
-
-            var element = (MediaElement)d;
-            if (element.MediaCore == null || element.MediaCore.IsDisposed) return Constants.DefaultSpeedRatio;
-            if (element.PropertyUpdatesWorker.IsExecutingCycle) return value;
-
-            return element.IsSeekable == false ?
-                Constants.DefaultSpeedRatio :
-                ((double)value).Clamp(Constants.MinSpeedRatio, Constants.MaxSpeedRatio);
-        }
-
-        private static void OnSpeedRatioPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is MediaElement m && m.MediaCore != null && e.NewValue is double v)
-                m.MediaCore.State.SpeedRatio = v;
-        }
-
-        #endregion
-
         #region Position Dependency Property
 
         /// <summary>
@@ -189,52 +78,33 @@ namespace Unosquare.FFME
 
         #endregion
 
-        #region Source Dependency Property
+        #region ClosedCaptionsChannel Dependency Property
 
         /// <summary>
-        /// Gets/Sets the Source on this MediaElement.
-        /// The Source property is the Uri of the media to be played.
+        /// Gets/Sets the ClosedCaptionsChannel property on the MediaElement.
+        /// Note: Valid values are from 0 to 1
         /// </summary>
         [Category(nameof(MediaElement))]
-        [Description("The URL to load the media from. Set it to null in order to close the currently open media.")]
-        public Uri Source
+        [Description("The video CC Channel to render. Ranges from 0 to 4")]
+        public CaptionsChannel ClosedCaptionsChannel
         {
-            get => GetValue(SourceProperty) as Uri;
-            set => SetValue(SourceProperty, value);
+            get => (CaptionsChannel)GetValue(ClosedCaptionsChannelProperty);
+            set => SetValue(ClosedCaptionsChannelProperty, value);
         }
 
         /// <summary>
-        /// DependencyProperty for FFmpegMediaElement Source property.
+        /// The DependencyProperty for the MediaElement.ClosedCaptionsChannel property.
         /// </summary>
-        public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
-            nameof(Source), typeof(Uri), typeof(MediaElement),
-            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.None, OnSourcePropertyChanged, OnSourcePropertyChanging));
+        public static readonly DependencyProperty ClosedCaptionsChannelProperty = DependencyProperty.Register(
+            nameof(ClosedCaptionsChannel), typeof(CaptionsChannel), typeof(MediaElement),
+            new FrameworkPropertyMetadata(
+                Constants.DefaultClosedCaptionsChannel,
+                FrameworkPropertyMetadataOptions.None,
+                OnClosedCaptionsChannelPropertyChanged));
 
-        private static object OnSourcePropertyChanging(DependencyObject d, object value)
+        private static void OnClosedCaptionsChannelPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var element = d as MediaElement;
-            if (element?.MediaCore == null || element.MediaCore.IsDisposed) return null;
-            return value;
-        }
-
-        private static async void OnSourcePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d == null || d is MediaElement == false) return;
-
-            var element = (MediaElement)d;
-            if (element.MediaCore == null || element.MediaCore.IsDisposed) return;
-
-            if (e.NewValue == null && e.OldValue != null && element.IsOpen)
-            {
-                await element.Close();
-            }
-            else if (e.NewValue != null && element.IsOpening == false && e.NewValue is Uri uri)
-            {
-                // Skip change actions if we are currently opening via the Open command
-                // We configure the await to true because we need to continue on the captured context
-                if (element.IsOpeningViaCommand == false && element.MediaCore != null)
-                    await element.MediaCore.Open(uri).ConfigureAwait(true);
-            }
+            if (d is MediaElement m) m.CaptionsView.Reset();
         }
 
         #endregion
@@ -291,110 +161,6 @@ namespace Unosquare.FFME
         {
             if (d is MediaElement m && m.VideoView != null && m.VideoView.IsLoaded && e.NewValue is StretchDirection v)
                 m.VideoView.StretchDirection = v;
-        }
-
-        #endregion
-
-        #region ScrubbingEnabled Dependency Property
-
-        /// <summary>
-        /// Gets or sets a value that indicates whether the MediaElement will update frames
-        /// for seek operations while paused. This is a dependency property.
-        /// </summary>
-        [Category(nameof(MediaElement))]
-        [Description("Gets or sets a value that indicates whether the MediaElement will update frames for seek operations while paused.")]
-        public bool ScrubbingEnabled
-        {
-            get => (bool)GetValue(ScrubbingEnabledProperty);
-            set => SetValue(ScrubbingEnabledProperty, value);
-        }
-
-        /// <summary>
-        /// The DependencyProperty for the MediaElement.ScrubbingEnabled property.
-        /// </summary>
-        public static readonly DependencyProperty ScrubbingEnabledProperty = DependencyProperty.Register(
-            nameof(ScrubbingEnabled), typeof(bool), typeof(MediaElement),
-            new FrameworkPropertyMetadata(true, FrameworkPropertyMetadataOptions.None));
-
-        #endregion
-
-        #region LoadedBahavior Dependency Property
-
-        /// <summary>
-        /// Specifies the action that the media element should execute when it
-        /// is loaded. The default behavior is that it is under manual control
-        /// (i.e. the caller should call methods such as Play in order to play
-        /// the media). If a source is set, then the default behavior changes to
-        /// to be playing the media. If a source is set and a loaded behavior is
-        /// also set, then the loaded behavior takes control.
-        /// </summary>
-        [Category(nameof(MediaElement))]
-        [Description("Specifies how the underlying media should behave when it has loaded. The default behavior is to Play the media.")]
-        public MediaState LoadedBehavior
-        {
-            get => (MediaState)GetValue(LoadedBehaviorProperty);
-            set => SetValue(LoadedBehaviorProperty, value);
-        }
-
-        /// <summary>
-        /// The DependencyProperty for the MediaElement.LoadedBehavior property.
-        /// </summary>
-        public static readonly DependencyProperty LoadedBehaviorProperty = DependencyProperty.Register(
-            nameof(LoadedBehavior), typeof(MediaState), typeof(MediaElement),
-            new FrameworkPropertyMetadata(MediaState.Manual, FrameworkPropertyMetadataOptions.None));
-
-        #endregion
-
-        #region UnoadedBahavior Dependency Property
-
-        /// <summary>
-        /// Specifies how the underlying media should behave when
-        /// it has ended. The default behavior is to Pause the media.
-        /// </summary>
-        [Category(nameof(MediaElement))]
-        [Description("Specifies how the underlying media should behave when it has ended. The default behavior is to Close the media.")]
-        public MediaState UnloadedBehavior
-        {
-            get => (MediaState)GetValue(UnloadedBehaviorProperty);
-            set => SetValue(UnloadedBehaviorProperty, value);
-        }
-
-        /// <summary>
-        /// The DependencyProperty for the MediaElement.UnloadedBehavior property.
-        /// </summary>
-        public static readonly DependencyProperty UnloadedBehaviorProperty = DependencyProperty.Register(
-            nameof(UnloadedBehavior), typeof(MediaState), typeof(MediaElement),
-            new FrameworkPropertyMetadata(MediaState.Pause, FrameworkPropertyMetadataOptions.None));
-
-        #endregion
-
-        #region ClosedCaptionsChannel Dependency Property
-
-        /// <summary>
-        /// Gets/Sets the ClosedCaptionsChannel property on the MediaElement.
-        /// Note: Valid values are from 0 to 1
-        /// </summary>
-        [Category(nameof(MediaElement))]
-        [Description("The video CC Channel to render. Ranges from 0 to 4")]
-        public CaptionsChannel ClosedCaptionsChannel
-        {
-            get => (CaptionsChannel)GetValue(ClosedCaptionsChannelProperty);
-            set => SetValue(ClosedCaptionsChannelProperty, value);
-        }
-
-        /// <summary>
-        /// The DependencyProperty for the MediaElement.ClosedCaptionsChannel property.
-        /// </summary>
-        public static readonly DependencyProperty ClosedCaptionsChannelProperty = DependencyProperty.Register(
-            nameof(ClosedCaptionsChannel), typeof(CaptionsChannel), typeof(MediaElement),
-            new FrameworkPropertyMetadata(
-                Constants.DefaultClosedCaptionsChannel,
-                FrameworkPropertyMetadataOptions.None,
-                OnClosedCaptionsChannelPropertyChanged));
-
-        private static void OnClosedCaptionsChannelPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is MediaElement m) m.CaptionsView.Reset();
         }
 
         #endregion

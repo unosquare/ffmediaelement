@@ -26,6 +26,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.DependencyProperties.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.MediaProperties.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.Events.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MediaElement.PropertyUpdates.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Platform\GuiContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Platform\GuiContextType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Platform\GuiTimer.cs" />

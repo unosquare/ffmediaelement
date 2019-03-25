@@ -2,13 +2,12 @@
 {
     using Engine;
     using System;
-    using System.Windows;
 
     /// <summary>
     /// Contains the position changed routed event args
     /// </summary>
     /// <seealso cref="EventArgs" />
-    public class PositionChangedEventArgs : RoutedEventArgs
+    public class PositionChangedEventArgs : EventArgs
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PositionChangedEventArgs" /> class.

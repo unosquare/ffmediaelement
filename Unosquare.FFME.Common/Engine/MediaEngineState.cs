@@ -60,21 +60,23 @@
         public double SpeedRatio
         {
             get => m_SpeedRatio.Value;
-            set => m_SpeedRatio.Value = IsLiveStream ? Constants.DefaultSpeedRatio : value;
+            set => m_SpeedRatio.Value = IsLiveStream
+                ? Constants.DefaultSpeedRatio
+                : value.Clamp(Constants.MinSpeedRatio, Constants.MaxSpeedRatio);
         }
 
         /// <inheritdoc />
         public double Volume
         {
             get => m_Volume.Value;
-            set => m_Volume.Value = value;
+            set => m_Volume.Value = value.Clamp(Constants.MinVolume, Constants.MaxVolume);
         }
 
         /// <inheritdoc />
         public double Balance
         {
             get => m_Balance.Value;
-            set => m_Balance.Value = value;
+            set => m_Balance.Value = value.Clamp(Constants.MinBalance, Constants.MaxBalance);
         }
 
         /// <inheritdoc />

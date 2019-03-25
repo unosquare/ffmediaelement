@@ -6,12 +6,19 @@
 
 #if WINDOWS_UWP
     using Windows.UI.Xaml;
+    using MediaState = Engine.PlaybackStatus;
 #else
     using System.Windows;
+    using MediaState = System.Windows.Controls.MediaState;
 #endif
 
     public partial class MediaElement
     {
+        /// <summary>
+        /// Gets the current playback state.
+        /// </summary>
+        public MediaState MediaState => (MediaState)(MediaCore?.State.MediaState ?? PlaybackStatus.Close);
+
         /// <summary>
         /// Gets the Media's natural duration
         /// Only valid after the MediaOpened event has fired.
