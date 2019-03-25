@@ -521,7 +521,7 @@ namespace Unosquare.FFME
             if (WindowsPlatform.Instance.IsInDesignTime == false)
             {
                 // Setup the media engine and associated property updates worker
-                MediaCore = new MediaEngine(this, new WindowsMediaConnector(this));
+                MediaCore = new MediaEngine(this, new MediaConnector(this));
                 StartPropertyUpdatesWorker();
             }
             else

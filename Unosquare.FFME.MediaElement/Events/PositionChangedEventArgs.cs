@@ -7,19 +7,16 @@
     /// <summary>
     /// Contains the position changed routed event args
     /// </summary>
-    /// <seealso cref="RoutedEventArgs" />
-    public class PositionChangedRoutedEventArgs : RoutedEventArgs
+    /// <seealso cref="EventArgs" />
+    public class PositionChangedEventArgs : RoutedEventArgs
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="PositionChangedRoutedEventArgs" /> class.
+        /// Initializes a new instance of the <see cref="PositionChangedEventArgs" /> class.
         /// </summary>
-        /// <param name="routedEvent">The routed event.</param>
-        /// <param name="source">The source.</param>
         /// <param name="engineState">State of the engine.</param>
         /// <param name="oldPosition">The old position.</param>
         /// <param name="newPosition">The new position.</param>
-        public PositionChangedRoutedEventArgs(RoutedEvent routedEvent, object source, IMediaEngineState engineState, TimeSpan oldPosition, TimeSpan newPosition)
-            : base(routedEvent, source)
+        public PositionChangedEventArgs(IMediaEngineState engineState, TimeSpan oldPosition, TimeSpan newPosition)
         {
             Position = newPosition;
             OldPosition = oldPosition;

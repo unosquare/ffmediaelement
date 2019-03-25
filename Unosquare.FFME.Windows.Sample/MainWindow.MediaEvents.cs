@@ -49,8 +49,8 @@
         /// Handles the MediaFailed event of the Media control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="ExceptionRoutedEventArgs"/> instance containing the event data.</param>
-        private void OnMediaFailed(object sender, ExceptionRoutedEventArgs e)
+        /// <param name="e">The <see cref="MediaFailedEventArgs"/> instance containing the event data.</param>
+        private void OnMediaFailed(object sender, MediaFailedEventArgs e)
         {
             MessageBox.Show(
                 Application.Current.MainWindow,
@@ -285,7 +285,7 @@
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
-        private void OnMediaOpened(object sender, MediaOpenedRoutedEventArgs e)
+        private void OnMediaOpened(object sender, MediaOpenedEventArgs e)
         {
             // Tun the coide you need once the media has opened.
         }
@@ -294,8 +294,8 @@
         /// Handles the MediaReady event of the Media control.
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
-        private void OnMediaReady(object sender, RoutedEventArgs e)
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void OnMediaReady(object sender, EventArgs e)
         {
             // Set a start position (see issue #66 or issue #277)
             // Media.Position = TimeSpan.FromSeconds(5);
@@ -306,8 +306,8 @@
         /// Handles the MediaClosed event of the Media control
         /// </summary>
         /// <param name="sender">The sender</param>
-        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
-        private void OnMediaClosed(object sender, RoutedEventArgs e)
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void OnMediaClosed(object sender, EventArgs e)
         {
             // Always close the recorder so that the file trailer is written.
             lock (RecorderSyncLock)
@@ -384,8 +384,8 @@
         /// Handles the media changed event.
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="MediaOpenedRoutedEventArgs"/> instance containing the event data.</param>
-        private void OnMediaChanged(object sender, MediaOpenedRoutedEventArgs e)
+        /// <param name="e">The <see cref="MediaOpenedEventArgs"/> instance containing the event data.</param>
+        private void OnMediaChanged(object sender, MediaOpenedEventArgs e)
         {
             // placeholder
         }
@@ -409,8 +409,8 @@
         /// Handles the PositionChanged event of the Media control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="PositionChangedRoutedEventArgs"/> instance containing the event data.</param>
-        private void OnMediaPositionChanged(object sender, PositionChangedRoutedEventArgs e)
+        /// <param name="e">The <see cref="PositionChangedEventArgs"/> instance containing the event data.</param>
+        private void OnMediaPositionChanged(object sender, PositionChangedEventArgs e)
         {
             // Handle position change notifications
         }

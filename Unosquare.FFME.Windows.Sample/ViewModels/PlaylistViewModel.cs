@@ -6,7 +6,6 @@
     using System;
     using System.ComponentModel;
     using System.IO;
-    using System.Windows;
     using System.Windows.Data;
 
     /// <summary>
@@ -178,8 +177,8 @@
         /// Called when Media is opened
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
-        private void OnMediaOpened(object sender, RoutedEventArgs e)
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void OnMediaOpened(object sender, EventArgs e)
         {
             HasTakenThumbnail = false;
             var m = App.ViewModel.MediaElement;

@@ -1,18 +1,14 @@
 ﻿namespace Unosquare.FFME.Events
 {
     using Engine;
-#if WINDOWS_UWP
-    using Windows.UI.Xaml;
-#else
-    using System.Windows;
-#endif
+    using System;
 
     /// <summary>
     /// Represents the event arguments of the <see cref="MediaElement.MediaOpening"/>
     /// or <see cref="MediaElement.MediaChanging"/> routed events.
     /// </summary>
-    /// <seealso cref="RoutedEventArgs" />
-    public class MediaOpeningEventArgs : RoutedEventArgs
+    /// <seealso cref="EventArgs" />
+    public class MediaOpeningEventArgs : EventArgs
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="MediaOpeningEventArgs" /> class.

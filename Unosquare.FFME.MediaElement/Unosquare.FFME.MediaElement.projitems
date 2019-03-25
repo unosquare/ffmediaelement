@@ -10,21 +10,26 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Aspects.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Events\MediaFailedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Events\FrameDecodedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Events\InputFormatEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Events\MediaInitializingEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Events\MediaLogMessageEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Events\MediaOpenedRoutedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Events\MediaOpenedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Events\MediaOpeningEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Events\MediaStateChangedRoutedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Events\MediaStateChangedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Events\PacketReadEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Events\PositionChangedRoutedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Events\PositionChangedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Events\RenderingEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Events\SubtitleDecodedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.DependencyProperties.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.MediaProperties.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MediaElement.RoutedEvents.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MediaElement.Events.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Platform\GuiContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Platform\GuiContextType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Platform\GuiTimer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Platform\MediaConnector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Platform\PropertyMapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Playlists\AttributeDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistEntry.cs" />

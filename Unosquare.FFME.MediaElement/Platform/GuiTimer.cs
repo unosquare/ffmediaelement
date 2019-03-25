@@ -3,7 +3,12 @@
     using Primitives;
     using System;
     using System.Threading;
+
+#if WINDOWS_UWP
+    using Windows.UI.Xaml;
+#else
     using System.Windows.Threading;
+#endif
 
     /// <summary>
     /// Encapsulates different types of timers for different GUI context types
@@ -21,7 +26,9 @@
 
         private Timer ThreadingTimer;
         private DispatcherTimer DispatcherTimer;
+#if !WINDOWS_UWP
         private System.Windows.Forms.Timer FormsTimer;
+#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GuiTimer" /> class.
@@ -39,6 +46,13 @@
 
             switch (contextType)
             {
+#if WINDOWS_UWP
+                case GuiContextType.UWP:
+                    {
+                        DispatcherTimer = CreateDispatcherTimer();
+                        break;
+                    }
+#else
                 case GuiContextType.WPF:
                     {
                         DispatcherTimer = CreateDispatcherTimer();
@@ -50,6 +64,7 @@
                         FormsTimer = CreateFormsTimer();
                         break;
                     }
+#endif
 
                 default:
                     {
@@ -129,11 +144,13 @@
                     ThreadingTimer = null;
                 }
 
+#if !WINDOWS_UWP
                 if (FormsTimer != null)
                 {
                     FormsTimer.Dispose();
                     FormsTimer = null;
                 }
+#endif
 
                 if (DispatcherTimer != null)
                 {
@@ -185,17 +202,22 @@
         /// <returns>The timer</returns>
         private DispatcherTimer CreateDispatcherTimer()
         {
+#if WINDOWS_UWP
+            var timer = new DispatcherTimer { Interval = Interval };
+#else
             var timer = new DispatcherTimer(DispatcherPriority.DataBind, GuiContext.Current.GuiDispatcher)
             {
                 Interval = Interval,
                 IsEnabled = true
             };
+#endif
 
             timer.Tick += (s, e) => { RunTimerCycle(this); };
             timer.Start();
             return timer;
         }
 
+#if !WINDOWS_UWP
         /// <summary>
         /// Creates the forms timer.
         /// </summary>
@@ -212,5 +234,6 @@
             timer.Start();
             return timer;
         }
+#endif
     }
 }

@@ -8,20 +8,18 @@
     /// The Media engine connector
     /// </summary>
     /// <seealso cref="IMediaConnector" />
-    internal class WindowsMediaConnector : IMediaConnector
+    internal sealed class MediaConnector : IMediaConnector
     {
         private readonly MediaElement Parent;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="WindowsMediaConnector"/> class.
+        /// Initializes a new instance of the <see cref="MediaConnector"/> class.
         /// </summary>
         /// <param name="parent">The control.</param>
-        public WindowsMediaConnector(MediaElement parent)
+        public MediaConnector(MediaElement parent)
         {
             Parent = parent;
         }
-
-        #region Event Signal Handling
 
         /// <inheritdoc />
         public void OnBufferingEnded(MediaEngine sender) =>
@@ -149,7 +147,5 @@
         /// <inheritdoc />
         public unsafe void OnSubtitleDecoded(AVSubtitle* subtitle, AVFormatContext* context) =>
             Parent?.RaiseSubtitleDecodedEvent(subtitle, context);
-
-        #endregion
     }
 }

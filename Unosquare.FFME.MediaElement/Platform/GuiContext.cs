@@ -1,16 +1,24 @@
 ﻿namespace Unosquare.FFME.Platform
 {
-    using Primitives;
     using System;
-    using System.ComponentModel;
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
+
+#if WINDOWS_UWP
+    using Windows.ApplicationModel;
+    using Application = Windows.ApplicationModel.Core.CoreApplication;
+    using Dispatcher = Windows.UI.Core.CoreDispatcher;
+    using DispatcherPriority = Windows.UI.Core.CoreDispatcherPriority;
+#else
+    using Primitives;
+    using System.ComponentModel;
     using System.Windows;
     using System.Windows.Forms;
     using System.Windows.Threading;
     using Application = System.Windows.Application;
+#endif
 
     /// <summary>
     /// Provides properties and methods for the
@@ -33,14 +41,27 @@
         {
             Thread = Thread.CurrentThread;
             ThreadContext = SynchronizationContext.Current;
+
+#if WINDOWS_UWP
+            try
+            {
+                GuiDispatcher = Application.MainView.Dispatcher;
+                Type = GuiContextType.UWP;
+            }
+            catch
+            {
+                GuiDispatcher = null;
+                Type = GuiContextType.None;
+            }
+
+            IsInDesignTime = DesignMode.DesignModeEnabled;
+#else
             try { GuiDispatcher = Application.Current.Dispatcher; }
             catch { /* Ignore error as app might not be available or context is not WPF */ }
 
             Type = GuiContextType.None;
             if (GuiDispatcher != null) Type = GuiContextType.WPF;
             else if (ThreadContext is WindowsFormsSynchronizationContext) Type = GuiContextType.WinForms;
-
-            IsValid = Type != GuiContextType.None;
 
             // Design-time detection
             try
@@ -52,7 +73,8 @@
             {
                 IsInDesignTime = false;
             }
-
+#endif
+            IsValid = Type != GuiContextType.None;
             IsInDebugMode = Debugger.IsAttached;
         }
 
@@ -113,7 +135,11 @@
         /// <returns>The awaitable task</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ConfiguredTaskAwaitable InvokeAsync(Action callback) =>
+#if WINDOWS_UWP
+            InvokeAsyncInternal(DispatcherPriority.Normal, callback, null).ConfigureAwait(true);
+#else
             InvokeAsyncInternal(DispatcherPriority.DataBind, callback, null).ConfigureAwait(true);
+#endif
 
         /// <summary>
         /// Invokes a task on the GUI thread and does not await it.
@@ -151,41 +177,49 @@
                 // We try here because we'd like to catch cancellations and ignore then
                 switch (Type)
                 {
+#if WINDOWS_UWP
+                    case GuiContextType.UWP:
+                        {
+                            await GuiDispatcher.RunAsync(priority, () => { callback.DynamicInvoke(arguments); });
+                            return;
+                        }
+#else
                     case GuiContextType.WPF:
-                    {
-                        await GuiDispatcher.InvokeAsync(() => { callback.DynamicInvoke(arguments); }, priority);
-                        return;
-                    }
+                        {
+                            await GuiDispatcher.InvokeAsync(() => { callback.DynamicInvoke(arguments); }, priority);
+                            return;
+                        }
 
                     case GuiContextType.WinForms:
-                    {
-                        var doneEvent = WaitEventFactory.Create(isCompleted: false, useSlim: true);
-                        ThreadContext.Post(a =>
                         {
-                            try { callback.DynamicInvoke(arguments); }
-                            finally { doneEvent.Complete(); }
-                        }, null);
+                            var doneEvent = WaitEventFactory.Create(isCompleted: false, useSlim: true);
+                            ThreadContext.Post(a =>
+                            {
+                                try { callback.DynamicInvoke(arguments); }
+                                finally { doneEvent.Complete(); }
+                            }, null);
 
-                        var waitingTask = new Task(() =>
-                        {
-                            doneEvent.Wait();
-                            doneEvent.Dispose();
-                        });
+                            var waitingTask = new Task(() =>
+                            {
+                                doneEvent.Wait();
+                                doneEvent.Dispose();
+                            });
 
-                        waitingTask.Start();
-                        await waitingTask.ConfigureAwait(true);
+                            waitingTask.Start();
+                            await waitingTask.ConfigureAwait(true);
 
-                        return;
-                    }
+                            return;
+                        }
+#endif
 
                     default:
-                    {
-                        var runnerTask = new Task(() => { callback.DynamicInvoke(arguments); });
-                        runnerTask.Start();
+                        {
+                            var runnerTask = new Task(() => { callback.DynamicInvoke(arguments); });
+                            runnerTask.Start();
 
-                        await runnerTask.ConfigureAwait(true);
-                        return;
-                    }
+                            await runnerTask.ConfigureAwait(true);
+                            return;
+                        }
                 }
             }
             catch (OperationCanceledException)

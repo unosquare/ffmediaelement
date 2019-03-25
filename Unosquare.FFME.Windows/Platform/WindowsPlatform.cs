@@ -9,7 +9,7 @@
     /// Root for platform-specific implementations
     /// </summary>
     /// <seealso cref="IPlatform" />
-    internal class WindowsPlatform : IPlatform
+    internal sealed class WindowsPlatform : IPlatform
     {
         /// <summary>
         /// Initializes static members of the <see cref="WindowsPlatform"/> class.
