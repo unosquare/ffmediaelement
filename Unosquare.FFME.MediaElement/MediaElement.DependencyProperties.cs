@@ -172,6 +172,65 @@ namespace Unosquare.FFME
 
         #endregion
 
+        #region Position Dependency Property
+
+        /// <summary>
+        /// Gets/Sets the Position property on the MediaElement.
+        /// </summary>
+        [Category(nameof(MediaElement))]
+        [Description("Specifies the position of the underlying media. Set this property to seek though the media stream.")]
+        public TimeSpan Position
+        {
+            get => (TimeSpan)GetValue(PositionProperty);
+            set => SetValue(PositionProperty, value);
+        }
+
+        /// <summary>
+        /// The DependencyProperty for the MediaElement.Position property.
+        /// </summary>
+        public static readonly DependencyProperty PositionProperty = DependencyProperty.Register(
+            nameof(Position), typeof(TimeSpan), typeof(MediaElement),
+            new FrameworkPropertyMetadata(TimeSpan.Zero,
+#if !WINDOWS_UWP
+                FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
+#endif
+                OnPositionPropertyChanged));
+
+        private static void OnPositionPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d == null || d is MediaElement == false) return;
+
+            var element = (MediaElement)d;
+            if (element.MediaCore == null || element.MediaCore.IsDisposed || element.MediaCore.MediaInfo == null)
+                return;
+
+            if (element.MediaCore.State.IsSeekable == false)
+                return;
+
+            var valueComingFromEngine = element.PropertyUpdatesWorker.IsExecutingCycle;
+
+            if (valueComingFromEngine && element.MediaCore.State.IsSeeking == false)
+                return;
+
+            // Clamp from 0 to duration
+            var targetSeek = (TimeSpan)e.NewValue;
+            var minTarget = element.MediaCore.State.PlaybackStartTime ?? TimeSpan.Zero;
+            var maxTarget = element.MediaCore.State.PlaybackEndTime ?? TimeSpan.Zero;
+            var hasValidTaget = maxTarget > minTarget;
+
+            if (hasValidTaget)
+                targetSeek = targetSeek.Clamp(minTarget, maxTarget);
+
+            if (valueComingFromEngine)
+                return;
+
+            // coming in as a seek from user
+            if (hasValidTaget)
+                element.MediaCore?.Seek(targetSeek);
+        }
+
+        #endregion
+
         #region ScrubbingEnabled Dependency Property
 
         /// <summary>

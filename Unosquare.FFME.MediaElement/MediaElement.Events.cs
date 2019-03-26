@@ -6,6 +6,7 @@
     using Platform;
     using System;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.Runtime.CompilerServices;
 
     public partial class MediaElement
@@ -357,7 +358,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void LogEventStart(string eventName)
         {
-            if (WindowsPlatform.Instance.IsInDebugMode)
+            if (Debugger.IsAttached)
                 this.LogTrace(Aspects.Events, $"EVENT START: {eventName}");
         }
 
@@ -368,7 +369,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void LogEventDone(string eventName)
         {
-            if (WindowsPlatform.Instance.IsInDebugMode)
+            if (Debugger.IsAttached)
                 this.LogTrace(Aspects.Events, $"EVENT DONE : {eventName}");
         }
 
