@@ -45,7 +45,7 @@
 #if WINDOWS_UWP
             try
             {
-                GuiDispatcher = Application.MainView.Dispatcher;
+                GuiDispatcher = Application.GetCurrentView().Dispatcher;
                 Type = GuiContextType.UWP;
             }
             catch
