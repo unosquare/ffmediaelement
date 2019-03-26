@@ -1,29 +1,28 @@
 ﻿namespace Unosquare.FFME.Platform
 {
     using Engine;
-    using Rendering;
     using System;
+    using Rendering;
     using System.Diagnostics;
 
     /// <summary>
-    /// Represents properties and methods that are specific to WPF
+    /// Represents properties and methods that are specific to UWP
     /// </summary>
-    /// <seealso cref="IPlatform" />
-    internal sealed class WindowsPlatform : IPlatform
+    internal sealed class UniversalPlatform : IPlatform
     {
         /// <summary>
-        /// Initializes static members of the <see cref="WindowsPlatform"/> class.
+        /// Initializes static members of the <see cref="UniversalPlatform"/> class.
         /// </summary>
-        static WindowsPlatform()
+        static UniversalPlatform()
         {
-            Instance = new WindowsPlatform();
+            Instance = new UniversalPlatform();
         }
 
         /// <summary>
-        /// Prevents a default instance of the <see cref="WindowsPlatform"/> class from being created.
+        /// Prevents a default instance of the <see cref="UniversalPlatform"/> class from being created.
         /// </summary>
         /// <exception cref="InvalidOperationException">Unable to get a valid GUI context.</exception>
-        private WindowsPlatform()
+        private UniversalPlatform()
         {
             // placeholder
         }
@@ -31,10 +30,7 @@
         /// <summary>
         /// Gets the instance.
         /// </summary>
-        /// <value>
-        /// The instance.
-        /// </value>
-        public static WindowsPlatform Instance { get; }
+        public static UniversalPlatform Instance { get; }
 
         /// <inheritdoc />
         public bool IsInDebugMode { get; } = Debugger.IsAttached;

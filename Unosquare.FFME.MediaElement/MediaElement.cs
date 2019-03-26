@@ -110,6 +110,34 @@
 
         #endregion
 
+        /// <summary>
+        /// Gets or sets the FFmpeg path from which to load the FFmpeg binaries.
+        /// You must set this path before setting the Source property for the first time on any instance of this control.
+        /// Setting this property when FFmpeg binaries have been registered will throw an exception.
+        /// </summary>
+        public static string FFmpegDirectory
+        {
+            get => MediaEngine.FFmpegDirectory;
+            set => MediaEngine.FFmpegDirectory = value;
+        }
+
+        /// <summary>
+        /// Specifies the bitwise flags that correspond to FFmpeg library identifiers.
+        /// Please use the <see cref="FFmpegLoadMode"/> class for valid combinations.
+        /// If FFmpeg is already loaded, the value cannot be changed.
+        /// </summary>
+        public static int FFmpegLoadModeFlags
+        {
+            get => MediaEngine.FFmpegLoadModeFlags;
+            set => MediaEngine.FFmpegLoadModeFlags = value;
+        }
+
+        /// <summary>
+        /// Gets the FFmpeg version information. Returns null
+        /// when the libraries have not been loaded.
+        /// </summary>
+        public static string FFmpegVersionInfo => MediaEngine.FFmpegVersionInfo;
+
         /// <inheritdoc />
         ILoggingHandler ILoggingSource.LoggingHandler => this;
 

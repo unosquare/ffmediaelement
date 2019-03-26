@@ -101,7 +101,7 @@
 
         #endregion
 
-        #region Unused Media Renderer Methods
+        #region MediaRenderer Methods
 
         /// <inheritdoc />
         public void OnPlay()
@@ -144,10 +144,6 @@
         {
             // placeholder
         }
-
-        #endregion
-
-        #region MediaRenderer Methods
 
         /// <inheritdoc />
         public void Render(MediaBlock mediaBlock, TimeSpan clockPosition)
