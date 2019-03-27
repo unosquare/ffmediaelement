@@ -18,7 +18,7 @@
       "output": {
         ".html": {
           "relative_path": "README.html",
-          "hash": "q5dsDaYJSlQaGRSawjM6ig=="
+          "hash": "RSXLBkJD/WtWmh3UBzSXNA=="
         }
       },
       "is_incremental": false,
@@ -82,114 +82,6 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Events.FrameDecodedEventArgs.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Events.FrameDecodedEventArgs.html",
-          "hash": "Wa1IBJAdP3Z3HqXtx4R/uA=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Events.InputFormatEventArgs.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Events.InputFormatEventArgs.html",
-          "hash": "h2hKDg3G76ihActlZ1NRtw=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Events.MediaInitializingEventArgs.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Events.MediaInitializingEventArgs.html",
-          "hash": "YLvN+R6CQUYe22kEeC5Ifg=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Events.MediaLogMessageEventArgs.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Events.MediaLogMessageEventArgs.html",
-          "hash": "IaPhlOSXXa3nMWh8+ZuICQ=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Events.MediaOpenedRoutedEventArgs.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Events.MediaOpenedRoutedEventArgs.html",
-          "hash": "MiuDDAxA3KW03SHHwzBXrw=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Events.MediaOpeningEventArgs.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Events.MediaOpeningEventArgs.html",
-          "hash": "bwFcCsaCkGgxAqEiEsEbMQ=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Events.MediaStateChangedRoutedEventArgs.html",
-          "hash": "1ubOgsM76gwtQQf5Flzj4A=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Events.PacketReadEventArgs.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Events.PacketReadEventArgs.html",
-          "hash": "xy3aYbiXJyBeETxgdM79Rg=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Events.PositionChangedRoutedEventArgs.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Events.PositionChangedRoutedEventArgs.html",
-          "hash": "0tGqsaUL6vMULPV+czkiNQ=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
       "source_relative_path": "obj/api/Unosquare.FFME.Events.RenderingAudioEventArgs.yml",
       "output": {
         ".html": {
@@ -238,23 +130,11 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Events.SubtitleDecodedEventArgs.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Events.SubtitleDecodedEventArgs.html",
-          "hash": "lIy8KudAt4FGg1QUHgwFIg=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
       "source_relative_path": "obj/api/Unosquare.FFME.Events.yml",
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Events.html",
-          "hash": "WYKNSIjEOHDLS4cBEyYkYg=="
+          "hash": "F8zt0QVA0mtYUw3Up+oLRA=="
         }
       },
       "is_incremental": false,
@@ -266,103 +146,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.MediaElement.html",
-          "hash": "jshKNpiPJU3PfgPvjTAldQ=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Platform.GuiContext.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Platform.GuiContext.html",
-          "hash": "QBYkQwzzj7ep+I9YvHus5g=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Platform.GuiContextType.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Platform.GuiContextType.html",
-          "hash": "hhenfHZIHfoufo5zpwNqiQ=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Platform.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Platform.html",
-          "hash": "HQQrCQB0Nk5eYASfZ/U41Q=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Playlists.AttributeDictionary.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Playlists.AttributeDictionary.html",
-          "hash": "N3KK/Z7f+kBT6RpsuCOQYg=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Playlists.PlaylistEntry.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Playlists.PlaylistEntry.html",
-          "hash": "iGP2idPOmP8mDpgaMfs1Uw=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Playlists.PlaylistEntryCollection-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Playlists.PlaylistEntryCollection-1.html",
-          "hash": "MWkZaaA66N1tRqZGZ90vgQ=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Playlists.PlaylistEntryCollection.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Playlists.PlaylistEntryCollection.html",
-          "hash": "b/sNafIjmlUKRkYuqYCsGg=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Playlists.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Playlists.html",
-          "hash": "148Eao9uBoVM4c+bEfD31A=="
+          "hash": "aZ+GM+2aXuKIfCrlEMEtDg=="
         }
       },
       "is_incremental": false,
@@ -458,7 +242,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "gwIOBwc3pWxBi4S3w0K1vw=="
+          "hash": "5ySlnQujuZ1BmUKQn6OOOw=="
         }
       },
       "is_incremental": false,
@@ -495,16 +279,16 @@
           "total_file_count": 0,
           "skipped_file_count": 0
         },
+        "ManagedReferenceDocumentProcessor": {
+          "can_incremental": false,
+          "incrementalPhase": "build",
+          "total_file_count": 14,
+          "skipped_file_count": 0
+        },
         "ConceptualDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
           "total_file_count": 1,
-          "skipped_file_count": 0
-        },
-        "ManagedReferenceDocumentProcessor": {
-          "can_incremental": false,
-          "incrementalPhase": "build",
-          "total_file_count": 32,
           "skipped_file_count": 0
         },
         "ResourceDocumentProcessor": {
