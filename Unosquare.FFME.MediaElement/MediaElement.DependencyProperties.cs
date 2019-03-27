@@ -2,7 +2,6 @@
 #pragma warning disable SA1117 // Parameters must be on same line or separate lines
 namespace Unosquare.FFME
 {
-    using Engine;
     using System;
     using System.ComponentModel;
     using System.Windows;
@@ -184,42 +183,42 @@ namespace Unosquare.FFME
         public static readonly DependencyProperty PositionProperty = DependencyProperty.Register(
             nameof(Position), typeof(TimeSpan), typeof(MediaElement),
             new FrameworkPropertyMetadata(TimeSpan.Zero,
-#if !WINDOWS_UWP
                 FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-#endif
-                OnPositionPropertyChanged));
+                null, OnPositionPropertyChanging));
 
-        private static void OnPositionPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static object OnPositionPropertyChanging(DependencyObject d, object value)
         {
-            if (d == null || d is MediaElement == false) return;
+            if (d == null || d is MediaElement == false) return value;
 
             var element = (MediaElement)d;
             if (element.MediaCore == null || element.MediaCore.IsDisposed || element.MediaCore.MediaInfo == null)
-                return;
+                return TimeSpan.Zero;
 
             if (element.MediaCore.State.IsSeekable == false)
-                return;
+                return element.MediaCore.State.Position;
 
             var valueComingFromEngine = element.PropertyUpdatesWorker.IsExecutingCycle;
 
             if (valueComingFromEngine && element.MediaCore.State.IsSeeking == false)
-                return;
+                return value;
 
             // Clamp from 0 to duration
-            var targetSeek = (TimeSpan)e.NewValue;
+            var targetSeek = (TimeSpan)value;
             var minTarget = element.MediaCore.State.PlaybackStartTime ?? TimeSpan.Zero;
             var maxTarget = element.MediaCore.State.PlaybackEndTime ?? TimeSpan.Zero;
             var hasValidTaget = maxTarget > minTarget;
 
             if (hasValidTaget)
-                targetSeek = targetSeek.Clamp(minTarget, maxTarget);
+                targetSeek = ((TimeSpan)value).Clamp(minTarget, maxTarget);
 
             if (valueComingFromEngine)
-                return;
+                return targetSeek;
 
             // coming in as a seek from user
             if (hasValidTaget)
                 element.MediaCore?.Seek(targetSeek);
+
+            return targetSeek;
         }
 
         #endregion
