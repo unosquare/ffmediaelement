@@ -121,8 +121,6 @@
         /// <param name="e">The <see cref="MediaOpeningEventArgs"/> instance containing the event data.</param>
         private void OnMediaOpening(object sender, MediaOpeningEventArgs e)
         {
-            const string SideLoadAspect = "Client.SideLoad";
-
             // You can start off by adjusting subtitles delay
             // This defaults to 0 but you can delay (or advance with a negative delay)
             // the subtitle timestamps.
@@ -219,7 +217,7 @@
                     catch (Exception ex)
                     {
                         // Log the exception, and ignore it. Continue execution.
-                        Media?.LogError(SideLoadAspect, "Error loading seek index data.", ex);
+                        Debug.WriteLine($"Error loading seek index data. {ex.Message}");
                     }
                 }
 
@@ -440,7 +438,7 @@
                 if (GuiContext.Current.IsInDebugMode == false || durationSeconds <= 0 || durationSeconds >= 60)
                     return null;
 
-                var seekIndex = MediaEngine.CreateVideoSeekIndex(mediaFilePath, streamIndex);
+                var seekIndex = MediaElement.CreateVideoSeekIndex(mediaFilePath, streamIndex);
                 if (seekIndex.Entries.Count <= 0) return null;
 
                 using (var stream = File.OpenWrite(seekFilePath))

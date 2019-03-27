@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME.Events
 {
-    using Engine;
+    using Diagnostics;
     using System;
 
     /// <summary>
@@ -13,7 +13,7 @@
         /// Initializes a new instance of the <see cref="MediaLogMessageEventArgs"/> class.
         /// </summary>
         /// <param name="message">The message.</param>
-        public MediaLogMessageEventArgs(MediaLogMessage message)
+        internal MediaLogMessageEventArgs(MediaLogMessage message)
         {
             TimestampUtc = message.TimestampUtc;
             MessageType = message.MessageType;

@@ -15,7 +15,7 @@
         /// </summary>
         /// <param name="config">The container configuration options.</param>
         /// <param name="mediaSource">The URL.</param>
-        public MediaInitializingEventArgs(ContainerConfiguration config, string mediaSource)
+        internal MediaInitializingEventArgs(ContainerConfiguration config, string mediaSource)
         {
             Configuration = config;
             MediaSource = mediaSource;

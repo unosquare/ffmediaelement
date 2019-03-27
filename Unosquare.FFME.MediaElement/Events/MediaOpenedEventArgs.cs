@@ -14,7 +14,7 @@
         /// Initializes a new instance of the <see cref="MediaOpenedEventArgs" /> class.
         /// </summary>
         /// <param name="info">The input information.</param>
-        public MediaOpenedEventArgs(MediaInfo info)
+        internal MediaOpenedEventArgs(MediaInfo info)
             : base()
         {
             Info = info;

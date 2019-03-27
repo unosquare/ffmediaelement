@@ -12,7 +12,7 @@
         /// </summary>
         /// <param name="subtitle">The subtitle pointer</param>
         /// <param name="context">The input format context</param>
-        public SubtitleDecodedEventArgs(AVSubtitle* subtitle, AVFormatContext* context)
+        internal SubtitleDecodedEventArgs(AVSubtitle* subtitle, AVFormatContext* context)
             : base(context)
         {
             Subtitle = subtitle;

@@ -15,7 +15,7 @@
         /// </summary>
         /// <param name="options">The options.</param>
         /// <param name="info">The input information.</param>
-        public MediaOpeningEventArgs(MediaOptions options, MediaInfo info)
+        internal MediaOpeningEventArgs(MediaOptions options, MediaInfo info)
         {
             Options = options;
             Info = info;

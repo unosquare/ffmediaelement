@@ -1,5 +1,7 @@
 ﻿namespace Unosquare.FFME.Rendering
 {
+    using Decoding;
+    using Diagnostics;
     using Engine;
     using Platform;
     using Primitives;

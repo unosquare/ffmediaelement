@@ -1,6 +1,7 @@
 ﻿namespace Unosquare.FFME.Rendering
 {
     using ClosedCaptions;
+    using Decoding;
     using Engine;
     using System;
     using System.Collections.Generic;

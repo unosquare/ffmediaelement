@@ -5,14 +5,7 @@ namespace Unosquare.FFME
     using Engine;
     using System;
     using System.ComponentModel;
-#if WINDOWS_UWP
-    using Windows.UI.Xaml;
-    using FrameworkPropertyMetadata = Windows.UI.Xaml.PropertyMetadata;
-    using MediaState = Engine.PlaybackStatus;
-#else
     using System.Windows;
-    using System.Windows.Controls;
-#endif
 
     public partial class MediaElement
     {
@@ -266,9 +259,9 @@ namespace Unosquare.FFME
         /// </summary>
         [Category(nameof(MediaElement))]
         [Description("Specifies how the underlying media should behave when it has loaded. The default behavior is to Play the media.")]
-        public MediaState LoadedBehavior
+        public MediaPlaybackState LoadedBehavior
         {
-            get => (MediaState)GetValue(LoadedBehaviorProperty);
+            get => (MediaPlaybackState)GetValue(LoadedBehaviorProperty);
             set => SetValue(LoadedBehaviorProperty, value);
         }
 
@@ -276,8 +269,8 @@ namespace Unosquare.FFME
         /// The DependencyProperty for the MediaElement.LoadedBehavior property.
         /// </summary>
         public static readonly DependencyProperty LoadedBehaviorProperty = DependencyProperty.Register(
-            nameof(LoadedBehavior), typeof(MediaState), typeof(MediaElement),
-            new FrameworkPropertyMetadata(MediaState.Manual));
+            nameof(LoadedBehavior), typeof(MediaPlaybackState), typeof(MediaElement),
+            new FrameworkPropertyMetadata(MediaPlaybackState.Manual));
 
         #endregion
 
@@ -289,9 +282,9 @@ namespace Unosquare.FFME
         /// </summary>
         [Category(nameof(MediaElement))]
         [Description("Specifies how the underlying media should behave when it has ended. The default behavior is to Close the media.")]
-        public MediaState UnloadedBehavior
+        public MediaPlaybackState UnloadedBehavior
         {
-            get => (MediaState)GetValue(UnloadedBehaviorProperty);
+            get => (MediaPlaybackState)GetValue(UnloadedBehaviorProperty);
             set => SetValue(UnloadedBehaviorProperty, value);
         }
 
@@ -299,8 +292,8 @@ namespace Unosquare.FFME
         /// The DependencyProperty for the MediaElement.UnloadedBehavior property.
         /// </summary>
         public static readonly DependencyProperty UnloadedBehaviorProperty = DependencyProperty.Register(
-            nameof(UnloadedBehavior), typeof(MediaState), typeof(MediaElement),
-            new FrameworkPropertyMetadata(MediaState.Pause));
+            nameof(UnloadedBehavior), typeof(MediaPlaybackState), typeof(MediaElement),
+            new FrameworkPropertyMetadata(MediaPlaybackState.Pause));
 
         #endregion
     }

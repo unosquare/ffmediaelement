@@ -139,12 +139,6 @@
       <Version>6.2.8</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Unosquare.FFME.Common\Unosquare.FFME.Common.csproj">
-      <Project>{76b2db70-c8ab-4517-8afb-051383e496b7}</Project>
-      <Name>Unosquare.FFME.Common</Name>
-    </ProjectReference>
-  </ItemGroup>
   <ItemGroup />
   <Import Project="..\Unosquare.FFME.MediaElement\Unosquare.FFME.MediaElement.projitems" Label="Shared" />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

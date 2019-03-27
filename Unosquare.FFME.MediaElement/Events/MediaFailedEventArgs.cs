@@ -11,7 +11,7 @@
         /// Initializes a new instance of the <see cref="MediaFailedEventArgs"/> class.
         /// </summary>
         /// <param name="errorException">The exception</param>
-        public MediaFailedEventArgs(Exception errorException)
+        internal MediaFailedEventArgs(Exception errorException)
         {
             ErrorException = errorException;
         }

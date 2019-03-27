@@ -4,7 +4,6 @@
     using Engine;
     using Foundation;
     using Platform;
-    using Primitives;
     using System;
     using System.Linq;
     using System.Threading.Tasks;
@@ -25,13 +24,14 @@
         #region Fields
 
         private static readonly Key[] TogglePlayPauseKeys = { Key.Play, Key.MediaPlayPause, Key.Space };
-        private readonly AtomicBoolean IsCaptureInProgress = new AtomicBoolean(false);
+        private readonly object ScreenshotSyncLock = new object();
         private readonly object RecorderSyncLock = new object();
         private TransportStreamRecorder StreamRecorder;
         private DateTime LastMouseMoveTime;
         private Point LastMousePosition;
         private DispatcherTimer MouseMoveTimer;
         private MediaType StreamCycleMediaType = MediaType.None;
+        private bool m_IsCaptureInProgress;
 
         #endregion
 
@@ -66,6 +66,15 @@
         /// A proxy, strongly-typed property to the underlying DataContext
         /// </summary>
         public RootViewModel ViewModel => DataContext as RootViewModel;
+
+        /// <summary>
+        /// A flag indicating whether screenshot capture progress is currently active.
+        /// </summary>
+        private bool IsCaptureInProgress
+        {
+            get { lock (ScreenshotSyncLock) return m_IsCaptureInProgress; }
+            set { lock (ScreenshotSyncLock) m_IsCaptureInProgress = value; }
+        }
 
         #endregion
 
@@ -354,11 +363,11 @@
                 // Don't run the capture operation as it is in progress
                 // GDI requires exclusive access to files when writing
                 // so we do this one at a time
-                if (IsCaptureInProgress == true)
+                if (IsCaptureInProgress)
                     return;
 
                 // Immediately set the progress to true.
-                IsCaptureInProgress.Value = true;
+                IsCaptureInProgress = true;
 
                 // Send the capture to the background so we don't have frames skipping
                 // on the UI. This prvents frame jittering.
@@ -388,7 +397,7 @@
                     finally
                     {
                         // unlock for further captures.
-                        IsCaptureInProgress.Value = false;
+                        IsCaptureInProgress = false;
                     }
                 });
 

@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.Foundation
 {
-    using Primitives;
     using System;
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
@@ -16,9 +15,10 @@
     {
         #region Property backing fields
 
+        private readonly object SyncLock = new object();
         private readonly Func<object, bool> m_CanExecute;
         private readonly Action<object> ExecuteAction;
-        private readonly AtomicBoolean IsExecuting = new AtomicBoolean(false);
+        private bool m_IsExecuting;
 
         #region Constructors
 
@@ -71,6 +71,15 @@
         #region ICommand Members
 
         /// <summary>
+        /// Determines if the command is currently executing
+        /// </summary>
+        public bool IsExecuting
+        {
+            get { lock (SyncLock) return m_IsExecuting; }
+            private set { lock (SyncLock) m_IsExecuting = value; }
+        }
+
+        /// <summary>
         /// Defines the method that determines whether the command can execute in its current state.
         /// </summary>
         /// <param name="parameter">Data used by the command.  If the command does not require data to be passed, this object can be set to null.</param>
@@ -80,7 +89,7 @@
         [DebuggerStepThrough]
         public bool CanExecute(object parameter)
         {
-            if (IsExecuting.Value) return false;
+            if (IsExecuting) return false;
             return m_CanExecute == null || m_CanExecute(parameter);
         }
 
@@ -109,12 +118,12 @@
         {
             return Task.Run(async () =>
             {
-                if (IsExecuting.Value)
+                if (IsExecuting)
                     return;
 
                 try
                 {
-                    IsExecuting.Value = true;
+                    IsExecuting = true;
                     await Application.Current.Dispatcher.BeginInvoke(ExecuteAction, DispatcherPriority.Normal, parameter);
                 }
                 catch (Exception ex)
@@ -124,7 +133,7 @@
                 }
                 finally
                 {
-                    IsExecuting.Value = false;
+                    IsExecuting = false;
                     CommandManager.InvalidateRequerySuggested();
                 }
             }).ConfigureAwait(true);

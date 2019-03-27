@@ -3,7 +3,6 @@
     using Foundation;
     using System;
     using System.Windows;
-    using System.Windows.Controls;
     using System.Windows.Media;
 
     /// <summary>
@@ -230,7 +229,7 @@
             new Action(() =>
             {
                 StopButtonVisibility =
-                    m.IsOpen && m.IsChanging == false && m.IsSeeking == false && (m.HasMediaEnded || (m.IsSeekable && m.MediaState != MediaState.Stop)) ?
+                    m.IsOpen && m.IsChanging == false && m.IsSeeking == false && (m.HasMediaEnded || (m.IsSeekable && m.MediaState != MediaPlaybackState.Stop)) ?
                     Visibility.Visible : Visibility.Hidden;
             })
             .WhenChanged(m, nameof(m.IsOpen), nameof(m.HasMediaEnded), nameof(m.IsSeekable), nameof(m.MediaState), nameof(m.IsChanging), nameof(m.IsSeeking));

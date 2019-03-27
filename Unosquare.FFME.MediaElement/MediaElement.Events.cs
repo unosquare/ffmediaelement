@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME
 {
+    using Diagnostics;
     using Engine;
     using Events;
     using FFmpeg.AutoGen;
@@ -257,7 +258,7 @@
         /// <param name="oldValue">The old value.</param>
         /// <param name="newValue">The new value.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void PostMediaStateChangedEvent(PlaybackStatus oldValue, PlaybackStatus newValue)
+        internal void PostMediaStateChangedEvent(MediaPlaybackState oldValue, MediaPlaybackState newValue)
         {
             LogEventStart(nameof(MediaStateChanged));
             GuiContext.Current.EnqueueInvoke(() =>

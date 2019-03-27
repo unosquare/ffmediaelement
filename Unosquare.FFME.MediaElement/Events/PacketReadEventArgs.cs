@@ -12,7 +12,7 @@
         /// </summary>
         /// <param name="packet">The packet pointer</param>
         /// <param name="context">The input format context</param>
-        public PacketReadEventArgs(AVPacket* packet, AVFormatContext* context)
+        internal PacketReadEventArgs(AVPacket* packet, AVFormatContext* context)
             : base(context)
         {
             Packet = packet;

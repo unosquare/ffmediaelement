@@ -9,7 +9,6 @@
     <Import_RootNamespace>Unosquare.FFME.MediaElement</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Aspects.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Events\MediaFailedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Events\FrameDecodedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Events\InputFormatEventArgs.cs" />
@@ -20,7 +19,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Events\MediaStateChangedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Events\PacketReadEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Events\PositionChangedEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Events\RenderingEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Events\SubtitleDecodedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.DependencyProperties.cs" />

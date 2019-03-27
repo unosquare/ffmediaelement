@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME
 {
+    using Diagnostics;
     using Engine;
     using Events;
     using Platform;
@@ -148,6 +149,17 @@
         internal MediaEngine MediaCore { get; private set; }
 
         #region Public API
+
+        /// <summary>
+        /// Creates a viedo seek index.
+        /// </summary>
+        /// <param name="mediaSource">The source URL.</param>
+        /// <param name="streamIndex">Index of the stream. Use -1 for automatic stream selection.</param>
+        /// <returns>
+        /// The seek index object
+        /// </returns>
+        public static VideoSeekIndex CreateVideoSeekIndex(string mediaSource, int streamIndex) =>
+            MediaEngine.CreateVideoSeekIndex(mediaSource, streamIndex);
 
         /// <summary>
         /// Forces the pre-loading of the FFmpeg libraries according to the values of the

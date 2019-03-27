@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop" ToolsVersion="Current">
 
   <PropertyGroup>
-    <TargetFrameworks>net461</TargetFrameworks>
+    <TargetFrameworks>net472</TargetFrameworks>
     <OutputType>Library</OutputType>
     <RootNamespace>Unosquare.FFME</RootNamespace>
     <AssemblyName>ffme.win</AssemblyName>
@@ -68,10 +68,8 @@
     <Reference Include="System.Web" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Unosquare.FFME.Common\Unosquare.FFME.Common.csproj" />
-  </ItemGroup>
-
   <Import Project="..\Unosquare.FFME.MediaElement\Unosquare.FFME.MediaElement.projitems" Label="Shared" />
+
+  <Import Project="..\Unosquare.FFME\Unosquare.FFME.projitems" Label="Shared" />
   
 </Project>

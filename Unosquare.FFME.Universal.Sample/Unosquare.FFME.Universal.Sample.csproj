@@ -155,16 +155,6 @@
       <Version>6.2.8</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Unosquare.FFME.Common\Unosquare.FFME.Common.csproj">
-      <Project>{76b2db70-c8ab-4517-8afb-051383e496b7}</Project>
-      <Name>Unosquare.FFME.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Unosquare.FFME.Universal\Unosquare.FFME.Universal.csproj">
-      <Project>{53318e8d-bdbd-4eb8-9c45-1fd93c1a25ca}</Project>
-      <Name>Unosquare.FFME.Universal</Name>
-    </ProjectReference>
-  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

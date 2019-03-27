@@ -5,6 +5,7 @@
     using FFmpeg.AutoGen;
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
 
     /// <summary>
@@ -82,7 +83,7 @@
         private string GuessOutputFilePath(AVFormatContext* inputContext)
         {
             var currentExtension = Path.GetExtension(FilePath);
-            var inputFormatExtensions = Extensions.PtrToStringUTF8(inputContext->iformat->extensions);
+            var inputFormatExtensions = Utilities.PtrToStringUTF8(inputContext->iformat->extensions);
             var extension = !string.IsNullOrWhiteSpace(inputFormatExtensions)
                 ? inputFormatExtensions.Split(',')[0]
                 : currentExtension;
@@ -141,7 +142,7 @@
             }
             catch (Exception ex)
             {
-                Media.LogError(nameof(TransportStreamRecorder), $"Error Code {result}: {ex.Message}");
+                Debug.WriteLine($"{nameof(TransportStreamRecorder)} - Error Code {result}: {ex.Message}");
                 Release();
             }
         }

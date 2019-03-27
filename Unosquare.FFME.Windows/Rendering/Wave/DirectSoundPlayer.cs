@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME.Rendering.Wave
 {
-    using Engine;
+    using Diagnostics;
     using Primitives;
     using System;
     using System.Collections.Generic;

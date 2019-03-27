@@ -1,14 +1,9 @@
 ﻿namespace Unosquare.FFME.Platform
 {
+    using Diagnostics;
     using Engine;
     using FFmpeg.AutoGen;
     using System;
-
-#if WINDOWS_UWP
-    using MediaState = Engine.PlaybackStatus;
-#else
-    using MediaState = System.Windows.Controls.MediaState;
-#endif
 
     /// <summary>
     /// The Media engine connector
@@ -49,16 +44,16 @@
                 Parent.PostMediaEndedEvent();
 
                 // ReSharper disable once ConvertIfStatementToSwitchStatement
-                if (Parent.UnloadedBehavior == MediaState.Close)
+                if (Parent.UnloadedBehavior == MediaPlaybackState.Close)
                 {
                     await sender.Close();
                 }
-                else if (Parent.UnloadedBehavior == MediaState.Play)
+                else if (Parent.UnloadedBehavior == MediaPlaybackState.Play)
                 {
                     await sender.Stop();
                     await sender.Play();
                 }
-                else if (Parent.UnloadedBehavior == MediaState.Stop)
+                else if (Parent.UnloadedBehavior == MediaPlaybackState.Stop)
                 {
                     await sender.Stop();
                 }
@@ -93,9 +88,9 @@
                 }
 
                 // ReSharper disable once ConvertIfStatementToSwitchStatement
-                if (Parent.LoadedBehavior == MediaState.Play)
+                if (Parent.LoadedBehavior == MediaPlaybackState.Play)
                     await sender.Play();
-                else if (Parent.LoadedBehavior == MediaState.Pause)
+                else if (Parent.LoadedBehavior == MediaPlaybackState.Pause)
                     await sender.Pause();
 
                 Parent.PostMediaReadyEvent();
@@ -135,7 +130,7 @@
             Parent?.PostPositionChangedEvent(oldValue, newValue);
 
         /// <inheritdoc />
-        public void OnMediaStateChanged(MediaEngine sender, PlaybackStatus oldValue, PlaybackStatus newValue) =>
+        public void OnMediaStateChanged(MediaEngine sender, MediaPlaybackState oldValue, MediaPlaybackState newValue) =>
             Parent?.PostMediaStateChangedEvent(oldValue, newValue);
 
         /// <inheritdoc />
