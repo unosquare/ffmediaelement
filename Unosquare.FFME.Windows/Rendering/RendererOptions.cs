@@ -55,7 +55,7 @@
         /// Enumerates the DirectSound devices.
         /// </summary>
         /// <returns>The available DirectSound devices</returns>
-        public List<AudioDeviceInfo<Guid>> EnumerateDirectSoundDevices()
+        public static List<AudioDeviceInfo<Guid>> EnumerateDirectSoundDevices()
         {
             var devices = DirectSoundPlayer.EnumerateDevices();
             var result = new List<AudioDeviceInfo<Guid>>(16) { DefaultDirectSoundDevice };
@@ -73,7 +73,7 @@
         /// Enumerates the (Legacy) Windows Multimedia Extensions devices.
         /// </summary>
         /// <returns>The available MME devices</returns>
-        public List<AudioDeviceInfo<int>> EnumerateLegacyAudioDevices()
+        public static List<AudioDeviceInfo<int>> EnumerateLegacyAudioDevices()
         {
             var devices = LegacyAudioPlayer.EnumerateDevices();
             var result = new List<AudioDeviceInfo<int>>(16) { DefaultLegacyAudioDevice };

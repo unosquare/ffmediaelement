@@ -251,6 +251,8 @@
             // Dispose unmanged resources
             PriorityCommandCompleted.Dispose();
             SeekBlocksAvailable.Dispose();
+            QueuedSeekOperation?.Dispose();
+            QueuedSeekOperation = null;
             this.LogDebug(Aspects.EngineCommand, "Dispose completed.");
         }
 

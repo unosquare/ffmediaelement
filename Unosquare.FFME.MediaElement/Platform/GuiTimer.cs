@@ -109,7 +109,7 @@
         /// <summary>
         /// Gets a value indicating whether this instance is executing a cycle.
         /// </summary>
-        public bool IsExecutingCycle => (IsCycleDone?.IsCompleted ?? true) == false;
+        public bool IsExecutingCycle => !IsCycleDone.IsCompleted;
 
         /// <summary>
         /// Waits for one cycle to be completed.
@@ -125,7 +125,27 @@
         {
             if (IsDisposing == true) return;
             IsDisposing.Value = true;
+
+            // Prevent a new cycle from being queued
+            ThreadingTimer?.Change(Timeout.Infinite, Timeout.Infinite);
+            FormsTimer?.Stop();
+            DispatcherTimer?.Stop();
+
+            // Wait for the new 
             IsCycleDone.Wait();
+
+            // Handle the dispose process.
+            ThreadingTimer?.Dispose();
+            ThreadingTimer = null;
+
+#if !WINDOWS_UWP
+            FormsTimer?.Dispose();
+            FormsTimer = null;
+#endif
+            DispatcherTimer = null;
+
+            // Call the dispose callback
+            DisposeCallback?.Invoke();
             IsCycleDone.Dispose();
         }
 
@@ -135,35 +155,8 @@
         /// <param name="state">The state.</param>
         private void RunTimerCycle(object state)
         {
-            // Handle the dispose process.
-            if (IsDisposing == true)
-            {
-                if (ThreadingTimer != null)
-                {
-                    ThreadingTimer.Dispose();
-                    ThreadingTimer = null;
-                }
-
-#if !WINDOWS_UWP
-                if (FormsTimer != null)
-                {
-                    FormsTimer.Dispose();
-                    FormsTimer = null;
-                }
-#endif
-
-                if (DispatcherTimer != null)
-                {
-                    DispatcherTimer.Stop();
-                    DispatcherTimer = null;
-                }
-
-                DisposeCallback?.Invoke();
-                return;
-            }
-
             // Skip running this cycle if we are already in the middle of one
-            if (IsCycleDone.IsInProgress)
+            if (IsCycleDone.IsInProgress || IsDisposing == true)
                 return;
 
             // Start a cycle by signaling it

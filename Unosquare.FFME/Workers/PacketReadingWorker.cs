@@ -1,8 +1,7 @@
 ﻿namespace Unosquare.FFME.Workers
 {
-    using Decoding;
+    using Container;
     using Diagnostics;
-    using Engine;
     using Primitives;
     using System;
     using System.Threading;

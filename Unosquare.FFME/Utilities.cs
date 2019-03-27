@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME
 {
-    using Decoding;
+    using Container;
     using Engine;
     using FFmpeg.AutoGen;
     using System;
@@ -301,14 +301,14 @@
         /// <summary>
         /// Finds the index of the item that is on or greater than the specified search value
         /// </summary>
-        /// <typeparam name="T">The generic collection type</typeparam>
-        /// <typeparam name="V">The value type to compare to</typeparam>
+        /// <typeparam name="TItem">The generic collection type</typeparam>
+        /// <typeparam name="TComparable">The value type to compare to</typeparam>
         /// <param name="items">The items.</param>
         /// <param name="value">The value.</param>
         /// <returns>The find index. Returns -1 if not found.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int StartIndexOf<T, V>(this IList<T> items, V value)
-            where T : IComparable<V>
+        public static int StartIndexOf<TItem, TComparable>(this IList<TItem> items, TComparable value)
+            where TItem : IComparable<TComparable>
         {
             var itemCount = items.Count;
 
@@ -319,7 +319,6 @@
             // variable setup
             var lowIndex = 0;
             var highIndex = itemCount - 1;
-            var midIndex = 0;
 
             // edge condition checking
             if (items[lowIndex].CompareTo(value) >= 0) return -1;
@@ -328,7 +327,7 @@
             // binary search
             while (highIndex - lowIndex > 1)
             {
-                midIndex = lowIndex + ((highIndex - lowIndex) / 2);
+                var midIndex = lowIndex + ((highIndex - lowIndex) / 2);
                 if (items[midIndex].CompareTo(value) > 0)
                     highIndex = midIndex;
                 else

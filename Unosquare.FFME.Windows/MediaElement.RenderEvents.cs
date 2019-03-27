@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME
 {
-    using Decoding;
+    using Container;
     using Events;
     using System;
     using System.Runtime.CompilerServices;

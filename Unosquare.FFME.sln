@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Support", "Support", "{8BF2
 	ProjectSection(SolutionItems) = preProject
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
+		Analyzers.ruleset = Analyzers.ruleset
 		appveyor.yml = appveyor.yml
 		Support\build-nuget-package.bat = Support\build-nuget-package.bat
 		docfx.json = docfx.json
@@ -21,7 +22,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Support", "Support", "{8BF2
 		README.md = README.md
 		Support\readme.txt = Support\readme.txt
 		Support\SoundTouch COPYING.TXT = Support\SoundTouch COPYING.TXT
-		StyleCop.Analyzers.ruleset = StyleCop.Analyzers.ruleset
 		Support\test-suite.html = Support\test-suite.html
 		toc.yml = toc.yml
 	EndProjectSection

@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
-    using Engine;
+    using FFmpeg.AutoGen;
     using Platform;
     using System;
     using System.IO;

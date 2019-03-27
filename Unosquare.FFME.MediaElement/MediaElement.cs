@@ -1,7 +1,6 @@
 ﻿namespace Unosquare.FFME
 {
     using Diagnostics;
-    using Engine;
     using Events;
     using Platform;
     using Primitives;
@@ -124,7 +123,7 @@
 
         /// <summary>
         /// Specifies the bitwise flags that correspond to FFmpeg library identifiers.
-        /// Please use the <see cref="FFmpegLoadMode"/> class for valid combinations.
+        /// Please use the <see cref="FFmpeg.AutoGen.FFmpegLoadMode"/> class for valid combinations.
         /// If FFmpeg is already loaded, the value cannot be changed.
         /// </summary>
         public static int FFmpegLoadModeFlags

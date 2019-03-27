@@ -1,7 +1,6 @@
 ﻿namespace Unosquare.FFME
 {
     using Diagnostics;
-    using Engine;
     using System;
     using System.Runtime.CompilerServices;
 
