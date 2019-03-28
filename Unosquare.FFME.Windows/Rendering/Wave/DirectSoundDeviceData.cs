@@ -5,7 +5,7 @@
     /// <summary>
     /// Class for enumerating DirectSound devices.
     /// </summary>
-    internal class DirectSoundDeviceInfo
+    internal sealed class DirectSoundDeviceData
     {
         /// <summary>
         /// The device identifier.

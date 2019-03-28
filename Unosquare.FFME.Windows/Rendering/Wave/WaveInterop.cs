@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Rendering.Wave
 {
+    using Media;
     using Microsoft.Win32.SafeHandles;
     using System;
     using System.Runtime.CompilerServices;
@@ -338,7 +339,7 @@
         /// <returns>The audio device capabilities and metadata.</returns>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
         /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails.</exception>
-        public static LegacyAudioDeviceInfo RetrieveAudioDeviceInfo(int deviceId)
+        public static LegacyAudioDeviceData RetrieveAudioDeviceInfo(int deviceId)
         {
             if (deviceId < -1) throw new ArgumentException($"Invalid Device ID {deviceId}", nameof(deviceId));
             if (!TryEnterDeviceOperation())
@@ -349,7 +350,7 @@
                 LegacyAudioException.Try(
                     NativeMethods.RetrieveDeviceCapabilities((IntPtr)deviceId,
                         out var waveOutCaps,
-                        Marshal.SizeOf(typeof(LegacyAudioDeviceInfo))),
+                        Marshal.SizeOf(typeof(LegacyAudioDeviceData))),
                     nameof(NativeMethods.RetrieveDeviceCapabilities));
 
                 return waveOutCaps;
@@ -422,7 +423,7 @@
 
             // http://msdn.microsoft.com/en-us/library/dd743857%28VS.85%29.aspx
             [DllImport(WinMM, EntryPoint = "waveOutGetDevCaps", CharSet = CharSet.Auto)]
-            public static extern LegacyAudioResult RetrieveDeviceCapabilities(IntPtr deviceId, out LegacyAudioDeviceInfo waveOutCaps, int waveOutCapsSize);
+            public static extern LegacyAudioResult RetrieveDeviceCapabilities(IntPtr deviceId, out LegacyAudioDeviceData waveOutCaps, int waveOutCapsSize);
         }
     }
 }

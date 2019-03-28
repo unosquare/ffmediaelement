@@ -1,4 +1,4 @@
-﻿namespace Unosquare.FFME.Rendering
+﻿namespace Unosquare.FFME.Media
 {
     /// <summary>
     /// Windows multimedia error codes from mmsystem.h.

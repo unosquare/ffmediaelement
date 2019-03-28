@@ -12,7 +12,7 @@
     /// WaveOutCapabilities structure (based on WAVEOUTCAPS2 from mmsystem.h).
     /// </summary>
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-    internal struct LegacyAudioDeviceInfo : IEquatable<LegacyAudioDeviceInfo>
+    internal struct LegacyAudioDeviceData : IEquatable<LegacyAudioDeviceData>
     {
         private const int MaxProductNameLength = 32;
 
@@ -129,7 +129,7 @@
         #region Methods
 
         /// <inheritdoc />
-        public bool Equals(LegacyAudioDeviceInfo other)
+        public bool Equals(LegacyAudioDeviceData other)
         {
             return manufacturerGuid == other.manufacturerGuid &&
                 productGuid == other.productGuid &&
@@ -139,11 +139,11 @@
 
         /// <inheritdoc />
         public override bool Equals(object obj) =>
-            obj is LegacyAudioDeviceInfo && Equals((LegacyAudioDeviceInfo)obj);
+            obj is LegacyAudioDeviceData && Equals((LegacyAudioDeviceData)obj);
 
         /// <inheritdoc />
         public override int GetHashCode() =>
-            throw new NotSupportedException($"{nameof(LegacyAudioDeviceInfo)} does not support hashing.");
+            throw new NotSupportedException($"{nameof(LegacyAudioDeviceData)} does not support hashing.");
 
         /// <summary>
         /// Checks to see if a given SupportedWaveFormat is supported.

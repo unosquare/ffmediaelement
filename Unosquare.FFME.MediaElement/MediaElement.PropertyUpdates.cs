@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME
 {
+    using Media;
     using Platform;
     using System;
     using System.Collections.Generic;

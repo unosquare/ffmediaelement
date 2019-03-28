@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME
 {
-    using Rendering;
+    using Media;
 
     public partial class MediaElement
     {

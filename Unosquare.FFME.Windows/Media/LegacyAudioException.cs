@@ -1,6 +1,5 @@
-﻿namespace Unosquare.FFME.Rendering
+﻿namespace Unosquare.FFME.Media
 {
-    using Media;
     using System;
     using System.Runtime.Serialization;
     using System.Security.Permissions;

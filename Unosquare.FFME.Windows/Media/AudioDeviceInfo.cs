@@ -1,5 +1,7 @@
-﻿namespace Unosquare.FFME.Rendering
+﻿namespace Unosquare.FFME.Media
 {
+    using System;
+
     /// <summary>
     /// Represents a device identifier.
     /// </summary>
@@ -58,6 +60,46 @@
         public override string ToString()
         {
             return $"{Provider}: {Name}";
+        }
+    }
+
+    /// <summary>
+    /// Represents information about a legacy WinMM audio device.
+    /// </summary>
+    public sealed class LegacyAudioDeviceInfo : AudioDeviceInfo<int>
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LegacyAudioDeviceInfo" /> class.
+        /// </summary>
+        /// <param name="deviceId">The device identifier.</param>
+        /// <param name="name">The name.</param>
+        /// <param name="provider">The provider.</param>
+        /// <param name="isDefault">if set to <c>true</c> [is default].</param>
+        /// <param name="tag">The tag.</param>
+        internal LegacyAudioDeviceInfo(int deviceId, string name, string provider, bool isDefault, string tag)
+            : base(deviceId, name, provider, isDefault, tag)
+        {
+            // placeholder
+        }
+    }
+
+    /// <summary>
+    /// Represents information about a DirectSound audio device.
+    /// </summary>
+    public sealed class DirectSoundDeviceInfo : AudioDeviceInfo<Guid>
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DirectSoundDeviceInfo" /> class.
+        /// </summary>
+        /// <param name="deviceId">The device identifier.</param>
+        /// <param name="name">The name.</param>
+        /// <param name="provider">The provider.</param>
+        /// <param name="isDefault">if set to <c>true</c> [is default].</param>
+        /// <param name="tag">The tag.</param>
+        internal DirectSoundDeviceInfo(Guid deviceId, string name, string provider, bool isDefault, string tag)
+            : base(deviceId, name, provider, isDefault, tag)
+        {
+            // placeholder
         }
     }
 }

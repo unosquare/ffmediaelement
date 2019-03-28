@@ -59,7 +59,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\ILoggingHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\ILoggingSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Platform\IMediaConnector.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Platform\IMediaEngineState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Media\IMediaEngineState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Media\IMediaInputStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Platform\IMediaRenderer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Platform\IPlatform.cs" />

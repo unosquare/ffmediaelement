@@ -82,7 +82,7 @@
         /// <summary>
         /// Gets the capabilities.
         /// </summary>
-        public LegacyAudioDeviceInfo Capabilities { get; }
+        public LegacyAudioDeviceData Capabilities { get; }
 
         /// <summary>
         /// Gets a value indicating whether this instance is disposed.
@@ -104,11 +104,11 @@
         /// Gets the Windows Multimedia Extensions (MME) devices in the system.
         /// </summary>
         /// <returns>The available MME devices.</returns>
-        public static List<LegacyAudioDeviceInfo> EnumerateDevices()
+        public static List<LegacyAudioDeviceData> EnumerateDevices()
         {
             lock (DevicesEnumLock)
             {
-                var devices = new List<LegacyAudioDeviceInfo>(32);
+                var devices = new List<LegacyAudioDeviceData>(32);
                 var count = WaveInterop.RetrieveAudioDeviceCount();
                 for (var i = -1; i < count; i++)
                     devices.Add(WaveInterop.RetrieveAudioDeviceInfo(i));

@@ -21,7 +21,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Media\PositionChangedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Media\SubtitleDecodedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MediaElement.DependencyProperties.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.MediaProperties.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.Events.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.PropertyUpdates.cs" />

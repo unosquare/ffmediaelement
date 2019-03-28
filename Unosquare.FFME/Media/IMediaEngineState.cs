@@ -1,6 +1,5 @@
-﻿namespace Unosquare.FFME.Platform
+﻿namespace Unosquare.FFME.Media
 {
-    using Media;
     using System;
     using System.Collections.ObjectModel;
 

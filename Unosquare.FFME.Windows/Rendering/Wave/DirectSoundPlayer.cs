@@ -25,7 +25,7 @@
 
         // Device enumerations
         private static readonly object DevicesEnumLock = new object();
-        private static List<DirectSoundDeviceInfo> EnumeratedDevices;
+        private static List<DirectSoundDeviceData> EnumeratedDevices;
 
         // Instance fields
         private readonly object SyncLock = new object();
@@ -105,11 +105,11 @@
         /// Gets the DirectSound output devices in the system.
         /// </summary>
         /// <returns>The available DirectSound devices.</returns>
-        public static List<DirectSoundDeviceInfo> EnumerateDevices()
+        public static List<DirectSoundDeviceData> EnumerateDevices()
         {
             lock (DevicesEnumLock)
             {
-                EnumeratedDevices = new List<DirectSoundDeviceInfo>(32);
+                EnumeratedDevices = new List<DirectSoundDeviceData>(32);
                 NativeMethods.DirectSoundEnumerateA(EnumerateDevicesCallback, IntPtr.Zero);
                 return EnumeratedDevices;
             }
@@ -154,7 +154,7 @@
         /// <returns>The devices.</returns>
         private static bool EnumerateDevicesCallback(IntPtr deviceGuidPtr, IntPtr descriptionPtr, IntPtr modulePtr, IntPtr contextPtr)
         {
-            var device = new DirectSoundDeviceInfo();
+            var device = new DirectSoundDeviceData();
             if (deviceGuidPtr == IntPtr.Zero)
             {
                 device.Guid = Guid.Empty;

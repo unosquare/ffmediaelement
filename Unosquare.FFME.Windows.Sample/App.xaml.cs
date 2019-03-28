@@ -76,7 +76,7 @@
                 try
                 {
                     // Force loading
-                    MediaElement.LoadFFmpeg();
+                    Utilities.LoadFFmpeg();
                 }
                 catch(Exception ex)
                 {
