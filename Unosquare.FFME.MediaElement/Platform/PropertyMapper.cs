@@ -9,12 +9,6 @@
     using System.Reflection;
     using System.Runtime.CompilerServices;
 
-#if WINDOWS_UWP
-    using Windows.UI.Xaml;
-#else
-    using System.Windows;
-#endif
-
     /// <summary>
     /// A helper class to map and process synchronization
     /// between media engine state properties and the MediaElement control.
@@ -34,21 +28,22 @@
 
             var enginePropertyNames = MediaEngineStateProperties.Keys.ToArray();
 
-            MediaElementDependencyProperties = new ReadOnlyDictionary<string, PropertyInfo>(
-                RetrieveDependencyProperties(typeof(MediaElement))
-                    .Where(p => enginePropertyNames.Contains(p.Name))
-                    .ToDictionary(p => p.Name, p => p));
-
-            var dependencyPropertyNames = MediaElementDependencyProperties.Keys.ToArray();
-
-            MediaElementNotificationProperties = new ReadOnlyDictionary<string, PropertyInfo>(
+            MediaElementControllerProperties = new ReadOnlyDictionary<string, PropertyInfo>(
                 RetrieveProperties(typeof(MediaElement), false)
                     .Where(p => enginePropertyNames.Contains(p.Name)
-                        && dependencyPropertyNames.Contains(p.Name) == false
+                        && p.CanRead && p.CanWrite)
+                    .ToDictionary(p => p.Name, p => p));
+
+            var controllerPropertyNames = MediaElementControllerProperties.Keys.ToArray();
+
+            MediaElementInfoProperties = new ReadOnlyDictionary<string, PropertyInfo>(
+                RetrieveProperties(typeof(MediaElement), false)
+                    .Where(p => enginePropertyNames.Contains(p.Name)
+                        && controllerPropertyNames.Contains(p.Name) == false
                         && p.CanRead && p.CanWrite == false)
                     .ToDictionary(p => p.Name, p => p));
 
-            var allMediaElementPropertyNames = dependencyPropertyNames.Union(MediaElementNotificationProperties.Keys.ToArray()).ToArray();
+            var allMediaElementPropertyNames = controllerPropertyNames.Union(MediaElementInfoProperties.Keys.ToArray()).ToArray();
             var missingMediaElementPropertyNames = MediaEngineStateProperties.Keys
                 .Where(p => allMediaElementPropertyNames.Contains(p) == false)
                 .ToArray();
@@ -62,14 +57,14 @@
         public static ReadOnlyCollection<string> MissingPropertyMappings { get; }
 
         /// <summary>
-        /// Gets the media element dependency properties.
+        /// Gets the media element properties that can be read and written to.
         /// </summary>
-        public static ReadOnlyDictionary<string, PropertyInfo> MediaElementDependencyProperties { get; }
+        public static ReadOnlyDictionary<string, PropertyInfo> MediaElementControllerProperties { get; }
 
         /// <summary>
-        /// Gets the media element notification properties.
+        /// Gets the media element properties that can only be read from.
         /// </summary>
-        public static ReadOnlyDictionary<string, PropertyInfo> MediaElementNotificationProperties { get; }
+        public static ReadOnlyDictionary<string, PropertyInfo> MediaElementInfoProperties { get; }
 
         /// <summary>
         /// Gets the media engine state properties.
@@ -83,7 +78,7 @@
         /// <param name="lastSnapshot">The last snapshot.</param>
         /// <returns>A list of property names that have changed.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string[] DetectNotificationPropertyChanges(this MediaElement m, Dictionary<string, object> lastSnapshot)
+        public static string[] DetectInfoPropertyChanges(this MediaElement m, Dictionary<string, object> lastSnapshot)
         {
             var result = new List<string>(PropertyMaxCount);
             var currentState = new Dictionary<string, object>(PropertyMaxCount);
@@ -103,17 +98,17 @@
         }
 
         /// <summary>
-        /// Detects which dependency properties are out of sync with the Media Engine State properties.
+        /// Detects which controller properties are out of sync with the Media Engine State properties.
         /// </summary>
         /// <param name="m">The m.</param>
-        /// <returns>A dictionary of dependency properties to synchronize along with the engine values.</returns>
-        public static Dictionary<PropertyInfo, object> DetectDependencyPropertyChanges(this MediaElement m)
+        /// <returns>A dictionary of controller properties to synchronize along with the current engine values.</returns>
+        public static Dictionary<PropertyInfo, object> DetectControllerPropertyChanges(this MediaElement m)
         {
             var result = new Dictionary<PropertyInfo, object>(PropertyMaxCount);
             object engineValue; // The current value of the media engine state property
-            object propertyValue; // The current value of the dependency property
+            object propertyValue; // The current value of the controller property
 
-            foreach (var targetProperty in MediaElementDependencyProperties)
+            foreach (var targetProperty in MediaElementControllerProperties)
             {
                 engineValue = MediaEngineStateProperties[targetProperty.Key].GetValue(m.MediaCore.State);
                 propertyValue = targetProperty.Value.GetValue(m);
@@ -140,39 +135,8 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void SnapshotNotifications(this MediaElement m, Dictionary<string, object> target)
         {
-            foreach (var p in MediaElementNotificationProperties)
+            foreach (var p in MediaElementInfoProperties)
                 target[p.Key] = p.Value.GetValue(m);
-        }
-
-        /// <summary>
-        /// Retrieves the dependency properties.
-        /// </summary>
-        /// <param name="t">The t.</param>
-        /// <returns>A list of dependency properties.</returns>
-        private static List<PropertyInfo> RetrieveDependencyProperties(Type t)
-        {
-            const string PropertySuffix = "Property";
-            var result = new List<PropertyInfo>(64);
-            var allProperties = RetrieveProperties(typeof(MediaElement), false);
-            var fieldInfos = t.GetFields(BindingFlags.Public | BindingFlags.Static)
-                .Where(x => x.FieldType == typeof(DependencyProperty))
-                .ToArray();
-
-            foreach (var fieldInfo in fieldInfos)
-            {
-                if (fieldInfo.GetValue(null) is DependencyProperty property &&
-                    fieldInfo.Name.EndsWith(PropertySuffix, StringComparison.Ordinal))
-                {
-                    var propertyName = fieldInfo.Name.Substring(0, fieldInfo.Name.Length - PropertySuffix.Length);
-                    var matchingProperty = allProperties.FirstOrDefault(p => p.Name == propertyName);
-                    if (matchingProperty == null)
-                        continue;
-
-                    result.Add(matchingProperty);
-                }
-            }
-
-            return result;
         }
 
         /// <summary>

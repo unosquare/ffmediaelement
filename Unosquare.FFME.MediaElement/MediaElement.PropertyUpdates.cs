@@ -82,7 +82,7 @@
         private void UpdateNotificationProperties()
         {
             // Detect changes
-            var notificationProperties = this.DetectNotificationPropertyChanges(NotificationPropertyCache);
+            var notificationProperties = this.DetectInfoPropertyChanges(NotificationPropertyCache);
             var notifyRemainingDuration = false;
 
             // Handling of Notification Properties
@@ -108,7 +108,7 @@
         private void UpdateDependencyProperties()
         {
             // Detect Notification and Dependency property changes
-            var changes = this.DetectDependencyPropertyChanges();
+            var changes = this.DetectControllerPropertyChanges();
 
             // Remove the position property updates if we are not allowed to
             // report changes from the engine
