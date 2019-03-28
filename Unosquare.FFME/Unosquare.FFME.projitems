@@ -28,6 +28,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)FFmpeg\FFInterop.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FFmpeg\FFLibrary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\RC.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Platform\IGuiTimer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistEntry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistEntryAttributeDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistEntryCollection.cs" />
@@ -119,6 +120,5 @@
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Diagnostics\" />
     <Folder Include="$(MSBuildThisFileDirectory)Media\" />
-    <Folder Include="$(MSBuildThisFileDirectory)Platform\" />
   </ItemGroup>
 </Project>

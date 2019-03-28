@@ -1,7 +1,6 @@
 ﻿#pragma warning disable SA1202 // Elements must appear in the correct order
 namespace Unosquare.FFME.Rendering
 {
-    using Engine;
     using Platform;
     using System.Collections.Generic;
     using System.ComponentModel;
