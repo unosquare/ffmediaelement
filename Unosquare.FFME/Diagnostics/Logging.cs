@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Diagnostics
 {
+    using Media;
     using Primitives;
     using System;
     using System.Collections.Concurrent;
@@ -15,7 +16,7 @@
     {
         #region Private Members
 
-        private static readonly ConcurrentQueue<MediaLogMessage> LogQueue = new ConcurrentQueue<MediaLogMessage>();
+        private static readonly ConcurrentQueue<LoggingMessage> LogQueue = new ConcurrentQueue<LoggingMessage>();
         private static readonly LogOutputTimerWorker LogOutputWorker = new LogOutputTimerWorker();
 
         #endregion
@@ -116,7 +117,7 @@
             if (loggingHandler == null || messageType == MediaLogMessageType.None)
                 return;
 
-            var messageItem = new MediaLogMessage(loggingHandler, messageType, message, aspectName);
+            var messageItem = new LoggingMessage(loggingHandler, messageType, message, aspectName);
             LogQueue.Enqueue(messageItem);
         }
 

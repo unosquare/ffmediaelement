@@ -79,7 +79,7 @@
     <Rule Id="IDE0002" Action="Info" />
     <Rule Id="IDE0003" Action="Info" />
     <Rule Id="IDE0004" Action="Info" />
-    <Rule Id="IDE0005" Action="Info" />
+    <Rule Id="IDE0005" Action="Error" />
     <Rule Id="IDE0007" Action="Info" />
     <Rule Id="IDE0007WithoutSuggestion" Action="Info" />
     <Rule Id="IDE0008" Action="None" />
@@ -142,9 +142,13 @@
     <Rule Id="IDE0033" Action="Warning" />
     <Rule Id="IDE0033WithoutSuggestion" Action="Warning" />
   </Rules>
+  <Rules AnalyzerId="Microsoft.CodeQuality.Analyzers" RuleNamespace="Microsoft.CodeQuality.Analyzers">
+    <Rule Id="CA1031" Action="None" />
+  </Rules>
   <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
     <Rule Id="SA1000" Action="None" />
     <Rule Id="SA1001" Action="None" />
+    <Rule Id="SA1011" Action="None" />
     <Rule Id="SA1021" Action="None" />
     <Rule Id="SA1101" Action="None" />
     <Rule Id="SA1116" Action="None" />
@@ -165,9 +169,5 @@
     <Rule Id="SA1601" Action="None" />
     <Rule Id="SA1623" Action="None" />
     <Rule Id="SA1633" Action="None" />
-    <Rule Id="SA1011" Action="None" />
-  </Rules>
-  <Rules AnalyzerId="Microsoft.CodeQuality.Analyzers" RuleNamespace="Microsoft.CodeQuality.Analyzers">
-    <Rule Id="CA1031" Action="None" />
   </Rules>
 </RuleSet>

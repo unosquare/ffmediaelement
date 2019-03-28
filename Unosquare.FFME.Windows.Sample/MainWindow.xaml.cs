@@ -2,6 +2,7 @@
 {
     using ClosedCaptions;
     using Foundation;
+    using Media;
     using Platform;
     using System;
     using System.Linq;

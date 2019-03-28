@@ -1,5 +1,7 @@
 ﻿namespace Unosquare.FFME.Container
 {
+    using Media;
+
     /// <summary>
     /// A scaled, pre-allocated audio frame container.
     /// The buffer is in 16-bit signed, interleaved sample data.

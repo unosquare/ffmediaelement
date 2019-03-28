@@ -6,20 +6,20 @@
     <SharedGUID>4f84c6a1-ba3a-4a1e-84ee-7a7aa214f317</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>Unosquare.FFME.MediaElement</Import_RootNamespace>
+    <Import_RootNamespace>Unosquare.FFME</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Events\MediaFailedEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Events\FrameDecodedEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Events\InputFormatEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Events\MediaInitializingEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Events\MediaLogMessageEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Events\MediaOpenedEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Events\MediaOpeningEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Events\MediaStateChangedEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Events\PacketReadEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Events\PositionChangedEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Events\SubtitleDecodedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Media\MediaFailedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Media\FrameDecodedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Media\InputFormatEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Media\MediaInitializingEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Media\MediaLogMessageEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Media\MediaOpenedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Media\MediaOpeningEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Media\MediaStateChangedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Media\PacketReadEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Media\PositionChangedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Media\SubtitleDecodedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.DependencyProperties.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.MediaProperties.cs" />
@@ -30,9 +30,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Platform\GuiTimer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Platform\MediaConnector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Platform\PropertyMapper.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Playlists\AttributeDictionary.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistEntry.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistEntryCollection.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities.cs" />
   </ItemGroup>
 </Project>

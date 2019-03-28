@@ -1,9 +1,8 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
     using ClosedCaptions;
-    using Engine;
-    using Events;
     using FFmpeg.AutoGen;
+    using Media;
     using Platform;
     using System;
     using System.Diagnostics;

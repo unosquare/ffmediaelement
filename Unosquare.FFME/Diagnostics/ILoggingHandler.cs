@@ -9,6 +9,6 @@
         /// Handles a log message.
         /// </summary>
         /// <param name="message">The message object contining the data.</param>
-        void HandleLogMessage(MediaLogMessage message);
+        void HandleLogMessage(LoggingMessage message);
     }
 }

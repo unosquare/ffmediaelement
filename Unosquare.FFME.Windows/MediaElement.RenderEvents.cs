@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME
 {
     using Container;
-    using Events;
+    using Media;
     using System;
     using System.Runtime.CompilerServices;
 

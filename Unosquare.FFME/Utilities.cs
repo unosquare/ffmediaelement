@@ -2,6 +2,8 @@
 {
     using Container;
     using FFmpeg.AutoGen;
+    using Media;
+    using Primitives;
     using System;
     using System.Collections.Generic;
     using System.Globalization;
@@ -12,7 +14,7 @@
     /// <summary>
     /// Provides various helpers and extension methods.
     /// </summary>
-    public static class Utilities
+    public static partial class Utilities
     {
         #region Audio Processing Extensions
 

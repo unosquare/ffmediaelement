@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME
 {
+    using Engine;
     using Platform;
     using Primitives;
     using Rendering;

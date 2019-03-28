@@ -3,6 +3,7 @@
     using ClosedCaptions;
     using Engine;
     using FFmpeg.AutoGen;
+    using Media;
     using System;
     using System.IO;
     using System.Reflection;

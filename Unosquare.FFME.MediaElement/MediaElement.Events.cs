@@ -1,9 +1,8 @@
 ﻿namespace Unosquare.FFME
 {
     using Diagnostics;
-    using Engine;
-    using Events;
     using FFmpeg.AutoGen;
+    using Media;
     using Platform;
     using System;
     using System.ComponentModel;
@@ -83,17 +82,17 @@
         /// Raises the FFmpeg message logged.
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="MediaLogMessage"/> instance containing the event data.</param>
+        /// <param name="e">The <see cref="LoggingMessage"/> instance containing the event data.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void RaiseFFmpegMessageLogged(object sender, MediaLogMessage e) =>
+        internal static void RaiseFFmpegMessageLogged(object sender, LoggingMessage e) =>
             FFmpegMessageLogged?.Invoke(sender, new MediaLogMessageEventArgs(e));
 
         /// <summary>
         /// Raises the message logged event.
         /// </summary>
-        /// <param name="e">The <see cref="MediaLogMessage"/> instance containing the event data.</param>
+        /// <param name="e">The <see cref="LoggingMessage"/> instance containing the event data.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void RaiseMessageLoggedEvent(MediaLogMessage e) =>
+        internal void RaiseMessageLoggedEvent(LoggingMessage e) =>
             MessageLogged?.Invoke(this, new MediaLogMessageEventArgs(e));
 
         /// <summary>

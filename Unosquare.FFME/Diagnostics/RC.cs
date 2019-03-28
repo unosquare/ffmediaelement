@@ -1,5 +1,6 @@
 ﻿namespace Unosquare.FFME.Diagnostics
 {
+    using Engine;
     using FFmpeg.AutoGen;
     using System;
     using System.Collections.Generic;

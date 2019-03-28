@@ -2,6 +2,7 @@
 {
     using ClosedCaptions;
     using FFmpeg.AutoGen;
+    using Media;
     using System;
     using System.Collections.Generic;
 

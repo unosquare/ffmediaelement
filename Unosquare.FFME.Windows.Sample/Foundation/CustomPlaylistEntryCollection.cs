@@ -1,7 +1,6 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.Foundation
 {
-    using Engine;
-    using Events;
+    using Media;
     using Playlists;
     using System;
     using System.IO;

@@ -2,7 +2,9 @@
 {
     using Container;
     using Diagnostics;
+    using Engine;
     using FFmpeg.AutoGen;
+    using Media;
     using Primitives;
     using System;
     using System.Collections.Generic;
@@ -10,7 +12,6 @@
     using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
-    using Workers;
 
     internal partial class CommandManager
     {

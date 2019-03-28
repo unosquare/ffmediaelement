@@ -1,6 +1,8 @@
 ﻿namespace Unosquare.FFME.Engine
 {
     using Container;
+    using Media;
+    using Platform;
     using Primitives;
     using System;
     using System.Collections.Generic;
@@ -10,7 +12,7 @@
     /// <summary>
     /// Contains all the status properties of the stream being handled by the media engine.
     /// </summary>
-    public sealed class MediaEngineState : IMediaEngineState
+    internal sealed class MediaEngineState : IMediaEngineState
     {
         #region Property Backing and Private State
 

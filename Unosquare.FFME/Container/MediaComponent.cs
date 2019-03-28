@@ -2,6 +2,7 @@
 {
     using Diagnostics;
     using FFmpeg.AutoGen;
+    using Media;
     using Primitives;
     using System;
     using System.Globalization;
@@ -148,7 +149,7 @@
                     if (decoderOptions.EnableLowDelayDecoding) CodecContext->flags |= ffmpeg.AV_CODEC_FLAG_LOW_DELAY;
 
                     // process the low res option
-                    if (decoderOptions.LowResolutionIndex != ResolutionDivider.Full && codec->max_lowres > 0)
+                    if (decoderOptions.LowResolutionIndex != VideoResolutionDivider.Full && codec->max_lowres > 0)
                     {
                         var lowResOption = Math.Min((byte)decoderOptions.LowResolutionIndex, codec->max_lowres)
                             .ToString(CultureInfo.InvariantCulture);

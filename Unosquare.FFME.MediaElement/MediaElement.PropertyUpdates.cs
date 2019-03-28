@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME
 {
-    using Engine;
     using Platform;
     using System;
     using System.Collections.Generic;
@@ -43,7 +42,7 @@
             // Check that all properties map back to the media state
             if (PropertyMapper.MissingPropertyMappings.Count > 0)
             {
-                throw new KeyNotFoundException($"{nameof(MediaElement)} is missing properties exposed by {nameof(MediaEngineState)}. " +
+                throw new KeyNotFoundException($"{nameof(MediaElement)} is missing properties exposed by {nameof(IMediaEngineState)}. " +
                     $"Missing properties are: {string.Join(", ", PropertyMapper.MissingPropertyMappings)}. " +
                     $"Please add these properties to the {nameof(MediaElement)} class.");
             }

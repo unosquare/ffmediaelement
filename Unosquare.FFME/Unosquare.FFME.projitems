@@ -9,7 +9,7 @@
     <Import_RootNamespace>Unosquare.FFME</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Aspects.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Aspects.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ClosedCaptions\CaptionsChannel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ClosedCaptions\CaptionsColor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ClosedCaptions\CaptionsCommand.cs" />
@@ -28,6 +28,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)FFmpeg\FFInterop.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FFmpeg\FFLibrary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\RC.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistEntry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistEntryAttributeDictionary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistEntryCollection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\RealtimeClock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Container\AudioComponent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Container\AudioFrame.cs" />
@@ -46,40 +50,40 @@
     <Compile Include="$(MSBuildThisFileDirectory)Container\VideoFrame.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Container\AudioBlock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Constants.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ContainerConfiguration.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)DecoderOptions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)DemuxerGlobalOptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Media\ContainerConfiguration.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Media\DecoderOptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Media\DemuxerGlobalOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FFmpeg\FFmpegLoadMode.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)HardwareDeviceInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Media\HardwareDeviceInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\ILoggingHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\ILoggingSource.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Engine\IMediaConnector.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Engine\IMediaEngineState.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)IMediaInputStream.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Engine\IMediaRenderer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Engine\IPlatform.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Platform\IMediaConnector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Platform\IMediaEngineState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Media\IMediaInputStream.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Platform\IMediaRenderer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Platform\IPlatform.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Container\MediaBlock.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MediaContainerException.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Media\MediaContainerException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Engine\MediaEngineState.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MediaInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\MediaLogMessage.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MediaLogMessageType.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MediaOptions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MediaType.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)OptionMeta.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MediaPlaybackState.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ResolutionDivider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Media\MediaInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\LoggingMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Media\MediaLogMessageType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Media\MediaOptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Media\MediaType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Media\OptionMetadata.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Media\MediaPlaybackState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Media\VideoResolutionDivider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Container\SubtitleBlock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Container\VideoBlock.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)VideoSeekIndex.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)VideoSeekIndexEntry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Media\VideoSeekIndex.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Media\VideoSeekIndexEntry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Logging.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MediaEngine.Connector.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MediaEngine.Controller.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MediaEngine.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MediaEngine.Static.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MediaEngine.Workers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Engine\MediaEngine.Connector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Engine\MediaEngine.Controller.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Engine\MediaEngine.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Engine\MediaEngine.Static.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Engine\MediaEngine.Workers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\AtomicBoolean.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\AtomicDateTime.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\AtomicDouble.cs" />
@@ -96,7 +100,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\IWorker.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\IWorkerDelayProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Container\MediaBlockBuffer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MediaTypeDictionary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Primitives\MediaTypeDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\SyncLockerFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\ThreadWorkerBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\TimerWorkerBase.cs" />
@@ -104,15 +108,17 @@
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\WorkerBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\WorkerDelayProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\WorkerState.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Workers\BlockRenderingWorker.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Workers\FrameDecodingWorker.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Workers\IMediaWorker.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Workers\MediaWorkerSet.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Workers\MediaWorkerType.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Workers\PacketReadingWorker.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Workers\TimingController.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Engine\BlockRenderingWorker.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Engine\FrameDecodingWorker.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Engine\IMediaWorker.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Engine\MediaWorkerSet.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Engine\MediaWorkerType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Engine\PacketReadingWorker.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Engine\TimingController.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Diagnostics\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Media\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Platform\" />
   </ItemGroup>
 </Project>

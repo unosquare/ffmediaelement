@@ -2,13 +2,13 @@
 {
     using Diagnostics;
     using Engine;
+    using Media;
     using Primitives;
     using System;
     using System.Runtime.CompilerServices;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using Workers;
 
     /// <summary>
     /// Provides the MediEngine with an API to execute media control commands.

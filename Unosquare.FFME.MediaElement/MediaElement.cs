@@ -1,7 +1,8 @@
 ﻿namespace Unosquare.FFME
 {
     using Diagnostics;
-    using Events;
+    using Engine;
+    using Media;
     using Platform;
     using Primitives;
     using System;
@@ -328,7 +329,7 @@
         #endregion
 
         /// <inheritdoc />
-        void ILoggingHandler.HandleLogMessage(MediaLogMessage message) =>
+        void ILoggingHandler.HandleLogMessage(LoggingMessage message) =>
             RaiseMessageLoggedEvent(message);
     }
 }

@@ -2,6 +2,7 @@
 #pragma warning disable SA1117 // Parameters must be on same line or separate lines
 namespace Unosquare.FFME
 {
+    using Media;
     using System;
     using System.ComponentModel;
     using System.Windows;

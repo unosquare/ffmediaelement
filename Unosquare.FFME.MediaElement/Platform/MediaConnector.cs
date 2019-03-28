@@ -3,6 +3,7 @@
     using Diagnostics;
     using Engine;
     using FFmpeg.AutoGen;
+    using Media;
     using System;
 
     /// <summary>
@@ -112,7 +113,7 @@
             Parent?.RaiseMediaInitializingEvent(config, url);
 
         /// <inheritdoc />
-        public void OnMessageLogged(MediaEngine sender, MediaLogMessage e) =>
+        public void OnMessageLogged(MediaEngine sender, LoggingMessage e) =>
             Parent?.RaiseMessageLoggedEvent(e);
 
         /// <inheritdoc />

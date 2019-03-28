@@ -2,6 +2,7 @@
 {
     using Diagnostics;
     using FFmpeg.AutoGen;
+    using Media;
     using System;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;

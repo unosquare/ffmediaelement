@@ -2,6 +2,7 @@
 {
     using Diagnostics;
     using Engine;
+    using Media;
     using Rendering;
     using System;
     using System.Diagnostics;
@@ -60,7 +61,7 @@
         }
 
         /// <inheritdoc />
-        public void HandleFFmpegLogMessage(MediaLogMessage message) =>
+        public void HandleFFmpegLogMessage(LoggingMessage message) =>
             MediaElement.RaiseFFmpegMessageLogged(typeof(MediaElement), message);
     }
 }
