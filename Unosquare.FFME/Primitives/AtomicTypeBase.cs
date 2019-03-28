@@ -5,9 +5,9 @@
     using System.Threading;
 
     /// <summary>
-    /// Provides a generic implementation of an Atomic (interlocked) type
+    /// Provides a generic implementation of an Atomic (interlocked) type.
     /// </summary>
-    /// <typeparam name="T">The structure type backed by a 64-bit value</typeparam>
+    /// <typeparam name="T">The structure type backed by a 64-bit value.</typeparam>
     internal abstract class AtomicTypeBase<T> : IComparable, IComparable<T>, IComparable<AtomicTypeBase<T>>, IEquatable<T>, IEquatable<AtomicTypeBase<T>>
         where T : struct, IComparable, IComparable<T>, IEquatable<T>
     {
@@ -267,20 +267,19 @@
         /// Converts from a long value to the target type.
         /// </summary>
         /// <param name="backingValue">The backing value.</param>
-        /// <returns>The value converted form a long value</returns>
+        /// <returns>The value converted form a long value.</returns>
         protected abstract T FromLong(long backingValue);
 
         /// <summary>
-        /// Converts from the target type to a long value
+        /// Converts from the target type to a long value.
         /// </summary>
         /// <param name="value">The value.</param>
-        /// <returns>The value converted to a long value</returns>
+        /// <returns>The value converted to a long value.</returns>
         protected abstract long ToLong(T value);
 
         #region Comparison Logic
 #pragma warning disable IDE0041 // Use 'is null' check
 
-        // ReSharper disable MergeConditionalExpression
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int CompareTo(AtomicTypeBase<T> left, AtomicTypeBase<T> right)
         {
@@ -311,7 +310,6 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool Equals(T left, AtomicTypeBase<T> right) => CompareTo(left, right) == 0;
 
-        // ReSharper restore MergeConditionalExpression
 #pragma warning restore IDE0041 // Use 'is null' check
         #endregion
     }

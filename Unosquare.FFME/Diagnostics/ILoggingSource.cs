@@ -2,7 +2,7 @@
 {
     /// <summary>
     /// Defines interface members for a class that
-    /// defines a logging message handler <see cref="ILoggingHandler"/>
+    /// defines a logging message handler <see cref="ILoggingHandler"/>.
     /// </summary>
     internal interface ILoggingSource
     {

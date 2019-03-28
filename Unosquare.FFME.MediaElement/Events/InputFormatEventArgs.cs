@@ -11,14 +11,14 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="InputFormatEventArgs"/> class.
         /// </summary>
-        /// <param name="context">The input format context</param>
+        /// <param name="context">The input format context.</param>
         protected InputFormatEventArgs(AVFormatContext* context)
         {
             InputContext = context;
         }
 
         /// <summary>
-        /// Gets a pointer to the unmanaged input format context
+        /// Gets a pointer to the unmanaged input format context.
         /// </summary>
         public AVFormatContext* InputContext { get; }
     }

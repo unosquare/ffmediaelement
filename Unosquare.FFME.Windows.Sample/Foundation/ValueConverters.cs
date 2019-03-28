@@ -95,7 +95,6 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
                 output = Math.Round(byteCount / minMegaByte, 2);
             }
 
-            // ReSharper disable once InvertIf
             if (byteCount >= minGigaByte)
             {
                 suffix = "GB";
@@ -139,7 +138,6 @@ namespace Unosquare.FFME.Windows.Sample.Foundation
                 output = Math.Round(byteCount / minMegaBit, 2);
             }
 
-            // ReSharper disable once InvertIf
             if (byteCount >= minGigaBit)
             {
                 suffix = "Gbits/s";

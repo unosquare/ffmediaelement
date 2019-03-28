@@ -5,7 +5,7 @@
     using System;
 
     /// <summary>
-    /// Connects handlers between the Media Engine event signals and a platform-specific implementation
+    /// Connects handlers between the Media Engine event signals and a platform-specific implementation.
     /// </summary>
     internal interface IMediaConnector
     {
@@ -116,28 +116,28 @@
         /// <summary>
         /// Called when a packet is read from the input context.
         /// </summary>
-        /// <param name="packet">The unmanaged packet pointer</param>
+        /// <param name="packet">The unmanaged packet pointer.</param>
         /// <param name="context">The unmanaged input format context.</param>
         unsafe void OnPacketRead(AVPacket* packet, AVFormatContext* context);
 
         /// <summary>
         /// Called when a video frame is decoded.
         /// </summary>
-        /// <param name="videoFrame">The unmanaged video frame pointer</param>
+        /// <param name="videoFrame">The unmanaged video frame pointer.</param>
         /// <param name="context">The unmanaged input format context.</param>
         unsafe void OnVideoFrameDecoded(AVFrame* videoFrame, AVFormatContext* context);
 
         /// <summary>
         /// Called when a video frame is decoded.
         /// </summary>
-        /// <param name="audioFrame">The unmanaged audio frame pointer</param>
+        /// <param name="audioFrame">The unmanaged audio frame pointer.</param>
         /// <param name="context">The unmanaged input format context.</param>
         unsafe void OnAudioFrameDecoded(AVFrame* audioFrame, AVFormatContext* context);
 
         /// <summary>
         /// Called when a subtitle is decoded.
         /// </summary>
-        /// <param name="subtitle">The unmanaged subtitle pointer</param>
+        /// <param name="subtitle">The unmanaged subtitle pointer.</param>
         /// <param name="context">The unmanaged input format context.</param>
         unsafe void OnSubtitleDecoded(AVSubtitle* subtitle, AVFormatContext* context);
     }

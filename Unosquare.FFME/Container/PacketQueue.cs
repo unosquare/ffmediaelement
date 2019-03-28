@@ -48,7 +48,7 @@
         /// Gets the duration in stream time base units.
         /// </summary>
         /// <param name="timeBase">The time base.</param>
-        /// <returns>The total duration</returns>
+        /// <returns>The total duration.</returns>
         public TimeSpan GetDuration(AVRational timeBase)
         {
             lock (SyncLock) { return m_Duration.ToTimeSpan(timeBase); }
@@ -58,7 +58,7 @@
         /// Peeks the next available packet in the queue without removing it.
         /// If no packets are available, null is returned.
         /// </summary>
-        /// <returns>The packet</returns>
+        /// <returns>The packet.</returns>
         public MediaPacket Peek()
         {
             lock (SyncLock)
@@ -88,7 +88,7 @@
         /// <summary>
         /// Dequeue a packet from this queue.
         /// </summary>
-        /// <returns>The dequeued packet</returns>
+        /// <returns>The dequeued packet.</returns>
         public MediaPacket Dequeue()
         {
             lock (SyncLock)

@@ -9,7 +9,7 @@
     using ViewModels;
 
     /// <summary>
-    /// Interaction logic for App.xaml
+    /// Interaction logic for App.xaml.
     /// </summary>
     public partial class App
     {
@@ -32,14 +32,14 @@
         }
 
         /// <summary>
-        /// Provides access to the root-level, application-wide VM
+        /// Provides access to the root-level, application-wide VM.
         /// </summary>
         public static RootViewModel ViewModel => Current.Resources[nameof(ViewModel)] as RootViewModel;
 
         /// <summary>
-        /// Gets a full file path for a screen capture or stream recording
+        /// Gets a full file path for a screen capture or stream recording.
         /// </summary>
-        /// <param name="mediaPrefix">The media prefix. Use Screenshot or Capture for example</param>
+        /// <param name="mediaPrefix">The media prefix. Use Screenshot or Capture for example.</param>
         /// <param name="extension">The file extension without a dot.</param>
         /// <returns>A full file path where the media file will be written to.</returns>
         public static string GetCaptureFilePath(string mediaPrefix, string extension)

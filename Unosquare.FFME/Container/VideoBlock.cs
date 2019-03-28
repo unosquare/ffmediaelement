@@ -6,7 +6,7 @@
 
     /// <inheritdoc />
     /// <summary>
-    /// A pre-allocated, scaled video block. The buffer is in BGR, 24-bit format
+    /// A pre-allocated, scaled video block. The buffer is in BGR, 24-bit format.
     /// </summary>
     internal sealed class VideoBlock : MediaBlock
     {
@@ -61,7 +61,7 @@
         /// <summary>
         /// Gets the display picture number (frame number).
         /// If not set by the decoder, this attempts to obtain it by dividing the start time by the
-        /// frame duration
+        /// frame duration.
         /// </summary>
         public long DisplayPictureNumber { get; internal set; }
 
@@ -90,7 +90,7 @@
         /// </summary>
         /// <param name="source">The source.</param>
         /// <param name="pixelFormat">The pixel format.</param>
-        /// <returns>True if the allocation was successful</returns>
+        /// <returns>True if the allocation was successful.</returns>
         internal unsafe bool Allocate(VideoFrame source, AVPixelFormat pixelFormat)
         {
             // Ensure proper allocation of the buffer

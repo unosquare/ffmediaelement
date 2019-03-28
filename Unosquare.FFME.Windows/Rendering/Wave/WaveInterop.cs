@@ -1,5 +1,4 @@
-﻿// ReSharper disable UnusedMember.Global
-namespace Unosquare.FFME.Rendering.Wave
+﻿namespace Unosquare.FFME.Rendering.Wave
 {
     using Microsoft.Win32.SafeHandles;
     using System;
@@ -8,7 +7,7 @@ namespace Unosquare.FFME.Rendering.Wave
     using System.Threading;
 
     /// <summary>
-    /// MME Wave function interop
+    /// MME Wave function interop.
     /// </summary>
     internal class WaveInterop
     {
@@ -99,7 +98,7 @@ namespace Unosquare.FFME.Rendering.Wave
         /// <summary>
         /// Retrieves the audio device count.
         /// </summary>
-        /// <returns>The number of registered audio devices</returns>
+        /// <returns>The number of registered audio devices.</returns>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
         public static int RetrieveAudioDeviceCount()
         {
@@ -114,7 +113,7 @@ namespace Unosquare.FFME.Rendering.Wave
         /// <param name="deviceHandle">The device handle.</param>
         /// <param name="header">The header.</param>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails.</exception>
         public static void AllocateHeader(IntPtr deviceHandle, WaveHeader header)
         {
             if (header == null || !TryEnterWaveOperation(deviceHandle)) return;
@@ -134,7 +133,7 @@ namespace Unosquare.FFME.Rendering.Wave
         /// <param name="deviceHandle">The device handle.</param>
         /// <param name="header">The header.</param>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails.</exception>
         public static void ReleaseHeader(IntPtr deviceHandle, WaveHeader header)
         {
             if (header == null || !TryEnterWaveOperation(deviceHandle)) return;
@@ -154,7 +153,7 @@ namespace Unosquare.FFME.Rendering.Wave
         /// <param name="deviceHandle">The device handle.</param>
         /// <param name="header">The header.</param>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails.</exception>
         public static void WriteAudioData(IntPtr deviceHandle, WaveHeader header)
         {
             if (header == null || !TryEnterWaveOperation(deviceHandle)) return;
@@ -176,9 +175,9 @@ namespace Unosquare.FFME.Rendering.Wave
         /// <param name="callback">The callback.</param>
         /// <param name="instanceHandle">The instance handle.</param>
         /// <param name="openFlags">The open flags.</param>
-        /// <returns>The audio device handle</returns>
+        /// <returns>The audio device handle.</returns>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails.</exception>
         public static IntPtr OpenAudioDevice(int deviceId, WaveFormat format, WaveCallback callback, IntPtr instanceHandle, WaveInOutOpenFlags openFlags)
         {
             if (deviceId < -1) throw new ArgumentException($"Invalid Device ID {deviceId}", nameof(deviceId));
@@ -204,9 +203,9 @@ namespace Unosquare.FFME.Rendering.Wave
         /// <param name="callbackHandle">The callback window handle.</param>
         /// <param name="instanceHandle">The instance handle.</param>
         /// <param name="openFlags">The open flags.</param>
-        /// <returns>The audio device handle</returns>
+        /// <returns>The audio device handle.</returns>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails.</exception>
         public static IntPtr OpenAudioDevice(int deviceId, WaveFormat format, SafeWaitHandle callbackHandle, IntPtr instanceHandle, WaveInOutOpenFlags openFlags)
         {
             if (deviceId < -1) throw new ArgumentException($"Invalid Device ID {deviceId}", nameof(deviceId));
@@ -229,7 +228,7 @@ namespace Unosquare.FFME.Rendering.Wave
         /// </summary>
         /// <param name="deviceHandle">The device handle.</param>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails.</exception>
         public static void ResetAudioDevice(IntPtr deviceHandle)
         {
             if (!TryEnterWaveOperation(deviceHandle)) return;
@@ -248,7 +247,7 @@ namespace Unosquare.FFME.Rendering.Wave
         /// </summary>
         /// <param name="deviceHandle">The device handle.</param>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails.</exception>
         public static void CloseAudioDevice(IntPtr deviceHandle)
         {
             if (!TryEnterWaveOperation(deviceHandle)) return;
@@ -267,7 +266,7 @@ namespace Unosquare.FFME.Rendering.Wave
         /// </summary>
         /// <param name="deviceHandle">The device handle.</param>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails.</exception>
         public static void PauseAudioDevice(IntPtr deviceHandle)
         {
             if (!TryEnterWaveOperation(deviceHandle)) return;
@@ -286,7 +285,7 @@ namespace Unosquare.FFME.Rendering.Wave
         /// </summary>
         /// <param name="deviceHandle">The device handle.</param>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails.</exception>
         public static void RestartAudioDevice(IntPtr deviceHandle)
         {
             if (!TryEnterWaveOperation(deviceHandle)) return;
@@ -304,9 +303,9 @@ namespace Unosquare.FFME.Rendering.Wave
         /// Gets the playback bytes count.
         /// </summary>
         /// <param name="deviceHandle">The device handle.</param>
-        /// <returns>The number of bytes played during this session</returns>
+        /// <returns>The number of bytes played during this session.</returns>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails.</exception>
         /// <exception cref="ArgumentException">Occurs when the device does not return a byte count.</exception>
         public static long GetPlaybackBytesCount(IntPtr deviceHandle)
         {
@@ -336,9 +335,9 @@ namespace Unosquare.FFME.Rendering.Wave
         /// Retrieves the audio device information.
         /// </summary>
         /// <param name="deviceId">The device identifier.</param>
-        /// <returns>The audio device capabilities and metadata</returns>
+        /// <returns>The audio device capabilities and metadata.</returns>
         /// <exception cref="TimeoutException">Occurs when the interop lock cannot be acquired.</exception>
-        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails</exception>
+        /// <exception cref="LegacyAudioException">Occurs when the MME interop call fails.</exception>
         public static LegacyAudioDeviceInfo RetrieveAudioDeviceInfo(int deviceId)
         {
             if (deviceId < -1) throw new ArgumentException($"Invalid Device ID {deviceId}", nameof(deviceId));
@@ -378,7 +377,7 @@ namespace Unosquare.FFME.Rendering.Wave
         #endregion
 
         /// <summary>
-        /// Contains the native methods for the Windows MME API
+        /// Contains the native methods for the Windows MME API.
         /// </summary>
         private static class NativeMethods
         {

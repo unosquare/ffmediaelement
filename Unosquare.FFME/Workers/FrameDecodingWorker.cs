@@ -13,7 +13,7 @@
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Implement frame decoding worker logic
+    /// Implement frame decoding worker logic.
     /// </summary>
     /// <seealso cref="WorkerBase" />
     /// <seealso cref="IMediaWorker" />
@@ -23,7 +23,7 @@
         private readonly Action<IEnumerable<MediaType>, CancellationToken> ParallelDecodeBlocks;
 
         /// <summary>
-        /// The decoded frame count for a cycle. This is used to detect end of decoding scenarios
+        /// The decoded frame count for a cycle. This is used to detect end of decoding scenarios.
         /// </summary>
         private int DecodedFrameCount;
 
@@ -170,7 +170,7 @@
         /// <summary>
         /// Detects the end of media in the decoding worker.
         /// </summary>
-        /// <returns>True if media docding has ended</returns>
+        /// <returns>True if media docding has ended.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool DetectHasDecodingEnded() =>
             DecodedFrameCount <= 0 &&

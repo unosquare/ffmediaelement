@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.Foundation
 {
-    using Engine;
     using Events;
     using FFmpeg.AutoGen;
     using System;
@@ -16,7 +15,7 @@
     /// For re-encoding you will need to handle the following events and perform encoding on your own
     /// <see cref="MediaElement.VideoFrameDecoded"/>
     /// <see cref="MediaElement.AudioFrameDecoded"/>
-    /// <see cref="MediaElement.SubtitleDecoded"/>
+    /// <see cref="MediaElement.SubtitleDecoded"/>.
     /// </summary>
     internal sealed unsafe class TransportStreamRecorder
     {
@@ -31,8 +30,8 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="TransportStreamRecorder"/> class.
         /// </summary>
-        /// <param name="outputFilePath">The output file path. The extension will be guessed according to the input</param>
-        /// <param name="media">The parent media element</param>
+        /// <param name="outputFilePath">The output file path. The extension will be guessed according to the input.</param>
+        /// <param name="media">The parent media element.</param>
         public TransportStreamRecorder(string outputFilePath, MediaElement media)
         {
             FilePath = outputFilePath;
@@ -78,8 +77,8 @@
         /// <summary>
         /// Guesses the file path with an appropriate extension according to the input context.
         /// </summary>
-        /// <param name="inputContext">The input context</param>
-        /// <returns>A suitable file path with appropriate file extension</returns>
+        /// <param name="inputContext">The input context.</param>
+        /// <returns>A suitable file path with appropriate file extension.</returns>
         private string GuessOutputFilePath(AVFormatContext* inputContext)
         {
             var currentExtension = Path.GetExtension(FilePath);
@@ -94,7 +93,7 @@
         /// <summary>
         /// Initializes the output context and writes the file header.
         /// </summary>
-        /// <param name="inputContext">The input context</param>
+        /// <param name="inputContext">The input context.</param>
         private void Initialize(AVFormatContext* inputContext)
         {
             var result = 0;
@@ -150,8 +149,8 @@
         /// <summary>
         /// Handles the Media.PacketRead event writing the packet to the output context.
         /// </summary>
-        /// <param name="sender">the media element that sent this event</param>
-        /// <param name="e">The event arguments containing the packet data</param>
+        /// <param name="sender">the media element that sent this event.</param>
+        /// <param name="e">The event arguments containing the packet data.</param>
         private void OnMediaPacketRead(object sender, PacketReadEventArgs e)
         {
             lock (SyncLock)

@@ -102,7 +102,7 @@
         /// </summary>
         /// <param name="block">The block.</param>
         /// <param name="clock">The clock.</param>
-        /// <returns>True if the rendering should be prevented</returns>
+        /// <returns>True if the rendering should be prevented.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool RaiseRenderingSubtitlesEvent(SubtitleBlock block, TimeSpan clock)
         {

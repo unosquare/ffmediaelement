@@ -86,7 +86,7 @@
         /// Returns true if it was a new initialization and it succeeded. False if there was no need to initialize
         /// as there is already a valid initialization.
         /// </returns>
-        /// <exception cref="FileNotFoundException">When ffmpeg libraries are not found</exception>
+        /// <exception cref="FileNotFoundException">When ffmpeg libraries are not found.</exception>
         public static bool Initialize(string overridePath, int libIdentifiers)
         {
             lock (SyncLock)
@@ -148,8 +148,8 @@
         /// <summary>
         /// Copies the contents of a managed string to an unmanaged, UTF8 encoded string.
         /// </summary>
-        /// <param name="source">The string to copy</param>
-        /// <returns>A pointer to a string in unmanaged memory</returns>
+        /// <param name="source">The string to copy.</param>
+        /// <returns>A pointer to a string in unmanaged memory.</returns>
         public static byte* StringToBytePointerUTF8(string source)
         {
             var sourceBytes = Encoding.UTF8.GetBytes(source);
@@ -159,10 +159,10 @@
         }
 
         /// <summary>
-        /// Gets the FFmpeg error message based on the error code
+        /// Gets the FFmpeg error message based on the error code.
         /// </summary>
         /// <param name="errorCode">The code.</param>
-        /// <returns>The decoded error message</returns>
+        /// <returns>The decoded error message.</returns>
         public static unsafe string DecodeMessage(int errorCode)
         {
             var bufferSize = 1024;
@@ -176,7 +176,7 @@
         /// Retrieves the options information associated with the given AVClass.
         /// </summary>
         /// <param name="avClass">The av class.</param>
-        /// <returns>A list of option metadata</returns>
+        /// <returns>A list of option metadata.</returns>
         public static unsafe List<OptionMeta> RetrieveOptions(AVClass* avClass)
         {
             // see: https://github.com/FFmpeg/FFmpeg/blob/e0f32286861ddf7666ba92297686fa216d65968e/tools/enum_options.c
@@ -199,7 +199,7 @@
         /// <summary>
         /// Retrieves the codecs.
         /// </summary>
-        /// <returns>The codecs</returns>
+        /// <returns>The codecs.</returns>
         public static unsafe AVCodec*[] RetrieveCodecs()
         {
             var result = new List<IntPtr>(1024);
@@ -222,7 +222,7 @@
         /// <summary>
         /// Retrieves the input format names.
         /// </summary>
-        /// <returns>The collection of names</returns>
+        /// <returns>The collection of names.</returns>
         public static unsafe List<string> RetrieveInputFormatNames()
         {
             var result = new List<string>(128);
@@ -240,7 +240,7 @@
         /// Retrieves the decoder names.
         /// </summary>
         /// <param name="allCodecs">All codecs.</param>
-        /// <returns>The collection of names</returns>
+        /// <returns>The collection of names.</returns>
         public static unsafe List<string> RetrieveDecoderNames(AVCodec*[] allCodecs)
         {
             var codecNames = new List<string>(allCodecs.Length);
@@ -256,14 +256,14 @@
         /// <summary>
         /// Retrieves the global format options.
         /// </summary>
-        /// <returns>The collection of option infos</returns>
+        /// <returns>The collection of option infos.</returns>
         public static unsafe List<OptionMeta> RetrieveGlobalFormatOptions() =>
             RetrieveOptions(ffmpeg.avformat_get_class());
 
         /// <summary>
         /// Retrieves the global codec options.
         /// </summary>
-        /// <returns>The collection of option infos</returns>
+        /// <returns>The collection of option infos.</returns>
         public static unsafe List<OptionMeta> RetrieveGlobalCodecOptions() =>
             RetrieveOptions(ffmpeg.avcodec_get_class());
 
@@ -271,7 +271,7 @@
         /// Retrieves the input format options.
         /// </summary>
         /// <param name="formatName">Name of the format.</param>
-        /// <returns>The collection of option infos</returns>
+        /// <returns>The collection of option infos.</returns>
         public static unsafe List<OptionMeta> RetrieveInputFormatOptions(string formatName)
         {
             var item = ffmpeg.av_find_input_format(formatName);
@@ -282,7 +282,7 @@
         /// Retrieves the codec options.
         /// </summary>
         /// <param name="codec">The codec.</param>
-        /// <returns>The collection of option infos</returns>
+        /// <returns>The collection of option infos.</returns>
         public static unsafe List<OptionMeta> RetrieveCodecOptions(AVCodec* codec) =>
             RetrieveOptions(codec->priv_class);
 
@@ -322,7 +322,7 @@
         #region Supporting Classes
 
         /// <summary>
-        /// Handles FFmpeg library messages
+        /// Handles FFmpeg library messages.
         /// </summary>
         /// <seealso cref="ILoggingHandler" />
         internal class FFLoggingHandler : ILoggingHandler

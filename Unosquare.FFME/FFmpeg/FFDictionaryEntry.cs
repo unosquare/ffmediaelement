@@ -4,7 +4,7 @@
     using Unosquare.FFME;
 
     /// <summary>
-    /// An AVDictionaryEntry wrapper
+    /// An AVDictionaryEntry wrapper.
     /// </summary>
     internal unsafe class FFDictionaryEntry
     {

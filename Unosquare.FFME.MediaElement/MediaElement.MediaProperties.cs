@@ -272,13 +272,13 @@
 
         /// <summary>
         /// Gets a value that indicates the percentage of buffering progress made.
-        /// Range is from 0 to 1
+        /// Range is from 0 to 1.
         /// </summary>
         public double BufferingProgress => MediaCore?.State.BufferingProgress ?? default;
 
         /// <summary>
         /// Gets a value that indicates the percentage of download progress made.
-        /// Range is from 0 to 1
+        /// Range is from 0 to 1.
         /// </summary>
         public double DownloadProgress => MediaCore?.State.DownloadProgress ?? default;
 
@@ -288,7 +288,7 @@
         public long PacketBufferLength => MediaCore?.State.PacketBufferLength ?? default;
 
         /// <summary>
-        /// Gets the number of packets buffered for all components
+        /// Gets the number of packets buffered for all components.
         /// </summary>
         public int PacketBufferCount => MediaCore?.State.PacketBufferCount ?? default;
 
@@ -314,7 +314,7 @@
         public bool IsOpen => MediaCore?.State.IsOpen ?? default;
 
         /// <summary>
-        /// Gets a value indicating whether the video stream contains closed captions
+        /// Gets a value indicating whether the video stream contains closed captions.
         /// </summary>
         public bool HasClosedCaptions => MediaCore?.State.HasClosedCaptions ?? default;
     }

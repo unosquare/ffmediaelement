@@ -2,56 +2,55 @@
 {
     using ClosedCaptions;
     using Container;
-    using Engine;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Runtime.CompilerServices;
 
     /// <summary>
-    /// Provides a Closed Captions packet buffer and state manager
+    /// Provides a Closed Captions packet buffer and state manager.
     /// </summary>
     internal sealed class ClosedCaptionsBuffer
     {
         #region Constants
 
         /// <summary>
-        /// The column count of the character grid
+        /// The column count of the character grid.
         /// </summary>
         public const int ColumnCount = 32;
 
         /// <summary>
-        /// The row count of the character grid
+        /// The row count of the character grid.
         /// </summary>
         public const int RowCount = 15;
 
         /// <summary>
-        /// The maximum length of the individual packet buffers
+        /// The maximum length of the individual packet buffers.
         /// </summary>
         private const int MaxBufferLength = 512;
 
         /// <summary>
-        /// The default base row is row 11 (index 10)
+        /// The default base row is row 11 (index 10).
         /// </summary>
         private const int DefaultBaseRowIndex = 10;
 
         /// <summary>
-        /// To keep track of previous data channel
+        /// To keep track of previous data channel.
         /// </summary>
         private const int DefaultFieldChannel = 1;
 
         /// <summary>
-        /// The scroll mode (Roll Up 2/3/4) modes
+        /// The scroll mode (Roll Up 2/3/4) modes.
         /// </summary>
         private const int DefaultScrollSize = 2;
 
         /// <summary>
-        /// The default parser state
+        /// The default parser state.
         /// </summary>
         private const ParserStateMode DefaultStateMode = ParserStateMode.None;
 
         /// <summary>
-        /// The number of seconds before a CC timeout occurs
+        /// The number of seconds before a CC timeout occurs.
         /// </summary>
         private const double TimeoutSeconds = 16;
 
@@ -60,13 +59,13 @@
         #region Internal Buffers
 
         /// <summary>
-        /// The linear, non-demuxed packet buffer
+        /// The linear, non-demuxed packet buffer.
         /// </summary>
         private readonly Dictionary<long, ClosedCaptionPacket> PacketBuffer
             = new Dictionary<long, ClosedCaptionPacket>();
 
         /// <summary>
-        /// The independent channel packet buffers
+        /// The independent channel packet buffers.
         /// </summary>
         private readonly Dictionary<CaptionsChannel, Dictionary<long, ClosedCaptionPacket>> ChannelPacketBuffer
             = new Dictionary<CaptionsChannel, Dictionary<long, ClosedCaptionPacket>>();
@@ -111,32 +110,32 @@
         #region Enumerations
 
         /// <summary>
-        /// Defines the different state parsing modes
+        /// Defines the different state parsing modes.
         /// </summary>
         public enum ParserStateMode
         {
             /// <summary>
-            /// When no state has been detected yet
+            /// When no state has been detected yet.
             /// </summary>
             None,
 
             /// <summary>
-            /// The direct CC display mode
+            /// The direct CC display mode.
             /// </summary>
             Scrolling,
 
             /// <summary>
-            /// The buffered text display mode
+            /// The buffered text display mode.
             /// </summary>
             Buffered,
 
             /// <summary>
-            /// The non-display data mode
+            /// The non-display data mode.
             /// </summary>
             Data,
 
             /// <summary>
-            /// The XDS, non-display mode
+            /// The XDS, non-display mode.
             /// </summary>
             XDS
         }
@@ -146,7 +145,7 @@
         #region State Properties
 
         /// <summary>
-        /// Provides access to the state of each of the character cells in the grid
+        /// Provides access to the state of each of the character cells in the grid.
         /// </summary>
         public Dictionary<int, Dictionary<int, ClosedCaptionsCell>> State { get; } = new Dictionary<int, Dictionary<int, ClosedCaptionsCell>>(RowCount);
 
@@ -162,13 +161,13 @@
 
         /// <summary>
         /// Gets a value indicating whether the current and following
-        /// caption text packets are underlined
+        /// caption text packets are underlined.
         /// </summary>
         public bool IsUnderlined { get; private set; }
 
         /// <summary>
         /// Gets a value indicating whether the current and following
-        /// caption text packets are italicized
+        /// caption text packets are italicized.
         /// </summary>
         public bool IsItalics { get; private set; }
 
@@ -181,7 +180,7 @@
         public ParserStateMode StateMode { get; private set; } = DefaultStateMode;
 
         /// <summary>
-        /// Gets the current row index position of the cursor
+        /// Gets the current row index position of the cursor.
         /// </summary>
         public int CursorRowIndex
         {
@@ -190,7 +189,7 @@
         }
 
         /// <summary>
-        /// Gets the current column index position of the cursor
+        /// Gets the current column index position of the cursor.
         /// </summary>
         public int CursorColumnIndex
         {
@@ -214,7 +213,7 @@
 
         /// <summary>
         /// Gets currently active CC channel.
-        /// Changing the channel resets the entire state
+        /// Changing the channel resets the entire state.
         /// </summary>
         public CaptionsChannel Channel { get; private set; } = CaptionsChannel.CC1;
 
@@ -252,7 +251,7 @@
         }
 
         /// <summary>
-        /// Writes the packets and demuxes them into its independent channel buffers
+        /// Writes the packets and demuxes them into its independent channel buffers.
         /// </summary>
         /// <param name="currentBlock">The current block.</param>
         /// <param name="mediaCore">The media core.</param>
@@ -266,7 +265,7 @@
             {
                 // Feed the available closed captions into the packet buffer
                 // We pre-feed the video blocks to avoid any skipping of CC packets
-                // as a result of skipping video frame render calls
+                // as a result of skipping video frame render calls.
                 var block = currentBlock;
                 while (block != null)
                 {
@@ -432,7 +431,6 @@
                     CurrentPacket = packet;
 
                     // Now, go ahead and process the packet updating the state
-                    // ReSharper disable once SwitchStatementMissingSomeCases
                     switch (packet.PacketType)
                     {
                         case CaptionsPacketType.Color:
@@ -522,7 +520,7 @@
         }
 
         /// <summary>
-        /// Trims the packet buffer to the maximum allowable length
+        /// Trims the packet buffer to the maximum allowable length.
         /// </summary>
         /// <param name="buffer">The buffer.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -556,7 +554,6 @@
                 ScrollSize = 4;
 
             // Process the command
-            // ReSharper disable once SwitchStatementMissingSomeCases
             switch (command)
             {
                 case CaptionsCommand.StartCaption:

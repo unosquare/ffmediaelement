@@ -3,7 +3,7 @@
     using Primitives;
 
     /// <summary>
-    /// Represents a worker API owned by a <see cref="MediaEngine"/>
+    /// Represents a worker API owned by a <see cref="MediaEngine"/>.
     /// </summary>
     /// <seealso cref="IWorker" />
     internal interface IMediaWorker : IWorker

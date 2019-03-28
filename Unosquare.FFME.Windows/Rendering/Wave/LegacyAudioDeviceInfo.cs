@@ -1,8 +1,4 @@
-﻿// ReSharper disable UnusedMember.Global
-// ReSharper disable ConvertToAutoProperty
-// ReSharper disable ConvertToAutoPropertyWhenPossible
-// ReSharper disable FieldCanBeMadeReadOnly.Local
-namespace Unosquare.FFME.Rendering.Wave
+﻿namespace Unosquare.FFME.Rendering.Wave
 {
 #pragma warning disable SA1202 // Elements must be ordered by access
 #pragma warning disable SA1307 // Accessible fields must begin with upper-case letter
@@ -13,7 +9,7 @@ namespace Unosquare.FFME.Rendering.Wave
     using System.Runtime.InteropServices;
 
     /// <summary>
-    /// WaveOutCapabilities structure (based on WAVEOUTCAPS2 from mmsystem.h)
+    /// WaveOutCapabilities structure (based on WAVEOUTCAPS2 from mmsystem.h).
     /// </summary>
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
     internal struct LegacyAudioDeviceInfo : IEquatable<LegacyAudioDeviceInfo>
@@ -23,44 +19,44 @@ namespace Unosquare.FFME.Rendering.Wave
         #region Fields
 
         /// <summary>
-        /// wMid
+        /// wMid.
         /// </summary>
         private short manufacturerId;
 
         /// <summary>
-        /// wPid
+        /// wPid.
         /// </summary>
         private short productId;
 
         /// <summary>
-        /// vDriverVersion
+        /// vDriverVersion.
         /// </summary>
         private int driverVersion;
 
         /// <summary>
-        /// Product Name
+        /// Product Name.
         /// </summary>
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = MaxProductNameLength)]
         private string productName;
 
         /// <summary>
-        /// Supported formats (bit flags) dwFormats
+        /// Supported formats (bit flags) dwFormats.
         /// </summary>
         private SupportedWaveFormat supportedFormats;
 
         /// <summary>
         /// Supported channels (1 for mono 2 for stereo) (wChannels)
-        /// Seems to be set to -1 on a lot of devices
+        /// Seems to be set to -1 on a lot of devices.
         /// </summary>
         private short channels;
 
         /// <summary>
-        /// wReserved1
+        /// wReserved1.
         /// </summary>
         private short reserved;
 
         /// <summary>
-        /// Optional functionality supported by the device
+        /// Optional functionality supported by the device.
         /// </summary>
         private WaveOutSupport support;
 
@@ -74,17 +70,17 @@ namespace Unosquare.FFME.Rendering.Wave
         #region Properties
 
         /// <summary>
-        /// Number of channels supported
+        /// Number of channels supported.
         /// </summary>
         public int Channels => channels;
 
         /// <summary>
-        /// Whether playback rate control is supported
+        /// Whether playback rate control is supported.
         /// </summary>
         public bool SupportsPlaybackRateControl => support.HasFlag(WaveOutSupport.PlaybackRate);
 
         /// <summary>
-        /// Whether volume control is supported
+        /// Whether volume control is supported.
         /// </summary>
         public bool SupportsVolumeControl => support.HasFlag(WaveOutSupport.Volume);
 
@@ -109,22 +105,22 @@ namespace Unosquare.FFME.Rendering.Wave
         public bool IsSynchronousOutput => support.HasFlag(WaveOutSupport.Sync);
 
         /// <summary>
-        /// The product name
+        /// The product name.
         /// </summary>
         public string ProductName => productName;
 
         /// <summary>
-        /// The device name Guid (if provided)
+        /// The device name Guid (if provided).
         /// </summary>
         public Guid NameGuid => nameGuid;
 
         /// <summary>
-        /// The product name Guid (if provided)
+        /// The product name Guid (if provided).
         /// </summary>
         public Guid ProductGuid => productGuid;
 
         /// <summary>
-        /// The manufacturer guid (if provided)
+        /// The manufacturer guid (if provided).
         /// </summary>
         public Guid ManufacturerGuid => manufacturerGuid;
 
@@ -150,10 +146,10 @@ namespace Unosquare.FFME.Rendering.Wave
             throw new NotSupportedException($"{nameof(LegacyAudioDeviceInfo)} does not support hashing.");
 
         /// <summary>
-        /// Checks to see if a given SupportedWaveFormat is supported
+        /// Checks to see if a given SupportedWaveFormat is supported.
         /// </summary>
-        /// <param name="waveFormat">The SupportedWaveFormat</param>
-        /// <returns>true if supported</returns>
+        /// <param name="waveFormat">The SupportedWaveFormat.</param>
+        /// <returns>true if supported.</returns>
         internal bool SupportsWaveFormat(SupportedWaveFormat waveFormat) => (supportedFormats & waveFormat) == waveFormat;
 
         #endregion

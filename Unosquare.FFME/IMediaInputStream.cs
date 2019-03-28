@@ -11,11 +11,11 @@
     public unsafe delegate void InputStreamInitializing(ContainerConfiguration containerConfig, string mediaSource);
 
     /// <summary>
-    /// A callback that gets called when the media container's input format context has been initialized for the <see cref="IMediaInputStream"/>
+    /// A callback that gets called when the media container's input format context has been initialized for the <see cref="IMediaInputStream"/>.
     /// </summary>
-    /// <param name="inputFormat">The unmanaged input format pointer</param>
+    /// <param name="inputFormat">The unmanaged input format pointer.</param>
     /// <param name="formatContext">The unmanaged format context.</param>
-    /// <param name="mediaInfo">The detected media info</param>
+    /// <param name="mediaInfo">The detected media info.</param>
     public unsafe delegate void InputStreamInitialized(AVInputFormat* inputFormat, AVFormatContext* formatContext, MediaInfo mediaInfo);
 
     /// <summary>
@@ -36,7 +36,7 @@
 
         /// <summary>
         /// Gets the length in bytes of the read buffer that will be allocated.
-        /// Something like 4096 is recommended
+        /// Something like 4096 is recommended.
         /// </summary>
         int ReadBufferLength { get; }
 
@@ -46,7 +46,7 @@
         InputStreamInitializing OnInitializing { get; }
 
         /// <summary>
-        /// Gets the callback that gets called when the media container's input format context has been initialized for the <see cref="IMediaInputStream"/>
+        /// Gets the callback that gets called when the media container's input format context has been initialized for the <see cref="IMediaInputStream"/>.
         /// </summary>
         InputStreamInitialized OnInitialized { get; }
 
@@ -57,7 +57,7 @@
         /// <param name="opaque">An FFmpeg provided opaque reference.</param>
         /// <param name="targetBuffer">The target buffer.</param>
         /// <param name="targetBufferLength">Length of the target buffer.</param>
-        /// <returns>The number of bytes that have been read</returns>
+        /// <returns>The number of bytes that have been read.</returns>
         int Read(void* opaque, byte* targetBuffer, int targetBufferLength);
 
         /// <summary>
@@ -67,7 +67,7 @@
         /// <param name="opaque">The opaque.</param>
         /// <param name="offset">The offset.</param>
         /// <param name="whence">The whence.</param>
-        /// <returns>The position in bytes or time scale that has been read</returns>
+        /// <returns>The position in bytes or time scale that has been read.</returns>
         long Seek(void* opaque, long offset, int whence);
     }
 }

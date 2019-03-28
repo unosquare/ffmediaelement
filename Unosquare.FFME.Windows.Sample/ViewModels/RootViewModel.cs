@@ -7,7 +7,7 @@
     using System.Windows;
 
     /// <summary>
-    /// Represents the application-wide view model
+    /// Represents the application-wide view model.
     /// </summary>
     /// <seealso cref="ViewModelBase" />
     public sealed class RootViewModel : ViewModelBase
@@ -36,7 +36,7 @@
         }
 
         /// <summary>
-        /// Gets the product name
+        /// Gets the product name.
         /// </summary>
         public static string ProductName => "Unosquare FFME-Play";
 
@@ -97,7 +97,7 @@
         }
 
         /// <summary>
-        /// Provides access to application-wide commands
+        /// Provides access to application-wide commands.
         /// </summary>
         public AppCommands Commands { get; } = new AppCommands();
 
@@ -116,7 +116,7 @@
         }
 
         /// <summary>
-        /// Called when application has finished loading
+        /// Called when application has finished loading.
         /// </summary>
         internal void OnApplicationLoaded()
         {

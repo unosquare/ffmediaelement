@@ -28,7 +28,7 @@
         }
 
         /// <summary>
-        /// Provides access to the underlying media engine state
+        /// Provides access to the underlying media engine state.
         /// </summary>
         public IMediaEngineState EngineState { get; }
 
@@ -39,7 +39,7 @@
 
         /// <summary>
         /// Gets the clock position at which the media
-        /// was called for rendering
+        /// was called for rendering.
         /// </summary>
         public TimeSpan Clock { get; }
 

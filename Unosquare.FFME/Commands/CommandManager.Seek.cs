@@ -88,7 +88,7 @@
         /// </summary>
         /// <param name="seekTarget">The seek target.</param>
         /// <param name="seekMode">The seek mode.</param>
-        /// <returns>An awaitable task</returns>
+        /// <returns>An awaitable task.</returns>
         private Task<bool> QueueSeekCommand(TimeSpan seekTarget, SeekMode seekMode)
         {
             lock (SyncLock)
@@ -144,7 +144,7 @@
         /// </summary>
         /// <param name="seekOperation">The seek operation.</param>
         /// <param name="ct">The ct.</param>
-        /// <returns>True if the operation was successful</returns>
+        /// <returns>True if the operation was successful.</returns>
         private bool SeekMedia(SeekOperation seekOperation, CancellationToken ct)
         {
             // TODO: Handle Cancellation token ct

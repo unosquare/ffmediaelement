@@ -15,7 +15,7 @@ namespace Unosquare.FFME
 
         /// <summary>
         /// Gets/Sets the ClosedCaptionsChannel property on the MediaElement.
-        /// Note: Valid values are from 0 to 1
+        /// Note: Valid values are from 0 to 1.
         /// </summary>
         [Category(nameof(MediaElement))]
         [Description("The video CC Channel to render. Ranges from 0 to 4")]

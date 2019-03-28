@@ -61,7 +61,7 @@
 
         /// <summary>
         /// Gets or sets the number of buffers used
-        /// Should be set before a call to Init
+        /// Should be set before a call to Init.
         /// </summary>
         public int NumberOfBuffers { get; }
 
@@ -69,7 +69,7 @@
         /// Gets the device number
         /// Should be set before a call to Init
         /// This must be between -1 and <see>DeviceCount</see> - 1.
-        /// -1 means stick to default device even default device is changed
+        /// -1 means stick to default device even default device is changed.
         /// </summary>
         public int DeviceNumber { get; }
 
@@ -103,7 +103,7 @@
         /// <summary>
         /// Gets the Windows Multimedia Extensions (MME) devices in the system.
         /// </summary>
-        /// <returns>The available MME devices</returns>
+        /// <returns>The available MME devices.</returns>
         public static List<LegacyAudioDeviceInfo> EnumerateDevices()
         {
             lock (DevicesEnumLock)

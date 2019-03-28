@@ -6,7 +6,7 @@
 
     /// <inheritdoc/>
     /// <summary>
-    /// A buffer of Wave samples for streaming to a Wave Output device
+    /// A buffer of Wave samples for streaming to a Wave Output device.
     /// </summary>
     internal sealed class WaveOutBuffer : IDisposable
     {
@@ -23,9 +23,9 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="WaveOutBuffer"/> class.
         /// </summary>
-        /// <param name="deviceHandle">WaveOut device to write to</param>
-        /// <param name="bufferSize">Buffer size in bytes</param>
-        /// <param name="waveStream">Stream to provide more data</param>
+        /// <param name="deviceHandle">WaveOut device to write to.</param>
+        /// <param name="bufferSize">Buffer size in bytes.</param>
+        /// <param name="waveStream">Stream to provide more data.</param>
         public WaveOutBuffer(IntPtr deviceHandle, int bufferSize, IWaveProvider waveStream)
         {
             BufferSize = bufferSize;
@@ -46,12 +46,12 @@
         }
 
         /// <summary>
-        /// Whether the header's in queue flag is set
+        /// Whether the header's in queue flag is set.
         /// </summary>
         public bool IsQueued => header.Flags.HasFlag(WaveHeaderFlags.InQueue);
 
         /// <summary>
-        /// The buffer size in bytes
+        /// The buffer size in bytes.
         /// </summary>
         public int BufferSize { get; }
 
@@ -89,7 +89,7 @@
 
         /// <summary>
         /// this is called by the Wave callback and should be used to refill the buffer.
-        /// This calls the <see cref="IWaveProvider.Read(byte[], int, int)"/> method on the stream
+        /// This calls the <see cref="IWaveProvider.Read(byte[], int, int)"/> method on the stream.
         /// </summary>
         /// <returns>True when bytes were written. False if no bytes were written.</returns>
         internal bool ReadWaveStream()

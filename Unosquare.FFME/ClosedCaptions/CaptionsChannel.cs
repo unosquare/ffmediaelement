@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.ClosedCaptions
 {
     /// <summary>
-    /// Enumerates the 4 different CC channels
+    /// Enumerates the 4 different CC channels.
     /// </summary>
     public enum CaptionsChannel
     {

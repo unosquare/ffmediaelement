@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.Controls
 {
     /// <summary>
-    /// Interaction logic for MediaPropertyPanelControl.xaml
+    /// Interaction logic for MediaPropertyPanelControl.xaml.
     /// </summary>
     public partial class PropertiesPanelControl
     {

@@ -1,11 +1,10 @@
-﻿// ReSharper disable UnusedMember.Global
-namespace Unosquare.FFME.Engine
+﻿namespace Unosquare.FFME.Engine
 {
     using System;
     using System.Collections.ObjectModel;
 
     /// <summary>
-    /// Provides Media Engine state as read-only properties
+    /// Provides Media Engine state as read-only properties.
     /// </summary>
     public interface IMediaEngineState
     {
@@ -76,7 +75,7 @@ namespace Unosquare.FFME.Engine
         bool CanPause { get; }
 
         /// <summary>
-        /// Gets the byte length of the buffered packets
+        /// Gets the byte length of the buffered packets.
         /// </summary>
         long PacketBufferLength { get; }
 
@@ -116,7 +115,7 @@ namespace Unosquare.FFME.Engine
         bool HasVideo { get; }
 
         /// <summary>
-        /// Gets a value indicating whether the current video stream has closed captions
+        /// Gets a value indicating whether the current video stream has closed captions.
         /// </summary>
         bool HasClosedCaptions { get; }
 

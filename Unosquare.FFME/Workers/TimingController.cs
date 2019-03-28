@@ -207,7 +207,7 @@
         /// Gets the playback position of the real-time clock of the given component type.
         /// </summary>
         /// <param name="t">The t.</param>
-        /// <returns>The clock position</returns>
+        /// <returns>The clock position.</returns>
         public TimeSpan Position(MediaType t)
         {
             lock (SyncLock)
@@ -224,7 +224,7 @@
         /// <summary>
         /// Gets the playback position of the real-time clock of the timing reference component type.
         /// </summary>
-        /// <returns>The clock position</returns>
+        /// <returns>The clock position.</returns>
         public TimeSpan Position() => Position(ReferenceType);
 
         /// <summary>
@@ -322,7 +322,7 @@
         /// Gets the component start offset.
         /// </summary>
         /// <param name="t">The component media type.</param>
-        /// <returns>The component start time</returns>
+        /// <returns>The component start time.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private TimeSpan GetComponentStartOffset(MediaType t) =>
             Components[t].StartTime == TimeSpan.MinValue ? TimeSpan.Zero : Components[t].StartTime;

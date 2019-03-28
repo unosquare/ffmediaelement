@@ -31,7 +31,7 @@
 
         /// <summary>
         /// Gets the type of the original text.
-        /// Returns None when it's a bitmap or when it's None
+        /// Returns None when it's a bitmap or when it's None.
         /// </summary>
         public AVSubtitleType OriginalTextType { get; internal set; }
 

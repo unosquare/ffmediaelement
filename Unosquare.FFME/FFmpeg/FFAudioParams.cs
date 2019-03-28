@@ -5,14 +5,14 @@
 
     /// <summary>
     /// Contains audio format properties essential
-    /// to audio processing and re-sampling in FFmpeg libraries
+    /// to audio processing and re-sampling in FFmpeg libraries.
     /// </summary>
     internal sealed unsafe class FFAudioParams
     {
         #region Constant Definitions
 
         /// <summary>
-        /// The standard output audio spec
+        /// The standard output audio spec.
         /// </summary>
         public static readonly FFAudioParams Output = new FFAudioParams
         {
@@ -98,10 +98,10 @@
         #region Methods
 
         /// <summary>
-        /// Creates a source audio spec based on the info in the given audio frame
+        /// Creates a source audio spec based on the info in the given audio frame.
         /// </summary>
         /// <param name="frame">The frame.</param>
-        /// <returns>The audio parameters</returns>
+        /// <returns>The audio parameters.</returns>
         internal static FFAudioParams CreateSource(AVFrame* frame)
         {
             var spec = new FFAudioParams(frame);
@@ -113,10 +113,10 @@
 
         /// <summary>
         /// Creates a target audio spec using the sample quantities provided
-        /// by the given source audio frame
+        /// by the given source audio frame.
         /// </summary>
         /// <param name="frame">The frame.</param>
-        /// <returns>The audio parameters</returns>
+        /// <returns>The audio parameters.</returns>
         internal static FFAudioParams CreateTarget(AVFrame* frame)
         {
             var spec = new FFAudioParams
@@ -136,7 +136,7 @@
 
         /// <summary>
         /// Determines if the audio specs are compatible between them.
-        /// They must share format, channel count, layout and sample rate
+        /// They must share format, channel count, layout and sample rate.
         /// </summary>
         /// <param name="a">a.</param>
         /// <param name="b">The b.</param>

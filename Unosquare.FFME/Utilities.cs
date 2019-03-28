@@ -1,7 +1,6 @@
 ﻿namespace Unosquare.FFME
 {
     using Container;
-    using Engine;
     using FFmpeg.AutoGen;
     using System;
     using System.Collections.Generic;
@@ -18,7 +17,7 @@
         #region Audio Processing Extensions
 
         /// <summary>
-        /// Puts a short value in the target buffer as bytes
+        /// Puts a short value in the target buffer as bytes.
         /// </summary>
         /// <param name="buffer">The target.</param>
         /// <param name="offset">The offset.</param>
@@ -52,7 +51,7 @@
         /// </summary>
         /// <param name="buffer">The buffer.</param>
         /// <param name="offset">The offset.</param>
-        /// <returns>The sample amplitude</returns>
+        /// <returns>The sample amplitude.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static short GetAudioSampleAmplitude(this byte[] buffer, int offset)
         {
@@ -65,7 +64,7 @@
         /// </summary>
         /// <param name="buffer">The buffer.</param>
         /// <param name="offset">The offset.</param>
-        /// <returns>The amplitude level</returns>
+        /// <returns>The amplitude level.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double GetAudioSampleLevel(this byte[] buffer, int offset)
         {
@@ -77,10 +76,10 @@
         #region Output Debugging
 
         /// <summary>
-        /// Returns a formatted timestamp string in Seconds
+        /// Returns a formatted timestamp string in Seconds.
         /// </summary>
         /// <param name="ts">The ts.</param>
-        /// <returns>The formatted string</returns>
+        /// <returns>The formatted string.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string Format(this TimeSpan ts)
         {
@@ -94,7 +93,7 @@
         /// the specified date.
         /// </summary>
         /// <param name="dt">The dt.</param>
-        /// <returns>The formatted string</returns>
+        /// <returns>The formatted string.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string FormatElapsed(this DateTime dt)
         {
@@ -107,7 +106,7 @@
         /// </summary>
         /// <param name="ts">The timestamp.</param>
         /// <param name="divideBy">The divide by.</param>
-        /// <returns>The formatted string</returns>
+        /// <returns>The formatted string.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string Format(this long ts, double divideBy) =>
             Math.Abs(divideBy - 1d) <= double.Epsilon ? $"{ts,10:#,##0}" : $"{ts / divideBy,10:#,##0.000}";
@@ -117,7 +116,7 @@
         /// Useful for debugging longs with byte positions or sizes.
         /// </summary>
         /// <param name="ts">The timestamp.</param>
-        /// <returns>The formatted string</returns>
+        /// <returns>The formatted string.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string Format(this long ts) => Format(ts, 1);
 
@@ -130,7 +129,7 @@
         /// </summary>
         /// <param name="value">The value.</param>
         /// <param name="multiple">The multiple.</param>
-        /// <returns>The value</returns>
+        /// <returns>The value snapped to the given multiple.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double ToMultipleOf(this double value, double multiple)
         {
@@ -143,7 +142,7 @@
         /// </summary>
         /// <param name="pts">The PTS.</param>
         /// <param name="timeBase">The time base.</param>
-        /// <returns>The TimeSpan</returns>
+        /// <returns>The TimeSpan.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TimeSpan ToTimeSpan(this double pts, AVRational timeBase)
         {
@@ -156,12 +155,12 @@
         }
 
         /// <summary>
-        /// Converts a timespan to an AV_TIME_BASE compatible timestamp
+        /// Converts a timespan to an AV_TIME_BASE compatible timestamp.
         /// </summary>
         /// <param name="ts">The ts.</param>
         /// <param name="timeBase">The time base.</param>
         /// <returns>
-        /// A long, ffmpeg compatible timestamp
+        /// A long, ffmpeg compatible timestamp.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static long ToLong(this TimeSpan ts, AVRational timeBase)
@@ -174,7 +173,7 @@
         /// </summary>
         /// <param name="pts">The PTS.</param>
         /// <param name="timeBase">The time base.</param>
-        /// <returns>The TimeSpan</returns>
+        /// <returns>The TimeSpan.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TimeSpan ToTimeSpan(this long pts, AVRational timeBase)
         {
@@ -186,7 +185,7 @@
         /// </summary>
         /// <param name="pts">The PTS in seconds.</param>
         /// <param name="timeBase">The time base.</param>
-        /// <returns>The TimeSpan</returns>
+        /// <returns>The TimeSpan.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TimeSpan ToTimeSpan(this double pts, double timeBase)
         {
@@ -201,7 +200,7 @@
         /// </summary>
         /// <param name="pts">The PTS.</param>
         /// <param name="timeBase">The time base.</param>
-        /// <returns>The TimeSpan</returns>
+        /// <returns>The TimeSpan.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TimeSpan ToTimeSpan(this long pts, double timeBase)
         {
@@ -209,10 +208,10 @@
         }
 
         /// <summary>
-        /// Gets a timespan given a timestamp (in AV_TIME_BASE units)
+        /// Gets a timespan given a timestamp (in AV_TIME_BASE units).
         /// </summary>
         /// <param name="pts">The PTS.</param>
-        /// <returns>The TimeSpan</returns>
+        /// <returns>The TimeSpan.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TimeSpan ToTimeSpan(this double pts)
         {
@@ -220,10 +219,10 @@
         }
 
         /// <summary>
-        /// Gets a timespan given a timestamp (in AV_TIME_BASE units)
+        /// Gets a timespan given a timestamp (in AV_TIME_BASE units).
         /// </summary>
         /// <param name="pts">The PTS.</param>
-        /// <returns>The TimeSpan</returns>
+        /// <returns>The TimeSpan.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TimeSpan ToTimeSpan(this long pts)
         {
@@ -231,10 +230,10 @@
         }
 
         /// <summary>
-        /// Converts a fraction to a double
+        /// Converts a fraction to a double.
         /// </summary>
         /// <param name="rational">The rational.</param>
-        /// <returns>The value</returns>
+        /// <returns>The value.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double ToDouble(this AVRational rational)
         {
@@ -246,7 +245,7 @@
         /// Normalizes precision of the TimeSpan to the nearest whole millisecond.
         /// </summary>
         /// <param name="source">The source.</param>
-        /// <returns>The normalized, whole-millisecond timespan</returns>
+        /// <returns>The normalized, whole-millisecond timespan.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TimeSpan Normalize(this TimeSpan source)
         {
@@ -254,13 +253,13 @@
         }
 
         /// <summary>
-        /// Clamps the specified value between the minimum and the maximum
+        /// Clamps the specified value between the minimum and the maximum.
         /// </summary>
-        /// <typeparam name="T">The type of value to clamp</typeparam>
+        /// <typeparam name="T">The type of value to clamp.</typeparam>
         /// <param name="value">The value.</param>
         /// <param name="min">The minimum.</param>
         /// <param name="max">The maximum.</param>
-        /// <returns>A value that indicates the relative order of the objects being compared</returns>
+        /// <returns>A value that indicates the relative order of the objects being compared.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T Clamp<T>(this T value, T min, T max)
             where T : struct, IComparable
@@ -278,7 +277,7 @@
         /// </summary>
         /// <param name="source">The string to search.</param>
         /// <param name="find">The string to find.</param>
-        /// <param name="replace">The string to replace</param>
+        /// <param name="replace">The string to replace.</param>
         /// <returns>The string with the replacement.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ReplaceOrdinal(this string source, string find, string replace) =>
@@ -299,10 +298,10 @@
         #region Other Methods
 
         /// <summary>
-        /// Finds the index of the item that is on or greater than the specified search value
+        /// Finds the index of the item that is on or greater than the specified search value.
         /// </summary>
-        /// <typeparam name="TItem">The generic collection type</typeparam>
-        /// <typeparam name="TComparable">The value type to compare to</typeparam>
+        /// <typeparam name="TItem">The generic collection type.</typeparam>
+        /// <typeparam name="TComparable">The value type to compare to.</typeparam>
         /// <param name="items">The items.</param>
         /// <param name="value">The value.</param>
         /// <returns>The find index. Returns -1 if not found.</returns>
@@ -347,8 +346,8 @@
         /// <summary>
         /// Converts a byte pointer to a UTF8 encoded string.
         /// </summary>
-        /// <param name="stringAddress">The pointer to the starting character</param>
-        /// <returns>The string</returns>
+        /// <param name="stringAddress">The pointer to the starting character.</param>
+        /// <returns>The string.</returns>
         public static unsafe string PtrToStringUTF8(byte* stringAddress)
         {
             if (stringAddress == null) return null;
@@ -371,8 +370,8 @@
         /// <summary>
         /// COnversta  hexadecimal string to a byte array.
         /// </summary>
-        /// <param name="hexString">The hexadecimal string to convert</param>
-        /// <returns>The byte array with the data of the hexadecimal string</returns>
+        /// <param name="hexString">The hexadecimal string to convert.</param>
+        /// <returns>The byte array with the data of the hexadecimal string.</returns>
         public static byte[] HexToBytes(this string hexString)
         {
             if (hexString.Length % 2 != 0)
@@ -393,7 +392,7 @@
         /// </summary>
         /// <param name="blocks">The blocks.</param>
         /// <param name="container">The container.</param>
-        /// <returns>The block buffer of the main media type</returns>
+        /// <returns>The block buffer of the main media type.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static MediaBlockBuffer Main(this MediaTypeDictionary<MediaBlockBuffer> blocks, MediaContainer container) =>
             blocks[container.Components?.MainMediaType ?? MediaType.None];
@@ -403,7 +402,7 @@
         /// </summary>
         /// <param name="all">All.</param>
         /// <param name="main">The main.</param>
-        /// <returns>An array without the media type</returns>
+        /// <returns>An array without the media type.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static MediaType[] Except(this IEnumerable<MediaType> all, MediaType main)
         {
@@ -420,11 +419,11 @@
         /// <summary>
         /// Computes the picture number.
         /// </summary>
-        /// <param name="streamStartTime">The Stream Start time</param>
-        /// <param name="pictureStartTime">The picture Start Time</param>
-        /// <param name="frameRate">The stream's average framerate (not time base)</param>
+        /// <param name="streamStartTime">The Stream Start time.</param>
+        /// <param name="pictureStartTime">The picture Start Time.</param>
+        /// <param name="frameRate">The stream's average framerate (not time base).</param>
         /// <returns>
-        /// The serial picture number
+        /// The serial picture number.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static long ComputePictureNumber(TimeSpan streamStartTime, TimeSpan pictureStartTime, AVRational frameRate)
@@ -441,9 +440,9 @@
         /// <summary>
         /// Computes the smtpe time code.
         /// </summary>
-        /// <param name="pictureNumber">The picture number</param>
+        /// <param name="pictureNumber">The picture number.</param>
         /// <param name="frameRate">The frame rate.</param>
-        /// <returns>The FFmpeg computed SMTPE Time code</returns>
+        /// <returns>The FFmpeg computed SMTPE Time code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static unsafe string ComputeSmtpeTimeCode(long pictureNumber, AVRational frameRate)
         {

@@ -4,7 +4,7 @@
 
     /// <inheritdoc />
     /// <summary>
-    /// Provides a generalized API for ManualResetEvent and ManualResetEventSlim
+    /// Provides a generalized API for ManualResetEvent and ManualResetEventSlim.
     /// </summary>
     internal interface IWaitEvent : IDisposable
     {
@@ -15,7 +15,7 @@
 
         /// <summary>
         /// Gets a value indicating whether the Begin method has been called.
-        /// It returns false after the Complete method is called
+        /// It returns false after the Complete method is called.
         /// </summary>
         bool IsInProgress { get; }
 
@@ -31,7 +31,7 @@
 
         /// <summary>
         /// Enters the state in which waiters need to wait.
-        /// All future waiters will block when they call the Wait method
+        /// All future waiters will block when they call the Wait method.
         /// </summary>
         void Begin();
 
@@ -42,16 +42,16 @@
         void Complete();
 
         /// <summary>
-        /// Waits for the event to be completed
+        /// Waits for the event to be completed.
         /// </summary>
         void Wait();
 
         /// <summary>
         /// Waits for the event to be completed.
-        /// Returns True when there was no timeout. False if the timeout was reached
+        /// Returns True when there was no timeout. False if the timeout was reached.
         /// </summary>
         /// <param name="timeout">The maximum amount of time to wait for.</param>
-        /// <returns>True when there was no timeout. False if the timeout was reached</returns>
+        /// <returns>True when there was no timeout. False if the timeout was reached.</returns>
         bool Wait(TimeSpan timeout);
     }
 }

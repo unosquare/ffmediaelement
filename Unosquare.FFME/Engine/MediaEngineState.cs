@@ -447,7 +447,7 @@
         }
 
         /// <summary>
-        /// Resets all media state properties
+        /// Resets all media state properties.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void ResetAll()
@@ -544,7 +544,7 @@
         /// </summary>
         /// <param name="bufferLength">Length of the packet buffer.</param>
         /// <param name="bufferCount">The packet buffer count.</param>
-        /// <param name="bufferCountMax">The packet buffer count maximum for all components</param>
+        /// <param name="bufferCountMax">The packet buffer count maximum for all components.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void UpdateBufferingStats(long bufferLength, int bufferCount, int bufferCountMax)
         {

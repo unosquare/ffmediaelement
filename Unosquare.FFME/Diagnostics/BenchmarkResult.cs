@@ -29,7 +29,7 @@
         public string Identifier { get; }
 
         /// <summary>
-        /// Gets the measure count
+        /// Gets the measure count.
         /// </summary>
         public int Count { get; }
 

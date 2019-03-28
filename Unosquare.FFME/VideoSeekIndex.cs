@@ -145,7 +145,7 @@
         /// Finds the closest seek entry that is on or prior to the seek target.
         /// </summary>
         /// <param name="seekTarget">The seek target.</param>
-        /// <returns>The seek entry or null of not found</returns>
+        /// <returns>The seek entry or null of not found.</returns>
         public VideoSeekIndexEntry Find(TimeSpan seekTarget)
         {
             var index = Entries.StartIndexOf(seekTarget);
@@ -222,7 +222,7 @@
         /// Gets the monotonic presentation distance units that separate the last entries in the index.
         /// Returns -1 if there are less than 2 entries or if the entries are not monotonic.
         /// </summary>
-        /// <returns>-1 if the entries are not monotonic</returns>
+        /// <returns>-1 if the entries are not monotonic.</returns>
         internal long ComputeMonotonicDistance()
         {
             if (Entries.Count < 2) return -1L;
@@ -242,7 +242,7 @@
         }
 
         /// <summary>
-        /// A comparer for <see cref="VideoSeekIndexEntry"/>
+        /// A comparer for <see cref="VideoSeekIndexEntry"/>.
         /// </summary>
         private class VideoSeekIndexEntryComparer : IComparer<VideoSeekIndexEntry>
         {

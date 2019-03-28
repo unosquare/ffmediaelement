@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.Platform
 {
     /// <summary>
-    /// Enumerates GUI Context Types
+    /// Enumerates GUI Context Types.
     /// </summary>
     public enum GuiContextType
     {

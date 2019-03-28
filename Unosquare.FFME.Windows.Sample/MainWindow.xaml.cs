@@ -1,7 +1,6 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
     using ClosedCaptions;
-    using Engine;
     using Foundation;
     using Platform;
     using System;
@@ -17,7 +16,7 @@
     using ImageFormat = System.Drawing.Imaging.ImageFormat;
 
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for MainWindow.xaml.
     /// </summary>
     public partial class MainWindow
     {
@@ -63,7 +62,7 @@
         #region Properties
 
         /// <summary>
-        /// A proxy, strongly-typed property to the underlying DataContext
+        /// A proxy, strongly-typed property to the underlying DataContext.
         /// </summary>
         public RootViewModel ViewModel => DataContext as RootViewModel;
 
@@ -123,7 +122,6 @@
                     if (Math.Abs(ControllerPanel.Opacity) <= double.Epsilon) return;
                     Cursor = Cursors.None;
 
-                    // ReSharper disable once InvertIf
                     if (FindResource("HideControlOpacity") is Storyboard sb)
                     {
                         Storyboard.SetTarget(sb, ControllerPanel);
@@ -135,7 +133,6 @@
                     if (Math.Abs(ControllerPanel.Opacity - 1d) <= double.Epsilon) return;
                     Cursor = Cursors.Arrow;
 
-                    // ReSharper disable once InvertIf
                     if (FindResource("ShowControlOpacity") is Storyboard sb)
                     {
                         Storyboard.SetTarget(sb, ControllerPanel);

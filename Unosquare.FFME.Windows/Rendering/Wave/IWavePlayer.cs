@@ -3,12 +3,12 @@
     using System;
 
     /// <summary>
-    /// Represents the interface to a device that can play a Wave data
+    /// Represents the interface to a device that can play a Wave data.
     /// </summary>
     internal interface IWavePlayer : IDisposable
     {
         /// <summary>
-        /// Current playback state
+        /// Current playback state.
         /// </summary>
         PlaybackState PlaybackState { get; }
 
@@ -19,7 +19,7 @@
 
         /// <summary>
         /// Gets or sets the desired latency in milliseconds
-        /// Should be set before a call to Init
+        /// Should be set before a call to Init.
         /// </summary>
         int DesiredLatency { get; }
 
@@ -29,7 +29,7 @@
         AudioRenderer Renderer { get; }
 
         /// <summary>
-        /// Begin playback
+        /// Begin playback.
         /// </summary>
         void Start();
 

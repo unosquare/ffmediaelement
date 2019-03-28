@@ -6,7 +6,7 @@
 
     /// <summary>
     /// Represents a timer which performs an action on the UI thread when time elapses.  Rescheduling is supported.
-    /// Original code from here: https://www.codeproject.com/Articles/32426/Deferring-ListCollectionView-filter-updates-for-a
+    /// Original code from here: https://www.codeproject.com/Articles/32426/Deferring-ListCollectionView-filter-updates-for-a address.
     /// </summary>
     public sealed class DeferredAction : IDisposable
     {
@@ -28,7 +28,7 @@
         /// <param name="action">
         /// The action that will be deferred.  It is not performed until after <see cref="Defer"/> is called.
         /// </param>
-        /// <returns>The Deferred Action</returns>
+        /// <returns>The Deferred Action.</returns>
         public static DeferredAction Create(Action<DeferredAction> action)
         {
             if (action == null)

@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME
 {
     /// <summary>
-    /// Media States compatible with MediaState enumeration
+    /// Media States compatible with MediaState enumeration.
     /// </summary>
     public enum MediaPlaybackState
     {

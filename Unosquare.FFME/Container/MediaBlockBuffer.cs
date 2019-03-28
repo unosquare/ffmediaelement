@@ -26,7 +26,7 @@
         private readonly List<MediaBlock> PlaybackBlocks;
 
         /// <summary>
-        /// Controls multiple reads and exclusive writes
+        /// Controls multiple reads and exclusive writes.
         /// </summary>
         private readonly object SyncLock = new object();
 
@@ -123,7 +123,7 @@
         public TimeSpan AverageBlockDuration { get { lock (SyncLock) return m_AverageBlockDuration; } }
 
         /// <summary>
-        /// Gets a value indicating whether all the durations of the blocks are equal
+        /// Gets a value indicating whether all the durations of the blocks are equal.
         /// </summary>
         public bool IsMonotonic { get { lock (SyncLock) return m_IsMonotonic; } }
 
@@ -138,7 +138,7 @@
         public int Count { get { lock (SyncLock) return m_Count; } }
 
         /// <summary>
-        /// Gets the usage percent from 0.0 to 1.0
+        /// Gets the usage percent from 0.0 to 1.0.
         /// </summary>
         public double CapacityPercent { get { lock (SyncLock) return m_CapacityPercent; } }
 
@@ -158,7 +158,7 @@
         /// The <see cref="MediaBlock"/>.
         /// </value>
         /// <param name="index">The index.</param>
-        /// <returns>The media block</returns>
+        /// <returns>The media block.</returns>
         public MediaBlock this[int index]
         {
             get { lock (SyncLock) return PlaybackBlocks[index]; }
@@ -171,7 +171,7 @@
         /// The <see cref="MediaBlock"/>.
         /// </value>
         /// <param name="positionTicks">The position to lookup.</param>
-        /// <returns>The media block</returns>
+        /// <returns>The media block.</returns>
         public MediaBlock this[long positionTicks]
         {
             get
@@ -191,10 +191,10 @@
         /// <summary>
         /// Gets the percentage of the range for the given time position.
         /// A value of less than 0 means the position is behind (lagging).
-        /// A value of more than 1 means the position is beyond the range)
+        /// A value of more than 1 means the position is beyond the range).
         /// </summary>
         /// <param name="position">The position.</param>
-        /// <returns>The percent of the range</returns>
+        /// <returns>The percent of the range.</returns>
         public double GetRangePercent(TimeSpan position)
         {
             lock (SyncLock)
@@ -245,7 +245,7 @@
         /// If the argument is null and there are blocks, the first block is returned.
         /// </summary>
         /// <param name="current">The current block.</param>
-        /// <returns>The next media block</returns>
+        /// <returns>The next media block.</returns>
         public MediaBlock Next(MediaBlock current)
         {
             if (current == null) return null;
@@ -258,7 +258,7 @@
         /// Retrieves the next time-continuous block.
         /// </summary>
         /// <param name="current">The current.</param>
-        /// <returns>The next time-continuous block</returns>
+        /// <returns>The next time-continuous block.</returns>
         public MediaBlock ContinuousNext(MediaBlock current)
         {
             if (current == null) return null;
@@ -286,7 +286,7 @@
         /// If the argument is null and there are blocks, the last block is returned.
         /// </summary>
         /// <param name="current">The current block.</param>
-        /// <returns>The next media block</returns>
+        /// <returns>The next media block.</returns>
         public MediaBlock Previous(MediaBlock current)
         {
             if (current == null) return null;
@@ -319,7 +319,7 @@
         /// If the render time is less than the range start time, it returns the first playback block index.
         /// </summary>
         /// <param name="renderTimeTicks">The render time.</param>
-        /// <returns>The media block's index</returns>
+        /// <returns>The media block's index.</returns>
         public int IndexOf(long renderTimeTicks)
         {
             lock (SyncLock)
@@ -439,9 +439,9 @@
         }
 
         /// <summary>
-        /// Returns a formatted string with information about this buffer
+        /// Returns a formatted string with information about this buffer.
         /// </summary>
-        /// <returns>The formatted string</returns>
+        /// <returns>The formatted string.</returns>
         internal string Debug()
         {
             lock (SyncLock)
@@ -457,7 +457,7 @@
         /// start time of the next available block is returned.
         /// </summary>
         /// <param name="position">The analog position.</param>
-        /// <returns>A discrete frame position</returns>
+        /// <returns>A discrete frame position.</returns>
         internal TimeSpan? GetSnapPosition(TimeSpan position)
         {
             lock (SyncLock)
@@ -481,8 +481,8 @@
         /// Block factory method.
         /// </summary>
         /// <param name="mediaType">Type of the media.</param>
-        /// <exception cref="InvalidCastException">MediaBlock does not have a valid type</exception>
-        /// <returns>An instance of the block of the specified type</returns>
+        /// <exception cref="InvalidCastException">MediaBlock does not have a valid type.</exception>
+        /// <returns>An instance of the block of the specified type.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static MediaBlock CreateBlock(MediaType mediaType)
         {
@@ -496,7 +496,7 @@
         /// <summary>
         /// Updates the <see cref="PlaybackBlocks"/> collection properties.
         /// This method must be called whenever the collection is modified.
-        /// The reason this exists is to avoid computing and iterating over these values every time they are read
+        /// The reason this exists is to avoid computing and iterating over these values every time they are read.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void UpdateCollectionProperties()

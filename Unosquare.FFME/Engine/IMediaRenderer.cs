@@ -4,7 +4,7 @@
     using System;
 
     /// <summary>
-    /// Provides a unified API for media rendering classes
+    /// Provides a unified API for media rendering classes.
     /// </summary>
     internal interface IMediaRenderer
     {
@@ -15,22 +15,22 @@
 
         /// <summary>
         /// Waits for the renderer to be ready to render.
-        /// This is called only once before all Render calls are made
+        /// This is called only once before all Render calls are made.
         /// </summary>
         void OnStarting();
 
         /// <summary>
-        /// Executed when the Play method is called on the parent Media Engine
+        /// Executed when the Play method is called on the parent Media Engine.
         /// </summary>
         void OnPlay();
 
         /// <summary>
-        /// Executed when the Pause method is called on the parent Media Engine
+        /// Executed when the Pause method is called on the parent Media Engine.
         /// </summary>
         void OnPause();
 
         /// <summary>
-        /// Executed when the Stop method is called on the parent Media Engine
+        /// Executed when the Stop method is called on the parent Media Engine.
         /// </summary>
         void OnStop();
 
@@ -41,7 +41,7 @@
         void OnClose();
 
         /// <summary>
-        /// Executed after a Seek operation is performed on the parent Media Engine
+        /// Executed after a Seek operation is performed on the parent Media Engine.
         /// </summary>
         void OnSeek();
 

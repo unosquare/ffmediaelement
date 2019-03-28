@@ -27,7 +27,7 @@
         /// Executes boilerplate code that queues priority commands.
         /// </summary>
         /// <param name="command">The command.</param>
-        /// <returns>An awaitable task</returns>
+        /// <returns>An awaitable task.</returns>
         private Task<bool> QueuePriorityCommand(PriorityCommandType command)
         {
             lock (SyncLock)
@@ -69,7 +69,7 @@
         /// <summary>
         /// Provides the implementation for the Play Media Command.
         /// </summary>
-        /// <returns>True if the command was successful</returns>
+        /// <returns>True if the command was successful.</returns>
         private bool CommandPlayMedia()
         {
             foreach (var renderer in MediaCore.Renderers.Values)
@@ -83,7 +83,7 @@
         /// <summary>
         /// Provides the implementation for the Pause Media Command.
         /// </summary>
-        /// <returns>True if the command was successful</returns>
+        /// <returns>True if the command was successful.</returns>
         private bool CommandPauseMedia()
         {
             if (State.CanPause == false)
@@ -102,7 +102,7 @@
         /// <summary>
         /// Provides the implementation for the Stop Media Command.
         /// </summary>
-        /// <returns>True if the command was successful</returns>
+        /// <returns>True if the command was successful.</returns>
         private bool CommandStopMedia()
         {
             if (State.IsSeekable == false)
@@ -128,7 +128,7 @@
         /// Otherwise, it simply rounds the position to the nearest millisecond.
         /// </summary>
         /// <param name="position">The position.</param>
-        /// <returns>The snapped, discrete, normalized position</returns>
+        /// <returns>The snapped, discrete, normalized position.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private TimeSpan SnapPositionToBlockPosition(TimeSpan position)
         {

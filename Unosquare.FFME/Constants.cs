@@ -8,7 +8,7 @@
     using System.Reflection;
 
     /// <summary>
-    /// Defaults and constants of the Media Engine
+    /// Defaults and constants of the Media Engine.
     /// </summary>
     internal static class Constants
     {
@@ -37,102 +37,102 @@
         public static string FFmpegSearchPath { get; }
 
         /// <summary>
-        /// The default speed ratio
+        /// The default speed ratio.
         /// </summary>
         public static double DefaultSpeedRatio => 1.0d;
 
         /// <summary>
-        /// The default balance
+        /// The default balance.
         /// </summary>
         public static double DefaultBalance => 0.0d;
 
         /// <summary>
-        /// The default volume
+        /// The default volume.
         /// </summary>
         public static double DefaultVolume => 1.0d;
 
         /// <summary>
-        /// The default closed captions channel
+        /// The default closed captions channel.
         /// </summary>
         public static CaptionsChannel DefaultClosedCaptionsChannel => CaptionsChannel.CCP;
 
         /// <summary>
-        /// The minimum speed ratio
+        /// The minimum speed ratio.
         /// </summary>
         public static double MinSpeedRatio => 0.0d;
 
         /// <summary>
-        /// The maximum speed ratio
+        /// The maximum speed ratio.
         /// </summary>
         public static double MaxSpeedRatio => 8.0d;
 
         /// <summary>
-        /// The minimum balance
+        /// The minimum balance.
         /// </summary>
         public static double MinBalance => -1.0d;
 
         /// <summary>
-        /// The maximum balance
+        /// The maximum balance.
         /// </summary>
         public static double MaxBalance => 1.0d;
 
         /// <summary>
-        /// The maximum volume
+        /// The maximum volume.
         /// </summary>
         public static double MaxVolume => 1.0d;
 
         /// <summary>
-        /// The minimum volume
+        /// The minimum volume.
         /// </summary>
         public static double MinVolume => 0.0d;
 
         /// <summary>
-        /// The audio buffer padding
+        /// The audio buffer padding.
         /// </summary>
         public static int AudioBufferPadding => 256;
 
         /// <summary>
-        /// The audio bits per sample (1 channel only)
+        /// The audio bits per sample (1 channel only).
         /// </summary>
         public static int AudioBitsPerSample => 16;
 
         /// <summary>
-        /// The audio bytes per sample
+        /// The audio bytes per sample.
         /// </summary>
         public static int AudioBytesPerSample => AudioBitsPerSample / 8;
 
         /// <summary>
-        /// The audio sample format
+        /// The audio sample format.
         /// </summary>
         public static AVSampleFormat AudioSampleFormat => AVSampleFormat.AV_SAMPLE_FMT_S16;
 
         /// <summary>
-        /// The audio channel count
+        /// The audio channel count.
         /// </summary>
         public static int AudioChannelCount => 2;
 
         /// <summary>
-        /// The audio sample rate (per channel)
+        /// The audio sample rate (per channel).
         /// </summary>
         public static int AudioSampleRate => 48000;
 
         /// <summary>
-        /// The video bits per component
+        /// The video bits per component.
         /// </summary>
         public static int VideoBitsPerComponent => 8;
 
         /// <summary>
-        /// The video bits per pixel
+        /// The video bits per pixel.
         /// </summary>
         public static int VideoBitsPerPixel => 32;
 
         /// <summary>
-        /// The video bytes per pixel
+        /// The video bytes per pixel.
         /// </summary>
         public static int VideoBytesPerPixel => 4;
 
         /// <summary>
-        /// The video pixel format. BGRA, 32bit
+        /// The video pixel format. BGRA, 32bit.
         /// </summary>
         public static AVPixelFormat VideoPixelFormat => AVPixelFormat.AV_PIX_FMT_BGRA;
 
@@ -153,7 +153,7 @@
         /// </summary>
         /// <param name="t">The t.</param>
         /// <param name="mediaCore">The media core.</param>
-        /// <returns>The number of blocks to cache</returns>
+        /// <returns>The number of blocks to cache.</returns>
         internal static int GetMaxBlocks(MediaType t, MediaEngine mediaCore)
         {
             const int MinVideoBlocks = 8;

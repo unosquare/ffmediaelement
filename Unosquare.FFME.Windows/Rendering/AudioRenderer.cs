@@ -369,7 +369,7 @@
 
         /// <summary>
         /// Initializes the audio renderer.
-        /// Call the Play Method to start reading samples
+        /// Call the Play Method to start reading samples.
         /// </summary>
         private void Initialize()
         {
@@ -568,7 +568,7 @@
         /// Reads from the Audio Buffer and stretches the samples to the required requested bytes.
         /// This will make audio samples sound stretched (low pitch).
         /// The result is put to the first requestedBytes count of the ReadBuffer.
-        /// requested
+        /// requested.
         /// </summary>
         /// <param name="requestedBytes">The requested bytes.</param>
         /// <param name="speedRatio">The speed ratio.</param>
@@ -608,7 +608,7 @@
         /// The result is put to the first requestedBytes count of the ReadBuffer.
         /// </summary>
         /// <param name="requestedBytes">The requested number of bytes.</param>
-        /// <param name="computeAverage">if set to <c>true</c> average samples per block. Otherwise, take the first sample per block only</param>
+        /// <param name="computeAverage">if set to <c>true</c> average samples per block. Otherwise, take the first sample per block only.</param>
         /// <param name="speedRatio">The speed ratio.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ReadAndSpeedUp(int requestedBytes, bool computeAverage, double speedRatio)
@@ -691,7 +691,7 @@
         /// <summary>
         /// Reads from the Audio Buffer and uses the SoundTouch audio processor to adjust tempo
         /// The result is put to the first requestedBytes count of the ReadBuffer.
-        /// This feature is experimental
+        /// This feature is experimental.
         /// </summary>
         /// <param name="requestedBytes">The requested bytes.</param>
         /// <param name="speedRatio">The speed ratio.</param>

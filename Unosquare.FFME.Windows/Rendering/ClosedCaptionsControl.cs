@@ -147,7 +147,7 @@
 
         /// <summary>
         /// Takes the current state of the CC packet buffer and projects the visual properties
-        /// on to the CC visual grid of characters
+        /// on to the CC visual grid of characters.
         /// </summary>
         private void PaintBuffer()
         {

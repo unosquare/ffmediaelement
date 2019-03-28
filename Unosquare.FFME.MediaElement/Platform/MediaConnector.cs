@@ -6,7 +6,7 @@
     using System;
 
     /// <summary>
-    /// The Media engine connector
+    /// The Media engine connector.
     /// </summary>
     /// <seealso cref="IMediaConnector" />
     internal sealed class MediaConnector : IMediaConnector
@@ -43,7 +43,6 @@
             {
                 Parent.PostMediaEndedEvent();
 
-                // ReSharper disable once ConvertIfStatementToSwitchStatement
                 if (Parent.UnloadedBehavior == MediaPlaybackState.Close)
                 {
                     await sender.Close();
@@ -87,7 +86,6 @@
                     return;
                 }
 
-                // ReSharper disable once ConvertIfStatementToSwitchStatement
                 if (Parent.LoadedBehavior == MediaPlaybackState.Play)
                     await sender.Play();
                 else if (Parent.LoadedBehavior == MediaPlaybackState.Pause)

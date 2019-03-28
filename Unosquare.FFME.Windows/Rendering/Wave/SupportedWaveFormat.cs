@@ -1,10 +1,9 @@
-﻿// ReSharper disable UnusedMember.Global
-namespace Unosquare.FFME.Rendering.Wave
+﻿namespace Unosquare.FFME.Rendering.Wave
 {
     using System;
 
     /// <summary>
-    /// Supported wave formats for WaveOutCapabilities
+    /// Supported wave formats for WaveOutCapabilities.
     /// </summary>
     [Flags]
     internal enum SupportedWaveFormat

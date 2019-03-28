@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME
 {
     /// <summary>
-    /// Defines the different log message types received by the log handler
+    /// Defines the different log message types received by the log handler.
     /// </summary>
     public enum MediaLogMessageType
     {

@@ -7,7 +7,7 @@
     using System.Windows.Media.Imaging;
 
     /// <summary>
-    /// Contains metadata about a raw bitmap back-buffer
+    /// Contains metadata about a raw bitmap back-buffer.
     /// </summary>
     public sealed class BitmapDataBuffer
     {
@@ -71,12 +71,12 @@
         public uint BufferLength { get; }
 
         /// <summary>
-        /// Gets a pointer to the raw pixel data
+        /// Gets a pointer to the raw pixel data.
         /// </summary>
         public IntPtr Scan0 { get; }
 
         /// <summary>
-        /// Gets the byte width of each row of pixels
+        /// Gets the byte width of each row of pixels.
         /// </summary>
         public int Stride { get; }
 
@@ -91,22 +91,22 @@
         public int BytesPerPixel { get; }
 
         /// <summary>
-        /// Gets width of the bitmap
+        /// Gets width of the bitmap.
         /// </summary>
         public int PixelWidth { get; }
 
         /// <summary>
-        /// Gets height of the bitmap
+        /// Gets height of the bitmap.
         /// </summary>
         public int PixelHeight { get; }
 
         /// <summary>
-        /// Gets the DPI on the X axis
+        /// Gets the DPI on the X axis.
         /// </summary>
         public double DpiX { get; }
 
         /// <summary>
-        /// Gets the DPI on the Y axis
+        /// Gets the DPI on the Y axis.
         /// </summary>
         public double DpiY { get; }
 
@@ -130,7 +130,7 @@
         /// <summary>
         /// Creates a Drawing Bitmap from this data buffer.
         /// </summary>
-        /// <returns>The bitmap</returns>
+        /// <returns>The bitmap.</returns>
         public Bitmap CreateDrawingBitmap()
         {
             var result = new Bitmap(

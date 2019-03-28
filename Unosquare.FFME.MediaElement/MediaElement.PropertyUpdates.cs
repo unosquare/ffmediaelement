@@ -17,20 +17,20 @@
     public partial class MediaElement
     {
         /// <summary>
-        /// Holds the state of the notification properties
+        /// Holds the state of the notification properties.
         /// </summary>
         private readonly Dictionary<string, object> NotificationPropertyCache
             = new Dictionary<string, object>(PropertyMapper.PropertyMaxCount);
 
         /// <summary>
-        /// The property updates worker timer
+        /// The property updates worker timer.
         /// </summary>
         private GuiTimer PropertyUpdatesWorker;
 
         /// <summary>
         /// Starts the property updates worker.
         /// </summary>
-        /// <exception cref="KeyNotFoundException">MediaElement does not have minimum set of MediaProperties</exception>
+        /// <exception cref="KeyNotFoundException">MediaElement does not have minimum set of MediaProperties.</exception>
         private void StartPropertyUpdatesWorker()
         {
             // Check that we are not already started

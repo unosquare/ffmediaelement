@@ -56,7 +56,7 @@
         ILoggingHandler ILoggingSource.LoggingHandler => this;
 
         /// <summary>
-        /// Contains the Media Status
+        /// Contains the Media Status.
         /// </summary>
         public MediaEngineState State { get; }
 

@@ -5,7 +5,7 @@
     using System;
 
     /// <summary>
-    /// Represents a seek entry to a position within the stream
+    /// Represents a seek entry to a position within the stream.
     /// </summary>
     public sealed class VideoSeekIndexEntry
         : IComparable<VideoSeekIndexEntry>, IComparable<TimeSpan>, IEquatable<VideoSeekIndexEntry>
@@ -167,7 +167,7 @@
             $"IX: {StreamIndex} | TB: {StreamTimeBase.num}/{StreamTimeBase.den} | ST: {StartTime.Format()} | PTS: {PresentationTime} | DTS: {DecodingTime}";
 
         /// <summary>
-        /// Creates an entry based on a CSV string
+        /// Creates an entry based on a CSV string.
         /// </summary>
         /// <param name="line">The line.</param>
         /// <returns>An index entry or null if unsuccessful.</returns>
@@ -192,7 +192,7 @@
         /// <summary>
         /// Converts values of this instance to a line of CSV text.
         /// </summary>
-        /// <returns>The comma-separated values</returns>
+        /// <returns>The comma-separated values.</returns>
         internal string ToCsvString() =>
             $"{StreamIndex},{StreamTimeBase.num},{StreamTimeBase.den},{StartTime.Ticks},{PresentationTime},{DecodingTime}";
     }

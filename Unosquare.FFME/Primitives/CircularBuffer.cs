@@ -19,7 +19,7 @@
         private readonly object SyncLock = new object();
 
         /// <summary>
-        /// The unmanaged buffer
+        /// The unmanaged buffer.
         /// </summary>
         private IntPtr Buffer;
 
@@ -65,7 +65,7 @@
         public int Length { get { lock (SyncLock) return m_Length; } }
 
         /// <summary>
-        /// Gets the current, 0-based read index
+        /// Gets the current, 0-based read index.
         /// </summary>
         public int ReadIndex { get { lock (SyncLock) return m_ReadIndex; } }
 
@@ -92,7 +92,7 @@
         public int WriteIndex { get { lock (SyncLock) return m_WriteIndex; } }
 
         /// <summary>
-        /// Gets an the object associated with the last write
+        /// Gets an the object associated with the last write.
         /// </summary>
         public TimeSpan WriteTag { get { lock (SyncLock) return m_WriteTag; } }
 
@@ -119,7 +119,7 @@
         /// Skips the specified amount requested bytes to be read.
         /// </summary>
         /// <param name="requestedBytes">The requested bytes.</param>
-        /// <exception cref="InvalidOperationException">When requested bytes GT readable count</exception>
+        /// <exception cref="InvalidOperationException">When requested bytes is greater than readable count.</exception>
         public void Skip(int requestedBytes)
         {
             lock (SyncLock)
@@ -142,7 +142,7 @@
         /// Rewinds the read position by specified requested amount of bytes.
         /// </summary>
         /// <param name="requestedBytes">The requested bytes.</param>
-        /// <exception cref="InvalidOperationException">When requested GT rewindable</exception>
+        /// <exception cref="InvalidOperationException">When requested is greater than rewindable.</exception>
         public void Rewind(int requestedBytes)
         {
             lock (SyncLock)
@@ -167,7 +167,7 @@
         /// <param name="requestedBytes">The requested bytes.</param>
         /// <param name="target">The target.</param>
         /// <param name="targetOffset">The target offset.</param>
-        /// <exception cref="InvalidOperationException">When requested bytes is greater than readable count</exception>
+        /// <exception cref="InvalidOperationException">When requested bytes is greater than readable count.</exception>
         public void Read(int requestedBytes, byte[] target, int targetOffset)
         {
             lock (SyncLock)
@@ -203,7 +203,7 @@
         /// <param name="length">The length.</param>
         /// <param name="writeTag">The write tag.</param>
         /// <param name="overwrite">if set to <c>true</c>, overwrites the data even if it has not been read.</param>
-        /// <exception cref="InvalidOperationException">When read needs to be called more often!</exception>
+        /// <exception cref="InvalidOperationException">When read needs to be called more often.</exception>
         public void Write(IntPtr source, int length, TimeSpan writeTag, bool overwrite)
         {
             lock (SyncLock)

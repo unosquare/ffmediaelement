@@ -4,7 +4,7 @@
 
     /// <summary>
     /// Contains factory methods and properties containing platform-specific implementations
-    /// of the functionality that is required by an instance of the Media Engine
+    /// of the functionality that is required by an instance of the Media Engine.
     /// </summary>
     internal interface IPlatform
     {
@@ -23,11 +23,11 @@
         /// </summary>
         /// <param name="mediaType">Type of the media.</param>
         /// <param name="mediaCore">The media engine.</param>
-        /// <returns>The renderer</returns>
+        /// <returns>The renderer.</returns>
         IMediaRenderer CreateRenderer(MediaType mediaType, MediaEngine mediaCore);
 
         /// <summary>
-        /// Handles global FFmpeg library messages
+        /// Handles global FFmpeg library messages.
         /// </summary>
         /// <param name="message">The message.</param>
         void HandleFFmpegLogMessage(MediaLogMessage message);

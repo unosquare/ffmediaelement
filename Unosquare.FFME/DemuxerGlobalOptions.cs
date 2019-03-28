@@ -5,7 +5,7 @@
     /// <summary>
     /// The libavformat library provides some generic global options, which can be set on all the muxers and demuxers.
     /// For additional information, please see: https://ffmpeg.org/ffmpeg-formats.html#Format-Options
-    /// Geek Stuff: https://github.com/FFmpeg/FFmpeg/blob/a0ac49e38ee1d1011c394d7be67d0f08b2281526/libavformat/options_table.h#L36
+    /// Geek Stuff: https://github.com/FFmpeg/FFmpeg/blob/a0ac49e38ee1d1011c394d7be67d0f08b2281526/libavformat/options_table.h#L36.
     /// </summary>
     public sealed class DemuxerGlobalOptions
     {
@@ -18,7 +18,7 @@
         }
 
         /// <summary>
-        /// Port of avioflags direct
+        /// Port of avioflags direct.
         /// </summary>
         public bool EnableReducedBuffering { get; set; }
 
@@ -36,68 +36,68 @@
 
         /// <summary>
         /// Ignore index.
-        /// Port of ffflags
+        /// Port of ffflags.
         /// </summary>
         public bool FlagIgnoreIndex { get; set; }
 
         /// <summary>
         /// Enable fast, but inaccurate seeks for some formats.
-        /// Port of ffflags
+        /// Port of ffflags.
         /// </summary>
         public bool FlagEnableFastSeek { get; set; }
 
         /// <summary>
         /// Generate PTS.
-        /// Port of genpts
+        /// Port of genpts.
         /// </summary>
         public bool FlagGeneratePts { get; set; }
 
         /// <summary>
         /// Do not fill in missing values that can be exactly calculated.
-        /// Port of ffflags
+        /// Port of ffflags.
         /// </summary>
         public bool FlagEnableNoFillIn { get; set; }
 
         /// <summary>
         /// Ignore DTS.
-        /// Port of ffflags
+        /// Port of ffflags.
         /// </summary>
         public bool FlagIgnoreDts { get; set; }
 
         /// <summary>
         /// Discard corrupted frames.
-        /// Port of ffflags
+        /// Port of ffflags.
         /// </summary>
         public bool FlagDiscardCorrupt { get; set; }
 
         /// <summary>
         /// Try to interleave output packets by DTS.
-        /// Port of ffflags
+        /// Port of ffflags.
         /// </summary>
         public bool FlagSortDts { get; set; }
 
         /// <summary>
         /// Do not merge side data.
-        /// Port of ffflags
+        /// Port of ffflags.
         /// </summary>
         public bool FlagKeepSideData { get; set; }
 
         /// <summary>
         /// Enable RTP MP4A-LATM payload.
-        /// Port of ffflags
+        /// Port of ffflags.
         /// </summary>
         public bool FlagEnableLatmPayload { get; set; }
 
         /// <summary>
         /// Reduce the latency introduced by optional buffering
-        /// Port of ffflags
+        /// Port of ffflags.
         /// </summary>
         public bool FlagNoBuffer { get; set; }
 
         /// <summary>
         /// Stop muxing at the end of the shortest stream.
         /// It may be needed to increase max_interleave_delta to avoid flushing the longer streams before EOF.
-        /// Port of ffflags
+        /// Port of ffflags.
         /// </summary>
         public bool FlagStopAtShortest { get; set; }
 
@@ -108,7 +108,7 @@
 
         /// <summary>
         /// Gets or sets the maximum duration to be analyzed before identifying stream information.
-        /// In realtime streams this can be reduced to reduce latency (i.e. TimeSpan.Zero)
+        /// In realtime streams this can be reduced to reduce latency (i.e. TimeSpan.Zero).
         /// </summary>
         public TimeSpan MaxAnalyzeDuration { get; set; }
 
@@ -119,7 +119,7 @@
 
         /// <summary>
         /// Gets or sets the protocol whitelist. The values must be separated by comma.
-        /// Example: file,http,https,tcp,tls
+        /// Example: file,http,https,tcp,tls.
         /// </summary>
         public string ProtocolWhitelist { get; set; }
     }

@@ -3,7 +3,7 @@
     using System;
 
     /// <summary>
-    /// Wave Header Flags enumeration
+    /// Wave Header Flags enumeration.
     /// </summary>
     [Flags]
     internal enum WaveHeaderFlags

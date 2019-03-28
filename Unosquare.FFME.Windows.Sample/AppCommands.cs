@@ -5,7 +5,7 @@
     using System.Windows;
 
     /// <summary>
-    /// Represents the Application-Wide Commands
+    /// Represents the Application-Wide Commands.
     /// </summary>
     public class AppCommands
     {

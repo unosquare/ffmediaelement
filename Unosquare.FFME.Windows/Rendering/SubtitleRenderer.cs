@@ -14,7 +14,7 @@
     internal class SubtitleRenderer : IMediaRenderer, ILoggingSource
     {
         /// <summary>
-        /// The synchronize lock
+        /// The synchronize lock.
         /// </summary>
         private readonly object SyncLock = new object();
         private TimeSpan? StartTime;

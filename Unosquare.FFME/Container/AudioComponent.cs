@@ -22,7 +22,7 @@
         private SwrContext* Scaler;
 
         /// <summary>
-        /// Used to determine if we have to reset the scaler parameters
+        /// Used to determine if we have to reset the scaler parameters.
         /// </summary>
         private FFAudioParams LastSourceSpec;
 
@@ -258,7 +258,7 @@
         /// Computes the frame filter arguments that are appropriate for the audio filtering chain.
         /// </summary>
         /// <param name="frame">The frame.</param>
-        /// <returns>The base filter arguments</returns>
+        /// <returns>The base filter arguments.</returns>
         private string ComputeFilterArguments(AVFrame* frame)
         {
             var hexChannelLayout = BitConverter.ToString(
@@ -288,22 +288,16 @@
         /// or
         /// avfilter_graph_parse
         /// or
-        /// avfilter_graph_config
+        /// avfilter_graph_config.
         /// </exception>
         private void InitializeFilterGraph(AVFrame* frame)
         {
-            /*
-             * References:
-             * https://www.ffmpeg.org/doxygen/2.0/doc_2examples_2filtering_audio_8c-example.html
-             */
-
-            // ReSharper disable StringLiteralTypo
+            // References: https://www.ffmpeg.org/doxygen/2.0/doc_2examples_2filtering_audio_8c-example.html
             const string SourceFilterName = "abuffer";
             const string SourceFilterInstance = "audio_buffer";
             const string SinkFilterName = "abuffersink";
             const string SinkFilterInstance = "audio_buffersink";
 
-            // ReSharper restore StringLiteralTypo
             var frameArguments = ComputeFilterArguments(frame);
             if (string.IsNullOrWhiteSpace(CurrentFilterArguments) || frameArguments != CurrentFilterArguments)
                 DestroyFilterGraph();

@@ -7,68 +7,68 @@
     using System.Runtime.CompilerServices;
 
     /// <summary>
-    /// A reference counter to keep track of unmanaged objects
+    /// A reference counter to keep track of unmanaged objects.
     /// </summary>
     internal unsafe class RC
     {
         /// <summary>
-        /// The synchronization lock
+        /// The synchronization lock.
         /// </summary>
         private static readonly object SyncLock = new object();
 
         /// <summary>
-        /// The current reference counter instance
+        /// The current reference counter instance.
         /// </summary>
         private static RC m_Current;
 
         /// <summary>
-        /// The instances
+        /// The instances.
         /// </summary>
         private readonly Dictionary<IntPtr, ReferenceEntry> Instances = new Dictionary<IntPtr, ReferenceEntry>();
 
         /// <summary>
-        /// The types of tracked unmanaged types
+        /// The types of tracked unmanaged types.
         /// </summary>
         public enum UnmanagedType
         {
             /// <summary>
-            /// No media type
+            /// No media type.
             /// </summary>
             None,
 
             /// <summary>
-            /// The packet
+            /// The packet.
             /// </summary>
             Packet,
 
             /// <summary>
-            /// The frame
+            /// The frame.
             /// </summary>
             Frame,
 
             /// <summary>
-            /// The filter graph
+            /// The filter graph.
             /// </summary>
             FilterGraph,
 
             /// <summary>
-            /// The SWR context
+            /// The SWR context.
             /// </summary>
             SwrContext,
 
             /// <summary>
-            /// The codec context
+            /// The codec context.
             /// </summary>
             CodecContext,
 
             /// <summary>
-            /// The SWS context
+            /// The SWS context.
             /// </summary>
             SwsContext
         }
 
         /// <summary>
-        /// Gets the singleton instance of the reference counter
+        /// Gets the singleton instance of the reference counter.
         /// </summary>
         public static RC Current
         {
@@ -106,7 +106,7 @@
         }
 
         /// <summary>
-        /// Removes the specified unmanaged object reference
+        /// Removes the specified unmanaged object reference.
         /// </summary>
         /// <param name="ptr">The PTR.</param>
         public void Remove(IntPtr ptr)
@@ -221,7 +221,7 @@
         }
 
         /// <summary>
-        /// A reference entry
+        /// A reference entry.
         /// </summary>
         public class ReferenceEntry
         {

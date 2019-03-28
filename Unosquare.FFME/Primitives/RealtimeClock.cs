@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME.Primitives
 {
-    using Engine;
     using System;
     using System.Diagnostics;
 
@@ -66,7 +65,7 @@
         }
 
         /// <summary>
-        /// Sets a new position value atomically
+        /// Sets a new position value atomically.
         /// </summary>
         /// <param name="value">The new value that the position property will hold.</param>
         public void Update(TimeSpan value)

@@ -11,9 +11,9 @@
     /// <inheritdoc cref="ObservableCollection{T}"/>
     /// <summary>
     /// Represents an observable collection of playlist entries.
-    /// General guidelines taken from http://xmtvplayer.com/build-m3u-file
+    /// General guidelines taken from http://xmtvplayer.com/build-m3u-file.
     /// </summary>
-    /// <typeparam name="T">The type of playlist items</typeparam>
+    /// <typeparam name="T">The type of playlist items.</typeparam>
     public class PlaylistEntryCollection<T> : ObservableCollection<T>
         where T : PlaylistEntry, new()
     {
@@ -95,7 +95,7 @@
         }
 
         /// <summary>
-        /// Loads the playlist data into this playlist
+        /// Loads the playlist data into this playlist.
         /// </summary>
         /// <param name="stream">The stream.</param>
         /// <param name="encoding">The encoding.</param>
@@ -265,7 +265,7 @@
     }
 
     /// <summary>
-    /// A standard Playlist class with regular <see cref="PlaylistEntry"/> items
+    /// A standard Playlist class with regular <see cref="PlaylistEntry"/> items.
     /// </summary>
     /// <seealso cref="PlaylistEntryCollection{T}" />
     public class PlaylistEntryCollection : PlaylistEntryCollection<PlaylistEntry> { }

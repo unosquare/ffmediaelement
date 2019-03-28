@@ -18,7 +18,7 @@
     /// 1. Set Options (or don't, for automatic options) and Initialize,
     /// 2. Perform continuous packet reads,
     /// 3. Perform continuous frame decodes
-    /// 4. Perform continuous block materialization
+    /// 4. Perform continuous block materialization.
     /// </summary>
     /// <seealso cref="IDisposable" />
     internal sealed unsafe class MediaContainer : IDisposable, ILoggingSource
@@ -26,27 +26,27 @@
         #region Private Fields
 
         /// <summary>
-        /// The exception message no input context
+        /// The exception message no input context.
         /// </summary>
         private const string ExceptionMessageNoInputContext = "Stream InputContext has not been initialized.";
 
         /// <summary>
-        /// The logging handler
+        /// The logging handler.
         /// </summary>
         private readonly ILoggingHandler m_LoggingHandler;
 
         /// <summary>
-        /// The read synchronize root
+        /// The read synchronize root.
         /// </summary>
         private readonly object ReadSyncRoot = new object();
 
         /// <summary>
-        /// The decode synchronize root
+        /// The decode synchronize root.
         /// </summary>
         private readonly object DecodeSyncRoot = new object();
 
         /// <summary>
-        /// The convert synchronize root
+        /// The convert synchronize root.
         /// </summary>
         private readonly object ConvertSyncRoot = new object();
 
@@ -57,7 +57,7 @@
         private readonly AtomicDateTime StreamReadInterruptStartTime = new AtomicDateTime(default);
 
         /// <summary>
-        /// The signal to request the abortion of the following read operation
+        /// The signal to request the abortion of the following read operation.
         /// </summary>
         private readonly AtomicBoolean SignalAbortReadsRequested = new AtomicBoolean(false);
 
@@ -73,22 +73,22 @@
         private readonly AVIOInterruptCB_callback StreamReadInterruptCallback;
 
         /// <summary>
-        /// The custom media input stream
+        /// The custom media input stream.
         /// </summary>
         private IMediaInputStream CustomInputStream;
 
         /// <summary>
-        /// The custom input stream read callback
+        /// The custom input stream read callback.
         /// </summary>
         private avio_alloc_context_read_packet CustomInputStreamRead;
 
         /// <summary>
-        /// The custom input stream seek callback
+        /// The custom input stream seek callback.
         /// </summary>
         private avio_alloc_context_seek CustomInputStreamSeek;
 
         /// <summary>
-        /// The custom input stream context
+        /// The custom input stream context.
         /// </summary>
         private AVIOContext* CustomInputStreamContext;
 
@@ -177,7 +177,7 @@
         ILoggingHandler ILoggingSource.LoggingHandler => m_LoggingHandler;
 
         /// <summary>
-        /// To detect redundant Dispose calls
+        /// To detect redundant Dispose calls.
         /// </summary>
         public bool IsDisposed { get; private set; }
 
@@ -313,7 +313,7 @@
         /// Picture attachments are required when video streams support them
         /// and these attached packets must be read before reading the first frame
         /// of the stream and after seeking. This property is not part of the public API
-        /// and is meant more for internal purposes
+        /// and is meant more for internal purposes.
         /// </summary>
         private bool StateRequiresPictureAttachments
         {
@@ -361,9 +361,9 @@
         /// </summary>
         /// <param name="position">The position.</param>
         /// <returns>
-        /// The list of media frames
+        /// The list of media frames.
         /// </returns>
-        /// <exception cref="InvalidOperationException">No input context initialized</exception>
+        /// <exception cref="InvalidOperationException">No input context initialized.</exception>
         public MediaFrame Seek(TimeSpan position)
         {
             lock (ReadSyncRoot)
@@ -384,9 +384,9 @@
         /// Packets are queued internally. To dequeue them you need to call the receive frames
         /// method of each component until the packet buffer count becomes 0.
         /// </summary>
-        /// <returns>The media type of the packet that was read</returns>
-        /// <exception cref="InvalidOperationException">No input context initialized</exception>
-        /// <exception cref="MediaContainerException">When a read error occurs</exception>
+        /// <returns>The media type of the packet that was read.</returns>
+        /// <exception cref="InvalidOperationException">No input context initialized.</exception>
+        /// <exception cref="MediaContainerException">When a read error occurs.</exception>
         public MediaType Read()
         {
             lock (ReadSyncRoot)
@@ -409,7 +409,7 @@
         /// release the frame. Specify the release input argument as true and the frame will be automatically
         /// freed from memory.
         /// </summary>
-        /// <returns>The list of media frames</returns>
+        /// <returns>The list of media frames.</returns>
         public List<MediaFrame> Decode()
         {
             lock (DecodeSyncRoot)
@@ -439,19 +439,19 @@
         /// This is important because buffer allocations are expensive operations and this allows you
         /// to perform the allocation once and continue reusing the same buffer.
         /// </summary>
-        /// <param name="input">The raw frame source. Has to be compatible with the target. (e.g. use VideoFrameSource to convert to VideoFrame)</param>
+        /// <param name="input">The raw frame source. Has to be compatible with the target. (e.g. use VideoFrameSource to convert to VideoFrame).</param>
         /// <param name="output">The target frame. Has to be compatible with the source.</param>
         /// <param name="releaseInput">if set to <c>true</c> releases the raw frame source from unmanaged memory.</param>
         /// <param name="previousBlock">The previous block from which to extract timing information in case it is missing.</param>
         /// <returns>
         /// True if successful. False otherwise.
         /// </returns>
-        /// <exception cref="InvalidOperationException">No input context initialized</exception>
-        /// <exception cref="MediaContainerException">MediaType</exception>
-        /// <exception cref="ArgumentNullException">input</exception>
+        /// <exception cref="InvalidOperationException">No input context initialized.</exception>
+        /// <exception cref="MediaContainerException">MediaType.</exception>
+        /// <exception cref="ArgumentNullException">input.</exception>
         /// <exception cref="ArgumentException">input
         /// or
-        /// input</exception>
+        /// input.</exception>
         public bool Convert(MediaFrame input, ref MediaBlock output, bool releaseInput, MediaBlock previousBlock)
         {
             lock (ConvertSyncRoot)
@@ -497,12 +497,11 @@
         /// <summary>
         /// Signals the packet reading operations to abort immediately.
         /// </summary>
-        /// <param name="reset">if set to true, the read interrupt will reset the aborted state automatically</param>
+        /// <param name="reset">if set to true, the read interrupt will reset the aborted state automatically.</param>
         public void SignalAbortReads(bool reset)
         {
             if (IsDisposed) throw new ObjectDisposedException(nameof(MediaContainer));
 
-            // ReSharper disable once InconsistentlySynchronizedField
             if (InputContext == null) throw new InvalidOperationException(ExceptionMessageNoInputContext);
 
             SignalAbortReadsAutoReset.Value = reset;
@@ -510,7 +509,7 @@
         }
 
         /// <summary>
-        /// Signals the state for read operations to stop being in the aborted state
+        /// Signals the state for read operations to stop being in the aborted state.
         /// </summary>
         public void SignalResumeReads()
         {
@@ -528,7 +527,7 @@
         /// If the newly set streams are null these components are removed and disposed.
         /// All selected stream components are recreated.
         /// </summary>
-        /// <returns>The registered component types</returns>
+        /// <returns>The registered component types.</returns>
         public MediaType[] UpdateComponents()
         {
             if (IsDisposed || InputContext == null)
@@ -773,7 +772,7 @@
 
         /// <summary>
         /// Initializes the InputContext and applies format options.
-        /// https://www.ffmpeg.org/ffmpeg-formats.html#Format-Options
+        /// https://www.ffmpeg.org/ffmpeg-formats.html#Format-Options.
         /// </summary>
         private void StreamInitializeInputContext()
         {
@@ -841,11 +840,11 @@
 
         /// <summary>
         /// Creates and assigns a component of the given type using the specified stream information.
-        /// If stream information is null, or the component is disabled, then the component is removed
+        /// If stream information is null, or the component is disabled, then the component is removed.
         /// </summary>
         /// <param name="t">The Media Type.</param>
         /// <param name="stream">The stream information. Set to null to remove.</param>
-        /// <returns>The media type that was created. None for unsuccessful creation</returns>
+        /// <returns>The media type that was created. None for unsuccessful creation.</returns>
         private MediaType StreamCreateComponent(MediaType t, StreamInfo stream)
         {
             // Check if the component should be disabled (removed)
@@ -894,8 +893,8 @@
         /// Creates the stream components according to the specified streams in the current media options.
         /// Then it initializes the components of the correct type each.
         /// </summary>
-        /// <returns>The component media types that are available</returns>
-        /// <exception cref="MediaContainerException">The exception information</exception>
+        /// <returns>The component media types that are available.</returns>
+        /// <exception cref="MediaContainerException">The exception information.</exception>
         private MediaType[] StreamCreateComponents()
         {
             // Apply Media Options by selecting the desired components
@@ -925,8 +924,8 @@
         /// Reads the next packet in the underlying stream and queues in the corresponding media component.
         /// Returns None of no packet was read.
         /// </summary>
-        /// <returns>The type of media packet that was read</returns>
-        /// <exception cref="InvalidOperationException">Initialize</exception>
+        /// <returns>The type of media packet that was read.</returns>
+        /// <exception cref="InvalidOperationException">Initialize.</exception>
         /// <exception cref="MediaContainerException">Raised when an error reading from the stream occurs.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private MediaType StreamRead()
@@ -994,10 +993,10 @@
         }
 
         /// <summary>
-        /// The interrupt callback to handle stream reading timeouts
+        /// The interrupt callback to handle stream reading timeouts.
         /// </summary>
-        /// <param name="opaque">A pointer to the format input context</param>
-        /// <returns>0 for OK, 1 for error (timeout)</returns>
+        /// <param name="opaque">A pointer to the format input context.</param>
+        /// <returns>0 for OK, 1 for error (timeout).</returns>
         private int OnStreamReadInterrupt(void* opaque)
         {
             const int ErrorResult = 1;
@@ -1029,11 +1028,11 @@
         }
 
         /// <summary>
-        /// Seeks to the closest and lesser or equal key frame on the main component
+        /// Seeks to the closest and lesser or equal key frame on the main component.
         /// </summary>
         /// <param name="desiredTargetTime">The target time.</param>
         /// <returns>
-        /// The list of media frames
+        /// The list of media frames.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private MediaFrame StreamSeek(TimeSpan desiredTargetTime)
@@ -1221,7 +1220,7 @@
         /// This is a helper method for seeking logic.
         /// </summary>
         /// <param name="component">The component.</param>
-        /// <returns>The next available frame</returns>
+        /// <returns>The next available frame.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private MediaFrame StreamPositionDecode(MediaComponent component)
         {

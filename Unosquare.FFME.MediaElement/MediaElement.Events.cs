@@ -126,8 +126,8 @@
         /// <summary>
         /// Raises the packet read event.
         /// </summary>
-        /// <param name="packet">The packet pointer</param>
-        /// <param name="context">The input context pointer</param>
+        /// <param name="packet">The packet pointer.</param>
+        /// <param name="context">The input context pointer.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal unsafe void RaisePacketReadEvent(AVPacket* packet, AVFormatContext* context) =>
             PacketRead?.Invoke(this, new PacketReadEventArgs(packet, context));
@@ -135,8 +135,8 @@
         /// <summary>
         /// Raises the audio frame decoded event.
         /// </summary>
-        /// <param name="frame">The frame pointer</param>
-        /// <param name="context">The input context pointer</param>
+        /// <param name="frame">The frame pointer.</param>
+        /// <param name="context">The input context pointer.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal unsafe void RaiseAudioFrameDecodedEvent(AVFrame* frame, AVFormatContext* context) =>
             AudioFrameDecoded?.Invoke(this, new FrameDecodedEventArgs(frame, context));
@@ -144,8 +144,8 @@
         /// <summary>
         /// Raises the video frame decoded event.
         /// </summary>
-        /// <param name="frame">The frame pointer</param>
-        /// <param name="context">The input context pointer</param>
+        /// <param name="frame">The frame pointer.</param>
+        /// <param name="context">The input context pointer.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal unsafe void RaiseVideoFrameDecodedEvent(AVFrame* frame, AVFormatContext* context) =>
             VideoFrameDecoded?.Invoke(this, new FrameDecodedEventArgs(frame, context));
@@ -153,8 +153,8 @@
         /// <summary>
         /// Raises the subtitle decoded event.
         /// </summary>
-        /// <param name="subtitle">The subtitle pointer</param>
-        /// <param name="context">The input context pointer</param>
+        /// <param name="subtitle">The subtitle pointer.</param>
+        /// <param name="context">The input context pointer.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal unsafe void RaiseSubtitleDecodedEvent(AVSubtitle* subtitle, AVFormatContext* context) =>
             SubtitleDecoded?.Invoke(this, new SubtitleDecodedEventArgs(subtitle, context));
@@ -353,7 +353,7 @@
         #region Event Logging
 
         /// <summary>
-        /// Logs the start of an event
+        /// Logs the start of an event.
         /// </summary>
         /// <param name="eventName">The event.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

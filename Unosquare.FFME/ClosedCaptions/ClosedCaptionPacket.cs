@@ -8,7 +8,7 @@
     /// <inheritdoc />
     /// <summary>
     /// Represents a 3-byte packet of closed-captioning data in EIA-608 format.
-    /// See: http://jackyjung.tistory.com/attachment/499e14e28c347DB.pdf
+    /// See: http://jackyjung.tistory.com/attachment/499e14e28c347DB.pdf.
     /// </summary>
     public sealed class ClosedCaptionPacket : IComparable<ClosedCaptionPacket>, IEquatable<ClosedCaptionPacket>
     {
@@ -469,7 +469,7 @@
         #region Properties
 
         /// <summary>
-        /// Gets the first of the two-byte packet data
+        /// Gets the first of the two-byte packet data.
         /// </summary>
         public byte D0
         {
@@ -478,7 +478,7 @@
         }
 
         /// <summary>
-        /// Gets the second of the two-byte packet data
+        /// Gets the second of the two-byte packet data.
         /// </summary>
         public byte D1
         {
@@ -493,7 +493,7 @@
 
         /// <summary>
         /// Gets the NTSC field (1 or 2).
-        /// 0 for unknown/null packet
+        /// 0 for unknown/null packet.
         /// </summary>
         public int FieldParity { get; }
 
@@ -505,7 +505,7 @@
 
         /// <summary>
         /// Gets the channel CC1, CC2, CC3, or CC4.
-        /// Returns None when not yet computed
+        /// Returns None when not yet computed.
         /// </summary>
         public CaptionsChannel Channel { get; internal set; }
 
@@ -515,42 +515,42 @@
         public CaptionsPacketType PacketType { get; }
 
         /// <summary>
-        /// Gets the number of tabs, if the packet type is of Tabs
+        /// Gets the number of tabs, if the packet type is of Tabs.
         /// </summary>
         public int Tabs { get; }
 
         /// <summary>
-        /// Gets the Misc Command, if the packet type is of Command
+        /// Gets the Misc Command, if the packet type is of Command.
         /// </summary>
         public CaptionsCommand Command { get; }
 
         /// <summary>
-        /// Gets the Color, if the packet type is of Color
+        /// Gets the Color, if the packet type is of Color.
         /// </summary>
         public CaptionsColor Color { get; }
 
         /// <summary>
-        /// Gets the Style, if the packet type is of Mid Row Style
+        /// Gets the Style, if the packet type is of Mid Row Style.
         /// </summary>
         public CaptionsStyle MidRowStyle { get; }
 
         /// <summary>
-        /// Gets the XDS Class, if the packet type is of XDS
+        /// Gets the XDS Class, if the packet type is of XDS.
         /// </summary>
         public CaptionsXdsClass XdsClass { get; }
 
         /// <summary>
-        /// Gets the Preamble Row Number (1 through 15), if the packet type is of Preamble
+        /// Gets the Preamble Row Number (1 through 15), if the packet type is of Preamble.
         /// </summary>
         public int PreambleRow { get; }
 
         /// <summary>
-        /// Gets the Style, if the packet type is of Preamble
+        /// Gets the Style, if the packet type is of Preamble.
         /// </summary>
         public CaptionsStyle PreambleStyle { get; } = CaptionsStyle.None;
 
         /// <summary>
-        /// Gets the Indent Style, if the packet type is of Preamble
+        /// Gets the Indent Style, if the packet type is of Preamble.
         /// </summary>
         public int PreambleIndent { get; }
 
@@ -566,13 +566,13 @@
 
         /// <summary>
         /// Gets a value indicating whether the current and following
-        /// caption text packets are underlined; only valid for preamble or mid-row packets
+        /// caption text packets are underlined; only valid for preamble or mid-row packets.
         /// </summary>
         public bool IsUnderlined { get; }
 
         /// <summary>
         /// Gets a value indicating whether the current and following
-        /// caption text packets are italicized; only valid for preamble or mid-row packets
+        /// caption text packets are italicized; only valid for preamble or mid-row packets.
         /// </summary>
         public bool IsItalics { get; }
 
@@ -648,7 +648,7 @@
         /// </summary>
         /// <param name="fieldParity">The field parity.</param>
         /// <param name="fieldChannel">The field channel.</param>
-        /// <returns>The CC channel according to the parity and channel</returns>
+        /// <returns>The CC channel according to the parity and channel.</returns>
         public static CaptionsChannel ComputeChannel(int fieldParity, int fieldChannel)
         {
             // packets with 0 field parity are null or unknown
@@ -666,7 +666,7 @@
 
         /// <summary>
         /// Determines whether a previous packet is a repeated control code.
-        /// This is according to CEA-608 Section D.2 Transmission of Control Code Pairs
+        /// This is according to CEA-608 Section D.2 Transmission of Control Code Pairs.
         /// </summary>
         /// <param name="previousPacket">The previous packet.</param>
         /// <returns>
@@ -691,7 +691,6 @@
                 ComputeChannel(FieldParity, FieldChannel) + "*" : Channel + " ";
             var prefixData = $"{ts} | {channel} | P: {FieldParity} D: {FieldChannel} | {D0:x2}h {D1:x2}h |";
 
-            // ReSharper disable once SwitchStatementMissingSomeCases
             switch (PacketType)
             {
                 case CaptionsPacketType.PrivateCharset:
@@ -752,10 +751,10 @@
         #region Static Methods
 
         /// <summary>
-        /// Checks that the header byte starts with 11111b (5 ones binary)
+        /// Checks that the header byte starts with 11111b (5 ones binary).
         /// </summary>
         /// <param name="data">The data.</param>
-        /// <returns>If header has markers</returns>
+        /// <returns>If header has markers.</returns>
         private static bool HeaderHasMarkers(byte data)
         {
             return (data & 0xF8) == 0xF8;
@@ -775,7 +774,7 @@
         /// Returns 0 for unknown.
         /// </summary>
         /// <param name="data">The data.</param>
-        /// <returns>The field type</returns>
+        /// <returns>The field type.</returns>
         private static int GetHeaderFieldType(byte data)
         {
             if ((data & 0x03) == 2) return 0;
@@ -793,7 +792,7 @@
         }
 
         /// <summary>
-        /// Converts an ASCII character code to an EIA-608 char (in Unicode)
+        /// Converts an ASCII character code to an EIA-608 char (in Unicode).
         /// </summary>
         /// <param name="input">The input.</param>
         /// <returns>The charset char.</returns>

@@ -3,7 +3,7 @@
     using System;
 
     /// <summary>
-    /// Contains the media state changed event args
+    /// Contains the media state changed event args.
     /// </summary>
     /// <seealso cref="EventArgs" />
     public class MediaStateChangedEventArgs : EventArgs

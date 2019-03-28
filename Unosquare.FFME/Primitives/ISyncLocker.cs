@@ -3,7 +3,7 @@
     using System;
 
     /// <summary>
-    /// Defines a generic interface for synchronized locking mechanisms
+    /// Defines a generic interface for synchronized locking mechanisms.
     /// </summary>
     internal interface ISyncLocker : IDisposable
     {
@@ -24,14 +24,14 @@
         /// </summary>
         /// <param name="timeoutMilliseconds">The timeout milliseconds.</param>
         /// <param name="locker">The locker.</param>
-        /// <returns>True if the lock was acquired</returns>
+        /// <returns>True if the lock was acquired.</returns>
         bool TryAcquireWriterLock(int timeoutMilliseconds, out IDisposable locker);
 
         /// <summary>
         /// Tries to acquire a writer lock with a default timeout.
         /// </summary>
         /// <param name="locker">The locker.</param>
-        /// /// <returns>True if the lock was acquired</returns>
+        /// /// <returns>True if the lock was acquired.</returns>
         bool TryAcquireWriterLock(out IDisposable locker);
 
         /// <summary>
@@ -46,14 +46,14 @@
         /// </summary>
         /// <param name="timeoutMilliseconds">The timeout milliseconds.</param>
         /// <param name="locker">The locker.</param>
-        /// <returns>True if the lock was acquired</returns>
+        /// <returns>True if the lock was acquired.</returns>
         bool TryAcquireReaderLock(int timeoutMilliseconds, out IDisposable locker);
 
         /// <summary>
         /// Tries to acquire a reader lock with a default timeout.
         /// </summary>
         /// <param name="locker">The locker.</param>
-        /// <returns>True if the lock was acquired</returns>
+        /// <returns>True if the lock was acquired.</returns>
         bool TryAcquireReaderLock(out IDisposable locker);
     }
 }

@@ -43,19 +43,19 @@
         /// <summary>
         /// Starts execution of worker cycles.
         /// </summary>
-        /// <returns>The awaitable task</returns>
+        /// <returns>The awaitable task.</returns>
         Task<WorkerState> StartAsync();
 
         /// <summary>
         /// Pauses execution of worker cycles.
         /// </summary>
-        /// <returns>The awaitable task</returns>
+        /// <returns>The awaitable task.</returns>
         Task<WorkerState> PauseAsync();
 
         /// <summary>
         /// Resumes execution of worker cycles.
         /// </summary>
-        /// <returns>The awaitable task</returns>
+        /// <returns>The awaitable task.</returns>
         Task<WorkerState> ResumeAsync();
 
         /// <summary>
@@ -64,7 +64,7 @@
         /// the worker without interrupting then call the <see cref="PauseAsync"/>
         /// method, await it, and finally call the <see cref="StopAsync"/> method.
         /// </summary>
-        /// <returns>The awaitable task</returns>
+        /// <returns>The awaitable task.</returns>
         Task<WorkerState> StopAsync();
     }
 }

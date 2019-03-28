@@ -4,7 +4,7 @@
     using System;
 
     /// <summary>
-    /// Contains the position changed routed event args
+    /// Contains the position changed routed event args.
     /// </summary>
     /// <seealso cref="EventArgs" />
     public class PositionChangedEventArgs : EventArgs
@@ -33,7 +33,7 @@
         public TimeSpan OldPosition { get; }
 
         /// <summary>
-        /// Provides access to the underlying media engine state
+        /// Provides access to the underlying media engine state.
         /// </summary>
         public IMediaEngineState EngineState { get; }
     }

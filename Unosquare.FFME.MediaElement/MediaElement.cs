@@ -155,7 +155,7 @@
         /// <param name="mediaSource">The source URL.</param>
         /// <param name="streamIndex">Index of the stream. Use -1 for automatic stream selection.</param>
         /// <returns>
-        /// The seek index object
+        /// The seek index object.
         /// </returns>
         public static VideoSeekIndex CreateVideoSeekIndex(string mediaSource, int streamIndex) =>
             MediaEngine.CreateVideoSeekIndex(mediaSource, streamIndex);
@@ -179,7 +179,7 @@
         /// Handle the <see cref="MediaChanging"/> event to set new <see cref="MediaOptions"/> based on
         /// <see cref="MediaInfo"/> properties.
         /// </summary>
-        /// <returns>The awaitable command</returns>
+        /// <returns>The awaitable command.</returns>
         public ConfiguredTaskAwaitable<bool> ChangeMedia() => Task.Run(async () =>
         {
             try { return await MediaCore.ChangeMedia(); }
@@ -190,7 +190,7 @@
         /// <summary>
         /// Begins or resumes playback of the currently loaded media.
         /// </summary>
-        /// <returns>The awaitable command</returns>
+        /// <returns>The awaitable command.</returns>
         public ConfiguredTaskAwaitable<bool> Play() => Task.Run(async () =>
         {
             try { return await MediaCore.Play(); }
@@ -201,7 +201,7 @@
         /// <summary>
         /// Pauses playback of the currently loaded media.
         /// </summary>
-        /// <returns>The awaitable command</returns>
+        /// <returns>The awaitable command.</returns>
         public ConfiguredTaskAwaitable<bool> Pause() => Task.Run(async () =>
         {
             try { return await MediaCore.Pause(); }
@@ -212,7 +212,7 @@
         /// <summary>
         /// Pauses and rewinds the currently loaded media.
         /// </summary>
-        /// <returns>The awaitable command</returns>
+        /// <returns>The awaitable command.</returns>
         public ConfiguredTaskAwaitable<bool> Stop() => Task.Run(async () =>
         {
             try { return await MediaCore.Stop(); }
@@ -223,7 +223,7 @@
         /// <summary>
         /// Closes the currently loaded media.
         /// </summary>
-        /// <returns>The awaitable command</returns>
+        /// <returns>The awaitable command.</returns>
         public ConfiguredTaskAwaitable<bool> Close() => Task.Run(async () =>
         {
             try
@@ -241,7 +241,7 @@
         /// This is an alternative to using the <see cref="Position"/> dependency property.
         /// </summary>
         /// <param name="target">The target time to seek to.</param>
-        /// <returns>The awaitable command</returns>
+        /// <returns>The awaitable command.</returns>
         public ConfiguredTaskAwaitable<bool> Seek(TimeSpan target) => Task.Run(async () =>
         {
             try { return await MediaCore.Seek(target); }
@@ -252,7 +252,7 @@
         /// <summary>
         /// Seeks a single frame forward.
         /// </summary>
-        /// <returns>The awaitable command</returns>
+        /// <returns>The awaitable command.</returns>
         public ConfiguredTaskAwaitable<bool> StepForward() => Task.Run(async () =>
         {
             try { return await MediaCore.StepForward(); }
@@ -263,7 +263,7 @@
         /// <summary>
         /// Seeks a single frame backward.
         /// </summary>
-        /// <returns>The awaitable command</returns>
+        /// <returns>The awaitable command.</returns>
         public ConfiguredTaskAwaitable<bool> StepBackward() => Task.Run(async () =>
         {
             try { return await MediaCore.StepBackward(); }
@@ -303,7 +303,7 @@
         /// Opens the specified custom input stream.
         /// </summary>
         /// <param name="stream">The stream.</param>
-        /// <returns>The awaitable task</returns>
+        /// <returns>The awaitable task.</returns>
         public ConfiguredTaskAwaitable<bool> Open(IMediaInputStream stream) => Task.Run(async () =>
         {
             try

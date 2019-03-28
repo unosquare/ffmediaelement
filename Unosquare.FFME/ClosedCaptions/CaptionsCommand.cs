@@ -1,8 +1,7 @@
-﻿// ReSharper disable UnusedMember.Global
-namespace Unosquare.FFME.ClosedCaptions
+﻿namespace Unosquare.FFME.ClosedCaptions
 {
     /// <summary>
-    /// Enumerates the Closed-Captioning misc commands
+    /// Enumerates the Closed-Captioning misc commands.
     /// </summary>
     public enum CaptionsCommand
     {

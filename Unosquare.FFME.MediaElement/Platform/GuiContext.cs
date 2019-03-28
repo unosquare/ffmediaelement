@@ -22,7 +22,7 @@
 
     /// <summary>
     /// Provides properties and methods for the
-    /// WPF or Windows Forms GUI Threading context
+    /// WPF or Windows Forms GUI Threading context.
     /// </summary>
     public sealed class GuiContext
     {
@@ -89,12 +89,12 @@
         public GuiContextType Type { get; }
 
         /// <summary>
-        /// Gets the thread on which this context was created
+        /// Gets the thread on which this context was created.
         /// </summary>
         public Thread Thread { get; }
 
         /// <summary>
-        /// Gets a value indicating whether the context is in design time
+        /// Gets a value indicating whether the context is in design time.
         /// </summary>
         public bool IsInDesignTime { get; }
 
@@ -114,7 +114,7 @@
         internal SynchronizationContext ThreadContext { get; }
 
         /// <summary>
-        /// Gets the GUI dispatcher. Only valid for WPF contexts
+        /// Gets the GUI dispatcher. Only valid for WPF contexts.
         /// </summary>
         internal Dispatcher GuiDispatcher { get; }
 
@@ -123,7 +123,7 @@
         /// </summary>
         /// <param name="priority">The priority.</param>
         /// <param name="callback">The callback.</param>
-        /// <returns>The awaitable task</returns>
+        /// <returns>The awaitable task.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ConfiguredTaskAwaitable InvokeAsync(DispatcherPriority priority, Action callback) =>
             InvokeAsyncInternal(priority, callback, null).ConfigureAwait(true);
@@ -132,7 +132,7 @@
         /// Invokes a task on the GUI thread with the possibility of awaiting it.
         /// </summary>
         /// <param name="callback">The callback.</param>
-        /// <returns>The awaitable task</returns>
+        /// <returns>The awaitable task.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ConfiguredTaskAwaitable InvokeAsync(Action callback) =>
 #if WINDOWS_UWP
@@ -149,7 +149,7 @@
         public void EnqueueInvoke(Action callback) => InvokeAsync(callback);
 
         /// <summary>
-        /// Invokes a task on the GUI thread
+        /// Invokes a task on the GUI thread.
         /// </summary>
         /// <param name="priority">The priority.</param>
         /// <param name="callback">The callback.</param>
@@ -157,7 +157,7 @@
         public void EnqueueInvoke(DispatcherPriority priority, Action callback) => InvokeAsync(priority, callback);
 
         /// <summary>
-        /// Invokes a task on the GUI thread
+        /// Invokes a task on the GUI thread.
         /// </summary>
         /// <param name="priority">The priority.</param>
         /// <param name="callback">The callback.</param>

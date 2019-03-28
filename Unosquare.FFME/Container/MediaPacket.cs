@@ -13,7 +13,7 @@
     internal sealed unsafe class MediaPacket : IDisposable
     {
         /// <summary>
-        /// The flush packet data pointer
+        /// The flush packet data pointer.
         /// </summary>
         private static readonly IntPtr FlushPacketData = (IntPtr)ffmpeg.av_malloc(0);
 
@@ -61,7 +61,7 @@
 
         /// <summary>
         /// Gets a value indicating whether the specified packet is a flush packet.
-        /// These flush packets are used to clear the internal decoder buffers
+        /// These flush packets are used to clear the internal decoder buffers.
         /// </summary>
         public bool IsFlushPacket => !m_IsDisposed.Value && (IntPtr)((AVPacket*)m_Pointer)->data == FlushPacketData;
 
@@ -71,10 +71,10 @@
         public bool IsDisposed => m_IsDisposed.Value;
 
         /// <summary>
-        /// Allocates a default readable packet
+        /// Allocates a default readable packet.
         /// </summary>
         /// <returns>
-        /// A packet used for receiving data
+        /// A packet used for receiving data.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MediaPacket CreateReadPacket()
@@ -89,7 +89,7 @@
         /// </summary>
         /// <param name="streamIndex">The stream index this packet belongs to.</param>
         /// <returns>
-        /// The special empty packet that instructs the decoder to enter draining mode
+        /// The special empty packet that instructs the decoder to enter draining mode.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MediaPacket CreateEmptyPacket(int streamIndex)
@@ -107,7 +107,7 @@
         /// Creates a flush packet.
         /// </summary>
         /// <param name="streamIndex">The stream index this packet belongs to.</param>
-        /// <returns>A special packet that makes the decoder flush its buffers</returns>
+        /// <returns>A special packet that makes the decoder flush its buffers.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MediaPacket CreateFlushPacket(int streamIndex)
         {
@@ -125,7 +125,7 @@
         /// Clones the packet.
         /// </summary>
         /// <param name="source">The source.</param>
-        /// <returns>The packet clone</returns>
+        /// <returns>The packet clone.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MediaPacket ClonePacket(AVPacket* source)
         {

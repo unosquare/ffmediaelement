@@ -306,8 +306,8 @@
         /// Signals all state change requests to set.
         /// </summary>
         /// <param name="schedule">The cycle schedule.</param>
-        /// <param name="oldState">The previosu worker state</param>
-        /// <param name="newState">The new worker state</param>
+        /// <param name="oldState">The previosu worker state.</param>
+        /// <param name="newState">The new worker state.</param>
         private void ClearStateChangeRequests(int schedule, WorkerState oldState, WorkerState newState)
         {
             lock (SyncLock)

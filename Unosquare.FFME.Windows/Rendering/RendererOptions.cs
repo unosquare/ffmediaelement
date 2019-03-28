@@ -5,18 +5,18 @@
     using Wave;
 
     /// <summary>
-    /// Provides access to various internal media renderer options
+    /// Provides access to various internal media renderer options.
     /// </summary>
     public sealed class RendererOptions
     {
         /// <summary>
-        /// The default DirectSound device
+        /// The default DirectSound device.
         /// </summary>
         public static readonly AudioDeviceInfo<Guid> DefaultDirectSoundDevice = new AudioDeviceInfo<Guid>(
             DirectSoundPlayer.DefaultPlaybackDeviceId, nameof(DefaultDirectSoundDevice), nameof(DirectSoundPlayer), true, Guid.Empty.ToString());
 
         /// <summary>
-        /// The default Windows MME Legacy Audio Device
+        /// The default Windows MME Legacy Audio Device.
         /// </summary>
         public static readonly AudioDeviceInfo<int> DefaultLegacyAudioDevice = new AudioDeviceInfo<int>(
             -1, nameof(DefaultLegacyAudioDevice), nameof(LegacyAudioPlayer), true, Guid.Empty.ToString());
@@ -54,7 +54,7 @@
         /// <summary>
         /// Enumerates the DirectSound devices.
         /// </summary>
-        /// <returns>The available DirectSound devices</returns>
+        /// <returns>The available DirectSound devices.</returns>
         public static List<AudioDeviceInfo<Guid>> EnumerateDirectSoundDevices()
         {
             var devices = DirectSoundPlayer.EnumerateDevices();
@@ -72,7 +72,7 @@
         /// <summary>
         /// Enumerates the (Legacy) Windows Multimedia Extensions devices.
         /// </summary>
-        /// <returns>The available MME devices</returns>
+        /// <returns>The available MME devices.</returns>
         public static List<AudioDeviceInfo<int>> EnumerateLegacyAudioDevices()
         {
             var devices = LegacyAudioPlayer.EnumerateDevices();

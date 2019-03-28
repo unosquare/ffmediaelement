@@ -57,7 +57,7 @@
         }
 
         /// <summary>
-        /// Contains the property names found in the Media Engine State type, but not found in the Media Element
+        /// Contains the property names found in the Media Engine State type, but not found in the Media Element.
         /// </summary>
         public static ReadOnlyCollection<string> MissingPropertyMappings { get; }
 
@@ -103,7 +103,7 @@
         }
 
         /// <summary>
-        /// Detects which dependency properties are out of sync with the Media Engine State properties
+        /// Detects which dependency properties are out of sync with the Media Engine State properties.
         /// </summary>
         /// <param name="m">The m.</param>
         /// <returns>A dictionary of dependency properties to synchronize along with the engine values.</returns>
@@ -133,7 +133,7 @@
         }
 
         /// <summary>
-        /// Compiles the state into the target dictionary of property names and property values
+        /// Compiles the state into the target dictionary of property names and property values.
         /// </summary>
         /// <param name="m">The m.</param>
         /// <param name="target">The target.</param>
@@ -148,7 +148,7 @@
         /// Retrieves the dependency properties.
         /// </summary>
         /// <param name="t">The t.</param>
-        /// <returns>A list of dependency properties</returns>
+        /// <returns>A list of dependency properties.</returns>
         private static List<PropertyInfo> RetrieveDependencyProperties(Type t)
         {
             const string PropertySuffix = "Property";
@@ -180,7 +180,7 @@
         /// </summary>
         /// <param name="t">The t.</param>
         /// <param name="declaredOnly">if set to <c>true</c> [declared only].</param>
-        /// <returns>A list of properties</returns>
+        /// <returns>A list of properties.</returns>
         private static List<PropertyInfo> RetrieveProperties(Type t, bool declaredOnly)
         {
             var flags = BindingFlags.Instance | BindingFlags.Public;

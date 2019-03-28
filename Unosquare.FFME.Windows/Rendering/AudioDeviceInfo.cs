@@ -1,9 +1,9 @@
 ﻿namespace Unosquare.FFME.Rendering
 {
     /// <summary>
-    /// Represents a device identifier
+    /// Represents a device identifier.
     /// </summary>
-    /// <typeparam name="T">The type of the device identifier</typeparam>
+    /// <typeparam name="T">The type of the device identifier.</typeparam>
     public class AudioDeviceInfo<T>
         where T : struct
     {

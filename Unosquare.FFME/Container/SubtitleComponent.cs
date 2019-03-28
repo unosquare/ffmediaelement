@@ -25,7 +25,7 @@
         }
 
         /// <summary>
-        /// Gets the amount of time to offset the subtitles by for this component
+        /// Gets the amount of time to offset the subtitles by for this component.
         /// </summary>
         public TimeSpan Delay { get; }
 
@@ -91,14 +91,13 @@
         /// Strips the SRT format and returns plain text.
         /// </summary>
         /// <param name="input">The input.</param>
-        /// <returns>The formatted string</returns>
+        /// <returns>The formatted string.</returns>
         internal static string StripSrtFormat(string input)
         {
             var output = new StringBuilder(input.Length);
             var isInTag = false;
             char currentChar;
 
-            // ReSharper disable once ForCanBeConvertedToForeach
             for (var i = 0; i < input.Length; i++)
             {
                 currentChar = input[i];
@@ -124,7 +123,7 @@
         /// Strips a line of text from the ASS format.
         /// </summary>
         /// <param name="input">The input.</param>
-        /// <returns>The formatted string</returns>
+        /// <returns>The formatted string.</returns>
         internal static string StripAssFormat(string input)
         {
             const string DialoguePrefix = "dialogue:";
@@ -144,7 +143,6 @@
             var isInStyle = false;
             char currentChar;
 
-            // ReSharper disable once ForCanBeConvertedToForeach
             for (var i = 0; i < normalizedInput.Length; i++)
             {
                 currentChar = normalizedInput[i];

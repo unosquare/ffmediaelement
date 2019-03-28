@@ -6,7 +6,7 @@
     using System.Web;
 
     /// <summary>
-    /// Represents a dictionary of attributes (key-value pairs)
+    /// Represents a dictionary of attributes (key-value pairs).
     /// </summary>
     [Serializable]
     public class AttributeDictionary : Dictionary<string, string>
@@ -56,14 +56,14 @@
         /// Gets the entry value safely.
         /// </summary>
         /// <param name="entryKey">The entry key.</param>
-        /// <returns>The entry value or null</returns>
+        /// <returns>The entry value or null.</returns>
         public string GetEntryValue(string entryKey)
         {
             return ContainsKey(entryKey) ? this[entryKey] : null;
         }
 
         /// <summary>
-        /// Sets the entry value and returns true if the value changes
+        /// Sets the entry value and returns true if the value changes.
         /// </summary>
         /// <param name="entryKey">The entry key.</param>
         /// <param name="value">The value.</param>

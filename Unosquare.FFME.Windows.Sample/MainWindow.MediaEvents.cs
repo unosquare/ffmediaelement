@@ -192,7 +192,6 @@
                 e.Options.AudioStream = englishAudioStream;
 
             // Setting Advanced Video Stream Options is also possible
-            // ReSharper disable once InvertIf
             if (e.Options.VideoStream is StreamInfo videoStream)
             {
                 // If we have a valid seek index let's use it!
@@ -301,9 +300,9 @@
         }
 
         /// <summary>
-        /// Handles the MediaClosed event of the Media control
+        /// Handles the MediaClosed event of the Media control.
         /// </summary>
-        /// <param name="sender">The sender</param>
+        /// <param name="sender">The sender.</param>
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private void OnMediaClosed(object sender, EventArgs e)
         {
@@ -420,7 +419,7 @@
         /// <param name="streamIndex">The associated stream index.</param>
         /// <param name="durationSeconds">The duration in seconds.</param>
         /// <returns>
-        /// The seek index
+        /// The seek index.
         /// </returns>
         private VideoSeekIndex LoadOrCreateVideoSeekIndex(string mediaFilePath, int streamIndex, double durationSeconds)
         {

@@ -16,22 +16,22 @@
         private static readonly string NotInitializedErrorMessage = $"{nameof(MediaEngine)} not initialized";
 
         /// <summary>
-        /// The initialize lock
+        /// The initialize lock.
         /// </summary>
         private static readonly object InitLock = new object();
 
         /// <summary>
-        /// The has initialized flag
+        /// The has initialized flag.
         /// </summary>
         private static bool IsInitialized;
 
         /// <summary>
-        /// The ffmpeg directory
+        /// The ffmpeg directory.
         /// </summary>
         private static string m_FFmpegDirectory = Constants.FFmpegSearchPath;
 
         /// <summary>
-        /// Stores the load mode flags
+        /// Stores the load mode flags.
         /// </summary>
         private static int m_FFmpegLoadModeFlags = FFmpegLoadMode.FullFeatures;
 
@@ -104,7 +104,7 @@
         /// <summary>
         /// Gets the registered FFmpeg input format names.
         /// </summary>
-        /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized</exception>
+        /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized.</exception>
         public static ReadOnlyCollection<string> InputFormatNames
         {
             get
@@ -123,7 +123,7 @@
         /// <summary>
         /// Gets the global input format options information.
         /// </summary>
-        /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized</exception>
+        /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized.</exception>
         public static ReadOnlyCollection<OptionMeta> InputFormatOptionsGlobal
         {
             get
@@ -142,7 +142,7 @@
         /// <summary>
         /// Gets the input format options.
         /// </summary>
-        /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized</exception>
+        /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized.</exception>
         public static ReadOnlyDictionary<string, ReadOnlyCollection<OptionMeta>> InputFormatOptions
         {
             get
@@ -172,7 +172,7 @@
         /// <summary>
         /// Gets the registered FFmpeg decoder codec names.
         /// </summary>
-        /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized</exception>
+        /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized.</exception>
         public static unsafe ReadOnlyCollection<string> DecoderNames
         {
             get
@@ -189,9 +189,9 @@
         }
 
         /// <summary>
-        /// Gets the global options that apply to all decoders
+        /// Gets the global options that apply to all decoders.
         /// </summary>
-        /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized</exception>
+        /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized.</exception>
         public static ReadOnlyCollection<OptionMeta> DecoderOptionsGlobal
         {
             get
@@ -210,7 +210,7 @@
         /// <summary>
         /// Gets the decoder specific options.
         /// </summary>
-        /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized</exception>
+        /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized.</exception>
         public static unsafe ReadOnlyDictionary<string, ReadOnlyCollection<OptionMeta>> DecoderOptions
         {
             get
@@ -243,7 +243,7 @@
         /// <summary>
         /// Gets all registered encoder and decoder codecs.
         /// </summary>
-        /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized</exception>
+        /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized.</exception>
         internal static unsafe AVCodec*[] AllCodecs
         {
             get
@@ -298,9 +298,9 @@
         }
 
         /// <summary>
-        /// Unloads FFmpeg libraries from memory
+        /// Unloads FFmpeg libraries from memory.
         /// </summary>
-        /// <exception cref="NotImplementedException">Unloading FFmpeg libraries is not yet supported</exception>
+        /// <exception cref="NotImplementedException">Unloading FFmpeg libraries is not yet supported.</exception>
         public static void UnloadFFmpeg() =>
             throw new NotImplementedException("Unloading FFmpeg libraries is not yet supported");
 
@@ -321,7 +321,7 @@
         /// <param name="mediaSource">The source URL.</param>
         /// <param name="streamIndex">Index of the stream. Use -1 for automatic stream selection.</param>
         /// <returns>
-        /// The seek index object
+        /// The seek index object.
         /// </returns>
         public static VideoSeekIndex CreateVideoSeekIndex(string mediaSource, int streamIndex)
         {
@@ -373,7 +373,7 @@
         /// <param name="mediaSource">The subtitles URL.</param>
         /// <param name="sourceType">Type of the source.</param>
         /// <param name="parent">The parent.</param>
-        /// <returns>A buffer containing all the blocks</returns>
+        /// <returns>A buffer containing all the blocks.</returns>
         internal static MediaBlockBuffer LoadBlocks(string mediaSource, MediaType sourceType, ILoggingHandler parent)
         {
             if (string.IsNullOrWhiteSpace(mediaSource))

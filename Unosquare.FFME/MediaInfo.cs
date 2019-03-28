@@ -8,7 +8,7 @@
     using System.Linq;
 
     /// <summary>
-    /// Holds media information about the input, its chapters, programs and individual stream components
+    /// Holds media information about the input, its chapters, programs and individual stream components.
     /// </summary>
     public unsafe class MediaInfo
     {
@@ -41,7 +41,7 @@
         #region Properties
 
         /// <summary>
-        /// Gets the input URL string used to access and create the media container
+        /// Gets the input URL string used to access and create the media container.
         /// </summary>
         public string MediaSource { get; }
 
@@ -76,7 +76,7 @@
         public long BitRate { get; }
 
         /// <summary>
-        /// Gets a list of chapters
+        /// Gets a list of chapters.
         /// </summary>
         public ReadOnlyCollection<ChapterInfo> Chapters { get; }
 
@@ -104,7 +104,7 @@
         /// Extracts the stream infos from the input.
         /// </summary>
         /// <param name="inputContext">The input context.</param>
-        /// <returns>The list of stream infos</returns>
+        /// <returns>The list of stream infos.</returns>
         private static List<StreamInfo> ExtractStreams(AVFormatContext* inputContext)
         {
             var result = new List<StreamInfo>(32);
@@ -206,7 +206,7 @@
         /// </summary>
         /// <param name="ic">The ic.</param>
         /// <param name="streams">The streams.</param>
-        /// <returns>The star infos</returns>
+        /// <returns>The star infos.</returns>
         private static Dictionary<AVMediaType, StreamInfo> FindBestStreams(AVFormatContext* ic, ReadOnlyDictionary<int, StreamInfo> streams)
         {
             // Initialize and clear all the stream indexes.
@@ -262,7 +262,7 @@
         /// Extracts the chapters from the input.
         /// </summary>
         /// <param name="ic">The ic.</param>
-        /// <returns>The chapters</returns>
+        /// <returns>The chapters.</returns>
         private static List<ChapterInfo> ExtractChapters(AVFormatContext* ic)
         {
             var result = new List<ChapterInfo>(128);
@@ -292,7 +292,7 @@
         /// </summary>
         /// <param name="ic">The ic.</param>
         /// <param name="streams">The streams.</param>
-        /// <returns>The program information</returns>
+        /// <returns>The program information.</returns>
         private static List<ProgramInfo> ExtractPrograms(AVFormatContext* ic, ReadOnlyDictionary<int, StreamInfo> streams)
         {
             var result = new List<ProgramInfo>(128);
@@ -329,7 +329,7 @@
         /// Gets the available hardware decoder codecs for the given codec id (codec family).
         /// </summary>
         /// <param name="codecFamily">The codec family.</param>
-        /// <returns>A list of hardware-enabled decoder codec names</returns>
+        /// <returns>A list of hardware-enabled decoder codec names.</returns>
         private static List<string> GetHardwareDecoders(AVCodecID codecFamily)
         {
             var result = new List<string>(16);
@@ -357,7 +357,7 @@
     }
 
     /// <summary>
-    /// Represents media stream information
+    /// Represents media stream information.
     /// </summary>
     public class StreamInfo
     {
@@ -432,12 +432,12 @@
 
         /// <summary>
         /// Gets the field order. This is useful to determine
-        /// if the video needs de-interlacing
+        /// if the video needs de-interlacing.
         /// </summary>
         public AVFieldOrder FieldOrder { get; internal set; }
 
         /// <summary>
-        /// Gets a value indicating whether the video frames are interlaced
+        /// Gets a value indicating whether the video frames are interlaced.
         /// </summary>
         public bool IsInterlaced { get; internal set; }
 
@@ -497,17 +497,17 @@
         public double FPS { get; internal set; }
 
         /// <summary>
-        /// Gets the real (base) frame rate of the stream
+        /// Gets the real (base) frame rate of the stream.
         /// </summary>
         public double TBR { get; internal set; }
 
         /// <summary>
-        /// Gets the fundamental unit of time in 1/seconds used to represent timestamps in the stream, according to the stream data
+        /// Gets the fundamental unit of time in 1/seconds used to represent timestamps in the stream, according to the stream data.
         /// </summary>
         public double TBN { get; internal set; }
 
         /// <summary>
-        /// Gets the fundamental unit of time in 1/seconds used to represent timestamps in the stream ,according to the codec
+        /// Gets the fundamental unit of time in 1/seconds used to represent timestamps in the stream ,according to the codec.
         /// </summary>
         public double TBC { get; internal set; }
 
@@ -555,7 +555,7 @@
     }
 
     /// <summary>
-    /// Represents a chapter within a container
+    /// Represents a chapter within a container.
     /// </summary>
     public class ChapterInfo
     {

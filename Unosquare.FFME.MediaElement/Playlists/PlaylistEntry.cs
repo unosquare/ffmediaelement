@@ -5,7 +5,7 @@
     using System.Runtime.CompilerServices;
 
     /// <summary>
-    /// Represents a generic playlist entry
+    /// Represents a generic playlist entry.
     /// </summary>
     public class PlaylistEntry : INotifyPropertyChanged
     {

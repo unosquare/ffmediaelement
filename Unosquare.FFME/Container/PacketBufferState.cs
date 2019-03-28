@@ -8,12 +8,12 @@
     internal struct PacketBufferState : IEquatable<PacketBufferState>
     {
         /// <summary>
-        /// The length in bytes of the packet buffer
+        /// The length in bytes of the packet buffer.
         /// </summary>
         public long Length;
 
         /// <summary>
-        /// The number of packets in the packet buffer
+        /// The number of packets in the packet buffer.
         /// </summary>
         public int Count;
 
@@ -23,7 +23,7 @@
         public int CountThreshold;
 
         /// <summary>
-        /// Whether the packet buffer has enough packets
+        /// Whether the packet buffer has enough packets.
         /// </summary>
         public bool HasEnoughPackets;
 

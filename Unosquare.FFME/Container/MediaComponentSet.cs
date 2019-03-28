@@ -103,7 +103,7 @@
 
         /// <summary>
         /// Gets the main media component of the stream to which time is synchronized.
-        /// By order of priority, first Audio, then Video
+        /// By order of priority, first Audio, then Video.
         /// </summary>
         public MediaComponent Main
         {
@@ -220,7 +220,7 @@
 
         /// <summary>
         /// Gets or sets a value indicating whether all packet queues contain enough packets.
-        /// Port of ffplay.c stream_has_enough_packets
+        /// Port of ffplay.c stream_has_enough_packets.
         /// </summary>
         public bool HasEnoughPackets
         {
@@ -233,9 +233,9 @@
         /// Getting a non existing media component fro the given media type will return null.
         /// </summary>
         /// <param name="mediaType">Type of the media.</param>
-        /// <returns>The media component</returns>
-        /// <exception cref="ArgumentException">When the media type is invalid</exception>
-        /// <exception cref="ArgumentNullException">MediaComponent</exception>
+        /// <returns>The media component.</returns>
+        /// <exception cref="ArgumentException">When the media type is invalid.</exception>
+        /// <exception cref="ArgumentNullException">MediaComponent.</exception>
         public MediaComponent this[MediaType mediaType]
         {
             get
@@ -266,7 +266,7 @@
         /// Returns the media type of the component that accepted the packet.
         /// </summary>
         /// <param name="packet">The packet.</param>
-        /// <returns>The media type</returns>
+        /// <returns>The media type.</returns>
         public MediaType SendPacket(MediaPacket packet)
         {
             if (packet == null)
@@ -348,9 +348,9 @@
         /// Registers the component in this component set.
         /// </summary>
         /// <param name="component">The component.</param>
-        /// <exception cref="ArgumentNullException">When component of the same type is already registered</exception>
-        /// <exception cref="NotSupportedException">When MediaType is not supported</exception>
-        /// <exception cref="ArgumentException">When the component is null</exception>
+        /// <exception cref="ArgumentNullException">When component of the same type is already registered.</exception>
+        /// <exception cref="NotSupportedException">When MediaType is not supported.</exception>
+        /// <exception cref="ArgumentException">When the component is null.</exception>
         internal void AddComponent(MediaComponent component)
         {
             lock (ComponentSyncLock)

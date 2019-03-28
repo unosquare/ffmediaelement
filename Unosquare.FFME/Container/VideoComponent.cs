@@ -96,7 +96,7 @@
         public double BaseFrameRate { get; }
 
         /// <summary>
-        /// Gets the stream's average frame rate
+        /// Gets the stream's average frame rate.
         /// </summary>
         public double AverageFrameRate { get; }
 
@@ -152,7 +152,7 @@
         /// </summary>
         /// <param name="selectedConfig">The selected configuration.</param>
         /// <returns>
-        /// Whether or not the hardware accelerator was attached
+        /// Whether or not the hardware accelerator was attached.
         /// </returns>
         public bool AttachHardwareDevice(HardwareDeviceInfo selectedConfig)
         {
@@ -397,10 +397,10 @@
 
         /// <summary>
         /// Gets the pixel format replacing deprecated pixel formats.
-        /// AV_PIX_FMT_YUVJ
+        /// AV_PIX_FMT_YUVJ.
         /// </summary>
         /// <param name="frame">The frame.</param>
-        /// <returns>A normalized pixel format</returns>
+        /// <returns>A normalized pixel format.</returns>
         private static AVPixelFormat NormalizePixelFormat(AVFrame* frame)
         {
             var currentFormat = (AVPixelFormat)frame->format;
@@ -419,7 +419,7 @@
         /// Computes the Frame rotation property from side data.
         /// </summary>
         /// <param name="matrixArrayRef">The matrix array reference.</param>
-        /// <returns>The angle to rotate</returns>
+        /// <returns>The angle to rotate.</returns>
         private static double ComputeRotation(byte* matrixArrayRef)
         {
             const int displayMatrixLength = 9;
@@ -468,7 +468,7 @@
         /// </summary>
         /// <param name="a">a.</param>
         /// <param name="b">The b.</param>
-        /// <returns>The length of the hypotenuse</returns>
+        /// <returns>The length of the hypotenuse.</returns>
         private static double ComputeHypotenuse(double a, double b)
         {
             return Math.Sqrt((a * a) + (b * b));
@@ -478,7 +478,7 @@
         /// Computes the frame filter arguments that are appropriate for the video filtering chain.
         /// </summary>
         /// <param name="frame">The frame.</param>
-        /// <returns>The base filter arguments</returns>
+        /// <returns>The base filter arguments.</returns>
         private string ComputeFilterArguments(AVFrame* frame)
         {
             var arguments =
@@ -505,7 +505,7 @@
         /// or
         /// avfilter_graph_parse
         /// or
-        /// avfilter_graph_config
+        /// avfilter_graph_config.
         /// </exception>
         private void InitializeFilterGraph(AVFrame* frame)
         {
@@ -516,13 +516,11 @@
              * https://raw.githubusercontent.com/FFmpeg/FFmpeg/release/3.2/ffplay.c
              */
 
-            // ReSharper disable StringLiteralTypo
             const string SourceFilterName = "buffer";
             const string SourceFilterInstance = "video_buffer";
             const string SinkFilterName = "buffersink";
             const string SinkFilterInstance = "video_buffersink";
 
-            // ReSharper restore StringLiteralTypo
             var frameArguments = ComputeFilterArguments(frame);
             if (string.IsNullOrWhiteSpace(CurrentFilterArguments) || frameArguments != CurrentFilterArguments)
                 DestroyFilterGraph();

@@ -7,7 +7,7 @@
     /// Represents options that applied creating the individual media stream components.
     /// Once the container has created the media components, changing these options will have no effect.
     /// See: https://www.ffmpeg.org/ffmpeg-all.html#Main-options
-    /// Partly a port of https://github.com/FFmpeg/FFmpeg/blob/master/fftools/ffmpeg_opt.c
+    /// Partly a port of https://github.com/FFmpeg/FFmpeg/blob/master/fftools/ffmpeg_opt.c.
     /// </summary>
     public sealed class MediaOptions
     {
@@ -21,21 +21,21 @@
 
         /// <summary>
         /// Provides access to the global and per-stream decoder options
-        /// See https://www.ffmpeg.org/ffmpeg-codecs.html#Codec-Options
+        /// See https://www.ffmpeg.org/ffmpeg-codecs.html#Codec-Options.
         /// </summary>
         public DecoderOptions DecoderParams { get; } = new DecoderOptions();
 
         /// <summary>
         /// A dictionary of stream indexes and force decoder codec names.
         /// This is equivalent to the -codec Main option.
-        /// See: https://www.ffmpeg.org/ffmpeg-all.html#Main-options (-codec option)
+        /// See: https://www.ffmpeg.org/ffmpeg-all.html#Main-options (-codec option).
         /// </summary>
         public Dictionary<int, string> DecoderCodec { get; } = new Dictionary<int, string>(32);
 
         /// <summary>
         /// Gets or sets the amount of time to offset the subtitles by
         /// This is an FFME-only property -- Not a port of ffmpeg.
-        /// TODO: Consider moving this property to RendererOptions
+        /// TODO: Consider moving this property to RendererOptions.
         /// </summary>
         public TimeSpan SubtitlesDelay { get; set; } = TimeSpan.Zero;
 
@@ -47,13 +47,13 @@
 
         /// <summary>
         /// Prevent reading from audio stream components.
-        /// Port of audio_disable
+        /// Port of audio_disable.
         /// </summary>
         public bool IsAudioDisabled { get; set; }
 
         /// <summary>
         /// Prevent reading from video stream components.
-        /// Port of video_disable
+        /// Port of video_disable.
         /// </summary>
         public bool IsVideoDisabled { get; set; }
 
@@ -67,7 +67,7 @@
 
         /// <summary>
         /// Allows for a custom video filter string.
-        /// Please see: https://ffmpeg.org/ffmpeg-filters.html#Video-Filters
+        /// Please see: https://ffmpeg.org/ffmpeg-filters.html#Video-Filters.
         /// </summary>
         public string VideoFilter { get; set; } = string.Empty;
 
@@ -91,7 +91,7 @@
 
         /// <summary>
         /// Allows for a custom audio filter string.
-        /// Please see: https://ffmpeg.org/ffmpeg-filters.html#Audio-Filters
+        /// Please see: https://ffmpeg.org/ffmpeg-filters.html#Audio-Filters.
         /// </summary>
         public string AudioFilter { get; set; } = string.Empty;
 

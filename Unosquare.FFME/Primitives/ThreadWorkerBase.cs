@@ -20,9 +20,9 @@
         /// Initializes a new instance of the <see cref="ThreadWorkerBase"/> class.
         /// </summary>
         /// <param name="name">The name.</param>
-        /// <param name="priority">The thread priority</param>
-        /// <param name="period">The interval of cycle execution</param>
-        /// <param name="delayProvider">The cycle delay provide implementation</param>
+        /// <param name="priority">The thread priority.</param>
+        /// <param name="period">The interval of cycle execution.</param>
+        /// <param name="delayProvider">The cycle delay provide implementation.</param>
         protected ThreadWorkerBase(string name, ThreadPriority priority, TimeSpan period, IWorkerDelayProvider delayProvider)
             : base(name, period)
         {
@@ -127,9 +127,9 @@
         /// milliseconds. When overridden in a derived class the wait handle will be set
         /// whenever an interrupt is received.
         /// </summary>
-        /// <param name="wantedDelay">The remaining delay to wait for in the cycle</param>
-        /// <param name="delayTask">Contains a reference to a task with the scheduled period delay</param>
-        /// <param name="token">The cancellation token to cancel waiting</param>
+        /// <param name="wantedDelay">The remaining delay to wait for in the cycle.</param>
+        /// <param name="delayTask">Contains a reference to a task with the scheduled period delay.</param>
+        /// <param name="token">The cancellation token to cancel waiting.</param>
         protected virtual void ExecuteCycleDelay(int wantedDelay, Task delayTask, CancellationToken token) =>
             DelayProvider?.ExecuteCycleDelay(wantedDelay, delayTask, token);
 

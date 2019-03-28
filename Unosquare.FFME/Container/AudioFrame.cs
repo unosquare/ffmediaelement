@@ -5,7 +5,7 @@
 
     /// <inheritdoc />
     /// <summary>
-    /// Represents a wrapper from an unmanaged FFmpeg audio frame
+    /// Represents a wrapper from an unmanaged FFmpeg audio frame.
     /// </summary>
     /// <seealso cref="MediaFrame" />
     /// <seealso cref="IDisposable" />

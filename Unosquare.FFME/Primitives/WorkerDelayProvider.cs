@@ -6,7 +6,7 @@
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Represents a class that implements delay logic for thread workers
+    /// Represents a class that implements delay logic for thread workers.
     /// </summary>
     internal static class WorkerDelayProvider
     {

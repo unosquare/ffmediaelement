@@ -7,7 +7,7 @@
     internal partial class MediaEngine
     {
         /// <summary>
-        /// Raises the MessageLogged event
+        /// Raises the MessageLogged event.
         /// </summary>
         /// <param name="message">The <see cref="MediaLogMessage" /> instance containing the message.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

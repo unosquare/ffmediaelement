@@ -235,7 +235,7 @@
         /// </summary>
         /// <param name="inputStream">The input stream.</param>
         /// <param name="streamUri">The stream URI.</param>
-        /// <returns>Always returns false because media will not be resumed</returns>
+        /// <returns>Always returns false because media will not be resumed.</returns>
         /// <exception cref="MediaContainerException">Unable to initialize at least one audio or video component from the input stream.</exception>
         private bool CommandOpenMedia(IMediaInputStream inputStream, Uri streamUri)
         {
@@ -292,7 +292,6 @@
                     {
                         // Update the Input format and container input URL
                         // It is also possible to set some input options as follows:
-                        // ReSharper disable once CommentTypo
                         // Example: streamOptions.PrivateOptions["framerate"] = "20"
                         containerConfig.ForcedInputFormat = source.Host;
                         mediaSource = Uri.UnescapeDataString(source.Query).TrimStart('?');
@@ -347,7 +346,7 @@
         /// <summary>
         /// Provides the implementation for the Close Media Command.
         /// </summary>
-        /// <returns>Always returns false because media will not be resumed</returns>
+        /// <returns>Always returns false because media will not be resumed.</returns>
         private bool CommandCloseMedia()
         {
             // Wait for the workers to stop
@@ -364,7 +363,7 @@
         /// Provides the implementation for the Change Media Command.
         /// </summary>
         /// <param name="playWhenCompleted">If media should be resume when the command gets pot processed.</param>
-        /// <returns>Simply return the play when completed boolean if there are no exceptions</returns>
+        /// <returns>Simply return the play when completed boolean if there are no exceptions.</returns>
         private bool CommandChangeMedia(bool playWhenCompleted)
         {
             // Signal a change so the user get the chance to update
@@ -417,7 +416,7 @@
         }
 
         /// <summary>
-        /// Stops the packet reader, frame decoder, and block renderers
+        /// Stops the packet reader, frame decoder, and block renderers.
         /// </summary>
         private void StopWorkers()
         {

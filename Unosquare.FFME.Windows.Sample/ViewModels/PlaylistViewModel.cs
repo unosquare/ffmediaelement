@@ -9,7 +9,7 @@
     using System.Windows.Data;
 
     /// <summary>
-    /// Represents the Playlist
+    /// Represents the Playlist.
     /// </summary>
     /// <seealso cref="AttachedViewModel" />
     public sealed class PlaylistViewModel : AttachedViewModel
@@ -77,7 +77,7 @@
         }
 
         /// <summary>
-        /// Gets the custom playlist. Do not use for data-binding
+        /// Gets the custom playlist. Do not use for data-binding.
         /// </summary>
         public CustomPlaylistEntryCollection Entries { get; }
 
@@ -174,7 +174,7 @@
         }
 
         /// <summary>
-        /// Called when Media is opened
+        /// Called when Media is opened.
         /// </summary>
         /// <param name="sender">The sender.</param>
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>

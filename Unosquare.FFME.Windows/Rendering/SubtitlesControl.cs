@@ -12,7 +12,7 @@ namespace Unosquare.FFME.Rendering
 
     /// <summary>
     /// A control suitable for displaying subtitles.
-    /// Layout is: UserControl:ViewBox:Grid:TextBlocks
+    /// Layout is: UserControl:ViewBox:Grid:TextBlocks.
     /// </summary>
     /// <seealso cref="UserControl" />
     internal class SubtitlesControl : UserControl
@@ -23,22 +23,22 @@ namespace Unosquare.FFME.Rendering
             = FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender;
 
         /// <summary>
-        /// The default font size
+        /// The default font size.
         /// </summary>
         private const double DefaultFontSize = 56;
 
         /// <summary>
-        /// The default text foreground
+        /// The default text foreground.
         /// </summary>
         private static readonly Brush DefaultTextForeground = Brushes.WhiteSmoke;
 
         /// <summary>
-        /// The default text outline
+        /// The default text outline.
         /// </summary>
         private static readonly Brush DefaultTextOutline = Brushes.Black;
 
         /// <summary>
-        /// The default text outline width
+        /// The default text outline width.
         /// </summary>
         private static readonly Thickness DefaultTextOutlineWidth = new Thickness(1);
 
@@ -47,7 +47,7 @@ namespace Unosquare.FFME.Rendering
         #region Dependency Property Registrations
 
         /// <summary>
-        /// The text dependency property
+        /// The text dependency property.
         /// </summary>
         public static readonly DependencyProperty TextProperty = DependencyProperty.Register(
             nameof(Text),
@@ -56,7 +56,7 @@ namespace Unosquare.FFME.Rendering
             new FrameworkPropertyMetadata(string.Empty, AffectsMeasureAndRender, OnTextPropertyChanged));
 
         /// <summary>
-        /// The text foreground dependency property
+        /// The text foreground dependency property.
         /// </summary>
         public static readonly DependencyProperty TextForegroundProperty = DependencyProperty.Register(
             nameof(TextForeground),
@@ -65,7 +65,7 @@ namespace Unosquare.FFME.Rendering
             new FrameworkPropertyMetadata(DefaultTextForeground, AffectsMeasureAndRender, OnTextForegroundPropertyChanged));
 
         /// <summary>
-        /// The text foreground effect dependency property
+        /// The text foreground effect dependency property.
         /// </summary>
         public static readonly DependencyProperty TextForegroundEffectProperty = DependencyProperty.Register(
             nameof(TextForegroundEffect),
@@ -74,7 +74,7 @@ namespace Unosquare.FFME.Rendering
             new FrameworkPropertyMetadata(GetDefaultTextForegroundEffect(), AffectsMeasureAndRender, OnTextForegroundEffectPropertyChanged));
 
         /// <summary>
-        /// The text outline width dependency property
+        /// The text outline width dependency property.
         /// </summary>
         public static readonly DependencyProperty TextOutlineWidthProperty = DependencyProperty.Register(
             nameof(TextOutlineWidth),
@@ -83,7 +83,7 @@ namespace Unosquare.FFME.Rendering
             new FrameworkPropertyMetadata(DefaultTextOutlineWidth, AffectsMeasureAndRender, OnTextOutlineWidthPropertyChanged));
 
         /// <summary>
-        /// The text outline dependency property
+        /// The text outline dependency property.
         /// </summary>
         public static readonly DependencyProperty TextOutlineProperty = DependencyProperty.Register(
             nameof(TextOutline),
@@ -101,7 +101,7 @@ namespace Unosquare.FFME.Rendering
         private readonly Dictionary<Block, TextBlock> TextBlocks = new Dictionary<Block, TextBlock>(5);
 
         /// <summary>
-        /// The container for the outlined text blocks
+        /// The container for the outlined text blocks.
         /// </summary>
         private readonly Viewbox Container = new Viewbox { Name = nameof(Container) };
 
@@ -273,7 +273,7 @@ namespace Unosquare.FFME.Rendering
         /// </summary>
         /// <param name="blockType">Type of the block.</param>
         /// <param name="outlineWidth">Width of the outline.</param>
-        /// <returns>A thickness depending on the block type</returns>
+        /// <returns>A thickness depending on the block type.</returns>
         private static Thickness ComputeMargin(Block blockType, Thickness outlineWidth)
         {
             if (blockType == Block.Foreground) return default;
@@ -294,7 +294,7 @@ namespace Unosquare.FFME.Rendering
         }
 
         /// <summary>
-        /// Gets the default text foreground effect
+        /// Gets the default text foreground effect.
         /// </summary>
         /// <returns>A new instance of a foreground effect.</returns>
         private static Effect GetDefaultTextForegroundEffect() => new DropShadowEffect

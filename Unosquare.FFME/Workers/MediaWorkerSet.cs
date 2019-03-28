@@ -68,7 +68,7 @@
         /// The <see cref="IMediaWorker"/>.
         /// </value>
         /// <param name="workerType">Type of the worker.</param>
-        /// <returns>The matching worker</returns>
+        /// <returns>The matching worker.</returns>
         public IMediaWorker this[MediaWorkerType workerType] => Workers[(int)workerType];
 
         /// <summary>

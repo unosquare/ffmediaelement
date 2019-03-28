@@ -78,7 +78,7 @@
         /// Gets a the raw data buffer going into the audio device.
         /// Samples are provided in PCM 16-bit signed, interleaved stereo.
         /// </summary>
-        /// <returns>The buffer data as an array</returns>
+        /// <returns>The buffer data as an array.</returns>
         public byte[] GetBufferData() => Buffer as byte[];
     }
 }

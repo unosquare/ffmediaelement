@@ -98,7 +98,7 @@
         /// <summary>
         /// Gets the display picture number (frame number).
         /// If not set by the decoder, this attempts to obtain it by dividing the start time by the
-        /// frame duration
+        /// frame duration.
         /// </summary>
         public long DisplayPictureNumber { get; }
 

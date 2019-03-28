@@ -9,7 +9,7 @@
     using ViewModels;
 
     /// <summary>
-    /// Interaction logic for PlaylistPanelControl.xaml
+    /// Interaction logic for PlaylistPanelControl.xaml.
     /// </summary>
     public partial class PlaylistPanelControl
     {
@@ -53,7 +53,7 @@
         #region Properties
 
         /// <summary>
-        /// A proxy, strongly-typed property to the underlying DataContext
+        /// A proxy, strongly-typed property to the underlying DataContext.
         /// </summary>
         public RootViewModel ViewModel => DataContext as RootViewModel;
 

@@ -9,7 +9,7 @@
     using System.Windows.Threading;
 
     /// <summary>
-    /// Serves as a UI, XAML-bindable command defined using delegates
+    /// Serves as a UI, XAML-bindable command defined using delegates.
     /// </summary>
     public class DelegateCommand : ICommand
     {
@@ -27,7 +27,7 @@
         /// </summary>
         /// <param name="execute">The execute callback.</param>
         /// <param name="canExecute">The can execute checker callback.</param>
-        /// <exception cref="ArgumentNullException">execute</exception>
+        /// <exception cref="ArgumentNullException">execute.</exception>
         public DelegateCommand(Action<object> execute, Func<object, bool> canExecute)
         {
             var callback = execute ?? throw new ArgumentNullException(nameof(execute));
@@ -46,7 +46,7 @@
         /// Initializes a new instance of the <see cref="DelegateCommand"/> class.
         /// </summary>
         /// <param name="execute">The execute callback.</param>
-        /// <exception cref="ArgumentNullException">execute</exception>
+        /// <exception cref="ArgumentNullException">execute.</exception>
         public DelegateCommand(Action<object> execute)
             : this(execute, null)
         {
@@ -71,7 +71,7 @@
         #region ICommand Members
 
         /// <summary>
-        /// Determines if the command is currently executing
+        /// Determines if the command is currently executing.
         /// </summary>
         public bool IsExecuting
         {
@@ -105,7 +105,7 @@
         public void Execute(object parameter) => ExecuteAsync(parameter);
 
         /// <summary>
-        /// Executes the command but does not wait for it to complete
+        /// Executes the command but does not wait for it to complete.
         /// </summary>
         public void Execute() => ExecuteAsync(null);
 
@@ -113,7 +113,7 @@
         /// Executes the command. This call can be awaited.
         /// </summary>
         /// <param name="parameter">Data used by the command.  If the command does not require data to be passed, this object can be set to null.</param>
-        /// <returns>The awaitable task</returns>
+        /// <returns>The awaitable task.</returns>
         public ConfiguredTaskAwaitable ExecuteAsync(object parameter)
         {
             return Task.Run(async () =>
@@ -142,7 +142,7 @@
         /// <summary>
         /// Executes the command. This call can be awaited.
         /// </summary>
-        /// <returns>The awaitable task</returns>
+        /// <returns>The awaitable task.</returns>
         public ConfiguredTaskAwaitable ExecuteAsync() => ExecuteAsync(null);
 
         #endregion

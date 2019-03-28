@@ -17,7 +17,7 @@
     using System.Windows.Threading;
 
     /// <summary>
-    /// Provides Video Image Rendering via a WPF Writable Bitmap
+    /// Provides Video Image Rendering via a WPF Writable Bitmap.
     /// </summary>
     /// <seealso cref="IMediaRenderer" />
     internal sealed class VideoRenderer : IMediaRenderer, ILoggingSource
@@ -36,7 +36,7 @@
         };
 
         /// <summary>
-        /// Set when a bitmap is being written to the target bitmap
+        /// Set when a bitmap is being written to the target bitmap.
         /// </summary>
         private readonly AtomicBoolean IsRenderingInProgress = new AtomicBoolean(false);
 
@@ -318,7 +318,7 @@
         }
 
         /// <summary>
-        /// Loads that target data buffer with block data
+        /// Loads that target data buffer with block data.
         /// </summary>
         /// <param name="target">The target.</param>
         /// <param name="source">The source.</param>

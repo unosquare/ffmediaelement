@@ -3,7 +3,7 @@
     using FFmpeg.AutoGen;
 
     /// <summary>
-    /// Represents a hardware configuration pair of device and pixel format
+    /// Represents a hardware configuration pair of device and pixel format.
     /// </summary>
     public sealed unsafe class HardwareDeviceInfo
     {

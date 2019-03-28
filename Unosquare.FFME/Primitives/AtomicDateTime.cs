@@ -3,7 +3,7 @@
     using System;
 
     /// <summary>
-    /// Defines an atomic DateTime
+    /// Defines an atomic DateTime.
     /// </summary>
     internal sealed class AtomicDateTime : AtomicTypeBase<DateTime>
     {

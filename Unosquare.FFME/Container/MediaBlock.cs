@@ -35,7 +35,7 @@
         ~MediaBlock() => Dispose(false);
 
         /// <summary>
-        /// Gets the media type of the data
+        /// Gets the media type of the data.
         /// </summary>
         public MediaType MediaType { get; }
 
@@ -46,17 +46,17 @@
 
         /// <summary>
         /// Gets a value indicating whether the start time was guessed from siblings
-        /// or the source frame PTS comes from a NO PTS value
+        /// or the source frame PTS comes from a NO PTS value.
         /// </summary>
         public bool IsStartTimeGuessed { get; internal set; }
 
         /// <summary>
-        /// Gets the time at which this data should be presented (PTS)
+        /// Gets the time at which this data should be presented (PTS).
         /// </summary>
         public TimeSpan StartTime { get; internal set; }
 
         /// <summary>
-        /// Gets the amount of time this data has to be presented
+        /// Gets the amount of time this data has to be presented.
         /// </summary>
         public TimeSpan Duration { get; internal set; }
 
@@ -93,7 +93,7 @@
         }
 
         /// <summary>
-        /// Gets a value indicating whether this block is disposed
+        /// Gets a value indicating whether this block is disposed.
         /// </summary>
         public bool IsDisposed
         {
@@ -184,7 +184,7 @@
         /// Returns false if the buffer has been disposed.
         /// </summary>
         /// <param name="locker">The locker.</param>
-        /// <returns>The disposable lock</returns>
+        /// <returns>The disposable lock.</returns>
         public bool TryAcquireReaderLock(out IDisposable locker)
         {
             locker = null;
@@ -197,7 +197,7 @@
         /// Returns false if the buffer has been disposed or a lock operation times out.
         /// </summary>
         /// <param name="locker">The locker.</param>
-        /// <returns>The disposable lock</returns>
+        /// <returns>The disposable lock.</returns>
         public bool TryAcquireWriterLock(out IDisposable locker)
         {
             locker = null;
@@ -270,7 +270,7 @@
         /// Allocates the specified buffer length.
         /// </summary>
         /// <param name="bufferLength">Length of the buffer.</param>
-        /// <returns>True if the buffer is successfully allocated</returns>
+        /// <returns>True if the buffer is successfully allocated.</returns>
         internal virtual unsafe bool Allocate(int bufferLength)
         {
             if (bufferLength <= 0)
@@ -318,7 +318,7 @@
         }
 
         /// <summary>
-        /// De-allocates the picture buffer and resets the related buffer properties
+        /// De-allocates the picture buffer and resets the related buffer properties.
         /// </summary>
         protected virtual unsafe void Deallocate()
         {

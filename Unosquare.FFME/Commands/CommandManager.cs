@@ -52,7 +52,7 @@
         private MediaEngineState State => MediaCore.State;
 
         /// <summary>
-        /// Gets the pending priority command. There can only be one at a time
+        /// Gets the pending priority command. There can only be one at a time.
         /// </summary>
         private PriorityCommandType PendingPriorityCommand
         {
@@ -131,8 +131,8 @@
         /// When a seek operation is in progress, this method blocks until the first block of the main
         /// component is available.
         /// </summary>
-        /// <param name="millisecondsTimeout">The timeout to wait for</param>
-        /// <returns>If the wait completed successully</returns>
+        /// <param name="millisecondsTimeout">The timeout to wait for.</param>
+        /// <returns>If the wait completed successully.</returns>
         public bool WaitForSeekBlocks(int millisecondsTimeout) => SeekBlocksAvailable.Wait(millisecondsTimeout);
 
         #endregion
@@ -259,7 +259,7 @@
         #endregion
 
         /// <summary>
-        /// Outputs Reference Counter Results
+        /// Outputs Reference Counter Results.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void LogReferenceCounter()

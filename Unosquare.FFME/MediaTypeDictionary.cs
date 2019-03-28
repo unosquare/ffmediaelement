@@ -5,7 +5,7 @@
     using System.Runtime.Serialization;
 
     /// <summary>
-    /// Represents a very simple dictionary for MediaType keys
+    /// Represents a very simple dictionary for MediaType keys.
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
     [Serializable]
@@ -32,7 +32,7 @@
         /// return the default value of the value type when the key does not exist.
         /// </summary>
         /// <param name="key">The key.</param>
-        /// <returns>The item</returns>
+        /// <returns>The item.</returns>
         public new TValue this[MediaType key]
         {
             get => ContainsKey(key) == false ? default : base[key];

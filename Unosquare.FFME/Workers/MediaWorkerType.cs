@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.Workers
 {
     /// <summary>
-    /// Defines the different worker types
+    /// Defines the different worker types.
     /// </summary>
     internal enum MediaWorkerType
     {

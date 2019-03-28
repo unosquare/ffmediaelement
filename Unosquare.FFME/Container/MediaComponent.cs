@@ -19,22 +19,22 @@
         #region Private Declarations
 
         /// <summary>
-        /// Related to issue 94, looks like FFmpeg requires exclusive access when calling avcodec_open2()
+        /// Related to issue 94, looks like FFmpeg requires exclusive access when calling avcodec_open2().
         /// </summary>
         private static readonly object CodecLock = new object();
 
         /// <summary>
-        /// The logging handler
+        /// The logging handler.
         /// </summary>
         private readonly ILoggingHandler m_LoggingHandler;
 
         /// <summary>
-        /// Contains the packets pending to be sent to the decoder
+        /// Contains the packets pending to be sent to the decoder.
         /// </summary>
         private readonly PacketQueue Packets = new PacketQueue();
 
         /// <summary>
-        /// The decode packet function
+        /// The decode packet function.
         /// </summary>
         private readonly Func<MediaFrame> DecodePacketFunction;
 
@@ -49,7 +49,7 @@
         private readonly AtomicBoolean m_HasCodecPackets = new AtomicBoolean(false);
 
         /// <summary>
-        /// Holds a reference to the associated input context stream
+        /// Holds a reference to the associated input context stream.
         /// </summary>
         private readonly IntPtr m_Stream;
 
@@ -67,7 +67,7 @@
         /// </summary>
         /// <param name="container">The container.</param>
         /// <param name="streamIndex">Index of the stream.</param>
-        /// <exception cref="ArgumentNullException">container</exception>
+        /// <exception cref="ArgumentNullException">container.</exception>
         /// <exception cref="MediaContainerException">The container exception.</exception>
         protected MediaComponent(MediaContainer container, int streamIndex)
         {
@@ -291,7 +291,7 @@
 
         /// <summary>
         /// Gets the duration of this stream component.
-        /// If there is no such information it will return TimeSpan.MinValue
+        /// If there is no such information it will return TimeSpan.MinValue.
         /// </summary>
         public TimeSpan Duration { get; internal set; }
 
@@ -334,7 +334,7 @@
 
         /// <summary>
         /// Gets or sets a value indicating whether the packet queue contains enough packets.
-        /// Port of ffplay.c stream_has_enough_packets
+        /// Port of ffplay.c stream_has_enough_packets.
         /// </summary>
         public bool HasEnoughPackets
         {
@@ -422,7 +422,7 @@
         /// <summary>
         /// Sends a special kind of packet (an empty/null packet)
         /// that tells the decoder to refresh the attached picture or enter draining mode.
-        /// This is a port of packet_queue_put_nullpacket
+        /// This is a port of packet_queue_put_nullpacket.
         /// </summary>
         public void SendEmptyPacket()
         {
@@ -457,7 +457,7 @@
         /// <summary>
         /// Converts decoded, raw frame data in the frame source into a a usable frame. <br />
         /// The process includes performing picture, samples or text conversions
-        /// so that the decoded source frame data is easily usable in multimedia applications
+        /// so that the decoded source frame data is easily usable in multimedia applications.
         /// </summary>
         /// <param name="input">The source frame to use as an input.</param>
         /// <param name="output">The target frame that will be updated with the source frame. If null is passed the frame will be instantiated.</param>
@@ -474,7 +474,7 @@
         /// Creates a frame source object given the raw FFmpeg AVFrame or AVSubtitle reference.
         /// </summary>
         /// <param name="framePointer">The raw FFmpeg pointer.</param>
-        /// <returns>The media frame</returns>
+        /// <returns>The media frame.</returns>
         protected abstract MediaFrame CreateFrameSource(IntPtr framePointer);
 
         /// <summary>
@@ -510,7 +510,7 @@
         /// <summary>
         /// Sends a special kind of packet (a flush packet)
         /// that tells the decoder to flush it internal buffers
-        /// This an encapsulation of flush_pkt
+        /// This an encapsulation of flush_pkt.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void SendFlushPacket()
@@ -535,7 +535,7 @@
         /// Feeds the packets to decoder.
         /// </summary>
         /// <param name="fillDecoderBuffer">if set to <c>true</c> fills the decoder buffer with packets.</param>
-        /// <returns>The number of packets fed</returns>
+        /// <returns>The number of packets fed.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int FeedPacketsToDecoder(bool fillDecoderBuffer)
         {
@@ -589,7 +589,7 @@
         /// Receives the next available frame from decoder.
         /// </summary>
         /// <param name="receiveFrameResult">The receive frame result.</param>
-        /// <returns>The frame or null if no frames could be decoded</returns>
+        /// <returns>The frame or null if no frames could be decoded.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private MediaFrame ReceiveFrameFromDecoder(out int receiveFrameResult)
         {
@@ -614,9 +614,9 @@
 
         /// <summary>
         /// Decodes the next Audio or Video frame.
-        /// Reference: https://www.ffmpeg.org/doxygen/4.0/group__lavc__encdec.html
+        /// Reference: https://www.ffmpeg.org/doxygen/4.0/group__lavc__encdec.html.
         /// </summary>
-        /// <returns>A decoder result containing the decoder frames (if any)</returns>
+        /// <returns>A decoder result containing the decoder frames (if any).</returns>
         private MediaFrame DecodeNextAVFrame()
         {
             var frame = ReceiveFrameFromDecoder(out var receiveFrameResult);
@@ -647,7 +647,7 @@
         /// <summary>
         /// Decodes the next subtitle frame.
         /// </summary>
-        /// <returns>The managed frame</returns>
+        /// <returns>The managed frame.</returns>
         private MediaFrame DecodeNextAVSubtitle()
         {
             // For subtitles we use the old API (new API send_packet/receive_frame) is not yet available

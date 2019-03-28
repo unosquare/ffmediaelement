@@ -4,7 +4,7 @@
     using System;
 
     /// <summary>
-    /// Contains the Message Logged Event Arguments
+    /// Contains the Message Logged Event Arguments.
     /// </summary>
     /// <seealso cref="EventArgs" />
     public class MediaLogMessageEventArgs : EventArgs
@@ -50,7 +50,7 @@
         /// <summary>
         /// Gets the type prefix.
         /// </summary>
-        /// <returns>A 3-letter abbreviation</returns>
+        /// <returns>A 3-letter abbreviation.</returns>
         private string GetTypePrefix()
         {
             switch (MessageType)

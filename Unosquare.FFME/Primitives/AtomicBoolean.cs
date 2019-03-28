@@ -3,7 +3,7 @@
     /// <summary>
     /// Fast, atomic boolean combining interlocked to write value and volatile to read values
     /// Idea taken from Memory model and .NET operations in article:
-    /// http://igoro.com/archive/volatile-keyword-in-c-memory-model-explained/
+    /// http://igoro.com/archive/volatile-keyword-in-c-memory-model-explained/.
     /// </summary>
     internal sealed class AtomicBoolean : AtomicTypeBase<bool>
     {

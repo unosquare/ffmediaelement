@@ -6,7 +6,7 @@
 
     /// <inheritdoc />
     /// <summary>
-    /// An AVDictionary management class
+    /// An AVDictionary management class.
     /// </summary>
     internal sealed unsafe class FFDictionary : IDisposable
     {
@@ -17,7 +17,7 @@
         private IntPtr m_Pointer;
 
         /// <summary>
-        /// To detect redundant Dispose calls
+        /// To detect redundant Dispose calls.
         /// </summary>
         private bool IsDisposed;
 
@@ -52,7 +52,7 @@
         public AVDictionary* Pointer => (AVDictionary*)m_Pointer;
 
         /// <summary>
-        /// Gets the number of elements in the dictionary
+        /// Gets the number of elements in the dictionary.
         /// </summary>
         /// <value>
         /// The count.
@@ -66,7 +66,7 @@
         /// The <see cref="string"/>.
         /// </value>
         /// <param name="key">The key.</param>
-        /// <returns>The entry</returns>
+        /// <returns>The entry.</returns>
         public string this[string key]
         {
             get => Get(key);
@@ -81,7 +81,7 @@
         /// Converts the AVDictionary to a regular dictionary.
         /// </summary>
         /// <param name="dictionary">The dictionary to convert from.</param>
-        /// <returns>the converted dictionary</returns>
+        /// <returns>the converted dictionary.</returns>
         public static Dictionary<string, string> ToDictionary(AVDictionary* dictionary)
         {
             var result = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
@@ -97,12 +97,12 @@
         }
 
         /// <summary>
-        /// A wrapper for the av_dict_get method
+        /// A wrapper for the av_dict_get method.
         /// </summary>
         /// <param name="dictionary">The dictionary.</param>
         /// <param name="key">The key.</param>
         /// <param name="matchCase">if set to <c>true</c> [match case].</param>
-        /// <returns>The Entry</returns>
+        /// <returns>The Entry.</returns>
         public static FFDictionaryEntry GetEntry(AVDictionary* dictionary, string key, bool matchCase = true)
         {
             if (dictionary == null)
@@ -122,9 +122,9 @@
         }
 
         /// <summary>
-        /// Fills this dictionary with a set of options
+        /// Fills this dictionary with a set of options.
         /// </summary>
-        /// <param name="other">The other dictionary (source)</param>
+        /// <param name="other">The other dictionary (source).</param>
         public void Fill(Dictionary<string, string> other)
         {
             if (other == null) return;
@@ -135,7 +135,7 @@
         /// <summary>
         /// Gets the first entry. Null if no entries.
         /// </summary>
-        /// <returns>The entry</returns>
+        /// <returns>The entry.</returns>
         public FFDictionaryEntry First()
         {
             return Next(null);
@@ -145,7 +145,7 @@
         /// Gets the next entry based on the provided prior entry.
         /// </summary>
         /// <param name="prior">The prior entry.</param>
-        /// <returns>The entry</returns>
+        /// <returns>The entry.</returns>
         public FFDictionaryEntry Next(FFDictionaryEntry prior)
         {
             if (m_Pointer == IntPtr.Zero)
@@ -157,11 +157,11 @@
         }
 
         /// <summary>
-        /// Determines if the given key exists in the dictionary
+        /// Determines if the given key exists in the dictionary.
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="matchCase">if set to <c>true</c> [match case].</param>
-        /// <returns>True or False</returns>
+        /// <returns>True or False.</returns>
         public bool HasKey(string key, bool matchCase = true)
         {
             if (m_Pointer == IntPtr.Zero) return false;
@@ -173,7 +173,7 @@
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="matchCase">if set to <c>true</c> [match case].</param>
-        /// <returns>The entry</returns>
+        /// <returns>The entry.</returns>
         public FFDictionaryEntry GetEntry(string key, bool matchCase = true)
         {
             return GetEntry(Pointer, key, matchCase);
@@ -183,7 +183,7 @@
         /// Gets the value with specified key.
         /// </summary>
         /// <param name="key">The key.</param>
-        /// <returns>The value</returns>
+        /// <returns>The value.</returns>
         public string Get(string key)
         {
             var entry = GetEntry(key);

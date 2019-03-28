@@ -21,7 +21,7 @@
         }
 
         /// <summary>
-        /// Enumerates the different direct command types
+        /// Enumerates the different direct command types.
         /// </summary>
         private enum DirectCommandType
         {
@@ -31,43 +31,43 @@
             None,
 
             /// <summary>
-            /// The open command
+            /// The open command.
             /// </summary>
             Open,
 
             /// <summary>
-            /// The close command
+            /// The close command.
             /// </summary>
             Close,
 
             /// <summary>
-            /// The change command
+            /// The change command.
             /// </summary>
             Change
         }
 
         /// <summary>
-        /// The priority command types
+        /// The priority command types.
         /// </summary>
         private enum PriorityCommandType
         {
             /// <summary>
-            /// The none command
+            /// The none command.
             /// </summary>
             None,
 
             /// <summary>
-            /// The play command
+            /// The play command.
             /// </summary>
             Play,
 
             /// <summary>
-            /// The pause command
+            /// The pause command.
             /// </summary>
             Pause,
 
             /// <summary>
-            /// The stop command
+            /// The stop command.
             /// </summary>
             Stop
         }

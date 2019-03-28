@@ -1,12 +1,12 @@
 ﻿namespace FFmpeg.AutoGen
 {
     /// <summary>
-    /// The load mode of FFmpeg Libraries
+    /// The load mode of FFmpeg Libraries.
     /// </summary>
     public static class FFmpegLoadMode
     {
         /// <summary>
-        /// The full features. Tries to load everything
+        /// The full features. Tries to load everything.
         /// </summary>
         public static int FullFeatures { get; } =
             FFLibrary.LibAVCodec.FlagId |
@@ -18,7 +18,7 @@
             FFLibrary.LibSWScale.FlagId;
 
         /// <summary>
-        /// Loads everything except for AVDevice and AVFilter
+        /// Loads everything except for AVDevice and AVFilter.
         /// </summary>
         public static int MinimumFeatures { get; } =
             FFLibrary.LibAVCodec.FlagId |
@@ -28,7 +28,7 @@
             FFLibrary.LibSWScale.FlagId;
 
         /// <summary>
-        /// Loads the minimum set for Audio-only programs
+        /// Loads the minimum set for Audio-only programs.
         /// </summary>
         public static int AudioOnly { get; } =
             FFLibrary.LibAVCodec.FlagId |
@@ -37,7 +37,7 @@
             FFLibrary.LibSWResample.FlagId;
 
         /// <summary>
-        /// Loads the minimum set for Video-only programs
+        /// Loads the minimum set for Video-only programs.
         /// </summary>
         public static int VideoOnly { get; } =
             FFLibrary.LibAVCodec.FlagId |

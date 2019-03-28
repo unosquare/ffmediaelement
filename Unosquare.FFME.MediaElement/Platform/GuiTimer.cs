@@ -131,7 +131,7 @@
             FormsTimer?.Stop();
             DispatcherTimer?.Stop();
 
-            // Wait for the new 
+            // Wait for the cycle in progress to complete
             IsCycleDone.Wait();
 
             // Handle the dispose process.
@@ -177,7 +177,7 @@
         /// <summary>
         /// Creates the threading timer.
         /// </summary>
-        /// <returns>The timer</returns>
+        /// <returns>The timer.</returns>
         private Timer CreateThreadingTimer()
         {
             var timer = new Timer(
@@ -192,7 +192,7 @@
         /// <summary>
         /// Creates the dispatcher timer.
         /// </summary>
-        /// <returns>The timer</returns>
+        /// <returns>The timer.</returns>
         private DispatcherTimer CreateDispatcherTimer()
         {
 #if WINDOWS_UWP
@@ -214,7 +214,7 @@
         /// <summary>
         /// Creates the forms timer.
         /// </summary>
-        /// <returns>The timer</returns>
+        /// <returns>The timer.</returns>
         private System.Windows.Forms.Timer CreateFormsTimer()
         {
             var timer = new System.Windows.Forms.Timer

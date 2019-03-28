@@ -10,7 +10,7 @@
     public partial class MainWindow
     {
         /// <summary>
-        /// Provides examples for rendering events
+        /// Provides examples for rendering events.
         /// </summary>
         private void BindMediaRenderingEvents()
         {

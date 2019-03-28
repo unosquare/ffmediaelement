@@ -83,7 +83,7 @@
         public AVSubtitleType TextType { get; }
 
         /// <summary>
-        /// Gets the pointer to the unmanaged subtitle struct
+        /// Gets the pointer to the unmanaged subtitle struct.
         /// </summary>
         internal AVSubtitle* Pointer => (AVSubtitle*)InternalPointer;
 

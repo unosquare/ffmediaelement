@@ -4,7 +4,7 @@
 
     /// <summary>
     /// Enumerates the different Media Types compatible with AVMEDIATYPE_* constants
-    /// defined by FFmpeg
+    /// defined by FFmpeg.
     /// </summary>
     public enum MediaType
     {

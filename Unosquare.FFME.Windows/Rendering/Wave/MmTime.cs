@@ -4,7 +4,7 @@
     using System.Runtime.InteropServices;
 
     /// <summary>
-    /// http://msdn.microsoft.com/en-us/library/dd757347(v=VS.85).aspx
+    /// http://msdn.microsoft.com/en-us/library/dd757347(v=VS.85).aspx.
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]
     internal struct MmTime : IEquatable<MmTime>

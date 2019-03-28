@@ -35,7 +35,7 @@
         #region Extension Methods
 
         /// <summary>
-        /// Logs the specified message
+        /// Logs the specified message.
         /// </summary>
         /// <param name="sender">The logging source.</param>
         /// <param name="aspectName">The apect of the code where the message is coming from.</param>
@@ -44,7 +44,7 @@
             Log(sender.LoggingHandler, MediaLogMessageType.Debug, aspectName, message);
 
         /// <summary>
-        /// Logs the specified message
+        /// Logs the specified message.
         /// </summary>
         /// <param name="sender">The logging source.</param>
         /// <param name="aspectName">The apect of the code where the message is coming from.</param>
@@ -53,7 +53,7 @@
             Log(sender.LoggingHandler, MediaLogMessageType.Info, aspectName, message);
 
         /// <summary>
-        /// Logs the specified message
+        /// Logs the specified message.
         /// </summary>
         /// <param name="sender">The logging source.</param>
         /// <param name="aspectName">The apect of the code where the message is coming from.</param>
@@ -62,7 +62,7 @@
             Log(sender.LoggingHandler, MediaLogMessageType.Warning, aspectName, message);
 
         /// <summary>
-        /// Logs the specified message
+        /// Logs the specified message.
         /// </summary>
         /// <param name="sender">The logging source.</param>
         /// <param name="aspectName">The apect of the code where the message is coming from.</param>
@@ -71,7 +71,7 @@
             Log(sender.LoggingHandler, MediaLogMessageType.Trace, aspectName, message);
 
         /// <summary>
-        /// Logs the specified message
+        /// Logs the specified message.
         /// </summary>
         /// <param name="sender">The logging source.</param>
         /// <param name="aspectName">The apect of the code where the message is coming from.</param>
@@ -80,7 +80,7 @@
            Log(sender.LoggingHandler, MediaLogMessageType.Error, aspectName, message);
 
         /// <summary>
-        /// Logs the specified message
+        /// Logs the specified message.
         /// </summary>
         /// <param name="sender">The logging source.</param>
         /// <param name="aspectName">The apect of the code where the message is coming from.</param>

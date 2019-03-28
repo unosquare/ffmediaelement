@@ -7,7 +7,7 @@
     using System.Diagnostics;
 
     /// <summary>
-    /// Represents properties and methods that are specific to WPF
+    /// Represents properties and methods that are specific to WPF.
     /// </summary>
     /// <seealso cref="IPlatform" />
     internal sealed class WindowsPlatform : IPlatform

@@ -3,22 +3,22 @@
     using System;
 
     /// <summary>
-    /// Class for enumerating DirectSound devices
+    /// Class for enumerating DirectSound devices.
     /// </summary>
     internal class DirectSoundDeviceInfo
     {
         /// <summary>
-        /// The device identifier
+        /// The device identifier.
         /// </summary>
         public Guid Guid { get; internal set; }
 
         /// <summary>
-        /// Device description
+        /// Device description.
         /// </summary>
         public string Description { get; internal set; }
 
         /// <summary>
-        /// Device module name
+        /// Device module name.
         /// </summary>
         public string ModuleName { get; internal set; }
     }

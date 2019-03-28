@@ -34,7 +34,7 @@
         #region Fields and Property Backing
 
         /// <summary>
-        /// The affects measure and render metadata options
+        /// The affects measure and render metadata options.
         /// </summary>
         internal const FrameworkPropertyMetadataOptions AffectsMeasureAndRender
             = FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender;
@@ -45,12 +45,12 @@
         private readonly object DisposeLock = new object();
 
         /// <summary>
-        /// To detect redundant calls
+        /// To detect redundant calls.
         /// </summary>
         private readonly AtomicBoolean m_IsDisposed = new AtomicBoolean(false);
 
         /// <summary>
-        /// The allow content change flag
+        /// The allow content change flag.
         /// </summary>
         private readonly bool AllowContentChange;
 
@@ -122,7 +122,7 @@
 
         /// <summary>
         /// This is the image that holds video bitmaps. It is a Hosted Image which means that in a WPF
-        /// GUI context, it runs on its own dispatcher (multi-threaded UI)
+        /// GUI context, it runs on its own dispatcher (multi-threaded UI).
         /// </summary>
         internal ImageHost VideoView { get; } = new ImageHost(
             GuiContext.Current.Type == GuiContextType.WPF && EnableWpfMultiThreadedVideo)
@@ -134,7 +134,7 @@
         internal ClosedCaptionsControl CaptionsView { get; } = new ClosedCaptionsControl { Name = nameof(CaptionsView) };
 
         /// <summary>
-        /// A ViewBox holding the subtitle text blocks
+        /// A ViewBox holding the subtitle text blocks.
         /// </summary>
         internal SubtitlesControl SubtitlesView { get; } = new SubtitlesControl { Name = nameof(SubtitlesView) };
 
@@ -236,7 +236,7 @@
         /// </summary>
         /// <param name="d">The d.</param>
         /// <param name="baseValue">The base value.</param>
-        /// <returns>The content property value</returns>
+        /// <returns>The content property value.</returns>
         /// <exception cref="InvalidOperationException">When content has been locked.</exception>
         private static object OnCoerceContentValue(DependencyObject d, object baseValue)
         {

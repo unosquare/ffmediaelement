@@ -15,7 +15,7 @@
 
         /// <summary>
         /// Gets the buffer length maximum.
-        /// port of MAX_QUEUE_SIZE (ffplay.c)
+        /// port of MAX_QUEUE_SIZE (ffplay.c).
         /// </summary>
         internal const long BufferLengthMax = 16 * 1024 * 1024;
 
@@ -35,17 +35,17 @@
         internal MediaBlockBuffer PreloadedSubtitles { get; set; }
 
         /// <summary>
-        /// Gets the worker collection
+        /// Gets the worker collection.
         /// </summary>
         internal MediaWorkerSet Workers { get; set; }
 
         /// <summary>
-        /// Holds the block renderers
+        /// Holds the block renderers.
         /// </summary>
         internal MediaTypeDictionary<IMediaRenderer> Renderers { get; } = new MediaTypeDictionary<IMediaRenderer>();
 
         /// <summary>
-        /// Holds the last rendered StartTime for each of the media block types
+        /// Holds the last rendered StartTime for each of the media block types.
         /// </summary>
         internal MediaTypeDictionary<TimeSpan> LastRenderTime { get; } = new MediaTypeDictionary<TimeSpan>();
 
@@ -64,7 +64,7 @@
 
         /// <summary>
         /// Gets or sets a value indicating whether the decoder worker has decoded all frames.
-        /// This is an indication that the rendering worker should probe for end of media scenarios
+        /// This is an indication that the rendering worker should probe for end of media scenarios.
         /// </summary>
         internal bool HasDecodingEnded
         {
@@ -146,8 +146,8 @@
         /// <summary>
         /// Updates the specified clock type to a new playback position.
         /// </summary>
-        /// <param name="playbackPosition">The new playback position</param>
-        /// <param name="t">The clock type. Pass none for all clocks</param>
+        /// <param name="playbackPosition">The new playback position.</param>
+        /// <param name="t">The clock type. Pass none for all clocks.</param>
         /// <param name="reportPosition">If the new playback position should be reported.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void ChangePlaybackPosition(TimeSpan playbackPosition, MediaType t, bool reportPosition)
@@ -179,7 +179,7 @@
         /// Pauses the playback by pausing the RTC.
         /// This does not change the state.
         /// </summary>
-        /// <param name="t">The clock to pause</param>
+        /// <param name="t">The clock to pause.</param>
         /// <param name="reportPosition">If the new playback position should be reported.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void PausePlayback(MediaType t, bool reportPosition)
@@ -201,7 +201,7 @@
         /// Resets the clock to the zero position and notifies the new
         /// position to rhe <see cref="State"/>.
         /// </summary>
-        /// <returns>The newly set position</returns>
+        /// <returns>The newly set position.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal TimeSpan ResetPlaybackPosition()
         {
@@ -213,7 +213,7 @@
 
         /// <summary>
         /// Invalidates the last render time for the given component.
-        /// Additionally, it calls Seek on the renderer to remove any caches
+        /// Additionally, it calls Seek on the renderer to remove any caches.
         /// </summary>
         /// <param name="t">The t.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -227,7 +227,7 @@
 
         /// <summary>
         /// Invalidates the last render time for all renderers given component.
-        /// Additionally, it calls Seek on the renderers to remove any caches
+        /// Additionally, it calls Seek on the renderers to remove any caches.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void InvalidateRenderers()

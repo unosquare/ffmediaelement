@@ -10,8 +10,8 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="PacketReadEventArgs"/> class.
         /// </summary>
-        /// <param name="packet">The packet pointer</param>
-        /// <param name="context">The input format context</param>
+        /// <param name="packet">The packet pointer.</param>
+        /// <param name="context">The input format context.</param>
         internal PacketReadEventArgs(AVPacket* packet, AVFormatContext* context)
             : base(context)
         {

@@ -46,7 +46,7 @@
         ~WorkerBase() => Dispose(false);
 
         /// <summary>
-        /// Enumerates all the different state change requests
+        /// Enumerates all the different state change requests.
         /// </summary>
         protected enum StateChangeRequest
         {
@@ -231,7 +231,7 @@
         /// Computes the cycle delay.
         /// </summary>
         /// <param name="initialWorkerState">Initial state of the worker.</param>
-        /// <returns>The number of milliseconds to delay for</returns>
+        /// <returns>The number of milliseconds to delay for.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected int ComputeCycleDelay(WorkerState initialWorkerState)
         {

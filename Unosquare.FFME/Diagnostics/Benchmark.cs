@@ -31,7 +31,7 @@
 
         /// <summary>
         /// Starts measuring with the given identifier.
-        /// Usage: using (Benchmark.Start(operationName) { your code here }
+        /// Usage: using (Benchmark.Start(operationName) { your code here }.
         /// </summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns>A disposable object that when disposed, adds a benchmark result.</returns>
@@ -43,7 +43,7 @@
         /// <summary>
         /// Outputs the benchmark statistics.
         /// </summary>
-        /// <returns>A string containing human-readable statistics</returns>
+        /// <returns>A string containing human-readable statistics.</returns>
         public static string Dump()
         {
             lock (SyncLock)
@@ -59,8 +59,8 @@
         /// <summary>
         /// Outputs the benchmark statistics for the given identifier.
         /// </summary>
-        /// <param name="identifier">The benchmark identifier to dump</param>
-        /// <returns>A string containing human-readable statistics</returns>
+        /// <param name="identifier">The benchmark identifier to dump.</param>
+        /// <returns>A string containing human-readable statistics.</returns>
         public static string Dump(string identifier)
         {
             lock (SyncLock)
@@ -71,9 +71,9 @@
         }
 
         /// <summary>
-        /// Retrieves the results for all benchmark identifiers
+        /// Retrieves the results for all benchmark identifiers.
         /// </summary>
-        /// <returns>The benchmark result collection</returns>
+        /// <returns>The benchmark result collection.</returns>
         public static IEnumerable<BenchmarkResult> Results()
         {
             lock (SyncLock)
@@ -84,10 +84,10 @@
         }
 
         /// <summary>
-        /// Retrieves the results for the given benchmark identifier
+        /// Retrieves the results for the given benchmark identifier.
         /// </summary>
-        /// <param name="identifier">The benchmark identifier</param>
-        /// <returns>The benchmark result</returns>
+        /// <param name="identifier">The benchmark identifier.</param>
+        /// <returns>The benchmark result.</returns>
         public static BenchmarkResult Results(string identifier)
         {
             lock (SyncLock)
@@ -150,7 +150,6 @@
                     Measures[identifier] = new List<TimeSpan>(1024 * 1024);
             }
 
-            // ReSharper disable once InconsistentlySynchronizedField
             Measures[identifier].Add(elapsed);
         }
 

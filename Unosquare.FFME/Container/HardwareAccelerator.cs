@@ -5,7 +5,7 @@
     using System.Collections.Generic;
 
     /// <summary>
-    /// Encapsulates Hardware Accelerator Properties
+    /// Encapsulates Hardware Accelerator Properties.
     /// </summary>
     internal sealed unsafe class HardwareAccelerator
     {
@@ -53,7 +53,7 @@
         /// </summary>
         /// <param name="codecId">The codec identifier.</param>
         /// <returns>
-        /// A list of hardware device decoders compatible with the codec
+        /// A list of hardware device decoders compatible with the codec.
         /// </returns>
         public static List<HardwareDeviceInfo> GetCompatibleDevices(AVCodecID codecId)
         {
@@ -85,15 +85,15 @@
 
         /// <summary>
         /// Downloads the frame from the hardware into a software frame if possible.
-        /// The input hardware frame gets freed and the return value will point to the new software frame
+        /// The input hardware frame gets freed and the return value will point to the new software frame.
         /// </summary>
         /// <param name="codecContext">The codec context.</param>
         /// <param name="input">The input frame coming from the decoder (may or may not be hardware).</param>
         /// <param name="isHardwareFrame">if set to <c>true</c> [comes from hardware] otherwise, hardware decoding was not performed.</param>
         /// <returns>
-        /// The frame downloaded from the device into RAM
+        /// The frame downloaded from the device into RAM.
         /// </returns>
-        /// <exception cref="Exception">Failed to transfer data to output frame</exception>
+        /// <exception cref="Exception">Failed to transfer data to output frame.</exception>
         public AVFrame* ExchangeFrame(AVCodecContext* codecContext, AVFrame* input, out bool isHardwareFrame)
         {
             isHardwareFrame = false;
@@ -123,11 +123,11 @@
 
         /// <summary>
         /// Gets the pixel format.
-        /// Port of (get_format) method in ffmpeg.c
+        /// Port of (get_format) method in ffmpeg.c.
         /// </summary>
         /// <param name="context">The codec context.</param>
         /// <param name="pixelFormats">The pixel formats.</param>
-        /// <returns>The real pixel format that the codec will be using</returns>
+        /// <returns>The real pixel format that the codec will be using.</returns>
         private AVPixelFormat GetPixelFormat(AVCodecContext* context, AVPixelFormat* pixelFormats)
         {
             // The default output is the first pixel format found.

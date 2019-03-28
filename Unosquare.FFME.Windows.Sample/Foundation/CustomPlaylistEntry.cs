@@ -7,7 +7,7 @@
     using System.Runtime.CompilerServices;
 
     /// <summary>
-    /// A custom playlist entry with notification properties backed by Attributes
+    /// A custom playlist entry with notification properties backed by Attributes.
     /// </summary>
     /// <seealso cref="PlaylistEntry" />
     public sealed class CustomPlaylistEntry : PlaylistEntry

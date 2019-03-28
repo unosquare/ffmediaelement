@@ -10,8 +10,8 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="SubtitleDecodedEventArgs"/> class.
         /// </summary>
-        /// <param name="subtitle">The subtitle pointer</param>
-        /// <param name="context">The input format context</param>
+        /// <param name="subtitle">The subtitle pointer.</param>
+        /// <param name="context">The input format context.</param>
         internal SubtitleDecodedEventArgs(AVSubtitle* subtitle, AVFormatContext* context)
             : base(context)
         {

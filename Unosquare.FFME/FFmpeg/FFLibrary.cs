@@ -152,7 +152,7 @@
         /// Loads the library from the specified path.
         /// </summary>
         /// <param name="basePath">The base path.</param>
-        /// <returns>True if the registration was successful</returns>
+        /// <returns>True if the registration was successful.</returns>
         /// <exception cref="InvalidOperationException">When library has already been loaded.</exception>
         public bool Load(string basePath)
         {
@@ -176,7 +176,7 @@
         #region Constants
 
         /// <summary>
-        /// Defines the library names as constants
+        /// Defines the library names as constants.
         /// </summary>
         private static class Names
         {

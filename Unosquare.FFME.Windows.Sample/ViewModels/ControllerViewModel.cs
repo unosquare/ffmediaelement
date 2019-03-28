@@ -6,7 +6,7 @@
     using System.Windows.Media;
 
     /// <summary>
-    /// Represents a VM for the Controller Control
+    /// Represents a VM for the Controller Control.
     /// </summary>
     /// <seealso cref="AttachedViewModel" />
     public sealed class ControllerViewModel : AttachedViewModel
@@ -170,7 +170,6 @@
                 var m = App.ViewModel.MediaElement;
                 if (m == null) return;
 
-                // ReSharper disable once UseNegatedPatternMatching
                 var transform = m.RenderTransform as ScaleTransform;
                 if (transform == null)
                 {

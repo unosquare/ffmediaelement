@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME
 {
     /// <summary>
-    /// Provides constants for logging aspect identifiers
+    /// Provides constants for logging aspect identifiers.
     /// </summary>
     internal static class Aspects
     {

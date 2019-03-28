@@ -10,8 +10,8 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="FrameDecodedEventArgs"/> class.
         /// </summary>
-        /// <param name="frame">The audio or video frame pointer</param>
-        /// <param name="context">The input format context</param>
+        /// <param name="frame">The audio or video frame pointer.</param>
+        /// <param name="context">The input format context.</param>
         internal FrameDecodedEventArgs(AVFrame* frame, AVFormatContext* context)
             : base(context)
         {

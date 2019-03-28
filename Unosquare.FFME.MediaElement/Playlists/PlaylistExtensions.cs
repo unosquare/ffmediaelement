@@ -6,14 +6,14 @@
     using System.Web;
 
     /// <summary>
-    /// Helper methods for parsing m3u8 playlists
+    /// Helper methods for parsing m3u8 playlists.
     /// </summary>
     internal static class PlaylistExtensions
     {
         /// <summary>
         /// Parses the header line of a playlist.
         /// </summary>
-        /// <typeparam name="T">The type of playlist items</typeparam>
+        /// <typeparam name="T">The type of playlist items.</typeparam>
         /// <param name="playlist">The playlist to parse data attributes into.</param>
         /// <param name="line">The line.</param>
         public static void ParseHeaderLine<T>(this PlaylistEntryCollection<T> playlist, string line)
@@ -66,7 +66,7 @@
         /// Parses the attributes.
         /// </summary>
         /// <param name="headerData">The header data.</param>
-        /// <returns>a list of attributes</returns>
+        /// <returns>a list of attributes.</returns>
         private static List<ParsedAttribute> ParseAttributes(this string headerData)
         {
             var result = new List<ParsedAttribute>(64);
@@ -87,7 +87,7 @@
         /// </summary>
         /// <param name="headerData">The header data.</param>
         /// <param name="lastAttribute">The last attribute.</param>
-        /// <returns>THe parsed attribute</returns>
+        /// <returns>THe parsed attribute.</returns>
         private static ParsedAttribute ParseNextAttribute(string headerData, ParsedAttribute lastAttribute)
         {
             char c;
@@ -134,18 +134,19 @@
         }
 
         /// <summary>
-        /// A POCO class to hold parsed attributes
+        /// A POCO class to hold parsed attributes.
         /// </summary>
         private class ParsedAttribute
         {
-            // ReSharper disable UnusedAutoPropertyAccessor.Local
             public string Key { get; set; }
-            public string Value { get; set; }
-            public string Substring { get; set; }
-            public int StartIndex { get; set; }
-            public int EndIndex { get; set; }
 
-            // ReSharper restore UnusedAutoPropertyAccessor.Local
+            public string Value { get; set; }
+
+            public string Substring { get; set; }
+
+            public int StartIndex { get; set; }
+
+            public int EndIndex { get; set; }
         }
     }
 }

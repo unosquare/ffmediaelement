@@ -3,7 +3,7 @@
     using System;
 
     /// <summary>
-    /// Represents an atomic TimeSpan type
+    /// Represents an atomic TimeSpan type.
     /// </summary>
     internal sealed class AtomicTimeSpan : AtomicTypeBase<TimeSpan>
     {

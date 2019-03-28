@@ -5,7 +5,7 @@
 
     /// <inheritdoc cref="Exception"/>
     /// <summary>
-    /// A Media Container Exception
+    /// A Media Container Exception.
     /// </summary>
     [Serializable]
     public class MediaContainerException : Exception
@@ -33,8 +33,8 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="MediaContainerException"/> class.
         /// </summary>
-        /// <param name="message">The message</param>
-        /// <param name="innerException">The inner exception</param>
+        /// <param name="message">The message.</param>
+        /// <param name="innerException">The inner exception.</param>
         public MediaContainerException(string message, Exception innerException)
             : base(message, innerException)
         {
@@ -43,8 +43,8 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="MediaContainerException"/> class.
         /// </summary>
-        /// <param name="info">The serialization info</param>
-        /// <param name="context">The streaming context</param>
+        /// <param name="info">The serialization info.</param>
+        /// <param name="context">The streaming context.</param>
         protected MediaContainerException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {

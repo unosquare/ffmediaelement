@@ -29,7 +29,7 @@
         }
 
         /// <summary>
-        /// Cancels the last referenced token and creates a new token source
+        /// Cancels the last referenced token and creates a new token source.
         /// </summary>
         public void Cancel()
         {

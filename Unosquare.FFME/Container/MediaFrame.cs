@@ -93,7 +93,7 @@
         public TimeSpan StartTime { get; protected set; }
 
         /// <summary>
-        /// Gets the end time of the frame
+        /// Gets the end time of the frame.
         /// </summary>
         public TimeSpan EndTime { get; protected set; }
 
@@ -103,13 +103,13 @@
         public int StreamIndex { get; protected set; }
 
         /// <summary>
-        /// Gets the amount of time this data has to be presented
+        /// Gets the amount of time this data has to be presented.
         /// </summary>
         public TimeSpan Duration { get; protected set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this frame obtained its start time
-        /// form a valid frame pts value
+        /// form a valid frame pts value.
         /// </summary>
         public bool HasValidStartTime { get; protected set; } = true;
 
@@ -144,9 +144,9 @@
         public abstract void Dispose();
 
         /// <summary>
-        /// Creates a frame used for Audio or Video
+        /// Creates a frame used for Audio or Video.
         /// </summary>
-        /// <returns>The frame allocated in unmanaged memory</returns>
+        /// <returns>The frame allocated in unmanaged memory.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static AVFrame* CreateAVFrame()
         {
@@ -156,7 +156,7 @@
         }
 
         /// <summary>
-        /// Releases a previously allocated frame used for Audio or Video
+        /// Releases a previously allocated frame used for Audio or Video.
         /// </summary>
         /// <param name="frame">The frame.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -167,10 +167,10 @@
         }
 
         /// <summary>
-        /// Creates a deep copy of the specified source
+        /// Creates a deep copy of the specified source.
         /// </summary>
         /// <param name="source">The source frame.</param>
-        /// <returns>The cloned frame</returns>
+        /// <returns>The cloned frame.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static AVFrame* CloneAVFrame(AVFrame* source)
         {
@@ -180,9 +180,9 @@
         }
 
         /// <summary>
-        /// Allocates an AVSubtitle struct in unmanaged memory,
+        /// Allocates an AVSubtitle struct in unmanaged memory.
         /// </summary>
-        /// <returns>The subtitle struct pointer</returns>
+        /// <returns>The subtitle struct pointer.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static AVSubtitle* CreateAVSubtitle()
         {

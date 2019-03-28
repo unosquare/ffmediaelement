@@ -60,7 +60,7 @@
         private MediaOptions MediaOptions { get; }
 
         /// <summary>
-        /// Gets a value indicating whether the component clocks are not bound together
+        /// Gets a value indicating whether the component clocks are not bound together.
         /// </summary>
         private bool HasDisconnectedClocks => MediaCore.Timing.HasDisconnectedClocks;
 
@@ -145,7 +145,7 @@
         }
 
         /// <summary>
-        /// Ensures the real-time clocks do not lag or move beyond the range of their corresponding blocks
+        /// Ensures the real-time clocks do not lag or move beyond the range of their corresponding blocks.
         /// </summary>
         /// <param name="main">The main renderer component.</param>
         /// <param name="all">All the renderer components.</param>
@@ -365,7 +365,7 @@
         /// Renders the available, non-repeated block.
         /// </summary>
         /// <param name="t">The media type.</param>
-        /// <returns>Whether a block was sent to its corresponding renderer</returns>
+        /// <returns>Whether a block was sent to its corresponding renderer.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool RenderBlock(MediaType t)
         {
@@ -472,7 +472,7 @@
         /// <param name="currentBlock">The block.</param>
         /// <param name="playbackPosition">The clock position.</param>
         /// <returns>
-        /// The number of blocks sent to the renderer
+        /// The number of blocks sent to the renderer.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int SendBlockToRenderer(MediaBlock currentBlock, TimeSpan playbackPosition)
