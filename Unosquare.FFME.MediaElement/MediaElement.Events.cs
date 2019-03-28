@@ -11,8 +11,6 @@
 
     public partial class MediaElement
     {
-        #region CLR Accessors
-
         /// <summary>
         /// Occurs when buffering of packets was started
         /// </summary>
@@ -73,8 +71,6 @@
         /// Raised when the media fails to load or a fatal error has occurred which prevents playback.
         /// </summary>
         public event EventHandler<MediaFailedEventArgs> MediaFailed;
-
-        #endregion
 
         #region Non-UI event raisers
 
