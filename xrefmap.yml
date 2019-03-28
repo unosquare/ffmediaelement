@@ -7,509 +7,509 @@ references:
   commentId: N:Unosquare.FFME
   fullName: Unosquare.FFME
   nameWithType: Unosquare.FFME
-- uid: Unosquare.FFME.Events
-  name: Unosquare.FFME.Events
-  href: api/Unosquare.FFME.Events.html
-  commentId: N:Unosquare.FFME.Events
-  fullName: Unosquare.FFME.Events
-  nameWithType: Unosquare.FFME.Events
-- uid: Unosquare.FFME.Events.BitmapDataBuffer
+- uid: Unosquare.FFME.Media
+  name: Unosquare.FFME.Media
+  href: api/Unosquare.FFME.Media.html
+  commentId: N:Unosquare.FFME.Media
+  fullName: Unosquare.FFME.Media
+  nameWithType: Unosquare.FFME.Media
+- uid: Unosquare.FFME.Media.BitmapDataBuffer
   name: BitmapDataBuffer
-  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html
-  commentId: T:Unosquare.FFME.Events.BitmapDataBuffer
-  fullName: Unosquare.FFME.Events.BitmapDataBuffer
+  href: api/Unosquare.FFME.Media.BitmapDataBuffer.html
+  commentId: T:Unosquare.FFME.Media.BitmapDataBuffer
+  fullName: Unosquare.FFME.Media.BitmapDataBuffer
   nameWithType: BitmapDataBuffer
-- uid: Unosquare.FFME.Events.BitmapDataBuffer.BitsPerPixel
+- uid: Unosquare.FFME.Media.BitmapDataBuffer.BitsPerPixel
   name: BitsPerPixel
-  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_BitsPerPixel
-  commentId: P:Unosquare.FFME.Events.BitmapDataBuffer.BitsPerPixel
-  fullName: Unosquare.FFME.Events.BitmapDataBuffer.BitsPerPixel
+  href: api/Unosquare.FFME.Media.BitmapDataBuffer.html#Unosquare_FFME_Media_BitmapDataBuffer_BitsPerPixel
+  commentId: P:Unosquare.FFME.Media.BitmapDataBuffer.BitsPerPixel
+  fullName: Unosquare.FFME.Media.BitmapDataBuffer.BitsPerPixel
   nameWithType: BitmapDataBuffer.BitsPerPixel
-- uid: Unosquare.FFME.Events.BitmapDataBuffer.BitsPerPixel*
+- uid: Unosquare.FFME.Media.BitmapDataBuffer.BitsPerPixel*
   name: BitsPerPixel
-  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_BitsPerPixel_
-  commentId: Overload:Unosquare.FFME.Events.BitmapDataBuffer.BitsPerPixel
+  href: api/Unosquare.FFME.Media.BitmapDataBuffer.html#Unosquare_FFME_Media_BitmapDataBuffer_BitsPerPixel_
+  commentId: Overload:Unosquare.FFME.Media.BitmapDataBuffer.BitsPerPixel
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.BitmapDataBuffer.BitsPerPixel
+  fullName: Unosquare.FFME.Media.BitmapDataBuffer.BitsPerPixel
   nameWithType: BitmapDataBuffer.BitsPerPixel
-- uid: Unosquare.FFME.Events.BitmapDataBuffer.BufferLength
+- uid: Unosquare.FFME.Media.BitmapDataBuffer.BufferLength
   name: BufferLength
-  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_BufferLength
-  commentId: P:Unosquare.FFME.Events.BitmapDataBuffer.BufferLength
-  fullName: Unosquare.FFME.Events.BitmapDataBuffer.BufferLength
+  href: api/Unosquare.FFME.Media.BitmapDataBuffer.html#Unosquare_FFME_Media_BitmapDataBuffer_BufferLength
+  commentId: P:Unosquare.FFME.Media.BitmapDataBuffer.BufferLength
+  fullName: Unosquare.FFME.Media.BitmapDataBuffer.BufferLength
   nameWithType: BitmapDataBuffer.BufferLength
-- uid: Unosquare.FFME.Events.BitmapDataBuffer.BufferLength*
+- uid: Unosquare.FFME.Media.BitmapDataBuffer.BufferLength*
   name: BufferLength
-  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_BufferLength_
-  commentId: Overload:Unosquare.FFME.Events.BitmapDataBuffer.BufferLength
+  href: api/Unosquare.FFME.Media.BitmapDataBuffer.html#Unosquare_FFME_Media_BitmapDataBuffer_BufferLength_
+  commentId: Overload:Unosquare.FFME.Media.BitmapDataBuffer.BufferLength
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.BitmapDataBuffer.BufferLength
+  fullName: Unosquare.FFME.Media.BitmapDataBuffer.BufferLength
   nameWithType: BitmapDataBuffer.BufferLength
-- uid: Unosquare.FFME.Events.BitmapDataBuffer.BytesPerPixel
+- uid: Unosquare.FFME.Media.BitmapDataBuffer.BytesPerPixel
   name: BytesPerPixel
-  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_BytesPerPixel
-  commentId: P:Unosquare.FFME.Events.BitmapDataBuffer.BytesPerPixel
-  fullName: Unosquare.FFME.Events.BitmapDataBuffer.BytesPerPixel
+  href: api/Unosquare.FFME.Media.BitmapDataBuffer.html#Unosquare_FFME_Media_BitmapDataBuffer_BytesPerPixel
+  commentId: P:Unosquare.FFME.Media.BitmapDataBuffer.BytesPerPixel
+  fullName: Unosquare.FFME.Media.BitmapDataBuffer.BytesPerPixel
   nameWithType: BitmapDataBuffer.BytesPerPixel
-- uid: Unosquare.FFME.Events.BitmapDataBuffer.BytesPerPixel*
+- uid: Unosquare.FFME.Media.BitmapDataBuffer.BytesPerPixel*
   name: BytesPerPixel
-  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_BytesPerPixel_
-  commentId: Overload:Unosquare.FFME.Events.BitmapDataBuffer.BytesPerPixel
+  href: api/Unosquare.FFME.Media.BitmapDataBuffer.html#Unosquare_FFME_Media_BitmapDataBuffer_BytesPerPixel_
+  commentId: Overload:Unosquare.FFME.Media.BitmapDataBuffer.BytesPerPixel
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.BitmapDataBuffer.BytesPerPixel
+  fullName: Unosquare.FFME.Media.BitmapDataBuffer.BytesPerPixel
   nameWithType: BitmapDataBuffer.BytesPerPixel
-- uid: Unosquare.FFME.Events.BitmapDataBuffer.CreateDrawingBitmap
+- uid: Unosquare.FFME.Media.BitmapDataBuffer.CreateDrawingBitmap
   name: CreateDrawingBitmap()
-  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_CreateDrawingBitmap
-  commentId: M:Unosquare.FFME.Events.BitmapDataBuffer.CreateDrawingBitmap
-  fullName: Unosquare.FFME.Events.BitmapDataBuffer.CreateDrawingBitmap()
+  href: api/Unosquare.FFME.Media.BitmapDataBuffer.html#Unosquare_FFME_Media_BitmapDataBuffer_CreateDrawingBitmap
+  commentId: M:Unosquare.FFME.Media.BitmapDataBuffer.CreateDrawingBitmap
+  fullName: Unosquare.FFME.Media.BitmapDataBuffer.CreateDrawingBitmap()
   nameWithType: BitmapDataBuffer.CreateDrawingBitmap()
-- uid: Unosquare.FFME.Events.BitmapDataBuffer.CreateDrawingBitmap*
+- uid: Unosquare.FFME.Media.BitmapDataBuffer.CreateDrawingBitmap*
   name: CreateDrawingBitmap
-  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_CreateDrawingBitmap_
-  commentId: Overload:Unosquare.FFME.Events.BitmapDataBuffer.CreateDrawingBitmap
+  href: api/Unosquare.FFME.Media.BitmapDataBuffer.html#Unosquare_FFME_Media_BitmapDataBuffer_CreateDrawingBitmap_
+  commentId: Overload:Unosquare.FFME.Media.BitmapDataBuffer.CreateDrawingBitmap
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.BitmapDataBuffer.CreateDrawingBitmap
+  fullName: Unosquare.FFME.Media.BitmapDataBuffer.CreateDrawingBitmap
   nameWithType: BitmapDataBuffer.CreateDrawingBitmap
-- uid: Unosquare.FFME.Events.BitmapDataBuffer.DpiX
+- uid: Unosquare.FFME.Media.BitmapDataBuffer.DpiX
   name: DpiX
-  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_DpiX
-  commentId: P:Unosquare.FFME.Events.BitmapDataBuffer.DpiX
-  fullName: Unosquare.FFME.Events.BitmapDataBuffer.DpiX
+  href: api/Unosquare.FFME.Media.BitmapDataBuffer.html#Unosquare_FFME_Media_BitmapDataBuffer_DpiX
+  commentId: P:Unosquare.FFME.Media.BitmapDataBuffer.DpiX
+  fullName: Unosquare.FFME.Media.BitmapDataBuffer.DpiX
   nameWithType: BitmapDataBuffer.DpiX
-- uid: Unosquare.FFME.Events.BitmapDataBuffer.DpiX*
+- uid: Unosquare.FFME.Media.BitmapDataBuffer.DpiX*
   name: DpiX
-  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_DpiX_
-  commentId: Overload:Unosquare.FFME.Events.BitmapDataBuffer.DpiX
+  href: api/Unosquare.FFME.Media.BitmapDataBuffer.html#Unosquare_FFME_Media_BitmapDataBuffer_DpiX_
+  commentId: Overload:Unosquare.FFME.Media.BitmapDataBuffer.DpiX
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.BitmapDataBuffer.DpiX
+  fullName: Unosquare.FFME.Media.BitmapDataBuffer.DpiX
   nameWithType: BitmapDataBuffer.DpiX
-- uid: Unosquare.FFME.Events.BitmapDataBuffer.DpiY
+- uid: Unosquare.FFME.Media.BitmapDataBuffer.DpiY
   name: DpiY
-  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_DpiY
-  commentId: P:Unosquare.FFME.Events.BitmapDataBuffer.DpiY
-  fullName: Unosquare.FFME.Events.BitmapDataBuffer.DpiY
+  href: api/Unosquare.FFME.Media.BitmapDataBuffer.html#Unosquare_FFME_Media_BitmapDataBuffer_DpiY
+  commentId: P:Unosquare.FFME.Media.BitmapDataBuffer.DpiY
+  fullName: Unosquare.FFME.Media.BitmapDataBuffer.DpiY
   nameWithType: BitmapDataBuffer.DpiY
-- uid: Unosquare.FFME.Events.BitmapDataBuffer.DpiY*
+- uid: Unosquare.FFME.Media.BitmapDataBuffer.DpiY*
   name: DpiY
-  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_DpiY_
-  commentId: Overload:Unosquare.FFME.Events.BitmapDataBuffer.DpiY
+  href: api/Unosquare.FFME.Media.BitmapDataBuffer.html#Unosquare_FFME_Media_BitmapDataBuffer_DpiY_
+  commentId: Overload:Unosquare.FFME.Media.BitmapDataBuffer.DpiY
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.BitmapDataBuffer.DpiY
+  fullName: Unosquare.FFME.Media.BitmapDataBuffer.DpiY
   nameWithType: BitmapDataBuffer.DpiY
-- uid: Unosquare.FFME.Events.BitmapDataBuffer.Palette
+- uid: Unosquare.FFME.Media.BitmapDataBuffer.Palette
   name: Palette
-  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_Palette
-  commentId: P:Unosquare.FFME.Events.BitmapDataBuffer.Palette
-  fullName: Unosquare.FFME.Events.BitmapDataBuffer.Palette
+  href: api/Unosquare.FFME.Media.BitmapDataBuffer.html#Unosquare_FFME_Media_BitmapDataBuffer_Palette
+  commentId: P:Unosquare.FFME.Media.BitmapDataBuffer.Palette
+  fullName: Unosquare.FFME.Media.BitmapDataBuffer.Palette
   nameWithType: BitmapDataBuffer.Palette
-- uid: Unosquare.FFME.Events.BitmapDataBuffer.Palette*
+- uid: Unosquare.FFME.Media.BitmapDataBuffer.Palette*
   name: Palette
-  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_Palette_
-  commentId: Overload:Unosquare.FFME.Events.BitmapDataBuffer.Palette
+  href: api/Unosquare.FFME.Media.BitmapDataBuffer.html#Unosquare_FFME_Media_BitmapDataBuffer_Palette_
+  commentId: Overload:Unosquare.FFME.Media.BitmapDataBuffer.Palette
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.BitmapDataBuffer.Palette
+  fullName: Unosquare.FFME.Media.BitmapDataBuffer.Palette
   nameWithType: BitmapDataBuffer.Palette
-- uid: Unosquare.FFME.Events.BitmapDataBuffer.PixelFormat
+- uid: Unosquare.FFME.Media.BitmapDataBuffer.PixelFormat
   name: PixelFormat
-  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_PixelFormat
-  commentId: P:Unosquare.FFME.Events.BitmapDataBuffer.PixelFormat
-  fullName: Unosquare.FFME.Events.BitmapDataBuffer.PixelFormat
+  href: api/Unosquare.FFME.Media.BitmapDataBuffer.html#Unosquare_FFME_Media_BitmapDataBuffer_PixelFormat
+  commentId: P:Unosquare.FFME.Media.BitmapDataBuffer.PixelFormat
+  fullName: Unosquare.FFME.Media.BitmapDataBuffer.PixelFormat
   nameWithType: BitmapDataBuffer.PixelFormat
-- uid: Unosquare.FFME.Events.BitmapDataBuffer.PixelFormat*
+- uid: Unosquare.FFME.Media.BitmapDataBuffer.PixelFormat*
   name: PixelFormat
-  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_PixelFormat_
-  commentId: Overload:Unosquare.FFME.Events.BitmapDataBuffer.PixelFormat
+  href: api/Unosquare.FFME.Media.BitmapDataBuffer.html#Unosquare_FFME_Media_BitmapDataBuffer_PixelFormat_
+  commentId: Overload:Unosquare.FFME.Media.BitmapDataBuffer.PixelFormat
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.BitmapDataBuffer.PixelFormat
+  fullName: Unosquare.FFME.Media.BitmapDataBuffer.PixelFormat
   nameWithType: BitmapDataBuffer.PixelFormat
-- uid: Unosquare.FFME.Events.BitmapDataBuffer.PixelHeight
+- uid: Unosquare.FFME.Media.BitmapDataBuffer.PixelHeight
   name: PixelHeight
-  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_PixelHeight
-  commentId: P:Unosquare.FFME.Events.BitmapDataBuffer.PixelHeight
-  fullName: Unosquare.FFME.Events.BitmapDataBuffer.PixelHeight
+  href: api/Unosquare.FFME.Media.BitmapDataBuffer.html#Unosquare_FFME_Media_BitmapDataBuffer_PixelHeight
+  commentId: P:Unosquare.FFME.Media.BitmapDataBuffer.PixelHeight
+  fullName: Unosquare.FFME.Media.BitmapDataBuffer.PixelHeight
   nameWithType: BitmapDataBuffer.PixelHeight
-- uid: Unosquare.FFME.Events.BitmapDataBuffer.PixelHeight*
+- uid: Unosquare.FFME.Media.BitmapDataBuffer.PixelHeight*
   name: PixelHeight
-  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_PixelHeight_
-  commentId: Overload:Unosquare.FFME.Events.BitmapDataBuffer.PixelHeight
+  href: api/Unosquare.FFME.Media.BitmapDataBuffer.html#Unosquare_FFME_Media_BitmapDataBuffer_PixelHeight_
+  commentId: Overload:Unosquare.FFME.Media.BitmapDataBuffer.PixelHeight
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.BitmapDataBuffer.PixelHeight
+  fullName: Unosquare.FFME.Media.BitmapDataBuffer.PixelHeight
   nameWithType: BitmapDataBuffer.PixelHeight
-- uid: Unosquare.FFME.Events.BitmapDataBuffer.PixelWidth
+- uid: Unosquare.FFME.Media.BitmapDataBuffer.PixelWidth
   name: PixelWidth
-  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_PixelWidth
-  commentId: P:Unosquare.FFME.Events.BitmapDataBuffer.PixelWidth
-  fullName: Unosquare.FFME.Events.BitmapDataBuffer.PixelWidth
+  href: api/Unosquare.FFME.Media.BitmapDataBuffer.html#Unosquare_FFME_Media_BitmapDataBuffer_PixelWidth
+  commentId: P:Unosquare.FFME.Media.BitmapDataBuffer.PixelWidth
+  fullName: Unosquare.FFME.Media.BitmapDataBuffer.PixelWidth
   nameWithType: BitmapDataBuffer.PixelWidth
-- uid: Unosquare.FFME.Events.BitmapDataBuffer.PixelWidth*
+- uid: Unosquare.FFME.Media.BitmapDataBuffer.PixelWidth*
   name: PixelWidth
-  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_PixelWidth_
-  commentId: Overload:Unosquare.FFME.Events.BitmapDataBuffer.PixelWidth
+  href: api/Unosquare.FFME.Media.BitmapDataBuffer.html#Unosquare_FFME_Media_BitmapDataBuffer_PixelWidth_
+  commentId: Overload:Unosquare.FFME.Media.BitmapDataBuffer.PixelWidth
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.BitmapDataBuffer.PixelWidth
+  fullName: Unosquare.FFME.Media.BitmapDataBuffer.PixelWidth
   nameWithType: BitmapDataBuffer.PixelWidth
-- uid: Unosquare.FFME.Events.BitmapDataBuffer.Scan0
+- uid: Unosquare.FFME.Media.BitmapDataBuffer.Scan0
   name: Scan0
-  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_Scan0
-  commentId: P:Unosquare.FFME.Events.BitmapDataBuffer.Scan0
-  fullName: Unosquare.FFME.Events.BitmapDataBuffer.Scan0
+  href: api/Unosquare.FFME.Media.BitmapDataBuffer.html#Unosquare_FFME_Media_BitmapDataBuffer_Scan0
+  commentId: P:Unosquare.FFME.Media.BitmapDataBuffer.Scan0
+  fullName: Unosquare.FFME.Media.BitmapDataBuffer.Scan0
   nameWithType: BitmapDataBuffer.Scan0
-- uid: Unosquare.FFME.Events.BitmapDataBuffer.Scan0*
+- uid: Unosquare.FFME.Media.BitmapDataBuffer.Scan0*
   name: Scan0
-  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_Scan0_
-  commentId: Overload:Unosquare.FFME.Events.BitmapDataBuffer.Scan0
+  href: api/Unosquare.FFME.Media.BitmapDataBuffer.html#Unosquare_FFME_Media_BitmapDataBuffer_Scan0_
+  commentId: Overload:Unosquare.FFME.Media.BitmapDataBuffer.Scan0
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.BitmapDataBuffer.Scan0
+  fullName: Unosquare.FFME.Media.BitmapDataBuffer.Scan0
   nameWithType: BitmapDataBuffer.Scan0
-- uid: Unosquare.FFME.Events.BitmapDataBuffer.Stride
+- uid: Unosquare.FFME.Media.BitmapDataBuffer.Stride
   name: Stride
-  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_Stride
-  commentId: P:Unosquare.FFME.Events.BitmapDataBuffer.Stride
-  fullName: Unosquare.FFME.Events.BitmapDataBuffer.Stride
+  href: api/Unosquare.FFME.Media.BitmapDataBuffer.html#Unosquare_FFME_Media_BitmapDataBuffer_Stride
+  commentId: P:Unosquare.FFME.Media.BitmapDataBuffer.Stride
+  fullName: Unosquare.FFME.Media.BitmapDataBuffer.Stride
   nameWithType: BitmapDataBuffer.Stride
-- uid: Unosquare.FFME.Events.BitmapDataBuffer.Stride*
+- uid: Unosquare.FFME.Media.BitmapDataBuffer.Stride*
   name: Stride
-  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_Stride_
-  commentId: Overload:Unosquare.FFME.Events.BitmapDataBuffer.Stride
+  href: api/Unosquare.FFME.Media.BitmapDataBuffer.html#Unosquare_FFME_Media_BitmapDataBuffer_Stride_
+  commentId: Overload:Unosquare.FFME.Media.BitmapDataBuffer.Stride
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.BitmapDataBuffer.Stride
+  fullName: Unosquare.FFME.Media.BitmapDataBuffer.Stride
   nameWithType: BitmapDataBuffer.Stride
-- uid: Unosquare.FFME.Events.BitmapDataBuffer.UpdateRect
+- uid: Unosquare.FFME.Media.BitmapDataBuffer.UpdateRect
   name: UpdateRect
-  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_UpdateRect
-  commentId: P:Unosquare.FFME.Events.BitmapDataBuffer.UpdateRect
-  fullName: Unosquare.FFME.Events.BitmapDataBuffer.UpdateRect
+  href: api/Unosquare.FFME.Media.BitmapDataBuffer.html#Unosquare_FFME_Media_BitmapDataBuffer_UpdateRect
+  commentId: P:Unosquare.FFME.Media.BitmapDataBuffer.UpdateRect
+  fullName: Unosquare.FFME.Media.BitmapDataBuffer.UpdateRect
   nameWithType: BitmapDataBuffer.UpdateRect
-- uid: Unosquare.FFME.Events.BitmapDataBuffer.UpdateRect*
+- uid: Unosquare.FFME.Media.BitmapDataBuffer.UpdateRect*
   name: UpdateRect
-  href: api/Unosquare.FFME.Events.BitmapDataBuffer.html#Unosquare_FFME_Events_BitmapDataBuffer_UpdateRect_
-  commentId: Overload:Unosquare.FFME.Events.BitmapDataBuffer.UpdateRect
+  href: api/Unosquare.FFME.Media.BitmapDataBuffer.html#Unosquare_FFME_Media_BitmapDataBuffer_UpdateRect_
+  commentId: Overload:Unosquare.FFME.Media.BitmapDataBuffer.UpdateRect
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.BitmapDataBuffer.UpdateRect
+  fullName: Unosquare.FFME.Media.BitmapDataBuffer.UpdateRect
   nameWithType: BitmapDataBuffer.UpdateRect
-- uid: Unosquare.FFME.Events.RenderingAudioEventArgs
+- uid: Unosquare.FFME.Media.RenderingAudioEventArgs
   name: RenderingAudioEventArgs
-  href: api/Unosquare.FFME.Events.RenderingAudioEventArgs.html
-  commentId: T:Unosquare.FFME.Events.RenderingAudioEventArgs
-  fullName: Unosquare.FFME.Events.RenderingAudioEventArgs
+  href: api/Unosquare.FFME.Media.RenderingAudioEventArgs.html
+  commentId: T:Unosquare.FFME.Media.RenderingAudioEventArgs
+  fullName: Unosquare.FFME.Media.RenderingAudioEventArgs
   nameWithType: RenderingAudioEventArgs
-- uid: Unosquare.FFME.Events.RenderingAudioEventArgs.BitsPerSample
+- uid: Unosquare.FFME.Media.RenderingAudioEventArgs.BitsPerSample
   name: BitsPerSample
-  href: api/Unosquare.FFME.Events.RenderingAudioEventArgs.html#Unosquare_FFME_Events_RenderingAudioEventArgs_BitsPerSample
-  commentId: P:Unosquare.FFME.Events.RenderingAudioEventArgs.BitsPerSample
-  fullName: Unosquare.FFME.Events.RenderingAudioEventArgs.BitsPerSample
+  href: api/Unosquare.FFME.Media.RenderingAudioEventArgs.html#Unosquare_FFME_Media_RenderingAudioEventArgs_BitsPerSample
+  commentId: P:Unosquare.FFME.Media.RenderingAudioEventArgs.BitsPerSample
+  fullName: Unosquare.FFME.Media.RenderingAudioEventArgs.BitsPerSample
   nameWithType: RenderingAudioEventArgs.BitsPerSample
-- uid: Unosquare.FFME.Events.RenderingAudioEventArgs.BitsPerSample*
+- uid: Unosquare.FFME.Media.RenderingAudioEventArgs.BitsPerSample*
   name: BitsPerSample
-  href: api/Unosquare.FFME.Events.RenderingAudioEventArgs.html#Unosquare_FFME_Events_RenderingAudioEventArgs_BitsPerSample_
-  commentId: Overload:Unosquare.FFME.Events.RenderingAudioEventArgs.BitsPerSample
+  href: api/Unosquare.FFME.Media.RenderingAudioEventArgs.html#Unosquare_FFME_Media_RenderingAudioEventArgs_BitsPerSample_
+  commentId: Overload:Unosquare.FFME.Media.RenderingAudioEventArgs.BitsPerSample
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.RenderingAudioEventArgs.BitsPerSample
+  fullName: Unosquare.FFME.Media.RenderingAudioEventArgs.BitsPerSample
   nameWithType: RenderingAudioEventArgs.BitsPerSample
-- uid: Unosquare.FFME.Events.RenderingAudioEventArgs.Buffer
+- uid: Unosquare.FFME.Media.RenderingAudioEventArgs.Buffer
   name: Buffer
-  href: api/Unosquare.FFME.Events.RenderingAudioEventArgs.html#Unosquare_FFME_Events_RenderingAudioEventArgs_Buffer
-  commentId: P:Unosquare.FFME.Events.RenderingAudioEventArgs.Buffer
-  fullName: Unosquare.FFME.Events.RenderingAudioEventArgs.Buffer
+  href: api/Unosquare.FFME.Media.RenderingAudioEventArgs.html#Unosquare_FFME_Media_RenderingAudioEventArgs_Buffer
+  commentId: P:Unosquare.FFME.Media.RenderingAudioEventArgs.Buffer
+  fullName: Unosquare.FFME.Media.RenderingAudioEventArgs.Buffer
   nameWithType: RenderingAudioEventArgs.Buffer
-- uid: Unosquare.FFME.Events.RenderingAudioEventArgs.Buffer*
+- uid: Unosquare.FFME.Media.RenderingAudioEventArgs.Buffer*
   name: Buffer
-  href: api/Unosquare.FFME.Events.RenderingAudioEventArgs.html#Unosquare_FFME_Events_RenderingAudioEventArgs_Buffer_
-  commentId: Overload:Unosquare.FFME.Events.RenderingAudioEventArgs.Buffer
+  href: api/Unosquare.FFME.Media.RenderingAudioEventArgs.html#Unosquare_FFME_Media_RenderingAudioEventArgs_Buffer_
+  commentId: Overload:Unosquare.FFME.Media.RenderingAudioEventArgs.Buffer
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.RenderingAudioEventArgs.Buffer
+  fullName: Unosquare.FFME.Media.RenderingAudioEventArgs.Buffer
   nameWithType: RenderingAudioEventArgs.Buffer
-- uid: Unosquare.FFME.Events.RenderingAudioEventArgs.BufferLength
+- uid: Unosquare.FFME.Media.RenderingAudioEventArgs.BufferLength
   name: BufferLength
-  href: api/Unosquare.FFME.Events.RenderingAudioEventArgs.html#Unosquare_FFME_Events_RenderingAudioEventArgs_BufferLength
-  commentId: P:Unosquare.FFME.Events.RenderingAudioEventArgs.BufferLength
-  fullName: Unosquare.FFME.Events.RenderingAudioEventArgs.BufferLength
+  href: api/Unosquare.FFME.Media.RenderingAudioEventArgs.html#Unosquare_FFME_Media_RenderingAudioEventArgs_BufferLength
+  commentId: P:Unosquare.FFME.Media.RenderingAudioEventArgs.BufferLength
+  fullName: Unosquare.FFME.Media.RenderingAudioEventArgs.BufferLength
   nameWithType: RenderingAudioEventArgs.BufferLength
-- uid: Unosquare.FFME.Events.RenderingAudioEventArgs.BufferLength*
+- uid: Unosquare.FFME.Media.RenderingAudioEventArgs.BufferLength*
   name: BufferLength
-  href: api/Unosquare.FFME.Events.RenderingAudioEventArgs.html#Unosquare_FFME_Events_RenderingAudioEventArgs_BufferLength_
-  commentId: Overload:Unosquare.FFME.Events.RenderingAudioEventArgs.BufferLength
+  href: api/Unosquare.FFME.Media.RenderingAudioEventArgs.html#Unosquare_FFME_Media_RenderingAudioEventArgs_BufferLength_
+  commentId: Overload:Unosquare.FFME.Media.RenderingAudioEventArgs.BufferLength
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.RenderingAudioEventArgs.BufferLength
+  fullName: Unosquare.FFME.Media.RenderingAudioEventArgs.BufferLength
   nameWithType: RenderingAudioEventArgs.BufferLength
-- uid: Unosquare.FFME.Events.RenderingAudioEventArgs.ChannelCount
+- uid: Unosquare.FFME.Media.RenderingAudioEventArgs.ChannelCount
   name: ChannelCount
-  href: api/Unosquare.FFME.Events.RenderingAudioEventArgs.html#Unosquare_FFME_Events_RenderingAudioEventArgs_ChannelCount
-  commentId: P:Unosquare.FFME.Events.RenderingAudioEventArgs.ChannelCount
-  fullName: Unosquare.FFME.Events.RenderingAudioEventArgs.ChannelCount
+  href: api/Unosquare.FFME.Media.RenderingAudioEventArgs.html#Unosquare_FFME_Media_RenderingAudioEventArgs_ChannelCount
+  commentId: P:Unosquare.FFME.Media.RenderingAudioEventArgs.ChannelCount
+  fullName: Unosquare.FFME.Media.RenderingAudioEventArgs.ChannelCount
   nameWithType: RenderingAudioEventArgs.ChannelCount
-- uid: Unosquare.FFME.Events.RenderingAudioEventArgs.ChannelCount*
+- uid: Unosquare.FFME.Media.RenderingAudioEventArgs.ChannelCount*
   name: ChannelCount
-  href: api/Unosquare.FFME.Events.RenderingAudioEventArgs.html#Unosquare_FFME_Events_RenderingAudioEventArgs_ChannelCount_
-  commentId: Overload:Unosquare.FFME.Events.RenderingAudioEventArgs.ChannelCount
+  href: api/Unosquare.FFME.Media.RenderingAudioEventArgs.html#Unosquare_FFME_Media_RenderingAudioEventArgs_ChannelCount_
+  commentId: Overload:Unosquare.FFME.Media.RenderingAudioEventArgs.ChannelCount
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.RenderingAudioEventArgs.ChannelCount
+  fullName: Unosquare.FFME.Media.RenderingAudioEventArgs.ChannelCount
   nameWithType: RenderingAudioEventArgs.ChannelCount
-- uid: Unosquare.FFME.Events.RenderingAudioEventArgs.GetBufferData
+- uid: Unosquare.FFME.Media.RenderingAudioEventArgs.GetBufferData
   name: GetBufferData()
-  href: api/Unosquare.FFME.Events.RenderingAudioEventArgs.html#Unosquare_FFME_Events_RenderingAudioEventArgs_GetBufferData
-  commentId: M:Unosquare.FFME.Events.RenderingAudioEventArgs.GetBufferData
-  fullName: Unosquare.FFME.Events.RenderingAudioEventArgs.GetBufferData()
+  href: api/Unosquare.FFME.Media.RenderingAudioEventArgs.html#Unosquare_FFME_Media_RenderingAudioEventArgs_GetBufferData
+  commentId: M:Unosquare.FFME.Media.RenderingAudioEventArgs.GetBufferData
+  fullName: Unosquare.FFME.Media.RenderingAudioEventArgs.GetBufferData()
   nameWithType: RenderingAudioEventArgs.GetBufferData()
-- uid: Unosquare.FFME.Events.RenderingAudioEventArgs.GetBufferData*
+- uid: Unosquare.FFME.Media.RenderingAudioEventArgs.GetBufferData*
   name: GetBufferData
-  href: api/Unosquare.FFME.Events.RenderingAudioEventArgs.html#Unosquare_FFME_Events_RenderingAudioEventArgs_GetBufferData_
-  commentId: Overload:Unosquare.FFME.Events.RenderingAudioEventArgs.GetBufferData
+  href: api/Unosquare.FFME.Media.RenderingAudioEventArgs.html#Unosquare_FFME_Media_RenderingAudioEventArgs_GetBufferData_
+  commentId: Overload:Unosquare.FFME.Media.RenderingAudioEventArgs.GetBufferData
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.RenderingAudioEventArgs.GetBufferData
+  fullName: Unosquare.FFME.Media.RenderingAudioEventArgs.GetBufferData
   nameWithType: RenderingAudioEventArgs.GetBufferData
-- uid: Unosquare.FFME.Events.RenderingAudioEventArgs.Latency
+- uid: Unosquare.FFME.Media.RenderingAudioEventArgs.Latency
   name: Latency
-  href: api/Unosquare.FFME.Events.RenderingAudioEventArgs.html#Unosquare_FFME_Events_RenderingAudioEventArgs_Latency
-  commentId: P:Unosquare.FFME.Events.RenderingAudioEventArgs.Latency
-  fullName: Unosquare.FFME.Events.RenderingAudioEventArgs.Latency
+  href: api/Unosquare.FFME.Media.RenderingAudioEventArgs.html#Unosquare_FFME_Media_RenderingAudioEventArgs_Latency
+  commentId: P:Unosquare.FFME.Media.RenderingAudioEventArgs.Latency
+  fullName: Unosquare.FFME.Media.RenderingAudioEventArgs.Latency
   nameWithType: RenderingAudioEventArgs.Latency
-- uid: Unosquare.FFME.Events.RenderingAudioEventArgs.Latency*
+- uid: Unosquare.FFME.Media.RenderingAudioEventArgs.Latency*
   name: Latency
-  href: api/Unosquare.FFME.Events.RenderingAudioEventArgs.html#Unosquare_FFME_Events_RenderingAudioEventArgs_Latency_
-  commentId: Overload:Unosquare.FFME.Events.RenderingAudioEventArgs.Latency
+  href: api/Unosquare.FFME.Media.RenderingAudioEventArgs.html#Unosquare_FFME_Media_RenderingAudioEventArgs_Latency_
+  commentId: Overload:Unosquare.FFME.Media.RenderingAudioEventArgs.Latency
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.RenderingAudioEventArgs.Latency
+  fullName: Unosquare.FFME.Media.RenderingAudioEventArgs.Latency
   nameWithType: RenderingAudioEventArgs.Latency
-- uid: Unosquare.FFME.Events.RenderingAudioEventArgs.SampleRate
+- uid: Unosquare.FFME.Media.RenderingAudioEventArgs.SampleRate
   name: SampleRate
-  href: api/Unosquare.FFME.Events.RenderingAudioEventArgs.html#Unosquare_FFME_Events_RenderingAudioEventArgs_SampleRate
-  commentId: P:Unosquare.FFME.Events.RenderingAudioEventArgs.SampleRate
-  fullName: Unosquare.FFME.Events.RenderingAudioEventArgs.SampleRate
+  href: api/Unosquare.FFME.Media.RenderingAudioEventArgs.html#Unosquare_FFME_Media_RenderingAudioEventArgs_SampleRate
+  commentId: P:Unosquare.FFME.Media.RenderingAudioEventArgs.SampleRate
+  fullName: Unosquare.FFME.Media.RenderingAudioEventArgs.SampleRate
   nameWithType: RenderingAudioEventArgs.SampleRate
-- uid: Unosquare.FFME.Events.RenderingAudioEventArgs.SampleRate*
+- uid: Unosquare.FFME.Media.RenderingAudioEventArgs.SampleRate*
   name: SampleRate
-  href: api/Unosquare.FFME.Events.RenderingAudioEventArgs.html#Unosquare_FFME_Events_RenderingAudioEventArgs_SampleRate_
-  commentId: Overload:Unosquare.FFME.Events.RenderingAudioEventArgs.SampleRate
+  href: api/Unosquare.FFME.Media.RenderingAudioEventArgs.html#Unosquare_FFME_Media_RenderingAudioEventArgs_SampleRate_
+  commentId: Overload:Unosquare.FFME.Media.RenderingAudioEventArgs.SampleRate
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.RenderingAudioEventArgs.SampleRate
+  fullName: Unosquare.FFME.Media.RenderingAudioEventArgs.SampleRate
   nameWithType: RenderingAudioEventArgs.SampleRate
-- uid: Unosquare.FFME.Events.RenderingAudioEventArgs.Samples
+- uid: Unosquare.FFME.Media.RenderingAudioEventArgs.Samples
   name: Samples
-  href: api/Unosquare.FFME.Events.RenderingAudioEventArgs.html#Unosquare_FFME_Events_RenderingAudioEventArgs_Samples
-  commentId: P:Unosquare.FFME.Events.RenderingAudioEventArgs.Samples
-  fullName: Unosquare.FFME.Events.RenderingAudioEventArgs.Samples
+  href: api/Unosquare.FFME.Media.RenderingAudioEventArgs.html#Unosquare_FFME_Media_RenderingAudioEventArgs_Samples
+  commentId: P:Unosquare.FFME.Media.RenderingAudioEventArgs.Samples
+  fullName: Unosquare.FFME.Media.RenderingAudioEventArgs.Samples
   nameWithType: RenderingAudioEventArgs.Samples
-- uid: Unosquare.FFME.Events.RenderingAudioEventArgs.Samples*
+- uid: Unosquare.FFME.Media.RenderingAudioEventArgs.Samples*
   name: Samples
-  href: api/Unosquare.FFME.Events.RenderingAudioEventArgs.html#Unosquare_FFME_Events_RenderingAudioEventArgs_Samples_
-  commentId: Overload:Unosquare.FFME.Events.RenderingAudioEventArgs.Samples
+  href: api/Unosquare.FFME.Media.RenderingAudioEventArgs.html#Unosquare_FFME_Media_RenderingAudioEventArgs_Samples_
+  commentId: Overload:Unosquare.FFME.Media.RenderingAudioEventArgs.Samples
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.RenderingAudioEventArgs.Samples
+  fullName: Unosquare.FFME.Media.RenderingAudioEventArgs.Samples
   nameWithType: RenderingAudioEventArgs.Samples
-- uid: Unosquare.FFME.Events.RenderingAudioEventArgs.SamplesPerChannel
+- uid: Unosquare.FFME.Media.RenderingAudioEventArgs.SamplesPerChannel
   name: SamplesPerChannel
-  href: api/Unosquare.FFME.Events.RenderingAudioEventArgs.html#Unosquare_FFME_Events_RenderingAudioEventArgs_SamplesPerChannel
-  commentId: P:Unosquare.FFME.Events.RenderingAudioEventArgs.SamplesPerChannel
-  fullName: Unosquare.FFME.Events.RenderingAudioEventArgs.SamplesPerChannel
+  href: api/Unosquare.FFME.Media.RenderingAudioEventArgs.html#Unosquare_FFME_Media_RenderingAudioEventArgs_SamplesPerChannel
+  commentId: P:Unosquare.FFME.Media.RenderingAudioEventArgs.SamplesPerChannel
+  fullName: Unosquare.FFME.Media.RenderingAudioEventArgs.SamplesPerChannel
   nameWithType: RenderingAudioEventArgs.SamplesPerChannel
-- uid: Unosquare.FFME.Events.RenderingAudioEventArgs.SamplesPerChannel*
+- uid: Unosquare.FFME.Media.RenderingAudioEventArgs.SamplesPerChannel*
   name: SamplesPerChannel
-  href: api/Unosquare.FFME.Events.RenderingAudioEventArgs.html#Unosquare_FFME_Events_RenderingAudioEventArgs_SamplesPerChannel_
-  commentId: Overload:Unosquare.FFME.Events.RenderingAudioEventArgs.SamplesPerChannel
+  href: api/Unosquare.FFME.Media.RenderingAudioEventArgs.html#Unosquare_FFME_Media_RenderingAudioEventArgs_SamplesPerChannel_
+  commentId: Overload:Unosquare.FFME.Media.RenderingAudioEventArgs.SamplesPerChannel
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.RenderingAudioEventArgs.SamplesPerChannel
+  fullName: Unosquare.FFME.Media.RenderingAudioEventArgs.SamplesPerChannel
   nameWithType: RenderingAudioEventArgs.SamplesPerChannel
-- uid: Unosquare.FFME.Events.RenderingEventArgs
+- uid: Unosquare.FFME.Media.RenderingEventArgs
   name: RenderingEventArgs
-  href: api/Unosquare.FFME.Events.RenderingEventArgs.html
-  commentId: T:Unosquare.FFME.Events.RenderingEventArgs
-  fullName: Unosquare.FFME.Events.RenderingEventArgs
+  href: api/Unosquare.FFME.Media.RenderingEventArgs.html
+  commentId: T:Unosquare.FFME.Media.RenderingEventArgs
+  fullName: Unosquare.FFME.Media.RenderingEventArgs
   nameWithType: RenderingEventArgs
-- uid: Unosquare.FFME.Events.RenderingEventArgs.#ctor(IMediaEngineState,StreamInfo,System.TimeSpan,System.TimeSpan,System.TimeSpan)
+- uid: Unosquare.FFME.Media.RenderingEventArgs.#ctor(IMediaEngineState,StreamInfo,System.TimeSpan,System.TimeSpan,System.TimeSpan)
   name: RenderingEventArgs(IMediaEngineState, StreamInfo, TimeSpan, TimeSpan, TimeSpan)
-  href: api/Unosquare.FFME.Events.RenderingEventArgs.html#Unosquare_FFME_Events_RenderingEventArgs__ctor_IMediaEngineState_StreamInfo_System_TimeSpan_System_TimeSpan_System_TimeSpan_
-  commentId: M:Unosquare.FFME.Events.RenderingEventArgs.#ctor(IMediaEngineState,StreamInfo,System.TimeSpan,System.TimeSpan,System.TimeSpan)
-  fullName: Unosquare.FFME.Events.RenderingEventArgs.RenderingEventArgs(IMediaEngineState, StreamInfo, System.TimeSpan, System.TimeSpan, System.TimeSpan)
+  href: api/Unosquare.FFME.Media.RenderingEventArgs.html#Unosquare_FFME_Media_RenderingEventArgs__ctor_IMediaEngineState_StreamInfo_System_TimeSpan_System_TimeSpan_System_TimeSpan_
+  commentId: M:Unosquare.FFME.Media.RenderingEventArgs.#ctor(IMediaEngineState,StreamInfo,System.TimeSpan,System.TimeSpan,System.TimeSpan)
+  fullName: Unosquare.FFME.Media.RenderingEventArgs.RenderingEventArgs(IMediaEngineState, StreamInfo, System.TimeSpan, System.TimeSpan, System.TimeSpan)
   nameWithType: RenderingEventArgs.RenderingEventArgs(IMediaEngineState, StreamInfo, TimeSpan, TimeSpan, TimeSpan)
-- uid: Unosquare.FFME.Events.RenderingEventArgs.#ctor*
+- uid: Unosquare.FFME.Media.RenderingEventArgs.#ctor*
   name: RenderingEventArgs
-  href: api/Unosquare.FFME.Events.RenderingEventArgs.html#Unosquare_FFME_Events_RenderingEventArgs__ctor_
-  commentId: Overload:Unosquare.FFME.Events.RenderingEventArgs.#ctor
+  href: api/Unosquare.FFME.Media.RenderingEventArgs.html#Unosquare_FFME_Media_RenderingEventArgs__ctor_
+  commentId: Overload:Unosquare.FFME.Media.RenderingEventArgs.#ctor
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.RenderingEventArgs.RenderingEventArgs
+  fullName: Unosquare.FFME.Media.RenderingEventArgs.RenderingEventArgs
   nameWithType: RenderingEventArgs.RenderingEventArgs
-- uid: Unosquare.FFME.Events.RenderingEventArgs.Clock
+- uid: Unosquare.FFME.Media.RenderingEventArgs.Clock
   name: Clock
-  href: api/Unosquare.FFME.Events.RenderingEventArgs.html#Unosquare_FFME_Events_RenderingEventArgs_Clock
-  commentId: P:Unosquare.FFME.Events.RenderingEventArgs.Clock
-  fullName: Unosquare.FFME.Events.RenderingEventArgs.Clock
+  href: api/Unosquare.FFME.Media.RenderingEventArgs.html#Unosquare_FFME_Media_RenderingEventArgs_Clock
+  commentId: P:Unosquare.FFME.Media.RenderingEventArgs.Clock
+  fullName: Unosquare.FFME.Media.RenderingEventArgs.Clock
   nameWithType: RenderingEventArgs.Clock
-- uid: Unosquare.FFME.Events.RenderingEventArgs.Clock*
+- uid: Unosquare.FFME.Media.RenderingEventArgs.Clock*
   name: Clock
-  href: api/Unosquare.FFME.Events.RenderingEventArgs.html#Unosquare_FFME_Events_RenderingEventArgs_Clock_
-  commentId: Overload:Unosquare.FFME.Events.RenderingEventArgs.Clock
+  href: api/Unosquare.FFME.Media.RenderingEventArgs.html#Unosquare_FFME_Media_RenderingEventArgs_Clock_
+  commentId: Overload:Unosquare.FFME.Media.RenderingEventArgs.Clock
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.RenderingEventArgs.Clock
+  fullName: Unosquare.FFME.Media.RenderingEventArgs.Clock
   nameWithType: RenderingEventArgs.Clock
-- uid: Unosquare.FFME.Events.RenderingEventArgs.Duration
+- uid: Unosquare.FFME.Media.RenderingEventArgs.Duration
   name: Duration
-  href: api/Unosquare.FFME.Events.RenderingEventArgs.html#Unosquare_FFME_Events_RenderingEventArgs_Duration
-  commentId: P:Unosquare.FFME.Events.RenderingEventArgs.Duration
-  fullName: Unosquare.FFME.Events.RenderingEventArgs.Duration
+  href: api/Unosquare.FFME.Media.RenderingEventArgs.html#Unosquare_FFME_Media_RenderingEventArgs_Duration
+  commentId: P:Unosquare.FFME.Media.RenderingEventArgs.Duration
+  fullName: Unosquare.FFME.Media.RenderingEventArgs.Duration
   nameWithType: RenderingEventArgs.Duration
-- uid: Unosquare.FFME.Events.RenderingEventArgs.Duration*
+- uid: Unosquare.FFME.Media.RenderingEventArgs.Duration*
   name: Duration
-  href: api/Unosquare.FFME.Events.RenderingEventArgs.html#Unosquare_FFME_Events_RenderingEventArgs_Duration_
-  commentId: Overload:Unosquare.FFME.Events.RenderingEventArgs.Duration
+  href: api/Unosquare.FFME.Media.RenderingEventArgs.html#Unosquare_FFME_Media_RenderingEventArgs_Duration_
+  commentId: Overload:Unosquare.FFME.Media.RenderingEventArgs.Duration
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.RenderingEventArgs.Duration
+  fullName: Unosquare.FFME.Media.RenderingEventArgs.Duration
   nameWithType: RenderingEventArgs.Duration
-- uid: Unosquare.FFME.Events.RenderingEventArgs.EngineState
+- uid: Unosquare.FFME.Media.RenderingEventArgs.EngineState
   name: EngineState
-  href: api/Unosquare.FFME.Events.RenderingEventArgs.html#Unosquare_FFME_Events_RenderingEventArgs_EngineState
-  commentId: P:Unosquare.FFME.Events.RenderingEventArgs.EngineState
-  fullName: Unosquare.FFME.Events.RenderingEventArgs.EngineState
+  href: api/Unosquare.FFME.Media.RenderingEventArgs.html#Unosquare_FFME_Media_RenderingEventArgs_EngineState
+  commentId: P:Unosquare.FFME.Media.RenderingEventArgs.EngineState
+  fullName: Unosquare.FFME.Media.RenderingEventArgs.EngineState
   nameWithType: RenderingEventArgs.EngineState
-- uid: Unosquare.FFME.Events.RenderingEventArgs.EngineState*
+- uid: Unosquare.FFME.Media.RenderingEventArgs.EngineState*
   name: EngineState
-  href: api/Unosquare.FFME.Events.RenderingEventArgs.html#Unosquare_FFME_Events_RenderingEventArgs_EngineState_
-  commentId: Overload:Unosquare.FFME.Events.RenderingEventArgs.EngineState
+  href: api/Unosquare.FFME.Media.RenderingEventArgs.html#Unosquare_FFME_Media_RenderingEventArgs_EngineState_
+  commentId: Overload:Unosquare.FFME.Media.RenderingEventArgs.EngineState
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.RenderingEventArgs.EngineState
+  fullName: Unosquare.FFME.Media.RenderingEventArgs.EngineState
   nameWithType: RenderingEventArgs.EngineState
-- uid: Unosquare.FFME.Events.RenderingEventArgs.StartTime
+- uid: Unosquare.FFME.Media.RenderingEventArgs.StartTime
   name: StartTime
-  href: api/Unosquare.FFME.Events.RenderingEventArgs.html#Unosquare_FFME_Events_RenderingEventArgs_StartTime
-  commentId: P:Unosquare.FFME.Events.RenderingEventArgs.StartTime
-  fullName: Unosquare.FFME.Events.RenderingEventArgs.StartTime
+  href: api/Unosquare.FFME.Media.RenderingEventArgs.html#Unosquare_FFME_Media_RenderingEventArgs_StartTime
+  commentId: P:Unosquare.FFME.Media.RenderingEventArgs.StartTime
+  fullName: Unosquare.FFME.Media.RenderingEventArgs.StartTime
   nameWithType: RenderingEventArgs.StartTime
-- uid: Unosquare.FFME.Events.RenderingEventArgs.StartTime*
+- uid: Unosquare.FFME.Media.RenderingEventArgs.StartTime*
   name: StartTime
-  href: api/Unosquare.FFME.Events.RenderingEventArgs.html#Unosquare_FFME_Events_RenderingEventArgs_StartTime_
-  commentId: Overload:Unosquare.FFME.Events.RenderingEventArgs.StartTime
+  href: api/Unosquare.FFME.Media.RenderingEventArgs.html#Unosquare_FFME_Media_RenderingEventArgs_StartTime_
+  commentId: Overload:Unosquare.FFME.Media.RenderingEventArgs.StartTime
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.RenderingEventArgs.StartTime
+  fullName: Unosquare.FFME.Media.RenderingEventArgs.StartTime
   nameWithType: RenderingEventArgs.StartTime
-- uid: Unosquare.FFME.Events.RenderingEventArgs.Stream
+- uid: Unosquare.FFME.Media.RenderingEventArgs.Stream
   name: Stream
-  href: api/Unosquare.FFME.Events.RenderingEventArgs.html#Unosquare_FFME_Events_RenderingEventArgs_Stream
-  commentId: P:Unosquare.FFME.Events.RenderingEventArgs.Stream
-  fullName: Unosquare.FFME.Events.RenderingEventArgs.Stream
+  href: api/Unosquare.FFME.Media.RenderingEventArgs.html#Unosquare_FFME_Media_RenderingEventArgs_Stream
+  commentId: P:Unosquare.FFME.Media.RenderingEventArgs.Stream
+  fullName: Unosquare.FFME.Media.RenderingEventArgs.Stream
   nameWithType: RenderingEventArgs.Stream
-- uid: Unosquare.FFME.Events.RenderingEventArgs.Stream*
+- uid: Unosquare.FFME.Media.RenderingEventArgs.Stream*
   name: Stream
-  href: api/Unosquare.FFME.Events.RenderingEventArgs.html#Unosquare_FFME_Events_RenderingEventArgs_Stream_
-  commentId: Overload:Unosquare.FFME.Events.RenderingEventArgs.Stream
+  href: api/Unosquare.FFME.Media.RenderingEventArgs.html#Unosquare_FFME_Media_RenderingEventArgs_Stream_
+  commentId: Overload:Unosquare.FFME.Media.RenderingEventArgs.Stream
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.RenderingEventArgs.Stream
+  fullName: Unosquare.FFME.Media.RenderingEventArgs.Stream
   nameWithType: RenderingEventArgs.Stream
-- uid: Unosquare.FFME.Events.RenderingSubtitlesEventArgs
+- uid: Unosquare.FFME.Media.RenderingSubtitlesEventArgs
   name: RenderingSubtitlesEventArgs
-  href: api/Unosquare.FFME.Events.RenderingSubtitlesEventArgs.html
-  commentId: T:Unosquare.FFME.Events.RenderingSubtitlesEventArgs
-  fullName: Unosquare.FFME.Events.RenderingSubtitlesEventArgs
+  href: api/Unosquare.FFME.Media.RenderingSubtitlesEventArgs.html
+  commentId: T:Unosquare.FFME.Media.RenderingSubtitlesEventArgs
+  fullName: Unosquare.FFME.Media.RenderingSubtitlesEventArgs
   nameWithType: RenderingSubtitlesEventArgs
-- uid: Unosquare.FFME.Events.RenderingSubtitlesEventArgs.Cancel
+- uid: Unosquare.FFME.Media.RenderingSubtitlesEventArgs.Cancel
   name: Cancel
-  href: api/Unosquare.FFME.Events.RenderingSubtitlesEventArgs.html#Unosquare_FFME_Events_RenderingSubtitlesEventArgs_Cancel
-  commentId: P:Unosquare.FFME.Events.RenderingSubtitlesEventArgs.Cancel
-  fullName: Unosquare.FFME.Events.RenderingSubtitlesEventArgs.Cancel
+  href: api/Unosquare.FFME.Media.RenderingSubtitlesEventArgs.html#Unosquare_FFME_Media_RenderingSubtitlesEventArgs_Cancel
+  commentId: P:Unosquare.FFME.Media.RenderingSubtitlesEventArgs.Cancel
+  fullName: Unosquare.FFME.Media.RenderingSubtitlesEventArgs.Cancel
   nameWithType: RenderingSubtitlesEventArgs.Cancel
-- uid: Unosquare.FFME.Events.RenderingSubtitlesEventArgs.Cancel*
+- uid: Unosquare.FFME.Media.RenderingSubtitlesEventArgs.Cancel*
   name: Cancel
-  href: api/Unosquare.FFME.Events.RenderingSubtitlesEventArgs.html#Unosquare_FFME_Events_RenderingSubtitlesEventArgs_Cancel_
-  commentId: Overload:Unosquare.FFME.Events.RenderingSubtitlesEventArgs.Cancel
+  href: api/Unosquare.FFME.Media.RenderingSubtitlesEventArgs.html#Unosquare_FFME_Media_RenderingSubtitlesEventArgs_Cancel_
+  commentId: Overload:Unosquare.FFME.Media.RenderingSubtitlesEventArgs.Cancel
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.RenderingSubtitlesEventArgs.Cancel
+  fullName: Unosquare.FFME.Media.RenderingSubtitlesEventArgs.Cancel
   nameWithType: RenderingSubtitlesEventArgs.Cancel
-- uid: Unosquare.FFME.Events.RenderingSubtitlesEventArgs.Format
+- uid: Unosquare.FFME.Media.RenderingSubtitlesEventArgs.Format
   name: Format
-  href: api/Unosquare.FFME.Events.RenderingSubtitlesEventArgs.html#Unosquare_FFME_Events_RenderingSubtitlesEventArgs_Format
-  commentId: P:Unosquare.FFME.Events.RenderingSubtitlesEventArgs.Format
-  fullName: Unosquare.FFME.Events.RenderingSubtitlesEventArgs.Format
+  href: api/Unosquare.FFME.Media.RenderingSubtitlesEventArgs.html#Unosquare_FFME_Media_RenderingSubtitlesEventArgs_Format
+  commentId: P:Unosquare.FFME.Media.RenderingSubtitlesEventArgs.Format
+  fullName: Unosquare.FFME.Media.RenderingSubtitlesEventArgs.Format
   nameWithType: RenderingSubtitlesEventArgs.Format
-- uid: Unosquare.FFME.Events.RenderingSubtitlesEventArgs.Format*
+- uid: Unosquare.FFME.Media.RenderingSubtitlesEventArgs.Format*
   name: Format
-  href: api/Unosquare.FFME.Events.RenderingSubtitlesEventArgs.html#Unosquare_FFME_Events_RenderingSubtitlesEventArgs_Format_
-  commentId: Overload:Unosquare.FFME.Events.RenderingSubtitlesEventArgs.Format
+  href: api/Unosquare.FFME.Media.RenderingSubtitlesEventArgs.html#Unosquare_FFME_Media_RenderingSubtitlesEventArgs_Format_
+  commentId: Overload:Unosquare.FFME.Media.RenderingSubtitlesEventArgs.Format
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.RenderingSubtitlesEventArgs.Format
+  fullName: Unosquare.FFME.Media.RenderingSubtitlesEventArgs.Format
   nameWithType: RenderingSubtitlesEventArgs.Format
-- uid: Unosquare.FFME.Events.RenderingSubtitlesEventArgs.OriginalText
+- uid: Unosquare.FFME.Media.RenderingSubtitlesEventArgs.OriginalText
   name: OriginalText
-  href: api/Unosquare.FFME.Events.RenderingSubtitlesEventArgs.html#Unosquare_FFME_Events_RenderingSubtitlesEventArgs_OriginalText
-  commentId: P:Unosquare.FFME.Events.RenderingSubtitlesEventArgs.OriginalText
-  fullName: Unosquare.FFME.Events.RenderingSubtitlesEventArgs.OriginalText
+  href: api/Unosquare.FFME.Media.RenderingSubtitlesEventArgs.html#Unosquare_FFME_Media_RenderingSubtitlesEventArgs_OriginalText
+  commentId: P:Unosquare.FFME.Media.RenderingSubtitlesEventArgs.OriginalText
+  fullName: Unosquare.FFME.Media.RenderingSubtitlesEventArgs.OriginalText
   nameWithType: RenderingSubtitlesEventArgs.OriginalText
-- uid: Unosquare.FFME.Events.RenderingSubtitlesEventArgs.OriginalText*
+- uid: Unosquare.FFME.Media.RenderingSubtitlesEventArgs.OriginalText*
   name: OriginalText
-  href: api/Unosquare.FFME.Events.RenderingSubtitlesEventArgs.html#Unosquare_FFME_Events_RenderingSubtitlesEventArgs_OriginalText_
-  commentId: Overload:Unosquare.FFME.Events.RenderingSubtitlesEventArgs.OriginalText
+  href: api/Unosquare.FFME.Media.RenderingSubtitlesEventArgs.html#Unosquare_FFME_Media_RenderingSubtitlesEventArgs_OriginalText_
+  commentId: Overload:Unosquare.FFME.Media.RenderingSubtitlesEventArgs.OriginalText
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.RenderingSubtitlesEventArgs.OriginalText
+  fullName: Unosquare.FFME.Media.RenderingSubtitlesEventArgs.OriginalText
   nameWithType: RenderingSubtitlesEventArgs.OriginalText
-- uid: Unosquare.FFME.Events.RenderingSubtitlesEventArgs.Text
+- uid: Unosquare.FFME.Media.RenderingSubtitlesEventArgs.Text
   name: Text
-  href: api/Unosquare.FFME.Events.RenderingSubtitlesEventArgs.html#Unosquare_FFME_Events_RenderingSubtitlesEventArgs_Text
-  commentId: P:Unosquare.FFME.Events.RenderingSubtitlesEventArgs.Text
-  fullName: Unosquare.FFME.Events.RenderingSubtitlesEventArgs.Text
+  href: api/Unosquare.FFME.Media.RenderingSubtitlesEventArgs.html#Unosquare_FFME_Media_RenderingSubtitlesEventArgs_Text
+  commentId: P:Unosquare.FFME.Media.RenderingSubtitlesEventArgs.Text
+  fullName: Unosquare.FFME.Media.RenderingSubtitlesEventArgs.Text
   nameWithType: RenderingSubtitlesEventArgs.Text
-- uid: Unosquare.FFME.Events.RenderingSubtitlesEventArgs.Text*
+- uid: Unosquare.FFME.Media.RenderingSubtitlesEventArgs.Text*
   name: Text
-  href: api/Unosquare.FFME.Events.RenderingSubtitlesEventArgs.html#Unosquare_FFME_Events_RenderingSubtitlesEventArgs_Text_
-  commentId: Overload:Unosquare.FFME.Events.RenderingSubtitlesEventArgs.Text
+  href: api/Unosquare.FFME.Media.RenderingSubtitlesEventArgs.html#Unosquare_FFME_Media_RenderingSubtitlesEventArgs_Text_
+  commentId: Overload:Unosquare.FFME.Media.RenderingSubtitlesEventArgs.Text
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.RenderingSubtitlesEventArgs.Text
+  fullName: Unosquare.FFME.Media.RenderingSubtitlesEventArgs.Text
   nameWithType: RenderingSubtitlesEventArgs.Text
-- uid: Unosquare.FFME.Events.RenderingVideoEventArgs
+- uid: Unosquare.FFME.Media.RenderingVideoEventArgs
   name: RenderingVideoEventArgs
-  href: api/Unosquare.FFME.Events.RenderingVideoEventArgs.html
-  commentId: T:Unosquare.FFME.Events.RenderingVideoEventArgs
-  fullName: Unosquare.FFME.Events.RenderingVideoEventArgs
+  href: api/Unosquare.FFME.Media.RenderingVideoEventArgs.html
+  commentId: T:Unosquare.FFME.Media.RenderingVideoEventArgs
+  fullName: Unosquare.FFME.Media.RenderingVideoEventArgs
   nameWithType: RenderingVideoEventArgs
-- uid: Unosquare.FFME.Events.RenderingVideoEventArgs.Bitmap
+- uid: Unosquare.FFME.Media.RenderingVideoEventArgs.Bitmap
   name: Bitmap
-  href: api/Unosquare.FFME.Events.RenderingVideoEventArgs.html#Unosquare_FFME_Events_RenderingVideoEventArgs_Bitmap
-  commentId: P:Unosquare.FFME.Events.RenderingVideoEventArgs.Bitmap
-  fullName: Unosquare.FFME.Events.RenderingVideoEventArgs.Bitmap
+  href: api/Unosquare.FFME.Media.RenderingVideoEventArgs.html#Unosquare_FFME_Media_RenderingVideoEventArgs_Bitmap
+  commentId: P:Unosquare.FFME.Media.RenderingVideoEventArgs.Bitmap
+  fullName: Unosquare.FFME.Media.RenderingVideoEventArgs.Bitmap
   nameWithType: RenderingVideoEventArgs.Bitmap
-- uid: Unosquare.FFME.Events.RenderingVideoEventArgs.Bitmap*
+- uid: Unosquare.FFME.Media.RenderingVideoEventArgs.Bitmap*
   name: Bitmap
-  href: api/Unosquare.FFME.Events.RenderingVideoEventArgs.html#Unosquare_FFME_Events_RenderingVideoEventArgs_Bitmap_
-  commentId: Overload:Unosquare.FFME.Events.RenderingVideoEventArgs.Bitmap
+  href: api/Unosquare.FFME.Media.RenderingVideoEventArgs.html#Unosquare_FFME_Media_RenderingVideoEventArgs_Bitmap_
+  commentId: Overload:Unosquare.FFME.Media.RenderingVideoEventArgs.Bitmap
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.RenderingVideoEventArgs.Bitmap
+  fullName: Unosquare.FFME.Media.RenderingVideoEventArgs.Bitmap
   nameWithType: RenderingVideoEventArgs.Bitmap
-- uid: Unosquare.FFME.Events.RenderingVideoEventArgs.ClosedCaptions
+- uid: Unosquare.FFME.Media.RenderingVideoEventArgs.ClosedCaptions
   name: ClosedCaptions
-  href: api/Unosquare.FFME.Events.RenderingVideoEventArgs.html#Unosquare_FFME_Events_RenderingVideoEventArgs_ClosedCaptions
-  commentId: P:Unosquare.FFME.Events.RenderingVideoEventArgs.ClosedCaptions
-  fullName: Unosquare.FFME.Events.RenderingVideoEventArgs.ClosedCaptions
+  href: api/Unosquare.FFME.Media.RenderingVideoEventArgs.html#Unosquare_FFME_Media_RenderingVideoEventArgs_ClosedCaptions
+  commentId: P:Unosquare.FFME.Media.RenderingVideoEventArgs.ClosedCaptions
+  fullName: Unosquare.FFME.Media.RenderingVideoEventArgs.ClosedCaptions
   nameWithType: RenderingVideoEventArgs.ClosedCaptions
-- uid: Unosquare.FFME.Events.RenderingVideoEventArgs.ClosedCaptions*
+- uid: Unosquare.FFME.Media.RenderingVideoEventArgs.ClosedCaptions*
   name: ClosedCaptions
-  href: api/Unosquare.FFME.Events.RenderingVideoEventArgs.html#Unosquare_FFME_Events_RenderingVideoEventArgs_ClosedCaptions_
-  commentId: Overload:Unosquare.FFME.Events.RenderingVideoEventArgs.ClosedCaptions
+  href: api/Unosquare.FFME.Media.RenderingVideoEventArgs.html#Unosquare_FFME_Media_RenderingVideoEventArgs_ClosedCaptions_
+  commentId: Overload:Unosquare.FFME.Media.RenderingVideoEventArgs.ClosedCaptions
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.RenderingVideoEventArgs.ClosedCaptions
+  fullName: Unosquare.FFME.Media.RenderingVideoEventArgs.ClosedCaptions
   nameWithType: RenderingVideoEventArgs.ClosedCaptions
-- uid: Unosquare.FFME.Events.RenderingVideoEventArgs.PictureNumber
+- uid: Unosquare.FFME.Media.RenderingVideoEventArgs.PictureNumber
   name: PictureNumber
-  href: api/Unosquare.FFME.Events.RenderingVideoEventArgs.html#Unosquare_FFME_Events_RenderingVideoEventArgs_PictureNumber
-  commentId: P:Unosquare.FFME.Events.RenderingVideoEventArgs.PictureNumber
-  fullName: Unosquare.FFME.Events.RenderingVideoEventArgs.PictureNumber
+  href: api/Unosquare.FFME.Media.RenderingVideoEventArgs.html#Unosquare_FFME_Media_RenderingVideoEventArgs_PictureNumber
+  commentId: P:Unosquare.FFME.Media.RenderingVideoEventArgs.PictureNumber
+  fullName: Unosquare.FFME.Media.RenderingVideoEventArgs.PictureNumber
   nameWithType: RenderingVideoEventArgs.PictureNumber
-- uid: Unosquare.FFME.Events.RenderingVideoEventArgs.PictureNumber*
+- uid: Unosquare.FFME.Media.RenderingVideoEventArgs.PictureNumber*
   name: PictureNumber
-  href: api/Unosquare.FFME.Events.RenderingVideoEventArgs.html#Unosquare_FFME_Events_RenderingVideoEventArgs_PictureNumber_
-  commentId: Overload:Unosquare.FFME.Events.RenderingVideoEventArgs.PictureNumber
+  href: api/Unosquare.FFME.Media.RenderingVideoEventArgs.html#Unosquare_FFME_Media_RenderingVideoEventArgs_PictureNumber_
+  commentId: Overload:Unosquare.FFME.Media.RenderingVideoEventArgs.PictureNumber
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.RenderingVideoEventArgs.PictureNumber
+  fullName: Unosquare.FFME.Media.RenderingVideoEventArgs.PictureNumber
   nameWithType: RenderingVideoEventArgs.PictureNumber
-- uid: Unosquare.FFME.Events.RenderingVideoEventArgs.SmtpeTimeCode
+- uid: Unosquare.FFME.Media.RenderingVideoEventArgs.SmtpeTimeCode
   name: SmtpeTimeCode
-  href: api/Unosquare.FFME.Events.RenderingVideoEventArgs.html#Unosquare_FFME_Events_RenderingVideoEventArgs_SmtpeTimeCode
-  commentId: P:Unosquare.FFME.Events.RenderingVideoEventArgs.SmtpeTimeCode
-  fullName: Unosquare.FFME.Events.RenderingVideoEventArgs.SmtpeTimeCode
+  href: api/Unosquare.FFME.Media.RenderingVideoEventArgs.html#Unosquare_FFME_Media_RenderingVideoEventArgs_SmtpeTimeCode
+  commentId: P:Unosquare.FFME.Media.RenderingVideoEventArgs.SmtpeTimeCode
+  fullName: Unosquare.FFME.Media.RenderingVideoEventArgs.SmtpeTimeCode
   nameWithType: RenderingVideoEventArgs.SmtpeTimeCode
-- uid: Unosquare.FFME.Events.RenderingVideoEventArgs.SmtpeTimeCode*
+- uid: Unosquare.FFME.Media.RenderingVideoEventArgs.SmtpeTimeCode*
   name: SmtpeTimeCode
-  href: api/Unosquare.FFME.Events.RenderingVideoEventArgs.html#Unosquare_FFME_Events_RenderingVideoEventArgs_SmtpeTimeCode_
-  commentId: Overload:Unosquare.FFME.Events.RenderingVideoEventArgs.SmtpeTimeCode
+  href: api/Unosquare.FFME.Media.RenderingVideoEventArgs.html#Unosquare_FFME_Media_RenderingVideoEventArgs_SmtpeTimeCode_
+  commentId: Overload:Unosquare.FFME.Media.RenderingVideoEventArgs.SmtpeTimeCode
   isSpec: "True"
-  fullName: Unosquare.FFME.Events.RenderingVideoEventArgs.SmtpeTimeCode
+  fullName: Unosquare.FFME.Media.RenderingVideoEventArgs.SmtpeTimeCode
   nameWithType: RenderingVideoEventArgs.SmtpeTimeCode
 - uid: Unosquare.FFME.MediaElement
   name: MediaElement
