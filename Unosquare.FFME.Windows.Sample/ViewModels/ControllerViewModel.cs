@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.ViewModels
 {
+    using Common;
     using Foundation;
-    using Media;
     using System;
     using System.Windows;
     using System.Windows.Media;

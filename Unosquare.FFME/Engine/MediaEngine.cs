@@ -1,8 +1,8 @@
 ﻿namespace Unosquare.FFME.Engine
 {
     using Commands;
+    using Common;
     using Diagnostics;
-    using Media;
     using Platform;
     using Primitives;
     using System;

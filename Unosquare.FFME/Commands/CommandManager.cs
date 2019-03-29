@@ -1,8 +1,8 @@
 ﻿namespace Unosquare.FFME.Commands
 {
+    using Common;
     using Diagnostics;
     using Engine;
-    using Media;
     using Primitives;
     using System;
     using System.Diagnostics;

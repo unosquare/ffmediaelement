@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.Container
 {
+    using Common;
     using FFmpeg.AutoGen;
-    using Media;
     using System;
 
     /// <inheritdoc />

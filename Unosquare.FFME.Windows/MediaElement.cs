@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME
 {
+    using Common;
     using Engine;
-    using Media;
     using Platform;
     using Primitives;
     using Rendering;
@@ -99,6 +99,13 @@
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// Determines if the control is currently in design-time mode (as opposed to run-time)
+        /// </summary>
+        public bool IsInDesignTime => DesignerProperties.GetIsInDesignMode(this) ||
+            Application.Current == null ||
+            Dispatcher == null;
 
         /// <inheritdoc />
         Uri IUriContext.BaseUri { get; set; }
@@ -311,7 +318,7 @@
             ContentGrid.Children.Add(CaptionsView);
 
             // Display the control (or not)
-            if (GuiContext.Current.IsInDesignTime == false)
+            if (!IsInDesignTime)
             {
                 // Setup the media engine and associated property updates worker
                 MediaCore = new MediaEngine(this, new MediaConnector(this));
@@ -361,7 +368,7 @@
                     return;
                 }
 
-                if (HasVideo || GuiContext.Current.IsInDesignTime)
+                if (HasVideo || IsInDesignTime)
                 {
                     // Position and Size the Captions View
                     CaptionsView.Width = Math.Floor(videoSize.Width);

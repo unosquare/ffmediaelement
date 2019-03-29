@@ -1,7 +1,6 @@
 ﻿#pragma warning disable SA1202 // Elements must appear in the correct order
 namespace Unosquare.FFME.Rendering
 {
-    using Platform;
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Windows;
@@ -166,7 +165,7 @@ namespace Unosquare.FFME.Rendering
             FontWeight = FontWeights.DemiBold;
             VerticalAlignment = VerticalAlignment.Bottom;
 
-            if (GuiContext.Current.IsInDesignTime)
+            if (DesignerProperties.GetIsInDesignMode(this))
             {
                 Text = "Subtitle TextBlock\r\n(Design-Time Preview)";
             }

@@ -1,8 +1,8 @@
 ﻿namespace Unosquare.FFME
 {
+    using Common;
     using Diagnostics;
     using FFmpeg.AutoGen;
-    using Media;
     using System;
     using System.ComponentModel;
     using System.Diagnostics;

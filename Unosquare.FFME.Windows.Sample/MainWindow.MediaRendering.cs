@@ -1,6 +1,5 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
-    using Engine;
     using System;
     using System.Diagnostics;
     using System.Drawing;

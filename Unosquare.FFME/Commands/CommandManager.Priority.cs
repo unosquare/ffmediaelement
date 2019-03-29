@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME.Commands
 {
-    using Media;
+    using Common;
     using Primitives;
     using System;
     using System.Runtime.CompilerServices;

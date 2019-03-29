@@ -1,7 +1,6 @@
 ﻿namespace Unosquare.FFME.Windows.Sample
 {
     using FFmpeg.AutoGen;
-    using Platform;
     using System;
     using System.Diagnostics;
     using System.IO;
@@ -81,7 +80,7 @@
                 }
                 catch(Exception ex)
                 {
-                    GuiContext.Current?.EnqueueInvoke(() =>
+                    Current?.Dispatcher?.Invoke(() =>
                     {
                         MessageBox.Show(MainWindow,
                             $"Unable to Load FFmpeg Libraries from path:\r\n    {Library.FFmpegDirectory}" +

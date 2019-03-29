@@ -1,9 +1,9 @@
 ﻿namespace Unosquare.FFME.Engine
 {
+    using Common;
     using Container;
     using Diagnostics;
     using FFmpeg.AutoGen;
-    using Media;
     using Primitives;
     using System;
     using System.Collections.Generic;

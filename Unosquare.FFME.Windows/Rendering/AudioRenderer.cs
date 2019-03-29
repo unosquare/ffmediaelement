@@ -1,9 +1,9 @@
 ﻿namespace Unosquare.FFME.Rendering
 {
+    using Common;
     using Container;
     using Diagnostics;
     using Engine;
-    using Media;
     using Platform;
     using Primitives;
     using System;

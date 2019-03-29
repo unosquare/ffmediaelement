@@ -1,10 +1,10 @@
 ﻿namespace Unosquare.FFME.Commands
 {
+    using Common;
     using Container;
     using Diagnostics;
     using Engine;
     using FFmpeg.AutoGen;
-    using Media;
     using Primitives;
     using System;
     using System.Collections.Generic;

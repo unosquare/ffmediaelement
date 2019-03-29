@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME.Diagnostics
 {
-    using Media;
+    using Common;
     using Primitives;
     using System;
     using System.Collections.Concurrent;

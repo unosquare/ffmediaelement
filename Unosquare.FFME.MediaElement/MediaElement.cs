@@ -1,8 +1,8 @@
 ﻿namespace Unosquare.FFME
 {
+    using Common;
     using Diagnostics;
     using Engine;
-    using Media;
     using Primitives;
     using System;
     using System.ComponentModel;

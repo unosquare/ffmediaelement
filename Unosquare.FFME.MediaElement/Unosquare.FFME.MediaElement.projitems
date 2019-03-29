@@ -10,17 +10,17 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Library.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Media\MediaFailedEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Media\FrameDecodedEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Media\InputFormatEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Media\MediaInitializingEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Media\MediaLogMessageEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Media\MediaOpenedEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Media\MediaOpeningEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Media\MediaStateChangedEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Media\PacketReadEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Media\PositionChangedEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Media\SubtitleDecodedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\MediaFailedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\FrameDecodedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\InputFormatEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\MediaInitializingEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\MediaLogMessageEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\MediaOpenedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\MediaOpeningEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\MediaStateChangedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\PacketReadEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\PositionChangedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\SubtitleDecodedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.MediaProperties.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MediaElement.Events.cs" />

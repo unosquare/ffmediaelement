@@ -1,9 +1,8 @@
 ﻿namespace Unosquare.FFME
 {
+    using Common;
     using Container;
     using FFmpeg.AutoGen;
-    using Media;
-    using Platform;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -292,7 +291,7 @@
         }
 
         /// <summary>
-        /// Creates a viedo seek index.
+        /// Creates a viedo seek index object.
         /// </summary>
         /// <param name="mediaSource">The source URL.</param>
         /// <param name="streamIndex">Index of the stream. Use -1 for automatic stream selection.</param>
@@ -342,5 +341,14 @@
 
             return result;
         }
+
+        /// <summary>
+        /// Creates a viedo seek index object of the default video stream.
+        /// </summary>
+        /// <param name="mediaSource">The source URL.</param>
+        /// <returns>
+        /// The seek index object.
+        /// </returns>
+        public static VideoSeekIndex CreateVideoSeekIndex(string mediaSource) => CreateVideoSeekIndex(mediaSource, -1);
     }
 }

@@ -3,7 +3,7 @@
 namespace Unosquare.FFME
 {
     using ClosedCaptions;
-    using Media;
+    using Common;
     using System;
     using System.ComponentModel;
     using System.Windows;

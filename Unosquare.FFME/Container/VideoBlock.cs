@@ -1,8 +1,8 @@
 ﻿namespace Unosquare.FFME.Container
 {
     using ClosedCaptions;
+    using Common;
     using FFmpeg.AutoGen;
-    using Media;
     using System.Collections.ObjectModel;
 
     /// <inheritdoc />

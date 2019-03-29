@@ -1,9 +1,9 @@
 ﻿namespace Unosquare.FFME.Platform
 {
+    using Common;
     using Diagnostics;
     using Engine;
     using FFmpeg.AutoGen;
-    using Media;
     using System;
 
     /// <summary>

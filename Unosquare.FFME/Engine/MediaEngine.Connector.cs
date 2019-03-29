@@ -1,7 +1,7 @@
 ﻿namespace Unosquare.FFME.Engine
 {
+    using Common;
     using Diagnostics;
-    using Media;
     using System;
     using System.Runtime.CompilerServices;
 

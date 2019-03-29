@@ -3,6 +3,7 @@
     using Foundation;
     using Platform;
     using System;
+    using System.Diagnostics;
     using System.IO;
     using System.Windows;
 
@@ -179,7 +180,7 @@
             }
 
             WindowTitle = $"{title} - {state} - FFME Player v{AppVersion} "
-                + $"FFmpeg {Library.FFmpegVersionInfo} ({(GuiContext.Current.IsInDebugMode ? "Debug" : "Release")})";
+                + $"FFmpeg {Library.FFmpegVersionInfo} ({(Debugger.IsAttached ? "Debug" : "Release")})";
         }
     }
 }

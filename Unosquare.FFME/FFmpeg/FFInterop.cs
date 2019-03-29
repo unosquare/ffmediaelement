@@ -9,9 +9,9 @@
     using System.Runtime.InteropServices;
     using System.Text;
     using Unosquare.FFME;
+    using Unosquare.FFME.Common;
     using Unosquare.FFME.Diagnostics;
     using Unosquare.FFME.Engine;
-    using Unosquare.FFME.Media;
 
     /// <summary>
     /// Provides a set of utilities to perform logging, text formatting,

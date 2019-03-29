@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.Foundation
 {
-    using Media;
+    using Common;
     using Playlists;
     using System;
     using System.IO;

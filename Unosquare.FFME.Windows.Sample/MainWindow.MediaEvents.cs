@@ -2,14 +2,13 @@
 {
     using ClosedCaptions;
     using FFmpeg.AutoGen;
-    using Platform;
     using System;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Text;
     using System.Windows;
-    using Unosquare.FFME.Media;
+    using Unosquare.FFME.Common;
 
     public partial class MainWindow
     {
@@ -263,7 +262,7 @@
                 // Since the MediaElement control belongs to the GUI thread
                 // and the closed captions channel property is a dependency
                 // property, we need to set it on the GUI thread.
-                GuiContext.Current.EnqueueInvoke(() =>
+                Media.Dispatcher?.InvokeAsync(() =>
                 {
                     Media.ClosedCaptionsChannel = videoStream.HasClosedCaptions ?
                         CaptionsChannel.CC1 : CaptionsChannel.CCP;
@@ -433,7 +432,7 @@
             }
             else
             {
-                if (GuiContext.Current.IsInDebugMode == false || durationSeconds <= 0 || durationSeconds >= 60)
+                if (!Debugger.IsAttached || durationSeconds <= 0 || durationSeconds >= 60)
                     return null;
 
                 var seekIndex = Library.CreateVideoSeekIndex(mediaFilePath, streamIndex);

@@ -1,8 +1,8 @@
 ﻿namespace Unosquare.FFME.Container
 {
+    using Common;
     using Diagnostics;
     using FFmpeg.AutoGen;
-    using Media;
     using Primitives;
     using System;
     using System.Collections.Generic;

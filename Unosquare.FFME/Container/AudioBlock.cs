@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME.Container
 {
-    using Media;
+    using Common;
 
     /// <summary>
     /// A scaled, pre-allocated audio frame container.

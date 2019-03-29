@@ -1,8 +1,7 @@
 ﻿namespace Unosquare.FFME.Engine
 {
+    using Common;
     using Container;
-    using Media;
-    using Platform;
     using Primitives;
     using System;
     using System.Collections.Generic;

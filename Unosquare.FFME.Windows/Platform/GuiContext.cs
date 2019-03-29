@@ -75,7 +75,6 @@
             }
 #endif
             IsValid = Type != GuiContextType.None;
-            IsInDebugMode = Debugger.IsAttached;
         }
 
         /// <summary>
@@ -97,11 +96,6 @@
         /// Gets a value indicating whether the context is in design time.
         /// </summary>
         public bool IsInDesignTime { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether a debugger was attached when the context initialized.
-        /// </summary>
-        public bool IsInDebugMode { get; }
 
         /// <summary>
         /// Returns true if this context is valid.

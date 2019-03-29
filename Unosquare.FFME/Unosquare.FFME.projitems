@@ -51,33 +51,33 @@
     <Compile Include="$(MSBuildThisFileDirectory)Container\VideoFrame.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Container\AudioBlock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Constants.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Media\ContainerConfiguration.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Media\DecoderOptions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Media\DemuxerGlobalOptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\ContainerConfiguration.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\DecoderOptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\DemuxerGlobalOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FFmpeg\FFmpegLoadMode.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Media\HardwareDeviceInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\HardwareDeviceInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\ILoggingHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\ILoggingSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Platform\IMediaConnector.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Media\IMediaEngineState.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Media\IMediaInputStream.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\IMediaEngineState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\IMediaInputStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Platform\IMediaRenderer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Container\MediaBlock.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Media\MediaContainerException.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\MediaContainerException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Engine\MediaEngineState.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Media\MediaInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\MediaInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\LoggingMessage.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Media\MediaLogMessageType.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Media\MediaOptions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Media\MediaType.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Media\OptionMetadata.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Media\MediaPlaybackState.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Media\VideoResolutionDivider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\MediaLogMessageType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\MediaOptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\MediaType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\OptionMetadata.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\MediaPlaybackState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\VideoResolutionDivider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Container\SubtitleBlock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Container\VideoBlock.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Media\VideoSeekIndex.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Media\VideoSeekIndexEntry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\VideoSeekIndex.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\VideoSeekIndexEntry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\Logging.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Engine\MediaEngine.Connector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Engine\MediaEngine.Controller.cs" />
@@ -120,6 +120,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Diagnostics\" />
-    <Folder Include="$(MSBuildThisFileDirectory)Media\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Common\" />
   </ItemGroup>
 </Project>

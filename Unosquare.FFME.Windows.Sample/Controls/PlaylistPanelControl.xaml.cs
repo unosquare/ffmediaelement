@@ -1,8 +1,8 @@
 ﻿namespace Unosquare.FFME.Windows.Sample.Controls
 {
     using Foundation;
-    using Platform;
     using System;
+    using System.ComponentModel;
     using System.Windows;
     using System.Windows.Controls.Primitives;
     using System.Windows.Input;
@@ -21,7 +21,7 @@
             InitializeComponent();
 
             // Prevent binding to the events
-            if (GuiContext.Current.IsInDesignTime)
+            if (DesignerProperties.GetIsInDesignMode(this))
                 return;
 
             // Bind the Enter key to the command

@@ -3,9 +3,9 @@
     using ClosedCaptions;
     using Container;
     using Engine;
-    using Platform;
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Media;
@@ -134,7 +134,7 @@
             }
 
             // Show some preview of the text
-            if (!GuiContext.Current.IsInDesignTime)
+            if (!DesignerProperties.GetIsInDesignMode(this))
                 return;
 
             // Line 11 (index 10) preview

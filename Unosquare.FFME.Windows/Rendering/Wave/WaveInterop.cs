@@ -1,6 +1,6 @@
 ﻿namespace Unosquare.FFME.Rendering.Wave
 {
-    using Media;
+    using Common;
     using Microsoft.Win32.SafeHandles;
     using System;
     using System.Runtime.CompilerServices;
