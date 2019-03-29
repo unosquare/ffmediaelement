@@ -5,10 +5,10 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Class RenderingAudioEventArgs
+    <title>Class GuiContext
    | FFME: WPF MediaElement replacement based on FFmpeg </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Class RenderingAudioEventArgs
+    <meta name="title" content="Class GuiContext
    | FFME: WPF MediaElement replacement based on FFmpeg ">
     <meta name="generator" content="docfx 2.41.0.0">
     
@@ -76,80 +76,37 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="Unosquare.FFME.Media.RenderingAudioEventArgs">
+            <article class="content wrap" id="_content" data-uid="Unosquare.FFME.Platform.GuiContext">
   
   
-  <h1 id="Unosquare_FFME_Media_RenderingAudioEventArgs" data-uid="Unosquare.FFME.Media.RenderingAudioEventArgs" class="text-break">Class RenderingAudioEventArgs
+  <h1 id="Unosquare_FFME_Platform_GuiContext" data-uid="Unosquare.FFME.Platform.GuiContext" class="text-break">Class GuiContext
   </h1>
-  <div class="markdown level0 summary"><p>Provides the audio samples rendering payload as event arguments.</p>
+  <div class="markdown level0 summary"><p>Provides properties and methods for the
+WPF or Windows Forms GUI Threading context.</p>
 </div>
   <div class="markdown level0 conceptual"></div>
   <div class="inheritance">
     <h5>Inheritance</h5>
     <div class="level0"><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object">Object</a></div>
-    <div class="level1"><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.eventargs">EventArgs</a></div>
-    <div class="level2"><a class="xref" href="Unosquare.FFME.Media.RenderingEventArgs.html">RenderingEventArgs</a></div>
-    <div class="level3"><span class="xref">RenderingAudioEventArgs</span></div>
+    <div class="level1"><span class="xref">GuiContext</span></div>
   </div>
-  <div class="inheritedMembers">
-    <h5>Inherited Members</h5>
-    <div>
-      <a class="xref" href="Unosquare.FFME.Media.RenderingEventArgs.html#Unosquare_FFME_Media_RenderingEventArgs_EngineState">RenderingEventArgs.EngineState</a>
-    </div>
-    <div>
-      <a class="xref" href="Unosquare.FFME.Media.RenderingEventArgs.html#Unosquare_FFME_Media_RenderingEventArgs_Stream">RenderingEventArgs.Stream</a>
-    </div>
-    <div>
-      <a class="xref" href="Unosquare.FFME.Media.RenderingEventArgs.html#Unosquare_FFME_Media_RenderingEventArgs_Clock">RenderingEventArgs.Clock</a>
-    </div>
-    <div>
-      <a class="xref" href="Unosquare.FFME.Media.RenderingEventArgs.html#Unosquare_FFME_Media_RenderingEventArgs_StartTime">RenderingEventArgs.StartTime</a>
-    </div>
-    <div>
-      <a class="xref" href="Unosquare.FFME.Media.RenderingEventArgs.html#Unosquare_FFME_Media_RenderingEventArgs_Duration">RenderingEventArgs.Duration</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.eventargs.empty">EventArgs.Empty</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.tostring#System_Object_ToString">Object.ToString()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.equals#System_Object_Equals_System_Object_">Object.Equals(Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.equals#System_Object_Equals_System_Object_System_Object_">Object.Equals(Object, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.referenceequals#System_Object_ReferenceEquals_System_Object_System_Object_">Object.ReferenceEquals(Object, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.gethashcode#System_Object_GetHashCode">Object.GetHashCode()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.gettype#System_Object_GetType">Object.GetType()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.memberwiseclone#System_Object_MemberwiseClone">Object.MemberwiseClone()</a>
-    </div>
-  </div>
-  <h6><strong>Namespace</strong>: <a class="xref" href="Unosquare.FFME.Media.html">Unosquare.FFME.Media</a></h6>
-  <h5 id="Unosquare_FFME_Media_RenderingAudioEventArgs_syntax">Syntax</h5>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Unosquare.FFME.Platform.html">Unosquare.FFME.Platform</a></h6>
+  <h5 id="Unosquare_FFME_Platform_GuiContext_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public sealed class RenderingAudioEventArgs : RenderingEventArgs</code></pre>
+    <pre><code class="lang-csharp hljs">public sealed class GuiContext : IGuiContext</code></pre>
   </div>
   <h3 id="properties">Properties
   </h3>
   
   
-  <a id="Unosquare_FFME_Media_RenderingAudioEventArgs_BitsPerSample_" data-uid="Unosquare.FFME.Media.RenderingAudioEventArgs.BitsPerSample*"></a>
-  <h4 id="Unosquare_FFME_Media_RenderingAudioEventArgs_BitsPerSample" data-uid="Unosquare.FFME.Media.RenderingAudioEventArgs.BitsPerSample">BitsPerSample</h4>
-  <div class="markdown level1 summary"><p>Gets the number of bits per sample.</p>
+  <a id="Unosquare_FFME_Platform_GuiContext_Current_" data-uid="Unosquare.FFME.Platform.GuiContext.Current*"></a>
+  <h4 id="Unosquare_FFME_Platform_GuiContext_Current" data-uid="Unosquare.FFME.Platform.GuiContext.Current">Current</h4>
+  <div class="markdown level1 summary"><p>Gets the current instance.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int BitsPerSample { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public static GuiContext Current { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -161,22 +118,21 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.int32">Int32</a></td>
+        <td><a class="xref" href="Unosquare.FFME.Platform.GuiContext.html">GuiContext</a></td>
         <td></td>
       </tr>
     </tbody>
   </table>
   
   
-  <a id="Unosquare_FFME_Media_RenderingAudioEventArgs_Buffer_" data-uid="Unosquare.FFME.Media.RenderingAudioEventArgs.Buffer*"></a>
-  <h4 id="Unosquare_FFME_Media_RenderingAudioEventArgs_Buffer" data-uid="Unosquare.FFME.Media.RenderingAudioEventArgs.Buffer">Buffer</h4>
-  <div class="markdown level1 summary"><p>Gets a the raw data buffer going into the audio device.
-Samples are provided in PCM 16-bit signed, interleaved stereo.</p>
+  <a id="Unosquare_FFME_Platform_GuiContext_IsInDebugMode_" data-uid="Unosquare.FFME.Platform.GuiContext.IsInDebugMode*"></a>
+  <h4 id="Unosquare_FFME_Platform_GuiContext_IsInDebugMode" data-uid="Unosquare.FFME.Platform.GuiContext.IsInDebugMode">IsInDebugMode</h4>
+  <div class="markdown level1 summary"><p>Gets a value indicating whether a debugger was attached when the context initialized.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IReadOnlyCollection&lt;byte&gt; Buffer { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public bool IsInDebugMode { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -188,21 +144,21 @@ Samples are provided in PCM 16-bit signed, interleaved stereo.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.collections.generic.ireadonlycollection-1">IReadOnlyCollection</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.byte">Byte</a>&gt;</td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a></td>
         <td></td>
       </tr>
     </tbody>
   </table>
   
   
-  <a id="Unosquare_FFME_Media_RenderingAudioEventArgs_BufferLength_" data-uid="Unosquare.FFME.Media.RenderingAudioEventArgs.BufferLength*"></a>
-  <h4 id="Unosquare_FFME_Media_RenderingAudioEventArgs_BufferLength" data-uid="Unosquare.FFME.Media.RenderingAudioEventArgs.BufferLength">BufferLength</h4>
-  <div class="markdown level1 summary"><p>Gets the length in bytes of the samples buffer.</p>
+  <a id="Unosquare_FFME_Platform_GuiContext_IsInDesignTime_" data-uid="Unosquare.FFME.Platform.GuiContext.IsInDesignTime*"></a>
+  <h4 id="Unosquare_FFME_Platform_GuiContext_IsInDesignTime" data-uid="Unosquare.FFME.Platform.GuiContext.IsInDesignTime">IsInDesignTime</h4>
+  <div class="markdown level1 summary"><p>Gets a value indicating whether the context is in design time.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int BufferLength { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public bool IsInDesignTime { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -214,21 +170,21 @@ Samples are provided in PCM 16-bit signed, interleaved stereo.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.int32">Int32</a></td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a></td>
         <td></td>
       </tr>
     </tbody>
   </table>
   
   
-  <a id="Unosquare_FFME_Media_RenderingAudioEventArgs_ChannelCount_" data-uid="Unosquare.FFME.Media.RenderingAudioEventArgs.ChannelCount*"></a>
-  <h4 id="Unosquare_FFME_Media_RenderingAudioEventArgs_ChannelCount" data-uid="Unosquare.FFME.Media.RenderingAudioEventArgs.ChannelCount">ChannelCount</h4>
-  <div class="markdown level1 summary"><p>Gets the number of channels.</p>
+  <a id="Unosquare_FFME_Platform_GuiContext_Thread_" data-uid="Unosquare.FFME.Platform.GuiContext.Thread*"></a>
+  <h4 id="Unosquare_FFME_Platform_GuiContext_Thread" data-uid="Unosquare.FFME.Platform.GuiContext.Thread">Thread</h4>
+  <div class="markdown level1 summary"><p>Gets the thread on which this context was created.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int ChannelCount { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public Thread Thread { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -240,21 +196,21 @@ Samples are provided in PCM 16-bit signed, interleaved stereo.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.int32">Int32</a></td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.thread">Thread</a></td>
         <td></td>
       </tr>
     </tbody>
   </table>
   
   
-  <a id="Unosquare_FFME_Media_RenderingAudioEventArgs_Latency_" data-uid="Unosquare.FFME.Media.RenderingAudioEventArgs.Latency*"></a>
-  <h4 id="Unosquare_FFME_Media_RenderingAudioEventArgs_Latency" data-uid="Unosquare.FFME.Media.RenderingAudioEventArgs.Latency">Latency</h4>
-  <div class="markdown level1 summary"><p>Gets the latency between the audio buffer position and the real-time playback clock.</p>
+  <a id="Unosquare_FFME_Platform_GuiContext_Type_" data-uid="Unosquare.FFME.Platform.GuiContext.Type*"></a>
+  <h4 id="Unosquare_FFME_Platform_GuiContext_Type" data-uid="Unosquare.FFME.Platform.GuiContext.Type">Type</h4>
+  <div class="markdown level1 summary"><p>Gets the type of the context.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public TimeSpan Latency { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public GuiContextType Type { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -266,85 +222,7 @@ Samples are provided in PCM 16-bit signed, interleaved stereo.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
-  <a id="Unosquare_FFME_Media_RenderingAudioEventArgs_SampleRate_" data-uid="Unosquare.FFME.Media.RenderingAudioEventArgs.SampleRate*"></a>
-  <h4 id="Unosquare_FFME_Media_RenderingAudioEventArgs_SampleRate" data-uid="Unosquare.FFME.Media.RenderingAudioEventArgs.SampleRate">SampleRate</h4>
-  <div class="markdown level1 summary"><p>Gets the number of samples in 1 second.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int SampleRate { get; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.int32">Int32</a></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
-  <a id="Unosquare_FFME_Media_RenderingAudioEventArgs_Samples_" data-uid="Unosquare.FFME.Media.RenderingAudioEventArgs.Samples*"></a>
-  <h4 id="Unosquare_FFME_Media_RenderingAudioEventArgs_Samples" data-uid="Unosquare.FFME.Media.RenderingAudioEventArgs.Samples">Samples</h4>
-  <div class="markdown level1 summary"><p>Gets the number of samples in the buffer for all channels.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int Samples { get; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.int32">Int32</a></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
-  <a id="Unosquare_FFME_Media_RenderingAudioEventArgs_SamplesPerChannel_" data-uid="Unosquare.FFME.Media.RenderingAudioEventArgs.SamplesPerChannel*"></a>
-  <h4 id="Unosquare_FFME_Media_RenderingAudioEventArgs_SamplesPerChannel" data-uid="Unosquare.FFME.Media.RenderingAudioEventArgs.SamplesPerChannel">SamplesPerChannel</h4>
-  <div class="markdown level1 summary"><p>Gets the number of samples in the buffer per channel.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int SamplesPerChannel { get; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.int32">Int32</a></td>
+        <td><a class="xref" href="Unosquare.FFME.Platform.GuiContextType.html">GuiContextType</a></td>
         <td></td>
       </tr>
     </tbody>
@@ -353,16 +231,103 @@ Samples are provided in PCM 16-bit signed, interleaved stereo.</p>
   </h3>
   
   
-  <a id="Unosquare_FFME_Media_RenderingAudioEventArgs_GetBufferData_" data-uid="Unosquare.FFME.Media.RenderingAudioEventArgs.GetBufferData*"></a>
-  <h4 id="Unosquare_FFME_Media_RenderingAudioEventArgs_GetBufferData" data-uid="Unosquare.FFME.Media.RenderingAudioEventArgs.GetBufferData">GetBufferData()</h4>
-  <div class="markdown level1 summary"><p>Gets a the raw data buffer going into the audio device.
-Samples are provided in PCM 16-bit signed, interleaved stereo.</p>
+  <a id="Unosquare_FFME_Platform_GuiContext_EnqueueInvoke_" data-uid="Unosquare.FFME.Platform.GuiContext.EnqueueInvoke*"></a>
+  <h4 id="Unosquare_FFME_Platform_GuiContext_EnqueueInvoke_DispatcherPriority_System_Action_" data-uid="Unosquare.FFME.Platform.GuiContext.EnqueueInvoke(DispatcherPriority,System.Action)">EnqueueInvoke(DispatcherPriority, Action)</h4>
+  <div class="markdown level1 summary"><p>Invokes a task on the GUI thread.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public byte[] GetBufferData()</code></pre>
+    <pre><code class="lang-csharp hljs">public void EnqueueInvoke(DispatcherPriority priority, Action callback)</code></pre>
   </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">DispatcherPriority</span></td>
+        <td><span class="parametername">priority</span></td>
+        <td><p>The priority.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.action">Action</a></td>
+        <td><span class="parametername">callback</span></td>
+        <td><p>The callback.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_Platform_GuiContext_EnqueueInvoke_" data-uid="Unosquare.FFME.Platform.GuiContext.EnqueueInvoke*"></a>
+  <h4 id="Unosquare_FFME_Platform_GuiContext_EnqueueInvoke_System_Action_" data-uid="Unosquare.FFME.Platform.GuiContext.EnqueueInvoke(System.Action)">EnqueueInvoke(Action)</h4>
+  <div class="markdown level1 summary"><p>Invokes a task on the GUI thread and does not await it.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void EnqueueInvoke(Action callback)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.action">Action</a></td>
+        <td><span class="parametername">callback</span></td>
+        <td><p>The callback.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_Platform_GuiContext_InvokeAsync_" data-uid="Unosquare.FFME.Platform.GuiContext.InvokeAsync*"></a>
+  <h4 id="Unosquare_FFME_Platform_GuiContext_InvokeAsync_DispatcherPriority_System_Action_" data-uid="Unosquare.FFME.Platform.GuiContext.InvokeAsync(DispatcherPriority,System.Action)">InvokeAsync(DispatcherPriority, Action)</h4>
+  <div class="markdown level1 summary"><p>Invokes a task on the GUI thread with the possibility of awaiting it.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ConfiguredTaskAwaitable InvokeAsync(DispatcherPriority priority, Action callback)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">DispatcherPriority</span></td>
+        <td><span class="parametername">priority</span></td>
+        <td><p>The priority.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.action">Action</a></td>
+        <td><span class="parametername">callback</span></td>
+        <td><p>The callback.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
   <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">
     <thead>
@@ -373,16 +338,57 @@ Samples are provided in PCM 16-bit signed, interleaved stereo.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.byte">Byte</a>[]</td>
-        <td><p>The buffer data as an array.</p>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.runtime.compilerservices.configuredtaskawaitable">ConfiguredTaskAwaitable</a></td>
+        <td><p>The awaitable task.</p>
 </td>
       </tr>
     </tbody>
   </table>
-  <h3 id="seealso">See Also</h3>
-  <div class="seealso">
-      <div><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.eventargs">EventArgs</a></div>
+  
+  
+  <a id="Unosquare_FFME_Platform_GuiContext_InvokeAsync_" data-uid="Unosquare.FFME.Platform.GuiContext.InvokeAsync*"></a>
+  <h4 id="Unosquare_FFME_Platform_GuiContext_InvokeAsync_System_Action_" data-uid="Unosquare.FFME.Platform.GuiContext.InvokeAsync(System.Action)">InvokeAsync(Action)</h4>
+  <div class="markdown level1 summary"><p>Invokes a task on the GUI thread with the possibility of awaiting it.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ConfiguredTaskAwaitable InvokeAsync(Action callback)</code></pre>
   </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.action">Action</a></td>
+        <td><span class="parametername">callback</span></td>
+        <td><p>The callback.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.runtime.compilerservices.configuredtaskawaitable">ConfiguredTaskAwaitable</a></td>
+        <td><p>The awaitable task.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
 
 <h3 id="disqus_thread">Comments</h3>
 <script>

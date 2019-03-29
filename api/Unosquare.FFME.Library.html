@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Class Library
    | FFME: WPF MediaElement replacement based on FFmpeg ">
-    <meta name="generator" content="docfx 2.40.12.0">
+    <meta name="generator" content="docfx 2.41.0.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -117,19 +117,20 @@
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public static class Library</code></pre>
   </div>
-  <h3 id="fields">Fields
+  <h3 id="properties">Properties
   </h3>
   
   
+  <a id="Unosquare_FFME_Library_DefaultDirectSoundDevice_" data-uid="Unosquare.FFME.Library.DefaultDirectSoundDevice*"></a>
   <h4 id="Unosquare_FFME_Library_DefaultDirectSoundDevice" data-uid="Unosquare.FFME.Library.DefaultDirectSoundDevice">DefaultDirectSoundDevice</h4>
   <div class="markdown level1 summary"><p>The default DirectSound device.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static readonly DirectSoundDeviceInfo DefaultDirectSoundDevice</code></pre>
+    <pre><code class="lang-csharp hljs">public static DirectSoundDeviceInfo DefaultDirectSoundDevice { get; }</code></pre>
   </div>
-  <h5 class="fieldValue">Field Value</h5>
+  <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
     <thead>
       <tr>
@@ -146,15 +147,16 @@
   </table>
   
   
+  <a id="Unosquare_FFME_Library_DefaultLegacyAudioDevice_" data-uid="Unosquare.FFME.Library.DefaultLegacyAudioDevice*"></a>
   <h4 id="Unosquare_FFME_Library_DefaultLegacyAudioDevice" data-uid="Unosquare.FFME.Library.DefaultLegacyAudioDevice">DefaultLegacyAudioDevice</h4>
-  <div class="markdown level1 summary"><p>The default Windows MME Legacy Audio Device.</p>
+  <div class="markdown level1 summary"><p>The default Windows Multimeda Extensions Legacy Audio Device.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static readonly LegacyAudioDeviceInfo DefaultLegacyAudioDevice</code></pre>
+    <pre><code class="lang-csharp hljs">public static LegacyAudioDeviceInfo DefaultLegacyAudioDevice { get; }</code></pre>
   </div>
-  <h5 class="fieldValue">Field Value</h5>
+  <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
     <thead>
       <tr>
@@ -165,6 +167,37 @@
     <tbody>
       <tr>
         <td><a class="xref" href="Unosquare.FFME.Media.LegacyAudioDeviceInfo.html">LegacyAudioDeviceInfo</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_Library_EnableWpfMultiThreadedVideo_" data-uid="Unosquare.FFME.Library.EnableWpfMultiThreadedVideo*"></a>
+  <h4 id="Unosquare_FFME_Library_EnableWpfMultiThreadedVideo" data-uid="Unosquare.FFME.Library.EnableWpfMultiThreadedVideo">EnableWpfMultiThreadedVideo</h4>
+  <div class="markdown level1 summary"><p>Gets or sets a value indicating whether the video visualization control
+creates its own dispatcher thread to handle rendering of video frames.
+This is an experimental feature and it is useful when creating video walls.
+For example if you want to display multiple videos at a time and don&apos;t want to
+use time from the main UI thread. This feature is only valid if we are in
+a WPF context.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool EnableWpfMultiThreadedVideo { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a></td>
         <td></td>
       </tr>
     </tbody>
