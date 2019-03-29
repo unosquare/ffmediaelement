@@ -5,10 +5,10 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Class LegacyAudioException
+    <title>Class RenderingEventArgs
    | FFME: WPF MediaElement replacement based on FFmpeg </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Class LegacyAudioException
+    <meta name="title" content="Class RenderingEventArgs
    | FFME: WPF MediaElement replacement based on FFmpeg ">
     <meta name="generator" content="docfx 2.41.0.0">
     
@@ -76,48 +76,68 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="Unosquare.FFME.Media.LegacyAudioException">
+            <article class="content wrap" id="_content" data-uid="Unosquare.FFME.Common.RenderingEventArgs">
   
   
-  <h1 id="Unosquare_FFME_Media_LegacyAudioException" data-uid="Unosquare.FFME.Media.LegacyAudioException" class="text-break">Class LegacyAudioException
+  <h1 id="Unosquare_FFME_Common_RenderingEventArgs" data-uid="Unosquare.FFME.Common.RenderingEventArgs" class="text-break">Class RenderingEventArgs
   </h1>
-  <div class="markdown level0 summary"><p>An exception representing an error in Windows Multimedia Audio.</p>
+  <div class="markdown level0 summary"><p>A base class to represent media block
+rendering event arguments.</p>
 </div>
   <div class="markdown level0 conceptual"></div>
   <div class="inheritance">
     <h5>Inheritance</h5>
     <div class="level0"><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object">Object</a></div>
-    <div class="level1"><span class="xref">LegacyAudioException</span></div>
+    <div class="level1"><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.eventargs">EventArgs</a></div>
+    <div class="level2"><span class="xref">RenderingEventArgs</span></div>
+      <div class="level3"><a class="xref" href="Unosquare.FFME.Common.RenderingAudioEventArgs.html">RenderingAudioEventArgs</a></div>
+      <div class="level3"><a class="xref" href="Unosquare.FFME.Common.RenderingSubtitlesEventArgs.html">RenderingSubtitlesEventArgs</a></div>
+      <div class="level3"><a class="xref" href="Unosquare.FFME.Common.RenderingVideoEventArgs.html">RenderingVideoEventArgs</a></div>
   </div>
-  <h6><strong>Namespace</strong>: <a class="xref" href="Unosquare.FFME.Media.html">Unosquare.FFME.Media</a></h6>
-  <h5 id="Unosquare_FFME_Media_LegacyAudioException_syntax">Syntax</h5>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.eventargs.empty">EventArgs.Empty</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.tostring#System_Object_ToString">Object.ToString()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.equals#System_Object_Equals_System_Object_">Object.Equals(Object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.equals#System_Object_Equals_System_Object_System_Object_">Object.Equals(Object, Object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.referenceequals#System_Object_ReferenceEquals_System_Object_System_Object_">Object.ReferenceEquals(Object, Object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.gethashcode#System_Object_GetHashCode">Object.GetHashCode()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.gettype#System_Object_GetType">Object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.memberwiseclone#System_Object_MemberwiseClone">Object.MemberwiseClone()</a>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Unosquare.FFME.Common.html">Unosquare.FFME.Common</a></h6>
+  <h5 id="Unosquare_FFME_Common_RenderingEventArgs_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Serializable]
-public sealed class LegacyAudioException : MediaContainerException</code></pre>
+    <pre><code class="lang-csharp hljs">public abstract class RenderingEventArgs : EventArgs</code></pre>
   </div>
   <h3 id="constructors">Constructors
   </h3>
   
   
-  <a id="Unosquare_FFME_Media_LegacyAudioException__ctor_" data-uid="Unosquare.FFME.Media.LegacyAudioException.#ctor*"></a>
-  <h4 id="Unosquare_FFME_Media_LegacyAudioException__ctor" data-uid="Unosquare.FFME.Media.LegacyAudioException.#ctor">LegacyAudioException()</h4>
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="Unosquare.FFME.Media.LegacyAudioException.html">LegacyAudioException</a> class.</p>
+  <a id="Unosquare_FFME_Common_RenderingEventArgs__ctor_" data-uid="Unosquare.FFME.Common.RenderingEventArgs.#ctor*"></a>
+  <h4 id="Unosquare_FFME_Common_RenderingEventArgs__ctor_IMediaEngineState_StreamInfo_System_TimeSpan_System_TimeSpan_System_TimeSpan_" data-uid="Unosquare.FFME.Common.RenderingEventArgs.#ctor(IMediaEngineState,StreamInfo,System.TimeSpan,System.TimeSpan,System.TimeSpan)">RenderingEventArgs(IMediaEngineState, StreamInfo, TimeSpan, TimeSpan, TimeSpan)</h4>
+  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="Unosquare.FFME.Common.RenderingEventArgs.html">RenderingEventArgs</a> class.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public LegacyAudioException()</code></pre>
-  </div>
-  
-  
-  <a id="Unosquare_FFME_Media_LegacyAudioException__ctor_" data-uid="Unosquare.FFME.Media.LegacyAudioException.#ctor*"></a>
-  <h4 id="Unosquare_FFME_Media_LegacyAudioException__ctor_System_String_" data-uid="Unosquare.FFME.Media.LegacyAudioException.#ctor(System.String)">LegacyAudioException(String)</h4>
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="Unosquare.FFME.Media.LegacyAudioException.html">LegacyAudioException</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public LegacyAudioException(string message)</code></pre>
+    <pre><code class="lang-csharp hljs">protected RenderingEventArgs(IMediaEngineState engineState, StreamInfo stream, TimeSpan startTime, TimeSpan duration, TimeSpan clock)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -130,79 +150,33 @@ public sealed class LegacyAudioException : MediaContainerException</code></pre>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
-        <td><span class="parametername">message</span></td>
-        <td><p>The error message.</p>
-</td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
-  <a id="Unosquare_FFME_Media_LegacyAudioException__ctor_" data-uid="Unosquare.FFME.Media.LegacyAudioException.#ctor*"></a>
-  <h4 id="Unosquare_FFME_Media_LegacyAudioException__ctor_System_String_System_Exception_" data-uid="Unosquare.FFME.Media.LegacyAudioException.#ctor(System.String,System.Exception)">LegacyAudioException(String, Exception)</h4>
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="Unosquare.FFME.Media.LegacyAudioException.html">LegacyAudioException</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public LegacyAudioException(string message, Exception innerException)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
-        <td><span class="parametername">message</span></td>
-        <td><p>The error message.</p>
+        <td><span class="xref">IMediaEngineState</span></td>
+        <td><span class="parametername">engineState</span></td>
+        <td><p>The media engine state.</p>
 </td>
       </tr>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.exception">Exception</a></td>
-        <td><span class="parametername">innerException</span></td>
-        <td><p>The inner exception.</p>
-</td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
-  <a id="Unosquare_FFME_Media_LegacyAudioException__ctor_" data-uid="Unosquare.FFME.Media.LegacyAudioException.#ctor*"></a>
-  <h4 id="Unosquare_FFME_Media_LegacyAudioException__ctor_Unosquare_FFME_Media_LegacyAudioResult_System_String_" data-uid="Unosquare.FFME.Media.LegacyAudioException.#ctor(Unosquare.FFME.Media.LegacyAudioResult,System.String)">LegacyAudioException(LegacyAudioResult, String)</h4>
-  <div class="markdown level1 summary"><p>Initializes a new instance of the <a class="xref" href="Unosquare.FFME.Media.LegacyAudioException.html">LegacyAudioException</a> class.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public LegacyAudioException(LegacyAudioResult result, string functionName)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="Unosquare.FFME.Media.LegacyAudioResult.html">LegacyAudioResult</a></td>
-        <td><span class="parametername">result</span></td>
-        <td><p>The result returned by the Windows API call.</p>
+        <td><span class="xref">StreamInfo</span></td>
+        <td><span class="parametername">stream</span></td>
+        <td><p>The stream.</p>
 </td>
       </tr>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
-        <td><span class="parametername">functionName</span></td>
-        <td><p>The name of the Windows API that failed.</p>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></td>
+        <td><span class="parametername">startTime</span></td>
+        <td><p>The position.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></td>
+        <td><span class="parametername">duration</span></td>
+        <td><p>The duration.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></td>
+        <td><span class="parametername">clock</span></td>
+        <td><p>The clock.</p>
 </td>
       </tr>
     </tbody>
@@ -211,14 +185,15 @@ public sealed class LegacyAudioException : MediaContainerException</code></pre>
   </h3>
   
   
-  <a id="Unosquare_FFME_Media_LegacyAudioException_FunctionName_" data-uid="Unosquare.FFME.Media.LegacyAudioException.FunctionName*"></a>
-  <h4 id="Unosquare_FFME_Media_LegacyAudioException_FunctionName" data-uid="Unosquare.FFME.Media.LegacyAudioException.FunctionName">FunctionName</h4>
-  <div class="markdown level1 summary"><p>Gets the name of the function that failed.</p>
+  <a id="Unosquare_FFME_Common_RenderingEventArgs_Clock_" data-uid="Unosquare.FFME.Common.RenderingEventArgs.Clock*"></a>
+  <h4 id="Unosquare_FFME_Common_RenderingEventArgs_Clock" data-uid="Unosquare.FFME.Common.RenderingEventArgs.Clock">Clock</h4>
+  <div class="markdown level1 summary"><p>Gets the clock position at which the media
+was called for rendering.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string FunctionName { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public TimeSpan Clock { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -230,21 +205,21 @@ public sealed class LegacyAudioException : MediaContainerException</code></pre>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></td>
         <td></td>
       </tr>
     </tbody>
   </table>
   
   
-  <a id="Unosquare_FFME_Media_LegacyAudioException_Result_" data-uid="Unosquare.FFME.Media.LegacyAudioException.Result*"></a>
-  <h4 id="Unosquare_FFME_Media_LegacyAudioException_Result" data-uid="Unosquare.FFME.Media.LegacyAudioException.Result">Result</h4>
-  <div class="markdown level1 summary"><p>Gets the Windows API result code.</p>
+  <a id="Unosquare_FFME_Common_RenderingEventArgs_Duration_" data-uid="Unosquare.FFME.Common.RenderingEventArgs.Duration*"></a>
+  <h4 id="Unosquare_FFME_Common_RenderingEventArgs_Duration" data-uid="Unosquare.FFME.Common.RenderingEventArgs.Duration">Duration</h4>
+  <div class="markdown level1 summary"><p>Gets how long this media has to be presented.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public LegacyAudioResult Result { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public TimeSpan Duration { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -256,46 +231,94 @@ public sealed class LegacyAudioException : MediaContainerException</code></pre>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="Unosquare.FFME.Media.LegacyAudioResult.html">LegacyAudioResult</a></td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></td>
         <td></td>
       </tr>
     </tbody>
   </table>
-  <h3 id="methods">Methods
-  </h3>
   
   
-  <a id="Unosquare_FFME_Media_LegacyAudioException_GetObjectData_" data-uid="Unosquare.FFME.Media.LegacyAudioException.GetObjectData*"></a>
-  <h4 id="Unosquare_FFME_Media_LegacyAudioException_GetObjectData_System_Runtime_Serialization_SerializationInfo_System_Runtime_Serialization_StreamingContext_" data-uid="Unosquare.FFME.Media.LegacyAudioException.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">GetObjectData(SerializationInfo, StreamingContext)</h4>
-  <div class="markdown level1 summary"></div>
+  <a id="Unosquare_FFME_Common_RenderingEventArgs_EngineState_" data-uid="Unosquare.FFME.Common.RenderingEventArgs.EngineState*"></a>
+  <h4 id="Unosquare_FFME_Common_RenderingEventArgs_EngineState" data-uid="Unosquare.FFME.Common.RenderingEventArgs.EngineState">EngineState</h4>
+  <div class="markdown level1 summary"><p>Provides access to the underlying media engine state.</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
-public override void GetObjectData(SerializationInfo info, StreamingContext context)</code></pre>
+    <pre><code class="lang-csharp hljs">public IMediaEngineState EngineState { get; }</code></pre>
   </div>
-  <h5 class="parameters">Parameters</h5>
+  <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
     <thead>
       <tr>
         <th>Type</th>
-        <th>Name</th>
         <th>Description</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.runtime.serialization.serializationinfo">SerializationInfo</a></td>
-        <td><span class="parametername">info</span></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.runtime.serialization.streamingcontext">StreamingContext</a></td>
-        <td><span class="parametername">context</span></td>
+        <td><span class="xref">IMediaEngineState</span></td>
         <td></td>
       </tr>
     </tbody>
   </table>
+  
+  
+  <a id="Unosquare_FFME_Common_RenderingEventArgs_StartTime_" data-uid="Unosquare.FFME.Common.RenderingEventArgs.StartTime*"></a>
+  <h4 id="Unosquare_FFME_Common_RenderingEventArgs_StartTime" data-uid="Unosquare.FFME.Common.RenderingEventArgs.StartTime">StartTime</h4>
+  <div class="markdown level1 summary"><p>Gets the starting time at which this media
+has to be presented.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TimeSpan StartTime { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_Common_RenderingEventArgs_Stream_" data-uid="Unosquare.FFME.Common.RenderingEventArgs.Stream*"></a>
+  <h4 id="Unosquare_FFME_Common_RenderingEventArgs_Stream" data-uid="Unosquare.FFME.Common.RenderingEventArgs.Stream">Stream</h4>
+  <div class="markdown level1 summary"><p>Provides Stream Information coming from the media container.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public StreamInfo Stream { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">StreamInfo</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="seealso">See Also</h3>
+  <div class="seealso">
+      <div><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.eventargs">EventArgs</a></div>
+  </div>
 
 <h3 id="disqus_thread">Comments</h3>
 <script>

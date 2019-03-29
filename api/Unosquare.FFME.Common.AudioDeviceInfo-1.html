@@ -5,10 +5,10 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Class RendererOptions
+    <title>Class AudioDeviceInfo&lt;T&gt;
    | FFME: WPF MediaElement replacement based on FFmpeg </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Class RendererOptions
+    <meta name="title" content="Class AudioDeviceInfo&lt;T&gt;
    | FFME: WPF MediaElement replacement based on FFmpeg ">
     <meta name="generator" content="docfx 2.41.0.0">
     
@@ -76,24 +76,23 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="Unosquare.FFME.Media.RendererOptions">
+            <article class="content wrap" id="_content" data-uid="Unosquare.FFME.Common.AudioDeviceInfo`1">
   
   
-  <h1 id="Unosquare_FFME_Media_RendererOptions" data-uid="Unosquare.FFME.Media.RendererOptions" class="text-break">Class RendererOptions
+  <h1 id="Unosquare_FFME_Common_AudioDeviceInfo_1" data-uid="Unosquare.FFME.Common.AudioDeviceInfo`1" class="text-break">Class AudioDeviceInfo&lt;T&gt;
   </h1>
-  <div class="markdown level0 summary"><p>Provides access to various internal media renderer options.</p>
+  <div class="markdown level0 summary"><p>Represents a device identifier.</p>
 </div>
   <div class="markdown level0 conceptual"></div>
   <div class="inheritance">
     <h5>Inheritance</h5>
     <div class="level0"><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object">Object</a></div>
-    <div class="level1"><span class="xref">RendererOptions</span></div>
+    <div class="level1"><span class="xref">AudioDeviceInfo&lt;T&gt;</span></div>
+      <div class="level2"><a class="xref" href="Unosquare.FFME.Common.DirectSoundDeviceInfo.html">DirectSoundDeviceInfo</a></div>
+      <div class="level2"><a class="xref" href="Unosquare.FFME.Common.LegacyAudioDeviceInfo.html">LegacyAudioDeviceInfo</a></div>
   </div>
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.tostring#System_Object_ToString">Object.ToString()</a>
-    </div>
     <div>
       <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.equals#System_Object_Equals_System_Object_">Object.Equals(Object)</a>
     </div>
@@ -113,24 +112,66 @@
       <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.memberwiseclone#System_Object_MemberwiseClone">Object.MemberwiseClone()</a>
     </div>
   </div>
-  <h6><strong>Namespace</strong>: <a class="xref" href="Unosquare.FFME.Media.html">Unosquare.FFME.Media</a></h6>
-  <h5 id="Unosquare_FFME_Media_RendererOptions_syntax">Syntax</h5>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Unosquare.FFME.Common.html">Unosquare.FFME.Common</a></h6>
+  <h5 id="Unosquare_FFME_Common_AudioDeviceInfo_1_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public sealed class RendererOptions</code></pre>
+    <pre><code class="lang-csharp hljs">public class AudioDeviceInfo&lt;T&gt;
+    where T : struct</code></pre>
   </div>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td><p>The type of the device identifier.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
   <h3 id="properties">Properties
   </h3>
   
   
-  <a id="Unosquare_FFME_Media_RendererOptions_AudioDisableSync_" data-uid="Unosquare.FFME.Media.RendererOptions.AudioDisableSync*"></a>
-  <h4 id="Unosquare_FFME_Media_RendererOptions_AudioDisableSync" data-uid="Unosquare.FFME.Media.RendererOptions.AudioDisableSync">AudioDisableSync</h4>
-  <div class="markdown level1 summary"><p>By default, the audio renderer will skip or wait for samples to
-synchronize to video.</p>
+  <a id="Unosquare_FFME_Common_AudioDeviceInfo_1_DeviceId_" data-uid="Unosquare.FFME.Common.AudioDeviceInfo`1.DeviceId*"></a>
+  <h4 id="Unosquare_FFME_Common_AudioDeviceInfo_1_DeviceId" data-uid="Unosquare.FFME.Common.AudioDeviceInfo`1.DeviceId">DeviceId</h4>
+  <div class="markdown level1 summary"><p>Gets the device identifier.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool AudioDisableSync { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public T DeviceId { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">T</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="Unosquare_FFME_Common_AudioDeviceInfo_1_IsDefault_" data-uid="Unosquare.FFME.Common.AudioDeviceInfo`1.IsDefault*"></a>
+  <h4 id="Unosquare_FFME_Common_AudioDeviceInfo_1_IsDefault" data-uid="Unosquare.FFME.Common.AudioDeviceInfo`1.IsDefault">IsDefault</h4>
+  <div class="markdown level1 summary"><p>Gets a value indicating whether this device is the default.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsDefault { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -149,15 +190,14 @@ synchronize to video.</p>
   </table>
   
   
-  <a id="Unosquare_FFME_Media_RendererOptions_DirectSoundDevice_" data-uid="Unosquare.FFME.Media.RendererOptions.DirectSoundDevice*"></a>
-  <h4 id="Unosquare_FFME_Media_RendererOptions_DirectSoundDevice" data-uid="Unosquare.FFME.Media.RendererOptions.DirectSoundDevice">DirectSoundDevice</h4>
-  <div class="markdown level1 summary"><p>Gets or sets the DirectSound device identifier. It is the default playback device by default.
-Only valid if <a class="xref" href="Unosquare.FFME.Media.RendererOptions.html#Unosquare_FFME_Media_RendererOptions_UseLegacyAudioOut">UseLegacyAudioOut</a> is set to false which is the default.</p>
+  <a id="Unosquare_FFME_Common_AudioDeviceInfo_1_Name_" data-uid="Unosquare.FFME.Common.AudioDeviceInfo`1.Name*"></a>
+  <h4 id="Unosquare_FFME_Common_AudioDeviceInfo_1_Name" data-uid="Unosquare.FFME.Common.AudioDeviceInfo`1.Name">Name</h4>
+  <div class="markdown level1 summary"><p>Gets the name.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public DirectSoundDeviceInfo DirectSoundDevice { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public string Name { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -169,22 +209,21 @@ Only valid if <a class="xref" href="Unosquare.FFME.Media.RendererOptions.html#Un
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="Unosquare.FFME.Media.DirectSoundDeviceInfo.html">DirectSoundDeviceInfo</a></td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
         <td></td>
       </tr>
     </tbody>
   </table>
   
   
-  <a id="Unosquare_FFME_Media_RendererOptions_LegacyAudioDevice_" data-uid="Unosquare.FFME.Media.RendererOptions.LegacyAudioDevice*"></a>
-  <h4 id="Unosquare_FFME_Media_RendererOptions_LegacyAudioDevice" data-uid="Unosquare.FFME.Media.RendererOptions.LegacyAudioDevice">LegacyAudioDevice</h4>
-  <div class="markdown level1 summary"><p>Gets or sets the wave device identifier. -1 is the default playback device.
-Only valid if <a class="xref" href="Unosquare.FFME.Media.RendererOptions.html#Unosquare_FFME_Media_RendererOptions_UseLegacyAudioOut">UseLegacyAudioOut</a> is set to true.</p>
+  <a id="Unosquare_FFME_Common_AudioDeviceInfo_1_Provider_" data-uid="Unosquare.FFME.Common.AudioDeviceInfo`1.Provider*"></a>
+  <h4 id="Unosquare_FFME_Common_AudioDeviceInfo_1_Provider" data-uid="Unosquare.FFME.Common.AudioDeviceInfo`1.Provider">Provider</h4>
+  <div class="markdown level1 summary"><p>Gets the provider.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public LegacyAudioDeviceInfo LegacyAudioDevice { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public string Provider { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -196,22 +235,21 @@ Only valid if <a class="xref" href="Unosquare.FFME.Media.RendererOptions.html#Un
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="Unosquare.FFME.Media.LegacyAudioDeviceInfo.html">LegacyAudioDeviceInfo</a></td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
         <td></td>
       </tr>
     </tbody>
   </table>
   
   
-  <a id="Unosquare_FFME_Media_RendererOptions_UseLegacyAudioOut_" data-uid="Unosquare.FFME.Media.RendererOptions.UseLegacyAudioOut*"></a>
-  <h4 id="Unosquare_FFME_Media_RendererOptions_UseLegacyAudioOut" data-uid="Unosquare.FFME.Media.RendererOptions.UseLegacyAudioOut">UseLegacyAudioOut</h4>
-  <div class="markdown level1 summary"><p>Gets or sets a value indicating whether the legacy MME (WinMM) should be used
-as an audio output device as opposed to DirectSound. This defaults to false.</p>
+  <a id="Unosquare_FFME_Common_AudioDeviceInfo_1_Tag_" data-uid="Unosquare.FFME.Common.AudioDeviceInfo`1.Tag*"></a>
+  <h4 id="Unosquare_FFME_Common_AudioDeviceInfo_1_Tag" data-uid="Unosquare.FFME.Common.AudioDeviceInfo`1.Tag">Tag</h4>
+  <div class="markdown level1 summary"><p>Gets the tag.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool UseLegacyAudioOut { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public string Tag { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -223,24 +261,25 @@ as an audio output device as opposed to DirectSound. This defaults to false.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a></td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
         <td></td>
       </tr>
     </tbody>
   </table>
+  <h3 id="methods">Methods
+  </h3>
   
   
-  <a id="Unosquare_FFME_Media_RendererOptions_VideoRefreshRateLimit_" data-uid="Unosquare.FFME.Media.RendererOptions.VideoRefreshRateLimit*"></a>
-  <h4 id="Unosquare_FFME_Media_RendererOptions_VideoRefreshRateLimit" data-uid="Unosquare.FFME.Media.RendererOptions.VideoRefreshRateLimit">VideoRefreshRateLimit</h4>
-  <div class="markdown level1 summary"><p>Gets or sets the frame refresh rate limit for the video renderer.
-Defaults to 0 and means no limit. Units are in frames per second.</p>
+  <a id="Unosquare_FFME_Common_AudioDeviceInfo_1_ToString_" data-uid="Unosquare.FFME.Common.AudioDeviceInfo`1.ToString*"></a>
+  <h4 id="Unosquare_FFME_Common_AudioDeviceInfo_1_ToString" data-uid="Unosquare.FFME.Common.AudioDeviceInfo`1.ToString">ToString()</h4>
+  <div class="markdown level1 summary"><p>Returns a <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a> that represents this instance.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int VideoRefreshRateLimit { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public override string ToString()</code></pre>
   </div>
-  <h5 class="propertyValue">Property Value</h5>
+  <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">
     <thead>
       <tr>
@@ -250,11 +289,14 @@ Defaults to 0 and means no limit. Units are in frames per second.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.int32">Int32</a></td>
-        <td></td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><p>A <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a> that represents this instance.</p>
+</td>
       </tr>
     </tbody>
   </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.tostring#System_Object_ToString">Object.ToString()</a></div>
 
 <h3 id="disqus_thread">Comments</h3>
 <script>

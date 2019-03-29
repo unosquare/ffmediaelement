@@ -70,155 +70,155 @@
     },
     {
       "type": "ManagedReference",
+      "source_relative_path": "obj/api/Unosquare.FFME.Common.AudioDeviceInfo-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Unosquare.FFME.Common.AudioDeviceInfo-1.html",
+          "hash": "+QlwjzDAzrH+FiWWgsqW6A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/Unosquare.FFME.Common.BitmapDataBuffer.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Unosquare.FFME.Common.BitmapDataBuffer.html",
+          "hash": "MOMJwTiH1J+zQzd3QjglmQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/Unosquare.FFME.Common.DirectSoundDeviceInfo.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Unosquare.FFME.Common.DirectSoundDeviceInfo.html",
+          "hash": "hhnQgHYq/5GisHmSCZDv+Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/Unosquare.FFME.Common.LegacyAudioDeviceInfo.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Unosquare.FFME.Common.LegacyAudioDeviceInfo.html",
+          "hash": "sxBA77GjwPV3VQlive2ByA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/Unosquare.FFME.Common.LegacyAudioException.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Unosquare.FFME.Common.LegacyAudioException.html",
+          "hash": "ROpDQ6cjhEImIPjVefAQpg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/Unosquare.FFME.Common.LegacyAudioResult.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Unosquare.FFME.Common.LegacyAudioResult.html",
+          "hash": "ZaiLsxtRdu5OwXdSeb1xLA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/Unosquare.FFME.Common.RendererOptions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Unosquare.FFME.Common.RendererOptions.html",
+          "hash": "7/Kd2MLSExUw6dDmbWw32w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/Unosquare.FFME.Common.RenderingAudioEventArgs.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Unosquare.FFME.Common.RenderingAudioEventArgs.html",
+          "hash": "9tbZNFWnZ/Jp4HwMhZ5eYA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/Unosquare.FFME.Common.RenderingEventArgs.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Unosquare.FFME.Common.RenderingEventArgs.html",
+          "hash": "Vzs/QAb48UI6yx+n3zeqvw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/Unosquare.FFME.Common.RenderingSubtitlesEventArgs.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Unosquare.FFME.Common.RenderingSubtitlesEventArgs.html",
+          "hash": "3XfecDUOpsHGfrxoSJbQMQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/Unosquare.FFME.Common.RenderingVideoEventArgs.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Unosquare.FFME.Common.RenderingVideoEventArgs.html",
+          "hash": "xj3eLcwC/T66ZgBX0Y14mA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/Unosquare.FFME.Common.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Unosquare.FFME.Common.html",
+          "hash": "+/KO8DqbNLPILXaXbQBQFg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
       "source_relative_path": "obj/api/Unosquare.FFME.Library.yml",
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Library.html",
-          "hash": "jZ6/wYEhZC+4sRz46EhACg=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Media.AudioDeviceInfo-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Media.AudioDeviceInfo-1.html",
-          "hash": "6honKVGnyKUtm4Ks5YYmpQ=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Media.BitmapDataBuffer.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Media.BitmapDataBuffer.html",
-          "hash": "E03Qagwh/JHRBYBfFQ6mrQ=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Media.DirectSoundDeviceInfo.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Media.DirectSoundDeviceInfo.html",
-          "hash": "+w/stNNrYwvoky9nDFU7Hg=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Media.LegacyAudioDeviceInfo.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Media.LegacyAudioDeviceInfo.html",
-          "hash": "prfw4yixYayGLM6mF1MRjA=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Media.LegacyAudioException.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Media.LegacyAudioException.html",
-          "hash": "2siMHl7A3uRCsE4RDh5F2w=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Media.LegacyAudioResult.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Media.LegacyAudioResult.html",
-          "hash": "ZV0kztVHJ7d2wgLX0wt/Mg=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Media.RendererOptions.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Media.RendererOptions.html",
-          "hash": "fcc8CFqoMYkZcmXWrtA8vQ=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Media.RenderingAudioEventArgs.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Media.RenderingAudioEventArgs.html",
-          "hash": "Kz1vPezamVCn0rAqFcFDmQ=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Media.RenderingEventArgs.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Media.RenderingEventArgs.html",
-          "hash": "6aaTwJJc8FqEbHllk00wvw=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Media.RenderingSubtitlesEventArgs.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Media.RenderingSubtitlesEventArgs.html",
-          "hash": "LKcqdhfZAOuH90B4WtsGCA=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Media.RenderingVideoEventArgs.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Media.RenderingVideoEventArgs.html",
-          "hash": "+kV+UJbnxavyEHNBhSFVgg=="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "obj/api/Unosquare.FFME.Media.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Unosquare.FFME.Media.html",
-          "hash": "GxyIUwuHckmyJ2Zcf90y9w=="
+          "hash": "XY9sz7y+H7vGIXQk56ckzw=="
         }
       },
       "is_incremental": false,
@@ -230,7 +230,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.MediaElement.html",
-          "hash": "oAcroQS7M7xS+JeHzunMcg=="
+          "hash": "29WQeRg3Qqnyj+6gP3WhAA=="
         }
       },
       "is_incremental": false,
@@ -242,7 +242,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Unosquare.FFME.Platform.GuiContext.html",
-          "hash": "xfMfjLiN+ejT5E1CtFgkPw=="
+          "hash": "sF08w/eW6dcSiGin/CtzDw=="
         }
       },
       "is_incremental": false,
@@ -302,7 +302,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "2q7ZNshBzXpMlU0MvEnrPQ=="
+          "hash": "EGtaRZ1M1LKd/NPJbyaX+Q=="
         }
       },
       "is_incremental": false,
@@ -332,6 +332,13 @@
         "full_build_reason_code": "NoAvailableBuildCache"
       },
       "processors": {
+        "ResourceDocumentProcessor": {
+          "can_incremental": false,
+          "details": "Processor ResourceDocumentProcessor cannot support incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
+          "incrementalPhase": "build",
+          "total_file_count": 0,
+          "skipped_file_count": 0
+        },
         "TocDocumentProcessor": {
           "can_incremental": false,
           "details": "Processor TocDocumentProcessor cannot support incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
@@ -349,13 +356,6 @@
           "can_incremental": false,
           "incrementalPhase": "build",
           "total_file_count": 19,
-          "skipped_file_count": 0
-        },
-        "ResourceDocumentProcessor": {
-          "can_incremental": false,
-          "details": "Processor ResourceDocumentProcessor cannot support incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
-          "incrementalPhase": "build",
-          "total_file_count": 0,
           "skipped_file_count": 0
         }
       }
