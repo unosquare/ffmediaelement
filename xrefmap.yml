@@ -1164,19 +1164,6 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.MediaElement.IsDisposed
   nameWithType: MediaElement.IsDisposed
-- uid: Unosquare.FFME.MediaElement.IsInDesignTime
-  name: IsInDesignTime
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsInDesignTime
-  commentId: P:Unosquare.FFME.MediaElement.IsInDesignTime
-  fullName: Unosquare.FFME.MediaElement.IsInDesignTime
-  nameWithType: MediaElement.IsInDesignTime
-- uid: Unosquare.FFME.MediaElement.IsInDesignTime*
-  name: IsInDesignTime
-  href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsInDesignTime_
-  commentId: Overload:Unosquare.FFME.MediaElement.IsInDesignTime
-  isSpec: "True"
-  fullName: Unosquare.FFME.MediaElement.IsInDesignTime
-  nameWithType: MediaElement.IsInDesignTime
 - uid: Unosquare.FFME.MediaElement.IsMuted
   name: IsMuted
   href: api/Unosquare.FFME.MediaElement.html#Unosquare_FFME_MediaElement_IsMuted
@@ -1461,19 +1448,6 @@ references:
   isSpec: "True"
   fullName: Unosquare.FFME.Platform.GuiContext.InvokeAsync
   nameWithType: GuiContext.InvokeAsync
-- uid: Unosquare.FFME.Platform.GuiContext.IsInDesignTime
-  name: IsInDesignTime
-  href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_IsInDesignTime
-  commentId: P:Unosquare.FFME.Platform.GuiContext.IsInDesignTime
-  fullName: Unosquare.FFME.Platform.GuiContext.IsInDesignTime
-  nameWithType: GuiContext.IsInDesignTime
-- uid: Unosquare.FFME.Platform.GuiContext.IsInDesignTime*
-  name: IsInDesignTime
-  href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_IsInDesignTime_
-  commentId: Overload:Unosquare.FFME.Platform.GuiContext.IsInDesignTime
-  isSpec: "True"
-  fullName: Unosquare.FFME.Platform.GuiContext.IsInDesignTime
-  nameWithType: GuiContext.IsInDesignTime
 - uid: Unosquare.FFME.Platform.GuiContext.Thread
   name: Thread
   href: api/Unosquare.FFME.Platform.GuiContext.html#Unosquare_FFME_Platform_GuiContext_Thread
