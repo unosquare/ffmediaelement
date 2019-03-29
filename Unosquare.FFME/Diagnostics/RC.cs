@@ -1,9 +1,9 @@
 ﻿namespace Unosquare.FFME.Diagnostics
 {
-    using Engine;
     using FFmpeg.AutoGen;
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Runtime.CompilerServices;
 
@@ -112,7 +112,7 @@
         /// <param name="ptr">The PTR.</param>
         public void Remove(IntPtr ptr)
         {
-            if (MediaEngine.Platform.IsInDebugMode == false) return;
+            if (!Debugger.IsAttached) return;
 
             lock (SyncLock)
                 Instances.Remove(ptr);
@@ -215,7 +215,7 @@
         /// <param name="lineNumber">The line number.</param>
         private void AddInternal(UnmanagedType unmanagedType, IntPtr pointer, string memberName, string filePath, int lineNumber)
         {
-            if (MediaEngine.Platform.IsInDebugMode == false) return;
+            if (!Debugger.IsAttached) return;
 
             lock (SyncLock) Instances[pointer] =
                 new ReferenceEntry(unmanagedType, pointer, memberName, filePath, lineNumber);

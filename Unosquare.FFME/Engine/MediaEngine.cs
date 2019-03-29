@@ -6,6 +6,7 @@
     using Platform;
     using Primitives;
     using System;
+    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// Represents a Media Engine that contains underlying streams of audio and/or video.
@@ -33,24 +34,16 @@
             Commands = new CommandManager(this);
             State = new MediaEngineState(this);
             Timing = new TimingController(this);
-
-            // Don't start up timers or any other stuff if we are in design-time
-            if (Platform.IsInDesignTime) return;
-
-            // Check initialization has taken place
-            lock (InitLock)
-            {
-                if (IsInitialized == false)
-                {
-                    throw new InvalidOperationException(
-                        $"{nameof(MediaEngine)} not initialized. Call the static method {nameof(Initialize)}");
-                }
-            }
         }
 
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// An event that is raised whenever a global FFmpeg message is logged.
+        /// </summary>
+        public static event EventHandler<LoggingMessage> FFmpegMessageLogged;
 
         /// <inheritdoc />
         ILoggingHandler ILoggingSource.LoggingHandler => this;
@@ -119,6 +112,14 @@
             // Reset the RTC
             ResetPlaybackPosition();
         }
+
+        /// <summary>
+        /// Raises the FFmpeg message logged.
+        /// </summary>
+        /// <param name="message">The <see cref="LoggingMessage"/> instance.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void RaiseFFmpegMessageLogged(LoggingMessage message) =>
+            FFmpegMessageLogged?.Invoke(null, message);
 
         #endregion
     }

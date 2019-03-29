@@ -6,6 +6,7 @@
     using Media;
     using Primitives;
     using System;
+    using System.Diagnostics;
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Threading;
@@ -520,7 +521,7 @@
         private void LogRenderBlock(MediaBlock block, TimeSpan clockPosition)
         {
             // Prevent logging for production use
-            if (MediaEngine.Platform.IsInDebugMode == false) return;
+            if (!Debugger.IsAttached) return;
 
             try
             {

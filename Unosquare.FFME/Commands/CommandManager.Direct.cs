@@ -528,7 +528,7 @@
                     MediaCore.Blocks[t] = new MediaBlockBuffer(Constants.GetMaxBlocks(t, MediaCore), t);
 
                 if (MediaCore.Renderers.ContainsKey(t) == false)
-                    MediaCore.Renderers[t] = MediaEngine.Platform.CreateRenderer(t, MediaCore);
+                    MediaCore.Renderers[t] = MediaCore.Connector.CreateRenderer(t, MediaCore);
 
                 MediaCore.Blocks[t].Clear();
                 MediaCore.Renderers[t].OnStarting();

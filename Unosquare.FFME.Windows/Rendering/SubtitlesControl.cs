@@ -166,7 +166,7 @@ namespace Unosquare.FFME.Rendering
             FontWeight = FontWeights.DemiBold;
             VerticalAlignment = VerticalAlignment.Bottom;
 
-            if (WindowsPlatform.Instance.IsInDesignTime)
+            if (GuiContext.Current.IsInDesignTime)
             {
                 Text = "Subtitle TextBlock\r\n(Design-Time Preview)";
             }

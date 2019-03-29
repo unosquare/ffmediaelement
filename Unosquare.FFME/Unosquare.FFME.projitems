@@ -28,7 +28,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)FFmpeg\FFInterop.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FFmpeg\FFLibrary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\RC.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Platform\IGuiTimer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistEntry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistEntryAttributeDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistEntryCollection.cs" />
@@ -63,7 +62,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Media\IMediaEngineState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Media\IMediaInputStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Platform\IMediaRenderer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Platform\IPlatform.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Container\MediaBlock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Media\MediaContainerException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Engine\MediaEngineState.cs" />

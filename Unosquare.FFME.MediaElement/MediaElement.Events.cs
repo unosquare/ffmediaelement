@@ -75,15 +75,6 @@
         #region Non-UI event raisers
 
         /// <summary>
-        /// Raises the FFmpeg message logged.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="LoggingMessage"/> instance containing the event data.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void RaiseFFmpegMessageLogged(object sender, LoggingMessage e) =>
-            FFmpegMessageLogged?.Invoke(sender, new MediaLogMessageEventArgs(e));
-
-        /// <summary>
         /// Raises the message logged event.
         /// </summary>
         /// <param name="e">The <see cref="LoggingMessage"/> instance containing the event data.</param>

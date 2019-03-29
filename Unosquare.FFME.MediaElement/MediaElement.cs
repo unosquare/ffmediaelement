@@ -18,6 +18,17 @@
         /// </summary>
         private readonly AtomicBoolean IsOpeningViaCommand = new AtomicBoolean(false);
 
+        /// <summary>
+        /// Initializes static members of the <see cref="MediaElement"/> class.
+        /// </summary>
+        static MediaElement()
+        {
+            MediaEngine.FFmpegMessageLogged += (s, message) =>
+                FFmpegMessageLogged?.Invoke(typeof(MediaElement), new MediaLogMessageEventArgs(message));
+
+            InitializeStaticComponent();
+        }
+
         #region Events
 
         /// <summary>
@@ -306,5 +317,10 @@
         /// <inheritdoc />
         void ILoggingHandler.HandleLogMessage(LoggingMessage message) =>
             RaiseMessageLoggedEvent(message);
+
+        /// <summary>
+        /// This method gets called in the static constructor
+        /// </summary>
+        static partial void InitializeStaticComponent();
     }
 }

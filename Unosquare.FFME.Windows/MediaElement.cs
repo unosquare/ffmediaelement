@@ -60,23 +60,6 @@
         #region Constructors
 
         /// <summary>
-        /// Initializes static members of the <see cref="MediaElement"/> class.
-        /// </summary>
-        static MediaElement()
-        {
-            // Content property cannot be changed.
-            ContentProperty.OverrideMetadata(typeof(MediaElement), new FrameworkPropertyMetadata(null, OnCoerceContentValue));
-
-            var style = new Style(typeof(MediaElement), null);
-            style.Setters.Add(new Setter(FlowDirectionProperty, FlowDirection.LeftToRight));
-            style.Seal();
-            StyleProperty.OverrideMetadata(typeof(MediaElement), new FrameworkPropertyMetadata(style));
-
-            // Initialize the core
-            MediaEngine.Initialize(WindowsPlatform.Instance);
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="MediaElement" /> class.
         /// </summary>
         public MediaElement()
@@ -248,6 +231,20 @@
         }
 
         /// <summary>
+        /// Initializes static members of the <see cref="MediaElement"/> class.
+        /// </summary>
+        static partial void InitializeStaticComponent()
+        {
+            // Content property cannot be changed.
+            ContentProperty.OverrideMetadata(typeof(MediaElement), new FrameworkPropertyMetadata(null, OnCoerceContentValue));
+
+            var style = new Style(typeof(MediaElement), null);
+            style.Setters.Add(new Setter(FlowDirectionProperty, FlowDirection.LeftToRight));
+            style.Seal();
+            StyleProperty.OverrideMetadata(typeof(MediaElement), new FrameworkPropertyMetadata(style));
+        }
+
+        /// <summary>
         /// Initializes the component.
         /// </summary>
         private void InitializeComponent()
@@ -318,7 +315,7 @@
             ContentGrid.Children.Add(CaptionsView);
 
             // Display the control (or not)
-            if (WindowsPlatform.Instance.IsInDesignTime == false)
+            if (GuiContext.Current.IsInDesignTime == false)
             {
                 // Setup the media engine and associated property updates worker
                 MediaCore = new MediaEngine(this, new MediaConnector(this));

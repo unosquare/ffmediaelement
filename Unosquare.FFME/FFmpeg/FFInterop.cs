@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Runtime.InteropServices;
@@ -120,7 +121,7 @@
 
                     // Set logging levels and callbacks
                     ffmpeg.av_log_set_flags(ffmpeg.AV_LOG_SKIP_REPEATED);
-                    ffmpeg.av_log_set_level(MediaEngine.Platform.IsInDebugMode ? ffmpeg.AV_LOG_VERBOSE : ffmpeg.AV_LOG_WARNING);
+                    ffmpeg.av_log_set_level(Debugger.IsAttached ? ffmpeg.AV_LOG_VERBOSE : ffmpeg.AV_LOG_WARNING);
                     ffmpeg.av_log_set_callback(FFmpegLogCallback);
 
                     // set the static environment properties
@@ -330,7 +331,7 @@
         {
             /// <inheritdoc />
             void ILoggingHandler.HandleLogMessage(LoggingMessage message) =>
-                MediaEngine.Platform?.HandleFFmpegLogMessage(message);
+                MediaEngine.RaiseFFmpegMessageLogged(message);
         }
 
         #endregion

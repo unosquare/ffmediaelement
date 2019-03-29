@@ -5,6 +5,7 @@
     using Media;
     using Primitives;
     using System;
+    using System.Diagnostics;
     using System.Runtime.CompilerServices;
     using System.Text;
     using System.Threading;
@@ -264,7 +265,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void LogReferenceCounter()
         {
-            if (MediaEngine.Platform?.IsInDebugMode ?? true) return;
+            if (!Debugger.IsAttached) return;
             if (RC.Current.InstancesByLocation.Count <= 0) return;
 
             var builder = new StringBuilder();

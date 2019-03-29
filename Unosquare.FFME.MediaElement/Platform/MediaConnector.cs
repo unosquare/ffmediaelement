@@ -10,7 +10,7 @@
     /// The Media engine connector.
     /// </summary>
     /// <seealso cref="IMediaConnector" />
-    internal sealed class MediaConnector : IMediaConnector
+    internal sealed partial class MediaConnector : IMediaConnector
     {
         private readonly MediaElement Parent;
 

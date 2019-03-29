@@ -4,7 +4,6 @@
     using Diagnostics;
     using FFmpeg.AutoGen;
     using Media;
-    using Platform;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -14,17 +13,10 @@
     {
         #region Private Fields
 
-        private static readonly string NotInitializedErrorMessage = $"{nameof(MediaEngine)} not initialized";
-
         /// <summary>
         /// The initialize lock.
         /// </summary>
         private static readonly object InitLock = new object();
-
-        /// <summary>
-        /// The has initialized flag.
-        /// </summary>
-        private static bool IsInitialized;
 
         /// <summary>
         /// The ffmpeg directory.
@@ -53,11 +45,6 @@
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Gets the platform-specific implementation requirements.
-        /// </summary>
-        public static IPlatform Platform { get; private set; }
 
         /// <summary>
         /// Gets or sets the FFmpeg path from which to load the FFmpeg binaries.
@@ -112,9 +99,6 @@
             {
                 lock (InitLock)
                 {
-                    if (IsInitialized == false)
-                        throw new InvalidOperationException(NotInitializedErrorMessage);
-
                     return m_InputFormatNames ?? (m_InputFormatNames =
                         new ReadOnlyCollection<string>(FFInterop.RetrieveInputFormatNames()));
                 }
@@ -131,9 +115,6 @@
             {
                 lock (InitLock)
                 {
-                    if (IsInitialized == false)
-                        throw new InvalidOperationException(NotInitializedErrorMessage);
-
                     return m_GlobalInputFormatOptions ?? (m_GlobalInputFormatOptions =
                         new ReadOnlyCollection<OptionMetadata>(FFInterop.RetrieveGlobalFormatOptions().ToArray()));
                 }
@@ -150,9 +131,6 @@
             {
                 lock (InitLock)
                 {
-                    if (IsInitialized == false)
-                        throw new InvalidOperationException(NotInitializedErrorMessage);
-
                     if (m_InputFormatOptions != null)
                         return m_InputFormatOptions;
 
@@ -180,9 +158,6 @@
             {
                 lock (InitLock)
                 {
-                    if (IsInitialized == false)
-                        throw new InvalidOperationException(NotInitializedErrorMessage);
-
                     return m_DecoderNames ?? (m_DecoderNames =
                         new ReadOnlyCollection<string>(FFInterop.RetrieveDecoderNames(AllCodecs)));
                 }
@@ -199,9 +174,6 @@
             {
                 lock (InitLock)
                 {
-                    if (IsInitialized == false)
-                        throw new InvalidOperationException(NotInitializedErrorMessage);
-
                     return m_GlobalDecoderOptions ?? (m_GlobalDecoderOptions = new ReadOnlyCollection<OptionMetadata>(
                         FFInterop.RetrieveGlobalCodecOptions().Where(o => o.IsDecodingOption).ToArray()));
                 }
@@ -218,9 +190,6 @@
             {
                 lock (InitLock)
                 {
-                    if (IsInitialized == false)
-                        throw new InvalidOperationException(NotInitializedErrorMessage);
-
                     if (m_DecoderOptions != null)
                         return m_DecoderOptions;
 
@@ -251,9 +220,6 @@
             {
                 lock (InitLock)
                 {
-                    if (IsInitialized == false)
-                        throw new InvalidOperationException(NotInitializedErrorMessage);
-
                     return m_AllCodecs ?? (m_AllCodecs = FFInterop.RetrieveCodecs());
                 }
             }
@@ -262,22 +228,6 @@
         #endregion
 
         #region Methods
-
-        /// <summary>
-        /// Initializes the Media Element Core.
-        /// </summary>
-        /// <param name="platform">The platform-specific implementation.</param>
-        public static void Initialize(IPlatform platform)
-        {
-            lock (InitLock)
-            {
-                if (IsInitialized)
-                    return;
-
-                Platform = platform;
-                IsInitialized = true;
-            }
-        }
 
         /// <summary>
         /// Forces the pre-loading of the FFmpeg libraries according to the values of the
