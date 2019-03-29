@@ -129,8 +129,8 @@
         /// </summary>
         public static string FFmpegDirectory
         {
-            get => MediaEngine.FFmpegDirectory;
-            set => MediaEngine.FFmpegDirectory = value;
+            get => Library.FFmpegDirectory;
+            set => Library.FFmpegDirectory = value;
         }
 
         /// <summary>
@@ -140,15 +140,15 @@
         /// </summary>
         public static int FFmpegLoadModeFlags
         {
-            get => MediaEngine.FFmpegLoadModeFlags;
-            set => MediaEngine.FFmpegLoadModeFlags = value;
+            get => Library.FFmpegLoadModeFlags;
+            set => Library.FFmpegLoadModeFlags = value;
         }
 
         /// <summary>
         /// Gets the FFmpeg version information. Returns null
         /// when the libraries have not been loaded.
         /// </summary>
-        public static string FFmpegVersionInfo => MediaEngine.FFmpegVersionInfo;
+        public static string FFmpegVersionInfo => Library.FFmpegVersionInfo;
 
         /// <inheritdoc />
         ILoggingHandler ILoggingSource.LoggingHandler => this;

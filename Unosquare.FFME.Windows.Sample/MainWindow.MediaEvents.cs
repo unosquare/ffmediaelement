@@ -436,7 +436,7 @@
                 if (GuiContext.Current.IsInDebugMode == false || durationSeconds <= 0 || durationSeconds >= 60)
                     return null;
 
-                var seekIndex = Utilities.CreateVideoSeekIndex(mediaFilePath, streamIndex);
+                var seekIndex = Library.CreateVideoSeekIndex(mediaFilePath, streamIndex);
                 if (seekIndex.Entries.Count <= 0) return null;
 
                 using (var stream = File.OpenWrite(seekFilePath))

@@ -1,9 +1,7 @@
 ﻿namespace Unosquare.FFME.Media
 {
-    using Engine;
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
 
     /// <summary>
     /// Represents a set of options that are used to initialize a media container before opening the stream.
@@ -54,15 +52,5 @@
         /// </summary>
         public Dictionary<string, string> PrivateOptions { get; } =
             new Dictionary<string, string>(512, StringComparer.InvariantCultureIgnoreCase);
-
-        /// <summary>
-        /// Gets a list of global options for the demuxers. These options apply to all demuxers.
-        /// </summary>
-        public ReadOnlyCollection<OptionMetadata> GlobalOptionsMeta { get; } = MediaEngine.InputFormatOptionsGlobal;
-
-        /// <summary>
-        /// Retrieves a dictionary of private options available to each of the registered demuxers.
-        /// </summary>
-        public ReadOnlyDictionary<string, ReadOnlyCollection<OptionMetadata>> PrivateOptionsMeta { get; } = MediaEngine.InputFormatOptions;
     }
 }

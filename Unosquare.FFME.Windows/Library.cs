@@ -5,7 +5,7 @@
     using System;
     using System.Collections.Generic;
 
-    public static partial class Utilities
+    public static partial class Library
     {
         /// <summary>
         /// The default DirectSound device.

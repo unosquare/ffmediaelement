@@ -29,6 +29,5 @@
     <Compile Include="$(MSBuildThisFileDirectory)Platform\GuiTimer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Platform\MediaConnector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Platform\PropertyMapper.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Utilities.cs" />
   </ItemGroup>
 </Project>

@@ -256,6 +256,23 @@
         }
 
         /// <summary>
+        /// Retrieves the encoder names.
+        /// </summary>
+        /// <param name="allCodecs">All codecs.</param>
+        /// <returns>The collection of names.</returns>
+        public static unsafe List<string> RetrieveEncoderNames(AVCodec*[] allCodecs)
+        {
+            var codecNames = new List<string>(allCodecs.Length);
+            foreach (var c in allCodecs)
+            {
+                if (ffmpeg.av_codec_is_encoder(c) != 0)
+                    codecNames.Add(Utilities.PtrToStringUTF8(c->name));
+            }
+
+            return codecNames;
+        }
+
+        /// <summary>
         /// Retrieves the global format options.
         /// </summary>
         /// <returns>The collection of option infos.</returns>

@@ -1,7 +1,6 @@
-﻿namespace Unosquare.FFME.Engine
+﻿namespace Unosquare.FFME
 {
     using Container;
-    using Diagnostics;
     using FFmpeg.AutoGen;
     using Media;
     using System;
@@ -9,42 +8,23 @@
     using System.Collections.ObjectModel;
     using System.Linq;
 
-    internal partial class MediaEngine
+    /// <summary>
+    /// Provides access to the underlying FFmpeg library information.
+    /// </summary>
+    public static partial class Library
     {
-        #region Private Fields
-
-        /// <summary>
-        /// The initialize lock.
-        /// </summary>
+        private static readonly string NotInitializedErrorMessage = $"{nameof(FFmpeg)} library not initialized. Set the {nameof(FFmpegDirectory)} and call {nameof(LoadFFmpeg)}";
         private static readonly object InitLock = new object();
-
-        /// <summary>
-        /// The ffmpeg directory.
-        /// </summary>
         private static string m_FFmpegDirectory = Constants.FFmpegSearchPath;
-
-        /// <summary>
-        /// Stores the load mode flags.
-        /// </summary>
         private static int m_FFmpegLoadModeFlags = FFmpegLoadMode.FullFeatures;
-
         private static ReadOnlyCollection<string> m_InputFormatNames;
-
         private static ReadOnlyCollection<OptionMetadata> m_GlobalInputFormatOptions;
-
         private static ReadOnlyDictionary<string, ReadOnlyCollection<OptionMetadata>> m_InputFormatOptions;
-
         private static ReadOnlyCollection<string> m_DecoderNames;
-
+        private static ReadOnlyCollection<string> m_EncoderNames;
         private static ReadOnlyCollection<OptionMetadata> m_GlobalDecoderOptions;
-
         private static ReadOnlyDictionary<string, ReadOnlyCollection<OptionMetadata>> m_DecoderOptions;
-
         private static unsafe AVCodec*[] m_AllCodecs;
-
-        #endregion
-
-        #region Properties
 
         /// <summary>
         /// Gets or sets the FFmpeg path from which to load the FFmpeg binaries.
@@ -75,6 +55,7 @@
 
         /// <summary>
         /// Gets or sets the bitwise library identifiers to load.
+        /// See the <see cref="FFmpegLoadMode"/> constants.
         /// If FFmpeg is already loaded, the value cannot be changed.
         /// </summary>
         public static int FFmpegLoadModeFlags
@@ -90,15 +71,23 @@
         }
 
         /// <summary>
+        /// Gets a value indicating whether the FFmpeg library has been initialized.
+        /// </summary>
+        public static bool IsInitialized => FFInterop.IsInitialized;
+
+        /// <summary>
         /// Gets the registered FFmpeg input format names.
         /// </summary>
         /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized.</exception>
-        public static ReadOnlyCollection<string> InputFormatNames
+        public static IReadOnlyCollection<string> InputFormatNames
         {
             get
             {
                 lock (InitLock)
                 {
+                    if (!FFInterop.IsInitialized)
+                        throw new InvalidOperationException(NotInitializedErrorMessage);
+
                     return m_InputFormatNames ?? (m_InputFormatNames =
                         new ReadOnlyCollection<string>(FFInterop.RetrieveInputFormatNames()));
                 }
@@ -109,12 +98,15 @@
         /// Gets the global input format options information.
         /// </summary>
         /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized.</exception>
-        public static ReadOnlyCollection<OptionMetadata> InputFormatOptionsGlobal
+        public static IReadOnlyCollection<OptionMetadata> InputFormatOptionsGlobal
         {
             get
             {
                 lock (InitLock)
                 {
+                    if (!FFInterop.IsInitialized)
+                        throw new InvalidOperationException(NotInitializedErrorMessage);
+
                     return m_GlobalInputFormatOptions ?? (m_GlobalInputFormatOptions =
                         new ReadOnlyCollection<OptionMetadata>(FFInterop.RetrieveGlobalFormatOptions().ToArray()));
                 }
@@ -125,12 +117,15 @@
         /// Gets the input format options.
         /// </summary>
         /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized.</exception>
-        public static ReadOnlyDictionary<string, ReadOnlyCollection<OptionMetadata>> InputFormatOptions
+        public static IReadOnlyDictionary<string, ReadOnlyCollection<OptionMetadata>> InputFormatOptions
         {
             get
             {
                 lock (InitLock)
                 {
+                    if (!FFInterop.IsInitialized)
+                        throw new InvalidOperationException(NotInitializedErrorMessage);
+
                     if (m_InputFormatOptions != null)
                         return m_InputFormatOptions;
 
@@ -152,14 +147,36 @@
         /// Gets the registered FFmpeg decoder codec names.
         /// </summary>
         /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized.</exception>
-        public static unsafe ReadOnlyCollection<string> DecoderNames
+        public static unsafe IReadOnlyCollection<string> DecoderNames
         {
             get
             {
                 lock (InitLock)
                 {
+                    if (!FFInterop.IsInitialized)
+                        throw new InvalidOperationException(NotInitializedErrorMessage);
+
                     return m_DecoderNames ?? (m_DecoderNames =
                         new ReadOnlyCollection<string>(FFInterop.RetrieveDecoderNames(AllCodecs)));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the registered FFmpeg decoder codec names.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized.</exception>
+        public static unsafe IReadOnlyCollection<string> EncoderNames
+        {
+            get
+            {
+                lock (InitLock)
+                {
+                    if (!FFInterop.IsInitialized)
+                        throw new InvalidOperationException(NotInitializedErrorMessage);
+
+                    return m_EncoderNames ?? (m_EncoderNames =
+                        new ReadOnlyCollection<string>(FFInterop.RetrieveEncoderNames(AllCodecs)));
                 }
             }
         }
@@ -168,12 +185,15 @@
         /// Gets the global options that apply to all decoders.
         /// </summary>
         /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized.</exception>
-        public static ReadOnlyCollection<OptionMetadata> DecoderOptionsGlobal
+        public static IReadOnlyCollection<OptionMetadata> DecoderOptionsGlobal
         {
             get
             {
                 lock (InitLock)
                 {
+                    if (!FFInterop.IsInitialized)
+                        throw new InvalidOperationException(NotInitializedErrorMessage);
+
                     return m_GlobalDecoderOptions ?? (m_GlobalDecoderOptions = new ReadOnlyCollection<OptionMetadata>(
                         FFInterop.RetrieveGlobalCodecOptions().Where(o => o.IsDecodingOption).ToArray()));
                 }
@@ -184,12 +204,15 @@
         /// Gets the decoder specific options.
         /// </summary>
         /// <exception cref="InvalidOperationException">When the MediaEngine has not been initialized.</exception>
-        public static unsafe ReadOnlyDictionary<string, ReadOnlyCollection<OptionMetadata>> DecoderOptions
+        public static unsafe IReadOnlyDictionary<string, ReadOnlyCollection<OptionMetadata>> DecoderOptions
         {
             get
             {
                 lock (InitLock)
                 {
+                    if (!FFInterop.IsInitialized)
+                        throw new InvalidOperationException(NotInitializedErrorMessage);
+
                     if (m_DecoderOptions != null)
                         return m_DecoderOptions;
 
@@ -220,14 +243,13 @@
             {
                 lock (InitLock)
                 {
+                    if (!FFInterop.IsInitialized)
+                        throw new InvalidOperationException(NotInitializedErrorMessage);
+
                     return m_AllCodecs ?? (m_AllCodecs = FFInterop.RetrieveCodecs());
                 }
             }
         }
-
-        #endregion
-
-        #region Methods
 
         /// <summary>
         /// Forces the pre-loading of the FFmpeg libraries according to the values of the
@@ -317,61 +339,5 @@
 
             return result;
         }
-
-        /// <summary>
-        /// Reads all the blocks of the specified media type from the source url.
-        /// </summary>
-        /// <param name="mediaSource">The subtitles URL.</param>
-        /// <param name="sourceType">Type of the source.</param>
-        /// <param name="parent">The parent.</param>
-        /// <returns>A buffer containing all the blocks.</returns>
-        internal static MediaBlockBuffer LoadBlocks(string mediaSource, MediaType sourceType, ILoggingHandler parent)
-        {
-            if (string.IsNullOrWhiteSpace(mediaSource))
-                throw new ArgumentNullException(nameof(mediaSource));
-
-            using (var tempContainer = new MediaContainer(mediaSource, null, parent))
-            {
-                // Skip reading and decoding unused blocks
-                tempContainer.MediaOptions.IsAudioDisabled = sourceType != MediaType.Audio;
-                tempContainer.MediaOptions.IsVideoDisabled = sourceType != MediaType.Video;
-                tempContainer.MediaOptions.IsSubtitleDisabled = sourceType != MediaType.Subtitle;
-
-                // Open the container
-                tempContainer.Open();
-                if (tempContainer.Components.Main == null || tempContainer.Components.MainMediaType != sourceType)
-                    throw new MediaContainerException($"Could not find a stream of type '{sourceType}' to load blocks from");
-
-                // read all the packets and decode them
-                var outputFrames = new List<MediaFrame>(1024 * 8);
-                while (true)
-                {
-                    tempContainer.Read();
-                    var frames = tempContainer.Decode();
-                    foreach (var frame in frames)
-                    {
-                        if (frame.MediaType != sourceType)
-                            continue;
-
-                        outputFrames.Add(frame);
-                    }
-
-                    if (frames.Count <= 0 && tempContainer.IsAtEndOfStream)
-                        break;
-                }
-
-                // Build the result
-                var result = new MediaBlockBuffer(outputFrames.Count, sourceType);
-                foreach (var frame in outputFrames)
-                {
-                    result.Add(frame, tempContainer);
-                }
-
-                tempContainer.Close();
-                return result;
-            }
-        }
-
-        #endregion
     }
 }

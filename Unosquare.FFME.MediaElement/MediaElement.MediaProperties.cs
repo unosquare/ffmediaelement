@@ -3,7 +3,6 @@
     using Media;
     using System;
     using System.Collections.ObjectModel;
-    using System.Windows;
 
     public partial class MediaElement
     {
@@ -15,20 +14,17 @@
         /// <summary>
         /// Gets the Media's natural duration
         /// Only valid after the MediaOpened event has fired.
+        /// Returns null for undefined or negative duration
         /// </summary>
-        public Duration NaturalDuration
+        public TimeSpan? NaturalDuration
         {
             get
             {
                 var duration = MediaCore?.State.NaturalDuration;
 
-                return !duration.HasValue
-                  ? Duration.Automatic
-                  : (duration.Value == TimeSpan.MinValue
-                    ? Duration.Forever
-                    : (duration.Value < TimeSpan.Zero
-                    ? default
-                    : new Duration(duration.Value)));
+                return !duration.HasValue || duration.Value < TimeSpan.Zero
+                  ? default
+                  : duration.Value;
             }
         }
 
@@ -43,16 +39,16 @@
         public TimeSpan? PlaybackEndTime => MediaCore?.State.PlaybackEndTime;
 
         /// <summary>
-        /// Gets the remaining playback duration. Returns Forever for indeterminate values.
+        /// Gets the remaining playback duration. Returns null for indeterminate values.
         /// </summary>
-        public Duration RemainingDuration
+        public TimeSpan? RemainingDuration
         {
             get
             {
-                if (PlaybackEndTime.HasValue == false || IsSeekable == false) return Duration.Forever;
-                return PlaybackEndTime.Value.Ticks < Position.Ticks ?
-                    new Duration(TimeSpan.Zero) :
-                    new Duration(TimeSpan.FromTicks(PlaybackEndTime.Value.Ticks - Position.Ticks));
+                if (PlaybackEndTime.HasValue == false || IsSeekable == false) return default;
+                return PlaybackEndTime.Value.Ticks < Position.Ticks
+                    ? TimeSpan.Zero
+                    : TimeSpan.FromTicks(PlaybackEndTime.Value.Ticks - Position.Ticks);
             }
         }
 

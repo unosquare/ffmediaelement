@@ -84,7 +84,7 @@
 
         /// <summary>
         /// Gets or sets the video seek index.
-        /// Use <see cref="Utilities.CreateVideoSeekIndex"/> and set this
+        /// Use <see cref="Library.CreateVideoSeekIndex"/> and set this
         /// field while loading the options.
         /// </summary>
         public VideoSeekIndex VideoSeekIndex { get; set; }

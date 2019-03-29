@@ -252,11 +252,11 @@
                 State.UpdateSource(source);
 
                 // Register FFmpeg libraries if not already done
-                if (MediaEngine.LoadFFmpeg())
+                if (Library.LoadFFmpeg())
                 {
                     // Log an init message
                     this.LogInfo(Aspects.EngineCommand,
-                        $"{nameof(FFInterop)}.{nameof(FFInterop.Initialize)}: FFmpeg v{MediaEngine.FFmpegVersionInfo}");
+                        $"{nameof(FFInterop)}.{nameof(FFInterop.Initialize)}: FFmpeg v{Library.FFmpegVersionInfo}");
                 }
 
                 // Create a default stream container configuration object
@@ -550,7 +550,7 @@
 
             try
             {
-                MediaCore.PreloadedSubtitles = MediaEngine.LoadBlocks(subtitlesUrl, MediaType.Subtitle, MediaCore);
+                MediaCore.PreloadedSubtitles = Utilities.LoadBlocks(subtitlesUrl, MediaType.Subtitle, MediaCore);
 
                 // Process and adjust subtitle delays if necessary
                 if (MediaCore.MediaOptions.SubtitlesDelay != TimeSpan.Zero)

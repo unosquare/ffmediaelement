@@ -15,13 +15,13 @@
         /// Gets or sets the DirectSound device identifier. It is the default playback device by default.
         /// Only valid if <see cref="UseLegacyAudioOut"/> is set to false which is the default.
         /// </summary>
-        public DirectSoundDeviceInfo DirectSoundDevice { get; set; } = Utilities.DefaultDirectSoundDevice;
+        public DirectSoundDeviceInfo DirectSoundDevice { get; set; } = Library.DefaultDirectSoundDevice;
 
         /// <summary>
         /// Gets or sets the wave device identifier. -1 is the default playback device.
         /// Only valid if <see cref="UseLegacyAudioOut"/> is set to true.
         /// </summary>
-        public LegacyAudioDeviceInfo LegacyAudioDevice { get; set; } = Utilities.DefaultLegacyAudioDevice;
+        public LegacyAudioDeviceInfo LegacyAudioDevice { get; set; } = Library.DefaultLegacyAudioDevice;
 
         /// <summary>
         /// Gets or sets a value indicating whether the legacy MME (WinMM) should be used

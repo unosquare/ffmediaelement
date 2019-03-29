@@ -76,7 +76,7 @@
                 try
                 {
                     // Force loading
-                    Utilities.LoadFFmpeg();
+                    Library.LoadFFmpeg();
                 }
                 catch(Exception ex)
                 {

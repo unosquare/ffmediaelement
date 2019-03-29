@@ -28,6 +28,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)FFmpeg\FFInterop.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FFmpeg\FFLibrary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Diagnostics\RC.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Library.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistEntry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistEntryAttributeDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Playlists\PlaylistEntryCollection.cs" />
@@ -81,7 +82,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Engine\MediaEngine.Connector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Engine\MediaEngine.Controller.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Engine\MediaEngine.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Engine\MediaEngine.Static.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Engine\MediaEngine.Workers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\AtomicBoolean.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Primitives\AtomicDateTime.cs" />
@@ -114,6 +114,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Engine\MediaWorkerType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Engine\PacketReadingWorker.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Engine\TimingController.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities.Audio.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities.Time.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities.Media.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Diagnostics\" />
